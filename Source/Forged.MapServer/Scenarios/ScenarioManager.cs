@@ -17,14 +17,13 @@ namespace Forged.MapServer.Scenarios;
 
 public class ScenarioManager
 {
-    private readonly WorldDatabase _worldDatabase;
+    private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly CriteriaManager _criteriaManager;
-    private readonly CliDB _cliDB;
     private readonly Dictionary<uint, ScenarioData> _scenarioData = new();
-    private readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
     private readonly Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
-
+    private readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
+    private readonly WorldDatabase _worldDatabase;
     public ScenarioManager(WorldDatabase worldDatabase, IConfiguration configuration, CriteriaManager criteriaManager, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;
@@ -68,6 +67,49 @@ public class ScenarioManager
         }
 
         return new InstanceScenario(map, scenarioData);
+    }
+
+    public List<ScenarioPOI> GetScenarioPoIs(uint criteriaTreeID)
+    {
+        if (!_scenarioPOIStore.ContainsKey(criteriaTreeID))
+            return null;
+
+        return _scenarioPOIStore[criteriaTreeID];
+    }
+
+    public void LoadDB2Data()
+    {
+        _scenarioData.Clear();
+
+        Dictionary<uint, Dictionary<byte, ScenarioStepRecord>> scenarioSteps = new();
+        uint deepestCriteriaTreeSize = 0;
+
+        foreach (var step in _cliDB.ScenarioStepStorage.Values)
+        {
+            if (!scenarioSteps.ContainsKey(step.ScenarioID))
+                scenarioSteps[step.ScenarioID] = new Dictionary<byte, ScenarioStepRecord>();
+
+            scenarioSteps[step.ScenarioID][step.OrderIndex] = step;
+            var tree = _criteriaManager.GetCriteriaTree(step.CriteriaTreeId);
+
+            if (tree != null)
+            {
+                uint criteriaTreeSize = 0;
+                CriteriaManager.WalkCriteriaTree(tree, _ => { ++criteriaTreeSize; });
+                deepestCriteriaTreeSize = Math.Max(deepestCriteriaTreeSize, criteriaTreeSize);
+            }
+        }
+
+        foreach (var scenario in _cliDB.ScenarioStorage.Values)
+        {
+            ScenarioData data = new()
+            {
+                Entry = scenario,
+                Steps = scenarioSteps.LookupByKey(scenario.Id)
+            };
+
+            _scenarioData[scenario.Id] = data;
+        }
     }
 
     public void LoadDBData()
@@ -124,42 +166,6 @@ public class ScenarioManager
 
         Log.Logger.Information("Loaded {0} instance scenario entries in {1} ms", _scenarioDBData.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
-
-    public void LoadDB2Data()
-    {
-        _scenarioData.Clear();
-
-        Dictionary<uint, Dictionary<byte, ScenarioStepRecord>> scenarioSteps = new();
-        uint deepestCriteriaTreeSize = 0;
-
-        foreach (var step in _cliDB.ScenarioStepStorage.Values)
-        {
-            if (!scenarioSteps.ContainsKey(step.ScenarioID))
-                scenarioSteps[step.ScenarioID] = new Dictionary<byte, ScenarioStepRecord>();
-
-            scenarioSteps[step.ScenarioID][step.OrderIndex] = step;
-            var tree = _criteriaManager.GetCriteriaTree(step.CriteriaTreeId);
-
-            if (tree != null)
-            {
-                uint criteriaTreeSize = 0;
-                CriteriaManager.WalkCriteriaTree(tree, _ => { ++criteriaTreeSize; });
-                deepestCriteriaTreeSize = Math.Max(deepestCriteriaTreeSize, criteriaTreeSize);
-            }
-        }
-
-        foreach (var scenario in _cliDB.ScenarioStorage.Values)
-        {
-            ScenarioData data = new()
-            {
-                Entry = scenario,
-                Steps = scenarioSteps.LookupByKey(scenario.Id)
-            };
-
-            _scenarioData[scenario.Id] = data;
-        }
-    }
-
     public void LoadScenarioPOI()
     {
         var oldMSTime = Time.MSTime;
@@ -236,13 +242,5 @@ public class ScenarioManager
         } while (result.NextRow());
 
         Log.Logger.Information($"Loaded {count} scenario POI definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-    }
-
-    public List<ScenarioPOI> GetScenarioPoIs(uint criteriaTreeID)
-    {
-        if (!_scenarioPOIStore.ContainsKey(criteriaTreeID))
-            return null;
-
-        return _scenarioPOIStore[criteriaTreeID];
     }
 }

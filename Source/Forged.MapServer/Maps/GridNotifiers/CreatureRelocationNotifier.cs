@@ -13,14 +13,13 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
 {
     private readonly Creature _creature;
 
-    public GridType GridType { get; set; }
-
     public CreatureRelocationNotifier(Creature c, GridType gridType)
     {
         _creature = c;
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
         if (!_creature.IsAlive)

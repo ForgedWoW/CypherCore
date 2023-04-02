@@ -7,12 +7,17 @@ namespace Forged.MapServer.Combat;
 
 public class PvPCombatReference : CombatReference
 {
-    public static uint PVP_COMBAT_TIMEOUT = 5 * Time.InMilliseconds;
+    public static uint PVP_COMBAT_TIMEOUT = 5 * Time.IN_MILLISECONDS;
 
     private uint _combatTimer = PVP_COMBAT_TIMEOUT;
 
 
     public PvPCombatReference(Unit first, Unit second) : base(first, second, true) { }
+
+    public void RefreshTimer()
+    {
+        _combatTimer = PVP_COMBAT_TIMEOUT;
+    }
 
     public bool Update(uint tdiff)
     {
@@ -22,10 +27,5 @@ public class PvPCombatReference : CombatReference
         _combatTimer -= tdiff;
 
         return true;
-    }
-
-    public void RefreshTimer()
-    {
-        _combatTimer = PVP_COMBAT_TIMEOUT;
     }
 }

@@ -33,9 +33,9 @@ internal class UpdateTalentData : ServerPacket
 
     public class TalentGroupInfo
     {
+        public List<PvPTalent> PvPTalents = new();
         public uint SpecID;
         public List<ushort> TalentIDs = new();
-        public List<PvPTalent> PvPTalents = new();
     }
 
     public class TalentInfoUpdate

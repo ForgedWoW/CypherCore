@@ -5,11 +5,11 @@ namespace Forged.MapServer.DataStorage.Structs.R;
 
 public sealed class RewardPackRecord
 {
-    public uint Id;
-    public ushort CharTitleID;
-    public uint Money;
+    public byte ArtifactXPCategoryID;
     public byte ArtifactXPDifficulty;
     public float ArtifactXPMultiplier;
-    public byte ArtifactXPCategoryID;
+    public ushort CharTitleID;
+    public uint Id;
+    public uint Money;
     public uint TreasurePickerID;
 }

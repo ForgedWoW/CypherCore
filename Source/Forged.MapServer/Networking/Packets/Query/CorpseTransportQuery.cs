@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class CorpseTransportQuery : ServerPacket
 {
+    public float Facing;
     public ObjectGuid Player;
     public Vector3 Position;
-    public float Facing;
     public CorpseTransportQuery() : base(ServerOpcodes.CorpseTransportQuery) { }
 
     public override void Write()

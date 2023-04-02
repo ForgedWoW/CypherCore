@@ -20,18 +20,6 @@ internal class InstanceScriptDataWriter
         _instance = instance;
     }
 
-    public string GetString()
-    {
-        using var stream = new MemoryStream();
-
-        using (var writer = new Utf8JsonWriter(stream))
-        {
-            _doc.WriteTo(writer);
-        }
-
-        return Encoding.UTF8.GetString(stream.ToArray());
-    }
-
     public void FillData(bool withValues = true)
     {
         _doc.Add("Header", _instance.GetHeader());
@@ -78,12 +66,17 @@ internal class InstanceScriptDataWriter
         }
     }
 
-    public void SetBossState(UpdateBossStateSaveDataEvent data)
+    public string GetString()
     {
-        var array = _doc["BossStates"].AsArray();
-        array[(int)data.BossId] = (int)data.NewState;
-    }
+        using var stream = new MemoryStream();
 
+        using (var writer = new Utf8JsonWriter(stream))
+        {
+            _doc.WriteTo(writer);
+        }
+
+        return Encoding.UTF8.GetString(stream.ToArray());
+    }
     public void SetAdditionalData(UpdateAdditionalSaveDataEvent data)
     {
         var jObject = _doc["AdditionalData"].AsObject();
@@ -92,5 +85,11 @@ internal class InstanceScriptDataWriter
             jObject[data.Key] = (double)data.Value;
         else
             jObject[data.Key] = (long)data.Value;
+    }
+
+    public void SetBossState(UpdateBossStateSaveDataEvent data)
+    {
+        var array = _doc["BossStates"].AsArray();
+        array[(int)data.BossId] = (int)data.NewState;
     }
 }

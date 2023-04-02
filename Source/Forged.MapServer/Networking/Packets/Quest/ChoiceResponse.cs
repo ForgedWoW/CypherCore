@@ -6,8 +6,8 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 internal class ChoiceResponse : ClientPacket
 {
     public int ChoiceID;
-    public int ResponseIdentifier;
     public bool IsReroll;
+    public int ResponseIdentifier;
     public ChoiceResponse(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -7,14 +7,14 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class VendorItemCount
 {
-    public uint ItemId { get; set; }
-    public uint Count { get; set; }
-    public long LastIncrementTime { get; set; }
-
     public VendorItemCount(uint item, uint count)
     {
         ItemId = item;
         Count = count;
-        LastIncrementTime = GameTime.GetGameTime();
+        LastIncrementTime = GameTime.CurrentTime;
     }
+
+    public uint Count { get; set; }
+    public uint ItemId { get; set; }
+    public long LastIncrementTime { get; set; }
 }

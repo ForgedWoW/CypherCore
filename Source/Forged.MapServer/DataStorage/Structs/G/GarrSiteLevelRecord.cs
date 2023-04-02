@@ -7,14 +7,14 @@ namespace Forged.MapServer.DataStorage.Structs.G;
 
 public sealed class GarrSiteLevelRecord
 {
-    public uint Id;
-    public Vector2 TownHallUiPos;
-    public uint GarrSiteID;
     public byte GarrLevel;
+    public uint GarrSiteID;
+    public uint Id;
     public ushort MapID;
-    public ushort UpgradeMovieID;
-    public ushort UiTextureKitID;
     public byte MaxBuildingLevel;
+    public Vector2 TownHallUiPos;
+    public ushort UiTextureKitID;
     public ushort UpgradeCost;
     public ushort UpgradeGoldCost;
+    public ushort UpgradeMovieID;
 }

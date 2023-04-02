@@ -11,8 +11,8 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 internal class SpellExecuteLog : CombatLogServerPacket
 {
     public ObjectGuid Caster;
-    public uint SpellID;
     public List<SpellLogEffect> Effects = new();
+    public uint SpellID;
     public SpellExecuteLog() : base(ServerOpcodes.SpellExecuteLog, ConnectionType.Instance) { }
 
     public override void Write()

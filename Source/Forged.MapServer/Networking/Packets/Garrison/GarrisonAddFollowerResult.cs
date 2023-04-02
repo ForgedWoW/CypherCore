@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonAddFollowerResult : ServerPacket
 {
-    public GarrisonType GarrTypeID;
     public GarrisonFollower Follower;
+    public GarrisonType GarrTypeID;
     public GarrisonError Result;
     public GarrisonAddFollowerResult() : base(ServerOpcodes.GarrisonAddFollowerResult, ConnectionType.Instance) { }
 

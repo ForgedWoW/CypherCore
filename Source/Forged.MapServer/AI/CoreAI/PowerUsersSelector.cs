@@ -9,11 +9,10 @@ namespace Forged.MapServer.AI.CoreAI;
 
 internal class PowerUsersSelector : ICheck<Unit>
 {
-    private readonly Unit _me;
-    private readonly PowerType _power;
     private readonly float _dist;
+    private readonly Unit _me;
     private readonly bool _playerOnly;
-
+    private readonly PowerType _power;
     public PowerUsersSelector(Unit unit, PowerType power, float dist, bool playerOnly)
     {
         _me = unit;

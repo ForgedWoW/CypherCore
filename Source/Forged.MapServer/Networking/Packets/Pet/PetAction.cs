@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetAction : ClientPacket
 {
-    public ObjectGuid PetGUID;
     public uint Action;
-    public ObjectGuid TargetGUID;
     public Vector3 ActionPosition;
+    public ObjectGuid PetGUID;
+    public ObjectGuid TargetGUID;
     public PetAction(WorldPacket packet) : base(packet) { }
 
     public override void Read()

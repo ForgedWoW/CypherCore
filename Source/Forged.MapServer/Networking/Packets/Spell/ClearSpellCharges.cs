@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ClearSpellCharges : ServerPacket
 {
-    public bool IsPet;
     public uint Category;
+    public bool IsPet;
     public ClearSpellCharges() : base(ServerOpcodes.ClearSpellCharges, ConnectionType.Instance) { }
 
     public override void Write()

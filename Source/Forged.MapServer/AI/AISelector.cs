@@ -105,6 +105,21 @@ public class AISelector
         return new NullCreatureAI(creature);
     }
 
+    public static GameObjectAI SelectGameObjectAI(GameObject go)
+    {
+        // scriptname in db
+        var scriptedAI = Global.ScriptMgr.RunScriptRet<IGameObjectGetAI, GameObjectAI>(p => p.GetAI(go), go.ScriptId);
+
+        if (scriptedAI != null)
+            return scriptedAI;
+
+        return go.AiName switch
+        {
+            "SmartGameObjectAI" => new SmartGameObjectAI(go),
+            _ => new GameObjectAI(go),
+        };
+    }
+
     public static MovementGenerator SelectMovementGenerator(Unit unit)
     {
         var type = unit.GetDefaultMovementType();
@@ -119,21 +134,6 @@ public class AISelector
             MovementGeneratorType.Waypoint => new WaypointMovementGenerator(),
             MovementGeneratorType.Idle     => new IdleMovementGenerator(),
             _                              => null,
-        };
-    }
-
-    public static GameObjectAI SelectGameObjectAI(GameObject go)
-    {
-        // scriptname in db
-        var scriptedAI = Global.ScriptMgr.RunScriptRet<IGameObjectGetAI, GameObjectAI>(p => p.GetAI(go), go.ScriptId);
-
-        if (scriptedAI != null)
-            return scriptedAI;
-
-        return go.AiName switch
-        {
-            "SmartGameObjectAI" => new SmartGameObjectAI(go),
-            _                   => new GameObjectAI(go),
         };
     }
 }

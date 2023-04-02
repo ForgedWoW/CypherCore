@@ -35,7 +35,7 @@ public class PacketLog
             writer.Write(Global.WorldMgr.Realm.Build);
             writer.Write(Encoding.ASCII.GetBytes("enUS"));
             writer.Write(new byte[40]); //SessionKey
-            writer.Write((uint)GameTime.GetGameTime());
+            writer.Write((uint)GameTime.CurrentTime);
             writer.Write(Time.MSTime);
             writer.Write(0);
         }
@@ -82,6 +82,11 @@ public class PacketLog
         });
     }
 
+    public static bool CanLog()
+    {
+        return !string.IsNullOrEmpty(FullPath);
+    }
+
     public static void Write(byte[] data, uint opcode, IPEndPoint endPoint, ConnectionType connectionType, bool isClientPacket)
     {
         if (!CanLog())
@@ -89,10 +94,5 @@ public class PacketLog
 
         PacketQueue.Enqueue((data, opcode, endPoint, connectionType, isClientPacket));
         QueueSemaphore.Set();
-    }
-
-    public static bool CanLog()
-    {
-        return !string.IsNullOrEmpty(FullPath);
     }
 }

@@ -9,42 +9,20 @@ using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 
+internal struct BladeEdgeObjectTypes
+{
+    public const int Buff1 = 4;
+    public const int Buff2 = 5;
+    public const int Door1 = 0;
+    public const int Door2 = 1;
+    public const int Door3 = 2;
+    public const int Door4 = 3;
+    public const int Max = 6;
+}
+
 public class BladesEdgeArena : Arena
 {
     public BladesEdgeArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate) { }
-
-    public override void PostUpdateImpl(uint diff)
-    {
-        if (GetStatus() != BattlegroundStatus.InProgress)
-            return;
-
-        taskScheduler.Update(diff);
-    }
-
-    public override void StartingEventCloseDoors()
-    {
-        for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door4; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
-
-        for (var i = BladeEdgeObjectTypes.Buff1; i <= BladeEdgeObjectTypes.Buff2; ++i)
-            SpawnBGObject(i, BattlegroundConst.RespawnOneDay);
-    }
-
-    public override void StartingEventOpenDoors()
-    {
-        for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door4; ++i)
-            DoorOpen(i);
-
-        taskScheduler.Schedule(TimeSpan.FromSeconds(5),
-                               task =>
-                               {
-                                   for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door2; ++i)
-                                       DelObject(i);
-                               });
-
-        for (var i = BladeEdgeObjectTypes.Buff1; i <= BladeEdgeObjectTypes.Buff2; ++i)
-            SpawnBGObject(i, 60);
-    }
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
     {
@@ -61,6 +39,14 @@ public class BladesEdgeArena : Arena
 
                 break;
         }
+    }
+
+    public override void PostUpdateImpl(uint diff)
+    {
+        if (GetStatus() != BattlegroundStatus.InProgress)
+            return;
+
+        taskScheduler.Update(diff);
     }
 
     public override bool SetupBattleground()
@@ -90,25 +76,38 @@ public class BladesEdgeArena : Arena
 
         return true;
     }
-}
 
-internal struct BladeEdgeObjectTypes
-{
-    public const int Door1 = 0;
-    public const int Door2 = 1;
-    public const int Door3 = 2;
-    public const int Door4 = 3;
-    public const int Buff1 = 4;
-    public const int Buff2 = 5;
-    public const int Max = 6;
-}
+    public override void StartingEventCloseDoors()
+    {
+        for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door4; ++i)
+            SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
 
+        for (var i = BladeEdgeObjectTypes.Buff1; i <= BladeEdgeObjectTypes.Buff2; ++i)
+            SpawnBGObject(i, BattlegroundConst.RespawnOneDay);
+    }
+
+    public override void StartingEventOpenDoors()
+    {
+        for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door4; ++i)
+            DoorOpen(i);
+
+        taskScheduler.Schedule(TimeSpan.FromSeconds(5),
+                               task =>
+                               {
+                                   for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door2; ++i)
+                                       DelObject(i);
+                               });
+
+        for (var i = BladeEdgeObjectTypes.Buff1; i <= BladeEdgeObjectTypes.Buff2; ++i)
+            SpawnBGObject(i, 60);
+    }
+}
 internal struct BladeEfgeGameObjects
 {
+    public const uint Buff1 = 184663;
+    public const uint Buff2 = 184664;
     public const uint Door1 = 183971;
     public const uint Door2 = 183973;
     public const uint Door3 = 183970;
     public const uint Door4 = 183972;
-    public const uint Buff1 = 184663;
-    public const uint Buff2 = 184664;
 }

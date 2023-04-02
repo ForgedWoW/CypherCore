@@ -10,14 +10,18 @@ namespace Forged.MapServer.Weather;
 
 public class WeatherManager
 {
-    private readonly WorldDatabase _worldDatabase;
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, WeatherData> _weatherData = new();
-
+    private readonly WorldDatabase _worldDatabase;
     public WeatherManager(WorldDatabase worldDatabase, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
+    }
+
+    public WeatherData GetWeatherData(uint zoneId)
+    {
+        return _weatherData.LookupByKey(zoneId);
     }
 
     public void LoadWeatherData()
@@ -74,10 +78,5 @@ public class WeatherManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} weather definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public WeatherData GetWeatherData(uint zoneId)
-    {
-        return _weatherData.LookupByKey(zoneId);
     }
 }

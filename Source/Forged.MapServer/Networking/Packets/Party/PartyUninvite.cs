@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 internal class PartyUninvite : ClientPacket
 {
     public byte PartyIndex;
-    public ObjectGuid TargetGUID;
     public string Reason;
+    public ObjectGuid TargetGUID;
     public PartyUninvite(WorldPacket packet) : base(packet) { }
 
     public override void Read()

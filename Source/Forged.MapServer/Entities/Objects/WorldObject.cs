@@ -45,177 +45,12 @@ namespace Forged.MapServer.Entities.Objects;
 public abstract class WorldObject : IDisposable
 {
     protected CreateObjectBits UpdateFlag;
-    protected TypeId ObjectTypeId { get; set; }
 
     private bool _isNewObject;
-    private bool _objectUpdated;
     private string _name;
-    private ObjectGuid _privateObjectOwner;
     private NotifyFlags _notifyFlags;
-
-    public virtual float ObjectScale
-    {
-        get => ObjectData.Scale;
-        set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.Scale), value);
-    }
-    public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
-    public virtual ushort AIAnimKitId => 0;
-    public virtual ushort MovementAnimKitId => 0;
-    public virtual ushort MeleeAnimKitId => 0;
-    public virtual ObjectGuid OwnerGUID => default;
-    public virtual ObjectGuid CharmerOrOwnerGUID => OwnerGUID;
-    public virtual uint Faction { get; set; }
-    public virtual Unit OwnerUnit => ObjectAccessor.GetUnit(this, OwnerGUID);
-    public virtual Unit CharmerOrOwner
-    {
-        get
-        {
-            var unit = AsUnit;
-
-            if (unit != null)
-                return unit.CharmerOrOwner;
-
-            var go = AsGameObject;
-
-            return go?.OwnerUnit;
-        }
-    }
-
-    public ObjectGuid GUID { get; private set; }
-    public uint LastUsedScriptID { get; set; }
-    public bool IsActive { get; private set; }
-    public SpellFactory SpellFactory { get; }
-    public VariableStore VariableStorage { get; } = new();
-    public TypeMask ObjectTypeMask { get; set; }
-    public UpdateFieldHolder Values { get; set; }
-    public ObjectFieldData ObjectData { get; set; }
-    public EventSystem Events { get; set; } = new();
-    public MovementInfo MovementInfo { get; set; }
-    public ZoneScript ZoneScript { get; set; }
-    public uint InstanceId { get; set; }
-    public WorldLocation Location { get; set; }
-    public bool IsDestroyedObject { get; private set; }
-    public bool IsPrivateObject => !_privateObjectOwner.IsEmpty;
-    public Scenario Scenario => !Location.IsInWorld ? null : Location.Map.ToInstanceMap?.InstanceScenario;
-    public TypeId TypeId => ObjectTypeId;
-    public bool IsCreature => ObjectTypeId == TypeId.Unit;
-    public bool IsPlayer => ObjectTypeId == TypeId.Player;
-    public bool IsGameObject => ObjectTypeId == TypeId.GameObject;
-    public bool IsItem => ObjectTypeId == TypeId.Item;
-    public bool IsUnit => IsTypeMask(TypeMask.Unit);
-    public bool IsCorpse => ObjectTypeId == TypeId.Corpse;
-    public bool IsDynObject => ObjectTypeId == TypeId.DynamicObject;
-    public bool IsAreaTrigger => ObjectTypeId == TypeId.AreaTrigger;
-    public bool IsPermanentWorldObject { get; }
-    public ClassFactory ClassFactory { get; }
-    public VMapManager VMapManager { get; }
-    public SpellManager SpellManager { get; }
-    public GameObjectManager ObjectManager { get; }
-    public ConditionManager ConditionManager { get; }
-    public ObjectAccessor ObjectAccessor { get; }
-    public IConfiguration Configuration { get; }
-    public CliDB CliDB { get; }
-    public OutdoorPvPManager OutdoorPvPManager { get; }
-    public BattleFieldManager BattleFieldManager { get; }
-    public WorldObjectCombat WorldObjectCombat { get; }
-    public WorldObjectVisibility Visibility { get; }
-    public ITransport Transport { get; set; }
-    public Creature AsCreature => this as Creature;
-    public Player AsPlayer => this as Player;
-    public GameObject AsGameObject => this as GameObject;
-    public Item AsItem => this as Item;
-    public Unit AsUnit => this as Unit;
-    public Corpse AsCorpse => this as Corpse;
-    public DynamicObject AsDynamicObject => this as DynamicObject;
-    public AreaTrigger AsAreaTrigger => this as AreaTrigger;
-    public Conversation AsConversation => this as Conversation;
-    public SceneObject AsSceneObject => this as SceneObject;
-    public Unit CharmerOrOwnerOrSelf => CharmerOrOwner ?? AsUnit;
-    public Player CharmerOrOwnerPlayerOrPlayerItself => CharmerOrOwnerGUID.IsPlayer ? ObjectAccessor.GetPlayer(this, CharmerOrOwnerGUID) : AsPlayer;
-    public Player AffectingPlayer => CharmerOrOwnerGUID.IsEmpty ? AsPlayer : CharmerOrOwner?.CharmerOrOwnerPlayerOrPlayerItself;
-
-    public bool IsInWorldPvpZone
-    {
-        get
-        {
-            switch (Location.Zone)
-            {
-                case 4197: // Wintergrasp
-                case 5095: // Tol Barad
-                case 6941: // Ashran
-                    return true;
-                default:
-                    return false;
-            }
-        }
-    }
-
-    public float GridActivationRange
-    {
-        get
-        {
-            if (!IsActive)
-                return AsCreature?.SightDistance ?? 0.0f;
-
-            if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic())
-                return Math.Max(SharedConst.DefaultVisibilityInstance, Location.Map.VisibilityRange);
-
-            return Location.Map.VisibilityRange;
-        }
-    }
-
-    public Player SpellModOwner
-    {
-        get
-        {
-            var player = AsPlayer;
-
-            if (player != null)
-                return player;
-
-            if (IsCreature)
-            {
-                var creature = AsCreature;
-
-                if (!creature.IsPet && !creature.IsTotem)
-                    return null;
-
-                var owner = creature.OwnerUnit;
-
-                if (owner != null)
-                    return owner.AsPlayer;
-            }
-            else if (IsGameObject)
-            {
-                return AsPlayer;
-            }
-
-            return null;
-        }
-    }
-
-    public ObjectGuid CharmerOrOwnerOrOwnGUID
-    {
-        get
-        {
-            var guid = CharmerOrOwnerGUID;
-
-            return !guid.IsEmpty ? guid : GUID;
-        }
-    }
-
-    public ObjectGuid PrivateObjectOwner
-    {
-        get => _privateObjectOwner;
-        set => _privateObjectOwner = value;
-    }
-
-    public uint Entry
-    {
-        get => ObjectData.EntryId;
-        set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.EntryId), value);
-    }
-
+    private bool _objectUpdated;
+    private ObjectGuid _privateObjectOwner;
     public WorldObject(bool isWorldObject, ClassFactory classFactory)
     {
         SpellFactory = classFactory.Resolve<SpellFactory>(new PositionalParameter(0, this));
@@ -247,39 +82,202 @@ public abstract class WorldObject : IDisposable
         Visibility = new WorldObjectVisibility(this);
     }
 
-    public virtual void Dispose()
+    public Player AffectingPlayer => CharmerOrOwnerGUID.IsEmpty ? AsPlayer : CharmerOrOwner?.CharmerOrOwnerPlayerOrPlayerItself;
+    public virtual ushort AIAnimKitId => 0;
+    public AreaTrigger AsAreaTrigger => this as AreaTrigger;
+    public Conversation AsConversation => this as Conversation;
+    public Corpse AsCorpse => this as Corpse;
+    public Creature AsCreature => this as Creature;
+    public DynamicObject AsDynamicObject => this as DynamicObject;
+    public GameObject AsGameObject => this as GameObject;
+    public Item AsItem => this as Item;
+    public Player AsPlayer => this as Player;
+    public SceneObject AsSceneObject => this as SceneObject;
+    public Unit AsUnit => this as Unit;
+    public BattleFieldManager BattleFieldManager { get; }
+    public virtual Unit CharmerOrOwner
     {
-        // this may happen because there are many !create/delete
-        if (IsWorldObject() && Location.Map)
+        get
         {
-            if (IsTypeId(TypeId.Corpse))
-                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
-            else
-                Location.ResetMap();
+            var unit = AsUnit;
+
+            if (unit != null)
+                return unit.CharmerOrOwner;
+
+            var go = AsGameObject;
+
+            return go?.OwnerUnit;
         }
-
-        if (Location.IsInWorld)
-        {
-            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
-
-            if (IsTypeMask(TypeMask.Item))
-                Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
-        }
-
-        if (_objectUpdated)
-            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
     }
 
-    public void CheckAddToMap()
+    public virtual ObjectGuid CharmerOrOwnerGUID => OwnerGUID;
+    public ObjectGuid CharmerOrOwnerOrOwnGUID
     {
-        if (IsWorldObject())
-            Location.Map.AddWorldObject(this);
+        get
+        {
+            var guid = CharmerOrOwnerGUID;
+
+            return !guid.IsEmpty ? guid : GUID;
+        }
     }
 
-    public void Create(ObjectGuid guid)
+    public Unit CharmerOrOwnerOrSelf => CharmerOrOwner ?? AsUnit;
+    public Player CharmerOrOwnerPlayerOrPlayerItself => CharmerOrOwnerGUID.IsPlayer ? ObjectAccessor.GetPlayer(this, CharmerOrOwnerGUID) : AsPlayer;
+    public ClassFactory ClassFactory { get; }
+    public CliDB CliDB { get; }
+    public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
+    public ConditionManager ConditionManager { get; }
+    public IConfiguration Configuration { get; }
+    public uint Entry
     {
-        _objectUpdated = false;
-        GUID = guid;
+        get => ObjectData.EntryId;
+        set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.EntryId), value);
+    }
+
+    public EventSystem Events { get; set; } = new();
+    public virtual uint Faction { get; set; }
+    public float GridActivationRange
+    {
+        get
+        {
+            if (!IsActive)
+                return AsCreature?.SightDistance ?? 0.0f;
+
+            if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic())
+                return Math.Max(SharedConst.DefaultVisibilityInstance, Location.Map.VisibilityRange);
+
+            return Location.Map.VisibilityRange;
+        }
+    }
+
+    public ObjectGuid GUID { get; private set; }
+    public uint InstanceId { get; set; }
+    public bool IsActive { get; private set; }
+    public bool IsAreaTrigger => ObjectTypeId == TypeId.AreaTrigger;
+    public bool IsCorpse => ObjectTypeId == TypeId.Corpse;
+    public bool IsCreature => ObjectTypeId == TypeId.Unit;
+    public bool IsDestroyedObject { get; private set; }
+    public bool IsDynObject => ObjectTypeId == TypeId.DynamicObject;
+    public bool IsGameObject => ObjectTypeId == TypeId.GameObject;
+    public bool IsInWorldPvpZone
+    {
+        get
+        {
+            switch (Location.Zone)
+            {
+                case 4197: // Wintergrasp
+                case 5095: // Tol Barad
+                case 6941: // Ashran
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public bool IsItem => ObjectTypeId == TypeId.Item;
+    public bool IsPermanentWorldObject { get; }
+    public bool IsPlayer => ObjectTypeId == TypeId.Player;
+    public bool IsPrivateObject => !_privateObjectOwner.IsEmpty;
+    public bool IsUnit => IsTypeMask(TypeMask.Unit);
+    public uint LastUsedScriptID { get; set; }
+    public WorldLocation Location { get; set; }
+    public virtual ushort MeleeAnimKitId => 0;
+    public virtual ushort MovementAnimKitId => 0;
+    public MovementInfo MovementInfo { get; set; }
+    public ObjectAccessor ObjectAccessor { get; }
+    public ObjectFieldData ObjectData { get; set; }
+    public GameObjectManager ObjectManager { get; }
+    public virtual float ObjectScale
+    {
+        get => ObjectData.Scale;
+        set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.Scale), value);
+    }
+
+    public TypeMask ObjectTypeMask { get; set; }
+    public OutdoorPvPManager OutdoorPvPManager { get; }
+    public virtual ObjectGuid OwnerGUID => default;
+    public virtual Unit OwnerUnit => ObjectAccessor.GetUnit(this, OwnerGUID);
+    public ObjectGuid PrivateObjectOwner
+    {
+        get => _privateObjectOwner;
+        set => _privateObjectOwner = value;
+    }
+
+    public Scenario Scenario => !Location.IsInWorld ? null : Location.Map.ToInstanceMap?.InstanceScenario;
+    public SpellFactory SpellFactory { get; }
+    public SpellManager SpellManager { get; }
+    public Player SpellModOwner
+    {
+        get
+        {
+            var player = AsPlayer;
+
+            if (player != null)
+                return player;
+
+            if (IsCreature)
+            {
+                var creature = AsCreature;
+
+                if (!creature.IsPet && !creature.IsTotem)
+                    return null;
+
+                var owner = creature.OwnerUnit;
+
+                if (owner != null)
+                    return owner.AsPlayer;
+            }
+            else if (IsGameObject)
+            {
+                return AsPlayer;
+            }
+
+            return null;
+        }
+    }
+
+    public ITransport Transport { get; set; }
+    public TypeId TypeId => ObjectTypeId;
+    public UpdateFieldHolder Values { get; set; }
+    public VariableStore VariableStorage { get; } = new();
+    public WorldObjectVisibility Visibility { get; }
+    public VMapManager VMapManager { get; }
+    public WorldObjectCombat WorldObjectCombat { get; }
+    public ZoneScript ZoneScript { get; set; }
+    protected TypeId ObjectTypeId { get; set; }
+    public static implicit operator bool(WorldObject obj)
+    {
+        return obj != null;
+    }
+
+    public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
+    {
+        return Location._IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
+    }
+
+    public void AddDynamicUpdateFieldValue<T>(DynamicUpdateField<T> updateField, T value) where T : new()
+    {
+        AddToObjectUpdateIfNeeded();
+        updateField.AddValue(value);
+    }
+
+    public void AddToNotify(NotifyFlags f)
+    {
+        _notifyFlags |= f;
+    }
+
+    public virtual bool AddToObjectUpdate()
+    {
+        Location.Map.AddUpdateObject(this);
+
+        return true;
+    }
+
+    public void AddToObjectUpdateIfNeeded()
+    {
+        if (Location.IsInWorld && !_objectUpdated)
+            _objectUpdated = AddToObjectUpdate();
     }
 
     public virtual void AddToWorld()
@@ -298,18 +296,53 @@ public abstract class WorldObject : IDisposable
         Location.Area = areaid;
     }
 
-    public virtual void RemoveFromWorld()
+    public void ApplyModUpdateFieldValue<T>(IUpdateField<T> updateField, T mod, bool apply) where T : new()
     {
-        if (!Location.IsInWorld)
-            return;
+        dynamic value = updateField.Value;
 
-        if (!ObjectTypeMask.HasAnyFlag(TypeMask.Item | TypeMask.Container))
-            UpdateObjectVisibilityOnDestroy();
+        if (apply)
+            value += mod;
+        else
+            value -= mod;
 
-        Location.IsInWorld = false;
-        ClearUpdateMask(true);
+        SetUpdateFieldValue(updateField, (T)value);
     }
 
+    public void ApplyModUpdateFieldValue<T>(ref T oldvalue, T mod, bool apply) where T : new()
+    {
+        dynamic value = oldvalue;
+
+        if (apply)
+            value += mod;
+        else
+            value -= mod;
+
+        SetUpdateFieldValue(ref oldvalue, (T)value);
+    }
+
+    public void ApplyPercentModUpdateFieldValue<T>(IUpdateField<T> updateField, float percent, bool apply) where T : new()
+    {
+        dynamic value = updateField.Value;
+
+        if (percent == -100.0f)
+            percent = -99.99f;
+
+        value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
+
+        SetUpdateFieldValue(updateField, (T)value);
+    }
+
+    public void ApplyPercentModUpdateFieldValue<T>(ref T oldValue, float percent, bool apply) where T : new()
+    {
+        dynamic value = oldValue;
+
+        if (percent == -100.0f)
+            percent = -99.99f;
+
+        value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
+
+        SetUpdateFieldValue(ref oldValue, (T)value);
+    }
 
     public virtual void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
     {
@@ -356,66 +389,17 @@ public abstract class WorldObject : IDisposable
         data.AddUpdateBlock(buffer);
     }
 
-    public void SendUpdateToPlayer(Player player)
-    {
-        // send create update to player
-        UpdateData upd = new(player.Location.MapId);
-
-        if (player.HaveAtClient(this))
-            BuildValuesUpdateBlockForPlayer(upd, player);
-        else
-            BuildCreateUpdateBlockForPlayer(upd, player);
-
-        upd.BuildPacket(out var packet);
-        player.SendPacket(packet);
-    }
-
-    public void BuildValuesUpdateBlockForPlayer(UpdateData data, Player target)
-    {
-        WorldPacket buffer = new();
-        buffer.WriteUInt8((byte)UpdateType.Values);
-        buffer.WritePackedGuid(GUID);
-
-        BuildValuesUpdate(buffer, target);
-
-        data.AddUpdateBlock(buffer);
-    }
-
-    public void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData data, UpdateFieldFlag flags, Player target)
-    {
-        WorldPacket buffer = new();
-        buffer.WriteUInt8((byte)UpdateType.Values);
-        buffer.WritePackedGuid(GUID);
-
-        BuildValuesUpdateWithFlag(buffer, flags, target);
-
-        data.AddUpdateBlock(buffer);
-    }
-
     public void BuildDestroyUpdateBlock(UpdateData data)
     {
         data.AddDestroyObject(GUID);
     }
 
-    public void BuildOutOfRangeUpdateBlock(UpdateData data)
+    public void BuildFieldsUpdate(Player player, Dictionary<Player, UpdateData> dataMap)
     {
-        data.AddOutOfRangeGUID(GUID);
-    }
+        if (!dataMap.ContainsKey(player))
+            dataMap.Add(player, new UpdateData(player.Location.MapId));
 
-    public virtual void DestroyForPlayer(Player target)
-    {
-        UpdateData updateData = new(target.Location.MapId);
-        BuildDestroyUpdateBlock(updateData);
-        updateData.BuildPacket(out var packet);
-        target.SendPacket(packet);
-    }
-
-    public void SendOutOfRangeForPlayer(Player target)
-    {
-        UpdateData updateData = new(target.Location.MapId);
-        BuildOutOfRangeUpdateBlock(updateData);
-        updateData.BuildPacket(out var packet);
-        target.SendPacket(packet);
+        BuildValuesUpdateBlockForPlayer(dataMap[player], player);
     }
 
     public void BuildMovementUpdate(WorldPacket data, CreateObjectBits flags, Player target)
@@ -580,13 +564,13 @@ public abstract class WorldObject : IDisposable
             data.WritePackedGuid(AsUnit.Victim.GUID); // CombatVictim
 
         if (flags.ServerTime)
-            data.WriteUInt32(GameTime.GetGameTimeMS());
+            data.WriteUInt32(GameTime.CurrentTimeMS);
 
         if (flags.Vehicle)
         {
             var unit = AsUnit;
             data.WriteUInt32(unit.VehicleKit.GetVehicleInfo().Id); // RecID
-            data.WriteFloat(unit.Location.Orientation);             // InitialRawFacing
+            data.WriteFloat(unit.Location.Orientation);            // InitialRawFacing
         }
 
         if (flags.AnimKit)
@@ -839,21 +823,43 @@ public abstract class WorldObject : IDisposable
         }
     }
 
-    public void DoWithSuppressingObjectUpdates(Action action)
+    public void BuildOutOfRangeUpdateBlock(UpdateData data)
     {
-        var wasUpdatedBeforeAction = _objectUpdated;
-        action();
-
-        if (_objectUpdated && !wasUpdatedBeforeAction)
-        {
-            RemoveFromObjectUpdate();
-            _objectUpdated = false;
-        }
+        data.AddOutOfRangeGUID(GUID);
     }
 
-    public virtual UpdateFieldFlag GetUpdateFieldFlagsFor(Player target)
+    public virtual void BuildUpdate(Dictionary<Player, UpdateData> data)
     {
-        return UpdateFieldFlag.None;
+        var notifier = new WorldObjectChangeAccumulator(this, data, GridType.World);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+
+        ClearUpdateMask(false);
+    }
+
+    public abstract void BuildValuesCreate(WorldPacket data, Player target);
+
+    public abstract void BuildValuesUpdate(WorldPacket data, Player target);
+
+    public void BuildValuesUpdateBlockForPlayer(UpdateData data, Player target)
+    {
+        WorldPacket buffer = new();
+        buffer.WriteUInt8((byte)UpdateType.Values);
+        buffer.WritePackedGuid(GUID);
+
+        BuildValuesUpdate(buffer, target);
+
+        data.AddUpdateBlock(buffer);
+    }
+
+    public void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData data, UpdateFieldFlag flags, Player target)
+    {
+        WorldPacket buffer = new();
+        buffer.WriteUInt8((byte)UpdateType.Values);
+        buffer.WritePackedGuid(GUID);
+
+        BuildValuesUpdateWithFlag(buffer, flags, target);
+
+        data.AddUpdateBlock(buffer);
     }
 
     public virtual void BuildValuesUpdateWithFlag(WorldPacket data, UpdateFieldFlag flags, Player target)
@@ -862,10 +868,38 @@ public abstract class WorldObject : IDisposable
         data.WriteUInt32(0);
     }
 
-    public void AddToObjectUpdateIfNeeded()
+    public virtual bool CanAlwaysSee(WorldObject obj)
     {
-        if (Location.IsInWorld && !_objectUpdated)
-            _objectUpdated = AddToObjectUpdate();
+        return Visibility.CanAlwaysSee(obj);
+    }
+
+    public virtual bool CanNeverSee(WorldObject obj)
+    {
+        return Visibility.CanNeverSee(obj);
+    }
+
+    public void CheckAddToMap()
+    {
+        if (IsWorldObject())
+            Location.Map.AddWorldObject(this);
+    }
+
+    public virtual void CleanupsBeforeDelete(bool finalCleanup = true)
+    {
+        if (Location.IsInWorld)
+            RemoveFromWorld();
+
+        var transport = Transport;
+
+        transport?.RemovePassenger(this);
+
+        Events.KillAllEvents(false); // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
+    }
+
+    public void ClearDynamicUpdateFieldValues<T>(DynamicUpdateField<T> updateField) where T : new()
+    {
+        AddToObjectUpdateIfNeeded();
+        updateField.Clear();
     }
 
     public virtual void ClearUpdateMask(bool remove)
@@ -881,439 +915,10 @@ public abstract class WorldObject : IDisposable
         }
     }
 
-    public void BuildFieldsUpdate(Player player, Dictionary<Player, UpdateData> dataMap)
+    public void Create(ObjectGuid guid)
     {
-        if (!dataMap.ContainsKey(player))
-            dataMap.Add(player, new UpdateData(player.Location.MapId));
-
-        BuildValuesUpdateBlockForPlayer(dataMap[player], player);
-    }
-
-    public virtual string GetDebugInfo()
-    {
-        return $"{Location.GetDebugInfo()}\n{GUID} Entry: {Entry}\nName: {GetName()}";
-    }
-
-    public virtual LootManagement.Loot GetLootForPlayer(Player player)
-    {
-        return null;
-    }
-
-    public abstract void BuildValuesCreate(WorldPacket data, Player target);
-    public abstract void BuildValuesUpdate(WorldPacket data, Player target);
-
-    public void SetUpdateFieldValue<T>(IUpdateField<T> updateField, T newValue)
-    {
-        if (!newValue.Equals(updateField.GetValue()))
-        {
-            updateField.SetValue(newValue);
-            AddToObjectUpdateIfNeeded();
-        }
-    }
-
-    public void SetUpdateFieldValue<T>(ref T value, T newValue) where T : new()
-    {
-        if (!newValue.Equals(value))
-        {
-            value = newValue;
-            AddToObjectUpdateIfNeeded();
-        }
-    }
-
-    public void SetUpdateFieldValue<T>(DynamicUpdateField<T> updateField, int index, T newValue) where T : new()
-    {
-        if (!newValue.Equals(updateField[index]))
-        {
-            updateField[index] = newValue;
-            AddToObjectUpdateIfNeeded();
-        }
-    }
-
-    public void SetUpdateFieldFlagValue<T>(IUpdateField<T> updateField, T flag) where T : new()
-    {
-        //static_assert(std::is_integral < T >::value, "SetUpdateFieldFlagValue must be used with integral types");
-        SetUpdateFieldValue(updateField, (T)(updateField.GetValue() | (dynamic)flag));
-    }
-
-    public void SetUpdateFieldFlagValue<T>(ref T value, T flag) where T : new()
-    {
-        //static_assert(std::is_integral < T >::value, "SetUpdateFieldFlagValue must be used with integral types");
-        SetUpdateFieldValue(ref value, (T)(value | (dynamic)flag));
-    }
-
-    public void RemoveUpdateFieldFlagValue<T>(IUpdateField<T> updateField, T flag)
-    {
-        //static_assert(std::is_integral < T >::value, "SetUpdateFieldFlagValue must be used with integral types");
-        SetUpdateFieldValue(updateField, (T)(updateField.GetValue() & ~(dynamic)flag));
-    }
-
-    public void RemoveUpdateFieldFlagValue<T>(ref T value, T flag) where T : new()
-    {
-        //static_assert(std::is_integral < T >::value, "RemoveUpdateFieldFlagValue must be used with integral types");
-        SetUpdateFieldValue(ref value, (T)(value & ~(dynamic)flag));
-    }
-
-    public void AddDynamicUpdateFieldValue<T>(DynamicUpdateField<T> updateField, T value) where T : new()
-    {
-        AddToObjectUpdateIfNeeded();
-        updateField.AddValue(value);
-    }
-
-    public void InsertDynamicUpdateFieldValue<T>(DynamicUpdateField<T> updateField, int index, T value) where T : new()
-    {
-        AddToObjectUpdateIfNeeded();
-        updateField.InsertValue(index, value);
-    }
-
-    public void RemoveDynamicUpdateFieldValue<T>(DynamicUpdateField<T> updateField, int index) where T : new()
-    {
-        AddToObjectUpdateIfNeeded();
-        updateField.RemoveValue(index);
-    }
-
-    public void ClearDynamicUpdateFieldValues<T>(DynamicUpdateField<T> updateField) where T : new()
-    {
-        AddToObjectUpdateIfNeeded();
-        updateField.Clear();
-    }
-
-    // stat system helpers
-    public void SetUpdateFieldStatValue<T>(IUpdateField<T> updateField, T value) where T : new()
-    {
-        SetUpdateFieldValue(updateField, (T)Math.Max((dynamic)value, 0));
-    }
-
-    public void SetUpdateFieldStatValue<T>(ref T oldValue, T value) where T : new()
-    {
-        SetUpdateFieldValue(ref oldValue, (T)Math.Max((dynamic)value, 0));
-    }
-
-    public void ApplyModUpdateFieldValue<T>(IUpdateField<T> updateField, T mod, bool apply) where T : new()
-    {
-        dynamic value = updateField.GetValue();
-
-        if (apply)
-            value += mod;
-        else
-            value -= mod;
-
-        SetUpdateFieldValue(updateField, (T)value);
-    }
-
-    public void ApplyModUpdateFieldValue<T>(ref T oldvalue, T mod, bool apply) where T : new()
-    {
-        dynamic value = oldvalue;
-
-        if (apply)
-            value += mod;
-        else
-            value -= mod;
-
-        SetUpdateFieldValue(ref oldvalue, (T)value);
-    }
-
-    public void ApplyPercentModUpdateFieldValue<T>(IUpdateField<T> updateField, float percent, bool apply) where T : new()
-    {
-        dynamic value = updateField.GetValue();
-
-        if (percent == -100.0f)
-            percent = -99.99f;
-
-        value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
-
-        SetUpdateFieldValue(updateField, (T)value);
-    }
-
-    public void ApplyPercentModUpdateFieldValue<T>(ref T oldValue, float percent, bool apply) where T : new()
-    {
-        dynamic value = oldValue;
-
-        if (percent == -100.0f)
-            percent = -99.99f;
-
-        value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
-
-        SetUpdateFieldValue(ref oldValue, (T)value);
-    }
-
-    public void ForceUpdateFieldChange()
-    {
-        AddToObjectUpdateIfNeeded();
-    }
-
-    public bool IsWorldObject()
-    {
-        if (IsPermanentWorldObject)
-            return true;
-
-        if (IsTypeId(TypeId.Unit) && AsCreature.IsTempWorldObject)
-            return true;
-
-        return false;
-    }
-
-    public virtual void Update(uint diff)
-    {
-        Events.Update(diff);
-    }
-
-    public void SetWorldObject(bool on)
-    {
-        if (!Location.IsInWorld)
-            return;
-
-        Location.Map.AddObjectToSwitchList(this, on);
-    }
-
-    public void SetActive(bool on)
-    {
-        if (IsActive == on)
-            return;
-
-        if (IsTypeId(TypeId.Player))
-            return;
-
-        IsActive = on;
-
-        if (on && !Location.IsInWorld)
-            return;
-
-        var map = Location.Map;
-
-        if (map == null)
-            return;
-
-        if (on)
-            map.AddToActive(this);
-        else
-            map.RemoveFromActive(this);
-    }
-
-    public virtual void CleanupsBeforeDelete(bool finalCleanup = true)
-    {
-        if (Location.IsInWorld)
-            RemoveFromWorld();
-
-        var transport = Transport;
-
-        transport?.RemovePassenger(this);
-
-        Events.KillAllEvents(false); // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
-    }
-
-    public virtual bool CanNeverSee(WorldObject obj)
-    {
-        return Visibility.CanNeverSee(obj);
-    }
-
-    public virtual bool CanAlwaysSee(WorldObject obj)
-    {
-        return Visibility.CanAlwaysSee(obj);
-    }
-
-    public virtual void SendMessageToSet(ServerPacket packet, bool self)
-    {
-        if (Location.IsInWorld)
-            SendMessageToSetInRange(packet, Visibility.VisibilityRange, self);
-    }
-
-    public virtual void SendMessageToSetInRange(ServerPacket data, float dist, bool self)
-    {
-        PacketSenderRef sender = new(data);
-        MessageDistDeliverer<PacketSenderRef> notifier = new(this, sender, dist);
-        Cell.VisitGrid(this, notifier, dist);
-    }
-
-    public virtual void SendMessageToSet(ServerPacket data, Player skip)
-    {
-        PacketSenderRef sender = new(data);
-        var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, Visibility.VisibilityRange, false, skip);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
-    }
-
-    public void SendCombatLogMessage(CombatLogServerPacket combatLog)
-    {
-        CombatLogSender combatLogSender = new(combatLog);
-
-        var self = AsPlayer;
-
-        if (self != null)
-            combatLogSender.Invoke(self);
-
-        MessageDistDeliverer<CombatLogSender> notifier = new(this, combatLogSender, Visibility.VisibilityRange);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
-    }
-
-    public TempSummon SummonCreature(uint entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
-    {
-        return SummonCreature(entry, new Position(x, y, z, o), despawnType, despawnTime, vehId, spellId, privateObjectOwner);
-    }
-
-    public TempSummon SummonCreature(uint entry, Position pos, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
-    {
-        if (pos.IsDefault)
-            Location.GetClosePoint(pos, CombatReach);
-
-        if (pos.Orientation == 0.0f)
-            pos.Orientation = Location.Orientation;
-
-        var map = Location.Map;
-
-        var summon = map?.SummonCreature(entry, pos, null, (uint)despawnTime.TotalMilliseconds, this, spellId, vehId, privateObjectOwner);
-
-        if (summon == null)
-            return null;
-
-        summon.SetTempSummonType(despawnType);
-
-        return summon;
-
-    }
-
-    public TempSummon SummonPersonalClone(Position pos, TempSummonType despawnType, TimeSpan despawnTime, uint vehId, uint spellId, Player privateObjectOwner)
-    {
-        var map = Location.Map;
-
-        var summon = map?.SummonCreature(Entry, pos, null, (uint)despawnTime.TotalMilliseconds, privateObjectOwner, spellId, vehId, privateObjectOwner.GUID, new SmoothPhasingInfo(GUID, true, true));
-
-        if (summon == null)
-            return null;
-
-        summon.SetTempSummonType(despawnType);
-
-        return summon;
-    }
-
-    public GameObject SummonGameObject(uint entry, float x, float y, float z, float ang, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)
-    {
-        return SummonGameObject(entry, new Position(x, y, z, ang), rotation, respawnTime, summonType);
-    }
-
-    public GameObject SummonGameObject(uint entry, Position pos, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)
-    {
-        if (pos.IsDefault)
-        {
-            Location.GetClosePoint(pos, CombatReach);
-            pos.Orientation = Location.Orientation;
-        }
-
-        if (!Location.IsInWorld)
-            return null;
-
-        var goinfo = ObjectManager.GetGameObjectTemplate(entry);
-
-        if (goinfo == null)
-        {
-            Log.Logger.Error("Gameobject template {0} not found in database!", entry);
-
-            return null;
-        }
-
-        var map = Location.Map;
-        var go = GameObject.CreateGameObject(entry, map, pos, rotation, 255, GameObjectState.Ready);
-
-        if (!go)
-            return null;
-
-        PhasingHandler.InheritPhaseShift(go, this);
-
-        go.SetRespawnTime((int)respawnTime.TotalSeconds);
-
-        if (IsPlayer || (IsCreature && summonType == GameObjectSummonType.TimedOrCorpseDespawn)) //not sure how to handle this
-            AsUnit.AddGameObject(go);
-        else
-            go.SetSpawnedByDefault(false);
-
-        map.AddToMap(go);
-
-        return go;
-    }
-
-    public Creature SummonTrigger(Position pos, TimeSpan despawnTime, CreatureAI ai = null)
-    {
-        var summonType = (despawnTime == TimeSpan.Zero) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
-        Creature summon = SummonCreature(SharedConst.WorldTrigger, pos, summonType, despawnTime);
-
-        if (summon == null)
-            return null;
-
-        if (IsTypeId(TypeId.Player) || IsTypeId(TypeId.Unit))
-        {
-            summon.Faction = AsUnit.Faction;
-            summon.SetLevel(AsUnit.Level);
-        }
-
-        if (ai != null)
-            summon.InitializeAI(new CreatureAI(summon));
-
-        return summon;
-    }
-
-    public void SummonCreatureGroup(byte group)
-    {
-        SummonCreatureGroup(group, out _);
-    }
-
-    public void SummonCreatureGroup(byte group, out List<TempSummon> list)
-    {
-        
-        var data = ObjectManager.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
-
-        if (data.Empty())
-        {
-            Log.Logger.Warning("{0} ({1}) tried to summon non-existing summon group {2}.", GetName(), GUID.ToString(), group);
-            list = new();
-            return;
-        }
-
-        list = data.Select(tempSummonData => SummonCreature(tempSummonData.entry, tempSummonData.pos, tempSummonData.type, TimeSpan.FromMilliseconds(tempSummonData.time))).Where(summon => summon).ToList();
-    }
-
-    public bool TryGetOwner(out Unit owner)
-    {
-        owner = OwnerUnit;
-
-        return owner != null;
-    }
-
-    public bool TryGetOwner(out Player owner)
-    {
-        owner = OwnerUnit?.AsPlayer;
-
-        return owner != null;
-    }
-    
-    public virtual uint GetCastSpellXSpellVisualId(SpellInfo spellInfo)
-    {
-        return WorldObjectCombat.GetCastSpellXSpellVisualId(spellInfo);
-    }
-    
-    public void PlayDistanceSound(uint soundId, Player target = null)
-    {
-        PlaySpeakerBoxSound playSpeakerBoxSound = new(GUID, soundId);
-
-        if (target != null)
-            target.SendPacket(playSpeakerBoxSound);
-        else
-            SendMessageToSet(playSpeakerBoxSound, true);
-    }
-
-    public void PlayDirectSound(uint soundId, Player target = null, uint broadcastTextId = 0)
-    {
-        PlaySound sound = new(GUID, soundId, broadcastTextId);
-
-        if (target != null)
-            target.SendPacket(sound);
-        else
-            SendMessageToSet(sound, true);
-    }
-
-    public void PlayDirectMusic(uint musicId, Player target = null)
-    {
-        if (target != null)
-            target.SendPacket(new PlayMusic(musicId));
-        else
-            SendMessageToSet(new PlayMusic(musicId), true);
+        _objectUpdated = false;
+        GUID = guid;
     }
 
     public void DestroyForNearbyPlayers()
@@ -1349,156 +954,61 @@ public abstract class WorldObject : IDisposable
         }
     }
 
-    public virtual void UpdateObjectVisibility(bool force = true)
+    public virtual void DestroyForPlayer(Player target)
     {
-        //updates object's visibility for nearby players
-        var notifier = new VisibleChangesNotifier(new[]
-                                                  {
-                                                      this
-                                                  },
-                                                  GridType.World);
-
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+        UpdateData updateData = new(target.Location.MapId);
+        BuildDestroyUpdateBlock(updateData);
+        updateData.BuildPacket(out var packet);
+        target.SendPacket(packet);
     }
 
-    public virtual void UpdateObjectVisibilityOnCreate()
+    public virtual void Dispose()
     {
-        UpdateObjectVisibility();
+        // this may happen because there are many !create/delete
+        if (IsWorldObject() && Location.Map)
+        {
+            if (IsTypeId(TypeId.Corpse))
+                Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
+            else
+                Location.ResetMap();
+        }
+
+        if (Location.IsInWorld)
+        {
+            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
+
+            if (IsTypeMask(TypeMask.Item))
+                Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
+        }
+
+        if (_objectUpdated)
+            Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
+    }
+    public void DoWithSuppressingObjectUpdates(Action action)
+    {
+        var wasUpdatedBeforeAction = _objectUpdated;
+        action();
+
+        if (_objectUpdated && !wasUpdatedBeforeAction)
+        {
+            RemoveFromObjectUpdate();
+            _objectUpdated = false;
+        }
     }
 
-    public virtual void UpdateObjectVisibilityOnDestroy()
+    public void ForceUpdateFieldChange()
     {
-        DestroyForNearbyPlayers();
+        AddToObjectUpdateIfNeeded();
     }
 
-    public virtual void BuildUpdate(Dictionary<Player, UpdateData> data)
+    public virtual uint GetCastSpellXSpellVisualId(SpellInfo spellInfo)
     {
-        var notifier = new WorldObjectChangeAccumulator(this, data, GridType.World);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
-
-        ClearUpdateMask(false);
+        return WorldObjectCombat.GetCastSpellXSpellVisualId(spellInfo);
     }
 
-    public virtual bool AddToObjectUpdate()
+    public virtual string GetDebugInfo()
     {
-        Location.Map.AddUpdateObject(this);
-
-        return true;
-    }
-
-    public virtual void RemoveFromObjectUpdate()
-    {
-        Location.Map.RemoveUpdateObject(this);
-    }
-
-    public virtual string GetName(Locale locale = Locale.enUS)
-    {
-        return _name;
-    }
-
-    public void SetName(string name)
-    {
-        _name = name;
-    }
-
-    public bool IsTypeId(TypeId typeId)
-    {
-        return TypeId == typeId;
-    }
-
-    public bool IsTypeMask(TypeMask mask)
-    {
-        return Convert.ToBoolean(mask & ObjectTypeMask);
-    }
-
-    public virtual bool HasQuest(uint questId)
-    {
-        return false;
-    }
-
-    public virtual bool HasInvolvedQuest(uint questId)
-    {
-        return false;
-    }
-
-    public void SetIsNewObject(bool enable)
-    {
-        _isNewObject = enable;
-    }
-
-    public void SetDestroyedObject(bool destroyed)
-    {
-        IsDestroyedObject = destroyed;
-    }
-
-    public bool TryGetAsCreature(out Creature creature)
-    {
-        creature = AsCreature;
-
-        return creature != null;
-    }
-
-    public bool TryGetAsPlayer(out Player player)
-    {
-        player = AsPlayer;
-
-        return player != null;
-    }
-
-    public bool TryGetAsGameObject(out GameObject gameObject)
-    {
-        gameObject = AsGameObject;
-
-        return gameObject != null;
-    }
-
-    public bool TryGetAsItem(out Item item)
-    {
-        item = AsItem;
-
-        return item != null;
-    }
-
-    public bool TryGetAsUnit(out Unit unit)
-    {
-        unit = AsUnit;
-
-        return unit != null;
-    }
-
-    public bool TryGetAsCorpse(out Corpse corpse)
-    {
-        corpse = AsCorpse;
-
-        return corpse != null;
-    }
-
-    public bool TryGetAsDynamicObject(out DynamicObject dynObj)
-    {
-        dynObj = AsDynamicObject;
-
-        return dynObj != null;
-    }
-
-    public bool TryGetAsAreaTrigger(out AreaTrigger areaTrigger)
-    {
-        areaTrigger = AsAreaTrigger;
-
-        return areaTrigger != null;
-    }
-
-    public bool TryGetAsConversation(out Conversation conversation)
-    {
-        conversation = AsConversation;
-
-        return conversation != null;
-    }
-
-    public bool TryGetAsSceneObject(out SceneObject sceneObject)
-    {
-        sceneObject = AsSceneObject;
-
-        return sceneObject != null;
+        return $"{Location.GetDebugInfo()}\n{GUID} Entry: {Entry}\nName: {GetName()}";
     }
 
     public virtual uint GetLevelForTarget(WorldObject target)
@@ -1506,24 +1016,14 @@ public abstract class WorldObject : IDisposable
         return 1;
     }
 
-    public void AddToNotify(NotifyFlags f)
+    public virtual LootManagement.Loot GetLootForPlayer(Player player)
     {
-        _notifyFlags |= f;
+        return null;
     }
 
-    public bool IsNeedNotify(NotifyFlags f)
+    public virtual string GetName(Locale locale = Locale.enUS)
     {
-        return Convert.ToBoolean(_notifyFlags & f);
-    }
-
-    public void ResetAllNotifies()
-    {
-        _notifyFlags = 0;
-    }
-
-    public T GetTransport<T>() where T : class, ITransport
-    {
-        return Transport as T;
+        return _name;
     }
 
     public virtual ObjectGuid GetTransGUID()
@@ -1534,9 +1034,35 @@ public abstract class WorldObject : IDisposable
         return ObjectGuid.Empty;
     }
 
-    public virtual bool IsNeverVisibleFor(WorldObject seer)
+    public T GetTransport<T>() where T : class, ITransport
     {
-        return Visibility.IsNeverVisibleFor(seer);
+        return Transport as T;
+    }
+
+    public virtual UpdateFieldFlag GetUpdateFieldFlagsFor(Player target)
+    {
+        return UpdateFieldFlag.None;
+    }
+
+    public virtual bool HasInvolvedQuest(uint questId)
+    {
+        return false;
+    }
+
+    public virtual bool HasQuest(uint questId)
+    {
+        return false;
+    }
+
+    public void InsertDynamicUpdateFieldValue<T>(DynamicUpdateField<T> updateField, int index, T value) where T : new()
+    {
+        AddToObjectUpdateIfNeeded();
+        updateField.InsertValue(index, value);
+    }
+
+    public virtual bool IsAlwaysDetectableFor(WorldObject seer)
+    {
+        return Visibility.IsAlwaysDetectableFor(seer);
     }
 
     public virtual bool IsAlwaysVisibleFor(WorldObject seer)
@@ -1549,9 +1075,35 @@ public abstract class WorldObject : IDisposable
         return Visibility.IsInvisibleDueToDespawn(seer);
     }
 
-    public virtual bool IsAlwaysDetectableFor(WorldObject seer)
+    public bool IsNeedNotify(NotifyFlags f)
     {
-        return Visibility.IsAlwaysDetectableFor(seer);
+        return Convert.ToBoolean(_notifyFlags & f);
+    }
+
+    public virtual bool IsNeverVisibleFor(WorldObject seer)
+    {
+        return Visibility.IsNeverVisibleFor(seer);
+    }
+
+    public bool IsTypeId(TypeId typeId)
+    {
+        return TypeId == typeId;
+    }
+
+    public bool IsTypeMask(TypeMask mask)
+    {
+        return Convert.ToBoolean(mask & ObjectTypeMask);
+    }
+
+    public bool IsWorldObject()
+    {
+        if (IsPermanentWorldObject)
+            return true;
+
+        if (IsTypeId(TypeId.Unit) && AsCreature.IsTempWorldObject)
+            return true;
+
+        return false;
     }
 
     public virtual bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool allowDuplicate)
@@ -1560,12 +1112,6 @@ public abstract class WorldObject : IDisposable
     }
 
     //Position
-
-    public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
-    {
-        return Location._IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
-    }
-
     public void MovePosition(Position pos, float dist, float angle)
     {
         angle += Location.Orientation;
@@ -1708,9 +1254,454 @@ public abstract class WorldObject : IDisposable
             pos.Z = gridHeight + unit.HoverOffset;
     }
 
-
-    public static implicit operator bool(WorldObject obj)
+    public void PlayDirectMusic(uint musicId, Player target = null)
     {
-        return obj != null;
+        if (target != null)
+            target.SendPacket(new PlayMusic(musicId));
+        else
+            SendMessageToSet(new PlayMusic(musicId), true);
+    }
+
+    public void PlayDirectSound(uint soundId, Player target = null, uint broadcastTextId = 0)
+    {
+        PlaySound sound = new(GUID, soundId, broadcastTextId);
+
+        if (target != null)
+            target.SendPacket(sound);
+        else
+            SendMessageToSet(sound, true);
+    }
+
+    public void PlayDistanceSound(uint soundId, Player target = null)
+    {
+        PlaySpeakerBoxSound playSpeakerBoxSound = new(GUID, soundId);
+
+        if (target != null)
+            target.SendPacket(playSpeakerBoxSound);
+        else
+            SendMessageToSet(playSpeakerBoxSound, true);
+    }
+
+    public void RemoveDynamicUpdateFieldValue<T>(DynamicUpdateField<T> updateField, int index) where T : new()
+    {
+        AddToObjectUpdateIfNeeded();
+        updateField.RemoveValue(index);
+    }
+
+    public virtual void RemoveFromObjectUpdate()
+    {
+        Location.Map.RemoveUpdateObject(this);
+    }
+
+    public virtual void RemoveFromWorld()
+    {
+        if (!Location.IsInWorld)
+            return;
+
+        if (!ObjectTypeMask.HasAnyFlag(TypeMask.Item | TypeMask.Container))
+            UpdateObjectVisibilityOnDestroy();
+
+        Location.IsInWorld = false;
+        ClearUpdateMask(true);
+    }
+    public void RemoveUpdateFieldFlagValue<T>(IUpdateField<T> updateField, T flag)
+    {
+        //static_assert(std::is_integral < T >::value, "SetUpdateFieldFlagValue must be used with integral types");
+        SetUpdateFieldValue(updateField, (T)(updateField.Value & ~(dynamic)flag));
+    }
+
+    public void RemoveUpdateFieldFlagValue<T>(ref T value, T flag) where T : new()
+    {
+        //static_assert(std::is_integral < T >::value, "RemoveUpdateFieldFlagValue must be used with integral types");
+        SetUpdateFieldValue(ref value, (T)(value & ~(dynamic)flag));
+    }
+
+    public void ResetAllNotifies()
+    {
+        _notifyFlags = 0;
+    }
+
+    public void SendCombatLogMessage(CombatLogServerPacket combatLog)
+    {
+        CombatLogSender combatLogSender = new(combatLog);
+
+        var self = AsPlayer;
+
+        if (self != null)
+            combatLogSender.Invoke(self);
+
+        MessageDistDeliverer<CombatLogSender> notifier = new(this, combatLogSender, Visibility.VisibilityRange);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+    }
+
+    public virtual void SendMessageToSet(ServerPacket packet, bool self)
+    {
+        if (Location.IsInWorld)
+            SendMessageToSetInRange(packet, Visibility.VisibilityRange, self);
+    }
+
+    public virtual void SendMessageToSet(ServerPacket data, Player skip)
+    {
+        PacketSenderRef sender = new(data);
+        var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, Visibility.VisibilityRange, false, skip);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+    }
+
+    public virtual void SendMessageToSetInRange(ServerPacket data, float dist, bool self)
+    {
+        PacketSenderRef sender = new(data);
+        MessageDistDeliverer<PacketSenderRef> notifier = new(this, sender, dist);
+        Cell.VisitGrid(this, notifier, dist);
+    }
+
+    public void SendOutOfRangeForPlayer(Player target)
+    {
+        UpdateData updateData = new(target.Location.MapId);
+        BuildOutOfRangeUpdateBlock(updateData);
+        updateData.BuildPacket(out var packet);
+        target.SendPacket(packet);
+    }
+
+    public void SendUpdateToPlayer(Player player)
+    {
+        // send create update to player
+        UpdateData upd = new(player.Location.MapId);
+
+        if (player.HaveAtClient(this))
+            BuildValuesUpdateBlockForPlayer(upd, player);
+        else
+            BuildCreateUpdateBlockForPlayer(upd, player);
+
+        upd.BuildPacket(out var packet);
+        player.SendPacket(packet);
+    }
+    public void SetActive(bool on)
+    {
+        if (IsActive == on)
+            return;
+
+        if (IsTypeId(TypeId.Player))
+            return;
+
+        IsActive = on;
+
+        if (on && !Location.IsInWorld)
+            return;
+
+        var map = Location.Map;
+
+        if (map == null)
+            return;
+
+        if (on)
+            map.AddToActive(this);
+        else
+            map.RemoveFromActive(this);
+    }
+
+    public void SetDestroyedObject(bool destroyed)
+    {
+        IsDestroyedObject = destroyed;
+    }
+
+    public void SetIsNewObject(bool enable)
+    {
+        _isNewObject = enable;
+    }
+
+    public void SetName(string name)
+    {
+        _name = name;
+    }
+
+    public void SetUpdateFieldFlagValue<T>(IUpdateField<T> updateField, T flag) where T : new()
+    {
+        //static_assert(std::is_integral < T >::value, "SetUpdateFieldFlagValue must be used with integral types");
+        SetUpdateFieldValue(updateField, (T)(updateField.Value | (dynamic)flag));
+    }
+
+    public void SetUpdateFieldFlagValue<T>(ref T value, T flag) where T : new()
+    {
+        //static_assert(std::is_integral < T >::value, "SetUpdateFieldFlagValue must be used with integral types");
+        SetUpdateFieldValue(ref value, (T)(value | (dynamic)flag));
+    }
+
+    // stat system helpers
+    public void SetUpdateFieldStatValue<T>(IUpdateField<T> updateField, T value) where T : new()
+    {
+        SetUpdateFieldValue(updateField, (T)Math.Max((dynamic)value, 0));
+    }
+
+    public void SetUpdateFieldStatValue<T>(ref T oldValue, T value) where T : new()
+    {
+        SetUpdateFieldValue(ref oldValue, (T)Math.Max((dynamic)value, 0));
+    }
+
+    public void SetUpdateFieldValue<T>(IUpdateField<T> updateField, T newValue)
+    {
+        if (!newValue.Equals(updateField.Value))
+        {
+            updateField.Value = newValue;
+            AddToObjectUpdateIfNeeded();
+        }
+    }
+
+    public void SetUpdateFieldValue<T>(ref T value, T newValue) where T : new()
+    {
+        if (!newValue.Equals(value))
+        {
+            value = newValue;
+            AddToObjectUpdateIfNeeded();
+        }
+    }
+
+    public void SetUpdateFieldValue<T>(DynamicUpdateField<T> updateField, int index, T newValue) where T : new()
+    {
+        if (!newValue.Equals(updateField[index]))
+        {
+            updateField[index] = newValue;
+            AddToObjectUpdateIfNeeded();
+        }
+    }
+    public void SetWorldObject(bool on)
+    {
+        if (!Location.IsInWorld)
+            return;
+
+        Location.Map.AddObjectToSwitchList(this, on);
+    }
+
+    public TempSummon SummonCreature(uint entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
+    {
+        return SummonCreature(entry, new Position(x, y, z, o), despawnType, despawnTime, vehId, spellId, privateObjectOwner);
+    }
+
+    public TempSummon SummonCreature(uint entry, Position pos, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
+    {
+        if (pos.IsDefault)
+            Location.GetClosePoint(pos, CombatReach);
+
+        if (pos.Orientation == 0.0f)
+            pos.Orientation = Location.Orientation;
+
+        var map = Location.Map;
+
+        var summon = map?.SummonCreature(entry, pos, null, (uint)despawnTime.TotalMilliseconds, this, spellId, vehId, privateObjectOwner);
+
+        if (summon == null)
+            return null;
+
+        summon.SetTempSummonType(despawnType);
+
+        return summon;
+    }
+
+    public void SummonCreatureGroup(byte group)
+    {
+        SummonCreatureGroup(group, out _);
+    }
+
+    public void SummonCreatureGroup(byte group, out List<TempSummon> list)
+    {
+        var data = ObjectManager.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
+
+        if (data.Empty())
+        {
+            Log.Logger.Warning("{0} ({1}) tried to summon non-existing summon group {2}.", GetName(), GUID.ToString(), group);
+            list = new List<TempSummon>();
+
+            return;
+        }
+
+        list = data.Select(tempSummonData => SummonCreature(tempSummonData.entry, tempSummonData.pos, tempSummonData.type, TimeSpan.FromMilliseconds(tempSummonData.time))).Where(summon => summon).ToList();
+    }
+
+    public GameObject SummonGameObject(uint entry, float x, float y, float z, float ang, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)
+    {
+        return SummonGameObject(entry, new Position(x, y, z, ang), rotation, respawnTime, summonType);
+    }
+
+    public GameObject SummonGameObject(uint entry, Position pos, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)
+    {
+        if (pos.IsDefault)
+        {
+            Location.GetClosePoint(pos, CombatReach);
+            pos.Orientation = Location.Orientation;
+        }
+
+        if (!Location.IsInWorld)
+            return null;
+
+        var goinfo = ObjectManager.GetGameObjectTemplate(entry);
+
+        if (goinfo == null)
+        {
+            Log.Logger.Error("Gameobject template {0} not found in database!", entry);
+
+            return null;
+        }
+
+        var map = Location.Map;
+        var go = GameObject.CreateGameObject(entry, map, pos, rotation, 255, GameObjectState.Ready);
+
+        if (!go)
+            return null;
+
+        PhasingHandler.InheritPhaseShift(go, this);
+
+        go.SetRespawnTime((int)respawnTime.TotalSeconds);
+
+        if (IsPlayer || (IsCreature && summonType == GameObjectSummonType.TimedOrCorpseDespawn)) //not sure how to handle this
+            AsUnit.AddGameObject(go);
+        else
+            go.SetSpawnedByDefault(false);
+
+        map.AddToMap(go);
+
+        return go;
+    }
+
+    public TempSummon SummonPersonalClone(Position pos, TempSummonType despawnType, TimeSpan despawnTime, uint vehId, uint spellId, Player privateObjectOwner)
+    {
+        var map = Location.Map;
+
+        var summon = map?.SummonCreature(Entry, pos, null, (uint)despawnTime.TotalMilliseconds, privateObjectOwner, spellId, vehId, privateObjectOwner.GUID, new SmoothPhasingInfo(GUID, true, true));
+
+        if (summon == null)
+            return null;
+
+        summon.SetTempSummonType(despawnType);
+
+        return summon;
+    }
+
+    public Creature SummonTrigger(Position pos, TimeSpan despawnTime, CreatureAI ai = null)
+    {
+        var summonType = (despawnTime == TimeSpan.Zero) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
+        Creature summon = SummonCreature(SharedConst.WorldTrigger, pos, summonType, despawnTime);
+
+        if (summon == null)
+            return null;
+
+        if (IsTypeId(TypeId.Player) || IsTypeId(TypeId.Unit))
+        {
+            summon.Faction = AsUnit.Faction;
+            summon.SetLevel(AsUnit.Level);
+        }
+
+        if (ai != null)
+            summon.InitializeAI(new CreatureAI(summon));
+
+        return summon;
+    }
+
+    public bool TryGetAsAreaTrigger(out AreaTrigger areaTrigger)
+    {
+        areaTrigger = AsAreaTrigger;
+
+        return areaTrigger != null;
+    }
+
+    public bool TryGetAsConversation(out Conversation conversation)
+    {
+        conversation = AsConversation;
+
+        return conversation != null;
+    }
+
+    public bool TryGetAsCorpse(out Corpse corpse)
+    {
+        corpse = AsCorpse;
+
+        return corpse != null;
+    }
+
+    public bool TryGetAsCreature(out Creature creature)
+    {
+        creature = AsCreature;
+
+        return creature != null;
+    }
+
+    public bool TryGetAsDynamicObject(out DynamicObject dynObj)
+    {
+        dynObj = AsDynamicObject;
+
+        return dynObj != null;
+    }
+
+    public bool TryGetAsGameObject(out GameObject gameObject)
+    {
+        gameObject = AsGameObject;
+
+        return gameObject != null;
+    }
+
+    public bool TryGetAsItem(out Item item)
+    {
+        item = AsItem;
+
+        return item != null;
+    }
+
+    public bool TryGetAsPlayer(out Player player)
+    {
+        player = AsPlayer;
+
+        return player != null;
+    }
+
+    public bool TryGetAsSceneObject(out SceneObject sceneObject)
+    {
+        sceneObject = AsSceneObject;
+
+        return sceneObject != null;
+    }
+
+    public bool TryGetAsUnit(out Unit unit)
+    {
+        unit = AsUnit;
+
+        return unit != null;
+    }
+
+    public bool TryGetOwner(out Unit owner)
+    {
+        owner = OwnerUnit;
+
+        return owner != null;
+    }
+
+    public bool TryGetOwner(out Player owner)
+    {
+        owner = OwnerUnit?.AsPlayer;
+
+        return owner != null;
+    }
+
+    public virtual void Update(uint diff)
+    {
+        Events.Update(diff);
+    }
+    public virtual void UpdateObjectVisibility(bool force = true)
+    {
+        //updates object's visibility for nearby players
+        var notifier = new VisibleChangesNotifier(new[]
+                                                  {
+                                                      this
+                                                  },
+                                                  GridType.World);
+
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+    }
+
+    public virtual void UpdateObjectVisibilityOnCreate()
+    {
+        UpdateObjectVisibility();
+    }
+
+    public virtual void UpdateObjectVisibilityOnDestroy()
+    {
+        DestroyForNearbyPlayers();
     }
 }

@@ -5,18 +5,18 @@ namespace Forged.MapServer.DataStorage.Structs.I;
 
 public sealed class ItemSearchNameRecord
 {
-    public uint Id;
+    public int AllowableClass;
     public long AllowableRace;
     public string Display;
-    public byte OverallQualityID;
     public int ExpansionID;
+    public int[] Flags = new int[4];
+    public uint Id;
+    public ushort ItemLevel;
     public ushort MinFactionID;
     public int MinReputation;
-    public int AllowableClass;
+    public byte OverallQualityID;
+    public uint RequiredAbility;
     public sbyte RequiredLevel;
     public ushort RequiredSkill;
     public ushort RequiredSkillRank;
-    public uint RequiredAbility;
-    public ushort ItemLevel;
-    public int[] Flags = new int[4];
 }

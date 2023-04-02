@@ -10,11 +10,100 @@ using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 
+internal struct RingofValorEvents
+{
+    public const int CloseFire = 2;
+    public const int OpenFences = 0;
+    public const int SwitchPillars = 1;
+}
+
+internal struct RingofValorObjectTypes
+{
+    public const int Buff1 = 1;
+    public const int Buff2 = 2;
+    public const int Elevator1 = 19;
+    public const int Elevator2 = 20;
+    public const int Fire1 = 3;
+    public const int Fire2 = 4;
+    public const int Firedoor1 = 5;
+    public const int Firedoor2 = 6;
+
+    public const int Gear1 = 9;
+    public const int Gear2 = 10;
+    public const int Max = 21;
+    public const int Pilar1 = 7;
+    public const int Pilar2 = 11;
+    public const int Pilar3 = 8;
+    public const int Pilar4 = 12;
+    public const int PilarCollision1 = 15;
+    public const int PilarCollision2 = 16;
+    public const int PilarCollision3 = 17;
+    public const int PilarCollision4 = 18;
+    public const int Pulley1 = 13;
+    public const int Pulley2 = 14;
+}
+
 internal class RingofValorArena : Arena
 {
     public RingofValorArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
     {
         _events = new EventMap();
+    }
+
+    public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
+    {
+        if (GetStatus() != BattlegroundStatus.InProgress)
+            return;
+
+        switch (trigger)
+        {
+            case 5224:
+            case 5226:
+            // fire was removed in 3.2.0
+            case 5473:
+            case 5474:
+                break;
+            default:
+                base.HandleAreaTrigger(player, trigger, entered);
+
+                break;
+        }
+    }
+
+    public override void PostUpdateImpl(uint diff)
+    {
+        if (GetStatus() != BattlegroundStatus.InProgress)
+            return;
+
+        _events.Update(diff);
+
+        _events.ExecuteEvents(eventId =>
+        {
+            switch (eventId)
+            {
+                case RingofValorEvents.OpenFences:
+                    // Open fire (only at game start)
+                    for (byte i = RingofValorObjectTypes.Fire1; i <= RingofValorObjectTypes.Firedoor2; ++i)
+                        DoorOpen(i);
+
+                    _events.ScheduleEvent(RingofValorEvents.CloseFire, TimeSpan.FromSeconds(5));
+
+                    break;
+                case RingofValorEvents.CloseFire:
+                    for (byte i = RingofValorObjectTypes.Fire1; i <= RingofValorObjectTypes.Firedoor2; ++i)
+                        DoorClose(i);
+
+                    // Fire got closed after five seconds, leaves twenty seconds before toggling pillars
+                    _events.ScheduleEvent(RingofValorEvents.SwitchPillars, TimeSpan.FromSeconds(20));
+
+                    break;
+                case RingofValorEvents.SwitchPillars:
+                    TogglePillarCollision(true);
+                    _events.Repeat(TimeSpan.FromSeconds(25));
+
+                    break;
+            }
+        });
     }
 
     public override bool SetupBattleground()
@@ -97,63 +186,6 @@ internal class RingofValorArena : Arena
         // Should be false at first, TogglePillarCollision will do it.
         TogglePillarCollision(true);
     }
-
-    public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
-    {
-        if (GetStatus() != BattlegroundStatus.InProgress)
-            return;
-
-        switch (trigger)
-        {
-            case 5224:
-            case 5226:
-            // fire was removed in 3.2.0
-            case 5473:
-            case 5474:
-                break;
-            default:
-                base.HandleAreaTrigger(player, trigger, entered);
-
-                break;
-        }
-    }
-
-    public override void PostUpdateImpl(uint diff)
-    {
-        if (GetStatus() != BattlegroundStatus.InProgress)
-            return;
-
-        _events.Update(diff);
-
-        _events.ExecuteEvents(eventId =>
-        {
-            switch (eventId)
-            {
-                case RingofValorEvents.OpenFences:
-                    // Open fire (only at game start)
-                    for (byte i = RingofValorObjectTypes.Fire1; i <= RingofValorObjectTypes.Firedoor2; ++i)
-                        DoorOpen(i);
-
-                    _events.ScheduleEvent(RingofValorEvents.CloseFire, TimeSpan.FromSeconds(5));
-
-                    break;
-                case RingofValorEvents.CloseFire:
-                    for (byte i = RingofValorObjectTypes.Fire1; i <= RingofValorObjectTypes.Firedoor2; ++i)
-                        DoorClose(i);
-
-                    // Fire got closed after five seconds, leaves twenty seconds before toggling pillars
-                    _events.ScheduleEvent(RingofValorEvents.SwitchPillars, TimeSpan.FromSeconds(20));
-
-                    break;
-                case RingofValorEvents.SwitchPillars:
-                    TogglePillarCollision(true);
-                    _events.Repeat(TimeSpan.FromSeconds(25));
-
-                    break;
-            }
-        });
-    }
-
     private void TogglePillarCollision(bool enable)
     {
         // Toggle visual pillars, pulley, gear, and collision based on previous state
@@ -192,66 +224,42 @@ internal class RingofValorArena : Arena
         }
     }
 }
-
-internal struct RingofValorEvents
-{
-    public const int OpenFences = 0;
-    public const int SwitchPillars = 1;
-    public const int CloseFire = 2;
-}
-
-internal struct RingofValorObjectTypes
-{
-    public const int Buff1 = 1;
-    public const int Buff2 = 2;
-    public const int Fire1 = 3;
-    public const int Fire2 = 4;
-    public const int Firedoor1 = 5;
-    public const int Firedoor2 = 6;
-
-    public const int Pilar1 = 7;
-    public const int Pilar3 = 8;
-    public const int Gear1 = 9;
-    public const int Gear2 = 10;
-
-    public const int Pilar2 = 11;
-    public const int Pilar4 = 12;
-    public const int Pulley1 = 13;
-    public const int Pulley2 = 14;
-
-    public const int PilarCollision1 = 15;
-    public const int PilarCollision2 = 16;
-    public const int PilarCollision3 = 17;
-    public const int PilarCollision4 = 18;
-
-    public const int Elevator1 = 19;
-    public const int Elevator2 = 20;
-    public const int Max = 21;
-}
-
 internal struct RingofValorGameObjects
 {
     public const uint Buff1 = 184663;
     public const uint Buff2 = 184664;
+    public const uint Elevator1 = 194582;
+    public const uint Elevator2 = 194586;
     public const uint Fire1 = 192704;
     public const uint Fire2 = 192705;
 
-    public const uint Firedoor2 = 192387;
     public const uint Firedoor1 = 192388;
-    public const uint Pulley1 = 192389;
-    public const uint Pulley2 = 192390;
+    public const uint Firedoor2 = 192387;
     public const uint Gear1 = 192393;
     public const uint Gear2 = 192394;
-    public const uint Elevator1 = 194582;
-    public const uint Elevator2 = 194586;
+    public const uint Pilar1 = 194583;
+    // Axe
+    public const uint Pilar2 = 194584;
 
-    public const uint PilarCollision1 = 194580; // Axe
-    public const uint PilarCollision2 = 194579; // Arena
-    public const uint PilarCollision3 = 194581; // Lightning
-    public const uint PilarCollision4 = 194578; // Ivory
+    // Arena
+    public const uint Pilar3 = 194585;
 
-    public const uint Pilar1 = 194583; // Axe
-    public const uint Pilar2 = 194584; // Arena
-    public const uint Pilar3 = 194585; // Lightning
-    public const uint Pilar4 = 194587; // Ivory
+    // Lightning
+    public const uint Pilar4 = 194587;
+
+    public const uint PilarCollision1 = 194580;
+    // Axe
+    public const uint PilarCollision2 = 194579;
+
+    // Arena
+    public const uint PilarCollision3 = 194581;
+
+    // Lightning
+    public const uint PilarCollision4 = 194578;
+
+    public const uint Pulley1 = 192389;
+    public const uint Pulley2 = 192390;
+ // Ivory
+
+ // Ivory
 }

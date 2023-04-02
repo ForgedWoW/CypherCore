@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class PendingRaidLock : ServerPacket
 {
-    public int TimeUntilLock;
     public uint CompletedMask;
     public bool Extending;
+    public int TimeUntilLock;
     public bool WarningOnly;
     public PendingRaidLock() : base(ServerOpcodes.PendingRaidLock) { }
 

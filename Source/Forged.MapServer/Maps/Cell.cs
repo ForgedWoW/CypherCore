@@ -35,14 +35,80 @@ public class Cell
         Data = cell.Data;
     }
 
-    public bool IsCellValid()
+    public static CellArea CalculateCellArea(float x, float y, float radius)
     {
-        return Data is { Cellx: < MapConst.MaxCells, Celly: < MapConst.MaxCells };
+        if (radius <= 0.0f)
+        {
+            var center = (CellCoord)GridDefines.ComputeCellCoord(x, y).Normalize();
+
+            return new CellArea(center, center);
+        }
+
+        var centerX = (CellCoord)GridDefines.ComputeCellCoord(x - radius, y - radius).Normalize();
+        var centerY = (CellCoord)GridDefines.ComputeCellCoord(x + radius, y + radius).Normalize();
+
+        return new CellArea(centerX, centerY);
     }
 
-    public uint GetId()
+    public static bool operator !=(Cell left, Cell right)
     {
-        return Data.Gridx * MapConst.MaxGrids + Data.Gridy;
+        return !(left == right);
+    }
+
+    public static bool operator ==(Cell left, Cell right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+
+        if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+            return false;
+
+        return left.Data.Cellx == right.Data.Cellx && left.Data.Celly == right.Data.Celly && left.Data.Gridx == right.Data.Gridx && left.Data.Gridy == right.Data.Gridy;
+    }
+
+    public static void VisitGrid(WorldObject center_obj, IGridNotifier visitor, float radius, bool dont_load = true)
+    {
+        var p = GridDefines.ComputeCellCoord(center_obj.Location.X, center_obj.Location.Y);
+        Cell cell = new(p);
+
+        if (dont_load)
+            cell.SetNoCreate();
+
+        cell.Visit(p, visitor, center_obj.Location.Map, center_obj, radius);
+    }
+
+    public static void VisitGrid(float x, float y, Map map, IGridNotifier visitor, float radius, bool dont_load = true)
+    {
+        var p = GridDefines.ComputeCellCoord(x, y);
+        Cell cell = new(p);
+
+        if (dont_load)
+            cell.SetNoCreate();
+
+        cell.Visit(p, visitor, map, x, y, radius);
+    }
+
+    public bool DiffCell(Cell cell)
+    {
+        return (Data.Cellx != cell.Data.Cellx ||
+                Data.Celly != cell.Data.Celly);
+    }
+
+    public bool DiffGrid(Cell cell)
+    {
+        return (Data.Gridx != cell.Data.Gridx ||
+                Data.Gridy != cell.Data.Gridy);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Cell && this == (Cell)obj;
+    }
+
+    public CellCoord GetCellCoord()
+    {
+        return new CellCoord(Data.Gridx * MapConst.MaxCells + Data.Cellx,
+                             Data.Gridy * MapConst.MaxCells + Data.Celly);
     }
 
     public uint GetCellX()
@@ -65,6 +131,20 @@ public class Cell
         return Data.Gridy;
     }
 
+    public override int GetHashCode()
+    {
+        return (int)(Data.Cellx ^ Data.Celly ^ Data.Gridx ^ Data.Gridy);
+    }
+
+    public uint GetId()
+    {
+        return Data.Gridx * MapConst.MaxGrids + Data.Gridy;
+    }
+
+    public bool IsCellValid()
+    {
+        return Data is { Cellx: < MapConst.MaxCells, Celly: < MapConst.MaxCells };
+    }
     public bool NoCreate()
     {
         return Data.NoCreate;
@@ -74,56 +154,10 @@ public class Cell
     {
         Data.NoCreate = true;
     }
-
-    public static bool operator ==(Cell left, Cell right)
-    {
-        if (ReferenceEquals(left, right))
-            return true;
-
-        if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-            return false;
-
-        return left.Data.Cellx == right.Data.Cellx && left.Data.Celly == right.Data.Celly && left.Data.Gridx == right.Data.Gridx && left.Data.Gridy == right.Data.Gridy;
-    }
-
-    public static bool operator !=(Cell left, Cell right)
-    {
-        return !(left == right);
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is Cell && this == (Cell)obj;
-    }
-
-    public override int GetHashCode()
-    {
-        return (int)(Data.Cellx ^ Data.Celly ^ Data.Gridx ^ Data.Gridy);
-    }
-
     public override string ToString()
     {
         return $"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
     }
-
-    public CellCoord GetCellCoord()
-    {
-        return new CellCoord(Data.Gridx * MapConst.MaxCells + Data.Cellx,
-                             Data.Gridy * MapConst.MaxCells + Data.Celly);
-    }
-
-    public bool DiffCell(Cell cell)
-    {
-        return (Data.Cellx != cell.Data.Cellx ||
-                Data.Celly != cell.Data.Celly);
-    }
-
-    public bool DiffGrid(Cell cell)
-    {
-        return (Data.Gridx != cell.Data.Gridx ||
-                Data.Gridy != cell.Data.Gridy);
-    }
-
     public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, WorldObject obj, float radius)
     {
         //we should increase search radius by object's radius, otherwise
@@ -193,44 +227,6 @@ public class Cell
             }
         }
     }
-
-    public static void VisitGrid(WorldObject center_obj, IGridNotifier visitor, float radius, bool dont_load = true)
-    {
-        var p = GridDefines.ComputeCellCoord(center_obj.Location.X, center_obj.Location.Y);
-        Cell cell = new(p);
-
-        if (dont_load)
-            cell.SetNoCreate();
-
-        cell.Visit(p, visitor, center_obj.Location.Map, center_obj, radius);
-    }
-
-    public static void VisitGrid(float x, float y, Map map, IGridNotifier visitor, float radius, bool dont_load = true)
-    {
-        var p = GridDefines.ComputeCellCoord(x, y);
-        Cell cell = new(p);
-
-        if (dont_load)
-            cell.SetNoCreate();
-
-        cell.Visit(p, visitor, map, x, y, radius);
-    }
-
-    public static CellArea CalculateCellArea(float x, float y, float radius)
-    {
-        if (radius <= 0.0f)
-        {
-            var center = (CellCoord)GridDefines.ComputeCellCoord(x, y).Normalize();
-
-            return new CellArea(center, center);
-        }
-
-        var centerX = (CellCoord)GridDefines.ComputeCellCoord(x - radius, y - radius).Normalize();
-        var centerY = (CellCoord)GridDefines.ComputeCellCoord(x + radius, y + radius).Normalize();
-
-        return new CellArea(centerX, centerY);
-    }
-
     private void VisitCircle(IGridNotifier visitor, Map map, ICoord begin_cell, ICoord end_cell)
     {
         //here is an algorithm for 'filling' circum-squared octagon
@@ -286,10 +282,10 @@ public class Cell
 
     public struct CellMetadata
     {
-        public uint Gridx;
-        public uint Gridy;
         public uint Cellx;
         public uint Celly;
+        public uint Gridx;
+        public uint Gridy;
         public bool NoCreate;
     }
 }

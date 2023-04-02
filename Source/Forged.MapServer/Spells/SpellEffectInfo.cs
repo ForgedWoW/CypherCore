@@ -16,34 +16,32 @@ namespace Forged.MapServer.Spells;
 
 public class SpellEffectInfo
 {
-    public int EffectIndex;
-
-    public SpellEffectName Effect;
+    public double Amplitude;
     public AuraType ApplyAuraName;
     public uint ApplyAuraPeriod;
     public double BasePoints;
-    public double RealPointsPerLevel;
-    public double PointsPerResource;
-    public double Amplitude;
-    public double ChainAmplitude;
     public double BonusCoefficient;
+    public double BonusCoefficientFromAp;
+    public double ChainAmplitude;
+    public int ChainTargets;
+    public SpellEffectName Effect;
+    public SpellEffectAttributes EffectAttributes;
+    public int EffectIndex;
+    public List<Condition> ImplicitTargetConditions;
+    public uint ItemType;
+    public SpellRadiusRecord MaxRadiusEntry;
+    public Mechanics Mechanic;
     public int MiscValue;
     public int MiscValueB;
-    public Mechanics Mechanic;
+    public double PointsPerResource;
     public float PositionFacing;
+    public SpellRadiusRecord RadiusEntry;
+    public double RealPointsPerLevel;
+    public ScalingInfo Scaling;
+    public FlagArray128 SpellClassMask;
     public SpellImplicitTargetInfo TargetA = new();
     public SpellImplicitTargetInfo TargetB = new();
-    public SpellRadiusRecord RadiusEntry;
-    public SpellRadiusRecord MaxRadiusEntry;
-    public int ChainTargets;
-    public uint ItemType;
     public uint TriggerSpell;
-    public FlagArray128 SpellClassMask;
-    public double BonusCoefficientFromAp;
-    public List<Condition> ImplicitTargetConditions;
-    public SpellEffectAttributes EffectAttributes;
-    public ScalingInfo Scaling;
-
     private static readonly StaticData[] _data = new StaticData[(int)SpellEffectName.TotalSpellEffects]
     {
         // implicit target type           used target object type
@@ -357,40 +355,6 @@ public class SpellEffectInfo
 
     private readonly SpellInfo _spellInfo;
 
-    public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
-
-    public bool IsAreaAuraEffect
-    {
-        get
-        {
-            if (Effect == SpellEffectName.ApplyAreaAuraParty ||
-                Effect == SpellEffectName.ApplyAreaAuraRaid ||
-                Effect == SpellEffectName.ApplyAreaAuraFriend ||
-                Effect == SpellEffectName.ApplyAreaAuraEnemy ||
-                Effect == SpellEffectName.ApplyAreaAuraPet ||
-                Effect == SpellEffectName.ApplyAreaAuraOwner ||
-                Effect == SpellEffectName.ApplyAreaAuraSummons ||
-                Effect == SpellEffectName.ApplyAreaAuraPartyNonrandom)
-                return true;
-
-            return false;
-        }
-    }
-
-    public bool IsUnitOwnedAuraEffect => IsAreaAuraEffect || Effect == SpellEffectName.ApplyAura || Effect == SpellEffectName.ApplyAuraOnPet;
-
-    public bool HasRadius => RadiusEntry != null && (RadiusEntry.RadiusMin != 0 || RadiusEntry.RadiusMax != 0);
-
-    public bool HasMaxRadius => MaxRadiusEntry != null && (MaxRadiusEntry.RadiusMin != 0 || MaxRadiusEntry.RadiusMax != 0);
-
-    public SpellCastTargetFlags ProvidedTargetMask => SpellInfo.GetTargetFlagMask(TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(TargetB.ObjectType);
-
-    public SpellEffectImplicitTargetTypes ImplicitTargetType => _data[(int)Effect].ImplicitTargetType;
-
-    public SpellTargetObjectTypes UsedTargetObjectType => _data[(int)Effect].UsedTargetObjectType;
-
-    public ImmunityInfo ImmunityInfo { get; }
-
     public SpellEffectInfo(SpellInfo spellInfo, SpellEffectRecord effect = null)
     {
         _spellInfo = spellInfo;
@@ -432,96 +396,32 @@ public class SpellEffectInfo
         ImmunityInfo = new ImmunityInfo();
     }
 
-    public bool IsEffect()
+    public bool HasMaxRadius => MaxRadiusEntry != null && (MaxRadiusEntry.RadiusMin != 0 || MaxRadiusEntry.RadiusMax != 0);
+    public bool HasRadius => RadiusEntry != null && (RadiusEntry.RadiusMin != 0 || RadiusEntry.RadiusMax != 0);
+    public ImmunityInfo ImmunityInfo { get; }
+    public SpellEffectImplicitTargetTypes ImplicitTargetType => _data[(int)Effect].ImplicitTargetType;
+    public bool IsAreaAuraEffect
     {
-        return Effect != 0;
-    }
-
-    public bool IsEffect(SpellEffectName effectName)
-    {
-        return Effect == effectName;
-    }
-
-    public bool IsAura()
-    {
-        return (IsUnitOwnedAuraEffect || Effect == SpellEffectName.PersistentAreaAura) && ApplyAuraName != 0;
-    }
-
-    public bool IsAura(AuraType aura)
-    {
-        return IsAura() && ApplyAuraName == aura;
-    }
-
-    public double CalcValue(WorldObject caster = null, double? bp = null, Unit target = null, uint castItemId = 0, int itemLevel = -1)
-    {
-        return CalcValue(out _, caster, bp, target, castItemId, itemLevel);
-    }
-
-    public double CalcValue(out double variance, WorldObject caster = null, double? bp = null, Unit target = null, uint castItemId = 0, int itemLevel = -1)
-    {
-        variance = 0.0f;
-        var basePointsPerLevel = RealPointsPerLevel;
-        var basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
-        var value = bp ?? basePoints;
-        var comboDamage = PointsPerResource;
-
-        Unit casterUnit = null;
-
-        if (caster != null)
-            casterUnit = caster.AsUnit;
-
-        if (Scaling.Variance != 0)
+        get
         {
-            var delta = Math.Abs(Scaling.Variance * 0.5f);
-            var valueVariance = RandomHelper.FRand(-delta, delta);
-            value += basePoints * valueVariance;
-            variance = valueVariance;
+            if (Effect == SpellEffectName.ApplyAreaAuraParty ||
+                Effect == SpellEffectName.ApplyAreaAuraRaid ||
+                Effect == SpellEffectName.ApplyAreaAuraFriend ||
+                Effect == SpellEffectName.ApplyAreaAuraEnemy ||
+                Effect == SpellEffectName.ApplyAreaAuraPet ||
+                Effect == SpellEffectName.ApplyAreaAuraOwner ||
+                Effect == SpellEffectName.ApplyAreaAuraSummons ||
+                Effect == SpellEffectName.ApplyAreaAuraPartyNonrandom)
+                return true;
+
+            return false;
         }
-
-        // base amount modification based on spell lvl vs caster lvl
-        if (Scaling.Coefficient != 0.0f)
-        {
-            if (Scaling.ResourceCoefficient != 0)
-                comboDamage = Scaling.ResourceCoefficient * value;
-        }
-        else if (GetScalingExpectedStat() == ExpectedStatType.None)
-        {
-            if (casterUnit != null && basePointsPerLevel != 0.0f)
-            {
-                var level = casterUnit.Level;
-
-                if (level > _spellInfo.MaxLevel && _spellInfo.MaxLevel > 0)
-                    level = _spellInfo.MaxLevel;
-
-                // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
-                level -= Math.Max(_spellInfo.BaseLevel, _spellInfo.SpellLevel);
-
-                if (level < 0)
-                    level = 0;
-
-                value += level * basePointsPerLevel;
-            }
-        }
-
-        // random damage
-        if (casterUnit != null)
-        {
-            // bonus amount from combo points
-            if (comboDamage != 0)
-            {
-                var comboPoints = casterUnit.GetComboPoints();
-
-                if (comboPoints != 0)
-                    value += comboDamage * comboPoints;
-            }
-
-            if (caster != null)
-                value = caster.ApplyEffectModifiers(_spellInfo, EffectIndex, value);
-        }
-
-        return value;
     }
 
+    public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
+    public bool IsUnitOwnedAuraEffect => IsAreaAuraEffect || Effect == SpellEffectName.ApplyAura || Effect == SpellEffectName.ApplyAuraOnPet;
+    public SpellCastTargetFlags ProvidedTargetMask => SpellInfo.GetTargetFlagMask(TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(TargetB.ObjectType);
+    public SpellTargetObjectTypes UsedTargetObjectType => _data[(int)Effect].UsedTargetObjectType;
     public double CalcBaseValue(WorldObject caster, Unit target, uint itemId, int itemLevel)
     {
         if (Scaling.Coefficient != 0.0f)
@@ -635,16 +535,6 @@ public class SpellEffectInfo
         }
     }
 
-    public double CalcValueMultiplier(WorldObject caster, Spell spell = null)
-    {
-        var multiplier = Amplitude;
-        var modOwner = caster?.SpellModOwner;
-
-        modOwner?.ApplySpellMod(_spellInfo, SpellModOp.Amplitude, ref multiplier, spell);
-
-        return multiplier;
-    }
-
     public double CalcDamageMultiplier(WorldObject caster, Spell spell = null)
     {
         var multiplierPercent = ChainAmplitude * 100.0f;
@@ -653,21 +543,6 @@ public class SpellEffectInfo
         modOwner?.ApplySpellMod(_spellInfo, SpellModOp.ChainAmplitude, ref multiplierPercent, spell);
 
         return multiplierPercent / 100.0f;
-    }
-
-    public SpellRadiusRecord GetLargestRange()
-    {
-        var max = HasMaxRadius;
-        var min = HasRadius;
-
-        if (!max && !min)
-            return null;
-        else if (max)
-            return MaxRadiusEntry;
-        else if (min)
-            return RadiusEntry;
-
-        return RadiusEntry.RadiusMax > MaxRadiusEntry.RadiusMax ? RadiusEntry : MaxRadiusEntry;
     }
 
     public float CalcRadius(WorldObject caster = null, Spell spell = null)
@@ -697,6 +572,101 @@ public class SpellEffectInfo
         }
 
         return radius;
+    }
+
+    public double CalcValue(WorldObject caster = null, double? bp = null, Unit target = null, uint castItemId = 0, int itemLevel = -1)
+    {
+        return CalcValue(out _, caster, bp, target, castItemId, itemLevel);
+    }
+
+    public double CalcValue(out double variance, WorldObject caster = null, double? bp = null, Unit target = null, uint castItemId = 0, int itemLevel = -1)
+    {
+        variance = 0.0f;
+        var basePointsPerLevel = RealPointsPerLevel;
+        var basePoints = CalcBaseValue(caster, target, castItemId, itemLevel);
+        var value = bp ?? basePoints;
+        var comboDamage = PointsPerResource;
+
+        Unit casterUnit = null;
+
+        if (caster != null)
+            casterUnit = caster.AsUnit;
+
+        if (Scaling.Variance != 0)
+        {
+            var delta = Math.Abs(Scaling.Variance * 0.5f);
+            var valueVariance = RandomHelper.FRand(-delta, delta);
+            value += basePoints * valueVariance;
+            variance = valueVariance;
+        }
+
+        // base amount modification based on spell lvl vs caster lvl
+        if (Scaling.Coefficient != 0.0f)
+        {
+            if (Scaling.ResourceCoefficient != 0)
+                comboDamage = Scaling.ResourceCoefficient * value;
+        }
+        else if (GetScalingExpectedStat() == ExpectedStatType.None)
+        {
+            if (casterUnit != null && basePointsPerLevel != 0.0f)
+            {
+                var level = casterUnit.Level;
+
+                if (level > _spellInfo.MaxLevel && _spellInfo.MaxLevel > 0)
+                    level = _spellInfo.MaxLevel;
+
+                // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
+                level -= Math.Max(_spellInfo.BaseLevel, _spellInfo.SpellLevel);
+
+                if (level < 0)
+                    level = 0;
+
+                value += level * basePointsPerLevel;
+            }
+        }
+
+        // random damage
+        if (casterUnit != null)
+        {
+            // bonus amount from combo points
+            if (comboDamage != 0)
+            {
+                var comboPoints = casterUnit.GetComboPoints();
+
+                if (comboPoints != 0)
+                    value += comboDamage * comboPoints;
+            }
+
+            if (caster != null)
+                value = caster.ApplyEffectModifiers(_spellInfo, EffectIndex, value);
+        }
+
+        return value;
+    }
+
+    public double CalcValueMultiplier(WorldObject caster, Spell spell = null)
+    {
+        var multiplier = Amplitude;
+        var modOwner = caster?.SpellModOwner;
+
+        modOwner?.ApplySpellMod(_spellInfo, SpellModOp.Amplitude, ref multiplier, spell);
+
+        return multiplier;
+    }
+
+    public SpellRadiusRecord GetLargestRange()
+    {
+        var max = HasMaxRadius;
+        var min = HasRadius;
+
+        if (!max && !min)
+            return null;
+        else if (max)
+            return MaxRadiusEntry;
+        else if (min)
+            return RadiusEntry;
+
+        return RadiusEntry.RadiusMax > MaxRadiusEntry.RadiusMax ? RadiusEntry : MaxRadiusEntry;
     }
 
     public SpellCastTargetFlags GetMissingTargetMask(bool srcSet = false, bool dstSet = false, SpellCastTargetFlags mask = 0)
@@ -729,6 +699,25 @@ public class SpellEffectInfo
         return effImplicitTargetMask;
     }
 
+    public bool IsAura()
+    {
+        return (IsUnitOwnedAuraEffect || Effect == SpellEffectName.PersistentAreaAura) && ApplyAuraName != 0;
+    }
+
+    public bool IsAura(AuraType aura)
+    {
+        return IsAura() && ApplyAuraName == aura;
+    }
+
+    public bool IsEffect()
+    {
+        return Effect != 0;
+    }
+
+    public bool IsEffect(SpellEffectName effectName)
+    {
+        return Effect == effectName;
+    }
     private ExpectedStatType GetScalingExpectedStat()
     {
         switch (Effect)
@@ -822,6 +811,14 @@ public class SpellEffectInfo
         return ExpectedStatType.None;
     }
 
+    public struct ScalingInfo
+    {
+        public int Class;
+        public double Coefficient;
+        public double ResourceCoefficient;
+        public double Variance;
+    }
+
     public class StaticData
     {
         public SpellEffectImplicitTargetTypes ImplicitTargetType; // defines what target can be added to effect target list if there's no valid target type provided for effect
@@ -832,13 +829,5 @@ public class SpellEffectInfo
             ImplicitTargetType = implicittarget;
             UsedTargetObjectType = usedtarget;
         }
-    }
-
-    public struct ScalingInfo
-    {
-        public int Class;
-        public double Coefficient;
-        public double Variance;
-        public double ResourceCoefficient;
     }
 }

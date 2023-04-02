@@ -7,9 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 internal class ChatAddonMessageTargeted : ClientPacket
 {
-    public string Target;
+    public ObjectGuid? ChannelGUID;
     public ChatAddonMessageParams Params = new();
-    public ObjectGuid? ChannelGUID; // not optional in the packet. Optional for api reasons
+    public string Target;
+    // not optional in the packet. Optional for api reasons
     public ChatAddonMessageTargeted(WorldPacket packet) : base(packet) { }
 
     public override void Read()

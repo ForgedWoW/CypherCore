@@ -9,11 +9,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellEmpowerStageUpdate : ServerPacket
 {
-    public ObjectGuid CastID;
     public ObjectGuid Caster;
+    public ObjectGuid CastID;
+    public List<uint> RemainingStageDurations = new();
     public int TimeRemaining;
     public bool Unk;
-    public List<uint> RemainingStageDurations = new();
     public SpellEmpowerStageUpdate() : base(ServerOpcodes.SpellEmpowerUpdate, ConnectionType.Instance) { }
 
     public override void Write()

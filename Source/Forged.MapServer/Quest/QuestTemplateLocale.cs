@@ -8,13 +8,13 @@ namespace Forged.MapServer.Quest;
 
 public class QuestTemplateLocale
 {
-    public StringArray LogTitle = new((int)Locale.Total);
-    public StringArray LogDescription = new((int)Locale.Total);
-    public StringArray QuestDescription = new((int)Locale.Total);
     public StringArray AreaDescription = new((int)Locale.Total);
-    public StringArray PortraitGiverText = new((int)Locale.Total);
+    public StringArray LogDescription = new((int)Locale.Total);
+    public StringArray LogTitle = new((int)Locale.Total);
     public StringArray PortraitGiverName = new((int)Locale.Total);
-    public StringArray PortraitTurnInText = new((int)Locale.Total);
+    public StringArray PortraitGiverText = new((int)Locale.Total);
     public StringArray PortraitTurnInName = new((int)Locale.Total);
+    public StringArray PortraitTurnInText = new((int)Locale.Total);
     public StringArray QuestCompletionLog = new((int)Locale.Total);
+    public StringArray QuestDescription = new((int)Locale.Total);
 }

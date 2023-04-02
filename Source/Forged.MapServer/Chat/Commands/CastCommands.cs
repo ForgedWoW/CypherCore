@@ -11,6 +11,65 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("cast")]
 internal class CastCommands
 {
+    private static bool CheckSpellExistsAndIsValid(CommandHandler handler, uint spellId)
+    {
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+
+        if (spellInfo == null)
+        {
+            handler.SendSysMessage(CypherStrings.CommandNospellfound);
+
+            return false;
+        }
+
+        if (!Global.SpellMgr.IsSpellValid(spellInfo, handler.Player))
+        {
+            handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellInfo.Id);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static TriggerCastFlags? GetTriggerFlags(string triggeredStr)
+    {
+        if (!triggeredStr.IsEmpty())
+        {
+            if (triggeredStr.StartsWith("triggered")) // check if "triggered" starts with *triggeredStr (e.g. "trig", "trigger", etc.)
+                return TriggerCastFlags.FullDebugMask;
+            else
+                return null;
+        }
+
+        return TriggerCastFlags.None;
+    }
+
+    [Command("back", RBACPermissions.CommandCastBack)]
+    private static bool HandleCastBackCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
+    {
+        var caster = handler.SelectedCreature;
+
+        if (!caster)
+        {
+            handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
+
+            return false;
+        }
+
+        if (CheckSpellExistsAndIsValid(handler, spellId))
+            return false;
+
+        var triggerFlags = GetTriggerFlags(triggeredStr);
+
+        if (!triggerFlags.HasValue)
+            return false;
+
+        caster.CastSpell((WorldObject)handler.Session.Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+
+        return true;
+    }
+
     [Command("", RBACPermissions.CommandCast)]
     private static bool HandleCastCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
     {
@@ -35,11 +94,10 @@ internal class CastCommands
 
         return true;
     }
-
-    [Command("back", RBACPermissions.CommandCastBack)]
-    private static bool HandleCastBackCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
+    [Command("dest", RBACPermissions.CommandCastDest)]
+    private static bool HandleCastDestCommand(CommandHandler handler, uint spellId, float x, float y, float z, [OptionalArg] string triggeredStr)
     {
-        var caster = handler.SelectedCreature;
+        var caster = handler.SelectedUnit;
 
         if (!caster)
         {
@@ -56,7 +114,7 @@ internal class CastCommands
         if (!triggerFlags.HasValue)
             return false;
 
-        caster.CastSpell((WorldObject)handler.Session.Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+        caster.CastSpell(new Position(x, y, z), spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
         return true;
     }
@@ -133,65 +191,6 @@ internal class CastCommands
             return false;
 
         caster.CastSpell(caster.Victim, spellId, new CastSpellExtraArgs(triggerFlags.Value));
-
-        return true;
-    }
-
-    [Command("dest", RBACPermissions.CommandCastDest)]
-    private static bool HandleCastDestCommand(CommandHandler handler, uint spellId, float x, float y, float z, [OptionalArg] string triggeredStr)
-    {
-        var caster = handler.SelectedUnit;
-
-        if (!caster)
-        {
-            handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
-
-            return false;
-        }
-
-        if (CheckSpellExistsAndIsValid(handler, spellId))
-            return false;
-
-        var triggerFlags = GetTriggerFlags(triggeredStr);
-
-        if (!triggerFlags.HasValue)
-            return false;
-
-        caster.CastSpell(new Position(x, y, z), spellId, new CastSpellExtraArgs(triggerFlags.Value));
-
-        return true;
-    }
-
-    private static TriggerCastFlags? GetTriggerFlags(string triggeredStr)
-    {
-        if (!triggeredStr.IsEmpty())
-        {
-            if (triggeredStr.StartsWith("triggered")) // check if "triggered" starts with *triggeredStr (e.g. "trig", "trigger", etc.)
-                return TriggerCastFlags.FullDebugMask;
-            else
-                return null;
-        }
-
-        return TriggerCastFlags.None;
-    }
-
-    private static bool CheckSpellExistsAndIsValid(CommandHandler handler, uint spellId)
-    {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
-
-        if (spellInfo == null)
-        {
-            handler.SendSysMessage(CypherStrings.CommandNospellfound);
-
-            return false;
-        }
-
-        if (!Global.SpellMgr.IsSpellValid(spellInfo, handler.Player))
-        {
-            handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellInfo.Id);
-
-            return false;
-        }
 
         return true;
     }

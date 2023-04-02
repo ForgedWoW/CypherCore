@@ -5,9 +5,8 @@ namespace Forged.MapServer.LootManagement;
 
 public class NotNormalLootItem
 {
-    public byte LootListId; // position in quest_items or items;
     public bool IsLooted;
-
+    public byte LootListId; // position in quest_items or items;
     public NotNormalLootItem()
     {
         LootListId = 0;

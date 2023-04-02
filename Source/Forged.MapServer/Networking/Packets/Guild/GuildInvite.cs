@@ -9,20 +9,20 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildInvite : ServerPacket
 {
-    public ObjectGuid GuildGUID;
-    public ObjectGuid OldGuildGUID;
     public int AchievementPoints;
+    public uint Background;
+    public uint BorderColor;
+    public uint BorderStyle;
     public uint EmblemColor;
     public uint EmblemStyle;
-    public uint BorderStyle;
-    public uint BorderColor;
-    public uint Background;
-    public uint GuildVirtualRealmAddress;
-    public uint OldGuildVirtualRealmAddress;
-    public uint InviterVirtualRealmAddress;
-    public string InviterName;
+    public ObjectGuid GuildGUID;
     public string GuildName;
+    public uint GuildVirtualRealmAddress;
+    public string InviterName;
+    public uint InviterVirtualRealmAddress;
+    public ObjectGuid OldGuildGUID;
     public string OldGuildName;
+    public uint OldGuildVirtualRealmAddress;
     public GuildInvite() : base(ServerOpcodes.GuildInvite) { }
 
     public override void Write()

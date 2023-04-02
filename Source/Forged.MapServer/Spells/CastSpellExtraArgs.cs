@@ -11,18 +11,17 @@ namespace Forged.MapServer.Spells;
 
 public class CastSpellExtraArgs
 {
-    public TriggerCastFlags TriggerFlags;
-    public Item CastItem;
-    public Spell TriggeringSpell;
-    public AuraEffect TriggeringAura;
-    public ObjectGuid OriginalCaster = ObjectGuid.Empty;
     public Difficulty CastDifficulty;
+    public Item CastItem;
+    public object CustomArg;
+    public byte? EmpowerStage;
+    public ObjectGuid OriginalCaster = ObjectGuid.Empty;
     public ObjectGuid OriginalCastId = ObjectGuid.Empty;
     public int? OriginalCastItemLevel;
     public Dictionary<SpellValueMod, double> SpellValueOverrides = new();
-    public object CustomArg;
-    public byte? EmpowerStage;
-
+    public TriggerCastFlags TriggerFlags;
+    public AuraEffect TriggeringAura;
+    public Spell TriggeringSpell;
     public CastSpellExtraArgs() { }
 
     public CastSpellExtraArgs(bool triggered)
@@ -63,9 +62,16 @@ public class CastSpellExtraArgs
         SpellValueOverrides.Add(mod, val);
     }
 
-    public CastSpellExtraArgs SetTriggerFlags(TriggerCastFlags flag)
+    public CastSpellExtraArgs AddSpellMod(SpellValueMod mod, double val)
     {
-        TriggerFlags = flag;
+        SpellValueOverrides[mod] = val;
+
+        return this;
+    }
+
+    public CastSpellExtraArgs SetCastDifficulty(Difficulty castDifficulty)
+    {
+        CastDifficulty = castDifficulty;
 
         return this;
     }
@@ -77,6 +83,13 @@ public class CastSpellExtraArgs
         return this;
     }
 
+    public CastSpellExtraArgs SetCustomArg(object customArg)
+    {
+        CustomArg = customArg;
+
+        return this;
+    }
+
     public CastSpellExtraArgs SetIsTriggered(bool triggered)
     {
         TriggerFlags = triggered ? TriggerCastFlags.FullMask : TriggerCastFlags.None;
@@ -84,9 +97,39 @@ public class CastSpellExtraArgs
         return this;
     }
 
+    public CastSpellExtraArgs SetOriginalCaster(ObjectGuid guid)
+    {
+        OriginalCaster = guid;
+
+        return this;
+    }
+
+    public CastSpellExtraArgs SetOriginalCastId(ObjectGuid castId)
+    {
+        OriginalCastId = castId;
+
+        return this;
+    }
+
     public CastSpellExtraArgs SetSpellValueMod(SpellValueMod mod, double val)
     {
         SpellValueOverrides[mod] = val;
+
+        return this;
+    }
+
+    public CastSpellExtraArgs SetTriggerFlags(TriggerCastFlags flag)
+    {
+        TriggerFlags = flag;
+
+        return this;
+    }
+    public CastSpellExtraArgs SetTriggeringAura(AuraEffect triggeringAura)
+    {
+        TriggeringAura = triggeringAura;
+
+        if (triggeringAura != null)
+            OriginalCastId = triggeringAura.Base.CastId;
 
         return this;
     }
@@ -100,51 +143,6 @@ public class CastSpellExtraArgs
             OriginalCastItemLevel = triggeringSpell.CastItemLevel;
             OriginalCastId = triggeringSpell.CastId;
         }
-
-        return this;
-    }
-
-    public CastSpellExtraArgs SetTriggeringAura(AuraEffect triggeringAura)
-    {
-        TriggeringAura = triggeringAura;
-
-        if (triggeringAura != null)
-            OriginalCastId = triggeringAura.Base.CastId;
-
-        return this;
-    }
-
-    public CastSpellExtraArgs SetOriginalCaster(ObjectGuid guid)
-    {
-        OriginalCaster = guid;
-
-        return this;
-    }
-
-    public CastSpellExtraArgs SetCastDifficulty(Difficulty castDifficulty)
-    {
-        CastDifficulty = castDifficulty;
-
-        return this;
-    }
-
-    public CastSpellExtraArgs SetOriginalCastId(ObjectGuid castId)
-    {
-        OriginalCastId = castId;
-
-        return this;
-    }
-
-    public CastSpellExtraArgs AddSpellMod(SpellValueMod mod, double val)
-    {
-        SpellValueOverrides[mod] = val;
-
-        return this;
-    }
-
-    public CastSpellExtraArgs SetCustomArg(object customArg)
-    {
-        CustomArg = customArg;
 
         return this;
     }

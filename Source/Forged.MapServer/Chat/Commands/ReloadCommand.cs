@@ -34,12 +34,12 @@ internal class ReloadCommand
         return true;
     }
 
-    [Command("areatrigger_involvedrelation", RBACPermissions.CommandReloadAreatriggerInvolvedrelation, true)]
-    private static bool HandleReloadQuestAreaTriggersCommand(CommandHandler handler)
+    [Command("achievement_reward_locale", RBACPermissions.CommandReloadAchievementRewardLocale, true)]
+    private static bool HandleReloadAchievementRewardLocaleCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Quest Area Triggers...");
-        Global.ObjectMgr.LoadQuestAreaTriggers();
-        handler.SendGlobalGMSysMessage("DB table `areatrigger_involvedrelation` (quest area triggers) reloaded.");
+        Log.Logger.Information("Re-Loading Achievement Reward Data Locale...");
+        Global.AchievementMgr.LoadRewardLocales();
+        handler.SendGlobalGMSysMessage("DB table `achievement_reward_locale` reloaded.");
 
         return true;
     }
@@ -146,44 +146,12 @@ internal class ReloadCommand
         return true;
     }
 
-    [Command("creature_linked_respawn", RBACPermissions.CommandReloadCreatureLinkedRespawn, true)]
-    private static bool HandleReloadLinkedRespawnCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Loading Linked Respawns... (`creature_linked_respawn`)");
-        Global.ObjectMgr.LoadLinkedRespawn();
-        handler.SendGlobalGMSysMessage("DB table `creature_linked_respawn` (creature linked respawns) reloaded.");
-
-        return true;
-    }
-
-    [Command("creature_loot_template", RBACPermissions.CommandReloadCreatureLootTemplate, true)]
-    private static bool HandleReloadLootTemplatesCreatureCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Loot Tables... (`creature_loot_template`)");
-        LootManager.LoadLootTemplates_Creature();
-        LootStoreBox.Creature.CheckLootRefs();
-        handler.SendGlobalGMSysMessage("DB table `creature_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
-
-        return true;
-    }
-
     [Command("creature_movement_override", RBACPermissions.CommandReloadCreatureMovementOverride, true)]
     private static bool HandleReloadCreatureMovementOverrideCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Creature movement overrides...");
         Global.ObjectMgr.LoadCreatureMovementOverrides();
         handler.SendGlobalGMSysMessage("DB table `creature_movement_override` reloaded.");
-
-        return true;
-    }
-
-    [Command("creature_onkill_reputation", RBACPermissions.CommandReloadCreatureOnkillReputation, true)]
-    private static bool HandleReloadOnKillReputationCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading creature award reputation definitions...");
-        Global.ObjectMgr.LoadReputationOnKill();
-        handler.SendGlobalGMSysMessage("DB table `creature_onkill_reputation` reloaded.");
 
         return true;
     }
@@ -261,6 +229,16 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("creature_template_locale", RBACPermissions.CommandReloadCreatureTemplateLocale, true)]
+    private static bool HandleReloadCreatureTemplateLocaleCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Creature Template Locale...");
+        Global.ObjectMgr.LoadCreatureLocales();
+        handler.SendGlobalGMSysMessage("DB table `Creature Template Locale` reloaded.");
+
+        return true;
+    }
+
     [Command("creature_text", RBACPermissions.CommandReloadCreatureText, true)]
     private static bool HandleReloadCreatureText(CommandHandler handler)
     {
@@ -271,12 +249,12 @@ internal class ReloadCommand
         return true;
     }
 
-    [Command("trinity_string", RBACPermissions.CommandReloadCypherString, true)]
-    private static bool HandleReloadCypherStringCommand(CommandHandler handler)
+    [Command("creature_text_locale", RBACPermissions.CommandReloadCreatureTextLocale, true)]
+    private static bool HandleReloadCreatureTextLocaleCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading trinity_string Table!");
-        Global.ObjectMgr.LoadCypherStrings();
-        handler.SendGlobalGMSysMessage("DB table `trinity_string` reloaded.");
+        Log.Logger.Information("Re-Loading Creature Texts Locale...");
+        Global.CreatureTextMgr.LoadCreatureTextLocales();
+        handler.SendGlobalGMSysMessage("DB table `creature_text_locale` reloaded.");
 
         return true;
     }
@@ -291,6 +269,16 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("trinity_string", RBACPermissions.CommandReloadCypherString, true)]
+    private static bool HandleReloadCypherStringCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading trinity_string Table!");
+        Global.ObjectMgr.LoadCypherStrings();
+        handler.SendGlobalGMSysMessage("DB table `trinity_string` reloaded.");
+
+        return true;
+    }
+
     [Command("disables", RBACPermissions.CommandReloadDisables, true)]
     private static bool HandleReloadDisablesCommand(CommandHandler handler)
     {
@@ -299,18 +287,6 @@ internal class ReloadCommand
         Log.Logger.Information("Checking quest disables...");
         Global.DisableMgr.CheckQuestDisables();
         handler.SendGlobalGMSysMessage("DB table `disables` reloaded.");
-
-        return true;
-    }
-
-    [Command("disenchant_loot_template", RBACPermissions.CommandReloadDisenchantLootTemplate, true)]
-    private static bool HandleReloadLootTemplatesDisenchantCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Loot Tables... (`disenchant_loot_template`)");
-        LootManager.LoadLootTemplates_Disenchant();
-        LootStoreBox.Disenchant.CheckLootRefs();
-        handler.SendGlobalGMSysMessage("DB table `disenchant_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
@@ -336,18 +312,6 @@ internal class ReloadCommand
         return true;
     }
 
-    [Command("fishing_loot_template", RBACPermissions.CommandReloadFishingLootTemplate, true)]
-    private static bool HandleReloadLootTemplatesFishingCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Loot Tables... (`fishing_loot_template`)");
-        LootManager.LoadLootTemplates_Fishing();
-        LootStoreBox.Fishing.CheckLootRefs();
-        handler.SendGlobalGMSysMessage("DB table `fishing_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
-
-        return true;
-    }
-
     [Command("graveyard_zone", RBACPermissions.CommandReloadGraveyardZone, true)]
     private static bool HandleReloadGameGraveyardZoneCommand(CommandHandler handler)
     {
@@ -360,6 +324,16 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("gameobject_template_locale", RBACPermissions.CommandReloadGameobjectTemplateLocale, true)]
+    private static bool HandleReloadGameobjectTemplateLocaleCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Gameobject Template Locale... ");
+        Global.ObjectMgr.LoadGameObjectLocales();
+        handler.SendGlobalGMSysMessage("DB table `gameobject_template_locale` reloaded.");
+
+        return true;
+    }
+
     [Command("game_tele", RBACPermissions.CommandReloadGameTele, true)]
     private static bool HandleReloadGameTeleCommand(CommandHandler handler)
     {
@@ -368,18 +342,6 @@ internal class ReloadCommand
         Global.ObjectMgr.LoadGameTele();
 
         handler.SendGlobalGMSysMessage("DB table `game_tele` reloaded.");
-
-        return true;
-    }
-
-    [Command("gameobject_loot_template", RBACPermissions.CommandReloadGameobjectQuestLootTemplate, true)]
-    private static bool HandleReloadLootTemplatesGameobjectCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Loot Tables... (`gameobject_loot_template`)");
-        LootManager.LoadLootTemplates_Gameobject();
-        LootStoreBox.Gameobject.CheckLootRefs();
-        handler.SendGlobalGMSysMessage("DB table `gameobject_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
@@ -426,24 +388,22 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("gossip_menu_option_locale", RBACPermissions.CommandReloadGossipMenuOptionLocale, true)]
+    private static bool HandleReloadGossipMenuOptionLocaleCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Gossip Menu Option Locale... ");
+        Global.ObjectMgr.LoadGossipMenuItemsLocales();
+        handler.SendGlobalGMSysMessage("DB table `gossip_menu_option_locale` reloaded.");
+
+        return true;
+    }
+
     [Command("item_random_bonus_list_template", RBACPermissions.CommandReloadItemRandomBonusListTemplate, true)]
     private static bool HandleReloadItemRandomBonusListTemplatesCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Random item bonus list definitions...");
         ItemEnchantmentManager.LoadItemRandomBonusListTemplates();
         handler.SendGlobalGMSysMessage("DB table `item_random_bonus_list_template` reloaded.");
-
-        return true;
-    }
-
-    [Command("item_loot_template", RBACPermissions.CommandReloadItemLootTemplate, true)]
-    private static bool HandleReloadLootTemplatesItemCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Loot Tables... (`item_loot_template`)");
-        LootManager.LoadLootTemplates_Item();
-        LootStoreBox.Items.CheckLootRefs();
-        handler.SendGlobalGMSysMessage("DB table `item_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
@@ -458,82 +418,72 @@ internal class ReloadCommand
         return true;
     }
 
-    [Command("achievement_reward_locale", RBACPermissions.CommandReloadAchievementRewardLocale, true)]
-    private static bool HandleReloadAchievementRewardLocaleCommand(CommandHandler handler)
+    [Command("creature_linked_respawn", RBACPermissions.CommandReloadCreatureLinkedRespawn, true)]
+    private static bool HandleReloadLinkedRespawnCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Achievement Reward Data Locale...");
-        Global.AchievementMgr.LoadRewardLocales();
-        handler.SendGlobalGMSysMessage("DB table `achievement_reward_locale` reloaded.");
+        Log.Logger.Information("Loading Linked Respawns... (`creature_linked_respawn`)");
+        Global.ObjectMgr.LoadLinkedRespawn();
+        handler.SendGlobalGMSysMessage("DB table `creature_linked_respawn` (creature linked respawns) reloaded.");
 
         return true;
     }
 
-    [Command("creature_template_locale", RBACPermissions.CommandReloadCreatureTemplateLocale, true)]
-    private static bool HandleReloadCreatureTemplateLocaleCommand(CommandHandler handler)
+    [Command("creature_loot_template", RBACPermissions.CommandReloadCreatureLootTemplate, true)]
+    private static bool HandleReloadLootTemplatesCreatureCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Creature Template Locale...");
-        Global.ObjectMgr.LoadCreatureLocales();
-        handler.SendGlobalGMSysMessage("DB table `Creature Template Locale` reloaded.");
+        Log.Logger.Information("Re-Loading Loot Tables... (`creature_loot_template`)");
+        LootManager.LoadLootTemplates_Creature();
+        LootStoreBox.Creature.CheckLootRefs();
+        handler.SendGlobalGMSysMessage("DB table `creature_loot_template` reloaded.");
+        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
 
-    [Command("creature_text_locale", RBACPermissions.CommandReloadCreatureTextLocale, true)]
-    private static bool HandleReloadCreatureTextLocaleCommand(CommandHandler handler)
+    [Command("disenchant_loot_template", RBACPermissions.CommandReloadDisenchantLootTemplate, true)]
+    private static bool HandleReloadLootTemplatesDisenchantCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Creature Texts Locale...");
-        Global.CreatureTextMgr.LoadCreatureTextLocales();
-        handler.SendGlobalGMSysMessage("DB table `creature_text_locale` reloaded.");
+        Log.Logger.Information("Re-Loading Loot Tables... (`disenchant_loot_template`)");
+        LootManager.LoadLootTemplates_Disenchant();
+        LootStoreBox.Disenchant.CheckLootRefs();
+        handler.SendGlobalGMSysMessage("DB table `disenchant_loot_template` reloaded.");
+        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
 
-    [Command("gameobject_template_locale", RBACPermissions.CommandReloadGameobjectTemplateLocale, true)]
-    private static bool HandleReloadGameobjectTemplateLocaleCommand(CommandHandler handler)
+    [Command("fishing_loot_template", RBACPermissions.CommandReloadFishingLootTemplate, true)]
+    private static bool HandleReloadLootTemplatesFishingCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Gameobject Template Locale... ");
-        Global.ObjectMgr.LoadGameObjectLocales();
-        handler.SendGlobalGMSysMessage("DB table `gameobject_template_locale` reloaded.");
+        Log.Logger.Information("Re-Loading Loot Tables... (`fishing_loot_template`)");
+        LootManager.LoadLootTemplates_Fishing();
+        LootStoreBox.Fishing.CheckLootRefs();
+        handler.SendGlobalGMSysMessage("DB table `fishing_loot_template` reloaded.");
+        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
 
-    [Command("gossip_menu_option_locale", RBACPermissions.CommandReloadGossipMenuOptionLocale, true)]
-    private static bool HandleReloadGossipMenuOptionLocaleCommand(CommandHandler handler)
+    [Command("gameobject_loot_template", RBACPermissions.CommandReloadGameobjectQuestLootTemplate, true)]
+    private static bool HandleReloadLootTemplatesGameobjectCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Gossip Menu Option Locale... ");
-        Global.ObjectMgr.LoadGossipMenuItemsLocales();
-        handler.SendGlobalGMSysMessage("DB table `gossip_menu_option_locale` reloaded.");
+        Log.Logger.Information("Re-Loading Loot Tables... (`gameobject_loot_template`)");
+        LootManager.LoadLootTemplates_Gameobject();
+        LootStoreBox.Gameobject.CheckLootRefs();
+        handler.SendGlobalGMSysMessage("DB table `gameobject_loot_template` reloaded.");
+        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
 
-    [Command("page_text_locale", RBACPermissions.CommandReloadPageTextLocale, true)]
-    private static bool HandleReloadPageTextLocaleCommand(CommandHandler handler)
+    [Command("item_loot_template", RBACPermissions.CommandReloadItemLootTemplate, true)]
+    private static bool HandleReloadLootTemplatesItemCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Page Text Locale... ");
-        Global.ObjectMgr.LoadPageTextLocales();
-        handler.SendGlobalGMSysMessage("DB table `page_text_locale` reloaded.");
-
-        return true;
-    }
-
-    [Command("points_of_interest_locale", RBACPermissions.CommandReloadPointsOfInterestLocale, true)]
-    private static bool HandleReloadPointsOfInterestLocaleCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Points Of Interest Locale... ");
-        Global.ObjectMgr.LoadPointOfInterestLocales();
-        handler.SendGlobalGMSysMessage("DB table `points_of_interest_locale` reloaded.");
-
-        return true;
-    }
-
-    [Command("mail_level_reward", RBACPermissions.CommandReloadMailLevelReward, true)]
-    private static bool HandleReloadMailLevelRewardCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Player level dependent mail rewards...");
-        Global.ObjectMgr.LoadMailLevelRewards();
-        handler.SendGlobalGMSysMessage("DB table `mail_level_reward` reloaded.");
+        Log.Logger.Information("Re-Loading Loot Tables... (`item_loot_template`)");
+        LootManager.LoadLootTemplates_Item();
+        LootStoreBox.Items.CheckLootRefs();
+        handler.SendGlobalGMSysMessage("DB table `item_loot_template` reloaded.");
+        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
@@ -562,36 +512,6 @@ internal class ReloadCommand
         return true;
     }
 
-    [Command("npc_spellclick_spells", RBACPermissions.CommandReloadNpcSpellclickSpells, true)]
-    private static bool HandleReloadSpellClickSpellsCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading `npc_spellclick_spells` Table!");
-        Global.ObjectMgr.LoadNPCSpellClickSpells();
-        handler.SendGlobalGMSysMessage("DB table `npc_spellclick_spells` reloaded.");
-
-        return true;
-    }
-
-    [Command("npc_vendor", RBACPermissions.CommandReloadNpcVendor, true)]
-    private static bool HandleReloadNpcVendorCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading `npc_vendor` Table!");
-        Global.ObjectMgr.LoadVendors();
-        handler.SendGlobalGMSysMessage("DB table `npc_vendor` reloaded.");
-
-        return true;
-    }
-
-    [Command("page_text", RBACPermissions.CommandReloadPageText, true)]
-    private static bool HandleReloadPageTextsCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Page Text...");
-        Global.ObjectMgr.LoadPageTexts();
-        handler.SendGlobalGMSysMessage("DB table `page_text` reloaded.");
-
-        return true;
-    }
-
     [Command("pickpocketing_loot_template", RBACPermissions.CommandReloadPickpocketingLootTemplate, true)]
     private static bool HandleReloadLootTemplatesPickpocketingCommand(CommandHandler handler)
     {
@@ -600,16 +520,6 @@ internal class ReloadCommand
         LootStoreBox.Pickpocketing.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `pickpocketing_loot_template` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
-
-        return true;
-    }
-
-    [Command("points_of_interest", RBACPermissions.CommandReloadPointsOfInterest, true)]
-    private static bool HandleReloadPointsOfInterestCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading `points_of_interest` Table!");
-        Global.ObjectMgr.LoadPointsOfInterest();
-        handler.SendGlobalGMSysMessage("DB table `points_of_interest` reloaded.");
 
         return true;
     }
@@ -626,30 +536,126 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("reference_loot_template", RBACPermissions.CommandReloadReferenceLootTemplate, true)]
+    private static bool HandleReloadLootTemplatesReferenceCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Loot Tables... (`reference_loot_template`)");
+        LootManager.LoadLootTemplates_Reference();
+        handler.SendGlobalGMSysMessage("DB table `reference_loot_template` reloaded.");
+        Global.ConditionMgr.LoadConditions(true);
+
+        return true;
+    }
+
+    [Command("skinning_loot_template", RBACPermissions.CommandReloadSkinningLootTemplate, true)]
+    private static bool HandleReloadLootTemplatesSkinningCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Loot Tables... (`skinning_loot_template`)");
+        LootManager.LoadLootTemplates_Skinning();
+        LootStoreBox.Skinning.CheckLootRefs();
+        handler.SendGlobalGMSysMessage("DB table `skinning_loot_template` reloaded.");
+        Global.ConditionMgr.LoadConditions(true);
+
+        return true;
+    }
+
+    [Command("spell_loot_template", RBACPermissions.CommandReloadSpellLootTemplate, true)]
+    private static bool HandleReloadLootTemplatesSpellCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Loot Tables... (`spell_loot_template`)");
+        LootManager.LoadLootTemplates_Spell();
+        LootStoreBox.Spell.CheckLootRefs();
+        handler.SendGlobalGMSysMessage("DB table `spell_loot_template` reloaded.");
+        Global.ConditionMgr.LoadConditions(true);
+
+        return true;
+    }
+
+    [Command("mail_level_reward", RBACPermissions.CommandReloadMailLevelReward, true)]
+    private static bool HandleReloadMailLevelRewardCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Player level dependent mail rewards...");
+        Global.ObjectMgr.LoadMailLevelRewards();
+        handler.SendGlobalGMSysMessage("DB table `mail_level_reward` reloaded.");
+
+        return true;
+    }
+
+    [Command("npc_vendor", RBACPermissions.CommandReloadNpcVendor, true)]
+    private static bool HandleReloadNpcVendorCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading `npc_vendor` Table!");
+        Global.ObjectMgr.LoadVendors();
+        handler.SendGlobalGMSysMessage("DB table `npc_vendor` reloaded.");
+
+        return true;
+    }
+
+    [Command("creature_onkill_reputation", RBACPermissions.CommandReloadCreatureOnkillReputation, true)]
+    private static bool HandleReloadOnKillReputationCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading creature award reputation definitions...");
+        Global.ObjectMgr.LoadReputationOnKill();
+        handler.SendGlobalGMSysMessage("DB table `creature_onkill_reputation` reloaded.");
+
+        return true;
+    }
+
+    [Command("page_text_locale", RBACPermissions.CommandReloadPageTextLocale, true)]
+    private static bool HandleReloadPageTextLocaleCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Page Text Locale... ");
+        Global.ObjectMgr.LoadPageTextLocales();
+        handler.SendGlobalGMSysMessage("DB table `page_text_locale` reloaded.");
+
+        return true;
+    }
+
+    [Command("page_text", RBACPermissions.CommandReloadPageText, true)]
+    private static bool HandleReloadPageTextsCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Page Text...");
+        Global.ObjectMgr.LoadPageTexts();
+        handler.SendGlobalGMSysMessage("DB table `page_text` reloaded.");
+
+        return true;
+    }
+
+    [Command("points_of_interest", RBACPermissions.CommandReloadPointsOfInterest, true)]
+    private static bool HandleReloadPointsOfInterestCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading `points_of_interest` Table!");
+        Global.ObjectMgr.LoadPointsOfInterest();
+        handler.SendGlobalGMSysMessage("DB table `points_of_interest` reloaded.");
+
+        return true;
+    }
+
+    [Command("points_of_interest_locale", RBACPermissions.CommandReloadPointsOfInterestLocale, true)]
+    private static bool HandleReloadPointsOfInterestLocaleCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Points Of Interest Locale... ");
+        Global.ObjectMgr.LoadPointOfInterestLocales();
+        handler.SendGlobalGMSysMessage("DB table `points_of_interest_locale` reloaded.");
+
+        return true;
+    }
+
+    [Command("areatrigger_involvedrelation", RBACPermissions.CommandReloadAreatriggerInvolvedrelation, true)]
+    private static bool HandleReloadQuestAreaTriggersCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Quest Area Triggers...");
+        Global.ObjectMgr.LoadQuestAreaTriggers();
+        handler.SendGlobalGMSysMessage("DB table `areatrigger_involvedrelation` (quest area triggers) reloaded.");
+
+        return true;
+    }
     [Command("quest_greeting", RBACPermissions.CommandReloadQuestGreeting, true)]
     private static bool HandleReloadQuestGreetingCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Quest Greeting ... ");
         Global.ObjectMgr.LoadQuestGreetings();
         handler.SendGlobalGMSysMessage("DB table `quest_greeting` reloaded.");
-
-        return true;
-    }
-
-    [Command("quest_locale", RBACPermissions.CommandReloadQuestTemplateLocale, true)]
-    private static bool HandleReloadQuestTemplateLocaleCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Quest Locale... ");
-        Global.ObjectMgr.LoadQuestTemplateLocale();
-        Global.ObjectMgr.LoadQuestObjectivesLocale();
-        Global.ObjectMgr.LoadQuestGreetingLocales();
-        Global.ObjectMgr.LoadQuestOfferRewardLocale();
-        Global.ObjectMgr.LoadQuestRequestItemsLocale();
-        handler.SendGlobalGMSysMessage("DB table `quest_template_locale` reloaded.");
-        handler.SendGlobalGMSysMessage("DB table `quest_objectives_locale` reloaded.");
-        handler.SendGlobalGMSysMessage("DB table `quest_greeting_locale` reloaded.");
-        handler.SendGlobalGMSysMessage("DB table `quest_offer_reward_locale` reloaded.");
-        handler.SendGlobalGMSysMessage("DB table `quest_request_items_locale` reloaded.");
 
         return true;
     }
@@ -681,6 +687,24 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("quest_locale", RBACPermissions.CommandReloadQuestTemplateLocale, true)]
+    private static bool HandleReloadQuestTemplateLocaleCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading Quest Locale... ");
+        Global.ObjectMgr.LoadQuestTemplateLocale();
+        Global.ObjectMgr.LoadQuestObjectivesLocale();
+        Global.ObjectMgr.LoadQuestGreetingLocales();
+        Global.ObjectMgr.LoadQuestOfferRewardLocale();
+        Global.ObjectMgr.LoadQuestRequestItemsLocale();
+        handler.SendGlobalGMSysMessage("DB table `quest_template_locale` reloaded.");
+        handler.SendGlobalGMSysMessage("DB table `quest_objectives_locale` reloaded.");
+        handler.SendGlobalGMSysMessage("DB table `quest_greeting_locale` reloaded.");
+        handler.SendGlobalGMSysMessage("DB table `quest_offer_reward_locale` reloaded.");
+        handler.SendGlobalGMSysMessage("DB table `quest_request_items_locale` reloaded.");
+
+        return true;
+    }
+
     [Command("rbac", RBACPermissions.CommandReloadRbac, true)]
     private static bool HandleReloadRBACCommand(CommandHandler handler)
     {
@@ -688,17 +712,6 @@ internal class ReloadCommand
         Global.AccountMgr.LoadRBAC();
         Global.WorldMgr.ReloadRBAC();
         handler.SendGlobalGMSysMessage("RBAC data reloaded.");
-
-        return true;
-    }
-
-    [Command("reference_loot_template", RBACPermissions.CommandReloadReferenceLootTemplate, true)]
-    private static bool HandleReloadLootTemplatesReferenceCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Loot Tables... (`reference_loot_template`)");
-        LootManager.LoadLootTemplates_Reference();
-        handler.SendGlobalGMSysMessage("DB table `reference_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
 
         return true;
     }
@@ -753,16 +766,6 @@ internal class ReloadCommand
         return true;
     }
 
-    private static bool HandleReloadSkillPerfectItemTemplateCommand(CommandHandler handler)
-    {
-        // latched onto HandleReloadSkillExtraItemTemplateCommand as it's part of that table group (and i don't want to chance all the command IDs)
-        Log.Logger.Information("Re-Loading Skill Perfection Data Table...");
-        SkillPerfectItems.LoadSkillPerfectItemTable();
-        handler.SendGlobalGMSysMessage("DB table `skill_perfect_item_template` (perfect item procs when crafting) reloaded.");
-
-        return true;
-    }
-
     [Command("skill_extra_item_template", RBACPermissions.CommandReloadSkillExtraItemTemplate, true)]
     private static bool HandleReloadSkillExtraItemTemplateCommand(CommandHandler handler)
     {
@@ -783,14 +786,12 @@ internal class ReloadCommand
         return true;
     }
 
-    [Command("skinning_loot_template", RBACPermissions.CommandReloadSkinningLootTemplate, true)]
-    private static bool HandleReloadLootTemplatesSkinningCommand(CommandHandler handler)
+    private static bool HandleReloadSkillPerfectItemTemplateCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Loot Tables... (`skinning_loot_template`)");
-        LootManager.LoadLootTemplates_Skinning();
-        LootStoreBox.Skinning.CheckLootRefs();
-        handler.SendGlobalGMSysMessage("DB table `skinning_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        // latched onto HandleReloadSkillExtraItemTemplateCommand as it's part of that table group (and i don't want to chance all the command IDs)
+        Log.Logger.Information("Re-Loading Skill Perfection Data Table...");
+        SkillPerfectItems.LoadSkillPerfectItemTable();
+        handler.SendGlobalGMSysMessage("DB table `skill_perfect_item_template` (perfect item procs when crafting) reloaded.");
 
         return true;
     }
@@ -815,6 +816,15 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("npc_spellclick_spells", RBACPermissions.CommandReloadNpcSpellclickSpells, true)]
+    private static bool HandleReloadSpellClickSpellsCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Re-Loading `npc_spellclick_spells` Table!");
+        Global.ObjectMgr.LoadNPCSpellClickSpells();
+        handler.SendGlobalGMSysMessage("DB table `npc_spellclick_spells` reloaded.");
+
+        return true;
+    }
     [Command("spell_group", RBACPermissions.CommandReloadSpellGroup, true)]
     private static bool HandleReloadSpellGroupsCommand(CommandHandler handler)
     {
@@ -854,19 +864,6 @@ internal class ReloadCommand
 
         return true;
     }
-
-    [Command("spell_loot_template", RBACPermissions.CommandReloadSpellLootTemplate, true)]
-    private static bool HandleReloadLootTemplatesSpellCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Re-Loading Loot Tables... (`spell_loot_template`)");
-        LootManager.LoadLootTemplates_Spell();
-        LootStoreBox.Spell.CheckLootRefs();
-        handler.SendGlobalGMSysMessage("DB table `spell_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
-
-        return true;
-    }
-
     [Command("spell_pet_auras", RBACPermissions.CommandReloadSpellPetAuras, true)]
     private static bool HandleReloadSpellPetAurasCommand(CommandHandler handler)
     {
@@ -897,6 +894,18 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("spell_script_names", RBACPermissions.CommandReloadSpellScriptNames, true)]
+    private static bool HandleReloadSpellScriptNamesCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Reloading spell_script_names table...");
+        Global.ObjectMgr.LoadSpellScriptNames();
+        //Global.ScriptMgr.NotifyScriptIDUpdate();
+        Global.ObjectMgr.ValidateSpellScripts();
+        handler.SendGlobalGMSysMessage("Spell scripts reloaded.");
+
+        return true;
+    }
+
     [Command("spell_scripts", RBACPermissions.CommandReloadSpellScripts, true)]
     private static bool HandleReloadSpellScriptsCommand(CommandHandler handler, StringArguments args)
     {
@@ -917,19 +926,6 @@ internal class ReloadCommand
 
         return true;
     }
-
-    [Command("spell_script_names", RBACPermissions.CommandReloadSpellScriptNames, true)]
-    private static bool HandleReloadSpellScriptNamesCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Reloading spell_script_names table...");
-        Global.ObjectMgr.LoadSpellScriptNames();
-        //Global.ScriptMgr.NotifyScriptIDUpdate();
-        Global.ObjectMgr.ValidateSpellScripts();
-        handler.SendGlobalGMSysMessage("Spell scripts reloaded.");
-
-        return true;
-    }
-
     [Command("spell_target_position", RBACPermissions.CommandReloadSpellTargetPosition, true)]
     private static bool HandleReloadSpellTargetPositionCommand(CommandHandler handler)
     {
@@ -986,16 +982,6 @@ internal class ReloadCommand
         return true;
     }
 
-    [Command("vehicle_template", RBACPermissions.CommandReloadVehicleTemplate, true)]
-    private static bool HandleReloadVehicleTemplateCommand(CommandHandler handler)
-    {
-        Log.Logger.Information("Reloading vehicle_template table...");
-        Global.ObjectMgr.LoadVehicleTemplate();
-        handler.SendGlobalGMSysMessage("Vehicle templates reloaded.");
-
-        return true;
-    }
-
     [Command("vehicle_template_accessory", RBACPermissions.CommandReloadVehicleTemplateAccessory, true)]
     private static bool HandleReloadVehicleTemplateAccessoryCommand(CommandHandler handler)
     {
@@ -1006,6 +992,15 @@ internal class ReloadCommand
         return true;
     }
 
+    [Command("vehicle_template", RBACPermissions.CommandReloadVehicleTemplate, true)]
+    private static bool HandleReloadVehicleTemplateCommand(CommandHandler handler)
+    {
+        Log.Logger.Information("Reloading vehicle_template table...");
+        Global.ObjectMgr.LoadVehicleTemplate();
+        handler.SendGlobalGMSysMessage("Vehicle templates reloaded.");
+
+        return true;
+    }
     [Command("waypoint_data", RBACPermissions.CommandReloadWaypointData, true)]
     private static bool HandleReloadWpCommand(CommandHandler handler, StringArguments args)
     {
@@ -1044,6 +1039,25 @@ internal class ReloadCommand
     [CommandGroup("all")]
     private class AllCommand
     {
+        [Command("achievement", RBACPermissions.CommandReloadAllAchievement, true)]
+        private static bool HandleReloadAllAchievementCommand(CommandHandler handler)
+        {
+            HandleReloadCriteriaDataCommand(handler);
+            HandleReloadAchievementRewardCommand(handler);
+
+            return true;
+        }
+
+        [Command("area", RBACPermissions.CommandReloadAllArea, true)]
+        private static bool HandleReloadAllAreaCommand(CommandHandler handler)
+        {
+            HandleReloadAreaTriggerTeleportCommand(handler);
+            HandleReloadAreaTriggerTavernCommand(handler);
+            HandleReloadGameGraveyardZoneCommand(handler);
+
+            return true;
+        }
+
         [Command("", RBACPermissions.CommandReloadAll, true)]
         private static bool HandleReloadAllCommand(CommandHandler handler)
         {
@@ -1077,26 +1091,6 @@ internal class ReloadCommand
 
             return true;
         }
-
-        [Command("achievement", RBACPermissions.CommandReloadAllAchievement, true)]
-        private static bool HandleReloadAllAchievementCommand(CommandHandler handler)
-        {
-            HandleReloadCriteriaDataCommand(handler);
-            HandleReloadAchievementRewardCommand(handler);
-
-            return true;
-        }
-
-        [Command("area", RBACPermissions.CommandReloadAllArea, true)]
-        private static bool HandleReloadAllAreaCommand(CommandHandler handler)
-        {
-            HandleReloadAreaTriggerTeleportCommand(handler);
-            HandleReloadAreaTriggerTavernCommand(handler);
-            HandleReloadGameGraveyardZoneCommand(handler);
-
-            return true;
-        }
-
         [Command("gossips", RBACPermissions.CommandReloadAllGossip, true)]
         private static bool HandleReloadAllGossipsCommand(CommandHandler handler)
         {

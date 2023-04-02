@@ -11,9 +11,30 @@ public class TransportAnimation
 {
     private List<uint> _path;
     private List<uint> _rotation;
-    public uint TotalTime { get; set; }
     public Dictionary<uint, TransportAnimationRecord> Path { get; } = new();
     public Dictionary<uint, TransportRotationRecord> Rotations { get; } = new();
+    public uint TotalTime { get; set; }
+    public TransportAnimationRecord GetNextAnimNode(uint time)
+    {
+        if (Path.Empty())
+            return null;
+
+        if (Path.TryGetValue(time, out var record))
+            return record;
+
+        return Path.FirstOrDefault().Value;
+    }
+
+    public TransportRotationRecord GetNextAnimRotation(uint time)
+    {
+        if (Rotations.Empty())
+            return null;
+
+        if (Rotations.TryGetValue(time, out var record))
+            return record;
+
+        return Rotations.FirstOrDefault().Value;
+    }
 
     public TransportAnimationRecord GetPrevAnimNode(uint time)
     {
@@ -45,27 +66,5 @@ public class TransportAnimation
             return Rotations[_rotation[reqIndex]];
 
         return Rotations.LastOrDefault().Value;
-    }
-
-    public TransportAnimationRecord GetNextAnimNode(uint time)
-    {
-        if (Path.Empty())
-            return null;
-
-        if (Path.TryGetValue(time, out var record))
-            return record;
-
-        return Path.FirstOrDefault().Value;
-    }
-
-    public TransportRotationRecord GetNextAnimRotation(uint time)
-    {
-        if (Rotations.Empty())
-            return null;
-
-        if (Rotations.TryGetValue(time, out var record))
-            return record;
-
-        return Rotations.FirstOrDefault().Value;
     }
 }

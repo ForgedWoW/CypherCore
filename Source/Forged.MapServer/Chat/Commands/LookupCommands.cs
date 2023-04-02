@@ -968,6 +968,24 @@ internal class LookupCommands
     [CommandGroup("player")]
     private class LookupPlayerCommands
     {
+        [Command("account", RBACPermissions.CommandLookupPlayerAccount)]
+        private static bool HandleLookupPlayerAccountCommand(CommandHandler handler, string account, int limit = -1)
+        {
+            var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_NAME);
+            stmt.AddValue(0, account);
+
+            return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
+        }
+
+        [Command("email", RBACPermissions.CommandLookupPlayerEmail)]
+        private static bool HandleLookupPlayerEmailCommand(CommandHandler handler, string email, int limit = -1)
+        {
+            var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_EMAIL);
+            stmt.AddValue(0, email);
+
+            return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
+        }
+
         [Command("ip", RBACPermissions.CommandLookupPlayerIp)]
         private static bool HandleLookupPlayerIpCommand(CommandHandler handler, string ip, int limit = -1)
         {
@@ -987,25 +1005,6 @@ internal class LookupCommands
 
             return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
         }
-
-        [Command("account", RBACPermissions.CommandLookupPlayerAccount)]
-        private static bool HandleLookupPlayerAccountCommand(CommandHandler handler, string account, int limit = -1)
-        {
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_NAME);
-            stmt.AddValue(0, account);
-
-            return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
-        }
-
-        [Command("email", RBACPermissions.CommandLookupPlayerEmail)]
-        private static bool HandleLookupPlayerEmailCommand(CommandHandler handler, string email, int limit = -1)
-        {
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_EMAIL);
-            stmt.AddValue(0, email);
-
-            return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
-        }
-
         private static bool LookupPlayerSearchCommand(SQLResult result, int limit, CommandHandler handler)
         {
             if (result.IsEmpty())
@@ -1120,7 +1119,7 @@ internal class LookupCommands
                             if (handler.Session != null)
                             {
                                 var maxLevel = 0;
-                                var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                                var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                                 if (questLevels.HasValue)
                                     maxLevel = questLevels.Value.MaxLevel;
@@ -1195,7 +1194,7 @@ internal class LookupCommands
                     if (handler.Session != null)
                     {
                         var maxLevel = 0;
-                        var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                        var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                         if (questLevels.HasValue)
                             maxLevel = questLevels.Value.MaxLevel;
@@ -1275,7 +1274,7 @@ internal class LookupCommands
                 if (handler.Session)
                 {
                     var maxLevel = 0;
-                    var questLevels = Global.DB2Mgr.GetContentTuningData(quest.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                    var questLevels = Global.DB2Mgr.GetContentTuningData(quest.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                     if (questLevels.HasValue)
                         maxLevel = questLevels.Value.MaxLevel;

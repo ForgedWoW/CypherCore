@@ -7,15 +7,6 @@ namespace Forged.MapServer.Entities.Units;
 
 public class SpellPeriodicAuraLogInfo
 {
-    public AuraEffect AuraEff { get; set; }
-    public double Damage { get; set; }
-    public double OriginalDamage { get; set; }
-    public double OverDamage { get; set; } // overkill/overheal
-    public double Absorb { get; set; }
-    public double Resist { get; set; }
-    public double Multiplier { get; set; }
-    public bool Critical { get; set; }
-
     public SpellPeriodicAuraLogInfo(AuraEffect auraEff, double damage, double originalDamage, double overDamage, double absorb, double resist, double multiplier, bool critical)
     {
         AuraEff = auraEff;
@@ -27,4 +18,13 @@ public class SpellPeriodicAuraLogInfo
         Multiplier = multiplier;
         Critical = critical;
     }
+
+    public double Absorb { get; set; }
+    public AuraEffect AuraEff { get; set; }
+    public bool Critical { get; set; }
+    public double Damage { get; set; }
+    public double Multiplier { get; set; }
+    public double OriginalDamage { get; set; }
+    public double OverDamage { get; set; } // overkill/overheal
+    public double Resist { get; set; }
 }

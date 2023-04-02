@@ -7,18 +7,18 @@ namespace Forged.MapServer.DataStorage.Structs.D;
 
 public sealed class DifficultyRecord
 {
-    public uint Id;
-    public string Name;
-    public MapTypes InstanceType;
-    public byte OrderIndex;
-    public sbyte OldEnumValue;
     public byte FallbackDifficultyID;
-    public byte MinPlayers;
-    public byte MaxPlayers;
     public DifficultyFlags Flags;
-    public byte ItemContext;
-    public byte ToggleDifficultyID;
-    public ushort GroupSizeHealthCurveID;
     public ushort GroupSizeDmgCurveID;
+    public ushort GroupSizeHealthCurveID;
     public ushort GroupSizeSpellPointsCurveID;
+    public uint Id;
+    public MapTypes InstanceType;
+    public byte ItemContext;
+    public byte MaxPlayers;
+    public byte MinPlayers;
+    public string Name;
+    public sbyte OldEnumValue;
+    public byte OrderIndex;
+    public byte ToggleDifficultyID;
 }

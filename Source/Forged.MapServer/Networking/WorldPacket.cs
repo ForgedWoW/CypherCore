@@ -23,6 +23,16 @@ public class WorldPacket : ByteBuffer
         opcode = ReadUInt16();
     }
 
+    public uint GetOpcode()
+    {
+        return opcode;
+    }
+
+    public DateTime GetReceivedTime()
+    {
+        return m_receivedTime;
+    }
+
     public ObjectGuid ReadPackedGuid()
     {
         var loLength = ReadUInt8();
@@ -37,9 +47,20 @@ public class WorldPacket : ByteBuffer
         return new Position(ReadFloat(), ReadFloat(), ReadFloat());
     }
 
+    public void SetReceiveTime(DateTime receivedTime)
+    {
+        m_receivedTime = receivedTime;
+    }
+
     public void Write(ObjectGuid guid)
     {
         WritePackedGuid(guid);
+    }
+
+    public void WriteBytes(WorldPacket data)
+    {
+        FlushBits();
+        WriteBytes(data.GetData());
     }
 
     public void WritePackedGuid(ObjectGuid guid)
@@ -69,13 +90,6 @@ public class WorldPacket : ByteBuffer
         WriteUInt8(mask);
         WriteBytes(packed, packedSize);
     }
-
-    public void WriteBytes(WorldPacket data)
-    {
-        FlushBits();
-        WriteBytes(data.GetData());
-    }
-
     public void WriteXYZ(Position pos)
     {
         if (pos == null)
@@ -93,36 +107,6 @@ public class WorldPacket : ByteBuffer
         WriteFloat(pos.Z);
         WriteFloat(pos.Orientation);
     }
-
-    public uint GetOpcode()
-    {
-        return opcode;
-    }
-
-    public DateTime GetReceivedTime()
-    {
-        return m_receivedTime;
-    }
-
-    public void SetReceiveTime(DateTime receivedTime)
-    {
-        m_receivedTime = receivedTime;
-    }
-
-    private ulong ReadPackedUInt64(byte length)
-    {
-        if (length == 0)
-            return 0;
-
-        var guid = 0ul;
-
-        for (var i = 0; i < 8; i++)
-            if ((1 << i & length) != 0)
-                guid |= (ulong)ReadUInt8() << (i * 8);
-
-        return guid;
-    }
-
     private uint PackUInt64(ulong value, out byte mask, out byte[] result)
     {
         uint resultSize = 0;
@@ -141,5 +125,19 @@ public class WorldPacket : ByteBuffer
         }
 
         return resultSize;
+    }
+
+    private ulong ReadPackedUInt64(byte length)
+    {
+        if (length == 0)
+            return 0;
+
+        var guid = 0ul;
+
+        for (var i = 0; i < 8; i++)
+            if ((1 << i & length) != 0)
+                guid |= (ulong)ReadUInt8() << (i * 8);
+
+        return guid;
     }
 }

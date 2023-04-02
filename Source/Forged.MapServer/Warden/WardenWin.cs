@@ -17,19 +17,191 @@ namespace Forged.MapServer.Warden;
 
 internal class WardenWin : Warden
 {
+    private static readonly string _luaEvalMidfix = " end R=S and T()if R then S('_TW',";
+
+    private static readonly string _luaEvalPostfix = ",'GUILD')end";
+
     // GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)
     private static readonly string _luaEvalPrefix = "local S,T,R=SendAddonMessage,function()";
-    private static readonly string _luaEvalMidfix = " end R=S and T()if R then S('_TW',";
-    private static readonly string _luaEvalPostfix = ",'GUILD')end";
     private readonly CategoryCheck[] _checks = new CategoryCheck[(int)WardenCheckCategory.Max];
 
-    private uint _serverTicks;
     private List<ushort> _currentChecks = new();
-
+    private uint _serverTicks;
     public WardenWin()
     {
         foreach (var category in Enum.GetValues<WardenCheckCategory>())
             _checks[(int)category] = new CategoryCheck(Global.WardenCheckMgr.GetAvailableChecks(category).Shuffle().ToList());
+    }
+
+    public override void HandleCheckResult(ByteBuffer buff)
+    {
+        Log.Logger.Debug("Handle data");
+
+        DataSent = false;
+        ClientResponseTimer = 0;
+
+        var Length = buff.ReadUInt16();
+        var Checksum = buff.ReadUInt32();
+
+        if (!IsValidCheckSum(Checksum, buff.GetData(), Length))
+        {
+            var penalty = ApplyPenalty();
+            Log.Logger.Warning("{0} failed checksum. Action: {1}", Session.GetPlayerInfo(), penalty);
+
+            return;
+        }
+
+        // TIMING_CHECK
+        {
+            var result = buff.ReadUInt8();
+
+            // @todo test it.
+            if (result == 0x00)
+            {
+                var penalty = ApplyPenalty();
+                Log.Logger.Warning("{0} failed timing check. Action: {1}", Session.GetPlayerInfo(), penalty);
+
+                return;
+            }
+
+            var newClientTicks = buff.ReadUInt32();
+
+            var ticksNow = GameTime.CurrentTimeMS;
+            var ourTicks = newClientTicks + (ticksNow - _serverTicks);
+
+            Log.Logger.Debug("ServerTicks {0}", ticksNow);      // Now
+            Log.Logger.Debug("RequestTicks {0}", _serverTicks); // At request
+            Log.Logger.Debug("Ticks {0}", newClientTicks);      // At response
+            Log.Logger.Debug("Ticks diff {0}", ourTicks - newClientTicks);
+        }
+
+        //BigInteger rs;
+        //WardenCheck rd;
+        // WardenCheckType type; // TODO unused.
+        ushort checkFailed = 0;
+
+        foreach (var id in _currentChecks)
+        {
+            var check = Global.WardenCheckMgr.GetCheckData(id);
+
+            switch (check.Type)
+            {
+                case WardenCheckType.Mem:
+                {
+                    var result = buff.ReadUInt8();
+
+                    if (result != 0)
+                    {
+                        Log.Logger.Debug($"RESULT MEM_CHECK not 0x00, CheckId {id} account Id {Session.AccountId}");
+                        checkFailed = id;
+
+                        continue;
+                    }
+
+                    var expected = Global.WardenCheckMgr.GetCheckResult(id);
+
+                    if (buff.ReadBytes((uint)expected.Length).Compare(expected))
+                    {
+                        Log.Logger.Debug($"RESULT MEM_CHECK fail CheckId {id} account Id {Session.AccountId}");
+                        checkFailed = id;
+
+                        continue;
+                    }
+
+                    Log.Logger.Debug($"RESULT MEM_CHECK passed CheckId {id} account Id {Session.AccountId}");
+
+                    break;
+                }
+                case WardenCheckType.PageA:
+                case WardenCheckType.PageB:
+                case WardenCheckType.Driver:
+                case WardenCheckType.Module:
+                {
+                    if (buff.ReadUInt8() != 0xE9)
+                    {
+                        Log.Logger.Debug($"RESULT {check.Type} fail, CheckId {id} account Id {Session.AccountId}");
+                        checkFailed = id;
+
+                        continue;
+                    }
+
+                    Log.Logger.Debug($"RESULT {check.Type} passed CheckId {id} account Id {Session.AccountId}");
+
+                    break;
+                }
+                case WardenCheckType.LuaEval:
+                {
+                    var result = buff.ReadUInt8();
+
+                    if (result == 0)
+                        buff.Skip(buff.ReadUInt8()); // discard attached string
+
+                    Log.Logger.Debug($"LUA_EVAL_CHECK CheckId {id} account Id {Session.AccountId} got in-warden dummy response ({result})");
+
+                    break;
+                }
+                case WardenCheckType.Mpq:
+                {
+                    var result = buff.ReadUInt8();
+
+                    if (result != 0)
+                    {
+                        Log.Logger.Debug($"RESULT MPQ_CHECK not 0x00 account id {Session.AccountId}", Session.AccountId);
+                        checkFailed = id;
+
+                        continue;
+                    }
+
+                    if (!buff.ReadBytes(20).Compare(Global.WardenCheckMgr.GetCheckResult(id))) // SHA1
+                    {
+                        Log.Logger.Debug($"RESULT MPQ_CHECK fail, CheckId {id} account Id {Session.AccountId}");
+                        checkFailed = id;
+
+                        continue;
+                    }
+
+                    Log.Logger.Debug($"RESULT MPQ_CHECK passed, CheckId {id} account Id {Session.AccountId}");
+
+                    break;
+                }
+                default: // Should never happen
+                    break;
+            }
+        }
+
+        if (checkFailed > 0)
+        {
+            var check = Global.WardenCheckMgr.GetCheckData(checkFailed);
+            var penalty = ApplyPenalty(check);
+            Log.Logger.Warning($"{Session.GetPlayerInfo()} failed Warden check {checkFailed}. Action: {penalty}");
+        }
+
+        // Set hold off timer, minimum timer should at least be 1 second
+        uint holdOff = GetDefaultValue("Warden.ClientCheckHoldOff", 30u);
+        CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.IN_MILLISECONDS;
+    }
+
+    public override void HandleHashResult(ByteBuffer buff)
+    {
+        // Verify key
+        if (buff.ReadBytes(20) != WardenModuleWin.ClientKeySeedHash)
+        {
+            var penalty = ApplyPenalty();
+            Log.Logger.Warning("{0} failed hash reply. Action: {0}", Session.GetPlayerInfo(), penalty);
+
+            return;
+        }
+
+        Log.Logger.Debug("Request hash reply: succeed");
+
+        // Change keys here
+        InputKey = WardenModuleWin.ClientKeySeed;
+        OutputKey = WardenModuleWin.ServerKeySeed;
+
+        InputCrypto.PrepareKey(InputKey);
+        OutputCrypto.PrepareKey(OutputKey);
+
+        Initialized = true;
     }
 
     public override void Init(WorldSession session, BigInteger k)
@@ -57,17 +229,6 @@ internal class WardenWin : Warden
         RequestModule();
     }
 
-    public override void InitializeModuleForClient(out ClientWardenModule module)
-    {
-        // data assign
-        module = new ClientWardenModule
-        {
-            CompressedData = WardenModuleWin.Module,
-            CompressedSize = (uint)WardenModuleWin.Module.Length,
-            Key = WardenModuleWin.ModuleKey
-        };
-    }
-
     public override void InitializeModule()
     {
         Log.Logger.Debug("Initialize module");
@@ -90,7 +251,7 @@ internal class WardenWin : Warden
             }
         };
 
-        Request.CheckSumm1 = BuildChecksum(new byte[]
+        Request.CheckSumm1 = BuildChecksum(new[]
                                            {
                                                Request.Unk1
                                            },
@@ -104,7 +265,7 @@ internal class WardenWin : Warden
         Request.Function2 = 0x00419D40; // 0x00400000 + 0x00419D40 FrameScript::GetText
         Request.Function2_set = 1;
 
-        Request.CheckSumm2 = BuildChecksum(new byte[]
+        Request.CheckSumm2 = BuildChecksum(new[]
                                            {
                                                Request.Unk2
                                            },
@@ -118,7 +279,7 @@ internal class WardenWin : Warden
         Request.Function3 = 0x0046AE20; // 0x00400000 + 0x0046AE20 PerformanceCounter
         Request.Function3_set = 1;
 
-        Request.CheckSumm3 = BuildChecksum(new byte[]
+        Request.CheckSumm3 = BuildChecksum(new[]
                                            {
                                                Request.Unk5
                                            },
@@ -132,48 +293,16 @@ internal class WardenWin : Warden
         Session.SendPacket(packet);
     }
 
-    public override void RequestHash()
+    public override void InitializeModuleForClient(out ClientWardenModule module)
     {
-        Log.Logger.Debug("Request hash");
-
-        // Create packet structure
-        WardenHashRequest Request = new()
+        // data assign
+        module = new ClientWardenModule
         {
-            Command = WardenOpcodes.SmsgHashRequest,
-            Seed = Seed
+            CompressedData = WardenModuleWin.Module,
+            CompressedSize = (uint)WardenModuleWin.Module.Length,
+            Key = WardenModuleWin.ModuleKey
         };
-
-        Warden3DataServer packet = new()
-        {
-            Data = EncryptData(Request)
-        };
-
-        Session.SendPacket(packet);
     }
-
-    public override void HandleHashResult(ByteBuffer buff)
-    {
-        // Verify key
-        if (buff.ReadBytes(20) != WardenModuleWin.ClientKeySeedHash)
-        {
-            var penalty = ApplyPenalty();
-            Log.Logger.Warning("{0} failed hash reply. Action: {0}", Session.GetPlayerInfo(), penalty);
-
-            return;
-        }
-
-        Log.Logger.Debug("Request hash reply: succeed");
-
-        // Change keys here
-        InputKey = WardenModuleWin.ClientKeySeed;
-        OutputKey = WardenModuleWin.ServerKeySeed;
-
-        InputCrypto.PrepareKey(InputKey);
-        OutputCrypto.PrepareKey(OutputKey);
-
-        Initialized = true;
-    }
-
     public override void RequestChecks()
     {
         Log.Logger.Debug($"Request data from {Session.PlayerName} (account {Session.AccountId}) - loaded: {Session.Player && !Session.PlayerLoading}");
@@ -190,7 +319,7 @@ internal class WardenWin : Warden
             }
         }
 
-        _serverTicks = GameTime.GetGameTimeMS();
+        _serverTicks = GameTime.CurrentTimeMS;
         _currentChecks.Clear();
 
         // Build check request
@@ -349,154 +478,24 @@ internal class WardenWin : Warden
         DataSent = true;
     }
 
-    public override void HandleCheckResult(ByteBuffer buff)
+    public override void RequestHash()
     {
-        Log.Logger.Debug("Handle data");
+        Log.Logger.Debug("Request hash");
 
-        DataSent = false;
-        ClientResponseTimer = 0;
-
-        var Length = buff.ReadUInt16();
-        var Checksum = buff.ReadUInt32();
-
-        if (!IsValidCheckSum(Checksum, buff.GetData(), Length))
+        // Create packet structure
+        WardenHashRequest Request = new()
         {
-            var penalty = ApplyPenalty();
-            Log.Logger.Warning("{0} failed checksum. Action: {1}", Session.GetPlayerInfo(), penalty);
+            Command = WardenOpcodes.SmsgHashRequest,
+            Seed = Seed
+        };
 
-            return;
-        }
-
-        // TIMING_CHECK
+        Warden3DataServer packet = new()
         {
-            var result = buff.ReadUInt8();
+            Data = EncryptData(Request)
+        };
 
-            // @todo test it.
-            if (result == 0x00)
-            {
-                var penalty = ApplyPenalty();
-                Log.Logger.Warning("{0} failed timing check. Action: {1}", Session.GetPlayerInfo(), penalty);
-
-                return;
-            }
-
-            var newClientTicks = buff.ReadUInt32();
-
-            var ticksNow = GameTime.GetGameTimeMS();
-            var ourTicks = newClientTicks + (ticksNow - _serverTicks);
-
-            Log.Logger.Debug("ServerTicks {0}", ticksNow);      // Now
-            Log.Logger.Debug("RequestTicks {0}", _serverTicks); // At request
-            Log.Logger.Debug("Ticks {0}", newClientTicks);      // At response
-            Log.Logger.Debug("Ticks diff {0}", ourTicks - newClientTicks);
-        }
-
-        //BigInteger rs;
-        //WardenCheck rd;
-        // WardenCheckType type; // TODO unused.
-        ushort checkFailed = 0;
-
-        foreach (var id in _currentChecks)
-        {
-            var check = Global.WardenCheckMgr.GetCheckData(id);
-
-            switch (check.Type)
-            {
-                case WardenCheckType.Mem:
-                {
-                    var result = buff.ReadUInt8();
-
-                    if (result != 0)
-                    {
-                        Log.Logger.Debug($"RESULT MEM_CHECK not 0x00, CheckId {id} account Id {Session.AccountId}");
-                        checkFailed = id;
-
-                        continue;
-                    }
-
-                    var expected = Global.WardenCheckMgr.GetCheckResult(id);
-
-                    if (buff.ReadBytes((uint)expected.Length).Compare(expected))
-                    {
-                        Log.Logger.Debug($"RESULT MEM_CHECK fail CheckId {id} account Id {Session.AccountId}");
-                        checkFailed = id;
-
-                        continue;
-                    }
-
-                    Log.Logger.Debug($"RESULT MEM_CHECK passed CheckId {id} account Id {Session.AccountId}");
-
-                    break;
-                }
-                case WardenCheckType.PageA:
-                case WardenCheckType.PageB:
-                case WardenCheckType.Driver:
-                case WardenCheckType.Module:
-                {
-                    if (buff.ReadUInt8() != 0xE9)
-                    {
-                        Log.Logger.Debug($"RESULT {check.Type} fail, CheckId {id} account Id {Session.AccountId}");
-                        checkFailed = id;
-
-                        continue;
-                    }
-
-                    Log.Logger.Debug($"RESULT {check.Type} passed CheckId {id} account Id {Session.AccountId}");
-
-                    break;
-                }
-                case WardenCheckType.LuaEval:
-                {
-                    var result = buff.ReadUInt8();
-
-                    if (result == 0)
-                        buff.Skip(buff.ReadUInt8()); // discard attached string
-
-                    Log.Logger.Debug($"LUA_EVAL_CHECK CheckId {id} account Id {Session.AccountId} got in-warden dummy response ({result})");
-
-                    break;
-                }
-                case WardenCheckType.Mpq:
-                {
-                    var result = buff.ReadUInt8();
-
-                    if (result != 0)
-                    {
-                        Log.Logger.Debug($"RESULT MPQ_CHECK not 0x00 account id {Session.AccountId}", Session.AccountId);
-                        checkFailed = id;
-
-                        continue;
-                    }
-
-                    if (!buff.ReadBytes(20).Compare(Global.WardenCheckMgr.GetCheckResult(id))) // SHA1
-                    {
-                        Log.Logger.Debug($"RESULT MPQ_CHECK fail, CheckId {id} account Id {Session.AccountId}");
-                        checkFailed = id;
-
-                        continue;
-                    }
-
-                    Log.Logger.Debug($"RESULT MPQ_CHECK passed, CheckId {id} account Id {Session.AccountId}");
-
-                    break;
-                }
-                default: // Should never happen
-                    break;
-            }
-        }
-
-        if (checkFailed > 0)
-        {
-            var check = Global.WardenCheckMgr.GetCheckData(checkFailed);
-            var penalty = ApplyPenalty(check);
-            Log.Logger.Warning($"{Session.GetPlayerInfo()} failed Warden check {checkFailed}. Action: {penalty}");
-        }
-
-        // Set hold off timer, minimum timer should at least be 1 second
-        uint holdOff = GetDefaultValue("Warden.ClientCheckHoldOff", 30u);
-        CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.InMilliseconds;
+        Session.SendPacket(packet);
     }
-
     private static byte GetCheckPacketBaseSize(WardenCheckType type) => type switch
     {
         WardenCheckType.Driver  => 1,

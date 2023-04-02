@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonEventList
 {
-    public int Type;
     public List<GarrisonEventEntry> Events = new();
-
+    public int Type;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Type);

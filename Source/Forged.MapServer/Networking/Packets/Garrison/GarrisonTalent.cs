@@ -5,6 +5,16 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct GarrisonTalent
 {
+    public int Flags;
+
+    public int GarrTalentID;
+
+    public int Rank;
+
+    public long ResearchStartTime;
+
+    public GarrisonTalentSocketData? Socket;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(GarrTalentID);
@@ -16,10 +26,4 @@ internal struct GarrisonTalent
 
         Socket?.Write(data);
     }
-
-    public int GarrTalentID;
-    public int Rank;
-    public long ResearchStartTime;
-    public int Flags;
-    public GarrisonTalentSocketData? Socket;
 }

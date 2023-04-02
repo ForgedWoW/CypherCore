@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Forged.MapServer.Conditions;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.GameTable;
 using Framework.Constants;
 
@@ -13,24 +11,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    private readonly float[] _parryCap =
-    {
-        65.631440f,  // Warrior
-        65.631440f,  // Paladin
-        145.560408f, // Hunter
-        145.560408f, // Rogue
-        0.0f,        // Priest
-        65.631440f,  // DK
-        145.560408f, // Shaman
-        0.0f,        // Mage
-        0.0f,        // Warlock
-        90.6425f,    // Monk
-        0.0f,        // Druid
-        65.631440f,  // Demon Hunter
-        0.0f,        // Evoker
-        0.0f,        // Adventurer
-    };
-
     private readonly float[] _dodgeCap =
     {
         65.631440f,  // Warrior            
@@ -49,122 +29,46 @@ public partial class Player
         0.0f,        // Adventurer
     };
 
-    public override bool UpdateAllStats()
+    private readonly float[] _parryCap =
+        {
+        65.631440f,  // Warrior
+        65.631440f,  // Paladin
+        145.560408f, // Hunter
+        145.560408f, // Rogue
+        0.0f,        // Priest
+        65.631440f,  // DK
+        145.560408f, // Shaman
+        0.0f,        // Mage
+        0.0f,        // Warlock
+        90.6425f,    // Monk
+        0.0f,        // Druid
+        65.631440f,  // Demon Hunter
+        0.0f,        // Evoker
+        0.0f,        // Adventurer
+    };
+    public bool _ModifyUInt32(bool apply, ref uint baseValue, ref int amount)
     {
-        for (var i = Stats.Strength; i < Stats.Max; ++i)
+        // If amount is negative, change sign and value of apply.
+        if (amount < 0)
         {
-            var value = GetTotalStatValue(i);
-            SetStat(i, (int)value);
+            apply = !apply;
+            amount = -amount;
         }
 
-        UpdateArmor();
-        // calls UpdateAttackPowerAndDamage() in UpdateArmor for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
-        UpdateAttackPowerAndDamage(true);
-        UpdateMaxHealth();
-
-        for (var i = PowerType.Mana; i < PowerType.Max; ++i)
-            UpdateMaxPower(i);
-
-        UpdateAllRatings();
-        UpdateAllCritPercentages();
-        UpdateSpellCritChance();
-        UpdateBlockPercentage();
-        UpdateParryPercentage();
-        UpdateDodgePercentage();
-        UpdateSpellDamageAndHealingBonus();
-        UpdateManaRegen();
-        UpdateExpertise(WeaponAttackType.BaseAttack);
-        UpdateExpertise(WeaponAttackType.OffAttack);
-        RecalculateRating(CombatRating.ArmorPenetration);
-        UpdateAllResistances();
-
-        return true;
-    }
-
-    public override bool UpdateStats(Stats stat)
-    {
-        // value = ((base_value * base_pct) + total_value) * total_pct
-        var value = GetTotalStatValue(stat);
-
-        SetStat(stat, (int)value);
-
-        if (stat == Stats.Stamina || stat == Stats.Intellect || stat == Stats.Strength)
+        if (apply)
         {
-            var pet = CurrentPet;
-
-            pet?.UpdateStats(stat);
-        }
-
-        switch (stat)
-        {
-            case Stats.Agility:
-                UpdateAllCritPercentages();
-                UpdateDodgePercentage();
-
-                break;
-            case Stats.Stamina:
-                UpdateMaxHealth();
-
-                break;
-            case Stats.Intellect:
-                UpdateSpellCritChance();
-
-                break;
-            default:
-                break;
-        }
-
-        if (stat == Stats.Strength)
-        {
-            UpdateAttackPowerAndDamage();
-        }
-        else if (stat == Stats.Agility)
-        {
-            UpdateAttackPowerAndDamage();
-            UpdateAttackPowerAndDamage(true);
-        }
-
-        UpdateArmor();
-        UpdateSpellDamageAndHealingBonus();
-        UpdateManaRegen();
-
-        return true;
-    }
-
-    public override void UpdateResistances(SpellSchools school)
-    {
-        if (school > SpellSchools.Normal)
-        {
-            base.UpdateResistances(school);
-
-            var pet = CurrentPet;
-
-            pet?.UpdateResistances(school);
+            baseValue += (uint)amount;
         }
         else
         {
-            UpdateArmor();
+            // Make sure we do not get public uint overflow.
+            if (amount > baseValue)
+                amount = (int)baseValue;
+
+            baseValue -= (uint)amount;
         }
-    }
 
-    public void ApplyModTargetResistance(int mod, bool apply)
-    {
-        ApplyModUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModTargetResistance), mod, apply);
-    }
-
-    public void ApplyModTargetPhysicalResistance(int mod, bool apply)
-    {
-        ApplyModUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModTargetPhysicalResistance), mod, apply);
-    }
-
-    public void RecalculateRating(CombatRating cr)
-    {
-        ApplyRatingMod(cr, 0, true);
-    }
-
-    public void ApplyModDamageDonePos(SpellSchools school, int mod, bool apply)
-    {
-        ApplyModUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDonePos, (int)school), mod, apply);
+        return apply;
     }
 
     public void ApplyModDamageDoneNeg(SpellSchools school, int mod, bool apply)
@@ -177,9 +81,19 @@ public partial class Player
         ApplyPercentModUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDonePercent, (int)school), pct, apply);
     }
 
-    public void SetModDamageDonePercent(SpellSchools school, float pct)
+    public void ApplyModDamageDonePos(SpellSchools school, int mod, bool apply)
     {
-        SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDonePercent, (int)school), pct);
+        ApplyModUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDonePos, (int)school), mod, apply);
+    }
+
+    public void ApplyModTargetPhysicalResistance(int mod, bool apply)
+    {
+        ApplyModUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModTargetPhysicalResistance), mod, apply);
+    }
+
+    public void ApplyModTargetResistance(int mod, bool apply)
+    {
+        ApplyModUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModTargetResistance), mod, apply);
     }
 
     public void ApplyRatingMod(CombatRating combatRating, int value, bool apply)
@@ -187,6 +101,12 @@ public partial class Player
         _baseRatingValue[(int)combatRating] += (apply ? value : -value);
 
         UpdateRating(combatRating);
+    }
+
+    public void ApplySpellPenetrationBonus(int amount, bool apply)
+    {
+        ApplyModTargetResistance(-amount, apply);
+        _spellPenetrationItemMod += apply ? amount : -amount;
     }
 
     public override void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, out double minDamage, out double maxDamage)
@@ -250,6 +170,26 @@ public partial class Player
         maxDamage = ((baseValue + weaponMaxDamage) * basePct + totalValue) * totalPct * versaDmgMod;
     }
 
+    public uint GetBaseSpellPowerBonus()
+    {
+        return _baseSpellPower;
+    }
+
+    public override uint GetPowerIndex(PowerType powerType)
+    {
+        return Global.DB2Mgr.GetPowerIndexByClass(powerType, Class);
+    }
+
+    public void RecalculateRating(CombatRating cr)
+    {
+        ApplyRatingMod(cr, 0, true);
+    }
+
+    public void SetModDamageDonePercent(SpellSchools school, float pct)
+    {
+        SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDonePercent, (int)school), pct);
+    }
+
     public void UpdateAllCritPercentages()
     {
         var value = 5.0f;
@@ -263,64 +203,71 @@ public partial class Player
         UpdateCritPercentage(WeaponAttackType.RangedAttack);
     }
 
-    public void UpdateManaRegen()
+    public override bool UpdateAllStats()
     {
-        var manaIndex = GetPowerIndex(PowerType.Mana);
-
-        if (manaIndex == (int)PowerType.Max)
-            return;
-
-        // Get base of Mana Pool in sBaseMPGameTable
-        Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
-        double baseRegen = basemana / 100.0f;
-
-        baseRegen += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)PowerType.Mana);
-
-        // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
-        baseRegen *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)PowerType.Mana);
-
-        // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
-        baseRegen *= GetTotalAuraMultiplierByMiscValue(AuraType.ModManaRegenPct, (int)PowerType.Mana);
-
-        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)manaIndex), (float)baseRegen);
-        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)manaIndex), (float)baseRegen);
-    }
-
-    public void UpdateSpellDamageAndHealingBonus()
-    {
-        // Magic damage modifiers implemented in Unit.SpellDamageBonusDone
-        // This information for client side use only
-        // Get healing bonus for all schools
-        SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModHealingDonePos), (int)SpellBaseHealingBonusDone(SpellSchoolMask.All));
-        // Get damage bonus for all schools
-        var modDamageAuras = GetAuraEffectsByType(AuraType.ModDamageDone);
-
-        for (var i = (int)SpellSchools.Holy; i < (int)SpellSchools.Max; ++i)
+        for (var i = Stats.Strength; i < Stats.Max; ++i)
         {
-            SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDoneNeg, i),
-                                (int)modDamageAuras.Aggregate(0f,
-                                                              (negativeMod, aurEff) =>
-                                                              {
-                                                                  if (aurEff.Amount < 0 && Convert.ToBoolean(aurEff.MiscValue & (1 << i)))
-                                                                      negativeMod += (float)aurEff.Amount;
-
-                                                                  return negativeMod;
-                                                              }));
-
-            SetUpdateFieldStatValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDonePos, i),
-                                    (int)(SpellBaseDamageBonusDone((SpellSchoolMask)(1 << i)) - ActivePlayerData.ModDamageDoneNeg[i]));
+            var value = GetTotalStatValue(i);
+            SetStat(i, (int)value);
         }
 
-        if (HasAuraType(AuraType.OverrideAttackPowerBySpPct))
-        {
-            UpdateAttackPowerAndDamage();
-            UpdateAttackPowerAndDamage(true);
-        }
+        UpdateArmor();
+        // calls UpdateAttackPowerAndDamage() in UpdateArmor for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
+        UpdateAttackPowerAndDamage(true);
+        UpdateMaxHealth();
+
+        for (var i = PowerType.Mana; i < PowerType.Max; ++i)
+            UpdateMaxPower(i);
+
+        UpdateAllRatings();
+        UpdateAllCritPercentages();
+        UpdateSpellCritChance();
+        UpdateBlockPercentage();
+        UpdateParryPercentage();
+        UpdateDodgePercentage();
+        UpdateSpellDamageAndHealingBonus();
+        UpdateManaRegen();
+        UpdateExpertise(WeaponAttackType.BaseAttack);
+        UpdateExpertise(WeaponAttackType.OffAttack);
+        RecalculateRating(CombatRating.ArmorPenetration);
+        UpdateAllResistances();
+
+        return true;
     }
 
-    public uint GetBaseSpellPowerBonus()
+    public override void UpdateArmor()
     {
-        return _baseSpellPower;
+        var unitMod = UnitMods.Armor;
+
+        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base); // base armor
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);      // armor percent
+
+        // SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT counts as base armor
+        GetTotalAuraModifier(AuraType.ModArmorPctFromStat,
+                             aurEff =>
+                             {
+                                 var miscValue = aurEff.MiscValue;
+                                 var stat = (miscValue != -2) ? (Stats)miscValue : GetPrimaryStat();
+
+                                 value += MathFunctions.CalculatePct((float)GetStat(stat), aurEff.Amount);
+
+                                 return true;
+                             });
+
+        var baseValue = value;
+
+        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total); // bonus armor from auras and items
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
+        value *= GetTotalAuraMultiplier(AuraType.ModBonusArmorPct);
+
+        SetArmor((int)value, (int)(value - baseValue));
+
+        var pet = CurrentPet;
+
+        if (pet)
+            pet.UpdateArmor();
+
+        UpdateAttackPowerAndDamage(); // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
     }
 
     public override void UpdateAttackPowerAndDamage(bool ranged = false)
@@ -411,39 +358,237 @@ public partial class Player
         }
     }
 
-    public override void UpdateArmor()
+    public void UpdateBlockPercentage()
     {
-        var unitMod = UnitMods.Armor;
+        // No block
+        double value = 0.0f;
 
-        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base); // base armor
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);      // armor percent
+        if (CanBlock)
+        {
+            // Base value
+            value = 5.0f;
+            // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
+            value += GetTotalAuraModifier(AuraType.ModBlockPercent);
+            // Increase from rating
+            value += GetRatingBonusValue(CombatRating.Block);
 
-        // SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT counts as base armor
-        GetTotalAuraModifier(AuraType.ModArmorPctFromStat,
-                             aurEff =>
-                             {
-                                 var miscValue = aurEff.MiscValue;
-                                 var stat = (miscValue != -2) ? (Stats)miscValue : GetPrimaryStat();
+            if (GetDefaultValue("Stats.Limits.Enable", false))
+                value = value > GetDefaultValue("Stats.Limits.Block", 95.0f) ? GetDefaultValue("Stats.Limits.Block", 95.0f) : value;
+        }
 
-                                 value += MathFunctions.CalculatePct((float)GetStat(stat), aurEff.Amount);
+        SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.BlockPercentage), (float)value);
+    }
 
-                                 return true;
-                             });
+    public void UpdateCritPercentage(WeaponAttackType attType)
+    {
+        static float ApplyCritLimit(double value)
+        {
+            if (GetDefaultValue("Stats.Limits.Enable", false))
+                value = value > GetDefaultValue("Stats.Limits.Crit", 95.0f) ? GetDefaultValue("Stats.Limits.Crit", 95.0f) : value;
 
-        var baseValue = value;
+            return (float)value;
+        }
 
-        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total); // bonus armor from auras and items
+        switch (attType)
+        {
+            case WeaponAttackType.OffAttack:
+                SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OffhandCritPercentage),
+                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
+
+                break;
+            case WeaponAttackType.RangedAttack:
+                SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.RangedCritPercentage),
+                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritRanged)));
+
+                break;
+            case WeaponAttackType.BaseAttack:
+            default:
+                SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CritPercentage),
+                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
+
+                break;
+        }
+    }
+
+    public void UpdateDodgePercentage()
+    {
+        double diminishing = 0.0f, nondiminishing = 0.0f;
+        GetDodgeFromAgility(diminishing, nondiminishing);
+        // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
+        nondiminishing += GetTotalAuraModifier(AuraType.ModDodgePercent);
+        // Dodge from rating
+        diminishing += GetRatingBonusValue(CombatRating.Dodge);
+        // apply diminishing formula to diminishing dodge chance
+        var value = CalculateDiminishingReturns(_dodgeCap, Class, nondiminishing, diminishing);
+
+        if (GetDefaultValue("Stats.Limits.Enable", false))
+            value = value > GetDefaultValue("Stats.Limits.Dodge", 95.0f) ? GetDefaultValue("Stats.Limits.Dodge", 95.0f) : value;
+
+        SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DodgePercentage), (float)value);
+    }
+
+    public void UpdateExpertise(WeaponAttackType attack)
+    {
+        if (attack == WeaponAttackType.RangedAttack)
+            return;
+
+        var expertise = (int)GetRatingBonusValue(CombatRating.Expertise);
+
+        var weapon = GetWeaponForAttack(attack, true);
+
+        expertise += (int)GetTotalAuraModifier(AuraType.ModExpertise, aurEff => aurEff.SpellInfo.IsItemFitToSpellRequirements(weapon));
+
+        if (expertise < 0)
+            expertise = 0;
+
+        switch (attack)
+        {
+            case WeaponAttackType.BaseAttack:
+                SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MainhandExpertise), expertise);
+
+                break;
+            case WeaponAttackType.OffAttack:
+                SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OffhandExpertise), expertise);
+
+                break;
+            default: break;
+        }
+    }
+
+    public void UpdateHealingDonePercentMod()
+    {
+        double value = 1.0f;
+
+        MathFunctions.AddPct(ref value, GetRatingBonusValue(CombatRating.VersatilityHealingDone) + GetTotalAuraModifier(AuraType.ModVersatility));
+
+        foreach (var auraEffect in GetAuraEffectsByType(AuraType.ModHealingDonePercent))
+            MathFunctions.AddPct(ref value, auraEffect.Amount);
+
+        var val = (float)value;
+
+        for (var i = 0; i < (int)SpellSchools.Max; ++i)
+            SetUpdateFieldStatValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModHealingDonePercent, i), val);
+    }
+
+    public void UpdateManaRegen()
+    {
+        var manaIndex = GetPowerIndex(PowerType.Mana);
+
+        if (manaIndex == (int)PowerType.Max)
+            return;
+
+        // Get base of Mana Pool in sBaseMPGameTable
+        Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
+        double baseRegen = basemana / 100.0f;
+
+        baseRegen += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)PowerType.Mana);
+
+        // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
+        baseRegen *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)PowerType.Mana);
+
+        // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
+        baseRegen *= GetTotalAuraMultiplierByMiscValue(AuraType.ModManaRegenPct, (int)PowerType.Mana);
+
+        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)manaIndex), (float)baseRegen);
+        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)manaIndex), (float)baseRegen);
+    }
+
+    public void UpdateMastery()
+    {
+        if (!CanUseMastery())
+        {
+            SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Mastery), 0.0f);
+
+            return;
+        }
+
+        var value = GetTotalAuraModifier(AuraType.Mastery);
+        value += GetRatingBonusValue(CombatRating.Mastery);
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Mastery), (float)value);
+
+        var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
+
+        if (chrSpec == null)
+            return;
+
+        foreach (var masterySpellId in chrSpec.MasterySpellID)
+        {
+            var aura = GetAura(masterySpellId);
+
+            if (aura != null)
+                foreach (var spellEffectInfo in aura.SpellInfo.Effects)
+                {
+                    var mult = spellEffectInfo.BonusCoefficient;
+
+                    if (MathFunctions.fuzzyEq(mult, 0.0f))
+                        continue;
+
+                    aura.GetEffect(spellEffectInfo.EffectIndex).ChangeAmount(value * mult);
+                }
+        }
+    }
+
+    public override void UpdateMaxHealth()
+    {
+        var unitMod = UnitMods.Health;
+
+        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreateHealth();
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
+        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total) + GetHealthBonusFromStamina();
         value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
-        value *= GetTotalAuraMultiplier(AuraType.ModBonusArmorPct);
 
-        SetArmor((int)value, (int)(value - baseValue));
+        SetMaxHealth(value);
+    }
 
-        var pet = CurrentPet;
+    public override void UpdateMaxPower(PowerType power)
+    {
+        var powerIndex = GetPowerIndex(power);
 
-        if (pet)
-            pet.UpdateArmor();
+        if (powerIndex == (uint)PowerType.Max || powerIndex >= (uint)PowerType.MaxPerClass)
+            return;
 
-        UpdateAttackPowerAndDamage(); // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
+        var unitMod = UnitMods.PowerStart + (int)power;
+
+        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreatePowerValue(power);
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
+        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
+
+        SetMaxPower(power, (int)Math.Round(value));
+    }
+
+    public void UpdateMeleeHitChances()
+    {
+        ModMeleeHitChance = 7.5f + GetRatingBonusValue(CombatRating.HitMelee);
+    }
+
+    public void UpdateParryPercentage()
+    {
+        // No parry
+        double value = 0.0f;
+        var pclass = (int)Class - 1;
+
+        if (CanParry && _parryCap[pclass] > 0.0f)
+        {
+            double nondiminishing = 5.0f;
+            // Parry from rating
+            var diminishing = GetRatingBonusValue(CombatRating.Parry);
+            // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
+            nondiminishing += GetTotalAuraModifier(AuraType.ModParryPercent);
+
+            // apply diminishing formula to diminishing parry chance
+            value = CalculateDiminishingReturns(_parryCap, Class, nondiminishing, diminishing);
+
+            if (GetDefaultValue("Stats.Limits.Enable", false))
+                value = value > GetDefaultValue("Stats.Limits.Parry", 95.0f) ? GetDefaultValue("Stats.Limits.Parry", 95.0f) : value;
+        }
+
+        SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ParryPercentage), (float)value);
+    }
+
+    public void UpdateRangedHitChances()
+    {
+        ModRangedHitChance = 7.5f + GetRatingBonusValue(CombatRating.HitRanged);
     }
 
     public void UpdateRating(CombatRating cr)
@@ -592,185 +737,19 @@ public partial class Player
         }
     }
 
-    public void UpdateMastery()
+    public override void UpdateResistances(SpellSchools school)
     {
-        if (!CanUseMastery())
+        if (school > SpellSchools.Normal)
         {
-            SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Mastery), 0.0f);
+            base.UpdateResistances(school);
 
-            return;
+            var pet = CurrentPet;
+
+            pet?.UpdateResistances(school);
         }
-
-        var value = GetTotalAuraModifier(AuraType.Mastery);
-        value += GetRatingBonusValue(CombatRating.Mastery);
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Mastery), (float)value);
-
-        var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
-
-        if (chrSpec == null)
-            return;
-
-        foreach (var masterySpellId in chrSpec.MasterySpellID)
-        {
-            var aura = GetAura(masterySpellId);
-
-            if (aura != null)
-                foreach (var spellEffectInfo in aura.SpellInfo.Effects)
-                {
-                    var mult = spellEffectInfo.BonusCoefficient;
-
-                    if (MathFunctions.fuzzyEq(mult, 0.0f))
-                        continue;
-
-                    aura.GetEffect(spellEffectInfo.EffectIndex).ChangeAmount(value * mult);
-                }
-        }
-    }
-
-    public void UpdateVersatilityDamageDone()
-    {
-        // No proof that CR_VERSATILITY_DAMAGE_DONE is allways = ActivePlayerData::Versatility
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Versatility), (int)ActivePlayerData.CombatRatings[(int)CombatRating.VersatilityDamageDone]);
-
-        if (Class == PlayerClass.Hunter)
-            UpdateDamagePhysical(WeaponAttackType.RangedAttack);
         else
-            UpdateDamagePhysical(WeaponAttackType.BaseAttack);
-    }
-
-    public void UpdateHealingDonePercentMod()
-    {
-        double value = 1.0f;
-
-        MathFunctions.AddPct(ref value, GetRatingBonusValue(CombatRating.VersatilityHealingDone) + GetTotalAuraModifier(AuraType.ModVersatility));
-
-        foreach (var auraEffect in GetAuraEffectsByType(AuraType.ModHealingDonePercent))
-            MathFunctions.AddPct(ref value, auraEffect.Amount);
-
-        var val = (float)value;
-
-        for (var i = 0; i < (int)SpellSchools.Max; ++i)
-            SetUpdateFieldStatValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModHealingDonePercent, i), val);
-    }
-
-    public void UpdateParryPercentage()
-    {
-        // No parry
-        double value = 0.0f;
-        var pclass = (int)Class - 1;
-
-        if (CanParry && _parryCap[pclass] > 0.0f)
         {
-            double nondiminishing = 5.0f;
-            // Parry from rating
-            var diminishing = GetRatingBonusValue(CombatRating.Parry);
-            // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
-            nondiminishing += GetTotalAuraModifier(AuraType.ModParryPercent);
-
-            // apply diminishing formula to diminishing parry chance
-            value = CalculateDiminishingReturns(_parryCap, Class, nondiminishing, diminishing);
-
-            if (GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > GetDefaultValue("Stats.Limits.Parry", 95.0f) ? GetDefaultValue("Stats.Limits.Parry", 95.0f) : value;
-        }
-
-        SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ParryPercentage), (float)value);
-    }
-
-    public void UpdateDodgePercentage()
-    {
-        double diminishing = 0.0f, nondiminishing = 0.0f;
-        GetDodgeFromAgility(diminishing, nondiminishing);
-        // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
-        nondiminishing += GetTotalAuraModifier(AuraType.ModDodgePercent);
-        // Dodge from rating
-        diminishing += GetRatingBonusValue(CombatRating.Dodge);
-        // apply diminishing formula to diminishing dodge chance
-        var value = CalculateDiminishingReturns(_dodgeCap, Class, nondiminishing, diminishing);
-
-        if (GetDefaultValue("Stats.Limits.Enable", false))
-            value = value > GetDefaultValue("Stats.Limits.Dodge", 95.0f) ? GetDefaultValue("Stats.Limits.Dodge", 95.0f) : value;
-
-        SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DodgePercentage), (float)value);
-    }
-
-    public void UpdateBlockPercentage()
-    {
-        // No block
-        double value = 0.0f;
-
-        if (CanBlock)
-        {
-            // Base value
-            value = 5.0f;
-            // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
-            value += GetTotalAuraModifier(AuraType.ModBlockPercent);
-            // Increase from rating
-            value += GetRatingBonusValue(CombatRating.Block);
-
-            if (GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > GetDefaultValue("Stats.Limits.Block", 95.0f) ? GetDefaultValue("Stats.Limits.Block", 95.0f) : value;
-        }
-
-        SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.BlockPercentage), (float)value);
-    }
-
-    public void UpdateCritPercentage(WeaponAttackType attType)
-    {
-        static float ApplyCritLimit(double value)
-        {
-            if (GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > GetDefaultValue("Stats.Limits.Crit", 95.0f) ? GetDefaultValue("Stats.Limits.Crit", 95.0f) : value;
-
-            return (float)value;
-        }
-
-        switch (attType)
-        {
-            case WeaponAttackType.OffAttack:
-                SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OffhandCritPercentage),
-                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
-
-                break;
-            case WeaponAttackType.RangedAttack:
-                SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.RangedCritPercentage),
-                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritRanged)));
-
-                break;
-            case WeaponAttackType.BaseAttack:
-            default:
-                SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CritPercentage),
-                                        ApplyCritLimit(GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
-
-                break;
-        }
-    }
-
-    public void UpdateExpertise(WeaponAttackType attack)
-    {
-        if (attack == WeaponAttackType.RangedAttack)
-            return;
-
-        var expertise = (int)GetRatingBonusValue(CombatRating.Expertise);
-
-        var weapon = GetWeaponForAttack(attack, true);
-
-        expertise += (int)GetTotalAuraModifier(AuraType.ModExpertise, aurEff => aurEff.SpellInfo.IsItemFitToSpellRequirements(weapon));
-
-        if (expertise < 0)
-            expertise = 0;
-
-        switch (attack)
-        {
-            case WeaponAttackType.BaseAttack:
-                SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MainhandExpertise), expertise);
-
-                break;
-            case WeaponAttackType.OffAttack:
-                SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OffhandExpertise), expertise);
-
-                break;
-            default: break;
+            UpdateArmor();
         }
     }
 
@@ -789,14 +768,36 @@ public partial class Player
         SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellCritPercentage), (float)crit);
     }
 
-    public void UpdateMeleeHitChances()
+    public void UpdateSpellDamageAndHealingBonus()
     {
-        ModMeleeHitChance = 7.5f + GetRatingBonusValue(CombatRating.HitMelee);
-    }
+        // Magic damage modifiers implemented in Unit.SpellDamageBonusDone
+        // This information for client side use only
+        // Get healing bonus for all schools
+        SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModHealingDonePos), (int)SpellBaseHealingBonusDone(SpellSchoolMask.All));
+        // Get damage bonus for all schools
+        var modDamageAuras = GetAuraEffectsByType(AuraType.ModDamageDone);
 
-    public void UpdateRangedHitChances()
-    {
-        ModRangedHitChance = 7.5f + GetRatingBonusValue(CombatRating.HitRanged);
+        for (var i = (int)SpellSchools.Holy; i < (int)SpellSchools.Max; ++i)
+        {
+            SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDoneNeg, i),
+                                (int)modDamageAuras.Aggregate(0f,
+                                                              (negativeMod, aurEff) =>
+                                                              {
+                                                                  if (aurEff.Amount < 0 && Convert.ToBoolean(aurEff.MiscValue & (1 << i)))
+                                                                      negativeMod += (float)aurEff.Amount;
+
+                                                                  return negativeMod;
+                                                              }));
+
+            SetUpdateFieldStatValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDonePos, i),
+                                    (int)(SpellBaseDamageBonusDone((SpellSchoolMask)(1 << i)) - ActivePlayerData.ModDamageDoneNeg[i]));
+        }
+
+        if (HasAuraType(AuraType.OverrideAttackPowerBySpPct))
+        {
+            UpdateAttackPowerAndDamage();
+            UpdateAttackPowerAndDamage(true);
+        }
     }
 
     public void UpdateSpellHitChances()
@@ -805,71 +806,65 @@ public partial class Player
         ModSpellHitChance += GetRatingBonusValue(CombatRating.HitSpell);
     }
 
-    public override void UpdateMaxHealth()
+    public override bool UpdateStats(Stats stat)
     {
-        var unitMod = UnitMods.Health;
+        // value = ((base_value * base_pct) + total_value) * total_pct
+        var value = GetTotalStatValue(stat);
 
-        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreateHealth();
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
-        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total) + GetHealthBonusFromStamina();
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
+        SetStat(stat, (int)value);
 
-        SetMaxHealth(value);
-    }
-
-    public override uint GetPowerIndex(PowerType powerType)
-    {
-        return Global.DB2Mgr.GetPowerIndexByClass(powerType, Class);
-    }
-
-    public override void UpdateMaxPower(PowerType power)
-    {
-        var powerIndex = GetPowerIndex(power);
-
-        if (powerIndex == (uint)PowerType.Max || powerIndex >= (uint)PowerType.MaxPerClass)
-            return;
-
-        var unitMod = UnitMods.PowerStart + (int)power;
-
-        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreatePowerValue(power);
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
-        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
-
-        SetMaxPower(power, (int)Math.Round(value));
-    }
-
-    public void ApplySpellPenetrationBonus(int amount, bool apply)
-    {
-        ApplyModTargetResistance(-amount, apply);
-        _spellPenetrationItemMod += apply ? amount : -amount;
-    }
-
-    public bool _ModifyUInt32(bool apply, ref uint baseValue, ref int amount)
-    {
-        // If amount is negative, change sign and value of apply.
-        if (amount < 0)
+        if (stat == Stats.Stamina || stat == Stats.Intellect || stat == Stats.Strength)
         {
-            apply = !apply;
-            amount = -amount;
+            var pet = CurrentPet;
+
+            pet?.UpdateStats(stat);
         }
 
-        if (apply)
+        switch (stat)
         {
-            baseValue += (uint)amount;
+            case Stats.Agility:
+                UpdateAllCritPercentages();
+                UpdateDodgePercentage();
+
+                break;
+            case Stats.Stamina:
+                UpdateMaxHealth();
+
+                break;
+            case Stats.Intellect:
+                UpdateSpellCritChance();
+
+                break;
+            default:
+                break;
         }
+
+        if (stat == Stats.Strength)
+        {
+            UpdateAttackPowerAndDamage();
+        }
+        else if (stat == Stats.Agility)
+        {
+            UpdateAttackPowerAndDamage();
+            UpdateAttackPowerAndDamage(true);
+        }
+
+        UpdateArmor();
+        UpdateSpellDamageAndHealingBonus();
+        UpdateManaRegen();
+
+        return true;
+    }
+    public void UpdateVersatilityDamageDone()
+    {
+        // No proof that CR_VERSATILITY_DAMAGE_DONE is allways = ActivePlayerData::Versatility
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Versatility), (int)ActivePlayerData.CombatRatings[(int)CombatRating.VersatilityDamageDone]);
+
+        if (Class == PlayerClass.Hunter)
+            UpdateDamagePhysical(WeaponAttackType.RangedAttack);
         else
-        {
-            // Make sure we do not get public uint overflow.
-            if (amount > baseValue)
-                amount = (int)baseValue;
-
-            baseValue -= (uint)amount;
-        }
-
-        return apply;
+            UpdateDamagePhysical(WeaponAttackType.BaseAttack);
     }
-
     private void _ApplyAllStatBonuses()
     {
         SetCanModifyStats(false);
@@ -896,46 +891,35 @@ public partial class Player
         UpdateAllStats();
     }
 
-    private void UpdateAllRatings()
+    private void ApplyHealthRegenBonus(int amount, bool apply)
     {
-        for (CombatRating cr = 0; cr < CombatRating.Max; ++cr)
-            UpdateRating(cr);
+        _ModifyUInt32(apply, ref _baseHealthRegen, ref amount);
     }
 
-    private void UpdateCorruption()
+    private void ApplyManaRegenBonus(int amount, bool apply)
     {
-        var effectiveCorruption = GetRatingBonusValue(CombatRating.Corruption) - GetRatingBonusValue(CombatRating.CorruptionResistance);
+        _ModifyUInt32(apply, ref _baseManaRegen, ref amount);
+        UpdateManaRegen();
+    }
 
-        foreach (var corruptionEffect in CliDB.CorruptionEffectsStorage.Values)
+    private void ApplySpellPowerBonus(int amount, bool apply)
+    {
+        if (HasAuraType(AuraType.OverrideSpellPowerByApPct))
+            return;
+
+        apply = _ModifyUInt32(apply, ref _baseSpellPower, ref amount);
+
+        // For speed just update for client
+        ApplyModUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModHealingDonePos), amount, apply);
+
+        for (var spellSchool = SpellSchools.Holy; spellSchool < SpellSchools.Max; ++spellSchool)
+            ApplyModDamageDonePos(spellSchool, amount, apply);
+
+        if (HasAuraType(AuraType.OverrideAttackPowerBySpPct))
         {
-            if (((CorruptionEffectsFlag)corruptionEffect.Flags).HasAnyFlag(CorruptionEffectsFlag.Disabled))
-                continue;
-
-            if (effectiveCorruption < corruptionEffect.MinCorruption)
-            {
-                RemoveAura(corruptionEffect.Aura);
-
-                continue;
-            }
-
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(corruptionEffect.PlayerConditionID);
-
-            if (playerCondition != null)
-                if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
-                {
-                    RemoveAura(corruptionEffect.Aura);
-
-                    continue;
-                }
-
-            CastSpell(this, corruptionEffect.Aura, true);
+            UpdateAttackPowerAndDamage();
+            UpdateAttackPowerAndDamage(true);
         }
-    }
-
-    private void UpdateArmorPenetration(int amount)
-    {
-        // Store Rating Value
-        SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CombatRatings, (int)CombatRating.ArmorPenetration), (uint)amount);
     }
 
     private double CalculateDiminishingReturns(float[] capArray, PlayerClass playerClass, double nonDiminishValue, double diminishValue)
@@ -1054,6 +1038,20 @@ public partial class Player
         return 1.0f;
     }
 
+    private float GetHealthBonusFromStamina()
+    {
+        // Taken from PaperDollFrame.lua - 6.0.3.19085
+        var ratio = 10.0f;
+        var hpBase = CliDB.HpPerStaGameTable.GetRow(Level);
+
+        if (hpBase != null)
+            ratio = hpBase.Health;
+
+        var stamina = GetStat(Stats.Stamina);
+
+        return stamina * ratio;
+    }
+
     private Stats GetPrimaryStat()
     {
         byte primaryStatPriority;
@@ -1074,48 +1072,45 @@ public partial class Player
         return Stats.Intellect;
     }
 
-    private float GetHealthBonusFromStamina()
+    private void UpdateAllRatings()
     {
-        // Taken from PaperDollFrame.lua - 6.0.3.19085
-        var ratio = 10.0f;
-        var hpBase = CliDB.HpPerStaGameTable.GetRow(Level);
-
-        if (hpBase != null)
-            ratio = hpBase.Health;
-
-        var stamina = GetStat(Stats.Stamina);
-
-        return stamina * ratio;
+        for (CombatRating cr = 0; cr < CombatRating.Max; ++cr)
+            UpdateRating(cr);
     }
 
-    private void ApplyManaRegenBonus(int amount, bool apply)
+    private void UpdateArmorPenetration(int amount)
     {
-        _ModifyUInt32(apply, ref _baseManaRegen, ref amount);
-        UpdateManaRegen();
+        // Store Rating Value
+        SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CombatRatings, (int)CombatRating.ArmorPenetration), (uint)amount);
     }
 
-    private void ApplyHealthRegenBonus(int amount, bool apply)
+    private void UpdateCorruption()
     {
-        _ModifyUInt32(apply, ref _baseHealthRegen, ref amount);
-    }
+        var effectiveCorruption = GetRatingBonusValue(CombatRating.Corruption) - GetRatingBonusValue(CombatRating.CorruptionResistance);
 
-    private void ApplySpellPowerBonus(int amount, bool apply)
-    {
-        if (HasAuraType(AuraType.OverrideSpellPowerByApPct))
-            return;
-
-        apply = _ModifyUInt32(apply, ref _baseSpellPower, ref amount);
-
-        // For speed just update for client
-        ApplyModUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModHealingDonePos), amount, apply);
-
-        for (var spellSchool = SpellSchools.Holy; spellSchool < SpellSchools.Max; ++spellSchool)
-            ApplyModDamageDonePos(spellSchool, amount, apply);
-
-        if (HasAuraType(AuraType.OverrideAttackPowerBySpPct))
+        foreach (var corruptionEffect in CliDB.CorruptionEffectsStorage.Values)
         {
-            UpdateAttackPowerAndDamage();
-            UpdateAttackPowerAndDamage(true);
+            if (((CorruptionEffectsFlag)corruptionEffect.Flags).HasAnyFlag(CorruptionEffectsFlag.Disabled))
+                continue;
+
+            if (effectiveCorruption < corruptionEffect.MinCorruption)
+            {
+                RemoveAura(corruptionEffect.Aura);
+
+                continue;
+            }
+
+            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(corruptionEffect.PlayerConditionID);
+
+            if (playerCondition != null)
+                if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
+                {
+                    RemoveAura(corruptionEffect.Aura);
+
+                    continue;
+                }
+
+            CastSpell(this, corruptionEffect.Aura, true);
         }
     }
 }

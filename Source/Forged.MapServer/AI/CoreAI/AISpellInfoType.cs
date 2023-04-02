@@ -8,14 +8,14 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class AISpellInfoType
 {
-    public AITarget Target;
     public AICondition Condition;
     public TimeSpan Cooldown;
-    public TimeSpan RealCooldown;
+    public byte Effects;
     public float MaxRange;
-
+    public TimeSpan RealCooldown;
+    public AITarget Target;
     public byte Targets; // set of enum SelectTarget
-    public byte Effects; // set of enum SelectEffect
+     // set of enum SelectEffect
 
     public AISpellInfoType()
     {

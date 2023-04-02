@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Artifact;
 
 internal class ArtifactSetAppearance : ClientPacket
 {
+    public int ArtifactAppearanceID;
     public ObjectGuid ArtifactGUID;
     public ObjectGuid ForgeGUID;
-    public int ArtifactAppearanceID;
     public ArtifactSetAppearance(WorldPacket packet) : base(packet) { }
 
     public override void Read()

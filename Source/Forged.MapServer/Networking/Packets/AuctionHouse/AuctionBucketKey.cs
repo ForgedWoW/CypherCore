@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class AuctionBucketKey
 {
+    public ushort? BattlePetSpeciesID;
     public uint ItemID;
     public ushort ItemLevel;
-    public ushort? BattlePetSpeciesID;
     public ushort? SuffixItemNameDescriptionID;
 
     public AuctionBucketKey() { }

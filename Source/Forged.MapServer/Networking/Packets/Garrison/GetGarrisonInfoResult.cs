@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 internal class GetGarrisonInfoResult : ServerPacket
 {
     public uint FactionIndex;
-    public List<GarrisonInfo> Garrisons = new();
     public List<FollowerSoftCapInfo> FollowerSoftCaps = new();
+    public List<GarrisonInfo> Garrisons = new();
     public GetGarrisonInfoResult() : base(ServerOpcodes.GetGarrisonInfoResult, ConnectionType.Instance) { }
 
     public override void Write()

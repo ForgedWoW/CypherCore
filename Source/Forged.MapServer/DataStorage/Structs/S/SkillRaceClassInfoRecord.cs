@@ -7,12 +7,12 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class SkillRaceClassInfoRecord
 {
-    public uint Id;
-    public long RaceMask;
-    public ushort SkillID;
+    public sbyte Availability;
     public int ClassMask;
     public SkillRaceClassInfoFlags Flags;
-    public sbyte Availability;
+    public uint Id;
     public sbyte MinLevel;
+    public long RaceMask;
+    public ushort SkillID;
     public ushort SkillTierID;
 }

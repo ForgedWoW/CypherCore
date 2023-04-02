@@ -5,12 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestCurrency
 {
+    public int Amount;
+
+    public uint CurrencyID;
+
     public QuestCurrency(uint currencyID = 0, int amount = 0)
     {
         CurrencyID = currencyID;
         Amount = amount;
     }
-
-    public uint CurrencyID;
-    public int Amount;
 }

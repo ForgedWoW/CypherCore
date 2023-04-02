@@ -8,8 +8,8 @@ namespace Forged.MapServer.Maps.Instances;
 
 public struct UpdateBossStateSaveDataEvent
 {
-    public DungeonEncounterRecord DungeonEncounter;
     public uint BossId;
+    public DungeonEncounterRecord DungeonEncounter;
     public EncounterState NewState;
 
     public UpdateBossStateSaveDataEvent(DungeonEncounterRecord dungeonEncounter, uint bossId, EncounterState state)

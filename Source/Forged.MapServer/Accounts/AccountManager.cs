@@ -17,19 +17,131 @@ public sealed class AccountManager
 {
     private const int MaxAccountLength = 16;
     private const int MaxEmailLength = 64;
-    private readonly LoginDatabase _loginDatabase;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly ObjectAccessor _objectAccessor;
-
     private readonly MultiMap<byte, uint> _defaultPermissions = new();
-
-    public Dictionary<uint, RBACPermission> RBACPermissionList { get; } = new();
-
+    private readonly LoginDatabase _loginDatabase;
+    private readonly ObjectAccessor _objectAccessor;
     public AccountManager(LoginDatabase loginDatabase, CharacterDatabase characterDatabase, ObjectAccessor objectAccessor)
     {
         _loginDatabase = loginDatabase;
         _characterDatabase = characterDatabase;
         _objectAccessor = objectAccessor;
+    }
+
+    public Dictionary<uint, RBACPermission> RBACPermissionList { get; } = new();
+    public AccountOpResult ChangeEmail(uint accountId, string newEmail)
+    {
+        if (!GetName(accountId, out _))
+            return AccountOpResult.NameNotExist; // account doesn't exist
+
+        if (newEmail.Length > MaxEmailLength)
+            return AccountOpResult.EmailTooLong;
+
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_EMAIL);
+        stmt.AddValue(0, newEmail);
+        stmt.AddValue(1, accountId);
+        _loginDatabase.Execute(stmt);
+
+        return AccountOpResult.Ok;
+    }
+
+    public AccountOpResult ChangePassword(uint accountId, string newPassword)
+    {
+        if (!GetName(accountId, out var username))
+            return AccountOpResult.NameNotExist; // account doesn't exist
+
+        if (newPassword.Length > MaxAccountLength)
+            return AccountOpResult.PassTooLong;
+
+        var (salt, verifier) = SRP6.MakeRegistrationData(username, newPassword);
+
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LOGON);
+        stmt.AddValue(0, salt);
+        stmt.AddValue(1, verifier);
+        stmt.AddValue(2, accountId);
+        _loginDatabase.Execute(stmt);
+
+        return AccountOpResult.Ok;
+    }
+
+    public AccountOpResult ChangeRegEmail(uint accountId, string newEmail)
+    {
+        if (!GetName(accountId, out _))
+            return AccountOpResult.NameNotExist; // account doesn't exist
+
+        if (newEmail.Length > MaxEmailLength)
+            return AccountOpResult.EmailTooLong;
+
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_REG_EMAIL);
+        stmt.AddValue(0, newEmail);
+        stmt.AddValue(1, accountId);
+        _loginDatabase.Execute(stmt);
+
+        return AccountOpResult.Ok;
+    }
+
+    public AccountOpResult ChangeUsername(uint accountId, string newUsername, string newPassword)
+    {
+        // Check if accounts exists
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
+        stmt.AddValue(0, accountId);
+        var result = _loginDatabase.Query(stmt);
+
+        if (result.IsEmpty())
+            return AccountOpResult.NameNotExist;
+
+        if (newUsername.Length > MaxAccountLength)
+            return AccountOpResult.NameTooLong;
+
+        if (newPassword.Length > MaxAccountLength)
+            return AccountOpResult.PassTooLong;
+
+        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_USERNAME);
+        stmt.AddValue(0, newUsername);
+        stmt.AddValue(1, accountId);
+        _loginDatabase.Execute(stmt);
+
+        var (salt, verifier) = SRP6.MakeRegistrationData(newUsername, newPassword);
+        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LOGON);
+        stmt.AddValue(0, salt);
+        stmt.AddValue(1, verifier);
+        stmt.AddValue(2, accountId);
+        _loginDatabase.Execute(stmt);
+
+        return AccountOpResult.Ok;
+    }
+
+    public bool CheckEmail(uint accountId, string newEmail)
+    {
+        // We simply return false for a non-existing email
+        if (!GetEmail(accountId, out var oldEmail))
+            return false;
+
+        if (oldEmail == newEmail)
+            return true;
+
+        return false;
+    }
+
+    public bool CheckPassword(uint accountId, string password)
+    {
+        if (!GetName(accountId, out var username))
+            return false;
+
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
+        stmt.AddValue(0, accountId);
+        var result = _loginDatabase.Query(stmt);
+
+        if (!result.IsEmpty())
+        {
+            var salt = result.Read<byte[]>(0);
+            var verifier = result.Read<byte[]>(1);
+
+            if (SRP6.CheckLogin(username, password, salt, verifier))
+                return true;
+        }
+
+        return false;
     }
 
     public AccountOpResult CreateAccount(string username, string password, string email = "", uint bnetAccountId = 0, byte bnetIndex = 0)
@@ -143,87 +255,31 @@ public sealed class AccountManager
 
         return AccountOpResult.Ok;
     }
-
-    public AccountOpResult ChangeUsername(uint accountId, string newUsername, string newPassword)
+    public uint GetCharactersCount(uint accountId)
     {
-        // Check if accounts exists
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
+        // check character count
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_SUM_CHARS);
+        stmt.AddValue(0, accountId);
+        var result = _characterDatabase.Query(stmt);
+
+        return result.IsEmpty() ? 0 : (uint)result.Read<ulong>(0);
+    }
+
+    public bool GetEmail(uint accountId, out string email)
+    {
+        email = "";
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
         stmt.AddValue(0, accountId);
         var result = _loginDatabase.Query(stmt);
 
-        if (result.IsEmpty())
-            return AccountOpResult.NameNotExist;
+        if (!result.IsEmpty())
+        {
+            email = result.Read<string>(0);
 
-        if (newUsername.Length > MaxAccountLength)
-            return AccountOpResult.NameTooLong;
+            return true;
+        }
 
-        if (newPassword.Length > MaxAccountLength)
-            return AccountOpResult.PassTooLong;
-
-        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_USERNAME);
-        stmt.AddValue(0, newUsername);
-        stmt.AddValue(1, accountId);
-        _loginDatabase.Execute(stmt);
-
-        var (salt, verifier) = SRP6.MakeRegistrationData(newUsername, newPassword);
-        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LOGON);
-        stmt.AddValue(0, salt);
-        stmt.AddValue(1, verifier);
-        stmt.AddValue(2, accountId);
-        _loginDatabase.Execute(stmt);
-
-        return AccountOpResult.Ok;
-    }
-
-    public AccountOpResult ChangePassword(uint accountId, string newPassword)
-    {
-        if (!GetName(accountId, out var username))
-            return AccountOpResult.NameNotExist; // account doesn't exist
-
-        if (newPassword.Length > MaxAccountLength)
-            return AccountOpResult.PassTooLong;
-
-        var (salt, verifier) = SRP6.MakeRegistrationData(username, newPassword);
-
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LOGON);
-        stmt.AddValue(0, salt);
-        stmt.AddValue(1, verifier);
-        stmt.AddValue(2, accountId);
-        _loginDatabase.Execute(stmt);
-
-        return AccountOpResult.Ok;
-    }
-
-    public AccountOpResult ChangeEmail(uint accountId, string newEmail)
-    {
-        if (!GetName(accountId, out _))
-            return AccountOpResult.NameNotExist; // account doesn't exist
-
-        if (newEmail.Length > MaxEmailLength)
-            return AccountOpResult.EmailTooLong;
-
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_EMAIL);
-        stmt.AddValue(0, newEmail);
-        stmt.AddValue(1, accountId);
-        _loginDatabase.Execute(stmt);
-
-        return AccountOpResult.Ok;
-    }
-
-    public AccountOpResult ChangeRegEmail(uint accountId, string newEmail)
-    {
-        if (!GetName(accountId, out _))
-            return AccountOpResult.NameNotExist; // account doesn't exist
-
-        if (newEmail.Length > MaxEmailLength)
-            return AccountOpResult.EmailTooLong;
-
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_REG_EMAIL);
-        stmt.AddValue(0, newEmail);
-        stmt.AddValue(1, accountId);
-        _loginDatabase.Execute(stmt);
-
-        return AccountOpResult.Ok;
+        return false;
     }
 
     public uint GetId(string username)
@@ -233,6 +289,35 @@ public sealed class AccountManager
         var result = _loginDatabase.Query(stmt);
 
         return !result.IsEmpty() ? result.Read<uint>(0) : 0;
+    }
+
+    public bool GetName(uint accountId, out string name)
+    {
+        name = "";
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_USERNAME_BY_ID);
+        stmt.AddValue(0, accountId);
+        var result = _loginDatabase.Query(stmt);
+
+        if (!result.IsEmpty())
+        {
+            name = result.Read<string>(0);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public List<uint> GetRBACDefaultPermissions(byte secLevel)
+    {
+        return _defaultPermissions[secLevel];
+    }
+
+    public RBACPermission GetRBACPermission(uint permissionId)
+    {
+        Log.Logger.Debug("AccountMgr:GetRBACPermission: {0}", permissionId);
+
+        return RBACPermissionList.LookupByKey(permissionId);
     }
 
     public AccountTypes GetSecurity(uint accountId, int realmId)
@@ -253,82 +338,31 @@ public sealed class AccountManager
 
         return _loginDatabase.AsyncQuery(stmt).WithCallback(result => { callback(!result.IsEmpty() ? result.Read<byte>(0) : (uint)AccountTypes.Player); });
     }
-
-    public bool GetName(uint accountId, out string name)
+    public bool HasPermission(uint accountId, RBACPermissions permissionId, uint realmId)
     {
-        name = "";
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_USERNAME_BY_ID);
-        stmt.AddValue(0, accountId);
-        var result = _loginDatabase.Query(stmt);
-
-        if (!result.IsEmpty())
+        if (accountId == 0)
         {
-            name = result.Read<string>(0);
+            Log.Logger.Error("AccountMgr:HasPermission: Wrong accountId 0");
 
-            return true;
-        }
-
-        return false;
-    }
-
-    public bool GetEmail(uint accountId, out string email)
-    {
-        email = "";
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
-        stmt.AddValue(0, accountId);
-        var result = _loginDatabase.Query(stmt);
-
-        if (!result.IsEmpty())
-        {
-            email = result.Read<string>(0);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public bool CheckPassword(uint accountId, string password)
-    {
-        if (!GetName(accountId, out var username))
             return false;
-
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
-        stmt.AddValue(0, accountId);
-        var result = _loginDatabase.Query(stmt);
-
-        if (!result.IsEmpty())
-        {
-            var salt = result.Read<byte[]>(0);
-            var verifier = result.Read<byte[]>(1);
-
-            if (SRP6.CheckLogin(username, password, salt, verifier))
-                return true;
         }
 
-        return false;
+        RBACData rbac = new(accountId, "", (int)realmId, (byte)GetSecurity(accountId, (int)realmId));
+        rbac.LoadFromDB();
+        var hasPermission = rbac.HasPermission(permissionId);
+
+        Log.Logger.Debug("AccountMgr:HasPermission [AccountId: {0}, PermissionId: {1}, realmId: {2}]: {3}",
+                         accountId,
+                         permissionId,
+                         realmId,
+                         hasPermission);
+
+        return hasPermission;
     }
 
-    public bool CheckEmail(uint accountId, string newEmail)
+    public bool IsAdminAccount(AccountTypes gmlevel)
     {
-        // We simply return false for a non-existing email
-        if (!GetEmail(accountId, out var oldEmail))
-            return false;
-
-        if (oldEmail == newEmail)
-            return true;
-
-        return false;
-    }
-
-    public uint GetCharactersCount(uint accountId)
-    {
-        // check character count
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_SUM_CHARS);
-        stmt.AddValue(0, accountId);
-        var result = _characterDatabase.Query(stmt);
-
-        return result.IsEmpty() ? 0 : (uint)result.Read<ulong>(0);
+        return gmlevel is >= AccountTypes.Administrator and <= AccountTypes.Console;
     }
 
     public bool IsBannedAccount(string name)
@@ -340,21 +374,15 @@ public sealed class AccountManager
         return !result.IsEmpty();
     }
 
-    public bool IsPlayerAccount(AccountTypes gmlevel)
-    {
-        return gmlevel == AccountTypes.Player;
-    }
-
-    public bool IsAdminAccount(AccountTypes gmlevel)
-    {
-        return gmlevel is >= AccountTypes.Administrator and <= AccountTypes.Console;
-    }
-
     public bool IsConsoleAccount(AccountTypes gmlevel)
     {
         return gmlevel == AccountTypes.Console;
     }
 
+    public bool IsPlayerAccount(AccountTypes gmlevel)
+    {
+        return gmlevel == AccountTypes.Player;
+    }
     public void LoadRBAC()
     {
         RBACPermissionList.Clear();
@@ -475,39 +503,5 @@ public sealed class AccountManager
         }
 
         _loginDatabase.CommitTransaction(trans);
-    }
-
-    public RBACPermission GetRBACPermission(uint permissionId)
-    {
-        Log.Logger.Debug("AccountMgr:GetRBACPermission: {0}", permissionId);
-
-        return RBACPermissionList.LookupByKey(permissionId);
-    }
-
-    public bool HasPermission(uint accountId, RBACPermissions permissionId, uint realmId)
-    {
-        if (accountId == 0)
-        {
-            Log.Logger.Error("AccountMgr:HasPermission: Wrong accountId 0");
-
-            return false;
-        }
-
-        RBACData rbac = new(accountId, "", (int)realmId, (byte)GetSecurity(accountId, (int)realmId));
-        rbac.LoadFromDB();
-        var hasPermission = rbac.HasPermission(permissionId);
-
-        Log.Logger.Debug("AccountMgr:HasPermission [AccountId: {0}, PermissionId: {1}, realmId: {2}]: {3}",
-                         accountId,
-                         permissionId,
-                         realmId,
-                         hasPermission);
-
-        return hasPermission;
-    }
-
-    public List<uint> GetRBACDefaultPermissions(byte secLevel)
-    {
-        return _defaultPermissions[secLevel];
     }
 }

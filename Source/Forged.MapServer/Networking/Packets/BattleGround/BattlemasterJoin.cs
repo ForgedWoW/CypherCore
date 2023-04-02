@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlemasterJoin : ClientPacket
 {
+    public int[] BlacklistMap = new int[2];
     public Array<ulong> QueueIDs = new(1);
     public byte Roles;
-    public int[] BlacklistMap = new int[2];
     public BattlemasterJoin(WorldPacket packet) : base(packet) { }
 
     public override void Read()

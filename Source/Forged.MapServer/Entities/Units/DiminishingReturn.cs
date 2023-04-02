@@ -7,6 +7,12 @@ namespace Forged.MapServer.Entities.Units;
 
 public struct DiminishingReturn
 {
+    public DiminishingLevels HitCount;
+
+    public uint HitTime;
+
+    public uint Stack;
+
     public DiminishingReturn(uint hitTime, DiminishingLevels hitCount)
     {
         Stack = 0;
@@ -20,8 +26,4 @@ public struct DiminishingReturn
         HitTime = 0;
         HitCount = DiminishingLevels.Level1;
     }
-
-    public uint Stack;
-    public uint HitTime;
-    public DiminishingLevels HitCount;
 }

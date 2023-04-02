@@ -11,50 +11,6 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public static class MovementExtensions
 {
-    public static void ReadTransportInfo(WorldPacket data, ref MovementInfo.TransportInfo transportInfo)
-    {
-        transportInfo.Guid = data.ReadPackedGuid(); // Transport Guid
-        transportInfo.Pos.X = data.ReadFloat();
-        transportInfo.Pos.Y = data.ReadFloat();
-        transportInfo.Pos.Z = data.ReadFloat();
-        transportInfo.Pos.Orientation = data.ReadFloat();
-        transportInfo.Seat = data.ReadInt8();   // VehicleSeatIndex
-        transportInfo.Time = data.ReadUInt32(); // MoveTime
-
-        var hasPrevTime = data.HasBit();
-        var hasVehicleId = data.HasBit();
-
-        if (hasPrevTime)
-            transportInfo.PrevTime = data.ReadUInt32(); // PrevMoveTime
-
-        if (hasVehicleId)
-            transportInfo.VehicleId = data.ReadUInt32(); // VehicleRecID
-    }
-
-    public static void WriteTransportInfo(WorldPacket data, MovementInfo.TransportInfo transportInfo)
-    {
-        var hasPrevTime = transportInfo.PrevTime != 0;
-        var hasVehicleId = transportInfo.VehicleId != 0;
-
-        data.WritePackedGuid(transportInfo.Guid); // Transport Guid
-        data.WriteFloat(transportInfo.Pos.X);
-        data.WriteFloat(transportInfo.Pos.Y);
-        data.WriteFloat(transportInfo.Pos.Z);
-        data.WriteFloat(transportInfo.Pos.Orientation);
-        data.WriteInt8(transportInfo.Seat);   // VehicleSeatIndex
-        data.WriteUInt32(transportInfo.Time); // MoveTime
-
-        data.WriteBit(hasPrevTime);
-        data.WriteBit(hasVehicleId);
-        data.FlushBits();
-
-        if (hasPrevTime)
-            data.WriteUInt32(transportInfo.PrevTime); // PrevMoveTime
-
-        if (hasVehicleId)
-            data.WriteUInt32(transportInfo.VehicleId); // VehicleRecID
-    }
-
     public static MovementInfo ReadMovementInfo(WorldPacket data)
     {
         var movementInfo = new MovementInfo
@@ -139,78 +95,32 @@ public static class MovementExtensions
         return movementInfo;
     }
 
-    public static void WriteMovementInfo(WorldPacket data, MovementInfo movementInfo)
+    public static void ReadTransportInfo(WorldPacket data, ref MovementInfo.TransportInfo transportInfo)
     {
-        var hasTransportData = !movementInfo.Transport.Guid.IsEmpty;
-        var hasFallDirection = movementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar);
-        var hasFallData = hasFallDirection || movementInfo.Jump.FallTime != 0;
-        var hasSpline = false; // todo 6.x send this infos
-        var hasInertia = movementInfo.Inertia.HasValue;
-        var hasAdvFlying = movementInfo.AdvFlying.HasValue;
+        transportInfo.Guid = data.ReadPackedGuid(); // Transport Guid
+        transportInfo.Pos.X = data.ReadFloat();
+        transportInfo.Pos.Y = data.ReadFloat();
+        transportInfo.Pos.Z = data.ReadFloat();
+        transportInfo.Pos.Orientation = data.ReadFloat();
+        transportInfo.Seat = data.ReadInt8();   // VehicleSeatIndex
+        transportInfo.Time = data.ReadUInt32(); // MoveTime
 
-        data.WritePackedGuid(movementInfo.Guid);
-        data.WriteUInt32((uint)movementInfo.MovementFlags);
-        data.WriteUInt32((uint)movementInfo.GetMovementFlags2());
-        data.WriteUInt32((uint)movementInfo.GetExtraMovementFlags2());
-        data.WriteUInt32(movementInfo.Time);
-        data.WriteFloat(movementInfo.Pos.X);
-        data.WriteFloat(movementInfo.Pos.Y);
-        data.WriteFloat(movementInfo.Pos.Z);
-        data.WriteFloat(movementInfo.Pos.Orientation);
-        data.WriteFloat(movementInfo.Pitch);
-        data.WriteFloat(movementInfo.StepUpStartElevation);
+        var hasPrevTime = data.HasBit();
+        var hasVehicleId = data.HasBit();
 
-        uint removeMovementForcesCount = 0;
-        data.WriteUInt32(removeMovementForcesCount);
+        if (hasPrevTime)
+            transportInfo.PrevTime = data.ReadUInt32(); // PrevMoveTime
 
-        uint moveIndex = 0;
-        data.WriteUInt32(moveIndex);
+        if (hasVehicleId)
+            transportInfo.VehicleId = data.ReadUInt32(); // VehicleRecID
+    }
 
-        /*for (public uint i = 0; i < removeMovementForcesCount; ++i)
-        {
-            _worldPacket << ObjectGuid;
-        }*/
+    public static void WriteCreateObjectAreaTriggerSpline(Spline<int> spline, WorldPacket data)
+    {
+        data.WriteBits(spline.GetPoints().Length, 16);
 
-        data.WriteBit(hasTransportData);
-        data.WriteBit(hasFallData);
-        data.WriteBit(hasSpline);
-        data.WriteBit(false); // HeightChangeFailed
-        data.WriteBit(false); // RemoteTimeValid
-        data.WriteBit(hasInertia);
-        data.WriteBit(hasAdvFlying);
-        data.FlushBits();
-
-        if (hasTransportData)
-            WriteTransportInfo(data, movementInfo.Transport);
-
-        if (hasInertia)
-        {
-            data.WriteInt32(movementInfo.Inertia.Value.Id);
-            data.WriteXYZ(movementInfo.Inertia.Value.Force);
-            data.WriteUInt32(movementInfo.Inertia.Value.Lifetime);
-        }
-
-        if (hasAdvFlying)
-        {
-            data.WriteFloat(movementInfo.AdvFlying.Value.ForwardVelocity);
-            data.WriteFloat(movementInfo.AdvFlying.Value.UpVelocity);
-        }
-
-        if (hasFallData)
-        {
-            data.WriteUInt32(movementInfo.Jump.FallTime);
-            data.WriteFloat(movementInfo.Jump.Zspeed);
-
-            data.WriteBit(hasFallDirection);
-            data.FlushBits();
-
-            if (hasFallDirection)
-            {
-                data.WriteFloat(movementInfo.Jump.SinAngle);
-                data.WriteFloat(movementInfo.Jump.CosAngle);
-                data.WriteFloat(movementInfo.Jump.Xyspeed);
-            }
-        }
+        foreach (var point in spline.GetPoints())
+            data.WriteVector3(point);
     }
 
     public static void WriteCreateObjectSplineDataBlock(MoveSpline moveSpline, WorldPacket data)
@@ -313,14 +223,6 @@ public static class MovementExtensions
         }
     }
 
-    public static void WriteCreateObjectAreaTriggerSpline(Spline<int> spline, WorldPacket data)
-    {
-        data.WriteBits(spline.GetPoints().Length, 16);
-
-        foreach (var point in spline.GetPoints())
-            data.WriteVector3(point);
-    }
-
     public static void WriteMovementForceWithDirection(MovementForce movementForce, WorldPacket data, Position objectPosition = null)
     {
         data.WritePackedGuid(movementForce.ID);
@@ -366,6 +268,104 @@ public static class MovementExtensions
         data.WriteInt32(movementForce.Unused910);
         data.WriteBits((byte)movementForce.Type, 2);
         data.FlushBits();
+    }
+
+    public static void WriteMovementInfo(WorldPacket data, MovementInfo movementInfo)
+    {
+        var hasTransportData = !movementInfo.Transport.Guid.IsEmpty;
+        var hasFallDirection = movementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar);
+        var hasFallData = hasFallDirection || movementInfo.Jump.FallTime != 0;
+        var hasSpline = false; // todo 6.x send this infos
+        var hasInertia = movementInfo.Inertia.HasValue;
+        var hasAdvFlying = movementInfo.AdvFlying.HasValue;
+
+        data.WritePackedGuid(movementInfo.Guid);
+        data.WriteUInt32((uint)movementInfo.MovementFlags);
+        data.WriteUInt32((uint)movementInfo.GetMovementFlags2());
+        data.WriteUInt32((uint)movementInfo.GetExtraMovementFlags2());
+        data.WriteUInt32(movementInfo.Time);
+        data.WriteFloat(movementInfo.Pos.X);
+        data.WriteFloat(movementInfo.Pos.Y);
+        data.WriteFloat(movementInfo.Pos.Z);
+        data.WriteFloat(movementInfo.Pos.Orientation);
+        data.WriteFloat(movementInfo.Pitch);
+        data.WriteFloat(movementInfo.StepUpStartElevation);
+
+        uint removeMovementForcesCount = 0;
+        data.WriteUInt32(removeMovementForcesCount);
+
+        uint moveIndex = 0;
+        data.WriteUInt32(moveIndex);
+
+        /*for (public uint i = 0; i < removeMovementForcesCount; ++i)
+        {
+            _worldPacket << ObjectGuid;
+        }*/
+
+        data.WriteBit(hasTransportData);
+        data.WriteBit(hasFallData);
+        data.WriteBit(hasSpline);
+        data.WriteBit(false); // HeightChangeFailed
+        data.WriteBit(false); // RemoteTimeValid
+        data.WriteBit(hasInertia);
+        data.WriteBit(hasAdvFlying);
+        data.FlushBits();
+
+        if (hasTransportData)
+            WriteTransportInfo(data, movementInfo.Transport);
+
+        if (hasInertia)
+        {
+            data.WriteInt32(movementInfo.Inertia.Value.Id);
+            data.WriteXYZ(movementInfo.Inertia.Value.Force);
+            data.WriteUInt32(movementInfo.Inertia.Value.Lifetime);
+        }
+
+        if (hasAdvFlying)
+        {
+            data.WriteFloat(movementInfo.AdvFlying.Value.ForwardVelocity);
+            data.WriteFloat(movementInfo.AdvFlying.Value.UpVelocity);
+        }
+
+        if (hasFallData)
+        {
+            data.WriteUInt32(movementInfo.Jump.FallTime);
+            data.WriteFloat(movementInfo.Jump.Zspeed);
+
+            data.WriteBit(hasFallDirection);
+            data.FlushBits();
+
+            if (hasFallDirection)
+            {
+                data.WriteFloat(movementInfo.Jump.SinAngle);
+                data.WriteFloat(movementInfo.Jump.CosAngle);
+                data.WriteFloat(movementInfo.Jump.Xyspeed);
+            }
+        }
+    }
+
+    public static void WriteTransportInfo(WorldPacket data, MovementInfo.TransportInfo transportInfo)
+    {
+        var hasPrevTime = transportInfo.PrevTime != 0;
+        var hasVehicleId = transportInfo.VehicleId != 0;
+
+        data.WritePackedGuid(transportInfo.Guid); // Transport Guid
+        data.WriteFloat(transportInfo.Pos.X);
+        data.WriteFloat(transportInfo.Pos.Y);
+        data.WriteFloat(transportInfo.Pos.Z);
+        data.WriteFloat(transportInfo.Pos.Orientation);
+        data.WriteInt8(transportInfo.Seat);   // VehicleSeatIndex
+        data.WriteUInt32(transportInfo.Time); // MoveTime
+
+        data.WriteBit(hasPrevTime);
+        data.WriteBit(hasVehicleId);
+        data.FlushBits();
+
+        if (hasPrevTime)
+            data.WriteUInt32(transportInfo.PrevTime); // PrevMoveTime
+
+        if (hasVehicleId)
+            data.WriteUInt32(transportInfo.VehicleId); // VehicleRecID
     }
 }
 

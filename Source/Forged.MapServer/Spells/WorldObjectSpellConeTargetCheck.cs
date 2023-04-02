@@ -11,8 +11,8 @@ namespace Forged.MapServer.Spells;
 
 public class WorldObjectSpellConeTargetCheck : WorldObjectSpellAreaTargetCheck
 {
-    private readonly Position _coneSrc;
     private readonly float _coneAngle;
+    private readonly Position _coneSrc;
     private readonly float _lineWidth;
 
     public WorldObjectSpellConeTargetCheck(Position coneSrc, float coneAngle, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)

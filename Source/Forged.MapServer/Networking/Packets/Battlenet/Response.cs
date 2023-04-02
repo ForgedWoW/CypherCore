@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 internal class Response : ServerPacket
 {
     public BattlenetRpcErrorCode BnetStatus = BattlenetRpcErrorCode.Ok;
-    public MethodCall Method;
     public ByteBuffer Data = new();
+    public MethodCall Method;
     public Response() : base(ServerOpcodes.BattlenetResponse) { }
 
     public override void Write()

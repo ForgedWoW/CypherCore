@@ -7,16 +7,16 @@ namespace Forged.MapServer.DataStorage.Structs.I;
 
 public sealed class ItemRecord
 {
-    public uint Id;
     public ItemClass ClassID;
-    public byte SubclassID;
-    public byte Material;
+    public int ContentTuningID;
+    public int CraftingQualityID;
+    public int IconFileDataID;
+    public uint Id;
     public InventoryType inventoryType;
+    public byte ItemGroupSoundsID;
+    public byte Material;
+    public int ModifiedCraftingReagentItemID;
     public byte SheatheType;
     public sbyte SoundOverrideSubclassID;
-    public int IconFileDataID;
-    public byte ItemGroupSoundsID;
-    public int ContentTuningID;
-    public int ModifiedCraftingReagentItemID;
-    public int CraftingQualityID;
+    public byte SubclassID;
 }

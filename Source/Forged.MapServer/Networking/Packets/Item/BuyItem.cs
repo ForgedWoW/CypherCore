@@ -8,14 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class BuyItem : ClientPacket
 {
-    public ObjectGuid VendorGUID;
-    public ItemInstance Item;
-    public uint Muid;
-    public uint Slot;
-    public ItemVendorType ItemType;
-    public int Quantity;
     public ObjectGuid ContainerGUID;
-
+    public ItemInstance Item;
+    public ItemVendorType ItemType;
+    public uint Muid;
+    public int Quantity;
+    public uint Slot;
+    public ObjectGuid VendorGUID;
     public BuyItem(WorldPacket packet) : base(packet)
     {
         Item = new ItemInstance();

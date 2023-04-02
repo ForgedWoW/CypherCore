@@ -8,17 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class TradeStatusPkt : ServerPacket
 {
+    public InventoryResult BagResult;
+    public int CurrencyQuantity;
+    public int CurrencyType;
+    public bool FailureForYou;
+    public uint Id;
+    public uint ItemID;
+    public ObjectGuid Partner;
+    public ObjectGuid PartnerAccount;
+    public bool PartnerIsSameBnetAccount;
     public TradeStatus Status = TradeStatus.Initiated;
     public byte TradeSlot;
-    public ObjectGuid PartnerAccount;
-    public ObjectGuid Partner;
-    public int CurrencyType;
-    public int CurrencyQuantity;
-    public bool FailureForYou;
-    public InventoryResult BagResult;
-    public uint ItemID;
-    public uint Id;
-    public bool PartnerIsSameBnetAccount;
     public TradeStatusPkt() : base(ServerOpcodes.TradeStatus, ConnectionType.Instance) { }
 
     public override void Write()

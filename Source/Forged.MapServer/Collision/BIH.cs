@@ -16,27 +16,11 @@ namespace Forged.MapServer.Collision;
 public class BIH
 {
     private AxisAlignedBox _bounds;
-    private uint[] _tree;
     private int[] _objects;
-
+    private uint[] _tree;
     public BIH()
     {
         InitEmpty();
-    }
-
-    public bool ReadFromFile(BinaryReader reader)
-    {
-        var lo = reader.Read<Vector3>();
-        var hi = reader.Read<Vector3>();
-        _bounds = new AxisAlignedBox(lo, hi);
-
-        var treeSize = reader.ReadUInt32();
-        _tree = reader.ReadArray<uint>(treeSize);
-
-        var count = reader.ReadUInt32();
-        _objects = reader.ReadArray<uint>(count).Cast<int>().ToArray();
-
-        return true;
     }
 
     public void Build<T>(List<T> primitives, uint leafSize = 3, bool printStats = false) where T : IModel
@@ -74,9 +58,95 @@ public class BIH
         _tree = tempTree.ToArray();
     }
 
-    public uint PrimCount()
+    public void IntersectPoint(Vector3 p, WorkerCallback intersectCallback)
     {
-        return (uint)_objects.Length;
+        if (!_bounds.contains(p))
+            return;
+
+        var stack = new StackNode[64];
+        var stackPos = 0;
+        var node = 0;
+
+        while (true)
+        {
+            while (true)
+            {
+                var tn = _tree[node];
+                var axis = (uint)(tn & (3 << 30)) >> 30;
+                var BVH2 = Convert.ToBoolean(tn & (1 << 29));
+                var offset = (int)(tn & ~(7 << 29));
+
+                if (!BVH2)
+                {
+                    if (axis < 3)
+                    {
+                        // "normal" interior node
+                        var tl = IntBitsToFloat(_tree[node + 1]);
+                        var tr = IntBitsToFloat(_tree[node + 2]);
+
+                        // point is between clip zones
+                        if (tl < p.GetAt(axis) && tr > p.GetAt(axis))
+                            break;
+
+                        var right = offset + 3;
+                        node = right;
+
+                        // point is in right node only
+                        if (tl < p.GetAt(axis))
+                            continue;
+
+                        node = offset; // left
+
+                        // point is in left node only
+                        if (tr > p.GetAt(axis))
+                            continue;
+
+                        // point is in both nodes
+                        // push back right node
+                        stack[stackPos].node = (uint)right;
+                        stackPos++;
+
+                        continue;
+                    }
+                    else
+                    {
+                        // leaf - test some objects
+                        var n = _tree[node + 1];
+
+                        while (n > 0)
+                        {
+                            intersectCallback.Invoke(p, _objects[offset]); // !!!
+                            --n;
+                            ++offset;
+                        }
+
+                        break;
+                    }
+                }
+                else // BVH2 node (empty space cut off left and right)
+                {
+                    if (axis > 2)
+                        return; // should not happen
+
+                    var tl = IntBitsToFloat(_tree[node + 1]);
+                    var tr = IntBitsToFloat(_tree[node + 2]);
+                    node = offset;
+
+                    if (tl > p.GetAt(axis) || tr < p.GetAt(axis))
+                        break;
+
+                    continue;
+                }
+            } // traversal loop
+
+            // stack is empty?
+            if (stackPos == 0)
+                return;
+
+            // move back up the stack
+            stackPos--;
+            node = (int)stack[stackPos].node;
+        }
     }
 
     public void IntersectRay(Ray r, WorkerCallback intersectCallback, ref float maxDist, bool stopAtFirst = false)
@@ -247,105 +317,25 @@ public class BIH
         }
     }
 
-    public void IntersectPoint(Vector3 p, WorkerCallback intersectCallback)
+    public uint PrimCount()
     {
-        if (!_bounds.contains(p))
-            return;
-
-        var stack = new StackNode[64];
-        var stackPos = 0;
-        var node = 0;
-
-        while (true)
-        {
-            while (true)
-            {
-                var tn = _tree[node];
-                var axis = (uint)(tn & (3 << 30)) >> 30;
-                var BVH2 = Convert.ToBoolean(tn & (1 << 29));
-                var offset = (int)(tn & ~(7 << 29));
-
-                if (!BVH2)
-                {
-                    if (axis < 3)
-                    {
-                        // "normal" interior node
-                        var tl = IntBitsToFloat(_tree[node + 1]);
-                        var tr = IntBitsToFloat(_tree[node + 2]);
-
-                        // point is between clip zones
-                        if (tl < p.GetAt(axis) && tr > p.GetAt(axis))
-                            break;
-
-                        var right = offset + 3;
-                        node = right;
-
-                        // point is in right node only
-                        if (tl < p.GetAt(axis))
-                            continue;
-
-                        node = offset; // left
-
-                        // point is in left node only
-                        if (tr > p.GetAt(axis))
-                            continue;
-
-                        // point is in both nodes
-                        // push back right node
-                        stack[stackPos].node = (uint)right;
-                        stackPos++;
-
-                        continue;
-                    }
-                    else
-                    {
-                        // leaf - test some objects
-                        var n = _tree[node + 1];
-
-                        while (n > 0)
-                        {
-                            intersectCallback.Invoke(p, _objects[offset]); // !!!
-                            --n;
-                            ++offset;
-                        }
-
-                        break;
-                    }
-                }
-                else // BVH2 node (empty space cut off left and right)
-                {
-                    if (axis > 2)
-                        return; // should not happen
-
-                    var tl = IntBitsToFloat(_tree[node + 1]);
-                    var tr = IntBitsToFloat(_tree[node + 2]);
-                    node = offset;
-
-                    if (tl > p.GetAt(axis) || tr < p.GetAt(axis))
-                        break;
-
-                    continue;
-                }
-            } // traversal loop
-
-            // stack is empty?
-            if (stackPos == 0)
-                return;
-
-            // move back up the stack
-            stackPos--;
-            node = (int)stack[stackPos].node;
-        }
+        return (uint)_objects.Length;
     }
 
-    private void InitEmpty()
+    public bool ReadFromFile(BinaryReader reader)
     {
-        _tree = new uint[3];
-        _objects = Array.Empty<int>();
-        // create space for the first node
-        _tree[0] = (3u << 30); // dummy leaf
-    }
+        var lo = reader.Read<Vector3>();
+        var hi = reader.Read<Vector3>();
+        _bounds = new AxisAlignedBox(lo, hi);
 
+        var treeSize = reader.ReadUInt32();
+        _tree = reader.ReadArray<uint>(treeSize);
+
+        var count = reader.ReadUInt32();
+        _objects = reader.ReadArray<uint>(count).Cast<int>().ToArray();
+
+        return true;
+    }
     private void BuildHierarchy(List<uint> tempTree, buildData dat, BuildStats stats)
     {
         // create space for the first node
@@ -363,6 +353,40 @@ public class BIH
         var nodeBox = gridBox;
         // seed subdivide function
         Subdivide(0, (int)(dat.numPrims - 1), tempTree, dat, gridBox, nodeBox, 0, 1, stats);
+    }
+
+    private void CreateNode(List<uint> tempTree, int nodeIndex, int left, int right)
+    {
+        // write leaf node
+        tempTree[nodeIndex + 0] = (uint)((3 << 30) | left);
+        tempTree[nodeIndex + 1] = (uint)(right - left + 1);
+    }
+
+    private uint FloatToRawIntBits(float f)
+    {
+        FloatToIntConverter converter = new()
+        {
+            FloatValue = f
+        };
+
+        return converter.IntValue;
+    }
+
+    private void InitEmpty()
+    {
+        _tree = new uint[3];
+        _objects = Array.Empty<int>();
+        // create space for the first node
+        _tree[0] = (3u << 30); // dummy leaf
+    }
+    private float IntBitsToFloat(uint i)
+    {
+        FloatToIntConverter converter = new()
+        {
+            IntValue = i
+        };
+
+        return converter.FloatValue;
     }
 
     private void Subdivide(int left, int right, List<uint> tempTree, buildData dat, AABound gridBox, AABound nodeBox, int nodeIndex, int depth, BuildStats stats)
@@ -611,59 +635,38 @@ public class BIH
         else
             stats.UpdateLeaf(depth + 1, 0);
     }
-
-    private void CreateNode(List<uint> tempTree, int nodeIndex, int left, int right)
+    [StructLayout(LayoutKind.Explicit)]
+    public struct FloatToIntConverter
     {
-        // write leaf node
-        tempTree[nodeIndex + 0] = (uint)((3 << 30) | left);
-        tempTree[nodeIndex + 1] = (uint)(right - left + 1);
-    }
-
-    private uint FloatToRawIntBits(float f)
-    {
-        FloatToIntConverter converter = new()
-        {
-            FloatValue = f
-        };
-
-        return converter.IntValue;
-    }
-
-    private float IntBitsToFloat(uint i)
-    {
-        FloatToIntConverter converter = new()
-        {
-            IntValue = i
-        };
-
-        return converter.FloatValue;
+        [FieldOffset(0)] public uint IntValue;
+        [FieldOffset(0)] public float FloatValue;
     }
 
     private struct buildData
     {
         public int[] indices;
-        public AxisAlignedBox[] primBound;
-        public uint numPrims;
         public int maxPrims;
+        public uint numPrims;
+        public AxisAlignedBox[] primBound;
     }
 
     private struct StackNode
     {
         public uint node;
-        public float tnear;
         public float tfar;
+        public float tnear;
     }
 
     public class BuildStats
     {
-        public int numNodes;
-        public int numLeaves;
-        public int sumObjects;
-        public int minObjects;
-        public int maxObjects;
-        public int sumDepth;
-        public int minDepth;
         public int maxDepth;
+        public int maxObjects;
+        public int minDepth;
+        public int minObjects;
+        public int numLeaves;
+        public int numNodes;
+        public int sumDepth;
+        public int sumObjects;
         private readonly int[] numLeavesN = new int[6];
         private int numBVH2;
 
@@ -683,16 +686,15 @@ public class BIH
                 numLeavesN[i] = 0;
         }
 
-        public void UpdateInner()
-        {
-            numNodes++;
-        }
-
         public void UpdateBVH2()
         {
             numBVH2++;
         }
 
+        public void UpdateInner()
+        {
+            numNodes++;
+        }
         public void UpdateLeaf(int depth, int n)
         {
             numLeaves++;
@@ -705,12 +707,5 @@ public class BIH
             var nl = Math.Min(n, 5);
             ++numLeavesN[nl];
         }
-    }
-
-    [StructLayout(LayoutKind.Explicit)]
-    public struct FloatToIntConverter
-    {
-        [FieldOffset(0)] public uint IntValue;
-        [FieldOffset(0)] public float FloatValue;
     }
 }

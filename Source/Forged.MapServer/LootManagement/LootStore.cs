@@ -14,16 +14,15 @@ namespace Forged.MapServer.LootManagement;
 
 public class LootStore
 {
-    private readonly Dictionary<uint, LootTemplate> _lootTemplates = new();
-    private readonly IConfiguration _configuration;
-    private readonly WorldDatabase _worldDatabase;
     private readonly ConditionManager _conditionManager;
-    private readonly GameObjectManager _objectManager;
-    private readonly LootStoreBox _storage;
-    private readonly string _name;
+    private readonly IConfiguration _configuration;
     private readonly string _entryName;
+    private readonly Dictionary<uint, LootTemplate> _lootTemplates = new();
+    private readonly string _name;
+    private readonly GameObjectManager _objectManager;
     private readonly bool _ratesAllowed;
-
+    private readonly LootStoreBox _storage;
+    private readonly WorldDatabase _worldDatabase;
     public LootStore(IConfiguration configuration, WorldDatabase worldDatabase, ConditionManager conditionManager, GameObjectManager objectManager, LootStoreBox storage, string name, string entryName, bool ratesAllowed = true)
     {
         _configuration = configuration;
@@ -36,36 +35,29 @@ public class LootStore
         _ratesAllowed = ratesAllowed;
     }
 
-    public uint LoadAndCollectLootIds(out List<uint> lootIdSet)
-    {
-        var count = LoadLootTable();
-        lootIdSet = new List<uint>();
-
-        foreach (var tab in _lootTemplates)
-            lootIdSet.Add(tab.Key);
-
-        return count;
-    }
-
     public void CheckLootRefs(List<uint> refSet = null)
     {
         foreach (var pair in _lootTemplates)
             pair.Value.CheckLootRefs(_lootTemplates, refSet);
     }
 
-    public void ReportUnusedIds(List<uint> lootIdSet)
+    public LootTemplate GetLootFor(uint lootID)
     {
-        // all still listed ids isn't referenced
-        foreach (var id in lootIdSet)
-            if (_configuration.GetDefaultValue("load.autoclean", false))
-                _worldDatabase.Execute($"DELETE FROM {GetName()} WHERE Entry = {id}");
-            else
-                Log.Logger.Error("Table '{0}' entry {1} isn't {2} and not referenced from loot, and then useless.", GetName(), id, GetEntryName());
+        var tab = _lootTemplates.LookupByKey(lootID);
+
+        return tab;
     }
 
-    public void ReportNonExistingId(uint lootId, uint ownerId)
+    public LootTemplate GetLootForConditionFill(uint lootID)
     {
-        Log.Logger.Debug("Table '{0}' Entry {1} does not exist but it is used by {2} {3}", GetName(), lootId, GetEntryName(), ownerId);
+        var tab = _lootTemplates.LookupByKey(lootID);
+
+        return tab;
+    }
+
+    public string GetName()
+    {
+        return _name;
     }
 
     public bool HaveLootFor(uint lootID)
@@ -95,13 +87,35 @@ public class LootStore
         return false;
     }
 
-    public LootTemplate GetLootFor(uint lootID)
+    public bool IsRatesAllowed()
     {
-        var tab = _lootTemplates.LookupByKey(lootID);
-
-        return tab;
+        return _ratesAllowed;
     }
 
+    public uint LoadAndCollectLootIds(out List<uint> lootIdSet)
+    {
+        var count = LoadLootTable();
+        lootIdSet = new List<uint>();
+
+        foreach (var tab in _lootTemplates)
+            lootIdSet.Add(tab.Key);
+
+        return count;
+    }
+    public void ReportNonExistingId(uint lootId, uint ownerId)
+    {
+        Log.Logger.Debug("Table '{0}' Entry {1} does not exist but it is used by {2} {3}", GetName(), lootId, GetEntryName(), ownerId);
+    }
+
+    public void ReportUnusedIds(List<uint> lootIdSet)
+    {
+        // all still listed ids isn't referenced
+        foreach (var id in lootIdSet)
+            if (_configuration.GetDefaultValue("load.autoclean", false))
+                _worldDatabase.Execute($"DELETE FROM {GetName()} WHERE Entry = {id}");
+            else
+                Log.Logger.Error("Table '{0}' entry {1} isn't {2} and not referenced from loot, and then useless.", GetName(), id, GetEntryName());
+    }
     public void ResetConditions()
     {
         foreach (var pair in _lootTemplates)
@@ -110,28 +124,9 @@ public class LootStore
             pair.Value.CopyConditions(empty);
         }
     }
-
-    public LootTemplate GetLootForConditionFill(uint lootID)
+    private void Clear()
     {
-        var tab = _lootTemplates.LookupByKey(lootID);
-
-        return tab;
-    }
-
-    public string GetName()
-    {
-        return _name;
-    }
-
-    public bool IsRatesAllowed()
-    {
-        return _ratesAllowed;
-    }
-
-    private void Verify()
-    {
-        foreach (var i in _lootTemplates)
-            i.Value.Verify(this, i.Key);
+        _lootTemplates.Clear();
     }
 
     private string GetEntryName()
@@ -191,8 +186,9 @@ public class LootStore
         return count;
     }
 
-    private void Clear()
+    private void Verify()
     {
-        _lootTemplates.Clear();
+        foreach (var i in _lootTemplates)
+            i.Value.Verify(this, i.Key);
     }
 }

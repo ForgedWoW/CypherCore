@@ -8,10 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class PurchaseUpdate : ServerPacket
 {
-    public List<BpayPurchase> Purchase { get; set; } = new();
-
     public PurchaseUpdate() : base(ServerOpcodes.BattlePayPurchaseUpdate) { }
 
+    public List<BpayPurchase> Purchase { get; set; } = new();
     public override void Write()
     {
         _worldPacket.WriteUInt32((uint)Purchase.Count);

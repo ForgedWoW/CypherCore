@@ -10,11 +10,12 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 public class ChannelListResponse : ServerPacket
 {
-    public List<ChannelPlayer> Members;
-    public string Channel; // Channel Name
+    public string Channel;
+    // Channel Name
     public ChannelFlags ChannelFlags;
-    public bool Display;
 
+    public bool Display;
+    public List<ChannelPlayer> Members;
     public ChannelListResponse() : base(ServerOpcodes.ChannelList)
     {
         Members = new List<ChannelPlayer>();
@@ -38,15 +39,18 @@ public class ChannelListResponse : ServerPacket
 
     public struct ChannelPlayer
     {
+        public ChannelMemberFlags Flags;
+
+        public ObjectGuid Guid;
+
+        // Player Guid
+        public uint VirtualRealmAddress;
+
         public ChannelPlayer(ObjectGuid guid, uint realm, ChannelMemberFlags flags)
         {
             Guid = guid;
             VirtualRealmAddress = realm;
             Flags = flags;
         }
-
-        public ObjectGuid Guid; // Player Guid
-        public uint VirtualRealmAddress;
-        public ChannelMemberFlags Flags;
     }
 }

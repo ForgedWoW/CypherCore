@@ -12,51 +12,6 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("account")]
 internal class AccountCommands
 {
-    [Command("", CypherStrings.CommandAccountHelp, RBACPermissions.CommandAccount)]
-    private static bool HandleAccountCommand(CommandHandler handler)
-    {
-        if (handler.Session == null)
-            return false;
-
-        // GM Level
-        var securityLevel = handler.Session.Security;
-        handler.SendSysMessage(CypherStrings.AccountLevel, securityLevel);
-
-        // Security level required
-        var session = handler.Session;
-        var hasRBAC = (session.HasPermission(RBACPermissions.EmailConfirmForPassChange));
-        uint pwConfig = 0; // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
-
-        handler.SendSysMessage(CypherStrings.AccountSecType,
-                               (pwConfig == 0 ? "Lowest level: No Email input required." :
-                                pwConfig == 1 ? "Highest level: Email input required." :
-                                pwConfig == 2 ? "Special level: Your account may require email input depending on settings. That is the case if another lien is printed." :
-                                                "Unknown security level: Notify technician for details."));
-
-        // RBAC required display - is not displayed for console
-        if (pwConfig == 2 && hasRBAC)
-            handler.SendSysMessage(CypherStrings.RbacEmailRequired);
-
-        // Email display if sufficient rights
-        if (session.HasPermission(RBACPermissions.MayCheckOwnEmail))
-        {
-            string emailoutput;
-            var accountId = session.AccountId;
-
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
-            stmt.AddValue(0, accountId);
-            var result = DB.Login.Query(stmt);
-
-            if (!result.IsEmpty())
-            {
-                emailoutput = result.Read<string>(0);
-                handler.SendSysMessage(CypherStrings.CommandEmailOutput, emailoutput);
-            }
-        }
-
-        return true;
-    }
-
     [Command("2fa remove", CypherStrings.CommandAcc2faRemoveHelp, RBACPermissions.CommandAccount2FaRemove)]
     private static bool HandleAccount2FARemoveCommand(CommandHandler handler, uint? token)
     {
@@ -201,6 +156,50 @@ internal class AccountCommands
         return true;
     }
 
+    [Command("", CypherStrings.CommandAccountHelp, RBACPermissions.CommandAccount)]
+    private static bool HandleAccountCommand(CommandHandler handler)
+    {
+        if (handler.Session == null)
+            return false;
+
+        // GM Level
+        var securityLevel = handler.Session.Security;
+        handler.SendSysMessage(CypherStrings.AccountLevel, securityLevel);
+
+        // Security level required
+        var session = handler.Session;
+        var hasRBAC = (session.HasPermission(RBACPermissions.EmailConfirmForPassChange));
+        uint pwConfig = 0; // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
+
+        handler.SendSysMessage(CypherStrings.AccountSecType,
+                               (pwConfig == 0 ? "Lowest level: No Email input required." :
+                                pwConfig == 1 ? "Highest level: Email input required." :
+                                pwConfig == 2 ? "Special level: Your account may require email input depending on settings. That is the case if another lien is printed." :
+                                                "Unknown security level: Notify technician for details."));
+
+        // RBAC required display - is not displayed for console
+        if (pwConfig == 2 && hasRBAC)
+            handler.SendSysMessage(CypherStrings.RbacEmailRequired);
+
+        // Email display if sufficient rights
+        if (session.HasPermission(RBACPermissions.MayCheckOwnEmail))
+        {
+            string emailoutput;
+            var accountId = session.AccountId;
+
+            var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
+            stmt.AddValue(0, accountId);
+            var result = DB.Login.Query(stmt);
+
+            if (!result.IsEmpty())
+            {
+                emailoutput = result.Read<string>(0);
+                handler.SendSysMessage(CypherStrings.CommandEmailOutput, emailoutput);
+            }
+        }
+
+        return true;
+    }
     [Command("create", CypherStrings.CommandAccCreateHelp, RBACPermissions.CommandAccountCreate, true)]
     private static bool HandleAccountCreateCommand(CommandHandler handler, string accountName, string password, [OptionalArg] string email)
     {
@@ -522,30 +521,6 @@ internal class AccountCommands
             return HandleAccountOnlineListCommandWithParameters(handler, null, null, null, null);
         }
 
-        [Command("ip", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-        private static bool HandleAccountOnlineListWithIpFilterCommand(CommandHandler handler, string ipAddress)
-        {
-            return HandleAccountOnlineListCommandWithParameters(handler, ipAddress, null, null, null);
-        }
-
-        [Command("limit", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-        private static bool HandleAccountOnlineListWithLimitCommand(CommandHandler handler, uint limit)
-        {
-            return HandleAccountOnlineListCommandWithParameters(handler, null, limit, null, null);
-        }
-
-        [Command("map", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-        private static bool HandleAccountOnlineListWithMapFilterCommand(CommandHandler handler, uint mapId)
-        {
-            return HandleAccountOnlineListCommandWithParameters(handler, null, null, mapId, null);
-        }
-
-        [Command("zone", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-        private static bool HandleAccountOnlineListWithZoneFilterCommand(CommandHandler handler, uint zoneId)
-        {
-            return HandleAccountOnlineListCommandWithParameters(handler, null, null, null, zoneId);
-        }
-
         private static bool HandleAccountOnlineListCommandWithParameters(CommandHandler handler, string ipAddress, uint? limit, uint? mapId, uint? zoneId)
         {
             var sessionsMatchCount = 0;
@@ -608,6 +583,30 @@ internal class AccountCommands
             handler.SendSysMessage(CypherStrings.AccountListBar);
 
             return true;
+        }
+
+        [Command("ip", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
+        private static bool HandleAccountOnlineListWithIpFilterCommand(CommandHandler handler, string ipAddress)
+        {
+            return HandleAccountOnlineListCommandWithParameters(handler, ipAddress, null, null, null);
+        }
+
+        [Command("limit", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
+        private static bool HandleAccountOnlineListWithLimitCommand(CommandHandler handler, uint limit)
+        {
+            return HandleAccountOnlineListCommandWithParameters(handler, null, limit, null, null);
+        }
+
+        [Command("map", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
+        private static bool HandleAccountOnlineListWithMapFilterCommand(CommandHandler handler, uint mapId)
+        {
+            return HandleAccountOnlineListCommandWithParameters(handler, null, null, mapId, null);
+        }
+
+        [Command("zone", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
+        private static bool HandleAccountOnlineListWithZoneFilterCommand(CommandHandler handler, uint zoneId)
+        {
+            return HandleAccountOnlineListCommandWithParameters(handler, null, null, null, zoneId);
         }
     }
 

@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellEmpowerStart : ServerPacket
 {
-    public uint SpellID;
-    public ObjectGuid CastID;
     public ObjectGuid Caster;
-    public SpellCastVisual Visual;
+    public ObjectGuid CastID;
     public uint Duration;
-    public uint FirstStageDuration;
     public uint FinalStageDuration;
-    public List<ObjectGuid> Targets = new();
-    public Dictionary<byte, uint> StageDurations = new();
-    public SpellChannelStartInterruptImmunities? Immunities;
+    public uint FirstStageDuration;
     public SpellHealPrediction? HealPrediction;
+    public SpellChannelStartInterruptImmunities? Immunities;
+    public uint SpellID;
+    public Dictionary<byte, uint> StageDurations = new();
+    public List<ObjectGuid> Targets = new();
+    public SpellCastVisual Visual;
     public SpellEmpowerStart() : base(ServerOpcodes.SpellEmpowerStart, ConnectionType.Instance) { }
 
     public override void Write()

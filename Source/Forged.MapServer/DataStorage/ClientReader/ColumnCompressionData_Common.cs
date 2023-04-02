@@ -5,7 +5,7 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public struct ColumnCompressionData_Common
 {
-    public Value32 DefaultValue;
     public int B;
     public int C;
+    public Value32 DefaultValue;
 }

@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class RepairItem : ClientPacket
 {
-    public ObjectGuid NpcGUID;
     public ObjectGuid ItemGUID;
+    public ObjectGuid NpcGUID;
     public bool UseGuildBank;
     public RepairItem(WorldPacket packet) : base(packet) { }
 

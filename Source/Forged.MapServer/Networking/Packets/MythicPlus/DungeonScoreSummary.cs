@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class DungeonScoreSummary
 {
-    public float OverallScoreCurrentSeason;
     public float LadderScoreCurrentSeason;
+    public float OverallScoreCurrentSeason;
     public List<DungeonScoreMapSummary> Runs = new();
 
     public void Write(WorldPacket data)

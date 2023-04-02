@@ -10,21 +10,23 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class AttackerStateUpdate : CombatLogServerPacket
 {
-    public HitInfo hitInfo; // Flags
     public ObjectGuid AttackerGUID;
-    public ObjectGuid VictimGUID;
-    public int Damage;
-    public int OriginalDamage;
-    public int OverDamage = -1; // (damage - health) or -1 if unit is still alive
-    public SubDamage? SubDmg;
-    public byte VictimState;
     public uint AttackerState;
-    public uint MeleeSpellID;
     public int BlockAmount;
-    public int RageGained;
-    public UnkAttackerState UnkState;
-    public float Unk;
     public ContentTuningParams ContentTuning = new();
+    public int Damage;
+    public HitInfo hitInfo; // Flags
+    public uint MeleeSpellID;
+    public int OriginalDamage;
+    public int OverDamage = -1;
+    public int RageGained;
+    // (damage - health) or -1 if unit is still alive
+    public SubDamage? SubDmg;
+
+    public float Unk;
+    public UnkAttackerState UnkState;
+    public ObjectGuid VictimGUID;
+    public byte VictimState;
     public AttackerStateUpdate() : base(ServerOpcodes.AttackerStateUpdate, ConnectionType.Instance) { }
 
     public override void Write()

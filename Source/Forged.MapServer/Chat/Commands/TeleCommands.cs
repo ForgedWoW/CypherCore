@@ -17,41 +17,57 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("tele")]
 internal class TeleCommands
 {
-    [Command("", RBACPermissions.CommandTele)]
-    private static bool HandleTeleCommand(CommandHandler handler, GameTele tele)
+    private static bool DoNameTeleport(CommandHandler handler, PlayerIdentifier player, uint mapId, Position pos, string locationName)
     {
-        if (tele == null)
+        if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
         {
-            handler.SendSysMessage(CypherStrings.CommandTeleNotfound);
+            handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 
             return false;
         }
 
-        var player = handler.Player;
+        var target = player.GetConnectedPlayer();
 
-        if (player.IsInCombat && !handler.Session.HasPermission(RBACPermissions.CommandTeleName))
+        if (target != null)
         {
-            handler.SendSysMessage(CypherStrings.YouInCombat);
+            // check online security
+            if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
+                return false;
 
-            return false;
+            var chrNameLink = handler.PlayerLink(target.GetName());
+
+            if (target.IsBeingTeleported == true)
+            {
+                handler.SendSysMessage(CypherStrings.IsTeleported, chrNameLink);
+
+                return false;
+            }
+
+            handler.SendSysMessage(CypherStrings.TeleportingTo, chrNameLink, "", locationName);
+
+            if (handler.NeedReportToTarget(target))
+                target.SendSysMessage(CypherStrings.TeleportedToBy, handler.NameLink);
+
+            // stop flight if need
+            if (target.IsInFlight)
+                target.FinishTaxiFlight();
+            else
+                target.SaveRecallPosition(); // save only in non-flight case
+
+            target.TeleportTo(new WorldLocation(mapId, pos));
         }
-
-        var map = CliDB.MapStorage.LookupByKey(tele.MapId);
-
-        if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.MapId || !player.IsGameMaster)))
-        {
-            handler.SendSysMessage(CypherStrings.CannotTeleToBg);
-
-            return false;
-        }
-
-        // stop flight if need
-        if (player.IsInFlight)
-            player.FinishTaxiFlight();
         else
-            player.SaveRecallPosition(); // save only in non-flight case
+        {
+            // check offline security
+            if (handler.HasLowerSecurity(null, player.GetGUID()))
+                return false;
 
-        player.TeleportTo(tele.MapId, tele.PosX, tele.PosY, tele.PosZ, tele.Orientation);
+            var nameLink = handler.PlayerLink(player.GetName());
+
+            handler.SendSysMessage(CypherStrings.TeleportingTo, nameLink, handler.GetCypherString(CypherStrings.Offline), locationName);
+
+            Player.SavePositionInDB(new WorldLocation(mapId, pos), Global.TerrainMgr.GetZoneId(PhasingHandler.EmptyPhaseShift, new WorldLocation(mapId, pos)), player.GetGUID());
+        }
 
         return true;
     }
@@ -96,6 +112,44 @@ internal class TeleCommands
         return true;
     }
 
+    [Command("", RBACPermissions.CommandTele)]
+    private static bool HandleTeleCommand(CommandHandler handler, GameTele tele)
+    {
+        if (tele == null)
+        {
+            handler.SendSysMessage(CypherStrings.CommandTeleNotfound);
+
+            return false;
+        }
+
+        var player = handler.Player;
+
+        if (player.IsInCombat && !handler.Session.HasPermission(RBACPermissions.CommandTeleName))
+        {
+            handler.SendSysMessage(CypherStrings.YouInCombat);
+
+            return false;
+        }
+
+        var map = CliDB.MapStorage.LookupByKey(tele.MapId);
+
+        if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.MapId || !player.IsGameMaster)))
+        {
+            handler.SendSysMessage(CypherStrings.CannotTeleToBg);
+
+            return false;
+        }
+
+        // stop flight if need
+        if (player.IsInFlight)
+            player.FinishTaxiFlight();
+        else
+            player.SaveRecallPosition(); // save only in non-flight case
+
+        player.TeleportTo(tele.MapId, tele.PosX, tele.PosY, tele.PosZ, tele.Orientation);
+
+        return true;
+    }
     [Command("del", RBACPermissions.CommandTeleDel, true)]
     private static bool HandleTeleDelCommand(CommandHandler handler, GameTele tele)
     {
@@ -191,62 +245,6 @@ internal class TeleCommands
 
         return true;
     }
-
-    private static bool DoNameTeleport(CommandHandler handler, PlayerIdentifier player, uint mapId, Position pos, string locationName)
-    {
-        if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
-        {
-            handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
-
-            return false;
-        }
-
-        var target = player.GetConnectedPlayer();
-
-        if (target != null)
-        {
-            // check online security
-            if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
-                return false;
-
-            var chrNameLink = handler.PlayerLink(target.GetName());
-
-            if (target.IsBeingTeleported == true)
-            {
-                handler.SendSysMessage(CypherStrings.IsTeleported, chrNameLink);
-
-                return false;
-            }
-
-            handler.SendSysMessage(CypherStrings.TeleportingTo, chrNameLink, "", locationName);
-
-            if (handler.NeedReportToTarget(target))
-                target.SendSysMessage(CypherStrings.TeleportedToBy, handler.NameLink);
-
-            // stop flight if need
-            if (target.IsInFlight)
-                target.FinishTaxiFlight();
-            else
-                target.SaveRecallPosition(); // save only in non-flight case
-
-            target.TeleportTo(new WorldLocation(mapId, pos));
-        }
-        else
-        {
-            // check offline security
-            if (handler.HasLowerSecurity(null, player.GetGUID()))
-                return false;
-
-            var nameLink = handler.PlayerLink(player.GetName());
-
-            handler.SendSysMessage(CypherStrings.TeleportingTo, nameLink, handler.GetCypherString(CypherStrings.Offline), locationName);
-
-            Player.SavePositionInDB(new WorldLocation(mapId, pos), Global.TerrainMgr.GetZoneId(PhasingHandler.EmptyPhaseShift, new WorldLocation(mapId, pos)), player.GetGUID());
-        }
-
-        return true;
-    }
-
     [CommandGroup("name")]
     private class TeleNameCommands
     {
@@ -294,26 +292,6 @@ internal class TeleCommands
         [CommandGroup("npc")]
         private class TeleNameNpcCommands
         {
-            [Command("guid", RBACPermissions.CommandTeleName, true)]
-            private static bool HandleTeleNameNpcSpawnIdCommand(CommandHandler handler, PlayerIdentifier player, ulong spawnId)
-            {
-                if (player == null)
-                    return false;
-
-                var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
-
-                if (spawnpoint == null)
-                {
-                    handler.SendSysMessage(CypherStrings.CommandGocreatnotfound);
-
-                    return false;
-                }
-
-                var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(spawnpoint.Id);
-
-                return DoNameTeleport(handler, player, spawnpoint.MapId, spawnpoint.SpawnPoint, creatureTemplate.Name);
-            }
-
             [Command("id", RBACPermissions.CommandTeleName, true)]
             private static bool HandleTeleNameNpcIdCommand(CommandHandler handler, PlayerIdentifier player, uint creatureId)
             {
@@ -374,6 +352,26 @@ internal class TeleCommands
                     handler.SendSysMessage(CypherStrings.CommandGocreatmultiple);
 
                 return DoNameTeleport(handler, player, result.Read<ushort>(4), new Position(result.Read<float>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3)), result.Read<string>(5));
+            }
+
+            [Command("guid", RBACPermissions.CommandTeleName, true)]
+            private static bool HandleTeleNameNpcSpawnIdCommand(CommandHandler handler, PlayerIdentifier player, ulong spawnId)
+            {
+                if (player == null)
+                    return false;
+
+                var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
+
+                if (spawnpoint == null)
+                {
+                    handler.SendSysMessage(CypherStrings.CommandGocreatnotfound);
+
+                    return false;
+                }
+
+                var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(spawnpoint.Id);
+
+                return DoNameTeleport(handler, player, spawnpoint.MapId, spawnpoint.SpawnPoint, creatureTemplate.Name);
             }
         }
     }

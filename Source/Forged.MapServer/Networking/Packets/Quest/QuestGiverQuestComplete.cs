@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverQuestComplete : ServerPacket
 {
-    public uint QuestID;
-    public uint XPReward;
-    public long MoneyReward;
-    public uint SkillLineIDReward;
-    public uint NumSkillUpsReward;
-    public bool UseQuestReward;
-    public bool LaunchGossip;
-    public bool LaunchQuest;
     public bool HideChatMessage;
     public ItemInstance ItemReward = new();
+    public bool LaunchGossip;
+    public bool LaunchQuest;
+    public long MoneyReward;
+    public uint NumSkillUpsReward;
+    public uint QuestID;
+    public uint SkillLineIDReward;
+    public bool UseQuestReward;
+    public uint XPReward;
     public QuestGiverQuestComplete() : base(ServerOpcodes.QuestGiverQuestComplete) { }
 
     public override void Write()

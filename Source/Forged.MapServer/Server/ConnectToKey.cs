@@ -7,6 +7,12 @@ namespace Forged.MapServer.Server;
 
 public struct ConnectToKey
 {
+    public uint AccountId;
+
+    public ConnectionType connectionType;
+
+    public ulong Key;
+
     public ulong Raw
     {
         get { return ((ulong)AccountId | ((ulong)connectionType << 32) | (Key << 33)); }
@@ -17,8 +23,4 @@ public struct ConnectToKey
             Key = (value >> 33);
         }
     }
-
-    public uint AccountId;
-    public ConnectionType connectionType;
-    public ulong Key;
 }

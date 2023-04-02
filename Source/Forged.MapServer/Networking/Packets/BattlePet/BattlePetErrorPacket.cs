@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetErrorPacket : ServerPacket
 {
-    public BattlePetError Result;
     public uint CreatureID;
+    public BattlePetError Result;
     public BattlePetErrorPacket() : base(ServerOpcodes.BattlePetError) { }
 
     public override void Write()

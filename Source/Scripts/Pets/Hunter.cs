@@ -41,7 +41,7 @@ namespace Scripts.Pets
 
                 Me.SetMaxHealth((uint)(107 * (Me.Level - 40) * 0.025f));
                 // Add delta to make them not all hit the same Time
-                Me.SetBaseAttackTime(WeaponAttackType.BaseAttack, Me.GetBaseAttackTime(WeaponAttackType.BaseAttack) + RandomHelper.URand(0, 6) * Time.InMilliseconds);
+                Me.SetBaseAttackTime(WeaponAttackType.BaseAttack, Me.GetBaseAttackTime(WeaponAttackType.BaseAttack) + RandomHelper.URand(0, 6) * Time.IN_MILLISECONDS);
 
                 if (!_isViper &&
                     !Me.HasAura(SpellIds.DeadlyPoisonPassive))

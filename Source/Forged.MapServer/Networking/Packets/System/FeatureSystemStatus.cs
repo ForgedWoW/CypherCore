@@ -10,62 +10,67 @@ namespace Forged.MapServer.Networking.Packets.System;
 
 public class FeatureSystemStatus : ServerPacket
 {
-    public bool VoiceEnabled;
-    public bool BrowserEnabled;
+    public int ActiveSeason;
+    public bool AddonsDisabled;
     public bool BpayStoreAvailable;
-    public bool BpayStoreEnabled;
-    public SessionAlertConfig? SessionAlert;
-    public EuropaTicketConfig? EuropaTicketSystemStatus;
-    public uint CfgRealmID;
-    public byte ComplaintStatus;
-    public int CfgRealmRecID;
-    public uint TwitterPostThrottleLimit;
-    public uint TwitterPostThrottleCooldown;
-    public uint TokenPollTimeSeconds;
-    public long TokenBalanceAmount;
-    public uint BpayStoreProductDeliveryDelay;
-    public uint ClubsPresenceUpdateTimer;
-    public uint HiddenUIClubsPresenceUpdateTimer; // Timer for updating club presence when communities ui frame is hidden
-    public uint KioskSessionMinutes;
-    public int ActiveSeason; // Currently active Classic season
-    public short MaxPlayerNameQueriesPerPacket = 50;
-    public short PlayerNameQueryTelemetryInterval = 600;
-    public TimeSpan PlayerNameQueryInterval = TimeSpan.FromSeconds(10);
-    public bool ItemRestorationButtonEnabled;
-    public bool CharUndeleteEnabled; // Implemented
     public bool BpayStoreDisabledByParentalControls;
-    public bool TwitterEnabled;
-    public bool CommerceSystemEnabled;
-    public bool Unk67;
-    public bool WillKickFromWorld;
-    public bool RestrictedAccount;
-    public bool TutorialsEnabled;
-    public bool NPETutorialsEnabled;
-    public bool KioskModeEnabled;
-    public bool CompetitiveModeEnabled;
-    public bool TokenBalanceEnabled;
-    public bool WarModeFeatureEnabled;
-    public bool ClubsEnabled;
-    public bool ClubsBattleNetClubTypeAllowed;
-    public bool ClubsCharacterClubTypeAllowed;
-    public bool ClubsPresenceUpdateEnabled;
-    public bool VoiceChatDisabledByParentalControl;
-    public bool VoiceChatMutedByParentalControl;
-    public bool QuestSessionEnabled;
-    public bool IsMuted;
-    public bool ClubFinderEnabled;
-    public bool Unknown901CheckoutRelated;
-    public bool TextToSpeechFeatureEnabled;
+    public bool BpayStoreEnabled;
+    public uint BpayStoreProductDeliveryDelay;
+    public bool BrowserEnabled;
+    public uint CfgRealmID;
+    public int CfgRealmRecID;
+    public bool CharUndeleteEnabled;
     public bool ChatDisabledByDefault;
     public bool ChatDisabledByPlayer;
-    public bool LFGListCustomRequiresAuthenticator;
-    public bool AddonsDisabled;
-    public bool Unused1000;
-
-    public SocialQueueConfig QuickJoinConfig;
-    public SquelchInfo Squelch;
-    public RafSystemFeatureInfo RAFSystem;
+    public bool ClubFinderEnabled;
+    public bool ClubsBattleNetClubTypeAllowed;
+    public bool ClubsCharacterClubTypeAllowed;
+    public bool ClubsEnabled;
+    public bool ClubsPresenceUpdateEnabled;
+    public uint ClubsPresenceUpdateTimer;
+    public bool CommerceSystemEnabled;
+    public bool CompetitiveModeEnabled;
+    public byte ComplaintStatus;
+    public EuropaTicketConfig? EuropaTicketSystemStatus;
     public List<GameRuleValuePair> GameRuleValues = new();
+    public uint HiddenUIClubsPresenceUpdateTimer;
+    public bool IsMuted;
+    public bool ItemRestorationButtonEnabled;
+    public bool KioskModeEnabled;
+    // Timer for updating club presence when communities ui frame is hidden
+    public uint KioskSessionMinutes;
+
+    public bool LFGListCustomRequiresAuthenticator;
+    // Currently active Classic season
+    public short MaxPlayerNameQueriesPerPacket = 50;
+
+    public bool NPETutorialsEnabled;
+    public TimeSpan PlayerNameQueryInterval = TimeSpan.FromSeconds(10);
+    public short PlayerNameQueryTelemetryInterval = 600;
+    public bool QuestSessionEnabled;
+    public SocialQueueConfig QuickJoinConfig;
+    public RafSystemFeatureInfo RAFSystem;
+    public bool RestrictedAccount;
+    public SessionAlertConfig? SessionAlert;
+    public SquelchInfo Squelch;
+    public bool TextToSpeechFeatureEnabled;
+    public long TokenBalanceAmount;
+    public bool TokenBalanceEnabled;
+    public uint TokenPollTimeSeconds;
+    public bool TutorialsEnabled;
+    // Implemented
+    public bool TwitterEnabled;
+
+    public uint TwitterPostThrottleCooldown;
+    public uint TwitterPostThrottleLimit;
+    public bool Unk67;
+    public bool Unknown901CheckoutRelated;
+    public bool Unused1000;
+    public bool VoiceChatDisabledByParentalControl;
+    public bool VoiceChatMutedByParentalControl;
+    public bool VoiceEnabled;
+    public bool WarModeFeatureEnabled;
+    public bool WillKickFromWorld;
     public FeatureSystemStatus() : base(ServerOpcodes.FeatureSystemStatus) { }
 
     public override void Write()
@@ -185,54 +190,54 @@ public class FeatureSystemStatus : ServerPacket
         EuropaTicketSystemStatus?.Write(_worldPacket);
     }
 
+    public struct RafSystemFeatureInfo
+    {
+        public uint DaysInCycle;
+        public bool Enabled;
+        public uint MaxRecruitmentUses;
+        public uint MaxRecruitMonths;
+        public uint MaxRecruits;
+        public bool RecruitingEnabled;
+    }
+
     public struct SessionAlertConfig
     {
         public int Delay;
-        public int Period;
         public int DisplayTime;
+        public int Period;
     }
 
     public struct SocialQueueConfig
     {
-        public bool ToastsDisabled;
-        public float ToastDuration;
         public float DelayDuration;
-        public float QueueMultiplier;
-        public float PlayerMultiplier;
         public float PlayerFriendValue;
         public float PlayerGuildValue;
-        public float ThrottleInitialThreshold;
+        public float PlayerMultiplier;
+        public float QueueMultiplier;
         public float ThrottleDecayTime;
-        public float ThrottlePrioritySpike;
-        public float ThrottleMinThreshold;
-        public float ThrottlePvPPriorityNormal;
-        public float ThrottlePvPPriorityLow;
-        public float ThrottlePvPHonorThreshold;
-        public float ThrottleLfgListPriorityDefault;
-        public float ThrottleLfgListPriorityAbove;
-        public float ThrottleLfgListPriorityBelow;
+        public float ThrottleDfBestPriority;
+        public float ThrottleDfMaxItemLevel;
+        public float ThrottleInitialThreshold;
         public float ThrottleLfgListIlvlScalingAbove;
         public float ThrottleLfgListIlvlScalingBelow;
-        public float ThrottleRfPriorityAbove;
+        public float ThrottleLfgListPriorityAbove;
+        public float ThrottleLfgListPriorityBelow;
+        public float ThrottleLfgListPriorityDefault;
+        public float ThrottleMinThreshold;
+        public float ThrottlePrioritySpike;
+        public float ThrottlePvPHonorThreshold;
+        public float ThrottlePvPPriorityLow;
+        public float ThrottlePvPPriorityNormal;
         public float ThrottleRfIlvlScalingAbove;
-        public float ThrottleDfMaxItemLevel;
-        public float ThrottleDfBestPriority;
+        public float ThrottleRfPriorityAbove;
+        public float ToastDuration;
+        public bool ToastsDisabled;
     }
 
     public struct SquelchInfo
     {
-        public bool IsSquelched;
         public ObjectGuid BnetAccountGuid;
         public ObjectGuid GuildGuid;
-    }
-
-    public struct RafSystemFeatureInfo
-    {
-        public bool Enabled;
-        public bool RecruitingEnabled;
-        public uint MaxRecruits;
-        public uint MaxRecruitMonths;
-        public uint MaxRecruitmentUses;
-        public uint DaysInCycle;
+        public bool IsSquelched;
     }
 }

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestChoiceItem
 {
-    public LootItemType LootItemType;
     public ItemInstance Item;
+    public LootItemType LootItemType;
     public uint Quantity;
 
     public void Read(WorldPacket data)

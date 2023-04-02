@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class RoleChosen : ServerPacket
 {
+    public bool Accepted;
     public ObjectGuid Player;
     public LfgRoles RoleMask;
-    public bool Accepted;
     public RoleChosen() : base(ServerOpcodes.RoleChosen) { }
 
     public override void Write()

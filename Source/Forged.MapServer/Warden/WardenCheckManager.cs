@@ -13,15 +13,12 @@ namespace Forged.MapServer.Warden;
 public class WardenCheckManager
 {
     private static readonly byte WardenMaxLuaCheckLength = 170;
-    private readonly IConfiguration _configuration;
-    private readonly WorldDatabase _worldDatabase;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly List<WardenCheck> _checks = new();
     private readonly Dictionary<uint, byte[]> _checkResults = new();
+    private readonly List<WardenCheck> _checks = new();
+    private readonly IConfiguration _configuration;
     private readonly List<ushort>[] _pools = new List<ushort>[(int)WardenCheckCategory.Max];
-
-    public ushort MaxValidCheckId => (ushort)_checks.Count;
-
+    private readonly WorldDatabase _worldDatabase;
     public WardenCheckManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase)
     {
         _configuration = configuration;
@@ -30,6 +27,55 @@ public class WardenCheckManager
 
         for (var i = 0; i < (int)WardenCheckCategory.Max; ++i)
             _pools[i] = new List<ushort>();
+    }
+
+    public ushort MaxValidCheckId => (ushort)_checks.Count;
+    public static string GetWardenCategoryCountConfig(WardenCheckCategory category) => category switch
+    {
+        WardenCheckCategory.Inject => "Warden.NumInjectionChecks",
+        WardenCheckCategory.Lua => "Warden.NumLuaSandboxChecks",
+        WardenCheckCategory.Modded => "Warden.NumClientModChecks",
+        _ => "",
+    };
+
+    public static WardenCheckCategory GetWardenCheckCategory(WardenCheckType type) => type switch
+    {
+        WardenCheckType.Timing => WardenCheckCategory.Max,
+        WardenCheckType.Driver => WardenCheckCategory.Inject,
+        WardenCheckType.Proc => WardenCheckCategory.Max,
+        WardenCheckType.LuaEval => WardenCheckCategory.Lua,
+        WardenCheckType.Mpq => WardenCheckCategory.Modded,
+        WardenCheckType.PageA => WardenCheckCategory.Inject,
+        WardenCheckType.PageB => WardenCheckCategory.Inject,
+        WardenCheckType.Module => WardenCheckCategory.Inject,
+        WardenCheckType.Mem => WardenCheckCategory.Modded,
+        _ => WardenCheckCategory.Max,
+    };
+
+    public static bool IsWardenCategoryInWorldOnly(WardenCheckCategory category) => category switch
+    {
+        WardenCheckCategory.Inject => false,
+        WardenCheckCategory.Lua => true,
+        WardenCheckCategory.Modded => false,
+        _ => false,
+    };
+
+    public List<ushort> GetAvailableChecks(WardenCheckCategory category)
+    {
+        return _pools[(int)category];
+    }
+
+    public WardenCheck GetCheckData(ushort id)
+    {
+        if (id < _checks.Count)
+            return _checks[id];
+
+        return null;
+    }
+
+    public byte[] GetCheckResult(ushort id)
+    {
+        return _checkResults.LookupByKey(id);
     }
 
     public void LoadWardenChecks()
@@ -175,52 +221,4 @@ public class WardenCheckManager
 
         Log.Logger.Information($"Loaded {count} warden action overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
-
-    public WardenCheck GetCheckData(ushort id)
-    {
-        if (id < _checks.Count)
-            return _checks[id];
-
-        return null;
-    }
-
-    public byte[] GetCheckResult(ushort id)
-    {
-        return _checkResults.LookupByKey(id);
-    }
-
-    public List<ushort> GetAvailableChecks(WardenCheckCategory category)
-    {
-        return _pools[(int)category];
-    }
-
-    public static WardenCheckCategory GetWardenCheckCategory(WardenCheckType type) => type switch
-    {
-        WardenCheckType.Timing  => WardenCheckCategory.Max,
-        WardenCheckType.Driver  => WardenCheckCategory.Inject,
-        WardenCheckType.Proc    => WardenCheckCategory.Max,
-        WardenCheckType.LuaEval => WardenCheckCategory.Lua,
-        WardenCheckType.Mpq     => WardenCheckCategory.Modded,
-        WardenCheckType.PageA   => WardenCheckCategory.Inject,
-        WardenCheckType.PageB   => WardenCheckCategory.Inject,
-        WardenCheckType.Module  => WardenCheckCategory.Inject,
-        WardenCheckType.Mem     => WardenCheckCategory.Modded,
-        _                       => WardenCheckCategory.Max,
-    };
-
-    public static string GetWardenCategoryCountConfig(WardenCheckCategory category) => category switch
-    {
-        WardenCheckCategory.Inject => "Warden.NumInjectionChecks",
-        WardenCheckCategory.Lua    => "Warden.NumLuaSandboxChecks",
-        WardenCheckCategory.Modded => "Warden.NumClientModChecks",
-        _                          => "",
-    };
-
-    public static bool IsWardenCategoryInWorldOnly(WardenCheckCategory category) => category switch
-    {
-        WardenCheckCategory.Inject => false,
-        WardenCheckCategory.Lua    => true,
-        WardenCheckCategory.Modded => false,
-        _                          => false,
-    };
 }

@@ -7,10 +7,9 @@ namespace Forged.MapServer.Entities;
 
 public class VehicleSeat
 {
-    public VehicleSeatRecord SeatInfo;
-    public VehicleSeatAddon SeatAddon;
     public PassengerInfo Passenger;
-
+    public VehicleSeatAddon SeatAddon;
+    public VehicleSeatRecord SeatInfo;
     public VehicleSeat(VehicleSeatRecord seatInfo, VehicleSeatAddon seatAddon)
     {
         SeatInfo = seatInfo;

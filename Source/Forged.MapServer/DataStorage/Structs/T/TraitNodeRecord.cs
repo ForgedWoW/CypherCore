@@ -7,13 +7,12 @@ namespace Forged.MapServer.DataStorage.Structs.T;
 
 public sealed class TraitNodeRecord
 {
+    public int Flags;
     public uint Id;
-    public int TraitTreeID;
     public int PosX;
     public int PosY;
+    public int TraitTreeID;
     public sbyte Type;
-    public int Flags;
-
     public TraitNodeType GetNodeType()
     {
         return (TraitNodeType)Type;

@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlefieldPort : ClientPacket
 {
-    public RideTicket Ticket = new();
     public bool AcceptedInvite;
+    public RideTicket Ticket = new();
     public BattlefieldPort(WorldPacket packet) : base(packet) { }
 
     public override void Read()

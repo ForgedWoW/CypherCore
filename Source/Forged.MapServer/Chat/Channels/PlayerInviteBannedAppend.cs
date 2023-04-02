@@ -8,17 +8,17 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct PlayerInviteBannedAppend : IChannelAppender
 {
+    private readonly string _playerName;
+
     public PlayerInviteBannedAppend(string playerName)
     {
         _playerName = playerName;
     }
-
-    public ChatNotify GetNotificationType() => ChatNotify.PlayerInviteBannedNotice;
 
     public void Append(ChannelNotify data)
     {
         data.Sender = _playerName;
     }
 
-    private readonly string _playerName;
+    public ChatNotify GetNotificationType() => ChatNotify.PlayerInviteBannedNotice;
 }

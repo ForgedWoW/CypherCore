@@ -7,9 +7,6 @@ namespace Forged.MapServer.Maps;
 
 public class CellArea
 {
-    public ICoord LowBound { get; set; }
-    public ICoord HighBound { get; set; }
-
     public CellArea() { }
 
     public CellArea(CellCoord low, CellCoord high)
@@ -17,4 +14,7 @@ public class CellArea
         LowBound = low;
         HighBound = high;
     }
+
+    public ICoord HighBound { get; set; }
+    public ICoord LowBound { get; set; }
 }

@@ -11,9 +11,8 @@ namespace Forged.MapServer.Chat.Channels;
 // initial packet data (notify type and channel name)
 internal class ChannelNameBuilder : MessageBuilder
 {
-    private readonly Channel _source;
     private readonly IChannelAppender _modifier;
-
+    private readonly Channel _source;
     public ChannelNameBuilder(Channel source, IChannelAppender modifier)
     {
         _source = source;

@@ -11,17 +11,17 @@ namespace Forged.MapServer.Text;
 
 public class ChatPacketSender : IDoWork<Player>
 {
+    public ChatPkt TranslatedPacket;
+
     // caches
     public ChatPkt UntranslatedPacket;
-    public ChatPkt TranslatedPacket;
-    private readonly ChatMsg _type;
-    private readonly Language _language;
-    private readonly WorldObject _sender;
-    private readonly WorldObject _receiver;
-    private readonly string _text;
     private readonly uint _achievementId;
+    private readonly Language _language;
     private readonly Locale _locale;
-
+    private readonly WorldObject _receiver;
+    private readonly WorldObject _sender;
+    private readonly string _text;
+    private readonly ChatMsg _type;
     public ChatPacketSender(ChatMsg chatType, Language language, WorldObject sender, WorldObject receiver, string message, uint achievementId = 0, Locale locale = Locale.enUS)
     {
         _type = chatType;

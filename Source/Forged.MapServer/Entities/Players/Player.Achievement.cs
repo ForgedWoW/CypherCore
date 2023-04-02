@@ -15,14 +15,9 @@ public partial class Player
 
     public ICollection<uint> CompletedAchievementIds => _achievementSys.CompletedAchievementIds;
 
-    public void ResetAchievements()
+    public void CompletedAchievement(AchievementRecord entry)
     {
-        _achievementSys.Reset();
-    }
-
-    public void SendRespondInspectAchievements(Player player)
-    {
-        _achievementSys.SendAchievementInfo(player);
+        _achievementSys.CompletedAchievement(entry, this);
     }
 
     public bool HasAchieved(uint achievementId)
@@ -30,14 +25,19 @@ public partial class Player
         return _achievementSys.HasAchieved(achievementId);
     }
 
-    public void StartCriteriaTimer(CriteriaStartEvent startEvent, uint entry, uint timeLost = 0)
+    public bool ModifierTreeSatisfied(uint modifierTreeId)
     {
-        _achievementSys.StartCriteriaTimer(startEvent, entry, timeLost);
+        return _achievementSys.ModifierTreeSatisfied(modifierTreeId);
     }
 
     public void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint entry)
     {
         _achievementSys.RemoveCriteriaTimer(startEvent, entry);
+    }
+
+    public void ResetAchievements()
+    {
+        _achievementSys.Reset();
     }
 
     public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete = false)
@@ -46,6 +46,14 @@ public partial class Player
         _questObjectiveCriteriaManager.ResetCriteria(failEvent, failAsset, evenIfCriteriaComplete);
     }
 
+    public void SendRespondInspectAchievements(Player player)
+    {
+        _achievementSys.SendAchievementInfo(player);
+    }
+    public void StartCriteriaTimer(CriteriaStartEvent startEvent, uint entry, uint timeLost = 0)
+    {
+        _achievementSys.StartCriteriaTimer(startEvent, entry, timeLost);
+    }
     public void UpdateCriteria(CriteriaType type, double miscValue1, double miscValue2 = 0, double miscValue3 = 0, WorldObject refe = null)
     {
         UpdateCriteria(type, (ulong)miscValue1, (ulong)miscValue2, (ulong)miscValue3, refe);
@@ -69,15 +77,5 @@ public partial class Player
 
         if (guild)
             guild.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
-    }
-
-    public void CompletedAchievement(AchievementRecord entry)
-    {
-        _achievementSys.CompletedAchievement(entry, this);
-    }
-
-    public bool ModifierTreeSatisfied(uint modifierTreeId)
-    {
-        return _achievementSys.ModifierTreeSatisfied(modifierTreeId);
     }
 }

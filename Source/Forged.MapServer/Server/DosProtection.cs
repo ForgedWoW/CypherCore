@@ -10,14 +10,20 @@ namespace Forged.MapServer.Server;
 
 public class DosProtection
 {
+    private readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
     private readonly Policy _policy;
     private readonly WorldSession Session;
-    private readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
-
     public DosProtection(WorldSession s)
     {
         Session = s;
         _policy = (Policy)GetDefaultValue("PacketSpoof.Policy", 1);
+    }
+
+    private enum Policy
+    {
+        Log,
+        Kick,
+        Ban,
     }
 
     //todo fix me
@@ -85,12 +91,5 @@ public class DosProtection
         }
 
         return true;
-    }
-
-    private enum Policy
-    {
-        Log,
-        Kick,
-        Ban,
     }
 }

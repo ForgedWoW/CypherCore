@@ -44,6 +44,12 @@ public class ToyHandler : IWorldSessionHandler
             _player.DestroyItem(item.BagSlot, item.Slot, true);
     }
 
+    [WorldPacketHandler(ClientOpcodes.ToyClearFanfare)]
+    private void HandleToyClearFanfare(ToyClearFanfare toyClearFanfare)
+    {
+        _collectionMgr.ToyClearFanfare(toyClearFanfare.ItemID);
+    }
+
     [WorldPacketHandler(ClientOpcodes.UseToy, Processing = PacketProcessing.Inplace)]
     private void HandleUseToy(UseToy packet)
     {
@@ -88,11 +94,5 @@ public class ToyHandler : IWorldSessionHandler
         spell.SpellMisc.Data1 = packet.Cast.Misc[1];
         spell.CastFlagsEx |= SpellCastFlagsEx.UseToySpell;
         spell.Prepare(targets);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ToyClearFanfare)]
-    private void HandleToyClearFanfare(ToyClearFanfare toyClearFanfare)
-    {
-        _collectionMgr.ToyClearFanfare(toyClearFanfare.ItemID);
     }
 }

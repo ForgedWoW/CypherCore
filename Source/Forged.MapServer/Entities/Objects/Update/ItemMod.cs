@@ -9,9 +9,8 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ItemMod
 {
-    public uint Value;
     public byte Type;
-
+    public uint Value;
     public void WriteCreate(WorldPacket data, Item owner, Player receiver)
     {
         data.WriteUInt32(Value);

@@ -17,10 +17,9 @@ namespace Forged.MapServer.Networking;
 
 public class RASocket : ISocket
 {
-    private readonly Socket _socket;
-    private readonly IPAddress _remoteAddress;
     private readonly byte[] _receiveBuffer;
-
+    private readonly IPAddress _remoteAddress;
+    private readonly Socket _socket;
     public RASocket(Socket socket)
     {
         _socket = socket;
@@ -100,16 +99,6 @@ public class RASocket : ISocket
         CloseSocket();
     }
 
-    public bool Update()
-    {
-        return IsOpen();
-    }
-
-    public bool IsOpen()
-    {
-        return _socket.Connected;
-    }
-
     public void CloseSocket()
     {
         if (_socket == null)
@@ -126,40 +115,15 @@ public class RASocket : ISocket
         }
     }
 
-    private void Send(string str)
+    public bool IsOpen()
     {
-        if (!IsOpen())
-            return;
-
-        _socket.Send(Encoding.UTF8.GetBytes(str));
+        return _socket.Connected;
     }
 
-    private string ReadString()
+    public bool Update()
     {
-        try
-        {
-            var str = "";
-
-            do
-            {
-                var bytes = _socket.Receive(_receiveBuffer);
-
-                if (bytes == 0)
-                    return "";
-
-                str = string.Concat(str, Encoding.UTF8.GetString(_receiveBuffer, 0, bytes));
-            } while (!str.Contains("\n"));
-
-            return str.TrimEnd('\r', '\n');
-        }
-        catch (Exception ex)
-        {
-            Log.Logger.Error(ex);
-
-            return "";
-        }
+        return IsOpen();
     }
-
     private bool CheckAccessLevelAndPassword(string email, string password)
     {
         //"SELECT a.id, a.username FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id WHERE ba.email = ?"
@@ -220,6 +184,14 @@ public class RASocket : ISocket
         return false;
     }
 
+    private void CommandPrint(string text)
+    {
+        if (text.IsEmpty())
+            return;
+
+        Send(text);
+    }
+
     private bool ProcessCommand(string command)
     {
         if (command.Length == 0)
@@ -241,11 +213,37 @@ public class RASocket : ISocket
         return true;
     }
 
-    private void CommandPrint(string text)
+    private string ReadString()
     {
-        if (text.IsEmpty())
+        try
+        {
+            var str = "";
+
+            do
+            {
+                var bytes = _socket.Receive(_receiveBuffer);
+
+                if (bytes == 0)
+                    return "";
+
+                str = string.Concat(str, Encoding.UTF8.GetString(_receiveBuffer, 0, bytes));
+            } while (!str.Contains("\n"));
+
+            return str.TrimEnd('\r', '\n');
+        }
+        catch (Exception ex)
+        {
+            Log.Logger.Error(ex);
+
+            return "";
+        }
+    }
+
+    private void Send(string str)
+    {
+        if (!IsOpen())
             return;
 
-        Send(text);
+        _socket.Send(Encoding.UTF8.GetBytes(str));
     }
 }

@@ -13,22 +13,13 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("lfg")]
 internal class LFGCommands
 {
-    [Command("player", RBACPermissions.CommandLfgPlayer, true)]
-    private static bool HandleLfgPlayerInfoCommand(CommandHandler handler, PlayerIdentifier player)
+    [Command("clean", RBACPermissions.CommandLfgClean, true)]
+    private static bool HandleLfgCleanCommand(CommandHandler handler)
     {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        handler.SendSysMessage(CypherStrings.LfgClean);
+        Global.LFGMgr.Clean();
 
-        var target = player?.GetConnectedPlayer();
-
-        if (target != null)
-        {
-            PrintPlayerInfo(handler, target);
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     [Command("group", RBACPermissions.CommandLfgGroup, true)]
@@ -94,6 +85,23 @@ internal class LFGCommands
         return true;
     }
 
+    [Command("player", RBACPermissions.CommandLfgPlayer, true)]
+    private static bool HandleLfgPlayerInfoCommand(CommandHandler handler, PlayerIdentifier player)
+    {
+        if (player == null)
+            player = PlayerIdentifier.FromTargetOrSelf(handler);
+
+        var target = player?.GetConnectedPlayer();
+
+        if (target != null)
+        {
+            PrintPlayerInfo(handler, target);
+
+            return true;
+        }
+
+        return false;
+    }
     [Command("queue", RBACPermissions.CommandLfgQueue, true)]
     private static bool HandleLfgQueueInfoCommand(CommandHandler handler, string full)
     {
@@ -101,16 +109,6 @@ internal class LFGCommands
 
         return true;
     }
-
-    [Command("clean", RBACPermissions.CommandLfgClean, true)]
-    private static bool HandleLfgCleanCommand(CommandHandler handler)
-    {
-        handler.SendSysMessage(CypherStrings.LfgClean);
-        Global.LFGMgr.Clean();
-
-        return true;
-    }
-
     private static void PrintPlayerInfo(CommandHandler handler, Player player)
     {
         if (!player)

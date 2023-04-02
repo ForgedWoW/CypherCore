@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class DestructibleBuildingDamage : ServerPacket
 {
-    public ObjectGuid Target;
     public ObjectGuid Caster;
-    public ObjectGuid Owner;
     public int Damage;
+    public ObjectGuid Owner;
     public uint SpellID;
+    public ObjectGuid Target;
     public DestructibleBuildingDamage() : base(ServerOpcodes.DestructibleBuildingDamage, ConnectionType.Instance) { }
 
     public override void Write()

@@ -11,11 +11,19 @@ namespace Forged.MapServer.Entities.Objects.Update;
 public class ScaleCurve : BaseUpdateData<AreaTrigger>
 {
     public UpdateField<bool> OverrideActive = new(0, 1);
-    public UpdateField<uint> StartTimeOffset = new(0, 2);
     public UpdateField<uint> ParameterCurve = new(0, 3);
     public UpdateFieldArray<Vector2> Points = new(2, 4, 5);
-
+    public UpdateField<uint> StartTimeOffset = new(0, 2);
     public ScaleCurve() : base(7) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(OverrideActive);
+        ClearChangesMask(StartTimeOffset);
+        ClearChangesMask(ParameterCurve);
+        ClearChangesMask(Points);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, AreaTrigger owner, Player receiver)
     {
@@ -59,14 +67,5 @@ public class ScaleCurve : BaseUpdateData<AreaTrigger>
                     data.WriteVector2(Points[i]);
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(OverrideActive);
-        ClearChangesMask(StartTimeOffset);
-        ClearChangesMask(ParameterCurve);
-        ClearChangesMask(Points);
-        ChangesMask.ResetAll();
     }
 }

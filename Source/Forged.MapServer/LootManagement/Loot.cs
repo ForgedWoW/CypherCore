@@ -23,33 +23,36 @@ namespace Forged.MapServer.LootManagement;
 
 public class Loot
 {
-    public List<LootItem> Items = new();
     public uint Gold;
+    public List<LootItem> Items = new();
+    public LootType LootType;
+    public ObjectGuid RoundRobinPlayer;
     public byte UnlootedCount;
-    public ObjectGuid RoundRobinPlayer; // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
-    public LootType LootType;           // required for achievement system
-    private readonly ConditionManager _conditionManager;
-    private readonly GameObjectManager _objectManager;
-    private readonly DB2Manager _db2Manager;
-    private readonly ObjectAccessor _objectAccessor;
-    private readonly LootStoreBox _lootStorage;
-    private readonly IConfiguration _configuration;
-    private readonly LootFactory _lootFactory;
-
-    private readonly List<ObjectGuid> _playersLooting = new();
-    private readonly MultiMap<ObjectGuid, NotNormalLootItem> _playerFFAItems = new();
-    private readonly LootMethod _lootMethod;
-    private readonly Dictionary<uint, LootRoll> _rolls = new(); // used if an item is under rolling
     private readonly List<ObjectGuid> _allowedLooters = new();
 
+    // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    // required for achievement system
+    private readonly ConditionManager _conditionManager;
+    private readonly IConfiguration _configuration;
+    private readonly DB2Manager _db2Manager;
     // Loot GUID
     private readonly ObjectGuid _guid;
-    private readonly ObjectGuid _owner; // The WorldObject that holds this loot
+
+    private readonly LootFactory _lootFactory;
     private readonly ObjectGuid _lootMaster;
-    private ItemContext _itemContext;
-    private bool _wasOpened; // true if at least one player received the loot content
+    private readonly LootMethod _lootMethod;
+    private readonly LootStoreBox _lootStorage;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GameObjectManager _objectManager;
+    private readonly ObjectGuid _owner;
+    private readonly MultiMap<ObjectGuid, NotNormalLootItem> _playerFFAItems = new();
+    private readonly List<ObjectGuid> _playersLooting = new();
+    private readonly Dictionary<uint, LootRoll> _rolls = new(); // used if an item is under rolling
     private uint _dungeonEncounterId;
 
+    // The WorldObject that holds this loot
+    private ItemContext _itemContext;
+    private bool _wasOpened; // true if at least one player received the loot content
     public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, ConditionManager conditionManager, GameObjectManager objectManager,
                 DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, IConfiguration configuration, LootFactory lootFactory)
     {
@@ -97,6 +100,11 @@ public class Loot
             Items.Add(generatedLoot);
             count -= proto.MaxStackSize;
         }
+    }
+
+    public void AddLooter(ObjectGuid guid)
+    {
+        _playersLooting.Add(guid);
     }
 
     public bool AutoStore(Player player, byte bag, byte slot, bool broadcast = false, bool createdByPlayer = false)
@@ -153,12 +161,27 @@ public class Loot
         return allLooted;
     }
 
-    public LootItem GetItemInSlot(uint lootListId)
+    public void BuildLootResponse(LootResponse packet, Player viewer)
     {
-        if (lootListId < Items.Count)
-            return Items[(int)lootListId];
+        packet.Coins = Gold;
 
-        return null;
+        foreach (var item in Items)
+        {
+            var uiType = item.GetUiTypeForPlayer(viewer, this);
+
+            if (!uiType.HasValue)
+                continue;
+
+            LootItemData lootItem = new()
+            {
+                LootListID = (byte)item.LootListId,
+                UIType = uiType.Value,
+                Quantity = item.Count,
+                Loot = new ItemInstance(item)
+            };
+
+            packet.Items.Add(lootItem);
+        }
     }
 
     // Calls processor of corresponding LootTemplate (which handles everything including references)
@@ -235,13 +258,6 @@ public class Loot
         return true;
     }
 
-    public void Update()
-    {
-        foreach (var pair in _rolls.ToList())
-            if (pair.Value.UpdateRoll())
-                _rolls.Remove(pair.Key);
-    }
-
     public void FillNotNormalLootFor(Player player)
     {
         var plguid = player.GUID;
@@ -273,6 +289,152 @@ public class Loot
             _playerFFAItems[player.GUID] = ffaItems;
     }
 
+    public void GenerateMoneyLoot(uint minAmount, uint maxAmount)
+    {
+        if (maxAmount > 0)
+        {
+            if (maxAmount <= minAmount)
+                Gold = (uint)(maxAmount * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f));
+            else if ((maxAmount - minAmount) < 32700)
+                Gold = (uint)(RandomHelper.URand(minAmount, maxAmount) * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f));
+            else
+                Gold = (uint)(RandomHelper.URand(minAmount >> 8, maxAmount >> 8) * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f)) << 8;
+        }
+    }
+
+    public uint GetDungeonEncounterId()
+    {
+        return _dungeonEncounterId;
+    }
+
+    public ObjectGuid GetGuid()
+    {
+        return _guid;
+    }
+
+    public ItemContext GetItemContext()
+    {
+        return _itemContext;
+    }
+
+    public LootItem GetItemInSlot(uint lootListId)
+    {
+        if (lootListId < Items.Count)
+            return Items[(int)lootListId];
+
+        return null;
+    }
+    public ObjectGuid GetLootMasterGuid()
+    {
+        return _lootMaster;
+    }
+
+    public LootMethod GetLootMethod()
+    {
+        return _lootMethod;
+    }
+
+    public ObjectGuid GetOwnerGuid()
+    {
+        return _owner;
+    }
+
+    public MultiMap<ObjectGuid, NotNormalLootItem> GetPlayerFFAItems()
+    {
+        return _playerFFAItems;
+    }
+
+    public bool HasAllowedLooter(ObjectGuid looter)
+    {
+        return _allowedLooters.Contains(looter);
+    }
+
+    // return true if there is any FFA, quest or conditional item for the player.
+    public bool HasItemFor(Player player)
+    {
+        // quest items
+        foreach (var lootItem in Items)
+            if (!lootItem.IsLooted && !lootItem.FollowLootRules && lootItem.GetAllowedLooters().Contains(player.GUID))
+                return true;
+
+        var ffaItems = GetPlayerFFAItems().LookupByKey(player.GUID);
+
+        if (ffaItems != null)
+        {
+            var hasFfaItem = ffaItems.Any(ffaItem => !ffaItem.IsLooted);
+
+            if (hasFfaItem)
+                return true;
+        }
+
+        return false;
+    }
+
+    // return true if there is any item that is lootable for any player (not quest item, FFA or conditional)
+    public bool HasItemForAll()
+    {
+        // Gold is always lootable
+        if (Gold != 0)
+            return true;
+
+        foreach (var item in Items)
+            if (!item.IsLooted && item.FollowLootRules && !item.Freeforall && item.Conditions.Empty())
+                return true;
+
+        return false;
+    }
+
+    // return true if there is any item over the group threshold (i.e. not underthreshold).
+    public bool HasOverThresholdItem()
+    {
+        for (byte i = 0; i < Items.Count; ++i)
+            if (!Items[i].IsLooted && !Items[i].IsUnderthreshold && !Items[i].Freeforall)
+                return true;
+
+        return false;
+    }
+
+    public bool IsLooted()
+    {
+        return Gold == 0 && UnlootedCount == 0;
+    }
+
+    public LootItem LootItemInSlot(uint lootSlot, Player player)
+    {
+        return LootItemInSlot(lootSlot, player, out _);
+    }
+
+    public LootItem LootItemInSlot(uint lootListId, Player player, out NotNormalLootItem ffaItem)
+    {
+        ffaItem = null;
+
+        if (lootListId >= Items.Count)
+            return null;
+
+        var item = Items[(int)lootListId];
+        var isLooted = item.IsLooted;
+
+        if (item.Freeforall)
+        {
+            var itemList = _playerFFAItems.LookupByKey(player.GUID);
+
+            if (itemList != null)
+                foreach (var notNormalLootItem in itemList)
+                    if (notNormalLootItem.LootListId == lootListId)
+                    {
+                        isLooted = notNormalLootItem.IsLooted;
+                        ffaItem = notNormalLootItem;
+
+                        break;
+                    }
+        }
+
+        if (isLooted)
+            return null;
+
+        return item;
+    }
+
     public void NotifyItemRemoved(byte lootListId, Map map)
     {
         // notify all players that are looting this that the item was removed
@@ -290,6 +452,30 @@ public class Loot
                 player.SendNotifyLootItemRemoved(GetGuid(), GetOwnerGuid(), lootListId);
             else
                 _playersLooting.RemoveAt(i);
+        }
+    }
+
+    public void NotifyLootList(Map map)
+    {
+        LootList lootList = new()
+        {
+            Owner = GetOwnerGuid(),
+            LootObj = GetGuid()
+        };
+
+        if (GetLootMethod() == LootMethod.MasterLoot && HasOverThresholdItem())
+            lootList.Master = GetLootMasterGuid();
+
+        if (!RoundRobinPlayer.IsEmpty)
+            lootList.RoundRobinWinner = RoundRobinPlayer;
+
+        lootList.Write();
+
+        foreach (var allowedLooterGuid in _allowedLooters)
+        {
+            var allowedLooter = _objectAccessor.GetPlayer(map, allowedLooterGuid);
+
+            allowedLooter?.SendPacket(lootList);
         }
     }
 
@@ -363,200 +549,9 @@ public class Loot
         }
     }
 
-    public bool HasAllowedLooter(ObjectGuid looter)
-    {
-        return _allowedLooters.Contains(looter);
-    }
-
-    public void GenerateMoneyLoot(uint minAmount, uint maxAmount)
-    {
-        if (maxAmount > 0)
-        {
-            if (maxAmount <= minAmount)
-                Gold = (uint)(maxAmount * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f));
-            else if ((maxAmount - minAmount) < 32700)
-                Gold = (uint)(RandomHelper.URand(minAmount, maxAmount) * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f));
-            else
-                Gold = (uint)(RandomHelper.URand(minAmount >> 8, maxAmount >> 8) * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f)) << 8;
-        }
-    }
-
-    public LootItem LootItemInSlot(uint lootSlot, Player player)
-    {
-        return LootItemInSlot(lootSlot, player, out _);
-    }
-
-    public LootItem LootItemInSlot(uint lootListId, Player player, out NotNormalLootItem ffaItem)
-    {
-        ffaItem = null;
-
-        if (lootListId >= Items.Count)
-            return null;
-
-        var item = Items[(int)lootListId];
-        var isLooted = item.IsLooted;
-
-        if (item.Freeforall)
-        {
-            var itemList = _playerFFAItems.LookupByKey(player.GUID);
-
-            if (itemList != null)
-                foreach (var notNormalLootItem in itemList)
-                    if (notNormalLootItem.LootListId == lootListId)
-                    {
-                        isLooted = notNormalLootItem.IsLooted;
-                        ffaItem = notNormalLootItem;
-
-                        break;
-                    }
-        }
-
-        if (isLooted)
-            return null;
-
-        return item;
-    }
-
-    // return true if there is any item that is lootable for any player (not quest item, FFA or conditional)
-    public bool HasItemForAll()
-    {
-        // Gold is always lootable
-        if (Gold != 0)
-            return true;
-
-        foreach (var item in Items)
-            if (!item.IsLooted && item.FollowLootRules && !item.Freeforall && item.Conditions.Empty())
-                return true;
-
-        return false;
-    }
-
-    // return true if there is any FFA, quest or conditional item for the player.
-    public bool HasItemFor(Player player)
-    {
-        // quest items
-        foreach (var lootItem in Items)
-            if (!lootItem.IsLooted && !lootItem.FollowLootRules && lootItem.GetAllowedLooters().Contains(player.GUID))
-                return true;
-
-        var ffaItems = GetPlayerFFAItems().LookupByKey(player.GUID);
-
-        if (ffaItems != null)
-        {
-            var hasFfaItem = ffaItems.Any(ffaItem => !ffaItem.IsLooted);
-
-            if (hasFfaItem)
-                return true;
-        }
-
-        return false;
-    }
-
-    // return true if there is any item over the group threshold (i.e. not underthreshold).
-    public bool HasOverThresholdItem()
-    {
-        for (byte i = 0; i < Items.Count; ++i)
-            if (!Items[i].IsLooted && !Items[i].IsUnderthreshold && !Items[i].Freeforall)
-                return true;
-
-        return false;
-    }
-
-    public void BuildLootResponse(LootResponse packet, Player viewer)
-    {
-        packet.Coins = Gold;
-
-        foreach (var item in Items)
-        {
-            var uiType = item.GetUiTypeForPlayer(viewer, this);
-
-            if (!uiType.HasValue)
-                continue;
-
-            LootItemData lootItem = new()
-            {
-                LootListID = (byte)item.LootListId,
-                UIType = uiType.Value,
-                Quantity = item.Count,
-                Loot = new ItemInstance(item)
-            };
-
-            packet.Items.Add(lootItem);
-        }
-    }
-
-    public void NotifyLootList(Map map)
-    {
-        LootList lootList = new()
-        {
-            Owner = GetOwnerGuid(),
-            LootObj = GetGuid()
-        };
-
-        if (GetLootMethod() == LootMethod.MasterLoot && HasOverThresholdItem())
-            lootList.Master = GetLootMasterGuid();
-
-        if (!RoundRobinPlayer.IsEmpty)
-            lootList.RoundRobinWinner = RoundRobinPlayer;
-
-        lootList.Write();
-
-        foreach (var allowedLooterGuid in _allowedLooters)
-        {
-            var allowedLooter = _objectAccessor.GetPlayer(map, allowedLooterGuid);
-
-            allowedLooter?.SendPacket(lootList);
-        }
-    }
-
-    public bool IsLooted()
-    {
-        return Gold == 0 && UnlootedCount == 0;
-    }
-
-    public void AddLooter(ObjectGuid guid)
-    {
-        _playersLooting.Add(guid);
-    }
-
     public void RemoveLooter(ObjectGuid guid)
     {
         _playersLooting.Remove(guid);
-    }
-
-    public ObjectGuid GetGuid()
-    {
-        return _guid;
-    }
-
-    public ObjectGuid GetOwnerGuid()
-    {
-        return _owner;
-    }
-
-    public ItemContext GetItemContext()
-    {
-        return _itemContext;
-    }
-
-    public void SetItemContext(ItemContext context)
-    {
-        _itemContext = context;
-    }
-
-    public LootMethod GetLootMethod()
-    {
-        return _lootMethod;
-    }
-
-    public ObjectGuid GetLootMasterGuid()
-    {
-        return _lootMaster;
-    }
-
-    public uint GetDungeonEncounterId()
-    {
-        return _dungeonEncounterId;
     }
 
     public void SetDungeonEncounterId(uint dungeonEncounterId)
@@ -564,12 +559,17 @@ public class Loot
         _dungeonEncounterId = dungeonEncounterId;
     }
 
-    public MultiMap<ObjectGuid, NotNormalLootItem> GetPlayerFFAItems()
+    public void SetItemContext(ItemContext context)
     {
-        return _playerFFAItems;
+        _itemContext = context;
     }
 
-
+    public void Update()
+    {
+        foreach (var pair in _rolls.ToList())
+            if (pair.Value.UpdateRoll())
+                _rolls.Remove(pair.Key);
+    }
     private LootStore GetLootStorage(LootStorageType storageType)
     {
         switch (storageType)

@@ -5,8 +5,8 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class CharBaseInfo
 {
-    public uint Id;
-    public sbyte RaceId;
     public sbyte ClassId;
     public int FactionXferId;
+    public uint Id;
+    public sbyte RaceId;
 }

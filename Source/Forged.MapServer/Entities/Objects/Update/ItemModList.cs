@@ -13,6 +13,12 @@ public class ItemModList : BaseUpdateData<Item>
 
     public ItemModList() : base(1) { }
 
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Values);
+        ChangesMask.ResetAll();
+    }
+
     public void WriteCreate(WorldPacket data, Item owner, Player receiver)
     {
         data.WriteBits(Values.Size(), 6);
@@ -50,11 +56,5 @@ public class ItemModList : BaseUpdateData<Item>
                         Values[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Values);
-        ChangesMask.ResetAll();
     }
 }

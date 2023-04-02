@@ -10,6 +10,14 @@ namespace Forged.MapServer.LootManagement;
 
 public struct LootGroupInvalidSelector
 {
+    private readonly ConditionManager _conditionManager;
+
+    private readonly ushort _lootMode;
+
+    private readonly GameObjectManager _objectManager;
+
+    private readonly Player _personalLooter;
+
     public LootGroupInvalidSelector(ushort lootMode, Player personalLooter, GameObjectManager objectManager, ConditionManager conditionManager)
     {
         _lootMode = lootMode;
@@ -37,9 +45,4 @@ public struct LootGroupInvalidSelector
 
         return false;
     }
-
-    private readonly ushort _lootMode;
-    private readonly Player _personalLooter;
-    private readonly GameObjectManager _objectManager;
-    private readonly ConditionManager _conditionManager;
 }

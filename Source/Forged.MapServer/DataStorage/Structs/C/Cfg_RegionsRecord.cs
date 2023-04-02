@@ -5,10 +5,12 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class Cfg_RegionsRecord
 {
-    public uint Id;
-    public string Tag;
-    public ushort RegionID;
-    public uint Raidorigin; // Date of first raid reset, all other resets are calculated as this date plus interval
-    public byte RegionGroupMask;
     public uint ChallengeOrigin;
+    public uint Id;
+    public uint Raidorigin;
+    // Date of first raid reset, all other resets are calculated as this date plus interval
+    public byte RegionGroupMask;
+
+    public ushort RegionID;
+    public string Tag;
 }

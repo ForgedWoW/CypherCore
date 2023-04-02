@@ -8,14 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRankData
 {
-    public byte RankID;
-    public uint RankOrder;
     public uint Flags;
-    public uint WithdrawGoldLimit;
+    public byte RankID;
     public string RankName;
+    public uint RankOrder;
     public uint[] TabFlags = new uint[GuildConst.MaxBankTabs];
     public uint[] TabWithdrawItemLimit = new uint[GuildConst.MaxBankTabs];
-
+    public uint WithdrawGoldLimit;
     public void Write(WorldPacket data)
     {
         data.WriteUInt8(RankID);

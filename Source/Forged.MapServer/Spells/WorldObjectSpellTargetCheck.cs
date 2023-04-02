@@ -12,12 +12,11 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 {
     internal WorldObject Caster;
     internal SpellInfo SpellInfo;
+    private readonly List<Condition> _condList;
+    private readonly ConditionSourceInfo _condSrcInfo;
+    private readonly SpellTargetObjectTypes _objectType;
     private readonly WorldObject _referer;
     private readonly SpellTargetCheckTypes _targetSelectionType;
-    private readonly ConditionSourceInfo _condSrcInfo;
-    private readonly List<Condition> _condList;
-    private readonly SpellTargetObjectTypes _objectType;
-
     public WorldObjectSpellTargetCheck(WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
     {
         Caster = caster;
@@ -117,7 +116,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
                     if (!unitTarget.IsSummon)
                         return false;
 
-                    if (unitTarget.ToTempSummon().GetSummonerGUID() != Caster.GUID)
+                    if (unitTarget.ToTempSummon().SummonerGUID != Caster.GUID)
                         return false;
 
                     break;

@@ -78,14 +78,49 @@ internal class BanInfoCommands
             var unbanDate = result.Read<long>(3);
             var active = false;
 
-            if (result.Read<bool>(2) && (result.Read<long>(1) == 0L || unbanDate >= GameTime.GetGameTime()))
+            if (result.Read<bool>(2) && (result.Read<long>(1) == 0L || unbanDate >= GameTime.CurrentTime))
                 active = true;
 
             var permanent = (result.Read<long>(1) == 0L);
-            var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.secsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
+            var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.SecsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
 
             handler.SendSysMessage(CypherStrings.BaninfoHistoryentry,
                                    Time.UnixTimeToDateTime(result.Read<long>(0)).ToShortTimeString(),
+                                   banTime,
+                                   active ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No),
+                                   result.Read<string>(4),
+                                   result.Read<string>(5));
+        } while (result.NextRow());
+
+        return true;
+    }
+
+    private static bool HandleBanInfoHelper(uint accountId, string accountName, CommandHandler handler)
+    {
+        var result = DB.Login.Query("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{0}' ORDER BY bandate ASC", accountId);
+
+        if (result.IsEmpty())
+        {
+            handler.SendSysMessage(CypherStrings.BaninfoNoaccountban, accountName);
+
+            return true;
+        }
+
+        handler.SendSysMessage(CypherStrings.BaninfoBanhistory, accountName);
+
+        do
+        {
+            long unbanDate = result.Read<uint>(3);
+            var active = false;
+
+            if (result.Read<bool>(2) && (result.Read<ulong>(1) == 0 || unbanDate >= GameTime.CurrentTime))
+                active = true;
+
+            var permanent = (result.Read<ulong>(1) == 0);
+            var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.SecsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
+
+            handler.SendSysMessage(CypherStrings.BaninfoHistoryentry,
+                                   result.Read<string>(0),
                                    banTime,
                                    active ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No),
                                    result.Read<string>(4),
@@ -116,44 +151,9 @@ internal class BanInfoCommands
                                result.Read<string>(0),
                                result.Read<string>(1),
                                permanent ? handler.GetCypherString(CypherStrings.BaninfoNever) : result.Read<string>(2),
-                               permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.secsToTimeString(result.Read<ulong>(3), TimeFormat.ShortText),
+                               permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.SecsToTimeString(result.Read<ulong>(3), TimeFormat.ShortText),
                                result.Read<string>(4),
                                result.Read<string>(5));
-
-        return true;
-    }
-
-    private static bool HandleBanInfoHelper(uint accountId, string accountName, CommandHandler handler)
-    {
-        var result = DB.Login.Query("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{0}' ORDER BY bandate ASC", accountId);
-
-        if (result.IsEmpty())
-        {
-            handler.SendSysMessage(CypherStrings.BaninfoNoaccountban, accountName);
-
-            return true;
-        }
-
-        handler.SendSysMessage(CypherStrings.BaninfoBanhistory, accountName);
-
-        do
-        {
-            long unbanDate = result.Read<uint>(3);
-            var active = false;
-
-            if (result.Read<bool>(2) && (result.Read<ulong>(1) == 0 || unbanDate >= GameTime.GetGameTime()))
-                active = true;
-
-            var permanent = (result.Read<ulong>(1) == 0);
-            var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.secsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
-
-            handler.SendSysMessage(CypherStrings.BaninfoHistoryentry,
-                                   result.Read<string>(0),
-                                   banTime,
-                                   active ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No),
-                                   result.Read<string>(4),
-                                   result.Read<string>(5));
-        } while (result.NextRow());
 
         return true;
     }

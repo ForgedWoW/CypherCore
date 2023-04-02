@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonDeleteResult : ServerPacket
 {
-    public GarrisonError Result;
     public uint GarrSiteID;
+    public GarrisonError Result;
     public GarrisonDeleteResult() : base(ServerOpcodes.GarrisonDeleteResult, ConnectionType.Instance) { }
 
     public override void Write()

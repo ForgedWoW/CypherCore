@@ -5,7 +5,7 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ChrClassesXPowerTypesRecord
 {
+    public uint ClassID;
     public uint Id;
     public sbyte PowerType;
-    public uint ClassID;
 }

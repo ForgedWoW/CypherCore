@@ -12,8 +12,8 @@ namespace Forged.MapServer.Entities.Players;
 
 public class PlayerSocial
 {
-    public Dictionary<ObjectGuid, FriendInfo> PlayerSocialMap = new();
     public List<ObjectGuid> IgnoredAccounts = new();
+    public Dictionary<ObjectGuid, FriendInfo> PlayerSocialMap = new();
     private ObjectGuid _mPlayerGUID;
 
     public bool AddToSocialList(ObjectGuid friendGuid, ObjectGuid accountGuid, SocialFlag flag)
@@ -55,6 +55,16 @@ public class PlayerSocial
         return true;
     }
 
+    public bool HasFriend(ObjectGuid friendGuid)
+    {
+        return _HasContact(friendGuid, SocialFlag.Friend);
+    }
+
+    public bool HasIgnore(ObjectGuid ignoreGuid, ObjectGuid ignoreAccountGuid)
+    {
+        return _HasContact(ignoreGuid, SocialFlag.Ignored) || IgnoredAccounts.Contains(ignoreAccountGuid);
+    }
+
     public void RemoveFromSocialList(ObjectGuid friendGuid, SocialFlag flag)
     {
         var friendInfo = PlayerSocialMap.LookupByKey(friendGuid);
@@ -91,20 +101,6 @@ public class PlayerSocial
             stmt.AddValue(2, friendGuid.Counter);
             DB.Characters.Execute(stmt);
         }
-    }
-
-    public void SetFriendNote(ObjectGuid friendGuid, string note)
-    {
-        if (!PlayerSocialMap.ContainsKey(friendGuid)) // not exist
-            return;
-
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_NOTE);
-        stmt.AddValue(0, note);
-        stmt.AddValue(1, GetPlayerGUID().Counter);
-        stmt.AddValue(2, friendGuid.Counter);
-        DB.Characters.Execute(stmt);
-
-        PlayerSocialMap[friendGuid].Note = note;
     }
 
     public void SendSocialList(Player player, SocialFlag flags)
@@ -145,30 +141,22 @@ public class PlayerSocial
         player.SendPacket(contactList);
     }
 
-    public bool HasFriend(ObjectGuid friendGuid)
+    public void SetFriendNote(ObjectGuid friendGuid, string note)
     {
-        return _HasContact(friendGuid, SocialFlag.Friend);
-    }
+        if (!PlayerSocialMap.ContainsKey(friendGuid)) // not exist
+            return;
 
-    public bool HasIgnore(ObjectGuid ignoreGuid, ObjectGuid ignoreAccountGuid)
-    {
-        return _HasContact(ignoreGuid, SocialFlag.Ignored) || IgnoredAccounts.Contains(ignoreAccountGuid);
-    }
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_NOTE);
+        stmt.AddValue(0, note);
+        stmt.AddValue(1, GetPlayerGUID().Counter);
+        stmt.AddValue(2, friendGuid.Counter);
+        DB.Characters.Execute(stmt);
 
+        PlayerSocialMap[friendGuid].Note = note;
+    }
     public void SetPlayerGUID(ObjectGuid guid)
     {
         _mPlayerGUID = guid;
-    }
-
-    private uint GetNumberOfSocialsWithFlag(SocialFlag flag)
-    {
-        uint counter = 0;
-
-        foreach (var pair in PlayerSocialMap)
-            if (pair.Value.Flags.HasAnyFlag(flag))
-                ++counter;
-
-        return counter;
     }
 
     private bool _HasContact(ObjectGuid guid, SocialFlag flags)
@@ -181,6 +169,16 @@ public class PlayerSocial
         return false;
     }
 
+    private uint GetNumberOfSocialsWithFlag(SocialFlag flag)
+    {
+        uint counter = 0;
+
+        foreach (var pair in PlayerSocialMap)
+            if (pair.Value.Flags.HasAnyFlag(flag))
+                ++counter;
+
+        return counter;
+    }
     private ObjectGuid GetPlayerGUID()
     {
         return _mPlayerGUID;

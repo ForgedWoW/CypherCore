@@ -5,8 +5,11 @@ namespace Forged.MapServer.Spells;
 
 public class SpellLearnSpellNode
 {
-    public uint Spell;
+    public bool Active;
+    // show in spellbook or not
+    public bool AutoLearned;
+
     public uint OverridesSpell;
-    public bool Active;      // show in spellbook or not
-    public bool AutoLearned; // This marks the spell as automatically learned from another source that - will only be used for unlearning
+    public uint Spell;
+    // This marks the spell as automatically learned from another source that - will only be used for unlearning
 }

@@ -9,25 +9,10 @@ namespace Forged.MapServer.Networking.Packets.WorldState;
 public class InitWorldStates : ServerPacket
 {
     public uint AreaID;
-    public uint SubareaID;
     public uint MapID;
+    public uint SubareaID;
     private readonly List<WorldStateInfo> Worldstates = new();
     public InitWorldStates() : base(ServerOpcodes.InitWorldStates, ConnectionType.Instance) { }
-
-    public override void Write()
-    {
-        _worldPacket.WriteUInt32(MapID);
-        _worldPacket.WriteUInt32(AreaID);
-        _worldPacket.WriteUInt32(SubareaID);
-
-        _worldPacket.WriteInt32(Worldstates.Count);
-
-        foreach (var wsi in Worldstates)
-        {
-            _worldPacket.WriteUInt32(wsi.VariableID);
-            _worldPacket.WriteInt32(wsi.Value);
-        }
-    }
 
     public void AddState(WorldStates variableID, uint value)
     {
@@ -54,15 +39,30 @@ public class InitWorldStates : ServerPacket
         Worldstates.Add(new WorldStateInfo(variableID, value ? 1 : 0));
     }
 
+    public override void Write()
+    {
+        _worldPacket.WriteUInt32(MapID);
+        _worldPacket.WriteUInt32(AreaID);
+        _worldPacket.WriteUInt32(SubareaID);
+
+        _worldPacket.WriteInt32(Worldstates.Count);
+
+        foreach (var wsi in Worldstates)
+        {
+            _worldPacket.WriteUInt32(wsi.VariableID);
+            _worldPacket.WriteInt32(wsi.Value);
+        }
+    }
     private struct WorldStateInfo
     {
+        public readonly int Value;
+
+        public readonly uint VariableID;
+
         public WorldStateInfo(uint variableID, int value)
         {
             VariableID = variableID;
             Value = value;
         }
-
-        public readonly uint VariableID;
-        public readonly int Value;
     }
 }

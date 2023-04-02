@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ClearCooldown : ServerPacket
 {
+    public bool ClearOnHold;
     public bool IsPet;
     public uint SpellID;
-    public bool ClearOnHold;
     public ClearCooldown() : base(ServerOpcodes.ClearCooldown, ConnectionType.Instance) { }
 
     public override void Write()

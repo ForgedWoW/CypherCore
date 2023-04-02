@@ -51,14 +51,16 @@ public class SetupCurrency : ServerPacket
 
     public struct Record
     {
-        public uint Type;
-        public uint Quantity;
-        public uint? WeeklyQuantity;    // Currency count obtained this Week.  
-        public uint? MaxWeeklyQuantity; // Weekly Currency cap.
-        public uint? TrackedQuantity;
-        public int? MaxQuantity;
-        public int? TotalEarned;
-        public long? LastSpendTime;
         public byte Flags;
+        public long? LastSpendTime;
+        public int? MaxQuantity;
+        public uint? MaxWeeklyQuantity;
+        public uint Quantity;
+        public int? TotalEarned;
+        // Weekly Currency cap.
+        public uint? TrackedQuantity;
+
+        public uint Type;
+        public uint? WeeklyQuantity;    // Currency count obtained this Week.  
     }
 }

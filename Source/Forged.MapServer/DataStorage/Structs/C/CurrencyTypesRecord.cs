@@ -7,25 +7,24 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class CurrencyTypesRecord
 {
-    public uint Id;
-    public string Name;
-    public string Description;
-    public int CategoryID;
-    public int InventoryIconFileID;
-    public uint SpellWeight;
-    public byte SpellCategory;
-    public uint MaxQty;
-    public uint MaxEarnablePerWeek;
-    public sbyte Quality;
-    public int FactionID;
-    public int ItemGroupSoundsID;
-    public int XpQuestDifficulty;
     public int AwardConditionID;
+    public int CategoryID;
+    public string Description;
+    public int FactionID;
+    public int[] Flags = new int[2];
+    public uint Id;
+    public int InventoryIconFileID;
+    public int ItemGroupSoundsID;
+    public uint MaxEarnablePerWeek;
+    public uint MaxQty;
     public int MaxQtyWorldStateID;
+    public string Name;
+    public sbyte Quality;
     public uint RechargingAmountPerCycle;
     public uint RechargingCycleDurationMS;
-    public int[] Flags = new int[2];
-
+    public byte SpellCategory;
+    public uint SpellWeight;
+    public int XpQuestDifficulty;
     public CurrencyTypesFlags GetFlags()
     {
         return (CurrencyTypesFlags)Flags[0];

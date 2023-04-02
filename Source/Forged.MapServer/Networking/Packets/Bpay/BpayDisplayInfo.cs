@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BpayDisplayInfo
 {
-    public uint Entry { get; set; }
     public uint CreatureDisplayID { get; set; }
-    public uint VisualID { get; set; }
+    public uint Entry { get; set; }
+    public uint Flags { get; set; }
     public string Name1 { get; set; } = "";
     public string Name2 { get; set; } = "";
     public string Name3 { get; set; } = "";
@@ -17,14 +17,15 @@ public class BpayDisplayInfo
     public string Name5 { get; set; } = "";
     public string Name6 { get; set; } = "";
     public string Name7 { get; set; } = "";
-    public uint Flags { get; set; }
     public uint Unk1 { get; set; }
     public uint Unk2 { get; set; }
-    public uint Unk3 { get; set; } // UiTextureAtlasMemberID
+    public uint Unk3 { get; set; }
+    // UiTextureAtlasMemberID
     public uint UnkInt1 { get; set; }
+
     public uint UnkInt2 { get; set; }
     public uint UnkInt3 { get; set; }
-
+    public uint VisualID { get; set; }
     public List<BpayVisual> Visuals { get; set; } = new();
 
     public void Write(WorldPacket _worldPacket)

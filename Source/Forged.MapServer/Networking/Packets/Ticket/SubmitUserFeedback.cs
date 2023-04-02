@@ -6,9 +6,8 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 public class SubmitUserFeedback : ClientPacket
 {
     public SupportTicketHeader Header;
-    public string Note;
     public bool IsSuggestion;
-
+    public string Note;
     public SubmitUserFeedback(WorldPacket packet) : base(packet) { }
 
     public override void Read()

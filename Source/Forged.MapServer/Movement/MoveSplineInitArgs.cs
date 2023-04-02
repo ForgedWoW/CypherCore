@@ -12,22 +12,21 @@ namespace Forged.MapServer.Movement;
 
 public class MoveSplineInitArgs
 {
-    public List<Vector3> path = new();
+    public AnimTierTransition animTier;
     public FacingInfo facing = new();
     public MoveSplineFlag flags = new();
-    public int path_Idx_offset;
-    public float velocity;
-    public float parabolic_amplitude;
-    public float vertical_acceleration;
-    public float time_perc;
-    public uint splineId;
-    public float initialOrientation;
-    public SpellEffectExtraData spellEffectExtra;
-    public AnimTierTransition animTier;
-    public bool walk;
     public bool HasVelocity;
+    public float initialOrientation;
+    public float parabolic_amplitude;
+    public List<Vector3> path = new();
+    public int path_Idx_offset;
+    public SpellEffectExtraData spellEffectExtra;
+    public uint splineId;
+    public float time_perc;
     public bool TransformForTransport;
-
+    public float velocity;
+    public float vertical_acceleration;
+    public bool walk;
     public MoveSplineInitArgs(int path_capacity = 16)
     {
         path_Idx_offset = 0;
@@ -101,14 +100,14 @@ public class MoveSplineInitArgs
 
 public class SpellEffectExtraData
 {
-    public ObjectGuid Target;
-    public uint SpellVisualId;
-    public uint ProgressCurveId;
     public uint ParabolicCurveId;
+    public uint ProgressCurveId;
+    public uint SpellVisualId;
+    public ObjectGuid Target;
 }
 
 public class AnimTierTransition
 {
-    public uint TierTransitionId;
     public byte AnimTier;
+    public uint TierTransitionId;
 }

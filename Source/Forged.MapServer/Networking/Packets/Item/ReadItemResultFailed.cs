@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ReadItemResultFailed : ServerPacket
 {
+    public uint Delay;
     public ObjectGuid Item;
     public byte Subcode;
-    public uint Delay;
     public ReadItemResultFailed() : base(ServerOpcodes.ReadItemResultFailed) { }
 
     public override void Write()

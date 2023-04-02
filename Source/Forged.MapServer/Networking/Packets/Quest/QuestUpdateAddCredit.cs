@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestUpdateAddCredit : ServerPacket
 {
-    public ObjectGuid VictimGUID;
-    public int ObjectID;
-    public uint QuestID;
     public ushort Count;
-    public ushort Required;
+    public int ObjectID;
     public byte ObjectiveType;
+    public uint QuestID;
+    public ushort Required;
+    public ObjectGuid VictimGUID;
     public QuestUpdateAddCredit() : base(ServerOpcodes.QuestUpdateAddCredit, ConnectionType.Instance) { }
 
     public override void Write()

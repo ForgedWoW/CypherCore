@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class RoleChangedInform : ServerPacket
 {
-    public sbyte PartyIndex;
-    public ObjectGuid From;
     public ObjectGuid ChangedUnit;
-    public int OldRole;
+    public ObjectGuid From;
     public int NewRole;
+    public int OldRole;
+    public sbyte PartyIndex;
     public RoleChangedInform() : base(ServerOpcodes.RoleChangedInform) { }
 
     public override void Write()

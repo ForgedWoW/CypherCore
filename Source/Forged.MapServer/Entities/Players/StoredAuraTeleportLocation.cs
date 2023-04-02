@@ -14,6 +14,6 @@ internal class StoredAuraTeleportLocation
         Deleted
     }
 
-    public WorldLocation Loc { get; set; }
     public State CurrentState { get; set; }
+    public WorldLocation Loc { get; set; }
 }

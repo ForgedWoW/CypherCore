@@ -14,11 +14,9 @@ namespace Forged.MapServer.Entities.AreaTriggers;
 //  5 is packed curve information (has_no_data & 1) | ((interpolation_mode & 0x7) << 1) | ((first_point_offset & 0x7FFFFF) << 4) | ((point_count & 0x1F) << 27)
 public class AreaTriggerTemplate
 {
-    public AreaTriggerId Id;
-    public AreaTriggerFlags Flags;
-
     public List<AreaTriggerAction> Actions = new();
-
+    public AreaTriggerFlags Flags;
+    public AreaTriggerId Id;
     public bool HasFlag(AreaTriggerFlags flag)
     {
         return Flags.HasAnyFlag(flag);

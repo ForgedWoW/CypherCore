@@ -9,14 +9,25 @@ namespace Forged.MapServer.Entities.Objects.Update;
 public class SkillInfo : BaseUpdateData<Player>
 {
     public UpdateFieldArray<ushort> SkillLineID = new(256, 0, 1);
-    public UpdateFieldArray<ushort> SkillStep = new(256, 0, 257);
+    public UpdateFieldArray<ushort> SkillMaxRank = new(256, 0, 1025);
+    public UpdateFieldArray<ushort> SkillPermBonus = new(256, 0, 1537);
     public UpdateFieldArray<ushort> SkillRank = new(256, 0, 513);
     public UpdateFieldArray<ushort> SkillStartingRank = new(256, 0, 769);
-    public UpdateFieldArray<ushort> SkillMaxRank = new(256, 0, 1025);
+    public UpdateFieldArray<ushort> SkillStep = new(256, 0, 257);
     public UpdateFieldArray<ushort> SkillTempBonus = new(256, 0, 1281);
-    public UpdateFieldArray<ushort> SkillPermBonus = new(256, 0, 1537);
-
     public SkillInfo() : base(1793) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(SkillLineID);
+        ClearChangesMask(SkillStep);
+        ClearChangesMask(SkillRank);
+        ClearChangesMask(SkillStartingRank);
+        ClearChangesMask(SkillMaxRank);
+        ClearChangesMask(SkillTempBonus);
+        ClearChangesMask(SkillPermBonus);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
@@ -74,17 +85,5 @@ public class SkillInfo : BaseUpdateData<Player>
                 if (changesMask[1537 + i])
                     data.WriteUInt16(SkillPermBonus[i]);
             }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(SkillLineID);
-        ClearChangesMask(SkillStep);
-        ClearChangesMask(SkillRank);
-        ClearChangesMask(SkillStartingRank);
-        ClearChangesMask(SkillMaxRank);
-        ClearChangesMask(SkillTempBonus);
-        ClearChangesMask(SkillPermBonus);
-        ChangesMask.ResetAll();
     }
 }

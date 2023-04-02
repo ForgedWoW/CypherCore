@@ -8,6 +8,14 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public struct BattlegroundPlayerPosition
 {
+    public sbyte ArenaSlot;
+
+    public ObjectGuid Guid;
+
+    public sbyte IconID;
+
+    public Vector2 Pos;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(Guid);
@@ -15,9 +23,4 @@ public struct BattlegroundPlayerPosition
         data.WriteInt8(IconID);
         data.WriteInt8(ArenaSlot);
     }
-
-    public ObjectGuid Guid;
-    public Vector2 Pos;
-    public sbyte IconID;
-    public sbyte ArenaSlot;
 }

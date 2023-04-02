@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankLogEntry
 {
+    public int? Count;
+    public sbyte EntryType;
+    public int? ItemID;
+    public ulong? Money;
+    public sbyte? OtherTab;
     public ObjectGuid PlayerGUID;
     public uint TimeOffset;
-    public sbyte EntryType;
-    public ulong? Money;
-    public int? ItemID;
-    public int? Count;
-    public sbyte? OtherTab;
 }

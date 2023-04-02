@@ -9,19 +9,19 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class AuraDataInfo
 {
+    public HashSet<int> ActiveFlags;
+    public byte Applications = 1;
     public ObjectGuid CastID;
+    public ushort CastLevel = 1;
+    public ObjectGuid? CastUnit;
+    public int ContentTuningID;
+    public int? Duration;
+    public List<double> EstimatedPoints = new();
+    public AuraFlags Flags;
+    public List<double> Points = new();
+    public int? Remaining;
     public int SpellID;
     public SpellCastVisual Visual;
-    public AuraFlags Flags;
-    public HashSet<int> ActiveFlags;
-    public ushort CastLevel = 1;
-    public byte Applications = 1;
-    public int ContentTuningID;
-    public ObjectGuid? CastUnit;
-    public int? Duration;
-    public int? Remaining;
-    public List<double> Points = new();
-    public List<double> EstimatedPoints = new();
     private readonly ContentTuningParams _contentTuning;
     private readonly float? _timeMod;
 

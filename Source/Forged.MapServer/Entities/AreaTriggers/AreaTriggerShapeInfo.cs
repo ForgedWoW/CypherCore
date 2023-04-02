@@ -34,19 +34,14 @@ public class AreaTriggerShapeInfo : AreaTriggerData
         return 0.0f;
     }
 
-    public bool IsSphere()
+    public bool IsBoudedPlane()
     {
-        return TriggerType == AreaTriggerTypes.Sphere;
+        return TriggerType == AreaTriggerTypes.BoundedPlane;
     }
 
     public bool IsBox()
     {
         return TriggerType == AreaTriggerTypes.Box;
-    }
-
-    public bool IsPolygon()
-    {
-        return TriggerType == AreaTriggerTypes.Polygon;
     }
 
     public bool IsCylinder()
@@ -59,8 +54,13 @@ public class AreaTriggerShapeInfo : AreaTriggerData
         return TriggerType == AreaTriggerTypes.Disk;
     }
 
-    public bool IsBoudedPlane()
+    public bool IsPolygon()
     {
-        return TriggerType == AreaTriggerTypes.BoundedPlane;
+        return TriggerType == AreaTriggerTypes.Polygon;
+    }
+
+    public bool IsSphere()
+    {
+        return TriggerType == AreaTriggerTypes.Sphere;
     }
 }

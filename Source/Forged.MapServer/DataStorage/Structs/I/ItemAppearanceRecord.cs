@@ -5,10 +5,10 @@ namespace Forged.MapServer.DataStorage.Structs.I;
 
 public sealed class ItemAppearanceRecord
 {
-    public uint Id;
-    public int DisplayType;
-    public uint ItemDisplayInfoID;
     public int DefaultIconFileDataID;
-    public int UiOrder;
+    public int DisplayType;
+    public uint Id;
+    public uint ItemDisplayInfoID;
     public int PlayerConditionID;
+    public int UiOrder;
 }

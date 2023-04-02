@@ -42,12 +42,12 @@ internal class BattlefieldWG : BattleField
         m_IsEnabled = GetDefaultValue("Wintergrasp.Enable", false);
         m_MinPlayer = GetDefaultValue("Wintergrasp.PlayerMin", 0);
         m_MinLevel = GetDefaultValue("Wintergrasp.PlayerMinLvl", 77);
-        m_BattleTime = GetDefaultValue("Wintergrasp.BattleTimer", 30) * Time.Minute * Time.InMilliseconds;
-        m_NoWarBattleTime = GetDefaultValue("Wintergrasp.NoBattleTimer", 150) * Time.Minute * Time.InMilliseconds;
-        m_RestartAfterCrash = GetDefaultValue("Wintergrasp.CrashRestartTimer", 10) * Time.Minute * Time.InMilliseconds;
+        m_BattleTime = GetDefaultValue("Wintergrasp.BattleTimer", 30) * Time.MINUTE * Time.IN_MILLISECONDS;
+        m_NoWarBattleTime = GetDefaultValue("Wintergrasp.NoBattleTimer", 150) * Time.MINUTE * Time.IN_MILLISECONDS;
+        m_RestartAfterCrash = GetDefaultValue("Wintergrasp.CrashRestartTimer", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
 
         m_TimeForAcceptInvite = 20;
-        m_StartGroupingTimer = 15 * Time.Minute * Time.InMilliseconds;
+        m_StartGroupingTimer = 15 * Time.MINUTE * Time.IN_MILLISECONDS;
         _tenacityTeam = TeamIds.Neutral;
 
         KickPosition = new WorldLocation(m_MapId, 5728.117f, 2714.346f, 697.733f, 0);
@@ -66,7 +66,7 @@ internal class BattlefieldWG : BattleField
         {
             Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgShowTimeNextBattle, 0, false, m_Map);
             Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgDefender, RandomHelper.IRand(0, 1), false, m_Map);
-            Global.WorldStateMgr.SetValueAndSaveInDb(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_NoWarBattleTime / Time.InMilliseconds), false, m_Map);
+            Global.WorldStateMgr.SetValueAndSaveInDb(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_NoWarBattleTime / Time.IN_MILLISECONDS), false, m_Map);
         }
 
         m_isActive = Global.WorldStateMgr.GetValue(WorldStates.BattlefieldWgShowTimeNextBattle, m_Map) == 0;
@@ -81,7 +81,7 @@ internal class BattlefieldWG : BattleField
         }
 
         Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgAttacker, (int)GetAttackerTeam(), false, m_Map);
-        Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[1], (int)(GameTime.GetGameTime() + m_Timer / Time.InMilliseconds), false, m_Map);
+        Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[1], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
 
         foreach (var gy in WGConst.WGGraveYard)
         {
@@ -192,7 +192,7 @@ internal class BattlefieldWG : BattleField
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgDefender, (int)GetDefenderTeam(), false, m_Map);
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgShowTimeNextBattle, 0, false, m_Map);
         Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgShowTimeBattleEnd, 1, false, m_Map);
-        Global.WorldStateMgr.SetValueAndSaveInDb(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_Timer / Time.InMilliseconds), false, m_Map);
+        Global.WorldStateMgr.SetValueAndSaveInDb(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
 
         // Update tower visibility and update faction
         foreach (var guid in CanonList)
@@ -298,7 +298,7 @@ internal class BattlefieldWG : BattleField
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgDefender, (int)GetDefenderTeam(), false, m_Map);
         Global.WorldStateMgr.SetValueAndSaveInDb(WorldStates.BattlefieldWgShowTimeNextBattle, 1, false, m_Map);
         Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgShowTimeBattleEnd, 0, false, m_Map);
-        Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[1], (int)(GameTime.GetGameTime() + m_Timer / Time.InMilliseconds), false, m_Map);
+        Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[1], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
 
         // Remove turret
         foreach (var guid in CanonList)
@@ -747,7 +747,7 @@ internal class BattlefieldWG : BattleField
                 else
                     m_Timer -= 600000;
 
-                Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_Timer / Time.InMilliseconds), false, m_Map);
+                Global.WorldStateMgr.SetValue(WGConst.ClockWorldState[0], (int)(GameTime.GetGameTime() + m_Timer / Time.IN_MILLISECONDS), false, m_Map);
             }
         }
         else // Keep tower
@@ -1560,7 +1560,7 @@ internal class BfWGGameObjectBuilding
             var obj = _wg.GetGameObject(guid);
 
             if (obj)
-                obj.SetRespawnTime(Time.Day);
+                obj.SetRespawnTime(Time.DAY);
         }
 
         foreach (var guid in _GameObjectList[_wg.GetAttackerTeam()])

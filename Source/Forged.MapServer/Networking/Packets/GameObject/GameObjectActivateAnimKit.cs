@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectActivateAnimKit : ServerPacket
 {
-    public ObjectGuid ObjectGUID;
     public int AnimKitID;
     public bool Maintain;
+    public ObjectGuid ObjectGUID;
     public GameObjectActivateAnimKit() : base(ServerOpcodes.GameObjectActivateAnimKit, ConnectionType.Instance) { }
 
     public override void Write()

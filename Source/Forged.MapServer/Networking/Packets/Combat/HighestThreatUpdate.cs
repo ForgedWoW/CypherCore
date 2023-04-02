@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class HighestThreatUpdate : ServerPacket
 {
-    public ObjectGuid UnitGUID;
-    public List<ThreatInfo> ThreatList = new();
     public ObjectGuid HighestThreatGUID;
+    public List<ThreatInfo> ThreatList = new();
+    public ObjectGuid UnitGUID;
     public HighestThreatUpdate() : base(ServerOpcodes.HighestThreatUpdate, ConnectionType.Instance) { }
 
     public override void Write()

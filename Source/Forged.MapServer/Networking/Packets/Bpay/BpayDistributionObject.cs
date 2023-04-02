@@ -8,16 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BpayDistributionObject
 {
-    public BpayProduct Product { get; set; }
-    public ObjectGuid TargetPlayer { get; set; } = new();
     public ulong DistributionID { get; set; } = 0;
-    public ulong PurchaseID { get; set; } = 0;
-    public uint Status { get; set; } = 0;
+    public BpayProduct Product { get; set; }
     public uint ProductID { get; set; } = 0;
-    public uint TargetVirtualRealm { get; set; } = 0;
-    public uint TargetNativeRealm { get; set; } = 0;
+    public ulong PurchaseID { get; set; } = 0;
     public bool Revoked { get; set; } = false;
-
+    public uint Status { get; set; } = 0;
+    public uint TargetNativeRealm { get; set; } = 0;
+    public ObjectGuid TargetPlayer { get; set; } = new();
+    public uint TargetVirtualRealm { get; set; } = 0;
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(DistributionID);

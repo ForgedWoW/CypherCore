@@ -9,19 +9,17 @@ namespace Forged.MapServer.Maps;
 public class PositionFullTerrainStatus
 {
     public uint AreaId { get; set; }
-    public float FloorZ { get; set; }
-    public bool Outdoors { get; set; } = true;
-    public ZLiquidStatus LiquidStatus { get; set; }
     public AreaInfoModel? AreaInfo { get; set; }
+    public float FloorZ { get; set; }
     public LiquidData LiquidInfo { get; set; }
-
+    public ZLiquidStatus LiquidStatus { get; set; }
+    public bool Outdoors { get; set; } = true;
     public struct AreaInfoModel
     {
         public int AdtId;
-        public int RootId;
         public int GroupId;
         public uint MogpFlags;
-
+        public int RootId;
         public AreaInfoModel(int adtId, int rootId, int groupId, uint flags)
         {
             AdtId = adtId;

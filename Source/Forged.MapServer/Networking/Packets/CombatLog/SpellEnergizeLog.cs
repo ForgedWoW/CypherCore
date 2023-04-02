@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellEnergizeLog : CombatLogServerPacket
 {
-    public ObjectGuid TargetGUID;
-    public ObjectGuid CasterGUID;
-    public uint SpellID;
-    public PowerType Type;
     public int Amount;
+    public ObjectGuid CasterGUID;
     public int OverEnergize;
+    public uint SpellID;
+    public ObjectGuid TargetGUID;
+    public PowerType Type;
     public SpellEnergizeLog() : base(ServerOpcodes.SpellEnergizeLog, ConnectionType.Instance) { }
 
     public override void Write()

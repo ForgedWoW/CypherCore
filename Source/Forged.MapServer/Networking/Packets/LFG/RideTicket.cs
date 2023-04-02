@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public class RideTicket
 {
-    public ObjectGuid RequesterGuid;
     public uint Id;
-    public RideType Type;
+    public ObjectGuid RequesterGuid;
     public long Time;
+    public RideType Type;
     public bool Unknown925;
 
     public void Read(WorldPacket data)

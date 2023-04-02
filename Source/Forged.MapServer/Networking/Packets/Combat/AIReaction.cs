@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class AIReaction : ServerPacket
 {
-    public ObjectGuid UnitGUID;
     public AiReaction Reaction;
+    public ObjectGuid UnitGUID;
     public AIReaction() : base(ServerOpcodes.AiReaction, ConnectionType.Instance) { }
 
     public override void Write()

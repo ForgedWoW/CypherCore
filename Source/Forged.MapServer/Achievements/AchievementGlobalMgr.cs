@@ -14,20 +14,19 @@ namespace Forged.MapServer.Achievements;
 
 public class AchievementGlobalMgr
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly CharacterDatabase _characterDatabase;
-    private readonly GameObjectManager _gameObjectManager;
-    private readonly CliDB _cliDB;
-
     // store achievements by referenced achievement id to speed up lookup
     private readonly MultiMap<uint, AchievementRecord> _achievementListByReferencedId = new();
 
+    private readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
+    private readonly Dictionary<uint, AchievementReward> _achievementRewards = new();
+    private readonly Dictionary<uint, uint> _achievementScripts = new();
     // store realm first achievements
     private readonly Dictionary<uint /*achievementId*/, DateTime /*completionTime*/> _allCompletedAchievements = new();
-    private readonly Dictionary<uint, AchievementReward> _achievementRewards = new();
-    private readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
-    private readonly Dictionary<uint, uint> _achievementScripts = new();
 
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CliDB _cliDB;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly WorldDatabase _worldDatabase;
     public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;
@@ -51,6 +50,11 @@ public class AchievementGlobalMgr
         return _achievementRewardLocales.LookupByKey(achievement.Id);
     }
 
+    public uint GetAchievementScriptId(uint achievementId)
+    {
+        return _achievementScripts.LookupByKey(achievementId);
+    }
+
     public bool IsRealmCompleted(AchievementRecord achievement)
     {
         var time = _allCompletedAchievements.LookupByKey(achievement.Id);
@@ -71,14 +75,6 @@ public class AchievementGlobalMgr
             return (DateTime.Now - time) > TimeSpan.FromMinutes(1);
 
         return true;
-    }
-
-    public void SetRealmCompleted(AchievementRecord achievement)
-    {
-        if (IsRealmCompleted(achievement))
-            return;
-
-        _allCompletedAchievements[achievement.Id] = DateTime.Now;
     }
 
     //==========================================================
@@ -191,6 +187,49 @@ public class AchievementGlobalMgr
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} realm first completed achievements in {1} ms.", _allCompletedAchievements.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    public void LoadRewardLocales()
+    {
+        var oldMSTime = Time.MSTime;
+
+        _achievementRewardLocales.Clear(); // need for reload case
+
+        //                                         0   1       2        3
+        var result = _worldDatabase.Query("SELECT ID, Locale, Subject, Body FROM achievement_reward_locale");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 achievement reward locale strings.  DB table `achievement_reward_locale` is empty.");
+
+            return;
+        }
+
+        do
+        {
+            var id = result.Read<uint>(0);
+            var localeName = result.Read<string>(1);
+
+            if (!_achievementRewards.ContainsKey(id))
+            {
+                Log.Logger.Error($"Table `achievement_reward_locale` (ID: {id}) contains locale strings for a non-existing achievement reward.");
+
+                continue;
+            }
+
+            AchievementRewardLocale data = new();
+            var locale = localeName.ToEnum<Locale>();
+
+            if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
+                continue;
+
+            GameObjectManager.AddLocaleString(result.Read<string>(2), locale, data.Subject);
+            GameObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
+
+            _achievementRewardLocales[id] = data;
+        } while (result.NextRow());
+
+        Log.Logger.Information("Loaded {0} achievement reward locale strings in {1} ms.", _achievementRewardLocales.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadRewards()
@@ -318,51 +357,11 @@ public class AchievementGlobalMgr
         Log.Logger.Information("Loaded {0} achievement rewards in {1} ms.", _achievementRewards.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    public void LoadRewardLocales()
+    public void SetRealmCompleted(AchievementRecord achievement)
     {
-        var oldMSTime = Time.MSTime;
-
-        _achievementRewardLocales.Clear(); // need for reload case
-
-        //                                         0   1       2        3
-        var result = _worldDatabase.Query("SELECT ID, Locale, Subject, Body FROM achievement_reward_locale");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 achievement reward locale strings.  DB table `achievement_reward_locale` is empty.");
-
+        if (IsRealmCompleted(achievement))
             return;
-        }
 
-        do
-        {
-            var id = result.Read<uint>(0);
-            var localeName = result.Read<string>(1);
-
-            if (!_achievementRewards.ContainsKey(id))
-            {
-                Log.Logger.Error($"Table `achievement_reward_locale` (ID: {id}) contains locale strings for a non-existing achievement reward.");
-
-                continue;
-            }
-
-            AchievementRewardLocale data = new();
-            var locale = localeName.ToEnum<Locale>();
-
-            if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
-                continue;
-
-            GameObjectManager.AddLocaleString(result.Read<string>(2), locale, data.Subject);
-            GameObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
-
-            _achievementRewardLocales[id] = data;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} achievement reward locale strings in {1} ms.", _achievementRewardLocales.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public uint GetAchievementScriptId(uint achievementId)
-    {
-        return _achievementScripts.LookupByKey(achievementId);
+        _allCompletedAchievements[achievement.Id] = DateTime.Now;
     }
 }

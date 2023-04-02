@@ -8,13 +8,12 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class AuctionListBucketsResult : ServerPacket
 {
+    public AuctionHouseBrowseMode BrowseMode;
     public List<BucketInfo> Buckets = new();
     public uint DesiredDelay;
+    public bool HasMoreResults;
     public int Unknown830_0;
     public int Unknown830_1;
-    public AuctionHouseBrowseMode BrowseMode;
-    public bool HasMoreResults;
-
     public AuctionListBucketsResult() : base(ServerOpcodes.AuctionListBucketsResult) { }
 
     public override void Write()

@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class MoveChangeVehicleSeats : ClientPacket
 {
+    public byte DstSeatIndex = 255;
     public ObjectGuid DstVehicle;
     public MovementInfo Status;
-    public byte DstSeatIndex = 255;
     public MoveChangeVehicleSeats(WorldPacket packet) : base(packet) { }
 
     public override void Read()

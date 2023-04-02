@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteStatusPacket : ServerPacket
 {
-    public CalendarFlags Flags;
-    public ulong EventID;
-    public CalendarInviteStatus Status;
     public bool ClearPending;
-    public long ResponseTime;
     public long Date;
+    public ulong EventID;
+    public CalendarFlags Flags;
     public ObjectGuid InviteGuid;
+    public long ResponseTime;
+    public CalendarInviteStatus Status;
     public CalendarInviteStatusPacket() : base(ServerOpcodes.CalendarInviteStatus) { }
 
     public override void Write()

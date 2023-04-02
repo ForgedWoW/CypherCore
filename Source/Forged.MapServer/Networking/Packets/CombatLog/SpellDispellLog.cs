@@ -9,12 +9,12 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellDispellLog : ServerPacket
 {
-    public List<SpellDispellData> DispellData = new();
     public ObjectGuid CasterGUID;
-    public ObjectGuid TargetGUID;
+    public List<SpellDispellData> DispellData = new();
     public uint DispelledBySpellID;
     public bool IsBreak;
     public bool IsSteal;
+    public ObjectGuid TargetGUID;
     public SpellDispellLog() : base(ServerOpcodes.SpellDispellLog, ConnectionType.Instance) { }
 
     public override void Write()

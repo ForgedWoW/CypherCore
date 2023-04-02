@@ -11,7 +11,7 @@ public struct GuildCriteriaProgress
     public long DateCreated;
     public long DateStarted;
     public long DateUpdated;
-    public ulong Quantity;
-    public ObjectGuid PlayerGUID;
     public int Flags;
+    public ObjectGuid PlayerGUID;
+    public ulong Quantity;
 }

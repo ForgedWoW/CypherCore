@@ -61,12 +61,12 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
                 var aur = caster.GetAura(DemonHunterSpells.METAMORPHOSIS_HAVOC);
 
                 if (aur != null)
-                    aur.ModDuration(8 * Time.InMilliseconds);
+                    aur.ModDuration(8 * Time.IN_MILLISECONDS);
                 else
                     aur = caster.AddAura(DemonHunterSpells.METAMORPHOSIS_HAVOC, caster);
 
                 if (aur != null)
-                    aur.SetDuration(10 * Time.InMilliseconds);
+                    aur.SetDuration(10 * Time.IN_MILLISECONDS);
             }
         }
     }

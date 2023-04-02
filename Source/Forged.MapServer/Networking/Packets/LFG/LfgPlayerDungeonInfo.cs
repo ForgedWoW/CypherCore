@@ -7,26 +7,25 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public class LfgPlayerDungeonInfo
 {
-    public uint Slot;
-    public int CompletionQuantity;
-    public int CompletionLimit;
-    public int CompletionCurrencyID;
-    public int SpecificQuantity;
-    public int SpecificLimit;
-    public int OverallQuantity;
-    public int OverallLimit;
-    public int PurseWeeklyQuantity;
-    public int PurseWeeklyLimit;
-    public int PurseQuantity;
-    public int PurseLimit;
-    public int Quantity;
     public uint CompletedMask;
+    public int CompletionCurrencyID;
+    public int CompletionLimit;
+    public int CompletionQuantity;
     public uint EncounterMask;
     public bool FirstReward;
-    public bool ShortageEligible;
+    public int OverallLimit;
+    public int OverallQuantity;
+    public int PurseLimit;
+    public int PurseQuantity;
+    public int PurseWeeklyLimit;
+    public int PurseWeeklyQuantity;
+    public int Quantity;
     public LfgPlayerQuestReward Rewards = new();
+    public bool ShortageEligible;
     public List<LfgPlayerQuestReward> ShortageReward = new();
-
+    public uint Slot;
+    public int SpecificLimit;
+    public int SpecificQuantity;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Slot);

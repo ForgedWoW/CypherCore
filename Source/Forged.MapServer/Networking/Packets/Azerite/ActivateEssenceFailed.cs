@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Azerite;
 
 internal class ActivateEssenceFailed : ServerPacket
 {
-    public AzeriteEssenceActivateResult Reason;
     public uint Arg;
     public uint AzeriteEssenceID;
+    public AzeriteEssenceActivateResult Reason;
     public byte? Slot;
     public ActivateEssenceFailed() : base(ServerOpcodes.ActivateEssenceFailed) { }
 

@@ -5,21 +5,21 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class SpellMiscRecord
 {
-    public uint Id;
+    public uint ActiveIconFileDataID;
+    public int ActiveSpellVisualScript;
     public int[] Attributes = new int[15];
-    public byte DifficultyID;
     public ushort CastingTimeIndex;
+    public uint ContentTuningID;
+    public byte DifficultyID;
     public ushort DurationIndex;
-    public ushort RangeIndex;
-    public byte SchoolMask;
-    public float Speed;
+    public uint Id;
     public float LaunchDelay;
     public float MinDuration;
-    public uint SpellIconFileDataID;
-    public uint ActiveIconFileDataID;
-    public uint ContentTuningID;
+    public ushort RangeIndex;
+    public byte SchoolMask;
     public int ShowFutureSpellPlayerConditionID;
-    public int SpellVisualScript;
-    public int ActiveSpellVisualScript;
+    public float Speed;
+    public uint SpellIconFileDataID;
     public uint SpellID;
+    public int SpellVisualScript;
 }

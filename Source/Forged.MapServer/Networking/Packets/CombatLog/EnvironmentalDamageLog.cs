@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class EnvironmentalDamageLog : CombatLogServerPacket
 {
-    public ObjectGuid Victim;
-    public EnviromentalDamage Type;
+    public int Absorbed;
     public int Amount;
     public int Resisted;
-    public int Absorbed;
+    public EnviromentalDamage Type;
+    public ObjectGuid Victim;
     public EnvironmentalDamageLog() : base(ServerOpcodes.EnvironmentalDamageLog) { }
 
     public override void Write()

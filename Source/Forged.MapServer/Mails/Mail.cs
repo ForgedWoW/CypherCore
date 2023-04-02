@@ -14,23 +14,22 @@ namespace Forged.MapServer.Mails;
 
 public class Mail
 {
+    public string body;
+    public MailCheckMask checkMask;
+    public ulong COD;
+    public long deliver_time;
+    public long expire_time;
+    public List<MailItemInfo> items = new();
+    public uint mailTemplateId;
     public ulong messageID;
     public MailMessageType messageType;
-    public MailStationery stationery;
-    public uint mailTemplateId;
-    public ulong sender;
-    public ulong receiver;
-    public string subject;
-    public string body;
-    public List<MailItemInfo> items = new();
-    public List<ulong> removedItems = new();
-    public long expire_time;
-    public long deliver_time;
     public ulong money;
-    public ulong COD;
-    public MailCheckMask checkMask;
+    public ulong receiver;
+    public List<ulong> removedItems = new();
+    public ulong sender;
     public MailState state;
-
+    public MailStationery stationery;
+    public string subject;
     public void AddItem(ulong itemGuidLow, uint item_template)
     {
         MailItemInfo mii = new()
@@ -40,6 +39,11 @@ public class Mail
         };
 
         items.Add(mii);
+    }
+
+    public bool HasItems()
+    {
+        return !items.Empty();
     }
 
     public bool RemoveItem(ulong itemGuid)
@@ -53,11 +57,6 @@ public class Mail
             }
 
         return false;
-    }
-
-    public bool HasItems()
-    {
-        return !items.Empty();
     }
 }
 

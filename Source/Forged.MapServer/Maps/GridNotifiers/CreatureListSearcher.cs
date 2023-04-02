@@ -13,12 +13,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 public class CreatureListSearcher : IGridNotifierCreature
 {
     internal PhaseShift _phaseShift;
-    private readonly List<Creature> _objects;
     private readonly ICheck<Creature> _check;
-
-    public GridType GridType { get; set; }
-
-
+    private readonly List<Creature> _objects;
     public CreatureListSearcher(WorldObject searcher, List<Creature> objects, ICheck<Creature> check, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -27,6 +23,7 @@ public class CreatureListSearcher : IGridNotifierCreature
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

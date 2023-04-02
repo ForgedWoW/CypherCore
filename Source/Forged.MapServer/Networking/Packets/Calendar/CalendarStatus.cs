@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarStatus : ClientPacket
 {
-    public ObjectGuid Guid;
     public ulong EventID;
-    public ulong ModeratorID;
+    public ObjectGuid Guid;
     public ulong InviteID;
+    public ulong ModeratorID;
     public byte Status;
     public CalendarStatus(WorldPacket packet) : base(packet) { }
 

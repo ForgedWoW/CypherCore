@@ -14,18 +14,13 @@ public class DynamicUpdateFieldSetter<T> : IUpdateField<T> where T : new()
         _index = index;
     }
 
-    public void SetValue(T value)
+    public T Value
     {
-        _dynamicUpdateField[_index] = value;
+        get => _dynamicUpdateField[_index];
+        set => _dynamicUpdateField[_index] = value;
     }
-
-    public T GetValue()
-    {
-        return _dynamicUpdateField[_index];
-    }
-
     public static implicit operator T(DynamicUpdateFieldSetter<T> dynamicUpdateFieldSetter)
     {
-        return dynamicUpdateFieldSetter.GetValue();
+        return dynamicUpdateFieldSetter.Value;
     }
 }

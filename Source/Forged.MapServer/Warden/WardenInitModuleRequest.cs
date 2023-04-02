@@ -8,33 +8,30 @@ namespace Forged.MapServer.Warden;
 
 internal class WardenInitModuleRequest
 {
-    public WardenOpcodes Command1;
-    public ushort Size1;
     public uint CheckSumm1;
-    public byte Unk1;
-    public byte Unk2;
-    public byte Type;
-    public byte String_library1;
-    public uint[] Function1 = new uint[4];
-
-    public WardenOpcodes Command2;
-    public ushort Size2;
     public uint CheckSumm2;
-    public byte Unk3;
-    public byte Unk4;
-    public byte String_library2;
+    public uint CheckSumm3;
+    public WardenOpcodes Command1;
+    public WardenOpcodes Command2;
+    public WardenOpcodes Command3;
+    public uint[] Function1 = new uint[4];
     public uint Function2;
     public byte Function2_set;
-
-    public WardenOpcodes Command3;
-    public ushort Size3;
-    public uint CheckSumm3;
-    public byte Unk5;
-    public byte Unk6;
-    public byte String_library3;
     public uint Function3;
     public byte Function3_set;
-
+    public ushort Size1;
+    public ushort Size2;
+    public ushort Size3;
+    public byte String_library1;
+    public byte String_library2;
+    public byte String_library3;
+    public byte Type;
+    public byte Unk1;
+    public byte Unk2;
+    public byte Unk3;
+    public byte Unk4;
+    public byte Unk5;
+    public byte Unk6;
     public static implicit operator byte[](WardenInitModuleRequest request)
     {
         var buffer = new ByteBuffer();

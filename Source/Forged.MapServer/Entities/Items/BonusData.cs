@@ -11,32 +11,32 @@ namespace Forged.MapServer.Entities.Items;
 
 public class BonusData
 {
-    public ItemQuality Quality;
-    public int ItemLevelBonus;
-    public int RequiredLevel;
-    public int[] ItemStatType = new int[ItemConst.MaxStats];
-    public int[] StatPercentEditor = new int[ItemConst.MaxStats];
-    public float[] ItemStatSocketCostMultiplier = new float[ItemConst.MaxStats];
-    public SocketColor[] socketColor = new SocketColor[ItemConst.MaxGemSockets];
-    public ItemBondingType Bonding;
     public uint AppearanceModID;
-    public float RepairCostMultiplier;
-    public uint ContentTuningId;
-    public uint PlayerLevelToItemLevelCurveId;
-    public uint DisenchantLootId;
-    public uint[] GemItemLevelBonus = new uint[ItemConst.MaxGemSockets];
-    public int[] GemRelicType = new int[ItemConst.MaxGemSockets];
-    public ushort[] GemRelicRankBonus = new ushort[ItemConst.MaxGemSockets];
-    public int RelicType;
-    public int RequiredLevelOverride;
     public uint AzeriteTierUnlockSetId;
-    public uint Suffix;
-    public uint RequiredLevelCurve;
-    public ItemEffectRecord[] Effects = new ItemEffectRecord[13];
-    public int EffectCount;
+    public ItemBondingType Bonding;
     public bool CanDisenchant;
     public bool CanScrap;
+    public uint ContentTuningId;
+    public uint DisenchantLootId;
+    public int EffectCount;
+    public ItemEffectRecord[] Effects = new ItemEffectRecord[13];
+    public uint[] GemItemLevelBonus = new uint[ItemConst.MaxGemSockets];
+    public ushort[] GemRelicRankBonus = new ushort[ItemConst.MaxGemSockets];
+    public int[] GemRelicType = new int[ItemConst.MaxGemSockets];
     public bool HasFixedLevel;
+    public int ItemLevelBonus;
+    public float[] ItemStatSocketCostMultiplier = new float[ItemConst.MaxStats];
+    public int[] ItemStatType = new int[ItemConst.MaxStats];
+    public uint PlayerLevelToItemLevelCurveId;
+    public ItemQuality Quality;
+    public int RelicType;
+    public float RepairCostMultiplier;
+    public int RequiredLevel;
+    public uint RequiredLevelCurve;
+    public int RequiredLevelOverride;
+    public SocketColor[] socketColor = new SocketColor[ItemConst.MaxGemSockets];
+    public int[] StatPercentEditor = new int[ItemConst.MaxStats];
+    public uint Suffix;
     private State _state;
 
     public BonusData(ItemTemplate proto)
@@ -105,15 +105,6 @@ public class BonusData
         if (itemInstance.ItemBonus != null)
             foreach (var bonusListID in itemInstance.ItemBonus.BonusListIDs)
                 AddBonusList(bonusListID);
-    }
-
-    public void AddBonusList(uint bonusListId)
-    {
-        var bonuses = Global.DB2Mgr.GetItemBonusList(bonusListId);
-
-        if (bonuses != null)
-            foreach (var bonus in bonuses)
-                AddBonus(bonus.BonusType, bonus.Value);
     }
 
     public void AddBonus(ItemBonusType type, int[] values)
@@ -249,13 +240,21 @@ public class BonusData
         }
     }
 
+    public void AddBonusList(uint bonusListId)
+    {
+        var bonuses = Global.DB2Mgr.GetItemBonusList(bonusListId);
+
+        if (bonuses != null)
+            foreach (var bonus in bonuses)
+                AddBonus(bonus.BonusType, bonus.Value);
+    }
     private struct State
     {
-        public int SuffixPriority;
         public int AppearanceModPriority;
-        public int ScalingStatDistributionPriority;
         public int AzeriteTierUnlockSetPriority;
-        public int RequiredLevelCurvePriority;
         public bool HasQualityBonus;
+        public int RequiredLevelCurvePriority;
+        public int ScalingStatDistributionPriority;
+        public int SuffixPriority;
     }
 }

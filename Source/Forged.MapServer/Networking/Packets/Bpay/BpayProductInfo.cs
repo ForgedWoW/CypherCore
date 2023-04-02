@@ -7,18 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BpayProductInfo
 {
-    public uint Entry { get; set; }
-    public uint ProductId { get; set; }
-    public ulong NormalPriceFixedPoint { get; set; }
+    public uint ChoiceType { get; set; }
     public ulong CurrentPriceFixedPoint { get; set; }
+    public BpayDisplayInfo Display { get; set; }
+    public uint Entry { get; set; }
+    public ulong NormalPriceFixedPoint { get; set; }
+    public uint ProductId { get; set; }
     public List<uint> ProductIds { get; set; } = new();
     public uint Unk1 { get; set; }
     public uint Unk2 { get; set; }
-    public List<uint> UnkInts { get; set; } = new();
     public uint Unk3 { get; set; }
-    public uint ChoiceType { get; set; }
-    public BpayDisplayInfo Display { get; set; }
-
+    public List<uint> UnkInts { get; set; } = new();
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(ProductId);

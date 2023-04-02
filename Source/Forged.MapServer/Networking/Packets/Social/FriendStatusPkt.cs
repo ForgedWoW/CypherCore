@@ -10,16 +10,16 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class FriendStatusPkt : ServerPacket
 {
-    public uint VirtualRealmAddress;
-    public string Notes;
-    public PlayerClass ClassID = PlayerClass.None;
-    public FriendStatus Status;
-    public ObjectGuid Guid;
-    public ObjectGuid WowAccountGuid;
-    public uint Level;
     public uint AreaID;
+    public PlayerClass ClassID = PlayerClass.None;
     public FriendsResult FriendResult;
+    public ObjectGuid Guid;
+    public uint Level;
     public bool Mobile;
+    public string Notes;
+    public FriendStatus Status;
+    public uint VirtualRealmAddress;
+    public ObjectGuid WowAccountGuid;
     public FriendStatusPkt() : base(ServerOpcodes.FriendStatus) { }
 
     public void Initialize(ObjectGuid guid, FriendsResult result, FriendInfo friendInfo)

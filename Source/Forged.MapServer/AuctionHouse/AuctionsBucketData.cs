@@ -11,24 +11,24 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionsBucketData
 {
-    public AuctionsBucketKey Key;
-
+    public List<AuctionPosting> Auctions = new();
+    public string[] FullName = new string[(int)Locale.Total];
+    public byte InventoryType;
     // filter helpers
     public byte ItemClass;
+
+    public (uint Id, uint Count)[] ItemModifiedAppearanceId = new (uint Id, uint Count)[4];
     public byte ItemSubClass;
-    public byte InventoryType;
-    public AuctionHouseFilterMask QualityMask;
+    public AuctionsBucketKey Key;
+    public byte MaxBattlePetLevel = 0;
+    public byte MinBattlePetLevel = 0;
+    public ulong MinPrice;
     public uint[] QualityCounts = new uint[(int)ItemQuality.Max];
-    public ulong MinPrice;                                                                  // for sort
-    public (uint Id, uint Count)[] ItemModifiedAppearanceId = new (uint Id, uint Count)[4]; // for uncollected search
+    public AuctionHouseFilterMask QualityMask;
+    // for sort
+    // for uncollected search
     public byte RequiredLevel = 0;                                                          // for usable search
     public byte SortLevel = 0;
-    public byte MinBattlePetLevel = 0;
-    public byte MaxBattlePetLevel = 0;
-    public string[] FullName = new string[(int)Locale.Total];
-
-    public List<AuctionPosting> Auctions = new();
-
     public void BuildBucketInfo(BucketInfo bucketInfo, Player player)
     {
         bucketInfo.Key = new AuctionBucketKey(Key);
@@ -73,9 +73,8 @@ public class AuctionsBucketData
     public class Sorter : IComparer<AuctionsBucketData>
     {
         private readonly Locale _locale;
-        private readonly AuctionSortDef[] _sorts;
         private readonly int _sortCount;
-
+        private readonly AuctionSortDef[] _sorts;
         public Sorter(Locale locale, AuctionSortDef[] sorts, int sortCount)
         {
             _locale = locale;

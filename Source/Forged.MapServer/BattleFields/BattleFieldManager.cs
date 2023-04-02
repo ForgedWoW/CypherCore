@@ -23,31 +23,28 @@ public class BattleFieldManager
         0, 571, 732
     };
 
-    private static readonly uint[] BattlefieldIdToZoneId =
-    {
-        0, 4197, 5095
-    }; // imitate World_PVP_Area.db2
-
     private static readonly uint[] BattlefieldIdToScriptId =
     {
         0, 0, 0
     };
 
-    private readonly IConfiguration _configuration;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _objectManager;
-    private readonly ScriptManager _scriptManager;
-
-    // contains all initiated battlefield events
-    // used when initing / cleaning up
+    private static readonly uint[] BattlefieldIdToZoneId =
+        {
+        0, 4197, 5095
+    }; // imitate World_PVP_Area.db2
+       // contains all initiated battlefield events
+       // used when initing / cleaning up
     private readonly MultiMap<Map, BattleField> _battlefieldsByMap = new();
 
     // maps the zone ids to an battlefield event
     // used in player event handling
     private readonly Dictionary<(Map map, uint zoneId), BattleField> _battlefieldsByZone = new();
 
+    private readonly IConfiguration _configuration;
+    private readonly GameObjectManager _objectManager;
+    private readonly ScriptManager _scriptManager;
     private readonly LimitedThreadTaskManager _threadTaskManager;
-
+    private readonly WorldDatabase _worldDatabase;
     // update interval
     private uint _updateTimer;
 
@@ -60,30 +57,9 @@ public class BattleFieldManager
         _threadTaskManager = new LimitedThreadTaskManager(_configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
     }
 
-    public void InitBattlefield()
+    public void AddZone(uint zoneId, BattleField bf)
     {
-        var oldMSTime = Time.MSTime;
-
-        uint count = 0;
-        var result = _worldDatabase.Query("SELECT TypeId, ScriptName FROM battlefield_template");
-
-        if (!result.IsEmpty())
-            do
-            {
-                var typeId = (BattleFieldTypes)result.Read<byte>(0);
-
-                if (typeId >= BattleFieldTypes.Max)
-                {
-                    Log.Logger.Error($"BattlefieldMgr::InitBattlefield: Invalid TypeId value {typeId} in battlefield_template, skipped.");
-
-                    continue;
-                }
-
-                BattlefieldIdToScriptId[(int)typeId] = _objectManager.GetScriptId(result.Read<string>(1));
-                ++count;
-            } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+        _battlefieldsByZone[(bf.GetMap(), zoneId)] = bf;
     }
 
     public void CreateBattlefieldsForMap(Map map)
@@ -118,9 +94,29 @@ public class BattleFieldManager
         _battlefieldsByMap.Remove(map);
     }
 
-    public void AddZone(uint zoneId, BattleField bf)
+    public BattleField GetBattlefieldByBattleId(Map map, uint battleId)
     {
-        _battlefieldsByZone[(bf.GetMap(), zoneId)] = bf;
+        var battlefields = _battlefieldsByMap.LookupByKey(map);
+
+        foreach (var battlefield in battlefields)
+            if (battlefield.GetBattleId() == battleId)
+                return battlefield;
+
+        return null;
+    }
+
+    public BattleField GetBattlefieldToZoneId(Map map, uint zoneId)
+    {
+        var bf = _battlefieldsByZone.LookupByKey((map, zoneId));
+
+        if (bf == null)
+            // no handle for this zone, return
+            return null;
+
+        if (!bf.IsEnabled())
+            return null;
+
+        return bf;
     }
 
     public void HandlePlayerEnterZone(Player player, uint zoneId)
@@ -152,36 +148,35 @@ public class BattleFieldManager
         Log.Logger.Debug("Player {0} left battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
     }
 
+    public void InitBattlefield()
+    {
+        var oldMSTime = Time.MSTime;
+
+        uint count = 0;
+        var result = _worldDatabase.Query("SELECT TypeId, ScriptName FROM battlefield_template");
+
+        if (!result.IsEmpty())
+            do
+            {
+                var typeId = (BattleFieldTypes)result.Read<byte>(0);
+
+                if (typeId >= BattleFieldTypes.Max)
+                {
+                    Log.Logger.Error($"BattlefieldMgr::InitBattlefield: Invalid TypeId value {typeId} in battlefield_template, skipped.");
+
+                    continue;
+                }
+
+                BattlefieldIdToScriptId[(int)typeId] = _objectManager.GetScriptId(result.Read<string>(1));
+                ++count;
+            } while (result.NextRow());
+
+        Log.Logger.Information($"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+    }
     public bool IsWorldPvpArea(uint zoneId)
     {
         return BattlefieldIdToZoneId.Contains(zoneId);
     }
-
-    public BattleField GetBattlefieldToZoneId(Map map, uint zoneId)
-    {
-        var bf = _battlefieldsByZone.LookupByKey((map, zoneId));
-
-        if (bf == null)
-            // no handle for this zone, return
-            return null;
-
-        if (!bf.IsEnabled())
-            return null;
-
-        return bf;
-    }
-
-    public BattleField GetBattlefieldByBattleId(Map map, uint battleId)
-    {
-        var battlefields = _battlefieldsByMap.LookupByKey(map);
-
-        foreach (var battlefield in battlefields)
-            if (battlefield.GetBattleId() == battleId)
-                return battlefield;
-
-        return null;
-    }
-
     public void Update(uint diff)
     {
         _updateTimer += diff;

@@ -18,68 +18,32 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("mmap")]
 internal class MMapsCommands
 {
-    [Command("path", RBACPermissions.CommandMmapPath)]
-    private static bool HandleMmapPathCommand(CommandHandler handler, StringArguments args)
+    [Command("loadedtiles", RBACPermissions.CommandMmapLoadedtiles)]
+    private static bool HandleMmapLoadedTilesCommand(CommandHandler handler)
     {
-        if (Global.MMapMgr.GetNavMesh(handler.Player.Location.MapId) == null)
+        var player = handler.Session.Player;
+        var terrainMapId = PhasingHandler.GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
+        var navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
+        var navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, handler.Player.InstanceId);
+
+        if (navmesh == null || navmeshquery == null)
         {
             handler.SendSysMessage("NavMesh not loaded for current map.");
 
             return true;
         }
 
-        handler.SendSysMessage("mmap path:");
+        handler.SendSysMessage("mmap loadedtiles:");
 
-        // units
-        var player = handler.Player;
-        var target = handler.SelectedUnit;
-
-        if (player == null || target == null)
+        for (var i = 0; i < navmesh.getMaxTiles(); ++i)
         {
-            handler.SendSysMessage("Invalid target/source selection.");
+            var tile = navmesh.getTile(i);
 
-            return true;
+            if (tile.header == null)
+                continue;
+
+            handler.SendSysMessage("[{0:D2}, {1:D2}]", tile.header.x, tile.header.y);
         }
-
-        var para = args.NextString();
-
-        var useStraightPath = false;
-
-        if (para.Equals("true", StringComparison.OrdinalIgnoreCase))
-            useStraightPath = true;
-
-        var useRaycast = false;
-
-        if (para.Equals("line", StringComparison.OrdinalIgnoreCase) || para.Equals("ray", StringComparison.OrdinalIgnoreCase) || para.Equals("raycast", StringComparison.OrdinalIgnoreCase))
-            useRaycast = true;
-
-        // unit locations
-        var pos = player.Location.Copy();
-
-        // path
-        PathGenerator path = new(target);
-        path.SetUseStraightPath(useStraightPath);
-        path.SetUseRaycast(useRaycast);
-        var result = path.CalculatePath(pos);
-
-        var pointPath = path.GetPath();
-        handler.SendSysMessage("{0}'s path to {1}:", target.GetName(), player.GetName());
-        handler.SendSysMessage("Building: {0}", useStraightPath ? "StraightPath" : useRaycast ? "Raycast" : "SmoothPath");
-        handler.SendSysMessage("Result: {0} - Length: {1} - Type: {2}", (result ? "true" : "false"), pointPath.Length, path.GetPathType());
-
-        var start = path.GetStartPosition();
-        var end = path.GetEndPosition();
-        var actualEnd = path.GetActualEndPosition();
-
-        handler.SendSysMessage("StartPosition     ({0:F3}, {1:F3}, {2:F3})", start.X, start.Y, start.Z);
-        handler.SendSysMessage("EndPosition       ({0:F3}, {1:F3}, {2:F3})", end.X, end.Y, end.Z);
-        handler.SendSysMessage("ActualEndPosition ({0:F3}, {1:F3}, {2:F3})", actualEnd.X, actualEnd.Y, actualEnd.Z);
-
-        if (!player.IsGameMaster)
-            handler.SendSysMessage("Enable GM mode to see the path points.");
-
-        for (uint i = 0; i < pointPath.Length; ++i)
-            player.SummonCreature(1, new Position(pointPath[i].X, pointPath[i].Y, pointPath[i].Z), TempSummonType.TimedDespawn, TimeSpan.FromSeconds(9));
 
         return true;
     }
@@ -163,36 +127,71 @@ internal class MMapsCommands
         return true;
     }
 
-    [Command("loadedtiles", RBACPermissions.CommandMmapLoadedtiles)]
-    private static bool HandleMmapLoadedTilesCommand(CommandHandler handler)
+    [Command("path", RBACPermissions.CommandMmapPath)]
+    private static bool HandleMmapPathCommand(CommandHandler handler, StringArguments args)
     {
-        var player = handler.Session.Player;
-        var terrainMapId = PhasingHandler.GetTerrainMapId(player.Location.PhaseShift, player.Location.MapId, player.Location.Map.Terrain, player.Location.X, player.Location.Y);
-        var navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
-        var navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, handler.Player.InstanceId);
-
-        if (navmesh == null || navmeshquery == null)
+        if (Global.MMapMgr.GetNavMesh(handler.Player.Location.MapId) == null)
         {
             handler.SendSysMessage("NavMesh not loaded for current map.");
 
             return true;
         }
 
-        handler.SendSysMessage("mmap loadedtiles:");
+        handler.SendSysMessage("mmap path:");
 
-        for (var i = 0; i < navmesh.getMaxTiles(); ++i)
+        // units
+        var player = handler.Player;
+        var target = handler.SelectedUnit;
+
+        if (player == null || target == null)
         {
-            var tile = navmesh.getTile(i);
+            handler.SendSysMessage("Invalid target/source selection.");
 
-            if (tile.header == null)
-                continue;
-
-            handler.SendSysMessage("[{0:D2}, {1:D2}]", tile.header.x, tile.header.y);
+            return true;
         }
+
+        var para = args.NextString();
+
+        var useStraightPath = false;
+
+        if (para.Equals("true", StringComparison.OrdinalIgnoreCase))
+            useStraightPath = true;
+
+        var useRaycast = false;
+
+        if (para.Equals("line", StringComparison.OrdinalIgnoreCase) || para.Equals("ray", StringComparison.OrdinalIgnoreCase) || para.Equals("raycast", StringComparison.OrdinalIgnoreCase))
+            useRaycast = true;
+
+        // unit locations
+        var pos = player.Location.Copy();
+
+        // path
+        PathGenerator path = new(target);
+        path.SetUseStraightPath(useStraightPath);
+        path.SetUseRaycast(useRaycast);
+        var result = path.CalculatePath(pos);
+
+        var pointPath = path.GetPath();
+        handler.SendSysMessage("{0}'s path to {1}:", target.GetName(), player.GetName());
+        handler.SendSysMessage("Building: {0}", useStraightPath ? "StraightPath" : useRaycast ? "Raycast" : "SmoothPath");
+        handler.SendSysMessage("Result: {0} - Length: {1} - Type: {2}", (result ? "true" : "false"), pointPath.Length, path.GetPathType());
+
+        var start = path.GetStartPosition();
+        var end = path.GetEndPosition();
+        var actualEnd = path.GetActualEndPosition();
+
+        handler.SendSysMessage("StartPosition     ({0:F3}, {1:F3}, {2:F3})", start.X, start.Y, start.Z);
+        handler.SendSysMessage("EndPosition       ({0:F3}, {1:F3}, {2:F3})", end.X, end.Y, end.Z);
+        handler.SendSysMessage("ActualEndPosition ({0:F3}, {1:F3}, {2:F3})", actualEnd.X, actualEnd.Y, actualEnd.Z);
+
+        if (!player.IsGameMaster)
+            handler.SendSysMessage("Enable GM mode to see the path points.");
+
+        for (uint i = 0; i < pointPath.Length; ++i)
+            player.SummonCreature(1, new Position(pointPath[i].X, pointPath[i].Y, pointPath[i].Z), TempSummonType.TimedDespawn, TimeSpan.FromSeconds(9));
 
         return true;
     }
-
     [Command("stats", RBACPermissions.CommandMmapStats)]
     private static bool HandleMmapStatsCommand(CommandHandler handler)
     {

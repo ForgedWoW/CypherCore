@@ -5,14 +5,14 @@ namespace Forged.MapServer.DataStorage.Structs.E;
 
 public sealed class EmotesRecord
 {
-    public uint Id;
-    public long RaceMask;
-    public string EmoteSlashCommand;
     public int AnimId;
+    public int ClassMask;
     public uint EmoteFlags;
+    public string EmoteSlashCommand;
     public byte EmoteSpecProc;
     public uint EmoteSpecProcParam;
     public uint EventSoundID;
+    public uint Id;
+    public long RaceMask;
     public uint SpellVisualKitId;
-    public int ClassMask;
 }

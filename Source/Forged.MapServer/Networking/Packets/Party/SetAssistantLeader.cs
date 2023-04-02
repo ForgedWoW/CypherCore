@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SetAssistantLeader : ClientPacket
 {
-    public ObjectGuid Target;
-    public byte PartyIndex;
     public bool Apply;
+    public byte PartyIndex;
+    public ObjectGuid Target;
     public SetAssistantLeader(WorldPacket packet) : base(packet) { }
 
     public override void Read()

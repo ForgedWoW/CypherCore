@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveRemoveMovementForce : ServerPacket
 {
+    public ObjectGuid ID;
     public ObjectGuid MoverGUID;
     public int SequenceIndex;
-    public ObjectGuid ID;
     public MoveRemoveMovementForce() : base(ServerOpcodes.MoveRemoveMovementForce, ConnectionType.Instance) { }
 
     public override void Write()

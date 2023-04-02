@@ -5,10 +5,10 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarRemoveEvent : ClientPacket
 {
-    public ulong ModeratorID;
-    public ulong EventID;
     public ulong ClubID;
+    public ulong EventID;
     public uint Flags;
+    public ulong ModeratorID;
     public CalendarRemoveEvent(WorldPacket packet) : base(packet) { }
 
     public override void Read()

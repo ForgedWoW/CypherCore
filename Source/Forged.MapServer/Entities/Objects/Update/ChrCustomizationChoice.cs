@@ -9,9 +9,8 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ChrCustomizationChoice : IComparable<ChrCustomizationChoice>
 {
-    public uint ChrCustomizationOptionID;
     public uint ChrCustomizationChoiceID;
-
+    public uint ChrCustomizationOptionID;
     public int CompareTo(ChrCustomizationChoice other)
     {
         return ChrCustomizationOptionID.CompareTo(other.ChrCustomizationOptionID);

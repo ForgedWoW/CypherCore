@@ -9,22 +9,18 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyUpdate : ServerPacket
 {
-    public GroupFlags PartyFlags;
-    public byte PartyIndex;
-    public GroupType PartyType;
-
-    public ObjectGuid PartyGUID;
-    public ObjectGuid LeaderGUID;
+    public PartyDifficultySettings? DifficultySettings;
     public byte LeaderFactionGroup;
-
-    public int MyIndex;
-    public int SequenceNum;
-
-    public List<PartyPlayerInfo> PlayerList = new();
-
+    public ObjectGuid LeaderGUID;
     public PartyLFGInfo? LfgInfos;
     public PartyLootSettings? LootSettings;
-    public PartyDifficultySettings? DifficultySettings;
+    public int MyIndex;
+    public GroupFlags PartyFlags;
+    public ObjectGuid PartyGUID;
+    public byte PartyIndex;
+    public GroupType PartyType;
+    public List<PartyPlayerInfo> PlayerList = new();
+    public int SequenceNum;
     public PartyUpdate() : base(ServerOpcodes.PartyUpdate) { }
 
     public override void Write()

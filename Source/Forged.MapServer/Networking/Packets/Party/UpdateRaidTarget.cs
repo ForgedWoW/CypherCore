@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 internal class UpdateRaidTarget : ClientPacket
 {
     public sbyte PartyIndex;
-    public ObjectGuid Target;
     public sbyte Symbol;
+    public ObjectGuid Target;
     public UpdateRaidTarget(WorldPacket packet) : base(packet) { }
 
     public override void Read()

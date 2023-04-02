@@ -9,11 +9,10 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class TraitEntry : IEquatable<TraitEntry>
 {
-    public int TraitNodeID;
-    public int TraitNodeEntryID;
-    public int Rank;
     public int GrantedRanks;
-
+    public int Rank;
+    public int TraitNodeEntryID;
+    public int TraitNodeID;
     public bool Equals(TraitEntry right)
     {
         return TraitNodeID == right.TraitNodeID && TraitNodeEntryID == right.TraitNodeEntryID && Rank == right.Rank && GrantedRanks == right.GrantedRanks;

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -26,18 +25,55 @@ namespace Forged.MapServer.Entities;
 
 public class Pet : Guardian
 {
-    public new Dictionary<uint, PetSpell> Spells = new();
     public bool Removed;
-    private const int PetFocusRegenInterval = 4 * Time.InMilliseconds;
+    public new Dictionary<uint, PetSpell> Spells = new();
     private const int HappinessLevelSize = 333000;
+    private const int PetFocusRegenInterval = 4 * Time.IN_MILLISECONDS;
     private const float PetXPFactor = 0.05f;
     private readonly List<uint> _autospells = new();
 
-    private bool _loading;
-    private uint _focusRegenTimer;
-    private GroupUpdatePetFlags _mGroupUpdateMask;
-
     private DeclinedName _declinedname;
+    private uint _focusRegenTimer;
+    private bool _loading;
+    private GroupUpdatePetFlags _mGroupUpdateMask;
+    public Pet(Player owner, PetType type = PetType.Max) : base(null, owner, true)
+    {
+        PetType = type;
+        UnitTypeMask |= UnitTypeMask.Pet;
+
+        if (type == PetType.Hunter)
+            UnitTypeMask |= UnitTypeMask.HunterPet;
+
+        if (!UnitTypeMask.HasAnyFlag(UnitTypeMask.ControlableGuardian))
+        {
+            UnitTypeMask |= UnitTypeMask.ControlableGuardian;
+            InitCharmInfo();
+        }
+
+        SetName("Pet");
+        _focusRegenTimer = PetFocusRegenInterval;
+    }
+
+    public int Duration { get; private set; }
+
+    public GroupUpdatePetFlags GroupUpdateFlag
+    {
+        get => _mGroupUpdateMask;
+        set
+        {
+            if (OwningPlayer.Group)
+            {
+                _mGroupUpdateMask |= value;
+                OwningPlayer.SetGroupUpdateFlag(GroupUpdateFlags.Pet);
+            }
+        }
+    }
+
+    public bool IsControlled => PetType == PetType.Summon || PetType == PetType.Hunter;
+
+    public override bool IsLoading => _loading;
+
+    public bool IsTemporarySummoned => Duration > 0;
 
     public override float NativeObjectScale
     {
@@ -62,94 +98,43 @@ public class Pet : Guardian
             return base.NativeObjectScale;
         }
     }
-
-    public override bool IsLoading => _loading;
-
-    public override byte PetAutoSpellSize => (byte)_autospells.Count;
-
     public Player OwningPlayer => base.OwnerUnit.AsPlayer;
-
+    public override byte PetAutoSpellSize => (byte)_autospells.Count;
     public PetType PetType { get; set; }
-
-    public bool IsControlled => PetType == PetType.Summon || PetType == PetType.Hunter;
-
-    public bool IsTemporarySummoned => Duration > 0;
-
-    public int Duration { get; private set; }
-
     public ushort Specialization { get; private set; }
-
-    public GroupUpdatePetFlags GroupUpdateFlag
+    public static void DeleteFromDB(uint petNumber)
     {
-        get => _mGroupUpdateMask;
-        set
-        {
-            if (OwningPlayer.Group)
-            {
-                _mGroupUpdateMask |= value;
-                OwningPlayer.SetGroupUpdateFlag(GroupUpdateFlags.Pet);
-            }
-        }
-    }
+        SQLTransaction trans = new();
 
-    public Pet(Player owner, PetType type = PetType.Max) : base(null, owner, true)
-    {
-        PetType = type;
-        UnitTypeMask |= UnitTypeMask.Pet;
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_ID);
+        stmt.AddValue(0, petNumber);
+        trans.Append(stmt);
 
-        if (type == PetType.Hunter)
-            UnitTypeMask |= UnitTypeMask.HunterPet;
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
+        stmt.AddValue(0, petNumber);
+        trans.Append(stmt);
 
-        if (!UnitTypeMask.HasAnyFlag(UnitTypeMask.ControlableGuardian))
-        {
-            UnitTypeMask |= UnitTypeMask.ControlableGuardian;
-            InitCharmInfo();
-        }
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURA_EFFECTS);
+        stmt.AddValue(0, petNumber);
+        trans.Append(stmt);
 
-        SetName("Pet");
-        _focusRegenTimer = PetFocusRegenInterval;
-    }
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURAS);
+        stmt.AddValue(0, petNumber);
+        trans.Append(stmt);
 
-    public override void Dispose()
-    {
-        _declinedname = null;
-        base.Dispose();
-    }
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELLS);
+        stmt.AddValue(0, petNumber);
+        trans.Append(stmt);
 
-    public override void AddToWorld()
-    {
-        //- Register the pet for guid lookup
-        if (!Location.IsInWorld)
-        {
-            // Register the pet for guid lookup
-            base.AddToWorld();
-            InitializeAI();
-            var zoneScript = ZoneScript ?? Location.InstanceScript;
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_COOLDOWNS);
+        stmt.AddValue(0, petNumber);
+        trans.Append(stmt);
 
-            zoneScript?.OnCreatureCreate(this);
-        }
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_CHARGES);
+        stmt.AddValue(0, petNumber);
+        trans.Append(stmt);
 
-        // Prevent stuck pets when zoning. Pets default to "follow" when added to world
-        // so we'll reset flags and let the AI handle things
-        if (GetCharmInfo() != null && GetCharmInfo().HasCommandState(CommandStates.Follow))
-        {
-            GetCharmInfo().SetIsCommandAttack(false);
-            GetCharmInfo().SetIsCommandFollow(false);
-            GetCharmInfo().SetIsAtStay(false);
-            GetCharmInfo().SetIsFollowing(false);
-            GetCharmInfo().SetIsReturning(false);
-        }
-    }
-
-    public override void RemoveFromWorld()
-    {
-        // Remove the pet from the accessor
-        if (Location.IsInWorld)
-        {
-            // Don't call the function for Creature, normal mobs + totems go in a different storage
-            base.RemoveFromWorld();
-            Location.Map.ObjectsStore.TryRemove(GUID, out _);
-        }
+        DB.Characters.CommitTransaction(trans);
     }
 
     public static Tuple<PetStable.PetInfo, PetSaveMode> GetLoadPetInfo(PetStable stable, uint petEntry, uint petnumber, PetSaveMode? slot)
@@ -203,6 +188,296 @@ public class Pet : Guardian
         }
 
         return Tuple.Create<PetStable.PetInfo, PetSaveMode>(null, PetSaveMode.AsDeleted);
+    }
+
+    public override void AddToWorld()
+    {
+        //- Register the pet for guid lookup
+        if (!Location.IsInWorld)
+        {
+            // Register the pet for guid lookup
+            base.AddToWorld();
+            InitializeAI();
+            var zoneScript = ZoneScript ?? Location.InstanceScript;
+
+            zoneScript?.OnCreatureCreate(this);
+        }
+
+        // Prevent stuck pets when zoning. Pets default to "follow" when added to world
+        // so we'll reset flags and let the AI handle things
+        if (GetCharmInfo() != null && GetCharmInfo().HasCommandState(CommandStates.Follow))
+        {
+            GetCharmInfo().SetIsCommandAttack(false);
+            GetCharmInfo().SetIsCommandFollow(false);
+            GetCharmInfo().SetIsAtStay(false);
+            GetCharmInfo().SetIsFollowing(false);
+            GetCharmInfo().SetIsReturning(false);
+        }
+    }
+
+    public void CastPetAura(PetAura aura)
+    {
+        var auraId = aura.GetAura(Entry);
+
+        if (auraId == 0)
+            return;
+
+        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+
+        if (auraId == 35696) // Demonic Knowledge
+            args.AddSpellMod(SpellValueMod.BasePoint0, MathFunctions.CalculatePct(aura.GetDamage(), GetStat(Stats.Stamina) + GetStat(Stats.Intellect)));
+
+        CastSpell(this, auraId, args);
+    }
+
+    public bool Create(ulong guidlow, Map map, uint entry, uint petNumber)
+    {
+        Location.Map = map;
+        CheckAddToMap();
+
+        // TODO: counter should be constructed as (summon_count << 32) | petNumber
+        Create(ObjectGuid.Create(HighGuid.Pet, map.Id, entry, guidlow));
+
+        SpawnId = guidlow;
+        OriginalEntry = entry;
+
+        if (!InitEntry(entry))
+            return false;
+
+        // Force regen flag for player pets, just like we do for players themselves
+        SetUnitFlag2(UnitFlags2.RegeneratePower);
+        Sheath = SheathState.Melee;
+
+        GetThreatManager().Initialize();
+
+        return true;
+    }
+
+    public bool CreateBaseAtCreature(Creature creature)
+    {
+        if (!CreateBaseAtTamed(creature.Template, creature.Location.Map))
+            return false;
+
+        Location.Relocate(creature.Location);
+
+        if (!Location.IsPositionValid)
+        {
+            Log.Logger.Error("Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
+                             GUID.ToString(),
+                             Entry,
+                             Location.X,
+                             Location.Y);
+
+            return false;
+        }
+
+        var cinfo = Template;
+
+        if (cinfo == null)
+        {
+            Log.Logger.Error("CreateBaseAtCreature() failed, creatureInfo is missing!");
+
+            return false;
+        }
+
+        SetDisplayId(creature.DisplayId);
+        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
+
+        if (cFamily != null)
+            SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
+        else
+            SetName(creature.GetName(Global.WorldMgr.DefaultDbcLocale));
+
+        return true;
+    }
+
+    public bool CreateBaseAtCreatureInfo(CreatureTemplate cinfo, Unit owner)
+    {
+        if (!CreateBaseAtTamed(cinfo, owner.Location.Map))
+            return false;
+
+        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
+
+        if (cFamily != null)
+            SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
+
+        Location.Relocate(owner.Location);
+
+        return true;
+    }
+
+    public override void Dispose()
+    {
+        _declinedname = null;
+        base.Dispose();
+    }
+    public void FillPetInfo(PetStable.PetInfo petInfo)
+    {
+        petInfo.PetNumber = GetCharmInfo().GetPetNumber();
+        petInfo.CreatureId = Entry;
+        petInfo.DisplayId = NativeDisplayId;
+        petInfo.Level = (byte)Level;
+        petInfo.Experience = UnitData.PetExperience;
+        petInfo.ReactState = ReactState;
+        petInfo.Name = GetName();
+        petInfo.WasRenamed = !HasPetFlag(UnitPetFlags.CanBeRenamed);
+        petInfo.Health = (uint)Health;
+        petInfo.Mana = (uint)GetPower(PowerType.Mana);
+        petInfo.ActionBar = GenerateActionBarData();
+        petInfo.LastSaveTime = (uint)GameTime.CurrentTime;
+        petInfo.CreatedBySpellId = UnitData.CreatedBySpell;
+        petInfo.Type = PetType;
+        petInfo.SpecializationId = Specialization;
+    }
+
+    public override string GetDebugInfo()
+    {
+        return $"{base.GetDebugInfo()}\nPetType: {PetType} PetNumber: {GetCharmInfo().GetPetNumber()}";
+    }
+
+    public DeclinedName GetDeclinedNames()
+    {
+        return _declinedname;
+    }
+
+    public override uint GetPetAutoSpellOnPos(byte pos)
+    {
+        if (pos >= _autospells.Count)
+            return 0;
+        else
+            return _autospells[pos];
+    }
+
+    public void GivePetLevel(int level)
+    {
+        if (level == 0 || level == Level)
+            return;
+
+        if (PetType == PetType.Hunter)
+        {
+            SetPetExperience(0);
+            SetPetNextLevelExperience((uint)(ObjectManager.GetXPForLevel((uint)level) * PetXPFactor));
+        }
+
+        InitStatsForLevel((uint)level);
+        InitLevelupSpellsForLevel();
+    }
+
+    public void GivePetXP(uint xp)
+    {
+        if (PetType != PetType.Hunter)
+            return;
+
+        if (xp < 1)
+            return;
+
+        if (!IsAlive)
+            return;
+
+        var maxlevel = Math.Min(GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel), OwningPlayer.Level);
+        var petlevel = Level;
+
+        // If pet is detected to be at, or above(?) the players level, don't hand out XP
+        if (petlevel >= maxlevel)
+            return;
+
+        uint nextLvlXP = UnitData.PetNextLevelExperience;
+        uint curXP = UnitData.PetExperience;
+        var newXP = curXP + xp;
+
+        // Check how much XP the pet should receive, and hand off have any left from previous levelups
+        while (newXP >= nextLvlXP && petlevel < maxlevel)
+        {
+            // Subtract newXP from amount needed for nextlevel, and give pet the level
+            newXP -= nextLvlXP;
+            ++petlevel;
+
+            GivePetLevel((int)petlevel);
+
+            nextLvlXP = UnitData.PetNextLevelExperience;
+        }
+
+        // Not affected by special conditions - give it new XP
+        SetPetExperience(petlevel < maxlevel ? newXP : 0);
+    }
+
+    public override bool HasSpell(uint spell)
+    {
+        var petSpell = Spells.LookupByKey(spell);
+
+        return petSpell != null && petSpell.State != PetSpellState.Removed;
+    }
+
+    public bool HaveInDiet(ItemTemplate item)
+    {
+        if (item.FoodType == 0)
+            return false;
+
+        var cInfo = Template;
+
+        if (cInfo == null)
+            return false;
+
+        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cInfo.Family);
+
+        if (cFamily == null)
+            return false;
+
+        uint diet = cFamily.PetFoodMask;
+        var FoodMask = (uint)(1 << ((int)item.FoodType - 1));
+
+        return diet.HasAnyFlag(FoodMask);
+    }
+
+    public void InitPetCreateSpells()
+    {
+        GetCharmInfo().InitPetActionBar();
+        Spells.Clear();
+
+        LearnPetPassives();
+        InitLevelupSpellsForLevel();
+
+        CastPetAuras(false);
+    }
+
+    public bool IsPermanentPetFor(Player owner)
+    {
+        switch (PetType)
+        {
+            case PetType.Summon:
+                switch (owner.Class)
+                {
+                    case PlayerClass.Warlock:
+                        return Template.CreatureType == CreatureType.Demon;
+                    case PlayerClass.Deathknight:
+                        return Template.CreatureType == CreatureType.Undead;
+                    case PlayerClass.Mage:
+                        return Template.CreatureType == CreatureType.Elemental;
+                    default:
+                        return false;
+                }
+            case PetType.Hunter:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public bool LearnSpell(uint spellId)
+    {
+        // prevent duplicated entires in spell book
+        if (!AddSpell(spellId))
+            return false;
+
+        if (!_loading)
+        {
+            PetLearnedSpells packet = new();
+            packet.Spells.Add(spellId);
+            OwningPlayer.SendPacket(packet);
+            OwningPlayer.PetSpellInitialize();
+        }
+
+        return true;
     }
 
     public bool LoadPetFromDB(Player owner, uint petEntry = 0, uint petnumber = 0, bool current = false, PetSaveMode? forcedSlot = null)
@@ -316,7 +591,7 @@ public class Pet : Guardian
                 break;
         }
 
-        SetPetNameTimestamp((uint)GameTime.GetGameTime()); // cast can't be helped here
+        SetPetNameTimestamp((uint)GameTime.CurrentTime); // cast can't be helped here
         SetCreatorGUID(owner.GUID);
 
         InitStatsForLevel(petlevel);
@@ -425,7 +700,7 @@ public class Pet : Guardian
                  if (Removed)
                      return;
 
-                 var timediff = (uint)(GameTime.GetGameTime() - lastSaveTime);
+                 var timediff = (uint)(GameTime.CurrentTime - lastSaveTime);
                  _LoadAuras(holder.GetResult(PetLoginQueryLoad.Auras), holder.GetResult(PetLoginQueryLoad.AuraEffects), timediff);
 
                  // load action bar, if data broken will fill later by default spells.
@@ -482,6 +757,71 @@ public class Pet : Guardian
              });
 
         return true;
+    }
+
+    public void Remove(PetSaveMode mode, bool returnreagent = false)
+    {
+        OwningPlayer.RemovePet(this, mode, returnreagent);
+    }
+
+    public override void RemoveFromWorld()
+    {
+        // Remove the pet from the accessor
+        if (Location.IsInWorld)
+        {
+            // Don't call the function for Creature, normal mobs + totems go in a different storage
+            base.RemoveFromWorld();
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
+        }
+    }
+    public bool RemoveSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
+    {
+        var petSpell = Spells.LookupByKey(spellId);
+
+        if (petSpell == null)
+            return false;
+
+        if (petSpell.State == PetSpellState.Removed)
+            return false;
+
+        if (petSpell.State == PetSpellState.New)
+            Spells.Remove(spellId);
+        else
+            petSpell.State = PetSpellState.Removed;
+
+        RemoveAura(spellId);
+
+        if (learnPrev)
+        {
+            var prev_id = Global.SpellMgr.GetPrevSpellInChain(spellId);
+
+            if (prev_id != 0)
+                LearnSpell(prev_id);
+            else
+                learnPrev = false;
+        }
+
+        // if remove last rank or non-ranked then update action bar at server and client if need
+        if (clearActionBar && !learnPrev && GetCharmInfo().RemoveSpellFromActionBar(spellId))
+            if (!_loading)
+            {
+                // need update action bar for last removed rank
+                Unit owner = OwningPlayer;
+
+                if (owner)
+                    if (owner.IsTypeId(TypeId.Player))
+                        owner.AsPlayer.PetSpellInitialize();
+            }
+
+        return true;
+    }
+
+    public void ResetGroupUpdateFlag()
+    {
+        _mGroupUpdateMask = GroupUpdatePetFlags.None;
+
+        if (OwningPlayer.Group)
+            OwningPlayer.RemoveGroupUpdateFlag(GroupUpdateFlags.Pet);
     }
 
     public void SavePetToDB(PetSaveMode mode)
@@ -570,7 +910,7 @@ public class Pet : Guardian
 
             stmt.AddValue(12, actionBar);
 
-            stmt.AddValue(13, GameTime.GetGameTime());
+            stmt.AddValue(13, GameTime.CurrentTime);
             stmt.AddValue(14, UnitData.CreatedBySpell);
             stmt.AddValue(15, (byte)PetType);
             stmt.AddValue(16, Specialization);
@@ -585,61 +925,6 @@ public class Pet : Guardian
             DeleteFromDB(GetCharmInfo().GetPetNumber());
         }
     }
-
-    public void FillPetInfo(PetStable.PetInfo petInfo)
-    {
-        petInfo.PetNumber = GetCharmInfo().GetPetNumber();
-        petInfo.CreatureId = Entry;
-        petInfo.DisplayId = NativeDisplayId;
-        petInfo.Level = (byte)Level;
-        petInfo.Experience = UnitData.PetExperience;
-        petInfo.ReactState = ReactState;
-        petInfo.Name = GetName();
-        petInfo.WasRenamed = !HasPetFlag(UnitPetFlags.CanBeRenamed);
-        petInfo.Health = (uint)Health;
-        petInfo.Mana = (uint)GetPower(PowerType.Mana);
-        petInfo.ActionBar = GenerateActionBarData();
-        petInfo.LastSaveTime = (uint)GameTime.GetGameTime();
-        petInfo.CreatedBySpellId = UnitData.CreatedBySpell;
-        petInfo.Type = PetType;
-        petInfo.SpecializationId = Specialization;
-    }
-
-    public static void DeleteFromDB(uint petNumber)
-    {
-        SQLTransaction trans = new();
-
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_ID);
-        stmt.AddValue(0, petNumber);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
-        stmt.AddValue(0, petNumber);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURA_EFFECTS);
-        stmt.AddValue(0, petNumber);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURAS);
-        stmt.AddValue(0, petNumber);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELLS);
-        stmt.AddValue(0, petNumber);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_COOLDOWNS);
-        stmt.AddValue(0, petNumber);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_CHARGES);
-        stmt.AddValue(0, petNumber);
-        trans.Append(stmt);
-
-        DB.Characters.CommitTransaction(trans);
-    }
-
     public override void SetDeathState(DeathState s)
     {
         base.SetDeathState(s);
@@ -659,6 +944,126 @@ public class Pet : Guardian
         }
     }
 
+    public override void SetDisplayId(uint modelId, float displayScale = 1f)
+    {
+        base.SetDisplayId(modelId, displayScale);
+
+        if (!IsControlled)
+            return;
+
+        GroupUpdateFlag = GroupUpdatePetFlags.ModelId;
+    }
+
+    public void SetDuration(uint dur)
+    {
+        Duration = (int)dur;
+    }
+
+    public void SetPetExperience(uint xp)
+    {
+        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetExperience), xp);
+    }
+
+    public void SetPetNextLevelExperience(uint xp)
+    {
+        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetNextLevelExperience), xp);
+    }
+
+    public void SetSpecialization(uint spec)
+    {
+        if (Specialization == spec)
+            return;
+
+        // remove all the old spec's specalization spells, set the new spec, then add the new spec's spells
+        // clearActionBars is false because we'll be updating the pet actionbar later so we don't have to do it now
+        RemoveSpecializationSpells(false);
+
+        if (!CliDB.ChrSpecializationStorage.ContainsKey(spec))
+        {
+            Specialization = 0;
+
+            return;
+        }
+
+        Specialization = (ushort)spec;
+        LearnSpecializationSpells();
+
+        // resend SMSG_PET_SPELLS_MESSAGE to remove old specialization spells from the pet action bar
+        CleanupActionBar();
+        OwningPlayer.PetSpellInitialize();
+
+        SetPetSpecialization setPetSpecialization = new()
+        {
+            SpecID = Specialization
+        };
+
+        OwningPlayer.SendPacket(setPetSpecialization);
+    }
+
+    public void SynchronizeLevelWithOwner()
+    {
+        Unit owner = OwningPlayer;
+
+        if (!owner || !owner.IsTypeId(TypeId.Player))
+            return;
+
+        switch (PetType)
+        {
+            // always same level
+            case PetType.Summon:
+            case PetType.Hunter:
+                GivePetLevel((int)owner.Level);
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void ToggleAutocast(SpellInfo spellInfo, bool apply)
+    {
+        if (!spellInfo.IsAutocastable)
+            return;
+
+        var petSpell = Spells.LookupByKey(spellInfo.Id);
+
+        if (petSpell == null)
+            return;
+
+        var hasSpell = _autospells.Contains(spellInfo.Id);
+
+        if (apply)
+        {
+            if (!hasSpell)
+            {
+                _autospells.Add(spellInfo.Id);
+
+                if (petSpell.Active != ActiveStates.Enabled)
+                {
+                    petSpell.Active = ActiveStates.Enabled;
+
+                    if (petSpell.State != PetSpellState.New)
+                        petSpell.State = PetSpellState.Changed;
+                }
+            }
+        }
+        else
+        {
+            if (hasSpell)
+            {
+                _autospells.Remove(spellInfo.Id);
+
+                if (petSpell.Active != ActiveStates.Disabled)
+                {
+                    petSpell.Active = ActiveStates.Disabled;
+
+                    if (petSpell.State != PetSpellState.New)
+                        petSpell.State = PetSpellState.Changed;
+                }
+            }
+        }
+    }
+
     public override void Update(uint diff)
     {
         if (Removed) // pet already removed, just wait in remove queue, no updates
@@ -671,7 +1076,7 @@ public class Pet : Guardian
         {
             case DeathState.Corpse:
             {
-                if (PetType != PetType.Hunter || CorpseRemoveTime <= GameTime.GetGameTime())
+                if (PetType != PetType.Hunter || CorpseRemoveTime <= GameTime.CurrentTime)
                 {
                     Remove(PetSaveMode.NotInSlot); //hunters' pets never get removed because of death, NEVER!
 
@@ -750,507 +1155,6 @@ public class Pet : Guardian
 
         base.Update(diff);
     }
-
-    public void Remove(PetSaveMode mode, bool returnreagent = false)
-    {
-        OwningPlayer.RemovePet(this, mode, returnreagent);
-    }
-
-    public void GivePetXP(uint xp)
-    {
-        if (PetType != PetType.Hunter)
-            return;
-
-        if (xp < 1)
-            return;
-
-        if (!IsAlive)
-            return;
-
-        var maxlevel = Math.Min(GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel), OwningPlayer.Level);
-        var petlevel = Level;
-
-        // If pet is detected to be at, or above(?) the players level, don't hand out XP
-        if (petlevel >= maxlevel)
-            return;
-
-        uint nextLvlXP = UnitData.PetNextLevelExperience;
-        uint curXP = UnitData.PetExperience;
-        var newXP = curXP + xp;
-
-        // Check how much XP the pet should receive, and hand off have any left from previous levelups
-        while (newXP >= nextLvlXP && petlevel < maxlevel)
-        {
-            // Subtract newXP from amount needed for nextlevel, and give pet the level
-            newXP -= nextLvlXP;
-            ++petlevel;
-
-            GivePetLevel((int)petlevel);
-
-            nextLvlXP = UnitData.PetNextLevelExperience;
-        }
-
-        // Not affected by special conditions - give it new XP
-        SetPetExperience(petlevel < maxlevel ? newXP : 0);
-    }
-
-    public void GivePetLevel(int level)
-    {
-        if (level == 0 || level == Level)
-            return;
-
-        if (PetType == PetType.Hunter)
-        {
-            SetPetExperience(0);
-            SetPetNextLevelExperience((uint)(ObjectManager.GetXPForLevel((uint)level) * PetXPFactor));
-        }
-
-        InitStatsForLevel((uint)level);
-        InitLevelupSpellsForLevel();
-    }
-
-    public bool CreateBaseAtCreature(Creature creature)
-    {
-        if (!CreateBaseAtTamed(creature.Template, creature.Location.Map))
-            return false;
-
-        Location.Relocate(creature.Location);
-
-        if (!Location.IsPositionValid)
-        {
-            Log.Logger.Error("Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
-                             GUID.ToString(),
-                             Entry,
-                             Location.X,
-                             Location.Y);
-
-            return false;
-        }
-
-        var cinfo = Template;
-
-        if (cinfo == null)
-        {
-            Log.Logger.Error("CreateBaseAtCreature() failed, creatureInfo is missing!");
-
-            return false;
-        }
-
-        SetDisplayId(creature.DisplayId);
-        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
-
-        if (cFamily != null)
-            SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
-        else
-            SetName(creature.GetName(Global.WorldMgr.DefaultDbcLocale));
-
-        return true;
-    }
-
-    public bool CreateBaseAtCreatureInfo(CreatureTemplate cinfo, Unit owner)
-    {
-        if (!CreateBaseAtTamed(cinfo, owner.Location.Map))
-            return false;
-
-        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
-
-        if (cFamily != null)
-            SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
-
-        Location.Relocate(owner.Location);
-
-        return true;
-    }
-
-    public bool HaveInDiet(ItemTemplate item)
-    {
-        if (item.FoodType == 0)
-            return false;
-
-        var cInfo = Template;
-
-        if (cInfo == null)
-            return false;
-
-        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cInfo.Family);
-
-        if (cFamily == null)
-            return false;
-
-        uint diet = cFamily.PetFoodMask;
-        var FoodMask = (uint)(1 << ((int)item.FoodType - 1));
-
-        return diet.HasAnyFlag(FoodMask);
-    }
-
-    public bool LearnSpell(uint spellId)
-    {
-        // prevent duplicated entires in spell book
-        if (!AddSpell(spellId))
-            return false;
-
-        if (!_loading)
-        {
-            PetLearnedSpells packet = new();
-            packet.Spells.Add(spellId);
-            OwningPlayer.SendPacket(packet);
-            OwningPlayer.PetSpellInitialize();
-        }
-
-        return true;
-    }
-
-    public bool RemoveSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
-    {
-        var petSpell = Spells.LookupByKey(spellId);
-
-        if (petSpell == null)
-            return false;
-
-        if (petSpell.State == PetSpellState.Removed)
-            return false;
-
-        if (petSpell.State == PetSpellState.New)
-            Spells.Remove(spellId);
-        else
-            petSpell.State = PetSpellState.Removed;
-
-        RemoveAura(spellId);
-
-        if (learnPrev)
-        {
-            var prev_id = Global.SpellMgr.GetPrevSpellInChain(spellId);
-
-            if (prev_id != 0)
-                LearnSpell(prev_id);
-            else
-                learnPrev = false;
-        }
-
-        // if remove last rank or non-ranked then update action bar at server and client if need
-        if (clearActionBar && !learnPrev && GetCharmInfo().RemoveSpellFromActionBar(spellId))
-            if (!_loading)
-            {
-                // need update action bar for last removed rank
-                Unit owner = OwningPlayer;
-
-                if (owner)
-                    if (owner.IsTypeId(TypeId.Player))
-                        owner.AsPlayer.PetSpellInitialize();
-            }
-
-        return true;
-    }
-
-    public void InitPetCreateSpells()
-    {
-        GetCharmInfo().InitPetActionBar();
-        Spells.Clear();
-
-        LearnPetPassives();
-        InitLevelupSpellsForLevel();
-
-        CastPetAuras(false);
-    }
-
-    public void ToggleAutocast(SpellInfo spellInfo, bool apply)
-    {
-        if (!spellInfo.IsAutocastable)
-            return;
-
-        var petSpell = Spells.LookupByKey(spellInfo.Id);
-
-        if (petSpell == null)
-            return;
-
-        var hasSpell = _autospells.Contains(spellInfo.Id);
-
-        if (apply)
-        {
-            if (!hasSpell)
-            {
-                _autospells.Add(spellInfo.Id);
-
-                if (petSpell.Active != ActiveStates.Enabled)
-                {
-                    petSpell.Active = ActiveStates.Enabled;
-
-                    if (petSpell.State != PetSpellState.New)
-                        petSpell.State = PetSpellState.Changed;
-                }
-            }
-        }
-        else
-        {
-            if (hasSpell)
-            {
-                _autospells.Remove(spellInfo.Id);
-
-                if (petSpell.Active != ActiveStates.Disabled)
-                {
-                    petSpell.Active = ActiveStates.Disabled;
-
-                    if (petSpell.State != PetSpellState.New)
-                        petSpell.State = PetSpellState.Changed;
-                }
-            }
-        }
-    }
-
-    public bool IsPermanentPetFor(Player owner)
-    {
-        switch (PetType)
-        {
-            case PetType.Summon:
-                switch (owner.Class)
-                {
-                    case PlayerClass.Warlock:
-                        return Template.CreatureType == CreatureType.Demon;
-                    case PlayerClass.Deathknight:
-                        return Template.CreatureType == CreatureType.Undead;
-                    case PlayerClass.Mage:
-                        return Template.CreatureType == CreatureType.Elemental;
-                    default:
-                        return false;
-                }
-            case PetType.Hunter:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    public bool Create(ulong guidlow, Map map, uint entry, uint petNumber)
-    {
-        Location.Map = map;
-        CheckAddToMap();
-
-        // TODO: counter should be constructed as (summon_count << 32) | petNumber
-        Create(ObjectGuid.Create(HighGuid.Pet, map.Id, entry, guidlow));
-
-        SpawnId = guidlow;
-        OriginalEntry = entry;
-
-        if (!InitEntry(entry))
-            return false;
-
-        // Force regen flag for player pets, just like we do for players themselves
-        SetUnitFlag2(UnitFlags2.RegeneratePower);
-        Sheath = SheathState.Melee;
-
-        GetThreatManager().Initialize();
-
-        return true;
-    }
-
-    public override bool HasSpell(uint spell)
-    {
-        var petSpell = Spells.LookupByKey(spell);
-
-        return petSpell != null && petSpell.State != PetSpellState.Removed;
-    }
-
-    public void CastPetAura(PetAura aura)
-    {
-        var auraId = aura.GetAura(Entry);
-
-        if (auraId == 0)
-            return;
-
-        CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-
-        if (auraId == 35696) // Demonic Knowledge
-            args.AddSpellMod(SpellValueMod.BasePoint0, MathFunctions.CalculatePct(aura.GetDamage(), GetStat(Stats.Stamina) + GetStat(Stats.Intellect)));
-
-        CastSpell(this, auraId, args);
-    }
-
-    public void SynchronizeLevelWithOwner()
-    {
-        Unit owner = OwningPlayer;
-
-        if (!owner || !owner.IsTypeId(TypeId.Player))
-            return;
-
-        switch (PetType)
-        {
-            // always same level
-            case PetType.Summon:
-            case PetType.Hunter:
-                GivePetLevel((int)owner.Level);
-
-                break;
-            default:
-                break;
-        }
-    }
-
-    public override void SetDisplayId(uint modelId, float displayScale = 1f)
-    {
-        base.SetDisplayId(modelId, displayScale);
-
-        if (!IsControlled)
-            return;
-
-        GroupUpdateFlag = GroupUpdatePetFlags.ModelId;
-    }
-
-    public override uint GetPetAutoSpellOnPos(byte pos)
-    {
-        if (pos >= _autospells.Count)
-            return 0;
-        else
-            return _autospells[pos];
-    }
-
-    public void SetDuration(uint dur)
-    {
-        Duration = (int)dur;
-    }
-
-    public void SetPetExperience(uint xp)
-    {
-        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetExperience), xp);
-    }
-
-    public void SetPetNextLevelExperience(uint xp)
-    {
-        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetNextLevelExperience), xp);
-    }
-
-    public void ResetGroupUpdateFlag()
-    {
-        _mGroupUpdateMask = GroupUpdatePetFlags.None;
-
-        if (OwningPlayer.Group)
-            OwningPlayer.RemoveGroupUpdateFlag(GroupUpdateFlags.Pet);
-    }
-
-    public void SetSpecialization(uint spec)
-    {
-        if (Specialization == spec)
-            return;
-
-        // remove all the old spec's specalization spells, set the new spec, then add the new spec's spells
-        // clearActionBars is false because we'll be updating the pet actionbar later so we don't have to do it now
-        RemoveSpecializationSpells(false);
-
-        if (!CliDB.ChrSpecializationStorage.ContainsKey(spec))
-        {
-            Specialization = 0;
-
-            return;
-        }
-
-        Specialization = (ushort)spec;
-        LearnSpecializationSpells();
-
-        // resend SMSG_PET_SPELLS_MESSAGE to remove old specialization spells from the pet action bar
-        CleanupActionBar();
-        OwningPlayer.PetSpellInitialize();
-
-        SetPetSpecialization setPetSpecialization = new()
-        {
-            SpecID = Specialization
-        };
-
-        OwningPlayer.SendPacket(setPetSpecialization);
-    }
-
-    public override string GetDebugInfo()
-    {
-        return $"{base.GetDebugInfo()}\nPetType: {PetType} PetNumber: {GetCharmInfo().GetPetNumber()}";
-    }
-
-    public DeclinedName GetDeclinedNames()
-    {
-        return _declinedname;
-    }
-
-    private bool CreateBaseAtTamed(CreatureTemplate cinfo, Map map)
-    {
-        Log.Logger.Debug("CreateBaseForTamed");
-
-        if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, ObjectManager.GeneratePetNumber()))
-            return false;
-
-        SetPetNameTimestamp(0);
-        SetPetExperience(0);
-        SetPetNextLevelExperience((uint)(ObjectManager.GetXPForLevel(Level + 1) * PetXPFactor));
-        ReplaceAllNpcFlags(NPCFlags.None);
-        ReplaceAllNpcFlags2(NPCFlags2.None);
-
-        if (cinfo.CreatureType == CreatureType.Beast)
-        {
-            Class = PlayerClass.Warrior;
-            Gender = Gender.None;
-            SetPowerType(PowerType.Focus);
-            Sheath = SheathState.Melee;
-            ReplaceAllPetFlags(UnitPetFlags.CanBeRenamed | UnitPetFlags.CanBeAbandoned);
-        }
-
-        return true;
-    }
-
-    private void _LoadSpells(SQLResult result)
-    {
-        if (!result.IsEmpty())
-            do
-            {
-                AddSpell(result.Read<uint>(0), (ActiveStates)result.Read<byte>(1), PetSpellState.Unchanged);
-            } while (result.NextRow());
-    }
-
-    private void _SaveSpells(SQLTransaction trans)
-    {
-        foreach (var pair in Spells.ToList())
-        {
-            // prevent saving family passives to DB
-            if (pair.Value.Type == PetSpellType.Family)
-                continue;
-
-            PreparedStatement stmt;
-
-            switch (pair.Value.State)
-            {
-                case PetSpellState.Removed:
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
-                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
-                    stmt.AddValue(1, pair.Key);
-                    trans.Append(stmt);
-
-                    Spells.Remove(pair.Key);
-
-                    continue;
-                case PetSpellState.Changed:
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
-                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
-                    stmt.AddValue(1, pair.Key);
-                    trans.Append(stmt);
-
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_SPELL);
-                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
-                    stmt.AddValue(1, pair.Key);
-                    stmt.AddValue(2, (byte)pair.Value.Active);
-                    trans.Append(stmt);
-
-                    break;
-                case PetSpellState.New:
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_SPELL);
-                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
-                    stmt.AddValue(1, pair.Key);
-                    stmt.AddValue(2, (byte)pair.Value.Active);
-                    trans.Append(stmt);
-
-                    break;
-                case PetSpellState.Unchanged:
-                    continue;
-            }
-
-            pair.Value.State = PetSpellState.Unchanged;
-        }
-    }
-
     private void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
     {
         Log.Logger.Debug("Loading auras for {0}", GUID.ToString());
@@ -1314,10 +1218,10 @@ public class Pet : Guardian
                 // negative effects should continue counting down after logout
                 if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
                 {
-                    if (remainTime / Time.InMilliseconds <= timediff)
+                    if (remainTime / Time.IN_MILLISECONDS <= timediff)
                         continue;
 
-                    remainTime -= (int)timediff * Time.InMilliseconds;
+                    remainTime -= (int)timediff * Time.IN_MILLISECONDS;
                 }
 
                 // prevent wrong values of remaincharges
@@ -1354,6 +1258,15 @@ public class Pet : Guardian
                     Log.Logger.Information("Added aura spellid {0}, effectmask {1}", spellInfo.Id, key.EffectMask);
                 }
             } while (auraResult.NextRow());
+    }
+
+    private void _LoadSpells(SQLResult result)
+    {
+        if (!result.IsEmpty())
+            do
+            {
+                AddSpell(result.Read<uint>(0), (ActiveStates)result.Read<byte>(1), PetSpellState.Unchanged);
+            } while (result.NextRow());
     }
 
     private void _SaveAuras(SQLTransaction trans)
@@ -1403,6 +1316,56 @@ public class Pet : Guardian
                 stmt.AddValue(index++, effect.Value.BaseAmount);
                 trans.Append(stmt);
             }
+        }
+    }
+
+    private void _SaveSpells(SQLTransaction trans)
+    {
+        foreach (var pair in Spells.ToList())
+        {
+            // prevent saving family passives to DB
+            if (pair.Value.Type == PetSpellType.Family)
+                continue;
+
+            PreparedStatement stmt;
+
+            switch (pair.Value.State)
+            {
+                case PetSpellState.Removed:
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
+                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(1, pair.Key);
+                    trans.Append(stmt);
+
+                    Spells.Remove(pair.Key);
+
+                    continue;
+                case PetSpellState.Changed:
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
+                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(1, pair.Key);
+                    trans.Append(stmt);
+
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_SPELL);
+                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(1, pair.Key);
+                    stmt.AddValue(2, (byte)pair.Value.Active);
+                    trans.Append(stmt);
+
+                    break;
+                case PetSpellState.New:
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_SPELL);
+                    stmt.AddValue(0, GetCharmInfo().GetPetNumber());
+                    stmt.AddValue(1, pair.Key);
+                    stmt.AddValue(2, (byte)pair.Value.Active);
+                    trans.Append(stmt);
+
+                    break;
+                case PetSpellState.Unchanged:
+                    continue;
+            }
+
+            pair.Value.State = PetSpellState.Unchanged;
         }
     }
 
@@ -1521,20 +1484,76 @@ public class Pet : Guardian
         return true;
     }
 
-    private void LearnSpells(List<uint> spellIds)
+    private void CastPetAuras(bool current)
     {
-        PetLearnedSpells packet = new();
+        var owner = OwningPlayer;
 
-        foreach (var spell in spellIds)
+        if (!IsPermanentPetFor(owner))
+            return;
+
+        foreach (var pa in owner.PetAuras)
+            if (!current && pa.IsRemovedOnChangePet())
+                owner.RemovePetAura(pa);
+            else
+                CastPetAura(pa);
+    }
+
+    private void CleanupActionBar()
+    {
+        for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
         {
-            if (!AddSpell(spell))
-                continue;
+            var ab = GetCharmInfo().GetActionBarEntry(i);
 
-            packet.Spells.Add(spell);
+            if (ab != null)
+                if (ab.GetAction() != 0 && ab.IsActionBarForSpell())
+                {
+                    if (!HasSpell(ab.GetAction()))
+                    {
+                        GetCharmInfo().SetActionBar(i, 0, ActiveStates.Passive);
+                    }
+                    else if (ab.GetActiveState() == ActiveStates.Enabled)
+                    {
+                        var spellInfo = Global.SpellMgr.GetSpellInfo(ab.GetAction(), Difficulty.None);
+
+                        if (spellInfo != null)
+                            ToggleAutocast(spellInfo, true);
+                    }
+                }
+        }
+    }
+
+    private bool CreateBaseAtTamed(CreatureTemplate cinfo, Map map)
+    {
+        Log.Logger.Debug("CreateBaseForTamed");
+
+        if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, ObjectManager.GeneratePetNumber()))
+            return false;
+
+        SetPetNameTimestamp(0);
+        SetPetExperience(0);
+        SetPetNextLevelExperience((uint)(ObjectManager.GetXPForLevel(Level + 1) * PetXPFactor));
+        ReplaceAllNpcFlags(NPCFlags.None);
+        ReplaceAllNpcFlags2(NPCFlags2.None);
+
+        if (cinfo.CreatureType == CreatureType.Beast)
+        {
+            Class = PlayerClass.Warrior;
+            Gender = Gender.None;
+            SetPowerType(PowerType.Focus);
+            Sheath = SheathState.Melee;
+            ReplaceAllPetFlags(UnitPetFlags.CanBeRenamed | UnitPetFlags.CanBeAbandoned);
         }
 
-        if (!_loading)
-            OwningPlayer.SendPacket(packet);
+        return true;
+    }
+    private string GenerateActionBarData()
+    {
+        StringBuilder ss = new();
+
+        for (byte i = SharedConst.ActionBarIndexStart; i < SharedConst.ActionBarIndexEnd; ++i)
+            ss.AppendFormat("{0} {1} ", (uint)GetCharmInfo().GetActionBarEntry(i).GetActiveState(), (uint)GetCharmInfo().GetActionBarEntry(i).GetAction());
+
+        return ss.ToString();
     }
 
     private void InitLevelupSpellsForLevel()
@@ -1572,61 +1591,16 @@ public class Pet : Guardian
             }
     }
 
-    private bool UnlearnSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
+    private bool IsPetAura(Aura aura)
     {
-        if (RemoveSpell(spellId, learnPrev, clearActionBar))
-        {
-            if (!_loading)
-            {
-                PetUnlearnedSpells packet = new();
-                packet.Spells.Add(spellId);
-                OwningPlayer.SendPacket(packet);
-            }
+        var owner = OwningPlayer;
 
-            return true;
-        }
+        // if the owner has that pet aura, return true
+        foreach (var petAura in owner.PetAuras)
+            if (petAura.GetAura(Entry) == aura.Id)
+                return true;
 
         return false;
-    }
-
-    private void UnlearnSpells(List<uint> spellIds, bool learnPrev, bool clearActionBar)
-    {
-        PetUnlearnedSpells packet = new();
-
-        foreach (var spell in spellIds)
-        {
-            if (!RemoveSpell(spell, learnPrev, clearActionBar))
-                continue;
-
-            packet.Spells.Add(spell);
-        }
-
-        if (!_loading)
-            OwningPlayer.SendPacket(packet);
-    }
-
-    private void CleanupActionBar()
-    {
-        for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
-        {
-            var ab = GetCharmInfo().GetActionBarEntry(i);
-
-            if (ab != null)
-                if (ab.GetAction() != 0 && ab.IsActionBarForSpell())
-                {
-                    if (!HasSpell(ab.GetAction()))
-                    {
-                        GetCharmInfo().SetActionBar(i, 0, ActiveStates.Passive);
-                    }
-                    else if (ab.GetActiveState() == ActiveStates.Enabled)
-                    {
-                        var spellInfo = Global.SpellMgr.GetSpellInfo(ab.GetAction(), Difficulty.None);
-
-                        if (spellInfo != null)
-                            ToggleAutocast(spellInfo, true);
-                    }
-                }
-        }
     }
 
     // Get all passive spells in our skill line
@@ -1652,41 +1626,6 @@ public class Pet : Guardian
                 AddSpell(spellId, ActiveStates.Decide, PetSpellState.New, PetSpellType.Family);
     }
 
-    private void CastPetAuras(bool current)
-    {
-        var owner = OwningPlayer;
-
-        if (!IsPermanentPetFor(owner))
-            return;
-
-        foreach (var pa in owner.PetAuras)
-            if (!current && pa.IsRemovedOnChangePet())
-                owner.RemovePetAura(pa);
-            else
-                CastPetAura(pa);
-    }
-
-    private bool IsPetAura(Aura aura)
-    {
-        var owner = OwningPlayer;
-
-        // if the owner has that pet aura, return true
-        foreach (var petAura in owner.PetAuras)
-            if (petAura.GetAura(Entry) == aura.Id)
-                return true;
-
-        return false;
-    }
-
-    private void LearnSpellHighRank(uint spellid)
-    {
-        LearnSpell(spellid);
-        var next = Global.SpellMgr.GetNextSpellInChain(spellid);
-
-        if (next != 0)
-            LearnSpellHighRank(next);
-    }
-
     private void LearnSpecializationSpells()
     {
         List<uint> learnedSpells = new();
@@ -1707,6 +1646,30 @@ public class Pet : Guardian
         LearnSpells(learnedSpells);
     }
 
+    private void LearnSpellHighRank(uint spellid)
+    {
+        LearnSpell(spellid);
+        var next = Global.SpellMgr.GetNextSpellInChain(spellid);
+
+        if (next != 0)
+            LearnSpellHighRank(next);
+    }
+
+    private void LearnSpells(List<uint> spellIds)
+    {
+        PetLearnedSpells packet = new();
+
+        foreach (var spell in spellIds)
+        {
+            if (!AddSpell(spell))
+                continue;
+
+            packet.Spells.Add(spell);
+        }
+
+        if (!_loading)
+            OwningPlayer.SendPacket(packet);
+    }
     private void RemoveSpecializationSpells(bool clearActionBar)
     {
         List<uint> unlearnedSpells = new();
@@ -1739,13 +1702,36 @@ public class Pet : Guardian
         UnlearnSpells(unlearnedSpells, true, clearActionBar);
     }
 
-    private string GenerateActionBarData()
+    private bool UnlearnSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
     {
-        StringBuilder ss = new();
+        if (RemoveSpell(spellId, learnPrev, clearActionBar))
+        {
+            if (!_loading)
+            {
+                PetUnlearnedSpells packet = new();
+                packet.Spells.Add(spellId);
+                OwningPlayer.SendPacket(packet);
+            }
 
-        for (byte i = SharedConst.ActionBarIndexStart; i < SharedConst.ActionBarIndexEnd; ++i)
-            ss.AppendFormat("{0} {1} ", (uint)GetCharmInfo().GetActionBarEntry(i).GetActiveState(), (uint)GetCharmInfo().GetActionBarEntry(i).GetAction());
+            return true;
+        }
 
-        return ss.ToString();
+        return false;
+    }
+
+    private void UnlearnSpells(List<uint> spellIds, bool learnPrev, bool clearActionBar)
+    {
+        PetUnlearnedSpells packet = new();
+
+        foreach (var spell in spellIds)
+        {
+            if (!RemoveSpell(spell, learnPrev, clearActionBar))
+                continue;
+
+            packet.Spells.Add(spell);
+        }
+
+        if (!_loading)
+            OwningPlayer.SendPacket(packet);
     }
 }

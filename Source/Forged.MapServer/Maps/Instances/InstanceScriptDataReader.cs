@@ -10,6 +10,15 @@ namespace Forged.MapServer.Maps.Instances;
 
 internal class InstanceScriptDataReader
 {
+    private readonly InstanceScript _instance;
+
+    private JsonDocument _doc;
+
+    public InstanceScriptDataReader(InstanceScript instance)
+    {
+        _instance = instance;
+    }
+
     public enum Result
     {
         Ok,
@@ -26,15 +35,6 @@ internal class InstanceScriptDataReader
         AdditionalDataIsNotAnObject,
         AdditionalDataUnexpectedValueType
     }
-
-    private readonly InstanceScript _instance;
-    private JsonDocument _doc;
-
-    public InstanceScriptDataReader(InstanceScript instance)
-    {
-        _instance = instance;
-    }
-
     public Result Load(string data)
     {
         /*
@@ -86,21 +86,58 @@ internal class InstanceScriptDataReader
         return Result.Ok;
     }
 
-    private Result ParseHeader()
+    private uint GetDifficultyId()
     {
-        if (!_doc.RootElement.TryGetProperty("Header", out var header))
-        {
-            Log.Logger.Error($"Missing data header for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+        return (uint)_instance.Instance.DifficultyID;
+    }
 
-            return Result.MissingHeader;
+    private string GetDifficultyName()
+    {
+        return CliDB.DifficultyStorage.LookupByKey(_instance.Instance.DifficultyID).Name;
+    }
+
+    private uint GetInstanceId()
+    {
+        return _instance.Instance.InstanceId;
+    }
+
+    private uint GetMapId()
+    {
+        return _instance.Instance.Id;
+    }
+
+    private string GetMapName()
+    {
+        return _instance.Instance.MapName;
+    }
+
+    private Result ParseAdditionalData()
+    {
+        if (!_doc.RootElement.TryGetProperty("AdditionalData", out var moreData))
+            return Result.Ok;
+
+        if (moreData.ValueKind != JsonValueKind.Object)
+        {
+            Log.Logger.Error($"Additional data is not an object for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+
+            return Result.AdditionalDataIsNotAnObject;
         }
 
-        if (header.GetString() != _instance.GetHeader())
-        {
-            Log.Logger.Error($"Incorrect data header for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}], expected \"{_instance.GetHeader()}\" got \"{header.GetString()}\"");
+        foreach (var valueBase in _instance.GetPersistentScriptValues())
+            if (moreData.TryGetProperty(valueBase.GetName(), out var value) && value.ValueKind != JsonValueKind.Null)
+            {
+                if (value.ValueKind != JsonValueKind.Number)
+                {
+                    Log.Logger.Error($"Additional data value for key {valueBase.GetName()} is not a number for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
 
-            return Result.UnexpectedHeader;
-        }
+                    return Result.AdditionalDataUnexpectedValueType;
+                }
+
+                if (value.TryGetDouble(out var doubleValue))
+                    valueBase.LoadValue(doubleValue);
+                else
+                    valueBase.LoadValue(value.GetInt64());
+            }
 
         return Result.Ok;
     }
@@ -151,59 +188,22 @@ internal class InstanceScriptDataReader
         return Result.Ok;
     }
 
-    private Result ParseAdditionalData()
+    private Result ParseHeader()
     {
-        if (!_doc.RootElement.TryGetProperty("AdditionalData", out var moreData))
-            return Result.Ok;
-
-        if (moreData.ValueKind != JsonValueKind.Object)
+        if (!_doc.RootElement.TryGetProperty("Header", out var header))
         {
-            Log.Logger.Error($"Additional data is not an object for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+            Log.Logger.Error($"Missing data header for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
 
-            return Result.AdditionalDataIsNotAnObject;
+            return Result.MissingHeader;
         }
 
-        foreach (var valueBase in _instance.GetPersistentScriptValues())
-            if (moreData.TryGetProperty(valueBase.GetName(), out var value) && value.ValueKind != JsonValueKind.Null)
-            {
-                if (value.ValueKind != JsonValueKind.Number)
-                {
-                    Log.Logger.Error($"Additional data value for key {valueBase.GetName()} is not a number for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+        if (header.GetString() != _instance.GetHeader())
+        {
+            Log.Logger.Error($"Incorrect data header for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}], expected \"{_instance.GetHeader()}\" got \"{header.GetString()}\"");
 
-                    return Result.AdditionalDataUnexpectedValueType;
-                }
-
-                if (value.TryGetDouble(out var doubleValue))
-                    valueBase.LoadValue(doubleValue);
-                else
-                    valueBase.LoadValue(value.GetInt64());
-            }
+            return Result.UnexpectedHeader;
+        }
 
         return Result.Ok;
-    }
-
-    private uint GetInstanceId()
-    {
-        return _instance.Instance.InstanceId;
-    }
-
-    private uint GetMapId()
-    {
-        return _instance.Instance.Id;
-    }
-
-    private string GetMapName()
-    {
-        return _instance.Instance.MapName;
-    }
-
-    private uint GetDifficultyId()
-    {
-        return (uint)_instance.Instance.DifficultyID;
-    }
-
-    private string GetDifficultyName()
-    {
-        return CliDB.DifficultyStorage.LookupByKey(_instance.Instance.DifficultyID).Name;
     }
 }

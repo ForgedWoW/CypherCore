@@ -23,7 +23,7 @@ public class aura_warl_blasphemy : AuraScript, IHasAuraEffects
     {
         if (Caster.TryGetAsPlayer(out var p) && p.TryGetAura(WarlockSpells.AVATAR_OF_DESTRUCTION, out var avatar))
         {
-            var time = avatar.GetEffect(0).Amount * Time.InMilliseconds;
+            var time = avatar.GetEffect(0).Amount * Time.IN_MILLISECONDS;
             MaxDuration = (int)time;
             SetDuration(time);
         }

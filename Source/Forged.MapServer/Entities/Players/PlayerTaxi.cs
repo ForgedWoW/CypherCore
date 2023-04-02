@@ -19,6 +19,72 @@ public class PlayerTaxi
     private uint _flightMasterFactionId;
     public object TaxiLock { get; } = new();
 
+    public void AddTaxiDestination(uint dest)
+    {
+        _taxiDestinations.Add(dest);
+    }
+
+    public void AppendTaximaskTo(ShowTaxiNodes data, bool all)
+    {
+        data.CanLandNodes = new byte[CliDB.TaxiNodesMask.Length];
+        data.CanUseNodes = new byte[CliDB.TaxiNodesMask.Length];
+
+        if (all)
+        {
+            Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.CanLandNodes, 0, data.CanLandNodes.Length); // all existed nodes
+            Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.CanUseNodes, 0, data.CanUseNodes.Length);
+        }
+        else
+        {
+            lock (TaxiLock)
+            {
+                Buffer.BlockCopy(Taximask, 0, data.CanLandNodes, 0, data.CanLandNodes.Length); // known nodes
+                Buffer.BlockCopy(Taximask, 0, data.CanUseNodes, 0, data.CanUseNodes.Length);
+            }
+        }
+    }
+
+    public void ClearTaxiDestinations()
+    {
+        _taxiDestinations.Clear();
+    }
+
+    public bool Empty()
+    {
+        return _taxiDestinations.Empty();
+    }
+
+    public uint GetCurrentTaxiPath()
+    {
+        if (_taxiDestinations.Count < 2)
+            return 0;
+
+
+        Global.ObjectMgr.GetTaxiPath(_taxiDestinations[0], _taxiDestinations[1], out var path, out _);
+
+        return path;
+    }
+
+    public FactionTemplateRecord GetFlightMasterFactionTemplate()
+    {
+        return CliDB.FactionTemplateStorage.LookupByKey(_flightMasterFactionId);
+    }
+
+    public List<uint> GetPath()
+    {
+        return _taxiDestinations;
+    }
+
+    public uint GetTaxiDestination()
+    {
+        return _taxiDestinations.Count < 2 ? 0 : _taxiDestinations[1];
+    }
+
+    public uint GetTaxiSource()
+    {
+        return _taxiDestinations.Empty() ? 0 : _taxiDestinations[0];
+    }
+
     public void InitTaxiNodesForLevel(Race race, PlayerClass chrClass, uint level)
     {
         lock (TaxiLock)
@@ -102,40 +168,14 @@ public class PlayerTaxi
         }
     }
 
-    public void LoadTaxiMask(string data)
+    public bool IsTaximaskNodeKnown(uint nodeidx)
     {
+        var field = (nodeidx - 1) / 8;
+        var submask = (uint)(1 << (int)((nodeidx - 1) % 8));
+
         lock (TaxiLock)
         {
-            Taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
-
-            var split = new StringArray(data, ' ');
-
-            var index = 0;
-
-            for (var i = 0; index < Taximask.Length && i != split.Length; ++i, ++index)
-                // load and set bits only for existing taxi nodes
-                if (uint.TryParse(split[i], out var id))
-                    Taximask[index] = (byte)(CliDB.TaxiNodesMask[index] & id);
-        }
-    }
-
-    public void AppendTaximaskTo(ShowTaxiNodes data, bool all)
-    {
-        data.CanLandNodes = new byte[CliDB.TaxiNodesMask.Length];
-        data.CanUseNodes = new byte[CliDB.TaxiNodesMask.Length];
-
-        if (all)
-        {
-            Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.CanLandNodes, 0, data.CanLandNodes.Length); // all existed nodes
-            Buffer.BlockCopy(CliDB.TaxiNodesMask, 0, data.CanUseNodes, 0, data.CanUseNodes.Length);
-        }
-        else
-        {
-            lock (TaxiLock)
-            {
-                Buffer.BlockCopy(Taximask, 0, data.CanLandNodes, 0, data.CanLandNodes.Length); // known nodes
-                Buffer.BlockCopy(Taximask, 0, data.CanUseNodes, 0, data.CanUseNodes.Length);
-            }
+            return (Taximask[field] & submask) == submask;
         }
     }
 
@@ -174,29 +214,27 @@ public class PlayerTaxi
         return true;
     }
 
-    public string SaveTaxiDestinationsToString()
+    public void LoadTaxiMask(string data)
     {
-        if (_taxiDestinations.Empty())
-            return "";
+        lock (TaxiLock)
+        {
+            Taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
 
-        StringBuilder ss = new();
-        ss.Append($"{_flightMasterFactionId} ");
+            var split = new StringArray(data, ' ');
 
-        for (var i = 0; i < _taxiDestinations.Count; ++i)
-            ss.Append($"{_taxiDestinations[i]} ");
+            var index = 0;
 
-        return ss.ToString();
+            for (var i = 0; index < Taximask.Length && i != split.Length; ++i, ++index)
+                // load and set bits only for existing taxi nodes
+                if (uint.TryParse(split[i], out var id))
+                    Taximask[index] = (byte)(CliDB.TaxiNodesMask[index] & id);
+        }
     }
-
-    public uint GetCurrentTaxiPath()
+    public uint NextTaxiDestination()
     {
-        if (_taxiDestinations.Count < 2)
-            return 0;
+        _taxiDestinations.RemoveAt(0);
 
-
-        Global.ObjectMgr.GetTaxiPath(_taxiDestinations[0], _taxiDestinations[1], out var path, out _);
-
-        return path;
+        return GetTaxiDestination();
     }
 
     public bool RequestEarlyLanding()
@@ -219,27 +257,23 @@ public class PlayerTaxi
         return false;
     }
 
-    public FactionTemplateRecord GetFlightMasterFactionTemplate()
+    public string SaveTaxiDestinationsToString()
     {
-        return CliDB.FactionTemplateStorage.LookupByKey(_flightMasterFactionId);
-    }
+        if (_taxiDestinations.Empty())
+            return "";
 
+        StringBuilder ss = new();
+        ss.Append($"{_flightMasterFactionId} ");
+
+        for (var i = 0; i < _taxiDestinations.Count; ++i)
+            ss.Append($"{_taxiDestinations[i]} ");
+
+        return ss.ToString();
+    }
     public void SetFlightMasterFactionTemplateId(uint factionTemplateId)
     {
         _flightMasterFactionId = factionTemplateId;
     }
-
-    public bool IsTaximaskNodeKnown(uint nodeidx)
-    {
-        var field = (nodeidx - 1) / 8;
-        var submask = (uint)(1 << (int)((nodeidx - 1) % 8));
-
-        lock (TaxiLock)
-        {
-            return (Taximask[field] & submask) == submask;
-        }
-    }
-
     public bool SetTaximaskNode(uint nodeidx)
     {
         var field = (nodeidx - 1) / 8;
@@ -259,44 +293,6 @@ public class PlayerTaxi
             }
         }
     }
-
-    public void ClearTaxiDestinations()
-    {
-        _taxiDestinations.Clear();
-    }
-
-    public void AddTaxiDestination(uint dest)
-    {
-        _taxiDestinations.Add(dest);
-    }
-
-    public uint GetTaxiSource()
-    {
-        return _taxiDestinations.Empty() ? 0 : _taxiDestinations[0];
-    }
-
-    public uint GetTaxiDestination()
-    {
-        return _taxiDestinations.Count < 2 ? 0 : _taxiDestinations[1];
-    }
-
-    public uint NextTaxiDestination()
-    {
-        _taxiDestinations.RemoveAt(0);
-
-        return GetTaxiDestination();
-    }
-
-    public List<uint> GetPath()
-    {
-        return _taxiDestinations;
-    }
-
-    public bool Empty()
-    {
-        return _taxiDestinations.Empty();
-    }
-
     private void SetTaxiDestination(List<uint> nodes)
     {
         _taxiDestinations.Clear();

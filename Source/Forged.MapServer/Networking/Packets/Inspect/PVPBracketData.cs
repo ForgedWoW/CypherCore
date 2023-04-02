@@ -5,6 +5,44 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public struct PVPBracketData
 {
+    public byte Bracket;
+
+    public bool Disqualified;
+
+    public int PvpTierID;
+
+    public int Rank;
+
+    public int Rating;
+
+    public int RoundsSeasonPlayed;
+
+    public int RoundsSeasonWon;
+
+    public int RoundsWeeklyPlayed;
+
+    public int RoundsWeeklyWon;
+
+    public int SeasonBestRating;
+
+    public int SeasonPlayed;
+
+    public int SeasonWon;
+
+    public int Unused1;
+
+    public int Unused2;
+
+    public int Unused3;
+
+    public int WeeklyBestRating;
+
+    public int WeeklyBestWinPvpTierID;
+
+    public int WeeklyPlayed;
+
+    public int WeeklyWon;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt8(Bracket);
@@ -28,24 +66,4 @@ public struct PVPBracketData
         data.WriteBit(Disqualified);
         data.FlushBits();
     }
-
-    public int Rating;
-    public int Rank;
-    public int WeeklyPlayed;
-    public int WeeklyWon;
-    public int SeasonPlayed;
-    public int SeasonWon;
-    public int WeeklyBestRating;
-    public int SeasonBestRating;
-    public int PvpTierID;
-    public int WeeklyBestWinPvpTierID;
-    public int Unused1;
-    public int Unused2;
-    public int Unused3;
-    public int RoundsSeasonPlayed;
-    public int RoundsSeasonWon;
-    public int RoundsWeeklyPlayed;
-    public int RoundsWeeklyWon;
-    public byte Bracket;
-    public bool Disqualified;
 }

@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveUpdateCollisionHeight : ServerPacket
 {
-    public MovementInfo Status;
-    public float Scale = 1.0f;
     public float Height = 1.0f;
+    public float Scale = 1.0f;
+    public MovementInfo Status;
     public MoveUpdateCollisionHeight() : base(ServerOpcodes.MoveUpdateCollisionHeight) { }
 
     public override void Write()

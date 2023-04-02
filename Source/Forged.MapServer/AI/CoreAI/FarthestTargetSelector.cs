@@ -9,11 +9,10 @@ namespace Forged.MapServer.AI.CoreAI;
 
 internal class FarthestTargetSelector : ICheck<Unit>
 {
-    private readonly Unit _me;
     private readonly float _dist;
-    private readonly bool _playerOnly;
     private readonly bool _inLos;
-
+    private readonly Unit _me;
+    private readonly bool _playerOnly;
     public FarthestTargetSelector(Unit unit, float dist, bool playerOnly, bool inLos)
     {
         _me = unit;

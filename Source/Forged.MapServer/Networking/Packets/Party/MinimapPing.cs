@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class MinimapPing : ServerPacket
 {
-    public ObjectGuid Sender;
     public float PositionX;
     public float PositionY;
+    public ObjectGuid Sender;
     public MinimapPing() : base(ServerOpcodes.MinimapPing) { }
 
     public override void Write()

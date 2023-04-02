@@ -11,11 +11,11 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverQuestListMessage : ServerPacket
 {
-    public ObjectGuid QuestGiverGUID;
     public uint GreetEmoteDelay;
     public uint GreetEmoteType;
-    public List<ClientGossipText> QuestDataText = new();
     public string Greeting = "";
+    public List<ClientGossipText> QuestDataText = new();
+    public ObjectGuid QuestGiverGUID;
     public QuestGiverQuestListMessage() : base(ServerOpcodes.QuestGiverQuestListMessage) { }
 
     public override void Write()

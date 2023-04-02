@@ -16,18 +16,9 @@ public struct ChatCommandResult
         ErrorMessage = null;
     }
 
-    public bool IsSuccessful { get; private set; }
-
-    public bool HasErrorMessage => !ErrorMessage.IsEmpty();
-
     public string ErrorMessage { get; private set; }
-
-    public void SetErrorMessage(string _value)
-    {
-        IsSuccessful = false;
-        ErrorMessage = _value;
-    }
-
+    public bool HasErrorMessage => !ErrorMessage.IsEmpty();
+    public bool IsSuccessful { get; private set; }
     public static ChatCommandResult FromErrorMessage(string str)
     {
         var result = new ChatCommandResult();
@@ -39,5 +30,11 @@ public struct ChatCommandResult
     public static implicit operator string(ChatCommandResult stringResult)
     {
         return stringResult._value;
+    }
+
+    public void SetErrorMessage(string _value)
+    {
+        IsSuccessful = false;
+        ErrorMessage = _value;
     }
 }

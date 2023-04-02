@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class QueryPetitionResponse : ServerPacket
 {
-    public uint PetitionID = 0;
     public bool Allow = false;
     public PetitionInfo Info;
+    public uint PetitionID = 0;
     public QueryPetitionResponse() : base(ServerOpcodes.QueryPetitionResponse) { }
 
     public override void Write()

@@ -9,10 +9,6 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public abstract class BaseUpdateData<T> : IHasChangesMask
 {
-    public UpdateMask ChangesMask { get; set; }
-    public int BlockBit { get; set; }
-    public int Bit { get; set; }
-
     public BaseUpdateData(int blockBit, TypeId bit, int changeMask)
     {
         BlockBit = blockBit;
@@ -25,13 +21,9 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
         ChangesMask = new UpdateMask(changeMask);
     }
 
-    public abstract void ClearChangesMask();
-
-    public UpdateMask GetUpdateMask()
-    {
-        return ChangesMask;
-    }
-
+    public int Bit { get; set; }
+    public int BlockBit { get; set; }
+    public UpdateMask ChangesMask { get; set; }
     public void ClearChanged<U>(UpdateField<U> updateField) where U : new()
     {
         ChangesMask.Reset(updateField.Bit);
@@ -47,6 +39,8 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
         ChangesMask.Reset(Bit);
         updateField.ClearChanged(index);
     }
+
+    public abstract void ClearChangesMask();
 
     public void ClearChangesMask<U>(UpdateField<U> updateField) where U : new()
     {
@@ -78,6 +72,28 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
 
             updateField.ClearChangesMask();
         }
+    }
+
+    public UpdateMask GetUpdateMask()
+    {
+        return ChangesMask;
+    }
+    public void MarkChanged<U>(UpdateField<U> updateField) where U : new()
+    {
+        ChangesMask.Set(updateField.BlockBit);
+        ChangesMask.Set(updateField.Bit);
+    }
+
+    public void MarkChanged(UpdateFieldString updateField)
+    {
+        ChangesMask.Set(updateField.BlockBit);
+        ChangesMask.Set(updateField.Bit);
+    }
+
+    public void MarkChanged<U>(UpdateFieldArray<U> updateField, int index) where U : new()
+    {
+        ChangesMask.Set(updateField.Bit);
+        ChangesMask.Set(updateField.FirstElementBit + index);
     }
 
     public UpdateField<U> ModifyValue<U>(UpdateField<U> updateField) where U : new()
@@ -124,25 +140,6 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
 
         return new DynamicUpdateFieldSetter<U>(updateField, index);
     }
-
-    public void MarkChanged<U>(UpdateField<U> updateField) where U : new()
-    {
-        ChangesMask.Set(updateField.BlockBit);
-        ChangesMask.Set(updateField.Bit);
-    }
-
-    public void MarkChanged(UpdateFieldString updateField)
-    {
-        ChangesMask.Set(updateField.BlockBit);
-        ChangesMask.Set(updateField.Bit);
-    }
-
-    public void MarkChanged<U>(UpdateFieldArray<U> updateField, int index) where U : new()
-    {
-        ChangesMask.Set(updateField.Bit);
-        ChangesMask.Set(updateField.FirstElementBit + index);
-    }
-
     public void WriteCompleteDynamicFieldUpdateMask(int size, WorldPacket data, int bitsForSize = 32)
     {
         data.WriteBits(size, bitsForSize);

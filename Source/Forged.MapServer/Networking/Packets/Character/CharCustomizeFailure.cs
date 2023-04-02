@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class CharCustomizeFailure : ServerPacket
 {
-    public byte Result;
     public ObjectGuid CharGUID;
+    public byte Result;
     public CharCustomizeFailure() : base(ServerOpcodes.CharCustomizeFailure) { }
 
     public override void Write()

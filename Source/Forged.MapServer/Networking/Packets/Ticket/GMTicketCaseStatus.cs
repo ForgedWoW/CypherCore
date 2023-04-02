@@ -40,8 +40,8 @@ public class GMTicketCaseStatus : ServerPacket
         public int CaseStatus;
         public ushort CfgRealmID;
         public ulong CharacterID;
-        public int WaitTimeOverrideMinutes;
         public string Url;
         public string WaitTimeOverrideMessage;
+        public int WaitTimeOverrideMinutes;
     }
 }

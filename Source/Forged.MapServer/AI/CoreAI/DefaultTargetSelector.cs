@@ -10,12 +10,11 @@ namespace Forged.MapServer.AI.CoreAI;
 // default predicate function to select target based on distance, player and/or aura criteria
 public class DefaultTargetSelector : ICheck<Unit>
 {
-    private readonly Unit _me;
-    private readonly float _dist;
-    private readonly bool _playerOnly;
-    private readonly Unit _exception;
     private readonly int _aura;
-
+    private readonly float _dist;
+    private readonly Unit _exception;
+    private readonly Unit _me;
+    private readonly bool _playerOnly;
     /// <param name="unit"> the reference unit </param>
     /// <param name="dist"> if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit </param>
     /// <param name="playerOnly"> self explaining </param>

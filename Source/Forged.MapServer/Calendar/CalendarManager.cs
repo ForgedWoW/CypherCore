@@ -20,14 +20,14 @@ namespace Forged.MapServer.Calendar;
 
 public class CalendarManager
 {
-    private readonly CharacterDatabase _characterDatabase;
     private readonly CharacterCache _characterCache;
-    private readonly ObjectAccessor _objectAccessor;
-    private readonly GuildManager _guildManager;
+    private readonly CharacterDatabase _characterDatabase;
     private readonly List<CalendarEvent> _events;
-    private readonly MultiMap<ulong, CalendarInvite> _invites;
     private readonly List<ulong> _freeEventIds = new();
     private readonly List<ulong> _freeInviteIds = new();
+    private readonly GuildManager _guildManager;
+    private readonly MultiMap<ulong, CalendarInvite> _invites;
+    private readonly ObjectAccessor _objectAccessor;
     private ulong _maxEventId;
     private ulong _maxInviteId;
 
@@ -39,6 +39,174 @@ public class CalendarManager
         _guildManager = guildManager;
         _events = new List<CalendarEvent>();
         _invites = new MultiMap<ulong, CalendarInvite>();
+    }
+
+    public void AddEvent(CalendarEvent calendarEvent, CalendarSendEventType sendType)
+    {
+        _events.Add(calendarEvent);
+        UpdateEvent(calendarEvent);
+        SendCalendarEvent(calendarEvent.OwnerGuid, calendarEvent, sendType);
+    }
+
+    public void AddInvite(CalendarEvent calendarEvent, CalendarInvite invite, SQLTransaction trans = null)
+    {
+        if (!calendarEvent.IsGuildAnnouncement && calendarEvent.OwnerGuid != invite.InviteeGuid)
+            SendCalendarEventInvite(invite);
+
+        if (!calendarEvent.IsGuildEvent || invite.InviteeGuid == calendarEvent.OwnerGuid)
+            SendCalendarEventInviteAlert(calendarEvent, invite);
+
+        if (!calendarEvent.IsGuildAnnouncement)
+        {
+            _invites.Add(invite.EventId, invite);
+            UpdateInvite(invite, trans);
+        }
+    }
+
+    public void DeleteOldEvents()
+    {
+        var oldEventsTime = GameTime.CurrentTime - SharedConst.CalendarOldEventsDeletionTime;
+
+        foreach (var calendarEvent in _events)
+            if (calendarEvent.Date < oldEventsTime)
+                RemoveEvent(calendarEvent, ObjectGuid.Empty);
+    }
+
+    public void FreeInviteId(ulong id)
+    {
+        if (id == _maxInviteId)
+            --_maxInviteId;
+        else
+            _freeInviteIds.Add(id);
+    }
+
+    public CalendarEvent GetEvent(ulong eventId)
+    {
+        foreach (var calendarEvent in _events)
+            if (calendarEvent.EventId == eventId)
+                return calendarEvent;
+
+        Log.Logger.Debug("CalendarMgr:GetEvent: {0} not found!", eventId);
+
+        return null;
+    }
+
+    public List<CalendarInvite> GetEventInvites(ulong eventId)
+    {
+        return _invites[eventId];
+    }
+
+    public List<CalendarEvent> GetEventsCreatedBy(ObjectGuid guid, bool includeGuildEvents = false)
+    {
+        List<CalendarEvent> result = new();
+
+        foreach (var calendarEvent in _events)
+            if (calendarEvent.OwnerGuid == guid && (includeGuildEvents || (!calendarEvent.IsGuildEvent && !calendarEvent.IsGuildAnnouncement)))
+                result.Add(calendarEvent);
+
+        return result;
+    }
+
+    public ulong GetFreeEventId()
+    {
+        if (_freeEventIds.Empty())
+            return ++_maxEventId;
+
+        var eventId = _freeEventIds.FirstOrDefault();
+        _freeEventIds.RemoveAt(0);
+
+        return eventId;
+    }
+
+    public ulong GetFreeInviteId()
+    {
+        if (_freeInviteIds.Empty())
+            return ++_maxInviteId;
+
+        var inviteId = _freeInviteIds.FirstOrDefault();
+        _freeInviteIds.RemoveAt(0);
+
+        return inviteId;
+    }
+
+    public List<CalendarEvent> GetGuildEvents(ulong guildId)
+    {
+        List<CalendarEvent> result = new();
+
+        if (guildId == 0)
+            return result;
+
+        foreach (var calendarEvent in _events)
+            if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
+                if (calendarEvent.GuildId == guildId)
+                    result.Add(calendarEvent);
+
+        return result;
+    }
+
+    public CalendarInvite GetInvite(ulong inviteId)
+    {
+        foreach (var calendarEvent in _invites.Values)
+            if (calendarEvent.InviteId == inviteId)
+                return calendarEvent;
+
+        Log.Logger.Debug("CalendarMgr:GetInvite: {0} not found!", inviteId);
+
+        return null;
+    }
+
+    public List<CalendarEvent> GetPlayerEvents(ObjectGuid guid)
+    {
+        List<CalendarEvent> events = new();
+
+        foreach (var pair in _invites.KeyValueList)
+            if (pair.Value.InviteeGuid == guid)
+            {
+                var evnt = GetEvent(pair.Key);
+
+                if (evnt != null) // null check added as attempt to fix #11512
+                    events.Add(evnt);
+            }
+
+        var player = _objectAccessor.FindPlayer(guid);
+
+        if (player?.GuildId != 0)
+            foreach (var calendarEvent in _events)
+                if (player != null && calendarEvent.GuildId == player.GuildId)
+                    events.Add(calendarEvent);
+
+        return events;
+    }
+
+    public List<CalendarInvite> GetPlayerInvites(ObjectGuid guid)
+    {
+        List<CalendarInvite> invites = new();
+
+        foreach (var calendarEvent in _invites.Values)
+            if (calendarEvent.InviteeGuid == guid)
+                invites.Add(calendarEvent);
+
+        return invites;
+    }
+
+    public uint GetPlayerNumPending(ObjectGuid guid)
+    {
+        var invites = GetPlayerInvites(guid);
+
+        uint pendingNum = 0;
+
+        foreach (var calendarEvent in invites)
+            switch (calendarEvent.Status)
+            {
+                case CalendarInviteStatus.Invited:
+                case CalendarInviteStatus.Tentative:
+                case CalendarInviteStatus.NotSignedUp:
+                    ++pendingNum;
+
+                    break;
+            }
+
+        return pendingNum;
     }
 
     public void LoadFromDB()
@@ -114,27 +282,16 @@ public class CalendarManager
             if (GetInvite(i) == null)
                 _freeInviteIds.Add(i);
     }
-
-    public void AddEvent(CalendarEvent calendarEvent, CalendarSendEventType sendType)
+    public void RemoveAllPlayerEventsAndInvites(ObjectGuid guid)
     {
-        _events.Add(calendarEvent);
-        UpdateEvent(calendarEvent);
-        SendCalendarEvent(calendarEvent.OwnerGuid, calendarEvent, sendType);
-    }
+        foreach (var calendarEvent in _events)
+            if (calendarEvent.OwnerGuid == guid)
+                RemoveEvent(calendarEvent.EventId, ObjectGuid.Empty); // don't send mail if removing a character
 
-    public void AddInvite(CalendarEvent calendarEvent, CalendarInvite invite, SQLTransaction trans = null)
-    {
-        if (!calendarEvent.IsGuildAnnouncement && calendarEvent.OwnerGuid != invite.InviteeGuid)
-            SendCalendarEventInvite(invite);
+        var playerInvites = GetPlayerInvites(guid);
 
-        if (!calendarEvent.IsGuildEvent || invite.InviteeGuid == calendarEvent.OwnerGuid)
-            SendCalendarEventInviteAlert(calendarEvent, invite);
-
-        if (!calendarEvent.IsGuildAnnouncement)
-        {
-            _invites.Add(invite.EventId, invite);
-            UpdateInvite(invite, trans);
-        }
+        foreach (var calendarInvite in playerInvites)
+            RemoveInvite(calendarInvite.InviteId, calendarInvite.EventId, guid);
     }
 
     public void RemoveEvent(ulong eventId, ObjectGuid remover)
@@ -190,49 +347,6 @@ public class CalendarManager
         _invites.Remove(eventId, calendarInvite);
     }
 
-    public void UpdateEvent(CalendarEvent calendarEvent)
-    {
-        SQLTransaction trans = new();
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
-        stmt.AddValue(0, calendarEvent.EventId);
-        stmt.AddValue(1, calendarEvent.OwnerGuid.Counter);
-        stmt.AddValue(2, calendarEvent.Title);
-        stmt.AddValue(3, calendarEvent.Description);
-        stmt.AddValue(4, (byte)calendarEvent.EventType);
-        stmt.AddValue(5, calendarEvent.TextureId);
-        stmt.AddValue(6, calendarEvent.Date);
-        stmt.AddValue(7, (uint)calendarEvent.Flags);
-        stmt.AddValue(8, calendarEvent.LockDate);
-        trans.Append(stmt);
-        _characterDatabase.CommitTransaction(trans);
-    }
-
-    public void UpdateInvite(CalendarInvite invite, SQLTransaction trans = null)
-    {
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
-        stmt.AddValue(0, invite.InviteId);
-        stmt.AddValue(1, invite.EventId);
-        stmt.AddValue(2, invite.InviteeGuid.Counter);
-        stmt.AddValue(3, invite.SenderGuid.Counter);
-        stmt.AddValue(4, (byte)invite.Status);
-        stmt.AddValue(5, invite.ResponseTime);
-        stmt.AddValue(6, (byte)invite.Rank);
-        stmt.AddValue(7, invite.Note);
-        _characterDatabase.ExecuteOrAppend(trans, stmt);
-    }
-
-    public void RemoveAllPlayerEventsAndInvites(ObjectGuid guid)
-    {
-        foreach (var calendarEvent in _events)
-            if (calendarEvent.OwnerGuid == guid)
-                RemoveEvent(calendarEvent.EventId, ObjectGuid.Empty); // don't send mail if removing a character
-
-        var playerInvites = GetPlayerInvites(guid);
-
-        foreach (var calendarInvite in playerInvites)
-            RemoveInvite(calendarInvite.InviteId, calendarInvite.EventId, guid);
-    }
-
     public void RemovePlayerGuildEventsAndSignups(ObjectGuid guid, ulong guildId)
     {
         foreach (var calendarEvent in _events)
@@ -251,233 +365,38 @@ public class CalendarManager
         }
     }
 
-    public CalendarEvent GetEvent(ulong eventId)
+    public void SendCalendarClearPendingAction(ObjectGuid guid)
     {
-        foreach (var calendarEvent in _events)
-            if (calendarEvent.EventId == eventId)
-                return calendarEvent;
-
-        Log.Logger.Debug("CalendarMgr:GetEvent: {0} not found!", eventId);
-
-        return null;
-    }
-
-    public CalendarInvite GetInvite(ulong inviteId)
-    {
-        foreach (var calendarEvent in _invites.Values)
-            if (calendarEvent.InviteId == inviteId)
-                return calendarEvent;
-
-        Log.Logger.Debug("CalendarMgr:GetInvite: {0} not found!", inviteId);
-
-        return null;
-    }
-
-    public ulong GetFreeEventId()
-    {
-        if (_freeEventIds.Empty())
-            return ++_maxEventId;
-
-        var eventId = _freeEventIds.FirstOrDefault();
-        _freeEventIds.RemoveAt(0);
-
-        return eventId;
-    }
-
-    public void FreeInviteId(ulong id)
-    {
-        if (id == _maxInviteId)
-            --_maxInviteId;
-        else
-            _freeInviteIds.Add(id);
-    }
-
-    public ulong GetFreeInviteId()
-    {
-        if (_freeInviteIds.Empty())
-            return ++_maxInviteId;
-
-        var inviteId = _freeInviteIds.FirstOrDefault();
-        _freeInviteIds.RemoveAt(0);
-
-        return inviteId;
-    }
-
-    public void DeleteOldEvents()
-    {
-        var oldEventsTime = GameTime.GetGameTime() - SharedConst.CalendarOldEventsDeletionTime;
-
-        foreach (var calendarEvent in _events)
-            if (calendarEvent.Date < oldEventsTime)
-                RemoveEvent(calendarEvent, ObjectGuid.Empty);
-    }
-
-    public List<CalendarEvent> GetEventsCreatedBy(ObjectGuid guid, bool includeGuildEvents = false)
-    {
-        List<CalendarEvent> result = new();
-
-        foreach (var calendarEvent in _events)
-            if (calendarEvent.OwnerGuid == guid && (includeGuildEvents || (!calendarEvent.IsGuildEvent && !calendarEvent.IsGuildAnnouncement)))
-                result.Add(calendarEvent);
-
-        return result;
-    }
-
-    public List<CalendarEvent> GetGuildEvents(ulong guildId)
-    {
-        List<CalendarEvent> result = new();
-
-        if (guildId == 0)
-            return result;
-
-        foreach (var calendarEvent in _events)
-            if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
-                if (calendarEvent.GuildId == guildId)
-                    result.Add(calendarEvent);
-
-        return result;
-    }
-
-    public List<CalendarEvent> GetPlayerEvents(ObjectGuid guid)
-    {
-        List<CalendarEvent> events = new();
-
-        foreach (var pair in _invites.KeyValueList)
-            if (pair.Value.InviteeGuid == guid)
-            {
-                var evnt = GetEvent(pair.Key);
-
-                if (evnt != null) // null check added as attempt to fix #11512
-                    events.Add(evnt);
-            }
-
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (player?.GuildId != 0)
-            foreach (var calendarEvent in _events)
-                if (player != null && calendarEvent.GuildId == player.GuildId)
-                    events.Add(calendarEvent);
-
-        return events;
+        if (player)
+            player.SendPacket(new CalendarClearPendingAction());
     }
 
-    public List<CalendarInvite> GetEventInvites(ulong eventId)
+    public void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, string param = null)
     {
-        return _invites[eventId];
-    }
+        var player = _objectAccessor.FindPlayer(guid);
 
-    public List<CalendarInvite> GetPlayerInvites(ObjectGuid guid)
-    {
-        List<CalendarInvite> invites = new();
-
-        foreach (var calendarEvent in _invites.Values)
-            if (calendarEvent.InviteeGuid == guid)
-                invites.Add(calendarEvent);
-
-        return invites;
-    }
-
-    public uint GetPlayerNumPending(ObjectGuid guid)
-    {
-        var invites = GetPlayerInvites(guid);
-
-        uint pendingNum = 0;
-
-        foreach (var calendarEvent in invites)
-            switch (calendarEvent.Status)
+        if (player)
+        {
+            CalendarCommandResult packet = new()
             {
-                case CalendarInviteStatus.Invited:
-                case CalendarInviteStatus.Tentative:
-                case CalendarInviteStatus.NotSignedUp:
-                    ++pendingNum;
+                Command = 1, // FIXME
+                Result = err
+            };
+
+            switch (err)
+            {
+                case CalendarError.OtherInvitesExceeded:
+                case CalendarError.AlreadyInvitedToEventS:
+                case CalendarError.IgnoringYouS:
+                    packet.Name = param;
 
                     break;
             }
 
-        return pendingNum;
-    }
-
-    public void SendCalendarEventInvite(CalendarInvite invite)
-    {
-        var calendarEvent = GetEvent(invite.EventId);
-
-        var invitee = invite.InviteeGuid;
-        var player = _objectAccessor.FindPlayer(invitee);
-
-        var level = player ? player.Level : _characterCache.GetCharacterLevelByGuid(invitee);
-
-        CalendarInviteAdded packet = new()
-        {
-            EventID = calendarEvent?.EventId ?? 0,
-            InviteGuid = invitee,
-            InviteID = calendarEvent != null ? invite.InviteId : 0,
-            Level = (byte)level,
-            ResponseTime = invite.ResponseTime,
-            Status = invite.Status,
-            Type = (byte)(calendarEvent != null ? calendarEvent.IsGuildEvent ? 1 : 0 : 0), // Correct ?
-            ClearPending = calendarEvent == null || !calendarEvent.IsGuildEvent            // Correct ?
-        };
-
-        if (calendarEvent == null) // Pre-invite
-        {
-            player = _objectAccessor.FindPlayer(invite.SenderGuid);
-
-            if (player)
-                player.SendPacket(packet);
+            player.SendPacket(packet);
         }
-        else
-        {
-            if (calendarEvent.OwnerGuid != invite.InviteeGuid) // correct?
-                SendPacketToAllEventRelatives(packet, calendarEvent);
-        }
-    }
-
-    public void SendCalendarEventUpdateAlert(CalendarEvent calendarEvent, long originalDate)
-    {
-        CalendarEventUpdatedAlert packet = new()
-        {
-            ClearPending = true, // FIXME
-            Date = calendarEvent.Date,
-            Description = calendarEvent.Description,
-            EventID = calendarEvent.EventId,
-            EventName = calendarEvent.Title,
-            EventType = calendarEvent.EventType,
-            Flags = calendarEvent.Flags,
-            LockDate = calendarEvent.LockDate, // Always 0 ?
-            OriginalDate = originalDate,
-            TextureID = calendarEvent.TextureId
-        };
-
-        SendPacketToAllEventRelatives(packet, calendarEvent);
-    }
-
-    public void SendCalendarEventStatus(CalendarEvent calendarEvent, CalendarInvite invite)
-    {
-        CalendarInviteStatusPacket packet = new()
-        {
-            ClearPending = true, // FIXME
-            Date = calendarEvent.Date,
-            EventID = calendarEvent.EventId,
-            Flags = calendarEvent.Flags,
-            InviteGuid = invite.InviteeGuid,
-            ResponseTime = invite.ResponseTime,
-            Status = invite.Status
-        };
-
-        SendPacketToAllEventRelatives(packet, calendarEvent);
-    }
-
-    public void SendCalendarEventModeratorStatusAlert(CalendarEvent calendarEvent, CalendarInvite invite)
-    {
-        CalendarModeratorStatus packet = new()
-        {
-            ClearPending = true, // FIXME
-            EventID = calendarEvent.EventId,
-            InviteGuid = invite.InviteeGuid,
-            Status = invite.Status
-        };
-
-        SendPacketToAllEventRelatives(packet, calendarEvent);
     }
 
     public void SendCalendarEvent(ObjectGuid guid, CalendarEvent calendarEvent, CalendarSendEventType sendType)
@@ -532,40 +451,119 @@ public class CalendarManager
         player.SendPacket(packet);
     }
 
-    public void SendCalendarClearPendingAction(ObjectGuid guid)
+    public void SendCalendarEventInvite(CalendarInvite invite)
     {
-        var player = _objectAccessor.FindPlayer(guid);
+        var calendarEvent = GetEvent(invite.EventId);
 
-        if (player)
-            player.SendPacket(new CalendarClearPendingAction());
-    }
+        var invitee = invite.InviteeGuid;
+        var player = _objectAccessor.FindPlayer(invitee);
 
-    public void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, string param = null)
-    {
-        var player = _objectAccessor.FindPlayer(guid);
+        var level = player ? player.Level : _characterCache.GetCharacterLevelByGuid(invitee);
 
-        if (player)
+        CalendarInviteAdded packet = new()
         {
-            CalendarCommandResult packet = new()
-            {
-                Command = 1, // FIXME
-                Result = err
-            };
+            EventID = calendarEvent?.EventId ?? 0,
+            InviteGuid = invitee,
+            InviteID = calendarEvent != null ? invite.InviteId : 0,
+            Level = (byte)level,
+            ResponseTime = invite.ResponseTime,
+            Status = invite.Status,
+            Type = (byte)(calendarEvent != null ? calendarEvent.IsGuildEvent ? 1 : 0 : 0), // Correct ?
+            ClearPending = calendarEvent == null || !calendarEvent.IsGuildEvent            // Correct ?
+        };
 
-            switch (err)
-            {
-                case CalendarError.OtherInvitesExceeded:
-                case CalendarError.AlreadyInvitedToEventS:
-                case CalendarError.IgnoringYouS:
-                    packet.Name = param;
+        if (calendarEvent == null) // Pre-invite
+        {
+            player = _objectAccessor.FindPlayer(invite.SenderGuid);
 
-                    break;
-            }
-
-            player.SendPacket(packet);
+            if (player)
+                player.SendPacket(packet);
+        }
+        else
+        {
+            if (calendarEvent.OwnerGuid != invite.InviteeGuid) // correct?
+                SendPacketToAllEventRelatives(packet, calendarEvent);
         }
     }
 
+    public void SendCalendarEventModeratorStatusAlert(CalendarEvent calendarEvent, CalendarInvite invite)
+    {
+        CalendarModeratorStatus packet = new()
+        {
+            ClearPending = true, // FIXME
+            EventID = calendarEvent.EventId,
+            InviteGuid = invite.InviteeGuid,
+            Status = invite.Status
+        };
+
+        SendPacketToAllEventRelatives(packet, calendarEvent);
+    }
+
+    public void SendCalendarEventStatus(CalendarEvent calendarEvent, CalendarInvite invite)
+    {
+        CalendarInviteStatusPacket packet = new()
+        {
+            ClearPending = true, // FIXME
+            Date = calendarEvent.Date,
+            EventID = calendarEvent.EventId,
+            Flags = calendarEvent.Flags,
+            InviteGuid = invite.InviteeGuid,
+            ResponseTime = invite.ResponseTime,
+            Status = invite.Status
+        };
+
+        SendPacketToAllEventRelatives(packet, calendarEvent);
+    }
+
+    public void SendCalendarEventUpdateAlert(CalendarEvent calendarEvent, long originalDate)
+    {
+        CalendarEventUpdatedAlert packet = new()
+        {
+            ClearPending = true, // FIXME
+            Date = calendarEvent.Date,
+            Description = calendarEvent.Description,
+            EventID = calendarEvent.EventId,
+            EventName = calendarEvent.Title,
+            EventType = calendarEvent.EventType,
+            Flags = calendarEvent.Flags,
+            LockDate = calendarEvent.LockDate, // Always 0 ?
+            OriginalDate = originalDate,
+            TextureID = calendarEvent.TextureId
+        };
+
+        SendPacketToAllEventRelatives(packet, calendarEvent);
+    }
+
+    public void UpdateEvent(CalendarEvent calendarEvent)
+    {
+        SQLTransaction trans = new();
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
+        stmt.AddValue(0, calendarEvent.EventId);
+        stmt.AddValue(1, calendarEvent.OwnerGuid.Counter);
+        stmt.AddValue(2, calendarEvent.Title);
+        stmt.AddValue(3, calendarEvent.Description);
+        stmt.AddValue(4, (byte)calendarEvent.EventType);
+        stmt.AddValue(5, calendarEvent.TextureId);
+        stmt.AddValue(6, calendarEvent.Date);
+        stmt.AddValue(7, (uint)calendarEvent.Flags);
+        stmt.AddValue(8, calendarEvent.LockDate);
+        trans.Append(stmt);
+        _characterDatabase.CommitTransaction(trans);
+    }
+
+    public void UpdateInvite(CalendarInvite invite, SQLTransaction trans = null)
+    {
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
+        stmt.AddValue(0, invite.InviteId);
+        stmt.AddValue(1, invite.EventId);
+        stmt.AddValue(2, invite.InviteeGuid.Counter);
+        stmt.AddValue(3, invite.SenderGuid.Counter);
+        stmt.AddValue(4, (byte)invite.Status);
+        stmt.AddValue(5, invite.ResponseTime);
+        stmt.AddValue(6, (byte)invite.Rank);
+        stmt.AddValue(7, invite.Note);
+        _characterDatabase.ExecuteOrAppend(trans, stmt);
+    }
     private void RemoveEvent(CalendarEvent calendarEvent, ObjectGuid remover)
     {
         if (calendarEvent == null)
@@ -606,31 +604,6 @@ public class CalendarManager
         _events.Remove(calendarEvent);
     }
 
-    private void SendCalendarEventRemovedAlert(CalendarEvent calendarEvent)
-    {
-        CalendarEventRemovedAlert packet = new()
-        {
-            ClearPending = true, // FIXME
-            Date = calendarEvent.Date,
-            EventID = calendarEvent.EventId
-        };
-
-        SendPacketToAllEventRelatives(packet, calendarEvent);
-    }
-
-    private void SendCalendarEventInviteRemove(CalendarEvent calendarEvent, CalendarInvite invite, uint flags)
-    {
-        CalendarInviteRemoved packet = new()
-        {
-            ClearPending = true, // FIXME
-            EventID = calendarEvent.EventId,
-            Flags = flags,
-            InviteGuid = invite.InviteeGuid
-        };
-
-        SendPacketToAllEventRelatives(packet, calendarEvent);
-    }
-
     private void SendCalendarEventInviteAlert(CalendarEvent calendarEvent, CalendarInvite invite)
     {
         CalendarInviteAlert packet = new()
@@ -667,6 +640,19 @@ public class CalendarManager
         }
     }
 
+    private void SendCalendarEventInviteRemove(CalendarEvent calendarEvent, CalendarInvite invite, uint flags)
+    {
+        CalendarInviteRemoved packet = new()
+        {
+            ClearPending = true, // FIXME
+            EventID = calendarEvent.EventId,
+            Flags = flags,
+            InviteGuid = invite.InviteeGuid
+        };
+
+        SendPacketToAllEventRelatives(packet, calendarEvent);
+    }
+
     private void SendCalendarEventInviteRemoveAlert(ObjectGuid guid, CalendarEvent calendarEvent, CalendarInviteStatus status)
     {
         var player = _objectAccessor.FindPlayer(guid);
@@ -685,6 +671,17 @@ public class CalendarManager
         }
     }
 
+    private void SendCalendarEventRemovedAlert(CalendarEvent calendarEvent)
+    {
+        CalendarEventRemovedAlert packet = new()
+        {
+            ClearPending = true, // FIXME
+            Date = calendarEvent.Date,
+            EventID = calendarEvent.EventId
+        };
+
+        SendPacketToAllEventRelatives(packet, calendarEvent);
+    }
     private void SendPacketToAllEventRelatives(ServerPacket packet, CalendarEvent calendarEvent)
     {
         // Send packet to all guild members

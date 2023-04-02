@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonCollection
 {
-    public int Type;
     public List<GarrisonCollectionEntry> Entries = new();
-
+    public int Type;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Type);

@@ -9,19 +9,19 @@ namespace Forged.MapServer.DataStorage.Structs.T;
 
 public sealed class TaxiNodesRecord
 {
-    public LocalizedString Name;
-    public Vector3 Pos;
-    public Vector2 MapOffset;
+    public ushort CharacterBitNumber;
+    public uint ConditionID;
+    public ushort ContinentID;
+    public float Facing;
+    public TaxiNodeFlags Flags;
     public Vector2 FlightMapOffset;
     public uint Id;
-    public ushort ContinentID;
-    public uint ConditionID;
-    public ushort CharacterBitNumber;
-    public TaxiNodeFlags Flags;
-    public int UiTextureKitID;
+    public Vector2 MapOffset;
     public int MinimapAtlasMemberID;
-    public float Facing;
-    public uint SpecialIconConditionID;
-    public uint VisibilityConditionID;
     public uint[] MountCreatureID = new uint[2];
+    public LocalizedString Name;
+    public Vector3 Pos;
+    public uint SpecialIconConditionID;
+    public int UiTextureKitID;
+    public uint VisibilityConditionID;
 }

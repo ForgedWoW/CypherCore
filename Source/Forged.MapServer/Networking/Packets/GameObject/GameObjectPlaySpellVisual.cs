@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectPlaySpellVisual : ServerPacket
 {
-    public ObjectGuid ObjectGUID;
     public ObjectGuid ActivatorGUID;
+    public ObjectGuid ObjectGUID;
     public uint SpellVisualID;
     public GameObjectPlaySpellVisual() : base(ServerOpcodes.GameObjectPlaySpellVisual) { }
 

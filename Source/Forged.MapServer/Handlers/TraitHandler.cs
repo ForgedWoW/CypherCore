@@ -16,6 +16,118 @@ namespace Forged.MapServer.Handlers;
 
 public class TraitHandler : IWorldSessionHandler
 {
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsDeleteConfig)]
+    private void HandleClassTalentsDeleteConfig(ClassTalentsDeleteConfig classTalentsDeleteConfig)
+    {
+        _player.DeleteTraitConfig(classTalentsDeleteConfig.ConfigID);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsRenameConfig)]
+    private void HandleClassTalentsRenameConfig(ClassTalentsRenameConfig classTalentsRenameConfig)
+    {
+        _player.RenameTraitConfig(classTalentsRenameConfig.ConfigID, classTalentsRenameConfig.Name);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsRequestNewConfig)]
+    private void HandleClassTalentsRequestNewConfig(ClassTalentsRequestNewConfig classTalentsRequestNewConfig)
+    {
+        if (classTalentsRequestNewConfig.Config.Type != TraitConfigType.Combat)
+            return;
+
+        if ((classTalentsRequestNewConfig.Config.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) != (int)TraitCombatConfigFlags.None)
+            return;
+
+        long configCount = Enumerable.Count<TraitConfig>(_player.ActivePlayerData.TraitConfigs.Values, traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
+
+        if (configCount >= TraitMgr.MAX_COMBAT_TRAIT_CONFIGS)
+            return;
+
+        int findFreeLocalIdentifier()
+        {
+            var index = 1;
+
+            while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == index; }) >= 0)
+                ++index;
+
+            return index;
+        }
+
+        classTalentsRequestNewConfig.Config.ChrSpecializationID = (int)_player.GetPrimarySpecialization();
+        classTalentsRequestNewConfig.Config.LocalIdentifier = findFreeLocalIdentifier();
+
+        foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _player))
+        {
+            var newEntry = classTalentsRequestNewConfig.Config.Entries.LookupByKey(grantedEntry.TraitNodeID)?.LookupByKey(grantedEntry.TraitNodeEntryID);
+
+            if (newEntry == null)
+            {
+                newEntry = new TraitEntryPacket();
+                classTalentsRequestNewConfig.Config.AddEntry(newEntry);
+            }
+
+            newEntry.TraitNodeID = grantedEntry.TraitNodeID;
+            newEntry.TraitNodeEntryID = grantedEntry.TraitNodeEntryID;
+            newEntry.Rank = grantedEntry.Rank;
+            newEntry.GrantedRanks = grantedEntry.GrantedRanks;
+
+            var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(grantedEntry.TraitNodeEntryID);
+
+            if (traitNodeEntry != null)
+                if (newEntry.Rank + newEntry.GrantedRanks > traitNodeEntry.MaxRanks)
+                    newEntry.Rank = Math.Max(0, traitNodeEntry.MaxRanks - newEntry.GrantedRanks);
+        }
+
+        var validationResult = TraitMgr.ValidateConfig(classTalentsRequestNewConfig.Config, _player);
+
+        if (validationResult != TalentLearnResult.LearnOk)
+            return;
+
+        _player.CreateTraitConfig(classTalentsRequestNewConfig.Config);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsSetStarterBuildActive)]
+    private void HandleClassTalentsSetStarterBuildActive(ClassTalentsSetStarterBuildActive classTalentsSetStarterBuildActive)
+    {
+        var traitConfig = _player.GetTraitConfig(classTalentsSetStarterBuildActive.ConfigID);
+
+        if (traitConfig == null)
+            return;
+
+        if ((TraitConfigType)(int)traitConfig.Type != TraitConfigType.Combat)
+            return;
+
+        if (!((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
+            return;
+
+        if (classTalentsSetStarterBuildActive.Active)
+        {
+            TraitConfigPacket newConfigState = new(traitConfig);
+
+            var freeLocalIdentifier = 1;
+
+            while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == freeLocalIdentifier; }) >= 0)
+                ++freeLocalIdentifier;
+
+            TraitMgr.InitializeStarterBuildTraitConfig(newConfigState, _player);
+            newConfigState.CombatConfigFlags |= TraitCombatConfigFlags.StarterBuild;
+            newConfigState.LocalIdentifier = freeLocalIdentifier;
+
+            _player.UpdateTraitConfig(newConfigState, 0, true);
+        }
+        else
+        {
+            _player.SetTraitConfigUseStarterBuild(classTalentsSetStarterBuildActive.ConfigID, false);
+        }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ClassTalentsSetUsesSharedActionBars)]
+    private void HandleClassTalentsSetUsesSharedActionBars(ClassTalentsSetUsesSharedActionBars classTalentsSetUsesSharedActionBars)
+    {
+        _player.SetTraitConfigUseSharedActionBars(classTalentsSetUsesSharedActionBars.ConfigID,
+                                                  classTalentsSetUsesSharedActionBars.UsesShared,
+                                                  classTalentsSetUsesSharedActionBars.IsLastSelectedSavedConfig);
+    }
+
     [WorldPacketHandler(ClientOpcodes.TraitsCommitConfig)]
     private void HandleTraitsCommitConfig(TraitsCommitConfig traitsCommitConfig)
     {
@@ -150,117 +262,5 @@ public class TraitHandler : IWorldSessionHandler
         }
 
         _player.UpdateTraitConfig(newConfigState, traitsCommitConfig.SavedConfigID, needsCastTime);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ClassTalentsRequestNewConfig)]
-    private void HandleClassTalentsRequestNewConfig(ClassTalentsRequestNewConfig classTalentsRequestNewConfig)
-    {
-        if (classTalentsRequestNewConfig.Config.Type != TraitConfigType.Combat)
-            return;
-
-        if ((classTalentsRequestNewConfig.Config.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) != (int)TraitCombatConfigFlags.None)
-            return;
-
-        long configCount = Enumerable.Count<TraitConfig>(_player.ActivePlayerData.TraitConfigs.Values, traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
-
-        if (configCount >= TraitMgr.MAX_COMBAT_TRAIT_CONFIGS)
-            return;
-
-        int findFreeLocalIdentifier()
-        {
-            var index = 1;
-
-            while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == index; }) >= 0)
-                ++index;
-
-            return index;
-        }
-
-        classTalentsRequestNewConfig.Config.ChrSpecializationID = (int)_player.GetPrimarySpecialization();
-        classTalentsRequestNewConfig.Config.LocalIdentifier = findFreeLocalIdentifier();
-
-        foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _player))
-        {
-            var newEntry = classTalentsRequestNewConfig.Config.Entries.LookupByKey(grantedEntry.TraitNodeID)?.LookupByKey(grantedEntry.TraitNodeEntryID);
-
-            if (newEntry == null)
-            {
-                newEntry = new TraitEntryPacket();
-                classTalentsRequestNewConfig.Config.AddEntry(newEntry);
-            }
-
-            newEntry.TraitNodeID = grantedEntry.TraitNodeID;
-            newEntry.TraitNodeEntryID = grantedEntry.TraitNodeEntryID;
-            newEntry.Rank = grantedEntry.Rank;
-            newEntry.GrantedRanks = grantedEntry.GrantedRanks;
-
-            var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(grantedEntry.TraitNodeEntryID);
-
-            if (traitNodeEntry != null)
-                if (newEntry.Rank + newEntry.GrantedRanks > traitNodeEntry.MaxRanks)
-                    newEntry.Rank = Math.Max(0, traitNodeEntry.MaxRanks - newEntry.GrantedRanks);
-        }
-
-        var validationResult = TraitMgr.ValidateConfig(classTalentsRequestNewConfig.Config, _player);
-
-        if (validationResult != TalentLearnResult.LearnOk)
-            return;
-
-        _player.CreateTraitConfig(classTalentsRequestNewConfig.Config);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ClassTalentsRenameConfig)]
-    private void HandleClassTalentsRenameConfig(ClassTalentsRenameConfig classTalentsRenameConfig)
-    {
-        _player.RenameTraitConfig(classTalentsRenameConfig.ConfigID, classTalentsRenameConfig.Name);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ClassTalentsDeleteConfig)]
-    private void HandleClassTalentsDeleteConfig(ClassTalentsDeleteConfig classTalentsDeleteConfig)
-    {
-        _player.DeleteTraitConfig(classTalentsDeleteConfig.ConfigID);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ClassTalentsSetStarterBuildActive)]
-    private void HandleClassTalentsSetStarterBuildActive(ClassTalentsSetStarterBuildActive classTalentsSetStarterBuildActive)
-    {
-        var traitConfig = _player.GetTraitConfig(classTalentsSetStarterBuildActive.ConfigID);
-
-        if (traitConfig == null)
-            return;
-
-        if ((TraitConfigType)(int)traitConfig.Type != TraitConfigType.Combat)
-            return;
-
-        if (!((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
-            return;
-
-        if (classTalentsSetStarterBuildActive.Active)
-        {
-            TraitConfigPacket newConfigState = new(traitConfig);
-
-            var freeLocalIdentifier = 1;
-
-            while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization() && traitConfig.LocalIdentifier == freeLocalIdentifier; }) >= 0)
-                ++freeLocalIdentifier;
-
-            TraitMgr.InitializeStarterBuildTraitConfig(newConfigState, _player);
-            newConfigState.CombatConfigFlags |= TraitCombatConfigFlags.StarterBuild;
-            newConfigState.LocalIdentifier = freeLocalIdentifier;
-
-            _player.UpdateTraitConfig(newConfigState, 0, true);
-        }
-        else
-        {
-            _player.SetTraitConfigUseStarterBuild(classTalentsSetStarterBuildActive.ConfigID, false);
-        }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ClassTalentsSetUsesSharedActionBars)]
-    private void HandleClassTalentsSetUsesSharedActionBars(ClassTalentsSetUsesSharedActionBars classTalentsSetUsesSharedActionBars)
-    {
-        _player.SetTraitConfigUseSharedActionBars(classTalentsSetUsesSharedActionBars.ConfigID,
-                                                  classTalentsSetUsesSharedActionBars.UsesShared,
-                                                  classTalentsSetUsesSharedActionBars.IsLastSelectedSavedConfig);
     }
 }

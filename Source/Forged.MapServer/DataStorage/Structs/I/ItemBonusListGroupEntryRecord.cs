@@ -8,8 +8,8 @@ public sealed class ItemBonusListGroupEntryRecord
     public uint Id;
     public uint ItemBonusListGroupID;
     public int ItemBonusListID;
+    public int ItemExtendedCostID;
     public int ItemLevelSelectorID;
     public int OrderIndex;
-    public int ItemExtendedCostID;
     public int PlayerConditionID;
 }

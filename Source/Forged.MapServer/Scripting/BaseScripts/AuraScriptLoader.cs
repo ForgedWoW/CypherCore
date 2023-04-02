@@ -12,14 +12,14 @@ public class AuraScriptLoader : ScriptObject, IAuraScriptLoaderGetAuraScript
         Global.ScriptMgr.AddScript(this);
     }
 
-    public override bool IsDatabaseBound()
-    {
-        return true;
-    }
-
     // Should return a fully valid AuraScript.
     public virtual AuraScript GetAuraScript()
     {
         return null;
+    }
+
+    public override bool IsDatabaseBound()
+    {
+        return true;
     }
 }

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetUpdates : ServerPacket
 {
-    public List<BattlePetStruct> Pets = new();
     public bool PetAdded;
+    public List<BattlePetStruct> Pets = new();
     public BattlePetUpdates() : base(ServerOpcodes.BattlePetUpdates) { }
 
     public override void Write()

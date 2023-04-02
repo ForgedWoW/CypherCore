@@ -5,10 +5,10 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class ScenarioRecord
 {
+    public ushort AreaTableID;
+    public byte Flags;
     public uint Id;
     public string Name;
-    public ushort AreaTableID;
     public byte Type;
-    public byte Flags;
     public uint UiTextureKitID;
 }

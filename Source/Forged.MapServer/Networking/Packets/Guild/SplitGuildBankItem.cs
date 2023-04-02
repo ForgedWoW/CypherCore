@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 internal class SplitGuildBankItem : ClientPacket
 {
     public ObjectGuid Banker;
-    public byte BankTab;
     public byte BankSlot;
-    public byte BankTab1;
     public byte BankSlot1;
+    public byte BankTab;
+    public byte BankTab1;
     public uint StackCount;
     public SplitGuildBankItem(WorldPacket packet) : base(packet) { }
 

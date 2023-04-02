@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlemasterJoinArena : ClientPacket
 {
-    public byte TeamSizeIndex;
     public byte Roles;
+    public byte TeamSizeIndex;
     public BattlemasterJoinArena(WorldPacket packet) : base(packet) { }
 
     public override void Read()

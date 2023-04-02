@@ -8,6 +8,18 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal struct CalendarSendCalendarInviteInfo
 {
+    public ulong EventID;
+
+    public ulong InviteID;
+
+    public ObjectGuid InviterGuid;
+
+    public byte InviteType;
+
+    public CalendarModerationRank Moderator;
+
+    public CalendarInviteStatus Status;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(EventID);
@@ -17,11 +29,4 @@ internal struct CalendarSendCalendarInviteInfo
         data.WriteUInt8(InviteType);
         data.WritePackedGuid(InviterGuid);
     }
-
-    public ulong EventID;
-    public ulong InviteID;
-    public ObjectGuid InviterGuid;
-    public CalendarInviteStatus Status;
-    public CalendarModerationRank Moderator;
-    public byte InviteType;
 }

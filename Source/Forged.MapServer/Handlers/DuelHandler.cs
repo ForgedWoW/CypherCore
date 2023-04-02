@@ -36,15 +36,6 @@ public class DuelHandler : IWorldSessionHandler
         }
     }
 
-    [WorldPacketHandler(ClientOpcodes.DuelResponse)]
-    private void HandleDuelResponse(DuelResponse duelResponse)
-    {
-        if (duelResponse.Accepted && !duelResponse.Forfeited)
-            HandleDuelAccepted(duelResponse.ArbiterGUID);
-        else
-            HandleDuelCancelled();
-    }
-
     private void HandleDuelAccepted(ObjectGuid arbiterGuid)
     {
         var player = Player;
@@ -60,7 +51,7 @@ public class DuelHandler : IWorldSessionHandler
         Log.Logger.Debug("Player 1 is: {0} ({1})", player.GUID.ToString(), player.GetName());
         Log.Logger.Debug("Player 2 is: {0} ({1})", target.GUID.ToString(), target.GetName());
 
-        var now = GameTime.GetGameTime();
+        var now = GameTime.CurrentTime;
         player.Duel.StartTime = now + 3;
         target.Duel.StartTime = now + 3;
 
@@ -97,5 +88,14 @@ public class DuelHandler : IWorldSessionHandler
         }
 
         player.DuelComplete(DuelCompleteType.Interrupted);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.DuelResponse)]
+    private void HandleDuelResponse(DuelResponse duelResponse)
+    {
+        if (duelResponse.Accepted && !duelResponse.Forfeited)
+            HandleDuelAccepted(duelResponse.ArbiterGUID);
+        else
+            HandleDuelCancelled();
     }
 }

@@ -28,6 +28,36 @@ public class SuggestionTicket : Ticket
         IdProtected = Global.SupportMgr.GenerateSuggestionId();
     }
 
+    public override void DeleteFromDB()
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_SUGGESTION);
+        stmt.AddValue(0, IdProtected);
+        DB.Characters.Execute(stmt);
+    }
+
+    public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
+    {
+        var curTime = (ulong)GameTime.CurrentTime;
+
+        StringBuilder ss = new();
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.SecsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText)));
+
+        if (!AssignedToProtected.IsEmpty)
+            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
+
+        if (detailed)
+        {
+            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
+
+            if (!string.IsNullOrEmpty(CommentProtected))
+                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, CommentProtected));
+        }
+
+        return ss.ToString();
+    }
+
     public override void LoadFromDB(SQLFields fields)
     {
         byte idx = 0;
@@ -77,47 +107,15 @@ public class SuggestionTicket : Ticket
 
         DB.Characters.Execute(stmt);
     }
-
-    public override void DeleteFromDB()
+    public void SetFacing(float facing)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_SUGGESTION);
-        stmt.AddValue(0, IdProtected);
-        DB.Characters.Execute(stmt);
-    }
-
-    public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
-    {
-        var curTime = (ulong)GameTime.GetGameTime();
-
-        StringBuilder ss = new();
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.secsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText)));
-
-        if (!AssignedToProtected.IsEmpty)
-            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
-
-        if (detailed)
-        {
-            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
-
-            if (!string.IsNullOrEmpty(CommentProtected))
-                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, CommentProtected));
-        }
-
-        return ss.ToString();
+        _facing = facing;
     }
 
     public void SetNote(string note)
     {
         _note = note;
     }
-
-    public void SetFacing(float facing)
-    {
-        _facing = facing;
-    }
-
     private string GetNote()
     {
         return _note;

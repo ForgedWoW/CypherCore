@@ -10,34 +10,34 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverQuestDetails : ServerPacket
 {
-    public ObjectGuid QuestGiverGUID;
+    public bool AutoLaunched;
+    public List<ConditionalQuestText> ConditionalDescriptionText = new();
+    public List<QuestDescEmote> DescEmotes = new();
+    public string DescriptionText = "";
+    public bool DisplayPopup;
     public ObjectGuid InformUnit;
+    public List<uint> LearnSpells = new();
+    public string LogDescription = "";
+    public List<QuestObjectiveSimple> Objectives = new();
+    public uint PortraitGiver;
+    public int PortraitGiverModelSceneID;
+    public uint PortraitGiverMount;
+    public string PortraitGiverName = "";
+    public string PortraitGiverText = "";
+    public uint PortraitTurnIn;
+    public string PortraitTurnInName = "";
+    public string PortraitTurnInText = "";
+    public uint[] QuestFlags = new uint[3];
+    public int QuestGiverCreatureID;
+    public ObjectGuid QuestGiverGUID;
     public uint QuestID;
     public int QuestPackageID;
-    public uint[] QuestFlags = new uint[3];
-    public uint SuggestedPartyMembers;
-    public QuestRewards Rewards = new();
-    public List<QuestObjectiveSimple> Objectives = new();
-    public List<QuestDescEmote> DescEmotes = new();
-    public List<uint> LearnSpells = new();
-    public uint PortraitTurnIn;
-    public uint PortraitGiver;
-    public uint PortraitGiverMount;
-    public int PortraitGiverModelSceneID;
-    public int QuestStartItemID;
     public int QuestSessionBonus;
-    public int QuestGiverCreatureID;
-    public string PortraitGiverText = "";
-    public string PortraitGiverName = "";
-    public string PortraitTurnInText = "";
-    public string PortraitTurnInName = "";
+    public int QuestStartItemID;
     public string QuestTitle = "";
-    public string LogDescription = "";
-    public string DescriptionText = "";
-    public List<ConditionalQuestText> ConditionalDescriptionText = new();
-    public bool DisplayPopup;
+    public QuestRewards Rewards = new();
     public bool StartCheat;
-    public bool AutoLaunched;
+    public uint SuggestedPartyMembers;
     public QuestGiverQuestDetails() : base(ServerOpcodes.QuestGiverQuestDetails) { }
 
     public override void Write()

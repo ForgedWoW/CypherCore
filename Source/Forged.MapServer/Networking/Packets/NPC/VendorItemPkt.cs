@@ -7,19 +7,18 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class VendorItemPkt
 {
-    public int MuID;
-    public int Type;
-    public ItemInstance Item = new();
-    public int Quantity = -1;
-    public ulong Price;
-    public int Durability;
-    public int StackCount;
-    public int ExtendedCostID;
-    public int PlayerConditionFailed;
-    public bool Locked;
     public bool DoNotFilterOnVendor;
+    public int Durability;
+    public int ExtendedCostID;
+    public ItemInstance Item = new();
+    public bool Locked;
+    public int MuID;
+    public int PlayerConditionFailed;
+    public ulong Price;
+    public int Quantity = -1;
     public bool Refundable;
-
+    public int StackCount;
+    public int Type;
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(Price);

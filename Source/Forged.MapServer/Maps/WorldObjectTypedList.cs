@@ -17,15 +17,51 @@ namespace Forged.MapServer.Maps;
 
 public class WorldObjectTypedList
 {
-    private readonly List<Player> _players = new();
-    private readonly List<Creature> _creatures = new();
-    private readonly List<Corpse> _corpses = new();
-    private readonly List<DynamicObject> _dynamicObjects = new();
     private readonly List<AreaTrigger> _areaTriggers = new();
-    private readonly List<SceneObject> _sceneObjects = new();
     private readonly List<Conversation> _conversations = new();
+    private readonly List<Corpse> _corpses = new();
+    private readonly List<Creature> _creatures = new();
+    private readonly List<DynamicObject> _dynamicObjects = new();
     private readonly List<GameObject> _gameObjects = new();
+    private readonly List<Player> _players = new();
+    private readonly List<SceneObject> _sceneObjects = new();
     private readonly List<WorldObject> _worldObjects = new();
+
+    public bool Contains(WorldObject obj)
+    {
+        lock (_worldObjects)
+        {
+            return _worldObjects.Contains(obj);
+        }
+    }
+
+    public int GetCount<T>()
+    {
+        lock (_worldObjects)
+        {
+            switch (typeof(T).Name)
+            {
+                case nameof(Creature):
+                    return _creatures.Count;
+                case nameof(Player):
+                    return _players.Count;
+                case nameof(GameObject):
+                    return _gameObjects.Count;
+                case nameof(DynamicObject):
+                    return _dynamicObjects.Count;
+                case nameof(Corpse):
+                    return _corpses.Count;
+                case nameof(AreaTrigger):
+                    return _areaTriggers.Count;
+                case nameof(Conversation):
+                    return _conversations.Count;
+                case nameof(SceneObject):
+                    return _sceneObjects.Count;
+            }
+        }
+
+        return 0;
+    }
 
     public void Insert(WorldObject obj)
     {
@@ -159,41 +195,5 @@ public class WorldObjectTypedList
 
         if (visitor is IGridNotifierPlayer p)
             p.Visit(_players);
-    }
-
-    public bool Contains(WorldObject obj)
-    {
-        lock (_worldObjects)
-        {
-            return _worldObjects.Contains(obj);
-        }
-    }
-
-    public int GetCount<T>()
-    {
-        lock (_worldObjects)
-        {
-            switch (typeof(T).Name)
-            {
-                case nameof(Creature):
-                    return _creatures.Count;
-                case nameof(Player):
-                    return _players.Count;
-                case nameof(GameObject):
-                    return _gameObjects.Count;
-                case nameof(DynamicObject):
-                    return _dynamicObjects.Count;
-                case nameof(Corpse):
-                    return _corpses.Count;
-                case nameof(AreaTrigger):
-                    return _areaTriggers.Count;
-                case nameof(Conversation):
-                    return _conversations.Count;
-                case nameof(SceneObject):
-                    return _sceneObjects.Count;
-            }
-        }
-
-        return 0;
     }
 }

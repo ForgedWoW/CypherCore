@@ -9,22 +9,22 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 
 public class SupportTicketSubmitComplaint : ClientPacket
 {
-    public SupportTicketHeader Header;
+    public SupportTicketCalendarEventInfo? CalenderInfo;
     public SupportTicketChatLog ChatLog;
-    public ObjectGuid TargetCharacterGUID;
-    public int ReportType;
+    public SupportTicketClubFinderResult? ClubFinderResult;
+    public SupportTicketCommunityMessage? CommunityMessage;
+    public SupportTicketGuildInfo? GuildInfo;
+    public SupportTicketHeader Header;
+    public SupportTicketHorusChatLog HorusChatLog;
+    public SupportTicketLFGListApplicant? LFGListApplicant;
+    public SupportTicketLFGListSearchResult? LFGListSearchResult;
+    public SupportTicketMailInfo? MailInfo;
     public int MajorCategory;
     public int MinorCategoryFlags;
     public string Note;
-    public SupportTicketHorusChatLog HorusChatLog;
-    public SupportTicketMailInfo? MailInfo;
-    public SupportTicketCalendarEventInfo? CalenderInfo;
     public SupportTicketPetInfo? PetInfo;
-    public SupportTicketGuildInfo? GuildInfo;
-    public SupportTicketLFGListSearchResult? LFGListSearchResult;
-    public SupportTicketLFGListApplicant? LFGListApplicant;
-    public SupportTicketCommunityMessage? CommunityMessage;
-    public SupportTicketClubFinderResult? ClubFinderResult;
+    public int ReportType;
+    public ObjectGuid TargetCharacterGUID;
     public SupportTicketUnused910? Unused910;
     public SupportTicketSubmitComplaint(WorldPacket packet) : base(packet) { }
 
@@ -114,11 +114,27 @@ public class SupportTicketSubmitComplaint : ClientPacket
         }
     }
 
+    public struct SupportTicketCalendarEventInfo
+    {
+        public ulong EventID;
+
+        public string EventTitle;
+
+        public ulong InviteID;
+
+        public void Read(WorldPacket data)
+        {
+            EventID = data.ReadUInt64();
+            InviteID = data.ReadUInt64();
+
+            EventTitle = data.ReadString(data.ReadBits<byte>(8));
+        }
+    }
+
     public struct SupportTicketChatLine
     {
-        public long Timestamp;
         public string Text;
-
+        public long Timestamp;
         public SupportTicketChatLine(WorldPacket data)
         {
             Timestamp = data.ReadInt64();
@@ -138,28 +154,58 @@ public class SupportTicketSubmitComplaint : ClientPacket
         }
     }
 
-    public class SupportTicketChatLog
+    public struct SupportTicketClubFinderResult
     {
-        public List<SupportTicketChatLine> Lines = new();
-        public uint? ReportLineIndex;
+        public ObjectGuid ClubFinderGUID;
+        public ulong ClubFinderPostingID;
+        public ulong ClubID;
+        public string ClubName;
 
         public void Read(WorldPacket data)
         {
-            var linesCount = data.ReadUInt32();
-            var hasReportLineIndex = data.HasBit();
+            ClubFinderPostingID = data.ReadUInt64();
+            ClubID = data.ReadUInt64();
+            ClubFinderGUID = data.ReadPackedGuid();
+            ClubName = data.ReadString(data.ReadBits<uint>(12));
+        }
+    }
 
-            data.ResetBitPos();
+    public struct SupportTicketCommunityMessage
+    {
+        public bool IsPlayerUsingVoice;
+    }
 
-            for (uint i = 0; i < linesCount; i++)
-                Lines.Add(new SupportTicketChatLine(data));
+    public struct SupportTicketGuildInfo
+    {
+        public ObjectGuid GuildID;
 
-            if (hasReportLineIndex)
-                ReportLineIndex = data.ReadUInt32();
+        public string GuildName;
+
+        public void Read(WorldPacket data)
+        {
+            var nameLength = data.ReadBits<byte>(8);
+            GuildID = data.ReadPackedGuid();
+
+            GuildName = data.ReadString(nameLength);
         }
     }
 
     public struct SupportTicketHorusChatLine
     {
+        public ObjectGuid AuthorGUID;
+
+        public ObjectGuid? ChannelGUID;
+
+        public ulong? ClubID;
+
+        public SenderRealm? RealmAddress;
+
+        public int? SlashCmd;
+
+        public string Text;
+
+        public long Timestamp;
+
         public void Read(WorldPacket data)
         {
             Timestamp = data.ReadInt64();
@@ -197,99 +243,49 @@ public class SupportTicketSubmitComplaint : ClientPacket
 
         public struct SenderRealm
         {
-            public uint VirtualRealmAddress;
             public ushort field_4;
             public byte field_6;
-        }
-
-        public long Timestamp;
-        public ObjectGuid AuthorGUID;
-        public ulong? ClubID;
-        public ObjectGuid? ChannelGUID;
-        public SenderRealm? RealmAddress;
-        public int? SlashCmd;
-        public string Text;
-    }
-
-    public class SupportTicketHorusChatLog
-    {
-        public List<SupportTicketHorusChatLine> Lines = new();
-
-        public void Read(WorldPacket data)
-        {
-            var linesCount = data.ReadUInt32();
-            data.ResetBitPos();
-
-            for (uint i = 0; i < linesCount; i++)
-            {
-                var chatLine = new SupportTicketHorusChatLine();
-                chatLine.Read(data);
-                Lines.Add(chatLine);
-            }
+            public uint VirtualRealmAddress;
         }
     }
 
-    public struct SupportTicketMailInfo
+    public struct SupportTicketLFGListApplicant
     {
+        public string Comment;
+
+        public RideTicket RideTicket;
+
         public void Read(WorldPacket data)
         {
-            MailID = data.ReadUInt64();
-            var bodyLength = data.ReadBits<uint>(13);
-            var subjectLength = data.ReadBits<uint>(9);
+            RideTicket = new RideTicket();
+            RideTicket.Read(data);
 
-            MailBody = data.ReadString(bodyLength);
-            MailSubject = data.ReadString(subjectLength);
+            Comment = data.ReadString(data.ReadBits<uint>(9));
         }
-
-        public ulong MailID;
-        public string MailSubject;
-        public string MailBody;
-    }
-
-    public struct SupportTicketCalendarEventInfo
-    {
-        public void Read(WorldPacket data)
-        {
-            EventID = data.ReadUInt64();
-            InviteID = data.ReadUInt64();
-
-            EventTitle = data.ReadString(data.ReadBits<byte>(8));
-        }
-
-        public ulong EventID;
-        public ulong InviteID;
-        public string EventTitle;
-    }
-
-    public struct SupportTicketPetInfo
-    {
-        public void Read(WorldPacket data)
-        {
-            PetID = data.ReadPackedGuid();
-
-            PetName = data.ReadString(data.ReadBits<byte>(8));
-        }
-
-        public ObjectGuid PetID;
-        public string PetName;
-    }
-
-    public struct SupportTicketGuildInfo
-    {
-        public void Read(WorldPacket data)
-        {
-            var nameLength = data.ReadBits<byte>(8);
-            GuildID = data.ReadPackedGuid();
-
-            GuildName = data.ReadString(nameLength);
-        }
-
-        public ObjectGuid GuildID;
-        public string GuildName;
     }
 
     public struct SupportTicketLFGListSearchResult
     {
+        public string Description;
+
+        public uint GroupFinderActivityID;
+
+        public ObjectGuid LastDescriptionAuthorGuid;
+
+        public ObjectGuid LastTitleAuthorGuid;
+
+        public ObjectGuid LastVoiceChatAuthorGuid;
+
+        public ObjectGuid ListingCreatorGuid;
+
+        public RideTicket RideTicket;
+
+        public string Title;
+
+        public ObjectGuid Unknown735;
+
+        public string VoiceChat;
+
         public void Read(WorldPacket data)
         {
             RideTicket = new RideTicket();
@@ -310,51 +306,38 @@ public class SupportTicketSubmitComplaint : ClientPacket
             Description = data.ReadString(descriptionLength);
             VoiceChat = data.ReadString(voiceChatLength);
         }
-
-        public RideTicket RideTicket;
-        public uint GroupFinderActivityID;
-        public ObjectGuid LastTitleAuthorGuid;
-        public ObjectGuid LastDescriptionAuthorGuid;
-        public ObjectGuid LastVoiceChatAuthorGuid;
-        public ObjectGuid ListingCreatorGuid;
-        public ObjectGuid Unknown735;
-        public string Title;
-        public string Description;
-        public string VoiceChat;
     }
 
-    public struct SupportTicketLFGListApplicant
+    public struct SupportTicketMailInfo
     {
+        public string MailBody;
+
+        public ulong MailID;
+
+        public string MailSubject;
+
         public void Read(WorldPacket data)
         {
-            RideTicket = new RideTicket();
-            RideTicket.Read(data);
+            MailID = data.ReadUInt64();
+            var bodyLength = data.ReadBits<uint>(13);
+            var subjectLength = data.ReadBits<uint>(9);
 
-            Comment = data.ReadString(data.ReadBits<uint>(9));
+            MailBody = data.ReadString(bodyLength);
+            MailSubject = data.ReadString(subjectLength);
         }
-
-        public RideTicket RideTicket;
-        public string Comment;
     }
 
-    public struct SupportTicketCommunityMessage
+    public struct SupportTicketPetInfo
     {
-        public bool IsPlayerUsingVoice;
-    }
+        public ObjectGuid PetID;
 
-    public struct SupportTicketClubFinderResult
-    {
-        public ulong ClubFinderPostingID;
-        public ulong ClubID;
-        public ObjectGuid ClubFinderGUID;
-        public string ClubName;
+        public string PetName;
 
         public void Read(WorldPacket data)
         {
-            ClubFinderPostingID = data.ReadUInt64();
-            ClubID = data.ReadUInt64();
-            ClubFinderGUID = data.ReadPackedGuid();
-            ClubName = data.ReadString(data.ReadBits<uint>(12));
+            PetID = data.ReadPackedGuid();
+
+            PetName = data.ReadString(data.ReadBits<byte>(8));
         }
     }
 
@@ -368,6 +351,43 @@ public class SupportTicketSubmitComplaint : ClientPacket
             var field_0Length = data.ReadBits<uint>(7);
             field_104 = data.ReadPackedGuid();
             field_0 = data.ReadString(field_0Length);
+        }
+    }
+
+    public class SupportTicketChatLog
+    {
+        public List<SupportTicketChatLine> Lines = new();
+        public uint? ReportLineIndex;
+
+        public void Read(WorldPacket data)
+        {
+            var linesCount = data.ReadUInt32();
+            var hasReportLineIndex = data.HasBit();
+
+            data.ResetBitPos();
+
+            for (uint i = 0; i < linesCount; i++)
+                Lines.Add(new SupportTicketChatLine(data));
+
+            if (hasReportLineIndex)
+                ReportLineIndex = data.ReadUInt32();
+        }
+    }
+    public class SupportTicketHorusChatLog
+    {
+        public List<SupportTicketHorusChatLine> Lines = new();
+
+        public void Read(WorldPacket data)
+        {
+            var linesCount = data.ReadUInt32();
+            data.ResetBitPos();
+
+            for (uint i = 0; i < linesCount; i++)
+            {
+                var chatLine = new SupportTicketHorusChatLine();
+                chatLine.Read(data);
+                Lines.Add(chatLine);
+            }
         }
     }
 }

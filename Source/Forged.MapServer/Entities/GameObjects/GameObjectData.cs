@@ -10,10 +10,9 @@ namespace Forged.MapServer.Entities.GameObjects;
 
 public class GameObjectData : SpawnData
 {
-    public Quaternion Rotation;
     public uint Animprogress;
-    public GameObjectState GoState;
     public uint ArtKit;
-
+    public GameObjectState GoState;
+    public Quaternion Rotation;
     public GameObjectData() : base(SpawnObjectType.GameObject) { }
 }

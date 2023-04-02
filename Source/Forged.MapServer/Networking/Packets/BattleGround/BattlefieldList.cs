@@ -9,13 +9,14 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class BattlefieldList : ServerPacket
 {
+    public List<int> Battlefields = new();
     public ObjectGuid BattlemasterGuid;
     public int BattlemasterListID;
-    public byte MinLevel;
-    public byte MaxLevel;
-    public List<int> Battlefields = new(); // Players cannot join a specific Battleground instance anymore - this is always empty
-    public bool PvpAnywhere;
     public bool HasRandomWinToday;
+    public byte MaxLevel;
+    public byte MinLevel;
+    // Players cannot join a specific Battleground instance anymore - this is always empty
+    public bool PvpAnywhere;
     public BattlefieldList() : base(ServerOpcodes.BattlefieldList) { }
 
     public override void Write()

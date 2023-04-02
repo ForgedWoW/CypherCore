@@ -14,14 +14,9 @@ public struct AreaTriggerId
         IsServerSide = isServerSide;
     }
 
-    public override int GetHashCode()
+    public static bool operator !=(AreaTriggerId left, AreaTriggerId right)
     {
-        return Id.GetHashCode() ^ IsServerSide.GetHashCode();
-    }
-
-    public override bool Equals(object obj)
-    {
-        return this == (AreaTriggerId)obj;
+        return !(left == right);
     }
 
     public static bool operator ==(AreaTriggerId left, AreaTriggerId right)
@@ -29,8 +24,13 @@ public struct AreaTriggerId
         return left.Id == right.Id && left.IsServerSide == right.IsServerSide;
     }
 
-    public static bool operator !=(AreaTriggerId left, AreaTriggerId right)
+    public override bool Equals(object obj)
     {
-        return !(left == right);
+        return this == (AreaTriggerId)obj;
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode() ^ IsServerSide.GetHashCode();
     }
 }

@@ -9,6 +9,6 @@ public struct InstanceSpawnGroupInfo
 {
     public byte BossStateId;
     public byte BossStates;
-    public uint SpawnGroupId;
     public InstanceSpawnGroupFlags Flags;
+    public uint SpawnGroupId;
 }

@@ -7,11 +7,11 @@ public class QuestPOIBlobEntry
 {
     public int ID;
     public short MapID;
-    public int UiMapID;
     public byte NumPoints;
-    public uint QuestID;
-    public int ObjectiveIndex;
     public int ObjectiveID;
+    public int ObjectiveIndex;
     public uint PlayerConditionID;
+    public uint QuestID;
+    public int UiMapID;
     public uint UNK_9_0_1;
 }

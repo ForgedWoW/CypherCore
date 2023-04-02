@@ -7,6 +7,6 @@ namespace Forged.MapServer.DataStorage.Structs.M;
 
 public sealed class MailTemplateRecord
 {
-    public uint Id;
     public LocalizedString Body;
+    public uint Id;
 }

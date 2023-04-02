@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestPushResult : ClientPacket
 {
-    public ObjectGuid SenderGUID;
     public uint QuestID;
     public QuestPushReason Result;
+    public ObjectGuid SenderGUID;
     public QuestPushResult(WorldPacket packet) : base(packet) { }
 
     public override void Read()

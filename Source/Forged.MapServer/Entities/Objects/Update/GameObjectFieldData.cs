@@ -12,32 +12,60 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class GameObjectFieldData : BaseUpdateData<GameObject>
 {
-    public UpdateField<List<uint>> StateWorldEffectIDs = new(0, 1);
-    public DynamicUpdateField<int> EnableDoodadSets = new(0, 2);
-    public DynamicUpdateField<int> WorldEffects = new(0, 3);
+    public UpdateField<uint> AnimGroupInstance = new(0, 21);
+    public UpdateField<uint> ArtKit = new(0, 18);
+    public UpdateField<ObjectGuid> CreatedBy = new(0, 10);
+    public UpdateField<uint> CustomParam = new(0, 19);
     public UpdateField<uint> DisplayID = new(0, 4);
-    public UpdateField<uint> SpellVisualID = new(0, 5);
-    public UpdateField<uint> StateSpellVisualID = new(0, 6);
+    public DynamicUpdateField<int> EnableDoodadSets = new(0, 2);
+    public UpdateField<uint> FactionTemplate = new(0, 14);
+    public UpdateField<uint> Flags = new(0, 12);
+    public UpdateField<ObjectGuid> GuildGUID = new(0, 11);
+    public UpdateField<uint> Level = new(0, 20);
+    public UpdateField<Quaternion> ParentRotation = new(0, 13);
+    public UpdateField<byte> PercentHealth = new(0, 17);
     public UpdateField<uint> SpawnTrackingStateAnimID = new(0, 7);
     public UpdateField<uint> SpawnTrackingStateAnimKitID = new(0, 8);
-    public UpdateField<uint> StateWorldEffectsQuestObjectiveID = new(0, 9);
-    public UpdateField<ObjectGuid> CreatedBy = new(0, 10);
-    public UpdateField<ObjectGuid> GuildGUID = new(0, 11);
-    public UpdateField<uint> Flags = new(0, 12);
-    public UpdateField<Quaternion> ParentRotation = new(0, 13);
-    public UpdateField<uint> FactionTemplate = new(0, 14);
+    public UpdateField<uint> SpellVisualID = new(0, 5);
     public UpdateField<sbyte> State = new(0, 15);
+    public UpdateField<uint> StateSpellVisualID = new(0, 6);
+    public UpdateField<List<uint>> StateWorldEffectIDs = new(0, 1);
+    public UpdateField<uint> StateWorldEffectsQuestObjectiveID = new(0, 9);
     public UpdateField<sbyte> TypeID = new(0, 16);
-    public UpdateField<byte> PercentHealth = new(0, 17);
-    public UpdateField<uint> ArtKit = new(0, 18);
-    public UpdateField<uint> CustomParam = new(0, 19);
-    public UpdateField<uint> Level = new(0, 20);
-    public UpdateField<uint> AnimGroupInstance = new(0, 21);
     public UpdateField<uint> UiWidgetItemID = new(0, 22);
     public UpdateField<uint> UiWidgetItemQuality = new(0, 23);
     public UpdateField<uint> UiWidgetItemUnknown1000 = new(0, 24);
-
+    public DynamicUpdateField<int> WorldEffects = new(0, 3);
     public GameObjectFieldData() : base(0, TypeId.GameObject, 25) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(StateWorldEffectIDs);
+        ClearChangesMask(EnableDoodadSets);
+        ClearChangesMask(WorldEffects);
+        ClearChangesMask(DisplayID);
+        ClearChangesMask(SpellVisualID);
+        ClearChangesMask(StateSpellVisualID);
+        ClearChangesMask(SpawnTrackingStateAnimID);
+        ClearChangesMask(SpawnTrackingStateAnimKitID);
+        ClearChangesMask(StateWorldEffectsQuestObjectiveID);
+        ClearChangesMask(CreatedBy);
+        ClearChangesMask(GuildGUID);
+        ClearChangesMask(Flags);
+        ClearChangesMask(ParentRotation);
+        ClearChangesMask(FactionTemplate);
+        ClearChangesMask(State);
+        ClearChangesMask(TypeID);
+        ClearChangesMask(PercentHealth);
+        ClearChangesMask(ArtKit);
+        ClearChangesMask(CustomParam);
+        ClearChangesMask(Level);
+        ClearChangesMask(AnimGroupInstance);
+        ClearChangesMask(UiWidgetItemID);
+        ClearChangesMask(UiWidgetItemQuality);
+        ClearChangesMask(UiWidgetItemUnknown1000);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, GameObject owner, Player receiver)
     {
@@ -203,36 +231,6 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
                 data.WriteUInt32(UiWidgetItemUnknown1000);
         }
     }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(StateWorldEffectIDs);
-        ClearChangesMask(EnableDoodadSets);
-        ClearChangesMask(WorldEffects);
-        ClearChangesMask(DisplayID);
-        ClearChangesMask(SpellVisualID);
-        ClearChangesMask(StateSpellVisualID);
-        ClearChangesMask(SpawnTrackingStateAnimID);
-        ClearChangesMask(SpawnTrackingStateAnimKitID);
-        ClearChangesMask(StateWorldEffectsQuestObjectiveID);
-        ClearChangesMask(CreatedBy);
-        ClearChangesMask(GuildGUID);
-        ClearChangesMask(Flags);
-        ClearChangesMask(ParentRotation);
-        ClearChangesMask(FactionTemplate);
-        ClearChangesMask(State);
-        ClearChangesMask(TypeID);
-        ClearChangesMask(PercentHealth);
-        ClearChangesMask(ArtKit);
-        ClearChangesMask(CustomParam);
-        ClearChangesMask(Level);
-        ClearChangesMask(AnimGroupInstance);
-        ClearChangesMask(UiWidgetItemID);
-        ClearChangesMask(UiWidgetItemQuality);
-        ClearChangesMask(UiWidgetItemUnknown1000);
-        ChangesMask.ResetAll();
-    }
-
     private uint GetViewerGameObjectFlags(GameObjectFieldData gameObjectData, GameObject gameObject, Player receiver)
     {
         uint flags = gameObjectData.Flags;

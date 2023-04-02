@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class DeathReleaseLoc : ServerPacket
 {
-    public int MapID;
     public WorldLocation Loc;
+    public int MapID;
     public DeathReleaseLoc() : base(ServerOpcodes.DeathReleaseLoc) { }
 
     public override void Write()

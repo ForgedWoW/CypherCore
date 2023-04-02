@@ -5,14 +5,14 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class SpellCategoriesRecord
 {
-    public uint Id;
-    public byte DifficultyID;
     public ushort Category;
+    public ushort ChargeCategory;
     public sbyte DefenseType;
+    public byte DifficultyID;
     public sbyte DispelType;
+    public uint Id;
     public sbyte Mechanic;
     public sbyte PreventionType;
-    public ushort StartRecoveryCategory;
-    public ushort ChargeCategory;
     public uint SpellID;
+    public ushort StartRecoveryCategory;
 }

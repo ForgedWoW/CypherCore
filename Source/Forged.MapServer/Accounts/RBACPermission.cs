@@ -9,22 +9,18 @@ public class RBACPermission
 {
     // Gets the Name of the Object
 
-    public string Name { get; }
-
-    // Gets the Id of the Object
-
-    public uint Id { get; }
-
-    // Gets the Permissions linked to this permission
-
-    public List<uint> LinkedPermissions { get; } = new();
-
     public RBACPermission(uint id = 0, string name = "")
     {
         Id = id;
         Name = name;
     }
 
+    public uint Id { get; }
+    public List<uint> LinkedPermissions { get; } = new();
+    public string Name { get; }
+
+    // Gets the Id of the Object
+    // Gets the Permissions linked to this permission
     // Adds a new linked Permission
     public void AddLinkedPermission(uint id)
     {

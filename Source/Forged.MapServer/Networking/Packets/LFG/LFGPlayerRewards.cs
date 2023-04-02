@@ -7,6 +7,14 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public struct LFGPlayerRewards
 {
+    public int BonusQuantity;
+
+    public uint Quantity;
+
+    public uint? RewardCurrency;
+
+    public ItemInstance RewardItem;
+
     public LFGPlayerRewards(uint id, uint quantity, int bonusQuantity, bool isCurrency)
     {
         Quantity = quantity;
@@ -37,9 +45,4 @@ public struct LFGPlayerRewards
         if (RewardCurrency.HasValue)
             data.WriteUInt32(RewardCurrency.Value);
     }
-
-    public ItemInstance RewardItem;
-    public uint? RewardCurrency;
-    public uint Quantity;
-    public int BonusQuantity;
 }

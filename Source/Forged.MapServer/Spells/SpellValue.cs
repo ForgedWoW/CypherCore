@@ -8,14 +8,14 @@ namespace Forged.MapServer.Spells;
 
 public class SpellValue
 {
-    public Dictionary<int, double> EffectBasePoints = new();
+    public int AuraStackAmount;
+    public float CriticalChance;
     public uint CustomBasePointsMask;
+    public int? Duration;
+    public float DurationMul;
+    public Dictionary<int, double> EffectBasePoints = new();
     public uint MaxAffectedTargets;
     public float RadiusMod;
-    public int AuraStackAmount;
-    public float DurationMul;
-    public float CriticalChance;
-    public int? Duration;
     public double? SummonDuration;
 
     public SpellValue(SpellInfo proto, WorldObject caster)

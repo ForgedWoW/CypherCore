@@ -5,11 +5,11 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class SpellLevelsRecord
 {
-    public uint Id;
+    public ushort BaseLevel;
     public byte DifficultyID;
+    public uint Id;
     public ushort MaxLevel;
     public byte MaxPassiveAuraLevel;
-    public ushort BaseLevel;
-    public ushort SpellLevel;
     public uint SpellID;
+    public ushort SpellLevel;
 }

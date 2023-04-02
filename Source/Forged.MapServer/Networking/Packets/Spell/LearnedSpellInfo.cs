@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct LearnedSpellInfo
 {
-    public uint SpellID;
-    public bool IsFavorite;
     public int? field_8;
+    public bool IsFavorite;
+    public uint SpellID;
     public int? Superceded;
     public int? TraitDefinitionID;
 

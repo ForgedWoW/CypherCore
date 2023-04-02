@@ -7,10 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class DisplayGameError : ServerPacket
 {
-    private readonly GameError Error;
     private readonly int? Arg;
     private readonly int? Arg2;
-
+    private readonly GameError Error;
     public DisplayGameError(GameError error) : base(ServerOpcodes.DisplayGameError)
     {
         Error = error;

@@ -57,26 +57,6 @@ public class Arena : Battleground
         UpdateArenaWorldState();
     }
 
-    public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
-    {
-        if (GetStatus() == BattlegroundStatus.WaitLeave)
-            return;
-
-        UpdateArenaWorldState();
-        CheckWinConditions();
-    }
-
-    public override void HandleKillPlayer(Player victim, Player killer)
-    {
-        if (GetStatus() != BattlegroundStatus.InProgress)
-            return;
-
-        base.HandleKillPlayer(victim, killer);
-
-        UpdateArenaWorldState();
-        CheckWinConditions();
-    }
-
     public override void BuildPvPLogDataPacket(out PVPMatchStatistics pvpLogData)
     {
         base.BuildPvPLogDataPacket(out pvpLogData);
@@ -92,36 +72,6 @@ public class Arena : Battleground
                 pvpLogData.Ratings.PrematchMMR[i] = _arenaTeamScores[i].PreMatchMMR;
             }
         }
-    }
-
-    public override void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket)
-    {
-        if (IsRated() && GetStatus() == BattlegroundStatus.InProgress)
-        {
-            var bgPlayer = GetPlayers().LookupByKey(guid);
-
-            if (bgPlayer != null) // check if the player was a participant of the match, or only entered through gm command (appear)
-            {
-                // if the player was a match participant, calculate rating
-
-                var winnerArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(bgPlayer.Team)));
-                var loserArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(bgPlayer.Team));
-
-                // left a rated match while the encounter was in progress, consider as loser
-                if (winnerArenaTeam != null && loserArenaTeam != null && winnerArenaTeam != loserArenaTeam)
-                {
-                    var player = _GetPlayer(guid, bgPlayer.OfflineRemoveTime != 0, "Arena.RemovePlayerAtLeave");
-
-                    if (player)
-                        loserArenaTeam.MemberLost(player, GetArenaMatchmakerRating(GetOtherTeam(bgPlayer.Team)));
-                    else
-                        loserArenaTeam.OfflineMemberLost(guid, GetArenaMatchmakerRating(GetOtherTeam(bgPlayer.Team)));
-                }
-            }
-        }
-
-        // remove player
-        base.RemovePlayerAtLeave(guid, Transport, SendPacket);
     }
 
     public override void CheckWinConditions()
@@ -305,6 +255,54 @@ public class Arena : Battleground
         base.EndBattleground(winner);
     }
 
+    public override void HandleKillPlayer(Player victim, Player killer)
+    {
+        if (GetStatus() != BattlegroundStatus.InProgress)
+            return;
+
+        base.HandleKillPlayer(victim, killer);
+
+        UpdateArenaWorldState();
+        CheckWinConditions();
+    }
+
+    public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
+    {
+        if (GetStatus() == BattlegroundStatus.WaitLeave)
+            return;
+
+        UpdateArenaWorldState();
+        CheckWinConditions();
+    }
+    public override void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket)
+    {
+        if (IsRated() && GetStatus() == BattlegroundStatus.InProgress)
+        {
+            var bgPlayer = GetPlayers().LookupByKey(guid);
+
+            if (bgPlayer != null) // check if the player was a participant of the match, or only entered through gm command (appear)
+            {
+                // if the player was a match participant, calculate rating
+
+                var winnerArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(bgPlayer.Team)));
+                var loserArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(bgPlayer.Team));
+
+                // left a rated match while the encounter was in progress, consider as loser
+                if (winnerArenaTeam != null && loserArenaTeam != null && winnerArenaTeam != loserArenaTeam)
+                {
+                    var player = _GetPlayer(guid, bgPlayer.OfflineRemoveTime != 0, "Arena.RemovePlayerAtLeave");
+
+                    if (player)
+                        loserArenaTeam.MemberLost(player, GetArenaMatchmakerRating(GetOtherTeam(bgPlayer.Team)));
+                    else
+                        loserArenaTeam.OfflineMemberLost(guid, GetArenaMatchmakerRating(GetOtherTeam(bgPlayer.Team)));
+                }
+            }
+        }
+
+        // remove player
+        base.RemovePlayerAtLeave(guid, Transport, SendPacket);
+    }
     private void UpdateArenaWorldState()
     {
         UpdateWorldState(ArenaWorldStates.AlivePlayersGreen, (int)GetAlivePlayersCountByTeam(TeamFaction.Horde));
@@ -314,14 +312,14 @@ public class Arena : Battleground
 
 internal struct ArenaWorldStates
 {
-    public const int AlivePlayersGreen = 3600;
     public const int AlivePlayersGold = 3601;
-    public const int ShowAlivePlayers = 3610;
-    public const int TimeRemaining = 8529;
-    public const int ShowTimeRemaining = 8524;
-    public const int GreenTeamExtraLives = 15480;
+    public const int AlivePlayersGreen = 3600;
     public const int GoldTeamExtraLives = 15481;
+    public const int GreenTeamExtraLives = 15480;
+    public const int ShowAlivePlayers = 3610;
     public const int ShowExtraLives = 13401;
-    public const int SoloShuffleRound = 21427;
     public const int ShowSoloShuffleRound = 21322;
+    public const int ShowTimeRemaining = 8524;
+    public const int SoloShuffleRound = 21427;
+    public const int TimeRemaining = 8529;
 }

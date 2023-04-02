@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 public class PetSpellCooldown
 {
-    public uint SpellID;
-    public uint Duration;
-    public uint CategoryDuration;
-    public float ModRate = 1.0f;
     public ushort Category;
+    public uint CategoryDuration;
+    public uint Duration;
+    public float ModRate = 1.0f;
+    public uint SpellID;
 }

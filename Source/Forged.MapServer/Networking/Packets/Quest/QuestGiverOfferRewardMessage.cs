@@ -9,20 +9,20 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverOfferRewardMessage : ServerPacket
 {
-    public uint PortraitTurnIn;
+    public List<ConditionalQuestText> ConditionalRewardText = new();
     public uint PortraitGiver;
-    public uint PortraitGiverMount;
     public int PortraitGiverModelSceneID;
+    public uint PortraitGiverMount;
+    public string PortraitGiverName = "";
+    public string PortraitGiverText = "";
+    public uint PortraitTurnIn;
+    public string PortraitTurnInName = "";
+    public string PortraitTurnInText = "";
+    public QuestGiverOfferReward QuestData;
     public uint QuestGiverCreatureID;
+    public uint QuestPackageID;
     public string QuestTitle = "";
     public string RewardText = "";
-    public string PortraitGiverText = "";
-    public string PortraitGiverName = "";
-    public string PortraitTurnInText = "";
-    public string PortraitTurnInName = "";
-    public List<ConditionalQuestText> ConditionalRewardText = new();
-    public QuestGiverOfferReward QuestData;
-    public uint QuestPackageID;
     public QuestGiverOfferRewardMessage() : base(ServerOpcodes.QuestGiverOfferRewardMessage) { }
 
     public override void Write()

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ClearCooldowns : ServerPacket
 {
-    public List<uint> SpellID = new();
     public bool IsPet;
+    public List<uint> SpellID = new();
     public ClearCooldowns() : base(ServerOpcodes.ClearCooldowns, ConnectionType.Instance) { }
 
     public override void Write()

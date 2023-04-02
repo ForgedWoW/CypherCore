@@ -12,15 +12,6 @@ public class Minion : TempSummon
     protected Unit Owner;
     private float _followAngle;
 
-    public bool IsGuardianPet => IsPet || SummonPropertiesRecord is { Control: SummonCategory.Pet };
-
-    public override float FollowAngle
-    {
-        get { return _followAngle; }
-    }
-
-    public override Unit OwnerUnit => Owner;
-
     public Minion(SummonPropertiesRecord propertiesRecord, Unit owner, bool isWorldObject)
         : base(propertiesRecord, owner, isWorldObject)
     {
@@ -29,6 +20,18 @@ public class Minion : TempSummon
         _followAngle = SharedConst.PetFollowAngle;
         /// @todo: Find correct way
         InitCharmInfo();
+    }
+
+    public override float FollowAngle
+    {
+        get { return _followAngle; }
+    }
+
+    public bool IsGuardianPet => IsPet || SummonPropertiesRecord is { Control: SummonCategory.Pet };
+    public override Unit OwnerUnit => Owner;
+    public override string GetDebugInfo()
+    {
+        return $"{base.GetDebugInfo()}\nOwner: {(OwnerUnit ? OwnerUnit.GUID : "")}";
     }
 
     public override void InitStats(uint duration)
@@ -41,6 +44,54 @@ public class Minion : TempSummon
         Faction = OwnerUnit.Faction; // TODO: Is this correct? Overwrite the use of SummonPropertiesFlags::UseSummonerFaction
 
         OwnerUnit.SetMinion(this, true);
+    }
+
+    public bool IsPetAbomination()
+    {
+        return Entry == (uint)PetEntry.Abomination;
+    }
+
+    public bool IsPetDoomguard()
+    {
+        return Entry == (uint)PetEntry.Doomguard;
+    }
+
+    public bool IsPetFelguard()
+    {
+        return Entry == (uint)PetEntry.Felguard;
+    }
+
+    public bool IsPetFelhunter()
+    {
+        return Entry == (uint)PetEntry.FelHunter;
+    }
+
+    // Death Knight pets
+    public bool IsPetGhoul()
+    {
+        return Entry == (uint)PetEntry.Ghoul;
+    }
+
+    // Warlock pets
+    public bool IsPetImp()
+    {
+        return Entry == (uint)PetEntry.Imp;
+    }
+
+    public bool IsPetSuccubus()
+    {
+        return Entry == (uint)PetEntry.Succubus;
+    }
+
+    public bool IsPetVoidwalker()
+    {
+        return Entry == (uint)PetEntry.VoidWalker;
+    }
+
+    // Shaman pet
+    public bool IsSpiritWolf()
+    {
+        return Entry == (uint)PetEntry.SpiritWolf;
     }
 
     public override void RemoveFromWorld()
@@ -74,62 +125,13 @@ public class Minion : TempSummon
                 break;
             }
     }
-
-    public override string GetDebugInfo()
-    {
-        return $"{base.GetDebugInfo()}\nOwner: {(OwnerUnit ? OwnerUnit.GUID : "")}";
-    }
-
     public void SetFollowAngle(float angle)
     {
         _followAngle = angle;
     }
+ // Ghoul may be guardian or pet
 
-    // Warlock pets
-    public bool IsPetImp()
-    {
-        return Entry == (uint)PetEntry.Imp;
-    }
+     // Sludge Belcher dk talent
 
-    public bool IsPetFelhunter()
-    {
-        return Entry == (uint)PetEntry.FelHunter;
-    }
-
-    public bool IsPetVoidwalker()
-    {
-        return Entry == (uint)PetEntry.VoidWalker;
-    }
-
-    public bool IsPetSuccubus()
-    {
-        return Entry == (uint)PetEntry.Succubus;
-    }
-
-    public bool IsPetDoomguard()
-    {
-        return Entry == (uint)PetEntry.Doomguard;
-    }
-
-    public bool IsPetFelguard()
-    {
-        return Entry == (uint)PetEntry.Felguard;
-    }
-
-    // Death Knight pets
-    public bool IsPetGhoul()
-    {
-        return Entry == (uint)PetEntry.Ghoul;
-    } // Ghoul may be guardian or pet
-
-    public bool IsPetAbomination()
-    {
-        return Entry == (uint)PetEntry.Abomination;
-    } // Sludge Belcher dk talent
-
-    // Shaman pet
-    public bool IsSpiritWolf()
-    {
-        return Entry == (uint)PetEntry.SpiritWolf;
-    } // Spirit wolf from feral spirits
+ // Spirit wolf from feral spirits
 }

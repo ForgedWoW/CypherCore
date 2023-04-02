@@ -8,12 +8,11 @@ namespace Forged.MapServer.Text;
 
 public class CustomChatTextBuilder : MessageBuilder
 {
-    private readonly WorldObject _source;
-    private readonly ChatMsg _msgType;
-    private readonly string _text;
     private readonly Language _language;
+    private readonly ChatMsg _msgType;
+    private readonly WorldObject _source;
     private readonly WorldObject _target;
-
+    private readonly string _text;
     public CustomChatTextBuilder(WorldObject obj, ChatMsg msgType, string text, Language language = Language.Universal, WorldObject target = null)
     {
         _source = obj;

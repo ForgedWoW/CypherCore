@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Totem;
 
 internal class TotemMoved : ServerPacket
 {
-    public ObjectGuid Totem;
-    public byte Slot;
     public byte NewSlot;
+    public byte Slot;
+    public ObjectGuid Totem;
     public TotemMoved() : base(ServerOpcodes.TotemMoved) { }
 
     public override void Write()

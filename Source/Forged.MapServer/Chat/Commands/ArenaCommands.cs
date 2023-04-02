@@ -10,6 +10,54 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("arena")]
 internal class ArenaCommands
 {
+    [Command("captain", RBACPermissions.CommandArenaCaptain)]
+    private static bool HandleArenaCaptainCommand(CommandHandler handler, uint teamId, PlayerIdentifier target)
+    {
+        var arena = Global.ArenaTeamMgr.GetArenaTeamById(teamId);
+
+        if (arena == null)
+        {
+            handler.SendSysMessage(CypherStrings.ArenaErrorNotFound, teamId);
+
+            return false;
+        }
+
+        if (arena.IsFighting())
+        {
+            handler.SendSysMessage(CypherStrings.ArenaErrorCombat);
+
+            return false;
+        }
+
+        if (target == null)
+            target = PlayerIdentifier.FromTargetOrSelf(handler);
+
+        if (target == null)
+            return false;
+
+        if (!arena.IsMember(target.GetGUID()))
+        {
+            handler.SendSysMessage(CypherStrings.ArenaErrorNotMember, target.GetName(), arena.GetName());
+
+            return false;
+        }
+
+        if (arena.GetCaptain() == target.GetGUID())
+        {
+            handler.SendSysMessage(CypherStrings.ArenaErrorCaptain, target.GetName(), arena.GetName());
+
+            return false;
+        }
+
+        if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(arena.GetCaptain(), out var oldCaptainName))
+            return false;
+
+        arena.SetCaptain(target.GetGUID());
+        handler.SendSysMessage(CypherStrings.ArenaCaptain, arena.GetName(), arena.GetId(), oldCaptainName, target.GetName());
+
+        return true;
+    }
+
     [Command("create", RBACPermissions.CommandArenaCreate, true)]
     private static bool HandleArenaCreateCommand(CommandHandler handler, PlayerIdentifier captain, string name, ArenaTypes type)
     {
@@ -75,92 +123,6 @@ internal class ArenaCommands
         return true;
     }
 
-    [Command("rename", RBACPermissions.CommandArenaRename, true)]
-    private static bool HandleArenaRenameCommand(CommandHandler handler, string oldName, string newName)
-    {
-        var arena = Global.ArenaTeamMgr.GetArenaTeamByName(oldName);
-
-        if (arena == null)
-        {
-            handler.SendSysMessage(CypherStrings.ArenaErrorNameNotFound, oldName);
-
-            return false;
-        }
-
-        if (Global.ArenaTeamMgr.GetArenaTeamByName(newName) != null)
-        {
-            handler.SendSysMessage(CypherStrings.ArenaErrorNameExists, oldName);
-
-            return false;
-        }
-
-        if (arena.IsFighting())
-        {
-            handler.SendSysMessage(CypherStrings.ArenaErrorCombat);
-
-            return false;
-        }
-
-        if (!arena.SetName(newName))
-        {
-            handler.SendSysMessage(CypherStrings.ArenaRename, arena.GetId(), oldName, newName);
-
-            return true;
-        }
-
-        handler.SendSysMessage(CypherStrings.BadValue);
-
-        return false;
-    }
-
-    [Command("captain", RBACPermissions.CommandArenaCaptain)]
-    private static bool HandleArenaCaptainCommand(CommandHandler handler, uint teamId, PlayerIdentifier target)
-    {
-        var arena = Global.ArenaTeamMgr.GetArenaTeamById(teamId);
-
-        if (arena == null)
-        {
-            handler.SendSysMessage(CypherStrings.ArenaErrorNotFound, teamId);
-
-            return false;
-        }
-
-        if (arena.IsFighting())
-        {
-            handler.SendSysMessage(CypherStrings.ArenaErrorCombat);
-
-            return false;
-        }
-
-        if (target == null)
-            target = PlayerIdentifier.FromTargetOrSelf(handler);
-
-        if (target == null)
-            return false;
-
-        if (!arena.IsMember(target.GetGUID()))
-        {
-            handler.SendSysMessage(CypherStrings.ArenaErrorNotMember, target.GetName(), arena.GetName());
-
-            return false;
-        }
-
-        if (arena.GetCaptain() == target.GetGUID())
-        {
-            handler.SendSysMessage(CypherStrings.ArenaErrorCaptain, target.GetName(), arena.GetName());
-
-            return false;
-        }
-
-        if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(arena.GetCaptain(), out var oldCaptainName))
-            return false;
-
-        arena.SetCaptain(target.GetGUID());
-        handler.SendSysMessage(CypherStrings.ArenaCaptain, arena.GetName(), arena.GetId(), oldCaptainName, target.GetName());
-
-        return true;
-    }
-
     [Command("info", RBACPermissions.CommandArenaInfo, true)]
     private static bool HandleArenaInfoCommand(CommandHandler handler, uint teamId)
     {
@@ -203,5 +165,43 @@ internal class ArenaCommands
             handler.SendSysMessage(CypherStrings.ArenaErrorNameNotFound, needle);
 
         return true;
+    }
+
+    [Command("rename", RBACPermissions.CommandArenaRename, true)]
+    private static bool HandleArenaRenameCommand(CommandHandler handler, string oldName, string newName)
+    {
+        var arena = Global.ArenaTeamMgr.GetArenaTeamByName(oldName);
+
+        if (arena == null)
+        {
+            handler.SendSysMessage(CypherStrings.ArenaErrorNameNotFound, oldName);
+
+            return false;
+        }
+
+        if (Global.ArenaTeamMgr.GetArenaTeamByName(newName) != null)
+        {
+            handler.SendSysMessage(CypherStrings.ArenaErrorNameExists, oldName);
+
+            return false;
+        }
+
+        if (arena.IsFighting())
+        {
+            handler.SendSysMessage(CypherStrings.ArenaErrorCombat);
+
+            return false;
+        }
+
+        if (!arena.SetName(newName))
+        {
+            handler.SendSysMessage(CypherStrings.ArenaRename, arena.GetId(), oldName, newName);
+
+            return true;
+        }
+
+        handler.SendSysMessage(CypherStrings.BadValue);
+
+        return false;
     }
 }

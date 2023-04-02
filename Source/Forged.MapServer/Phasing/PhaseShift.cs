@@ -13,29 +13,15 @@ namespace Forged.MapServer.Phasing;
 public class PhaseShift
 {
     public PhaseShiftFlags Flags = PhaseShiftFlags.Unphased;
-    public ObjectGuid PersonalGuid;
-    public Dictionary<uint, PhaseRef> Phases = new();
-    public Dictionary<uint, VisibleMapIdRef> VisibleMapIds = new();
-    public Dictionary<uint, UiMapPhaseIdRef> UiMapPhaseIds = new();
-    public int PersonalReferences;
     public bool IsDbPhaseShift;
-
-    private int _nonCosmeticReferences;
+    public ObjectGuid PersonalGuid;
+    public int PersonalReferences;
+    public Dictionary<uint, PhaseRef> Phases = new();
+    public Dictionary<uint, UiMapPhaseIdRef> UiMapPhaseIds = new();
+    public Dictionary<uint, VisibleMapIdRef> VisibleMapIds = new();
     private int _cosmeticReferences;
     private int _defaultReferences;
-
-    public bool HasPersonalPhase
-    {
-        get
-        {
-            foreach (var phaseRef in Phases.Values)
-                if (phaseRef.IsPersonal())
-                    return true;
-
-            return false;
-        }
-    }
-
+    private int _nonCosmeticReferences;
     public PhaseShift()
     {
         Flags = PhaseShiftFlags.Unphased;
@@ -55,6 +41,17 @@ public class PhaseShift
         IsDbPhaseShift = copy.IsDbPhaseShift;
     }
 
+    public bool HasPersonalPhase
+    {
+        get
+        {
+            foreach (var phaseRef in Phases.Values)
+                if (phaseRef.IsPersonal())
+                    return true;
+
+            return false;
+        }
+    }
     public bool AddPhase(uint phaseId, PhaseFlags flags, List<Condition> areaConditions, int references = 1)
     {
         var newPhase = false;
@@ -74,52 +71,6 @@ public class PhaseShift
         return newPhase;
     }
 
-    public bool RemovePhase(uint phaseId)
-    {
-        var phaseRef = Phases.LookupByKey(phaseId);
-
-        if (phaseRef != null)
-        {
-            ModifyPhasesReferences(phaseId, phaseRef, -1);
-
-            if (phaseRef.References == 0)
-            {
-                Phases.Remove(phaseId);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public bool AddVisibleMapId(uint visibleMapId, TerrainSwapInfo visibleMapInfo, int references = 1)
-    {
-        if (VisibleMapIds.ContainsKey(visibleMapId))
-            return false;
-
-        VisibleMapIds.Add(visibleMapId, new VisibleMapIdRef(references, visibleMapInfo));
-
-        return true;
-    }
-
-    public bool RemoveVisibleMapId(uint visibleMapId)
-    {
-        if (VisibleMapIds.ContainsKey(visibleMapId))
-        {
-            var mapIdRef = VisibleMapIds[visibleMapId];
-
-            if ((--mapIdRef.References) == 0)
-            {
-                VisibleMapIds.Remove(visibleMapId);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public bool AddUiMapPhaseId(uint uiMapPhaseId, int references = 1)
     {
         if (UiMapPhaseIds.ContainsKey(uiMapPhaseId))
@@ -130,40 +81,14 @@ public class PhaseShift
         return true;
     }
 
-    public bool RemoveUiMapPhaseId(uint uiWorldMapAreaId)
+    public bool AddVisibleMapId(uint visibleMapId, TerrainSwapInfo visibleMapInfo, int references = 1)
     {
-        if (UiMapPhaseIds.ContainsKey(uiWorldMapAreaId))
-        {
-            var value = UiMapPhaseIds[uiWorldMapAreaId];
+        if (VisibleMapIds.ContainsKey(visibleMapId))
+            return false;
 
-            if ((--value.References) == 0)
-            {
-                UiMapPhaseIds.Remove(uiWorldMapAreaId);
+        VisibleMapIds.Add(visibleMapId, new VisibleMapIdRef(references, visibleMapInfo));
 
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public void Clear()
-    {
-        ClearPhases();
-        VisibleMapIds.Clear();
-        UiMapPhaseIds.Clear();
-    }
-
-    public void ClearPhases()
-    {
-        Flags &= PhaseShiftFlags.AlwaysVisible | PhaseShiftFlags.Inverse;
-        PersonalGuid.Clear();
-        Phases.Clear();
-        _nonCosmeticReferences = 0;
-        _cosmeticReferences = 0;
-        PersonalReferences = 0;
-        _defaultReferences = 0;
-        UpdateUnphasedFlag();
+        return true;
     }
 
     public bool CanSee(PhaseShift other)
@@ -223,6 +148,45 @@ public class PhaseShift
         return checkInversePhaseShift(other, this);
     }
 
+    public void Clear()
+    {
+        ClearPhases();
+        VisibleMapIds.Clear();
+        UiMapPhaseIds.Clear();
+    }
+
+    public void ClearPhases()
+    {
+        Flags &= PhaseShiftFlags.AlwaysVisible | PhaseShiftFlags.Inverse;
+        PersonalGuid.Clear();
+        Phases.Clear();
+        _nonCosmeticReferences = 0;
+        _cosmeticReferences = 0;
+        PersonalReferences = 0;
+        _defaultReferences = 0;
+        UpdateUnphasedFlag();
+    }
+
+    public Dictionary<uint, VisibleMapIdRef> GetVisibleMapIds()
+    {
+        return VisibleMapIds;
+    }
+
+    public bool HasPhase(uint phaseId)
+    {
+        return Phases.ContainsKey(phaseId);
+    }
+
+    public bool HasUiWorldMapAreaIdSwap(uint uiWorldMapAreaId)
+    {
+        return UiMapPhaseIds.ContainsKey(uiWorldMapAreaId);
+    }
+
+    public bool HasVisibleMapId(uint visibleMapId)
+    {
+        return VisibleMapIds.ContainsKey(visibleMapId);
+    }
+
     public void ModifyPhasesReferences(uint phaseId, PhaseRef phaseRef, int references)
     {
         phaseRef.References += references;
@@ -249,6 +213,57 @@ public class PhaseShift
         }
     }
 
+    public bool RemovePhase(uint phaseId)
+    {
+        var phaseRef = Phases.LookupByKey(phaseId);
+
+        if (phaseRef != null)
+        {
+            ModifyPhasesReferences(phaseId, phaseRef, -1);
+
+            if (phaseRef.References == 0)
+            {
+                Phases.Remove(phaseId);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+    public bool RemoveUiMapPhaseId(uint uiWorldMapAreaId)
+    {
+        if (UiMapPhaseIds.ContainsKey(uiWorldMapAreaId))
+        {
+            var value = UiMapPhaseIds[uiWorldMapAreaId];
+
+            if ((--value.References) == 0)
+            {
+                UiMapPhaseIds.Remove(uiWorldMapAreaId);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool RemoveVisibleMapId(uint visibleMapId)
+    {
+        if (VisibleMapIds.ContainsKey(visibleMapId))
+        {
+            var mapIdRef = VisibleMapIds[visibleMapId];
+
+            if ((--mapIdRef.References) == 0)
+            {
+                VisibleMapIds.Remove(visibleMapId);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
     public void UpdateUnphasedFlag()
     {
         var unphasedFlag = !Flags.HasAnyFlag(PhaseShiftFlags.Inverse) ? PhaseShiftFlags.Unphased : PhaseShiftFlags.InverseUnphased;
@@ -259,27 +274,6 @@ public class PhaseShift
         else
             Flags |= unphasedFlag;
     }
-
-    public bool HasPhase(uint phaseId)
-    {
-        return Phases.ContainsKey(phaseId);
-    }
-
-    public bool HasVisibleMapId(uint visibleMapId)
-    {
-        return VisibleMapIds.ContainsKey(visibleMapId);
-    }
-
-    public Dictionary<uint, VisibleMapIdRef> GetVisibleMapIds()
-    {
-        return VisibleMapIds;
-    }
-
-    public bool HasUiWorldMapAreaIdSwap(uint uiWorldMapAreaId)
-    {
-        return UiMapPhaseIds.ContainsKey(uiWorldMapAreaId);
-    }
-
     private void UpdatePersonalGuid()
     {
         if (PersonalReferences == 0)

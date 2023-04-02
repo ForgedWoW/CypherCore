@@ -8,15 +8,6 @@ namespace Forged.MapServer.Calendar;
 
 public class CalendarInvite
 {
-    public ulong InviteId { get; set; }
-    public ulong EventId { get; set; }
-    public ObjectGuid InviteeGuid { get; set; }
-    public ObjectGuid SenderGuid { get; set; }
-    public long ResponseTime { get; set; }
-    public CalendarInviteStatus Status { get; set; }
-    public CalendarModerationRank Rank { get; set; }
-    public string Note { get; set; }
-
     public CalendarInvite()
     {
         InviteId = 1;
@@ -56,4 +47,13 @@ public class CalendarInvite
         if (InviteId != 0 && EventId != 0)
             Global.CalendarMgr.FreeInviteId(InviteId);
     }
+
+    public ulong EventId { get; set; }
+    public ObjectGuid InviteeGuid { get; set; }
+    public ulong InviteId { get; set; }
+    public string Note { get; set; }
+    public CalendarModerationRank Rank { get; set; }
+    public long ResponseTime { get; set; }
+    public ObjectGuid SenderGuid { get; set; }
+    public CalendarInviteStatus Status { get; set; }
 }

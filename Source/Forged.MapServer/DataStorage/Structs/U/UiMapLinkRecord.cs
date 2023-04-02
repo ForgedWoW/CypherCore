@@ -7,14 +7,14 @@ namespace Forged.MapServer.DataStorage.Structs.U;
 
 public sealed class UiMapLinkRecord
 {
-    public Vector2 UiMin;
-    public Vector2 UiMax;
-    public uint Id;
-    public int ParentUiMapID;
-    public int OrderIndex;
     public int ChildUiMapID;
-    public int PlayerConditionID;
-    public int OverrideHighlightFileDataID;
-    public int OverrideHighlightAtlasID;
     public int Flags;
+    public uint Id;
+    public int OrderIndex;
+    public int OverrideHighlightAtlasID;
+    public int OverrideHighlightFileDataID;
+    public int ParentUiMapID;
+    public int PlayerConditionID;
+    public Vector2 UiMax;
+    public Vector2 UiMin;
 }

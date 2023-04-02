@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Update;
 
 public class UpdateObject : ServerPacket
 {
-    public uint NumObjUpdates;
-    public ushort MapID;
     public byte[] Data;
+    public ushort MapID;
+    public uint NumObjUpdates;
     public UpdateObject() : base(ServerOpcodes.UpdateObject, ConnectionType.Instance) { }
 
     public override void Write()

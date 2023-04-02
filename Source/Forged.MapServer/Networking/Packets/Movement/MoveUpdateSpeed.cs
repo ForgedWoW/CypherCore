@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveUpdateSpeed : ServerPacket
 {
-    public MovementInfo Status;
     public float Speed = 1.0f;
+    public MovementInfo Status;
     public MoveUpdateSpeed(ServerOpcodes opcode) : base(opcode, ConnectionType.Instance) { }
 
     public override void Write()

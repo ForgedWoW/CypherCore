@@ -7,11 +7,11 @@ namespace Forged.MapServer.Entities.Players;
 
 public class PlayerCurrency
 {
-    public PlayerCurrencyState State { get; set; }
-    public uint Quantity { get; set; }
-    public uint WeeklyQuantity { get; set; }
-    public uint TrackedQuantity { get; set; }
-    public uint IncreasedCapQuantity { get; set; }
     public uint EarnedQuantity { get; set; }
     public CurrencyDbFlags Flags { get; set; }
+    public uint IncreasedCapQuantity { get; set; }
+    public uint Quantity { get; set; }
+    public PlayerCurrencyState State { get; set; }
+    public uint TrackedQuantity { get; set; }
+    public uint WeeklyQuantity { get; set; }
 }

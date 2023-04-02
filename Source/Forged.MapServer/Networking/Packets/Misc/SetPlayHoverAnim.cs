@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SetPlayHoverAnim : ServerPacket
 {
-    public ObjectGuid UnitGUID;
     public bool PlayHoverAnim;
+    public ObjectGuid UnitGUID;
     public SetPlayHoverAnim() : base(ServerOpcodes.SetPlayHoverAnim, ConnectionType.Instance) { }
 
     public override void Write()

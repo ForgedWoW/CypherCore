@@ -10,26 +10,21 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class AuraCreateInfo
 {
-    public ObjectGuid CasterGuid;
-    public Unit Caster;
+    public HashSet<int> AuraEffectMask = new();
     public Dictionary<int, double> BaseAmount;
+    public Unit Caster;
+    public ObjectGuid CasterGuid;
     public ObjectGuid CastItemGuid;
     public uint CastItemId = 0;
     public int CastItemLevel = -1;
     public bool IsRefresh;
     public bool ResetPeriodicTimer = true;
-    public HashSet<int> AuraEffectMask = new();
-
-    internal ObjectGuid CastId;
-    internal SpellInfo SpellInfoInternal;
     internal Difficulty CastDifficulty;
+    internal ObjectGuid CastId;
     internal WorldObject OwnerInternal;
-
+    internal SpellInfo SpellInfoInternal;
     internal HashSet<int> TargetEffectMask = new();
 
-
-    public SpellInfo SpellInfo => SpellInfoInternal;
-    public WorldObject Owner => OwnerInternal;
 
     public AuraCreateInfo(ObjectGuid castId, SpellInfo spellInfo, Difficulty castDifficulty, HashSet<int> auraEffMask, WorldObject owner)
     {
@@ -40,9 +35,11 @@ public class AuraCreateInfo
         OwnerInternal = owner;
     }
 
-    public void SetCasterGuid(ObjectGuid guid)
+    public WorldObject Owner => OwnerInternal;
+    public SpellInfo SpellInfo => SpellInfoInternal;
+    public void SetBaseAmount(Dictionary<int, double> bp)
     {
-        CasterGuid = guid;
+        BaseAmount = bp;
     }
 
     public void SetCaster(Unit caster)
@@ -50,11 +47,10 @@ public class AuraCreateInfo
         Caster = caster;
     }
 
-    public void SetBaseAmount(Dictionary<int, double> bp)
+    public void SetCasterGuid(ObjectGuid guid)
     {
-        BaseAmount = bp;
+        CasterGuid = guid;
     }
-
     public void SetCastItem(ObjectGuid guid, uint itemId, int itemLevel)
     {
         CastItemGuid = guid;
@@ -62,13 +58,13 @@ public class AuraCreateInfo
         CastItemLevel = itemLevel;
     }
 
-    public void SetPeriodicReset(bool reset)
-    {
-        ResetPeriodicTimer = reset;
-    }
-
     public void SetOwnerEffectMask(HashSet<int> effMask)
     {
         TargetEffectMask = effMask;
+    }
+
+    public void SetPeriodicReset(bool reset)
+    {
+        ResetPeriodicTimer = reset;
     }
 }

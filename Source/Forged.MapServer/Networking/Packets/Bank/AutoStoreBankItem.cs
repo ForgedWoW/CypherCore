@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Bank;
 
 public class AutoStoreBankItem : ClientPacket
 {
-    public InvUpdate Inv;
     public byte Bag;
+    public InvUpdate Inv;
     public byte Slot;
 
     public AutoStoreBankItem(WorldPacket packet) : base(packet) { }

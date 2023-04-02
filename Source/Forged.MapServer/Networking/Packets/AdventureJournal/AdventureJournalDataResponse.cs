@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.AdventureJournal;
 
 internal class AdventureJournalDataResponse : ServerPacket
 {
-    public bool OnLevelUp;
     public List<AdventureJournalEntry> AdventureJournalDatas = new();
+    public bool OnLevelUp;
     public AdventureJournalDataResponse() : base(ServerOpcodes.AdventureJournalDataResponse) { }
 
     public override void Write()

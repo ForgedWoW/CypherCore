@@ -19,18 +19,17 @@ internal class ObjectGuidList
             _guidList.Add(obj.GUID);
     }
 
+    public void AddGuid(ObjectGuid guid)
+    {
+        _guidList.Add(guid);
+    }
+
     public List<WorldObject> GetObjectList(WorldObject obj)
     {
         UpdateObjects(obj);
 
         return _objectList;
     }
-
-    public void AddGuid(ObjectGuid guid)
-    {
-        _guidList.Add(guid);
-    }
-
     //sanitize vector using _guidVector
     private void UpdateObjects(WorldObject obj)
     {

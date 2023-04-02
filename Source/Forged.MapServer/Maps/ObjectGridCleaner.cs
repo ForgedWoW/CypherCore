@@ -10,13 +10,12 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridCleaner : IGridNotifierWorldObject
 {
-    public GridType GridType { get; set; }
-
     public ObjectGridCleaner(GridType gridType)
     {
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<WorldObject> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

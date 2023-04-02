@@ -7,25 +7,24 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class PlayerChoiceResponse
 {
+    public string Answer;
+    public string ButtonTooltip;
+    public int ChoiceArtFileID;
+    public string Confirmation;
+    public string Description;
+    public int Flags;
+    public byte GroupID;
+    public string Header;
+    public PlayerChoiceResponseMawPower? MawPower;
     public int ResponseID;
     public ushort ResponseIdentifier;
-    public int ChoiceArtFileID;
-    public int Flags;
-    public uint WidgetSetID;
-    public uint UiTextureAtlasElementID;
-    public uint SoundKitID;
-    public byte GroupID;
-    public int UiTextureKitID;
-    public string Answer;
-    public string Header;
-    public string SubHeader;
-    public string ButtonTooltip;
-    public string Description;
-    public string Confirmation;
     public PlayerChoiceResponseReward Reward;
     public uint? RewardQuestID;
-    public PlayerChoiceResponseMawPower? MawPower;
-
+    public uint SoundKitID;
+    public string SubHeader;
+    public uint UiTextureAtlasElementID;
+    public int UiTextureKitID;
+    public uint WidgetSetID;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(ResponseID);

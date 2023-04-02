@@ -25,12 +25,370 @@ public class CriteriaHandler
     protected Dictionary<uint, CriteriaProgress> _criteriaProgress = new();
     private readonly Dictionary<uint, uint /*ms time left*/> _timeCriteriaTrees = new();
 
+    public virtual void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer) { }
+
+    public virtual bool CanCompleteCriteriaTree(CriteriaTree tree)
+    {
+        return true;
+    }
+
+    public virtual bool CanUpdateCriteriaTree(Criteria criteria, CriteriaTree tree, Player referencePlayer)
+    {
+        if ((tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.HordeOnly) && referencePlayer.Team != TeamFaction.Horde) ||
+            (tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.AllianceOnly) && referencePlayer.Team != TeamFaction.Alliance))
+        {
+            Log.Logger.Verbose("CriteriaHandler.CanUpdateCriteriaTree: (Id: {0} Type {1} CriteriaTree {2}) Wrong faction",
+                               criteria.Id,
+                               criteria.Entry.Type,
+                               tree.Entry.Id);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public virtual void CompletedCriteriaTree(CriteriaTree tree, Player referencePlayer) { }
+
+    public virtual List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
+    {
+        return null;
+    }
+
+    public CriteriaProgress GetCriteriaProgress(Criteria entry)
+    {
+        return _criteriaProgress.LookupByKey(entry.Id);
+    }
+
+    public virtual string GetOwnerInfo()
+    {
+        return "";
+    }
+
+    public bool IsCompletedCriteriaTree(CriteriaTree tree)
+    {
+        if (!CanCompleteCriteriaTree(tree))
+            return false;
+
+        ulong requiredCount = tree.Entry.Amount;
+
+        switch ((CriteriaTreeOperator)tree.Entry.Operator)
+        {
+            case CriteriaTreeOperator.Complete:
+                return tree.Criteria != null && IsCompletedCriteria(tree.Criteria, requiredCount);
+            case CriteriaTreeOperator.NotComplete:
+                return tree.Criteria == null || !IsCompletedCriteria(tree.Criteria, requiredCount);
+            case CriteriaTreeOperator.CompleteAll:
+                foreach (var node in tree.Children)
+                    if (!IsCompletedCriteriaTree(node))
+                        return false;
+
+                return true;
+            case CriteriaTreeOperator.Sum:
+            {
+                ulong progress = 0;
+
+                CriteriaManager.WalkCriteriaTree(tree,
+                                                 criteriaTree =>
+                                                 {
+                                                     if (criteriaTree.Criteria != null)
+                                                     {
+                                                         var criteriaProgress = GetCriteriaProgress(criteriaTree.Criteria);
+
+                                                         if (criteriaProgress != null)
+                                                             progress += criteriaProgress.Counter;
+                                                     }
+                                                 });
+
+                return progress >= requiredCount;
+            }
+            case CriteriaTreeOperator.Highest:
+            {
+                ulong progress = 0;
+
+                CriteriaManager.WalkCriteriaTree(tree,
+                                                 criteriaTree =>
+                                                 {
+                                                     if (criteriaTree.Criteria != null)
+                                                     {
+                                                         var criteriaProgress = GetCriteriaProgress(criteriaTree.Criteria);
+
+                                                         if (criteriaProgress != null)
+                                                             if (criteriaProgress.Counter > progress)
+                                                                 progress = criteriaProgress.Counter;
+                                                     }
+                                                 });
+
+                return progress >= requiredCount;
+            }
+            case CriteriaTreeOperator.StartedAtLeast:
+            {
+                ulong progress = 0;
+
+                foreach (var node in tree.Children)
+                    if (node.Criteria != null)
+                    {
+                        var criteriaProgress = GetCriteriaProgress(node.Criteria);
+
+                        if (criteriaProgress is { Counter: >= 1 })
+                            if (++progress >= requiredCount)
+                                return true;
+                    }
+
+                return false;
+            }
+            case CriteriaTreeOperator.CompleteAtLeast:
+            {
+                ulong progress = 0;
+
+                foreach (var node in tree.Children)
+                    if (IsCompletedCriteriaTree(node))
+                        if (++progress >= requiredCount)
+                            return true;
+
+                return false;
+            }
+            case CriteriaTreeOperator.ProgressBar:
+            {
+                ulong progress = 0;
+
+                CriteriaManager.WalkCriteriaTree(tree,
+                                                 criteriaTree =>
+                                                 {
+                                                     if (criteriaTree.Criteria != null)
+                                                     {
+                                                         var criteriaProgress = GetCriteriaProgress(criteriaTree.Criteria);
+
+                                                         if (criteriaProgress != null)
+                                                             progress += criteriaProgress.Counter * criteriaTree.Entry.Amount;
+                                                     }
+                                                 });
+
+                return progress >= requiredCount;
+            }
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    public bool ModifierTreeSatisfied(ModifierTreeNode tree, ulong miscValue1, ulong miscValue2, WorldObject refe, Player referencePlayer)
+    {
+        switch ((ModifierTreeOperator)tree.Entry.Operator)
+        {
+            case ModifierTreeOperator.SingleTrue:
+                return tree.Entry.Type != 0 && ModifierSatisfied(tree.Entry, miscValue1, miscValue2, refe, referencePlayer);
+            case ModifierTreeOperator.SingleFalse:
+                return tree.Entry.Type != 0 && !ModifierSatisfied(tree.Entry, miscValue1, miscValue2, refe, referencePlayer);
+            case ModifierTreeOperator.All:
+                foreach (var node in tree.Children)
+                    if (!ModifierTreeSatisfied(node, miscValue1, miscValue2, refe, referencePlayer))
+                        return false;
+
+                return true;
+            case ModifierTreeOperator.Some:
+            {
+                var requiredAmount = Math.Max(tree.Entry.Amount, (sbyte)1);
+
+                foreach (var node in tree.Children)
+                    if (ModifierTreeSatisfied(node, miscValue1, miscValue2, refe, referencePlayer))
+                        if (--requiredAmount == 0)
+                            return true;
+
+                return false;
+            }
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    public void RemoveCriteriaProgress(Criteria criteria)
+    {
+        if (criteria == null)
+            return;
+
+        if (!_criteriaProgress.ContainsKey(criteria.Id))
+            return;
+
+        SendCriteriaProgressRemoved(criteria.Id);
+
+        _criteriaProgress.Remove(criteria.Id);
+    }
+
+    public void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint entry)
+    {
+        var criteriaList = Global.CriteriaMgr.GetTimedCriteriaByType(startEvent);
+
+        foreach (var criteria in criteriaList)
+        {
+            if (criteria.Entry.StartAsset != entry)
+                continue;
+
+            var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+
+            // Remove the timer from all trees
+            foreach (var tree in trees)
+                _timeCriteriaTrees.Remove(tree.Id);
+
+            // remove progress
+            RemoveCriteriaProgress(criteria);
+        }
+    }
+
+    public virtual bool RequiredAchievementSatisfied(uint achievementId)
+    {
+        return false;
+    }
+
     public virtual void Reset()
     {
         foreach (var iter in _criteriaProgress)
             SendCriteriaProgressRemoved(iter.Key);
 
         _criteriaProgress.Clear();
+    }
+
+    public virtual void SendAllData(Player receiver) { }
+
+    public virtual void SendCriteriaProgressRemoved(uint criteriaId) { }
+
+    public virtual void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted) { }
+
+    public virtual void SendPacket(ServerPacket data) { }
+
+    public void SetCriteriaProgress(Criteria criteria, ulong changeValue, Player referencePlayer, ProgressType progressType = ProgressType.Set)
+    {
+        // Don't allow to cheat - doing timed criteria without timer active
+        List<CriteriaTree> trees = null;
+
+        if (criteria.Entry.StartTimer != 0)
+        {
+            trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+
+            if (trees.Empty())
+                return;
+
+            var hasTreeForTimed = false;
+
+            foreach (var tree in trees)
+            {
+                var timedIter = _timeCriteriaTrees.LookupByKey(tree.Id);
+
+                if (timedIter != 0)
+                {
+                    hasTreeForTimed = true;
+
+                    break;
+                }
+            }
+
+            if (!hasTreeForTimed)
+                return;
+        }
+
+        Log.Logger.Debug("SetCriteriaProgress({0}, {1}) for {2}", criteria.Id, changeValue, GetOwnerInfo());
+
+        var progress = GetCriteriaProgress(criteria);
+
+        if (progress == null)
+        {
+            // not create record for 0 counter but allow it for timed criteria
+            // we will need to send 0 progress to client to start the timer
+            if (changeValue == 0 && criteria.Entry.StartTimer == 0)
+                return;
+
+            progress = new CriteriaProgress
+            {
+                Counter = changeValue
+            };
+        }
+        else
+        {
+            ulong newValue = 0;
+
+            switch (progressType)
+            {
+                case ProgressType.Set:
+                    newValue = changeValue;
+
+                    break;
+                case ProgressType.Accumulate:
+                {
+                    // avoid overflow
+                    var max_value = ulong.MaxValue;
+                    newValue = max_value - progress.Counter > changeValue ? progress.Counter + changeValue : max_value;
+
+                    break;
+                }
+                case ProgressType.Highest:
+                    newValue = progress.Counter < changeValue ? changeValue : progress.Counter;
+
+                    break;
+            }
+
+            // not update (not mark as changed) if counter will have same value
+            if (progress.Counter == newValue && criteria.Entry.StartTimer == 0)
+                return;
+
+            progress.Counter = newValue;
+        }
+
+        progress.Changed = true;
+        progress.Date = GameTime.CurrentTime; // set the date to the latest update.
+        progress.PlayerGUID = referencePlayer ? referencePlayer.GUID : ObjectGuid.Empty;
+        _criteriaProgress[criteria.Id] = progress;
+
+        var timeElapsed = TimeSpan.Zero;
+
+        if (criteria.Entry.StartTimer != 0)
+            foreach (var tree in trees)
+            {
+                var timed = _timeCriteriaTrees.LookupByKey(tree.Id);
+
+                if (timed != 0)
+                {
+                    // Client expects this in packet
+                    timeElapsed = TimeSpan.FromSeconds(criteria.Entry.StartTimer - (timed / Time.IN_MILLISECONDS));
+
+                    // Remove the timer, we wont need it anymore
+                    if (IsCompletedCriteriaTree(tree))
+                        _timeCriteriaTrees.Remove(tree.Id);
+                }
+            }
+
+        SendCriteriaUpdate(criteria, progress, timeElapsed, true);
+    }
+
+    public void StartCriteriaTimer(CriteriaStartEvent startEvent, uint entry, uint timeLost = 0)
+    {
+        var criteriaList = Global.CriteriaMgr.GetTimedCriteriaByType(startEvent);
+
+        foreach (var criteria in criteriaList)
+        {
+            if (criteria.Entry.StartAsset != entry)
+                continue;
+
+            var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+            var canStart = false;
+
+            foreach (var tree in trees)
+                if ((!_timeCriteriaTrees.ContainsKey(tree.Id) || criteria.Entry.GetFlags().HasFlag(CriteriaFlags.ResetOnStart)) && !IsCompletedCriteriaTree(tree))
+                    // Start the timer
+                    if (criteria.Entry.StartTimer * Time.IN_MILLISECONDS > timeLost)
+                    {
+                        _timeCriteriaTrees[tree.Id] = (uint)(criteria.Entry.StartTimer * Time.IN_MILLISECONDS - timeLost);
+                        canStart = true;
+                    }
+
+            if (!canStart)
+                continue;
+
+            // and at client too
+            SetCriteriaProgress(criteria, 0, null);
+        }
     }
 
     /// <summary>
@@ -214,7 +572,7 @@ public class CriteriaHandler
                     if (miscValue1 == 0) // Login case.
                     {
                         // reset if player missed one day.
-                        if (progress != null && progress.Date < (nextDailyResetTime - 2 * Time.Day))
+                        if (progress != null && progress.Date < (nextDailyResetTime - 2 * Time.DAY))
                             SetCriteriaProgress(criteria, 0, referencePlayer);
 
                         continue;
@@ -225,10 +583,10 @@ public class CriteriaHandler
                     if (progress == null)
                         // 1st time. Start count.
                         progressType = ProgressType.Set;
-                    else if (progress.Date < (nextDailyResetTime - 2 * Time.Day))
+                    else if (progress.Date < (nextDailyResetTime - 2 * Time.DAY))
                         // last progress is older than 2 days. Player missed 1 day => Restart count.
                         progressType = ProgressType.Set;
-                    else if (progress.Date < (nextDailyResetTime - Time.Day))
+                    else if (progress.Date < (nextDailyResetTime - Time.DAY))
                         // last progress is between 1 and 2 days. => 1st time of the day.
                         progressType = ProgressType.Accumulate;
                     else
@@ -511,360 +869,80 @@ public class CriteriaHandler
                 }
             }
     }
-
-    public void StartCriteriaTimer(CriteriaStartEvent startEvent, uint entry, uint timeLost = 0)
+    private bool CanUpdateCriteria(Criteria criteria, List<CriteriaTree> trees, ulong miscValue1, ulong miscValue2, ulong miscValue3, WorldObject refe, Player referencePlayer)
     {
-        var criteriaList = Global.CriteriaMgr.GetTimedCriteriaByType(startEvent);
-
-        foreach (var criteria in criteriaList)
+        if (Global.DisableMgr.IsDisabledFor(DisableType.Criteria, criteria.Id, null))
         {
-            if (criteria.Entry.StartAsset != entry)
-                continue;
-
-            var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
-            var canStart = false;
-
-            foreach (var tree in trees)
-                if ((!_timeCriteriaTrees.ContainsKey(tree.Id) || criteria.Entry.GetFlags().HasFlag(CriteriaFlags.ResetOnStart)) && !IsCompletedCriteriaTree(tree))
-                    // Start the timer
-                    if (criteria.Entry.StartTimer * Time.InMilliseconds > timeLost)
-                    {
-                        _timeCriteriaTrees[tree.Id] = (uint)(criteria.Entry.StartTimer * Time.InMilliseconds - timeLost);
-                        canStart = true;
-                    }
-
-            if (!canStart)
-                continue;
-
-            // and at client too
-            SetCriteriaProgress(criteria, 0, null);
-        }
-    }
-
-    public void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint entry)
-    {
-        var criteriaList = Global.CriteriaMgr.GetTimedCriteriaByType(startEvent);
-
-        foreach (var criteria in criteriaList)
-        {
-            if (criteria.Entry.StartAsset != entry)
-                continue;
-
-            var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
-
-            // Remove the timer from all trees
-            foreach (var tree in trees)
-                _timeCriteriaTrees.Remove(tree.Id);
-
-            // remove progress
-            RemoveCriteriaProgress(criteria);
-        }
-    }
-
-    public CriteriaProgress GetCriteriaProgress(Criteria entry)
-    {
-        return _criteriaProgress.LookupByKey(entry.Id);
-    }
-
-    public void SetCriteriaProgress(Criteria criteria, ulong changeValue, Player referencePlayer, ProgressType progressType = ProgressType.Set)
-    {
-        // Don't allow to cheat - doing timed criteria without timer active
-        List<CriteriaTree> trees = null;
-
-        if (criteria.Entry.StartTimer != 0)
-        {
-            trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
-
-            if (trees.Empty())
-                return;
-
-            var hasTreeForTimed = false;
-
-            foreach (var tree in trees)
-            {
-                var timedIter = _timeCriteriaTrees.LookupByKey(tree.Id);
-
-                if (timedIter != 0)
-                {
-                    hasTreeForTimed = true;
-
-                    break;
-                }
-            }
-
-            if (!hasTreeForTimed)
-                return;
-        }
-
-        Log.Logger.Debug("SetCriteriaProgress({0}, {1}) for {2}", criteria.Id, changeValue, GetOwnerInfo());
-
-        var progress = GetCriteriaProgress(criteria);
-
-        if (progress == null)
-        {
-            // not create record for 0 counter but allow it for timed criteria
-            // we will need to send 0 progress to client to start the timer
-            if (changeValue == 0 && criteria.Entry.StartTimer == 0)
-                return;
-
-            progress = new CriteriaProgress
-            {
-                Counter = changeValue
-            };
-        }
-        else
-        {
-            ulong newValue = 0;
-
-            switch (progressType)
-            {
-                case ProgressType.Set:
-                    newValue = changeValue;
-
-                    break;
-                case ProgressType.Accumulate:
-                {
-                    // avoid overflow
-                    var max_value = ulong.MaxValue;
-                    newValue = max_value - progress.Counter > changeValue ? progress.Counter + changeValue : max_value;
-
-                    break;
-                }
-                case ProgressType.Highest:
-                    newValue = progress.Counter < changeValue ? changeValue : progress.Counter;
-
-                    break;
-            }
-
-            // not update (not mark as changed) if counter will have same value
-            if (progress.Counter == newValue && criteria.Entry.StartTimer == 0)
-                return;
-
-            progress.Counter = newValue;
-        }
-
-        progress.Changed = true;
-        progress.Date = GameTime.GetGameTime(); // set the date to the latest update.
-        progress.PlayerGUID = referencePlayer ? referencePlayer.GUID : ObjectGuid.Empty;
-        _criteriaProgress[criteria.Id] = progress;
-
-        var timeElapsed = TimeSpan.Zero;
-
-        if (criteria.Entry.StartTimer != 0)
-            foreach (var tree in trees)
-            {
-                var timed = _timeCriteriaTrees.LookupByKey(tree.Id);
-
-                if (timed != 0)
-                {
-                    // Client expects this in packet
-                    timeElapsed = TimeSpan.FromSeconds(criteria.Entry.StartTimer - (timed / Time.InMilliseconds));
-
-                    // Remove the timer, we wont need it anymore
-                    if (IsCompletedCriteriaTree(tree))
-                        _timeCriteriaTrees.Remove(tree.Id);
-                }
-            }
-
-        SendCriteriaUpdate(criteria, progress, timeElapsed, true);
-    }
-
-    public void RemoveCriteriaProgress(Criteria criteria)
-    {
-        if (criteria == null)
-            return;
-
-        if (!_criteriaProgress.ContainsKey(criteria.Id))
-            return;
-
-        SendCriteriaProgressRemoved(criteria.Id);
-
-        _criteriaProgress.Remove(criteria.Id);
-    }
-
-    public bool IsCompletedCriteriaTree(CriteriaTree tree)
-    {
-        if (!CanCompleteCriteriaTree(tree))
-            return false;
-
-        ulong requiredCount = tree.Entry.Amount;
-
-        switch ((CriteriaTreeOperator)tree.Entry.Operator)
-        {
-            case CriteriaTreeOperator.Complete:
-                return tree.Criteria != null && IsCompletedCriteria(tree.Criteria, requiredCount);
-            case CriteriaTreeOperator.NotComplete:
-                return tree.Criteria == null || !IsCompletedCriteria(tree.Criteria, requiredCount);
-            case CriteriaTreeOperator.CompleteAll:
-                foreach (var node in tree.Children)
-                    if (!IsCompletedCriteriaTree(node))
-                        return false;
-
-                return true;
-            case CriteriaTreeOperator.Sum:
-            {
-                ulong progress = 0;
-
-                CriteriaManager.WalkCriteriaTree(tree,
-                                                 criteriaTree =>
-                                                 {
-                                                     if (criteriaTree.Criteria != null)
-                                                     {
-                                                         var criteriaProgress = GetCriteriaProgress(criteriaTree.Criteria);
-
-                                                         if (criteriaProgress != null)
-                                                             progress += criteriaProgress.Counter;
-                                                     }
-                                                 });
-
-                return progress >= requiredCount;
-            }
-            case CriteriaTreeOperator.Highest:
-            {
-                ulong progress = 0;
-
-                CriteriaManager.WalkCriteriaTree(tree,
-                                                 criteriaTree =>
-                                                 {
-                                                     if (criteriaTree.Criteria != null)
-                                                     {
-                                                         var criteriaProgress = GetCriteriaProgress(criteriaTree.Criteria);
-
-                                                         if (criteriaProgress != null)
-                                                             if (criteriaProgress.Counter > progress)
-                                                                 progress = criteriaProgress.Counter;
-                                                     }
-                                                 });
-
-                return progress >= requiredCount;
-            }
-            case CriteriaTreeOperator.StartedAtLeast:
-            {
-                ulong progress = 0;
-
-                foreach (var node in tree.Children)
-                    if (node.Criteria != null)
-                    {
-                        var criteriaProgress = GetCriteriaProgress(node.Criteria);
-
-                        if (criteriaProgress is { Counter: >= 1 })
-                            if (++progress >= requiredCount)
-                                return true;
-                    }
-
-                return false;
-            }
-            case CriteriaTreeOperator.CompleteAtLeast:
-            {
-                ulong progress = 0;
-
-                foreach (var node in tree.Children)
-                    if (IsCompletedCriteriaTree(node))
-                        if (++progress >= requiredCount)
-                            return true;
-
-                return false;
-            }
-            case CriteriaTreeOperator.ProgressBar:
-            {
-                ulong progress = 0;
-
-                CriteriaManager.WalkCriteriaTree(tree,
-                                                 criteriaTree =>
-                                                 {
-                                                     if (criteriaTree.Criteria != null)
-                                                     {
-                                                         var criteriaProgress = GetCriteriaProgress(criteriaTree.Criteria);
-
-                                                         if (criteriaProgress != null)
-                                                             progress += criteriaProgress.Counter * criteriaTree.Entry.Amount;
-                                                     }
-                                                 });
-
-                return progress >= requiredCount;
-            }
-            default:
-                break;
-        }
-
-        return false;
-    }
-
-    public virtual bool CanUpdateCriteriaTree(Criteria criteria, CriteriaTree tree, Player referencePlayer)
-    {
-        if ((tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.HordeOnly) && referencePlayer.Team != TeamFaction.Horde) ||
-            (tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.AllianceOnly) && referencePlayer.Team != TeamFaction.Alliance))
-        {
-            Log.Logger.Verbose("CriteriaHandler.CanUpdateCriteriaTree: (Id: {0} Type {1} CriteriaTree {2}) Wrong faction",
-                               criteria.Id,
-                               criteria.Entry.Type,
-                               tree.Entry.Id);
+            Log.Logger.Error("CanUpdateCriteria: (Id: {0} Type {1}) Disabled", criteria.Id, criteria.Entry.Type);
 
             return false;
         }
 
-        return true;
-    }
+        var treeRequirementPassed = false;
 
-    public virtual bool CanCompleteCriteriaTree(CriteriaTree tree)
-    {
-        return true;
-    }
-
-    public bool ModifierTreeSatisfied(ModifierTreeNode tree, ulong miscValue1, ulong miscValue2, WorldObject refe, Player referencePlayer)
-    {
-        switch ((ModifierTreeOperator)tree.Entry.Operator)
+        foreach (var tree in trees)
         {
-            case ModifierTreeOperator.SingleTrue:
-                return tree.Entry.Type != 0 && ModifierSatisfied(tree.Entry, miscValue1, miscValue2, refe, referencePlayer);
-            case ModifierTreeOperator.SingleFalse:
-                return tree.Entry.Type != 0 && !ModifierSatisfied(tree.Entry, miscValue1, miscValue2, refe, referencePlayer);
-            case ModifierTreeOperator.All:
-                foreach (var node in tree.Children)
-                    if (!ModifierTreeSatisfied(node, miscValue1, miscValue2, refe, referencePlayer))
-                        return false;
+            if (!CanUpdateCriteriaTree(criteria, tree, referencePlayer))
+                continue;
 
-                return true;
-            case ModifierTreeOperator.Some:
-            {
-                var requiredAmount = Math.Max(tree.Entry.Amount, (sbyte)1);
+            treeRequirementPassed = true;
 
-                foreach (var node in tree.Children)
-                    if (ModifierTreeSatisfied(node, miscValue1, miscValue2, refe, referencePlayer))
-                        if (--requiredAmount == 0)
-                            return true;
+            break;
+        }
 
+        if (!treeRequirementPassed)
+            return false;
+
+        if (!RequirementsSatisfied(criteria, miscValue1, miscValue2, miscValue3, refe, referencePlayer))
+        {
+            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Requirements not satisfied", criteria.Id, criteria.Entry.Type);
+
+            return false;
+        }
+
+        if (criteria.Modifier != null && !ModifierTreeSatisfied(criteria.Modifier, miscValue1, miscValue2, refe, referencePlayer))
+        {
+            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Requirements have not been satisfied", criteria.Id, criteria.Entry.Type);
+
+            return false;
+        }
+
+        if (!ConditionsSatisfied(criteria, referencePlayer))
+        {
+            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Conditions have not been satisfied", criteria.Id, criteria.Entry.Type);
+
+            return false;
+        }
+
+        if (criteria.Entry.EligibilityWorldStateID != 0)
+            if (Global.WorldStateMgr.GetValue(criteria.Entry.EligibilityWorldStateID, referencePlayer.Location.Map) != criteria.Entry.EligibilityWorldStateValue)
                 return false;
-            }
+
+        return true;
+    }
+
+    private bool ConditionsSatisfied(Criteria criteria, Player referencePlayer)
+    {
+        if (criteria.Entry.FailEvent == 0)
+            return true;
+
+        switch ((CriteriaFailEvent)criteria.Entry.FailEvent)
+        {
+            case CriteriaFailEvent.LeaveBattleground:
+                if (!referencePlayer.InBattleground)
+                    return false;
+
+                break;
+            case CriteriaFailEvent.ModifyPartyStatus:
+                if (referencePlayer.Group)
+                    return false;
+
+                break;
             default:
                 break;
         }
 
-        return false;
-    }
-
-    public virtual void SendAllData(Player receiver) { }
-    public virtual void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted) { }
-    public virtual void SendCriteriaProgressRemoved(uint criteriaId) { }
-
-    public virtual void CompletedCriteriaTree(CriteriaTree tree, Player referencePlayer) { }
-    public virtual void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer) { }
-
-    public virtual void SendPacket(ServerPacket data) { }
-
-    public virtual bool RequiredAchievementSatisfied(uint achievementId)
-    {
-        return false;
-    }
-
-    public virtual string GetOwnerInfo()
-    {
-        return "";
-    }
-
-    public virtual List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
-    {
-        return null;
+        return true;
     }
 
     private bool IsCompletedCriteria(Criteria criteria, ulong requiredAmount)
@@ -966,436 +1044,6 @@ public class CriteriaHandler
 
         return false;
     }
-
-    private bool CanUpdateCriteria(Criteria criteria, List<CriteriaTree> trees, ulong miscValue1, ulong miscValue2, ulong miscValue3, WorldObject refe, Player referencePlayer)
-    {
-        if (Global.DisableMgr.IsDisabledFor(DisableType.Criteria, criteria.Id, null))
-        {
-            Log.Logger.Error("CanUpdateCriteria: (Id: {0} Type {1}) Disabled", criteria.Id, criteria.Entry.Type);
-
-            return false;
-        }
-
-        var treeRequirementPassed = false;
-
-        foreach (var tree in trees)
-        {
-            if (!CanUpdateCriteriaTree(criteria, tree, referencePlayer))
-                continue;
-
-            treeRequirementPassed = true;
-
-            break;
-        }
-
-        if (!treeRequirementPassed)
-            return false;
-
-        if (!RequirementsSatisfied(criteria, miscValue1, miscValue2, miscValue3, refe, referencePlayer))
-        {
-            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Requirements not satisfied", criteria.Id, criteria.Entry.Type);
-
-            return false;
-        }
-
-        if (criteria.Modifier != null && !ModifierTreeSatisfied(criteria.Modifier, miscValue1, miscValue2, refe, referencePlayer))
-        {
-            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Requirements have not been satisfied", criteria.Id, criteria.Entry.Type);
-
-            return false;
-        }
-
-        if (!ConditionsSatisfied(criteria, referencePlayer))
-        {
-            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Conditions have not been satisfied", criteria.Id, criteria.Entry.Type);
-
-            return false;
-        }
-
-        if (criteria.Entry.EligibilityWorldStateID != 0)
-            if (Global.WorldStateMgr.GetValue(criteria.Entry.EligibilityWorldStateID, referencePlayer.Location.Map) != criteria.Entry.EligibilityWorldStateValue)
-                return false;
-
-        return true;
-    }
-
-    private bool ConditionsSatisfied(Criteria criteria, Player referencePlayer)
-    {
-        if (criteria.Entry.FailEvent == 0)
-            return true;
-
-        switch ((CriteriaFailEvent)criteria.Entry.FailEvent)
-        {
-            case CriteriaFailEvent.LeaveBattleground:
-                if (!referencePlayer.InBattleground)
-                    return false;
-
-                break;
-            case CriteriaFailEvent.ModifyPartyStatus:
-                if (referencePlayer.Group)
-                    return false;
-
-                break;
-            default:
-                break;
-        }
-
-        return true;
-    }
-
-    private bool RequirementsSatisfied(Criteria criteria, ulong miscValue1, ulong miscValue2, ulong miscValue3, WorldObject refe, Player referencePlayer)
-    {
-        switch (criteria.Entry.Type)
-        {
-            case CriteriaType.AcceptSummon:
-            case CriteriaType.CompleteDailyQuest:
-            case CriteriaType.ItemsPostedAtAuction:
-            case CriteriaType.MaxDistFallenWithoutDying:
-            case CriteriaType.BuyTaxi:
-            case CriteriaType.DeliveredKillingBlow:
-            case CriteriaType.MoneyEarnedFromAuctions:
-            case CriteriaType.MoneySpentAtBarberShop:
-            case CriteriaType.MoneySpentOnPostage:
-            case CriteriaType.MoneySpentOnRespecs:
-            case CriteriaType.MoneySpentOnTaxis:
-            case CriteriaType.HighestAuctionBid:
-            case CriteriaType.HighestAuctionSale:
-            case CriteriaType.HighestHealReceived:
-            case CriteriaType.HighestHealCast:
-            case CriteriaType.HighestDamageDone:
-            case CriteriaType.HighestDamageTaken:
-            case CriteriaType.EarnHonorableKill:
-            case CriteriaType.LootAnyItem:
-            case CriteriaType.MoneyLootedFromCreatures:
-            case CriteriaType.LoseDuel:
-            case CriteriaType.MoneyEarnedFromQuesting:
-            case CriteriaType.MoneyEarnedFromSales:
-            case CriteriaType.TotalRespecs:
-            case CriteriaType.ObtainAnyItem:
-            case CriteriaType.AbandonAnyQuest:
-            case CriteriaType.GuildAttainedLevel:
-            case CriteriaType.RollAnyGreed:
-            case CriteriaType.RollAnyNeed:
-            case CriteriaType.KillPlayer:
-            case CriteriaType.TotalDamageTaken:
-            case CriteriaType.TotalHealReceived:
-            case CriteriaType.CompletedLFGDungeonWithStrangers:
-            case CriteriaType.GotHaircut:
-            case CriteriaType.WinDuel:
-            case CriteriaType.WinAnyRankedArena:
-            case CriteriaType.AuctionsWon:
-            case CriteriaType.CompleteAnyReplayQuest:
-            case CriteriaType.BuyItemsFromVendors:
-            case CriteriaType.SellItemsToVendors:
-                if (miscValue1 == 0)
-                    return false;
-
-                break;
-            case CriteriaType.BankSlotsPurchased:
-            case CriteriaType.CompleteAnyDailyQuestPerDay:
-            case CriteriaType.CompleteQuestsCount:
-            case CriteriaType.EarnAchievementPoints:
-            case CriteriaType.TotalExaltedFactions:
-            case CriteriaType.TotalHonoredFactions:
-            case CriteriaType.TotalReveredFactions:
-            case CriteriaType.MostMoneyOwned:
-            case CriteriaType.EarnPersonalArenaRating:
-            case CriteriaType.TotalFactionsEncountered:
-            case CriteriaType.ReachLevel:
-            case CriteriaType.Login:
-            case CriteriaType.UniquePetsOwned:
-                break;
-            case CriteriaType.EarnAchievement:
-                if (!RequiredAchievementSatisfied(criteria.Entry.Asset))
-                    return false;
-
-                break;
-            case CriteriaType.WinBattleground:
-            case CriteriaType.ParticipateInBattleground:
-            case CriteriaType.DieOnMap:
-                if (miscValue1 == 0 || criteria.Entry.Asset != referencePlayer.Location.MapId)
-                    return false;
-
-                break;
-            case CriteriaType.KillCreature:
-            case CriteriaType.KilledByCreature:
-                if (miscValue1 == 0 || criteria.Entry.Asset != miscValue1)
-                    return false;
-
-                break;
-            case CriteriaType.SkillRaised:
-            case CriteriaType.AchieveSkillStep:
-                // update at loading or specific skill update
-                if (miscValue1 != 0 && miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.CompleteQuestsInZone:
-                if (miscValue1 != 0)
-                {
-                    var quest = Global.ObjectMgr.GetQuestTemplate((uint)miscValue1);
-
-                    if (quest == null || quest.QuestSortID != criteria.Entry.Asset)
-                        return false;
-                }
-
-                break;
-            case CriteriaType.DieAnywhere:
-            {
-                if (miscValue1 == 0)
-                    return false;
-
-                break;
-            }
-            case CriteriaType.DieInInstance:
-            {
-                if (miscValue1 == 0)
-                    return false;
-
-                var map = referencePlayer.Location.IsInWorld ? referencePlayer.Location.Map : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId);
-
-                if (!map || !map.IsDungeon)
-                    return false;
-
-                //FIXME: work only for instances where max == min for players
-                if (map.ToInstanceMap.MaxPlayers != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            }
-            case CriteriaType.KilledByPlayer:
-                if (miscValue1 == 0 || !refe || !refe.IsTypeId(TypeId.Player))
-                    return false;
-
-                break;
-            case CriteriaType.DieFromEnviromentalDamage:
-                if (miscValue1 == 0 || miscValue2 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.CompleteQuest:
-            {
-                // if miscValues != 0, it contains the questID.
-                if (miscValue1 != 0)
-                {
-                    if (miscValue1 != criteria.Entry.Asset)
-                        return false;
-                }
-                else
-                {
-                    // login case.
-                    if (!referencePlayer.GetQuestRewardStatus(criteria.Entry.Asset))
-                        return false;
-                }
-
-                var data = Global.CriteriaMgr.GetCriteriaDataSet(criteria);
-
-                if (data != null)
-                    if (!data.Meets(referencePlayer, refe))
-                        return false;
-
-                break;
-            }
-            case CriteriaType.BeSpellTarget:
-            case CriteriaType.GainAura:
-            case CriteriaType.CastSpell:
-            case CriteriaType.LandTargetedSpellOnTarget:
-                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.LearnOrKnowSpell:
-                if (miscValue1 != 0 && miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                if (!referencePlayer.HasSpell(criteria.Entry.Asset))
-                    return false;
-
-                break;
-            case CriteriaType.GetLootByType:
-                // miscValue1 = itemId - miscValue2 = count of item loot
-                // miscValue3 = loot_type (note: 0 = LOOT_CORPSE and then it ignored)
-                if (miscValue1 == 0 || miscValue2 == 0 || miscValue3 == 0 || miscValue3 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.AcquireItem:
-                if (miscValue1 != 0 && criteria.Entry.Asset != miscValue1)
-                    return false;
-
-                break;
-            case CriteriaType.UseItem:
-            case CriteriaType.LootItem:
-            case CriteriaType.EquipItem:
-                if (miscValue1 == 0 || criteria.Entry.Asset != miscValue1)
-                    return false;
-
-                break;
-            case CriteriaType.RevealWorldMapOverlay:
-            {
-                var worldOverlayEntry = CliDB.WorldMapOverlayStorage.LookupByKey(criteria.Entry.Asset);
-
-                if (worldOverlayEntry == null)
-                    break;
-
-                var matchFound = false;
-
-                for (var j = 0; j < SharedConst.MaxWorldMapOverlayArea; ++j)
-                {
-                    var area = CliDB.AreaTableStorage.LookupByKey(worldOverlayEntry.AreaID[j]);
-
-                    if (area == null)
-                        break;
-
-                    if (area.AreaBit < 0)
-                        continue;
-
-                    var playerIndexOffset = (int)area.AreaBit / ActivePlayerData.ExploredZonesBits;
-
-                    if (playerIndexOffset >= PlayerConst.ExploredZonesSize)
-                        continue;
-
-                    var mask = 1ul << (int)((uint)area.AreaBit % ActivePlayerData.ExploredZonesBits);
-
-                    if (Convert.ToBoolean(referencePlayer.ActivePlayerData.ExploredZones[playerIndexOffset] & mask))
-                    {
-                        matchFound = true;
-
-                        break;
-                    }
-                }
-
-                if (!matchFound)
-                    return false;
-
-                break;
-            }
-            case CriteriaType.ReputationGained:
-                if (miscValue1 != 0 && miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.EquipItemInSlot:
-            case CriteriaType.LearnAnyTransmogInSlot:
-                // miscValue1 = EquipmentSlot miscValue2 = itemid | itemModifiedAppearanceId
-                if (miscValue2 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.RollNeed:
-            case CriteriaType.RollGreed:
-            {
-                // miscValue1 = itemid miscValue2 = diced value
-                if (miscValue1 == 0 || miscValue2 != criteria.Entry.Asset)
-                    return false;
-
-                var proto = Global.ObjectMgr.GetItemTemplate((uint)miscValue1);
-
-                if (proto == null)
-                    return false;
-
-                break;
-            }
-            case CriteriaType.DoEmote:
-                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.DamageDealt:
-            case CriteriaType.HealingDone:
-                if (miscValue1 == 0)
-                    return false;
-
-                if ((CriteriaFailEvent)criteria.Entry.FailEvent == CriteriaFailEvent.LeaveBattleground)
-                {
-                    if (!referencePlayer.InBattleground)
-                        return false;
-
-                    // map specific case (BG in fact) expected player targeted damage/heal
-                    if (!refe || !refe.IsTypeId(TypeId.Player))
-                        return false;
-                }
-
-                break;
-            case CriteriaType.UseGameobject:
-            case CriteriaType.CatchFishInFishingHole:
-                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.LearnSpellFromSkillLine:
-            case CriteriaType.LearnTradeskillSkillLine:
-                if (miscValue1 != 0 && miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.DeliverKillingBlowToClass:
-                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.DeliverKillingBlowToRace:
-                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.TrackedWorldStateUIModified:
-                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.PVPKillInArea:
-            case CriteriaType.EnterTopLevelArea:
-                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.CurrencyGained:
-                if (miscValue1 == 0 || miscValue2 == 0 || (long)miscValue2 < 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.WinArena:
-                if (miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.EarnTeamArenaRating:
-                return false;
-            case CriteriaType.PlaceGarrisonBuilding:
-            case CriteriaType.ActivateGarrisonBuilding:
-                if (miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.RecruitGarrisonFollower:
-                if (miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.CollectTransmogSetFromGroup:
-                if (miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.BattlePetReachLevel:
-            case CriteriaType.ActivelyEarnPetLevel:
-                if (miscValue1 == 0 || miscValue2 == 0 || miscValue2 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            case CriteriaType.ActivelyReachLevel:
-                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
-                    return false;
-
-                break;
-            default:
-                break;
-        }
-
-        return true;
-    }
-
     private bool ModifierSatisfied(ModifierTreeRecord modifier, ulong miscValue1, ulong miscValue2, WorldObject refe, Player referencePlayer)
     {
         var reqValue = modifier.Asset;
@@ -1518,7 +1166,7 @@ public class CriteriaHandler
             {
                 if (refe == null)
                     return false;
-                
+
                 if (refe.Location.Zone != reqValue && refe.Location.Area != reqValue)
                     return false;
 
@@ -2082,7 +1730,7 @@ public class CriteriaHandler
                 var from = Time.GetUnixTimeFromPackedTime(reqValue);
                 var to = Time.GetUnixTimeFromPackedTime((uint)secondaryAsset);
 
-                if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
+                if (GameTime.CurrentTime < from || GameTime.CurrentTime > to)
                     return false;
 
                 break;
@@ -3777,7 +3425,7 @@ public class CriteriaHandler
                 break;
             case ModifierTreeType.HasTimeEventPassed: // 289
             {
-                var eventTimestamp = GameTime.GetGameTime();
+                var eventTimestamp = GameTime.CurrentTime;
 
                 switch (reqValue)
                 {
@@ -3805,7 +3453,7 @@ public class CriteriaHandler
                         break;
                 }
 
-                if (GameTime.GetGameTime() < eventTimestamp)
+                if (GameTime.CurrentTime < eventTimestamp)
                     return false;
 
                 break;
@@ -4119,7 +3767,7 @@ public class CriteriaHandler
                 break;
             }
             case ModifierTreeType.PlayerDaysSinceLogout: // 344
-                if (GameTime.GetGameTime() - referencePlayer.PlayerData.LogoutTime < reqValue * Time.Day)
+                if (GameTime.CurrentTime - referencePlayer.PlayerData.LogoutTime < reqValue * Time.DAY)
                     return false;
 
                 break;
@@ -4161,6 +3809,359 @@ public class CriteriaHandler
             }
             default:
                 return false;
+        }
+
+        return true;
+    }
+
+    private bool RequirementsSatisfied(Criteria criteria, ulong miscValue1, ulong miscValue2, ulong miscValue3, WorldObject refe, Player referencePlayer)
+    {
+        switch (criteria.Entry.Type)
+        {
+            case CriteriaType.AcceptSummon:
+            case CriteriaType.CompleteDailyQuest:
+            case CriteriaType.ItemsPostedAtAuction:
+            case CriteriaType.MaxDistFallenWithoutDying:
+            case CriteriaType.BuyTaxi:
+            case CriteriaType.DeliveredKillingBlow:
+            case CriteriaType.MoneyEarnedFromAuctions:
+            case CriteriaType.MoneySpentAtBarberShop:
+            case CriteriaType.MoneySpentOnPostage:
+            case CriteriaType.MoneySpentOnRespecs:
+            case CriteriaType.MoneySpentOnTaxis:
+            case CriteriaType.HighestAuctionBid:
+            case CriteriaType.HighestAuctionSale:
+            case CriteriaType.HighestHealReceived:
+            case CriteriaType.HighestHealCast:
+            case CriteriaType.HighestDamageDone:
+            case CriteriaType.HighestDamageTaken:
+            case CriteriaType.EarnHonorableKill:
+            case CriteriaType.LootAnyItem:
+            case CriteriaType.MoneyLootedFromCreatures:
+            case CriteriaType.LoseDuel:
+            case CriteriaType.MoneyEarnedFromQuesting:
+            case CriteriaType.MoneyEarnedFromSales:
+            case CriteriaType.TotalRespecs:
+            case CriteriaType.ObtainAnyItem:
+            case CriteriaType.AbandonAnyQuest:
+            case CriteriaType.GuildAttainedLevel:
+            case CriteriaType.RollAnyGreed:
+            case CriteriaType.RollAnyNeed:
+            case CriteriaType.KillPlayer:
+            case CriteriaType.TotalDamageTaken:
+            case CriteriaType.TotalHealReceived:
+            case CriteriaType.CompletedLFGDungeonWithStrangers:
+            case CriteriaType.GotHaircut:
+            case CriteriaType.WinDuel:
+            case CriteriaType.WinAnyRankedArena:
+            case CriteriaType.AuctionsWon:
+            case CriteriaType.CompleteAnyReplayQuest:
+            case CriteriaType.BuyItemsFromVendors:
+            case CriteriaType.SellItemsToVendors:
+                if (miscValue1 == 0)
+                    return false;
+
+                break;
+            case CriteriaType.BankSlotsPurchased:
+            case CriteriaType.CompleteAnyDailyQuestPerDay:
+            case CriteriaType.CompleteQuestsCount:
+            case CriteriaType.EarnAchievementPoints:
+            case CriteriaType.TotalExaltedFactions:
+            case CriteriaType.TotalHonoredFactions:
+            case CriteriaType.TotalReveredFactions:
+            case CriteriaType.MostMoneyOwned:
+            case CriteriaType.EarnPersonalArenaRating:
+            case CriteriaType.TotalFactionsEncountered:
+            case CriteriaType.ReachLevel:
+            case CriteriaType.Login:
+            case CriteriaType.UniquePetsOwned:
+                break;
+            case CriteriaType.EarnAchievement:
+                if (!RequiredAchievementSatisfied(criteria.Entry.Asset))
+                    return false;
+
+                break;
+            case CriteriaType.WinBattleground:
+            case CriteriaType.ParticipateInBattleground:
+            case CriteriaType.DieOnMap:
+                if (miscValue1 == 0 || criteria.Entry.Asset != referencePlayer.Location.MapId)
+                    return false;
+
+                break;
+            case CriteriaType.KillCreature:
+            case CriteriaType.KilledByCreature:
+                if (miscValue1 == 0 || criteria.Entry.Asset != miscValue1)
+                    return false;
+
+                break;
+            case CriteriaType.SkillRaised:
+            case CriteriaType.AchieveSkillStep:
+                // update at loading or specific skill update
+                if (miscValue1 != 0 && miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.CompleteQuestsInZone:
+                if (miscValue1 != 0)
+                {
+                    var quest = Global.ObjectMgr.GetQuestTemplate((uint)miscValue1);
+
+                    if (quest == null || quest.QuestSortID != criteria.Entry.Asset)
+                        return false;
+                }
+
+                break;
+            case CriteriaType.DieAnywhere:
+            {
+                if (miscValue1 == 0)
+                    return false;
+
+                break;
+            }
+            case CriteriaType.DieInInstance:
+            {
+                if (miscValue1 == 0)
+                    return false;
+
+                var map = referencePlayer.Location.IsInWorld ? referencePlayer.Location.Map : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId);
+
+                if (!map || !map.IsDungeon)
+                    return false;
+
+                //FIXME: work only for instances where max == min for players
+                if (map.ToInstanceMap.MaxPlayers != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            }
+            case CriteriaType.KilledByPlayer:
+                if (miscValue1 == 0 || !refe || !refe.IsTypeId(TypeId.Player))
+                    return false;
+
+                break;
+            case CriteriaType.DieFromEnviromentalDamage:
+                if (miscValue1 == 0 || miscValue2 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.CompleteQuest:
+            {
+                // if miscValues != 0, it contains the questID.
+                if (miscValue1 != 0)
+                {
+                    if (miscValue1 != criteria.Entry.Asset)
+                        return false;
+                }
+                else
+                {
+                    // login case.
+                    if (!referencePlayer.GetQuestRewardStatus(criteria.Entry.Asset))
+                        return false;
+                }
+
+                var data = Global.CriteriaMgr.GetCriteriaDataSet(criteria);
+
+                if (data != null)
+                    if (!data.Meets(referencePlayer, refe))
+                        return false;
+
+                break;
+            }
+            case CriteriaType.BeSpellTarget:
+            case CriteriaType.GainAura:
+            case CriteriaType.CastSpell:
+            case CriteriaType.LandTargetedSpellOnTarget:
+                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.LearnOrKnowSpell:
+                if (miscValue1 != 0 && miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                if (!referencePlayer.HasSpell(criteria.Entry.Asset))
+                    return false;
+
+                break;
+            case CriteriaType.GetLootByType:
+                // miscValue1 = itemId - miscValue2 = count of item loot
+                // miscValue3 = loot_type (note: 0 = LOOT_CORPSE and then it ignored)
+                if (miscValue1 == 0 || miscValue2 == 0 || miscValue3 == 0 || miscValue3 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.AcquireItem:
+                if (miscValue1 != 0 && criteria.Entry.Asset != miscValue1)
+                    return false;
+
+                break;
+            case CriteriaType.UseItem:
+            case CriteriaType.LootItem:
+            case CriteriaType.EquipItem:
+                if (miscValue1 == 0 || criteria.Entry.Asset != miscValue1)
+                    return false;
+
+                break;
+            case CriteriaType.RevealWorldMapOverlay:
+            {
+                var worldOverlayEntry = CliDB.WorldMapOverlayStorage.LookupByKey(criteria.Entry.Asset);
+
+                if (worldOverlayEntry == null)
+                    break;
+
+                var matchFound = false;
+
+                for (var j = 0; j < SharedConst.MaxWorldMapOverlayArea; ++j)
+                {
+                    var area = CliDB.AreaTableStorage.LookupByKey(worldOverlayEntry.AreaID[j]);
+
+                    if (area == null)
+                        break;
+
+                    if (area.AreaBit < 0)
+                        continue;
+
+                    var playerIndexOffset = (int)area.AreaBit / ActivePlayerData.ExploredZonesBits;
+
+                    if (playerIndexOffset >= PlayerConst.ExploredZonesSize)
+                        continue;
+
+                    var mask = 1ul << (int)((uint)area.AreaBit % ActivePlayerData.ExploredZonesBits);
+
+                    if (Convert.ToBoolean(referencePlayer.ActivePlayerData.ExploredZones[playerIndexOffset] & mask))
+                    {
+                        matchFound = true;
+
+                        break;
+                    }
+                }
+
+                if (!matchFound)
+                    return false;
+
+                break;
+            }
+            case CriteriaType.ReputationGained:
+                if (miscValue1 != 0 && miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.EquipItemInSlot:
+            case CriteriaType.LearnAnyTransmogInSlot:
+                // miscValue1 = EquipmentSlot miscValue2 = itemid | itemModifiedAppearanceId
+                if (miscValue2 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.RollNeed:
+            case CriteriaType.RollGreed:
+            {
+                // miscValue1 = itemid miscValue2 = diced value
+                if (miscValue1 == 0 || miscValue2 != criteria.Entry.Asset)
+                    return false;
+
+                var proto = Global.ObjectMgr.GetItemTemplate((uint)miscValue1);
+
+                if (proto == null)
+                    return false;
+
+                break;
+            }
+            case CriteriaType.DoEmote:
+                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.DamageDealt:
+            case CriteriaType.HealingDone:
+                if (miscValue1 == 0)
+                    return false;
+
+                if ((CriteriaFailEvent)criteria.Entry.FailEvent == CriteriaFailEvent.LeaveBattleground)
+                {
+                    if (!referencePlayer.InBattleground)
+                        return false;
+
+                    // map specific case (BG in fact) expected player targeted damage/heal
+                    if (!refe || !refe.IsTypeId(TypeId.Player))
+                        return false;
+                }
+
+                break;
+            case CriteriaType.UseGameobject:
+            case CriteriaType.CatchFishInFishingHole:
+                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.LearnSpellFromSkillLine:
+            case CriteriaType.LearnTradeskillSkillLine:
+                if (miscValue1 != 0 && miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.DeliverKillingBlowToClass:
+                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.DeliverKillingBlowToRace:
+                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.TrackedWorldStateUIModified:
+                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.PVPKillInArea:
+            case CriteriaType.EnterTopLevelArea:
+                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.CurrencyGained:
+                if (miscValue1 == 0 || miscValue2 == 0 || (long)miscValue2 < 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.WinArena:
+                if (miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.EarnTeamArenaRating:
+                return false;
+            case CriteriaType.PlaceGarrisonBuilding:
+            case CriteriaType.ActivateGarrisonBuilding:
+                if (miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.RecruitGarrisonFollower:
+                if (miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.CollectTransmogSetFromGroup:
+                if (miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.BattlePetReachLevel:
+            case CriteriaType.ActivelyEarnPetLevel:
+                if (miscValue1 == 0 || miscValue2 == 0 || miscValue2 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            case CriteriaType.ActivelyReachLevel:
+                if (miscValue1 == 0 || miscValue1 != criteria.Entry.Asset)
+                    return false;
+
+                break;
+            default:
+                break;
         }
 
         return true;

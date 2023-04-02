@@ -11,9 +11,8 @@ namespace Forged.MapServer.Spells;
 
 public class WorldObjectSpellAreaTargetCheck : WorldObjectSpellTargetCheck
 {
-    private readonly float _range;
     private readonly Position _position;
-
+    private readonly float _range;
     public WorldObjectSpellAreaTargetCheck(float range, Position position, WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
         : base(caster, referer, spellInfo, selectionType, condList, objectType)
     {

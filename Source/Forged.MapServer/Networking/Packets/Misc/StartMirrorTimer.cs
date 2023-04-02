@@ -7,13 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class StartMirrorTimer : ServerPacket
 {
-    public int Scale;
     public int MaxValue;
-    public MirrorTimerType Timer;
-    public int SpellID;
-    public int Value;
     public bool Paused;
-
+    public int Scale;
+    public int SpellID;
+    public MirrorTimerType Timer;
+    public int Value;
     public StartMirrorTimer(MirrorTimerType timer, int value, int maxValue, int scale, int spellID, bool paused) : base(ServerOpcodes.StartMirrorTimer)
     {
         Timer = timer;

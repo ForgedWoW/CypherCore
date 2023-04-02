@@ -9,10 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class EmoteMessage : ServerPacket
 {
-    public ObjectGuid Guid;
     public uint EmoteID;
-    public List<uint> SpellVisualKitIDs = new();
+    public ObjectGuid Guid;
     public int SequenceVariation;
+    public List<uint> SpellVisualKitIDs = new();
     public EmoteMessage() : base(ServerOpcodes.Emote, ConnectionType.Instance) { }
 
     public override void Write()

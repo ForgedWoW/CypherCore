@@ -7,6 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 
 public struct SupportTicketHeader
 {
+    public float Facing;
+
+    public uint MapID;
+
+    public Vector3 Position;
+
+    public int Program;
+
     public void Read(WorldPacket packet)
     {
         MapID = packet.ReadUInt32();
@@ -14,9 +22,4 @@ public struct SupportTicketHeader
         Facing = packet.ReadFloat();
         Program = packet.ReadInt32();
     }
-
-    public uint MapID;
-    public Vector3 Position;
-    public float Facing;
-    public int Program;
 }

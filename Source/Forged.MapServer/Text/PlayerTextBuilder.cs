@@ -10,15 +10,14 @@ namespace Forged.MapServer.Text;
 
 public class PlayerTextBuilder : MessageBuilder
 {
+    private readonly Gender _gender;
+    private readonly Language _language;
+    private readonly ChatMsg _msgType;
     private readonly WorldObject _source;
     private readonly WorldObject _talker;
-    private readonly Gender _gender;
-    private readonly ChatMsg _msgType;
+    private readonly WorldObject _target;
     private readonly byte _textGroup;
     private readonly uint _textId;
-    private readonly Language _language;
-    private readonly WorldObject _target;
-
     public PlayerTextBuilder(WorldObject obj, WorldObject speaker, Gender gender, ChatMsg msgtype, byte textGroup, uint id, Language language, WorldObject target)
     {
         _source = obj;

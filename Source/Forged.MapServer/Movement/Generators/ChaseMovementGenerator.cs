@@ -11,17 +11,14 @@ namespace Forged.MapServer.Movement.Generators;
 internal class ChaseMovementGenerator : MovementGenerator
 {
     private static readonly uint RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
-    private readonly TimeTracker _rangeCheckTimer;
-    private readonly bool _movingTowards = true;
     private readonly AbstractFollower _abstractFollower;
-
-    private readonly ChaseRange? _range;
     private readonly ChaseAngle? _angle;
-
-    private PathGenerator _path;
+    private readonly bool _movingTowards = true;
+    private readonly ChaseRange? _range;
+    private readonly TimeTracker _rangeCheckTimer;
     private Position _lastTargetPosition;
     private bool _mutualChase = true;
-
+    private PathGenerator _path;
     public ChaseMovementGenerator(Unit target, ChaseRange? range, ChaseAngle? angle)
     {
         _abstractFollower = new AbstractFollower(target);
@@ -34,6 +31,39 @@ internal class ChaseMovementGenerator : MovementGenerator
         BaseUnitState = UnitState.Chase;
 
         _rangeCheckTimer = new TimeTracker(RANGE_CHECK_INTERVAL);
+    }
+
+    public override void Deactivate(Unit owner)
+    {
+        AddFlag(MovementGeneratorFlags.Deactivated);
+        RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.InformEnabled);
+        owner.ClearUnitState(UnitState.ChaseMove);
+        var cOwner = owner.AsCreature;
+
+        cOwner?.SetCannotReachTarget(false);
+    }
+
+    public override void Finalize(Unit owner, bool active, bool movementInform)
+    {
+        AddFlag(MovementGeneratorFlags.Finalized);
+
+        if (active)
+        {
+            owner.ClearUnitState(UnitState.ChaseMove);
+            var cOwner = owner.AsCreature;
+
+            cOwner?.SetCannotReachTarget(false);
+        }
+    }
+
+    public override MovementGeneratorType GetMovementGeneratorType()
+    {
+        return MovementGeneratorType.Chase;
+    }
+
+    public Unit GetTarget()
+    {
+        return _abstractFollower.GetTarget();
     }
 
     public override void Initialize(Unit owner)
@@ -49,6 +79,11 @@ internal class ChaseMovementGenerator : MovementGenerator
     {
         RemoveFlag(MovementGeneratorFlags.Deactivated);
         Initialize(owner);
+    }
+
+    public override void UnitSpeedChanged()
+    {
+        _lastTargetPosition = null;
     }
 
     public override bool Update(Unit owner, uint diff)
@@ -225,43 +260,14 @@ internal class ChaseMovementGenerator : MovementGenerator
         // and then, finally, we're done for the tick
         return true;
     }
-
-    public override void Deactivate(Unit owner)
+    private static void DoMovementInform(Unit owner, Unit target)
     {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-        RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.InformEnabled);
-        owner.ClearUnitState(UnitState.ChaseMove);
-        var cOwner = owner.AsCreature;
+        if (!owner.IsCreature)
+            return;
 
-        cOwner?.SetCannotReachTarget(false);
-    }
+        var ai = owner.AsCreature.AI;
 
-    public override void Finalize(Unit owner, bool active, bool movementInform)
-    {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (active)
-        {
-            owner.ClearUnitState(UnitState.ChaseMove);
-            var cOwner = owner.AsCreature;
-
-            cOwner?.SetCannotReachTarget(false);
-        }
-    }
-
-    public override MovementGeneratorType GetMovementGeneratorType()
-    {
-        return MovementGeneratorType.Chase;
-    }
-
-    public override void UnitSpeedChanged()
-    {
-        _lastTargetPosition = null;
-    }
-
-    public Unit GetTarget()
-    {
-        return _abstractFollower.GetTarget();
+        ai?.MovementInform(MovementGeneratorType.Chase, (uint)target.GUID.Counter);
     }
 
     private static bool HasLostTarget(Unit owner, Unit target)
@@ -299,15 +305,5 @@ internal class ChaseMovementGenerator : MovementGenerator
             return false;
 
         return true;
-    }
-
-    private static void DoMovementInform(Unit owner, Unit target)
-    {
-        if (!owner.IsCreature)
-            return;
-
-        var ai = owner.AsCreature.AI;
-
-        ai?.MovementInform(MovementGeneratorType.Chase, (uint)target.GUID.Counter);
     }
 }

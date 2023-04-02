@@ -5,6 +5,16 @@ namespace Forged.MapServer.Entities;
 
 public struct VehicleAccessory
 {
+    public uint AccessoryEntry;
+
+    public bool IsMinion;
+
+    public sbyte SeatId;
+
+    public byte SummonedType;
+
+    public uint SummonTime;
+
     public VehicleAccessory(uint entry, sbyte seatId, bool isMinion, byte summonType, uint summonTime)
     {
         AccessoryEntry = entry;
@@ -13,10 +23,4 @@ public struct VehicleAccessory
         SeatId = seatId;
         SummonedType = summonType;
     }
-
-    public uint AccessoryEntry;
-    public bool IsMinion;
-    public uint SummonTime;
-    public sbyte SeatId;
-    public byte SummonedType;
 }

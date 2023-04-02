@@ -8,13 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 
 internal class Complaint : ClientPacket
 {
-    public SupportSpamType ComplaintType;
-    public ComplaintOffender Offender;
-    public ulong MailID;
     public ComplaintChat Chat;
-
+    public SupportSpamType ComplaintType;
     public ulong EventGuid;
     public ulong InviteGuid;
+    public ulong MailID;
+    public ComplaintOffender Offender;
     public Complaint(WorldPacket packet) : base(packet) { }
 
     public override void Read()
@@ -40,31 +39,35 @@ internal class Complaint : ClientPacket
         }
     }
 
-    public struct ComplaintOffender
-    {
-        public void Read(WorldPacket data)
-        {
-            PlayerGuid = data.ReadPackedGuid();
-            RealmAddress = data.ReadUInt32();
-            TimeSinceOffence = data.ReadUInt32();
-        }
-
-        public ObjectGuid PlayerGuid;
-        public uint RealmAddress;
-        public uint TimeSinceOffence;
-    }
-
     public struct ComplaintChat
     {
+        public uint ChannelID;
+
+        public uint Command;
+
+        public string MessageLog;
+
         public void Read(WorldPacket data)
         {
             Command = data.ReadUInt32();
             ChannelID = data.ReadUInt32();
             MessageLog = data.ReadString(data.ReadBits<uint>(12));
         }
+    }
 
-        public uint Command;
-        public uint ChannelID;
-        public string MessageLog;
+    public struct ComplaintOffender
+    {
+        public ObjectGuid PlayerGuid;
+
+        public uint RealmAddress;
+
+        public uint TimeSinceOffence;
+
+        public void Read(WorldPacket data)
+        {
+            PlayerGuid = data.ReadPackedGuid();
+            RealmAddress = data.ReadUInt32();
+            TimeSinceOffence = data.ReadUInt32();
+        }
     }
 }

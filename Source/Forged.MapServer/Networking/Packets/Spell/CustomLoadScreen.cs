@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class CustomLoadScreen : ServerPacket
 {
-    private readonly uint TeleportSpellID;
     private readonly uint LoadingScreenID;
-
+    private readonly uint TeleportSpellID;
     public CustomLoadScreen(uint teleportSpellId, uint loadingScreenId) : base(ServerOpcodes.CustomLoadScreen)
     {
         TeleportSpellID = teleportSpellId;

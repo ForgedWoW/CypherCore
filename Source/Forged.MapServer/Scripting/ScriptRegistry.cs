@@ -68,15 +68,6 @@ public class ScriptRegistry
         }
     }
 
-    // Gets a script by its ID (assigned by ObjectMgr).
-    public T GetScriptById<T>(uint id) where T : IScriptObject
-    {
-        lock (_scriptMap)
-        {
-            return (T)_scriptMap.LookupByKey(id);
-        }
-    }
-
     public bool Empty()
     {
         lock (_scriptMap)
@@ -85,6 +76,14 @@ public class ScriptRegistry
         }
     }
 
+    // Gets a script by its ID (assigned by ObjectMgr).
+    public T GetScriptById<T>(uint id) where T : IScriptObject
+    {
+        lock (_scriptMap)
+        {
+            return (T)_scriptMap.LookupByKey(id);
+        }
+    }
     public void Unload()
     {
         lock (_scriptMap)

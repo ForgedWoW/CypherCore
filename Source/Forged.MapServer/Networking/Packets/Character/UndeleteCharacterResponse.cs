@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class UndeleteCharacterResponse : ServerPacket
 {
-    public CharacterUndeleteInfo UndeleteInfo;
     public CharacterUndeleteResult Result;
+    public CharacterUndeleteInfo UndeleteInfo;
     public UndeleteCharacterResponse() : base(ServerOpcodes.UndeleteCharacterResponse) { }
 
     public override void Write()

@@ -9,10 +9,9 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AllCreaturesOfEntryInRange : ICheck<Creature>
 {
+    private readonly float _fRange;
     private readonly WorldObject _pObject;
     private readonly uint _uiEntry;
-    private readonly float _fRange;
-
     public AllCreaturesOfEntryInRange(WorldObject obj, uint entry, float maxRange = 0f)
     {
         _pObject = obj;

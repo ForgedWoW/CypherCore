@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailTakeItem : ClientPacket
 {
+    public ulong AttachID;
     public ObjectGuid Mailbox;
     public ulong MailID;
-    public ulong AttachID;
     public MailTakeItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

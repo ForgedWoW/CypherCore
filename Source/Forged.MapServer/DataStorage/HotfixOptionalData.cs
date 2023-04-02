@@ -5,6 +5,6 @@ namespace Forged.MapServer.DataStorage;
 
 public class HotfixOptionalData
 {
-    public uint Key;
     public byte[] Data;
+    public uint Key;
 }

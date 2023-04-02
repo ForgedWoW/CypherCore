@@ -8,16 +8,19 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class ScenarioStepRecord
 {
-    public uint Id;
-    public string Description;
-    public string Title;
-    public ushort ScenarioID;
     public uint CriteriaTreeId;
-    public uint RewardQuestID;
-    public int RelatedStep;   // Bonus step can only be completed if scenario is in the step specified in this field
-    public ushort Supersedes; // Used in conjunction with Proving Grounds scenarios, when sequencing steps (Not using step order?)
-    public byte OrderIndex;
+    public string Description;
     public ScenarioStepFlags Flags;
+    public uint Id;
+    public byte OrderIndex;
+    public int RelatedStep;
+    public uint RewardQuestID;
+    public ushort ScenarioID;
+    // Bonus step can only be completed if scenario is in the step specified in this field
+    public ushort Supersedes;
+
+    public string Title;
+    // Used in conjunction with Proving Grounds scenarios, when sequencing steps (Not using step order?)
     public uint VisibilityPlayerConditionID;
     public ushort WidgetSetID;
 

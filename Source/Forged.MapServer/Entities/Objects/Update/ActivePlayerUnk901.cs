@@ -13,6 +13,13 @@ public class ActivePlayerUnk901 : BaseUpdateData<Player>
 
     public ActivePlayerUnk901() : base(3) { }
 
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Field_0);
+        ClearChangesMask(Field_10);
+        ChangesMask.ResetAll();
+    }
+
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
         data.WritePackedGuid(Field_0);
@@ -38,12 +45,5 @@ public class ActivePlayerUnk901 : BaseUpdateData<Player>
             if (changesMask[2])
                 data.WriteInt32(Field_10);
         }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Field_0);
-        ClearChangesMask(Field_10);
-        ChangesMask.ResetAll();
     }
 }

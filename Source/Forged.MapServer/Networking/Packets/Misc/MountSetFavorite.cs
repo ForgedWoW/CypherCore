@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class MountSetFavorite : ClientPacket
 {
-    public uint MountSpellID;
     public bool IsFavorite;
+    public uint MountSpellID;
     public MountSetFavorite(WorldPacket packet) : base(packet) { }
 
     public override void Read()

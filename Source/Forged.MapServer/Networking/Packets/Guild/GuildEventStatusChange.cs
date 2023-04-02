@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildEventStatusChange : ServerPacket
 {
-    public ObjectGuid Guid;
     public bool AFK;
     public bool DND;
+    public ObjectGuid Guid;
     public GuildEventStatusChange() : base(ServerOpcodes.GuildEventStatusChange) { }
 
     public override void Write()

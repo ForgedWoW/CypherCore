@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class CancelSpellVisualKit : ServerPacket
 {
+    public bool MountedVisual;
     public ObjectGuid Source;
     public uint SpellVisualKitID;
-    public bool MountedVisual;
     public CancelSpellVisualKit() : base(ServerOpcodes.CancelSpellVisualKit) { }
 
     public override void Write()

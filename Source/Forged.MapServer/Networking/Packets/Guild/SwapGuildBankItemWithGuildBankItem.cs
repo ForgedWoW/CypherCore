@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 internal class SwapGuildBankItemWithGuildBankItem : ClientPacket
 {
     public ObjectGuid Banker;
-    public byte[] BankTab = new byte[2];
     public byte[] BankSlot = new byte[2];
+    public byte[] BankTab = new byte[2];
     public SwapGuildBankItemWithGuildBankItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

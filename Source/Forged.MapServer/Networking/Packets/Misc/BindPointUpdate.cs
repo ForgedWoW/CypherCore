@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class BindPointUpdate : ServerPacket
 {
+    public uint BindAreaID;
     public uint BindMapID = 0xFFFFFFFF;
     public Vector3 BindPosition;
-    public uint BindAreaID;
     public BindPointUpdate() : base(ServerOpcodes.BindPointUpdate, ConnectionType.Instance) { }
 
     public override void Write()

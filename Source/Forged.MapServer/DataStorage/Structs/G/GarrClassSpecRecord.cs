@@ -5,12 +5,12 @@ namespace Forged.MapServer.DataStorage.Structs.G;
 
 public sealed class GarrClassSpecRecord
 {
-    public uint Id;
     public string ClassSpec;
-    public string ClassSpecMale;
     public string ClassSpecFemale;
-    public ushort UiTextureAtlasMemberID;
-    public ushort GarrFollItemSetID;
-    public byte FollowerClassLimit;
+    public string ClassSpecMale;
     public int Flags;
+    public byte FollowerClassLimit;
+    public ushort GarrFollItemSetID;
+    public uint Id;
+    public ushort UiTextureAtlasMemberID;
 }

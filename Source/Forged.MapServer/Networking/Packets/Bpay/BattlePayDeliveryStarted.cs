@@ -7,10 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BattlePayDeliveryStarted : ServerPacket
 {
-    public ulong DistributionID { get; set; } = 0;
-
     public BattlePayDeliveryStarted() : base(ServerOpcodes.BattlePayDeliveryStarted) { }
 
+    public ulong DistributionID { get; set; } = 0;
     public override void Write()
     {
         _worldPacket.Write(DistributionID);

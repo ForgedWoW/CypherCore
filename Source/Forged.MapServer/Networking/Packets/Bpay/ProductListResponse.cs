@@ -8,15 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class ProductListResponse : ServerPacket
 {
-    public uint Result { get; set; } = 0;
-    public uint CurrencyID { get; set; } = 0;
-    public List<BpayProductInfo> ProductInfos { get; set; } = new();
-    public List<BpayProduct> Products { get; set; } = new();
-    public List<BpayGroup> ProductGroups { get; set; } = new();
-    public List<BpayShop> Shops { get; set; } = new();
-
     public ProductListResponse() : base(ServerOpcodes.BattlePayGetProductListResponse) { }
 
+    public uint CurrencyID { get; set; } = 0;
+    public List<BpayGroup> ProductGroups { get; set; } = new();
+    public List<BpayProductInfo> ProductInfos { get; set; } = new();
+    public List<BpayProduct> Products { get; set; } = new();
+    public uint Result { get; set; } = 0;
+    public List<BpayShop> Shops { get; set; } = new();
     public override void Write()
     {
         _worldPacket.Write(Result);

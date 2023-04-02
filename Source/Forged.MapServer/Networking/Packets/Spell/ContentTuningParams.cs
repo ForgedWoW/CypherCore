@@ -9,6 +9,36 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class ContentTuningParams
 {
+    public byte Expansion;
+
+    public ContentTuningFlags Flags = ContentTuningFlags.NoLevelScaling | ContentTuningFlags.NoItemLevelScaling;
+
+    public uint PlayerContentTuningID;
+
+    public float PlayerItemLevel;
+
+    public short PlayerLevelDelta;
+
+    public ushort ScalingHealthItemLevelCurveID;
+
+    public uint TargetContentTuningID;
+
+    public float TargetItemLevel;
+
+    public byte TargetLevel;
+
+    public sbyte TargetScalingLevelDelta;
+
+    public ContentTuningType TuningType;
+
+    public int Unused927;
+
+    public enum ContentTuningFlags
+    {
+        NoLevelScaling = 0x1,
+        NoItemLevelScaling = 0x2
+    }
+
     public enum ContentTuningType
     {
         CreatureToPlayerDamage = 1,
@@ -17,26 +47,6 @@ internal class ContentTuningParams
         PlayerToSandboxScaling = 7, // NYI
         PlayerToPlayerExpectedStat = 8
     }
-
-    public enum ContentTuningFlags
-    {
-        NoLevelScaling = 0x1,
-        NoItemLevelScaling = 0x2
-    }
-
-    public ContentTuningType TuningType;
-    public short PlayerLevelDelta;
-    public float PlayerItemLevel;
-    public float TargetItemLevel;
-    public ushort ScalingHealthItemLevelCurveID;
-    public byte TargetLevel;
-    public byte Expansion;
-    public sbyte TargetScalingLevelDelta;
-    public ContentTuningFlags Flags = ContentTuningFlags.NoLevelScaling | ContentTuningFlags.NoItemLevelScaling;
-    public uint PlayerContentTuningID;
-    public uint TargetContentTuningID;
-    public int Unused927;
-
     public bool GenerateDataForUnits(Unit attacker, Unit target)
     {
         var playerAttacker = attacker.AsPlayer;
@@ -90,9 +100,21 @@ internal class ContentTuningParams
         data.FlushBits();
     }
 
-    private bool GenerateDataPlayerToPlayer(Player attacker, Player target)
+    private bool GenerateDataCreatureToCreature(Creature attacker, Creature target)
     {
-        return false;
+        var accessor = target.HasScalableLevels ? target : attacker;
+        var creatureTemplate = accessor.Template;
+        var creatureScaling = creatureTemplate.GetLevelScaling(accessor.Location.Map.DifficultyID);
+
+        TuningType = ContentTuningType.CreatureToCreatureDamage;
+        PlayerLevelDelta = 0;
+        PlayerItemLevel = 0;
+        TargetLevel = (byte)target.Level;
+        Expansion = (byte)creatureTemplate.HealthScalingExpansion;
+        TargetScalingLevelDelta = (sbyte)accessor.UnitData.ScalingLevelDelta;
+        TargetContentTuningID = creatureScaling.ContentTuningId;
+
+        return true;
     }
 
     private bool GenerateDataCreatureToPlayer(Creature attacker, Player target)
@@ -129,20 +151,8 @@ internal class ContentTuningParams
         return true;
     }
 
-    private bool GenerateDataCreatureToCreature(Creature attacker, Creature target)
+    private bool GenerateDataPlayerToPlayer(Player attacker, Player target)
     {
-        var accessor = target.HasScalableLevels ? target : attacker;
-        var creatureTemplate = accessor.Template;
-        var creatureScaling = creatureTemplate.GetLevelScaling(accessor.Location.Map.DifficultyID);
-
-        TuningType = ContentTuningType.CreatureToCreatureDamage;
-        PlayerLevelDelta = 0;
-        PlayerItemLevel = 0;
-        TargetLevel = (byte)target.Level;
-        Expansion = (byte)creatureTemplate.HealthScalingExpansion;
-        TargetScalingLevelDelta = (sbyte)accessor.UnitData.ScalingLevelDelta;
-        TargetContentTuningID = creatureScaling.ContentTuningId;
-
-        return true;
+        return false;
     }
 }

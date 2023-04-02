@@ -5,6 +5,18 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public struct LFGProposalUpdatePlayer
 {
+    public bool Accepted;
+
+    public bool Me;
+
+    public bool MyParty;
+
+    public bool Responded;
+
+    public uint Roles;
+
+    public bool SameParty;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Roles);
@@ -15,11 +27,4 @@ public struct LFGProposalUpdatePlayer
         data.WriteBit(Accepted);
         data.FlushBits();
     }
-
-    public uint Roles;
-    public bool Me;
-    public bool SameParty;
-    public bool MyParty;
-    public bool Responded;
-    public bool Accepted;
 }

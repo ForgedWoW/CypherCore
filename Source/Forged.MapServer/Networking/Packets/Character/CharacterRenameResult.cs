@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharacterRenameResult : ServerPacket
 {
+    public ObjectGuid? Guid;
     public string Name;
     public ResponseCodes Result;
-    public ObjectGuid? Guid;
     public CharacterRenameResult() : base(ServerOpcodes.CharacterRenameResult) { }
 
     public override void Write()

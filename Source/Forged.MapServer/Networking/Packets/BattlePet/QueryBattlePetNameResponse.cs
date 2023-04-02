@@ -10,14 +10,13 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class QueryBattlePetNameResponse : ServerPacket
 {
+    public bool Allow;
     public ObjectGuid BattlePetID;
     public uint CreatureID;
-    public long Timestamp;
-    public bool Allow;
-
-    public bool HasDeclined;
     public DeclinedName DeclinedNames;
+    public bool HasDeclined;
     public string Name;
+    public long Timestamp;
     public QueryBattlePetNameResponse() : base(ServerOpcodes.QueryBattlePetNameResponse, ConnectionType.Instance) { }
 
     public override void Write()

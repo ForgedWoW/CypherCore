@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class HandleCalendarRsvp : ClientPacket
 {
-    public ulong InviteID;
     public ulong EventID;
+    public ulong InviteID;
     public CalendarInviteStatus Status;
     public HandleCalendarRsvp(WorldPacket packet) : base(packet) { }
 

@@ -7,9 +7,9 @@ namespace Forged.MapServer.DataStorage.Structs.I;
 
 public sealed class ItemBonusRecord
 {
-    public uint Id;
-    public int[] Value = new int[4];
-    public ushort ParentItemBonusListID;
     public ItemBonusType BonusType;
+    public uint Id;
     public byte OrderIndex;
+    public ushort ParentItemBonusListID;
+    public int[] Value = new int[4];
 }

@@ -5,6 +5,20 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 public struct InstanceLockPkt
 {
+    public uint CompletedMask;
+
+    public uint DifficultyID;
+
+    public bool Extended;
+
+    public ulong InstanceID;
+
+    public bool Locked;
+
+    public uint MapID;
+
+    public int TimeRemaining;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(MapID);
@@ -17,13 +31,4 @@ public struct InstanceLockPkt
         data.WriteBit(Extended);
         data.FlushBits();
     }
-
-    public ulong InstanceID;
-    public uint MapID;
-    public uint DifficultyID;
-    public int TimeRemaining;
-    public uint CompletedMask;
-
-    public bool Locked;
-    public bool Extended;
 }

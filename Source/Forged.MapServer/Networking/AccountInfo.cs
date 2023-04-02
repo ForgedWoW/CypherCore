@@ -48,23 +48,23 @@ internal class AccountInfo
     public struct BattleNet
     {
         public uint Id;
+        public bool IsBanned;
         public bool IsLockedToIP;
         public string LastIP;
-        public string LockCountry;
         public Locale Locale;
-        public bool IsBanned;
+        public string LockCountry;
     }
 
     public struct Game
     {
-        public uint Id;
-        public byte[] SessionKey;
         public byte Expansion;
+        public uint Id;
+        public bool IsBanned;
+        public bool IsRectuiter;
         public long MuteTime;
         public string OS;
         public uint Recruiter;
-        public bool IsRectuiter;
         public AccountTypes Security;
-        public bool IsBanned;
+        public byte[] SessionKey;
     }
 }

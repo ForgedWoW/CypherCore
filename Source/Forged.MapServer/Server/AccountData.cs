@@ -5,6 +5,6 @@ namespace Forged.MapServer.Server;
 
 public struct AccountData
 {
-    public long Time;
     public string Data;
+    public long Time;
 }

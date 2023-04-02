@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveTeleport : ServerPacket
 {
-    public Position Pos;
-    public VehicleTeleport? Vehicle;
-    public uint SequenceIndex;
-    public ObjectGuid MoverGUID;
-    public ObjectGuid? TransportGUID;
     public float Facing;
+    public ObjectGuid MoverGUID;
+    public Position Pos;
     public byte PreloadWorld;
+    public uint SequenceIndex;
+    public ObjectGuid? TransportGUID;
+    public VehicleTeleport? Vehicle;
     public MoveTeleport() : base(ServerOpcodes.MoveTeleport, ConnectionType.Instance) { }
 
     public override void Write()

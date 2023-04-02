@@ -8,8 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Equipment;
 public class EquipmentSetID : ServerPacket
 {
     public ulong GUID; // Set Identifier
+    public uint SetID;
     public int Type;
-    public uint SetID; // Index
+    // Index
     public EquipmentSetID() : base(ServerOpcodes.EquipmentSetId, ConnectionType.Instance) { }
 
     public override void Write()

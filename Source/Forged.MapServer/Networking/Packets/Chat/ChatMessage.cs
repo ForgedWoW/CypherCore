@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class ChatMessage : ClientPacket
 {
-    public string Text;
     public Language Language = Language.Universal;
+    public string Text;
     public ChatMessage(WorldPacket packet) : base(packet) { }
 
     public override void Read()

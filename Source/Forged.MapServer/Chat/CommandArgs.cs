@@ -282,6 +282,40 @@ internal class CommandArgs
         return result;
     }
 
+    private static ChatCommandResult TryAtIndex(out dynamic val, Type[] types, int index, CommandHandler handler, string args)
+    {
+        val = default;
+
+        if (index < types.Length)
+        {
+            var thisResult = TryConsume(out val, types[index], handler, args);
+
+            if (thisResult.IsSuccessful)
+            {
+                return thisResult;
+            }
+            else
+            {
+                var nestedResult = TryAtIndex(out val, types, index + 1, handler, args);
+
+                if (nestedResult.IsSuccessful || !thisResult.HasErrorMessage)
+                    return nestedResult;
+
+                if (!nestedResult.HasErrorMessage)
+                    return thisResult;
+
+                if (nestedResult.ErrorMessage.StartsWith("\""))
+                    return ChatCommandResult.FromErrorMessage($"\"{thisResult.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} {nestedResult.ErrorMessage}");
+                else
+                    return ChatCommandResult.FromErrorMessage($"\"{thisResult.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} \"{nestedResult.ErrorMessage}\"");
+            }
+        }
+        else
+        {
+            return default;
+        }
+    }
+
     private static ChatCommandResult TryConsumeTo(dynamic[] tuple, int offset, ParameterInfo[] parameterInfos, CommandHandler handler, string args)
     {
         var optionalArgAttribute = parameterInfos[offset].GetCustomAttribute<OptionalArgAttribute>(true);
@@ -326,40 +360,6 @@ internal class CommandArgs
                 return ConsumeFromOffset(tuple, offset + 1, parameterInfos, handler, next);
             else
                 return next;
-        }
-    }
-
-    private static ChatCommandResult TryAtIndex(out dynamic val, Type[] types, int index, CommandHandler handler, string args)
-    {
-        val = default;
-
-        if (index < types.Length)
-        {
-            var thisResult = TryConsume(out val, types[index], handler, args);
-
-            if (thisResult.IsSuccessful)
-            {
-                return thisResult;
-            }
-            else
-            {
-                var nestedResult = TryAtIndex(out val, types, index + 1, handler, args);
-
-                if (nestedResult.IsSuccessful || !thisResult.HasErrorMessage)
-                    return nestedResult;
-
-                if (!nestedResult.HasErrorMessage)
-                    return thisResult;
-
-                if (nestedResult.ErrorMessage.StartsWith("\""))
-                    return ChatCommandResult.FromErrorMessage($"\"{thisResult.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} {nestedResult.ErrorMessage}");
-                else
-                    return ChatCommandResult.FromErrorMessage($"\"{thisResult.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} \"{nestedResult.ErrorMessage}\"");
-            }
-        }
-        else
-        {
-            return default;
         }
     }
 }

@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteAlert : ServerPacket
 {
-    public ObjectGuid OwnerGuid;
+    public long Date;
     public ObjectGuid EventGuildID;
+    public ulong EventID;
+    public string EventName;
+    public CalendarEventType EventType;
+    public CalendarFlags Flags;
     public ObjectGuid InvitedByGuid;
     public ulong InviteID;
-    public ulong EventID;
-    public CalendarFlags Flags;
-    public long Date;
-    public int TextureID;
-    public CalendarInviteStatus Status;
-    public CalendarEventType EventType;
     public CalendarModerationRank ModeratorStatus;
-    public string EventName;
+    public ObjectGuid OwnerGuid;
+    public CalendarInviteStatus Status;
+    public int TextureID;
     public CalendarInviteAlert() : base(ServerOpcodes.CalendarInviteAlert) { }
 
     public override void Write()

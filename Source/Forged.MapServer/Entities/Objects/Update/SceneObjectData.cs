@@ -9,12 +9,20 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class SceneObjectData : BaseUpdateData<WorldObject>
 {
-    public UpdateField<int> ScriptPackageID = new(0, 1);
-    public UpdateField<uint> RndSeedVal = new(0, 2);
     public UpdateField<ObjectGuid> CreatedBy = new(0, 3);
+    public UpdateField<uint> RndSeedVal = new(0, 2);
     public UpdateField<uint> SceneType = new(0, 4);
-
+    public UpdateField<int> ScriptPackageID = new(0, 1);
     public SceneObjectData() : base(5) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(ScriptPackageID);
+        ClearChangesMask(RndSeedVal);
+        ClearChangesMask(CreatedBy);
+        ClearChangesMask(SceneType);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, WorldObject owner, Player receiver)
     {
@@ -49,14 +57,5 @@ public class SceneObjectData : BaseUpdateData<WorldObject>
             if (ChangesMask[4])
                 data.WriteUInt32(SceneType);
         }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(ScriptPackageID);
-        ClearChangesMask(RndSeedVal);
-        ClearChangesMask(CreatedBy);
-        ClearChangesMask(SceneType);
-        ChangesMask.ResetAll();
     }
 }

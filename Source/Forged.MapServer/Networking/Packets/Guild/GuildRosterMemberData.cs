@@ -9,30 +9,29 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRosterMemberData
 {
-    public ObjectGuid Guid;
-    public long WeeklyXP;
-    public long TotalXP;
-    public int RankID;
     public int AreaID;
-    public int PersonalAchievementPoints;
-    public int GuildReputation;
+    public bool Authenticated;
+    public byte ClassID;
+    public DungeonScoreSummary DungeonScore = new();
+    public byte Gender;
+    public ObjectGuid Guid;
+    public ulong GuildClubMemberID;
     public int GuildRepToCap;
+    public int GuildReputation;
     public float LastSave;
+    public byte Level;
     public string Name;
-    public uint VirtualRealmAddress;
     public string Note;
     public string OfficerNote;
-    public byte Status;
-    public byte Level;
-    public byte ClassID;
-    public byte Gender;
-    public ulong GuildClubMemberID;
-    public byte RaceID;
-    public bool Authenticated;
-    public bool SorEligible;
+    public int PersonalAchievementPoints;
     public GuildRosterProfessionData[] Profession = new GuildRosterProfessionData[2];
-    public DungeonScoreSummary DungeonScore = new();
-
+    public byte RaceID;
+    public int RankID;
+    public bool SorEligible;
+    public byte Status;
+    public long TotalXP;
+    public uint VirtualRealmAddress;
+    public long WeeklyXP;
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(Guid);

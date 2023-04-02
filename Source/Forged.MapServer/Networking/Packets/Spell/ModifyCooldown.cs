@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class ModifyCooldown : ServerPacket
 {
-    public bool IsPet;
-    public bool WithoutCategoryCooldown;
     public int DeltaTime;
+    public bool IsPet;
     public uint SpellID;
+    public bool WithoutCategoryCooldown;
     public ModifyCooldown() : base(ServerOpcodes.ModifyCooldown, ConnectionType.Instance) { }
 
     public override void Write()

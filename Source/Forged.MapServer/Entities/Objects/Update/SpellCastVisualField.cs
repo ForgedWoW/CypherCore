@@ -8,9 +8,8 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class SpellCastVisualField
 {
-    public uint SpellXSpellVisualID;
     public uint ScriptVisualID;
-
+    public uint SpellXSpellVisualID;
     public void WriteCreate(WorldPacket data, WorldObject owner, Player receiver)
     {
         data.WriteUInt32(SpellXSpellVisualID);

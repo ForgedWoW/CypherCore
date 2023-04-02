@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class BattlenetRequest : ClientPacket
 {
-    public MethodCall Method;
     public byte[] Data;
+    public MethodCall Method;
     public BattlenetRequest(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -7,10 +7,9 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public struct TreasureItem
 {
-    public GossipOptionRewardType Type;
     public int ID;
     public int Quantity;
-
+    public GossipOptionRewardType Type;
     public void Write(WorldPacket data)
     {
         data.WriteBits((byte)Type, 1);

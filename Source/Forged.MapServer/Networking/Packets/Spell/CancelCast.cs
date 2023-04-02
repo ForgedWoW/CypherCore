@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class CancelCast : ClientPacket
 {
-    public uint SpellID;
     public ObjectGuid CastID;
+    public uint SpellID;
     public CancelCast(WorldPacket packet) : base(packet) { }
 
     public override void Read()

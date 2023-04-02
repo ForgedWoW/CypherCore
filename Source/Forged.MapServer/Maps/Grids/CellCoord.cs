@@ -10,9 +10,6 @@ public class CellCoord : ICoord
 {
     private const int Limit = MapConst.TotalCellsPerMap;
 
-    public uint X_Coord { get; set; }
-    public uint Y_Coord { get; set; }
-
     public CellCoord(uint x, uint y)
     {
         X_Coord = x;
@@ -25,22 +22,16 @@ public class CellCoord : ICoord
         Y_Coord = obj.Y_Coord;
     }
 
-    public bool IsCoordValid()
+    public uint X_Coord { get; set; }
+    public uint Y_Coord { get; set; }
+    public static bool operator !=(CellCoord p1, CellCoord p2)
     {
-        return X_Coord < Limit && Y_Coord < Limit;
+        return !(p1 == p2);
     }
 
-    public ICoord Normalize()
+    public static bool operator ==(CellCoord p1, CellCoord p2)
     {
-        X_Coord = Math.Min(X_Coord, Limit - 1);
-        Y_Coord = Math.Min(Y_Coord, Limit - 1);
-
-        return this;
-    }
-
-    public uint GetId()
-    {
-        return Y_Coord * Limit + X_Coord;
+        return p1.X_Coord == p2.X_Coord && p1.Y_Coord == p2.Y_Coord;
     }
 
     public void Dec_x(uint val)
@@ -51,38 +42,12 @@ public class CellCoord : ICoord
             X_Coord = 0;
     }
 
-    public void Inc_x(uint val)
-    {
-        if (X_Coord + val < Limit)
-            X_Coord += val;
-        else
-            X_Coord = Limit - 1;
-    }
-
     public void Dec_y(uint val)
     {
         if (Y_Coord > val)
             Y_Coord -= val;
         else
             Y_Coord = 0;
-    }
-
-    public void Inc_y(uint val)
-    {
-        if (Y_Coord + val < Limit)
-            Y_Coord += val;
-        else
-            Y_Coord = Limit - 1;
-    }
-
-    public static bool operator ==(CellCoord p1, CellCoord p2)
-    {
-        return p1.X_Coord == p2.X_Coord && p1.Y_Coord == p2.Y_Coord;
-    }
-
-    public static bool operator !=(CellCoord p1, CellCoord p2)
-    {
-        return !(p1 == p2);
     }
 
     public override bool Equals(object obj)
@@ -96,5 +61,39 @@ public class CellCoord : ICoord
     public override int GetHashCode()
     {
         return X_Coord.GetHashCode() ^ Y_Coord.GetHashCode();
+    }
+
+    public uint GetId()
+    {
+        return Y_Coord * Limit + X_Coord;
+    }
+
+    public void Inc_x(uint val)
+    {
+        if (X_Coord + val < Limit)
+            X_Coord += val;
+        else
+            X_Coord = Limit - 1;
+    }
+
+    public void Inc_y(uint val)
+    {
+        if (Y_Coord + val < Limit)
+            Y_Coord += val;
+        else
+            Y_Coord = Limit - 1;
+    }
+
+    public bool IsCoordValid()
+    {
+        return X_Coord < Limit && Y_Coord < Limit;
+    }
+
+    public ICoord Normalize()
+    {
+        X_Coord = Math.Min(X_Coord, Limit - 1);
+        Y_Coord = Math.Min(Y_Coord, Limit - 1);
+
+        return this;
     }
 }

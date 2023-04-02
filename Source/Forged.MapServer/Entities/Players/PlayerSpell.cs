@@ -7,10 +7,10 @@ namespace Forged.MapServer.Entities.Players;
 
 public class PlayerSpell
 {
-    public PlayerSpellState State;
     public bool Active;
     public bool Dependent;
     public bool Disabled;
     public bool Favorite;
+    public PlayerSpellState State;
     public int? TraitDefinitionId;
 }

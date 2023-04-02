@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SendRaidTargetUpdateSingle : ServerPacket
 {
-    public sbyte PartyIndex;
-    public ObjectGuid Target;
     public ObjectGuid ChangedBy;
+    public sbyte PartyIndex;
     public sbyte Symbol;
+    public ObjectGuid Target;
     public SendRaidTargetUpdateSingle() : base(ServerOpcodes.SendRaidTargetUpdateSingle) { }
 
     public override void Write()

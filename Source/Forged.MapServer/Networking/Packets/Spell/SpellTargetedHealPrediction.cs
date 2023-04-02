@@ -7,12 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellTargetedHealPrediction
 {
+    public SpellHealPrediction Predict;
+
+    public ObjectGuid TargetGUID;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(TargetGUID);
         Predict.Write(data);
     }
-
-    public ObjectGuid TargetGUID;
-    public SpellHealPrediction Predict;
 }

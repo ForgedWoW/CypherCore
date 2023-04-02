@@ -7,14 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal struct PartyLootSettings
 {
+    public ObjectGuid LootMaster;
+
+    public byte Method;
+
+    public byte Threshold;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt8(Method);
         data.WritePackedGuid(LootMaster);
         data.WriteUInt8(Threshold);
     }
-
-    public byte Method;
-    public ObjectGuid LootMaster;
-    public byte Threshold;
 }

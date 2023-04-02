@@ -19,6 +19,32 @@ public class MMapManager
     private readonly Dictionary<uint, uint> _parentMapData = new();
     private uint _loadedTiles;
 
+    public int GetLoadedMapsCount()
+    {
+        return _loadedMMaps.Count;
+    }
+
+    public uint GetLoadedTilesCount()
+    {
+        return _loadedTiles;
+    }
+
+    public Detour.dtNavMesh GetNavMesh(uint mapId)
+    {
+        if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
+            return null;
+
+        return mmap.navMesh;
+    }
+
+    public Detour.dtNavMeshQuery GetNavMeshQuery(uint mapId, uint instanceId)
+    {
+        if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
+            return null;
+
+        return mmap.navMeshQueries.LookupByKey(instanceId);
+    }
+
     public void Initialize(MultiMap<uint, uint> mapData)
     {
         foreach (var pair in mapData.KeyValueList)
@@ -206,33 +232,6 @@ public class MMapManager
 
         return true;
     }
-
-    public Detour.dtNavMesh GetNavMesh(uint mapId)
-    {
-        if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
-            return null;
-
-        return mmap.navMesh;
-    }
-
-    public Detour.dtNavMeshQuery GetNavMeshQuery(uint mapId, uint instanceId)
-    {
-        if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
-            return null;
-
-        return mmap.navMeshQueries.LookupByKey(instanceId);
-    }
-
-    public uint GetLoadedTilesCount()
-    {
-        return _loadedTiles;
-    }
-
-    public int GetLoadedMapsCount()
-    {
-        return _loadedMMaps.Count;
-    }
-
     private MMapData GetMMapData(uint mapId)
     {
         return _loadedMMaps.LookupByKey(mapId);

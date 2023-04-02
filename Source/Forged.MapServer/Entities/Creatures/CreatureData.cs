@@ -8,18 +8,22 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureData : SpawnData
 {
-    public uint Displayid;
-    public sbyte EquipmentId;
-    public float WanderDistance;
-    public uint Currentwaypoint;
     public uint Curhealth;
     public uint Curmana;
+    public uint Currentwaypoint;
+    public uint Displayid;
+    public uint Dynamicflags;
+    public sbyte EquipmentId;
     public byte MovementType;
     public ulong Npcflag;
-    public uint UnitFlags;  // enum UnitFlags mask values
-    public uint UnitFlags2; // enum UnitFlags2 mask values
-    public uint UnitFlags3; // enum UnitFlags3 mask values
-    public uint Dynamicflags;
+    public uint UnitFlags;
+    // enum UnitFlags mask values
+    public uint UnitFlags2;
 
+    // enum UnitFlags2 mask values
+    public uint UnitFlags3;
+
+    public float WanderDistance;
+    // enum UnitFlags3 mask values
     public CreatureData() : base(SpawnObjectType.Creature) { }
 }

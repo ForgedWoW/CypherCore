@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class SetTradeItem : ClientPacket
 {
-    public byte TradeSlot;
-    public byte PackSlot;
     public byte ItemSlotInPack;
+    public byte PackSlot;
+    public byte TradeSlot;
     public SetTradeItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

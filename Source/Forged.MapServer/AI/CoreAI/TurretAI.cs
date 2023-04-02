@@ -22,6 +22,12 @@ public class TurretAI : CreatureAI
         creature.SightDistance = creature.CombatDistance;
     }
 
+    public override void AttackStart(Unit victim)
+    {
+        if (victim != null)
+            Me.Attack(victim, false);
+    }
+
     public override bool CanAIAttack(Unit victim)
     {
         // todo use one function to replace it
@@ -30,13 +36,6 @@ public class TurretAI : CreatureAI
 
         return true;
     }
-
-    public override void AttackStart(Unit victim)
-    {
-        if (victim != null)
-            Me.Attack(victim, false);
-    }
-
     public override void UpdateAI(uint diff)
     {
         if (!UpdateVictim())

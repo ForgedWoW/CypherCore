@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusNeedConfirmation : ServerPacket
 {
-    public uint Timeout;
-    public uint Mapid;
     public BattlefieldStatusHeader Hdr = new();
+    public uint Mapid;
     public byte Role;
+    public uint Timeout;
     public BattlefieldStatusNeedConfirmation() : base(ServerOpcodes.BattlefieldStatusNeedConfirmation) { }
 
     public override void Write()

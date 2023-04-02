@@ -9,10 +9,9 @@ namespace Forged.MapServer.Spells.Auras;
 public class AuraKey : IEquatable<AuraKey>
 {
     public ObjectGuid Caster;
+    public uint EffectMask;
     public ObjectGuid Item;
     public uint SpellId;
-    public uint EffectMask;
-
     public AuraKey(ObjectGuid caster, ObjectGuid item, uint spellId, uint effectMask)
     {
         Caster = caster;
@@ -21,9 +20,9 @@ public class AuraKey : IEquatable<AuraKey>
         EffectMask = effectMask;
     }
 
-    public bool Equals(AuraKey other)
+    public static bool operator !=(AuraKey first, AuraKey other)
     {
-        return other.Caster == Caster && other.Item == Item && other.SpellId == SpellId && other.EffectMask == EffectMask;
+        return !(first == other);
     }
 
     public static bool operator ==(AuraKey first, AuraKey other)
@@ -37,11 +36,10 @@ public class AuraKey : IEquatable<AuraKey>
         return first.Equals(other);
     }
 
-    public static bool operator !=(AuraKey first, AuraKey other)
+    public bool Equals(AuraKey other)
     {
-        return !(first == other);
+        return other.Caster == Caster && other.Item == Item && other.SpellId == SpellId && other.EffectMask == EffectMask;
     }
-
     public override bool Equals(object obj)
     {
         return obj is AuraKey && Equals((AuraKey)obj);

@@ -5,9 +5,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionSetFavoriteItem : ClientPacket
 {
-    public AuctionFavoriteInfo Item;
     public bool IsNotFavorite = true;
-
+    public AuctionFavoriteInfo Item;
     public AuctionSetFavoriteItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

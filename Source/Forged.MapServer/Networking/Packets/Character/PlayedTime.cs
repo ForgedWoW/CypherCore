@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class PlayedTime : ServerPacket
 {
-    public uint TotalTime;
     public uint LevelTime;
+    public uint TotalTime;
     public bool TriggerEvent;
     public PlayedTime() : base(ServerOpcodes.PlayedTime, ConnectionType.Instance) { }
 

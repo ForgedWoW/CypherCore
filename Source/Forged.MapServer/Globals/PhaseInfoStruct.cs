@@ -8,9 +8,8 @@ namespace Forged.MapServer.Globals;
 
 public class PhaseInfoStruct
 {
-    public uint Id;
     public List<uint> Areas = new();
-
+    public uint Id;
     public PhaseInfoStruct(uint id)
     {
         Id = id;

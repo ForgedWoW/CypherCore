@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class SetSheathed : ClientPacket
 {
-    public int CurrentSheathState;
     public bool Animate = true;
+    public int CurrentSheathState;
     public SetSheathed(WorldPacket packet) : base(packet) { }
 
     public override void Read()

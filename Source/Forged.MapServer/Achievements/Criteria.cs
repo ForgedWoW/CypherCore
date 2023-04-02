@@ -8,8 +8,8 @@ namespace Forged.MapServer.Achievements;
 
 public class Criteria
 {
-    public uint Id;
     public CriteriaRecord Entry;
-    public ModifierTreeNode Modifier;
     public CriteriaFlagsCu FlagsCu;
+    public uint Id;
+    public ModifierTreeNode Modifier;
 }

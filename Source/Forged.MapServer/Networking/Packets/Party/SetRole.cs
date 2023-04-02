@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 internal class SetRole : ClientPacket
 {
     public sbyte PartyIndex;
-    public ObjectGuid TargetGUID;
     public int Role;
+    public ObjectGuid TargetGUID;
     public SetRole(WorldPacket packet) : base(packet) { }
 
     public override void Read()

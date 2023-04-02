@@ -5,27 +5,26 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal struct BracketInfo
 {
+    public int BestSeasonRating;
+    public int BestWeeklyRating;
+    public bool Disqualified;
+    public int LastWeeksBestRating;
     public int PersonalRating;
+    public int PvpTierID;
+    public int Rank;
     public int Ranking;
-    public int SeasonPlayed;
-    public int SeasonWon;
-    public int Unused1;
-    public int Unused2;
-    public int WeeklyPlayed;
-    public int WeeklyWon;
     public int RoundsSeasonPlayed;
     public int RoundsSeasonWon;
     public int RoundsWeeklyPlayed;
     public int RoundsWeeklyWon;
-    public int BestWeeklyRating;
-    public int LastWeeksBestRating;
-    public int BestSeasonRating;
-    public int PvpTierID;
+    public int SeasonPlayed;
+    public int SeasonWon;
+    public int Unused1;
+    public int Unused2;
     public int Unused3;
     public int Unused4;
-    public int Rank;
-    public bool Disqualified;
-
+    public int WeeklyPlayed;
+    public int WeeklyWon;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(PersonalRating);

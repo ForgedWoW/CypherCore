@@ -9,28 +9,27 @@ namespace Forged.MapServer.Networking.Packets.Crafting;
 
 internal class CraftingData
 {
-    public int CraftingQualityID;
-    public float QualityProgress;
-    public int SkillLineAbilityID;
+    public bool BonusCraft;
     public int CraftingDataID;
-    public int Multicraft;
-    public int SkillFromReagents;
-    public int Skill;
+    public int CraftingQualityID;
     public int CritBonusSkill;
+    public int EnchantID;
     public float field_1C;
     public ulong field_20;
-    public bool IsCrit;
     public bool field_29;
     public bool field_2A;
-    public bool BonusCraft;
-    public List<SpellReducedReagent> ResourcesReturned = new();
-    public uint OperationID;
+    public bool IsCrit;
     public ObjectGuid ItemGUID;
-    public int Quantity;
-    public ItemInstance OldItem = new();
+    public int Multicraft;
     public ItemInstance NewItem = new();
-    public int EnchantID;
-
+    public ItemInstance OldItem = new();
+    public uint OperationID;
+    public float QualityProgress;
+    public int Quantity;
+    public List<SpellReducedReagent> ResourcesReturned = new();
+    public int Skill;
+    public int SkillFromReagents;
+    public int SkillLineAbilityID;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(CraftingQualityID);

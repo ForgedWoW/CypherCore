@@ -5,9 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellExtraCurrencyCost
 {
-    public int CurrencyID;
     public int Count;
-
+    public int CurrencyID;
     public void Read(WorldPacket data)
     {
         CurrencyID = data.ReadInt32();

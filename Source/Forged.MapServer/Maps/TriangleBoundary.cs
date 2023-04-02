@@ -8,13 +8,13 @@ namespace Forged.MapServer.Maps;
 public class TriangleBoundary : AreaBoundary
 {
     private readonly DoublePosition _a;
-    private readonly DoublePosition _b;
-    private readonly DoublePosition _c;
     private readonly double _abx;
-    private readonly double _bcx;
-    private readonly double _cax;
     private readonly double _aby;
+    private readonly DoublePosition _b;
+    private readonly double _bcx;
     private readonly double _bcy;
+    private readonly DoublePosition _c;
+    private readonly double _cax;
     private readonly double _cay;
 
     public TriangleBoundary(Position pointA, Position pointB, Position pointC, bool isInverted = false) : base(isInverted)

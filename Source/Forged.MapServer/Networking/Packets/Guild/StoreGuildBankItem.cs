@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 internal class StoreGuildBankItem : ClientPacket
 {
     public ObjectGuid Banker;
-    public byte BankTab;
     public byte BankSlot;
-    public byte? ContainerSlot;
+    public byte BankTab;
     public byte ContainerItemSlot;
+    public byte? ContainerSlot;
     public StoreGuildBankItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

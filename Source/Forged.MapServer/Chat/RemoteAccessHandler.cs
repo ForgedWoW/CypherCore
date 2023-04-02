@@ -11,31 +11,28 @@ public class RemoteAccessHandler : CommandHandler
 {
     private readonly Action<string> _reportToRA;
 
+    public RemoteAccessHandler(Action<string> reportToRA) : base()
+    {
+        _reportToRA = reportToRA;
+    }
+
     public override string NameLink => GetCypherString(CypherStrings.ConsoleCommand);
 
     public override Locale SessionDbcLocale => Global.WorldMgr.DefaultDbcLocale;
 
     public override byte SessionDbLocaleIndex => (byte)Global.WorldMgr.DefaultDbcLocale;
-
-    public RemoteAccessHandler(Action<string> reportToRA) : base()
+    public override bool HasPermission(RBACPermissions permission)
     {
-        _reportToRA = reportToRA;
+        return true;
     }
 
     public override bool IsAvailable(ChatCommandNode cmd)
     {
         return cmd.Permission.AllowConsole;
     }
-
-    public override bool HasPermission(RBACPermissions permission)
+    public override bool NeedReportToTarget(Player chr)
     {
         return true;
-    }
-
-    public override void SendSysMessage(string str, bool escapeCharacters)
-    {
-        SetSentErrorMessage(true);
-        _reportToRA(str);
     }
 
     public override bool ParseCommands(string str)
@@ -50,8 +47,9 @@ public class RemoteAccessHandler : CommandHandler
         return _ParseCommands(str);
     }
 
-    public override bool NeedReportToTarget(Player chr)
+    public override void SendSysMessage(string str, bool escapeCharacters)
     {
-        return true;
+        SetSentErrorMessage(true);
+        _reportToRA(str);
     }
 }

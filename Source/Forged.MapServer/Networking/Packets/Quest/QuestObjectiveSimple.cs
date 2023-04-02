@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestObjectiveSimple
 {
+    public int Amount;
     public uint Id;
     public int ObjectID;
-    public int Amount;
     public byte Type;
 }

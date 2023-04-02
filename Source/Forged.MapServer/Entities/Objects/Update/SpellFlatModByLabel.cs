@@ -8,10 +8,9 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class SpellFlatModByLabel
 {
-    public int ModIndex;
-    public double ModifierValue;
     public int LabelID;
-
+    public double ModifierValue;
+    public int ModIndex;
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
         data.WriteInt32(ModIndex);

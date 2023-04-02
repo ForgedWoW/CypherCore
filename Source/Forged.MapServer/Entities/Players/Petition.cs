@@ -9,19 +9,10 @@ namespace Forged.MapServer.Entities.Players;
 
 public class Petition
 {
-    public ObjectGuid PetitionGuid;
     public ObjectGuid OwnerGuid;
+    public ObjectGuid PetitionGuid;
     public string PetitionName;
     public List<(uint AccountId, ObjectGuid PlayerGuid)> Signatures = new();
-
-    public bool IsPetitionSignedByAccount(uint accountId)
-    {
-        foreach (var signature in Signatures)
-            if (signature.AccountId == accountId)
-                return true;
-
-        return false;
-    }
 
     public void AddSignature(uint accountId, ObjectGuid playerGuid, bool isLoading)
     {
@@ -39,16 +30,14 @@ public class Petition
         DB.Characters.Execute(stmt);
     }
 
-    public void UpdateName(string newName)
+    public bool IsPetitionSignedByAccount(uint accountId)
     {
-        PetitionName = newName;
+        foreach (var signature in Signatures)
+            if (signature.AccountId == accountId)
+                return true;
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
-        stmt.AddValue(0, newName);
-        stmt.AddValue(1, PetitionGuid.Counter);
-        DB.Characters.Execute(stmt);
+        return false;
     }
-
     public void RemoveSignatureBySigner(ObjectGuid playerGuid)
     {
         foreach (var itr in Signatures)
@@ -64,5 +53,15 @@ public class Petition
 
                 break;
             }
+    }
+
+    public void UpdateName(string newName)
+    {
+        PetitionName = newName;
+
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
+        stmt.AddValue(0, newName);
+        stmt.AddValue(1, PetitionGuid.Counter);
+        DB.Characters.Execute(stmt);
     }
 }

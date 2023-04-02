@@ -9,13 +9,15 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct PlayerKickedAppend : IChannelAppender
 {
+    private readonly ObjectGuid _kickee;
+
+    private readonly ObjectGuid _kicker;
+
     public PlayerKickedAppend(ObjectGuid kicker, ObjectGuid kickee)
     {
         _kicker = kicker;
         _kickee = kickee;
     }
-
-    public ChatNotify GetNotificationType() => ChatNotify.PlayerKickedNotice;
 
     public void Append(ChannelNotify data)
     {
@@ -23,6 +25,5 @@ internal struct PlayerKickedAppend : IChannelAppender
         data.TargetGuid = _kickee;
     }
 
-    private readonly ObjectGuid _kicker;
-    private readonly ObjectGuid _kickee;
+    public ChatNotify GetNotificationType() => ChatNotify.PlayerKickedNotice;
 }

@@ -11,20 +11,23 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class PlayerGuidLookupData
 {
-    public bool IsDeleted;
     public ObjectGuid AccountID;
     public ObjectGuid BnetAccountID;
-    public ObjectGuid GuidActual;
-    public string Name = "";
-    public ulong GuildClubMemberID; // same as bgs.protocol.club.v1.MemberId.unique_id
-    public uint VirtualRealmAddress;
-    public Race RaceID = Race.None;
-    public Gender Sex = Gender.None;
     public PlayerClass ClassID = PlayerClass.None;
-    public byte Level;
-    public byte Unused915;
     public DeclinedName DeclinedNames = new();
+    public ObjectGuid GuidActual;
+    public ulong GuildClubMemberID;
+    public bool IsDeleted;
+    public byte Level;
+    public string Name = "";
+    public Race RaceID = Race.None;
 
+    public Gender Sex = Gender.None;
+
+    public byte Unused915;
+
+    // same as bgs.protocol.club.v1.MemberId.unique_id
+    public uint VirtualRealmAddress;
     public bool Initialize(ObjectGuid guid, Player player = null)
     {
         var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(guid);

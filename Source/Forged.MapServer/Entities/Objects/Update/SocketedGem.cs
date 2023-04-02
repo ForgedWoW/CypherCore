@@ -9,11 +9,18 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class SocketedGem : BaseUpdateData<Item>
 {
-    public UpdateField<uint> ItemId = new(0, 1);
-    public UpdateField<byte> Context = new(0, 2);
     public UpdateFieldArray<ushort> BonusListIDs = new(16, 3, 4);
-
+    public UpdateField<byte> Context = new(0, 2);
+    public UpdateField<uint> ItemId = new(0, 1);
     public SocketedGem() : base(20) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(ItemId);
+        ClearChangesMask(Context);
+        ClearChangesMask(BonusListIDs);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Item owner, Player receiver)
     {
@@ -52,13 +59,5 @@ public class SocketedGem : BaseUpdateData<Item>
             for (var i = 0; i < 16; ++i)
                 if (changesMask[4 + i])
                     data.WriteUInt16(BonusListIDs[i]);
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(ItemId);
-        ClearChangesMask(Context);
-        ClearChangesMask(BonusListIDs);
-        ChangesMask.ResetAll();
     }
 }

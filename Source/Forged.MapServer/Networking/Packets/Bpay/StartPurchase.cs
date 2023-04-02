@@ -7,12 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class StartPurchase : ClientPacket
 {
-    public ObjectGuid TargetCharacter { get; set; } = new();
-    public uint ClientToken { get; set; } = 0;
-    public uint ProductID { get; set; } = 0;
-
     public StartPurchase(WorldPacket packet) : base(packet) { }
 
+    public uint ClientToken { get; set; } = 0;
+    public uint ProductID { get; set; } = 0;
+    public ObjectGuid TargetCharacter { get; set; } = new();
     public override void Read()
     {
         ClientToken = _worldPacket.ReadUInt32();

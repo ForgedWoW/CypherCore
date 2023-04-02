@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ReadyCheckStarted : ServerPacket
 {
-    public sbyte PartyIndex;
-    public ObjectGuid PartyGUID;
-    public ObjectGuid InitiatorGUID;
     public uint Duration;
+    public ObjectGuid InitiatorGUID;
+    public ObjectGuid PartyGUID;
+    public sbyte PartyIndex;
     public ReadyCheckStarted() : base(ServerOpcodes.ReadyCheckStarted) { }
 
     public override void Write()

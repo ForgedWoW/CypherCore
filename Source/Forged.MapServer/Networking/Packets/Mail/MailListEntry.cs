@@ -12,20 +12,19 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailListEntry
 {
-    public ulong MailID;
-    public byte SenderType;
-    public ObjectGuid? SenderCharacter;
     public uint? AltSenderID;
-    public ulong Cod;
-    public int StationeryID;
-    public ulong SentMoney;
-    public int Flags;
-    public float DaysLeft;
-    public int MailTemplateID;
-    public string Subject = "";
-    public string Body = "";
     public List<MailAttachedItem> Attachments = new();
-
+    public string Body = "";
+    public ulong Cod;
+    public float DaysLeft;
+    public int Flags;
+    public ulong MailID;
+    public int MailTemplateID;
+    public ObjectGuid? SenderCharacter;
+    public byte SenderType;
+    public ulong SentMoney;
+    public int StationeryID;
+    public string Subject = "";
     public MailListEntry(Mails.Mail mail, Player player)
     {
         MailID = mail.messageID;
@@ -50,7 +49,7 @@ public class MailListEntry
         StationeryID = (int)mail.stationery;
         SentMoney = mail.money;
         Flags = (int)mail.checkMask;
-        DaysLeft = (float)(mail.expire_time - GameTime.GetGameTime()) / Time.Day;
+        DaysLeft = (float)(mail.expire_time - GameTime.CurrentTime) / Time.DAY;
         MailTemplateID = (int)mail.mailTemplateId;
         Subject = mail.subject;
         Body = mail.body;

@@ -7,9 +7,8 @@ namespace Forged.MapServer.Chat;
 
 public struct CommandPermissions
 {
-    public RBACPermissions RequiredPermission;
     public bool AllowConsole;
-
+    public RBACPermissions RequiredPermission;
     public CommandPermissions(RBACPermissions perm, bool allowConsole)
     {
         RequiredPermission = perm;

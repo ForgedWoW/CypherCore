@@ -7,18 +7,17 @@ namespace Forged.MapServer.Collision.Management;
 
 public class ManagedModel
 {
-    private WorldModel _model;
     private int _count;
-
+    private WorldModel _model;
     public ManagedModel()
     {
         _model = new WorldModel();
         _count = 0;
     }
 
-    public void SetModel(WorldModel model)
+    public int DecRefCount()
     {
-        _model = model;
+        return --_count;
     }
 
     public WorldModel GetModel()
@@ -31,8 +30,8 @@ public class ManagedModel
         ++_count;
     }
 
-    public int DecRefCount()
+    public void SetModel(WorldModel model)
     {
-        return --_count;
+        _model = model;
     }
 }

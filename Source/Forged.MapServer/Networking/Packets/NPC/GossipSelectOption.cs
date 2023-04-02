@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class GossipSelectOption : ClientPacket
 {
-    public ObjectGuid GossipUnit;
-    public int GossipOptionID;
     public uint GossipID;
+    public int GossipOptionID;
+    public ObjectGuid GossipUnit;
     public string PromotionCode;
     public GossipSelectOption(WorldPacket packet) : base(packet) { }
 

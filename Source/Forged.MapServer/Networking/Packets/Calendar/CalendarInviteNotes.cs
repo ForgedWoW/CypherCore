@@ -9,10 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteNotes : ServerPacket
 {
-    public ObjectGuid InviteGuid;
-    public ulong EventID;
-    public string Notes = "";
     public bool ClearPending;
+    public ulong EventID;
+    public ObjectGuid InviteGuid;
+    public string Notes = "";
     public CalendarInviteNotes() : base(ServerOpcodes.CalendarInviteNotes) { }
 
     public override void Write()

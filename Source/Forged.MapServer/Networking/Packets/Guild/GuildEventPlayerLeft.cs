@@ -12,10 +12,10 @@ public class GuildEventPlayerLeft : ServerPacket
     public ObjectGuid LeaverGUID;
     public string LeaverName;
     public uint LeaverVirtualRealmAddress;
+    public bool Removed;
     public ObjectGuid RemoverGUID;
     public string RemoverName;
     public uint RemoverVirtualRealmAddress;
-    public bool Removed;
     public GuildEventPlayerLeft() : base(ServerOpcodes.GuildEventPlayerLeft) { }
 
     public override void Write()

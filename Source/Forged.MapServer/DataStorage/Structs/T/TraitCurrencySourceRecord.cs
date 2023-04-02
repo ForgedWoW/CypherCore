@@ -7,13 +7,13 @@ namespace Forged.MapServer.DataStorage.Structs.T;
 
 public sealed class TraitCurrencySourceRecord
 {
-    public LocalizedString Requirement;
-    public uint Id;
-    public int TraitCurrencyID;
-    public int Amount;
-    public uint QuestID;
     public uint AchievementID;
-    public uint PlayerLevel;
-    public int TraitNodeEntryID;
+    public int Amount;
+    public uint Id;
     public int OrderIndex;
+    public uint PlayerLevel;
+    public uint QuestID;
+    public LocalizedString Requirement;
+    public int TraitCurrencyID;
+    public int TraitNodeEntryID;
 }

@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class CheckCharacterNameAvailabilityResult : ServerPacket
 {
-    public uint SequenceIndex;
     public ResponseCodes Result;
-
+    public uint SequenceIndex;
     public CheckCharacterNameAvailabilityResult(uint sequenceIndex, ResponseCodes result) : base(ServerOpcodes.CheckCharacterNameAvailabilityResult)
     {
         SequenceIndex = sequenceIndex;

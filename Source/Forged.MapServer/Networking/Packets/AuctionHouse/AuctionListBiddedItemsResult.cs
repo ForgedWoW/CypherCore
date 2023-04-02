@@ -8,10 +8,9 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class AuctionListBiddedItemsResult : ServerPacket
 {
-    public List<AuctionItem> Items = new();
     public uint DesiredDelay;
     public bool HasMoreResults;
-
+    public List<AuctionItem> Items = new();
     public AuctionListBiddedItemsResult() : base(ServerOpcodes.AuctionListBiddedItemsResult) { }
 
     public override void Write()

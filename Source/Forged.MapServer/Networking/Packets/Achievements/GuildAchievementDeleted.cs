@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class GuildAchievementDeleted : ServerPacket
 {
-    public ObjectGuid GuildGUID;
     public uint AchievementID;
+    public ObjectGuid GuildGUID;
     public long TimeDeleted;
     public GuildAchievementDeleted() : base(ServerOpcodes.GuildAchievementDeleted) { }
 

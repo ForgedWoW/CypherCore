@@ -29,6 +29,29 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
         BaseUnitState = UnitState.Roaming;
     }
 
+    public override void DoDeactivate(Creature owner)
+    {
+        AddFlag(MovementGeneratorFlags.Deactivated);
+        owner.ClearUnitState(UnitState.RoamingMove);
+    }
+
+    public override void DoFinalize(Creature owner, bool active, bool movementInform)
+    {
+        AddFlag(MovementGeneratorFlags.Finalized);
+
+        if (active)
+        {
+            owner.ClearUnitState(UnitState.RoamingMove);
+            owner.StopMoving();
+
+            // TODO: Research if this modification is needed, which most likely isnt
+            owner.SetWalk(false);
+        }
+
+        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsAIEnabled && owner.TryGetCreatureAI(out var ai))
+            ai.MovementInform(MovementGeneratorType.Random, 0);
+    }
+
     public override void DoInitialize(Creature owner)
     {
         RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated | MovementGeneratorFlags.Paused);
@@ -95,28 +118,9 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 
         return true;
     }
-
-    public override void DoDeactivate(Creature owner)
+    public override MovementGeneratorType GetMovementGeneratorType()
     {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-        owner.ClearUnitState(UnitState.RoamingMove);
-    }
-
-    public override void DoFinalize(Creature owner, bool active, bool movementInform)
-    {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (active)
-        {
-            owner.ClearUnitState(UnitState.RoamingMove);
-            owner.StopMoving();
-
-            // TODO: Research if this modification is needed, which most likely isnt
-            owner.SetWalk(false);
-        }
-
-        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsAIEnabled && owner.TryGetCreatureAI(out var ai))
-            ai.MovementInform(MovementGeneratorType.Random, 0);
+        return MovementGeneratorType.Random;
     }
 
     public override void Pause(uint timer = 0)
@@ -146,12 +150,6 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
     {
         AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
     }
-
-    public override MovementGeneratorType GetMovementGeneratorType()
-    {
-        return MovementGeneratorType.Random;
-    }
-
     private void SetRandomLocation(Creature owner)
     {
         if (owner == null)
@@ -230,7 +228,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
         else
         {
             // Creature has made all its steps, time for a little break
-            _timer.Reset(splineDuration + RandomHelper.URand(4, 10) * Time.InMilliseconds); // Retails seems to use rounded numbers so we do as well
+            _timer.Reset(splineDuration + RandomHelper.URand(4, 10) * Time.IN_MILLISECONDS); // Retails seems to use rounded numbers so we do as well
             _wanderSteps = RandomHelper.URand(2, 10);
         }
 

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemBonusKey : IEquatable<ItemBonusKey>
 {
-    public uint ItemID;
     public List<uint> BonusListIDs = new();
+    public uint ItemID;
     public List<ItemMod> Modifications = new();
 
     public bool Equals(ItemBonusKey right)

@@ -10,10 +10,10 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellPeriodicAuraLog : CombatLogServerPacket
 {
-    public ObjectGuid TargetGUID;
     public ObjectGuid CasterGUID;
-    public uint SpellID;
     public List<SpellLogEffect> Effects = new();
+    public uint SpellID;
+    public ObjectGuid TargetGUID;
     public SpellPeriodicAuraLog() : base(ServerOpcodes.SpellPeriodicAuraLog, ConnectionType.Instance) { }
 
     public override void Write()
@@ -38,17 +38,16 @@ internal class SpellPeriodicAuraLog : CombatLogServerPacket
 
     public class SpellLogEffect
     {
-        public uint Effect;
-        public uint Amount;
-        public int OriginalDamage;
-        public uint OverHealOrKill;
-        public uint SchoolMaskOrPower;
         public uint AbsorbedOrAmplitude;
-        public uint Resisted;
+        public uint Amount;
+        public ContentTuningParams ContentTuning;
         public bool Crit;
         public PeriodicalAuraLogEffectDebugInfo? DebugInfo;
-        public ContentTuningParams ContentTuning;
-
+        public uint Effect;
+        public int OriginalDamage;
+        public uint OverHealOrKill;
+        public uint Resisted;
+        public uint SchoolMaskOrPower;
         public void Write(WorldPacket data)
         {
             data.WriteUInt32(Effect);

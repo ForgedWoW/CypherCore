@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 
 internal class BugReport : ClientPacket
 {
-    public uint Type;
-    public string Text;
     public string DiagInfo;
+    public string Text;
+    public uint Type;
     public BugReport(WorldPacket packet) : base(packet) { }
 
     public override void Read()

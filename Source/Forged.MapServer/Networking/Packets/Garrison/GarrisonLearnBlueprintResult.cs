@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonLearnBlueprintResult : ServerPacket
 {
-    public GarrisonType GarrTypeID;
     public uint BuildingID;
+    public GarrisonType GarrTypeID;
     public GarrisonError Result;
     public GarrisonLearnBlueprintResult() : base(ServerOpcodes.GarrisonLearnBlueprintResult, ConnectionType.Instance) { }
 

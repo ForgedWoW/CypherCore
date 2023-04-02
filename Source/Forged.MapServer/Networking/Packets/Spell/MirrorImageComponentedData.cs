@@ -10,16 +10,15 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class MirrorImageComponentedData : ServerPacket
 {
-    public ObjectGuid UnitGUID;
-    public int DisplayID;
-    public int SpellVisualKitID;
-    public byte RaceID;
-    public byte Gender;
     public byte ClassID;
     public List<ChrCustomizationChoice> Customizations = new();
+    public int DisplayID;
+    public byte Gender;
     public ObjectGuid GuildGUID;
-
     public List<int> ItemDisplayID = new();
+    public byte RaceID;
+    public int SpellVisualKitID;
+    public ObjectGuid UnitGUID;
     public MirrorImageComponentedData() : base(ServerOpcodes.MirrorImageComponentedData) { }
 
     public override void Write()

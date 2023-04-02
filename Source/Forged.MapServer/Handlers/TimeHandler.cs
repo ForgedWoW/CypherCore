@@ -16,7 +16,7 @@ public class TimeHandler : IWorldSessionHandler
     {
         ServerTimeOffset response = new()
         {
-            Time = GameTime.GetGameTime()
+            Time = GameTime.CurrentTime
         };
 
         SendPacket(response);

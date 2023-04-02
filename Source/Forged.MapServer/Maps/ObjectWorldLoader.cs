@@ -14,11 +14,8 @@ internal class ObjectWorldLoader : IGridNotifierCorpse
     public uint i_corpses;
 
     private readonly Cell i_cell;
-    private readonly Map i_map;
     private readonly Grid i_grid;
-
-    public GridType GridType { get; set; }
-
+    private readonly Map i_map;
     public ObjectWorldLoader(ObjectGridLoaderBase gloader, GridType gridType)
     {
         i_cell = gloader.i_cell;
@@ -28,6 +25,7 @@ internal class ObjectWorldLoader : IGridNotifierCorpse
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Corpse> objs)
     {
         var cellCoord = i_cell.GetCellCoord();

@@ -15,6 +15,13 @@ public class ContainerData : BaseUpdateData<Bag>
 
     public ContainerData() : base(0, TypeId.Container, 39) { }
 
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(NumSlots);
+        ClearChangesMask(Slots);
+        ChangesMask.ResetAll();
+    }
+
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Bag owner, Player receiver)
     {
         for (var i = 0; i < 36; ++i)
@@ -46,12 +53,5 @@ public class ContainerData : BaseUpdateData<Bag>
             for (var i = 0; i < 36; ++i)
                 if (ChangesMask[3 + i])
                     data.WritePackedGuid(Slots[i]);
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(NumSlots);
-        ClearChangesMask(Slots);
-        ChangesMask.ResetAll();
     }
 }

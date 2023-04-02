@@ -36,6 +36,11 @@ internal class GameEvents
         TriggerForMap(gameEventId, map, source, target);
     }
 
+    public static void TriggerForMap(uint gameEventId, Map map, WorldObject source = null, WorldObject target = null)
+    {
+        map.ScriptsStart(ScriptsType.Event, gameEventId, source, target);
+    }
+
     public static void TriggerForPlayer(uint gameEventId, Player source)
     {
         var map = source.Location.Map;
@@ -50,10 +55,5 @@ internal class GameEvents
 
         if (map.IsScenario)
             source.UpdateCriteria(CriteriaType.AnyoneTriggerGameEventScenario, gameEventId, 0, 0, source);
-    }
-
-    public static void TriggerForMap(uint gameEventId, Map map, WorldObject source = null, WorldObject target = null)
-    {
-        map.ScriptsStart(ScriptsType.Event, gameEventId, source, target);
     }
 }

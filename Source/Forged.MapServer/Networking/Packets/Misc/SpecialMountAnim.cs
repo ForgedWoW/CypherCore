@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SpecialMountAnim : ServerPacket
 {
-    public ObjectGuid UnitGUID;
-    public List<int> SpellVisualKitIDs = new();
     public int SequenceVariation;
+    public List<int> SpellVisualKitIDs = new();
+    public ObjectGuid UnitGUID;
     public SpecialMountAnim() : base(ServerOpcodes.SpecialMountAnim, ConnectionType.Instance) { }
 
     public override void Write()

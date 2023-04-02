@@ -7,8 +7,6 @@ namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ITargetHookHandler : ISpellEffect
 {
-    Targets TargetType { get; }
-
     bool Area
     {
         get { return true; }
@@ -18,20 +16,20 @@ public interface ITargetHookHandler : ISpellEffect
     {
         get { return false; }
     }
+
+    Targets TargetType { get; }
 }
 
 public class TargetHookHandler : SpellEffect, ITargetHookHandler
 {
-    public Targets TargetType { get; }
-
-    public bool Area { get; }
-
-    public bool Dest { get; }
-
     public TargetHookHandler(int effectIndex, Targets targetType, bool area, SpellScriptHookType hookType, bool dest = false) : base(effectIndex, hookType)
     {
         TargetType = targetType;
         Area = area;
         Dest = dest;
     }
+
+    public bool Area { get; }
+    public bool Dest { get; }
+    public Targets TargetType { get; }
 }

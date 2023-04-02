@@ -5,12 +5,11 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public class LFGBlackListSlot
 {
-    public uint Slot;
     public uint Reason;
+    public uint Slot;
+    public uint SoftLock;
     public int SubReason1;
     public int SubReason2;
-    public uint SoftLock;
-
     public LFGBlackListSlot(uint slot, uint reason, int subReason1, int subReason2, uint softLock)
     {
         Slot = slot;

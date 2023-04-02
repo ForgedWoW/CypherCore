@@ -5,8 +5,8 @@ namespace Forged.MapServer.Maps;
 
 public struct MmapTileHeader
 {
-    public uint mmapMagic;
     public uint dtVersion;
+    public uint mmapMagic;
     public uint mmapVersion;
     public uint size;
     public byte usesLiquids;

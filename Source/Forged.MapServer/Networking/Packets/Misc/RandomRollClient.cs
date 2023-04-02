@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class RandomRollClient : ClientPacket
 {
-    public uint Min;
     public uint Max;
+    public uint Min;
     public byte PartyIndex;
     public RandomRollClient(WorldPacket packet) : base(packet) { }
 

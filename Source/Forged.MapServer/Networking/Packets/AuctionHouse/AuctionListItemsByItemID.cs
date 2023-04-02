@@ -11,11 +11,10 @@ internal class AuctionListItemsByItemID : ClientPacket
 {
     public ObjectGuid Auctioneer;
     public uint ItemID;
-    public int SuffixItemNameDescriptionID;
     public uint Offset;
-    public AddOnInfo? TaintedBy;
     public Array<AuctionSortDef> Sorts = new(2);
-
+    public int SuffixItemNameDescriptionID;
+    public AddOnInfo? TaintedBy;
     public AuctionListItemsByItemID(WorldPacket packet) : base(packet) { }
 
     public override void Read()

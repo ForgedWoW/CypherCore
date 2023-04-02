@@ -7,21 +7,21 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class AchievementRecord
 {
+    public ushort Category;
+    public int CovenantID;
+    public uint CriteriaTree;
     public string Description;
-    public string Title;
-    public string Reward;
+    public AchievementFaction Faction;
+    public AchievementFlags Flags;
+    public uint IconFileID;
     public uint Id;
     public short InstanceID;
-    public AchievementFaction Faction;
-    public ushort Supercedes;
-    public ushort Category;
     public byte MinimumCriteria;
     public byte Points;
-    public AchievementFlags Flags;
-    public ushort UiOrder;
-    public uint IconFileID;
+    public string Reward;
     public int RewardItemID;
-    public uint CriteriaTree;
     public ushort SharesCriteria;
-    public int CovenantID;
+    public ushort Supercedes;
+    public string Title;
+    public ushort UiOrder;
 }

@@ -6,9 +6,9 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 internal class CalendarCommunityInviteRequest : ClientPacket
 {
     public ulong ClubId;
-    public byte MinLevel = 1;
     public byte MaxLevel = 100;
     public byte MaxRankOrder;
+    public byte MinLevel = 1;
     public CalendarCommunityInviteRequest(WorldPacket packet) : base(packet) { }
 
     public override void Read()

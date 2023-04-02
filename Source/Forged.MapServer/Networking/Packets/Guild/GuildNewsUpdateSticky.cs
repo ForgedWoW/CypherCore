@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildNewsUpdateSticky : ClientPacket
 {
-    public int NewsID;
     public ObjectGuid GuildGUID;
+    public int NewsID;
     public bool Sticky;
     public GuildNewsUpdateSticky(WorldPacket packet) : base(packet) { }
 

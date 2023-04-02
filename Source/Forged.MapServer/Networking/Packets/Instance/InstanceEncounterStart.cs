@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceEncounterStart : ServerPacket
 {
-    public uint InCombatResCount; // amount of usable battle ressurections
-    public uint MaxInCombatResCount;
     public uint CombatResChargeRecovery;
-    public uint NextCombatResChargeTime;
+    public uint InCombatResCount; // amount of usable battle ressurections
     public bool InProgress = true;
+    public uint MaxInCombatResCount;
+    public uint NextCombatResChargeTime;
     public InstanceEncounterStart() : base(ServerOpcodes.InstanceEncounterStart, ConnectionType.Instance) { }
 
     public override void Write()

@@ -9,15 +9,14 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellTargetData
 {
-    public SpellCastTargetFlags Flags;
-    public ObjectGuid Unit;
-    public ObjectGuid Item;
-    public TargetLocation SrcLocation;
     public TargetLocation DstLocation;
-    public float? Orientation;
+    public SpellCastTargetFlags Flags;
+    public ObjectGuid Item;
     public int? MapID;
     public string Name = "";
-
+    public float? Orientation;
+    public TargetLocation SrcLocation;
+    public ObjectGuid Unit;
     public void Read(WorldPacket data)
     {
         data.ResetBitPos();

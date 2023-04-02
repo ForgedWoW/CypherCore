@@ -5,11 +5,10 @@ namespace Forged.MapServer.Chat;
 
 internal struct HyperlinkColor
 {
-    public byte R;
-    public byte G;
-    public byte B;
     public byte A;
-
+    public byte B;
+    public byte G;
+    public byte R;
     public HyperlinkColor(uint c)
     {
         R = (byte)(c >> 16);

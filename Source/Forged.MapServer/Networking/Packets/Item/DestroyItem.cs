@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class DestroyItem : ClientPacket
 {
+    public byte ContainerId;
     public uint Count;
     public byte SlotNum;
-    public byte ContainerId;
     public DestroyItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

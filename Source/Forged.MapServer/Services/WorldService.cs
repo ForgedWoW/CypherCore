@@ -13,6 +13,19 @@ namespace Forged.MapServer.Services;
 
 public class WorldService
 {
+    [Service(OriginalHash.GameUtilitiesService, 10)]
+    private BattlenetRpcErrorCode HandleGetAllValuesForAttribute(GetAllValuesForAttributeRequest request, GetAllValuesForAttributeResponse response)
+    {
+        if (!request.AttributeKey.Contains("Command_RealmListRequest_v1"))
+        {
+            Global.RealmMgr.WriteSubRegions(response);
+
+            return BattlenetRpcErrorCode.Ok;
+        }
+
+        return BattlenetRpcErrorCode.RpcNotImplemented;
+    }
+
     [Service(OriginalHash.GameUtilitiesService, 1)]
     private BattlenetRpcErrorCode HandleProcessClientRequest(ClientRequest request, ClientResponse response)
     {
@@ -58,18 +71,21 @@ public class WorldService
             _                             => BattlenetRpcErrorCode.RpcNotImplemented
         };
     }
-
-    [Service(OriginalHash.GameUtilitiesService, 10)]
-    private BattlenetRpcErrorCode HandleGetAllValuesForAttribute(GetAllValuesForAttributeRequest request, GetAllValuesForAttributeResponse response)
+    private BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
     {
-        if (!request.AttributeKey.Contains("Command_RealmListRequest_v1"))
-        {
-            Global.RealmMgr.WriteSubRegions(response);
+        var realmAddress = Params.LookupByKey("Param_RealmAddress");
 
-            return BattlenetRpcErrorCode.Ok;
-        }
+        if (realmAddress != null)
+            return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue,
+                                             Global.WorldMgr.Realm.Build,
+                                             System.Net.IPAddress.Parse((string)RemoteAddress),
+                                             RealmListSecret,
+                                             SessionDbcLocale,
+                                             OS,
+                                             AccountName,
+                                             response);
 
-        return BattlenetRpcErrorCode.RpcNotImplemented;
+        return BattlenetRpcErrorCode.Ok;
     }
 
     private BattlenetRpcErrorCode HandleRealmListRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
@@ -121,23 +137,6 @@ public class WorldService
         };
 
         response.Attribute.Add(attribute);
-
-        return BattlenetRpcErrorCode.Ok;
-    }
-
-    private BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
-    {
-        var realmAddress = Params.LookupByKey("Param_RealmAddress");
-
-        if (realmAddress != null)
-            return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue,
-                                             Global.WorldMgr.Realm.Build,
-                                             System.Net.IPAddress.Parse((string)RemoteAddress),
-                                             RealmListSecret,
-                                             SessionDbcLocale,
-                                             OS,
-                                             AccountName,
-                                             response);
 
         return BattlenetRpcErrorCode.Ok;
     }

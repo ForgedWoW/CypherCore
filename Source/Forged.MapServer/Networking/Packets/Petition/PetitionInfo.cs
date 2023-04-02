@@ -9,25 +9,24 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionInfo
 {
-    public int PetitionID;
-    public ObjectGuid Petitioner;
-    public string Title;
+    public int AllowedClasses;
+    public short AllowedGender;
+    public int AllowedGuildID;
+    public int AllowedMaxLevel;
+    public int AllowedMinLevel;
+    public int AllowedRaces;
     public string BodyText;
-    public uint MinSignatures;
-    public uint MaxSignatures;
+    public StringArray Choicetext = new(10);
     public int DeadLine;
     public int IssueDate;
-    public int AllowedGuildID;
-    public int AllowedClasses;
-    public int AllowedRaces;
-    public short AllowedGender;
-    public int AllowedMinLevel;
-    public int AllowedMaxLevel;
-    public int NumChoices;
-    public int StaticType;
+    public uint MaxSignatures;
+    public uint MinSignatures;
     public uint Muid = 0;
-    public StringArray Choicetext = new(10);
-
+    public int NumChoices;
+    public ObjectGuid Petitioner;
+    public int PetitionID;
+    public int StaticType;
+    public string Title;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(PetitionID);

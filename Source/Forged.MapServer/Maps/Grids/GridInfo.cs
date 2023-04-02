@@ -5,9 +5,8 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class GridInfo
 {
-    private readonly PeriodicTimer _visUpdate;
     private readonly TimeTracker _timer;
-
+    private readonly PeriodicTimer _visUpdate;
     private ushort _unloadActiveLockCount; // lock from active object spawn points (prevent clone loading)
     private bool _unloadExplicitLock;      // explicit manual lock or config setting
 
@@ -27,6 +26,16 @@ public class GridInfo
         _unloadExplicitLock = !unload;
     }
 
+    public void DecUnloadActiveLock()
+    {
+        if (_unloadActiveLockCount != 0) --_unloadActiveLockCount;
+    }
+
+    public PeriodicTimer GetRelocationTimer()
+    {
+        return _visUpdate;
+    }
+
     public TimeTracker GetTimeTracker()
     {
         return _timer;
@@ -37,19 +46,9 @@ public class GridInfo
         return _unloadActiveLockCount != 0 || _unloadExplicitLock;
     }
 
-    public void SetUnloadExplicitLock(bool on)
-    {
-        _unloadExplicitLock = on;
-    }
-
     public void IncUnloadActiveLock()
     {
         ++_unloadActiveLockCount;
-    }
-
-    public void DecUnloadActiveLock()
-    {
-        if (_unloadActiveLockCount != 0) --_unloadActiveLockCount;
     }
 
     public void ResetTimeTracker(long interval)
@@ -57,13 +56,12 @@ public class GridInfo
         _timer.Reset((uint)interval);
     }
 
+    public void SetUnloadExplicitLock(bool on)
+    {
+        _unloadExplicitLock = on;
+    }
     public void UpdateTimeTracker(long diff)
     {
         _timer.Update((uint)diff);
-    }
-
-    public PeriodicTimer GetRelocationTimer()
-    {
-        return _visUpdate;
     }
 }

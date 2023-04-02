@@ -16,17 +16,6 @@ public abstract class ScriptObject : IScriptObject
         _name = name;
     }
 
-    public string GetName()
-    {
-        return _name;
-    }
-
-    // It indicates whether or not this script Type must be assigned in the database.
-    public virtual bool IsDatabaseBound()
-    {
-        return false;
-    }
-
     public static T GetInstanceAI<T>(WorldObject obj) where T : class
     {
         var instance = obj.Location.Map.ToInstanceMap;
@@ -39,6 +28,17 @@ public abstract class ScriptObject : IScriptObject
                                                });
 
         return null;
+    }
+
+    public string GetName()
+    {
+        return _name;
+    }
+
+    // It indicates whether or not this script Type must be assigned in the database.
+    public virtual bool IsDatabaseBound()
+    {
+        return false;
     }
 }
 

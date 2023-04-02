@@ -10,6 +10,14 @@ internal class PlayerNameMapHolder
 {
     private static readonly Dictionary<string, Player> PlayerNameMap = new();
 
+    public static Player Find(string name)
+    {
+        if (!GameObjectManager.NormalizePlayerName(ref name))
+            return null;
+
+        return PlayerNameMap.LookupByKey(name);
+    }
+
     public static void Insert(Player p)
     {
         PlayerNameMap[p.GetName()] = p;
@@ -18,13 +26,5 @@ internal class PlayerNameMapHolder
     public static void Remove(Player p)
     {
         PlayerNameMap.Remove(p.GetName());
-    }
-
-    public static Player Find(string name)
-    {
-        if (!GameObjectManager.NormalizePlayerName(ref name))
-            return null;
-
-        return PlayerNameMap.LookupByKey(name);
     }
 }

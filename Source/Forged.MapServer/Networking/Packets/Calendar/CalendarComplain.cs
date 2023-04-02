@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarComplain : ClientPacket
 {
+    private ulong EventID;
     private ObjectGuid InvitedByGUID;
     private ulong InviteID;
-    private ulong EventID;
     public CalendarComplain(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -9,8 +9,8 @@ internal class SetPartyAssignment : ClientPacket
 {
     public byte Assignment;
     public byte PartyIndex;
-    public ObjectGuid Target;
     public bool Set;
+    public ObjectGuid Target;
     public SetPartyAssignment(WorldPacket packet) : base(packet) { }
 
     public override void Read()

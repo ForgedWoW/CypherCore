@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public struct AuctionSortDef
 {
-    public AuctionHouseSortOrder SortOrder;
     public bool ReverseSort;
-
+    public AuctionHouseSortOrder SortOrder;
     public AuctionSortDef(AuctionHouseSortOrder sortOrder, bool reverseSort)
     {
         SortOrder = sortOrder;

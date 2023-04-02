@@ -440,30 +440,6 @@ internal class GroupCommands
     [CommandGroup("set")]
     private class GroupSetCommands
     {
-        [Command("assistant", RBACPermissions.CommandGroupAssistant)]
-        private static bool HandleGroupSetAssistantCommand(CommandHandler handler, string name)
-        {
-            return GroupFlagCommand(name, handler, GroupMemberFlags.Assistant);
-        }
-
-        [Command("leader", RBACPermissions.CommandGroupLeader)]
-        private static bool HandleGroupSetLeaderCommand(CommandHandler handler, string name)
-        {
-            return HandleGroupLeaderCommand(handler, name);
-        }
-
-        [Command("mainassist", RBACPermissions.CommandGroupMainassist)]
-        private static bool HandleGroupSetMainAssistCommand(CommandHandler handler, string name)
-        {
-            return GroupFlagCommand(name, handler, GroupMemberFlags.MainAssist);
-        }
-
-        [Command("maintank", RBACPermissions.CommandGroupMaintank)]
-        private static bool HandleGroupSetMainTankCommand(CommandHandler handler, string name)
-        {
-            return GroupFlagCommand(name, handler, GroupMemberFlags.MainTank);
-        }
-
         private static bool GroupFlagCommand(string name, CommandHandler handler, GroupMemberFlags flag)
         {
             if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out var guid))
@@ -502,6 +478,30 @@ internal class GroupCommands
             }
 
             return true;
+        }
+
+        [Command("assistant", RBACPermissions.CommandGroupAssistant)]
+        private static bool HandleGroupSetAssistantCommand(CommandHandler handler, string name)
+        {
+            return GroupFlagCommand(name, handler, GroupMemberFlags.Assistant);
+        }
+
+        [Command("leader", RBACPermissions.CommandGroupLeader)]
+        private static bool HandleGroupSetLeaderCommand(CommandHandler handler, string name)
+        {
+            return HandleGroupLeaderCommand(handler, name);
+        }
+
+        [Command("mainassist", RBACPermissions.CommandGroupMainassist)]
+        private static bool HandleGroupSetMainAssistCommand(CommandHandler handler, string name)
+        {
+            return GroupFlagCommand(name, handler, GroupMemberFlags.MainAssist);
+        }
+
+        [Command("maintank", RBACPermissions.CommandGroupMaintank)]
+        private static bool HandleGroupSetMainTankCommand(CommandHandler handler, string name)
+        {
+            return GroupFlagCommand(name, handler, GroupMemberFlags.MainTank);
         }
     }
 }

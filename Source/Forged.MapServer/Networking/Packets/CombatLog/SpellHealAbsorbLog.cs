@@ -9,14 +9,14 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellHealAbsorbLog : ServerPacket
 {
-    public ObjectGuid Healer;
-    public ObjectGuid Target;
     public ObjectGuid AbsorbCaster;
-    public int AbsorbSpellID;
-    public int AbsorbedSpellID;
     public int Absorbed;
-    public int OriginalHeal;
+    public int AbsorbedSpellID;
+    public int AbsorbSpellID;
     public ContentTuningParams ContentTuning;
+    public ObjectGuid Healer;
+    public int OriginalHeal;
+    public ObjectGuid Target;
     public SpellHealAbsorbLog() : base(ServerOpcodes.SpellHealAbsorbLog, ConnectionType.Instance) { }
 
     public override void Write()

@@ -8,9 +8,8 @@ namespace Forged.MapServer.Maps.Checks;
 
 internal class AllAttackableUnitsInRange : ICheck<Unit>
 {
-    private readonly Unit _unit;
     private readonly float _range;
-
+    private readonly Unit _unit;
     public AllAttackableUnitsInRange(Unit obj, float range)
     {
         _unit = obj;

@@ -11,8 +11,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemInstance
 {
-    public uint ItemID;
     public ItemBonuses ItemBonus;
+    public uint ItemID;
     public ItemModList Modifications = new();
 
     public ItemInstance() { }
@@ -29,7 +29,7 @@ public class ItemInstance
             ItemBonus.Context = item.GetContext();
         }
 
-        foreach (var mod in item.ItemData.Modifiers.GetValue().Values)
+        foreach (var mod in item.ItemData.Modifiers.Value.Values)
             Modifications.Values.Add(new ItemMod(mod.Value, (ItemModifier)mod.Type));
     }
 
@@ -85,45 +85,9 @@ public class ItemInstance
             ItemBonus = bonus;
     }
 
-    public void Write(WorldPacket data)
+    public static bool operator !=(ItemInstance left, ItemInstance right)
     {
-        data.WriteUInt32(ItemID);
-
-        data.WriteBit(ItemBonus != null);
-        data.FlushBits();
-
-        Modifications.Write(data);
-
-        if (ItemBonus != null)
-            ItemBonus.Write(data);
-    }
-
-    public void Read(WorldPacket data)
-    {
-        ItemID = data.ReadUInt32();
-
-        if (data.HasBit())
-            ItemBonus = new ItemBonuses();
-
-        data.ResetBitPos();
-
-        Modifications.Read(data);
-
-        if (ItemBonus != null)
-            ItemBonus.Read(data);
-    }
-
-    public override int GetHashCode()
-    {
-        return ItemID.GetHashCode() ^ ItemBonus.GetHashCode() ^ Modifications.GetHashCode();
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj is ItemInstance)
-            return (ItemInstance)obj == this;
-
-        return false;
+        return !(left == right);
     }
 
     public static bool operator ==(ItemInstance left, ItemInstance right)
@@ -149,8 +113,44 @@ public class ItemInstance
         return true;
     }
 
-    public static bool operator !=(ItemInstance left, ItemInstance right)
+    public override bool Equals(object obj)
     {
-        return !(left == right);
+        if (obj is ItemInstance)
+            return (ItemInstance)obj == this;
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return ItemID.GetHashCode() ^ ItemBonus.GetHashCode() ^ Modifications.GetHashCode();
+    }
+
+    public void Read(WorldPacket data)
+    {
+        ItemID = data.ReadUInt32();
+
+        if (data.HasBit())
+            ItemBonus = new ItemBonuses();
+
+        data.ResetBitPos();
+
+        Modifications.Read(data);
+
+        if (ItemBonus != null)
+            ItemBonus.Read(data);
+    }
+
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt32(ItemID);
+
+        data.WriteBit(ItemBonus != null);
+        data.FlushBits();
+
+        Modifications.Write(data);
+
+        if (ItemBonus != null)
+            ItemBonus.Write(data);
     }
 }

@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class LevelUpInfo : ServerPacket
 {
-    public uint Level = 0;
     public uint HealthDelta = 0;
+    public uint Level = 0;
+    public int NumNewPvpTalentSlots;
+    public int NumNewTalents;
     public int[] PowerDelta = new int[(int)PowerType.MaxPerClass];
     public int[] StatDelta = new int[(int)Stats.Max];
-    public int NumNewTalents;
-    public int NumNewPvpTalentSlots;
     public LevelUpInfo() : base(ServerOpcodes.LevelUpInfo) { }
 
     public override void Write()

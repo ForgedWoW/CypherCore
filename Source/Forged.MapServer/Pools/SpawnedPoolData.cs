@@ -14,11 +14,36 @@ public class SpawnedPoolData
     private readonly List<ulong> _spawnedGameobjects = new();
     private readonly Dictionary<ulong, uint> _spawnedPools = new();
 
-    public Map Map { get; }
-
     public SpawnedPoolData(Map owner)
     {
         Map = owner;
+    }
+
+    public Map Map { get; }
+    public void AddSpawn<T>(ulong dbGuid, uint poolId)
+    {
+        switch (typeof(T).Name)
+        {
+            case "Creature":
+                _spawnedCreatures.Add(dbGuid);
+
+                break;
+            case "GameObject":
+                _spawnedGameobjects.Add(dbGuid);
+
+                break;
+            case "Pool":
+                _spawnedPools[dbGuid] = 0;
+
+                break;
+            default:
+                return;
+        }
+
+        if (!_spawnedPools.ContainsKey(poolId))
+            _spawnedPools[poolId] = 0;
+
+        ++_spawnedPools[poolId];
     }
 
     public uint GetSpawnedObjects(uint poolId)
@@ -55,33 +80,6 @@ public class SpawnedPoolData
                 return false;
         }
     }
-
-    public void AddSpawn<T>(ulong dbGuid, uint poolId)
-    {
-        switch (typeof(T).Name)
-        {
-            case "Creature":
-                _spawnedCreatures.Add(dbGuid);
-
-                break;
-            case "GameObject":
-                _spawnedGameobjects.Add(dbGuid);
-
-                break;
-            case "Pool":
-                _spawnedPools[dbGuid] = 0;
-
-                break;
-            default:
-                return;
-        }
-
-        if (!_spawnedPools.ContainsKey(poolId))
-            _spawnedPools[poolId] = 0;
-
-        ++_spawnedPools[poolId];
-    }
-
     public void RemoveSpawn<T>(ulong dbGuid, uint poolId)
     {
         switch (typeof(T).Name)

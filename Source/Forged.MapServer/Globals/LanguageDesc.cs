@@ -5,9 +5,8 @@ namespace Forged.MapServer.Globals;
 
 public class LanguageDesc
 {
-    public uint SpellId;
     public uint SkillId;
-
+    public uint SpellId;
     public LanguageDesc() { }
 
     public LanguageDesc(uint spellId, uint skillId)
@@ -16,9 +15,14 @@ public class LanguageDesc
         SkillId = skillId;
     }
 
-    public override int GetHashCode()
+    public static bool operator !=(LanguageDesc left, LanguageDesc right)
     {
-        return SpellId.GetHashCode() ^ SkillId.GetHashCode();
+        return !(left == right);
+    }
+
+    public static bool operator ==(LanguageDesc left, LanguageDesc right)
+    {
+        return left.SpellId == right.SpellId && left.SkillId == right.SkillId;
     }
 
     public override bool Equals(object obj)
@@ -29,13 +33,8 @@ public class LanguageDesc
         return false;
     }
 
-    public static bool operator ==(LanguageDesc left, LanguageDesc right)
+    public override int GetHashCode()
     {
-        return left.SpellId == right.SpellId && left.SkillId == right.SkillId;
-    }
-
-    public static bool operator !=(LanguageDesc left, LanguageDesc right)
-    {
-        return !(left == right);
+        return SpellId.GetHashCode() ^ SkillId.GetHashCode();
     }
 }

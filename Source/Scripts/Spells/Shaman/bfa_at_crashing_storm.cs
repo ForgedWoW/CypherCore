@@ -22,7 +22,7 @@ public class bfa_at_crashing_storm : AreaTriggerScript, IAreaTriggerOnInitialize
     {
         damageTimer += diff;
 
-        if (damageTimer >= 2 * Time.InMilliseconds)
+        if (damageTimer >= 2 * Time.IN_MILLISECONDS)
         {
             CheckPlayers();
             damageTimer = 0;

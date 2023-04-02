@@ -11,6 +11,11 @@ public class PacketHeader
     public int Size;
     public byte[] Tag = new byte[12];
 
+    public bool IsValidSize()
+    {
+        return Size < 0x40000;
+    }
+
     public void Read(byte[] buffer)
     {
         Size = BitConverter.ToInt32(buffer, 0);
@@ -21,10 +26,5 @@ public class PacketHeader
     {
         byteBuffer.WriteInt32(Size);
         byteBuffer.WriteBytes(Tag, 12);
-    }
-
-    public bool IsValidSize()
-    {
-        return Size < 0x40000;
     }
 }

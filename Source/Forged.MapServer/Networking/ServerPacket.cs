@@ -32,9 +32,9 @@ public abstract class ServerPacket
         buffer = null;
     }
 
-    public ServerOpcodes GetOpcode()
+    public ConnectionType GetConnection()
     {
-        return (ServerOpcodes)_worldPacket.GetOpcode();
+        return connectionType;
     }
 
     public byte[] GetData()
@@ -42,6 +42,10 @@ public abstract class ServerPacket
         return buffer;
     }
 
+    public ServerOpcodes GetOpcode()
+    {
+        return (ServerOpcodes)_worldPacket.GetOpcode();
+    }
     public void LogPacket(WorldSession session)
     {
         Log.Logger.Debug("Sent ServerOpcode: {0} To: {1}", GetOpcode(), session != null ? session.GetPlayerInfo() : "");
@@ -58,10 +62,5 @@ public abstract class ServerPacket
 
         buffer = _worldPacket.GetData();
         _worldPacket.Dispose();
-    }
-
-    public ConnectionType GetConnection()
-    {
-        return connectionType;
     }
 }

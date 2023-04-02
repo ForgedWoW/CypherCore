@@ -11,7 +11,7 @@ namespace Forged.MapServer.Networking.Packets.Character;
 public class CharCustomizeInfo
 {
     public ObjectGuid CharGUID;
-    public Gender SexID = Gender.None;
     public string CharName;
     public Array<ChrCustomizationChoice> Customizations = new(72);
+    public Gender SexID = Gender.None;
 }

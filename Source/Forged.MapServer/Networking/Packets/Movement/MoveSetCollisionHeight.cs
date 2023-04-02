@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveSetCollisionHeight : ServerPacket
 {
-    public float Scale = 1.0f;
-    public ObjectGuid MoverGUID;
-    public uint MountDisplayID;
-    public UpdateCollisionHeightReason Reason;
-    public uint SequenceIndex;
-    public int ScaleDuration;
     public float Height = 1.0f;
+    public uint MountDisplayID;
+    public ObjectGuid MoverGUID;
+    public UpdateCollisionHeightReason Reason;
+    public float Scale = 1.0f;
+    public int ScaleDuration;
+    public uint SequenceIndex;
     public MoveSetCollisionHeight() : base(ServerOpcodes.MoveSetCollisionHeight) { }
 
     public override void Write()

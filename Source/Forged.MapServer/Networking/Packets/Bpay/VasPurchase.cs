@@ -10,10 +10,9 @@ public class VasPurchase
 {
     public List<uint> ItemIDs { get; set; } = new();
     public ObjectGuid PlayerGuid { get; set; } = new();
-    public ulong UnkLong { get; set; } = 0;
     public uint UnkInt { get; set; } = 0;
     public uint UnkInt2 { get; set; } = 0;
-
+    public ulong UnkLong { get; set; } = 0;
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(PlayerGuid);

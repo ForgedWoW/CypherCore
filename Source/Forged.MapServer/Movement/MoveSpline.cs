@@ -10,35 +10,30 @@ using Serilog;
 
 namespace Forged.MapServer.Movement;
 
+public interface IInitializer<T>
+{
+    int Invoke(Spline<T> s, int i);
+}
+
 public class MoveSpline
 {
-    private readonly DB2Manager _db2Manager;
-
-    public MoveSplineInitArgs InitArgs;
-    public Spline<int> Spline = new();
-    public FacingInfo Facing;
-    public MoveSplineFlag Splineflags = new();
-    public bool OnTransport;
-    public bool SplineIsFacingOnly;
-    public uint MId;
-    public int TimePassed;
-    public float VerticalAcceleration;
-    public float InitialOrientation;
+    public AnimTierTransition AnimTier;
     public int EffectStartTime;
+    public FacingInfo Facing;
+    public MoveSplineInitArgs InitArgs;
+    public float InitialOrientation;
+    public uint MId;
+    public bool OnTransport;
     public int PointIdx;
     public int PointIdxOffset;
-    public float Velocity;
     public SpellEffectExtraData SpellEffectExtra;
-    public AnimTierTransition AnimTier;
-
-    public enum UpdateResult
-    {
-        None = 0x01,
-        Arrived = 0x02,
-        NextCycle = 0x04,
-        NextSegment = 0x08
-    }
-
+    public Spline<int> Spline = new();
+    public MoveSplineFlag Splineflags = new();
+    public bool SplineIsFacingOnly;
+    public int TimePassed;
+    public float Velocity;
+    public float VerticalAcceleration;
+    private readonly DB2Manager _db2Manager;
     public MoveSpline(DB2Manager db2Manager)
     {
         _db2Manager = db2Manager;
@@ -54,103 +49,60 @@ public class MoveSpline
         Splineflags.Flags = SplineFlag.Done;
     }
 
-    public void Initialize(MoveSplineInitArgs args)
+    public enum UpdateResult
     {
-        Splineflags = args.flags;
-        Facing = args.facing;
-        MId = args.splineId;
-        PointIdxOffset = args.path_Idx_offset;
-        InitialOrientation = args.initialOrientation;
+        None = 0x01,
+        Arrived = 0x02,
+        NextCycle = 0x04,
+        NextSegment = 0x08
+    }
+    public static float ComputeFallElevation(float tPassed, bool isSafeFall, float startVelocity = 0.0f)
+    {
+        float termVel;
+        float result;
 
-        TimePassed = 0;
-        VerticalAcceleration = 0.0f;
-        EffectStartTime = 0;
-        SpellEffectExtra = args.spellEffectExtra;
-        AnimTier = args.animTier;
-        SplineIsFacingOnly = args.path.Count == 2 && args.facing.type != MonsterMoveType.Normal && ((args.path[1] - args.path[0]).Length() < 0.1f);
+        if (isSafeFall)
+            termVel = SharedConst.terminalSafefallVelocity;
+        else
+            termVel = SharedConst.terminalVelocity;
 
-        Velocity = args.velocity;
+        if (startVelocity > termVel)
+            startVelocity = termVel;
 
-        // Check if its a stop spline
-        if (args.flags.HasFlag(SplineFlag.Done))
-        {
-            lock (Spline)
-            {
-                Spline.Clear();
-            }
+        var terminalTime = (float)((isSafeFall ? SharedConst.terminal_safeFall_fallTime : SharedConst.terminal_fallTime) - startVelocity / SharedConst.gravity); // the time that needed to reach terminalVelocity
 
-            return;
-        }
+        if (tPassed > terminalTime)
+            result = termVel * (tPassed - terminalTime) +
+                     startVelocity * terminalTime +
+                     (float)SharedConst.gravity * terminalTime * terminalTime * 0.5f;
+        else
+            result = tPassed * (float)(startVelocity + tPassed * SharedConst.gravity * 0.5f);
 
-
-        lock (Spline)
-        {
-            InitSpline(args);
-        }
-
-        // init parabolic / animation
-        // spline initialized, duration known and i able to compute parabolic acceleration
-        if (args.flags.HasFlag(SplineFlag.Parabolic | SplineFlag.Animation | SplineFlag.FadeObject))
-        {
-            EffectStartTime = (int)(Duration() * args.time_perc);
-
-            if (args.flags.HasFlag(SplineFlag.Parabolic) && EffectStartTime < Duration())
-            {
-                if (args.parabolic_amplitude != 0.0f)
-                {
-                    var fDuration = MSToSec((uint)(Duration() - EffectStartTime));
-                    VerticalAcceleration = args.parabolic_amplitude * 8.0f / (fDuration * fDuration);
-                }
-                else if (args.vertical_acceleration != 0.0f)
-                {
-                    VerticalAcceleration = args.vertical_acceleration;
-                }
-            }
-        }
+        return result;
     }
 
-    public int CurrentPathIdx()
+    public void ComputeFallElevation(int timePoint, ref float el)
     {
         lock (Spline)
         {
-            var point = PointIdxOffset + PointIdx - Spline.First() + (Finalized() ? 1 : 0);
-
-            if (IsCyclic())
-                point %= (Spline.Last() - Spline.First());
-
-            return point;
+            var zNow = Spline.GetPoint(Spline.First()).Z - ComputeFallElevation(MSToSec((uint)timePoint), false);
+            var finalZ = FinalDestination().Z;
+            el = Math.Max(zNow, finalZ);
         }
     }
 
-    public Vector3[] GetPath()
+    public void ComputeParabolicElevation(int timePoint, ref float el)
     {
-        lock (Spline)
+        if (timePoint > EffectStartTime)
         {
-            return Spline.GetPoints();
+            var tPassedf = MSToSec((uint)(timePoint - EffectStartTime));
+            var tDurationf = MSToSec((uint)(Duration() - EffectStartTime)); //client use not modified duration here
+
+            if (SpellEffectExtra != null && SpellEffectExtra.ParabolicCurveId != 0)
+                tPassedf *= _db2Manager.GetCurveValueAt(SpellEffectExtra.ParabolicCurveId, (float)timePoint / Duration());
+
+            el += (tDurationf - tPassedf) * 0.5f * VerticalAcceleration * tPassedf;
         }
-    }
-
-    public int Duration()
-    {
-        lock (Spline)
-        {
-            return Spline.Length();
-        }
-    }
-
-    public int CurrentSplineIdx()
-    {
-        return PointIdx;
-    }
-
-    public uint GetId()
-    {
-        return MId;
-    }
-
-    public bool Finalized()
-    {
-        return Splineflags.HasFlag(SplineFlag.Done);
     }
 
     public Vector4 ComputePosition(int timePoint, int pointIndex)
@@ -227,53 +179,69 @@ public class MoveSpline
         }
     }
 
-    public void ComputeParabolicElevation(int timePoint, ref float el)
-    {
-        if (timePoint > EffectStartTime)
-        {
-            var tPassedf = MSToSec((uint)(timePoint - EffectStartTime));
-            var tDurationf = MSToSec((uint)(Duration() - EffectStartTime)); //client use not modified duration here
-
-            if (SpellEffectExtra != null && SpellEffectExtra.ParabolicCurveId != 0)
-                tPassedf *= _db2Manager.GetCurveValueAt(SpellEffectExtra.ParabolicCurveId, (float)timePoint / Duration());
-
-            el += (tDurationf - tPassedf) * 0.5f * VerticalAcceleration * tPassedf;
-        }
-    }
-
-    public void ComputeFallElevation(int timePoint, ref float el)
+    public Vector3 CurrentDestination()
     {
         lock (Spline)
         {
-            var zNow = Spline.GetPoint(Spline.First()).Z - ComputeFallElevation(MSToSec((uint)timePoint), false);
-            var finalZ = FinalDestination().Z;
-            el = Math.Max(zNow, finalZ);
+            return Initialized() ? Spline.GetPoint(PointIdx + 1) : Vector3.Zero;
         }
     }
 
-    public static float ComputeFallElevation(float tPassed, bool isSafeFall, float startVelocity = 0.0f)
+    public int CurrentPathIdx()
     {
-        float termVel;
-        float result;
+        lock (Spline)
+        {
+            var point = PointIdxOffset + PointIdx - Spline.First() + (Finalized() ? 1 : 0);
 
-        if (isSafeFall)
-            termVel = SharedConst.terminalSafefallVelocity;
-        else
-            termVel = SharedConst.terminalVelocity;
+            if (IsCyclic())
+                point %= (Spline.Last() - Spline.First());
 
-        if (startVelocity > termVel)
-            startVelocity = termVel;
+            return point;
+        }
+    }
 
-        var terminalTime = (float)((isSafeFall ? SharedConst.terminal_safeFall_fallTime : SharedConst.terminal_fallTime) - startVelocity / SharedConst.gravity); // the time that needed to reach terminalVelocity
+    public int CurrentSplineIdx()
+    {
+        return PointIdx;
+    }
 
-        if (tPassed > terminalTime)
-            result = termVel * (tPassed - terminalTime) +
-                     startVelocity * terminalTime +
-                     (float)SharedConst.gravity * terminalTime * terminalTime * 0.5f;
-        else
-            result = tPassed * (float)(startVelocity + tPassed * SharedConst.gravity * 0.5f);
+    public int Duration()
+    {
+        lock (Spline)
+        {
+            return Spline.Length();
+        }
+    }
 
-        return result;
+    public Vector3 FinalDestination()
+    {
+        lock (Spline)
+        {
+            return Initialized() ? Spline.GetPoint(Spline.Last()) : Vector3.Zero;
+        }
+    }
+
+    public bool Finalized()
+    {
+        return Splineflags.HasFlag(SplineFlag.Done);
+    }
+
+    public AnimTier? GetAnimation()
+    {
+        return AnimTier != null ? (AnimTier)AnimTier.AnimTier : null;
+    }
+
+    public uint GetId()
+    {
+        return MId;
+    }
+
+    public Vector3[] GetPath()
+    {
+        lock (Spline)
+        {
+            return Spline.GetPoints();
+        }
     }
 
     public bool HasStarted()
@@ -281,17 +249,71 @@ public class MoveSpline
         return TimePassed > 0;
     }
 
+    public void Initialize(MoveSplineInitArgs args)
+    {
+        Splineflags = args.flags;
+        Facing = args.facing;
+        MId = args.splineId;
+        PointIdxOffset = args.path_Idx_offset;
+        InitialOrientation = args.initialOrientation;
+
+        TimePassed = 0;
+        VerticalAcceleration = 0.0f;
+        EffectStartTime = 0;
+        SpellEffectExtra = args.spellEffectExtra;
+        AnimTier = args.animTier;
+        SplineIsFacingOnly = args.path.Count == 2 && args.facing.type != MonsterMoveType.Normal && ((args.path[1] - args.path[0]).Length() < 0.1f);
+
+        Velocity = args.velocity;
+
+        // Check if its a stop spline
+        if (args.flags.HasFlag(SplineFlag.Done))
+        {
+            lock (Spline)
+            {
+                Spline.Clear();
+            }
+
+            return;
+        }
+
+
+        lock (Spline)
+        {
+            InitSpline(args);
+        }
+
+        // init parabolic / animation
+        // spline initialized, duration known and i able to compute parabolic acceleration
+        if (args.flags.HasFlag(SplineFlag.Parabolic | SplineFlag.Animation | SplineFlag.FadeObject))
+        {
+            EffectStartTime = (int)(Duration() * args.time_perc);
+
+            if (args.flags.HasFlag(SplineFlag.Parabolic) && EffectStartTime < Duration())
+            {
+                if (args.parabolic_amplitude != 0.0f)
+                {
+                    var fDuration = MSToSec((uint)(Duration() - EffectStartTime));
+                    VerticalAcceleration = args.parabolic_amplitude * 8.0f / (fDuration * fDuration);
+                }
+                else if (args.vertical_acceleration != 0.0f)
+                {
+                    VerticalAcceleration = args.vertical_acceleration;
+                }
+            }
+        }
+    }
+    public bool Initialized()
+    {
+        lock (Spline)
+        {
+            return !Spline.Empty();
+        }
+    }
+
     public void Interrupt()
     {
         Splineflags.SetUnsetFlag(SplineFlag.Done);
-    }
-
-    public void UpdateState(int difftime)
-    {
-        do
-        {
-            UpdateState(ref difftime);
-        } while (difftime > 0);
     }
 
     public bool IsCyclic()
@@ -304,33 +326,18 @@ public class MoveSpline
         return Splineflags.HasFlag(SplineFlag.Falling);
     }
 
-    public bool Initialized()
+    public void UpdateState(int difftime)
     {
-        lock (Spline)
+        do
         {
-            return !Spline.Empty();
-        }
+            UpdateState(ref difftime);
+        } while (difftime > 0);
     }
-
-    public Vector3 FinalDestination()
+    private void _Finalize()
     {
-        lock (Spline)
-        {
-            return Initialized() ? Spline.GetPoint(Spline.Last()) : Vector3.Zero;
-        }
-    }
-
-    public Vector3 CurrentDestination()
-    {
-        lock (Spline)
-        {
-            return Initialized() ? Spline.GetPoint(PointIdx + 1) : Vector3.Zero;
-        }
-    }
-
-    public AnimTier? GetAnimation()
-    {
-        return AnimTier != null ? (AnimTier)AnimTier.AnimTier : null;
+        Splineflags.SetUnsetFlag(SplineFlag.Done);
+        PointIdx = Spline.Last() - 1;
+        TimePassed = Duration();
     }
 
     private void InitSpline(MoveSplineInitArgs args)
@@ -375,17 +382,19 @@ public class MoveSpline
 
         PointIdx = Spline.First();
     }
-
-    private void _Finalize()
-    {
-        Splineflags.SetUnsetFlag(SplineFlag.Done);
-        PointIdx = Spline.Last() - 1;
-        TimePassed = Duration();
-    }
-
     private float MSToSec(uint ms)
     {
         return ms / 1000.0f;
+    }
+
+    private int NextTimestamp()
+    {
+        return Spline.Length(PointIdx + 1);
+    }
+
+    private int SegmentTimeElapsed()
+    {
+        return NextTimestamp() - TimePassed;
     }
 
     private UpdateResult UpdateState(ref int msTimeDiff)
@@ -468,22 +477,10 @@ public class MoveSpline
             return result;
         }
     }
-
-    private int NextTimestamp()
-    {
-        return Spline.Length(PointIdx + 1);
-    }
-
-    private int SegmentTimeElapsed()
-    {
-        return NextTimestamp() - TimePassed;
-    }
-
     public class CommonInitializer : IInitializer<int>
     {
-        public float VelocityInv;
         public int Time;
-
+        public float VelocityInv;
         public CommonInitializer(float velocity)
         {
             VelocityInv = 1000f / velocity;
@@ -538,16 +535,10 @@ public class MoveSpline
         }
     }
 }
-
-public interface IInitializer<T>
-{
-    int Invoke(Spline<T> s, int i);
-}
-
 public class SplineChainLink
 {
-    public List<Vector3> Points = new();
     public uint ExpectedDuration;
+    public List<Vector3> Points = new();
     public uint TimeToNext;
     public float Velocity;
 
@@ -569,11 +560,11 @@ public class SplineChainLink
 
 public class SplineChainResumeInfo
 {
-    public uint PointID;
     public List<SplineChainLink> Chain = new();
     public bool IsWalkMode;
-    public byte SplineIndex;
+    public uint PointID;
     public byte PointIndex;
+    public byte SplineIndex;
     public uint TimeToNext;
     public SplineChainResumeInfo() { }
 
@@ -587,13 +578,13 @@ public class SplineChainResumeInfo
         TimeToNext = msToNext;
     }
 
-    public bool Empty()
-    {
-        return Chain.Empty();
-    }
-
     public void Clear()
     {
         Chain.Clear();
+    }
+
+    public bool Empty()
+    {
+        return Chain.Empty();
     }
 }

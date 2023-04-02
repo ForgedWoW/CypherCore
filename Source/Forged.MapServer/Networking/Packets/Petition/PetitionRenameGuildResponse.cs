@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionRenameGuildResponse : ServerPacket
 {
-    public ObjectGuid PetitionGuid;
     public string NewGuildName;
+    public ObjectGuid PetitionGuid;
     public PetitionRenameGuildResponse() : base(ServerOpcodes.PetitionRenameGuildResponse) { }
 
     public override void Write()

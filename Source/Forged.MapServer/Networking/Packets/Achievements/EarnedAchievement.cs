@@ -7,6 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public struct EarnedAchievement
 {
+    public long Date;
+
+    public uint Id;
+
+    public uint NativeRealmAddress;
+
+    public ObjectGuid Owner;
+
+    public uint VirtualRealmAddress;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Id);
@@ -15,10 +25,4 @@ public struct EarnedAchievement
         data.WriteUInt32(VirtualRealmAddress);
         data.WriteUInt32(NativeRealmAddress);
     }
-
-    public uint Id;
-    public long Date;
-    public ObjectGuid Owner;
-    public uint VirtualRealmAddress;
-    public uint NativeRealmAddress;
 }

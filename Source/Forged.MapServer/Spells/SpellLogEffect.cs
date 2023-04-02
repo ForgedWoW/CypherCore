@@ -8,12 +8,12 @@ namespace Forged.MapServer.Spells;
 
 public class SpellLogEffect
 {
+    public List<SpellLogEffectDurabilityDamageParams> DurabilityDamageTargets = new();
     public int Effect;
 
-    public List<SpellLogEffectPowerDrainParams> PowerDrainTargets = new();
     public List<SpellLogEffectExtraAttacksParams> ExtraAttacksTargets = new();
-    public List<SpellLogEffectDurabilityDamageParams> DurabilityDamageTargets = new();
-    public List<SpellLogEffectGenericVictimParams> GenericVictimTargets = new();
-    public List<SpellLogEffectTradeSkillItemParams> TradeSkillTargets = new();
     public List<SpellLogEffectFeedPetParams> FeedPetTargets = new();
+    public List<SpellLogEffectGenericVictimParams> GenericVictimTargets = new();
+    public List<SpellLogEffectPowerDrainParams> PowerDrainTargets = new();
+    public List<SpellLogEffectTradeSkillItemParams> TradeSkillTargets = new();
 }

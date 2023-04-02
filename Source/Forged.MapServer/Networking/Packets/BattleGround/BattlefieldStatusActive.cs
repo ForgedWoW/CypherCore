@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusActive : ServerPacket
 {
-    public BattlefieldStatusHeader Hdr = new();
-    public uint ShutdownTimer;
     public byte ArenaFaction;
+    public BattlefieldStatusHeader Hdr = new();
     public bool LeftEarly;
-    public uint StartTimer;
     public uint Mapid;
+    public uint ShutdownTimer;
+    public uint StartTimer;
     public BattlefieldStatusActive() : base(ServerOpcodes.BattlefieldStatusActive) { }
 
     public override void Write()

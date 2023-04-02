@@ -5,12 +5,11 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class CharacterLoadoutRecord
 {
-    public uint Id;
-    public long RaceMask;
     public sbyte ChrClassID;
-    public int Purpose;
+    public uint Id;
     public sbyte ItemContext;
-
+    public int Purpose;
+    public long RaceMask;
     public bool IsForNewCharacter()
     {
         return Purpose == 9;

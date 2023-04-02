@@ -60,64 +60,6 @@ internal class BNetAccountCommands
         return true;
     }
 
-    [Command("gameaccountcreate", RBACPermissions.CommandBnetAccountCreateGame, true)]
-    private static bool HandleGameAccountCreateCommand(CommandHandler handler, string bnetAccountName)
-    {
-        var accountId = Global.BNetAccountMgr.GetId(bnetAccountName);
-
-        if (accountId == 0)
-        {
-            handler.SendSysMessage(CypherStrings.AccountNotExist, bnetAccountName);
-
-            return false;
-        }
-
-        var index = (byte)(Global.BNetAccountMgr.GetMaxIndex(accountId) + 1);
-        var accountName = accountId.ToString() + '#' + index;
-
-        // Generate random hex string for password, these accounts must not be logged on with GRUNT
-        var randPassword = Array.Empty<byte>().GenerateRandomKey(8);
-
-        switch (Global.AccountMgr.CreateAccount(accountName, randPassword.ToHexString(), bnetAccountName, accountId, index))
-        {
-            case AccountOpResult.Ok:
-                handler.SendSysMessage(CypherStrings.AccountCreated, accountName);
-
-                if (handler.Session != null)
-                    Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] ({3}) created Account {4} (Email: '{5}')",
-                                           handler.Session.AccountId,
-                                           handler.Session.RemoteAddress,
-                                           handler.Session.Player.GetName(),
-                                           handler.Session.Player.GUID.ToString(),
-                                           accountName,
-                                           bnetAccountName);
-
-                break;
-            case AccountOpResult.NameTooLong:
-                handler.SendSysMessage(CypherStrings.AccountNameTooLong);
-
-                return false;
-            case AccountOpResult.PassTooLong:
-                handler.SendSysMessage(CypherStrings.AccountPassTooLong);
-
-                return false;
-            case AccountOpResult.NameAlreadyExist:
-                handler.SendSysMessage(CypherStrings.AccountAlreadyExist);
-
-                return false;
-            case AccountOpResult.DBInternalError:
-                handler.SendSysMessage(CypherStrings.AccountNotCreatedSqlError, accountName);
-
-                return false;
-            default:
-                handler.SendSysMessage(CypherStrings.AccountNotCreated, accountName);
-
-                return false;
-        }
-
-        return true;
-    }
-
     [Command("link", RBACPermissions.CommandBnetAccountLink, true)]
     private static bool HandleAccountLinkCommand(CommandHandler handler, string bnetAccountName, string gameAccountName)
     {
@@ -137,45 +79,6 @@ internal class BNetAccountCommands
                 break;
             default:
                 break;
-        }
-
-        return true;
-    }
-
-    [Command("listgameaccounts", RBACPermissions.CommandBnetAccountListGameAccounts, true)]
-    private static bool HandleListGameAccountsCommand(CommandHandler handler, string battlenetAccountName)
-    {
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
-        stmt.AddValue(0, battlenetAccountName);
-
-        var accountList = DB.Login.Query(stmt);
-
-        if (!accountList.IsEmpty())
-        {
-            var formatDisplayName = new Func<string, string>(name =>
-            {
-                var index = name.IndexOf('#');
-
-                if (index > 0)
-                    return "WoW" + name[++index..];
-                else
-                    return name;
-            });
-
-            handler.SendSysMessage("----------------------------------------------------");
-            handler.SendSysMessage(CypherStrings.AccountBnetListHeader);
-            handler.SendSysMessage("----------------------------------------------------");
-
-            do
-            {
-                handler.SendSysMessage("| {0,10} | {1,16} | {2,16} |", accountList.Read<uint>(0), accountList.Read<string>(1), formatDisplayName(accountList.Read<string>(1)));
-            } while (accountList.NextRow());
-
-            handler.SendSysMessage("----------------------------------------------------");
-        }
-        else
-        {
-            handler.SendSysMessage(CypherStrings.AccountBnetListNoAccounts, battlenetAccountName);
         }
 
         return true;
@@ -258,6 +161,101 @@ internal class BNetAccountCommands
         return true;
     }
 
+    [Command("gameaccountcreate", RBACPermissions.CommandBnetAccountCreateGame, true)]
+    private static bool HandleGameAccountCreateCommand(CommandHandler handler, string bnetAccountName)
+    {
+        var accountId = Global.BNetAccountMgr.GetId(bnetAccountName);
+
+        if (accountId == 0)
+        {
+            handler.SendSysMessage(CypherStrings.AccountNotExist, bnetAccountName);
+
+            return false;
+        }
+
+        var index = (byte)(Global.BNetAccountMgr.GetMaxIndex(accountId) + 1);
+        var accountName = accountId.ToString() + '#' + index;
+
+        // Generate random hex string for password, these accounts must not be logged on with GRUNT
+        var randPassword = Array.Empty<byte>().GenerateRandomKey(8);
+
+        switch (Global.AccountMgr.CreateAccount(accountName, randPassword.ToHexString(), bnetAccountName, accountId, index))
+        {
+            case AccountOpResult.Ok:
+                handler.SendSysMessage(CypherStrings.AccountCreated, accountName);
+
+                if (handler.Session != null)
+                    Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] ({3}) created Account {4} (Email: '{5}')",
+                                           handler.Session.AccountId,
+                                           handler.Session.RemoteAddress,
+                                           handler.Session.Player.GetName(),
+                                           handler.Session.Player.GUID.ToString(),
+                                           accountName,
+                                           bnetAccountName);
+
+                break;
+            case AccountOpResult.NameTooLong:
+                handler.SendSysMessage(CypherStrings.AccountNameTooLong);
+
+                return false;
+            case AccountOpResult.PassTooLong:
+                handler.SendSysMessage(CypherStrings.AccountPassTooLong);
+
+                return false;
+            case AccountOpResult.NameAlreadyExist:
+                handler.SendSysMessage(CypherStrings.AccountAlreadyExist);
+
+                return false;
+            case AccountOpResult.DBInternalError:
+                handler.SendSysMessage(CypherStrings.AccountNotCreatedSqlError, accountName);
+
+                return false;
+            default:
+                handler.SendSysMessage(CypherStrings.AccountNotCreated, accountName);
+
+                return false;
+        }
+
+        return true;
+    }
+    [Command("listgameaccounts", RBACPermissions.CommandBnetAccountListGameAccounts, true)]
+    private static bool HandleListGameAccountsCommand(CommandHandler handler, string battlenetAccountName)
+    {
+        var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
+        stmt.AddValue(0, battlenetAccountName);
+
+        var accountList = DB.Login.Query(stmt);
+
+        if (!accountList.IsEmpty())
+        {
+            var formatDisplayName = new Func<string, string>(name =>
+            {
+                var index = name.IndexOf('#');
+
+                if (index > 0)
+                    return "WoW" + name[++index..];
+                else
+                    return name;
+            });
+
+            handler.SendSysMessage("----------------------------------------------------");
+            handler.SendSysMessage(CypherStrings.AccountBnetListHeader);
+            handler.SendSysMessage("----------------------------------------------------");
+
+            do
+            {
+                handler.SendSysMessage("| {0,10} | {1,16} | {2,16} |", accountList.Read<uint>(0), accountList.Read<string>(1), formatDisplayName(accountList.Read<string>(1)));
+            } while (accountList.NextRow());
+
+            handler.SendSysMessage("----------------------------------------------------");
+        }
+        else
+        {
+            handler.SendSysMessage(CypherStrings.AccountBnetListNoAccounts, battlenetAccountName);
+        }
+
+        return true;
+    }
     [CommandGroup("lock")]
     private class AccountLockCommands
     {

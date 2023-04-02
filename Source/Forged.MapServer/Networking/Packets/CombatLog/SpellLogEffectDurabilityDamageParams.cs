@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public struct SpellLogEffectDurabilityDamageParams
 {
-    public ObjectGuid Victim;
-    public int ItemID;
     public int Amount;
+    public int ItemID;
+    public ObjectGuid Victim;
 }

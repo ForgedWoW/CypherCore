@@ -24,23 +24,10 @@ namespace Forged.MapServer.BattlePets;
 public class BattlePetMgr
 {
     private readonly CliDB _cliDB;
-    private readonly WorldManager _worldManager;
     private readonly LoginDatabase _loginDatabase;
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<ulong, BattlePet> _pets = new();
-
-    public bool IsJournalLockAcquired => _worldManager.IsBattlePetJournalLockAcquired(Owner.BattlenetAccountGUID);
-
-    public WorldSession Owner { get; }
-
-    public ushort TrapLevel { get; }
-
-    public List<BattlePetSlot> Slots { get; } = new();
-
-    public bool HasJournalLock { get; private set; }
-
-    public bool IsBattlePetSystemEnabled => GetSlot(BattlePetSlots.Slot0).Locked != true;
-
+    private readonly WorldManager _worldManager;
     public BattlePetMgr(WorldSession owner, CliDB cliDB, WorldManager worldManager, LoginDatabase loginDatabase, GameObjectManager objectManager)
     {
         Owner = owner;
@@ -60,222 +47,14 @@ public class BattlePetMgr
         }
     }
 
+    public bool HasJournalLock { get; private set; }
+    public bool IsBattlePetSystemEnabled => GetSlot(BattlePetSlots.Slot0).Locked != true;
+    public bool IsJournalLockAcquired => _worldManager.IsBattlePetJournalLockAcquired(Owner.BattlenetAccountGUID);
 
-    public void LoadFromDB(SQLResult petsResult, SQLResult slotsResult)
-    {
-        if (!petsResult.IsEmpty())
-            do
-            {
-                var species = petsResult.Read<uint>(1);
-                var ownerGuid = !petsResult.IsNull(11) ? ObjectGuid.Create(HighGuid.Player, petsResult.Read<ulong>(11)) : ObjectGuid.Empty;
+    public WorldSession Owner { get; }
 
-                var speciesEntry = _cliDB.BattlePetSpeciesStorage.LookupByKey(species);
-
-                if (speciesEntry != null)
-                {
-                    if (speciesEntry.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
-                    {
-                        if (ownerGuid.IsEmpty)
-                        {
-                            Log.Logger.Error($"Battlenet account with id {Owner.BattlenetAccountId} has battle pet of species {species} with BattlePetSpeciesFlags::NotAccountWide but no owner");
-
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (!ownerGuid.IsEmpty)
-                        {
-                            Log.Logger.Error($"Battlenet account with id {Owner.BattlenetAccountId} has battle pet of species {species} without BattlePetSpeciesFlags::NotAccountWide but with owner");
-
-                            continue;
-                        }
-                    }
-
-                    if (HasMaxPetCount(speciesEntry, ownerGuid))
-                    {
-                        if (ownerGuid.IsEmpty)
-                            Log.Logger.Error($"Battlenet account with id {Owner.BattlenetAccountId} has more than maximum battle pets of species {species}");
-                        else
-                            Log.Logger.Error($"Battlenet account with id {Owner.BattlenetAccountId} has more than maximum battle pets of species {species} for player {ownerGuid}");
-
-                        continue;
-                    }
-
-                    BattlePet pet = new();
-                    pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, petsResult.Read<ulong>(0));
-                    pet.PacketInfo.Species = species;
-                    pet.PacketInfo.Breed = petsResult.Read<ushort>(2);
-                    pet.PacketInfo.DisplayID = petsResult.Read<uint>(3);
-                    pet.PacketInfo.Level = petsResult.Read<ushort>(4);
-                    pet.PacketInfo.Exp = petsResult.Read<ushort>(5);
-                    pet.PacketInfo.Health = petsResult.Read<uint>(6);
-                    pet.PacketInfo.Quality = petsResult.Read<byte>(7);
-                    pet.PacketInfo.Flags = petsResult.Read<ushort>(8);
-                    pet.PacketInfo.Name = petsResult.Read<string>(9);
-                    pet.NameTimestamp = petsResult.Read<long>(10);
-                    pet.PacketInfo.CreatureID = speciesEntry.CreatureID;
-
-                    if (!petsResult.IsNull(12))
-                    {
-                        pet.DeclinedName = new DeclinedName();
-
-                        for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                            pet.DeclinedName.Name[i] = petsResult.Read<string>(12 + i);
-                    }
-
-                    if (!ownerGuid.IsEmpty)
-                    {
-                        BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
-                        {
-                            Guid = ownerGuid,
-                            PlayerVirtualRealm = _worldManager.Realm.Id.GetAddress(),
-                            PlayerNativeRealm = _worldManager.Realm.Id.GetAddress()
-                        };
-
-                        pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
-                    }
-
-                    pet.SaveInfo = BattlePetSaveInfo.Unchanged;
-                    pet.CalculateStats();
-                    _pets[pet.PacketInfo.Guid.Counter] = pet;
-                }
-            } while (petsResult.NextRow());
-
-        if (!slotsResult.IsEmpty())
-        {
-            byte i = 0; // slots.GetRowCount() should equal MAX_BATTLE_PET_SLOTS
-
-            do
-            {
-                Slots[i].Index = slotsResult.Read<byte>(0);
-                var battlePet = _pets.LookupByKey(slotsResult.Read<ulong>(1));
-
-                if (battlePet != null)
-                    Slots[i].Pet = battlePet.PacketInfo;
-
-                Slots[i].Locked = slotsResult.Read<bool>(2);
-                i++;
-            } while (slotsResult.NextRow());
-        }
-    }
-
-    public void SaveToDB(SQLTransaction trans)
-    {
-        PreparedStatement stmt;
-
-        foreach (var pair in _pets)
-            if (pair.Value != null)
-                switch (pair.Value.SaveInfo)
-                {
-                    case BattlePetSaveInfo.New:
-                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
-                        stmt.AddValue(0, pair.Key);
-                        stmt.AddValue(1, Owner.BattlenetAccountId);
-                        stmt.AddValue(2, pair.Value.PacketInfo.Species);
-                        stmt.AddValue(3, pair.Value.PacketInfo.Breed);
-                        stmt.AddValue(4, pair.Value.PacketInfo.DisplayID);
-                        stmt.AddValue(5, pair.Value.PacketInfo.Level);
-                        stmt.AddValue(6, pair.Value.PacketInfo.Exp);
-                        stmt.AddValue(7, pair.Value.PacketInfo.Health);
-                        stmt.AddValue(8, pair.Value.PacketInfo.Quality);
-                        stmt.AddValue(9, pair.Value.PacketInfo.Flags);
-                        stmt.AddValue(10, pair.Value.PacketInfo.Name);
-                        stmt.AddValue(11, pair.Value.NameTimestamp);
-
-                        if (pair.Value.PacketInfo.OwnerInfo.HasValue)
-                        {
-                            stmt.AddValue(12, pair.Value.PacketInfo.OwnerInfo.Value.Guid.Counter);
-                            stmt.AddValue(13, _worldManager.Realm.Id.Index);
-                        }
-                        else
-                        {
-                            stmt.AddNull(12);
-                            stmt.AddNull(13);
-                        }
-
-                        trans.Append(stmt);
-
-                        if (pair.Value.DeclinedName != null)
-                        {
-                            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
-                            stmt.AddValue(0, pair.Key);
-
-                            for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                                stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
-
-                            trans.Append(stmt);
-                        }
-
-
-                        pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
-
-                        break;
-                    case BattlePetSaveInfo.Changed:
-                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
-                        stmt.AddValue(0, pair.Value.PacketInfo.Level);
-                        stmt.AddValue(1, pair.Value.PacketInfo.Exp);
-                        stmt.AddValue(2, pair.Value.PacketInfo.Health);
-                        stmt.AddValue(3, pair.Value.PacketInfo.Quality);
-                        stmt.AddValue(4, pair.Value.PacketInfo.Flags);
-                        stmt.AddValue(5, pair.Value.PacketInfo.Name);
-                        stmt.AddValue(6, pair.Value.NameTimestamp);
-                        stmt.AddValue(7, Owner.BattlenetAccountId);
-                        stmt.AddValue(8, pair.Key);
-                        trans.Append(stmt);
-
-                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
-                        stmt.AddValue(0, pair.Key);
-                        trans.Append(stmt);
-
-                        if (pair.Value.DeclinedName != null)
-                        {
-                            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
-                            stmt.AddValue(0, pair.Key);
-
-                            for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                                stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
-
-                            trans.Append(stmt);
-                        }
-
-                        pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
-
-                        break;
-                    case BattlePetSaveInfo.Removed:
-                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
-                        stmt.AddValue(0, pair.Key);
-                        trans.Append(stmt);
-
-                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
-                        stmt.AddValue(0, Owner.BattlenetAccountId);
-                        stmt.AddValue(1, pair.Key);
-                        trans.Append(stmt);
-                        _pets.Remove(pair.Key);
-
-                        break;
-                }
-
-        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_SLOTS);
-        stmt.AddValue(0, Owner.BattlenetAccountId);
-        trans.Append(stmt);
-
-        foreach (var slot in Slots)
-        {
-            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_SLOTS);
-            stmt.AddValue(0, slot.Index);
-            stmt.AddValue(1, Owner.BattlenetAccountId);
-            stmt.AddValue(2, slot.Pet.Guid.Counter);
-            stmt.AddValue(3, slot.Locked);
-            trans.Append(stmt);
-        }
-    }
-
-    public BattlePet GetPet(ObjectGuid guid)
-    {
-        return _pets.LookupByKey(guid.Counter);
-    }
-
+    public List<BattlePetSlot> Slots { get; } = new();
+    public ushort TrapLevel { get; }
     public void AddPet(uint species, uint display, ushort breed, BattlePetBreedQuality quality, ushort level = 1)
     {
         var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(species);
@@ -324,128 +103,6 @@ public class BattlePetMgr
 
         player.UpdateCriteria(CriteriaType.UniquePetsOwned);
         player.UpdateCriteria(CriteriaType.LearnedNewPet, species);
-    }
-
-    public void RemovePet(ObjectGuid guid)
-    {
-        if (!HasJournalLock)
-            return;
-
-        var pet = GetPet(guid);
-
-        if (pet == null)
-            return;
-
-        pet.SaveInfo = BattlePetSaveInfo.Removed;
-    }
-
-    public void ClearFanfare(ObjectGuid guid)
-    {
-        var pet = GetPet(guid);
-
-        if (pet == null)
-            return;
-
-        pet.PacketInfo.Flags &= (ushort)~BattlePetDbFlags.FanfareNeeded;
-
-        if (pet.SaveInfo != BattlePetSaveInfo.New)
-            pet.SaveInfo = BattlePetSaveInfo.Changed;
-    }
-
-    public void ModifyName(ObjectGuid guid, string name, DeclinedName declinedName)
-    {
-        if (!HasJournalLock)
-            return;
-
-        var pet = GetPet(guid);
-
-        if (pet == null)
-            return;
-
-        pet.PacketInfo.Name = name;
-        pet.NameTimestamp = GameTime.GetGameTime();
-
-        pet.DeclinedName = new DeclinedName();
-
-        if (declinedName != null)
-            pet.DeclinedName = declinedName;
-
-        if (pet.SaveInfo != BattlePetSaveInfo.New)
-            pet.SaveInfo = BattlePetSaveInfo.Changed;
-
-        // Update the timestamp if the battle pet is summoned
-        var summonedBattlePet = Owner.Player.GetSummonedBattlePet();
-
-        if (summonedBattlePet != null)
-            if (summonedBattlePet.BattlePetCompanionGUID == guid)
-                summonedBattlePet.BattlePetCompanionNameTimestamp = (uint)pet.NameTimestamp;
-    }
-
-    public byte GetPetCount(BattlePetSpeciesRecord battlePetSpecies, ObjectGuid ownerGuid)
-    {
-        return (byte)_pets.Values.Count(battlePet =>
-        {
-            if (battlePet == null || battlePet.PacketInfo.Species != battlePetSpecies.Id)
-                return false;
-
-            if (battlePet.SaveInfo == BattlePetSaveInfo.Removed)
-                return false;
-
-            if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
-                if (!ownerGuid.IsEmpty && battlePet.PacketInfo.OwnerInfo.HasValue)
-                    if (battlePet.PacketInfo.OwnerInfo.Value.Guid != ownerGuid)
-                        return false;
-
-            return true;
-        });
-    }
-
-    public bool HasMaxPetCount(BattlePetSpeciesRecord battlePetSpecies, ObjectGuid ownerGuid)
-    {
-        var maxPetsPerSpecies = battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.LegacyAccountUnique) ? 1 : SharedConst.DefaultMaxBattlePetsPerSpecies;
-
-        return GetPetCount(battlePetSpecies, ownerGuid) >= maxPetsPerSpecies;
-    }
-
-    public uint GetPetUniqueSpeciesCount()
-    {
-        HashSet<uint> speciesIds = new();
-
-        foreach (var pair in _pets)
-            if (pair.Value != null)
-                speciesIds.Add(pair.Value.PacketInfo.Species);
-
-        return (uint)speciesIds.Count;
-    }
-
-    public void UnlockSlot(BattlePetSlots slot)
-    {
-        if (slot >= BattlePetSlots.Count)
-            return;
-
-        var slotIndex = (byte)slot;
-
-        if (!Slots[slotIndex].Locked)
-            return;
-
-        Slots[slotIndex].Locked = false;
-
-        PetBattleSlotUpdates updates = new();
-        updates.Slots.Add(Slots[slotIndex]);
-        updates.AutoSlotted = false; // what's this?
-        updates.NewSlot = true;      // causes the "new slot unlocked" bubble to appear
-        Owner.SendPacket(updates);
-    }
-
-    public ushort GetMaxPetLevel()
-    {
-        ushort level = 0;
-
-        foreach (var pet in _pets)
-            if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
-                level = Math.Max(level, pet.Value.PacketInfo.Level);
-
-        return level;
     }
 
     public void CageBattlePet(ObjectGuid guid)
@@ -545,6 +202,82 @@ public class BattlePetMgr
 
         // UF::PlayerData::CurrentBattlePetBreedQuality isn't updated (Intended)
         // _owner.GetPlayer().SetCurrentBattlePetBreedQuality(qualityValue);
+    }
+
+    public void ClearFanfare(ObjectGuid guid)
+    {
+        var pet = GetPet(guid);
+
+        if (pet == null)
+            return;
+
+        pet.PacketInfo.Flags &= (ushort)~BattlePetDbFlags.FanfareNeeded;
+
+        if (pet.SaveInfo != BattlePetSaveInfo.New)
+            pet.SaveInfo = BattlePetSaveInfo.Changed;
+    }
+
+    public void DismissPet()
+    {
+        var player = Owner.Player;
+        var summonedBattlePet = player.GetSummonedBattlePet();
+
+        if (summonedBattlePet != null)
+        {
+            summonedBattlePet.DespawnOrUnsummon();
+            player.SetBattlePetData();
+        }
+    }
+
+    public ushort GetMaxPetLevel()
+    {
+        ushort level = 0;
+
+        foreach (var pet in _pets)
+            if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
+                level = Math.Max(level, pet.Value.PacketInfo.Level);
+
+        return level;
+    }
+
+    public BattlePet GetPet(ObjectGuid guid)
+    {
+        return _pets.LookupByKey(guid.Counter);
+    }
+
+    public byte GetPetCount(BattlePetSpeciesRecord battlePetSpecies, ObjectGuid ownerGuid)
+    {
+        return (byte)_pets.Values.Count(battlePet =>
+        {
+            if (battlePet == null || battlePet.PacketInfo.Species != battlePetSpecies.Id)
+                return false;
+
+            if (battlePet.SaveInfo == BattlePetSaveInfo.Removed)
+                return false;
+
+            if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
+                if (!ownerGuid.IsEmpty && battlePet.PacketInfo.OwnerInfo.HasValue)
+                    if (battlePet.PacketInfo.OwnerInfo.Value.Guid != ownerGuid)
+                        return false;
+
+            return true;
+        });
+    }
+
+    public uint GetPetUniqueSpeciesCount()
+    {
+        HashSet<uint> speciesIds = new();
+
+        foreach (var pair in _pets)
+            if (pair.Value != null)
+                speciesIds.Add(pair.Value.PacketInfo.Species);
+
+        return (uint)speciesIds.Count;
+    }
+
+    public BattlePetSlot GetSlot(BattlePetSlots slot)
+    {
+        return slot < BattlePetSlots.Count ? Slots[(byte)slot] : null;
     }
 
     public void GrantBattlePetExperience(ObjectGuid guid, ushort xp, BattlePetXpSource xpSource)
@@ -659,6 +392,13 @@ public class BattlePetMgr
         SendUpdates(updates, false);
     }
 
+    public bool HasMaxPetCount(BattlePetSpeciesRecord battlePetSpecies, ObjectGuid ownerGuid)
+    {
+        var maxPetsPerSpecies = battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.LegacyAccountUnique) ? 1 : SharedConst.DefaultMaxBattlePetsPerSpecies;
+
+        return GetPetCount(battlePetSpecies, ownerGuid) >= maxPetsPerSpecies;
+    }
+
     public void HealBattlePetsPct(byte pct)
     {
         // TODO: After each Pet Battle, any injured companion will automatically
@@ -681,24 +421,297 @@ public class BattlePetMgr
         SendUpdates(updates, false);
     }
 
-    public void UpdateBattlePetData(ObjectGuid guid)
+    public void LoadFromDB(SQLResult petsResult, SQLResult slotsResult)
     {
+        if (!petsResult.IsEmpty())
+            do
+            {
+                var species = petsResult.Read<uint>(1);
+                var ownerGuid = !petsResult.IsNull(11) ? ObjectGuid.Create(HighGuid.Player, petsResult.Read<ulong>(11)) : ObjectGuid.Empty;
+
+                var speciesEntry = _cliDB.BattlePetSpeciesStorage.LookupByKey(species);
+
+                if (speciesEntry != null)
+                {
+                    if (speciesEntry.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
+                    {
+                        if (ownerGuid.IsEmpty)
+                        {
+                            Log.Logger.Error($"Battlenet account with id {Owner.BattlenetAccountId} has battle pet of species {species} with BattlePetSpeciesFlags::NotAccountWide but no owner");
+
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (!ownerGuid.IsEmpty)
+                        {
+                            Log.Logger.Error($"Battlenet account with id {Owner.BattlenetAccountId} has battle pet of species {species} without BattlePetSpeciesFlags::NotAccountWide but with owner");
+
+                            continue;
+                        }
+                    }
+
+                    if (HasMaxPetCount(speciesEntry, ownerGuid))
+                    {
+                        if (ownerGuid.IsEmpty)
+                            Log.Logger.Error($"Battlenet account with id {Owner.BattlenetAccountId} has more than maximum battle pets of species {species}");
+                        else
+                            Log.Logger.Error($"Battlenet account with id {Owner.BattlenetAccountId} has more than maximum battle pets of species {species} for player {ownerGuid}");
+
+                        continue;
+                    }
+
+                    BattlePet pet = new();
+                    pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, petsResult.Read<ulong>(0));
+                    pet.PacketInfo.Species = species;
+                    pet.PacketInfo.Breed = petsResult.Read<ushort>(2);
+                    pet.PacketInfo.DisplayID = petsResult.Read<uint>(3);
+                    pet.PacketInfo.Level = petsResult.Read<ushort>(4);
+                    pet.PacketInfo.Exp = petsResult.Read<ushort>(5);
+                    pet.PacketInfo.Health = petsResult.Read<uint>(6);
+                    pet.PacketInfo.Quality = petsResult.Read<byte>(7);
+                    pet.PacketInfo.Flags = petsResult.Read<ushort>(8);
+                    pet.PacketInfo.Name = petsResult.Read<string>(9);
+                    pet.NameTimestamp = petsResult.Read<long>(10);
+                    pet.PacketInfo.CreatureID = speciesEntry.CreatureID;
+
+                    if (!petsResult.IsNull(12))
+                    {
+                        pet.DeclinedName = new DeclinedName();
+
+                        for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
+                            pet.DeclinedName.Name[i] = petsResult.Read<string>(12 + i);
+                    }
+
+                    if (!ownerGuid.IsEmpty)
+                    {
+                        BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
+                        {
+                            Guid = ownerGuid,
+                            PlayerVirtualRealm = _worldManager.Realm.Id.GetAddress(),
+                            PlayerNativeRealm = _worldManager.Realm.Id.GetAddress()
+                        };
+
+                        pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
+                    }
+
+                    pet.SaveInfo = BattlePetSaveInfo.Unchanged;
+                    pet.CalculateStats();
+                    _pets[pet.PacketInfo.Guid.Counter] = pet;
+                }
+            } while (petsResult.NextRow());
+
+        if (!slotsResult.IsEmpty())
+        {
+            byte i = 0; // slots.GetRowCount() should equal MAX_BATTLE_PET_SLOTS
+
+            do
+            {
+                Slots[i].Index = slotsResult.Read<byte>(0);
+                var battlePet = _pets.LookupByKey(slotsResult.Read<ulong>(1));
+
+                if (battlePet != null)
+                    Slots[i].Pet = battlePet.PacketInfo;
+
+                Slots[i].Locked = slotsResult.Read<bool>(2);
+                i++;
+            } while (slotsResult.NextRow());
+        }
+    }
+
+    public void ModifyName(ObjectGuid guid, string name, DeclinedName declinedName)
+    {
+        if (!HasJournalLock)
+            return;
+
         var pet = GetPet(guid);
 
         if (pet == null)
             return;
 
-        var player = Owner.Player;
+        pet.PacketInfo.Name = name;
+        pet.NameTimestamp = GameTime.CurrentTime;
 
-        // Update battle pet related update fields
-        var summonedBattlePet = player.GetSummonedBattlePet();
+        pet.DeclinedName = new DeclinedName();
+
+        if (declinedName != null)
+            pet.DeclinedName = declinedName;
+
+        if (pet.SaveInfo != BattlePetSaveInfo.New)
+            pet.SaveInfo = BattlePetSaveInfo.Changed;
+
+        // Update the timestamp if the battle pet is summoned
+        var summonedBattlePet = Owner.Player.GetSummonedBattlePet();
 
         if (summonedBattlePet != null)
             if (summonedBattlePet.BattlePetCompanionGUID == guid)
-            {
-                summonedBattlePet.WildBattlePetLevel = pet.PacketInfo.Level;
-                player.SetBattlePetData(pet);
-            }
+                summonedBattlePet.BattlePetCompanionNameTimestamp = (uint)pet.NameTimestamp;
+    }
+
+    public void RemovePet(ObjectGuid guid)
+    {
+        if (!HasJournalLock)
+            return;
+
+        var pet = GetPet(guid);
+
+        if (pet == null)
+            return;
+
+        pet.SaveInfo = BattlePetSaveInfo.Removed;
+    }
+
+    public void SaveToDB(SQLTransaction trans)
+    {
+        PreparedStatement stmt;
+
+        foreach (var pair in _pets)
+            if (pair.Value != null)
+                switch (pair.Value.SaveInfo)
+                {
+                    case BattlePetSaveInfo.New:
+                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
+                        stmt.AddValue(0, pair.Key);
+                        stmt.AddValue(1, Owner.BattlenetAccountId);
+                        stmt.AddValue(2, pair.Value.PacketInfo.Species);
+                        stmt.AddValue(3, pair.Value.PacketInfo.Breed);
+                        stmt.AddValue(4, pair.Value.PacketInfo.DisplayID);
+                        stmt.AddValue(5, pair.Value.PacketInfo.Level);
+                        stmt.AddValue(6, pair.Value.PacketInfo.Exp);
+                        stmt.AddValue(7, pair.Value.PacketInfo.Health);
+                        stmt.AddValue(8, pair.Value.PacketInfo.Quality);
+                        stmt.AddValue(9, pair.Value.PacketInfo.Flags);
+                        stmt.AddValue(10, pair.Value.PacketInfo.Name);
+                        stmt.AddValue(11, pair.Value.NameTimestamp);
+
+                        if (pair.Value.PacketInfo.OwnerInfo.HasValue)
+                        {
+                            stmt.AddValue(12, pair.Value.PacketInfo.OwnerInfo.Value.Guid.Counter);
+                            stmt.AddValue(13, _worldManager.Realm.Id.Index);
+                        }
+                        else
+                        {
+                            stmt.AddNull(12);
+                            stmt.AddNull(13);
+                        }
+
+                        trans.Append(stmt);
+
+                        if (pair.Value.DeclinedName != null)
+                        {
+                            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+                            stmt.AddValue(0, pair.Key);
+
+                            for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
+                                stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
+
+                            trans.Append(stmt);
+                        }
+
+
+                        pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
+
+                        break;
+                    case BattlePetSaveInfo.Changed:
+                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
+                        stmt.AddValue(0, pair.Value.PacketInfo.Level);
+                        stmt.AddValue(1, pair.Value.PacketInfo.Exp);
+                        stmt.AddValue(2, pair.Value.PacketInfo.Health);
+                        stmt.AddValue(3, pair.Value.PacketInfo.Quality);
+                        stmt.AddValue(4, pair.Value.PacketInfo.Flags);
+                        stmt.AddValue(5, pair.Value.PacketInfo.Name);
+                        stmt.AddValue(6, pair.Value.NameTimestamp);
+                        stmt.AddValue(7, Owner.BattlenetAccountId);
+                        stmt.AddValue(8, pair.Key);
+                        trans.Append(stmt);
+
+                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
+                        stmt.AddValue(0, pair.Key);
+                        trans.Append(stmt);
+
+                        if (pair.Value.DeclinedName != null)
+                        {
+                            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+                            stmt.AddValue(0, pair.Key);
+
+                            for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
+                                stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
+
+                            trans.Append(stmt);
+                        }
+
+                        pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
+
+                        break;
+                    case BattlePetSaveInfo.Removed:
+                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
+                        stmt.AddValue(0, pair.Key);
+                        trans.Append(stmt);
+
+                        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
+                        stmt.AddValue(0, Owner.BattlenetAccountId);
+                        stmt.AddValue(1, pair.Key);
+                        trans.Append(stmt);
+                        _pets.Remove(pair.Key);
+
+                        break;
+                }
+
+        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_SLOTS);
+        stmt.AddValue(0, Owner.BattlenetAccountId);
+        trans.Append(stmt);
+
+        foreach (var slot in Slots)
+        {
+            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_SLOTS);
+            stmt.AddValue(0, slot.Index);
+            stmt.AddValue(1, Owner.BattlenetAccountId);
+            stmt.AddValue(2, slot.Pet.Guid.Counter);
+            stmt.AddValue(3, slot.Locked);
+            trans.Append(stmt);
+        }
+    }
+    public void SendError(BattlePetError error, uint creatureId)
+    {
+        BattlePetErrorPacket battlePetError = new()
+        {
+            Result = error,
+            CreatureID = creatureId
+        };
+
+        Owner.SendPacket(battlePetError);
+    }
+
+    public void SendJournal()
+    {
+        if (!HasJournalLock)
+            SendJournalLockStatus();
+
+        BattlePetJournal battlePetJournal = new()
+        {
+            Trap = TrapLevel,
+            HasJournalLock = HasJournalLock
+        };
+
+        foreach (var pet in _pets)
+            if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
+                if (!pet.Value.PacketInfo.OwnerInfo.HasValue || pet.Value.PacketInfo.OwnerInfo.Value.Guid == Owner.Player.GUID)
+                    battlePetJournal.Pets.Add(pet.Value.PacketInfo);
+
+        battlePetJournal.Slots = Slots;
+        Owner.SendPacket(battlePetJournal);
+    }
+
+    public void SendJournalLockStatus()
+    {
+        if (!IsJournalLockAcquired)
+            ToggleJournalLock(true);
+
+        if (HasJournalLock)
+            Owner.SendPacket(new BattlePetJournalLockAcquired());
+        else
+            Owner.SendPacket(new BattlePetJournalLockDenied());
     }
 
     public void SummonPet(ObjectGuid guid)
@@ -728,71 +741,48 @@ public class BattlePetMgr
         player.SpellFactory.CastSpell(Owner.Player, summonSpellId, args);
     }
 
-    public void DismissPet()
-    {
-        var player = Owner.Player;
-        var summonedBattlePet = player.GetSummonedBattlePet();
-
-        if (summonedBattlePet != null)
-        {
-            summonedBattlePet.DespawnOrUnsummon();
-            player.SetBattlePetData();
-        }
-    }
-
-    public void SendJournal()
-    {
-        if (!HasJournalLock)
-            SendJournalLockStatus();
-
-        BattlePetJournal battlePetJournal = new()
-        {
-            Trap = TrapLevel,
-            HasJournalLock = HasJournalLock
-        };
-
-        foreach (var pet in _pets)
-            if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
-                if (!pet.Value.PacketInfo.OwnerInfo.HasValue || pet.Value.PacketInfo.OwnerInfo.Value.Guid == Owner.Player.GUID)
-                    battlePetJournal.Pets.Add(pet.Value.PacketInfo);
-
-        battlePetJournal.Slots = Slots;
-        Owner.SendPacket(battlePetJournal);
-    }
-
-    public void SendError(BattlePetError error, uint creatureId)
-    {
-        BattlePetErrorPacket battlePetError = new()
-        {
-            Result = error,
-            CreatureID = creatureId
-        };
-
-        Owner.SendPacket(battlePetError);
-    }
-
-    public void SendJournalLockStatus()
-    {
-        if (!IsJournalLockAcquired)
-            ToggleJournalLock(true);
-
-        if (HasJournalLock)
-            Owner.SendPacket(new BattlePetJournalLockAcquired());
-        else
-            Owner.SendPacket(new BattlePetJournalLockDenied());
-    }
-
-    public BattlePetSlot GetSlot(BattlePetSlots slot)
-    {
-        return slot < BattlePetSlots.Count ? Slots[(byte)slot] : null;
-    }
-
     public void ToggleJournalLock(bool on)
     {
         HasJournalLock = on;
     }
 
+    public void UnlockSlot(BattlePetSlots slot)
+    {
+        if (slot >= BattlePetSlots.Count)
+            return;
 
+        var slotIndex = (byte)slot;
+
+        if (!Slots[slotIndex].Locked)
+            return;
+
+        Slots[slotIndex].Locked = false;
+
+        PetBattleSlotUpdates updates = new();
+        updates.Slots.Add(Slots[slotIndex]);
+        updates.AutoSlotted = false; // what's this?
+        updates.NewSlot = true;      // causes the "new slot unlocked" bubble to appear
+        Owner.SendPacket(updates);
+    }
+    public void UpdateBattlePetData(ObjectGuid guid)
+    {
+        var pet = GetPet(guid);
+
+        if (pet == null)
+            return;
+
+        var player = Owner.Player;
+
+        // Update battle pet related update fields
+        var summonedBattlePet = player.GetSummonedBattlePet();
+
+        if (summonedBattlePet != null)
+            if (summonedBattlePet.BattlePetCompanionGUID == guid)
+            {
+                summonedBattlePet.WildBattlePetLevel = pet.PacketInfo.Level;
+                player.SetBattlePetData(pet);
+            }
+    }
     private bool IsPetInSlot(ObjectGuid guid)
     {
         foreach (var slot in Slots)

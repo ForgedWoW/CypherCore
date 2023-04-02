@@ -11,23 +11,22 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureGroup
 {
+    private readonly FormationMgr _formationMgr;
     private readonly Dictionary<Creature, FormationInfo> _members = new();
     private bool _engaging;
 
 
-    public Creature Leader { get; private set; }
-
-    public ulong LeaderSpawnId { get; }
-
-    public bool IsEmpty => _members.Empty();
-
-    public bool IsFormed { get; }
-
-    public CreatureGroup(ulong leaderSpawnId)
+    public CreatureGroup(ulong leaderSpawnId, FormationMgr formationMgr)
     {
+        _formationMgr = formationMgr;
         LeaderSpawnId = leaderSpawnId;
     }
 
+    public bool IsEmpty => _members.Empty();
+    public bool IsFormed { get; set; }
+    public Creature Leader { get; private set; }
+
+    public ulong LeaderSpawnId { get; }
     public void AddMember(Creature member)
     {
         Log.Logger.Debug("CreatureGroup.AddMember: Adding {0}.", member.GUID.ToString());
@@ -40,18 +39,58 @@ public class CreatureGroup
         }
 
         // formation must be registered at this point
-        var formationInfo = FormationMgr.GetFormationInfo(member.SpawnId);
+        var formationInfo = _formationMgr.GetFormationInfo(member.SpawnId);
         _members.Add(member, formationInfo);
         member.Formation = this;
     }
 
-    public void RemoveMember(Creature member)
+    public bool CanLeaderStartMoving()
     {
-        if (Leader == member)
-            Leader = null;
+        foreach (var pair in _members)
+            if (pair.Key != Leader && pair.Key.IsAlive)
+                if (pair.Key.IsEngaged || pair.Key.IsReturningHome)
+                    return false;
 
-        _members.Remove(member);
-        member.Formation = null;
+        return true;
+    }
+
+    public void FormationReset(bool dismiss)
+    {
+        foreach (var creature in _members.Keys)
+            if (creature != Leader && creature.IsAlive)
+                creature.MotionMaster.MoveIdle();
+
+        //_formed = !dismiss;
+    }
+
+    public bool HasMember(Creature member)
+    {
+        return _members.ContainsKey(member);
+    }
+
+    public bool IsLeader(Creature creature)
+    {
+        return Leader == creature;
+    }
+
+    public void LeaderStartedMoving()
+    {
+        if (Leader == null)
+            return;
+
+        foreach (var pair in _members)
+        {
+            var member = pair.Key;
+
+            if (member == Leader || !member.IsAlive || member.IsEngaged || !pair.Value.GroupAi.HasAnyFlag((uint)GroupAIFlags.IdleInFormation))
+                continue;
+
+            var angle = pair.Value.FollowAngle + MathF.PI; // for some reason, someone thought it was a great idea to invert relativ angles...
+            var dist = pair.Value.FollowDist;
+
+            if (!member.HasUnitState(UnitState.FollowFormation))
+                member.MotionMaster.MoveFormation(Leader, dist, angle, pair.Value.LeaderWaypointIDs[0], pair.Value.LeaderWaypointIDs[1]);
+        }
     }
 
     public void MemberEngagingTarget(Creature member, Unit target)
@@ -60,7 +99,7 @@ public class CreatureGroup
         if (_engaging)
             return;
 
-        var groupAI = (GroupAIFlags)FormationMgr.GetFormationInfo(member.SpawnId).GroupAi;
+        var groupAI = (GroupAIFlags)_formationMgr.GetFormationInfo(member.SpawnId).GroupAi;
 
         if (groupAI == 0)
             return;
@@ -95,52 +134,12 @@ public class CreatureGroup
         _engaging = false;
     }
 
-    public void FormationReset(bool dismiss)
+    public void RemoveMember(Creature member)
     {
-        foreach (var creature in _members.Keys)
-            if (creature != Leader && creature.IsAlive)
-                creature.MotionMaster.MoveIdle();
+        if (Leader == member)
+            Leader = null;
 
-        //_formed = !dismiss;
-    }
-
-    public void LeaderStartedMoving()
-    {
-        if (Leader == null)
-            return;
-
-        foreach (var pair in _members)
-        {
-            var member = pair.Key;
-
-            if (member == Leader || !member.IsAlive || member.IsEngaged || !pair.Value.GroupAi.HasAnyFlag((uint)GroupAIFlags.IdleInFormation))
-                continue;
-
-            var angle = pair.Value.FollowAngle + MathF.PI; // for some reason, someone thought it was a great idea to invert relativ angles...
-            var dist = pair.Value.FollowDist;
-
-            if (!member.HasUnitState(UnitState.FollowFormation))
-                member.MotionMaster.MoveFormation(Leader, dist, angle, pair.Value.LeaderWaypointIDs[0], pair.Value.LeaderWaypointIDs[1]);
-        }
-    }
-
-    public bool CanLeaderStartMoving()
-    {
-        foreach (var pair in _members)
-            if (pair.Key != Leader && pair.Key.IsAlive)
-                if (pair.Key.IsEngaged || pair.Key.IsReturningHome)
-                    return false;
-
-        return true;
-    }
-
-    public bool IsLeader(Creature creature)
-    {
-        return Leader == creature;
-    }
-
-    public bool HasMember(Creature member)
-    {
-        return _members.ContainsKey(member);
+        _members.Remove(member);
+        member.Formation = null;
     }
 }

@@ -12,12 +12,13 @@ namespace Forged.MapServer.Pools;
 public class QuestPoolManager
 {
     private readonly CharacterDatabase _characterDatabase;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _objectManager;
     private readonly List<QuestPool> _dailyPools = new();
-    private readonly List<QuestPool> _weeklyPools = new();
     private readonly List<QuestPool> _monthlyPools = new();
-    private readonly Dictionary<uint, QuestPool> _poolLookup = new(); // questId -> pool
+    private readonly GameObjectManager _objectManager;
+    private readonly Dictionary<uint, QuestPool> _poolLookup = new();
+    private readonly List<QuestPool> _weeklyPools = new();
+    private readonly WorldDatabase _worldDatabase;
+    // questId -> pool
 
     public QuestPoolManager(CharacterDatabase characterDatabase, WorldDatabase worldDatabase, GameObjectManager objectManager)
     {
@@ -43,19 +44,60 @@ public class QuestPoolManager
         }
     }
 
-    public void SaveToDB(QuestPool pool, SQLTransaction trans)
+    public void ChangeDailyQuests()
     {
-        var delStmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
-        delStmt.AddValue(0, pool.PoolId);
-        trans.Append(delStmt);
+        Regenerate(_dailyPools);
+    }
 
-        foreach (var questId in pool.ActiveQuests)
+    public void ChangeMonthlyQuests()
+    {
+        Regenerate(_monthlyPools);
+    }
+
+    public void ChangeWeeklyQuests()
+    {
+        Regenerate(_weeklyPools);
+    }
+
+    // the storage structure ends up making this kind of inefficient
+    // we don't use it in practice (only in debug commands), so that's fine
+    public QuestPool FindQuestPool(uint poolId)
+    {
+        bool Lambda(QuestPool p)
         {
-            var insStmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_POOL_QUEST_SAVE);
-            insStmt.AddValue(0, pool.PoolId);
-            insStmt.AddValue(1, questId);
-            trans.Append(insStmt);
+            return p.PoolId == poolId;
         }
+
+        ;
+
+        var questPool = _dailyPools.Find(Lambda);
+
+        if (questPool != null)
+            return questPool;
+
+        questPool = _weeklyPools.Find(Lambda);
+
+        if (questPool != null)
+            return questPool;
+
+        questPool = _monthlyPools.Find(Lambda);
+
+        return questPool;
+    }
+
+    public bool IsQuestActive(uint questId)
+    {
+        var it = _poolLookup.LookupByKey(questId);
+
+        if (it == null) // not pooled
+            return true;
+
+        return it.ActiveQuests.Contains(questId);
+    }
+
+    public bool IsQuestPooled(uint questId)
+    {
+        return _poolLookup.ContainsKey(questId);
     }
 
     public void LoadFromDB()
@@ -274,62 +316,20 @@ public class QuestPoolManager
         Log.Logger.Information($"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
-    // the storage structure ends up making this kind of inefficient
-    // we don't use it in practice (only in debug commands), so that's fine
-    public QuestPool FindQuestPool(uint poolId)
+    public void SaveToDB(QuestPool pool, SQLTransaction trans)
     {
-        bool Lambda(QuestPool p)
+        var delStmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
+        delStmt.AddValue(0, pool.PoolId);
+        trans.Append(delStmt);
+
+        foreach (var questId in pool.ActiveQuests)
         {
-            return p.PoolId == poolId;
+            var insStmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_POOL_QUEST_SAVE);
+            insStmt.AddValue(0, pool.PoolId);
+            insStmt.AddValue(1, questId);
+            trans.Append(insStmt);
         }
-
-        ;
-
-        var questPool = _dailyPools.Find(Lambda);
-
-        if (questPool != null)
-            return questPool;
-
-        questPool = _weeklyPools.Find(Lambda);
-
-        if (questPool != null)
-            return questPool;
-
-        questPool = _monthlyPools.Find(Lambda);
-
-        return questPool;
     }
-
-    public bool IsQuestActive(uint questId)
-    {
-        var it = _poolLookup.LookupByKey(questId);
-
-        if (it == null) // not pooled
-            return true;
-
-        return it.ActiveQuests.Contains(questId);
-    }
-
-    public void ChangeDailyQuests()
-    {
-        Regenerate(_dailyPools);
-    }
-
-    public void ChangeWeeklyQuests()
-    {
-        Regenerate(_weeklyPools);
-    }
-
-    public void ChangeMonthlyQuests()
-    {
-        Regenerate(_monthlyPools);
-    }
-
-    public bool IsQuestPooled(uint questId)
-    {
-        return _poolLookup.ContainsKey(questId);
-    }
-
     private void Regenerate(List<QuestPool> pools)
     {
         var trans = new SQLTransaction();

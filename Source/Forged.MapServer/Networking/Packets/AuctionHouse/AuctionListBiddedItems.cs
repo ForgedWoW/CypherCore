@@ -10,8 +10,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 internal class AuctionListBiddedItems : ClientPacket
 {
     public ObjectGuid Auctioneer;
-    public uint Offset;
     public List<uint> AuctionItemIDs = new();
+    public uint Offset;
     public Array<AuctionSortDef> Sorts = new(2);
     public AddOnInfo? TaintedBy;
 

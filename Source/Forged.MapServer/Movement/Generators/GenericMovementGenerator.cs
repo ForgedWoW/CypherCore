@@ -10,13 +10,12 @@ namespace Forged.MapServer.Movement.Generators;
 
 internal class GenericMovementGenerator : MovementGenerator
 {
-    private readonly Action<MoveSplineInit> _splineInit;
-    private readonly MovementGeneratorType _type;
-    private readonly uint _pointId;
-    private readonly TimeTracker _duration;
     private readonly uint _arrivalSpellId;
     private readonly ObjectGuid _arrivalSpellTargetGuid;
-
+    private readonly TimeTracker _duration;
+    private readonly uint _pointId;
+    private readonly Action<MoveSplineInit> _splineInit;
+    private readonly MovementGeneratorType _type;
     public GenericMovementGenerator(Action<MoveSplineInit> initializer, MovementGeneratorType type, uint id, uint arrivalSpellId = 0, ObjectGuid arrivalSpellTargetGuid = default)
     {
         _splineInit = initializer;
@@ -30,6 +29,24 @@ internal class GenericMovementGenerator : MovementGenerator
         Priority = MovementGeneratorPriority.Normal;
         Flags = MovementGeneratorFlags.InitializationPending;
         BaseUnitState = UnitState.Roaming;
+    }
+
+    public override void Deactivate(Unit owner)
+    {
+        AddFlag(MovementGeneratorFlags.Deactivated);
+    }
+
+    public override void Finalize(Unit owner, bool active, bool movementInform)
+    {
+        AddFlag(MovementGeneratorFlags.Finalized);
+
+        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
+            MovementInform(owner);
+    }
+
+    public override MovementGeneratorType GetMovementGeneratorType()
+    {
+        return _type;
     }
 
     public override void Initialize(Unit owner)
@@ -73,25 +90,6 @@ internal class GenericMovementGenerator : MovementGenerator
 
         return true;
     }
-
-    public override void Deactivate(Unit owner)
-    {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-    }
-
-    public override void Finalize(Unit owner, bool active, bool movementInform)
-    {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
-            MovementInform(owner);
-    }
-
-    public override MovementGeneratorType GetMovementGeneratorType()
-    {
-        return _type;
-    }
-
     private void MovementInform(Unit owner)
     {
         if (_arrivalSpellId != 0)

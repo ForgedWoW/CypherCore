@@ -10,15 +10,15 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class TradeUpdated : ServerPacket
 {
-    public ulong Gold;
-    public uint CurrentStateIndex;
-    public byte WhichPlayer;
     public uint ClientStateIndex;
-    public List<TradeItem> Items = new();
-    public int CurrencyType;
-    public uint Id;
-    public int ProposedEnchantment;
     public int CurrencyQuantity;
+    public int CurrencyType;
+    public uint CurrentStateIndex;
+    public ulong Gold;
+    public uint Id;
+    public List<TradeItem> Items = new();
+    public int ProposedEnchantment;
+    public byte WhichPlayer;
     public TradeUpdated() : base(ServerOpcodes.TradeUpdated, ConnectionType.Instance) { }
 
     public override void Write()
@@ -36,18 +36,38 @@ public class TradeUpdated : ServerPacket
         Items.ForEach(item => item.Write(_worldPacket));
     }
 
+    public class TradeItem
+    {
+        public ObjectGuid GiftCreator;
+        public ItemInstance Item = new();
+        public byte Slot;
+        public int StackCount;
+        public UnwrappedTradeItem Unwrapped;
+
+        public void Write(WorldPacket data)
+        {
+            data.WriteUInt8(Slot);
+            data.WriteInt32(StackCount);
+            data.WritePackedGuid(GiftCreator);
+            Item.Write(data);
+            data.WriteBit(Unwrapped != null);
+            data.FlushBits();
+
+            Unwrapped?.Write(data);
+        }
+    }
+
     public class UnwrappedTradeItem
     {
-        public ItemInstance Item;
-        public int EnchantID;
-        public int OnUseEnchantmentID;
-        public ObjectGuid Creator;
         public int Charges;
+        public ObjectGuid Creator;
+        public uint Durability;
+        public int EnchantID;
+        public List<ItemGemData> Gems = new();
+        public ItemInstance Item;
         public bool Lock;
         public uint MaxDurability;
-        public uint Durability;
-        public List<ItemGemData> Gems = new();
-
+        public int OnUseEnchantmentID;
         public void Write(WorldPacket data)
         {
             data.WriteInt32(EnchantID);
@@ -62,27 +82,6 @@ public class TradeUpdated : ServerPacket
 
             foreach (var gem in Gems)
                 gem.Write(data);
-        }
-    }
-
-    public class TradeItem
-    {
-        public byte Slot;
-        public ItemInstance Item = new();
-        public int StackCount;
-        public ObjectGuid GiftCreator;
-        public UnwrappedTradeItem Unwrapped;
-
-        public void Write(WorldPacket data)
-        {
-            data.WriteUInt8(Slot);
-            data.WriteInt32(StackCount);
-            data.WritePackedGuid(GiftCreator);
-            Item.Write(data);
-            data.WriteBit(Unwrapped != null);
-            data.FlushBits();
-
-            Unwrapped?.Write(data);
         }
     }
 }

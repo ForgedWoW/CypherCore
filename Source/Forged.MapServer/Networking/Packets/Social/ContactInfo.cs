@@ -10,17 +10,16 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class ContactInfo
 {
-    private readonly uint VirtualRealmAddr;
+    private readonly uint AreaID;
+    private readonly PlayerClass ClassID;
+    private readonly ObjectGuid Guid;
+    private readonly uint Level;
+    private readonly bool Mobile;
     private readonly uint NativeRealmAddr;
-    private readonly SocialFlag TypeFlags;
     private readonly string Notes;
     private readonly FriendStatus Status;
-    private readonly uint AreaID;
-    private readonly uint Level;
-    private readonly PlayerClass ClassID;
-    private readonly bool Mobile;
-
-    private readonly ObjectGuid Guid;
+    private readonly SocialFlag TypeFlags;
+    private readonly uint VirtualRealmAddr;
     private readonly ObjectGuid WowAccountGuid;
 
     public ContactInfo(ObjectGuid guid, FriendInfo friendInfo)

@@ -8,9 +8,9 @@ namespace Forged.MapServer.Globals;
 
 public class DungeonEncounter
 {
-    public DungeonEncounterRecord DBCEntry;
-    public EncounterCreditType CreditType;
     public uint CreditEntry;
+    public EncounterCreditType CreditType;
+    public DungeonEncounterRecord DBCEntry;
     public uint LastEncounterDungeon;
 
     public DungeonEncounter(DungeonEncounterRecord dbcEntry, EncounterCreditType creditType, uint creditEntry, uint lastEncounterDungeon)

@@ -38,7 +38,7 @@ public class ServerPetitionShowSignatures : ServerPacket
 
     public struct PetitionSignature
     {
-        public ObjectGuid Signer;
         public int Choice;
+        public ObjectGuid Signer;
     }
 }

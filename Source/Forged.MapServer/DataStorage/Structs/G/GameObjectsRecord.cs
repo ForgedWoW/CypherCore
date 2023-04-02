@@ -9,16 +9,16 @@ namespace Forged.MapServer.DataStorage.Structs.G;
 
 public sealed class GameObjectsRecord
 {
-    public LocalizedString Name;
-    public Vector3 Pos;
-    public float[] Rot = new float[4];
-    public uint Id;
-    public uint OwnerID;
     public uint DisplayID;
+    public uint Id;
+    public LocalizedString Name;
+    public uint OwnerID;
+    public int PhaseGroupID;
+    public int PhaseID;
+    public int PhaseUseFlags;
+    public Vector3 Pos;
+    public int[] PropValue = new int[8];
+    public float[] Rot = new float[4];
     public float Scale;
     public GameObjectTypes TypeID;
-    public int PhaseUseFlags;
-    public int PhaseID;
-    public int PhaseGroupID;
-    public int[] PropValue = new int[8];
 }

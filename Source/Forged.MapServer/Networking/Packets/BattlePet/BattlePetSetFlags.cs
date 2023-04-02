@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetSetFlags : ClientPacket
 {
-    public ObjectGuid PetGuid;
-    public uint Flags;
     public FlagsControlType ControlType;
+    public uint Flags;
+    public ObjectGuid PetGuid;
     public BattlePetSetFlags(WorldPacket packet) : base(packet) { }
 
     public override void Read()

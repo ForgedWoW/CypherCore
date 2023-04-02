@@ -7,14 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class DistributionAssignToTarget : ClientPacket
 {
-    public ObjectGuid TargetCharacter { get; set; } = new();
+    public DistributionAssignToTarget(WorldPacket packet) : base(packet) { }
+
+    public ushort ChoiceID { get; set; } = 0;
     public ulong DistributionID { get; set; } = 0;
     public uint ProductID { get; set; } = 0;
     public ushort SpecializationID { get; set; } = 0;
-    public ushort ChoiceID { get; set; } = 0;
-
-    public DistributionAssignToTarget(WorldPacket packet) : base(packet) { }
-
+    public ObjectGuid TargetCharacter { get; set; } = new();
     public override void Read()
     {
         ProductID = _worldPacket.ReadUInt32();

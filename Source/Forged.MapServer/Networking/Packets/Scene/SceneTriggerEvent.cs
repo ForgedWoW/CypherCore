@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Scene;
 
 internal class SceneTriggerEvent : ClientPacket
 {
-    public uint SceneInstanceID;
     public string _Event;
+    public uint SceneInstanceID;
     public SceneTriggerEvent(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -24,89 +24,6 @@ namespace Forged.MapServer.Handlers;
 
 public class NPCHandler : IWorldSessionHandler
 {
-    public void SendTabardVendorActivate(ObjectGuid guid)
-    {
-        NPCInteractionOpenResult npcInteraction = new();
-        npcInteraction.Npc = guid;
-        npcInteraction.InteractionType = PlayerInteractionType.TabardVendor;
-        npcInteraction.Success = true;
-        SendPacket(npcInteraction);
-    }
-
-    public void SendTrainerList(Creature npc, uint trainerId)
-    {
-        // remove fake death
-        if (Player.HasUnitState(UnitState.Died))
-            Player.RemoveAurasByType(AuraType.FeignDeath);
-
-        var trainer = Global.ObjectMgr.GetTrainer(trainerId);
-
-        if (trainer == null)
-        {
-            Log.Logger.Debug($"WORLD: SendTrainerList - trainer spells not found for trainer {npc.GUID} id {trainerId}");
-
-            return;
-        }
-
-        _player.PlayerTalkClass.GetInteractionData().Reset();
-        _player.PlayerTalkClass.GetInteractionData().SourceGuid = npc.GUID;
-        _player.PlayerTalkClass.GetInteractionData().TrainerId = trainerId;
-        trainer.SendSpells(npc, _player, SessionDbLocaleIndex);
-    }
-
-    public void SendStablePet(ObjectGuid guid)
-    {
-        PetStableList packet = new();
-        packet.StableMaster = guid;
-
-        var petStable = Player.PetStable1;
-
-        if (petStable == null)
-        {
-            SendPacket(packet);
-
-            return;
-        }
-
-        for (uint petSlot = 0; petSlot < petStable.ActivePets.Length; ++petSlot)
-        {
-            if (petStable.ActivePets[petSlot] == null)
-                continue;
-
-            var pet = petStable.ActivePets[petSlot];
-            PetStableInfo stableEntry;
-            stableEntry.PetSlot = petSlot + (int)PetSaveMode.FirstActiveSlot;
-            stableEntry.PetNumber = pet.PetNumber;
-            stableEntry.CreatureID = pet.CreatureId;
-            stableEntry.DisplayID = pet.DisplayId;
-            stableEntry.ExperienceLevel = pet.Level;
-            stableEntry.PetFlags = PetStableinfo.Active;
-            stableEntry.PetName = pet.Name;
-
-            packet.Pets.Add(stableEntry);
-        }
-
-        for (uint petSlot = 0; petSlot < petStable.StabledPets.Length; ++petSlot)
-        {
-            if (petStable.StabledPets[petSlot] == null)
-                continue;
-
-            var pet = petStable.StabledPets[petSlot];
-            PetStableInfo stableEntry;
-            stableEntry.PetSlot = petSlot + (int)PetSaveMode.FirstStableSlot;
-            stableEntry.PetNumber = pet.PetNumber;
-            stableEntry.CreatureID = pet.CreatureId;
-            stableEntry.DisplayID = pet.DisplayId;
-            stableEntry.ExperienceLevel = pet.Level;
-            stableEntry.PetFlags = PetStableinfo.Inactive;
-            stableEntry.PetName = pet.Name;
-
-            packet.Pets.Add(stableEntry);
-        }
-
-        SendPacket(packet);
-    }
-
     public void SendListInventory(ObjectGuid vendorGuid)
     {
         var vendor = Player.GetNPCIfCanInteractWith(vendorGuid, NPCFlags.Vendor, NPCFlags2.None);
@@ -245,14 +162,99 @@ public class NPCHandler : IWorldSessionHandler
         SendPacket(packet);
     }
 
-    [WorldPacketHandler(ClientOpcodes.TabardVendorActivate, Processing = PacketProcessing.Inplace)]
-    private void HandleTabardVendorActivate(Hello packet)
+    public void SendStablePet(ObjectGuid guid)
     {
-        var unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.TabardDesigner, NPCFlags2.None);
+        PetStableList packet = new();
+        packet.StableMaster = guid;
+
+        var petStable = Player.PetStable1;
+
+        if (petStable == null)
+        {
+            SendPacket(packet);
+
+            return;
+        }
+
+        for (uint petSlot = 0; petSlot < petStable.ActivePets.Length; ++petSlot)
+        {
+            if (petStable.ActivePets[petSlot] == null)
+                continue;
+
+            var pet = petStable.ActivePets[petSlot];
+            PetStableInfo stableEntry;
+            stableEntry.PetSlot = petSlot + (int)PetSaveMode.FirstActiveSlot;
+            stableEntry.PetNumber = pet.PetNumber;
+            stableEntry.CreatureID = pet.CreatureId;
+            stableEntry.DisplayID = pet.DisplayId;
+            stableEntry.ExperienceLevel = pet.Level;
+            stableEntry.PetFlags = PetStableinfo.Active;
+            stableEntry.PetName = pet.Name;
+
+            packet.Pets.Add(stableEntry);
+        }
+
+        for (uint petSlot = 0; petSlot < petStable.StabledPets.Length; ++petSlot)
+        {
+            if (petStable.StabledPets[petSlot] == null)
+                continue;
+
+            var pet = petStable.StabledPets[petSlot];
+            PetStableInfo stableEntry;
+            stableEntry.PetSlot = petSlot + (int)PetSaveMode.FirstStableSlot;
+            stableEntry.PetNumber = pet.PetNumber;
+            stableEntry.CreatureID = pet.CreatureId;
+            stableEntry.DisplayID = pet.DisplayId;
+            stableEntry.ExperienceLevel = pet.Level;
+            stableEntry.PetFlags = PetStableinfo.Inactive;
+            stableEntry.PetName = pet.Name;
+
+            packet.Pets.Add(stableEntry);
+        }
+
+        SendPacket(packet);
+    }
+
+    public void SendTabardVendorActivate(ObjectGuid guid)
+    {
+        NPCInteractionOpenResult npcInteraction = new();
+        npcInteraction.Npc = guid;
+        npcInteraction.InteractionType = PlayerInteractionType.TabardVendor;
+        npcInteraction.Success = true;
+        SendPacket(npcInteraction);
+    }
+
+    public void SendTrainerList(Creature npc, uint trainerId)
+    {
+        // remove fake death
+        if (Player.HasUnitState(UnitState.Died))
+            Player.RemoveAurasByType(AuraType.FeignDeath);
+
+        var trainer = Global.ObjectMgr.GetTrainer(trainerId);
+
+        if (trainer == null)
+        {
+            Log.Logger.Debug($"WORLD: SendTrainerList - trainer spells not found for trainer {npc.GUID} id {trainerId}");
+
+            return;
+        }
+
+        _player.PlayerTalkClass.GetInteractionData().Reset();
+        _player.PlayerTalkClass.GetInteractionData().SourceGuid = npc.GUID;
+        _player.PlayerTalkClass.GetInteractionData().TrainerId = trainerId;
+        trainer.SendSpells(npc, _player, SessionDbLocaleIndex);
+    }
+    [WorldPacketHandler(ClientOpcodes.BinderActivate, Processing = PacketProcessing.Inplace)]
+    private void HandleBinderActivate(Hello packet)
+    {
+        if (!Player.Location.IsInWorld || !Player.IsAlive)
+            return;
+
+        var unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Innkeeper, NPCFlags2.None);
 
         if (!unit)
         {
-            Log.Logger.Debug("WORLD: HandleTabardVendorActivateOpcode - {0} not found or you can not interact with him.", packet.Unit.ToString());
+            Log.Logger.Debug("WORLD: HandleBinderActivate - {0} not found or you can not interact with him.", packet.Unit.ToString());
 
             return;
         }
@@ -261,67 +263,7 @@ public class NPCHandler : IWorldSessionHandler
         if (Player.HasUnitState(UnitState.Died))
             Player.RemoveAurasByType(AuraType.FeignDeath);
 
-        SendTabardVendorActivate(packet.Unit);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.TrainerList, Processing = PacketProcessing.Inplace)]
-    private void HandleTrainerList(Hello packet)
-    {
-        var npc = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Trainer, NPCFlags2.None);
-
-        if (!npc)
-        {
-            Log.Logger.Debug($"WorldSession.SendTrainerList - {packet.Unit} not found or you can not interact with him.");
-
-            return;
-        }
-
-        var trainerId = Global.ObjectMgr.GetCreatureDefaultTrainer(npc.Entry);
-
-        if (trainerId != 0)
-            SendTrainerList(npc, trainerId);
-        else
-            Log.Logger.Debug($"WorldSession.SendTrainerList - Creature id {npc.Entry} has no trainer data.");
-    }
-
-    [WorldPacketHandler(ClientOpcodes.TrainerBuySpell, Processing = PacketProcessing.Inplace)]
-    private void HandleTrainerBuySpell(TrainerBuySpell packet)
-    {
-        var npc = _player.GetNPCIfCanInteractWith(packet.TrainerGUID, NPCFlags.Trainer, NPCFlags2.None);
-
-        if (npc == null)
-        {
-            Log.Logger.Debug($"WORLD: HandleTrainerBuySpell - {packet.TrainerGUID} not found or you can not interact with him.");
-
-            return;
-        }
-
-        // remove fake death
-        if (_player.HasUnitState(UnitState.Died))
-            _player.RemoveAurasByType(AuraType.FeignDeath);
-
-        if (_player.PlayerTalkClass.GetInteractionData().SourceGuid != packet.TrainerGUID)
-            return;
-
-        if (_player.PlayerTalkClass.GetInteractionData().TrainerId != packet.TrainerID)
-            return;
-
-        // check present spell in trainer spell list
-        var trainer = Global.ObjectMgr.GetTrainer(packet.TrainerID);
-
-        if (trainer == null)
-            return;
-
-        trainer.TeachSpell(npc, _player, packet.SpellID);
-    }
-
-    private void SendTrainerBuyFailed(ObjectGuid trainerGUID, uint spellID, TrainerFailReason trainerFailedReason)
-    {
-        TrainerBuyFailed trainerBuyFailed = new();
-        trainerBuyFailed.TrainerGUID = trainerGUID;
-        trainerBuyFailed.SpellID = spellID;                         // should be same as in packet from client
-        trainerBuyFailed.TrainerFailedReason = trainerFailedReason; // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
-        SendPacket(trainerBuyFailed);
+        SendBindPoint(unit);
     }
 
     [WorldPacketHandler(ClientOpcodes.TalkToGossip, Processing = PacketProcessing.Inplace)]
@@ -466,14 +408,23 @@ public class NPCHandler : IWorldSessionHandler
         }
     }
 
-    [WorldPacketHandler(ClientOpcodes.SpiritHealerActivate)]
-    private void HandleSpiritHealerActivate(SpiritHealerActivate packet)
+    [WorldPacketHandler(ClientOpcodes.ListInventory, Processing = PacketProcessing.Inplace)]
+    private void HandleListInventory(Hello packet)
     {
-        var unit = Player.GetNPCIfCanInteractWith(packet.Healer, NPCFlags.SpiritHealer, NPCFlags2.None);
+        if (!Player.IsAlive)
+            return;
+
+        SendListInventory(packet.Unit);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.RepairItem, Processing = PacketProcessing.Inplace)]
+    private void HandleRepairItem(RepairItem packet)
+    {
+        var unit = Player.GetNPCIfCanInteractWith(packet.NpcGUID, NPCFlags.Repair, NPCFlags2.None);
 
         if (!unit)
         {
-            Log.Logger.Debug("WORLD: HandleSpiritHealerActivateOpcode - {0} not found or you can not interact with him.", packet.Healer.ToString());
+            Log.Logger.Debug("WORLD: HandleRepairItemOpcode - {0} not found or you can not interact with him.", packet.NpcGUID.ToString());
 
             return;
         }
@@ -482,69 +433,23 @@ public class NPCHandler : IWorldSessionHandler
         if (Player.HasUnitState(UnitState.Died))
             Player.RemoveAurasByType(AuraType.FeignDeath);
 
-        SendSpiritResurrect();
-    }
+        // reputation discount
+        var discountMod = Player.GetReputationPriceDiscount(unit);
 
-    private void SendSpiritResurrect()
-    {
-        Player.ResurrectPlayer(0.5f, true);
-
-        Player.DurabilityLossAll(0.25f, true);
-
-        // get corpse nearest graveyard
-        WorldSafeLocsEntry corpseGrave = null;
-        var corpseLocation = Player.CorpseLocation;
-
-        if (Player.HasCorpse)
-            corpseGrave = Global.ObjectMgr.GetClosestGraveYard(corpseLocation, Player.Team, Player);
-
-        // now can spawn bones
-        Player.SpawnCorpseBones();
-
-        // teleport to nearest from corpse graveyard, if different from nearest to player ghost
-        if (corpseGrave != null)
+        if (!packet.ItemGUID.IsEmpty)
         {
-            var ghostGrave = Global.ObjectMgr.GetClosestGraveYard(Player.Location, Player.Team, Player);
+            Log.Logger.Debug("ITEM: Repair {0}, at {1}", packet.ItemGUID.ToString(), packet.NpcGUID.ToString());
 
-            if (corpseGrave != ghostGrave)
-                Player.TeleportTo(corpseGrave.Loc);
+            var item = Player.GetItemByGuid(packet.ItemGUID);
+
+            if (item)
+                Player.DurabilityRepair(item.Pos, true, discountMod);
         }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.BinderActivate, Processing = PacketProcessing.Inplace)]
-    private void HandleBinderActivate(Hello packet)
-    {
-        if (!Player.Location.IsInWorld || !Player.IsAlive)
-            return;
-
-        var unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Innkeeper, NPCFlags2.None);
-
-        if (!unit)
+        else
         {
-            Log.Logger.Debug("WORLD: HandleBinderActivate - {0} not found or you can not interact with him.", packet.Unit.ToString());
-
-            return;
+            Log.Logger.Debug("ITEM: Repair all items at {0}", packet.NpcGUID.ToString());
+            Player.DurabilityRepairAll(true, discountMod, packet.UseGuildBank);
         }
-
-        // remove fake death
-        if (Player.HasUnitState(UnitState.Died))
-            Player.RemoveAurasByType(AuraType.FeignDeath);
-
-        SendBindPoint(unit);
-    }
-
-    private void SendBindPoint(Creature npc)
-    {
-        // prevent set homebind to instances in any case
-        if (Player.Location.Map.Instanceable)
-            return;
-
-        uint bindspell = 3286;
-
-        // send spell for homebinding (3286)
-        npc.CastSpell(Player, bindspell, true);
-
-        Player.PlayerTalkClass.SendCloseGossip();
     }
 
     [WorldPacketHandler(ClientOpcodes.RequestStabledPets, Processing = PacketProcessing.Inplace)]
@@ -562,13 +467,6 @@ public class NPCHandler : IWorldSessionHandler
             Player.RemoveAurasByType(AuraType.Mounted);
 
         SendStablePet(packet.StableMaster);
-    }
-
-    private void SendPetStableResult(StableResult result)
-    {
-        PetStableResult petStableResult = new();
-        petStableResult.Result = result;
-        SendPacket(petStableResult);
     }
 
     [WorldPacketHandler(ClientOpcodes.SetPetSlot)]
@@ -734,14 +632,14 @@ public class NPCHandler : IWorldSessionHandler
             });
     }
 
-    [WorldPacketHandler(ClientOpcodes.RepairItem, Processing = PacketProcessing.Inplace)]
-    private void HandleRepairItem(RepairItem packet)
+    [WorldPacketHandler(ClientOpcodes.SpiritHealerActivate)]
+    private void HandleSpiritHealerActivate(SpiritHealerActivate packet)
     {
-        var unit = Player.GetNPCIfCanInteractWith(packet.NpcGUID, NPCFlags.Repair, NPCFlags2.None);
+        var unit = Player.GetNPCIfCanInteractWith(packet.Healer, NPCFlags.SpiritHealer, NPCFlags2.None);
 
         if (!unit)
         {
-            Log.Logger.Debug("WORLD: HandleRepairItemOpcode - {0} not found or you can not interact with him.", packet.NpcGUID.ToString());
+            Log.Logger.Debug("WORLD: HandleSpiritHealerActivateOpcode - {0} not found or you can not interact with him.", packet.Healer.ToString());
 
             return;
         }
@@ -750,31 +648,131 @@ public class NPCHandler : IWorldSessionHandler
         if (Player.HasUnitState(UnitState.Died))
             Player.RemoveAurasByType(AuraType.FeignDeath);
 
-        // reputation discount
-        var discountMod = Player.GetReputationPriceDiscount(unit);
+        SendSpiritResurrect();
+    }
 
-        if (!packet.ItemGUID.IsEmpty)
+    [WorldPacketHandler(ClientOpcodes.TabardVendorActivate, Processing = PacketProcessing.Inplace)]
+    private void HandleTabardVendorActivate(Hello packet)
+    {
+        var unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.TabardDesigner, NPCFlags2.None);
+
+        if (!unit)
         {
-            Log.Logger.Debug("ITEM: Repair {0}, at {1}", packet.ItemGUID.ToString(), packet.NpcGUID.ToString());
+            Log.Logger.Debug("WORLD: HandleTabardVendorActivateOpcode - {0} not found or you can not interact with him.", packet.Unit.ToString());
 
-            var item = Player.GetItemByGuid(packet.ItemGUID);
-
-            if (item)
-                Player.DurabilityRepair(item.Pos, true, discountMod);
+            return;
         }
-        else
+
+        // remove fake death
+        if (Player.HasUnitState(UnitState.Died))
+            Player.RemoveAurasByType(AuraType.FeignDeath);
+
+        SendTabardVendorActivate(packet.Unit);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.TrainerBuySpell, Processing = PacketProcessing.Inplace)]
+    private void HandleTrainerBuySpell(TrainerBuySpell packet)
+    {
+        var npc = _player.GetNPCIfCanInteractWith(packet.TrainerGUID, NPCFlags.Trainer, NPCFlags2.None);
+
+        if (npc == null)
         {
-            Log.Logger.Debug("ITEM: Repair all items at {0}", packet.NpcGUID.ToString());
-            Player.DurabilityRepairAll(true, discountMod, packet.UseGuildBank);
+            Log.Logger.Debug($"WORLD: HandleTrainerBuySpell - {packet.TrainerGUID} not found or you can not interact with him.");
+
+            return;
+        }
+
+        // remove fake death
+        if (_player.HasUnitState(UnitState.Died))
+            _player.RemoveAurasByType(AuraType.FeignDeath);
+
+        if (_player.PlayerTalkClass.GetInteractionData().SourceGuid != packet.TrainerGUID)
+            return;
+
+        if (_player.PlayerTalkClass.GetInteractionData().TrainerId != packet.TrainerID)
+            return;
+
+        // check present spell in trainer spell list
+        var trainer = Global.ObjectMgr.GetTrainer(packet.TrainerID);
+
+        if (trainer == null)
+            return;
+
+        trainer.TeachSpell(npc, _player, packet.SpellID);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.TrainerList, Processing = PacketProcessing.Inplace)]
+    private void HandleTrainerList(Hello packet)
+    {
+        var npc = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Trainer, NPCFlags2.None);
+
+        if (!npc)
+        {
+            Log.Logger.Debug($"WorldSession.SendTrainerList - {packet.Unit} not found or you can not interact with him.");
+
+            return;
+        }
+
+        var trainerId = Global.ObjectMgr.GetCreatureDefaultTrainer(npc.Entry);
+
+        if (trainerId != 0)
+            SendTrainerList(npc, trainerId);
+        else
+            Log.Logger.Debug($"WorldSession.SendTrainerList - Creature id {npc.Entry} has no trainer data.");
+    }
+    private void SendBindPoint(Creature npc)
+    {
+        // prevent set homebind to instances in any case
+        if (Player.Location.Map.Instanceable)
+            return;
+
+        uint bindspell = 3286;
+
+        // send spell for homebinding (3286)
+        npc.CastSpell(Player, bindspell, true);
+
+        Player.PlayerTalkClass.SendCloseGossip();
+    }
+
+    private void SendPetStableResult(StableResult result)
+    {
+        PetStableResult petStableResult = new();
+        petStableResult.Result = result;
+        SendPacket(petStableResult);
+    }
+
+    private void SendSpiritResurrect()
+    {
+        Player.ResurrectPlayer(0.5f, true);
+
+        Player.DurabilityLossAll(0.25f, true);
+
+        // get corpse nearest graveyard
+        WorldSafeLocsEntry corpseGrave = null;
+        var corpseLocation = Player.CorpseLocation;
+
+        if (Player.HasCorpse)
+            corpseGrave = Global.ObjectMgr.GetClosestGraveYard(corpseLocation, Player.Team, Player);
+
+        // now can spawn bones
+        Player.SpawnCorpseBones();
+
+        // teleport to nearest from corpse graveyard, if different from nearest to player ghost
+        if (corpseGrave != null)
+        {
+            var ghostGrave = Global.ObjectMgr.GetClosestGraveYard(Player.Location, Player.Team, Player);
+
+            if (corpseGrave != ghostGrave)
+                Player.TeleportTo(corpseGrave.Loc);
         }
     }
 
-    [WorldPacketHandler(ClientOpcodes.ListInventory, Processing = PacketProcessing.Inplace)]
-    private void HandleListInventory(Hello packet)
+    private void SendTrainerBuyFailed(ObjectGuid trainerGUID, uint spellID, TrainerFailReason trainerFailedReason)
     {
-        if (!Player.IsAlive)
-            return;
-
-        SendListInventory(packet.Unit);
+        TrainerBuyFailed trainerBuyFailed = new();
+        trainerBuyFailed.TrainerGUID = trainerGUID;
+        trainerBuyFailed.SpellID = spellID;                         // should be same as in packet from client
+        trainerBuyFailed.TrainerFailedReason = trainerFailedReason; // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
+        SendPacket(trainerBuyFailed);
     }
 }

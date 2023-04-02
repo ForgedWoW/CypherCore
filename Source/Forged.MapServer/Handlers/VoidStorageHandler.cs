@@ -21,29 +21,6 @@ public class VoidStorageHandler : IWorldSessionHandler
         SendPacket(new VoidTransferResult(result));
     }
 
-    [WorldPacketHandler(ClientOpcodes.UnlockVoidStorage, Processing = PacketProcessing.Inplace)]
-    private void HandleVoidStorageUnlock(UnlockVoidStorage unlockVoidStorage)
-    {
-        var unit = Player.GetNPCIfCanInteractWith(unlockVoidStorage.Npc, NPCFlags.VaultKeeper, NPCFlags2.None);
-
-        if (!unit)
-        {
-            Log.Logger.Debug("WORLD: HandleVoidStorageUnlock - {0} not found or player can't interact with it.", unlockVoidStorage.Npc.ToString());
-
-            return;
-        }
-
-        if (Player.IsVoidStorageUnlocked())
-        {
-            Log.Logger.Debug("WORLD: HandleVoidStorageUnlock - Player({0}, name: {1}) tried to unlock void storage a 2nd time.", Player.GUID.ToString(), Player.GetName());
-
-            return;
-        }
-
-        Player.ModifyMoney(-SharedConst.VoidStorageUnlockCost);
-        Player.UnlockVoidStorage();
-    }
-
     [WorldPacketHandler(ClientOpcodes.QueryVoidStorage, Processing = PacketProcessing.Inplace)]
     private void HandleVoidStorageQuery(QueryVoidStorage queryVoidStorage)
     {
@@ -226,6 +203,28 @@ public class VoidStorageHandler : IWorldSessionHandler
         SendVoidStorageTransferResult(VoidTransferError.Ok);
     }
 
+    [WorldPacketHandler(ClientOpcodes.UnlockVoidStorage, Processing = PacketProcessing.Inplace)]
+    private void HandleVoidStorageUnlock(UnlockVoidStorage unlockVoidStorage)
+    {
+        var unit = Player.GetNPCIfCanInteractWith(unlockVoidStorage.Npc, NPCFlags.VaultKeeper, NPCFlags2.None);
+
+        if (!unit)
+        {
+            Log.Logger.Debug("WORLD: HandleVoidStorageUnlock - {0} not found or player can't interact with it.", unlockVoidStorage.Npc.ToString());
+
+            return;
+        }
+
+        if (Player.IsVoidStorageUnlocked())
+        {
+            Log.Logger.Debug("WORLD: HandleVoidStorageUnlock - Player({0}, name: {1}) tried to unlock void storage a 2nd time.", Player.GUID.ToString(), Player.GetName());
+
+            return;
+        }
+
+        Player.ModifyMoney(-SharedConst.VoidStorageUnlockCost);
+        Player.UnlockVoidStorage();
+    }
     [WorldPacketHandler(ClientOpcodes.SwapVoidItem, Processing = PacketProcessing.Inplace)]
     private void HandleVoidSwapItem(SwapVoidItem swapVoidItem)
     {

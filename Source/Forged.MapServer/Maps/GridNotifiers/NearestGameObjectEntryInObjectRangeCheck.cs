@@ -9,8 +9,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 internal class NearestGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
 {
-    private readonly WorldObject _obj;
     private readonly uint _entry;
+    private readonly WorldObject _obj;
     private readonly bool _spawnedOnly;
     private float _range;
 

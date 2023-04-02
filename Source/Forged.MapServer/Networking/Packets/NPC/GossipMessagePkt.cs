@@ -9,13 +9,13 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class GossipMessagePkt : ServerPacket
 {
-    public List<ClientGossipOptions> GossipOptions = new();
     public int FriendshipFactionID;
     public ObjectGuid GossipGUID;
+    public uint GossipID;
+    public List<ClientGossipOptions> GossipOptions = new();
     public List<ClientGossipText> GossipText = new();
     public int? TextID;
     public int? TextID2;
-    public uint GossipID;
     public GossipMessagePkt() : base(ServerOpcodes.GossipMessage) { }
 
     public override void Write()

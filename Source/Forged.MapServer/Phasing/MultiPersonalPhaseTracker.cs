@@ -44,27 +44,11 @@ public class MultiPersonalPhaseTracker
             map.Balance();
     }
 
-    public void UnloadGrid(Grid grid)
+    public void MarkAllPhasesForDeletion(ObjectGuid phaseOwner)
     {
-        foreach (var itr in _playerData.ToList())
-        {
-            itr.Value.SetGridUnloaded(grid.GetGridId());
+        var playerTracker = _playerData.LookupByKey(phaseOwner);
 
-            if (itr.Value.IsEmpty)
-                _playerData.Remove(itr.Key);
-        }
-    }
-
-    public void RegisterTrackedObject(uint phaseId, ObjectGuid phaseOwner, WorldObject obj)
-    {
-        _playerData[phaseOwner].RegisterTrackedObject(phaseId, obj);
-    }
-
-    public void UnregisterTrackedObject(WorldObject obj)
-    {
-        var playerTracker = _playerData.LookupByKey(obj.Location.PhaseShift.PersonalGuid);
-
-        playerTracker?.UnregisterTrackedObject(obj);
+        playerTracker?.MarkAllPhasesForDeletion();
     }
 
     public void OnOwnerPhaseChanged(WorldObject phaseOwner, Grid grid, Map map, Cell cell)
@@ -77,13 +61,27 @@ public class MultiPersonalPhaseTracker
             LoadGrid(phaseOwner.Location.PhaseShift, grid, map, cell);
     }
 
-    public void MarkAllPhasesForDeletion(ObjectGuid phaseOwner)
+    public void RegisterTrackedObject(uint phaseId, ObjectGuid phaseOwner, WorldObject obj)
     {
-        var playerTracker = _playerData.LookupByKey(phaseOwner);
-
-        playerTracker?.MarkAllPhasesForDeletion();
+        _playerData[phaseOwner].RegisterTrackedObject(phaseId, obj);
     }
 
+    public void UnloadGrid(Grid grid)
+    {
+        foreach (var itr in _playerData.ToList())
+        {
+            itr.Value.SetGridUnloaded(grid.GetGridId());
+
+            if (itr.Value.IsEmpty)
+                _playerData.Remove(itr.Key);
+        }
+    }
+    public void UnregisterTrackedObject(WorldObject obj)
+    {
+        var playerTracker = _playerData.LookupByKey(obj.Location.PhaseShift.PersonalGuid);
+
+        playerTracker?.UnregisterTrackedObject(obj);
+    }
     public void Update(Map map, uint diff)
     {
         foreach (var itr in _playerData.ToList())

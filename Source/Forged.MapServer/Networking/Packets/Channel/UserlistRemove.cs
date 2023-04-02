@@ -9,10 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 internal class UserlistRemove : ServerPacket
 {
-    public ObjectGuid RemovedUserGUID;
     public ChannelFlags ChannelFlags;
     public uint ChannelID;
     public string ChannelName;
+    public ObjectGuid RemovedUserGUID;
     public UserlistRemove() : base(ServerOpcodes.UserlistRemove) { }
 
     public override void Write()

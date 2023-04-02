@@ -33,7 +33,7 @@ public class spell_dru_flourish : SpellScript, IHasSpellEffects
                 var healAura = auraEffect.Base;
 
                 if (healAura != null)
-                    healAura.SetDuration(healAura.Duration + EffectValue * Time.InMilliseconds);
+                    healAura.SetDuration(healAura.Duration + EffectValue * Time.IN_MILLISECONDS);
             }
     }
 

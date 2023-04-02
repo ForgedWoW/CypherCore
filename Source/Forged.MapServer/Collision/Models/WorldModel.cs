@@ -19,23 +19,26 @@ public class WorldModel : IModel
 
     private uint _rootWmoid;
 
-    public override bool IntersectRay(Ray ray, ref float distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags)
+    public bool GetLocationInfo(Vector3 p, Vector3 down, out float dist, GroupLocationInfo info)
     {
-        // If the caller asked us to ignore certain objects we should check flags
-        if ((ignoreFlags & ModelIgnoreFlags.M2) != ModelIgnoreFlags.Nothing)
-            // M2 models are not taken into account for LoS calculation if caller requested their ignoring.
-            if ((Flags & (uint)ModelFlags.M2) != 0)
-                return false;
+        dist = 0f;
 
-        // small M2 workaround, maybe better make separate class with virtual intersection funcs
-        // in any case, there's no need to use a bound tree if we only have one submodel
-        if (_groupModels.Count == 1)
-            return _groupModels[0].IntersectRay(ray, ref distance, stopAtFirstHit);
+        if (_groupModels.Empty())
+            return false;
 
-        WModelRayCallBack isc = new(_groupModels);
-        _groupTree.IntersectRay(ray, isc, ref distance, stopAtFirstHit);
+        WModelAreaCallback callback = new(_groupModels, down);
+        _groupTree.IntersectPoint(p, callback);
 
-        return isc.Hit;
+        if (callback.Hit != null)
+        {
+            info.RootId = (int)_rootWmoid;
+            info.HitModel = callback.Hit;
+            dist = callback.ZDist;
+
+            return true;
+        }
+
+        return false;
     }
 
     public bool IntersectPoint(Vector3 p, Vector3 down, out float dist, AreaInfo info)
@@ -62,28 +65,24 @@ public class WorldModel : IModel
         return false;
     }
 
-    public bool GetLocationInfo(Vector3 p, Vector3 down, out float dist, GroupLocationInfo info)
+    public override bool IntersectRay(Ray ray, ref float distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags)
     {
-        dist = 0f;
+        // If the caller asked us to ignore certain objects we should check flags
+        if ((ignoreFlags & ModelIgnoreFlags.M2) != ModelIgnoreFlags.Nothing)
+            // M2 models are not taken into account for LoS calculation if caller requested their ignoring.
+            if ((Flags & (uint)ModelFlags.M2) != 0)
+                return false;
 
-        if (_groupModels.Empty())
-            return false;
+        // small M2 workaround, maybe better make separate class with virtual intersection funcs
+        // in any case, there's no need to use a bound tree if we only have one submodel
+        if (_groupModels.Count == 1)
+            return _groupModels[0].IntersectRay(ray, ref distance, stopAtFirstHit);
 
-        WModelAreaCallback callback = new(_groupModels, down);
-        _groupTree.IntersectPoint(p, callback);
+        WModelRayCallBack isc = new(_groupModels);
+        _groupTree.IntersectRay(ray, isc, ref distance, stopAtFirstHit);
 
-        if (callback.Hit != null)
-        {
-            info.RootId = (int)_rootWmoid;
-            info.HitModel = callback.Hit;
-            dist = callback.ZDist;
-
-            return true;
-        }
-
-        return false;
+        return isc.Hit;
     }
-
     public bool ReadFile(string filename)
     {
         if (!File.Exists(filename))

@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 internal class TrainerBuyFailed : ServerPacket
 {
-    public ObjectGuid TrainerGUID;
     public uint SpellID;
     public TrainerFailReason TrainerFailedReason;
+    public ObjectGuid TrainerGUID;
     public TrainerBuyFailed() : base(ServerOpcodes.TrainerBuyFailed) { }
 
     public override void Write()

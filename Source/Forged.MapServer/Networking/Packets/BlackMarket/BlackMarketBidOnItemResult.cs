@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
 internal class BlackMarketBidOnItemResult : ServerPacket
 {
-    public uint MarketID;
     public ItemInstance Item;
+    public uint MarketID;
     public BlackMarketError Result;
     public BlackMarketBidOnItemResult() : base(ServerOpcodes.BlackMarketBidOnItemResult) { }
 

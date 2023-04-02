@@ -9,13 +9,12 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRoster : ServerPacket
 {
-    public List<GuildRosterMemberData> MemberData;
-    public string WelcomeText;
-    public string InfoText;
     public uint CreateDate;
-    public int NumAccounts;
     public int GuildFlags;
-
+    public string InfoText;
+    public List<GuildRosterMemberData> MemberData;
+    public int NumAccounts;
+    public string WelcomeText;
     public GuildRoster() : base(ServerOpcodes.GuildRoster)
     {
         MemberData = new List<GuildRosterMemberData>();

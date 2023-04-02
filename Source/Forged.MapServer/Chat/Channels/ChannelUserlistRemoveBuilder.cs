@@ -11,9 +11,8 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal class ChannelUserlistRemoveBuilder : MessageBuilder
 {
-    private readonly Channel _source;
     private readonly ObjectGuid _guid;
-
+    private readonly Channel _source;
     public ChannelUserlistRemoveBuilder(Channel source, ObjectGuid guid)
     {
         _source = source;

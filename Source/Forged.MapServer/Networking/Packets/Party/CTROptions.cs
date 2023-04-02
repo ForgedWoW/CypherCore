@@ -6,9 +6,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 public struct CTROptions
 {
     public uint ContentTuningConditionMask;
-    public int Unused901;
     public uint ExpansionLevelMask;
-
+    public int Unused901;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(ContentTuningConditionMask);

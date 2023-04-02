@@ -12,42 +12,6 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("titles")]
 internal class TitleCommands
 {
-    [Command("current", RBACPermissions.CommandTitlesCurrent)]
-    private static bool HandleTitlesCurrentCommand(CommandHandler handler, uint titleId)
-    {
-        var target = handler.SelectedPlayer;
-
-        if (!target)
-        {
-            handler.SendSysMessage(CypherStrings.NoCharSelected);
-
-            return false;
-        }
-
-        // check online security
-        if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
-            return false;
-
-        var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
-
-        if (titleInfo == null)
-        {
-            handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
-
-            return false;
-        }
-
-        var tNameLink = handler.GetNameLink(target);
-        var titleNameStr = string.Format(target.NativeGender == Gender.Male ? titleInfo.Name[handler.SessionDbcLocale] : titleInfo.Name1[handler.SessionDbcLocale].ConvertFormatSyntax(), target.GetName());
-
-        target.SetTitle(titleInfo);
-        target.SetChosenTitle(titleInfo.MaskID);
-
-        handler.SendSysMessage(CypherStrings.TitleCurrentRes, titleId, titleNameStr, tNameLink);
-
-        return true;
-    }
-
     [Command("add", RBACPermissions.CommandTitlesAdd)]
     private static bool HandleTitlesAddCommand(CommandHandler handler, uint titleId)
     {
@@ -83,6 +47,41 @@ internal class TitleCommands
         return true;
     }
 
+    [Command("current", RBACPermissions.CommandTitlesCurrent)]
+    private static bool HandleTitlesCurrentCommand(CommandHandler handler, uint titleId)
+    {
+        var target = handler.SelectedPlayer;
+
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.NoCharSelected);
+
+            return false;
+        }
+
+        // check online security
+        if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
+            return false;
+
+        var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
+
+        if (titleInfo == null)
+        {
+            handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
+
+            return false;
+        }
+
+        var tNameLink = handler.GetNameLink(target);
+        var titleNameStr = string.Format(target.NativeGender == Gender.Male ? titleInfo.Name[handler.SessionDbcLocale] : titleInfo.Name1[handler.SessionDbcLocale].ConvertFormatSyntax(), target.GetName());
+
+        target.SetTitle(titleInfo);
+        target.SetChosenTitle(titleInfo.MaskID);
+
+        handler.SendSysMessage(CypherStrings.TitleCurrentRes, titleId, titleNameStr, tNameLink);
+
+        return true;
+    }
     [Command("remove", RBACPermissions.CommandTitlesRemove)]
     private static bool HandleTitlesRemoveCommand(CommandHandler handler, uint titleId)
     {

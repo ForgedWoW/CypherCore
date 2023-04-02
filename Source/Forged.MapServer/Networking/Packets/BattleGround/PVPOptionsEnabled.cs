@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class PVPOptionsEnabled : ServerPacket
 {
-    public bool WargameArenas;
-    public bool RatedArenas;
-    public bool WargameBattlegrounds;
     public bool ArenaSkirmish;
     public bool PugBattlegrounds;
+    public bool RatedArenas;
     public bool RatedBattlegrounds;
+    public bool WargameArenas;
+    public bool WargameBattlegrounds;
     public PVPOptionsEnabled() : base(ServerOpcodes.PvpOptionsEnabled) { }
 
     public override void Write()

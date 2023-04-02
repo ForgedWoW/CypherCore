@@ -8,10 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 public class PartyMemberPhaseStates
 {
-    public int PhaseShiftFlags;
-    public ObjectGuid PersonalGUID;
     public List<PartyMemberPhase> List = new();
-
+    public ObjectGuid PersonalGUID;
+    public int PhaseShiftFlags;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(PhaseShiftFlags);

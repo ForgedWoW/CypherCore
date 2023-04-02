@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class OpenItem : ClientPacket
 {
-    public byte Slot;
     public byte PackSlot;
+    public byte Slot;
     public OpenItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

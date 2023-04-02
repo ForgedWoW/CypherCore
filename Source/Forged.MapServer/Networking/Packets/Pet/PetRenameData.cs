@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal struct PetRenameData
 {
+    public DeclinedName DeclinedNames;
+    public bool HasDeclinedNames;
+    public string NewName;
     public ObjectGuid PetGUID;
     public int PetNumber;
-    public string NewName;
-    public bool HasDeclinedNames;
-    public DeclinedName DeclinedNames;
 }

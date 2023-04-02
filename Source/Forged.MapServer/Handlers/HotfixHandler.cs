@@ -29,7 +29,7 @@ public class HotfixHandler : IWorldSessionHandler
             if (store != null && store.HasRecord(record.RecordID))
             {
                 dbReply.Status = HotfixRecord.Status.Valid;
-                dbReply.Timestamp = (uint)GameTime.GetGameTime();
+                dbReply.Timestamp = (uint)GameTime.CurrentTime;
                 store.WriteRecord(record.RecordID, SessionDbcLocale, dbReply.Data);
 
                 var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(dbQuery.TableHash, record.RecordID, SessionDbcLocale);
@@ -43,7 +43,7 @@ public class HotfixHandler : IWorldSessionHandler
             else
             {
                 Log.Logger.Verbose("CMSG_DB_QUERY_BULK: {0} requested non-existing entry {1} in datastore: {2}", GetPlayerInfo(), record.RecordID, dbQuery.TableHash);
-                dbReply.Timestamp = (uint)GameTime.GetGameTime();
+                dbReply.Timestamp = (uint)GameTime.CurrentTime;
             }
 
             SendPacket(dbReply);

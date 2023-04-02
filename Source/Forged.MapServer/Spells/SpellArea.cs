@@ -10,16 +10,28 @@ namespace Forged.MapServer.Spells;
 
 public class SpellArea
 {
+    public uint AreaId;
+    public int AuraSpell;
+    public SpellAreaFlag Flags;
+    public Gender Gender;
+    public uint QuestEnd;
+    public uint QuestEndStatus;
+    // zone/subzone/or 0 is not limited to zone
+    public uint QuestStart;
+
+    // can be applied only to gender
+    public uint QuestStartStatus;
+
+    // quest start (quest must be active or rewarded for spell apply)
+    // quest end (quest must not be rewarded for spell apply)
+    // spell aura must be applied for spell apply)if possitive) and it must not be applied in other case
+    public ulong RaceMask;
+
     public uint SpellId;
-    public uint AreaId;           // zone/subzone/or 0 is not limited to zone
-    public uint QuestStart;       // quest start (quest must be active or rewarded for spell apply)
-    public uint QuestEnd;         // quest end (quest must not be rewarded for spell apply)
-    public int AuraSpell;         // spell aura must be applied for spell apply)if possitive) and it must not be applied in other case
-    public ulong RaceMask;        // can be applied only to races
-    public Gender Gender;         // can be applied only to gender
-    public uint QuestStartStatus; // QuestStatus that quest_start must have in order to keep the spell
-    public uint QuestEndStatus;   // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
-    public SpellAreaFlag Flags;   // if SPELL_AREA_FLAG_AUTOCAST then auto applied at area enter, in other case just allowed to cast || if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaved even without flag)
+    // can be applied only to races
+    // QuestStatus that quest_start must have in order to keep the spell
+    // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
+    // if SPELL_AREA_FLAG_AUTOCAST then auto applied at area enter, in other case just allowed to cast || if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaved even without flag)
 
     // helpers
     public bool IsFitToRequirements(Player player, uint newZone, uint newArea)

@@ -5,22 +5,22 @@ namespace Forged.MapServer.Globals;
 
 public class PlayerChoiceResponse
 {
+    public string Answer;
+    public string ButtonTooltip;
+    public int ChoiceArtFileId;
+    public string Confirmation;
+    public string Description;
+    public int Flags;
+    public byte GroupID;
+    public string Header;
+    public PlayerChoiceResponseMawPower? MawPower;
     public int ResponseId;
     public ushort ResponseIdentifier;
-    public int ChoiceArtFileId;
-    public int Flags;
-    public uint WidgetSetID;
-    public uint UiTextureAtlasElementID;
-    public uint SoundKitID;
-    public byte GroupID;
-    public int UiTextureKitID;
-    public string Answer;
-    public string Header;
-    public string SubHeader;
-    public string ButtonTooltip;
-    public string Description;
-    public string Confirmation;
     public PlayerChoiceResponseReward Reward;
     public uint? RewardQuestID;
-    public PlayerChoiceResponseMawPower? MawPower;
+    public uint SoundKitID;
+    public string SubHeader;
+    public uint UiTextureAtlasElementID;
+    public int UiTextureKitID;
+    public uint WidgetSetID;
 }

@@ -33,13 +33,52 @@ public class ScriptedAI : CreatureAI
         _difficulty = Me.Location.Map.DifficultyID;
     }
 
-    public void AttackStartNoMove(Unit target)
+    //Plays a sound to all nearby players
+    public static void DoPlaySoundToSet(WorldObject source, uint soundId)
     {
-        if (target == null)
+        if (source == null)
             return;
 
-        if (Me.Attack(target, true))
-            DoStartNoMovement(target);
+        if (!CliDB.SoundKitStorage.ContainsKey(soundId))
+        {
+            Log.Logger.Error($"ScriptedAI::DoPlaySoundToSet: Invalid soundId {soundId} used in DoPlaySoundToSet (Source: {source.GUID})");
+
+            return;
+        }
+
+        source.PlayDirectSound(soundId);
+    }
+
+    public static Creature GetClosestCreatureWithEntry(WorldObject source, uint entry, float maxSearchRange, bool alive = true)
+    {
+        return source.Location.FindNearestCreature(entry, maxSearchRange, alive);
+    }
+
+    public static Creature GetClosestCreatureWithOptions(WorldObject source, float maxSearchRange, FindCreatureOptions options)
+    {
+        return source.Location.FindNearestCreatureWithOptions(maxSearchRange, options);
+    }
+
+    public static GameObject GetClosestGameObjectWithEntry(WorldObject source, uint entry, float maxSearchRange, bool spawnedOnly = true)
+    {
+        return source.Location.FindNearestGameObject(entry, maxSearchRange, spawnedOnly);
+    }
+
+    /// <summary>
+    ///     Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
+    /// </summary>
+    /// <param name="victim"> </param>
+    /// <param name="amount"> </param>
+    /// <param name="who"> </param>
+    public void AddThreat(Unit victim, double amount, Unit who = null)
+    {
+        if (!victim)
+            return;
+
+        if (!who)
+            who = Me;
+
+        who.GetThreatManager().AddThreat(victim, amount, null, true, true);
     }
 
     // Called before JustEngagedWith even before the creature is in combat.
@@ -51,14 +90,60 @@ public class ScriptedAI : CreatureAI
             AttackStartNoMove(target);
     }
 
-    //Called at World update tick
-    public override void UpdateAI(uint diff)
+    public void AttackStartNoMove(Unit target)
     {
-        //Check if we have a current target
-        if (!UpdateVictim())
+        if (target == null)
             return;
 
-        DoMeleeAttackIfReady();
+        if (Me.Attack(target, true))
+            DoStartNoMovement(target);
+    }
+    //Cast spell by spell info
+    public void DoCastSpell(Unit target, SpellInfo spellInfo, bool triggered = false)
+    {
+        if (target == null || Me.IsNonMeleeSpellCast(false))
+            return;
+
+        Me.StopMoving();
+        Me.CastSpell(target, spellInfo.Id, triggered);
+    }
+
+    //Returns a list of friendly CC'd units within range
+    public List<Creature> DoFindFriendlyCC(float range)
+    {
+        List<Creature> list = new();
+        var u_check = new FriendlyCCedInRange(Me, range);
+        var searcher = new CreatureListSearcher(Me, list, u_check, GridType.All);
+        Cell.VisitGrid(Me, searcher, range);
+
+        return list;
+    }
+
+    //Returns a list of all friendly units missing a specific buff within range
+    public List<Creature> DoFindFriendlyMissingBuff(float range, uint spellId)
+    {
+        List<Creature> list = new();
+        var u_check = new FriendlyMissingBuffInRange(Me, range, spellId);
+        var searcher = new CreatureListSearcher(Me, list, u_check, GridType.All);
+        Cell.VisitGrid(Me, searcher, range);
+
+        return list;
+    }
+
+    //Returns friendly unit with the most amount of hp missing from max hp
+    public Unit DoSelectLowestHpFriendly(float range, uint minHPDiff = 1)
+    {
+        var u_check = new MostHPMissingInRange<Unit>(Me, range, minHPDiff);
+        var searcher = new UnitLastSearcher(Me, u_check, GridType.All);
+        Cell.VisitGrid(Me, searcher, range);
+
+        return searcher.GetTarget();
+    }
+
+    //Spawns a creature relative to me
+    public Creature DoSpawnCreature(uint entry, float offsetX, float offsetY, float offsetZ, float angle, TempSummonType type, TimeSpan despawntime)
+    {
+        return Me.SummonCreature(entry, new Position(Me.Location.X + offsetX, Me.Location.Y + offsetY, Me.Location.Z + offsetZ, angle), type, despawntime);
     }
 
     //Start movement toward victim
@@ -84,47 +169,117 @@ public class ScriptedAI : CreatureAI
             Me.AttackStop();
     }
 
-    //Cast spell by spell info
-    public void DoCastSpell(Unit target, SpellInfo spellInfo, bool triggered = false)
+    public void DoTeleportAll(float x, float y, float z, float o)
     {
-        if (target == null || Me.IsNonMeleeSpellCast(false))
+        var map = Me.Location.Map;
+
+        if (!map.IsDungeon)
             return;
 
-        Me.StopMoving();
-        Me.CastSpell(target, spellInfo.Id, triggered);
+        var PlayerList = map.Players;
+
+        foreach (var player in PlayerList)
+            if (player.IsAlive)
+                player.TeleportTo(Me.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
     }
 
-    //Plays a sound to all nearby players
-    public static void DoPlaySoundToSet(WorldObject source, uint soundId)
+    //Teleports a player without dropping threat (only teleports to same map)
+    public void DoTeleportPlayer(Unit unit, float x, float y, float z, float o)
     {
-        if (source == null)
+        if (unit == null)
             return;
 
-        if (!CliDB.SoundKitStorage.ContainsKey(soundId))
+        var player = unit.AsPlayer;
+
+        if (player != null)
+            player.TeleportTo(unit.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
+        else
+            Log.Logger.Error($"ScriptedAI::DoTeleportPlayer: Creature {Me.GUID} Tried to teleport non-player unit ({unit.GUID}) to X: {x} Y: {y} Z: {z} O: {o}. Aborted.");
+    }
+
+    public void DoTeleportTo(float x, float y, float z, uint time = 0)
+    {
+        Me.Location.Relocate(x, y, z);
+        var speed = Me.Location.GetDistance(x, y, z) / (time * 0.001f);
+        Me.MonsterMoveWithSpeed(x, y, z, speed);
+    }
+
+    public void DoTeleportTo(float[] position)
+    {
+        Me.NearTeleportTo(position[0], position[1], position[2], position[3]);
+    }
+
+    public T DungeonMode<T>(T normal5, T heroic10)
+    {
+        return _difficulty switch
         {
-            Log.Logger.Error($"ScriptedAI::DoPlaySoundToSet: Invalid soundId {soundId} used in DoPlaySoundToSet (Source: {source.GUID})");
+            Difficulty.Normal => normal5,
+            _ => heroic10,
+        };
+    }
 
-            return;
-        }
+    // return the dungeon or raid difficulty
+    public Difficulty GetDifficulty()
+    {
+        return _difficulty;
+    }
 
-        source.PlayDirectSound(soundId);
+    //Return a player with at least minimumRange from me
+    public Player GetPlayerAtMinimumRange(float minimumRange)
+    {
+        var check = new PlayerAtMinimumRangeAway(Me, minimumRange);
+        var searcher = new PlayerSearcher(Me, check, GridType.World);
+        Cell.VisitGrid(Me, searcher, minimumRange);
+
+        return searcher.GetTarget();
     }
 
     /// <summary>
-    ///     Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
+    ///     Returns the threat level of victim towards who (or me if not specified)
     /// </summary>
     /// <param name="victim"> </param>
-    /// <param name="amount"> </param>
     /// <param name="who"> </param>
-    public void AddThreat(Unit victim, double amount, Unit who = null)
+    /// <returns> </returns>
+    public double GetThreat(Unit victim, Unit who = null)
     {
         if (!victim)
-            return;
+            return 0.0f;
 
         if (!who)
             who = Me;
 
-        who.GetThreatManager().AddThreat(victim, amount, null, true, true);
+        return who.GetThreatManager().GetThreat(victim);
+    }
+
+    public bool HealthAbovePct(int pct)
+    {
+        return Me.HealthAbovePct(pct);
+    }
+
+    public bool HealthBelowPct(int pct)
+    {
+        return Me.HealthBelowPct(pct);
+    }
+
+    // return true for 25 man or 25 man heroic mode
+    public bool Is25ManRaid()
+    {
+        return _difficulty == Difficulty.Raid25N || _difficulty == Difficulty.Raid25HC;
+    }
+
+    public bool IsCombatMovementAllowed()
+    {
+        return _isCombatMovementAllowed;
+    }
+
+    // return true for heroic mode. i.e.
+    //   - for dungeon in mode 10-heroic,
+    //   - for raid in mode 10-Heroic
+    //   - for raid in mode 25-heroic
+    // DO NOT USE to check raid in mode 25-normal.
+    public bool IsHeroic()
+    {
+        return _isHeroic;
     }
 
     /// <summary>
@@ -142,6 +297,26 @@ public class ScriptedAI : CreatureAI
             who = Me;
 
         who.GetThreatManager().ModifyThreatByPercent(victim, pct);
+    }
+
+    public T RaidMode<T>(T normal10, T normal25)
+    {
+        return _difficulty switch
+        {
+            Difficulty.Raid10N => normal10,
+            _ => normal25,
+        };
+    }
+
+    public T RaidMode<T>(T normal10, T normal25, T heroic10, T heroic25)
+    {
+        return _difficulty switch
+        {
+            Difficulty.Raid10N => normal10,
+            Difficulty.Raid25N => normal25,
+            Difficulty.Raid10HC => heroic10,
+            _ => heroic25,
+        };
     }
 
     /// <summary>
@@ -170,29 +345,6 @@ public class ScriptedAI : CreatureAI
             who = Me;
 
         who.GetThreatManager().ResetAllThreat();
-    }
-
-    /// <summary>
-    ///     Returns the threat level of victim towards who (or me if not specified)
-    /// </summary>
-    /// <param name="victim"> </param>
-    /// <param name="who"> </param>
-    /// <returns> </returns>
-    public double GetThreat(Unit victim, Unit who = null)
-    {
-        if (!victim)
-            return 0.0f;
-
-        if (!who)
-            who = Me;
-
-        return who.GetThreatManager().GetThreat(victim);
-    }
-
-    //Spawns a creature relative to me
-    public Creature DoSpawnCreature(uint entry, float offsetX, float offsetY, float offsetZ, float angle, TempSummonType type, TimeSpan despawntime)
-    {
-        return Me.SummonCreature(entry, new Position(Me.Location.X + offsetX, Me.Location.Y + offsetY, Me.Location.Z + offsetZ, angle), type, despawntime);
     }
 
     //Returns spells that meet the specified criteria from the creatures spell list
@@ -275,86 +427,14 @@ public class ScriptedAI : CreatureAI
         return apSpell[RandomHelper.IRand(0, (int)(spellCount - 1))];
     }
 
-    public void DoTeleportTo(float x, float y, float z, uint time = 0)
+    // Used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
+    // NOTE: If you use SetCombatMovement while the creature is in combat, it will do NOTHING - This only affects AttackStart
+    //       You should make the necessary to make it happen so.
+    //       Remember that if you modified _isCombatMovementAllowed (e.g: using SetCombatMovement) it will not be reset at Reset().
+    //       It will keep the last value you set.
+    public void SetCombatMovement(bool allowMovement)
     {
-        Me.Location.Relocate(x, y, z);
-        var speed = Me.Location.GetDistance(x, y, z) / (time * 0.001f);
-        Me.MonsterMoveWithSpeed(x, y, z, speed);
-    }
-
-    public void DoTeleportTo(float[] position)
-    {
-        Me.NearTeleportTo(position[0], position[1], position[2], position[3]);
-    }
-
-    //Teleports a player without dropping threat (only teleports to same map)
-    public void DoTeleportPlayer(Unit unit, float x, float y, float z, float o)
-    {
-        if (unit == null)
-            return;
-
-        var player = unit.AsPlayer;
-
-        if (player != null)
-            player.TeleportTo(unit.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
-        else
-            Log.Logger.Error($"ScriptedAI::DoTeleportPlayer: Creature {Me.GUID} Tried to teleport non-player unit ({unit.GUID}) to X: {x} Y: {y} Z: {z} O: {o}. Aborted.");
-    }
-
-    public void DoTeleportAll(float x, float y, float z, float o)
-    {
-        var map = Me.Location.Map;
-
-        if (!map.IsDungeon)
-            return;
-
-        var PlayerList = map.Players;
-
-        foreach (var player in PlayerList)
-            if (player.IsAlive)
-                player.TeleportTo(Me.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
-    }
-
-    //Returns friendly unit with the most amount of hp missing from max hp
-    public Unit DoSelectLowestHpFriendly(float range, uint minHPDiff = 1)
-    {
-        var u_check = new MostHPMissingInRange<Unit>(Me, range, minHPDiff);
-        var searcher = new UnitLastSearcher(Me, u_check, GridType.All);
-        Cell.VisitGrid(Me, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    //Returns a list of friendly CC'd units within range
-    public List<Creature> DoFindFriendlyCC(float range)
-    {
-        List<Creature> list = new();
-        var u_check = new FriendlyCCedInRange(Me, range);
-        var searcher = new CreatureListSearcher(Me, list, u_check, GridType.All);
-        Cell.VisitGrid(Me, searcher, range);
-
-        return list;
-    }
-
-    //Returns a list of all friendly units missing a specific buff within range
-    public List<Creature> DoFindFriendlyMissingBuff(float range, uint spellId)
-    {
-        List<Creature> list = new();
-        var u_check = new FriendlyMissingBuffInRange(Me, range, spellId);
-        var searcher = new CreatureListSearcher(Me, list, u_check, GridType.All);
-        Cell.VisitGrid(Me, searcher, range);
-
-        return list;
-    }
-
-    //Return a player with at least minimumRange from me
-    public Player GetPlayerAtMinimumRange(float minimumRange)
-    {
-        var check = new PlayerAtMinimumRangeAway(Me, minimumRange);
-        var searcher = new PlayerSearcher(Me, check, GridType.World);
-        Cell.VisitGrid(Me, searcher, minimumRange);
-
-        return searcher.GetTarget();
+        _isCombatMovementAllowed = allowMovement;
     }
 
     public void SetEquipmentSlots(bool loadDefault, int mainHand = -1, int offHand = -1, int ranged = -1)
@@ -376,97 +456,15 @@ public class ScriptedAI : CreatureAI
             Me.SetVirtualItem(2, (uint)ranged);
     }
 
-    // Used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
-    // NOTE: If you use SetCombatMovement while the creature is in combat, it will do NOTHING - This only affects AttackStart
-    //       You should make the necessary to make it happen so.
-    //       Remember that if you modified _isCombatMovementAllowed (e.g: using SetCombatMovement) it will not be reset at Reset().
-    //       It will keep the last value you set.
-    public void SetCombatMovement(bool allowMovement)
+    //Called at World update tick
+    public override void UpdateAI(uint diff)
     {
-        _isCombatMovementAllowed = allowMovement;
-    }
+        //Check if we have a current target
+        if (!UpdateVictim())
+            return;
 
-    public static Creature GetClosestCreatureWithEntry(WorldObject source, uint entry, float maxSearchRange, bool alive = true)
-    {
-        return source.Location.FindNearestCreature(entry, maxSearchRange, alive);
+        DoMeleeAttackIfReady();
     }
-
-    public static Creature GetClosestCreatureWithOptions(WorldObject source, float maxSearchRange, FindCreatureOptions options)
-    {
-        return source.Location.FindNearestCreatureWithOptions(maxSearchRange, options);
-    }
-
-    public static GameObject GetClosestGameObjectWithEntry(WorldObject source, uint entry, float maxSearchRange, bool spawnedOnly = true)
-    {
-        return source.Location.FindNearestGameObject(entry, maxSearchRange, spawnedOnly);
-    }
-
-    public bool HealthBelowPct(int pct)
-    {
-        return Me.HealthBelowPct(pct);
-    }
-
-    public bool HealthAbovePct(int pct)
-    {
-        return Me.HealthAbovePct(pct);
-    }
-
-    public bool IsCombatMovementAllowed()
-    {
-        return _isCombatMovementAllowed;
-    }
-
-    // return true for heroic mode. i.e.
-    //   - for dungeon in mode 10-heroic,
-    //   - for raid in mode 10-Heroic
-    //   - for raid in mode 25-heroic
-    // DO NOT USE to check raid in mode 25-normal.
-    public bool IsHeroic()
-    {
-        return _isHeroic;
-    }
-
-    // return the dungeon or raid difficulty
-    public Difficulty GetDifficulty()
-    {
-        return _difficulty;
-    }
-
-    // return true for 25 man or 25 man heroic mode
-    public bool Is25ManRaid()
-    {
-        return _difficulty == Difficulty.Raid25N || _difficulty == Difficulty.Raid25HC;
-    }
-
-    public T DungeonMode<T>(T normal5, T heroic10)
-    {
-        return _difficulty switch
-        {
-            Difficulty.Normal => normal5,
-            _                 => heroic10,
-        };
-    }
-
-    public T RaidMode<T>(T normal10, T normal25)
-    {
-        return _difficulty switch
-        {
-            Difficulty.Raid10N => normal10,
-            _                  => normal25,
-        };
-    }
-
-    public T RaidMode<T>(T normal10, T normal25, T heroic10, T heroic25)
-    {
-        return _difficulty switch
-        {
-            Difficulty.Raid10N  => normal10,
-            Difficulty.Raid25N  => normal25,
-            Difficulty.Raid10HC => heroic10,
-            _                   => heroic25,
-        };
-    }
-
     /// <summary>
     ///     Stops combat, ignoring restrictions, for the given creature
     /// </summary>

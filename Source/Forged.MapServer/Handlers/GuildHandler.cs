@@ -12,16 +12,6 @@ namespace Forged.MapServer.Handlers;
 
 public class GuildHandler : IWorldSessionHandler
 {
-    [WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
-    private void HandleGuildGetRanks(GuildGetRanks packet)
-    {
-        var guild = Global.GuildMgr.GetGuildByGuid(packet.GuildGUID);
-
-        if (guild)
-            if (guild.IsMember(Player.GUID))
-                guild.SendGuildRankInfo(this);
-    }
-
     [WorldPacketHandler(ClientOpcodes.GuildBankRemainingWithdrawMoneyQuery)]
     private void HandleGuildBankMoneyWithdrawn(GuildBankRemainingWithdrawMoneyQuery packet)
     {
@@ -31,15 +21,15 @@ public class GuildHandler : IWorldSessionHandler
             guild.SendMoneyInfo(this);
     }
 
-    [WorldPacketHandler(ClientOpcodes.GuildPermissionsQuery)]
-    private void HandleGuildPermissionsQuery(GuildPermissionsQuery packet)
+    [WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
+    private void HandleGuildGetRanks(GuildGetRanks packet)
     {
-        var guild = Player.Guild;
+        var guild = Global.GuildMgr.GetGuildByGuid(packet.GuildGUID);
 
         if (guild)
-            guild.SendPermissions(this);
+            if (guild.IsMember(Player.GUID))
+                guild.SendGuildRankInfo(this);
     }
-
     [WorldPacketHandler(ClientOpcodes.GuildGetRoster)]
     private void HandleGuildGetRoster(GuildGetRoster packet)
     {
@@ -49,5 +39,14 @@ public class GuildHandler : IWorldSessionHandler
             guild.HandleRoster(this);
         else
             Guild.SendCommandResult(this, GuildCommandType.GetRoster, GuildCommandError.PlayerNotInGuild);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.GuildPermissionsQuery)]
+    private void HandleGuildPermissionsQuery(GuildPermissionsQuery packet)
+    {
+        var guild = Player.Guild;
+
+        if (guild)
+            guild.SendPermissions(this);
     }
 }

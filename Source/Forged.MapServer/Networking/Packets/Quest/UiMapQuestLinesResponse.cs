@@ -8,9 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class UiMapQuestLinesResponse : ServerPacket
 {
-    public int UiMapID;
     public List<uint> QuestLineXQuestIDs = new();
-
+    public int UiMapID;
     public UiMapQuestLinesResponse() : base(ServerOpcodes.UiMapQuestLinesResponse) { }
 
     public override void Write()

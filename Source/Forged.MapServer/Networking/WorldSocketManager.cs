@@ -13,6 +13,27 @@ public class WorldSocketManager : SocketManager<WorldSocket>
     private int _socketSendBufferSize;
     private bool _tcpNoDelay;
 
+    public override void OnSocketOpen(Socket sock)
+    {
+        // set some options here
+        try
+        {
+            if (_socketSendBufferSize >= 0)
+                sock.SendBufferSize = _socketSendBufferSize;
+
+            // Set TCP_NODELAY.
+            sock.NoDelay = _tcpNoDelay;
+        }
+        catch (SocketException ex)
+        {
+            Log.Logger.Error(ex);
+
+            return;
+        }
+
+        base.OnSocketOpen(sock);
+    }
+
     public override bool StartNetwork(string bindIp, int port, int threadCount)
     {
         _tcpNoDelay = ConfigMgr.GetDefaultValue("Network.TcpNodelay", true);
@@ -45,26 +66,5 @@ public class WorldSocketManager : SocketManager<WorldSocket>
         base.StopNetwork();
 
         _instanceAcceptor = null;
-    }
-
-    public override void OnSocketOpen(Socket sock)
-    {
-        // set some options here
-        try
-        {
-            if (_socketSendBufferSize >= 0)
-                sock.SendBufferSize = _socketSendBufferSize;
-
-            // Set TCP_NODELAY.
-            sock.NoDelay = _tcpNoDelay;
-        }
-        catch (SocketException ex)
-        {
-            Log.Logger.Error(ex);
-
-            return;
-        }
-
-        base.OnSocketOpen(sock);
     }
 }

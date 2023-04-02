@@ -24,17 +24,24 @@ public class LootStoreItem
         "Rate.Drop.Item.Artifact",  // ITEM_QUALITY_ARTIFACT
     };
 
-    public uint Itemid;    // id of the item
-    public uint Reference; // referenced TemplateleId
-    public float Chance;   // chance to drop for both quest and non-quest items, chance to be used for refs
-    public ushort Lootmode;
-    public bool NeedsQuest; // quest drop (negative ChanceOrQuestChance in DB)
+    public float Chance;
+    public List<Condition> Conditions;
     public byte Groupid;
-    public byte Mincount;              // mincount for drop items
-    public byte Maxcount;              // max drop count for the item mincount or Ref multiplicator
-    public List<Condition> Conditions; // additional loot condition
-    private readonly GameObjectManager _objectManager;
+    public uint Itemid;    // id of the item
+                           // chance to drop for both quest and non-quest items, chance to be used for refs
+    public ushort Lootmode;
+
+    public byte Maxcount;
+    public byte Mincount;
+    public bool NeedsQuest;
+    public uint Reference; // referenced TemplateleId
     private readonly IConfiguration _configuration;
+
+    // quest drop (negative ChanceOrQuestChance in DB)
+    // mincount for drop items
+    // max drop count for the item mincount or Ref multiplicator
+    // additional loot condition
+    private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
 
     public LootStoreItem(uint itemid, uint reference, float chance, bool needsQuest, ushort lootmode, byte groupid, byte mincount, byte maxcount, GameObjectManager objectManager, IConfiguration configuration, WorldDatabase worldDatabase)
@@ -51,21 +58,6 @@ public class LootStoreItem
         _configuration = configuration;
         _worldDatabase = worldDatabase;
         Conditions = new List<Condition>();
-    }
-
-    public bool Roll(bool rate)
-    {
-        if (Chance >= 100.0f)
-            return true;
-
-        if (Reference > 0) // reference case
-            return RandomHelper.randChance(Chance * (rate ? _configuration.GetDefaultValue("Rate.Drop.Item.Referenced", 1.0f) : 1.0f));
-
-        var pProto = _objectManager.GetItemTemplate(Itemid);
-
-        var qualityModifier = pProto != null && rate ? _configuration.GetDefaultValue(QualityToRate[(int)pProto.Quality], 1.0f) : 1.0f;
-
-        return RandomHelper.randChance(Chance * qualityModifier);
     }
 
     public bool IsValid(LootStore store, uint entry)
@@ -131,5 +123,20 @@ public class LootStoreItem
         }
 
         return true; // Referenced template existence is checked at whole store level
+    }
+
+    public bool Roll(bool rate)
+    {
+        if (Chance >= 100.0f)
+            return true;
+
+        if (Reference > 0) // reference case
+            return RandomHelper.randChance(Chance * (rate ? _configuration.GetDefaultValue("Rate.Drop.Item.Referenced", 1.0f) : 1.0f));
+
+        var pProto = _objectManager.GetItemTemplate(Itemid);
+
+        var qualityModifier = pProto != null && rate ? _configuration.GetDefaultValue(QualityToRate[(int)pProto.Quality], 1.0f) : 1.0f;
+
+        return RandomHelper.randChance(Chance * qualityModifier);
     }
 }

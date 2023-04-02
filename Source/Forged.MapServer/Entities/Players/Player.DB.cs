@@ -7,8 +7,6 @@ using System.Linq;
 using System.Text;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.Conditions;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.T;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -37,29 +35,633 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    public void LoadCorpse(SQLResult result)
+    public static void DeleteFromDB(ObjectGuid playerGuid, uint accountId, bool updateRealmChars = true, bool deleteFinally = false)
     {
-        if (IsAlive || HasAtLoginFlag(AtLoginFlags.Resurrect))
-            SpawnCorpseBones(false);
+        // Avoid realm-update for non-existing account
+        if (accountId == 0)
+            updateRealmChars = false;
 
-        if (!IsAlive)
+        // Convert guid to low GUID for CharacterNameData, but also other methods on success
+        var guid = playerGuid.Counter;
+        var charDeleteMethod = (CharDeleteMethod)GetDefaultValue("CharDelete.Method", 0);
+        var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(playerGuid);
+        var name = "<Unknown>";
+
+        if (characterInfo != null)
+            name = characterInfo.Name;
+
+        if (deleteFinally)
         {
-            if (HasAtLoginFlag(AtLoginFlags.Resurrect))
-            {
-                ResurrectPlayer(0.5f);
-            }
-            else if (!result.IsEmpty())
-            {
-                CorpseLocation = new WorldLocation(result.Read<ushort>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
+            charDeleteMethod = CharDeleteMethod.Remove;
+        }
+        else if (characterInfo != null) // To avoid a Select, we select loaded data. If it doesn't exist, return.
+        {
+            // Define the required variables
+            uint charDeleteMinLvl;
 
-                if (!CliDB.MapStorage.LookupByKey(CorpseLocation.MapId).Instanceable())
-                    SetPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
-                else
-                    RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
+            if (characterInfo.ClassId == PlayerClass.Deathknight)
+                charDeleteMinLvl = GetDefaultValue("CharDelete.DeathKnight.MinLevel", 0);
+            else if (characterInfo.ClassId == PlayerClass.DemonHunter)
+                charDeleteMinLvl = GetDefaultValue("CharDelete.DemonHunter.MinLevel", 0);
+            else
+                charDeleteMinLvl = GetDefaultValue("CharDelete.MinLevel", 0);
+
+            // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
+            // we set it to mode CHAR_DELETE_REMOVE
+            if (characterInfo.Level < charDeleteMinLvl)
+                charDeleteMethod = CharDeleteMethod.Remove;
+        }
+
+        SQLTransaction trans = new();
+        SQLTransaction loginTransaction = new();
+
+        var guildId = Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(playerGuid);
+
+        if (guildId != 0)
+        {
+            var guild = Global.GuildMgr.GetGuildById(guildId);
+
+            if (guild)
+                guild.DeleteMember(trans, playerGuid, false, false, true);
+        }
+
+        // remove from arena teams
+        LeaveAllArenaTeams(playerGuid);
+
+        // the player was uninvited already on logout so just remove from group
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
+        stmt.AddValue(0, guid);
+        var resultGroup = DB.Characters.Query(stmt);
+
+        if (!resultGroup.IsEmpty())
+        {
+            var group = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
+
+            if (group)
+                RemoveFromGroup(group, playerGuid);
+        }
+
+        // Remove signs from petitions (also remove petitions if owner);
+        RemovePetitionsAndSigns(playerGuid);
+
+        switch (charDeleteMethod)
+        {
+            // Completely remove from the database
+            case CharDeleteMethod.Remove:
+            {
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_COD_ITEM_MAIL);
+                stmt.AddValue(0, guid);
+                var resultMail = DB.Characters.Query(stmt);
+
+                if (!resultMail.IsEmpty())
+                {
+                    MultiMap<ulong, Item> itemsByMail = new();
+
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS);
+                    stmt.AddValue(0, guid);
+                    var resultItems = DB.Characters.Query(stmt);
+
+                    if (!resultItems.IsEmpty())
+                    {
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_ARTIFACT);
+                        stmt.AddValue(0, guid);
+                        var artifactResult = DB.Characters.Query(stmt);
+
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE);
+                        stmt.AddValue(0, guid);
+                        var azeriteResult = DB.Characters.Query(stmt);
+
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_MILESTONE_POWER);
+                        stmt.AddValue(0, guid);
+                        var azeriteItemMilestonePowersResult = DB.Characters.Query(stmt);
+
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_UNLOCKED_ESSENCE);
+                        stmt.AddValue(0, guid);
+                        var azeriteItemUnlockedEssencesResult = DB.Characters.Query(stmt);
+
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_EMPOWERED);
+                        stmt.AddValue(0, guid);
+                        var azeriteEmpoweredItemResult = DB.Characters.Query(stmt);
+
+                        Dictionary<ulong, ItemAdditionalLoadInfo> additionalData = new();
+                        ItemAdditionalLoadInfo.Init(additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
+
+                        do
+                        {
+                            var mailId = resultItems.Read<ulong>(52);
+                            var mailItem = _LoadMailedItem(playerGuid, null, mailId, null, resultItems.GetFields(), additionalData.LookupByKey(resultItems.Read<ulong>(0)));
+
+                            if (mailItem != null)
+                                itemsByMail.Add(mailId, mailItem);
+                        } while (resultItems.NextRow());
+                    }
+
+                    do
+                    {
+                        var mailID = resultMail.Read<ulong>(0);
+                        var mailType = (MailMessageType)resultMail.Read<byte>(1);
+                        var mailTemplateId = resultMail.Read<ushort>(2);
+                        var sender = resultMail.Read<uint>(3);
+                        var subject = resultMail.Read<string>(4);
+                        var body = resultMail.Read<string>(5);
+                        var money = resultMail.Read<ulong>(6);
+                        var hasItems = resultMail.Read<bool>(7);
+
+                        // We can return mail now
+                        // So firstly delete the old one
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
+                        stmt.AddValue(0, mailID);
+                        trans.Append(stmt);
+
+                        // Mail is not from player
+                        if (mailType != MailMessageType.Normal)
+                        {
+                            if (hasItems)
+                            {
+                                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
+                                stmt.AddValue(0, mailID);
+                                trans.Append(stmt);
+                            }
+
+                            continue;
+                        }
+
+                        MailDraft draft = new(subject, body);
+
+                        if (mailTemplateId != 0)
+                            draft = new MailDraft(mailTemplateId, false); // items are already included
+
+                        var itemsList = itemsByMail.LookupByKey(mailID);
+
+                        if (itemsList != null)
+                        {
+                            foreach (var item in itemsList)
+                                draft.AddItem(item);
+
+                            itemsByMail.Remove(mailID);
+                        }
+
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
+                        stmt.AddValue(0, mailID);
+                        trans.Append(stmt);
+
+                        var plAccount = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(ObjectGuid.Create(HighGuid.Player, guid));
+
+                        draft.AddMoney(money).SendReturnToSender(plAccount, guid, sender, trans);
+                    } while (resultMail.NextRow());
+
+                    // Free remaining items
+                    foreach (var pair in itemsByMail.KeyValueList)
+                        pair.Value.Dispose();
+                }
+
+                // Unsummon and delete for pets in world is not required: player deleted from CLI or character list with not loaded pet.
+                // NOW we can finally clear other DB data related to character
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_PET_IDS);
+                stmt.AddValue(0, guid);
+                var resultPets = DB.Characters.Query(stmt);
+
+                if (!resultPets.IsEmpty())
+                    do
+                    {
+                        var petguidlow = resultPets.Read<uint>(0);
+                        Pet.DeleteFromDB(petguidlow);
+                    } while (resultPets.NextRow());
+
+                // Delete char from social list of online chars
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_SOCIAL);
+                stmt.AddValue(0, guid);
+                var resultFriends = DB.Characters.Query(stmt);
+
+                if (!resultFriends.IsEmpty())
+                    do
+                    {
+                        var playerFriend = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, resultFriends.Read<ulong>(0)));
+
+                        if (playerFriend)
+                        {
+                            playerFriend.Social.RemoveFromSocialList(playerGuid, SocialFlag.All);
+                            Global.SocialMgr.SendFriendStatus(playerFriend, FriendsResult.Removed, playerGuid);
+                        }
+                    } while (resultFriends.NextRow());
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_CUSTOMIZATIONS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_ACCOUNT_DATA);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_ARENA_STATS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_EFFECT);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_BGDATA);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_CUF_PROFILES);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_CURRENCY);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_GIFT);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_HOMEBIND);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_INSTANCE_LOCK_BY_GUID);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_INVENTORY);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_REWARDED);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_REPUTATION);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_COOLDOWNS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SOCIAL_BY_FRIEND);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SOCIAL_BY_GUID);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEMS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME_BY_OWNER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENTS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_EQUIPMENTSETS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TRANSMOG_OUTFITS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_EVENTLOG_BY_PLAYER);
+                stmt.AddValue(0, guid);
+                stmt.AddValue(1, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_BANK_EVENTLOG_BY_PLAYER);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_GLYPHS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_DAILY);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_WEEKLY);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_MONTHLY);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_SEASONAL);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TALENT);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SKILLS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_STATS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_VOID_STORAGE_ITEM_BY_CHAR_GUID);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_FISHINGSTEPS);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_FAVORITE_AUCTIONS_BY_CHAR);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_AURA_STORED_LOCATIONS_BY_GUID);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME_BY_OWNER);
+                stmt.AddValue(0, guid);
+                stmt.AddValue(1, Global.WorldMgr.RealmId.Index);
+                loginTransaction.Append(stmt);
+
+                stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS_BY_OWNER);
+                stmt.AddValue(0, guid);
+                stmt.AddValue(1, Global.WorldMgr.RealmId.Index);
+                loginTransaction.Append(stmt);
+
+                Corpse.DeleteFromDB(playerGuid, trans);
+
+                Garrison.DeleteFromDB(guid, trans);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TRAIT_ENTRIES_BY_CHAR);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TRAIT_CONFIGS_BY_CHAR);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                Global.CharacterCacheStorage.DeleteCharacterCacheEntry(playerGuid, name);
+
+                break;
+            }
+            // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
+            case CharDeleteMethod.Unlink:
+            {
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_DELETE_INFO);
+                stmt.AddValue(0, guid);
+                trans.Append(stmt);
+
+                Global.CharacterCacheStorage.UpdateCharacterInfoDeleted(playerGuid, true);
+
+                break;
+            }
+            default:
+                Log.Logger.Error("Player:DeleteFromDB: Unsupported delete method: {0}.", charDeleteMethod);
+
+                if (trans.commands.Count > 0)
+                    DB.Characters.CommitTransaction(trans);
+
+                return;
+        }
+
+        DB.Login.CommitTransaction(loginTransaction);
+        DB.Characters.CommitTransaction(trans);
+
+        if (updateRealmChars)
+            Global.WorldMgr.UpdateRealmCharCount(accountId);
+    }
+
+    public static void DeleteOldCharacters()
+    {
+        var keepDays = GetDefaultValue("CharDelete.KeepDays", 30);
+
+        if (keepDays == 0)
+            return;
+
+        DeleteOldCharacters(keepDays);
+    }
+
+    public static void DeleteOldCharacters(int keepDays)
+    {
+        Log.Logger.Information("Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
+
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_OLD_CHARS);
+        stmt.AddValue(0, (uint)(GameTime.CurrentTime - keepDays * Time.DAY));
+        var result = DB.Characters.Query(stmt);
+
+        if (!result.IsEmpty())
+        {
+            var count = 0;
+
+            do
+            {
+                DeleteFromDB(ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0)), result.Read<uint>(1), true, true);
+                count++;
+            } while (result.NextRow());
+
+            Log.Logger.Debug("Player:DeleteOldChars: Deleted {0} character(s)", count);
+        }
+    }
+
+    public static uint GetZoneIdFromDB(ObjectGuid guid)
+    {
+        var guidLow = guid.Counter;
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_ZONE);
+        stmt.AddValue(0, guidLow);
+        var result = DB.Characters.Query(stmt);
+
+        if (result.IsEmpty())
+            return 0;
+
+        uint zone = result.Read<ushort>(0);
+
+        if (zone == 0)
+        {
+            // stored zone is zero, use generic and slow zone detection
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION_XYZ);
+            stmt.AddValue(0, guidLow);
+            result = DB.Characters.Query(stmt);
+
+            if (result.IsEmpty())
+                return 0;
+
+            uint map = result.Read<ushort>(0);
+            var posx = result.Read<float>(1);
+            var posy = result.Read<float>(2);
+            var posz = result.Read<float>(3);
+
+            if (!CliDB.MapStorage.ContainsKey(map))
+                return 0;
+
+            zone = Global.TerrainMgr.GetZoneId(PhasingHandler.EmptyPhaseShift, map, posx, posy, posz);
+
+            if (zone > 0)
+            {
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ZONE);
+
+                stmt.AddValue(0, zone);
+                stmt.AddValue(1, guidLow);
+
+                DB.Characters.Execute(stmt);
             }
         }
 
-        RemoveAtLoginFlag(AtLoginFlags.Resurrect);
+        return zone;
+    }
+
+    public static bool LoadPositionFromDB(out WorldLocation loc, out bool inFlight, ObjectGuid guid)
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION);
+        stmt.AddValue(0, guid.Counter);
+        var result = DB.Characters.Query(stmt);
+
+        loc = new WorldLocation();
+        inFlight = false;
+
+        if (result.IsEmpty())
+            return false;
+
+        loc.X = result.Read<float>(0);
+        loc.Y = result.Read<float>(1);
+        loc.Z = result.Read<float>(2);
+        loc.Orientation = result.Read<float>(3);
+        loc.MapId = result.Read<ushort>(4);
+        inFlight = !string.IsNullOrEmpty(result.Read<string>(5));
+
+        return true;
+    }
+
+    public static void RemovePetitionsAndSigns(ObjectGuid guid)
+    {
+        Global.PetitionMgr.RemoveSignaturesBySigner(guid);
+        Global.PetitionMgr.RemovePetitionsByOwner(guid);
+    }
+
+    public static void SaveCustomizations(SQLTransaction trans, ulong guid, List<ChrCustomizationChoice> customizations)
+    {
+        SavePlayerCustomizations(trans, guid, customizations);
+    }
+
+    public static void SavePlayerCustomizations(SQLTransaction trans, ulong guid, List<ChrCustomizationChoice> customizations)
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_CUSTOMIZATIONS);
+        stmt.AddValue(0, guid);
+        trans.Append(stmt);
+
+        foreach (var customization in customizations)
+        {
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_CUSTOMIZATION);
+            stmt.AddValue(0, guid);
+            stmt.AddValue(1, customization.ChrCustomizationOptionID);
+            stmt.AddValue(2, customization.ChrCustomizationChoiceID);
+            trans.Append(stmt);
+        }
+    }
+
+    public static void SavePositionInDB(WorldLocation loc, uint zoneId, ObjectGuid guid, SQLTransaction trans = null)
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_POSITION);
+        stmt.AddValue(0, loc.X);
+        stmt.AddValue(1, loc.Y);
+        stmt.AddValue(2, loc.Z);
+        stmt.AddValue(3, loc.Orientation);
+        stmt.AddValue(4, (ushort)loc.MapId);
+        stmt.AddValue(5, zoneId);
+        stmt.AddValue(6, guid.Counter);
+
+        DB.Characters.ExecuteOrAppend(trans, stmt);
     }
 
     public void _LoadMail(SQLResult mailsResult, SQLResult mailItemsResult, SQLResult artifactResult, SQLResult azeriteItemResult, SQLResult azeriteItemMilestonePowersResult, SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult)
@@ -111,27 +713,6 @@ public partial class Player
         }
 
         UpdateNextMailTimeAndUnreads();
-    }
-
-    public static void SavePlayerCustomizations(SQLTransaction trans, ulong guid, List<ChrCustomizationChoice> customizations)
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_CUSTOMIZATIONS);
-        stmt.AddValue(0, guid);
-        trans.Append(stmt);
-
-        foreach (var customization in customizations)
-        {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_CUSTOMIZATION);
-            stmt.AddValue(0, guid);
-            stmt.AddValue(1, customization.ChrCustomizationOptionID);
-            stmt.AddValue(2, customization.ChrCustomizationChoiceID);
-            trans.Append(stmt);
-        }
-    }
-
-    public static void SaveCustomizations(SQLTransaction trans, ulong guid, List<ChrCustomizationChoice> customizations)
-    {
-        SavePlayerCustomizations(trans, guid, customizations);
     }
 
     public void _SaveMail(SQLTransaction trans)
@@ -193,21 +774,30 @@ public partial class Player
         MailsUpdated = false;
     }
 
-    public void SaveGoldToDB(SQLTransaction trans)
+    public void LoadCorpse(SQLResult result)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_MONEY);
-        stmt.AddValue(0, Money);
-        stmt.AddValue(1, GUID.Counter);
-        trans.Append(stmt);
-    }
+        if (IsAlive || HasAtLoginFlag(AtLoginFlags.Resurrect))
+            SpawnCorpseBones(false);
 
-    public void SaveInventoryAndGoldToDB(SQLTransaction trans)
-    {
-        _SaveInventory(trans);
-        _SaveCurrency(trans);
-        SaveGoldToDB(trans);
-    }
+        if (!IsAlive)
+        {
+            if (HasAtLoginFlag(AtLoginFlags.Resurrect))
+            {
+                ResurrectPlayer(0.5f);
+            }
+            else if (!result.IsEmpty())
+            {
+                CorpseLocation = new WorldLocation(result.Read<ushort>(0), result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
 
+                if (!CliDB.MapStorage.LookupByKey(CorpseLocation.MapId).Instanceable())
+                    SetPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
+                else
+                    RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
+            }
+        }
+
+        RemoveAtLoginFlag(AtLoginFlags.Resurrect);
+    }
     public bool LoadFromDB(ObjectGuid guid, SQLQueryHolder<PlayerLoginQueryLoad> holder)
     {
         var result = holder.GetResult(PlayerLoginQueryLoad.From);
@@ -716,7 +1306,7 @@ public partial class Player
 
         SaveRecallPosition();
 
-        var now = GameTime.GetGameTime();
+        var now = GameTime.CurrentTime;
         var time = logoutTime;
 
         SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.LogoutTime), time);
@@ -1055,6 +1645,20 @@ public partial class Player
         return true;
     }
 
+    public void SaveGoldToDB(SQLTransaction trans)
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_MONEY);
+        stmt.AddValue(0, Money);
+        stmt.AddValue(1, GUID.Counter);
+        trans.Append(stmt);
+    }
+
+    public void SaveInventoryAndGoldToDB(SQLTransaction trans)
+    {
+        _SaveInventory(trans);
+        _SaveCurrency(trans);
+        SaveGoldToDB(trans);
+    }
     public void SaveToDB(bool create = false)
     {
         SQLTransaction loginTransaction = new();
@@ -1069,7 +1673,7 @@ public partial class Player
     public void SaveToDB(SQLTransaction loginTransaction, SQLTransaction characterTransaction, bool create = false)
     {
         // delay auto save at any saves (manual, in code, or autosave)
-        SaveTimer = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
+        SaveTimer = GetDefaultValue("PlayerSaveInterval", 15u * Time.MINUTE * Time.IN_MILLISECONDS);
 
         //lets allow only players in world to be saved
         if (IsBeingTeleportedFar)
@@ -1156,7 +1760,7 @@ public partial class Player
             stmt.AddValue(index++, TotalPlayedTime);
             stmt.AddValue(index++, LevelPlayedTime);
             stmt.AddValue(index++, FiniteAlways((float)RestMgr.GetRestBonus(RestTypes.XP)));
-            stmt.AddValue(index++, GameTime.GetGameTime());
+            stmt.AddValue(index++, GameTime.CurrentTime);
             stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
             //save, far from tavern/city
             //save, but in tavern/city
@@ -1309,7 +1913,7 @@ public partial class Player
             stmt.AddValue(index++, TotalPlayedTime);
             stmt.AddValue(index++, LevelPlayedTime);
             stmt.AddValue(index++, FiniteAlways((float)RestMgr.GetRestBonus(RestTypes.XP)));
-            stmt.AddValue(index++, GameTime.GetGameTime());
+            stmt.AddValue(index++, GameTime.CurrentTime);
             stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
             //save, far from tavern/city
             //save, but in tavern/city
@@ -1484,7 +2088,7 @@ public partial class Player
         stmt.AddValue(3, Global.WorldMgr.RealmId.Index);
         stmt.AddValue(4, GetName());
         stmt.AddValue(5, GUID.Counter);
-        stmt.AddValue(6, GameTime.GetGameTime());
+        stmt.AddValue(6, GameTime.CurrentTime);
         loginTransaction.Append(stmt);
 
         // save pet (hunter pet level and experience and all type pets health/mana).
@@ -1493,613 +2097,564 @@ public partial class Player
         if (pet)
             pet.SavePetToDB(PetSaveMode.AsCurrent);
     }
-
-    public static uint GetZoneIdFromDB(ObjectGuid guid)
+    private static Item _LoadMailedItem(ObjectGuid playerGuid, Player player, ulong mailId, Mail mail, SQLFields fields, ItemAdditionalLoadInfo addionalData)
     {
-        var guidLow = guid.Counter;
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_ZONE);
-        stmt.AddValue(0, guidLow);
-        var result = DB.Characters.Query(stmt);
+        var itemGuid = fields.Read<ulong>(0);
+        var itemEntry = fields.Read<uint>(1);
 
-        if (result.IsEmpty())
-            return 0;
+        var proto = Global.ObjectMgr.GetItemTemplate(itemEntry);
 
-        uint zone = result.Read<ushort>(0);
-
-        if (zone == 0)
+        if (proto == null)
         {
-            // stored zone is zero, use generic and slow zone detection
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION_XYZ);
-            stmt.AddValue(0, guidLow);
-            result = DB.Characters.Query(stmt);
+            Log.Logger.Error($"Player {(player != null ? player.GetName() : "<unknown>")} ({playerGuid}) has unknown item in mailed items (GUID: {itemGuid} template: {itemEntry}) in mail ({mailId}), deleted.");
 
-            if (result.IsEmpty())
-                return 0;
+            SQLTransaction trans = new();
 
-            uint map = result.Read<ushort>(0);
-            var posx = result.Read<float>(1);
-            var posy = result.Read<float>(2);
-            var posz = result.Read<float>(3);
+            var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_MAIL_ITEM);
+            stmt.AddValue(0, itemGuid);
+            trans.Append(stmt);
 
-            if (!CliDB.MapStorage.ContainsKey(map))
-                return 0;
+            Item.DeleteFromDB(trans, itemGuid);
+            AzeriteItem.DeleteFromDB(trans, itemGuid);
+            AzeriteEmpoweredItem.DeleteFromDB(trans, itemGuid);
 
-            zone = Global.TerrainMgr.GetZoneId(PhasingHandler.EmptyPhaseShift, map, posx, posy, posz);
+            DB.Characters.CommitTransaction(trans);
 
-            if (zone > 0)
+            return null;
+        }
+
+        var item = Item.NewItemOrBag(proto);
+        var ownerGuid = fields.Read<ulong>(51) != 0 ? ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(51)) : ObjectGuid.Empty;
+
+        if (!item.LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
+        {
+            Log.Logger.Error($"Player._LoadMailedItems: Item (GUID: {itemGuid}) in mail ({mailId}) doesn't exist, deleted from mail.");
+
+            var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM);
+            stmt.AddValue(0, itemGuid);
+            DB.Characters.Execute(stmt);
+
+            item.FSetState(ItemUpdateState.Removed);
+
+            item.SaveToDB(null); // it also deletes item object !
+
+            return null;
+        }
+
+        if (addionalData != null)
+        {
+            if (item.Template.ArtifactID != 0 && addionalData.Artifact != null)
+                item.LoadArtifactData(player,
+                                      addionalData.Artifact.Xp,
+                                      addionalData.Artifact.ArtifactAppearanceId,
+                                      addionalData.Artifact.ArtifactTierId,
+                                      addionalData.Artifact.ArtifactPowers);
+
+            if (addionalData.AzeriteItem != null)
             {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ZONE);
+                var azeriteItem = item.AsAzeriteItem;
 
-                stmt.AddValue(0, zone);
-                stmt.AddValue(1, guidLow);
+                azeriteItem?.LoadAzeriteItemData(player, addionalData.AzeriteItem);
+            }
 
+            if (addionalData.AzeriteEmpoweredItem != null)
+            {
+                var azeriteEmpoweredItem = item.AsAzeriteEmpoweredItem;
+
+                azeriteEmpoweredItem?.LoadAzeriteEmpoweredItemData(player, addionalData.AzeriteEmpoweredItem);
+            }
+        }
+
+        mail?.AddItem(itemGuid, itemEntry);
+
+        player?.AddMItem(item);
+
+        return item;
+    }
+
+    private void _LoadActions(SQLResult result)
+    {
+        _actionButtons.Clear();
+
+        if (!result.IsEmpty())
+            do
+            {
+                var button = result.Read<byte>(0);
+                var action = result.Read<ulong>(1);
+                var type = result.Read<byte>(2);
+
+                var ab = AddActionButton(button, action, type);
+
+                if (ab != null)
+                {
+                    ab.UState = ActionButtonUpdateState.UnChanged;
+                }
+                else
+                {
+                    Log.Logger.Error($"Player::_LoadActions: Player '{GetName()}' ({GUID}) has an invalid action button (Button: {button}, Action: {action}, Type: {type}). It will be deleted at next save. This can be due to a player changing their talents.");
+
+                    // Will deleted in DB at next save (it can create data until save but marked as deleted)
+                    _actionButtons[button] = new ActionButton
+                    {
+                        UState = ActionButtonUpdateState.Deleted
+                    };
+                }
+            } while (result.NextRow());
+    }
+
+    private void _LoadArenaTeamInfo(SQLResult result)
+    {
+        // arenateamid, played_week, played_season, personal_rating
+        ushort[] personalRatingCache =
+        {
+            0, 0, 0
+        };
+
+        if (!result.IsEmpty())
+            do
+            {
+                var arenaTeamId = result.Read<uint>(0);
+
+                var arenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(arenaTeamId);
+
+                if (arenaTeam == null)
+                {
+                    Log.Logger.Error("Player:_LoadArenaTeamInfo: couldn't load arenateam {0}", arenaTeamId);
+
+                    continue;
+                }
+
+                var arenaSlot = arenaTeam.GetSlot();
+
+                personalRatingCache[arenaSlot] = result.Read<ushort>(4);
+
+                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.Id, arenaTeamId);
+                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.Type, arenaTeam.GetArenaType());
+                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.Member, (uint)(arenaTeam.GetCaptain() == GUID ? 0 : 1));
+                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.GamesWeek, result.Read<ushort>(1));
+                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.GamesSeason, result.Read<ushort>(2));
+                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.WinsSeason, result.Read<ushort>(3));
+            } while (result.NextRow());
+
+        for (byte slot = 0; slot <= 2; ++slot)
+            SetArenaTeamInfoField(slot, ArenaTeamInfoType.PersonalRating, personalRatingCache[slot]);
+    }
+
+    private void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
+    {
+        Log.Logger.Debug("Loading auras for player {0}", GUID.ToString());
+
+        ObjectGuid casterGuid = new();
+        ObjectGuid itemGuid = new();
+        Dictionary<AuraKey, AuraLoadEffectInfo> effectInfo = new();
+
+        if (!effectResult.IsEmpty())
+            do
+            {
+                int effectIndex = effectResult.Read<byte>(4);
+                casterGuid.SetRawValue(effectResult.Read<byte[]>(0));
+                itemGuid.SetRawValue(effectResult.Read<byte[]>(1));
+
+                AuraKey key = new(casterGuid, itemGuid, effectResult.Read<uint>(2), effectResult.Read<uint>(3));
+
+                if (!effectInfo.ContainsKey(key))
+                    effectInfo[key] = new AuraLoadEffectInfo();
+
+                var info = effectInfo[key];
+                info.Amounts[effectIndex] = effectResult.Read<int>(5);
+                info.BaseAmounts[effectIndex] = effectResult.Read<int>(6);
+            } while (effectResult.NextRow());
+
+        if (!auraResult.IsEmpty())
+            do
+            {
+                casterGuid.SetRawValue(auraResult.Read<byte[]>(0));
+                itemGuid.SetRawValue(auraResult.Read<byte[]>(1));
+                AuraKey key = new(casterGuid, itemGuid, auraResult.Read<uint>(2), auraResult.Read<uint>(3));
+                var recalculateMask = auraResult.Read<uint>(4);
+                var difficulty = (Difficulty)auraResult.Read<byte>(5);
+                var stackCount = auraResult.Read<byte>(6);
+                var maxDuration = auraResult.Read<int>(7);
+                var remainTime = auraResult.Read<int>(8);
+                var remainCharges = auraResult.Read<byte>(9);
+                var castItemId = auraResult.Read<uint>(10);
+                var castItemLevel = auraResult.Read<int>(11);
+
+                var spellInfo = Global.SpellMgr.GetSpellInfo(key.SpellId, difficulty);
+
+                if (spellInfo == null)
+                {
+                    Log.Logger.Error("Unknown aura (spellid {0}), ignore.", key.SpellId);
+
+                    continue;
+                }
+
+                if (difficulty != Difficulty.None && !CliDB.DifficultyStorage.ContainsKey(difficulty))
+                {
+                    Log.Logger.Error($"Player._LoadAuras: Player '{GetName()}' ({GUID}) has an invalid aura difficulty {difficulty} (SpellID: {key.SpellId}), ignoring.");
+
+                    continue;
+                }
+
+                // negative effects should continue counting down after logout
+                if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
+                {
+                    if (remainTime / Time.IN_MILLISECONDS <= timediff)
+                        continue;
+
+                    remainTime -= (int)(timediff * Time.IN_MILLISECONDS);
+                }
+
+                // prevent wrong values of remaincharges
+                if (spellInfo.ProcCharges != 0)
+                {
+                    // we have no control over the order of applying auras and modifiers allow auras
+                    // to have more charges than value in SpellInfo
+                    if (remainCharges <= 0)
+                        remainCharges = (byte)spellInfo.ProcCharges;
+                }
+                else
+                {
+                    remainCharges = 0;
+                }
+
+                var info = effectInfo[key];
+                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
+
+                AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeMask(SpellConst.MaxEffects), this);
+                createInfo.SetCasterGuid(casterGuid);
+                createInfo.SetBaseAmount(info.BaseAmounts);
+                createInfo.SetCastItem(itemGuid, castItemId, castItemLevel);
+
+                var aura = Aura.TryCreate(createInfo);
+
+                if (aura != null)
+                {
+                    if (!aura.CanBeSaved())
+                    {
+                        aura.Remove();
+
+                        continue;
+                    }
+
+                    aura.SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts);
+                    aura.ApplyForTargets();
+                    Log.Logger.Information("Added aura spellid {0}, effectmask {1}", spellInfo.Id, key.EffectMask);
+                }
+            } while (auraResult.NextRow());
+    }
+
+    private void _LoadBGData(SQLResult result)
+    {
+        if (result.IsEmpty())
+            return;
+
+        // Expecting only one row
+        //        0           1     2      3      4      5      6          7          8        9
+        // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell FROM character_Battleground_data WHERE guid = ?
+        _bgData.BgInstanceId = result.Read<uint>(0);
+        _bgData.BgTeam = result.Read<ushort>(1);
+        _bgData.JoinPos = new WorldLocation(result.Read<ushort>(6), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
+        _bgData.TaxiPath[0] = result.Read<uint>(7);
+        _bgData.TaxiPath[1] = result.Read<uint>(8);
+        _bgData.MountSpell = result.Read<uint>(9);
+    }
+
+    private void _LoadCUFProfiles(SQLResult result)
+    {
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            var id = result.Read<byte>(0);
+            var name = result.Read<string>(1);
+            var frameHeight = result.Read<ushort>(2);
+            var frameWidth = result.Read<ushort>(3);
+            var sortBy = result.Read<byte>(4);
+            var healthText = result.Read<byte>(5);
+            var boolOptions = result.Read<uint>(6);
+            var topPoint = result.Read<byte>(7);
+            var bottomPoint = result.Read<byte>(8);
+            var leftPoint = result.Read<byte>(9);
+            var topOffset = result.Read<ushort>(10);
+            var bottomOffset = result.Read<ushort>(11);
+            var leftOffset = result.Read<ushort>(12);
+
+            if (id > PlayerConst.MaxCUFProfiles)
+            {
+                Log.Logger.Error("Player._LoadCUFProfiles - Player (GUID: {0}, name: {1}) has an CUF profile with invalid id (id: {2}), max is {3}.", GUID.ToString(), GetName(), id, PlayerConst.MaxCUFProfiles);
+
+                continue;
+            }
+
+            _cufProfiles[id] = new CufProfile(name, frameHeight, frameWidth, sortBy, healthText, boolOptions, topPoint, bottomPoint, leftPoint, topOffset, bottomOffset, leftOffset);
+        } while (result.NextRow());
+    }
+
+    private void _LoadCurrency(SQLResult result)
+    {
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            var currencyID = result.Read<ushort>(0);
+
+            var currency = CliDB.CurrencyTypesStorage.LookupByKey(currencyID);
+
+            if (currency == null)
+                continue;
+
+            PlayerCurrency cur = new()
+            {
+                State = PlayerCurrencyState.Unchanged,
+                Quantity = result.Read<uint>(1),
+                WeeklyQuantity = result.Read<uint>(2),
+                TrackedQuantity = result.Read<uint>(3),
+                IncreasedCapQuantity = result.Read<uint>(4),
+                EarnedQuantity = result.Read<uint>(5),
+                Flags = (CurrencyDbFlags)result.Read<byte>(6)
+            };
+
+            _currencyStorage.Add(currencyID, cur);
+        } while (result.NextRow());
+    }
+
+    private void _LoadDailyQuestStatus(SQLResult result)
+    {
+        _dfQuests.Clear();
+
+        //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, time FROM character_queststatus_daily WHERE guid = '{0}'");
+        if (!result.IsEmpty())
+            do
+            {
+                var questID = result.Read<uint>(0);
+                var qQuest = Global.ObjectMgr.GetQuestTemplate(questID);
+
+                if (qQuest != null)
+                    if (qQuest.IsDFQuest)
+                    {
+                        _dfQuests.Add(qQuest.Id);
+                        _lastDailyQuestTime = result.Read<uint>(1);
+
+                        continue;
+                    }
+
+                // save _any_ from daily quest times (it must be after last reset anyway)
+                _lastDailyQuestTime = result.Read<long>(1);
+
+                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+
+                if (quest == null)
+                    continue;
+
+                AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DailyQuestsCompleted), questID);
+                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
+
+                if (questBit != 0)
+                    SetQuestCompletedBit(questBit, true);
+
+                Log.Logger.Debug("Daily quest ({0}) cooldown for player (GUID: {1})", questID, GUID.ToString());
+            } while (result.NextRow());
+
+        _dailyQuestChanged = false;
+    }
+
+    private void _LoadDeclinedNames(SQLResult result)
+    {
+        if (result.IsEmpty())
+            return;
+
+        DeclinedNames = new DeclinedName();
+
+        for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
+            DeclinedNames.Name[i] = result.Read<string>(i);
+    }
+
+    private void _LoadEquipmentSets(SQLResult result)
+    {
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            EquipmentSetInfo eqSet = new()
+            {
+                Data =
+                {
+                    Guid = result.Read<ulong>(0),
+                    Type = EquipmentSetInfo.EquipmentSetType.Equipment,
+                    SetId = result.Read<byte>(1),
+                    SetName = result.Read<string>(2),
+                    SetIcon = result.Read<string>(3),
+                    IgnoreMask = result.Read<uint>(4),
+                    AssignedSpecIndex = result.Read<int>(5)
+                },
+                State = EquipmentSetUpdateState.Unchanged
+            };
+
+            for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+            {
+                ulong guid = result.Read<uint>(6 + i);
+
+                if (guid != 0)
+                    eqSet.Data.Pieces[i] = ObjectGuid.Create(HighGuid.Item, guid);
+            }
+
+            if (eqSet.Data.SetId >= ItemConst.MaxEquipmentSetIndex) // client limit
+                continue;
+
+            _equipmentSets[eqSet.Data.Guid] = eqSet;
+        } while (result.NextRow());
+    }
+
+    private void _LoadGlyphAuras()
+    {
+        foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
+            CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
+    }
+
+    private void _LoadGlyphs(SQLResult result)
+    {
+        // SELECT talentGroup, glyphId from character_glyphs WHERE guid = ?
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            var spec = result.Read<byte>(0);
+
+            if (spec >= PlayerConst.MaxSpecializations || Global.DB2Mgr.GetChrSpecializationByIndex(Class, spec) == null)
+                continue;
+
+            var glyphId = result.Read<ushort>(1);
+
+            if (!CliDB.GlyphPropertiesStorage.ContainsKey(glyphId))
+                continue;
+
+            GetGlyphs(spec).Add(glyphId);
+        } while (result.NextRow());
+    }
+
+    private void _LoadGroup(SQLResult result)
+    {
+        if (!result.IsEmpty())
+        {
+            var group = Global.GroupMgr.GetGroupByDbStoreId(result.Read<uint>(0));
+
+            if (group)
+            {
+                if (group.IsLeader(GUID))
+                    SetPlayerFlag(PlayerFlags.GroupLeader);
+
+                var subgroup = group.GetMemberGroup(GUID);
+                SetGroup(group, subgroup);
+                SetPartyType(group.GroupCategory, GroupType.Normal);
+                ResetGroupUpdateSequenceIfNeeded(group);
+
+                // the group leader may change the instance difficulty while the player is offline
+                DungeonDifficultyId = group.DungeonDifficultyID;
+                RaidDifficultyId = group.RaidDifficultyID;
+                LegacyRaidDifficultyId = group.LegacyRaidDifficultyID;
+            }
+        }
+
+        if (!Group || !Group.IsLeader(GUID))
+            RemovePlayerFlag(PlayerFlags.GroupLeader);
+    }
+
+    private bool _LoadHomeBind(SQLResult result)
+    {
+        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+
+        if (info == null)
+        {
+            Log.Logger.Error("Player (Name {0}) has incorrect race/class ({1}/{2}) pair. Can't be loaded.", GetName(), Race, Class);
+
+            return false;
+        }
+
+        var ok = false;
+
+        if (!result.IsEmpty())
+        {
+            Homebind.WorldRelocate(result.Read<uint>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
+            _homebindAreaId = result.Read<uint>(1);
+
+            var map = CliDB.MapStorage.LookupByKey(Homebind.MapId);
+
+            // accept saved data only for valid position (and non instanceable), and accessable
+            if (GridDefines.IsValidMapCoord(Homebind) &&
+                !map.Instanceable() &&
+                Session.Expansion >= map.Expansion())
+            {
+                ok = true;
+            }
+            else
+            {
+                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_HOMEBIND);
+                stmt.AddValue(0, GUID.Counter);
                 DB.Characters.Execute(stmt);
             }
         }
 
-        return zone;
-    }
-
-    public static void RemovePetitionsAndSigns(ObjectGuid guid)
-    {
-        Global.PetitionMgr.RemoveSignaturesBySigner(guid);
-        Global.PetitionMgr.RemovePetitionsByOwner(guid);
-    }
-
-    public static void DeleteFromDB(ObjectGuid playerGuid, uint accountId, bool updateRealmChars = true, bool deleteFinally = false)
-    {
-        // Avoid realm-update for non-existing account
-        if (accountId == 0)
-            updateRealmChars = false;
-
-        // Convert guid to low GUID for CharacterNameData, but also other methods on success
-        var guid = playerGuid.Counter;
-        var charDeleteMethod = (CharDeleteMethod)GetDefaultValue("CharDelete.Method", 0);
-        var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(playerGuid);
-        var name = "<Unknown>";
-
-        if (characterInfo != null)
-            name = characterInfo.Name;
-
-        if (deleteFinally)
+        void SaveHomebindToDb()
         {
-            charDeleteMethod = CharDeleteMethod.Remove;
-        }
-        else if (characterInfo != null) // To avoid a Select, we select loaded data. If it doesn't exist, return.
-        {
-            // Define the required variables
-            uint charDeleteMinLvl;
-
-            if (characterInfo.ClassId == PlayerClass.Deathknight)
-                charDeleteMinLvl = GetDefaultValue("CharDelete.DeathKnight.MinLevel", 0);
-            else if (characterInfo.ClassId == PlayerClass.DemonHunter)
-                charDeleteMinLvl = GetDefaultValue("CharDelete.DemonHunter.MinLevel", 0);
-            else
-                charDeleteMinLvl = GetDefaultValue("CharDelete.MinLevel", 0);
-
-            // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
-            // we set it to mode CHAR_DELETE_REMOVE
-            if (characterInfo.Level < charDeleteMinLvl)
-                charDeleteMethod = CharDeleteMethod.Remove;
+            var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PLAYER_HOMEBIND);
+            stmt.AddValue(0, GUID.Counter);
+            stmt.AddValue(1, Homebind.MapId);
+            stmt.AddValue(2, _homebindAreaId);
+            stmt.AddValue(3, Homebind.X);
+            stmt.AddValue(4, Homebind.Y);
+            stmt.AddValue(5, Homebind.Z);
+            stmt.AddValue(6, Homebind.Orientation);
+            DB.Characters.Execute(stmt);
         }
 
-        SQLTransaction trans = new();
-        SQLTransaction loginTransaction = new();
+        ;
 
-        var guildId = Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(playerGuid);
-
-        if (guildId != 0)
+        if (!ok && HasAtLoginFlag(AtLoginFlags.FirstLogin))
         {
-            var guild = Global.GuildMgr.GetGuildById(guildId);
+            var createPosition = CreateMode == PlayerCreateMode.NPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
 
-            if (guild)
-                guild.DeleteMember(trans, playerGuid, false, false, true);
-        }
-
-        // remove from arena teams
-        LeaveAllArenaTeams(playerGuid);
-
-        // the player was uninvited already on logout so just remove from group
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
-        stmt.AddValue(0, guid);
-        var resultGroup = DB.Characters.Query(stmt);
-
-        if (!resultGroup.IsEmpty())
-        {
-            var group = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
-
-            if (group)
-                RemoveFromGroup(group, playerGuid);
-        }
-
-        // Remove signs from petitions (also remove petitions if owner);
-        RemovePetitionsAndSigns(playerGuid);
-
-        switch (charDeleteMethod)
-        {
-            // Completely remove from the database
-            case CharDeleteMethod.Remove:
+            if (!createPosition.TransportGuid.HasValue)
             {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_COD_ITEM_MAIL);
-                stmt.AddValue(0, guid);
-                var resultMail = DB.Characters.Query(stmt);
-
-                if (!resultMail.IsEmpty())
-                {
-                    MultiMap<ulong, Item> itemsByMail = new();
-
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS);
-                    stmt.AddValue(0, guid);
-                    var resultItems = DB.Characters.Query(stmt);
-
-                    if (!resultItems.IsEmpty())
-                    {
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_ARTIFACT);
-                        stmt.AddValue(0, guid);
-                        var artifactResult = DB.Characters.Query(stmt);
-
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE);
-                        stmt.AddValue(0, guid);
-                        var azeriteResult = DB.Characters.Query(stmt);
-
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_MILESTONE_POWER);
-                        stmt.AddValue(0, guid);
-                        var azeriteItemMilestonePowersResult = DB.Characters.Query(stmt);
-
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_UNLOCKED_ESSENCE);
-                        stmt.AddValue(0, guid);
-                        var azeriteItemUnlockedEssencesResult = DB.Characters.Query(stmt);
-
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_EMPOWERED);
-                        stmt.AddValue(0, guid);
-                        var azeriteEmpoweredItemResult = DB.Characters.Query(stmt);
-
-                        Dictionary<ulong, ItemAdditionalLoadInfo> additionalData = new();
-                        ItemAdditionalLoadInfo.Init(additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
-
-                        do
-                        {
-                            var mailId = resultItems.Read<ulong>(52);
-                            var mailItem = _LoadMailedItem(playerGuid, null, mailId, null, resultItems.GetFields(), additionalData.LookupByKey(resultItems.Read<ulong>(0)));
-
-                            if (mailItem != null)
-                                itemsByMail.Add(mailId, mailItem);
-                        } while (resultItems.NextRow());
-                    }
-
-                    do
-                    {
-                        var mailID = resultMail.Read<ulong>(0);
-                        var mailType = (MailMessageType)resultMail.Read<byte>(1);
-                        var mailTemplateId = resultMail.Read<ushort>(2);
-                        var sender = resultMail.Read<uint>(3);
-                        var subject = resultMail.Read<string>(4);
-                        var body = resultMail.Read<string>(5);
-                        var money = resultMail.Read<ulong>(6);
-                        var hasItems = resultMail.Read<bool>(7);
-
-                        // We can return mail now
-                        // So firstly delete the old one
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
-                        stmt.AddValue(0, mailID);
-                        trans.Append(stmt);
-
-                        // Mail is not from player
-                        if (mailType != MailMessageType.Normal)
-                        {
-                            if (hasItems)
-                            {
-                                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
-                                stmt.AddValue(0, mailID);
-                                trans.Append(stmt);
-                            }
-
-                            continue;
-                        }
-
-                        MailDraft draft = new(subject, body);
-
-                        if (mailTemplateId != 0)
-                            draft = new MailDraft(mailTemplateId, false); // items are already included
-
-                        var itemsList = itemsByMail.LookupByKey(mailID);
-
-                        if (itemsList != null)
-                        {
-                            foreach (var item in itemsList)
-                                draft.AddItem(item);
-
-                            itemsByMail.Remove(mailID);
-                        }
-
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
-                        stmt.AddValue(0, mailID);
-                        trans.Append(stmt);
-
-                        var plAccount = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(ObjectGuid.Create(HighGuid.Player, guid));
-
-                        draft.AddMoney(money).SendReturnToSender(plAccount, guid, sender, trans);
-                    } while (resultMail.NextRow());
-
-                    // Free remaining items
-                    foreach (var pair in itemsByMail.KeyValueList)
-                        pair.Value.Dispose();
-                }
-
-                // Unsummon and delete for pets in world is not required: player deleted from CLI or character list with not loaded pet.
-                // NOW we can finally clear other DB data related to character
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_PET_IDS);
-                stmt.AddValue(0, guid);
-                var resultPets = DB.Characters.Query(stmt);
-
-                if (!resultPets.IsEmpty())
-                    do
-                    {
-                        var petguidlow = resultPets.Read<uint>(0);
-                        Pet.DeleteFromDB(petguidlow);
-                    } while (resultPets.NextRow());
-
-                // Delete char from social list of online chars
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_SOCIAL);
-                stmt.AddValue(0, guid);
-                var resultFriends = DB.Characters.Query(stmt);
-
-                if (!resultFriends.IsEmpty())
-                    do
-                    {
-                        var playerFriend = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, resultFriends.Read<ulong>(0)));
-
-                        if (playerFriend)
-                        {
-                            playerFriend.Social.RemoveFromSocialList(playerGuid, SocialFlag.All);
-                            Global.SocialMgr.SendFriendStatus(playerFriend, FriendsResult.Removed, playerGuid);
-                        }
-                    } while (resultFriends.NextRow());
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_CUSTOMIZATIONS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_ACCOUNT_DATA);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_ARENA_STATS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_EFFECT);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_BGDATA);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_CUF_PROFILES);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_CURRENCY);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_GIFT);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_HOMEBIND);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_INSTANCE_LOCK_BY_GUID);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_INVENTORY);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_REWARDED);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_REPUTATION);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_COOLDOWNS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SOCIAL_BY_FRIEND);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SOCIAL_BY_GUID);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEMS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME_BY_OWNER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENTS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_EQUIPMENTSETS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TRANSMOG_OUTFITS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_EVENTLOG_BY_PLAYER);
-                stmt.AddValue(0, guid);
-                stmt.AddValue(1, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_BANK_EVENTLOG_BY_PLAYER);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_GLYPHS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_DAILY);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_WEEKLY);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_MONTHLY);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_SEASONAL);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TALENT);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SKILLS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_STATS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_VOID_STORAGE_ITEM_BY_CHAR_GUID);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_FISHINGSTEPS);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_FAVORITE_AUCTIONS_BY_CHAR);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_AURA_STORED_LOCATIONS_BY_GUID);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME_BY_OWNER);
-                stmt.AddValue(0, guid);
-                stmt.AddValue(1, Global.WorldMgr.RealmId.Index);
-                loginTransaction.Append(stmt);
-
-                stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS_BY_OWNER);
-                stmt.AddValue(0, guid);
-                stmt.AddValue(1, Global.WorldMgr.RealmId.Index);
-                loginTransaction.Append(stmt);
-
-                Corpse.DeleteFromDB(playerGuid, trans);
-
-                Garrison.DeleteFromDB(guid, trans);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TRAIT_ENTRIES_BY_CHAR);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TRAIT_CONFIGS_BY_CHAR);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                Global.CharacterCacheStorage.DeleteCharacterCacheEntry(playerGuid, name);
-
-                break;
+                Homebind.WorldRelocate(createPosition.Loc);
+                _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, Homebind);
+
+                SaveHomebindToDb();
+                ok = true;
             }
-            // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
-            case CharDeleteMethod.Unlink:
-            {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_DELETE_INFO);
-                stmt.AddValue(0, guid);
-                trans.Append(stmt);
-
-                Global.CharacterCacheStorage.UpdateCharacterInfoDeleted(playerGuid, true);
-
-                break;
-            }
-            default:
-                Log.Logger.Error("Player:DeleteFromDB: Unsupported delete method: {0}.", charDeleteMethod);
-
-                if (trans.commands.Count > 0)
-                    DB.Characters.CommitTransaction(trans);
-
-                return;
         }
 
-        DB.Login.CommitTransaction(loginTransaction);
-        DB.Characters.CommitTransaction(trans);
-
-        if (updateRealmChars)
-            Global.WorldMgr.UpdateRealmCharCount(accountId);
-    }
-
-    public static void DeleteOldCharacters()
-    {
-        var keepDays = GetDefaultValue("CharDelete.KeepDays", 30);
-
-        if (keepDays == 0)
-            return;
-
-        DeleteOldCharacters(keepDays);
-    }
-
-    public static void DeleteOldCharacters(int keepDays)
-    {
-        Log.Logger.Information("Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
-
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_OLD_CHARS);
-        stmt.AddValue(0, (uint)(GameTime.GetGameTime() - keepDays * Time.Day));
-        var result = DB.Characters.Query(stmt);
-
-        if (!result.IsEmpty())
+        if (!ok)
         {
-            var count = 0;
+            var loc = Global.ObjectMgr.GetDefaultGraveYard(Team);
 
-            do
-            {
-                DeleteFromDB(ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0)), result.Read<uint>(1), true, true);
-                count++;
-            } while (result.NextRow());
+            if (loc == null && Race == Race.PandarenNeutral)
+                loc = Global.ObjectMgr.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
 
-            Log.Logger.Debug("Player:DeleteOldChars: Deleted {0} character(s)", count);
+            Homebind.WorldRelocate(loc.Loc);
+            _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);
+
+            SaveHomebindToDb();
         }
-    }
 
-    public static void SavePositionInDB(WorldLocation loc, uint zoneId, ObjectGuid guid, SQLTransaction trans = null)
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_POSITION);
-        stmt.AddValue(0, loc.X);
-        stmt.AddValue(1, loc.Y);
-        stmt.AddValue(2, loc.Z);
-        stmt.AddValue(3, loc.Orientation);
-        stmt.AddValue(4, (ushort)loc.MapId);
-        stmt.AddValue(5, zoneId);
-        stmt.AddValue(6, guid.Counter);
-
-        DB.Characters.ExecuteOrAppend(trans, stmt);
-    }
-
-    public static bool LoadPositionFromDB(out WorldLocation loc, out bool inFlight, ObjectGuid guid)
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION);
-        stmt.AddValue(0, guid.Counter);
-        var result = DB.Characters.Query(stmt);
-
-        loc = new WorldLocation();
-        inFlight = false;
-
-        if (result.IsEmpty())
-            return false;
-
-        loc.X = result.Read<float>(0);
-        loc.Y = result.Read<float>(1);
-        loc.Z = result.Read<float>(2);
-        loc.Orientation = result.Read<float>(3);
-        loc.MapId = result.Read<ushort>(4);
-        inFlight = !string.IsNullOrEmpty(result.Read<string>(5));
+        Log.Logger.Debug($"Setting player home position - mapid: {Homebind.MapId}, areaid: {_homebindAreaId}, {Homebind}");
 
         return true;
+    }
+
+    private void _LoadInstanceTimeRestrictions(SQLResult result)
+    {
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            _instanceResetTimes.Add(result.Read<uint>(0), result.Read<long>(1));
+        } while (result.NextRow());
     }
 
     private void _LoadInventory(SQLResult result, SQLResult artifactsResult, SQLResult azeriteResult, SQLResult azeriteItemMilestonePowersResult, SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult, uint timeDiff)
@@ -2334,7 +2889,7 @@ public partial class Player
                     remove = true;
                 }
                 // "Conjured items disappear if you are logged out for more than 15 minutes"
-                else if (timeDiff > 15 * Time.Minute && proto.HasFlag(ItemFlags.Conjured))
+                else if (timeDiff > 15 * Time.MINUTE && proto.HasFlag(ItemFlags.Conjured))
                 {
                     Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}, diff: {2}) has conjured item (GUID: {3}, entry: {4}) with expired lifetime (15 minutes). Deleting item.",
                                      GUID.ToString(),
@@ -2348,7 +2903,7 @@ public partial class Player
 
                 if (item.IsRefundable)
                 {
-                    if (item.PlayedTime > (2 * Time.Hour))
+                    if (item.PlayedTime > (2 * Time.HOUR))
                     {
                         Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
                                          "efundable flag.",
@@ -2477,6 +3032,315 @@ public partial class Player
         }
 
         return item;
+    }
+
+    private void _LoadMonthlyQuestStatus()
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_MONTHLY);
+        stmt.AddValue(0, GUID.Counter);
+        var result = DB.Characters.Query(stmt);
+
+        _monthlyquests.Clear();
+
+        if (!result.IsEmpty())
+            do
+            {
+                var questID = result.Read<uint>(0);
+                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+
+                if (quest == null)
+                    continue;
+
+                _monthlyquests.Add(questID);
+                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
+
+                if (questBit != 0)
+                    SetQuestCompletedBit(questBit, true);
+
+                Log.Logger.Debug("Monthly quest {0} cooldown for player (GUID: {1})", questID, GUID.ToString());
+            } while (result.NextRow());
+
+        _monthlyQuestChanged = false;
+    }
+
+    private void _LoadPetStable(uint summonedPetNumber, SQLResult result)
+    {
+        if (result.IsEmpty())
+            return;
+
+        PetStable1 = new PetStable();
+
+        //         0      1        2      3    4           5     6     7        8          9       10      11        12              13       14              15
+        // SELECT id, entry, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization FROM character_pet WHERE owner = ?
+        if (!result.IsEmpty())
+            do
+            {
+                PetStable.PetInfo petInfo = new()
+                {
+                    PetNumber = result.Read<uint>(0),
+                    CreatureId = result.Read<uint>(1),
+                    DisplayId = result.Read<uint>(2),
+                    Level = result.Read<byte>(3),
+                    Experience = result.Read<uint>(4),
+                    ReactState = (ReactStates)result.Read<byte>(5)
+                };
+
+                var slot = (PetSaveMode)result.Read<short>(6);
+                petInfo.Name = result.Read<string>(7);
+                petInfo.WasRenamed = result.Read<bool>(8);
+                petInfo.Health = result.Read<uint>(9);
+                petInfo.Mana = result.Read<uint>(10);
+                petInfo.ActionBar = result.Read<string>(11);
+                petInfo.LastSaveTime = result.Read<uint>(12);
+                petInfo.CreatedBySpellId = result.Read<uint>(13);
+                petInfo.Type = (PetType)result.Read<byte>(14);
+                petInfo.SpecializationId = result.Read<ushort>(15);
+
+                if (slot is >= PetSaveMode.FirstActiveSlot and < PetSaveMode.LastActiveSlot)
+                    PetStable1.ActivePets[(int)slot] = petInfo;
+                else if (slot is >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot)
+                    PetStable1.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
+                else if (slot == PetSaveMode.NotInSlot)
+                    PetStable1.UnslottedPets.Add(petInfo);
+            } while (result.NextRow());
+
+        if (Pet.GetLoadPetInfo(PetStable1, 0, summonedPetNumber, null).Item1 != null)
+            TemporaryUnsummonedPetNumber = summonedPetNumber;
+    }
+
+    private void _LoadPvpTalents(SQLResult result)
+    {
+        // "SELECT talentID0, talentID1, talentID2, talentID3, talentGroup FROM character_pvp_talent WHERE guid = ?"
+        if (!result.IsEmpty())
+            do
+            {
+                for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
+                {
+                    var talent = CliDB.PvpTalentStorage.LookupByKey(result.Read<uint>(slot));
+
+                    if (talent != null)
+                        AddPvpTalent(talent, result.Read<byte>(4), slot);
+                }
+            } while (result.NextRow());
+    }
+
+    private void _LoadQuestStatus(SQLResult result)
+    {
+        ushort slot = 0;
+
+        if (!result.IsEmpty())
+            do
+            {
+                var questId = result.Read<uint>(0);
+                // used to be new, no delete?
+                var quest = Global.ObjectMgr.GetQuestTemplate(questId);
+
+                if (quest != null)
+                {
+                    // find or create
+                    QuestStatusData questStatusData = new();
+
+                    var qstatus = result.Read<byte>(1);
+
+                    if (qstatus < (byte)QuestStatus.Max)
+                    {
+                        questStatusData.Status = (QuestStatus)qstatus;
+                    }
+                    else
+                    {
+                        questStatusData.Status = QuestStatus.Incomplete;
+
+                        Log.Logger.Error("Player {0} (GUID: {1}) has invalid quest {2} status ({3}), replaced by QUEST_STATUS_INCOMPLETE(3).",
+                                         GetName(),
+                                         GUID.ToString(),
+                                         questId,
+                                         qstatus);
+                    }
+
+                    questStatusData.Explored = result.Read<byte>(2) > 0;
+
+                    var acceptTime = result.Read<long>(3);
+                    var endTime = result.Read<long>(4);
+
+                    if (quest.LimitTime != 0 && !GetQuestRewardStatus(questId))
+                    {
+                        AddTimedQuest(questId);
+
+                        if (endTime <= GameTime.CurrentTime)
+                            questStatusData.Timer = 1;
+                        else
+                            questStatusData.Timer = (uint)((endTime - GameTime.CurrentTime) * Time.IN_MILLISECONDS);
+                    }
+                    else
+                    {
+                        endTime = 0;
+                    }
+
+                    // add to quest log
+                    if (slot < SharedConst.MaxQuestLogSize && questStatusData.Status != QuestStatus.None)
+                    {
+                        questStatusData.Slot = slot;
+
+                        foreach (var obj in quest.Objectives)
+                            _questObjectiveStatus.Add((obj.Type, obj.ObjectID),
+                                                      new QuestObjectiveStatusData()
+                                                      {
+                                                          QuestStatusPair = (questId, questStatusData),
+                                                          Objective = obj
+                                                      });
+
+                        SetQuestSlot(slot, questId);
+                        SetQuestSlotEndTime(slot, endTime);
+                        SetQuestSlotAcceptTime(slot, acceptTime);
+
+                        if (questStatusData.Status == QuestStatus.Complete)
+                            SetQuestSlotState(slot, QuestSlotStateMask.Complete);
+                        else if (questStatusData.Status == QuestStatus.Failed)
+                            SetQuestSlotState(slot, QuestSlotStateMask.Fail);
+
+                        ++slot;
+                    }
+
+                    _mQuestStatus[questId] = questStatusData;
+                    Log.Logger.Debug("Quest status is {0} for quest {1} for player (GUID: {2})", questStatusData.Status, questId, GUID.ToString());
+                }
+            } while (result.NextRow());
+
+        // clear quest log tail
+        for (var i = slot; i < SharedConst.MaxQuestLogSize; ++i)
+            SetQuestSlot(i, 0);
+    }
+
+    private void _LoadQuestStatusObjectives(SQLResult result)
+    {
+        if (!result.IsEmpty())
+            do
+            {
+                var questID = result.Read<uint>(0);
+
+                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+
+                var questStatusData = _mQuestStatus.LookupByKey(questID);
+
+                if (questStatusData is { Slot: < SharedConst.MaxQuestLogSize } && quest != null)
+                {
+                    var storageIndex = result.Read<byte>(1);
+
+                    var objective = quest.Objectives.FirstOrDefault(objective => objective.StorageIndex == storageIndex);
+
+                    if (objective != null)
+                    {
+                        var data = result.Read<int>(2);
+
+                        if (!objective.IsStoringFlag())
+                            SetQuestSlotCounter(questStatusData.Slot, storageIndex, (ushort)data);
+                        else if (data != 0)
+                            SetQuestSlotObjectiveFlag(questStatusData.Slot, (sbyte)storageIndex);
+                    }
+                    else
+                    {
+                        Log.Logger.Error($"Player {GetName()} ({GUID}) has quest {questID} out of range objective index {storageIndex}.");
+                    }
+                }
+                else
+                {
+                    Log.Logger.Error($"Player {GetName()} ({GUID}) does not have quest {questID} but has objective data for it.");
+                }
+            } while (result.NextRow());
+    }
+
+    private void _LoadQuestStatusRewarded(SQLResult result)
+    {
+        if (!result.IsEmpty())
+            do
+            {
+                var questID = result.Read<uint>(0);
+                // used to be new, no delete?
+                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+
+                if (quest != null)
+                {
+                    // learn rewarded spell if unknown
+                    LearnQuestRewardedSpells(quest);
+
+                    // set rewarded title if any
+                    if (quest.RewardTitleId != 0)
+                    {
+                        var titleEntry = CliDB.CharTitlesStorage.LookupByKey(quest.RewardTitleId);
+
+                        if (titleEntry != null)
+                            SetTitle(titleEntry);
+                    }
+
+                    // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
+                    // instead add them separately from load daily/weekly/monthly/seasonal
+                    if (!quest.IsDailyOrWeekly && !quest.IsMonthly && !quest.IsSeasonal)
+                    {
+                        var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
+
+                        if (questBit != 0)
+                            SetQuestCompletedBit(questBit, true);
+                    }
+
+                    for (uint i = 0; i < quest.RewChoiceItemsCount; ++i)
+                        Session.CollectionMgr.AddItemAppearance(quest.RewardChoiceItemId[i]);
+
+                    for (uint i = 0; i < quest.RewItemsCount; ++i)
+                        Session.CollectionMgr.AddItemAppearance(quest.RewardItemId[i]);
+
+                    var questPackageItems = Global.DB2Mgr.GetQuestPackageItems(quest.PackageID);
+
+                    if (questPackageItems != null)
+                        foreach (var questPackageItem in questPackageItems)
+                        {
+                            var rewardProto = Global.ObjectMgr.GetItemTemplate(questPackageItem.ItemID);
+
+                            if (rewardProto != null)
+                                if (rewardProto.ItemSpecClassMask.HasAnyFlag(ClassMask))
+                                    Session.CollectionMgr.AddItemAppearance(questPackageItem.ItemID);
+                        }
+
+                    if (quest.CanIncreaseRewardedQuestCounters())
+                        _rewardedQuests.Add(questID);
+                }
+            } while (result.NextRow());
+    }
+
+    private void _LoadRandomBGStatus(SQLResult result)
+    {
+        if (!result.IsEmpty())
+            _isBgRandomWinner = true;
+    }
+
+    private void _LoadSeasonalQuestStatus(SQLResult result)
+    {
+        _seasonalquests.Clear();
+
+        if (!result.IsEmpty())
+            do
+            {
+                var questID = result.Read<uint>(0);
+                var eventID = result.Read<uint>(1);
+                var completedTime = result.Read<long>(2);
+                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+
+                if (quest == null)
+                    continue;
+
+                if (!_seasonalquests.ContainsKey(eventID))
+                    _seasonalquests[eventID] = new Dictionary<uint, long>();
+
+                _seasonalquests[eventID][questID] = completedTime;
+
+                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
+
+                if (questBit != 0)
+                    SetQuestCompletedBit(questBit, true);
+
+                Log.Logger.Debug("Seasonal quest {0} cooldown for player (GUID: {1})", questID, GUID.ToString());
+            } while (result.NextRow());
+
+        _seasonalQuestChanged = false;
     }
 
     private void _LoadSkills(SQLResult result)
@@ -2621,564 +3485,42 @@ public partial class Player
                     spell.Favorite = true;
             } while (favoritesResult.NextRow());
     }
-
-    private void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
+    private void _LoadStoredAuraTeleportLocations(SQLResult result)
     {
-        Log.Logger.Debug("Loading auras for player {0}", GUID.ToString());
+        //                                                       0      1      2          3          4          5
+        //QueryResult* result = CharacterDatabase.PQuery("SELECT Spell, MapId, PositionX, PositionY, PositionZ, Orientation FROM character_spell_location WHERE Guid = ?", GetGUIDLow());
 
-        ObjectGuid casterGuid = new();
-        ObjectGuid itemGuid = new();
-        Dictionary<AuraKey, AuraLoadEffectInfo> effectInfo = new();
+        _storedAuraTeleportLocations.Clear();
 
-        if (!effectResult.IsEmpty())
+        if (!result.IsEmpty())
             do
             {
-                int effectIndex = effectResult.Read<byte>(4);
-                casterGuid.SetRawValue(effectResult.Read<byte[]>(0));
-                itemGuid.SetRawValue(effectResult.Read<byte[]>(1));
+                var spellId = result.Read<uint>(0);
 
-                AuraKey key = new(casterGuid, itemGuid, effectResult.Read<uint>(2), effectResult.Read<uint>(3));
-
-                if (!effectInfo.ContainsKey(key))
-                    effectInfo[key] = new AuraLoadEffectInfo();
-
-                var info = effectInfo[key];
-                info.Amounts[effectIndex] = effectResult.Read<int>(5);
-                info.BaseAmounts[effectIndex] = effectResult.Read<int>(6);
-            } while (effectResult.NextRow());
-
-        if (!auraResult.IsEmpty())
-            do
-            {
-                casterGuid.SetRawValue(auraResult.Read<byte[]>(0));
-                itemGuid.SetRawValue(auraResult.Read<byte[]>(1));
-                AuraKey key = new(casterGuid, itemGuid, auraResult.Read<uint>(2), auraResult.Read<uint>(3));
-                var recalculateMask = auraResult.Read<uint>(4);
-                var difficulty = (Difficulty)auraResult.Read<byte>(5);
-                var stackCount = auraResult.Read<byte>(6);
-                var maxDuration = auraResult.Read<int>(7);
-                var remainTime = auraResult.Read<int>(8);
-                var remainCharges = auraResult.Read<byte>(9);
-                var castItemId = auraResult.Read<uint>(10);
-                var castItemLevel = auraResult.Read<int>(11);
-
-                var spellInfo = Global.SpellMgr.GetSpellInfo(key.SpellId, difficulty);
-
-                if (spellInfo == null)
+                if (!Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
                 {
-                    Log.Logger.Error("Unknown aura (spellid {0}), ignore.", key.SpellId);
+                    Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) does not exist");
 
                     continue;
                 }
 
-                if (difficulty != Difficulty.None && !CliDB.DifficultyStorage.ContainsKey(difficulty))
+                WorldLocation location = new(result.Read<uint>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
+
+                if (!GridDefines.IsValidMapCoord(location))
                 {
-                    Log.Logger.Error($"Player._LoadAuras: Player '{GetName()}' ({GUID}) has an invalid aura difficulty {difficulty} (SpellID: {key.SpellId}), ignoring.");
+                    Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) has invalid position on map {location.MapId}, {location}.");
 
                     continue;
                 }
 
-                // negative effects should continue counting down after logout
-                if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
+                StoredAuraTeleportLocation storedLocation = new()
                 {
-                    if (remainTime / Time.InMilliseconds <= timediff)
-                        continue;
+                    Loc = location,
+                    CurrentState = StoredAuraTeleportLocation.State.Unchanged
+                };
 
-                    remainTime -= (int)(timediff * Time.InMilliseconds);
-                }
-
-                // prevent wrong values of remaincharges
-                if (spellInfo.ProcCharges != 0)
-                {
-                    // we have no control over the order of applying auras and modifiers allow auras
-                    // to have more charges than value in SpellInfo
-                    if (remainCharges <= 0)
-                        remainCharges = (byte)spellInfo.ProcCharges;
-                }
-                else
-                {
-                    remainCharges = 0;
-                }
-
-                var info = effectInfo[key];
-                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
-
-                AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeMask(SpellConst.MaxEffects), this);
-                createInfo.SetCasterGuid(casterGuid);
-                createInfo.SetBaseAmount(info.BaseAmounts);
-                createInfo.SetCastItem(itemGuid, castItemId, castItemLevel);
-
-                var aura = Aura.TryCreate(createInfo);
-
-                if (aura != null)
-                {
-                    if (!aura.CanBeSaved())
-                    {
-                        aura.Remove();
-
-                        continue;
-                    }
-
-                    aura.SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts);
-                    aura.ApplyForTargets();
-                    Log.Logger.Information("Added aura spellid {0}, effectmask {1}", spellInfo.Id, key.EffectMask);
-                }
-            } while (auraResult.NextRow());
-    }
-
-    private bool _LoadHomeBind(SQLResult result)
-    {
-        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
-
-        if (info == null)
-        {
-            Log.Logger.Error("Player (Name {0}) has incorrect race/class ({1}/{2}) pair. Can't be loaded.", GetName(), Race, Class);
-
-            return false;
-        }
-
-        var ok = false;
-
-        if (!result.IsEmpty())
-        {
-            Homebind.WorldRelocate(result.Read<uint>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
-            _homebindAreaId = result.Read<uint>(1);
-
-            var map = CliDB.MapStorage.LookupByKey(Homebind.MapId);
-
-            // accept saved data only for valid position (and non instanceable), and accessable
-            if (GridDefines.IsValidMapCoord(Homebind) &&
-                !map.Instanceable() &&
-                Session.Expansion >= map.Expansion())
-            {
-                ok = true;
-            }
-            else
-            {
-                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_HOMEBIND);
-                stmt.AddValue(0, GUID.Counter);
-                DB.Characters.Execute(stmt);
-            }
-        }
-
-        void SaveHomebindToDb()
-        {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PLAYER_HOMEBIND);
-            stmt.AddValue(0, GUID.Counter);
-            stmt.AddValue(1, Homebind.MapId);
-            stmt.AddValue(2, _homebindAreaId);
-            stmt.AddValue(3, Homebind.X);
-            stmt.AddValue(4, Homebind.Y);
-            stmt.AddValue(5, Homebind.Z);
-            stmt.AddValue(6, Homebind.Orientation);
-            DB.Characters.Execute(stmt);
-        }
-
-        ;
-
-        if (!ok && HasAtLoginFlag(AtLoginFlags.FirstLogin))
-        {
-            var createPosition = CreateMode == PlayerCreateMode.NPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
-
-            if (!createPosition.TransportGuid.HasValue)
-            {
-                Homebind.WorldRelocate(createPosition.Loc);
-                _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, Homebind);
-
-                SaveHomebindToDb();
-                ok = true;
-            }
-        }
-
-        if (!ok)
-        {
-            var loc = Global.ObjectMgr.GetDefaultGraveYard(Team);
-
-            if (loc == null && Race == Race.PandarenNeutral)
-                loc = Global.ObjectMgr.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
-
-            Homebind.WorldRelocate(loc.Loc);
-            _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);
-
-            SaveHomebindToDb();
-        }
-
-        Log.Logger.Debug($"Setting player home position - mapid: {Homebind.MapId}, areaid: {_homebindAreaId}, {Homebind}");
-
-        return true;
-    }
-
-    private void _LoadCurrency(SQLResult result)
-    {
-        if (result.IsEmpty())
-            return;
-
-        do
-        {
-            var currencyID = result.Read<ushort>(0);
-
-            var currency = CliDB.CurrencyTypesStorage.LookupByKey(currencyID);
-
-            if (currency == null)
-                continue;
-
-            PlayerCurrency cur = new()
-            {
-                State = PlayerCurrencyState.Unchanged,
-                Quantity = result.Read<uint>(1),
-                WeeklyQuantity = result.Read<uint>(2),
-                TrackedQuantity = result.Read<uint>(3),
-                IncreasedCapQuantity = result.Read<uint>(4),
-                EarnedQuantity = result.Read<uint>(5),
-                Flags = (CurrencyDbFlags)result.Read<byte>(6)
-            };
-
-            _currencyStorage.Add(currencyID, cur);
-        } while (result.NextRow());
-    }
-
-    private void LoadActions(SQLResult result)
-    {
-        _LoadActions(result);
-
-        SendActionButtons(1);
-    }
-
-    private void _LoadActions(SQLResult result)
-    {
-        _actionButtons.Clear();
-
-        if (!result.IsEmpty())
-            do
-            {
-                var button = result.Read<byte>(0);
-                var action = result.Read<ulong>(1);
-                var type = result.Read<byte>(2);
-
-                var ab = AddActionButton(button, action, type);
-
-                if (ab != null)
-                {
-                    ab.UState = ActionButtonUpdateState.UnChanged;
-                }
-                else
-                {
-                    Log.Logger.Error($"Player::_LoadActions: Player '{GetName()}' ({GUID}) has an invalid action button (Button: {button}, Action: {action}, Type: {type}). It will be deleted at next save. This can be due to a player changing their talents.");
-
-                    // Will deleted in DB at next save (it can create data until save but marked as deleted)
-                    _actionButtons[button] = new ActionButton
-                    {
-                        UState = ActionButtonUpdateState.Deleted
-                    };
-                }
+                _storedAuraTeleportLocations[spellId] = storedLocation;
             } while (result.NextRow());
-    }
-
-    private void _LoadQuestStatus(SQLResult result)
-    {
-        ushort slot = 0;
-
-        if (!result.IsEmpty())
-            do
-            {
-                var questId = result.Read<uint>(0);
-                // used to be new, no delete?
-                var quest = Global.ObjectMgr.GetQuestTemplate(questId);
-
-                if (quest != null)
-                {
-                    // find or create
-                    QuestStatusData questStatusData = new();
-
-                    var qstatus = result.Read<byte>(1);
-
-                    if (qstatus < (byte)QuestStatus.Max)
-                    {
-                        questStatusData.Status = (QuestStatus)qstatus;
-                    }
-                    else
-                    {
-                        questStatusData.Status = QuestStatus.Incomplete;
-
-                        Log.Logger.Error("Player {0} (GUID: {1}) has invalid quest {2} status ({3}), replaced by QUEST_STATUS_INCOMPLETE(3).",
-                                         GetName(),
-                                         GUID.ToString(),
-                                         questId,
-                                         qstatus);
-                    }
-
-                    questStatusData.Explored = result.Read<byte>(2) > 0;
-
-                    var acceptTime = result.Read<long>(3);
-                    var endTime = result.Read<long>(4);
-
-                    if (quest.LimitTime != 0 && !GetQuestRewardStatus(questId))
-                    {
-                        AddTimedQuest(questId);
-
-                        if (endTime <= GameTime.GetGameTime())
-                            questStatusData.Timer = 1;
-                        else
-                            questStatusData.Timer = (uint)((endTime - GameTime.GetGameTime()) * Time.InMilliseconds);
-                    }
-                    else
-                    {
-                        endTime = 0;
-                    }
-
-                    // add to quest log
-                    if (slot < SharedConst.MaxQuestLogSize && questStatusData.Status != QuestStatus.None)
-                    {
-                        questStatusData.Slot = slot;
-
-                        foreach (var obj in quest.Objectives)
-                            _questObjectiveStatus.Add((obj.Type, obj.ObjectID),
-                                                      new QuestObjectiveStatusData()
-                                                      {
-                                                          QuestStatusPair = (questId, questStatusData),
-                                                          Objective = obj
-                                                      });
-
-                        SetQuestSlot(slot, questId);
-                        SetQuestSlotEndTime(slot, endTime);
-                        SetQuestSlotAcceptTime(slot, acceptTime);
-
-                        if (questStatusData.Status == QuestStatus.Complete)
-                            SetQuestSlotState(slot, QuestSlotStateMask.Complete);
-                        else if (questStatusData.Status == QuestStatus.Failed)
-                            SetQuestSlotState(slot, QuestSlotStateMask.Fail);
-
-                        ++slot;
-                    }
-
-                    _mQuestStatus[questId] = questStatusData;
-                    Log.Logger.Debug("Quest status is {0} for quest {1} for player (GUID: {2})", questStatusData.Status, questId, GUID.ToString());
-                }
-            } while (result.NextRow());
-
-        // clear quest log tail
-        for (var i = slot; i < SharedConst.MaxQuestLogSize; ++i)
-            SetQuestSlot(i, 0);
-    }
-
-    private void _LoadQuestStatusObjectives(SQLResult result)
-    {
-        if (!result.IsEmpty())
-            do
-            {
-                var questID = result.Read<uint>(0);
-
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
-
-                var questStatusData = _mQuestStatus.LookupByKey(questID);
-
-                if (questStatusData is { Slot: < SharedConst.MaxQuestLogSize } && quest != null)
-                {
-                    var storageIndex = result.Read<byte>(1);
-
-                    var objective = quest.Objectives.FirstOrDefault(objective => objective.StorageIndex == storageIndex);
-
-                    if (objective != null)
-                    {
-                        var data = result.Read<int>(2);
-
-                        if (!objective.IsStoringFlag())
-                            SetQuestSlotCounter(questStatusData.Slot, storageIndex, (ushort)data);
-                        else if (data != 0)
-                            SetQuestSlotObjectiveFlag(questStatusData.Slot, (sbyte)storageIndex);
-                    }
-                    else
-                    {
-                        Log.Logger.Error($"Player {GetName()} ({GUID}) has quest {questID} out of range objective index {storageIndex}.");
-                    }
-                }
-                else
-                {
-                    Log.Logger.Error($"Player {GetName()} ({GUID}) does not have quest {questID} but has objective data for it.");
-                }
-            } while (result.NextRow());
-    }
-
-    private void _LoadQuestStatusRewarded(SQLResult result)
-    {
-        if (!result.IsEmpty())
-            do
-            {
-                var questID = result.Read<uint>(0);
-                // used to be new, no delete?
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
-
-                if (quest != null)
-                {
-                    // learn rewarded spell if unknown
-                    LearnQuestRewardedSpells(quest);
-
-                    // set rewarded title if any
-                    if (quest.RewardTitleId != 0)
-                    {
-                        var titleEntry = CliDB.CharTitlesStorage.LookupByKey(quest.RewardTitleId);
-
-                        if (titleEntry != null)
-                            SetTitle(titleEntry);
-                    }
-
-                    // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
-                    // instead add them separately from load daily/weekly/monthly/seasonal
-                    if (!quest.IsDailyOrWeekly && !quest.IsMonthly && !quest.IsSeasonal)
-                    {
-                        var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
-
-                        if (questBit != 0)
-                            SetQuestCompletedBit(questBit, true);
-                    }
-
-                    for (uint i = 0; i < quest.RewChoiceItemsCount; ++i)
-                        Session.CollectionMgr.AddItemAppearance(quest.RewardChoiceItemId[i]);
-
-                    for (uint i = 0; i < quest.RewItemsCount; ++i)
-                        Session.CollectionMgr.AddItemAppearance(quest.RewardItemId[i]);
-
-                    var questPackageItems = Global.DB2Mgr.GetQuestPackageItems(quest.PackageID);
-
-                    if (questPackageItems != null)
-                        foreach (var questPackageItem in questPackageItems)
-                        {
-                            var rewardProto = Global.ObjectMgr.GetItemTemplate(questPackageItem.ItemID);
-
-                            if (rewardProto != null)
-                                if (rewardProto.ItemSpecClassMask.HasAnyFlag(ClassMask))
-                                    Session.CollectionMgr.AddItemAppearance(questPackageItem.ItemID);
-                        }
-
-                    if (quest.CanIncreaseRewardedQuestCounters())
-                        _rewardedQuests.Add(questID);
-                }
-            } while (result.NextRow());
-    }
-
-    private void _LoadDailyQuestStatus(SQLResult result)
-    {
-        _dfQuests.Clear();
-
-        //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, time FROM character_queststatus_daily WHERE guid = '{0}'");
-        if (!result.IsEmpty())
-            do
-            {
-                var questID = result.Read<uint>(0);
-                var qQuest = Global.ObjectMgr.GetQuestTemplate(questID);
-
-                if (qQuest != null)
-                    if (qQuest.IsDFQuest)
-                    {
-                        _dfQuests.Add(qQuest.Id);
-                        _lastDailyQuestTime = result.Read<uint>(1);
-
-                        continue;
-                    }
-
-                // save _any_ from daily quest times (it must be after last reset anyway)
-                _lastDailyQuestTime = result.Read<long>(1);
-
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
-
-                if (quest == null)
-                    continue;
-
-                AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DailyQuestsCompleted), questID);
-                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
-
-                if (questBit != 0)
-                    SetQuestCompletedBit(questBit, true);
-
-                Log.Logger.Debug("Daily quest ({0}) cooldown for player (GUID: {1})", questID, GUID.ToString());
-            } while (result.NextRow());
-
-        _dailyQuestChanged = false;
-    }
-
-    private void _LoadWeeklyQuestStatus(SQLResult result)
-    {
-        _weeklyquests.Clear();
-
-        if (!result.IsEmpty())
-            do
-            {
-                var questID = result.Read<uint>(0);
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
-
-                if (quest == null)
-                    continue;
-
-                _weeklyquests.Add(questID);
-                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
-
-                if (questBit != 0)
-                    SetQuestCompletedBit(questBit, true);
-
-                Log.Logger.Debug("Weekly quest {0} cooldown for player (GUID: {1})", questID, GUID.ToString());
-            } while (result.NextRow());
-
-        _weeklyQuestChanged = false;
-    }
-
-    private void _LoadSeasonalQuestStatus(SQLResult result)
-    {
-        _seasonalquests.Clear();
-
-        if (!result.IsEmpty())
-            do
-            {
-                var questID = result.Read<uint>(0);
-                var eventID = result.Read<uint>(1);
-                var completedTime = result.Read<long>(2);
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
-
-                if (quest == null)
-                    continue;
-
-                if (!_seasonalquests.ContainsKey(eventID))
-                    _seasonalquests[eventID] = new Dictionary<uint, long>();
-
-                _seasonalquests[eventID][questID] = completedTime;
-
-                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
-
-                if (questBit != 0)
-                    SetQuestCompletedBit(questBit, true);
-
-                Log.Logger.Debug("Seasonal quest {0} cooldown for player (GUID: {1})", questID, GUID.ToString());
-            } while (result.NextRow());
-
-        _seasonalQuestChanged = false;
-    }
-
-    private void _LoadMonthlyQuestStatus()
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_MONTHLY);
-        stmt.AddValue(0, GUID.Counter);
-        var result = DB.Characters.Query(stmt);
-
-        _monthlyquests.Clear();
-
-        if (!result.IsEmpty())
-            do
-            {
-                var questID = result.Read<uint>(0);
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
-
-                if (quest == null)
-                    continue;
-
-                _monthlyquests.Add(questID);
-                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
-
-                if (questBit != 0)
-                    SetQuestCompletedBit(questBit, true);
-
-                Log.Logger.Debug("Monthly quest {0} cooldown for player (GUID: {1})", questID, GUID.ToString());
-            } while (result.NextRow());
-
-        _monthlyQuestChanged = false;
     }
 
     private void _LoadTalents(SQLResult result)
@@ -3190,22 +3532,6 @@ public partial class Player
 
                 if (talent != null)
                     AddTalent(talent, result.Read<byte>(1), false);
-            } while (result.NextRow());
-    }
-
-    private void _LoadPvpTalents(SQLResult result)
-    {
-        // "SELECT talentID0, talentID1, talentID2, talentID3, talentGroup FROM character_pvp_talent WHERE guid = ?"
-        if (!result.IsEmpty())
-            do
-            {
-                for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
-                {
-                    var talent = CliDB.PvpTalentStorage.LookupByKey(result.Read<uint>(slot));
-
-                    if (talent != null)
-                        AddPvpTalent(talent, result.Read<byte>(4), slot);
-                }
             } while (result.NextRow());
     }
 
@@ -3343,32 +3669,44 @@ public partial class Player
         }
     }
 
-    private void _LoadGlyphs(SQLResult result)
+    private void _LoadTransmogOutfits(SQLResult result)
     {
-        // SELECT talentGroup, glyphId from character_glyphs WHERE guid = ?
+        //             0         1     2         3            4            5            6            7            8            9
+        //SELECT setguid, setindex, name, iconname, ignore_mask, appearance0, appearance1, appearance2, appearance3, appearance4,
+        //             10           11           12           13           14            15            16            17            18            19            20            21
+        //    appearance5, appearance6, appearance7, appearance8, appearance9, appearance10, appearance11, appearance12, appearance13, appearance14, appearance15, appearance16,
+        //              22            23               24              25
+        //    appearance17, appearance18, mainHandEnchant, offHandEnchant FROM character_transmog_outfits WHERE guid = ? ORDER BY setindex
         if (result.IsEmpty())
             return;
 
         do
         {
-            var spec = result.Read<byte>(0);
+            EquipmentSetInfo eqSet = new()
+            {
+                Data =
+                {
+                    Guid = result.Read<ulong>(0),
+                    Type = EquipmentSetInfo.EquipmentSetType.Transmog,
+                    SetId = result.Read<byte>(1),
+                    SetName = result.Read<string>(2),
+                    SetIcon = result.Read<string>(3),
+                    IgnoreMask = result.Read<uint>(4)
+                },
+                State = EquipmentSetUpdateState.Unchanged
+            };
 
-            if (spec >= PlayerConst.MaxSpecializations || Global.DB2Mgr.GetChrSpecializationByIndex(Class, spec) == null)
+            for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+                eqSet.Data.Appearances[i] = result.Read<int>(5 + i);
+
+            for (var i = 0; i < eqSet.Data.Enchants.Length; ++i)
+                eqSet.Data.Enchants[i] = result.Read<int>(24 + i);
+
+            if (eqSet.Data.SetId >= ItemConst.MaxEquipmentSetIndex) // client limit
                 continue;
 
-            var glyphId = result.Read<ushort>(1);
-
-            if (!CliDB.GlyphPropertiesStorage.ContainsKey(glyphId))
-                continue;
-
-            GetGlyphs(spec).Add(glyphId);
+            _equipmentSets[eqSet.Data.Guid] = eqSet;
         } while (result.NextRow());
-    }
-
-    private void _LoadGlyphAuras()
-    {
-        foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
-            CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
     }
 
     private void _LoadVoidStorage(SQLResult result)
@@ -3422,382 +3760,430 @@ public partial class Player
         } while (result.NextRow());
     }
 
-    private static Item _LoadMailedItem(ObjectGuid playerGuid, Player player, ulong mailId, Mail mail, SQLFields fields, ItemAdditionalLoadInfo addionalData)
+    private void _LoadWeeklyQuestStatus(SQLResult result)
     {
-        var itemGuid = fields.Read<ulong>(0);
-        var itemEntry = fields.Read<uint>(1);
+        _weeklyquests.Clear();
 
-        var proto = Global.ObjectMgr.GetItemTemplate(itemEntry);
+        if (!result.IsEmpty())
+            do
+            {
+                var questID = result.Read<uint>(0);
+                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
 
-        if (proto == null)
+                if (quest == null)
+                    continue;
+
+                _weeklyquests.Add(questID);
+                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questID);
+
+                if (questBit != 0)
+                    SetQuestCompletedBit(questBit, true);
+
+                Log.Logger.Debug("Weekly quest {0} cooldown for player (GUID: {1})", questID, GUID.ToString());
+            } while (result.NextRow());
+
+        _weeklyQuestChanged = false;
+    }
+
+    private void _SaveActions(SQLTransaction trans)
+    {
+        var traitConfigId = 0;
+
+        var traitConfig = GetTraitConfig((int)(uint)ActivePlayerData.ActiveCombatTraitConfigID);
+
+        if (traitConfig != null)
         {
-            Log.Logger.Error($"Player {(player != null ? player.GetName() : "<unknown>")} ({playerGuid}) has unknown item in mailed items (GUID: {itemGuid} template: {itemEntry}) in mail ({mailId}), deleted.");
+            var usedSavedTraitConfigIndex = ActivePlayerData.TraitConfigs.FindIndexIf(savedConfig => { return (TraitConfigType)(int)savedConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)savedConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None && ((TraitCombatConfigFlags)(int)savedConfig.CombatConfigFlags & TraitCombatConfigFlags.SharedActionBars) == TraitCombatConfigFlags.None && savedConfig.LocalIdentifier == traitConfig.LocalIdentifier; });
 
-            SQLTransaction trans = new();
+            if (usedSavedTraitConfigIndex >= 0)
+                traitConfigId = ActivePlayerData.TraitConfigs[usedSavedTraitConfigIndex].ID;
+        }
 
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_MAIL_ITEM);
-            stmt.AddValue(0, itemGuid);
+        PreparedStatement stmt;
+
+        foreach (var pair in _actionButtons.ToList())
+            switch (pair.Value.UState)
+            {
+                case ActionButtonUpdateState.New:
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACTION);
+                    stmt.AddValue(0, GUID.Counter);
+                    stmt.AddValue(1, GetActiveTalentGroup());
+                    stmt.AddValue(2, traitConfigId);
+                    stmt.AddValue(3, pair.Key);
+                    stmt.AddValue(4, pair.Value.GetAction());
+                    stmt.AddValue(5, (byte)pair.Value.GetButtonType());
+                    trans.Append(stmt);
+
+                    pair.Value.UState = ActionButtonUpdateState.UnChanged;
+
+                    break;
+                case ActionButtonUpdateState.Changed:
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_ACTION);
+                    stmt.AddValue(0, pair.Value.GetAction());
+                    stmt.AddValue(1, (byte)pair.Value.GetButtonType());
+                    stmt.AddValue(2, GUID.Counter);
+                    stmt.AddValue(3, pair.Key);
+                    stmt.AddValue(4, GetActiveTalentGroup());
+                    stmt.AddValue(5, traitConfigId);
+                    trans.Append(stmt);
+
+                    pair.Value.UState = ActionButtonUpdateState.UnChanged;
+
+                    break;
+                case ActionButtonUpdateState.Deleted:
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_BUTTON_SPEC);
+                    stmt.AddValue(0, GUID.Counter);
+                    stmt.AddValue(1, pair.Key);
+                    stmt.AddValue(2, GetActiveTalentGroup());
+                    stmt.AddValue(3, traitConfigId);
+                    trans.Append(stmt);
+
+                    _actionButtons.Remove(pair.Key);
+
+                    break;
+                default:
+                    break;
+            }
+    }
+
+    private void _SaveAuras(SQLTransaction trans)
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_EFFECT);
+        stmt.AddValue(0, GUID.Counter);
+        trans.Append(stmt);
+
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA);
+        stmt.AddValue(0, GUID.Counter);
+        trans.Append(stmt);
+
+        byte index;
+
+        foreach (var aura in GetAuraQuery().CanBeSaved().GetResults())
+        {
+            var key = aura.GenerateKey(out var recalculateMask);
+
+            index = 0;
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_AURA);
+            stmt.AddValue(index++, GUID.Counter);
+            stmt.AddValue(index++, key.Caster.GetRawValue());
+            stmt.AddValue(index++, key.Item.GetRawValue());
+            stmt.AddValue(index++, key.SpellId);
+            stmt.AddValue(index++, key.EffectMask);
+            stmt.AddValue(index++, recalculateMask);
+            stmt.AddValue(index++, (byte)aura.CastDifficulty);
+            stmt.AddValue(index++, aura.StackAmount);
+            stmt.AddValue(index++, aura.MaxDuration);
+            stmt.AddValue(index++, aura.Duration);
+            stmt.AddValue(index++, aura.Charges);
+            stmt.AddValue(index++, aura.CastItemId);
+            stmt.AddValue(index, aura.CastItemLevel);
             trans.Append(stmt);
 
-            Item.DeleteFromDB(trans, itemGuid);
-            AzeriteItem.DeleteFromDB(trans, itemGuid);
-            AzeriteEmpoweredItem.DeleteFromDB(trans, itemGuid);
-
-            DB.Characters.CommitTransaction(trans);
-
-            return null;
-        }
-
-        var item = Item.NewItemOrBag(proto);
-        var ownerGuid = fields.Read<ulong>(51) != 0 ? ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(51)) : ObjectGuid.Empty;
-
-        if (!item.LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
-        {
-            Log.Logger.Error($"Player._LoadMailedItems: Item (GUID: {itemGuid}) in mail ({mailId}) doesn't exist, deleted from mail.");
-
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM);
-            stmt.AddValue(0, itemGuid);
-            DB.Characters.Execute(stmt);
-
-            item.FSetState(ItemUpdateState.Removed);
-
-            item.SaveToDB(null); // it also deletes item object !
-
-            return null;
-        }
-
-        if (addionalData != null)
-        {
-            if (item.Template.ArtifactID != 0 && addionalData.Artifact != null)
-                item.LoadArtifactData(player,
-                                      addionalData.Artifact.Xp,
-                                      addionalData.Artifact.ArtifactAppearanceId,
-                                      addionalData.Artifact.ArtifactTierId,
-                                      addionalData.Artifact.ArtifactPowers);
-
-            if (addionalData.AzeriteItem != null)
+            foreach (var effect in aura.AuraEffects)
             {
-                var azeriteItem = item.AsAzeriteItem;
-
-                azeriteItem?.LoadAzeriteItemData(player, addionalData.AzeriteItem);
-            }
-
-            if (addionalData.AzeriteEmpoweredItem != null)
-            {
-                var azeriteEmpoweredItem = item.AsAzeriteEmpoweredItem;
-
-                azeriteEmpoweredItem?.LoadAzeriteEmpoweredItemData(player, addionalData.AzeriteEmpoweredItem);
+                index = 0;
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_AURA_EFFECT);
+                stmt.AddValue(index++, GUID.Counter);
+                stmt.AddValue(index++, key.Caster.GetRawValue());
+                stmt.AddValue(index++, key.Item.GetRawValue());
+                stmt.AddValue(index++, key.SpellId);
+                stmt.AddValue(index++, key.EffectMask);
+                stmt.AddValue(index++, effect.Value.EffIndex);
+                stmt.AddValue(index++, effect.Value.Amount);
+                stmt.AddValue(index++, effect.Value.BaseAmount);
+                trans.Append(stmt);
             }
         }
-
-        mail?.AddItem(itemGuid, itemEntry);
-
-        player?.AddMItem(item);
-
-        return item;
     }
 
-    private void _LoadDeclinedNames(SQLResult result)
+    private void _SaveBGData(SQLTransaction trans)
     {
-        if (result.IsEmpty())
-            return;
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_BGDATA);
+        stmt.AddValue(0, GUID.Counter);
+        trans.Append(stmt);
 
-        DeclinedNames = new DeclinedName();
-
-        for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-            DeclinedNames.Name[i] = result.Read<string>(i);
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PLAYER_BGDATA);
+        stmt.AddValue(0, GUID.Counter);
+        stmt.AddValue(1, _bgData.BgInstanceId);
+        stmt.AddValue(2, _bgData.BgTeam);
+        stmt.AddValue(3, _bgData.JoinPos.X);
+        stmt.AddValue(4, _bgData.JoinPos.Y);
+        stmt.AddValue(5, _bgData.JoinPos.Z);
+        stmt.AddValue(6, _bgData.JoinPos.Orientation);
+        stmt.AddValue(7, (ushort)_bgData.JoinPos.MapId);
+        stmt.AddValue(8, _bgData.TaxiPath[0]);
+        stmt.AddValue(9, _bgData.TaxiPath[1]);
+        stmt.AddValue(10, _bgData.MountSpell);
+        trans.Append(stmt);
     }
 
-    private void _LoadArenaTeamInfo(SQLResult result)
+    private void _SaveCUFProfiles(SQLTransaction trans)
     {
-        // arenateamid, played_week, played_season, personal_rating
-        ushort[] personalRatingCache =
+        PreparedStatement stmt;
+        var lowGuid = GUID.Counter;
+
+        for (byte i = 0; i < PlayerConst.MaxCUFProfiles; ++i)
         {
-            0, 0, 0
-        };
-
-        if (!result.IsEmpty())
-            do
+            if (_cufProfiles[i] == null) // unused profile
             {
-                var arenaTeamId = result.Read<uint>(0);
-
-                var arenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(arenaTeamId);
-
-                if (arenaTeam == null)
-                {
-                    Log.Logger.Error("Player:_LoadArenaTeamInfo: couldn't load arenateam {0}", arenaTeamId);
-
-                    continue;
-                }
-
-                var arenaSlot = arenaTeam.GetSlot();
-
-                personalRatingCache[arenaSlot] = result.Read<ushort>(4);
-
-                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.Id, arenaTeamId);
-                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.Type, arenaTeam.GetArenaType());
-                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.Member, (uint)(arenaTeam.GetCaptain() == GUID ? 0 : 1));
-                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.GamesWeek, result.Read<ushort>(1));
-                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.GamesSeason, result.Read<ushort>(2));
-                SetArenaTeamInfoField(arenaSlot, ArenaTeamInfoType.WinsSeason, result.Read<ushort>(3));
-            } while (result.NextRow());
-
-        for (byte slot = 0; slot <= 2; ++slot)
-            SetArenaTeamInfoField(slot, ArenaTeamInfoType.PersonalRating, personalRatingCache[slot]);
-    }
-
-    private void _LoadStoredAuraTeleportLocations(SQLResult result)
-    {
-        //                                                       0      1      2          3          4          5
-        //QueryResult* result = CharacterDatabase.PQuery("SELECT Spell, MapId, PositionX, PositionY, PositionZ, Orientation FROM character_spell_location WHERE Guid = ?", GetGUIDLow());
-
-        _storedAuraTeleportLocations.Clear();
-
-        if (!result.IsEmpty())
-            do
-            {
-                var spellId = result.Read<uint>(0);
-
-                if (!Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
-                {
-                    Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) does not exist");
-
-                    continue;
-                }
-
-                WorldLocation location = new(result.Read<uint>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
-
-                if (!GridDefines.IsValidMapCoord(location))
-                {
-                    Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) has invalid position on map {location.MapId}, {location}.");
-
-                    continue;
-                }
-
-                StoredAuraTeleportLocation storedLocation = new()
-                {
-                    Loc = location,
-                    CurrentState = StoredAuraTeleportLocation.State.Unchanged
-                };
-
-                _storedAuraTeleportLocations[spellId] = storedLocation;
-            } while (result.NextRow());
-    }
-
-    private void _LoadGroup(SQLResult result)
-    {
-        if (!result.IsEmpty())
-        {
-            var group = Global.GroupMgr.GetGroupByDbStoreId(result.Read<uint>(0));
-
-            if (group)
-            {
-                if (group.IsLeader(GUID))
-                    SetPlayerFlag(PlayerFlags.GroupLeader);
-
-                var subgroup = group.GetMemberGroup(GUID);
-                SetGroup(group, subgroup);
-                SetPartyType(group.GroupCategory, GroupType.Normal);
-                ResetGroupUpdateSequenceIfNeeded(group);
-
-                // the group leader may change the instance difficulty while the player is offline
-                DungeonDifficultyId = group.DungeonDifficultyID;
-                RaidDifficultyId = group.RaidDifficultyID;
-                LegacyRaidDifficultyId = group.LegacyRaidDifficultyID;
+                // DELETE FROM character_cuf_profiles WHERE guid = ? and id = ?
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_CUF_PROFILES_BY_ID);
+                stmt.AddValue(0, lowGuid);
+                stmt.AddValue(1, i);
             }
+            else
+            {
+                // REPLACE INTO character_cuf_profiles (guid, id, name, frameHeight, frameWidth, sortBy, healthText, boolOptions, unk146, unk147, unk148, unk150, unk152, unk154) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CHAR_CUF_PROFILES);
+                stmt.AddValue(0, lowGuid);
+                stmt.AddValue(1, i);
+                stmt.AddValue(2, _cufProfiles[i].ProfileName);
+                stmt.AddValue(3, _cufProfiles[i].FrameHeight);
+                stmt.AddValue(4, _cufProfiles[i].FrameWidth);
+                stmt.AddValue(5, _cufProfiles[i].SortBy);
+                stmt.AddValue(6, _cufProfiles[i].HealthText);
+                stmt.AddValue(7, (uint)_cufProfiles[i].GetUlongOptionValue()); // 25 of 32 fields used, fits in an int
+                stmt.AddValue(8, _cufProfiles[i].TopPoint);
+                stmt.AddValue(9, _cufProfiles[i].BottomPoint);
+                stmt.AddValue(10, _cufProfiles[i].LeftPoint);
+                stmt.AddValue(11, _cufProfiles[i].TopOffset);
+                stmt.AddValue(12, _cufProfiles[i].BottomOffset);
+                stmt.AddValue(13, _cufProfiles[i].LeftOffset);
+            }
+
+            trans.Append(stmt);
         }
-
-        if (!Group || !Group.IsLeader(GUID))
-            RemovePlayerFlag(PlayerFlags.GroupLeader);
     }
 
-    private void _LoadInstanceTimeRestrictions(SQLResult result)
+    private void _SaveCurrency(SQLTransaction trans)
     {
-        if (result.IsEmpty())
-            return;
+        PreparedStatement stmt;
 
-        do
+        foreach (var (id, currency) in _currencyStorage)
         {
-            _instanceResetTimes.Add(result.Read<uint>(0), result.Read<long>(1));
-        } while (result.NextRow());
-    }
+            var entry = CliDB.CurrencyTypesStorage.LookupByKey(id);
 
-    private void _LoadEquipmentSets(SQLResult result)
-    {
-        if (result.IsEmpty())
-            return;
-
-        do
-        {
-            EquipmentSetInfo eqSet = new()
-            {
-                Data =
-                {
-                    Guid = result.Read<ulong>(0),
-                    Type = EquipmentSetInfo.EquipmentSetType.Equipment,
-                    SetId = result.Read<byte>(1),
-                    SetName = result.Read<string>(2),
-                    SetIcon = result.Read<string>(3),
-                    IgnoreMask = result.Read<uint>(4),
-                    AssignedSpecIndex = result.Read<int>(5)
-                },
-                State = EquipmentSetUpdateState.Unchanged
-            };
-
-            for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
-            {
-                ulong guid = result.Read<uint>(6 + i);
-
-                if (guid != 0)
-                    eqSet.Data.Pieces[i] = ObjectGuid.Create(HighGuid.Item, guid);
-            }
-
-            if (eqSet.Data.SetId >= ItemConst.MaxEquipmentSetIndex) // client limit
+            if (entry == null) // should never happen
                 continue;
 
-            _equipmentSets[eqSet.Data.Guid] = eqSet;
-        } while (result.NextRow());
-    }
-
-    private void _LoadTransmogOutfits(SQLResult result)
-    {
-        //             0         1     2         3            4            5            6            7            8            9
-        //SELECT setguid, setindex, name, iconname, ignore_mask, appearance0, appearance1, appearance2, appearance3, appearance4,
-        //             10           11           12           13           14            15            16            17            18            19            20            21
-        //    appearance5, appearance6, appearance7, appearance8, appearance9, appearance10, appearance11, appearance12, appearance13, appearance14, appearance15, appearance16,
-        //              22            23               24              25
-        //    appearance17, appearance18, mainHandEnchant, offHandEnchant FROM character_transmog_outfits WHERE guid = ? ORDER BY setindex
-        if (result.IsEmpty())
-            return;
-
-        do
-        {
-            EquipmentSetInfo eqSet = new()
+            switch (currency.State)
             {
-                Data =
-                {
-                    Guid = result.Read<ulong>(0),
-                    Type = EquipmentSetInfo.EquipmentSetType.Transmog,
-                    SetId = result.Read<byte>(1),
-                    SetName = result.Read<string>(2),
-                    SetIcon = result.Read<string>(3),
-                    IgnoreMask = result.Read<uint>(4)
-                },
-                State = EquipmentSetUpdateState.Unchanged
-            };
+                case PlayerCurrencyState.New:
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_PLAYER_CURRENCY);
+                    stmt.AddValue(0, GUID.Counter);
+                    stmt.AddValue(1, id);
+                    stmt.AddValue(2, currency.Quantity);
+                    stmt.AddValue(3, currency.WeeklyQuantity);
+                    stmt.AddValue(4, currency.TrackedQuantity);
+                    stmt.AddValue(5, currency.IncreasedCapQuantity);
+                    stmt.AddValue(6, currency.EarnedQuantity);
+                    stmt.AddValue(7, (byte)currency.Flags);
+                    trans.Append(stmt);
 
-            for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
-                eqSet.Data.Appearances[i] = result.Read<int>(5 + i);
+                    break;
+                case PlayerCurrencyState.Changed:
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PLAYER_CURRENCY);
+                    stmt.AddValue(0, currency.Quantity);
+                    stmt.AddValue(1, currency.WeeklyQuantity);
+                    stmt.AddValue(2, currency.TrackedQuantity);
+                    stmt.AddValue(3, currency.IncreasedCapQuantity);
+                    stmt.AddValue(4, currency.EarnedQuantity);
+                    stmt.AddValue(5, (byte)currency.Flags);
+                    stmt.AddValue(6, GUID.Counter);
+                    stmt.AddValue(7, id);
+                    trans.Append(stmt);
 
-            for (var i = 0; i < eqSet.Data.Enchants.Length; ++i)
-                eqSet.Data.Enchants[i] = result.Read<int>(24 + i);
-
-            if (eqSet.Data.SetId >= ItemConst.MaxEquipmentSetIndex) // client limit
-                continue;
-
-            _equipmentSets[eqSet.Data.Guid] = eqSet;
-        } while (result.NextRow());
-    }
-
-    private void _LoadCUFProfiles(SQLResult result)
-    {
-        if (result.IsEmpty())
-            return;
-
-        do
-        {
-            var id = result.Read<byte>(0);
-            var name = result.Read<string>(1);
-            var frameHeight = result.Read<ushort>(2);
-            var frameWidth = result.Read<ushort>(3);
-            var sortBy = result.Read<byte>(4);
-            var healthText = result.Read<byte>(5);
-            var boolOptions = result.Read<uint>(6);
-            var topPoint = result.Read<byte>(7);
-            var bottomPoint = result.Read<byte>(8);
-            var leftPoint = result.Read<byte>(9);
-            var topOffset = result.Read<ushort>(10);
-            var bottomOffset = result.Read<ushort>(11);
-            var leftOffset = result.Read<ushort>(12);
-
-            if (id > PlayerConst.MaxCUFProfiles)
-            {
-                Log.Logger.Error("Player._LoadCUFProfiles - Player (GUID: {0}, name: {1}) has an CUF profile with invalid id (id: {2}), max is {3}.", GUID.ToString(), GetName(), id, PlayerConst.MaxCUFProfiles);
-
-                continue;
+                    break;
+                default:
+                    break;
             }
 
-            _cufProfiles[id] = new CufProfile(name, frameHeight, frameWidth, sortBy, healthText, boolOptions, topPoint, bottomPoint, leftPoint, topOffset, bottomOffset, leftOffset);
-        } while (result.NextRow());
+            currency.State = PlayerCurrencyState.Unchanged;
+        }
     }
 
-    private void _LoadRandomBGStatus(SQLResult result)
+    private void _SaveCustomizations(SQLTransaction trans)
     {
-        if (!result.IsEmpty())
-            _isBgRandomWinner = true;
-    }
-
-    private void _LoadBGData(SQLResult result)
-    {
-        if (result.IsEmpty())
+        if (!_customizationsChanged)
             return;
 
-        // Expecting only one row
-        //        0           1     2      3      4      5      6          7          8        9
-        // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell FROM character_Battleground_data WHERE guid = ?
-        _bgData.BgInstanceId = result.Read<uint>(0);
-        _bgData.BgTeam = result.Read<ushort>(1);
-        _bgData.JoinPos = new WorldLocation(result.Read<ushort>(6), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
-        _bgData.TaxiPath[0] = result.Read<uint>(7);
-        _bgData.TaxiPath[1] = result.Read<uint>(8);
-        _bgData.MountSpell = result.Read<uint>(9);
+        _customizationsChanged = false;
+
+        SavePlayerCustomizations(trans, GUID.Counter, PlayerData.Customizations);
     }
 
-    private void _LoadPetStable(uint summonedPetNumber, SQLResult result)
+    private void _SaveDailyQuestStatus(SQLTransaction trans)
     {
-        if (result.IsEmpty())
+        if (!_dailyQuestChanged)
             return;
 
-        PetStable1 = new PetStable();
+        _dailyQuestChanged = false;
 
-        //         0      1        2      3    4           5     6     7        8          9       10      11        12              13       14              15
-        // SELECT id, entry, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization FROM character_pet WHERE owner = ?
-        if (!result.IsEmpty())
-            do
+        // save last daily quest time for all quests: we need only mostly reset time for reset check anyway
+
+        // we don't need transactions here.
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_DAILY);
+        stmt.AddValue(0, GUID.Counter);
+
+        foreach (int questId in ActivePlayerData.DailyQuestsCompleted)
+        {
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_DAILY);
+            stmt.AddValue(0, GUID.Counter);
+            stmt.AddValue(1, questId);
+            stmt.AddValue(2, _lastDailyQuestTime);
+            trans.Append(stmt);
+        }
+
+        if (!_dfQuests.Empty())
+            foreach (var id in _dfQuests)
             {
-                PetStable.PetInfo petInfo = new()
-                {
-                    PetNumber = result.Read<uint>(0),
-                    CreatureId = result.Read<uint>(1),
-                    DisplayId = result.Read<uint>(2),
-                    Level = result.Read<byte>(3),
-                    Experience = result.Read<uint>(4),
-                    ReactState = (ReactStates)result.Read<byte>(5)
-                };
-
-                var slot = (PetSaveMode)result.Read<short>(6);
-                petInfo.Name = result.Read<string>(7);
-                petInfo.WasRenamed = result.Read<bool>(8);
-                petInfo.Health = result.Read<uint>(9);
-                petInfo.Mana = result.Read<uint>(10);
-                petInfo.ActionBar = result.Read<string>(11);
-                petInfo.LastSaveTime = result.Read<uint>(12);
-                petInfo.CreatedBySpellId = result.Read<uint>(13);
-                petInfo.Type = (PetType)result.Read<byte>(14);
-                petInfo.SpecializationId = result.Read<ushort>(15);
-
-                if (slot is >= PetSaveMode.FirstActiveSlot and < PetSaveMode.LastActiveSlot)
-                    PetStable1.ActivePets[(int)slot] = petInfo;
-                else if (slot is >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot)
-                    PetStable1.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
-                else if (slot == PetSaveMode.NotInSlot)
-                    PetStable1.UnslottedPets.Add(petInfo);
-            } while (result.NextRow());
-
-        if (Pet.GetLoadPetInfo(PetStable1, 0, summonedPetNumber, null).Item1 != null)
-            TemporaryUnsummonedPetNumber = summonedPetNumber;
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_DAILY);
+                stmt.AddValue(0, GUID.Counter);
+                stmt.AddValue(1, id);
+                stmt.AddValue(2, _lastDailyQuestTime);
+                trans.Append(stmt);
+            }
     }
 
+    private void _SaveEquipmentSets(SQLTransaction trans)
+    {
+        foreach (var pair in _equipmentSets)
+        {
+            var eqSet = pair.Value;
+            PreparedStatement stmt;
+            byte j = 0;
+
+            switch (eqSet.State)
+            {
+                case EquipmentSetUpdateState.Unchanged:
+                    break; // do nothing
+                case EquipmentSetUpdateState.Changed:
+                    if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+                    {
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_EQUIP_SET);
+                        stmt.AddValue(j++, eqSet.Data.SetName);
+                        stmt.AddValue(j++, eqSet.Data.SetIcon);
+                        stmt.AddValue(j++, eqSet.Data.IgnoreMask);
+                        stmt.AddValue(j++, eqSet.Data.AssignedSpecIndex);
+
+                        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+                            stmt.AddValue(j++, eqSet.Data.Pieces[i].Counter);
+
+                        stmt.AddValue(j++, GUID.Counter);
+                        stmt.AddValue(j++, eqSet.Data.Guid);
+                        stmt.AddValue(j, eqSet.Data.SetId);
+                    }
+                    else
+                    {
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_TRANSMOG_OUTFIT);
+                        stmt.AddValue(j++, eqSet.Data.SetName);
+                        stmt.AddValue(j++, eqSet.Data.SetIcon);
+                        stmt.AddValue(j++, eqSet.Data.IgnoreMask);
+
+                        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+                            stmt.AddValue(j++, eqSet.Data.Appearances[i]);
+
+                        for (var i = 0; i < eqSet.Data.Enchants.Length; ++i)
+                            stmt.AddValue(j++, eqSet.Data.Enchants[i]);
+
+                        stmt.AddValue(j++, GUID.Counter);
+                        stmt.AddValue(j++, eqSet.Data.Guid);
+                        stmt.AddValue(j, eqSet.Data.SetId);
+                    }
+
+                    trans.Append(stmt);
+                    eqSet.State = EquipmentSetUpdateState.Unchanged;
+
+                    break;
+                case EquipmentSetUpdateState.New:
+                    if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+                    {
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_EQUIP_SET);
+                        stmt.AddValue(j++, GUID.Counter);
+                        stmt.AddValue(j++, eqSet.Data.Guid);
+                        stmt.AddValue(j++, eqSet.Data.SetId);
+                        stmt.AddValue(j++, eqSet.Data.SetName);
+                        stmt.AddValue(j++, eqSet.Data.SetIcon);
+                        stmt.AddValue(j++, eqSet.Data.IgnoreMask);
+                        stmt.AddValue(j++, eqSet.Data.AssignedSpecIndex);
+
+                        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+                            stmt.AddValue(j++, eqSet.Data.Pieces[i].Counter);
+                    }
+                    else
+                    {
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_TRANSMOG_OUTFIT);
+                        stmt.AddValue(j++, GUID.Counter);
+                        stmt.AddValue(j++, eqSet.Data.Guid);
+                        stmt.AddValue(j++, eqSet.Data.SetId);
+                        stmt.AddValue(j++, eqSet.Data.SetName);
+                        stmt.AddValue(j++, eqSet.Data.SetIcon);
+                        stmt.AddValue(j++, eqSet.Data.IgnoreMask);
+
+                        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+                            stmt.AddValue(j++, eqSet.Data.Appearances[i]);
+
+                        for (var i = 0; i < eqSet.Data.Enchants.Length; ++i)
+                            stmt.AddValue(j++, eqSet.Data.Enchants[i]);
+                    }
+
+                    trans.Append(stmt);
+                    eqSet.State = EquipmentSetUpdateState.Unchanged;
+
+                    break;
+                case EquipmentSetUpdateState.Deleted:
+                    if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_EQUIP_SET);
+                    else
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_TRANSMOG_OUTFIT);
+
+                    stmt.AddValue(0, eqSet.Data.Guid);
+                    trans.Append(stmt);
+                    _equipmentSets.Remove(pair.Key);
+
+                    break;
+            }
+        }
+    }
+
+    private void _SaveGlyphs(SQLTransaction trans)
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_GLYPHS);
+        stmt.AddValue(0, GUID.Counter);
+        trans.Append(stmt);
+
+        for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
+            foreach (var glyphId in GetGlyphs(spec))
+            {
+                byte index = 0;
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_GLYPHS);
+                stmt.AddValue(index++, GUID.Counter);
+                stmt.AddValue(index++, spec);
+                stmt.AddValue(index++, glyphId);
+
+                trans.Append(stmt);
+            }
+    }
+
+    private void _SaveInstanceTimeRestrictions(SQLTransaction trans)
+    {
+        if (_instanceResetTimes.Empty())
+            return;
+
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
+        stmt.AddValue(0, Session.AccountId);
+        trans.Append(stmt);
+
+        foreach (var pair in _instanceResetTimes)
+        {
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ACCOUNT_INSTANCE_LOCK_TIMES);
+            stmt.AddValue(0, Session.AccountId);
+            stmt.AddValue(1, pair.Key);
+            stmt.AddValue(2, pair.Value);
+            trans.Append(stmt);
+        }
+    }
 
     private void _SaveInventory(SQLTransaction trans)
     {
@@ -3954,6 +4340,139 @@ public partial class Player
         ItemUpdateQueue.Clear();
     }
 
+    private void _SaveMonthlyQuestStatus(SQLTransaction trans)
+    {
+        if (!_monthlyQuestChanged || _monthlyquests.Empty())
+            return;
+
+        // we don't need transactions here.
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_MONTHLY);
+        stmt.AddValue(0, GUID.Counter);
+        trans.Append(stmt);
+
+        foreach (var questId in _monthlyquests)
+        {
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_MONTHLY);
+            stmt.AddValue(0, GUID.Counter);
+            stmt.AddValue(1, questId);
+            trans.Append(stmt);
+        }
+
+        _monthlyQuestChanged = false;
+    }
+
+    private void _SaveQuestStatus(SQLTransaction trans)
+    {
+        var isTransaction = trans != null;
+
+        if (!isTransaction)
+            trans = new SQLTransaction();
+
+        PreparedStatement stmt;
+        var keepAbandoned = !Global.WorldMgr.CleaningFlags.HasAnyFlag(CleaningFlags.Queststatus);
+
+        foreach (var save in _questStatusSave)
+            if (save.Value == QuestSaveType.Default)
+            {
+                var data = _mQuestStatus.LookupByKey(save.Key);
+
+                if (data != null && (keepAbandoned || data.Status != QuestStatus.None))
+                {
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CHAR_QUESTSTATUS);
+                    stmt.AddValue(0, GUID.Counter);
+                    stmt.AddValue(1, save.Key);
+                    stmt.AddValue(2, (byte)data.Status);
+                    stmt.AddValue(3, data.Explored);
+                    stmt.AddValue(4, (long)GetQuestSlotAcceptTime(data.Slot));
+                    stmt.AddValue(5, (long)GetQuestSlotEndTime(data.Slot));
+                    trans.Append(stmt);
+
+                    // Save objectives
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST);
+                    stmt.AddValue(0, GUID.Counter);
+                    stmt.AddValue(1, save.Key);
+                    trans.Append(stmt);
+
+                    var quest = Global.ObjectMgr.GetQuestTemplate(save.Key);
+
+                    foreach (var obj in quest.Objectives)
+                    {
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CHAR_QUESTSTATUS_OBJECTIVES);
+                        stmt.AddValue(0, GUID.Counter);
+                        stmt.AddValue(1, save.Key);
+                        stmt.AddValue(2, obj.StorageIndex);
+                        stmt.AddValue(3, GetQuestSlotObjectiveData(data.Slot, obj));
+                        trans.Append(stmt);
+                    }
+                }
+            }
+            else
+            {
+                // Delete
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_BY_QUEST);
+                stmt.AddValue(0, GUID.Counter);
+                stmt.AddValue(1, save.Key);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST);
+                stmt.AddValue(0, GUID.Counter);
+                stmt.AddValue(1, save.Key);
+                trans.Append(stmt);
+            }
+
+        _questStatusSave.Clear();
+
+        foreach (var save in _rewardedQuestsSave)
+            if (save.Value == QuestSaveType.Default)
+            {
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_REWARDED);
+                stmt.AddValue(0, GUID.Counter);
+                stmt.AddValue(1, save.Key);
+                trans.Append(stmt);
+            }
+            else if (save.Value == QuestSaveType.ForceDelete || !keepAbandoned)
+            {
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
+                stmt.AddValue(0, GUID.Counter);
+                stmt.AddValue(1, save.Key);
+                trans.Append(stmt);
+            }
+
+        _rewardedQuestsSave.Clear();
+
+        if (!isTransaction)
+            DB.Characters.CommitTransaction(trans);
+    }
+
+    private void _SaveSeasonalQuestStatus(SQLTransaction trans)
+    {
+        if (!_seasonalQuestChanged)
+            return;
+
+        // we don't need transactions here.
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_SEASONAL);
+        stmt.AddValue(0, GUID.Counter);
+        trans.Append(stmt);
+
+        _seasonalQuestChanged = false;
+
+        if (_seasonalquests.Empty())
+            return;
+
+        foreach (var (eventId, dictionary) in _seasonalquests)
+        {
+            foreach (var (questId, completedTime) in dictionary)
+            {
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_SEASONAL);
+                stmt.AddValue(0, GUID.Counter);
+                stmt.AddValue(1, questId);
+                stmt.AddValue(2, eventId);
+                stmt.AddValue(3, completedTime);
+                trans.Append(stmt);
+            }
+        }
+    }
+
     private void _SaveSkills(SQLTransaction trans)
     {
         PreparedStatement stmt; // = null;
@@ -4059,379 +4578,77 @@ public partial class Player
         }
     }
 
-    private void _SaveAuras(SQLTransaction trans)
+    private void _SaveStats(SQLTransaction trans)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_EFFECT);
+        // check if stat saving is enabled and if char level is high enough
+        if (GetDefaultValue("PlayerSave.Stats.MinLevel", 0) == 0 || Level < GetDefaultValue("PlayerSave.Stats.MinLevel", 0))
+            return;
+
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_STATS);
         stmt.AddValue(0, GUID.Counter);
         trans.Append(stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA);
-        stmt.AddValue(0, GUID.Counter);
+        byte index = 0;
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_STATS);
+        stmt.AddValue(index++, GUID.Counter);
+        stmt.AddValue(index++, MaxHealth);
+
+        for (byte i = 0; i < (int)PowerType.MaxPerClass; ++i)
+            stmt.AddValue(index++, UnitData.MaxPower[i]);
+
+        for (byte i = 0; i < (int)Stats.Max; ++i)
+            stmt.AddValue(index++, GetStat((Stats)i));
+
+        for (var i = 0; i < (int)SpellSchools.Max; ++i)
+            stmt.AddValue(index++, GetResistance((SpellSchools)i));
+
+        stmt.AddValue(index++, ActivePlayerData.BlockPercentage);
+        stmt.AddValue(index++, ActivePlayerData.DodgePercentage);
+        stmt.AddValue(index++, ActivePlayerData.ParryPercentage);
+        stmt.AddValue(index++, ActivePlayerData.CritPercentage);
+        stmt.AddValue(index++, ActivePlayerData.RangedCritPercentage);
+        stmt.AddValue(index++, ActivePlayerData.SpellCritPercentage);
+        stmt.AddValue(index++, UnitData.AttackPower);
+        stmt.AddValue(index++, UnitData.RangedAttackPower);
+        stmt.AddValue(index++, GetBaseSpellPowerBonus());
+        stmt.AddValue(index, ActivePlayerData.CombatRatings[(int)CombatRating.ResiliencePlayerDamage]);
+
         trans.Append(stmt);
-
-        byte index;
-
-        foreach (var aura in GetAuraQuery().CanBeSaved().GetResults())
-        {
-            var key = aura.GenerateKey(out var recalculateMask);
-
-            index = 0;
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_AURA);
-            stmt.AddValue(index++, GUID.Counter);
-            stmt.AddValue(index++, key.Caster.GetRawValue());
-            stmt.AddValue(index++, key.Item.GetRawValue());
-            stmt.AddValue(index++, key.SpellId);
-            stmt.AddValue(index++, key.EffectMask);
-            stmt.AddValue(index++, recalculateMask);
-            stmt.AddValue(index++, (byte)aura.CastDifficulty);
-            stmt.AddValue(index++, aura.StackAmount);
-            stmt.AddValue(index++, aura.MaxDuration);
-            stmt.AddValue(index++, aura.Duration);
-            stmt.AddValue(index++, aura.Charges);
-            stmt.AddValue(index++, aura.CastItemId);
-            stmt.AddValue(index, aura.CastItemLevel);
-            trans.Append(stmt);
-
-            foreach (var effect in aura.AuraEffects)
-            {
-                index = 0;
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_AURA_EFFECT);
-                stmt.AddValue(index++, GUID.Counter);
-                stmt.AddValue(index++, key.Caster.GetRawValue());
-                stmt.AddValue(index++, key.Item.GetRawValue());
-                stmt.AddValue(index++, key.SpellId);
-                stmt.AddValue(index++, key.EffectMask);
-                stmt.AddValue(index++, effect.Value.EffIndex);
-                stmt.AddValue(index++, effect.Value.Amount);
-                stmt.AddValue(index++, effect.Value.BaseAmount);
-                trans.Append(stmt);
-            }
-        }
     }
 
-    private void _SaveGlyphs(SQLTransaction trans)
+    private void _SaveStoredAuraTeleportLocations(SQLTransaction trans)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_GLYPHS);
-        stmt.AddValue(0, GUID.Counter);
-        trans.Append(stmt);
-
-        for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
-            foreach (var glyphId in GetGlyphs(spec))
-            {
-                byte index = 0;
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_GLYPHS);
-                stmt.AddValue(index++, GUID.Counter);
-                stmt.AddValue(index++, spec);
-                stmt.AddValue(index++, glyphId);
-
-                trans.Append(stmt);
-            }
-    }
-
-    private void _SaveCurrency(SQLTransaction trans)
-    {
-        PreparedStatement stmt;
-
-        foreach (var (id, currency) in _currencyStorage)
+        foreach (var pair in _storedAuraTeleportLocations.ToList())
         {
-            var entry = CliDB.CurrencyTypesStorage.LookupByKey(id);
+            var storedLocation = pair.Value;
 
-            if (entry == null) // should never happen
+            if (storedLocation.CurrentState == StoredAuraTeleportLocation.State.Deleted)
+            {
+                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_AURA_STORED_LOCATION);
+                stmt.AddValue(0, GUID.Counter);
+                trans.Append(stmt);
+                _storedAuraTeleportLocations.Remove(pair.Key);
+
                 continue;
-
-            switch (currency.State)
-            {
-                case PlayerCurrencyState.New:
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_PLAYER_CURRENCY);
-                    stmt.AddValue(0, GUID.Counter);
-                    stmt.AddValue(1, id);
-                    stmt.AddValue(2, currency.Quantity);
-                    stmt.AddValue(3, currency.WeeklyQuantity);
-                    stmt.AddValue(4, currency.TrackedQuantity);
-                    stmt.AddValue(5, currency.IncreasedCapQuantity);
-                    stmt.AddValue(6, currency.EarnedQuantity);
-                    stmt.AddValue(7, (byte)currency.Flags);
-                    trans.Append(stmt);
-
-                    break;
-                case PlayerCurrencyState.Changed:
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PLAYER_CURRENCY);
-                    stmt.AddValue(0, currency.Quantity);
-                    stmt.AddValue(1, currency.WeeklyQuantity);
-                    stmt.AddValue(2, currency.TrackedQuantity);
-                    stmt.AddValue(3, currency.IncreasedCapQuantity);
-                    stmt.AddValue(4, currency.EarnedQuantity);
-                    stmt.AddValue(5, (byte)currency.Flags);
-                    stmt.AddValue(6, GUID.Counter);
-                    stmt.AddValue(7, id);
-                    trans.Append(stmt);
-
-                    break;
-                default:
-                    break;
             }
 
-            currency.State = PlayerCurrencyState.Unchanged;
-        }
-    }
-
-    private void _SaveCustomizations(SQLTransaction trans)
-    {
-        if (!_customizationsChanged)
-            return;
-
-        _customizationsChanged = false;
-
-        SavePlayerCustomizations(trans, GUID.Counter, PlayerData.Customizations);
-    }
-
-    private void _SaveActions(SQLTransaction trans)
-    {
-        var traitConfigId = 0;
-
-        var traitConfig = GetTraitConfig((int)(uint)ActivePlayerData.ActiveCombatTraitConfigID);
-
-        if (traitConfig != null)
-        {
-            var usedSavedTraitConfigIndex = ActivePlayerData.TraitConfigs.FindIndexIf(savedConfig => { return (TraitConfigType)(int)savedConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)savedConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None && ((TraitCombatConfigFlags)(int)savedConfig.CombatConfigFlags & TraitCombatConfigFlags.SharedActionBars) == TraitCombatConfigFlags.None && savedConfig.LocalIdentifier == traitConfig.LocalIdentifier; });
-
-            if (usedSavedTraitConfigIndex >= 0)
-                traitConfigId = ActivePlayerData.TraitConfigs[usedSavedTraitConfigIndex].ID;
-        }
-
-        PreparedStatement stmt;
-
-        foreach (var pair in _actionButtons.ToList())
-            switch (pair.Value.UState)
+            if (storedLocation.CurrentState == StoredAuraTeleportLocation.State.Changed)
             {
-                case ActionButtonUpdateState.New:
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACTION);
-                    stmt.AddValue(0, GUID.Counter);
-                    stmt.AddValue(1, GetActiveTalentGroup());
-                    stmt.AddValue(2, traitConfigId);
-                    stmt.AddValue(3, pair.Key);
-                    stmt.AddValue(4, pair.Value.GetAction());
-                    stmt.AddValue(5, (byte)pair.Value.GetButtonType());
-                    trans.Append(stmt);
-
-                    pair.Value.UState = ActionButtonUpdateState.UnChanged;
-
-                    break;
-                case ActionButtonUpdateState.Changed:
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_ACTION);
-                    stmt.AddValue(0, pair.Value.GetAction());
-                    stmt.AddValue(1, (byte)pair.Value.GetButtonType());
-                    stmt.AddValue(2, GUID.Counter);
-                    stmt.AddValue(3, pair.Key);
-                    stmt.AddValue(4, GetActiveTalentGroup());
-                    stmt.AddValue(5, traitConfigId);
-                    trans.Append(stmt);
-
-                    pair.Value.UState = ActionButtonUpdateState.UnChanged;
-
-                    break;
-                case ActionButtonUpdateState.Deleted:
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_BUTTON_SPEC);
-                    stmt.AddValue(0, GUID.Counter);
-                    stmt.AddValue(1, pair.Key);
-                    stmt.AddValue(2, GetActiveTalentGroup());
-                    stmt.AddValue(3, traitConfigId);
-                    trans.Append(stmt);
-
-                    _actionButtons.Remove(pair.Key);
-
-                    break;
-                default:
-                    break;
-            }
-    }
-
-    private void _SaveQuestStatus(SQLTransaction trans)
-    {
-        var isTransaction = trans != null;
-
-        if (!isTransaction)
-            trans = new SQLTransaction();
-
-        PreparedStatement stmt;
-        var keepAbandoned = !Global.WorldMgr.CleaningFlags.HasAnyFlag(CleaningFlags.Queststatus);
-
-        foreach (var save in _questStatusSave)
-            if (save.Value == QuestSaveType.Default)
-            {
-                var data = _mQuestStatus.LookupByKey(save.Key);
-
-                if (data != null && (keepAbandoned || data.Status != QuestStatus.None))
-                {
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CHAR_QUESTSTATUS);
-                    stmt.AddValue(0, GUID.Counter);
-                    stmt.AddValue(1, save.Key);
-                    stmt.AddValue(2, (byte)data.Status);
-                    stmt.AddValue(3, data.Explored);
-                    stmt.AddValue(4, (long)GetQuestSlotAcceptTime(data.Slot));
-                    stmt.AddValue(5, (long)GetQuestSlotEndTime(data.Slot));
-                    trans.Append(stmt);
-
-                    // Save objectives
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST);
-                    stmt.AddValue(0, GUID.Counter);
-                    stmt.AddValue(1, save.Key);
-                    trans.Append(stmt);
-
-                    var quest = Global.ObjectMgr.GetQuestTemplate(save.Key);
-
-                    foreach (var obj in quest.Objectives)
-                    {
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CHAR_QUESTSTATUS_OBJECTIVES);
-                        stmt.AddValue(0, GUID.Counter);
-                        stmt.AddValue(1, save.Key);
-                        stmt.AddValue(2, obj.StorageIndex);
-                        stmt.AddValue(3, GetQuestSlotObjectiveData(data.Slot, obj));
-                        trans.Append(stmt);
-                    }
-                }
-            }
-            else
-            {
-                // Delete
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_BY_QUEST);
+                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_AURA_STORED_LOCATION);
                 stmt.AddValue(0, GUID.Counter);
-                stmt.AddValue(1, save.Key);
                 trans.Append(stmt);
 
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST);
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_AURA_STORED_LOCATION);
                 stmt.AddValue(0, GUID.Counter);
-                stmt.AddValue(1, save.Key);
-                trans.Append(stmt);
-            }
-
-        _questStatusSave.Clear();
-
-        foreach (var save in _rewardedQuestsSave)
-            if (save.Value == QuestSaveType.Default)
-            {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_REWARDED);
-                stmt.AddValue(0, GUID.Counter);
-                stmt.AddValue(1, save.Key);
-                trans.Append(stmt);
-            }
-            else if (save.Value == QuestSaveType.ForceDelete || !keepAbandoned)
-            {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
-                stmt.AddValue(0, GUID.Counter);
-                stmt.AddValue(1, save.Key);
-                trans.Append(stmt);
-            }
-
-        _rewardedQuestsSave.Clear();
-
-        if (!isTransaction)
-            DB.Characters.CommitTransaction(trans);
-    }
-
-    private void _SaveDailyQuestStatus(SQLTransaction trans)
-    {
-        if (!_dailyQuestChanged)
-            return;
-
-        _dailyQuestChanged = false;
-
-        // save last daily quest time for all quests: we need only mostly reset time for reset check anyway
-
-        // we don't need transactions here.
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_DAILY);
-        stmt.AddValue(0, GUID.Counter);
-
-        foreach (int questId in ActivePlayerData.DailyQuestsCompleted)
-        {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_DAILY);
-            stmt.AddValue(0, GUID.Counter);
-            stmt.AddValue(1, questId);
-            stmt.AddValue(2, _lastDailyQuestTime);
-            trans.Append(stmt);
-        }
-
-        if (!_dfQuests.Empty())
-            foreach (var id in _dfQuests)
-            {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_DAILY);
-                stmt.AddValue(0, GUID.Counter);
-                stmt.AddValue(1, id);
-                stmt.AddValue(2, _lastDailyQuestTime);
-                trans.Append(stmt);
-            }
-    }
-
-    private void _SaveWeeklyQuestStatus(SQLTransaction trans)
-    {
-        if (!_weeklyQuestChanged || _weeklyquests.Empty())
-            return;
-
-        // we don't need transactions here.
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_WEEKLY);
-        stmt.AddValue(0, GUID.Counter);
-        trans.Append(stmt);
-
-        foreach (var questID in _weeklyquests)
-        {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_WEEKLY);
-            stmt.AddValue(0, GUID.Counter);
-            stmt.AddValue(1, questID);
-            trans.Append(stmt);
-        }
-
-        _weeklyQuestChanged = false;
-    }
-
-    private void _SaveSeasonalQuestStatus(SQLTransaction trans)
-    {
-        if (!_seasonalQuestChanged)
-            return;
-
-        // we don't need transactions here.
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_SEASONAL);
-        stmt.AddValue(0, GUID.Counter);
-        trans.Append(stmt);
-
-        _seasonalQuestChanged = false;
-
-        if (_seasonalquests.Empty())
-            return;
-
-        foreach (var (eventId, dictionary) in _seasonalquests)
-        {
-            foreach (var (questId, completedTime) in dictionary)
-            {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_SEASONAL);
-                stmt.AddValue(0, GUID.Counter);
-                stmt.AddValue(1, questId);
-                stmt.AddValue(2, eventId);
-                stmt.AddValue(3, completedTime);
+                stmt.AddValue(1, pair.Key);
+                stmt.AddValue(2, storedLocation.Loc.MapId);
+                stmt.AddValue(3, storedLocation.Loc.X);
+                stmt.AddValue(4, storedLocation.Loc.Y);
+                stmt.AddValue(5, storedLocation.Loc.Z);
+                stmt.AddValue(6, storedLocation.Loc.Orientation);
                 trans.Append(stmt);
             }
         }
-    }
-
-    private void _SaveMonthlyQuestStatus(SQLTransaction trans)
-    {
-        if (!_monthlyQuestChanged || _monthlyquests.Empty())
-            return;
-
-        // we don't need transactions here.
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_MONTHLY);
-        stmt.AddValue(0, GUID.Counter);
-        trans.Append(stmt);
-
-        foreach (var questId in _monthlyquests)
-        {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_MONTHLY);
-            stmt.AddValue(0, GUID.Counter);
-            stmt.AddValue(1, questId);
-            trans.Append(stmt);
-        }
-
-        _monthlyQuestChanged = false;
     }
 
     private void _SaveTalents(SQLTransaction trans)
@@ -4577,180 +4794,6 @@ public partial class Player
         _traitConfigStates.Clear();
     }
 
-    private void _SaveStoredAuraTeleportLocations(SQLTransaction trans)
-    {
-        foreach (var pair in _storedAuraTeleportLocations.ToList())
-        {
-            var storedLocation = pair.Value;
-
-            if (storedLocation.CurrentState == StoredAuraTeleportLocation.State.Deleted)
-            {
-                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_AURA_STORED_LOCATION);
-                stmt.AddValue(0, GUID.Counter);
-                trans.Append(stmt);
-                _storedAuraTeleportLocations.Remove(pair.Key);
-
-                continue;
-            }
-
-            if (storedLocation.CurrentState == StoredAuraTeleportLocation.State.Changed)
-            {
-                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_AURA_STORED_LOCATION);
-                stmt.AddValue(0, GUID.Counter);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_AURA_STORED_LOCATION);
-                stmt.AddValue(0, GUID.Counter);
-                stmt.AddValue(1, pair.Key);
-                stmt.AddValue(2, storedLocation.Loc.MapId);
-                stmt.AddValue(3, storedLocation.Loc.X);
-                stmt.AddValue(4, storedLocation.Loc.Y);
-                stmt.AddValue(5, storedLocation.Loc.Z);
-                stmt.AddValue(6, storedLocation.Loc.Orientation);
-                trans.Append(stmt);
-            }
-        }
-    }
-
-    private void _SaveStats(SQLTransaction trans)
-    {
-        // check if stat saving is enabled and if char level is high enough
-        if (GetDefaultValue("PlayerSave.Stats.MinLevel", 0) == 0 || Level < GetDefaultValue("PlayerSave.Stats.MinLevel", 0))
-            return;
-
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_STATS);
-        stmt.AddValue(0, GUID.Counter);
-        trans.Append(stmt);
-
-        byte index = 0;
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_STATS);
-        stmt.AddValue(index++, GUID.Counter);
-        stmt.AddValue(index++, MaxHealth);
-
-        for (byte i = 0; i < (int)PowerType.MaxPerClass; ++i)
-            stmt.AddValue(index++, UnitData.MaxPower[i]);
-
-        for (byte i = 0; i < (int)Stats.Max; ++i)
-            stmt.AddValue(index++, GetStat((Stats)i));
-
-        for (var i = 0; i < (int)SpellSchools.Max; ++i)
-            stmt.AddValue(index++, GetResistance((SpellSchools)i));
-
-        stmt.AddValue(index++, ActivePlayerData.BlockPercentage);
-        stmt.AddValue(index++, ActivePlayerData.DodgePercentage);
-        stmt.AddValue(index++, ActivePlayerData.ParryPercentage);
-        stmt.AddValue(index++, ActivePlayerData.CritPercentage);
-        stmt.AddValue(index++, ActivePlayerData.RangedCritPercentage);
-        stmt.AddValue(index++, ActivePlayerData.SpellCritPercentage);
-        stmt.AddValue(index++, UnitData.AttackPower);
-        stmt.AddValue(index++, UnitData.RangedAttackPower);
-        stmt.AddValue(index++, GetBaseSpellPowerBonus());
-        stmt.AddValue(index, ActivePlayerData.CombatRatings[(int)CombatRating.ResiliencePlayerDamage]);
-
-        trans.Append(stmt);
-    }
-
-    private void _SaveEquipmentSets(SQLTransaction trans)
-    {
-        foreach (var pair in _equipmentSets)
-        {
-            var eqSet = pair.Value;
-            PreparedStatement stmt;
-            byte j = 0;
-
-            switch (eqSet.State)
-            {
-                case EquipmentSetUpdateState.Unchanged:
-                    break; // do nothing
-                case EquipmentSetUpdateState.Changed:
-                    if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
-                    {
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_EQUIP_SET);
-                        stmt.AddValue(j++, eqSet.Data.SetName);
-                        stmt.AddValue(j++, eqSet.Data.SetIcon);
-                        stmt.AddValue(j++, eqSet.Data.IgnoreMask);
-                        stmt.AddValue(j++, eqSet.Data.AssignedSpecIndex);
-
-                        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
-                            stmt.AddValue(j++, eqSet.Data.Pieces[i].Counter);
-
-                        stmt.AddValue(j++, GUID.Counter);
-                        stmt.AddValue(j++, eqSet.Data.Guid);
-                        stmt.AddValue(j, eqSet.Data.SetId);
-                    }
-                    else
-                    {
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_TRANSMOG_OUTFIT);
-                        stmt.AddValue(j++, eqSet.Data.SetName);
-                        stmt.AddValue(j++, eqSet.Data.SetIcon);
-                        stmt.AddValue(j++, eqSet.Data.IgnoreMask);
-
-                        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
-                            stmt.AddValue(j++, eqSet.Data.Appearances[i]);
-
-                        for (var i = 0; i < eqSet.Data.Enchants.Length; ++i)
-                            stmt.AddValue(j++, eqSet.Data.Enchants[i]);
-
-                        stmt.AddValue(j++, GUID.Counter);
-                        stmt.AddValue(j++, eqSet.Data.Guid);
-                        stmt.AddValue(j, eqSet.Data.SetId);
-                    }
-
-                    trans.Append(stmt);
-                    eqSet.State = EquipmentSetUpdateState.Unchanged;
-
-                    break;
-                case EquipmentSetUpdateState.New:
-                    if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
-                    {
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_EQUIP_SET);
-                        stmt.AddValue(j++, GUID.Counter);
-                        stmt.AddValue(j++, eqSet.Data.Guid);
-                        stmt.AddValue(j++, eqSet.Data.SetId);
-                        stmt.AddValue(j++, eqSet.Data.SetName);
-                        stmt.AddValue(j++, eqSet.Data.SetIcon);
-                        stmt.AddValue(j++, eqSet.Data.IgnoreMask);
-                        stmt.AddValue(j++, eqSet.Data.AssignedSpecIndex);
-
-                        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
-                            stmt.AddValue(j++, eqSet.Data.Pieces[i].Counter);
-                    }
-                    else
-                    {
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_TRANSMOG_OUTFIT);
-                        stmt.AddValue(j++, GUID.Counter);
-                        stmt.AddValue(j++, eqSet.Data.Guid);
-                        stmt.AddValue(j++, eqSet.Data.SetId);
-                        stmt.AddValue(j++, eqSet.Data.SetName);
-                        stmt.AddValue(j++, eqSet.Data.SetIcon);
-                        stmt.AddValue(j++, eqSet.Data.IgnoreMask);
-
-                        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
-                            stmt.AddValue(j++, eqSet.Data.Appearances[i]);
-
-                        for (var i = 0; i < eqSet.Data.Enchants.Length; ++i)
-                            stmt.AddValue(j++, eqSet.Data.Enchants[i]);
-                    }
-
-                    trans.Append(stmt);
-                    eqSet.State = EquipmentSetUpdateState.Unchanged;
-
-                    break;
-                case EquipmentSetUpdateState.Deleted:
-                    if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_EQUIP_SET);
-                    else
-                        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_TRANSMOG_OUTFIT);
-
-                    stmt.AddValue(0, eqSet.Data.Guid);
-                    trans.Append(stmt);
-                    _equipmentSets.Remove(pair.Key);
-
-                    break;
-            }
-        }
-    }
-
     private void _SaveVoidStorage(SQLTransaction trans)
     {
         PreparedStatement stmt;
@@ -4791,82 +4834,25 @@ public partial class Player
         }
     }
 
-    private void _SaveCUFProfiles(SQLTransaction trans)
+    private void _SaveWeeklyQuestStatus(SQLTransaction trans)
     {
-        PreparedStatement stmt;
-        var lowGuid = GUID.Counter;
-
-        for (byte i = 0; i < PlayerConst.MaxCUFProfiles; ++i)
-        {
-            if (_cufProfiles[i] == null) // unused profile
-            {
-                // DELETE FROM character_cuf_profiles WHERE guid = ? and id = ?
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_CUF_PROFILES_BY_ID);
-                stmt.AddValue(0, lowGuid);
-                stmt.AddValue(1, i);
-            }
-            else
-            {
-                // REPLACE INTO character_cuf_profiles (guid, id, name, frameHeight, frameWidth, sortBy, healthText, boolOptions, unk146, unk147, unk148, unk150, unk152, unk154) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CHAR_CUF_PROFILES);
-                stmt.AddValue(0, lowGuid);
-                stmt.AddValue(1, i);
-                stmt.AddValue(2, _cufProfiles[i].ProfileName);
-                stmt.AddValue(3, _cufProfiles[i].FrameHeight);
-                stmt.AddValue(4, _cufProfiles[i].FrameWidth);
-                stmt.AddValue(5, _cufProfiles[i].SortBy);
-                stmt.AddValue(6, _cufProfiles[i].HealthText);
-                stmt.AddValue(7, (uint)_cufProfiles[i].GetUlongOptionValue()); // 25 of 32 fields used, fits in an int
-                stmt.AddValue(8, _cufProfiles[i].TopPoint);
-                stmt.AddValue(9, _cufProfiles[i].BottomPoint);
-                stmt.AddValue(10, _cufProfiles[i].LeftPoint);
-                stmt.AddValue(11, _cufProfiles[i].TopOffset);
-                stmt.AddValue(12, _cufProfiles[i].BottomOffset);
-                stmt.AddValue(13, _cufProfiles[i].LeftOffset);
-            }
-
-            trans.Append(stmt);
-        }
-    }
-
-    private void _SaveInstanceTimeRestrictions(SQLTransaction trans)
-    {
-        if (_instanceResetTimes.Empty())
+        if (!_weeklyQuestChanged || _weeklyquests.Empty())
             return;
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
-        stmt.AddValue(0, Session.AccountId);
+        // we don't need transactions here.
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_QUESTSTATUS_WEEKLY);
+        stmt.AddValue(0, GUID.Counter);
         trans.Append(stmt);
 
-        foreach (var pair in _instanceResetTimes)
+        foreach (var questID in _weeklyquests)
         {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ACCOUNT_INSTANCE_LOCK_TIMES);
-            stmt.AddValue(0, Session.AccountId);
-            stmt.AddValue(1, pair.Key);
-            stmt.AddValue(2, pair.Value);
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_QUESTSTATUS_WEEKLY);
+            stmt.AddValue(0, GUID.Counter);
+            stmt.AddValue(1, questID);
             trans.Append(stmt);
         }
-    }
 
-    private void _SaveBGData(SQLTransaction trans)
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_BGDATA);
-        stmt.AddValue(0, GUID.Counter);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PLAYER_BGDATA);
-        stmt.AddValue(0, GUID.Counter);
-        stmt.AddValue(1, _bgData.BgInstanceId);
-        stmt.AddValue(2, _bgData.BgTeam);
-        stmt.AddValue(3, _bgData.JoinPos.X);
-        stmt.AddValue(4, _bgData.JoinPos.Y);
-        stmt.AddValue(5, _bgData.JoinPos.Z);
-        stmt.AddValue(6, _bgData.JoinPos.Orientation);
-        stmt.AddValue(7, (ushort)_bgData.JoinPos.MapId);
-        stmt.AddValue(8, _bgData.TaxiPath[0]);
-        stmt.AddValue(9, _bgData.TaxiPath[1]);
-        stmt.AddValue(10, _bgData.MountSpell);
-        trans.Append(stmt);
+        _weeklyQuestChanged = false;
     }
 
     private void DeleteSpellFromAllPlayers(uint spellId)
@@ -4874,5 +4860,12 @@ public partial class Player
         var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_SPELL_SPELLS);
         stmt.AddValue(0, spellId);
         DB.Characters.Execute(stmt);
+    }
+
+    private void LoadActions(SQLResult result)
+    {
+        _LoadActions(result);
+
+        SendActionButtons(1);
     }
 }

@@ -5,9 +5,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public struct AuctionListFilterSubClass
 {
-    public int ItemSubclass;
     public ulong InvTypeMask;
-
+    public int ItemSubclass;
     public AuctionListFilterSubClass(WorldPacket data)
     {
         InvTypeMask = data.ReadUInt64();

@@ -7,6 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public struct InvUpdate
 {
+    public List<InvItem> Items;
+
     public InvUpdate(WorldPacket data)
     {
         Items = new List<InvItem>();
@@ -24,9 +26,6 @@ public struct InvUpdate
             Items.Add(item);
         }
     }
-
-    public List<InvItem> Items;
-
     public struct InvItem
     {
         public byte ContainerSlot;

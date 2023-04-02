@@ -9,12 +9,12 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 public class ChannelNotifyJoined : ServerPacket
 {
+    public string Channel = "";
+    public ChannelFlags ChannelFlags;
+    public ObjectGuid ChannelGUID;
     public string ChannelWelcomeMsg = "";
     public int ChatChannelID;
     public ulong InstanceID;
-    public ChannelFlags ChannelFlags;
-    public string Channel = "";
-    public ObjectGuid ChannelGUID;
     public ChannelNotifyJoined() : base(ServerOpcodes.ChannelNotifyJoined) { }
 
     public override void Write()

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SetEveryoneIsAssistant : ClientPacket
 {
-    public byte PartyIndex;
     public bool EveryoneIsAssistant;
+    public byte PartyIndex;
     public SetEveryoneIsAssistant(WorldPacket packet) : base(packet) { }
 
     public override void Read()

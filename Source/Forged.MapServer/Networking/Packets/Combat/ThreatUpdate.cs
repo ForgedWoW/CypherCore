@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class ThreatUpdate : ServerPacket
 {
-    public ObjectGuid UnitGUID;
     public List<ThreatInfo> ThreatList = new();
+    public ObjectGuid UnitGUID;
     public ThreatUpdate() : base(ServerOpcodes.ThreatUpdate, ConnectionType.Instance) { }
 
     public override void Write()

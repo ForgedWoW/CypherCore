@@ -8,11 +8,17 @@ namespace Forged.MapServer.Entities;
 
 public class PetStable
 {
+    public PetInfo[] ActivePets = new PetInfo[SharedConst.MaxActivePets];
     public uint? CurrentPetIndex;                                          // index into ActivePets or UnslottedPets if highest bit is set
-    public PetInfo[] ActivePets = new PetInfo[SharedConst.MaxActivePets];  // PET_SAVE_FIRST_ACTIVE_SLOT - PET_SAVE_LAST_ACTIVE_SLOT
+                                                                           // PET_SAVE_FIRST_ACTIVE_SLOT - PET_SAVE_LAST_ACTIVE_SLOT
     public PetInfo[] StabledPets = new PetInfo[SharedConst.MaxPetStables]; // PET_SAVE_FIRST_STABLE_SLOT - PET_SAVE_LAST_STABLE_SLOT
     public List<PetInfo> UnslottedPets = new();                            // PET_SAVE_NOT_IN_SLOT
     private static readonly uint UnslottedPetIndexMask = 0x80000000;
+
+    public uint? GetCurrentActivePetIndex()
+    {
+        return CurrentPetIndex.HasValue && ((CurrentPetIndex & UnslottedPetIndexMask) == 0) ? CurrentPetIndex : null;
+    }
 
     public PetInfo GetCurrentPet()
     {
@@ -31,12 +37,6 @@ public class PetStable
 
         return null;
     }
-
-    public uint? GetCurrentActivePetIndex()
-    {
-        return CurrentPetIndex.HasValue && ((CurrentPetIndex & UnslottedPetIndexMask) == 0) ? CurrentPetIndex : null;
-    }
-
     public void SetCurrentActivePetIndex(uint index)
     {
         CurrentPetIndex = index;
@@ -54,19 +54,19 @@ public class PetStable
 
     public class PetInfo
     {
-        public string Name;
         public string ActionBar;
-        public uint PetNumber;
+        public uint CreatedBySpellId;
         public uint CreatureId;
         public uint DisplayId;
         public uint Experience;
         public uint Health;
-        public uint Mana;
         public uint LastSaveTime;
-        public uint CreatedBySpellId;
-        public ushort SpecializationId;
         public byte Level = 0;
+        public uint Mana;
+        public string Name;
+        public uint PetNumber;
         public ReactStates ReactState;
+        public ushort SpecializationId;
         public PetType Type = PetType.Max;
         public bool WasRenamed;
     }

@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestUpdateAddCreditSimple : ServerPacket
 {
-    public uint QuestID;
     public int ObjectID;
     public QuestObjectiveType ObjectiveType;
+    public uint QuestID;
     public QuestUpdateAddCreditSimple() : base(ServerOpcodes.QuestUpdateAddCreditSimple, ConnectionType.Instance) { }
 
     public override void Write()

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectCustomAnim : ServerPacket
 {
-    public ObjectGuid ObjectGUID;
     public uint CustomAnim;
+    public ObjectGuid ObjectGUID;
     public bool PlayAsDespawn;
     public GameObjectCustomAnim() : base(ServerOpcodes.GameObjectCustomAnim, ConnectionType.Instance) { }
 

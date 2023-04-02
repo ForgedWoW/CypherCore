@@ -7,6 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct GarrisonBuildingMapData
 {
+    public uint GarrBuildingPlotInstID;
+
+    public Position Pos;
+
     public GarrisonBuildingMapData(uint buildingPlotInstId, Position pos)
     {
         GarrBuildingPlotInstID = buildingPlotInstId;
@@ -18,7 +22,4 @@ internal struct GarrisonBuildingMapData
         data.WriteUInt32(GarrBuildingPlotInstID);
         data.WriteXYZ(Pos);
     }
-
-    public uint GarrBuildingPlotInstID;
-    public Position Pos;
 }

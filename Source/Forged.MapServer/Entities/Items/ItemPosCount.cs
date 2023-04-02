@@ -7,9 +7,8 @@ namespace Forged.MapServer.Entities.Items;
 
 public class ItemPosCount
 {
-    public ushort Pos;
     public uint Count;
-
+    public ushort Pos;
     public ItemPosCount(ushort pos, uint count)
     {
         Pos = pos;

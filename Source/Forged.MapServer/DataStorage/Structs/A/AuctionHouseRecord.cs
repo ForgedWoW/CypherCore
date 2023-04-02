@@ -5,9 +5,10 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class AuctionHouseRecord
 {
+    public byte ConsignmentRate;
+    public byte DepositRate;
+    public ushort FactionID;
     public uint Id;
     public string Name;
-    public ushort FactionID; // id of faction.dbc for player factions associated with city
-    public byte DepositRate;
-    public byte ConsignmentRate;
+     // id of faction.dbc for player factions associated with city
 }

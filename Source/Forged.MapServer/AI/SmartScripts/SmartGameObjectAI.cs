@@ -21,9 +21,19 @@ public class SmartGameObjectAI : GameObjectAI
 
     public SmartGameObjectAI(GameObject go) : base(go) { }
 
-    public override void UpdateAI(uint diff)
+    public override void Destroyed(WorldObject attacker, uint eventId)
     {
-        GetScript().OnUpdate(diff);
+        GetScript().ProcessEventsFor(SmartEvents.Death, attacker?.AsUnit, eventId, 0, false, null, Me);
+    }
+
+    public override void EventInform(uint eventId)
+    {
+        GetScript().ProcessEventsFor(SmartEvents.GoEventInform, null, eventId);
+    }
+
+    public SmartScript GetScript()
+    {
+        return _script;
     }
 
     public override void InitializeAI()
@@ -35,9 +45,14 @@ public class SmartGameObjectAI : GameObjectAI
             GetScript().ProcessEventsFor(SmartEvents.Respawn);
     }
 
-    public override void Reset()
+    public override void JustSummoned(Creature creature)
     {
-        GetScript().OnReset();
+        GetScript().ProcessEventsFor(SmartEvents.SummonedUnit, creature);
+    }
+
+    public override void OnGameEvent(bool start, ushort eventId)
+    {
+        GetScript().ProcessEventsFor(start ? SmartEvents.GameEventStart : SmartEvents.GameEventEnd, null, eventId);
     }
 
     public override bool OnGossipHello(Player player)
@@ -61,6 +76,11 @@ public class SmartGameObjectAI : GameObjectAI
         return false;
     }
 
+    public override void OnLootStateChanged(uint state, Unit unit)
+    {
+        GetScript().ProcessEventsFor(SmartEvents.GoLootStateChanged, unit, state);
+    }
+
     public override void OnQuestAccept(Player player, Quest.Quest quest)
     {
         GetScript().ProcessEventsFor(SmartEvents.AcceptedQuest, player, quest.Id, 0, false, null, Me);
@@ -79,9 +99,9 @@ public class SmartGameObjectAI : GameObjectAI
         return _gossipReturn;
     }
 
-    public override void Destroyed(WorldObject attacker, uint eventId)
+    public override void Reset()
     {
-        GetScript().ProcessEventsFor(SmartEvents.Death, attacker?.AsUnit, eventId, 0, false, null, Me);
+        GetScript().OnReset();
     }
 
     public override void SetData(uint id, uint value)
@@ -94,24 +114,14 @@ public class SmartGameObjectAI : GameObjectAI
         GetScript().ProcessEventsFor(SmartEvents.DataSet, invoker, id, value);
     }
 
+    public void SetGossipReturn(bool val)
+    {
+        _gossipReturn = val;
+    }
+
     public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
     {
         GetScript().SetTimedActionList(e, entry, invoker);
-    }
-
-    public override void OnGameEvent(bool start, ushort eventId)
-    {
-        GetScript().ProcessEventsFor(start ? SmartEvents.GameEventStart : SmartEvents.GameEventEnd, null, eventId);
-    }
-
-    public override void OnLootStateChanged(uint state, Unit unit)
-    {
-        GetScript().ProcessEventsFor(SmartEvents.GoLootStateChanged, unit, state);
-    }
-
-    public override void EventInform(uint eventId)
-    {
-        GetScript().ProcessEventsFor(SmartEvents.GoEventInform, null, eventId);
     }
 
     public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
@@ -119,9 +129,9 @@ public class SmartGameObjectAI : GameObjectAI
         GetScript().ProcessEventsFor(SmartEvents.SpellHit, caster.AsUnit, 0, 0, false, spellInfo);
     }
 
-    public override void JustSummoned(Creature creature)
+    public override void SummonedCreatureDespawn(Creature unit)
     {
-        GetScript().ProcessEventsFor(SmartEvents.SummonedUnit, creature);
+        GetScript().ProcessEventsFor(SmartEvents.SummonDespawned, unit, unit.Entry);
     }
 
     public override void SummonedCreatureDies(Creature summon, Unit killer)
@@ -129,18 +139,8 @@ public class SmartGameObjectAI : GameObjectAI
         GetScript().ProcessEventsFor(SmartEvents.SummonedUnitDies, summon);
     }
 
-    public override void SummonedCreatureDespawn(Creature unit)
+    public override void UpdateAI(uint diff)
     {
-        GetScript().ProcessEventsFor(SmartEvents.SummonDespawned, unit, unit.Entry);
-    }
-
-    public void SetGossipReturn(bool val)
-    {
-        _gossipReturn = val;
-    }
-
-    public SmartScript GetScript()
-    {
-        return _script;
+        GetScript().OnUpdate(diff);
     }
 }

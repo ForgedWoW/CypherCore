@@ -8,6 +8,16 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class ReportPvPPlayerAFKResult : ServerPacket
 {
+    public byte NumBlackMarksOnOffender = 0;
+
+    public byte NumPlayersIHaveReported = 0;
+
+    public ObjectGuid Offender;
+
+    public ResultCode Result = ResultCode.GenericFailure;
+
+    public ReportPvPPlayerAFKResult() : base(ServerOpcodes.ReportPvpPlayerAfkResult, ConnectionType.Instance) { }
+
     public enum ResultCode
     {
         Success = 0,
@@ -15,13 +25,6 @@ internal class ReportPvPPlayerAFKResult : ServerPacket
         AFKSystemEnabled = 5,
         AFKSystemDisabled = 6
     }
-
-    public ObjectGuid Offender;
-    public byte NumPlayersIHaveReported = 0;
-    public byte NumBlackMarksOnOffender = 0;
-    public ResultCode Result = ResultCode.GenericFailure;
-    public ReportPvPPlayerAFKResult() : base(ServerOpcodes.ReportPvpPlayerAfkResult, ConnectionType.Instance) { }
-
     public override void Write()
     {
         _worldPacket.WritePackedGuid(Offender);

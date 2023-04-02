@@ -13,6 +13,13 @@ public class QuestSession : BaseUpdateData<Player>
 
     public QuestSession() : base(878) { }
 
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Owner);
+        ClearChangesMask(QuestCompleted);
+        ChangesMask.ResetAll();
+    }
+
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
         data.WritePackedGuid(Owner);
@@ -44,12 +51,5 @@ public class QuestSession : BaseUpdateData<Player>
             for (var i = 0; i < 875; ++i)
                 if (changesMask[3 + i])
                     data.WriteUInt64(QuestCompleted[i]);
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Owner);
-        ClearChangesMask(QuestCompleted);
-        ChangesMask.ResetAll();
     }
 }

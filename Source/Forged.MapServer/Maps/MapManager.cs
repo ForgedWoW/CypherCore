@@ -24,16 +24,16 @@ namespace Forged.MapServer.Maps;
 
 public class MapManager
 {
-    private readonly IConfiguration _configuration;
-    private readonly CliDB _cliDB;
-    private readonly InstanceLockManager _instanceLockManager;
-    private readonly DB2Manager _db2Manager;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly ScenarioManager _scenarioManager;
-    private readonly LoopSafeDoubleDictionary<uint, uint, Map> _maps = new();
-    private readonly IntervalTimer _timer = new();
-    private readonly object _mapsLock = new();
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly DB2Manager _db2Manager;
     private readonly BitSet _freeInstanceIds = new(1);
+    private readonly InstanceLockManager _instanceLockManager;
+    private readonly LoopSafeDoubleDictionary<uint, uint, Map> _maps = new();
+    private readonly object _mapsLock = new();
+    private readonly ScenarioManager _scenarioManager;
+    private readonly IntervalTimer _timer = new();
     private readonly LimitedThreadTaskManager _updater;
     private uint _gridCleanUpDelay;
     private uint _nextInstanceId;
@@ -48,28 +48,11 @@ public class MapManager
         _db2Manager = db2Manager;
         _characterDatabase = characterDatabase;
         _scenarioManager = scenarioManager;
-        _gridCleanUpDelay = (uint)configuration.GetDefaultValue("GridCleanUpDelay", 5 * Time.Minute * Time.InMilliseconds);
+        _gridCleanUpDelay = (uint)configuration.GetDefaultValue("GridCleanUpDelay", 5 * Time.MINUTE * Time.IN_MILLISECONDS);
         _timer.Interval = configuration.GetDefaultValue("MapUpdateInterval", 10);
         var numThreads = configuration.GetDefaultValue("MapUpdate.Threads", 10);
 
         _updater = new LimitedThreadTaskManager(numThreads > 0 ? numThreads : 1);
-    }
-
-    public void Initialize()
-    {
-        foreach (var (_, mapEntry) in _cliDB.MapStorage)
-            if (mapEntry.IsWorldMap() && mapEntry.IsSplitByFaction())
-                _ = new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
-    }
-
-    public void InitializeVisibilityDistanceInfo()
-    {
-        lock (_mapsLock)
-        {
-            foreach (var pair in _maps.Values)
-                foreach (var map in pair.Values)
-                    map.InitVisibilityDistance();
-        }
     }
 
     /// <summary>
@@ -199,11 +182,35 @@ public class MapManager
         }
     }
 
-    public Map FindMap(uint mapId, uint instanceId)
+    public void DecreaseScheduledScriptCount()
+    {
+        --_scheduledScripts;
+    }
+
+    public void DecreaseScheduledScriptCount(uint count)
+    {
+        _scheduledScripts -= count;
+    }
+
+    public void DoForAllMaps(Action<Map> worker)
     {
         lock (_mapsLock)
         {
-            return FindMap_i(mapId, instanceId);
+            foreach (var kvp in _maps.Values)
+                foreach (var map in kvp.Values)
+                    worker(map);
+        }
+    }
+
+    public void DoForAllMapsWithMapId(uint mapId, Action<Map> worker)
+    {
+        lock (_mapsLock)
+        {
+            if (!_maps.TryGetValue(mapId, out var instanceDict))
+                return;
+
+            foreach (var kvp in instanceDict)
+                worker(kvp.Value);
         }
     }
 
@@ -256,6 +263,178 @@ public class MapManager
         }
     }
 
+    public Map FindMap(uint mapId, uint instanceId)
+    {
+        lock (_mapsLock)
+        {
+            return FindMap_i(mapId, instanceId);
+        }
+    }
+
+    public void FreeInstanceId(uint instanceId)
+    {
+        // If freed instance id is lower than the next id available for new instances, use the freed one instead
+        _nextInstanceId = Math.Min(instanceId, _nextInstanceId);
+        _freeInstanceIds[(int)instanceId] = true;
+    }
+
+    public uint GenerateInstanceId()
+    {
+        if (_nextInstanceId == uint.MaxValue)
+            _nextInstanceId = 1;
+
+        var newInstanceId = _nextInstanceId;
+        _freeInstanceIds[(int)newInstanceId] = false;
+
+        // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
+        var nextFreeId = -1;
+
+        for (var i = (int)_nextInstanceId++; i < _freeInstanceIds.Length; i++)
+            if (_freeInstanceIds[i])
+            {
+                nextFreeId = i;
+
+                break;
+            }
+
+        if (nextFreeId == -1)
+        {
+            _nextInstanceId = (uint)_freeInstanceIds.Length;
+            _freeInstanceIds.Length += 1;
+            _freeInstanceIds[(int)_nextInstanceId] = true;
+        }
+        else
+        {
+            _nextInstanceId = (uint)nextFreeId;
+        }
+
+        return newInstanceId;
+    }
+
+    public uint GetNextInstanceId()
+    {
+        return _nextInstanceId;
+    }
+
+    public uint GetNumInstances()
+    {
+        lock (_mapsLock)
+        {
+            return (uint)_maps.Sum(pair => pair.Value.Count(kvp => kvp.Value.IsDungeon));
+        }
+    }
+
+    public uint GetNumPlayersInInstances()
+    {
+        lock (_mapsLock)
+        {
+            return (uint)_maps.Sum(pair => pair.Value.Sum(kvp => kvp.Value.IsDungeon ? kvp.Value.Players.Count : 0));
+        }
+    }
+
+    public void IncreaseScheduledScriptsCount()
+    {
+        ++_scheduledScripts;
+    }
+
+    public void Initialize()
+    {
+        foreach (var (_, mapEntry) in _cliDB.MapStorage)
+            if (mapEntry.IsWorldMap() && mapEntry.IsSplitByFaction())
+                _ = new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
+    }
+
+    public void InitializeVisibilityDistanceInfo()
+    {
+        lock (_mapsLock)
+        {
+            foreach (var pair in _maps.Values)
+                foreach (var map in pair.Values)
+                    map.InitVisibilityDistance();
+        }
+    }
+    public void InitInstanceIds()
+    {
+        _nextInstanceId = 1;
+
+        ulong maxExistingInstanceId = 0;
+        var result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM instance");
+
+        if (!result.IsEmpty())
+            maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
+
+        result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM character_instance_lock");
+
+        if (!result.IsEmpty())
+            maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
+
+        _freeInstanceIds.Length = (int)(maxExistingInstanceId + 2); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
+
+        // never allow 0 id
+        _freeInstanceIds[0] = false;
+    }
+
+    public bool IsScriptScheduled()
+    {
+        return _scheduledScripts > 0;
+    }
+
+    public bool IsValidMap(uint mapId)
+    {
+        return _cliDB.MapStorage.ContainsKey(mapId);
+    }
+
+    public void RegisterInstanceId(uint instanceId)
+    {
+        _freeInstanceIds[(int)instanceId] = false;
+
+        // Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
+        // so if the instance id is used, increment until we find the first unused one for a potential new instance
+        if (_nextInstanceId == instanceId)
+            ++_nextInstanceId;
+    }
+
+    public void SetGridCleanUpDelay(uint t)
+    {
+        if (t < MapConst.MinGridDelay)
+            _gridCleanUpDelay = MapConst.MinGridDelay;
+        else
+            _gridCleanUpDelay = t;
+    }
+
+    public void SetMapUpdateInterval(int t)
+    {
+        if (t < MapConst.MinMapUpdateDelay)
+            t = MapConst.MinMapUpdateDelay;
+
+        _timer.Interval = t;
+        _timer.Reset();
+    }
+
+    public void SetNextInstanceId(uint nextInstanceId)
+    {
+        _nextInstanceId = nextInstanceId;
+    }
+
+    public void UnloadAll()
+    {
+        // first unload maps
+        lock (_mapsLock)
+        {
+            foreach (var pair in _maps.Values)
+                foreach (var map in pair.Values)
+                    map.UnloadAll();
+
+            foreach (var pair in _maps.Values)
+                foreach (var map in pair.Values)
+                    map.Dispose();
+
+            _maps.Clear();
+        }
+
+        _updater?.Deactivate();
+    }
+
     public void Update(uint diff)
     {
         _timer.Update(diff);
@@ -297,200 +476,20 @@ public class MapManager
         _updater.Wait();
         _timer.Current = 0;
     }
-
-    public bool IsValidMap(uint mapId)
+    private BattlegroundMap CreateBattleground(uint mapId, uint instanceId, Battleground bg)
     {
-        return _cliDB.MapStorage.ContainsKey(mapId);
+        Log.Logger.Debug($"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
+
+        var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
+        map.SetBG(bg);
+        bg.SetBgMap(map);
+
+        return map;
     }
 
-    public void UnloadAll()
+    private GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
     {
-        // first unload maps
-        lock (_mapsLock)
-        {
-            foreach (var pair in _maps.Values)
-                foreach (var map in pair.Values)
-                    map.UnloadAll();
-
-            foreach (var pair in _maps.Values)
-                foreach (var map in pair.Values)
-                    map.Dispose();
-
-            _maps.Clear();
-        }
-
-        _updater?.Deactivate();
-    }
-
-    public uint GetNumInstances()
-    {
-        lock (_mapsLock)
-        {
-            return (uint)_maps.Sum(pair => pair.Value.Count(kvp => kvp.Value.IsDungeon));
-        }
-    }
-
-    public uint GetNumPlayersInInstances()
-    {
-        lock (_mapsLock)
-        {
-            return (uint)_maps.Sum(pair => pair.Value.Sum(kvp => kvp.Value.IsDungeon ? kvp.Value.Players.Count : 0));
-        }
-    }
-
-    public void InitInstanceIds()
-    {
-        _nextInstanceId = 1;
-
-        ulong maxExistingInstanceId = 0;
-        var result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM instance");
-
-        if (!result.IsEmpty())
-            maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
-
-        result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM character_instance_lock");
-
-        if (!result.IsEmpty())
-            maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
-
-        _freeInstanceIds.Length = (int)(maxExistingInstanceId + 2); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
-
-        // never allow 0 id
-        _freeInstanceIds[0] = false;
-    }
-
-    public void RegisterInstanceId(uint instanceId)
-    {
-        _freeInstanceIds[(int)instanceId] = false;
-
-        // Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
-        // so if the instance id is used, increment until we find the first unused one for a potential new instance
-        if (_nextInstanceId == instanceId)
-            ++_nextInstanceId;
-    }
-
-    public uint GenerateInstanceId()
-    {
-        if (_nextInstanceId == uint.MaxValue)
-            _nextInstanceId = 1;
-
-        var newInstanceId = _nextInstanceId;
-        _freeInstanceIds[(int)newInstanceId] = false;
-
-        // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
-        var nextFreeId = -1;
-
-        for (var i = (int)_nextInstanceId++; i < _freeInstanceIds.Length; i++)
-            if (_freeInstanceIds[i])
-            {
-                nextFreeId = i;
-
-                break;
-            }
-
-        if (nextFreeId == -1)
-        {
-            _nextInstanceId = (uint)_freeInstanceIds.Length;
-            _freeInstanceIds.Length += 1;
-            _freeInstanceIds[(int)_nextInstanceId] = true;
-        }
-        else
-        {
-            _nextInstanceId = (uint)nextFreeId;
-        }
-
-        return newInstanceId;
-    }
-
-    public void FreeInstanceId(uint instanceId)
-    {
-        // If freed instance id is lower than the next id available for new instances, use the freed one instead
-        _nextInstanceId = Math.Min(instanceId, _nextInstanceId);
-        _freeInstanceIds[(int)instanceId] = true;
-    }
-
-    public void SetGridCleanUpDelay(uint t)
-    {
-        if (t < MapConst.MinGridDelay)
-            _gridCleanUpDelay = MapConst.MinGridDelay;
-        else
-            _gridCleanUpDelay = t;
-    }
-
-    public void SetMapUpdateInterval(int t)
-    {
-        if (t < MapConst.MinMapUpdateDelay)
-            t = MapConst.MinMapUpdateDelay;
-
-        _timer.Interval = t;
-        _timer.Reset();
-    }
-
-    public uint GetNextInstanceId()
-    {
-        return _nextInstanceId;
-    }
-
-    public void SetNextInstanceId(uint nextInstanceId)
-    {
-        _nextInstanceId = nextInstanceId;
-    }
-
-    public void DoForAllMaps(Action<Map> worker)
-    {
-        lock (_mapsLock)
-        {
-            foreach (var kvp in _maps.Values)
-                foreach (var map in kvp.Values)
-                    worker(map);
-        }
-    }
-
-    public void DoForAllMapsWithMapId(uint mapId, Action<Map> worker)
-    {
-        lock (_mapsLock)
-        {
-            if (!_maps.TryGetValue(mapId, out var instanceDict))
-                return;
-
-            foreach (var kvp in instanceDict)
-                worker(kvp.Value);
-        }
-    }
-
-    public void IncreaseScheduledScriptsCount()
-    {
-        ++_scheduledScripts;
-    }
-
-    public void DecreaseScheduledScriptCount()
-    {
-        --_scheduledScripts;
-    }
-
-    public void DecreaseScheduledScriptCount(uint count)
-    {
-        _scheduledScripts -= count;
-    }
-
-    public bool IsScriptScheduled()
-    {
-        return _scheduledScripts > 0;
-    }
-
-    private Map FindMap_i(uint mapId, uint instanceId)
-    {
-        return _maps.TryGetValue(mapId, instanceId, out var map) ? map : null;
-    }
-
-    private Map CreateWorldMap(uint mapId, uint instanceId)
-    {
-        var map = new Map(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
-        map.LoadRespawnTimes();
-        map.LoadCorpseData();
-
-        if (_configuration.GetDefaultValue("BaseMapLoadAllGrids", false))
-            map.LoadAllCells();
+        var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
 
         return map;
     }
@@ -530,20 +529,14 @@ public class MapManager
         return map;
     }
 
-    private BattlegroundMap CreateBattleground(uint mapId, uint instanceId, Battleground bg)
+    private Map CreateWorldMap(uint mapId, uint instanceId)
     {
-        Log.Logger.Debug($"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
+        var map = new Map(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
+        map.LoadRespawnTimes();
+        map.LoadCorpseData();
 
-        var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
-        map.SetBG(bg);
-        bg.SetBgMap(map);
-
-        return map;
-    }
-
-    private GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
-    {
-        var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
+        if (_configuration.GetDefaultValue("BaseMapLoadAllGrids", false))
+            map.LoadAllCells();
 
         return map;
     }
@@ -565,6 +558,11 @@ public class MapManager
         map.Dispose();
 
         return true;
+    }
+
+    private Map FindMap_i(uint mapId, uint instanceId)
+    {
+        return _maps.TryGetValue(mapId, instanceId, out var map) ? map : null;
     }
 }
 

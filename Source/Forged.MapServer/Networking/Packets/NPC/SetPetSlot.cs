@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 internal class SetPetSlot : ClientPacket
 {
-    public ObjectGuid StableMaster;
-    public uint PetNumber;
     public byte DestSlot;
+    public uint PetNumber;
+    public ObjectGuid StableMaster;
     public SetPetSlot(WorldPacket packet) : base(packet) { }
 
     public override void Read()

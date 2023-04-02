@@ -21,6 +21,11 @@ public class M2Storage
         _cliDB = cliDB;
     }
 
+    public List<FlyByCamera> GetFlyByCameras(uint cameraId)
+    {
+        return _flyByCameraStorage.LookupByKey(cameraId);
+    }
+
     public void LoadM2Cameras(string dataPath)
     {
         _flyByCameraStorage.Clear();
@@ -68,32 +73,6 @@ public class M2Storage
 
         Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", _flyByCameraStorage.Keys.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
-
-    public List<FlyByCamera> GetFlyByCameras(uint cameraId)
-    {
-        return _flyByCameraStorage.LookupByKey(cameraId);
-    }
-
-    // Convert the geomoetry from a spline value, to an actual WoW XYZ
-    private Vector3 TranslateLocation(Vector4 dbcLocation, Vector3 basePosition, Vector3 splineVector)
-    {
-        Vector3 work = new();
-        var x = basePosition.X + splineVector.X;
-        var y = basePosition.Y + splineVector.Y;
-        var z = basePosition.Z + splineVector.Z;
-        var distance = (float)Math.Sqrt((x * x) + (y * y));
-        var angle = (float)Math.Atan2(x, y) - dbcLocation.W;
-
-        if (angle < 0)
-            angle += 2 * MathFunctions.PI;
-
-        work.X = dbcLocation.X + (distance * (float)Math.Sin(angle));
-        work.Y = dbcLocation.Y + (distance * (float)Math.Cos(angle));
-        work.Z = dbcLocation.Z + z;
-
-        return work;
-    }
-
     // Number of cameras not used. Multiple cameras never used in 7.1.5
     private void ReadCamera(M2Camera cam, BinaryReader reader, CinematicCameraRecord dbcentry)
     {
@@ -217,5 +196,25 @@ public class M2Storage
         }
 
         _flyByCameraStorage[dbcentry.Id] = cameras;
+    }
+
+    // Convert the geomoetry from a spline value, to an actual WoW XYZ
+    private Vector3 TranslateLocation(Vector4 dbcLocation, Vector3 basePosition, Vector3 splineVector)
+    {
+        Vector3 work = new();
+        var x = basePosition.X + splineVector.X;
+        var y = basePosition.Y + splineVector.Y;
+        var z = basePosition.Z + splineVector.Z;
+        var distance = (float)Math.Sqrt((x * x) + (y * y));
+        var angle = (float)Math.Atan2(x, y) - dbcLocation.W;
+
+        if (angle < 0)
+            angle += 2 * MathFunctions.PI;
+
+        work.X = dbcLocation.X + (distance * (float)Math.Sin(angle));
+        work.Y = dbcLocation.Y + (distance * (float)Math.Cos(angle));
+        work.Z = dbcLocation.Z + z;
+
+        return work;
     }
 }

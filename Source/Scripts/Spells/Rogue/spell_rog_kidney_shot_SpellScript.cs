@@ -22,7 +22,7 @@ public class spell_rog_kidney_shot_SpellScript : SpellScript, ISpellAfterHit, IS
             var aura = target.GetAura(RogueSpells.KIDNEY_SHOT, Caster.GUID);
 
             if (aura != null)
-                aura.SetDuration(_cp * Time.InMilliseconds);
+                aura.SetDuration(_cp * Time.IN_MILLISECONDS);
         }
     }
 

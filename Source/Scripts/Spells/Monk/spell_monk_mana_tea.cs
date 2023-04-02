@@ -38,7 +38,7 @@ public class spell_monk_mana_tea : SpellScript, ISpellAfterCast, ISpellBeforeCas
             {
                 stacks = manaTeaStacks.StackAmount;
 
-                var newDuration = stacks * Time.InMilliseconds;
+                var newDuration = stacks * Time.IN_MILLISECONDS;
 
 
                 var mod = new SpellModifierByClassMask(manaTeaStacks);

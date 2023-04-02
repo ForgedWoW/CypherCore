@@ -7,7 +7,7 @@ public class CreatureModelInfo
 {
     public float BoundingRadius;
     public float CombatReach;
-    public sbyte Gender;
     public uint DisplayIdOtherGender;
+    public sbyte Gender;
     public bool IsTrigger;
 }

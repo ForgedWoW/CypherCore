@@ -7,24 +7,32 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class PVPMatchInitialize : ServerPacket
 {
+    public bool AffectsRating;
+
+    public byte ArenaFaction;
+
+    public uint BattlemasterListID;
+
+    public RatedMatchDeserterPenalty DeserterPenalty;
+
+    public int Duration;
+
+    public uint MapID;
+
+    public bool Registered;
+
+    public long StartTime;
+
+    public MatchState State = MatchState.Inactive;
+
+    public PVPMatchInitialize() : base(ServerOpcodes.PvpMatchInitialize, ConnectionType.Instance) { }
+
     public enum MatchState
     {
         InProgress = 1,
         Complete = 3,
         Inactive = 4
     }
-
-    public uint MapID;
-    public MatchState State = MatchState.Inactive;
-    public long StartTime;
-    public int Duration;
-    public RatedMatchDeserterPenalty DeserterPenalty;
-    public byte ArenaFaction;
-    public uint BattlemasterListID;
-    public bool Registered;
-    public bool AffectsRating;
-    public PVPMatchInitialize() : base(ServerOpcodes.PvpMatchInitialize, ConnectionType.Instance) { }
-
     public override void Write()
     {
         _worldPacket.WriteUInt32(MapID);

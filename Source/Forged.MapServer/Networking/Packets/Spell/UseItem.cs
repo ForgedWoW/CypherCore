@@ -7,11 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class UseItem : ClientPacket
 {
+    public SpellCastRequest Cast;
+    public ObjectGuid CastItem;
     public byte PackSlot;
     public byte Slot;
-    public ObjectGuid CastItem;
-    public SpellCastRequest Cast;
-
     public UseItem(WorldPacket packet) : base(packet)
     {
         Cast = new SpellCastRequest();

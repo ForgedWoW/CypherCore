@@ -7,6 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public struct MonsterSplineSpellEffectExtraData
 {
+    public float JumpGravity;
+
+    public uint ParabolicCurveID;
+
+    public uint ProgressCurveID;
+
+    public uint SpellVisualID;
+
+    public ObjectGuid TargetGuid;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(TargetGuid);
@@ -15,10 +25,4 @@ public struct MonsterSplineSpellEffectExtraData
         data.WriteUInt32(ParabolicCurveID);
         data.WriteFloat(JumpGravity);
     }
-
-    public ObjectGuid TargetGuid;
-    public uint SpellVisualID;
-    public uint ProgressCurveID;
-    public uint ParabolicCurveID;
-    public float JumpGravity;
 }

@@ -9,9 +9,8 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyDeadUnitObjectInRangeCheck<T> : ICheck<T> where T : WorldObject
 {
-    private readonly WorldObject _searchObj;
     private readonly float _range;
-
+    private readonly WorldObject _searchObj;
     public AnyDeadUnitObjectInRangeCheck(WorldObject searchObj, float range)
     {
         _searchObj = searchObj;

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 public class GuildBankQueryTab : ClientPacket
 {
     public ObjectGuid Banker;
-    public byte Tab;
     public bool FullUpdate;
+    public byte Tab;
     public GuildBankQueryTab(WorldPacket packet) : base(packet) { }
 
     public override void Read()

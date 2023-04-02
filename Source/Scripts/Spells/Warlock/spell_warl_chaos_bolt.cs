@@ -119,25 +119,25 @@ internal class spell_warl_chaos_bolt : SpellScript, IHasSpellEffects, ISpellCalc
             return;
 
         var duration = immolationAura.Duration;
-        var modDur = (int)(internalCombustion.GetEffect(0).BaseAmount * Time.InMilliseconds);
+        var modDur = (int)(internalCombustion.GetEffect(0).BaseAmount * Time.IN_MILLISECONDS);
 
         if (modDur <= 0)
-            modDur = Time.InMilliseconds;
+            modDur = Time.IN_MILLISECONDS;
 
         if (duration <= 0)
-            duration = Time.InMilliseconds;
+            duration = Time.IN_MILLISECONDS;
 
         var diff = duration - modDur;
 
         if (diff > 0)
         {
             immolationAura.ModDuration(-modDur);
-            p.CastSpell(target, WarlockSpells.INTERNAL_COMBUSTION_DMG, Math.Max(modDur / Time.InMilliseconds, 1) * dmgPerTick, true);
+            p.CastSpell(target, WarlockSpells.INTERNAL_COMBUSTION_DMG, Math.Max(modDur / Time.IN_MILLISECONDS, 1) * dmgPerTick, true);
         }
         else
         {
             immolationAura.ModDuration(-duration);
-            p.CastSpell(target, WarlockSpells.INTERNAL_COMBUSTION_DMG, Math.Max(duration / Time.InMilliseconds, 1) * dmgPerTick, true);
+            p.CastSpell(target, WarlockSpells.INTERNAL_COMBUSTION_DMG, Math.Max(duration / Time.IN_MILLISECONDS, 1) * dmgPerTick, true);
         }
     }
 

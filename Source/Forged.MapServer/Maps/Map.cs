@@ -186,7 +186,7 @@ public class Map : IDisposable
 
             _weatherUpdateTimer = new IntervalTimer
             {
-                Interval = 1 * Time.InMilliseconds
+                Interval = 1 * Time.IN_MILLISECONDS
             };
 
             GetGuidSequenceGenerator(HighGuid.Transport).Set(Global.ObjectMgr.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
@@ -1519,10 +1519,10 @@ public class Map : IDisposable
 
     public void Respawn(RespawnInfo info, SQLTransaction dbTrans = null)
     {
-        if (info.RespawnTime <= GameTime.GetGameTime())
+        if (info.RespawnTime <= GameTime.CurrentTime)
             return;
 
-        info.RespawnTime = GameTime.GetGameTime();
+        info.RespawnTime = GameTime.CurrentTime;
         SaveRespawnInfoDB(info, dbTrans);
     }
 
@@ -2297,7 +2297,7 @@ public class Map : IDisposable
 
     public void RemoveOldCorpses()
     {
-        var now = GameTime.GetGameTime();
+        var now = GameTime.CurrentTime;
 
         List<ObjectGuid> corpses = new();
 
@@ -3151,9 +3151,9 @@ public class Map : IDisposable
                 if (grid.GetGridState() != GridState.Active)
                     continue;
 
-                grid.GetGridInfoRef().GetRelocationTimer().TUpdate((int)diff);
+                grid.GetGridInfoRef().GetRelocationTimer().Modify((int)diff);
 
-                if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
+                if (!grid.GetGridInfoRef().GetRelocationTimer().Passed())
                     continue;
 
                 var gx = grid.GetX();
@@ -3198,10 +3198,10 @@ public class Map : IDisposable
                 if (grid.GetGridState() != GridState.Active)
                     continue;
 
-                if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
+                if (!grid.GetGridInfoRef().GetRelocationTimer().Passed())
                     continue;
 
-                grid.GetGridInfoRef().GetRelocationTimer().TReset((int)diff, VisibilityNotifyPeriod);
+                grid.GetGridInfoRef().GetRelocationTimer().Reset((int)diff, VisibilityNotifyPeriod);
 
                 var gx = grid.GetX();
                 var gy = grid.GetY();
@@ -3722,13 +3722,13 @@ public class Map : IDisposable
 
         if (linkedTime != 0)
         {
-            var now = GameTime.GetGameTime();
+            var now = GameTime.CurrentTime;
             long respawnTime;
 
             if (linkedTime == long.MaxValue)
                 respawnTime = linkedTime;
             else if (Global.ObjectMgr.GetLinkedRespawnGuid(thisGUID) == thisGUID) // never respawn, save "something" in DB
-                respawnTime = now + Time.Week;
+                respawnTime = now + Time.WEEK;
             else // set us to check again shortly after linked unit
                 respawnTime = Math.Max(now, linkedTime) + RandomHelper.URand(5, 15);
 
@@ -3895,7 +3895,7 @@ public class Map : IDisposable
 
     private void ProcessRespawns()
     {
-        var now = GameTime.GetGameTime();
+        var now = GameTime.CurrentTime;
 
         while (!_respawnTimes.Empty())
         {
@@ -4291,7 +4291,7 @@ public class Map : IDisposable
             sa.OwnerGUID = ownerGUID;
 
             sa.Script = script.Value;
-            _scriptSchedule.Add(GameTime.GetGameTime() + script.Key, sa);
+            _scriptSchedule.Add(GameTime.CurrentTime + script.Key, sa);
 
             if (script.Key == 0)
                 immedScript = true;
@@ -4324,7 +4324,7 @@ public class Map : IDisposable
             Script = script
         };
 
-        _scriptSchedule.Add(GameTime.GetGameTime() + delay, sa);
+        _scriptSchedule.Add(GameTime.CurrentTime + delay, sa);
 
         Global.MapMgr.IncreaseScheduledScriptsCount();
 
@@ -4648,7 +4648,7 @@ public class Map : IDisposable
 
         while (!_scriptSchedule.Empty())
         {
-            if (iter.Key > GameTime.GetGameTime())
+            if (iter.Key > GameTime.CurrentTime)
                 break; // we are a sorted dictionary, once we hit this value we can break all other are going to be greater.
 
             if (iter.Value == default && iter.Key == default)

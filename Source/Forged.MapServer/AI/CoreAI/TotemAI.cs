@@ -21,6 +21,8 @@ public class TotemAI : NullCreatureAI
         _victimGuid = ObjectGuid.Empty;
     }
 
+    public override void AttackStart(Unit victim) { }
+
     public override void UpdateAI(uint diff)
     {
         if (Me.ToTotem().GetTotemType() != TotemType.Active)
@@ -66,6 +68,4 @@ public class TotemAI : NullCreatureAI
             _victimGuid.Clear();
         }
     }
-
-    public override void AttackStart(Unit victim) { }
 }

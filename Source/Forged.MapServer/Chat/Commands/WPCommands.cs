@@ -491,7 +491,7 @@ internal class WPCommands
         {
             handler.SendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff{0}|r", pathid);
 
-            if (Creature.DeleteFromDB(target.SpawnId))
+            if (CreatureFactory.DeleteFromDB(target.SpawnId))
             {
                 stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_WAYPOINT_DATA);
                 stmt.AddValue(0, pathid);
@@ -525,7 +525,7 @@ internal class WPCommands
             // What to do:
             // Move the visual spawnpoint
             // Respawn the owner of the waypoints
-            if (!Creature.DeleteFromDB(target.SpawnId))
+            if (!CreatureFactory.DeleteFromDB(target.SpawnId))
             {
                 handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
 
@@ -533,7 +533,7 @@ internal class WPCommands
             }
 
             // re-create
-            var creature = Creature.CreateCreature(1, map, chr.Location);
+            var creature = CreatureFactory.CreateCreature(1, map, chr.Location);
 
             if (!creature)
             {
@@ -557,7 +557,7 @@ internal class WPCommands
             creature.Dispose();
 
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-            creature = Creature.CreateCreatureFromDB(dbGuid, map, true, true);
+            creature = CreatureFactory.CreateCreatureFromDB(dbGuid, map, true, true);
 
             if (!creature)
             {
@@ -712,7 +712,7 @@ internal class WPCommands
                 {
                     var wpguid = result2.Read<ulong>(0);
 
-                    if (!Creature.DeleteFromDB(wpguid))
+                    if (!CreatureFactory.DeleteFromDB(wpguid))
                     {
                         handler.SendSysMessage(CypherStrings.WaypointNotremoved, wpguid);
                         hasError = true;
@@ -740,7 +740,7 @@ internal class WPCommands
                 var chr = handler.Session.Player;
                 var map = chr.Location.Map;
 
-                var creature = Creature.CreateCreature(id, map, new Position(x, y, z, o));
+                var creature = CreatureFactory.CreateCreature(id, map, new Position(x, y, z, o));
 
                 if (!creature)
                 {
@@ -764,7 +764,7 @@ internal class WPCommands
                 creature.Dispose();
 
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-                creature = Creature.CreateCreatureFromDB(dbGuid, map, true, true);
+                creature = CreatureFactory.CreateCreatureFromDB(dbGuid, map, true, true);
 
                 if (!creature)
                 {
@@ -816,7 +816,7 @@ internal class WPCommands
             var chr = handler.Session.Player;
             var map = chr.Location.Map;
 
-            var creature = Creature.CreateCreature(1, map, new Position(x, y, z));
+            var creature = CreatureFactory.CreateCreature(1, map, new Position(x, y, z));
 
             if (!creature)
             {
@@ -839,7 +839,7 @@ internal class WPCommands
             creature.CleanupsBeforeDelete();
             creature.Dispose();
 
-            creature = Creature.CreateCreatureFromDB(dbGuid, map, true, true);
+            creature = CreatureFactory.CreateCreatureFromDB(dbGuid, map, true, true);
 
             if (!creature)
             {
@@ -881,7 +881,7 @@ internal class WPCommands
             var map = chr.Location.Map;
             Position pos = new(x, y, z, o);
 
-            var creature = Creature.CreateCreature(1, map, pos);
+            var creature = CreatureFactory.CreateCreature(1, map, pos);
 
             if (!creature)
             {
@@ -904,7 +904,7 @@ internal class WPCommands
             creature.CleanupsBeforeDelete();
             creature.Dispose();
 
-            creature = Creature.CreateCreatureFromDB(dbGuid, map, true, true);
+            creature = CreatureFactory.CreateCreatureFromDB(dbGuid, map, true, true);
 
             if (!creature)
             {
@@ -941,7 +941,7 @@ internal class WPCommands
             {
                 var lowguid = result.Read<ulong>(0);
 
-                if (!Creature.DeleteFromDB(lowguid))
+                if (!CreatureFactory.DeleteFromDB(lowguid))
                 {
                     handler.SendSysMessage(CypherStrings.WaypointNotremoved, lowguid);
                     hasError = true;

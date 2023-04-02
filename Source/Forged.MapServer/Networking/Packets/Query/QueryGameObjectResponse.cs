@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryGameObjectResponse : ServerPacket
 {
+    public bool Allow;
     public uint GameObjectID;
     public ObjectGuid Guid;
-    public bool Allow;
     public GameObjectStats Stats;
     public QueryGameObjectResponse() : base(ServerOpcodes.QueryGameObjectResponse, ConnectionType.Instance) { }
 

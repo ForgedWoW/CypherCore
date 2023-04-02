@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class Ping : ClientPacket
 {
-    public uint Serial;
     public uint Latency;
+    public uint Serial;
     public Ping(WorldPacket packet) : base(packet) { }
 
     public override void Read()

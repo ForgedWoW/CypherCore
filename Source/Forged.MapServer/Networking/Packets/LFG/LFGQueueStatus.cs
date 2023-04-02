@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LFGQueueStatus : ServerPacket
 {
-    public RideTicket Ticket;
-    public uint Slot;
-    public uint AvgWaitTimeMe;
     public uint AvgWaitTime;
     public uint[] AvgWaitTimeByRole = new uint[3];
+    public uint AvgWaitTimeMe;
     public byte[] LastNeeded = new byte[3];
     public uint QueuedTime;
+    public uint Slot;
+    public RideTicket Ticket;
     public LFGQueueStatus() : base(ServerOpcodes.LfgQueueStatus) { }
 
     public override void Write()

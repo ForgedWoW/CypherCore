@@ -7,6 +7,22 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct GarrisonMissionReward
 {
+    public int CurrencyID;
+
+    public uint CurrencyQuantity;
+
+    public uint FollowerXP;
+
+    public uint GarrMssnBonusAbilityID;
+
+    public int ItemFileDataID;
+
+    public int ItemID;
+
+    public ItemInstance ItemInstance;
+
+    public uint ItemQuantity;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(ItemID);
@@ -22,13 +38,4 @@ internal struct GarrisonMissionReward
         if (ItemInstance != null)
             ItemInstance.Write(data);
     }
-
-    public int ItemID;
-    public uint ItemQuantity;
-    public int CurrencyID;
-    public uint CurrencyQuantity;
-    public uint FollowerXP;
-    public uint GarrMssnBonusAbilityID;
-    public int ItemFileDataID;
-    public ItemInstance ItemInstance;
 }

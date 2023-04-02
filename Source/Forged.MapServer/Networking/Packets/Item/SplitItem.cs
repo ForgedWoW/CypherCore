@@ -5,12 +5,12 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class SplitItem : ClientPacket
 {
-    public byte ToSlot;
-    public byte ToPackSlot;
     public byte FromPackSlot;
-    public int Quantity;
-    public InvUpdate Inv;
     public byte FromSlot;
+    public InvUpdate Inv;
+    public int Quantity;
+    public byte ToPackSlot;
+    public byte ToSlot;
     public SplitItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

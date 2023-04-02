@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonRequestBlueprintAndSpecializationDataResult : ServerPacket
 {
+    public List<uint> BlueprintsKnown = null;
     public GarrisonType GarrTypeID;
     public List<uint> SpecializationsKnown = null;
-    public List<uint> BlueprintsKnown = null;
     public GarrisonRequestBlueprintAndSpecializationDataResult() : base(ServerOpcodes.GarrisonRequestBlueprintAndSpecializationDataResult, ConnectionType.Instance) { }
 
     public override void Write()

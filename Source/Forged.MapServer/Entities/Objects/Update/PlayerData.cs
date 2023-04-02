@@ -10,46 +10,110 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class PlayerData : BaseUpdateData<Player>
 {
-    public UpdateField<bool> HasQuestSession = new(0, 1);
-    public UpdateField<bool> HasLevelLink = new(0, 2);
-    public DynamicUpdateField<ChrCustomizationChoice> Customizations = new(0, 3);
-    public DynamicUpdateField<QuestLog> QuestSessionQuestLog = new(0, 4);
     public DynamicUpdateField<ArenaCooldown> ArenaCooldowns = new(0, 5);
-    public DynamicUpdateField<int> VisualItemReplacements = new(0, 6);
-    public UpdateField<ObjectGuid> DuelArbiter = new(0, 7);
-    public UpdateField<ObjectGuid> WowAccount = new(0, 8);
-    public UpdateField<ObjectGuid> LootTargetGUID = new(0, 9);
-    public UpdateField<uint> PlayerFlags = new(0, 10);
-    public UpdateField<uint> PlayerFlagsEx = new(0, 11);
-    public UpdateField<uint> GuildRankID = new(0, 12);
-    public UpdateField<uint> GuildDeleteDate = new(0, 13);
-    public UpdateField<uint> GuildLevel = new(0, 14);
-    public UpdateField<byte> PartyType = new(0, 15);
-    public UpdateField<byte> NativeSex = new(0, 16);
-    public UpdateField<byte> Inebriation = new(0, 17);
-    public UpdateField<byte> PvpTitle = new(0, 18);
     public UpdateField<byte> ArenaFaction = new(0, 19);
-    public UpdateField<uint> DuelTeam = new(0, 20);
-    public UpdateField<int> GuildTimeStamp = new(0, 21);
-    public UpdateField<uint> PlayerTitle = new(0, 22);
-    public UpdateField<int> FakeInebriation = new(0, 23);
-    public UpdateField<uint> VirtualPlayerRealm = new(0, 24);
-    public UpdateField<uint> CurrentSpecID = new(0, 25);
-    public UpdateField<int> TaxiMountAnimKitID = new(0, 26);
+    public UpdateFieldArray<float> AvgItemLevel = new(6, 183, 184);
+    public UpdateField<int> CovenantID = new(32, 34);
+    public UpdateField<CTROptions> CtrOptions = new(32, 33);
     public UpdateField<byte> CurrentBattlePetBreedQuality = new(0, 27);
-    public UpdateField<uint> HonorLevel = new(0, 28);
-    public UpdateField<long> LogoutTime = new(0, 29);
+    public UpdateField<uint> CurrentSpecID = new(0, 25);
+    public DynamicUpdateField<ChrCustomizationChoice> Customizations = new(0, 3);
+    public UpdateField<ObjectGuid> DuelArbiter = new(0, 7);
+    public UpdateField<uint> DuelTeam = new(0, 20);
+    public UpdateField<DungeonScoreSummary> DungeonScore = new(32, 36);
+    public UpdateField<int> FakeInebriation = new(0, 23);
     public UpdateField<int> Field_B0 = new(0, 30);
     public UpdateField<int> Field_B4 = new(0, 31);
-    public UpdateField<CTROptions> CtrOptions = new(32, 33);
-    public UpdateField<int> CovenantID = new(32, 34);
-    public UpdateField<int> SoulbindID = new(32, 35);
-    public UpdateField<DungeonScoreSummary> DungeonScore = new(32, 36);
+    public UpdateField<uint> GuildDeleteDate = new(0, 13);
+    public UpdateField<uint> GuildLevel = new(0, 14);
+    public UpdateField<uint> GuildRankID = new(0, 12);
+    public UpdateField<int> GuildTimeStamp = new(0, 21);
+    public UpdateField<bool> HasLevelLink = new(0, 2);
+    public UpdateField<bool> HasQuestSession = new(0, 1);
+    public UpdateField<uint> HonorLevel = new(0, 28);
+    public UpdateField<byte> Inebriation = new(0, 17);
+    public UpdateField<long> LogoutTime = new(0, 29);
+    public UpdateField<ObjectGuid> LootTargetGUID = new(0, 9);
+    public UpdateField<byte> NativeSex = new(0, 16);
+    public UpdateField<byte> PartyType = new(0, 15);
+    public UpdateField<uint> PlayerFlags = new(0, 10);
+    public UpdateField<uint> PlayerFlagsEx = new(0, 11);
+    public UpdateField<uint> PlayerTitle = new(0, 22);
+    public UpdateField<byte> PvpTitle = new(0, 18);
     public UpdateFieldArray<QuestLog> QuestLog = new(125, 37, 38);
+    public DynamicUpdateField<QuestLog> QuestSessionQuestLog = new(0, 4);
+    public UpdateField<int> SoulbindID = new(32, 35);
+    public UpdateField<int> TaxiMountAnimKitID = new(0, 26);
+    public UpdateField<uint> VirtualPlayerRealm = new(0, 24);
     public UpdateFieldArray<VisibleItem> VisibleItems = new(19, 163, 164);
-    public UpdateFieldArray<float> AvgItemLevel = new(6, 183, 184);
-
+    public DynamicUpdateField<int> VisualItemReplacements = new(0, 6);
+    public UpdateField<ObjectGuid> WowAccount = new(0, 8);
     public PlayerData() : base(0, TypeId.Player, 190) { }
+
+    public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
+    {
+        if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.PartyMember))
+            allowedMaskForTarget.Or(new UpdateMask(188,
+                                                   new[]
+                                                   {
+                                                       0x00000012u, 0xFFFFFFE0u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000007u
+                                                   }));
+    }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(HasQuestSession);
+        ClearChangesMask(HasLevelLink);
+        ClearChangesMask(Customizations);
+        ClearChangesMask(QuestSessionQuestLog);
+        ClearChangesMask(ArenaCooldowns);
+        ClearChangesMask(VisualItemReplacements);
+        ClearChangesMask(DuelArbiter);
+        ClearChangesMask(WowAccount);
+        ClearChangesMask(LootTargetGUID);
+        ClearChangesMask(PlayerFlags);
+        ClearChangesMask(PlayerFlagsEx);
+        ClearChangesMask(GuildRankID);
+        ClearChangesMask(GuildDeleteDate);
+        ClearChangesMask(GuildLevel);
+        ClearChangesMask(PartyType);
+        ClearChangesMask(NativeSex);
+        ClearChangesMask(Inebriation);
+        ClearChangesMask(PvpTitle);
+        ClearChangesMask(ArenaFaction);
+        ClearChangesMask(DuelTeam);
+        ClearChangesMask(GuildTimeStamp);
+        ClearChangesMask(PlayerTitle);
+        ClearChangesMask(FakeInebriation);
+        ClearChangesMask(VirtualPlayerRealm);
+        ClearChangesMask(CurrentSpecID);
+        ClearChangesMask(TaxiMountAnimKitID);
+        ClearChangesMask(CurrentBattlePetBreedQuality);
+        ClearChangesMask(HonorLevel);
+        ClearChangesMask(LogoutTime);
+        ClearChangesMask(Field_B0);
+        ClearChangesMask(Field_B4);
+        ClearChangesMask(CtrOptions);
+        ClearChangesMask(CovenantID);
+        ClearChangesMask(SoulbindID);
+        ClearChangesMask(DungeonScore);
+        ClearChangesMask(QuestLog);
+        ClearChangesMask(VisibleItems);
+        ClearChangesMask(AvgItemLevel);
+        ChangesMask.ResetAll();
+    }
+
+    public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
+    {
+        UpdateMask allowedMaskForTarget = new(188,
+                                              new[]
+                                              {
+                                                  0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x3FFFFFF8u
+                                              });
+
+        AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
+        changesMask.And(allowedMaskForTarget);
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Player owner, Player receiver)
     {
@@ -133,29 +197,6 @@ public class PlayerData : BaseUpdateData<Player>
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
         WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
     }
-
-    public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
-    {
-        if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.PartyMember))
-            allowedMaskForTarget.OR(new UpdateMask(188,
-                                                   new[]
-                                                   {
-                                                       0x00000012u, 0xFFFFFFE0u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000007u
-                                                   }));
-    }
-
-    public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
-    {
-        UpdateMask allowedMaskForTarget = new(188,
-                                              new[]
-                                              {
-                                                  0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x3FFFFFF8u
-                                              });
-
-        AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
-        changesMask.AND(allowedMaskForTarget);
-    }
-
     public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Player owner, Player receiver)
     {
         data.WriteBits(changesMask.GetBlocksMask(0), 6);
@@ -315,7 +356,7 @@ public class PlayerData : BaseUpdateData<Player>
         if (changesMask[32])
         {
             if (changesMask[33])
-                CtrOptions.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                CtrOptions.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
 
             if (changesMask[34])
                 data.WriteInt32(CovenantID);
@@ -324,7 +365,7 @@ public class PlayerData : BaseUpdateData<Player>
                 data.WriteInt32(SoulbindID);
 
             if (changesMask[36])
-                DungeonScore.GetValue().Write(data);
+                DungeonScore.Value.Write(data);
         }
 
         if (changesMask[37])
@@ -349,50 +390,6 @@ public class PlayerData : BaseUpdateData<Player>
 
         data.FlushBits();
     }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(HasQuestSession);
-        ClearChangesMask(HasLevelLink);
-        ClearChangesMask(Customizations);
-        ClearChangesMask(QuestSessionQuestLog);
-        ClearChangesMask(ArenaCooldowns);
-        ClearChangesMask(VisualItemReplacements);
-        ClearChangesMask(DuelArbiter);
-        ClearChangesMask(WowAccount);
-        ClearChangesMask(LootTargetGUID);
-        ClearChangesMask(PlayerFlags);
-        ClearChangesMask(PlayerFlagsEx);
-        ClearChangesMask(GuildRankID);
-        ClearChangesMask(GuildDeleteDate);
-        ClearChangesMask(GuildLevel);
-        ClearChangesMask(PartyType);
-        ClearChangesMask(NativeSex);
-        ClearChangesMask(Inebriation);
-        ClearChangesMask(PvpTitle);
-        ClearChangesMask(ArenaFaction);
-        ClearChangesMask(DuelTeam);
-        ClearChangesMask(GuildTimeStamp);
-        ClearChangesMask(PlayerTitle);
-        ClearChangesMask(FakeInebriation);
-        ClearChangesMask(VirtualPlayerRealm);
-        ClearChangesMask(CurrentSpecID);
-        ClearChangesMask(TaxiMountAnimKitID);
-        ClearChangesMask(CurrentBattlePetBreedQuality);
-        ClearChangesMask(HonorLevel);
-        ClearChangesMask(LogoutTime);
-        ClearChangesMask(Field_B0);
-        ClearChangesMask(Field_B4);
-        ClearChangesMask(CtrOptions);
-        ClearChangesMask(CovenantID);
-        ClearChangesMask(SoulbindID);
-        ClearChangesMask(DungeonScore);
-        ClearChangesMask(QuestLog);
-        ClearChangesMask(VisibleItems);
-        ClearChangesMask(AvgItemLevel);
-        ChangesMask.ResetAll();
-    }
-
     private bool IsQuestLogChangesMaskSkipped()
     {
         return false;

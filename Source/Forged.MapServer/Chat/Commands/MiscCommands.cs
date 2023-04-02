@@ -178,6 +178,34 @@ internal class MiscCommands
         return true;
     }
 
+    [CommandNonGroup("wchange", RBACPermissions.CommandWchange)]
+    private static bool HandleChangeWeather(CommandHandler handler, uint type, float intensity)
+    {
+        // Weather is OFF
+        if (!GetDefaultValue("ActivateWeather", true))
+        {
+            handler.SendSysMessage(CypherStrings.WeatherDisabled);
+
+            return false;
+        }
+
+        var player = handler.Session.Player;
+        var zoneid = player.Location.Zone;
+
+        var weather = player.Location.Map.GetOrGenerateZoneDefaultWeather(zoneid);
+
+        if (weather == null)
+        {
+            handler.SendSysMessage(CypherStrings.NoWeather);
+
+            return false;
+        }
+
+        weather.SetWeather((WeatherType)type, intensity);
+
+        return true;
+    }
+
     [CommandNonGroup("combatstop", RBACPermissions.CommandCombatstop, true)]
     private static bool HandleCombatStopCommand(CommandHandler handler, StringArguments args)
     {
@@ -460,72 +488,6 @@ internal class MiscCommands
         return true;
     }
 
-    [CommandNonGroup("distance", RBACPermissions.CommandDistance)]
-    private static bool HandleGetDistanceCommand(CommandHandler handler, StringArguments args)
-    {
-        WorldObject obj;
-
-        if (!args.Empty())
-        {
-            HighGuid guidHigh = 0;
-            var guidLow = handler.ExtractLowGuidFromLink(args, ref guidHigh);
-
-            if (guidLow == 0)
-                return false;
-
-            switch (guidHigh)
-            {
-                case HighGuid.Player:
-                {
-                    obj = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
-
-                    if (!obj)
-                        handler.SendSysMessage(CypherStrings.PlayerNotFound);
-
-                    break;
-                }
-                case HighGuid.Creature:
-                {
-                    obj = handler.GetCreatureFromPlayerMapByDbGuid(guidLow);
-
-                    if (!obj)
-                        handler.SendSysMessage(CypherStrings.CommandNocreaturefound);
-
-                    break;
-                }
-                case HighGuid.GameObject:
-                {
-                    obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
-
-                    if (!obj)
-                        handler.SendSysMessage(CypherStrings.CommandNogameobjectfound);
-
-                    break;
-                }
-                default:
-                    return false;
-            }
-
-            if (!obj)
-                return false;
-        }
-        else
-        {
-            obj = handler.SelectedUnit;
-
-            if (!obj)
-            {
-                handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
-
-                return false;
-            }
-        }
-
-        handler.SendSysMessage(CypherStrings.Distance, handler.Session.Player.Location.GetDistance(obj), handler.Session.Player.Location.GetDistance2d(obj), handler.Session.Player.Location.GetExactDist(obj.Location), handler.Session.Player.Location.GetExactDist2d(obj.Location));
-
-        return true;
-    }
-
     [CommandNonGroup("freeze", RBACPermissions.CommandFreeze)]
     private static bool HandleFreezeCommand(CommandHandler handler, StringArguments args)
     {
@@ -615,7 +577,7 @@ internal class MiscCommands
                 if (freeze != null)
                 {
                     if (freezeDuration != 0)
-                        freeze.SetDuration(freezeDuration * Time.InMilliseconds);
+                        freeze.SetDuration(freezeDuration * Time.IN_MILLISECONDS);
 
                     handler.SendSysMessage(CypherStrings.CommandFreeze, player.GetName());
                     // save player
@@ -629,6 +591,71 @@ internal class MiscCommands
         return false;
     }
 
+    [CommandNonGroup("distance", RBACPermissions.CommandDistance)]
+    private static bool HandleGetDistanceCommand(CommandHandler handler, StringArguments args)
+    {
+        WorldObject obj;
+
+        if (!args.Empty())
+        {
+            HighGuid guidHigh = 0;
+            var guidLow = handler.ExtractLowGuidFromLink(args, ref guidHigh);
+
+            if (guidLow == 0)
+                return false;
+
+            switch (guidHigh)
+            {
+                case HighGuid.Player:
+                {
+                    obj = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
+
+                    if (!obj)
+                        handler.SendSysMessage(CypherStrings.PlayerNotFound);
+
+                    break;
+                }
+                case HighGuid.Creature:
+                {
+                    obj = handler.GetCreatureFromPlayerMapByDbGuid(guidLow);
+
+                    if (!obj)
+                        handler.SendSysMessage(CypherStrings.CommandNocreaturefound);
+
+                    break;
+                }
+                case HighGuid.GameObject:
+                {
+                    obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
+
+                    if (!obj)
+                        handler.SendSysMessage(CypherStrings.CommandNogameobjectfound);
+
+                    break;
+                }
+                default:
+                    return false;
+            }
+
+            if (!obj)
+                return false;
+        }
+        else
+        {
+            obj = handler.SelectedUnit;
+
+            if (!obj)
+            {
+                handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
+
+                return false;
+            }
+        }
+
+        handler.SendSysMessage(CypherStrings.Distance, handler.Session.Player.Location.GetDistance(obj), handler.Session.Player.Location.GetDistance2d(obj), handler.Session.Player.Location.GetExactDist(obj.Location), handler.Session.Player.Location.GetExactDist2d(obj.Location));
+
+        return true;
+    }
     [CommandNonGroup("gps", RBACPermissions.CommandGps)]
     private static bool HandleGPSCommand(CommandHandler handler, StringArguments args)
     {
@@ -987,7 +1014,7 @@ internal class MiscCommands
                 handler.SendSysMessage(CypherStrings.CommandPermaFrozenPlayer, player);
             else
                 // show time left (seconds)
-                handler.SendSysMessage(CypherStrings.CommandTempFrozenPlayer, player, remaintime / Time.InMilliseconds);
+                handler.SendSysMessage(CypherStrings.CommandTempFrozenPlayer, player, remaintime / Time.IN_MILLISECONDS);
         } while (result.NextRow());
 
         return true;
@@ -1148,13 +1175,13 @@ internal class MiscCommands
         if (target)
         {
             // Target is online, mute will be in effect right away.
-            var mutedUntil = GameTime.GetGameTime() + muteTime * Time.Minute;
+            var mutedUntil = GameTime.CurrentTime + muteTime * Time.MINUTE;
             target.Session.MuteTime = mutedUntil;
             stmt.AddValue(0, mutedUntil);
         }
         else
         {
-            stmt.AddValue(0, -(muteTime * Time.Minute));
+            stmt.AddValue(0, -(muteTime * Time.MINUTE));
         }
 
         stmt.AddValue(1, muteReasonStr);
@@ -1555,11 +1582,11 @@ internal class MiscCommands
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler.SendSysMessage(CypherStrings.PinfoBanned, banType, banReason, banTime > 0 ? Time.secsToTimeString((ulong)(banTime - GameTime.GetGameTime()), TimeFormat.ShortText) : handler.GetCypherString(CypherStrings.Permanently), bannedBy);
+            handler.SendSysMessage(CypherStrings.PinfoBanned, banType, banReason, banTime > 0 ? Time.SecsToTimeString((ulong)(banTime - GameTime.CurrentTime), TimeFormat.ShortText) : handler.GetCypherString(CypherStrings.Permanently), bannedBy);
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
-            handler.SendSysMessage(CypherStrings.PinfoMuted, muteReason, Time.secsToTimeString((ulong)(muteTime - GameTime.GetGameTime()), TimeFormat.ShortText), muteBy);
+            handler.SendSysMessage(CypherStrings.PinfoMuted, muteReason, Time.SecsToTimeString((ulong)(muteTime - GameTime.CurrentTime), TimeFormat.ShortText), muteBy);
 
         // Output V. LANG_PINFO_ACC_ACCOUNT
         handler.SendSysMessage(CypherStrings.PinfoAccAccount, userName, accId, security);
@@ -1640,7 +1667,7 @@ internal class MiscCommands
         }
 
         // Output XX. LANG_PINFO_CHR_PLAYEDTIME
-        handler.SendSysMessage(CypherStrings.PinfoChrPlayedtime, (Time.secsToTimeString(totalPlayerTime, TimeFormat.ShortText, true)));
+        handler.SendSysMessage(CypherStrings.PinfoChrPlayedtime, (Time.SecsToTimeString(totalPlayerTime, TimeFormat.ShortText, true)));
 
         // Mail Data - an own query, because it may or may not be useful.
         // SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
@@ -1864,9 +1891,9 @@ internal class MiscCommands
         }
 
         // save if the player has last been saved over 20 seconds ago
-        var saveInterval = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
+        var saveInterval = GetDefaultValue("PlayerSaveInterval", 15u * Time.MINUTE * Time.IN_MILLISECONDS);
 
-        if (saveInterval == 0 || (saveInterval > 20 * Time.InMilliseconds && player.SaveTimer <= saveInterval - 20 * Time.InMilliseconds))
+        if (saveInterval == 0 || (saveInterval > 20 * Time.IN_MILLISECONDS && player.SaveTimer <= saveInterval - 20 * Time.IN_MILLISECONDS))
             player.SaveToDB();
 
         return true;
@@ -2257,33 +2284,5 @@ internal class MiscCommands
 
         //Not a supported argument
         return false;
-    }
-
-    [CommandNonGroup("wchange", RBACPermissions.CommandWchange)]
-    private static bool HandleChangeWeather(CommandHandler handler, uint type, float intensity)
-    {
-        // Weather is OFF
-        if (!GetDefaultValue("ActivateWeather", true))
-        {
-            handler.SendSysMessage(CypherStrings.WeatherDisabled);
-
-            return false;
-        }
-
-        var player = handler.Session.Player;
-        var zoneid = player.Location.Zone;
-
-        var weather = player.Location.Map.GetOrGenerateZoneDefaultWeather(zoneid);
-
-        if (weather == null)
-        {
-            handler.SendSysMessage(CypherStrings.NoWeather);
-
-            return false;
-        }
-
-        weather.SetWeather((WeatherType)type, intensity);
-
-        return true;
     }
 }

@@ -26,12 +26,12 @@ public struct PlayerConst
 
     public const int MaxDailyQuests = 25;
 
-    public static TimeSpan InfinityCooldownDelay = TimeSpan.FromSeconds(Time.Month); // used for set "infinity cooldowns" for spells and check
-    public const uint infinityCooldownDelayCheck = Time.Month / 2;
-    public const int MaxPlayerSummonDelay = 2 * Time.Minute;
+    public static TimeSpan InfinityCooldownDelay = TimeSpan.FromSeconds(Time.MONTH); // used for set "infinity cooldowns" for spells and check
+    public const uint infinityCooldownDelayCheck = Time.MONTH / 2;
+    public const int MaxPlayerSummonDelay = 2 * Time.MINUTE;
 
     // corpse reclaim times
-    public const int DeathExpireStep = (5 * Time.Minute);
+    public const int DeathExpireStep = (5 * Time.MINUTE);
     public const int MaxDeathCount = 3;
 
     public const int MaxCUFProfiles = 5;

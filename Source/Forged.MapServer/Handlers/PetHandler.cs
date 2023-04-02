@@ -24,6 +24,32 @@ namespace Forged.MapServer.Handlers;
 
 public class PetHandler : IWorldSessionHandler
 {
+    private bool CheckStableMaster(ObjectGuid guid)
+    {
+        // spell case or GM
+        if (guid == Player.GUID)
+        {
+            if (!Player.IsGameMaster && !Player.HasAuraType(AuraType.OpenStable))
+            {
+                Log.Logger.Debug("{0} attempt open stable in cheating way.", guid.ToString());
+
+                return false;
+            }
+        }
+        // stable master case
+        else
+        {
+            if (!Player.GetNPCIfCanInteractWith(guid, NPCFlags.StableMaster, NPCFlags2.None))
+            {
+                Log.Logger.Debug("Stablemaster {0} not found or you can't interact with him.", guid.ToString());
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     [WorldPacketHandler(ClientOpcodes.DismissCritter)]
     private void HandleDismissCritter(DismissCritter packet)
     {
@@ -48,6 +74,19 @@ public class PetHandler : IWorldSessionHandler
 
                 pet.ToTempSummon().UnSummon();
             }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.PetAbandon)]
+    private void HandlePetAbandon(PetAbandon packet)
+    {
+        if (!Player.Location.IsInWorld)
+            return;
+
+        // pet/charmed
+        var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.Pet);
+
+        if (pet && pet.AsPet && pet.AsPet.PetType == PetType.Hunter)
+            _player.RemovePet((Pet)pet, PetSaveMode.AsDeleted);
     }
 
     [WorldPacketHandler(ClientOpcodes.PetAction)]
@@ -107,31 +146,6 @@ public class PetHandler : IWorldSessionHandler
             foreach (var unit in controlled)
                 HandlePetActionHelper(unit, guid1, spellid, flag, guid2, packet.ActionPosition.X, packet.ActionPosition.Y, packet.ActionPosition.Z);
         }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.PetStopAttack, Processing = PacketProcessing.Inplace)]
-    private void HandlePetStopAttack(PetStopAttack packet)
-    {
-        Unit pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.PetGUID);
-
-        if (!pet)
-        {
-            Log.Logger.Error("HandlePetStopAttack: {0} does not exist", packet.PetGUID.ToString());
-
-            return;
-        }
-
-        if (pet != Player.CurrentPet && pet != Player.Charmed)
-        {
-            Log.Logger.Error("HandlePetStopAttack: {0} isn't a pet or charmed creature of player {1}", packet.PetGUID.ToString(), Player.GetName());
-
-            return;
-        }
-
-        if (!pet.IsAlive)
-            return;
-
-        pet.AttackStop();
     }
 
     private void HandlePetActionHelper(Unit pet, ObjectGuid guid1, uint spellid, ActiveStates flag, ObjectGuid guid2, float x, float y, float z)
@@ -438,287 +452,6 @@ public class PetHandler : IWorldSessionHandler
         }
     }
 
-    [WorldPacketHandler(ClientOpcodes.QueryPetName, Processing = PacketProcessing.Inplace)]
-    private void HandleQueryPetName(QueryPetName packet)
-    {
-        SendQueryPetNameResponse(packet.UnitGUID);
-    }
-
-    private void SendQueryPetNameResponse(ObjectGuid guid)
-    {
-        QueryPetNameResponse response = new();
-        response.UnitGUID = guid;
-
-        var unit = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, guid);
-
-        if (unit)
-        {
-            response.Allow = true;
-            response.Timestamp = unit.UnitData.PetNameTimestamp;
-            response.Name = unit.GetName();
-
-            var pet = unit.AsPet;
-
-            if (pet)
-            {
-                var names = pet.GetDeclinedNames();
-
-                if (names != null)
-                {
-                    response.HasDeclined = true;
-                    response.DeclinedNames = names;
-                }
-            }
-        }
-
-        Player.SendPacket(response);
-    }
-
-    private bool CheckStableMaster(ObjectGuid guid)
-    {
-        // spell case or GM
-        if (guid == Player.GUID)
-        {
-            if (!Player.IsGameMaster && !Player.HasAuraType(AuraType.OpenStable))
-            {
-                Log.Logger.Debug("{0} attempt open stable in cheating way.", guid.ToString());
-
-                return false;
-            }
-        }
-        // stable master case
-        else
-        {
-            if (!Player.GetNPCIfCanInteractWith(guid, NPCFlags.StableMaster, NPCFlags2.None))
-            {
-                Log.Logger.Debug("Stablemaster {0} not found or you can't interact with him.", guid.ToString());
-
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    [WorldPacketHandler(ClientOpcodes.PetSetAction)]
-    private void HandlePetSetAction(PetSetAction packet)
-    {
-        var petguid = packet.PetGUID;
-        var pet = Global.ObjAccessor.GetUnit(Player, petguid);
-
-        if (!pet || pet != Player.GetFirstControlled())
-        {
-            Log.Logger.Error("HandlePetSetAction: Unknown {0} or pet owner {1}", petguid.ToString(), Player.GUID.ToString());
-
-            return;
-        }
-
-        var charmInfo = pet.GetCharmInfo();
-
-        if (charmInfo == null)
-        {
-            Log.Logger.Error("WorldSession.HandlePetSetAction: {0} is considered pet-like but doesn't have a charminfo!", pet.GUID.ToString());
-
-            return;
-        }
-
-        List<Unit> pets = new();
-
-        foreach (var controlled in _player.Controlled)
-            if (controlled.Entry == pet.Entry && controlled.IsAlive)
-                pets.Add(controlled);
-
-        var position = packet.Index;
-        var actionData = packet.Action;
-
-        var spell_id = UnitActionBarEntry.UNIT_ACTION_BUTTON_ACTION(actionData);
-        var act_state = (ActiveStates)UnitActionBarEntry.UNIT_ACTION_BUTTON_TYPE(actionData);
-
-        Log.Logger.Debug("Player {0} has changed pet spell action. Position: {1}, Spell: {2}, State: {3}", Player.GetName(), position, spell_id, act_state);
-
-        foreach (var petControlled in pets)
-            //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
-            if (!((act_state == ActiveStates.Enabled || act_state == ActiveStates.Disabled || act_state == ActiveStates.Passive) && spell_id != 0 && !petControlled.HasSpell(spell_id)))
-            {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, petControlled.Location.Map.DifficultyID);
-
-                if (spellInfo != null)
-                {
-                    //sign for autocast
-                    if (act_state == ActiveStates.Enabled)
-                    {
-                        if (petControlled.TypeId == TypeId.Unit && petControlled.IsPet)
-                            ((Pet)petControlled).ToggleAutocast(spellInfo, true);
-                        else
-                            foreach (var unit in Player.Controlled)
-                                if (unit.Entry == petControlled.Entry)
-                                    unit.GetCharmInfo().ToggleCreatureAutocast(spellInfo, true);
-                    }
-                    //sign for no/turn off autocast
-                    else if (act_state == ActiveStates.Disabled)
-                    {
-                        if (petControlled.TypeId == TypeId.Unit && petControlled.IsPet)
-                            petControlled.AsPet.ToggleAutocast(spellInfo, false);
-                        else
-                            foreach (var unit in Player.Controlled)
-                                if (unit.Entry == petControlled.Entry)
-                                    unit.GetCharmInfo().ToggleCreatureAutocast(spellInfo, false);
-                    }
-                }
-
-                charmInfo.SetActionBar((byte)position, spell_id, act_state);
-            }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.PetRename)]
-    private void HandlePetRename(PetRename packet)
-    {
-        var petguid = packet.RenameData.PetGUID;
-        var isdeclined = packet.RenameData.HasDeclinedNames;
-        var name = packet.RenameData.NewName;
-
-        var petStable = _player.PetStable1;
-        var pet = ObjectAccessor.GetPet(Player, petguid);
-
-        // check it!
-        if (!pet ||
-            !pet.IsPet ||
-            pet.AsPet.PetType != PetType.Hunter ||
-            !pet.HasPetFlag(UnitPetFlags.CanBeRenamed) ||
-            pet.OwnerGUID != _player.GUID ||
-            pet.GetCharmInfo() == null ||
-            petStable == null ||
-            petStable.GetCurrentPet() == null ||
-            petStable.GetCurrentPet().PetNumber != pet.GetCharmInfo().GetPetNumber())
-            return;
-
-        var res = GameObjectManager.CheckPetName(name);
-
-        if (res != PetNameInvalidReason.Success)
-        {
-            SendPetNameInvalid(res, name, null);
-
-            return;
-        }
-
-        if (Global.ObjectMgr.IsReservedName(name))
-        {
-            SendPetNameInvalid(PetNameInvalidReason.Reserved, name, null);
-
-            return;
-        }
-
-        pet.SetName(name);
-        pet.GroupUpdateFlag = GroupUpdatePetFlags.Name;
-        pet.RemovePetFlag(UnitPetFlags.CanBeRenamed);
-
-        petStable.GetCurrentPet().Name = name;
-        petStable.GetCurrentPet().WasRenamed = true;
-
-        PreparedStatement stmt;
-        SQLTransaction trans = new();
-
-        if (isdeclined)
-        {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
-            stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
-            trans.Append(stmt);
-
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_PET_DECLINEDNAME);
-            stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
-            stmt.AddValue((int)1, (string)Player.GUID.ToString());
-
-            for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                stmt.AddValue(i + 1, packet.RenameData.DeclinedNames.Name[i]);
-
-            trans.Append(stmt);
-        }
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_PET_NAME);
-        stmt.AddValue(0, name);
-        stmt.AddValue((int)1, (string)Player.GUID.ToString());
-        stmt.AddValue(2, pet.GetCharmInfo().GetPetNumber());
-        trans.Append(stmt);
-
-        DB.Characters.CommitTransaction(trans);
-
-        pet.SetPetNameTimestamp((uint)GameTime.GetGameTime()); // cast can't be helped
-    }
-
-    [WorldPacketHandler(ClientOpcodes.PetAbandon)]
-    private void HandlePetAbandon(PetAbandon packet)
-    {
-        if (!Player.Location.IsInWorld)
-            return;
-
-        // pet/charmed
-        var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.Pet);
-
-        if (pet && pet.AsPet && pet.AsPet.PetType == PetType.Hunter)
-            _player.RemovePet((Pet)pet, PetSaveMode.AsDeleted);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.PetSpellAutocast, Processing = PacketProcessing.Inplace)]
-    private void HandlePetSpellAutocast(PetSpellAutocast packet)
-    {
-        var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.PetGUID);
-
-        if (!pet)
-        {
-            Log.Logger.Error("WorldSession.HandlePetSpellAutocast: {0} not found.", packet.PetGUID.ToString());
-
-            return;
-        }
-
-        if (pet != Player.GetGuardianPet() && pet != Player.Charmed)
-        {
-            Log.Logger.Error("WorldSession.HandlePetSpellAutocast: {0} isn't pet of player {1} ({2}).",
-                             packet.PetGUID.ToString(),
-                             Player.GetName(),
-                             Player.GUID.ToString());
-
-            return;
-        }
-
-        var spellInfo = Global.SpellMgr.GetSpellInfo(packet.SpellID, pet.Location.Map.DifficultyID);
-
-        if (spellInfo == null)
-        {
-            Log.Logger.Error("WorldSession.HandlePetSpellAutocast: Unknown spell id {0} used by {1}.", packet.SpellID, packet.PetGUID.ToString());
-
-            return;
-        }
-
-        List<Unit> pets = new();
-
-        foreach (var controlled in _player.Controlled)
-            if (controlled.Entry == pet.Entry && controlled.IsAlive)
-                pets.Add(controlled);
-
-        foreach (var petControlled in pets)
-        {
-            // do not add not learned spells/ passive spells
-            if (!petControlled.HasSpell(packet.SpellID) || !spellInfo.IsAutocastable)
-                return;
-
-            var charmInfo = petControlled.GetCharmInfo();
-
-            if (charmInfo == null)
-            {
-                Log.Logger.Error("WorldSession.HandlePetSpellAutocastOpcod: object {0} is considered pet-like but doesn't have a charminfo!", petControlled.GUID.ToString());
-
-                return;
-            }
-
-            if (petControlled.IsPet)
-                petControlled.AsPet.ToggleAutocast(spellInfo, packet.AutocastEnabled);
-            else
-                charmInfo.ToggleCreatureAutocast(spellInfo, packet.AutocastEnabled);
-
-            charmInfo.SetSpellAutocast(spellInfo, packet.AutocastEnabled);
-        }
-    }
-
     [WorldPacketHandler(ClientOpcodes.PetCastSpell, Processing = PacketProcessing.Inplace)]
     private void HandlePetCastSpell(PetCastSpell petCastSpell)
     {
@@ -817,16 +550,240 @@ public class PetHandler : IWorldSessionHandler
         }
     }
 
-    private void SendPetNameInvalid(PetNameInvalidReason error, string name, DeclinedName declinedName)
+    [WorldPacketHandler(ClientOpcodes.PetRename)]
+    private void HandlePetRename(PetRename packet)
     {
-        PetNameInvalid petNameInvalid = new();
-        petNameInvalid.Result = error;
-        petNameInvalid.RenameData.NewName = name;
+        var petguid = packet.RenameData.PetGUID;
+        var isdeclined = packet.RenameData.HasDeclinedNames;
+        var name = packet.RenameData.NewName;
 
-        for (var i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-            petNameInvalid.RenameData.DeclinedNames.Name[i] = declinedName.Name[i];
+        var petStable = _player.PetStable1;
+        var pet = ObjectAccessor.GetPet(Player, petguid);
 
-        SendPacket(petNameInvalid);
+        // check it!
+        if (!pet ||
+            !pet.IsPet ||
+            pet.AsPet.PetType != PetType.Hunter ||
+            !pet.HasPetFlag(UnitPetFlags.CanBeRenamed) ||
+            pet.OwnerGUID != _player.GUID ||
+            pet.GetCharmInfo() == null ||
+            petStable == null ||
+            petStable.GetCurrentPet() == null ||
+            petStable.GetCurrentPet().PetNumber != pet.GetCharmInfo().GetPetNumber())
+            return;
+
+        var res = GameObjectManager.CheckPetName(name);
+
+        if (res != PetNameInvalidReason.Success)
+        {
+            SendPetNameInvalid(res, name, null);
+
+            return;
+        }
+
+        if (Global.ObjectMgr.IsReservedName(name))
+        {
+            SendPetNameInvalid(PetNameInvalidReason.Reserved, name, null);
+
+            return;
+        }
+
+        pet.SetName(name);
+        pet.GroupUpdateFlag = GroupUpdatePetFlags.Name;
+        pet.RemovePetFlag(UnitPetFlags.CanBeRenamed);
+
+        petStable.GetCurrentPet().Name = name;
+        petStable.GetCurrentPet().WasRenamed = true;
+
+        PreparedStatement stmt;
+        SQLTransaction trans = new();
+
+        if (isdeclined)
+        {
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
+            stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
+            trans.Append(stmt);
+
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_PET_DECLINEDNAME);
+            stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
+            stmt.AddValue((int)1, (string)Player.GUID.ToString());
+
+            for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
+                stmt.AddValue(i + 1, packet.RenameData.DeclinedNames.Name[i]);
+
+            trans.Append(stmt);
+        }
+
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_PET_NAME);
+        stmt.AddValue(0, name);
+        stmt.AddValue((int)1, (string)Player.GUID.ToString());
+        stmt.AddValue(2, pet.GetCharmInfo().GetPetNumber());
+        trans.Append(stmt);
+
+        DB.Characters.CommitTransaction(trans);
+
+        pet.SetPetNameTimestamp((uint)GameTime.CurrentTime); // cast can't be helped
+    }
+
+    [WorldPacketHandler(ClientOpcodes.PetSetAction)]
+    private void HandlePetSetAction(PetSetAction packet)
+    {
+        var petguid = packet.PetGUID;
+        var pet = Global.ObjAccessor.GetUnit(Player, petguid);
+
+        if (!pet || pet != Player.GetFirstControlled())
+        {
+            Log.Logger.Error("HandlePetSetAction: Unknown {0} or pet owner {1}", petguid.ToString(), Player.GUID.ToString());
+
+            return;
+        }
+
+        var charmInfo = pet.GetCharmInfo();
+
+        if (charmInfo == null)
+        {
+            Log.Logger.Error("WorldSession.HandlePetSetAction: {0} is considered pet-like but doesn't have a charminfo!", pet.GUID.ToString());
+
+            return;
+        }
+
+        List<Unit> pets = new();
+
+        foreach (var controlled in _player.Controlled)
+            if (controlled.Entry == pet.Entry && controlled.IsAlive)
+                pets.Add(controlled);
+
+        var position = packet.Index;
+        var actionData = packet.Action;
+
+        var spell_id = UnitActionBarEntry.UNIT_ACTION_BUTTON_ACTION(actionData);
+        var act_state = (ActiveStates)UnitActionBarEntry.UNIT_ACTION_BUTTON_TYPE(actionData);
+
+        Log.Logger.Debug("Player {0} has changed pet spell action. Position: {1}, Spell: {2}, State: {3}", Player.GetName(), position, spell_id, act_state);
+
+        foreach (var petControlled in pets)
+            //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
+            if (!((act_state == ActiveStates.Enabled || act_state == ActiveStates.Disabled || act_state == ActiveStates.Passive) && spell_id != 0 && !petControlled.HasSpell(spell_id)))
+            {
+                var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, petControlled.Location.Map.DifficultyID);
+
+                if (spellInfo != null)
+                {
+                    //sign for autocast
+                    if (act_state == ActiveStates.Enabled)
+                    {
+                        if (petControlled.TypeId == TypeId.Unit && petControlled.IsPet)
+                            ((Pet)petControlled).ToggleAutocast(spellInfo, true);
+                        else
+                            foreach (var unit in Player.Controlled)
+                                if (unit.Entry == petControlled.Entry)
+                                    unit.GetCharmInfo().ToggleCreatureAutocast(spellInfo, true);
+                    }
+                    //sign for no/turn off autocast
+                    else if (act_state == ActiveStates.Disabled)
+                    {
+                        if (petControlled.TypeId == TypeId.Unit && petControlled.IsPet)
+                            petControlled.AsPet.ToggleAutocast(spellInfo, false);
+                        else
+                            foreach (var unit in Player.Controlled)
+                                if (unit.Entry == petControlled.Entry)
+                                    unit.GetCharmInfo().ToggleCreatureAutocast(spellInfo, false);
+                    }
+                }
+
+                charmInfo.SetActionBar((byte)position, spell_id, act_state);
+            }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.PetSpellAutocast, Processing = PacketProcessing.Inplace)]
+    private void HandlePetSpellAutocast(PetSpellAutocast packet)
+    {
+        var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.PetGUID);
+
+        if (!pet)
+        {
+            Log.Logger.Error("WorldSession.HandlePetSpellAutocast: {0} not found.", packet.PetGUID.ToString());
+
+            return;
+        }
+
+        if (pet != Player.GetGuardianPet() && pet != Player.Charmed)
+        {
+            Log.Logger.Error("WorldSession.HandlePetSpellAutocast: {0} isn't pet of player {1} ({2}).",
+                             packet.PetGUID.ToString(),
+                             Player.GetName(),
+                             Player.GUID.ToString());
+
+            return;
+        }
+
+        var spellInfo = Global.SpellMgr.GetSpellInfo(packet.SpellID, pet.Location.Map.DifficultyID);
+
+        if (spellInfo == null)
+        {
+            Log.Logger.Error("WorldSession.HandlePetSpellAutocast: Unknown spell id {0} used by {1}.", packet.SpellID, packet.PetGUID.ToString());
+
+            return;
+        }
+
+        List<Unit> pets = new();
+
+        foreach (var controlled in _player.Controlled)
+            if (controlled.Entry == pet.Entry && controlled.IsAlive)
+                pets.Add(controlled);
+
+        foreach (var petControlled in pets)
+        {
+            // do not add not learned spells/ passive spells
+            if (!petControlled.HasSpell(packet.SpellID) || !spellInfo.IsAutocastable)
+                return;
+
+            var charmInfo = petControlled.GetCharmInfo();
+
+            if (charmInfo == null)
+            {
+                Log.Logger.Error("WorldSession.HandlePetSpellAutocastOpcod: object {0} is considered pet-like but doesn't have a charminfo!", petControlled.GUID.ToString());
+
+                return;
+            }
+
+            if (petControlled.IsPet)
+                petControlled.AsPet.ToggleAutocast(spellInfo, packet.AutocastEnabled);
+            else
+                charmInfo.ToggleCreatureAutocast(spellInfo, packet.AutocastEnabled);
+
+            charmInfo.SetSpellAutocast(spellInfo, packet.AutocastEnabled);
+        }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.PetStopAttack, Processing = PacketProcessing.Inplace)]
+    private void HandlePetStopAttack(PetStopAttack packet)
+    {
+        Unit pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.PetGUID);
+
+        if (!pet)
+        {
+            Log.Logger.Error("HandlePetStopAttack: {0} does not exist", packet.PetGUID.ToString());
+
+            return;
+        }
+
+        if (pet != Player.CurrentPet && pet != Player.Charmed)
+        {
+            Log.Logger.Error("HandlePetStopAttack: {0} isn't a pet or charmed creature of player {1}", packet.PetGUID.ToString(), Player.GetName());
+
+            return;
+        }
+
+        if (!pet.IsAlive)
+            return;
+
+        pet.AttackStop();
+    }
+    [WorldPacketHandler(ClientOpcodes.QueryPetName, Processing = PacketProcessing.Inplace)]
+    private void HandleQueryPetName(QueryPetName packet)
+    {
+        SendQueryPetNameResponse(packet.UnitGUID);
     }
 
     [WorldPacketHandler(ClientOpcodes.RequestPetInfo)]
@@ -856,5 +813,47 @@ public class PetHandler : IWorldSessionHandler
                     _player.CharmSpellInitialize();
             }
         }
+    }
+
+    private void SendPetNameInvalid(PetNameInvalidReason error, string name, DeclinedName declinedName)
+    {
+        PetNameInvalid petNameInvalid = new();
+        petNameInvalid.Result = error;
+        petNameInvalid.RenameData.NewName = name;
+
+        for (var i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
+            petNameInvalid.RenameData.DeclinedNames.Name[i] = declinedName.Name[i];
+
+        SendPacket(petNameInvalid);
+    }
+
+    private void SendQueryPetNameResponse(ObjectGuid guid)
+    {
+        QueryPetNameResponse response = new();
+        response.UnitGUID = guid;
+
+        var unit = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, guid);
+
+        if (unit)
+        {
+            response.Allow = true;
+            response.Timestamp = unit.UnitData.PetNameTimestamp;
+            response.Name = unit.GetName();
+
+            var pet = unit.AsPet;
+
+            if (pet)
+            {
+                var names = pet.GetDeclinedNames();
+
+                if (names != null)
+                {
+                    response.HasDeclined = true;
+                    response.DeclinedNames = names;
+                }
+            }
+        }
+
+        Player.SendPacket(response);
     }
 }

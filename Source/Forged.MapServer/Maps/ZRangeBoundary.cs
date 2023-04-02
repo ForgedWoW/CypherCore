@@ -7,9 +7,8 @@ namespace Forged.MapServer.Maps;
 
 public class ZRangeBoundary : AreaBoundary
 {
-    private readonly float _minZ;
     private readonly float _maxZ;
-
+    private readonly float _minZ;
     public ZRangeBoundary(float minZ, float maxZ, bool isInverted = false) : base(isInverted)
     {
         _minZ = minZ;

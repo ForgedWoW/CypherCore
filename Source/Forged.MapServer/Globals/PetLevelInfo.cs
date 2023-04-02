@@ -5,11 +5,10 @@ namespace Forged.MapServer.Globals;
 
 public class PetLevelInfo
 {
-    public uint[] Stats = new uint[(int)Framework.Constants.Stats.Max];
+    public uint Armor;
     public uint Health;
     public uint Mana;
-    public uint Armor;
-
+    public uint[] Stats = new uint[(int)Framework.Constants.Stats.Max];
     public PetLevelInfo()
     {
         Health = 0;

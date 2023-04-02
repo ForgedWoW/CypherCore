@@ -9,15 +9,12 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyMemberPetStats
 {
-    public ObjectGuid GUID;
-    public string Name;
-    public short ModelId;
-
-    public int CurrentHealth;
-    public int MaxHealth;
-
     public List<PartyMemberAuraStates> Auras = new();
-
+    public int CurrentHealth;
+    public ObjectGuid GUID;
+    public int MaxHealth;
+    public short ModelId;
+    public string Name;
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(GUID);

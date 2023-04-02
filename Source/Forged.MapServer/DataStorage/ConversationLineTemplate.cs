@@ -5,8 +5,10 @@ namespace Forged.MapServer.DataStorage;
 
 public class ConversationLineTemplate
 {
+    public byte ActorIdx;
+    // Index from conversation_actors
+    public byte Flags;
+
     public uint Id;         // Link to ConversationLine.db2
     public uint UiCameraID; // Link to UiCamera.db2
-    public byte ActorIdx;   // Index from conversation_actors
-    public byte Flags;
 }

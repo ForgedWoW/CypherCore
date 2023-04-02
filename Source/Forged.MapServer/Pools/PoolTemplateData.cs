@@ -5,6 +5,6 @@ namespace Forged.MapServer.Pools;
 
 public class PoolTemplateData
 {
-    public uint MaxLimit;
     public int MapId;
+    public uint MaxLimit;
 }

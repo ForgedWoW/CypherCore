@@ -10,9 +10,8 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 public class SAttackStop : ServerPacket
 {
     public ObjectGuid Attacker;
-    public ObjectGuid Victim;
     public bool NowDead;
-
+    public ObjectGuid Victim;
     public SAttackStop(Unit attacker, Unit victim) : base(ServerOpcodes.AttackStop, ConnectionType.Instance)
     {
         Attacker = attacker.GUID;

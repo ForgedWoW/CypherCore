@@ -7,19 +7,18 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ContentTuningRecord
 {
-    public uint Id;
-    public int Flags;
     public int ExpansionID;
-    public int MinLevel;
+    public int Flags;
+    public uint Id;
     public int MaxLevel;
-    public int MinLevelType;
     public int MaxLevelType;
+    public int MinItemLevel;
+    public int MinLevel;
+    public int MinLevelType;
     public int TargetLevelDelta;
+    public int TargetLevelMax;
     public int TargetLevelMaxDelta;
     public int TargetLevelMin;
-    public int TargetLevelMax;
-    public int MinItemLevel;
-
     public ContentTuningFlag GetFlags()
     {
         return (ContentTuningFlag)Flags;

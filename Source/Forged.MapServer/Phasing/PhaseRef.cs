@@ -8,10 +8,9 @@ namespace Forged.MapServer.Phasing;
 
 public class PhaseRef
 {
+    public List<Condition> AreaConditions;
     public PhaseFlags Flags;
     public int References;
-    public List<Condition> AreaConditions;
-
     public PhaseRef(PhaseFlags flags, List<Condition> conditions)
     {
         Flags = flags;

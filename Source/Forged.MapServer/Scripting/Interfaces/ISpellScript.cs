@@ -44,6 +44,11 @@ public interface ISpellScript : IBaseSpellScript
     Item HitItem { get; }
     Player HitPlayer { get; }
     Unit HitUnit { get; }
+    bool IsHitCrit { get; }
+    bool IsInCheckCastHook { get; }
+    bool IsInEffectHook { get; }
+    bool IsInHitPhase { get; }
+    bool IsInTargetHook { get; }
     Unit OriginalCaster { get; }
 
     Spell Spell { get; }
@@ -52,12 +57,18 @@ public interface ISpellScript : IBaseSpellScript
     SpellValue SpellValue { get; }
 
     SpellInfo TriggeringSpell { get; }
-    bool IsHitCrit { get; }
-    bool IsInCheckCastHook { get; }
-    bool IsInEffectHook { get; }
-    bool IsInHitPhase { get; }
+    void _FinishScriptCall();
 
-    bool IsInTargetHook { get; }
+    void _InitHit();
+
+    bool _IsDefaultEffectPrevented(int effIndex);
+
+    bool _IsEffectPrevented(int effIndex);
+
+    bool _Load(Spell spell);
+
+    void _PrepareScriptCall(SpellScriptHookType hookType);
+
     void CreateItem(uint itemId, ItemContext context);
     void FinishCast(SpellCastResult result, int? param1 = null, int? param2 = null);
 
@@ -79,10 +90,4 @@ public interface ISpellScript : IBaseSpellScript
     void PreventHitEffect(int effIndex);
     void SelectRandomInjuredTargets(List<WorldObject> targets, uint maxTargets, bool prioritizePlayers);
     void SetCustomCastResultMessage(SpellCustomErrors result);
-    void _FinishScriptCall();
-    void _InitHit();
-    bool _IsDefaultEffectPrevented(int effIndex);
-    bool _IsEffectPrevented(int effIndex);
-    bool _Load(Spell spell);
-    void _PrepareScriptCall(SpellScriptHookType hookType);
 }

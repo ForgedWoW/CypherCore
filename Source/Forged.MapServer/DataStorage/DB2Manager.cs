@@ -36,20 +36,14 @@ namespace Forged.MapServer.DataStorage;
 
 public class DB2Manager
 {
-    public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
     public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
-    private readonly HotfixDatabase _hotfixDatabase;
-    private readonly GameObjectManager _gameObjectManager;
-    private readonly IConfiguration _configuration;
-    private readonly MultiMap<int, HotfixRecord> _hotfixData = new();
-    private readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlob = new Dictionary<(uint tableHash, int recordId), byte[]>[(int)Locale.Total];
+    public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
     private readonly MultiMap<uint, Tuple<uint, AllowedHotfixOptionalData>> _allowedHotfixOptionalData = new();
-    private readonly MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] _hotfixOptionalData = new MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[(int)Locale.Total];
     private readonly MultiMap<uint, uint> _areaGroupMembers = new();
     private readonly MultiMap<uint, AreaPOIRecord> _areaPOIRecords = new();
-    private readonly MultiMap<uint, ArtifactPowerRecord> _artifactPowers = new();
     private readonly MultiMap<uint, uint> _artifactPowerLinks = new();
     private readonly Dictionary<Tuple<uint, byte>, ArtifactPowerRankRecord> _artifactPowerRanks = new();
+    private readonly MultiMap<uint, ArtifactPowerRecord> _artifactPowers = new();
     private readonly Dictionary<uint, AzeriteEmpoweredItemRecord> _azeriteEmpoweredItems = new();
     private readonly Dictionary<(uint azeriteEssenceId, uint rank), AzeriteEssencePowerRecord> _azeriteEssencePowersByIdAndRank = new();
     private readonly AzeriteItemMilestonePowerRecord[] _azeriteItemMilestonePowerByEssenceSlot = new AzeriteItemMilestonePowerRecord[SharedConst.MaxAzeriteEssenceSlot];
@@ -57,55 +51,60 @@ public class DB2Manager
     private readonly Dictionary<(uint azeriteUnlockSetId, ItemContext itemContext), byte[]> _azeriteTierUnlockLevels = new();
     private readonly Dictionary<(uint itemId, ItemContext itemContext), AzeriteUnlockMappingRecord> _azeriteUnlockMappings = new();
     private readonly Dictionary<(int broadcastTextId, CascLocaleBit cascLocaleBit), int> _broadcastTextDurations = new();
-    private readonly ChrClassUIDisplayRecord[] _uiDisplayByClass = new ChrClassUIDisplayRecord[(int)PlayerClass.Max];
-    private readonly uint[][] _powersByClass = new uint[(int)PlayerClass.Max][];
     private readonly MultiMap<uint, ChrCustomizationChoiceRecord> _chrCustomizationChoicesByOption = new();
-    private readonly Dictionary<Tuple<byte, byte>, ChrModelRecord> _chrModelsByRaceAndGender = new();
     private readonly Dictionary<Tuple<byte, byte, byte>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts = new();
     private readonly MultiMap<Tuple<byte, byte>, ChrCustomizationOptionRecord> _chrCustomizationOptionsByRaceAndGender = new();
     private readonly Dictionary<uint, MultiMap<uint, uint>> _chrCustomizationRequiredChoices = new();
+    private readonly Dictionary<Tuple<byte, byte>, ChrModelRecord> _chrModelsByRaceAndGender = new();
     private readonly ChrSpecializationRecord[][] _chrSpecializationsByIndex = new ChrSpecializationRecord[(int)PlayerClass.Max + 1][];
+    private readonly IConfiguration _configuration;
     private readonly MultiMap<uint, CurrencyContainerRecord> _currencyContainers = new();
     private readonly MultiMap<uint, CurvePointRecord> _curvePoints = new();
     private readonly Dictionary<Tuple<uint, byte, byte, byte>, EmotesTextSoundRecord> _emoteTextSounds = new();
-    private readonly Dictionary<Tuple<uint, int>, ExpectedStatRecord> _expectedStatsByLevel = new();
     private readonly MultiMap<uint, ContentTuningXExpectedRecord> _expectedStatModsByContentTuning = new();
+    private readonly Dictionary<Tuple<uint, int>, ExpectedStatRecord> _expectedStatsByLevel = new();
     private readonly MultiMap<uint, uint> _factionTeams = new();
     private readonly MultiMap<uint, FriendshipRepReactionRecord> _friendshipRepReactions = new();
-    private readonly Dictionary<uint, HeirloomRecord> _heirlooms = new();
+    private readonly GameObjectManager _gameObjectManager;
     private readonly MultiMap<uint, uint> _glyphBindableSpells = new();
     private readonly MultiMap<uint, uint> _glyphRequiredSpecs = new();
+    private readonly Dictionary<uint, HeirloomRecord> _heirlooms = new();
+    private readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlob = new Dictionary<(uint tableHash, int recordId), byte[]>[(int)Locale.Total];
+    private readonly MultiMap<int, HotfixRecord> _hotfixData = new();
+    private readonly HotfixDatabase _hotfixDatabase;
+    private readonly MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] _hotfixOptionalData = new MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[(int)Locale.Total];
     private readonly MultiMap<uint, ItemBonusRecord> _itemBonusLists = new();
-    private readonly Dictionary<short, uint> _itemLevelDeltaToBonusListContainer = new();
     private readonly MultiMap<uint, ItemBonusTreeNodeRecord> _itemBonusTrees = new();
+    private readonly MultiMap<uint, ItemLimitCategoryConditionRecord> _itemCategoryConditions = new();
     private readonly Dictionary<uint, ItemChildEquipmentRecord> _itemChildEquipment = new();
     private readonly ItemClassRecord[] _itemClassByOldEnum = new ItemClassRecord[20];
-    private readonly List<uint> _itemsWithCurrencyCost = new();
-    private readonly MultiMap<uint, ItemLimitCategoryConditionRecord> _itemCategoryConditions = new();
+    private readonly Dictionary<short, uint> _itemLevelDeltaToBonusListContainer = new();
     private readonly MultiMap<uint, ItemLevelSelectorQualityRecord> _itemLevelQualitySelectorQualities = new();
     private readonly Dictionary<uint, ItemModifiedAppearanceRecord> _itemModifiedAppearancesByItem = new();
-    private readonly MultiMap<uint, uint> _itemToBonusTree = new();
     private readonly MultiMap<uint, ItemSetSpellRecord> _itemSetSpells = new();
     private readonly MultiMap<uint, ItemSpecOverrideRecord> _itemSpecOverrides = new();
+    private readonly List<uint> _itemsWithCurrencyCost = new();
+    private readonly MultiMap<uint, uint> _itemToBonusTree = new();
     private readonly List<JournalTierRecord> _journalTiersByIndex = new();
     private readonly Dictionary<uint, Dictionary<uint, MapDifficultyRecord>> _mapDifficulties = new();
     private readonly MultiMap<uint, Tuple<uint, PlayerConditionRecord>> _mapDifficultyConditions = new();
-    private readonly Dictionary<uint, MountRecord> _mountsBySpellId = new();
     private readonly MultiMap<uint, MountTypeXCapabilityRecord> _mountCapabilitiesByType = new();
     private readonly MultiMap<uint, MountXDisplayRecord> _mountDisplays = new();
+    private readonly Dictionary<uint, MountRecord> _mountsBySpellId = new();
     private readonly Dictionary<uint, List<NameGenRecord>[]> _nameGenData = new();
     private readonly List<string>[] _nameValidators = new List<string>[(int)Locale.Total + 1];
     private readonly Dictionary<uint, ParagonReputationRecord> _paragonReputations = new();
     private readonly MultiMap<uint, uint> _phasesByGroup = new();
+    private readonly uint[][] _powersByClass = new uint[(int)PlayerClass.Max][];
     private readonly Dictionary<PowerType, PowerTypeRecord> _powerTypes = new();
     private readonly Dictionary<uint, byte> _pvpItemBonus = new();
     private readonly PvpTalentSlotUnlockRecord[] _pvpTalentSlotUnlock = new PvpTalentSlotUnlockRecord[PlayerConst.MaxPvpTalentSlots];
-    private readonly MultiMap<uint, QuestLineXQuestRecord> _questsByQuestLine = new();
     private readonly Dictionary<uint, Tuple<List<QuestPackageItemRecord>, List<QuestPackageItemRecord>>> _questPackages = new();
+    private readonly MultiMap<uint, QuestLineXQuestRecord> _questsByQuestLine = new();
     private readonly MultiMap<uint, RewardPackXCurrencyTypeRecord> _rewardPackCurrencyTypes = new();
     private readonly MultiMap<uint, RewardPackXItemRecord> _rewardPackItems = new();
-    private readonly MultiMap<uint, SkillLineRecord> _skillLinesByParentSkillLine = new();
     private readonly MultiMap<uint, SkillLineAbilityRecord> _skillLineAbilitiesBySkillupSkill = new();
+    private readonly MultiMap<uint, SkillLineRecord> _skillLinesByParentSkillLine = new();
     private readonly MultiMap<uint, SkillRaceClassInfoRecord> _skillRaceClassInfoBySkill = new();
     private readonly Dictionary<Tuple<int, int>, SoulbindConduitRankRecord> _soulbindConduitRanks = new();
     private readonly MultiMap<uint, SpecializationSpellsRecord> _specializationSpellsBySpec = new();
@@ -116,19 +115,18 @@ public class DB2Manager
     private readonly List<TalentRecord>[][][] _talentsByPosition = new List<TalentRecord>[(int)PlayerClass.Max][][];
     private readonly List<uint> _toys = new();
     private readonly Dictionary<uint, TransmogIllusionRecord> _transmogIllusionsByEnchantmentId = new();
-    private readonly MultiMap<uint, TransmogSetRecord> _transmogSetsByItemModifiedAppearance = new();
     private readonly MultiMap<uint, TransmogSetItemRecord> _transmogSetItemsByTransmogSet = new();
-    private readonly Dictionary<int, UiMapBounds> _uiMapBounds = new();
-    private readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByMap = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
+    private readonly MultiMap<uint, TransmogSetRecord> _transmogSetsByItemModifiedAppearance = new();
+    private readonly ChrClassUIDisplayRecord[] _uiDisplayByClass = new ChrClassUIDisplayRecord[(int)PlayerClass.Max];
     private readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByArea = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
+    private readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByMap = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
     private readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByWmoDoodadPlacement = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
     private readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByWmoGroup = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
+    private readonly Dictionary<int, UiMapBounds> _uiMapBounds = new();
     private readonly List<int> _uiMapPhases = new();
     private readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
     private List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
     private CliDB _cliDB;
-    internal Dictionary<uint, IDB2Storage> Storage { get; } = new();
-
     public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager, IConfiguration configuration)
     {
         _hotfixDatabase = hotfixDatabase;
@@ -151,6 +149,1497 @@ public class DB2Manager
             _hotfixBlob[i] = new Dictionary<(uint tableHas, int recordId), byte[]>();
             _hotfixOptionalData[i] = new MultiMap<(uint tableHas, int recordId), HotfixOptionalData>();
         }
+    }
+
+    private delegate bool AllowedHotfixOptionalData(byte[] data);
+
+    internal Dictionary<uint, IDB2Storage> Storage { get; } = new();
+    public void AddDB2<T>(uint tableHash, DB6Storage<T> store) where T : new()
+    {
+        lock (Storage)
+        {
+            Storage[tableHash] = store;
+        }
+    }
+
+    public float EvaluateExpectedStat(ExpectedStatType stat, uint level, int expansion, uint contentTuningId, PlayerClass unitClass)
+    {
+        var expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, expansion));
+
+        if (expectedStatRecord == null)
+            expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, -2));
+
+        if (expectedStatRecord == null)
+            return 1.0f;
+
+        ExpectedStatModRecord classMod = null;
+
+        switch (unitClass)
+        {
+            case PlayerClass.Warrior:
+                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(4u);
+
+                break;
+            case PlayerClass.Paladin:
+                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(2u);
+
+                break;
+            case PlayerClass.Rogue:
+                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(3u);
+
+                break;
+            case PlayerClass.Mage:
+                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(1u);
+
+                break;
+        }
+
+        var contentTuningMods = _expectedStatModsByContentTuning.LookupByKey(contentTuningId);
+        var value = 0.0f;
+
+        switch (stat)
+        {
+            case ExpectedStatType.CreatureHealth:
+                value = expectedStatRecord.CreatureHealth;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.CreatureHealthMod;
+
+                break;
+            case ExpectedStatType.PlayerHealth:
+                value = expectedStatRecord.PlayerHealth;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.PlayerHealthMod;
+
+                break;
+            case ExpectedStatType.CreatureAutoAttackDps:
+                value = expectedStatRecord.CreatureAutoAttackDps;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.CreatureAutoAttackDPSMod;
+
+                break;
+            case ExpectedStatType.CreatureArmor:
+                value = expectedStatRecord.CreatureArmor;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.CreatureArmorMod;
+
+                break;
+            case ExpectedStatType.PlayerMana:
+                value = expectedStatRecord.PlayerMana;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.PlayerManaMod;
+
+                break;
+            case ExpectedStatType.PlayerPrimaryStat:
+                value = expectedStatRecord.PlayerPrimaryStat;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.PlayerPrimaryStatMod;
+
+                break;
+            case ExpectedStatType.PlayerSecondaryStat:
+                value = expectedStatRecord.PlayerSecondaryStat;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.PlayerSecondaryStatMod;
+
+                break;
+            case ExpectedStatType.ArmorConstant:
+                value = expectedStatRecord.ArmorConstant;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.ArmorConstantMod;
+
+                break;
+            case ExpectedStatType.None:
+                break;
+            case ExpectedStatType.CreatureSpellDamage:
+                value = expectedStatRecord.CreatureSpellDamage;
+
+                if (!contentTuningMods.Empty())
+                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
+
+                if (classMod != null)
+                    value *= classMod.CreatureSpellDamageMod;
+
+                break;
+        }
+
+        return value;
+    }
+
+    public List<uint> GetAllItemBonusTreeBonuses(uint itemBonusTreeId)
+    {
+        List<uint> bonusListIDs = new();
+
+        VisitItemBonusTree(itemBonusTreeId,
+                           true,
+                           bonusTreeNode =>
+                           {
+                               if (bonusTreeNode.ChildItemBonusListID != 0)
+                                   bonusListIDs.Add(bonusTreeNode.ChildItemBonusListID);
+                           });
+
+        return bonusListIDs;
+    }
+
+    public List<AreaPOIRecord> GetAreaPoiID(uint areaId)
+    {
+        return _areaPOIRecords.LookupByKey(areaId);
+    }
+
+    public List<uint> GetAreasForGroup(uint areaGroupId)
+    {
+        return _areaGroupMembers.LookupByKey(areaGroupId);
+    }
+
+    public List<uint> GetArtifactPowerLinks(uint artifactPowerId)
+    {
+        return _artifactPowerLinks.LookupByKey(artifactPowerId);
+    }
+
+    public ArtifactPowerRankRecord GetArtifactPowerRank(uint artifactPowerId, byte rank)
+    {
+        return _artifactPowerRanks.LookupByKey(Tuple.Create(artifactPowerId, rank));
+    }
+
+    public List<ArtifactPowerRecord> GetArtifactPowers(byte artifactId)
+    {
+        return _artifactPowers.LookupByKey(artifactId);
+    }
+
+    public AzeriteEmpoweredItemRecord GetAzeriteEmpoweredItem(uint itemId)
+    {
+        return _azeriteEmpoweredItems.LookupByKey(itemId);
+    }
+
+    public AzeriteEssencePowerRecord GetAzeriteEssencePower(uint azeriteEssenceId, uint rank)
+    {
+        return _azeriteEssencePowersByIdAndRank.LookupByKey((azeriteEssenceId, rank));
+    }
+
+    public AzeriteItemMilestonePowerRecord GetAzeriteItemMilestonePower(int slot)
+    {
+        //ASSERT(slot < MAX_AZERITE_ESSENCE_SLOT, "Slot %u must be lower than MAX_AZERITE_ESSENCE_SLOT (%u)", uint32(slot), MAX_AZERITE_ESSENCE_SLOT);
+        return _azeriteItemMilestonePowerByEssenceSlot[slot];
+    }
+
+    public List<AzeriteItemMilestonePowerRecord> GetAzeriteItemMilestonePowers()
+    {
+        return _azeriteItemMilestonePowers;
+    }
+
+    public List<AzeritePowerSetMemberRecord> GetAzeritePowers(uint itemId)
+    {
+        var azeriteEmpoweredItem = GetAzeriteEmpoweredItem(itemId);
+
+        if (azeriteEmpoweredItem != null)
+            return _azeritePowers.LookupByKey(azeriteEmpoweredItem.AzeritePowerSetID);
+
+        return null;
+    }
+
+    public PvpDifficultyRecord GetBattlegroundBracketById(uint mapid, BattlegroundBracketId id)
+    {
+        foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
+            if (entry.MapID == mapid && entry.GetBracketId() == id)
+                return entry;
+
+        return null;
+    }
+
+    public PvpDifficultyRecord GetBattlegroundBracketByLevel(uint mapid, uint level)
+    {
+        PvpDifficultyRecord maxEntry = null; // used for level > max listed level case
+
+        foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
+        {
+            // skip unrelated and too-high brackets
+            if (entry.MapID != mapid || entry.MinLevel > level)
+                continue;
+
+            // exactly fit
+            if (entry.MaxLevel >= level)
+                return entry;
+
+            // remember for possible out-of-range case (search higher from existed)
+            if (maxEntry == null || maxEntry.MaxLevel < entry.MaxLevel)
+                maxEntry = entry;
+        }
+
+        return maxEntry;
+    }
+
+    public int GetBroadcastTextDuration(int broadcastTextId, Locale locale = Locale.enUS)
+    {
+        return _broadcastTextDurations.LookupByKey((broadcastTextId, SharedConst.WowLocaleToCascLocaleBit[(int)locale]));
+    }
+
+    public string GetBroadcastTextValue(BroadcastTextRecord broadcastText, Locale locale = Locale.enUS, Gender gender = Gender.Male, bool forceGender = false)
+    {
+        if ((gender == Gender.Female || gender == Gender.None) && (forceGender || broadcastText.Text1.HasString()))
+        {
+            if (broadcastText.Text1.HasString(locale))
+                return broadcastText.Text1[locale];
+
+            return broadcastText.Text1[SharedConst.DefaultLocale];
+        }
+
+        if (broadcastText.Text.HasString(locale))
+            return broadcastText.Text[locale];
+
+        return broadcastText.Text[SharedConst.DefaultLocale];
+    }
+
+    public ChrModelRecord GetChrModel(Race race, Gender gender)
+    {
+        return _chrModelsByRaceAndGender.LookupByKey(Tuple.Create((byte)race, (byte)gender));
+    }
+
+    public string GetChrRaceName(Race race, Locale locale = Locale.enUS)
+    {
+        var raceEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)race);
+
+        if (raceEntry == null)
+            return "";
+
+        if (raceEntry.Name[locale][0] != '\0')
+            return raceEntry.Name[locale];
+
+        return raceEntry.Name[Locale.enUS];
+    }
+
+    public ChrSpecializationRecord GetChrSpecializationByIndex(PlayerClass playerClass, uint index)
+    {
+        return _chrSpecializationsByIndex[(int)playerClass][index];
+    }
+
+    public string GetClassName(PlayerClass playerClass, Locale locale = Locale.enUS)
+    {
+        var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)playerClass);
+
+        if (classEntry == null)
+            return "";
+
+        if (classEntry.Name[locale][0] != '\0')
+            return classEntry.Name[locale];
+
+        return classEntry.Name[Locale.enUS];
+    }
+
+    public ContentTuningLevels? GetContentTuningData(uint contentTuningId, uint replacementConditionMask, bool forItem = false)
+    {
+        var contentTuning = _cliDB.ContentTuningStorage.LookupByKey(contentTuningId);
+
+        if (contentTuning == null)
+            return null;
+
+        if (forItem && contentTuning.GetFlags().HasFlag(ContentTuningFlag.DisabledForItem))
+            return null;
+
+        int GetLevelAdjustment(ContentTuningCalcType type) => type switch
+        {
+            ContentTuningCalcType.PlusOne => 1,
+            ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)),
+            _ => 0
+        };
+
+        ContentTuningLevels levels = new()
+        {
+            MinLevel = (short)(contentTuning.MinLevel + GetLevelAdjustment((ContentTuningCalcType)contentTuning.MinLevelType)),
+            MaxLevel = (short)(contentTuning.MaxLevel + GetLevelAdjustment((ContentTuningCalcType)contentTuning.MaxLevelType))
+        };
+
+        levels.MinLevelWithDelta = (short)Math.Clamp(levels.MinLevel + contentTuning.TargetLevelDelta, 1, SharedConst.MaxLevel);
+        levels.MaxLevelWithDelta = (short)Math.Clamp(levels.MaxLevel + contentTuning.TargetLevelMaxDelta, 1, SharedConst.MaxLevel);
+
+        // clamp after calculating levels with delta (delta can bring "overflown" level back into correct range)
+        levels.MinLevel = (short)Math.Clamp((int)levels.MinLevel, 1, SharedConst.MaxLevel);
+        levels.MaxLevel = (short)Math.Clamp((int)levels.MaxLevel, 1, SharedConst.MaxLevel);
+
+        if (contentTuning.TargetLevelMin != 0)
+            levels.TargetLevelMin = (short)contentTuning.TargetLevelMin;
+        else
+            levels.TargetLevelMin = levels.MinLevelWithDelta;
+
+        if (contentTuning.TargetLevelMax != 0)
+            levels.TargetLevelMax = (short)contentTuning.TargetLevelMax;
+        else
+            levels.TargetLevelMax = levels.MaxLevelWithDelta;
+
+        return levels;
+    }
+
+    public string GetCreatureFamilyPetName(CreatureFamily petfamily, Locale locale)
+    {
+        if (petfamily == CreatureFamily.None)
+            return null;
+
+        var petFamily = _cliDB.CreatureFamilyStorage.LookupByKey((uint)petfamily);
+
+        if (petFamily == null)
+            return "";
+
+        return petFamily.Name[locale][0] != '\0' ? petFamily.Name[locale] : "";
+    }
+
+    public CurrencyContainerRecord GetCurrencyContainerForCurrencyQuantity(uint currencyId, int quantity)
+    {
+        foreach (var record in _currencyContainers.LookupByKey(currencyId))
+            if (quantity >= record.MinAmount && (record.MaxAmount == 0 || quantity <= record.MaxAmount))
+                return record;
+
+        return null;
+    }
+
+    public float GetCurveValueAt(uint curveId, float x)
+    {
+        var points = _curvePoints.LookupByKey(curveId);
+
+        if (points.Empty())
+            return 0.0f;
+
+        var curve = _cliDB.CurveStorage.LookupByKey(curveId);
+
+        switch (DetermineCurveType(curve, points))
+        {
+            case CurveInterpolationMode.Linear:
+            {
+                var pointIndex = 0;
+
+                while (pointIndex < points.Count && points[pointIndex].Pos.X <= x)
+                    ++pointIndex;
+
+                if (pointIndex == 0)
+                    return points[0].Pos.Y;
+
+                if (pointIndex >= points.Count)
+                    return points.Last().Pos.Y;
+
+                var xDiff = points[pointIndex].Pos.X - points[pointIndex - 1].Pos.X;
+
+                if (xDiff == 0.0)
+                    return points[pointIndex].Pos.Y;
+
+                return (((x - points[pointIndex - 1].Pos.X) / xDiff) * (points[pointIndex].Pos.Y - points[pointIndex - 1].Pos.Y)) + points[pointIndex - 1].Pos.Y;
+            }
+            case CurveInterpolationMode.Cosine:
+            {
+                var pointIndex = 0;
+
+                while (pointIndex < points.Count && points[pointIndex].Pos.X <= x)
+                    ++pointIndex;
+
+                if (pointIndex == 0)
+                    return points[0].Pos.Y;
+
+                if (pointIndex >= points.Count)
+                    return points.Last().Pos.Y;
+
+                var xDiff = points[pointIndex].Pos.X - points[pointIndex - 1].Pos.X;
+
+                if (xDiff == 0.0)
+                    return points[pointIndex].Pos.Y;
+
+                return (float)((points[pointIndex].Pos.Y - points[pointIndex - 1].Pos.Y) * (1.0f - Math.Cos((x - points[pointIndex - 1].Pos.X) / xDiff * Math.PI)) * 0.5f) + points[pointIndex - 1].Pos.Y;
+            }
+            case CurveInterpolationMode.CatmullRom:
+            {
+                var pointIndex = 1;
+
+                while (pointIndex < points.Count && points[pointIndex].Pos.X <= x)
+                    ++pointIndex;
+
+                if (pointIndex == 1)
+                    return points[1].Pos.Y;
+
+                if (pointIndex >= points.Count - 1)
+                    return points[^2].Pos.Y;
+
+                var xDiff = points[pointIndex].Pos.X - points[pointIndex - 1].Pos.X;
+
+                if (xDiff == 0.0)
+                    return points[pointIndex].Pos.Y;
+
+                var mu = (x - points[pointIndex - 1].Pos.X) / xDiff;
+                var a0 = -0.5f * points[pointIndex - 2].Pos.Y + 1.5f * points[pointIndex - 1].Pos.Y - 1.5f * points[pointIndex].Pos.Y + 0.5f * points[pointIndex + 1].Pos.Y;
+                var a1 = points[pointIndex - 2].Pos.Y - 2.5f * points[pointIndex - 1].Pos.Y + 2.0f * points[pointIndex].Pos.Y - 0.5f * points[pointIndex + 1].Pos.Y;
+                var a2 = -0.5f * points[pointIndex - 2].Pos.Y + 0.5f * points[pointIndex].Pos.Y;
+                var a3 = points[pointIndex - 1].Pos.Y;
+
+                return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
+            }
+            case CurveInterpolationMode.Bezier3:
+            {
+                var xDiff = points[2].Pos.X - points[0].Pos.X;
+
+                if (xDiff == 0.0)
+                    return points[1].Pos.Y;
+
+                var mu = (x - points[0].Pos.X) / xDiff;
+
+                return ((1.0f - mu) * (1.0f - mu) * points[0].Pos.Y) + (1.0f - mu) * 2.0f * mu * points[1].Pos.Y + mu * mu * points[2].Pos.Y;
+            }
+            case CurveInterpolationMode.Bezier4:
+            {
+                var xDiff = points[3].Pos.X - points[0].Pos.X;
+
+                if (xDiff == 0.0)
+                    return points[1].Pos.Y;
+
+                var mu = (x - points[0].Pos.X) / xDiff;
+
+                return (1.0f - mu) * (1.0f - mu) * (1.0f - mu) * points[0].Pos.Y + 3.0f * mu * (1.0f - mu) * (1.0f - mu) * points[1].Pos.Y + 3.0f * mu * mu * (1.0f - mu) * points[2].Pos.Y + mu * mu * mu * points[3].Pos.Y;
+            }
+            case CurveInterpolationMode.Bezier:
+            {
+                var xDiff = points.Last().Pos.X - points[0].Pos.X;
+
+                if (xDiff == 0.0f)
+                    return points.Last().Pos.Y;
+
+                var tmp = new float[points.Count];
+
+                for (var c = 0; c < points.Count; ++c)
+                    tmp[c] = points[c].Pos.Y;
+
+                var mu = (x - points[0].Pos.X) / xDiff;
+                var i = points.Count - 1;
+
+                while (i > 0)
+                {
+                    for (var k = 0; k < i; ++k)
+                    {
+                        var val = tmp[k] + mu * (tmp[k + 1] - tmp[k]);
+                        tmp[k] = val;
+                    }
+
+                    --i;
+                }
+
+                return tmp[0];
+            }
+            case CurveInterpolationMode.Constant:
+                return points[0].Pos.Y;
+        }
+
+        return 0.0f;
+    }
+
+    public Tuple<float, float> GetCurveXAxisRange(uint curveId)
+    {
+        var points = _curvePoints.LookupByKey(curveId);
+
+        if (!points.Empty())
+            return Tuple.Create(points.First().Pos.X, points.Last().Pos.X);
+
+        return Tuple.Create(0.0f, 0.0f);
+    }
+
+    public List<ChrCustomizationChoiceRecord> GetCustomiztionChoices(uint chrCustomizationOptionId)
+    {
+        return _chrCustomizationChoicesByOption.LookupByKey(chrCustomizationOptionId);
+    }
+
+    public List<ChrCustomizationOptionRecord> GetCustomiztionOptions(Race race, Gender gender)
+    {
+        return _chrCustomizationOptionsByRaceAndGender.LookupByKey(Tuple.Create((byte)race, (byte)gender));
+    }
+
+    public ChrSpecializationRecord GetDefaultChrSpecializationForClass(PlayerClass playerClass)
+    {
+        return GetChrSpecializationByIndex(playerClass, PlayerConst.InitialSpecializationIndex);
+    }
+
+    public List<uint> GetDefaultItemBonusTree(uint itemId, ItemContext itemContext)
+    {
+        List<uint> bonusListIDs = new();
+
+        var proto = _cliDB.ItemSparseStorage.LookupByKey(itemId);
+
+        if (proto == null)
+            return bonusListIDs;
+
+        var itemIdRange = _itemToBonusTree.LookupByKey(itemId);
+
+        if (itemIdRange == null)
+            return bonusListIDs;
+
+        ushort itemLevelSelectorId = 0;
+
+        foreach (var itemBonusTreeId in itemIdRange)
+        {
+            uint matchingNodes = 0;
+
+            VisitItemBonusTree(itemBonusTreeId,
+                               false,
+                               bonusTreeNode =>
+                               {
+                                   if ((ItemContext)bonusTreeNode.ItemContext == ItemContext.None || itemContext == (ItemContext)bonusTreeNode.ItemContext)
+                                       ++matchingNodes;
+                               });
+
+            if (matchingNodes != 1)
+                continue;
+
+            VisitItemBonusTree(itemBonusTreeId,
+                               true,
+                               bonusTreeNode =>
+                               {
+                                   var requiredContext = (ItemContext)bonusTreeNode.ItemContext != ItemContext.ForceToNone ? (ItemContext)bonusTreeNode.ItemContext : ItemContext.None;
+
+                                   if ((ItemContext)bonusTreeNode.ItemContext != ItemContext.None && itemContext != requiredContext)
+                                       return;
+
+                                   if (bonusTreeNode.ChildItemBonusListID != 0)
+                                       bonusListIDs.Add(bonusTreeNode.ChildItemBonusListID);
+                                   else if (bonusTreeNode.ChildItemLevelSelectorID != 0)
+                                       itemLevelSelectorId = bonusTreeNode.ChildItemLevelSelectorID;
+                               });
+        }
+
+        var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(itemLevelSelectorId);
+
+        if (selector != null)
+        {
+            var delta = (short)(selector.MinItemLevel - proto.ItemLevel);
+
+            var bonus = GetItemBonusListForItemLevelDelta(delta);
+
+            if (bonus != 0)
+                bonusListIDs.Add(bonus);
+
+            var selectorQualitySet = _cliDB.ItemLevelSelectorQualitySetStorage.LookupByKey(selector.ItemLevelSelectorQualitySetID);
+
+            if (selectorQualitySet != null)
+            {
+                var itemSelectorQualities = _itemLevelQualitySelectorQualities.LookupByKey(selector.ItemLevelSelectorQualitySetID);
+
+                if (itemSelectorQualities != null)
+                {
+                    var quality = ItemQuality.Uncommon;
+
+                    if (selector.MinItemLevel >= selectorQualitySet.IlvlEpic)
+                        quality = ItemQuality.Epic;
+                    else if (selector.MinItemLevel >= selectorQualitySet.IlvlRare)
+                        quality = ItemQuality.Rare;
+
+                    var itemSelectorQuality = itemSelectorQualities.Find(p => p.Quality < (sbyte)quality);
+
+                    if (itemSelectorQuality != null)
+                        bonusListIDs.Add(itemSelectorQuality.QualityItemBonusListID);
+                }
+            }
+
+            var azeriteUnlockMapping = _azeriteUnlockMappings.LookupByKey((proto.Id, itemContext));
+
+            if (azeriteUnlockMapping != null)
+                switch (proto.inventoryType)
+                {
+                    case InventoryType.Head:
+                        bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListHead);
+
+                        break;
+                    case InventoryType.Shoulders:
+                        bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListShoulders);
+
+                        break;
+                    case InventoryType.Chest:
+                    case InventoryType.Robe:
+                        bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListChest);
+
+                        break;
+                }
+        }
+
+        return bonusListIDs;
+    }
+
+    public ItemModifiedAppearanceRecord GetDefaultItemModifiedAppearance(uint itemId)
+    {
+        return _itemModifiedAppearancesByItem.LookupByKey(itemId);
+    }
+
+    public MapDifficultyRecord GetDefaultMapDifficulty(uint mapId)
+    {
+        var notUsed = Difficulty.None;
+
+        return GetDefaultMapDifficulty(mapId, ref notUsed);
+    }
+
+    public MapDifficultyRecord GetDefaultMapDifficulty(uint mapId, ref Difficulty difficulty)
+    {
+        var dicMapDiff = _mapDifficulties.LookupByKey(mapId);
+
+        if (dicMapDiff == null)
+            return null;
+
+        if (dicMapDiff.Empty())
+            return null;
+
+        foreach (var pair in dicMapDiff)
+        {
+            var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(pair.Key);
+
+            if (difficultyEntry == null)
+                continue;
+
+            if (difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Default))
+            {
+                difficulty = (Difficulty)pair.Key;
+
+                return pair.Value;
+            }
+        }
+
+        difficulty = (Difficulty)dicMapDiff.First().Key;
+
+        return dicMapDiff.First().Value;
+    }
+
+    public uint GetDefaultMapLight(uint mapId)
+    {
+        foreach (var light in _cliDB.LightStorage.Values.Reverse())
+            if (light.ContinentID == mapId && light.GameCoords.X == 0.0f && light.GameCoords is { Y: 0.0f, Z: 0.0f })
+                return light.Id;
+
+        return 0;
+    }
+
+    public MapDifficultyRecord GetDownscaledMapDifficultyData(uint mapId, ref Difficulty difficulty)
+    {
+        var diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)difficulty);
+
+        if (diffEntry == null)
+            return GetDefaultMapDifficulty(mapId, ref difficulty);
+
+        var tmpDiff = difficulty;
+        var mapDiff = GetMapDifficultyData(mapId, tmpDiff);
+
+        while (mapDiff == null)
+        {
+            tmpDiff = (Difficulty)diffEntry.FallbackDifficultyID;
+            diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)tmpDiff);
+
+            if (diffEntry == null)
+                return GetDefaultMapDifficulty(mapId, ref difficulty);
+
+            // pull new data
+            mapDiff = GetMapDifficultyData(mapId, tmpDiff); // we are 10 normal or 25 normal
+        }
+
+        difficulty = tmpDiff;
+
+        return mapDiff;
+    }
+
+    public uint GetEmptyAnimStateID()
+    {
+        return _cliDB.AnimationDataStorage.GetNumRows();
+    }
+
+    public List<uint> GetFactionTeamList(uint faction)
+    {
+        return _factionTeams.LookupByKey(faction);
+    }
+
+    public List<FriendshipRepReactionRecord> GetFriendshipRepReactions(uint friendshipRepID)
+    {
+        return _friendshipRepReactions.LookupByKey(friendshipRepID);
+    }
+
+    public uint GetGlobalCurveId(GlobalCurve globalCurveType)
+    {
+        foreach (var globalCurveEntry in _cliDB.GlobalCurveStorage.Values)
+            if (globalCurveEntry.Type == globalCurveType)
+                return globalCurveEntry.CurveID;
+
+        return 0;
+    }
+
+    public List<uint> GetGlyphBindableSpells(uint glyphPropertiesId)
+    {
+        return _glyphBindableSpells.LookupByKey(glyphPropertiesId);
+    }
+
+    public List<uint> GetGlyphRequiredSpecs(uint glyphPropertiesId)
+    {
+        return _glyphRequiredSpecs.LookupByKey(glyphPropertiesId);
+    }
+
+    public HeirloomRecord GetHeirloomByItemId(uint itemId)
+    {
+        return _heirlooms.LookupByKey(itemId);
+    }
+
+    public byte[] GetHotfixBlobData(uint tableHash, int recordId, Locale locale)
+    {
+        return _hotfixBlob[(int)locale].LookupByKey((tableHash, recordId));
+    }
+
+    public uint GetHotfixCount()
+    {
+        return (uint)_hotfixData.Count;
+    }
+
+    public MultiMap<int, HotfixRecord> GetHotfixData()
+    {
+        return _hotfixData;
+    }
+
+    public List<HotfixOptionalData> GetHotfixOptionalData(uint tableHash, uint recordId, Locale locale)
+    {
+        return _hotfixOptionalData[(int)locale].LookupByKey((tableHash, (int)recordId));
+    }
+
+    public List<ItemBonusRecord> GetItemBonusList(uint bonusListId)
+    {
+        return _itemBonusLists.LookupByKey(bonusListId);
+    }
+
+    public uint GetItemBonusListForItemLevelDelta(short delta)
+    {
+        return _itemLevelDeltaToBonusListContainer.LookupByKey(delta);
+    }
+
+    public List<ItemBonusTreeNodeRecord> GetItemBonusSet(uint itemBonusTreeId)
+    {
+        return _itemBonusTrees.LookupByKey(itemBonusTreeId);
+    }
+
+    public ItemChildEquipmentRecord GetItemChildEquipment(uint itemId)
+    {
+        return _itemChildEquipment.LookupByKey(itemId);
+    }
+
+    public ItemClassRecord GetItemClassByOldEnum(ItemClass itemClass)
+    {
+        return _itemClassByOldEnum[(int)itemClass];
+    }
+
+    public uint GetItemDisplayId(uint itemId, uint appearanceModId)
+    {
+        var modifiedAppearance = GetItemModifiedAppearance(itemId, appearanceModId);
+
+        if (modifiedAppearance != null)
+        {
+            var itemAppearance = _cliDB.ItemAppearanceStorage.LookupByKey((uint)modifiedAppearance.ItemAppearanceID);
+
+            if (itemAppearance != null)
+                return itemAppearance.ItemDisplayInfoID;
+        }
+
+        return 0;
+    }
+
+    public List<ItemLimitCategoryConditionRecord> GetItemLimitCategoryConditions(uint categoryId)
+    {
+        return _itemCategoryConditions.LookupByKey(categoryId);
+    }
+
+    public ItemModifiedAppearanceRecord GetItemModifiedAppearance(uint itemId, uint appearanceModId)
+    {
+        var itemModifiedAppearance = _itemModifiedAppearancesByItem.LookupByKey(itemId | (appearanceModId << 24));
+
+        if (itemModifiedAppearance != null)
+            return itemModifiedAppearance;
+
+        // Fall back to unmodified appearance
+        if (appearanceModId != 0)
+        {
+            itemModifiedAppearance = _itemModifiedAppearancesByItem.LookupByKey(itemId);
+
+            if (itemModifiedAppearance != null)
+                return itemModifiedAppearance;
+        }
+
+        return null;
+    }
+
+    public List<ItemSetSpellRecord> GetItemSetSpells(uint itemSetId)
+    {
+        return _itemSetSpells.LookupByKey(itemSetId);
+    }
+
+    public List<ItemSpecOverrideRecord> GetItemSpecOverrides(uint itemId)
+    {
+        return _itemSpecOverrides.LookupByKey(itemId);
+    }
+
+    public JournalTierRecord GetJournalTier(uint index)
+    {
+        if (index < _journalTiersByIndex.Count)
+            return _journalTiersByIndex[(int)index];
+
+        return null;
+    }
+
+    public LFGDungeonsRecord GetLfgDungeon(uint mapId, Difficulty difficulty)
+    {
+        foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values)
+            if (dungeon.MapID == mapId && dungeon.DifficultyID == difficulty)
+                return dungeon;
+
+        return null;
+    }
+
+    public uint GetLiquidFlags(uint liquidType)
+    {
+        var liq = _cliDB.LiquidTypeStorage.LookupByKey(liquidType);
+
+        if (liq != null)
+            return 1u << liq.SoundBank;
+
+        return 0;
+    }
+
+    public Dictionary<uint, Dictionary<uint, MapDifficultyRecord>> GetMapDifficulties()
+    {
+        return _mapDifficulties;
+    }
+
+    public List<Tuple<uint, PlayerConditionRecord>> GetMapDifficultyConditions(uint mapDifficultyId)
+    {
+        return _mapDifficultyConditions.LookupByKey(mapDifficultyId);
+    }
+
+    public MapDifficultyRecord GetMapDifficultyData(uint mapId, Difficulty difficulty)
+    {
+        var dictionaryMapDiff = _mapDifficulties.LookupByKey(mapId);
+
+        var mapDifficulty = dictionaryMapDiff?.LookupByKey((uint)difficulty);
+
+        return mapDifficulty;
+    }
+
+    public MountRecord GetMount(uint spellId)
+    {
+        return _mountsBySpellId.LookupByKey(spellId);
+    }
+
+    public MountRecord GetMountById(uint id)
+    {
+        return _cliDB.MountStorage.LookupByKey(id);
+    }
+
+    public List<MountTypeXCapabilityRecord> GetMountCapabilities(uint mountType)
+    {
+        return _mountCapabilitiesByType.LookupByKey(mountType);
+    }
+
+    public List<MountXDisplayRecord> GetMountDisplays(uint mountId)
+    {
+        return _mountDisplays.LookupByKey(mountId);
+    }
+
+    public string GetNameGenEntry(uint race, uint gender)
+    {
+        var listNameGen = _nameGenData.LookupByKey(race);
+
+        if (listNameGen == null)
+            return "";
+
+        if (listNameGen[gender].Empty())
+            return "";
+
+        return listNameGen[gender].SelectRandom().Name;
+    }
+
+    public uint GetNumTalentsAtLevel(uint level, PlayerClass playerClass)
+    {
+        var numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LookupByKey(level);
+
+        if (numTalentsAtLevel == null)
+            numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LastOrDefault().Value;
+
+        if (numTalentsAtLevel != null)
+            return playerClass switch
+            {
+                PlayerClass.Deathknight => numTalentsAtLevel.NumTalentsDeathKnight,
+                PlayerClass.DemonHunter => numTalentsAtLevel.NumTalentsDemonHunter,
+                _ => numTalentsAtLevel.NumTalents,
+            };
+
+        return 0;
+    }
+
+    public ParagonReputationRecord GetParagonReputation(uint factionId)
+    {
+        return _paragonReputations.LookupByKey(factionId);
+    }
+
+    public List<uint> GetPhasesForGroup(uint group)
+    {
+        return _phasesByGroup.LookupByKey(group);
+    }
+
+    public uint GetPowerIndexByClass(PowerType powerType, PlayerClass classId)
+    {
+        return _powersByClass[(int)classId][(int)powerType];
+    }
+
+    public PowerTypeRecord GetPowerTypeByName(string name)
+    {
+        foreach (var powerType in _cliDB.PowerTypeStorage.Values)
+        {
+            var powerName = powerType.NameGlobalStringTag;
+
+            if (powerName.ToLower() == name)
+                return powerType;
+
+            powerName = powerName.Replace("_", "");
+
+            if (powerName == name)
+                return powerType;
+        }
+
+        return null;
+    }
+
+    public PowerTypeRecord GetPowerTypeEntry(PowerType power)
+    {
+        if (!_powerTypes.ContainsKey(power))
+            return null;
+
+        return _powerTypes[power];
+    }
+
+    public byte GetPvpItemLevelBonus(uint itemId)
+    {
+        return _pvpItemBonus.LookupByKey(itemId);
+    }
+
+    public int GetPvpTalentNumSlotsAtLevel(uint level, PlayerClass playerClass)
+    {
+        var slots = 0;
+
+        for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
+            if (level >= GetRequiredLevelForPvpTalentSlot(slot, playerClass))
+                ++slots;
+
+        return slots;
+    }
+
+    public List<QuestPackageItemRecord> GetQuestPackageItems(uint questPackageID)
+    {
+        if (_questPackages.ContainsKey(questPackageID))
+            return _questPackages[questPackageID].Item1;
+
+        return null;
+    }
+
+    public List<QuestPackageItemRecord> GetQuestPackageItemsFallback(uint questPackageID)
+    {
+        return _questPackages.LookupByKey(questPackageID).Item2;
+    }
+
+    public List<QuestLineXQuestRecord> GetQuestsForQuestLine(uint questLineId)
+    {
+        return _questsByQuestLine.LookupByKey(questLineId);
+    }
+
+    public uint GetQuestUniqueBitFlag(uint questId)
+    {
+        var v2 = _cliDB.QuestV2Storage.LookupByKey(questId);
+
+        if (v2 == null)
+            return 0;
+
+        return v2.UniqueBitFlag;
+    }
+
+    public uint GetRequiredAzeriteLevelForAzeritePowerTier(uint azeriteUnlockSetId, ItemContext context, uint tier)
+    {
+        //ASSERT(tier < MAX_AZERITE_EMPOWERED_TIER);
+        var levels = _azeriteTierUnlockLevels.LookupByKey((azeriteUnlockSetId, context));
+
+        if (levels != null)
+            return levels[tier];
+
+        var azeriteTierUnlockSet = _cliDB.AzeriteTierUnlockSetStorage.LookupByKey(azeriteUnlockSetId);
+
+        if (azeriteTierUnlockSet != null && azeriteTierUnlockSet.Flags.HasAnyFlag(AzeriteTierUnlockSetFlags.Default))
+        {
+            levels = _azeriteTierUnlockLevels.LookupByKey((azeriteUnlockSetId, ItemContext.None));
+
+            if (levels != null)
+                return levels[tier];
+        }
+
+        return _cliDB.AzeriteLevelInfoStorage.GetNumRows();
+    }
+
+    public MultiMap<uint, uint> GetRequiredCustomizationChoices(uint chrCustomizationReqId)
+    {
+        return _chrCustomizationRequiredChoices.LookupByKey(chrCustomizationReqId);
+    }
+
+    public uint GetRequiredLevelForPvpTalentSlot(byte slot, PlayerClass playerClass)
+    {
+        if (_pvpTalentSlotUnlock[slot] != null)
+        {
+            switch (playerClass)
+            {
+                case PlayerClass.Deathknight:
+                    return _pvpTalentSlotUnlock[slot].DeathKnightLevelRequired;
+                case PlayerClass.DemonHunter:
+                    return _pvpTalentSlotUnlock[slot].DemonHunterLevelRequired;
+            }
+
+            return _pvpTalentSlotUnlock[slot].LevelRequired;
+        }
+
+        return 0;
+    }
+
+    public List<RewardPackXCurrencyTypeRecord> GetRewardPackCurrencyTypesByRewardID(uint rewardPackID)
+    {
+        return _rewardPackCurrencyTypes.LookupByKey(rewardPackID);
+    }
+
+    public List<RewardPackXItemRecord> GetRewardPackItemsByRewardID(uint rewardPackID)
+    {
+        return _rewardPackItems.LookupByKey(rewardPackID);
+    }
+
+    public ShapeshiftFormModelData GetShapeshiftFormModelData(Race race, Gender gender, ShapeShiftForm form)
+    {
+        return _chrCustomizationChoicesForShapeshifts.LookupByKey(Tuple.Create((byte)race, (byte)gender, (byte)form));
+    }
+
+    public List<SkillLineAbilityRecord> GetSkillLineAbilitiesBySkill(uint skillId)
+    {
+        return _skillLineAbilitiesBySkillupSkill.LookupByKey(skillId);
+    }
+
+    public List<SkillLineRecord> GetSkillLinesForParentSkill(uint parentSkillId)
+    {
+        return _skillLinesByParentSkillLine.LookupByKey(parentSkillId);
+    }
+
+    public SkillRaceClassInfoRecord GetSkillRaceClassInfo(uint skill, Race race, PlayerClass playerClass)
+    {
+        var bounds = _skillRaceClassInfoBySkill.LookupByKey(skill);
+
+        foreach (var skllRaceClassInfo in bounds)
+        {
+            if (skllRaceClassInfo.RaceMask != 0 && !Convert.ToBoolean(skllRaceClassInfo.RaceMask & SharedConst.GetMaskForRace(race)))
+                continue;
+
+            if (skllRaceClassInfo.ClassMask != 0 && !Convert.ToBoolean(skllRaceClassInfo.ClassMask & (1 << ((byte)playerClass - 1))))
+                continue;
+
+            return skllRaceClassInfo;
+        }
+
+        return null;
+    }
+
+    public List<SkillRaceClassInfoRecord> GetSkillRaceClassInfo(uint skill)
+    {
+        return _skillRaceClassInfoBySkill.LookupByKey(skill);
+    }
+
+    public SoulbindConduitRankRecord GetSoulbindConduitRank(int soulbindConduitId, int rank)
+    {
+        return _soulbindConduitRanks.LookupByKey(Tuple.Create(soulbindConduitId, rank));
+    }
+
+    public List<SpecializationSpellsRecord> GetSpecializationSpells(uint specId)
+    {
+        return _specializationSpellsBySpec.LookupByKey(specId);
+    }
+
+    public List<SpellProcsPerMinuteModRecord> GetSpellProcsPerMinuteMods(uint spellprocsPerMinuteId)
+    {
+        return _spellProcsPerMinuteMods.LookupByKey(spellprocsPerMinuteId);
+    }
+
+    public List<SpellVisualMissileRecord> GetSpellVisualMissiles(int spellVisualMissileSetId)
+    {
+        return _spellVisualMissilesBySet.LookupByKey(spellVisualMissileSetId);
+    }
+
+    public IDB2Storage GetStorage(uint type)
+    {
+        return Storage.LookupByKey(type);
+    }
+
+    public List<TalentRecord> GetTalentsByPosition(PlayerClass playerClass, uint tier, uint column)
+    {
+        return _talentsByPosition[(int)playerClass][tier][column];
+    }
+
+    public EmotesTextSoundRecord GetTextSoundEmoteFor(uint emote, Race race, Gender gender, PlayerClass playerClass)
+    {
+        var emoteTextSound = _emoteTextSounds.LookupByKey(Tuple.Create(emote, (byte)race, (byte)gender, (byte)playerClass));
+
+        if (emoteTextSound != null)
+            return emoteTextSound;
+
+        if (_emoteTextSounds.TryGetValue(Tuple.Create(emote, (byte)race, (byte)gender, (byte)0), out emoteTextSound))
+            return emoteTextSound;
+
+        return null;
+    }
+
+    public TransmogIllusionRecord GetTransmogIllusionForEnchantment(uint spellItemEnchantmentId)
+    {
+        return _transmogIllusionsByEnchantmentId.LookupByKey(spellItemEnchantmentId);
+    }
+
+    public List<TransmogSetItemRecord> GetTransmogSetItems(uint transmogSetId)
+    {
+        return _transmogSetItemsByTransmogSet.LookupByKey(transmogSetId);
+    }
+
+    public List<TransmogSetRecord> GetTransmogSetsForItemModifiedAppearance(uint itemModifiedAppearanceId)
+    {
+        return _transmogSetsByItemModifiedAppearance.LookupByKey(itemModifiedAppearanceId);
+    }
+
+    public ChrClassUIDisplayRecord GetUiDisplayForClass(PlayerClass unitClass)
+    {
+        return _uiDisplayByClass[(int)unitClass];
+    }
+
+    public bool GetUiMapPosition(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapSystem system, bool local, out Vector2 newPos)
+    {
+        return GetUiMapPosition(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, system, local, out _, out newPos);
+    }
+
+    public bool GetUiMapPosition(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapSystem system, bool local, out int uiMapId)
+    {
+        return GetUiMapPosition(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, system, local, out uiMapId, out _);
+    }
+
+    public bool GetUiMapPosition(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapSystem system, bool local, out int uiMapId, out Vector2 newPos)
+    {
+        uiMapId = -1;
+        newPos = new Vector2();
+
+        var uiMapAssignment = FindNearestMapAssignment(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, system);
+
+        if (uiMapAssignment == null)
+            return false;
+
+        uiMapId = uiMapAssignment.UiMapID;
+
+        Vector2 relativePosition = new(0.5f, 0.5f);
+        Vector2 regionSize = new(uiMapAssignment.Region[1].X - uiMapAssignment.Region[0].X, uiMapAssignment.Region[1].Y - uiMapAssignment.Region[0].Y);
+
+        if (regionSize.X > 0.0f)
+            relativePosition.X = (x - uiMapAssignment.Region[0].X) / regionSize.X;
+
+        if (regionSize.Y > 0.0f)
+            relativePosition.Y = (y - uiMapAssignment.Region[0].Y) / regionSize.Y;
+
+        // x any y are swapped
+        Vector2 uiPosition = new(((1.0f - (1.0f - relativePosition.Y)) * uiMapAssignment.UiMin.X) + ((1.0f - relativePosition.Y) * uiMapAssignment.UiMax.X), ((1.0f - (1.0f - relativePosition.X)) * uiMapAssignment.UiMin.Y) + ((1.0f - relativePosition.X) * uiMapAssignment.UiMax.Y));
+
+        if (!local)
+            uiPosition = CalculateGlobalUiMapPosition(uiMapAssignment.UiMapID, uiPosition);
+
+        newPos = uiPosition;
+
+        return true;
+    }
+
+    public WMOAreaTableRecord GetWmoAreaTable(int rootId, int adtId, int groupId)
+    {
+        return _wmoAreaTableLookup.LookupByKey(Tuple.Create((short)rootId, (sbyte)adtId, groupId));
+    }
+
+    public bool HasItemCurrencyCost(uint itemId)
+    {
+        return _itemsWithCurrencyCost.Contains(itemId);
+    }
+
+    public bool IsAzeriteItem(uint itemId)
+    {
+        return _cliDB.AzeriteItemStorage.Any(pair => pair.Value.ItemID == itemId);
+    }
+
+    public bool IsInArea(uint objectAreaId, uint areaId)
+    {
+        do
+        {
+            if (objectAreaId == areaId)
+                return true;
+
+            var objectArea = _cliDB.AreaTableStorage.LookupByKey(objectAreaId);
+
+            if (objectArea == null)
+                break;
+
+            objectAreaId = objectArea.ParentAreaID;
+        } while (objectAreaId != 0);
+
+        return false;
+    }
+
+    public bool IsSpecSetMember(int specSetId, uint specId)
+    {
+        return _specsBySpecSet.Contains(Tuple.Create(specSetId, specId));
+    }
+
+    public bool IsTotemCategoryCompatibleWith(uint itemTotemCategoryId, uint requiredTotemCategoryId)
+    {
+        if (requiredTotemCategoryId == 0)
+            return true;
+
+        if (itemTotemCategoryId == 0)
+            return false;
+
+        var itemEntry = _cliDB.TotemCategoryStorage.LookupByKey(itemTotemCategoryId);
+
+        if (itemEntry == null)
+            return false;
+
+        var reqEntry = _cliDB.TotemCategoryStorage.LookupByKey(requiredTotemCategoryId);
+
+        if (reqEntry == null)
+            return false;
+
+        if (itemEntry.TotemCategoryType != reqEntry.TotemCategoryType)
+            return false;
+
+        return (itemEntry.TotemCategoryMask & reqEntry.TotemCategoryMask) == reqEntry.TotemCategoryMask;
+    }
+
+    public bool IsToyItem(uint toy)
+    {
+        return _toys.Contains(toy);
+    }
+
+    public bool IsUiMapPhase(int phaseId)
+    {
+        return _uiMapPhases.Contains(phaseId);
+    }
+
+    public bool IsValidSpellFamiliyName(SpellFamilyNames family)
+    {
+        return _spellFamilyNames.Contains((byte)family);
+    }
+
+    public void LoadHotfixBlob(BitSet availableDb2Locales)
+    {
+        var oldMSTime = Time.MSTime;
+
+        var result = _hotfixDatabase.Query("SELECT TableHash, RecordId, locale, `Blob` FROM hotfix_blob ORDER BY TableHash");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 hotfix blob entries.");
+
+            return;
+        }
+
+        uint hotfixBlobCount = 0;
+
+        do
+        {
+            var tableHash = result.Read<uint>(0);
+            var recordId = result.Read<int>(1);
+            var localeName = result.Read<string>(2);
+
+            var storeItr = Storage.LookupByKey(tableHash);
+
+            if (storeItr != null)
+            {
+                Log.Logger.Warning($"Table hash 0x{tableHash:X}({tableHash}) points to a loaded DB2 store {storeItr.GetName()} {recordId}:{localeName}, fill related table instead of hotfix_blob");
+
+                continue;
+            }
+
+            var locale = localeName.ToEnum<Locale>();
+
+            if (!SharedConst.IsValidLocale(locale))
+            {
+                Log.Logger.Warning($"`hotfix_blob` contains invalid locale: {localeName} at TableHash: 0x{tableHash:X} and RecordID: {recordId}");
+
+                continue;
+            }
+
+            if (!availableDb2Locales[(int)locale])
+                continue;
+
+            _hotfixBlob[(int)locale][(tableHash, recordId)] = result.Read<byte[]>(3);
+            hotfixBlobCount++;
+        } while (result.NextRow());
+
+        Log.Logger.Information($"Loaded {hotfixBlobCount} hotfix blob records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+    }
+
+    public void LoadHotfixData()
+    {
+        var oldMSTime = Time.MSTime;
+
+        var result = _hotfixDatabase.Query("SELECT Id, UniqueId, TableHash, RecordId, Status FROM hotfix_data ORDER BY Id");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 hotfix info entries.");
+
+            return;
+        }
+
+        Dictionary<(uint tableHash, int recordId), bool> deletedRecords = new();
+
+        uint count = 0;
+
+        do
+        {
+            var id = result.Read<int>(0);
+            var uniqueId = result.Read<uint>(1);
+            var tableHash = result.Read<uint>(2);
+            var recordId = result.Read<int>(3);
+            var status = (HotfixRecord.Status)result.Read<byte>(4);
+
+            if (status == HotfixRecord.Status.Valid && !Storage.ContainsKey(tableHash))
+                if (!_hotfixBlob.Any(p => p.ContainsKey((tableHash, recordId))))
+                {
+                    Log.Logger.Error($"Table `hotfix_data` references unknown DB2 store by hash 0x{tableHash:X} and has no reference to `hotfix_blob` in hotfix id {id} with RecordID: {recordId}");
+
+                    continue;
+                }
+
+            HotfixRecord hotfixRecord = new()
+            {
+                TableHash = tableHash,
+                RecordID = recordId
+            };
+
+            hotfixRecord.ID.PushID = id;
+            hotfixRecord.ID.UniqueID = uniqueId;
+            hotfixRecord.HotfixStatus = status;
+
+            _hotfixData.Add(id, hotfixRecord);
+            deletedRecords[(tableHash, recordId)] = status == HotfixRecord.Status.RecordRemoved;
+
+            ++count;
+        } while (result.NextRow());
+
+        foreach (var itr in deletedRecords)
+            if (itr.Value)
+            {
+                var store = Storage.LookupByKey(itr.Key.tableHash);
+
+                store?.EraseRecord((uint)itr.Key.recordId);
+            }
+
+        Log.Logger.Information("Loaded {0} hotfix info entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    public void LoadHotfixOptionalData(BitSet availableDb2Locales)
+    {
+        // Register allowed optional data keys
+        _allowedHotfixOptionalData.Add(_cliDB.BroadcastTextStorage.GetTableHash(), Tuple.Create(_cliDB.TactKeyStorage.GetTableHash(), (AllowedHotfixOptionalData)ValidateBroadcastTextTactKeyOptionalData));
+
+        var oldMSTime = Time.MSTime;
+
+        var result = _hotfixDatabase.Query("SELECT TableHash, RecordId, locale, `Key`, `Data` FROM hotfix_optional_data ORDER BY TableHash");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 hotfix optional data records.");
+
+            return;
+        }
+
+        uint hotfixOptionalDataCount = 0;
+
+        do
+        {
+            var tableHash = result.Read<uint>(0);
+            var allowedHotfixes = _allowedHotfixOptionalData.LookupByKey(tableHash);
+
+            if (allowedHotfixes.Empty())
+            {
+                Log.Logger.Error($"Table `hotfix_optional_data` references DB2 store by hash 0x{tableHash:X} that is not allowed to have optional data");
+
+                continue;
+            }
+
+            var recordId = result.Read<uint>(1);
+            var db2Storage = Storage.LookupByKey(tableHash);
+
+            if (db2Storage == null)
+            {
+                Log.Logger.Error($"Table `hotfix_optional_data` references unknown DB2 store by hash 0x{tableHash:X} with RecordID: {recordId}");
+
+                continue;
+            }
+
+            var localeName = result.Read<string>(2);
+            var locale = localeName.ToEnum<Locale>();
+
+            if (!SharedConst.IsValidLocale(locale))
+            {
+                Log.Logger.Error($"`hotfix_optional_data` contains invalid locale: {localeName} at TableHash: 0x{tableHash:X} and RecordID: {recordId}");
+
+                continue;
+            }
+
+            if (!availableDb2Locales[(int)locale])
+                continue;
+
+            HotfixOptionalData optionalData = new()
+            {
+                Key = result.Read<uint>(3)
+            };
+
+            var allowedHotfixItr = allowedHotfixes.Find(v => { return v.Item1 == optionalData.Key; });
+
+            if (allowedHotfixItr == null)
+            {
+                Log.Logger.Error($"Table `hotfix_optional_data` references non-allowed optional data key 0x{optionalData.Key:X} for DB2 store by hash 0x{tableHash:X} and RecordID: {recordId}");
+
+                continue;
+            }
+
+            optionalData.Data = result.Read<byte[]>(4);
+
+            if (!allowedHotfixItr.Item2(optionalData.Data))
+            {
+                Log.Logger.Error($"Table `hotfix_optional_data` contains invalid data for DB2 store 0x{tableHash:X}, RecordID: {recordId} and Key: 0x{optionalData.Key:X}");
+
+                continue;
+            }
+
+            _hotfixOptionalData[(int)locale].Add((tableHash, (int)recordId), optionalData);
+            hotfixOptionalDataCount++;
+        } while (result.NextRow());
+
+        Log.Logger.Information($"Loaded {hotfixOptionalDataCount} hotfix optional data records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
     public void LoadStores(CliDB cliDB)
@@ -770,1156 +2259,24 @@ public class DB2Manager
         foreach (var entry in _cliDB.WMOAreaTableStorage.Values)
             _wmoAreaTableLookup[Tuple.Create((short)entry.WmoID, (sbyte)entry.NameSetID, entry.WmoGroupID)] = entry;
     }
-
-    public IDB2Storage GetStorage(uint type)
+    public void Map2ZoneCoordinates(int areaId, ref float x, ref float y)
     {
-        return Storage.LookupByKey(type);
+        if (!GetUiMapPosition(x, y, 0.0f, -1, areaId, 0, 0, UiMapSystem.World, true, out Vector2 zoneCoords))
+            return;
+
+        x = zoneCoords.Y * 100.0f;
+        y = zoneCoords.X * 100.0f;
     }
 
-    public void LoadHotfixData()
+    public bool TryGetQuestsForQuestLine(uint questLineId, out List<QuestLineXQuestRecord> questLineXQuestRecords)
     {
-        var oldMSTime = Time.MSTime;
-
-        var result = _hotfixDatabase.Query("SELECT Id, UniqueId, TableHash, RecordId, Status FROM hotfix_data ORDER BY Id");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 hotfix info entries.");
-
-            return;
-        }
-
-        Dictionary<(uint tableHash, int recordId), bool> deletedRecords = new();
-
-        uint count = 0;
-
-        do
-        {
-            var id = result.Read<int>(0);
-            var uniqueId = result.Read<uint>(1);
-            var tableHash = result.Read<uint>(2);
-            var recordId = result.Read<int>(3);
-            var status = (HotfixRecord.Status)result.Read<byte>(4);
-
-            if (status == HotfixRecord.Status.Valid && !Storage.ContainsKey(tableHash))
-                if (!_hotfixBlob.Any(p => p.ContainsKey((tableHash, recordId))))
-                {
-                    Log.Logger.Error($"Table `hotfix_data` references unknown DB2 store by hash 0x{tableHash:X} and has no reference to `hotfix_blob` in hotfix id {id} with RecordID: {recordId}");
-
-                    continue;
-                }
-
-            HotfixRecord hotfixRecord = new()
-            {
-                TableHash = tableHash,
-                RecordID = recordId
-            };
-
-            hotfixRecord.ID.PushID = id;
-            hotfixRecord.ID.UniqueID = uniqueId;
-            hotfixRecord.HotfixStatus = status;
-
-            _hotfixData.Add(id, hotfixRecord);
-            deletedRecords[(tableHash, recordId)] = status == HotfixRecord.Status.RecordRemoved;
-
-            ++count;
-        } while (result.NextRow());
-
-        foreach (var itr in deletedRecords)
-            if (itr.Value)
-            {
-                var store = Storage.LookupByKey(itr.Key.tableHash);
-
-                store?.EraseRecord((uint)itr.Key.recordId);
-            }
-
-        Log.Logger.Information("Loaded {0} hotfix info entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadHotfixBlob(BitSet availableDb2Locales)
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _hotfixDatabase.Query("SELECT TableHash, RecordId, locale, `Blob` FROM hotfix_blob ORDER BY TableHash");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 hotfix blob entries.");
-
-            return;
-        }
-
-        uint hotfixBlobCount = 0;
-
-        do
-        {
-            var tableHash = result.Read<uint>(0);
-            var recordId = result.Read<int>(1);
-            var localeName = result.Read<string>(2);
-
-            var storeItr = Storage.LookupByKey(tableHash);
-
-            if (storeItr != null)
-            {
-                Log.Logger.Warning($"Table hash 0x{tableHash:X}({tableHash}) points to a loaded DB2 store {storeItr.GetName()} {recordId}:{localeName}, fill related table instead of hotfix_blob");
-
-                continue;
-            }
-
-            var locale = localeName.ToEnum<Locale>();
-
-            if (!SharedConst.IsValidLocale(locale))
-            {
-                Log.Logger.Warning($"`hotfix_blob` contains invalid locale: {localeName} at TableHash: 0x{tableHash:X} and RecordID: {recordId}");
-
-                continue;
-            }
-
-            if (!availableDb2Locales[(int)locale])
-                continue;
-
-            _hotfixBlob[(int)locale][(tableHash, recordId)] = result.Read<byte[]>(3);
-            hotfixBlobCount++;
-        } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {hotfixBlobCount} hotfix blob records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-    }
-
-    public void LoadHotfixOptionalData(BitSet availableDb2Locales)
-    {
-        // Register allowed optional data keys
-        _allowedHotfixOptionalData.Add(_cliDB.BroadcastTextStorage.GetTableHash(), Tuple.Create(_cliDB.TactKeyStorage.GetTableHash(), (AllowedHotfixOptionalData)ValidateBroadcastTextTactKeyOptionalData));
-
-        var oldMSTime = Time.MSTime;
-
-        var result = _hotfixDatabase.Query("SELECT TableHash, RecordId, locale, `Key`, `Data` FROM hotfix_optional_data ORDER BY TableHash");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 hotfix optional data records.");
-
-            return;
-        }
-
-        uint hotfixOptionalDataCount = 0;
-
-        do
-        {
-            var tableHash = result.Read<uint>(0);
-            var allowedHotfixes = _allowedHotfixOptionalData.LookupByKey(tableHash);
-
-            if (allowedHotfixes.Empty())
-            {
-                Log.Logger.Error($"Table `hotfix_optional_data` references DB2 store by hash 0x{tableHash:X} that is not allowed to have optional data");
-
-                continue;
-            }
-
-            var recordId = result.Read<uint>(1);
-            var db2Storage = Storage.LookupByKey(tableHash);
-
-            if (db2Storage == null)
-            {
-                Log.Logger.Error($"Table `hotfix_optional_data` references unknown DB2 store by hash 0x{tableHash:X} with RecordID: {recordId}");
-
-                continue;
-            }
-
-            var localeName = result.Read<string>(2);
-            var locale = localeName.ToEnum<Locale>();
-
-            if (!SharedConst.IsValidLocale(locale))
-            {
-                Log.Logger.Error($"`hotfix_optional_data` contains invalid locale: {localeName} at TableHash: 0x{tableHash:X} and RecordID: {recordId}");
-
-                continue;
-            }
-
-            if (!availableDb2Locales[(int)locale])
-                continue;
-
-            HotfixOptionalData optionalData = new()
-            {
-                Key = result.Read<uint>(3)
-            };
-
-            var allowedHotfixItr = allowedHotfixes.Find(v => { return v.Item1 == optionalData.Key; });
-
-            if (allowedHotfixItr == null)
-            {
-                Log.Logger.Error($"Table `hotfix_optional_data` references non-allowed optional data key 0x{optionalData.Key:X} for DB2 store by hash 0x{tableHash:X} and RecordID: {recordId}");
-
-                continue;
-            }
-
-            optionalData.Data = result.Read<byte[]>(4);
-
-            if (!allowedHotfixItr.Item2(optionalData.Data))
-            {
-                Log.Logger.Error($"Table `hotfix_optional_data` contains invalid data for DB2 store 0x{tableHash:X}, RecordID: {recordId} and Key: 0x{optionalData.Key:X}");
-
-                continue;
-            }
-
-            _hotfixOptionalData[(int)locale].Add((tableHash, (int)recordId), optionalData);
-            hotfixOptionalDataCount++;
-        } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {hotfixOptionalDataCount} hotfix optional data records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+        return _questsByQuestLine.TryGetValue(questLineId, out questLineXQuestRecords);
     }
 
     public bool ValidateBroadcastTextTactKeyOptionalData(byte[] data)
     {
         return data.Length == 8 + 16;
     }
-
-    public uint GetHotfixCount()
-    {
-        return (uint)_hotfixData.Count;
-    }
-
-    public MultiMap<int, HotfixRecord> GetHotfixData()
-    {
-        return _hotfixData;
-    }
-
-    public byte[] GetHotfixBlobData(uint tableHash, int recordId, Locale locale)
-    {
-        return _hotfixBlob[(int)locale].LookupByKey((tableHash, recordId));
-    }
-
-    public List<HotfixOptionalData> GetHotfixOptionalData(uint tableHash, uint recordId, Locale locale)
-    {
-        return _hotfixOptionalData[(int)locale].LookupByKey((tableHash, (int)recordId));
-    }
-
-    public uint GetEmptyAnimStateID()
-    {
-        return _cliDB.AnimationDataStorage.GetNumRows();
-    }
-
-    public List<uint> GetAreasForGroup(uint areaGroupId)
-    {
-        return _areaGroupMembers.LookupByKey(areaGroupId);
-    }
-
-    public List<AreaPOIRecord> GetAreaPoiID(uint areaId)
-    {
-        return _areaPOIRecords.LookupByKey(areaId);
-    }
-
-    public bool IsInArea(uint objectAreaId, uint areaId)
-    {
-        do
-        {
-            if (objectAreaId == areaId)
-                return true;
-
-            var objectArea = _cliDB.AreaTableStorage.LookupByKey(objectAreaId);
-
-            if (objectArea == null)
-                break;
-
-            objectAreaId = objectArea.ParentAreaID;
-        } while (objectAreaId != 0);
-
-        return false;
-    }
-
-    public List<ArtifactPowerRecord> GetArtifactPowers(byte artifactId)
-    {
-        return _artifactPowers.LookupByKey(artifactId);
-    }
-
-    public List<uint> GetArtifactPowerLinks(uint artifactPowerId)
-    {
-        return _artifactPowerLinks.LookupByKey(artifactPowerId);
-    }
-
-    public ArtifactPowerRankRecord GetArtifactPowerRank(uint artifactPowerId, byte rank)
-    {
-        return _artifactPowerRanks.LookupByKey(Tuple.Create(artifactPowerId, rank));
-    }
-
-    public AzeriteEmpoweredItemRecord GetAzeriteEmpoweredItem(uint itemId)
-    {
-        return _azeriteEmpoweredItems.LookupByKey(itemId);
-    }
-
-    public bool IsAzeriteItem(uint itemId)
-    {
-        return _cliDB.AzeriteItemStorage.Any(pair => pair.Value.ItemID == itemId);
-    }
-
-    public AzeriteEssencePowerRecord GetAzeriteEssencePower(uint azeriteEssenceId, uint rank)
-    {
-        return _azeriteEssencePowersByIdAndRank.LookupByKey((azeriteEssenceId, rank));
-    }
-
-    public List<AzeriteItemMilestonePowerRecord> GetAzeriteItemMilestonePowers()
-    {
-        return _azeriteItemMilestonePowers;
-    }
-
-    public AzeriteItemMilestonePowerRecord GetAzeriteItemMilestonePower(int slot)
-    {
-        //ASSERT(slot < MAX_AZERITE_ESSENCE_SLOT, "Slot %u must be lower than MAX_AZERITE_ESSENCE_SLOT (%u)", uint32(slot), MAX_AZERITE_ESSENCE_SLOT);
-        return _azeriteItemMilestonePowerByEssenceSlot[slot];
-    }
-
-    public List<AzeritePowerSetMemberRecord> GetAzeritePowers(uint itemId)
-    {
-        var azeriteEmpoweredItem = GetAzeriteEmpoweredItem(itemId);
-
-        if (azeriteEmpoweredItem != null)
-            return _azeritePowers.LookupByKey(azeriteEmpoweredItem.AzeritePowerSetID);
-
-        return null;
-    }
-
-    public uint GetRequiredAzeriteLevelForAzeritePowerTier(uint azeriteUnlockSetId, ItemContext context, uint tier)
-    {
-        //ASSERT(tier < MAX_AZERITE_EMPOWERED_TIER);
-        var levels = _azeriteTierUnlockLevels.LookupByKey((azeriteUnlockSetId, context));
-
-        if (levels != null)
-            return levels[tier];
-
-        var azeriteTierUnlockSet = _cliDB.AzeriteTierUnlockSetStorage.LookupByKey(azeriteUnlockSetId);
-
-        if (azeriteTierUnlockSet != null && azeriteTierUnlockSet.Flags.HasAnyFlag(AzeriteTierUnlockSetFlags.Default))
-        {
-            levels = _azeriteTierUnlockLevels.LookupByKey((azeriteUnlockSetId, ItemContext.None));
-
-            if (levels != null)
-                return levels[tier];
-        }
-
-        return _cliDB.AzeriteLevelInfoStorage.GetNumRows();
-    }
-
-    public string GetBroadcastTextValue(BroadcastTextRecord broadcastText, Locale locale = Locale.enUS, Gender gender = Gender.Male, bool forceGender = false)
-    {
-        if ((gender == Gender.Female || gender == Gender.None) && (forceGender || broadcastText.Text1.HasString()))
-        {
-            if (broadcastText.Text1.HasString(locale))
-                return broadcastText.Text1[locale];
-
-            return broadcastText.Text1[SharedConst.DefaultLocale];
-        }
-
-        if (broadcastText.Text.HasString(locale))
-            return broadcastText.Text[locale];
-
-        return broadcastText.Text[SharedConst.DefaultLocale];
-    }
-
-    public int GetBroadcastTextDuration(int broadcastTextId, Locale locale = Locale.enUS)
-    {
-        return _broadcastTextDurations.LookupByKey((broadcastTextId, SharedConst.WowLocaleToCascLocaleBit[(int)locale]));
-    }
-
-    public ChrClassUIDisplayRecord GetUiDisplayForClass(PlayerClass unitClass)
-    {
-        return _uiDisplayByClass[(int)unitClass];
-    }
-
-    public string GetClassName(PlayerClass playerClass, Locale locale = Locale.enUS)
-    {
-        var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)playerClass);
-
-        if (classEntry == null)
-            return "";
-
-        if (classEntry.Name[locale][0] != '\0')
-            return classEntry.Name[locale];
-
-        return classEntry.Name[Locale.enUS];
-    }
-
-    public uint GetPowerIndexByClass(PowerType powerType, PlayerClass classId)
-    {
-        return _powersByClass[(int)classId][(int)powerType];
-    }
-
-    public List<ChrCustomizationChoiceRecord> GetCustomiztionChoices(uint chrCustomizationOptionId)
-    {
-        return _chrCustomizationChoicesByOption.LookupByKey(chrCustomizationOptionId);
-    }
-
-    public List<ChrCustomizationOptionRecord> GetCustomiztionOptions(Race race, Gender gender)
-    {
-        return _chrCustomizationOptionsByRaceAndGender.LookupByKey(Tuple.Create((byte)race, (byte)gender));
-    }
-
-    public MultiMap<uint, uint> GetRequiredCustomizationChoices(uint chrCustomizationReqId)
-    {
-        return _chrCustomizationRequiredChoices.LookupByKey(chrCustomizationReqId);
-    }
-
-    public ChrModelRecord GetChrModel(Race race, Gender gender)
-    {
-        return _chrModelsByRaceAndGender.LookupByKey(Tuple.Create((byte)race, (byte)gender));
-    }
-
-    public string GetChrRaceName(Race race, Locale locale = Locale.enUS)
-    {
-        var raceEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)race);
-
-        if (raceEntry == null)
-            return "";
-
-        if (raceEntry.Name[locale][0] != '\0')
-            return raceEntry.Name[locale];
-
-        return raceEntry.Name[Locale.enUS];
-    }
-
-    public ChrSpecializationRecord GetChrSpecializationByIndex(PlayerClass playerClass, uint index)
-    {
-        return _chrSpecializationsByIndex[(int)playerClass][index];
-    }
-
-    public ChrSpecializationRecord GetDefaultChrSpecializationForClass(PlayerClass playerClass)
-    {
-        return GetChrSpecializationByIndex(playerClass, PlayerConst.InitialSpecializationIndex);
-    }
-
-    public ContentTuningLevels? GetContentTuningData(uint contentTuningId, uint replacementConditionMask, bool forItem = false)
-    {
-        var contentTuning = _cliDB.ContentTuningStorage.LookupByKey(contentTuningId);
-
-        if (contentTuning == null)
-            return null;
-
-        if (forItem && contentTuning.GetFlags().HasFlag(ContentTuningFlag.DisabledForItem))
-            return null;
-
-        int GetLevelAdjustment(ContentTuningCalcType type) => type switch
-        {
-            ContentTuningCalcType.PlusOne                  => 1,
-            ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)),
-            _                                              => 0
-        };
-
-        ContentTuningLevels levels = new()
-        {
-            MinLevel = (short)(contentTuning.MinLevel + GetLevelAdjustment((ContentTuningCalcType)contentTuning.MinLevelType)),
-            MaxLevel = (short)(contentTuning.MaxLevel + GetLevelAdjustment((ContentTuningCalcType)contentTuning.MaxLevelType))
-        };
-
-        levels.MinLevelWithDelta = (short)Math.Clamp(levels.MinLevel + contentTuning.TargetLevelDelta, 1, SharedConst.MaxLevel);
-        levels.MaxLevelWithDelta = (short)Math.Clamp(levels.MaxLevel + contentTuning.TargetLevelMaxDelta, 1, SharedConst.MaxLevel);
-
-        // clamp after calculating levels with delta (delta can bring "overflown" level back into correct range)
-        levels.MinLevel = (short)Math.Clamp((int)levels.MinLevel, 1, SharedConst.MaxLevel);
-        levels.MaxLevel = (short)Math.Clamp((int)levels.MaxLevel, 1, SharedConst.MaxLevel);
-
-        if (contentTuning.TargetLevelMin != 0)
-            levels.TargetLevelMin = (short)contentTuning.TargetLevelMin;
-        else
-            levels.TargetLevelMin = levels.MinLevelWithDelta;
-
-        if (contentTuning.TargetLevelMax != 0)
-            levels.TargetLevelMax = (short)contentTuning.TargetLevelMax;
-        else
-            levels.TargetLevelMax = levels.MaxLevelWithDelta;
-
-        return levels;
-    }
-
-    public string GetCreatureFamilyPetName(CreatureFamily petfamily, Locale locale)
-    {
-        if (petfamily == CreatureFamily.None)
-            return null;
-
-        var petFamily = _cliDB.CreatureFamilyStorage.LookupByKey((uint)petfamily);
-
-        if (petFamily == null)
-            return "";
-
-        return petFamily.Name[locale][0] != '\0' ? petFamily.Name[locale] : "";
-    }
-
-    public CurrencyContainerRecord GetCurrencyContainerForCurrencyQuantity(uint currencyId, int quantity)
-    {
-        foreach (var record in _currencyContainers.LookupByKey(currencyId))
-            if (quantity >= record.MinAmount && (record.MaxAmount == 0 || quantity <= record.MaxAmount))
-                return record;
-
-        return null;
-    }
-
-    public Tuple<float, float> GetCurveXAxisRange(uint curveId)
-    {
-        var points = _curvePoints.LookupByKey(curveId);
-
-        if (!points.Empty())
-            return Tuple.Create(points.First().Pos.X, points.Last().Pos.X);
-
-        return Tuple.Create(0.0f, 0.0f);
-    }
-
-    public float GetCurveValueAt(uint curveId, float x)
-    {
-        var points = _curvePoints.LookupByKey(curveId);
-
-        if (points.Empty())
-            return 0.0f;
-
-        var curve = _cliDB.CurveStorage.LookupByKey(curveId);
-
-        switch (DetermineCurveType(curve, points))
-        {
-            case CurveInterpolationMode.Linear:
-            {
-                var pointIndex = 0;
-
-                while (pointIndex < points.Count && points[pointIndex].Pos.X <= x)
-                    ++pointIndex;
-
-                if (pointIndex == 0)
-                    return points[0].Pos.Y;
-
-                if (pointIndex >= points.Count)
-                    return points.Last().Pos.Y;
-
-                var xDiff = points[pointIndex].Pos.X - points[pointIndex - 1].Pos.X;
-
-                if (xDiff == 0.0)
-                    return points[pointIndex].Pos.Y;
-
-                return (((x - points[pointIndex - 1].Pos.X) / xDiff) * (points[pointIndex].Pos.Y - points[pointIndex - 1].Pos.Y)) + points[pointIndex - 1].Pos.Y;
-            }
-            case CurveInterpolationMode.Cosine:
-            {
-                var pointIndex = 0;
-
-                while (pointIndex < points.Count && points[pointIndex].Pos.X <= x)
-                    ++pointIndex;
-
-                if (pointIndex == 0)
-                    return points[0].Pos.Y;
-
-                if (pointIndex >= points.Count)
-                    return points.Last().Pos.Y;
-
-                var xDiff = points[pointIndex].Pos.X - points[pointIndex - 1].Pos.X;
-
-                if (xDiff == 0.0)
-                    return points[pointIndex].Pos.Y;
-
-                return (float)((points[pointIndex].Pos.Y - points[pointIndex - 1].Pos.Y) * (1.0f - Math.Cos((x - points[pointIndex - 1].Pos.X) / xDiff * Math.PI)) * 0.5f) + points[pointIndex - 1].Pos.Y;
-            }
-            case CurveInterpolationMode.CatmullRom:
-            {
-                var pointIndex = 1;
-
-                while (pointIndex < points.Count && points[pointIndex].Pos.X <= x)
-                    ++pointIndex;
-
-                if (pointIndex == 1)
-                    return points[1].Pos.Y;
-
-                if (pointIndex >= points.Count - 1)
-                    return points[^2].Pos.Y;
-
-                var xDiff = points[pointIndex].Pos.X - points[pointIndex - 1].Pos.X;
-
-                if (xDiff == 0.0)
-                    return points[pointIndex].Pos.Y;
-
-                var mu = (x - points[pointIndex - 1].Pos.X) / xDiff;
-                var a0 = -0.5f * points[pointIndex - 2].Pos.Y + 1.5f * points[pointIndex - 1].Pos.Y - 1.5f * points[pointIndex].Pos.Y + 0.5f * points[pointIndex + 1].Pos.Y;
-                var a1 = points[pointIndex - 2].Pos.Y - 2.5f * points[pointIndex - 1].Pos.Y + 2.0f * points[pointIndex].Pos.Y - 0.5f * points[pointIndex + 1].Pos.Y;
-                var a2 = -0.5f * points[pointIndex - 2].Pos.Y + 0.5f * points[pointIndex].Pos.Y;
-                var a3 = points[pointIndex - 1].Pos.Y;
-
-                return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
-            }
-            case CurveInterpolationMode.Bezier3:
-            {
-                var xDiff = points[2].Pos.X - points[0].Pos.X;
-
-                if (xDiff == 0.0)
-                    return points[1].Pos.Y;
-
-                var mu = (x - points[0].Pos.X) / xDiff;
-
-                return ((1.0f - mu) * (1.0f - mu) * points[0].Pos.Y) + (1.0f - mu) * 2.0f * mu * points[1].Pos.Y + mu * mu * points[2].Pos.Y;
-            }
-            case CurveInterpolationMode.Bezier4:
-            {
-                var xDiff = points[3].Pos.X - points[0].Pos.X;
-
-                if (xDiff == 0.0)
-                    return points[1].Pos.Y;
-
-                var mu = (x - points[0].Pos.X) / xDiff;
-
-                return (1.0f - mu) * (1.0f - mu) * (1.0f - mu) * points[0].Pos.Y + 3.0f * mu * (1.0f - mu) * (1.0f - mu) * points[1].Pos.Y + 3.0f * mu * mu * (1.0f - mu) * points[2].Pos.Y + mu * mu * mu * points[3].Pos.Y;
-            }
-            case CurveInterpolationMode.Bezier:
-            {
-                var xDiff = points.Last().Pos.X - points[0].Pos.X;
-
-                if (xDiff == 0.0f)
-                    return points.Last().Pos.Y;
-
-                var tmp = new float[points.Count];
-
-                for (var c = 0; c < points.Count; ++c)
-                    tmp[c] = points[c].Pos.Y;
-
-                var mu = (x - points[0].Pos.X) / xDiff;
-                var i = points.Count - 1;
-
-                while (i > 0)
-                {
-                    for (var k = 0; k < i; ++k)
-                    {
-                        var val = tmp[k] + mu * (tmp[k + 1] - tmp[k]);
-                        tmp[k] = val;
-                    }
-
-                    --i;
-                }
-
-                return tmp[0];
-            }
-            case CurveInterpolationMode.Constant:
-                return points[0].Pos.Y;
-        }
-
-        return 0.0f;
-    }
-
-    public EmotesTextSoundRecord GetTextSoundEmoteFor(uint emote, Race race, Gender gender, PlayerClass playerClass)
-    {
-        var emoteTextSound = _emoteTextSounds.LookupByKey(Tuple.Create(emote, (byte)race, (byte)gender, (byte)playerClass));
-
-        if (emoteTextSound != null)
-            return emoteTextSound;
-
-        if (_emoteTextSounds.TryGetValue(Tuple.Create(emote, (byte)race, (byte)gender, (byte)0), out emoteTextSound))
-            return emoteTextSound;
-
-        return null;
-    }
-
-    public float EvaluateExpectedStat(ExpectedStatType stat, uint level, int expansion, uint contentTuningId, PlayerClass unitClass)
-    {
-        var expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, expansion));
-
-        if (expectedStatRecord == null)
-            expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, -2));
-
-        if (expectedStatRecord == null)
-            return 1.0f;
-
-        ExpectedStatModRecord classMod = null;
-
-        switch (unitClass)
-        {
-            case PlayerClass.Warrior:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(4u);
-
-                break;
-            case PlayerClass.Paladin:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(2u);
-
-                break;
-            case PlayerClass.Rogue:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(3u);
-
-                break;
-            case PlayerClass.Mage:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(1u);
-
-                break;
-        }
-
-        var contentTuningMods = _expectedStatModsByContentTuning.LookupByKey(contentTuningId);
-        var value = 0.0f;
-
-        switch (stat)
-        {
-            case ExpectedStatType.CreatureHealth:
-                value = expectedStatRecord.CreatureHealth;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.CreatureHealthMod;
-
-                break;
-            case ExpectedStatType.PlayerHealth:
-                value = expectedStatRecord.PlayerHealth;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.PlayerHealthMod;
-
-                break;
-            case ExpectedStatType.CreatureAutoAttackDps:
-                value = expectedStatRecord.CreatureAutoAttackDps;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.CreatureAutoAttackDPSMod;
-
-                break;
-            case ExpectedStatType.CreatureArmor:
-                value = expectedStatRecord.CreatureArmor;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.CreatureArmorMod;
-
-                break;
-            case ExpectedStatType.PlayerMana:
-                value = expectedStatRecord.PlayerMana;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.PlayerManaMod;
-
-                break;
-            case ExpectedStatType.PlayerPrimaryStat:
-                value = expectedStatRecord.PlayerPrimaryStat;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.PlayerPrimaryStatMod;
-
-                break;
-            case ExpectedStatType.PlayerSecondaryStat:
-                value = expectedStatRecord.PlayerSecondaryStat;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.PlayerSecondaryStatMod;
-
-                break;
-            case ExpectedStatType.ArmorConstant:
-                value = expectedStatRecord.ArmorConstant;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.ArmorConstantMod;
-
-                break;
-            case ExpectedStatType.None:
-                break;
-            case ExpectedStatType.CreatureSpellDamage:
-                value = expectedStatRecord.CreatureSpellDamage;
-
-                if (!contentTuningMods.Empty())
-                    value *= contentTuningMods.Sum(expectedStatMod => ExpectedStatModReducer(1.0f, expectedStatMod, stat));
-
-                if (classMod != null)
-                    value *= classMod.CreatureSpellDamageMod;
-
-                break;
-        }
-
-        return value;
-    }
-
-    public List<uint> GetFactionTeamList(uint faction)
-    {
-        return _factionTeams.LookupByKey(faction);
-    }
-
-    public List<FriendshipRepReactionRecord> GetFriendshipRepReactions(uint friendshipRepID)
-    {
-        return _friendshipRepReactions.LookupByKey(friendshipRepID);
-    }
-
-    public uint GetGlobalCurveId(GlobalCurve globalCurveType)
-    {
-        foreach (var globalCurveEntry in _cliDB.GlobalCurveStorage.Values)
-            if (globalCurveEntry.Type == globalCurveType)
-                return globalCurveEntry.CurveID;
-
-        return 0;
-    }
-
-    public List<uint> GetGlyphBindableSpells(uint glyphPropertiesId)
-    {
-        return _glyphBindableSpells.LookupByKey(glyphPropertiesId);
-    }
-
-    public List<uint> GetGlyphRequiredSpecs(uint glyphPropertiesId)
-    {
-        return _glyphRequiredSpecs.LookupByKey(glyphPropertiesId);
-    }
-
-    public HeirloomRecord GetHeirloomByItemId(uint itemId)
-    {
-        return _heirlooms.LookupByKey(itemId);
-    }
-
-    public List<ItemBonusRecord> GetItemBonusList(uint bonusListId)
-    {
-        return _itemBonusLists.LookupByKey(bonusListId);
-    }
-
-    public List<ItemBonusTreeNodeRecord> GetItemBonusSet(uint itemBonusTreeId)
-    {
-        return _itemBonusTrees.LookupByKey(itemBonusTreeId);
-    }
-
-    public uint GetItemBonusListForItemLevelDelta(short delta)
-    {
-        return _itemLevelDeltaToBonusListContainer.LookupByKey(delta);
-    }
-
-    public List<uint> GetDefaultItemBonusTree(uint itemId, ItemContext itemContext)
-    {
-        List<uint> bonusListIDs = new();
-
-        var proto = _cliDB.ItemSparseStorage.LookupByKey(itemId);
-
-        if (proto == null)
-            return bonusListIDs;
-
-        var itemIdRange = _itemToBonusTree.LookupByKey(itemId);
-
-        if (itemIdRange == null)
-            return bonusListIDs;
-
-        ushort itemLevelSelectorId = 0;
-
-        foreach (var itemBonusTreeId in itemIdRange)
-        {
-            uint matchingNodes = 0;
-
-            VisitItemBonusTree(itemBonusTreeId,
-                               false,
-                               bonusTreeNode =>
-                               {
-                                   if ((ItemContext)bonusTreeNode.ItemContext == ItemContext.None || itemContext == (ItemContext)bonusTreeNode.ItemContext)
-                                       ++matchingNodes;
-                               });
-
-            if (matchingNodes != 1)
-                continue;
-
-            VisitItemBonusTree(itemBonusTreeId,
-                               true,
-                               bonusTreeNode =>
-                               {
-                                   var requiredContext = (ItemContext)bonusTreeNode.ItemContext != ItemContext.ForceToNone ? (ItemContext)bonusTreeNode.ItemContext : ItemContext.None;
-
-                                   if ((ItemContext)bonusTreeNode.ItemContext != ItemContext.None && itemContext != requiredContext)
-                                       return;
-
-                                   if (bonusTreeNode.ChildItemBonusListID != 0)
-                                       bonusListIDs.Add(bonusTreeNode.ChildItemBonusListID);
-                                   else if (bonusTreeNode.ChildItemLevelSelectorID != 0)
-                                       itemLevelSelectorId = bonusTreeNode.ChildItemLevelSelectorID;
-                               });
-        }
-
-        var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(itemLevelSelectorId);
-
-        if (selector != null)
-        {
-            var delta = (short)(selector.MinItemLevel - proto.ItemLevel);
-
-            var bonus = GetItemBonusListForItemLevelDelta(delta);
-
-            if (bonus != 0)
-                bonusListIDs.Add(bonus);
-
-            var selectorQualitySet = _cliDB.ItemLevelSelectorQualitySetStorage.LookupByKey(selector.ItemLevelSelectorQualitySetID);
-
-            if (selectorQualitySet != null)
-            {
-                var itemSelectorQualities = _itemLevelQualitySelectorQualities.LookupByKey(selector.ItemLevelSelectorQualitySetID);
-
-                if (itemSelectorQualities != null)
-                {
-                    var quality = ItemQuality.Uncommon;
-
-                    if (selector.MinItemLevel >= selectorQualitySet.IlvlEpic)
-                        quality = ItemQuality.Epic;
-                    else if (selector.MinItemLevel >= selectorQualitySet.IlvlRare)
-                        quality = ItemQuality.Rare;
-
-                    var itemSelectorQuality = itemSelectorQualities.Find(p => p.Quality < (sbyte)quality);
-
-                    if (itemSelectorQuality != null)
-                        bonusListIDs.Add(itemSelectorQuality.QualityItemBonusListID);
-                }
-            }
-
-            var azeriteUnlockMapping = _azeriteUnlockMappings.LookupByKey((proto.Id, itemContext));
-
-            if (azeriteUnlockMapping != null)
-                switch (proto.inventoryType)
-                {
-                    case InventoryType.Head:
-                        bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListHead);
-
-                        break;
-                    case InventoryType.Shoulders:
-                        bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListShoulders);
-
-                        break;
-                    case InventoryType.Chest:
-                    case InventoryType.Robe:
-                        bonusListIDs.Add(azeriteUnlockMapping.ItemBonusListChest);
-
-                        break;
-                }
-        }
-
-        return bonusListIDs;
-    }
-
-    public List<uint> GetAllItemBonusTreeBonuses(uint itemBonusTreeId)
-    {
-        List<uint> bonusListIDs = new();
-
-        VisitItemBonusTree(itemBonusTreeId,
-                           true,
-                           bonusTreeNode =>
-                           {
-                               if (bonusTreeNode.ChildItemBonusListID != 0)
-                                   bonusListIDs.Add(bonusTreeNode.ChildItemBonusListID);
-                           });
-
-        return bonusListIDs;
-    }
-
-    public ItemChildEquipmentRecord GetItemChildEquipment(uint itemId)
-    {
-        return _itemChildEquipment.LookupByKey(itemId);
-    }
-
-    public ItemClassRecord GetItemClassByOldEnum(ItemClass itemClass)
-    {
-        return _itemClassByOldEnum[(int)itemClass];
-    }
-
-    public List<ItemLimitCategoryConditionRecord> GetItemLimitCategoryConditions(uint categoryId)
-    {
-        return _itemCategoryConditions.LookupByKey(categoryId);
-    }
-
-    public uint GetItemDisplayId(uint itemId, uint appearanceModId)
-    {
-        var modifiedAppearance = GetItemModifiedAppearance(itemId, appearanceModId);
-
-        if (modifiedAppearance != null)
-        {
-            var itemAppearance = _cliDB.ItemAppearanceStorage.LookupByKey((uint)modifiedAppearance.ItemAppearanceID);
-
-            if (itemAppearance != null)
-                return itemAppearance.ItemDisplayInfoID;
-        }
-
-        return 0;
-    }
-
-    public ItemModifiedAppearanceRecord GetItemModifiedAppearance(uint itemId, uint appearanceModId)
-    {
-        var itemModifiedAppearance = _itemModifiedAppearancesByItem.LookupByKey(itemId | (appearanceModId << 24));
-
-        if (itemModifiedAppearance != null)
-            return itemModifiedAppearance;
-
-        // Fall back to unmodified appearance
-        if (appearanceModId != 0)
-        {
-            itemModifiedAppearance = _itemModifiedAppearancesByItem.LookupByKey(itemId);
-
-            if (itemModifiedAppearance != null)
-                return itemModifiedAppearance;
-        }
-
-        return null;
-    }
-
-    public ItemModifiedAppearanceRecord GetDefaultItemModifiedAppearance(uint itemId)
-    {
-        return _itemModifiedAppearancesByItem.LookupByKey(itemId);
-    }
-
-    public List<ItemSetSpellRecord> GetItemSetSpells(uint itemSetId)
-    {
-        return _itemSetSpells.LookupByKey(itemSetId);
-    }
-
-    public List<ItemSpecOverrideRecord> GetItemSpecOverrides(uint itemId)
-    {
-        return _itemSpecOverrides.LookupByKey(itemId);
-    }
-
-    public JournalTierRecord GetJournalTier(uint index)
-    {
-        if (index < _journalTiersByIndex.Count)
-            return _journalTiersByIndex[(int)index];
-
-        return null;
-    }
-
-    public LFGDungeonsRecord GetLfgDungeon(uint mapId, Difficulty difficulty)
-    {
-        foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values)
-            if (dungeon.MapID == mapId && dungeon.DifficultyID == difficulty)
-                return dungeon;
-
-        return null;
-    }
-
-    public uint GetDefaultMapLight(uint mapId)
-    {
-        foreach (var light in _cliDB.LightStorage.Values.Reverse())
-            if (light.ContinentID == mapId && light.GameCoords.X == 0.0f && light.GameCoords is { Y: 0.0f, Z: 0.0f })
-                return light.Id;
-
-        return 0;
-    }
-
-    public uint GetLiquidFlags(uint liquidType)
-    {
-        var liq = _cliDB.LiquidTypeStorage.LookupByKey(liquidType);
-
-        if (liq != null)
-            return 1u << liq.SoundBank;
-
-        return 0;
-    }
-
-    public MapDifficultyRecord GetDefaultMapDifficulty(uint mapId)
-    {
-        var notUsed = Difficulty.None;
-
-        return GetDefaultMapDifficulty(mapId, ref notUsed);
-    }
-
-    public MapDifficultyRecord GetDefaultMapDifficulty(uint mapId, ref Difficulty difficulty)
-    {
-        var dicMapDiff = _mapDifficulties.LookupByKey(mapId);
-
-        if (dicMapDiff == null)
-            return null;
-
-        if (dicMapDiff.Empty())
-            return null;
-
-        foreach (var pair in dicMapDiff)
-        {
-            var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(pair.Key);
-
-            if (difficultyEntry == null)
-                continue;
-
-            if (difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Default))
-            {
-                difficulty = (Difficulty)pair.Key;
-
-                return pair.Value;
-            }
-        }
-
-        difficulty = (Difficulty)dicMapDiff.First().Key;
-
-        return dicMapDiff.First().Value;
-    }
-
-    public MapDifficultyRecord GetMapDifficultyData(uint mapId, Difficulty difficulty)
-    {
-        var dictionaryMapDiff = _mapDifficulties.LookupByKey(mapId);
-
-        var mapDifficulty = dictionaryMapDiff?.LookupByKey((uint)difficulty);
-
-        return mapDifficulty;
-    }
-
-    public MapDifficultyRecord GetDownscaledMapDifficultyData(uint mapId, ref Difficulty difficulty)
-    {
-        var diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)difficulty);
-
-        if (diffEntry == null)
-            return GetDefaultMapDifficulty(mapId, ref difficulty);
-
-        var tmpDiff = difficulty;
-        var mapDiff = GetMapDifficultyData(mapId, tmpDiff);
-
-        while (mapDiff == null)
-        {
-            tmpDiff = (Difficulty)diffEntry.FallbackDifficultyID;
-            diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)tmpDiff);
-
-            if (diffEntry == null)
-                return GetDefaultMapDifficulty(mapId, ref difficulty);
-
-            // pull new data
-            mapDiff = GetMapDifficultyData(mapId, tmpDiff); // we are 10 normal or 25 normal
-        }
-
-        difficulty = tmpDiff;
-
-        return mapDiff;
-    }
-
-    public List<Tuple<uint, PlayerConditionRecord>> GetMapDifficultyConditions(uint mapDifficultyId)
-    {
-        return _mapDifficultyConditions.LookupByKey(mapDifficultyId);
-    }
-
-    public MountRecord GetMount(uint spellId)
-    {
-        return _mountsBySpellId.LookupByKey(spellId);
-    }
-
-    public MountRecord GetMountById(uint id)
-    {
-        return _cliDB.MountStorage.LookupByKey(id);
-    }
-
-    public List<MountTypeXCapabilityRecord> GetMountCapabilities(uint mountType)
-    {
-        return _mountCapabilitiesByType.LookupByKey(mountType);
-    }
-
-    public List<MountXDisplayRecord> GetMountDisplays(uint mountId)
-    {
-        return _mountDisplays.LookupByKey(mountId);
-    }
-
-    public string GetNameGenEntry(uint race, uint gender)
-    {
-        var listNameGen = _nameGenData.LookupByKey(race);
-
-        if (listNameGen == null)
-            return "";
-
-        if (listNameGen[gender].Empty())
-            return "";
-
-        return listNameGen[gender].SelectRandom().Name;
-    }
-
     public ResponseCodes ValidateName(string name, Locale locale)
     {
         foreach (var testName in _nameValidators[(int)locale])
@@ -1933,328 +2290,6 @@ public class DB2Manager
 
         return ResponseCodes.CharNameSuccess;
     }
-
-    public uint GetNumTalentsAtLevel(uint level, PlayerClass playerClass)
-    {
-        var numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LookupByKey(level);
-
-        if (numTalentsAtLevel == null)
-            numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LastOrDefault().Value;
-
-        if (numTalentsAtLevel != null)
-            return playerClass switch
-            {
-                PlayerClass.Deathknight => numTalentsAtLevel.NumTalentsDeathKnight,
-                PlayerClass.DemonHunter => numTalentsAtLevel.NumTalentsDemonHunter,
-                _                       => numTalentsAtLevel.NumTalents,
-            };
-
-        return 0;
-    }
-
-    public ParagonReputationRecord GetParagonReputation(uint factionId)
-    {
-        return _paragonReputations.LookupByKey(factionId);
-    }
-
-    public PvpDifficultyRecord GetBattlegroundBracketByLevel(uint mapid, uint level)
-    {
-        PvpDifficultyRecord maxEntry = null; // used for level > max listed level case
-
-        foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
-        {
-            // skip unrelated and too-high brackets
-            if (entry.MapID != mapid || entry.MinLevel > level)
-                continue;
-
-            // exactly fit
-            if (entry.MaxLevel >= level)
-                return entry;
-
-            // remember for possible out-of-range case (search higher from existed)
-            if (maxEntry == null || maxEntry.MaxLevel < entry.MaxLevel)
-                maxEntry = entry;
-        }
-
-        return maxEntry;
-    }
-
-    public PvpDifficultyRecord GetBattlegroundBracketById(uint mapid, BattlegroundBracketId id)
-    {
-        foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
-            if (entry.MapID == mapid && entry.GetBracketId() == id)
-                return entry;
-
-        return null;
-    }
-
-    public uint GetRequiredLevelForPvpTalentSlot(byte slot, PlayerClass playerClass)
-    {
-        if (_pvpTalentSlotUnlock[slot] != null)
-        {
-            switch (playerClass)
-            {
-                case PlayerClass.Deathknight:
-                    return _pvpTalentSlotUnlock[slot].DeathKnightLevelRequired;
-                case PlayerClass.DemonHunter:
-                    return _pvpTalentSlotUnlock[slot].DemonHunterLevelRequired;
-            }
-
-            return _pvpTalentSlotUnlock[slot].LevelRequired;
-        }
-
-        return 0;
-    }
-
-    public int GetPvpTalentNumSlotsAtLevel(uint level, PlayerClass playerClass)
-    {
-        var slots = 0;
-
-        for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
-            if (level >= GetRequiredLevelForPvpTalentSlot(slot, playerClass))
-                ++slots;
-
-        return slots;
-    }
-
-    public List<QuestLineXQuestRecord> GetQuestsForQuestLine(uint questLineId)
-    {
-        return _questsByQuestLine.LookupByKey(questLineId);
-    }
-
-    public bool TryGetQuestsForQuestLine(uint questLineId, out List<QuestLineXQuestRecord> questLineXQuestRecords)
-    {
-        return _questsByQuestLine.TryGetValue(questLineId, out questLineXQuestRecords);
-    }
-
-    public List<QuestPackageItemRecord> GetQuestPackageItems(uint questPackageID)
-    {
-        if (_questPackages.ContainsKey(questPackageID))
-            return _questPackages[questPackageID].Item1;
-
-        return null;
-    }
-
-    public List<QuestPackageItemRecord> GetQuestPackageItemsFallback(uint questPackageID)
-    {
-        return _questPackages.LookupByKey(questPackageID).Item2;
-    }
-
-    public uint GetQuestUniqueBitFlag(uint questId)
-    {
-        var v2 = _cliDB.QuestV2Storage.LookupByKey(questId);
-
-        if (v2 == null)
-            return 0;
-
-        return v2.UniqueBitFlag;
-    }
-
-    public List<uint> GetPhasesForGroup(uint group)
-    {
-        return _phasesByGroup.LookupByKey(group);
-    }
-
-    public PowerTypeRecord GetPowerTypeEntry(PowerType power)
-    {
-        if (!_powerTypes.ContainsKey(power))
-            return null;
-
-        return _powerTypes[power];
-    }
-
-    public PowerTypeRecord GetPowerTypeByName(string name)
-    {
-        foreach (var powerType in _cliDB.PowerTypeStorage.Values)
-        {
-            var powerName = powerType.NameGlobalStringTag;
-
-            if (powerName.ToLower() == name)
-                return powerType;
-
-            powerName = powerName.Replace("_", "");
-
-            if (powerName == name)
-                return powerType;
-        }
-
-        return null;
-    }
-
-    public byte GetPvpItemLevelBonus(uint itemId)
-    {
-        return _pvpItemBonus.LookupByKey(itemId);
-    }
-
-    public List<RewardPackXCurrencyTypeRecord> GetRewardPackCurrencyTypesByRewardID(uint rewardPackID)
-    {
-        return _rewardPackCurrencyTypes.LookupByKey(rewardPackID);
-    }
-
-    public List<RewardPackXItemRecord> GetRewardPackItemsByRewardID(uint rewardPackID)
-    {
-        return _rewardPackItems.LookupByKey(rewardPackID);
-    }
-
-    public ShapeshiftFormModelData GetShapeshiftFormModelData(Race race, Gender gender, ShapeShiftForm form)
-    {
-        return _chrCustomizationChoicesForShapeshifts.LookupByKey(Tuple.Create((byte)race, (byte)gender, (byte)form));
-    }
-
-    public List<SkillLineRecord> GetSkillLinesForParentSkill(uint parentSkillId)
-    {
-        return _skillLinesByParentSkillLine.LookupByKey(parentSkillId);
-    }
-
-    public List<SkillLineAbilityRecord> GetSkillLineAbilitiesBySkill(uint skillId)
-    {
-        return _skillLineAbilitiesBySkillupSkill.LookupByKey(skillId);
-    }
-
-    public SkillRaceClassInfoRecord GetSkillRaceClassInfo(uint skill, Race race, PlayerClass playerClass)
-    {
-        var bounds = _skillRaceClassInfoBySkill.LookupByKey(skill);
-
-        foreach (var skllRaceClassInfo in bounds)
-        {
-            if (skllRaceClassInfo.RaceMask != 0 && !Convert.ToBoolean(skllRaceClassInfo.RaceMask & SharedConst.GetMaskForRace(race)))
-                continue;
-
-            if (skllRaceClassInfo.ClassMask != 0 && !Convert.ToBoolean(skllRaceClassInfo.ClassMask & (1 << ((byte)playerClass - 1))))
-                continue;
-
-            return skllRaceClassInfo;
-        }
-
-        return null;
-    }
-
-    public List<SkillRaceClassInfoRecord> GetSkillRaceClassInfo(uint skill)
-    {
-        return _skillRaceClassInfoBySkill.LookupByKey(skill);
-    }
-
-    public SoulbindConduitRankRecord GetSoulbindConduitRank(int soulbindConduitId, int rank)
-    {
-        return _soulbindConduitRanks.LookupByKey(Tuple.Create(soulbindConduitId, rank));
-    }
-
-    public List<SpecializationSpellsRecord> GetSpecializationSpells(uint specId)
-    {
-        return _specializationSpellsBySpec.LookupByKey(specId);
-    }
-
-    public bool IsSpecSetMember(int specSetId, uint specId)
-    {
-        return _specsBySpecSet.Contains(Tuple.Create(specSetId, specId));
-    }
-
-    public bool IsValidSpellFamiliyName(SpellFamilyNames family)
-    {
-        return _spellFamilyNames.Contains((byte)family);
-    }
-
-    public List<SpellProcsPerMinuteModRecord> GetSpellProcsPerMinuteMods(uint spellprocsPerMinuteId)
-    {
-        return _spellProcsPerMinuteMods.LookupByKey(spellprocsPerMinuteId);
-    }
-
-    public List<SpellVisualMissileRecord> GetSpellVisualMissiles(int spellVisualMissileSetId)
-    {
-        return _spellVisualMissilesBySet.LookupByKey(spellVisualMissileSetId);
-    }
-
-    public List<TalentRecord> GetTalentsByPosition(PlayerClass playerClass, uint tier, uint column)
-    {
-        return _talentsByPosition[(int)playerClass][tier][column];
-    }
-
-    public bool IsTotemCategoryCompatibleWith(uint itemTotemCategoryId, uint requiredTotemCategoryId)
-    {
-        if (requiredTotemCategoryId == 0)
-            return true;
-
-        if (itemTotemCategoryId == 0)
-            return false;
-
-        var itemEntry = _cliDB.TotemCategoryStorage.LookupByKey(itemTotemCategoryId);
-
-        if (itemEntry == null)
-            return false;
-
-        var reqEntry = _cliDB.TotemCategoryStorage.LookupByKey(requiredTotemCategoryId);
-
-        if (reqEntry == null)
-            return false;
-
-        if (itemEntry.TotemCategoryType != reqEntry.TotemCategoryType)
-            return false;
-
-        return (itemEntry.TotemCategoryMask & reqEntry.TotemCategoryMask) == reqEntry.TotemCategoryMask;
-    }
-
-    public bool IsToyItem(uint toy)
-    {
-        return _toys.Contains(toy);
-    }
-
-    public TransmogIllusionRecord GetTransmogIllusionForEnchantment(uint spellItemEnchantmentId)
-    {
-        return _transmogIllusionsByEnchantmentId.LookupByKey(spellItemEnchantmentId);
-    }
-
-    public List<TransmogSetRecord> GetTransmogSetsForItemModifiedAppearance(uint itemModifiedAppearanceId)
-    {
-        return _transmogSetsByItemModifiedAppearance.LookupByKey(itemModifiedAppearanceId);
-    }
-
-    public List<TransmogSetItemRecord> GetTransmogSetItems(uint transmogSetId)
-    {
-        return _transmogSetItemsByTransmogSet.LookupByKey(transmogSetId);
-    }
-
-    public bool GetUiMapPosition(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapSystem system, bool local, out Vector2 newPos)
-    {
-        return GetUiMapPosition(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, system, local, out _, out newPos);
-    }
-
-    public bool GetUiMapPosition(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapSystem system, bool local, out int uiMapId)
-    {
-        return GetUiMapPosition(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, system, local, out uiMapId, out _);
-    }
-
-    public bool GetUiMapPosition(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapSystem system, bool local, out int uiMapId, out Vector2 newPos)
-    {
-        uiMapId = -1;
-        newPos = new Vector2();
-
-        var uiMapAssignment = FindNearestMapAssignment(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, system);
-
-        if (uiMapAssignment == null)
-            return false;
-
-        uiMapId = uiMapAssignment.UiMapID;
-
-        Vector2 relativePosition = new(0.5f, 0.5f);
-        Vector2 regionSize = new(uiMapAssignment.Region[1].X - uiMapAssignment.Region[0].X, uiMapAssignment.Region[1].Y - uiMapAssignment.Region[0].Y);
-
-        if (regionSize.X > 0.0f)
-            relativePosition.X = (x - uiMapAssignment.Region[0].X) / regionSize.X;
-
-        if (regionSize.Y > 0.0f)
-            relativePosition.Y = (y - uiMapAssignment.Region[0].Y) / regionSize.Y;
-
-        // x any y are swapped
-        Vector2 uiPosition = new(((1.0f - (1.0f - relativePosition.Y)) * uiMapAssignment.UiMin.X) + ((1.0f - relativePosition.Y) * uiMapAssignment.UiMax.X), ((1.0f - (1.0f - relativePosition.X)) * uiMapAssignment.UiMin.Y) + ((1.0f - relativePosition.X) * uiMapAssignment.UiMax.Y));
-
-        if (!local)
-            uiPosition = CalculateGlobalUiMapPosition(uiMapAssignment.UiMapID, uiPosition);
-
-        newPos = uiPosition;
-
-        return true;
-    }
-
     public bool Zone2MapCoordinates(uint areaId, ref float x, ref float y)
     {
         var areaEntry = _cliDB.AreaTableStorage.LookupByKey(areaId);
@@ -2277,44 +2312,6 @@ public class DB2Manager
 
         return false;
     }
-
-    public void Map2ZoneCoordinates(int areaId, ref float x, ref float y)
-    {
-        if (!GetUiMapPosition(x, y, 0.0f, -1, areaId, 0, 0, UiMapSystem.World, true, out Vector2 zoneCoords))
-            return;
-
-        x = zoneCoords.Y * 100.0f;
-        y = zoneCoords.X * 100.0f;
-    }
-
-    public bool IsUiMapPhase(int phaseId)
-    {
-        return _uiMapPhases.Contains(phaseId);
-    }
-
-    public WMOAreaTableRecord GetWmoAreaTable(int rootId, int adtId, int groupId)
-    {
-        return _wmoAreaTableLookup.LookupByKey(Tuple.Create((short)rootId, (sbyte)adtId, groupId));
-    }
-
-    public bool HasItemCurrencyCost(uint itemId)
-    {
-        return _itemsWithCurrencyCost.Contains(itemId);
-    }
-
-    public Dictionary<uint, Dictionary<uint, MapDifficultyRecord>> GetMapDifficulties()
-    {
-        return _mapDifficulties;
-    }
-
-    public void AddDB2<T>(uint tableHash, DB6Storage<T> store) where T : new()
-    {
-        lock (Storage)
-        {
-            Storage[tableHash] = store;
-        }
-    }
-
     private static CurveInterpolationMode DetermineCurveType(CurveRecord curve, List<CurvePointRecord> points)
     {
         switch (curve.Type)
@@ -2344,105 +2341,25 @@ public class DB2Manager
         return points.Count != 1 ? CurveInterpolationMode.Linear : CurveInterpolationMode.Constant;
     }
 
-    private float ExpectedStatModReducer(float mod, ContentTuningXExpectedRecord contentTuningXExpected, ExpectedStatType stat)
+    private Vector2 CalculateGlobalUiMapPosition(int uiMapID, Vector2 uiPosition)
     {
-        if (contentTuningXExpected == null)
-            return mod;
+        var uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMapID);
 
-        //if (contentTuningXExpected->MinMythicPlusSeasonID)
-        //    if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(contentTuningXExpected->MinMythicPlusSeasonID))
-        //        if (MythicPlusSubSeason < mythicPlusSeason->SubSeason)
-        //            return mod;
-
-        //if (contentTuningXExpected->MaxMythicPlusSeasonID)
-        //    if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(contentTuningXExpected->MaxMythicPlusSeasonID))
-        //        if (MythicPlusSubSeason >= mythicPlusSeason->SubSeason)
-        //            return mod;
-
-        var expectedStatMod = _cliDB.ExpectedStatModStorage.LookupByKey((uint)contentTuningXExpected.ExpectedStatModID);
-
-        switch (stat)
+        while (uiMap != null)
         {
-            case ExpectedStatType.CreatureHealth:
-                return mod * expectedStatMod.CreatureHealthMod;
-            case ExpectedStatType.PlayerHealth:
-                return mod * expectedStatMod.PlayerHealthMod;
-            case ExpectedStatType.CreatureAutoAttackDps:
-                return mod * expectedStatMod.CreatureAutoAttackDPSMod;
-            case ExpectedStatType.CreatureArmor:
-                return mod * expectedStatMod.CreatureArmorMod;
-            case ExpectedStatType.PlayerMana:
-                return mod * expectedStatMod.PlayerManaMod;
-            case ExpectedStatType.PlayerPrimaryStat:
-                return mod * expectedStatMod.PlayerPrimaryStatMod;
-            case ExpectedStatType.PlayerSecondaryStat:
-                return mod * expectedStatMod.PlayerSecondaryStatMod;
-            case ExpectedStatType.ArmorConstant:
-                return mod * expectedStatMod.ArmorConstantMod;
-            case ExpectedStatType.CreatureSpellDamage:
-                return mod * expectedStatMod.CreatureSpellDamageMod;
+            if (uiMap.Type <= UiMapType.Continent)
+                break;
+
+            if (!_uiMapBounds.TryGetValue((int)uiMap.Id, out var bounds) || !bounds.IsUiAssignment)
+                break;
+
+            uiPosition.X = ((1.0f - uiPosition.X) * bounds.Bounds[1]) + (bounds.Bounds[3] * uiPosition.X);
+            uiPosition.Y = ((1.0f - uiPosition.Y) * bounds.Bounds[0]) + (bounds.Bounds[2] * uiPosition.Y);
+
+            uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
         }
 
-        return mod;
-
-        // int32 MythicPlusSubSeason = 0;
-    }
-
-    private void VisitItemBonusTree(uint itemBonusTreeId, bool visitChildren, Action<ItemBonusTreeNodeRecord> visitor)
-    {
-        var bonusTreeNodeList = _itemBonusTrees.LookupByKey(itemBonusTreeId);
-
-        if (bonusTreeNodeList.Empty())
-            return;
-
-        foreach (var bonusTreeNode in bonusTreeNodeList)
-        {
-            visitor(bonusTreeNode);
-
-            if (visitChildren && bonusTreeNode.ChildItemBonusTreeID != 0)
-                VisitItemBonusTree(bonusTreeNode.ChildItemBonusTreeID, true, visitor);
-        }
-    }
-
-    private void LoadAzeriteEmpoweredItemUnlockMappings(MultiMap<uint, AzeriteUnlockMappingRecord> azeriteUnlockMappingsBySet, uint itemId)
-    {
-        var itemIdRange = _itemToBonusTree.LookupByKey(itemId);
-
-        if (itemIdRange == null)
-            return;
-
-        foreach (var itemTreeItr in itemIdRange)
-            VisitItemBonusTree(itemTreeItr,
-                               true,
-                               bonusTreeNode =>
-                               {
-                                   if (bonusTreeNode.ChildItemBonusListID == 0 && bonusTreeNode.ChildItemLevelSelectorID != 0)
-                                   {
-                                       var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(bonusTreeNode.ChildItemLevelSelectorID);
-
-                                       if (selector == null)
-                                           return;
-
-                                       var azeriteUnlockMappings = azeriteUnlockMappingsBySet.LookupByKey(selector.AzeriteUnlockMappingSet);
-
-                                       if (azeriteUnlockMappings != null)
-                                       {
-                                           AzeriteUnlockMappingRecord selectedAzeriteUnlockMapping = null;
-
-                                           foreach (var azeriteUnlockMapping in azeriteUnlockMappings)
-                                           {
-                                               if (azeriteUnlockMapping.ItemLevel > selector.MinItemLevel ||
-                                                   (selectedAzeriteUnlockMapping != null && selectedAzeriteUnlockMapping.ItemLevel > azeriteUnlockMapping.ItemLevel))
-                                                   continue;
-
-                                               selectedAzeriteUnlockMapping = azeriteUnlockMapping;
-                                           }
-
-                                           if (selectedAzeriteUnlockMapping != null)
-                                               _azeriteUnlockMappings[(itemId, (ItemContext)bonusTreeNode.ItemContext)] = selectedAzeriteUnlockMapping;
-                                       }
-                                   }
-                               });
+        return uiPosition;
     }
 
     private bool CheckUiMapAssignmentStatus(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapAssignmentRecord uiMapAssignment, out UiMapAssignmentStatus status)
@@ -2591,6 +2508,50 @@ public class DB2Manager
         return true;
     }
 
+    private float ExpectedStatModReducer(float mod, ContentTuningXExpectedRecord contentTuningXExpected, ExpectedStatType stat)
+    {
+        if (contentTuningXExpected == null)
+            return mod;
+
+        //if (contentTuningXExpected->MinMythicPlusSeasonID)
+        //    if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(contentTuningXExpected->MinMythicPlusSeasonID))
+        //        if (MythicPlusSubSeason < mythicPlusSeason->SubSeason)
+        //            return mod;
+
+        //if (contentTuningXExpected->MaxMythicPlusSeasonID)
+        //    if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(contentTuningXExpected->MaxMythicPlusSeasonID))
+        //        if (MythicPlusSubSeason >= mythicPlusSeason->SubSeason)
+        //            return mod;
+
+        var expectedStatMod = _cliDB.ExpectedStatModStorage.LookupByKey((uint)contentTuningXExpected.ExpectedStatModID);
+
+        switch (stat)
+        {
+            case ExpectedStatType.CreatureHealth:
+                return mod * expectedStatMod.CreatureHealthMod;
+            case ExpectedStatType.PlayerHealth:
+                return mod * expectedStatMod.PlayerHealthMod;
+            case ExpectedStatType.CreatureAutoAttackDps:
+                return mod * expectedStatMod.CreatureAutoAttackDPSMod;
+            case ExpectedStatType.CreatureArmor:
+                return mod * expectedStatMod.CreatureArmorMod;
+            case ExpectedStatType.PlayerMana:
+                return mod * expectedStatMod.PlayerManaMod;
+            case ExpectedStatType.PlayerPrimaryStat:
+                return mod * expectedStatMod.PlayerPrimaryStatMod;
+            case ExpectedStatType.PlayerSecondaryStat:
+                return mod * expectedStatMod.PlayerSecondaryStatMod;
+            case ExpectedStatType.ArmorConstant:
+                return mod * expectedStatMod.ArmorConstantMod;
+            case ExpectedStatType.CreatureSpellDamage:
+                return mod * expectedStatMod.CreatureSpellDamageMod;
+        }
+
+        return mod;
+
+        // int32 MythicPlusSubSeason = 0;
+    }
+
     private UiMapAssignmentRecord FindNearestMapAssignment(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapSystem system)
     {
         UiMapAssignmentStatus nearestMapAssignment = new();
@@ -2633,26 +2594,60 @@ public class DB2Manager
         return nearestMapAssignment.UiMapAssignment;
     }
 
-    private Vector2 CalculateGlobalUiMapPosition(int uiMapID, Vector2 uiPosition)
+    private void LoadAzeriteEmpoweredItemUnlockMappings(MultiMap<uint, AzeriteUnlockMappingRecord> azeriteUnlockMappingsBySet, uint itemId)
     {
-        var uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMapID);
+        var itemIdRange = _itemToBonusTree.LookupByKey(itemId);
 
-        while (uiMap != null)
-        {
-            if (uiMap.Type <= UiMapType.Continent)
-                break;
+        if (itemIdRange == null)
+            return;
 
-            if (!_uiMapBounds.TryGetValue((int)uiMap.Id, out var bounds) || !bounds.IsUiAssignment)
-                break;
+        foreach (var itemTreeItr in itemIdRange)
+            VisitItemBonusTree(itemTreeItr,
+                               true,
+                               bonusTreeNode =>
+                               {
+                                   if (bonusTreeNode.ChildItemBonusListID == 0 && bonusTreeNode.ChildItemLevelSelectorID != 0)
+                                   {
+                                       var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(bonusTreeNode.ChildItemLevelSelectorID);
 
-            uiPosition.X = ((1.0f - uiPosition.X) * bounds.Bounds[1]) + (bounds.Bounds[3] * uiPosition.X);
-            uiPosition.Y = ((1.0f - uiPosition.Y) * bounds.Bounds[0]) + (bounds.Bounds[2] * uiPosition.Y);
+                                       if (selector == null)
+                                           return;
 
-            uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
-        }
+                                       var azeriteUnlockMappings = azeriteUnlockMappingsBySet.LookupByKey(selector.AzeriteUnlockMappingSet);
 
-        return uiPosition;
+                                       if (azeriteUnlockMappings != null)
+                                       {
+                                           AzeriteUnlockMappingRecord selectedAzeriteUnlockMapping = null;
+
+                                           foreach (var azeriteUnlockMapping in azeriteUnlockMappings)
+                                           {
+                                               if (azeriteUnlockMapping.ItemLevel > selector.MinItemLevel ||
+                                                   (selectedAzeriteUnlockMapping != null && selectedAzeriteUnlockMapping.ItemLevel > azeriteUnlockMapping.ItemLevel))
+                                                   continue;
+
+                                               selectedAzeriteUnlockMapping = azeriteUnlockMapping;
+                                           }
+
+                                           if (selectedAzeriteUnlockMapping != null)
+                                               _azeriteUnlockMappings[(itemId, (ItemContext)bonusTreeNode.ItemContext)] = selectedAzeriteUnlockMapping;
+                                       }
+                                   }
+                               });
     }
 
-    private delegate bool AllowedHotfixOptionalData(byte[] data);
+    private void VisitItemBonusTree(uint itemBonusTreeId, bool visitChildren, Action<ItemBonusTreeNodeRecord> visitor)
+    {
+        var bonusTreeNodeList = _itemBonusTrees.LookupByKey(itemBonusTreeId);
+
+        if (bonusTreeNodeList.Empty())
+            return;
+
+        foreach (var bonusTreeNode in bonusTreeNodeList)
+        {
+            visitor(bonusTreeNode);
+
+            if (visitChildren && bonusTreeNode.ChildItemBonusTreeID != 0)
+                VisitItemBonusTree(bonusTreeNode.ChildItemBonusTreeID, true, visitor);
+        }
+    }
 }

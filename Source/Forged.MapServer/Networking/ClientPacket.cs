@@ -22,8 +22,6 @@ public abstract class ClientPacket : IDisposable
         _worldPacket.Dispose();
     }
 
-    public abstract void Read();
-
     public ClientOpcodes GetOpcode()
     {
         return (ClientOpcodes)_worldPacket.GetOpcode();
@@ -33,4 +31,6 @@ public abstract class ClientPacket : IDisposable
     {
         Log.Logger.Debug("Received ClientOpcode: {0} From: {1}", GetOpcode(), session != null ? session.GetPlayerInfo() : "Unknown IP");
     }
+
+    public abstract void Read();
 }

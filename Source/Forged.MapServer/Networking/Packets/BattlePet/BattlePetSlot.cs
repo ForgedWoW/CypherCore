@@ -8,11 +8,10 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 public class BattlePetSlot
 {
-    public BattlePetStruct Pet;
     public uint CollarID;
     public byte Index;
     public bool Locked = true;
-
+    public BattlePetStruct Pet;
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(Pet.Guid.IsEmpty ? ObjectGuid.Create(HighGuid.BattlePet, 0) : Pet.Guid);

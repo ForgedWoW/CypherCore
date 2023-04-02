@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 internal class SwapSubGroups : ClientPacket
 {
     public ObjectGuid FirstTarget;
-    public ObjectGuid SecondTarget;
     public sbyte PartyIndex;
+    public ObjectGuid SecondTarget;
     public SwapSubGroups(WorldPacket packet) : base(packet) { }
 
     public override void Read()

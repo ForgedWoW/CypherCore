@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellHealLog : CombatLogServerPacket
 {
-    public ObjectGuid CasterGUID;
-    public ObjectGuid TargetGUID;
-    public uint SpellID;
-    public uint Health;
-    public int OriginalHeal;
-    public uint OverHeal;
     public uint Absorbed;
+    public ObjectGuid CasterGUID;
+    public ContentTuningParams ContentTuning;
     public bool Crit;
     public float? CritRollMade;
     public float? CritRollNeeded;
-    public ContentTuningParams ContentTuning;
+    public uint Health;
+    public int OriginalHeal;
+    public uint OverHeal;
+    public uint SpellID;
+    public ObjectGuid TargetGUID;
     public SpellHealLog() : base(ServerOpcodes.SpellHealLog, ConnectionType.Instance) { }
 
     public override void Write()

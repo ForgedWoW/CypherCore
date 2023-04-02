@@ -5,6 +5,10 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct AuraInfo
 {
+    public AuraDataInfo AuraData;
+
+    public byte Slot;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt8(Slot);
@@ -13,7 +17,4 @@ public struct AuraInfo
 
         AuraData?.Write(data);
     }
-
-    public byte Slot;
-    public AuraDataInfo AuraData;
 }

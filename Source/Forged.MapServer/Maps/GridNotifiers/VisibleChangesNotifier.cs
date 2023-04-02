@@ -15,14 +15,13 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 {
     private readonly ICollection<WorldObject> _objects;
 
-    public GridType GridType { get; set; }
-
     public VisibleChangesNotifier(ICollection<WorldObject> objects, GridType gridType)
     {
         _objects = objects;
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

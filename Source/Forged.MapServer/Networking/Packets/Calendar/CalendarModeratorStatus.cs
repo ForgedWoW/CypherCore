@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarModeratorStatus : ServerPacket
 {
-    public ObjectGuid InviteGuid;
-    public ulong EventID;
-    public CalendarInviteStatus Status;
     public bool ClearPending;
+    public ulong EventID;
+    public ObjectGuid InviteGuid;
+    public CalendarInviteStatus Status;
     public CalendarModeratorStatus() : base(ServerOpcodes.CalendarModeratorStatus) { }
 
     public override void Write()

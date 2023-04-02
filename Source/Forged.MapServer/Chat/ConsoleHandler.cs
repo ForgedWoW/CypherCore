@@ -16,20 +16,18 @@ public class ConsoleHandler : CommandHandler
 
     public override byte SessionDbLocaleIndex => (byte)Global.WorldMgr.DefaultDbcLocale;
 
-    public override bool IsAvailable(ChatCommandNode cmd)
-    {
-        return cmd.Permission.AllowConsole;
-    }
-
     public override bool HasPermission(RBACPermissions permission)
     {
         return true;
     }
 
-    public override void SendSysMessage(string str, bool escapeCharacters)
+    public override bool IsAvailable(ChatCommandNode cmd)
     {
-        SetSentErrorMessage(true);
-        Log.Logger.Information(str);
+        return cmd.Permission.AllowConsole;
+    }
+    public override bool NeedReportToTarget(Player chr)
+    {
+        return true;
     }
 
     public override bool ParseCommands(string str)
@@ -44,8 +42,9 @@ public class ConsoleHandler : CommandHandler
         return _ParseCommands(str);
     }
 
-    public override bool NeedReportToTarget(Player chr)
+    public override void SendSysMessage(string str, bool escapeCharacters)
     {
-        return true;
+        SetSentErrorMessage(true);
+        Log.Logger.Information(str);
     }
 }

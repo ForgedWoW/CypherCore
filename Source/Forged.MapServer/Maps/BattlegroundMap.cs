@@ -18,10 +18,11 @@ public class BattlegroundMap : Map
         InitVisibilityDistance();
     }
 
-    public override void InitVisibilityDistance()
+    public override bool AddPlayerToMap(Player player, bool initPlayer = true)
     {
-        VisibleDistance = IsBattleArena ? Global.WorldMgr.MaxVisibleDistanceInArenas : Global.WorldMgr.MaxVisibleDistanceInBG;
-        VisibilityNotifyPeriod = IsBattleArena ? Global.WorldMgr.VisibilityNotifyPeriodInArenas : Global.WorldMgr.VisibilityNotifyPeriodInBG;
+        player.InstanceValid = true;
+
+        return base.AddPlayerToMap(player, initPlayer);
     }
 
     public override TransferAbortParams CannotEnter(Player player)
@@ -39,11 +40,22 @@ public class BattlegroundMap : Map
         return base.CannotEnter(player);
     }
 
-    public override bool AddPlayerToMap(Player player, bool initPlayer = true)
+    public Battleground GetBG()
     {
-        player.InstanceValid = true;
+        return _bg;
+    }
 
-        return base.AddPlayerToMap(player, initPlayer);
+    public override void InitVisibilityDistance()
+    {
+        VisibleDistance = IsBattleArena ? Global.WorldMgr.MaxVisibleDistanceInArenas : Global.WorldMgr.MaxVisibleDistanceInBG;
+        VisibilityNotifyPeriod = IsBattleArena ? Global.WorldMgr.VisibilityNotifyPeriodInArenas : Global.WorldMgr.VisibilityNotifyPeriodInBG;
+    }
+    public override void RemoveAllPlayers()
+    {
+        if (HavePlayers)
+            foreach (var player in ActivePlayers)
+                if (!player.IsBeingTeleportedFar)
+                    player.TeleportTo(player.BattlegroundEntryPoint);
     }
 
     public override void RemovePlayerFromMap(Player player, bool remove)
@@ -56,26 +68,13 @@ public class BattlegroundMap : Map
         base.RemovePlayerFromMap(player, remove);
     }
 
-    public void SetUnload()
-    {
-        UnloadTimer = 1;
-    }
-
-    public override void RemoveAllPlayers()
-    {
-        if (HavePlayers)
-            foreach (var player in ActivePlayers)
-                if (!player.IsBeingTeleportedFar)
-                    player.TeleportTo(player.BattlegroundEntryPoint);
-    }
-
-    public Battleground GetBG()
-    {
-        return _bg;
-    }
-
     public void SetBG(Battleground bg)
     {
         _bg = bg;
+    }
+
+    public void SetUnload()
+    {
+        UnloadTimer = 1;
     }
 }

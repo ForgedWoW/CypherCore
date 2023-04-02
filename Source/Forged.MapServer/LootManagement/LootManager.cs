@@ -17,16 +17,15 @@ namespace Forged.MapServer.LootManagement;
 
 public class LootManager : LootStoreBox
 {
-    private readonly GameObjectManager _objectManager;
-    private readonly SpellManager _spellManager;
     private readonly CliDB _cliDB;
     private readonly ConditionManager _conditionManager;
     private readonly IConfiguration _configuration;
-    private readonly WorldDatabase _worldDatabase;
     private readonly DB2Manager _db2Manager;
-    private readonly ObjectAccessor _objectAccessor;
     private readonly LootStoreBox _lootStorage;
-
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GameObjectManager _objectManager;
+    private readonly SpellManager _spellManager;
+    private readonly WorldDatabase _worldDatabase;
     public LootManager(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, ConditionManager conditionManager, IConfiguration configuration, WorldDatabase worldDatabase,
                        DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage)
     {
@@ -39,24 +38,6 @@ public class LootManager : LootStoreBox
         _db2Manager = db2Manager;
         _objectAccessor = objectAccessor;
         _lootStorage = lootStorage;
-    }
-
-    public void LoadLootTables()
-    {
-        Initialize();
-        LoadLootTemplates_Creature();
-        LoadLootTemplates_Fishing();
-        LoadLootTemplates_Gameobject();
-        LoadLootTemplates_Item();
-        LoadLootTemplates_Mail();
-        LoadLootTemplates_Milling();
-        LoadLootTemplates_Pickpocketing();
-        LoadLootTemplates_Skinning();
-        LoadLootTemplates_Disenchant();
-        LoadLootTemplates_Prospecting();
-        LoadLootTemplates_Spell();
-
-        LoadLootTemplates_Reference();
     }
 
     public Dictionary<ObjectGuid, Loot> GenerateDungeonEncounterPersonalLoot(uint dungeonEncounterId, uint lootId, LootStore store,
@@ -96,6 +77,23 @@ public class LootManager : LootStoreBox
         return personalLoot;
     }
 
+    public void LoadLootTables()
+    {
+        Initialize();
+        LoadLootTemplates_Creature();
+        LoadLootTemplates_Fishing();
+        LoadLootTemplates_Gameobject();
+        LoadLootTemplates_Item();
+        LoadLootTemplates_Mail();
+        LoadLootTemplates_Milling();
+        LoadLootTemplates_Pickpocketing();
+        LoadLootTemplates_Skinning();
+        LoadLootTemplates_Disenchant();
+        LoadLootTemplates_Prospecting();
+        LoadLootTemplates_Spell();
+
+        LoadLootTemplates_Reference();
+    }
     public void LoadLootTemplates_Creature()
     {
         Log.Logger.Information("Loading creature loot templates...");
@@ -262,6 +260,28 @@ public class LootManager : LootStoreBox
             Log.Logger.Information("Loaded 0 item loot templates. DB table `item_loot_template` is empty");
     }
 
+    public void LoadLootTemplates_Mail()
+    {
+        Log.Logger.Information("Loading mail loot templates...");
+
+        var oldMSTime = Time.MSTime;
+
+        var count = Mail.LoadAndCollectLootIds(out var lootIdSet);
+
+        // remove real entries and check existence loot
+        foreach (var mail in _cliDB.MailTemplateStorage.Values)
+            if (lootIdSet.Contains(mail.Id))
+                lootIdSet.Remove(mail.Id);
+
+        // output error for any still listed (not referenced from appropriate table) ids
+        Mail.ReportUnusedIds(lootIdSet);
+
+        if (count != 0)
+            Log.Logger.Information("Loaded {0} mail loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+        else
+            Log.Logger.Information("Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
+    }
+
     public void LoadLootTemplates_Milling()
     {
         Log.Logger.Information("Loading milling loot templates...");
@@ -356,27 +376,31 @@ public class LootManager : LootStoreBox
         else
             Log.Logger.Information("Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
     }
-
-    public void LoadLootTemplates_Mail()
+    public void LoadLootTemplates_Reference()
     {
-        Log.Logger.Information("Loading mail loot templates...");
+        Log.Logger.Information("Loading reference loot templates...");
 
         var oldMSTime = Time.MSTime;
 
-        var count = Mail.LoadAndCollectLootIds(out var lootIdSet);
+        Reference.LoadAndCollectLootIds(out var lootIdSet);
 
-        // remove real entries and check existence loot
-        foreach (var mail in _cliDB.MailTemplateStorage.Values)
-            if (lootIdSet.Contains(mail.Id))
-                lootIdSet.Remove(mail.Id);
+        // check references and remove used
+        Creature.CheckLootRefs(lootIdSet);
+        Fishing.CheckLootRefs(lootIdSet);
+        Gameobject.CheckLootRefs(lootIdSet);
+        Items.CheckLootRefs(lootIdSet);
+        Milling.CheckLootRefs(lootIdSet);
+        Pickpocketing.CheckLootRefs(lootIdSet);
+        Skinning.CheckLootRefs(lootIdSet);
+        Disenchant.CheckLootRefs(lootIdSet);
+        Prospecting.CheckLootRefs(lootIdSet);
+        Mail.CheckLootRefs(lootIdSet);
+        Reference.CheckLootRefs(lootIdSet);
 
-        // output error for any still listed (not referenced from appropriate table) ids
-        Mail.ReportUnusedIds(lootIdSet);
+        // output error for any still listed ids (not referenced from any loot table)
+        Reference.ReportUnusedIds(lootIdSet);
 
-        if (count != 0)
-            Log.Logger.Information("Loaded {0} mail loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-        else
-            Log.Logger.Information("Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
+        Log.Logger.Information("Loaded reference loot templates in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadLootTemplates_Skinning()
@@ -458,34 +482,6 @@ public class LootManager : LootStoreBox
         else
             Log.Logger.Information("Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
     }
-
-    public void LoadLootTemplates_Reference()
-    {
-        Log.Logger.Information("Loading reference loot templates...");
-
-        var oldMSTime = Time.MSTime;
-
-        Reference.LoadAndCollectLootIds(out var lootIdSet);
-
-        // check references and remove used
-        Creature.CheckLootRefs(lootIdSet);
-        Fishing.CheckLootRefs(lootIdSet);
-        Gameobject.CheckLootRefs(lootIdSet);
-        Items.CheckLootRefs(lootIdSet);
-        Milling.CheckLootRefs(lootIdSet);
-        Pickpocketing.CheckLootRefs(lootIdSet);
-        Skinning.CheckLootRefs(lootIdSet);
-        Disenchant.CheckLootRefs(lootIdSet);
-        Prospecting.CheckLootRefs(lootIdSet);
-        Mail.CheckLootRefs(lootIdSet);
-        Reference.CheckLootRefs(lootIdSet);
-
-        // output error for any still listed ids (not referenced from any loot table)
-        Reference.ReportUnusedIds(lootIdSet);
-
-        Log.Logger.Information("Loaded reference loot templates in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
     private void Initialize()
     {
         Creature = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "creature_loot_template", "creature entry");

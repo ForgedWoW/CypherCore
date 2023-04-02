@@ -9,10 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveKnockBack : ServerPacket
 {
-    public ObjectGuid MoverGUID;
     public Vector2 Direction;
-    public MoveKnockBackSpeeds Speeds;
+    public ObjectGuid MoverGUID;
     public uint SequenceIndex;
+    public MoveKnockBackSpeeds Speeds;
     public MoveKnockBack() : base(ServerOpcodes.MoveKnockBack, ConnectionType.Instance) { }
 
     public override void Write()

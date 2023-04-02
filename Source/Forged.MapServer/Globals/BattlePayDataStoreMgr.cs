@@ -10,20 +10,74 @@ namespace Forged.MapServer.Globals;
 
 public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 {
-    public List<BpayGroup> ProductGroups { get; private set; } = new();
-    public List<BpayShop> ShopEntries { get; private set; } = new();
-    public SortedDictionary<uint, BpayProduct> Products { get; private set; } = new();
-    public SortedDictionary<uint, BpayProductInfo> ProductInfos { get; private set; } = new();
     public SortedDictionary<uint, BpayDisplayInfo> DisplayInfos { get; private set; } = new();
     public SortedDictionary<uint, ProductAddon> ProductAddons { get; private set; } = new();
-
-    public void Initialize()
+    public List<BpayGroup> ProductGroups { get; private set; } = new();
+    public SortedDictionary<uint, BpayProductInfo> ProductInfos { get; private set; } = new();
+    public SortedDictionary<uint, BpayProduct> Products { get; private set; } = new();
+    public List<BpayShop> ShopEntries { get; private set; } = new();
+    public bool DisplayInfoExist(uint displayInfoEntry)
     {
-        LoadProductAddons();
-        LoadDisplayInfos();
-        LoadProduct();
-        LoadProductGroups();
-        LoadShopEntries();
+        if (DisplayInfos.ContainsKey(displayInfoEntry))
+            return true;
+
+        Log.Logger.Information("DisplayInfoExist failed for displayInfoEntry {}", displayInfoEntry);
+
+        return false;
+    }
+
+    public BpayDisplayInfo GetDisplayInfo(uint displayInfoEntry)
+    {
+        return DisplayInfos.GetValueOrDefault(displayInfoEntry);
+    }
+
+    public List<BpayProductItem> GetItemsOfProduct(uint productID)
+    {
+        foreach (var product in Products)
+            if (product.Value.ProductId == productID)
+                return product.Value.Items;
+
+        Log.Logger.Information("GetItemsOfProduct failed for productid {}", productID);
+
+        return null;
+    }
+
+    public BpayProduct GetProduct(uint productID)
+    {
+        return Products.GetValueOrDefault(productID);
+    }
+
+    // Custom properties for each product (displayinfoEntry, productInfoEntry, shopEntry are the same)
+    public ProductAddon GetProductAddon(uint displayInfoEntry)
+    {
+        return ProductAddons.GetValueOrDefault(displayInfoEntry);
+    }
+
+    public uint GetProductGroupId(uint productId)
+    {
+        foreach (var shop in ShopEntries)
+            if (shop.ProductID == productId)
+                return shop.GroupID;
+
+        return 0;
+    }
+
+    // This awesome function returns back the productinfo for all the two types of productid!
+    public BpayProductInfo GetProductInfoForProduct(uint productID)
+    {
+        // Find product by subproduct id (_productInfos.productids) if not found find it by shop productid (_productInfos.productid)
+        if (!ProductInfos.TryGetValue(productID, out var prod))
+        {
+            foreach (var productInfo in ProductInfos)
+                if (productInfo.Value.ProductId == productID)
+                    return productInfo.Value;
+
+            Log.Logger.Information("GetProductInfoForProduct failed for productID {}", productID);
+
+            return null;
+        }
+
+        return prod;
     }
 
     public List<BpayProduct> GetProductsOfProductInfo(uint productInfoEntry)
@@ -46,62 +100,14 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         return null;
     }
 
-    public List<BpayProductItem> GetItemsOfProduct(uint productID)
+    public void Initialize()
     {
-        foreach (var product in Products)
-            if (product.Value.ProductId == productID)
-                return product.Value.Items;
-
-        Log.Logger.Information("GetItemsOfProduct failed for productid {}", productID);
-
-        return null;
+        LoadProductAddons();
+        LoadDisplayInfos();
+        LoadProduct();
+        LoadProductGroups();
+        LoadShopEntries();
     }
-
-    public BpayProduct GetProduct(uint productID)
-    {
-        return Products.GetValueOrDefault(productID);
-    }
-
-
-    // This awesome function returns back the productinfo for all the two types of productid!
-    public BpayProductInfo GetProductInfoForProduct(uint productID)
-    {
-        // Find product by subproduct id (_productInfos.productids) if not found find it by shop productid (_productInfos.productid)
-        if (!ProductInfos.TryGetValue(productID, out var prod))
-        {
-            foreach (var productInfo in ProductInfos)
-                if (productInfo.Value.ProductId == productID)
-                    return productInfo.Value;
-
-            Log.Logger.Information("GetProductInfoForProduct failed for productID {}", productID);
-
-            return null;
-        }
-
-        return prod;
-    }
-
-    public BpayDisplayInfo GetDisplayInfo(uint displayInfoEntry)
-    {
-        return DisplayInfos.GetValueOrDefault(displayInfoEntry);
-    }
-
-
-    // Custom properties for each product (displayinfoEntry, productInfoEntry, shopEntry are the same)
-    public ProductAddon GetProductAddon(uint displayInfoEntry)
-    {
-        return ProductAddons.GetValueOrDefault(displayInfoEntry);
-    }
-
-    public uint GetProductGroupId(uint productId)
-    {
-        foreach (var shop in ShopEntries)
-            if (shop.ProductID == productId)
-                return shop.GroupID;
-
-        return 0;
-    }
-
     public bool ProductExist(uint productID)
     {
         if (Products.ContainsKey(productID))
@@ -111,23 +117,12 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 
         return false;
     }
-
-    public bool DisplayInfoExist(uint displayInfoEntry)
+    private void LoadDisplayInfos()
     {
-        if (DisplayInfos.ContainsKey(displayInfoEntry))
-            return true;
+        Log.Logger.Information("Loading Battlepay display info ...");
+        DisplayInfos.Clear();
 
-        Log.Logger.Information("DisplayInfoExist failed for displayInfoEntry {}", displayInfoEntry);
-
-        return false;
-    }
-
-    private void LoadProductAddons()
-    {
-        Log.Logger.Information("Loading Battlepay display info addons ...");
-        ProductAddons.Clear();
-
-        var result = DB.World.Query("SELECT DisplayInfoEntry, DisableListing, DisableBuy, NameColorIndex, ScriptName, Comment FROM battlepay_addon");
+        var result = DB.World.Query("SELECT Entry, CreatureDisplayID, VisualID, Name1, Name2, Name3, Name4, Name5, Name6, Name7, Flags, Unk1, Unk2, Unk3, UnkInt1, UnkInt2, UnkInt3 FROM battlepay_displayinfo");
 
         if (result == null)
             return;
@@ -136,52 +131,60 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         {
             var fields = result.GetFields();
 
-            var productAddon = new ProductAddon
-            {
-                DisplayInfoEntry = fields.Read<uint>(0),
-                DisableListing = fields.Read<byte>(1),
-                DisableBuy = fields.Read<byte>(2),
-                NameColorIndex = fields.Read<byte>(3),
-                ScriptName = fields.Read<string>(4),
-                Comment = fields.Read<string>(5)
-            };
-
-            ProductAddons.Add(fields.Read<uint>(0), productAddon);
-        } while (result.NextRow());
-
-        Log.Logger.Information(">> Loaded {} Battlepay product addons", (ulong)ProductAddons.Count);
-    }
-
-    private void LoadProductGroups()
-    {
-        Log.Logger.Information("Loading Battlepay product groups ...");
-        ProductGroups.Clear();
-
-        var result = DB.World.Query("SELECT Entry, GroupId, IconFileDataID, DisplayType, Ordering, Unk, Name, Description FROM battlepay_group");
-
-        if (result == null)
-            return;
-
-        do
-        {
-            var fields = result.GetFields();
-
-            var productGroup = new BpayGroup
+            var displayInfo = new BpayDisplayInfo
             {
                 Entry = fields.Read<uint>(0),
-                GroupId = fields.Read<uint>(1),
-                IconFileDataID = fields.Read<uint>(2),
-                DisplayType = fields.Read<byte>(3),
-                Ordering = fields.Read<uint>(4),
-                Unk = fields.Read<uint>(5),
-                Name = fields.Read<string>(6),
-                Description = fields.Read<string>(7)
+                CreatureDisplayID = fields.Read<uint>(1),
+                VisualID = fields.Read<uint>(2),
+                Name1 = fields.Read<string>(3),
+                Name2 = fields.Read<string>(4),
+                Name3 = fields.Read<string>(5),
+                Name4 = fields.Read<string>(6),
+                Name5 = fields.Read<string>(7),
+                Name6 = fields.Read<string>(8),
+                Name7 = fields.Read<string>(9),
+                Flags = fields.Read<uint>(10),
+                Unk1 = fields.Read<uint>(11),
+                Unk2 = fields.Read<uint>(12),
+                Unk3 = fields.Read<uint>(13),
+                UnkInt1 = fields.Read<uint>(14),
+                UnkInt2 = fields.Read<uint>(15),
+                UnkInt3 = fields.Read<uint>(16)
             };
 
-            ProductGroups.Add(productGroup);
+            DisplayInfos.Add(fields.Read<uint>(0), displayInfo);
         } while (result.NextRow());
 
-        Log.Logger.Information(">> Loaded {} Battlepay product groups", (ulong)ProductGroups.Count);
+        result = DB.World.Query("SELECT Entry, DisplayId, VisualId, Unk, Name, DisplayInfoEntry FROM battlepay_visual");
+
+        if (result == null)
+            return;
+
+        var visualCounter = 0;
+
+        do
+        {
+            var fields = result.GetFields();
+
+            visualCounter++;
+
+            var visualInfo = new BpayVisual
+            {
+                Entry = fields.Read<uint>(0),
+                DisplayId = fields.Read<uint>(1),
+                VisualId = fields.Read<uint>(2),
+                Unk = fields.Read<uint>(3),
+                Name = fields.Read<string>(4),
+                DisplayInfoEntry = fields.Read<uint>(5)
+            };
+
+            if (!DisplayInfos.TryGetValue(visualInfo.DisplayInfoEntry, out var bpayDisplayInfo))
+                continue;
+
+            bpayDisplayInfo.Visuals.Add(visualInfo);
+        } while (result.NextRow());
+
+        Log.Logger.Information(">> Loaded {} Battlepay display info with {} visual.", (ulong)DisplayInfos.Count, visualCounter);
     }
 
     private void LoadProduct()
@@ -297,6 +300,67 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         Log.Logger.Information(">> Loaded {} Battlepay product infos and {} Battlepay products", (ulong)ProductInfos.Count, (ulong)Products.Count);
     }
 
+    private void LoadProductAddons()
+    {
+        Log.Logger.Information("Loading Battlepay display info addons ...");
+        ProductAddons.Clear();
+
+        var result = DB.World.Query("SELECT DisplayInfoEntry, DisableListing, DisableBuy, NameColorIndex, ScriptName, Comment FROM battlepay_addon");
+
+        if (result == null)
+            return;
+
+        do
+        {
+            var fields = result.GetFields();
+
+            var productAddon = new ProductAddon
+            {
+                DisplayInfoEntry = fields.Read<uint>(0),
+                DisableListing = fields.Read<byte>(1),
+                DisableBuy = fields.Read<byte>(2),
+                NameColorIndex = fields.Read<byte>(3),
+                ScriptName = fields.Read<string>(4),
+                Comment = fields.Read<string>(5)
+            };
+
+            ProductAddons.Add(fields.Read<uint>(0), productAddon);
+        } while (result.NextRow());
+
+        Log.Logger.Information(">> Loaded {} Battlepay product addons", (ulong)ProductAddons.Count);
+    }
+
+    private void LoadProductGroups()
+    {
+        Log.Logger.Information("Loading Battlepay product groups ...");
+        ProductGroups.Clear();
+
+        var result = DB.World.Query("SELECT Entry, GroupId, IconFileDataID, DisplayType, Ordering, Unk, Name, Description FROM battlepay_group");
+
+        if (result == null)
+            return;
+
+        do
+        {
+            var fields = result.GetFields();
+
+            var productGroup = new BpayGroup
+            {
+                Entry = fields.Read<uint>(0),
+                GroupId = fields.Read<uint>(1),
+                IconFileDataID = fields.Read<uint>(2),
+                DisplayType = fields.Read<byte>(3),
+                Ordering = fields.Read<uint>(4),
+                Unk = fields.Read<uint>(5),
+                Name = fields.Read<string>(6),
+                Description = fields.Read<string>(7)
+            };
+
+            ProductGroups.Add(productGroup);
+        } while (result.NextRow());
+
+        Log.Logger.Information(">> Loaded {} Battlepay product groups", (ulong)ProductGroups.Count);
+    }
     private void LoadShopEntries()
     {
         Log.Logger.Information("Loading Battlepay shop entries ...");
@@ -326,75 +390,5 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         } while (result.NextRow());
 
         Log.Logger.Information(">> Loaded {} Battlepay shop entries", (ulong)ShopEntries.Count);
-    }
-
-    private void LoadDisplayInfos()
-    {
-        Log.Logger.Information("Loading Battlepay display info ...");
-        DisplayInfos.Clear();
-
-        var result = DB.World.Query("SELECT Entry, CreatureDisplayID, VisualID, Name1, Name2, Name3, Name4, Name5, Name6, Name7, Flags, Unk1, Unk2, Unk3, UnkInt1, UnkInt2, UnkInt3 FROM battlepay_displayinfo");
-
-        if (result == null)
-            return;
-
-        do
-        {
-            var fields = result.GetFields();
-
-            var displayInfo = new BpayDisplayInfo
-            {
-                Entry = fields.Read<uint>(0),
-                CreatureDisplayID = fields.Read<uint>(1),
-                VisualID = fields.Read<uint>(2),
-                Name1 = fields.Read<string>(3),
-                Name2 = fields.Read<string>(4),
-                Name3 = fields.Read<string>(5),
-                Name4 = fields.Read<string>(6),
-                Name5 = fields.Read<string>(7),
-                Name6 = fields.Read<string>(8),
-                Name7 = fields.Read<string>(9),
-                Flags = fields.Read<uint>(10),
-                Unk1 = fields.Read<uint>(11),
-                Unk2 = fields.Read<uint>(12),
-                Unk3 = fields.Read<uint>(13),
-                UnkInt1 = fields.Read<uint>(14),
-                UnkInt2 = fields.Read<uint>(15),
-                UnkInt3 = fields.Read<uint>(16)
-            };
-
-            DisplayInfos.Add(fields.Read<uint>(0), displayInfo);
-        } while (result.NextRow());
-
-        result = DB.World.Query("SELECT Entry, DisplayId, VisualId, Unk, Name, DisplayInfoEntry FROM battlepay_visual");
-
-        if (result == null)
-            return;
-
-        var visualCounter = 0;
-
-        do
-        {
-            var fields = result.GetFields();
-
-            visualCounter++;
-
-            var visualInfo = new BpayVisual
-            {
-                Entry = fields.Read<uint>(0),
-                DisplayId = fields.Read<uint>(1),
-                VisualId = fields.Read<uint>(2),
-                Unk = fields.Read<uint>(3),
-                Name = fields.Read<string>(4),
-                DisplayInfoEntry = fields.Read<uint>(5)
-            };
-
-            if (!DisplayInfos.TryGetValue(visualInfo.DisplayInfoEntry, out var bpayDisplayInfo))
-                continue;
-
-            bpayDisplayInfo.Visuals.Add(visualInfo);
-        } while (result.NextRow());
-
-        Log.Logger.Information(">> Loaded {} Battlepay display info with {} visual.", (ulong)DisplayInfos.Count, visualCounter);
     }
 }

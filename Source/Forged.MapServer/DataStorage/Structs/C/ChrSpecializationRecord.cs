@@ -8,20 +8,19 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ChrSpecializationRecord
 {
-    public LocalizedString Name;
-    public string FemaleName;
-    public string Description;
-    public uint Id;
+    public int AnimReplacements;
     public byte ClassID;
+    public string Description;
+    public string FemaleName;
+    public ChrSpecializationFlag Flags;
+    public uint Id;
+    public uint[] MasterySpellID = new uint[PlayerConst.MaxMasterySpells];
+    public LocalizedString Name;
     public byte OrderIndex;
     public sbyte PetTalentType;
-    public sbyte Role;
-    public ChrSpecializationFlag Flags;
-    public int SpellIconFileID;
     public sbyte PrimaryStatPriority;
-    public int AnimReplacements;
-    public uint[] MasterySpellID = new uint[PlayerConst.MaxMasterySpells];
-
+    public sbyte Role;
+    public int SpellIconFileID;
     public bool IsPetSpecialization()
     {
         return ClassID == 0;

@@ -11,13 +11,12 @@ internal class CalendarEventInviteInfo
 {
     public ObjectGuid Guid;
     public ulong InviteID;
-    public long ResponseTime;
-    public byte Level = 1;
-    public CalendarInviteStatus Status;
-    public CalendarModerationRank Moderator;
     public byte InviteType;
+    public byte Level = 1;
+    public CalendarModerationRank Moderator;
     public string Notes;
-
+    public long ResponseTime;
+    public CalendarInviteStatus Status;
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(Guid);

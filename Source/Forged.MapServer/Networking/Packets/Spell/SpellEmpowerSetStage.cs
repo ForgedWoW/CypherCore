@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellEmpowerSetStage : ServerPacket
 {
-    public ObjectGuid CastID;
     public ObjectGuid Caster;
+    public ObjectGuid CastID;
     public uint Stage;
     public SpellEmpowerSetStage() : base(ServerOpcodes.SpellEmpowerSetStage, ConnectionType.Instance) { }
 

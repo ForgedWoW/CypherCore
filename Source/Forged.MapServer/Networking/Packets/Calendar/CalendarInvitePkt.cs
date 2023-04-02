@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInvitePkt : ClientPacket
 {
-    public ulong ModeratorID;
-    public bool IsSignUp;
+    public ulong ClubID;
     public bool Creating = true;
     public ulong EventID;
-    public ulong ClubID;
+    public bool IsSignUp;
+    public ulong ModeratorID;
     public string Name;
     public CalendarInvitePkt(WorldPacket packet) : base(packet) { }
 

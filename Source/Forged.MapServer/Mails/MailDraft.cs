@@ -14,15 +14,14 @@ namespace Forged.MapServer.Mails;
 
 public class MailDraft
 {
-    private readonly uint m_mailTemplateId;
-    private readonly string m_subject;
     private readonly string m_body;
     private readonly Dictionary<ulong, Item> m_items = new();
+    private readonly uint m_mailTemplateId;
+    private readonly string m_subject;
+    private ulong m_COD;
     private bool m_mailTemplateItemsNeed;
 
     private ulong m_money;
-    private ulong m_COD;
-
     public MailDraft(uint mailTemplateId, bool need_items = true)
     {
         m_mailTemplateId = mailTemplateId;
@@ -41,6 +40,13 @@ public class MailDraft
         m_COD = 0;
     }
 
+    public MailDraft AddCOD(uint COD)
+    {
+        m_COD = COD;
+
+        return this;
+    }
+
     public MailDraft AddItem(Item item)
     {
         m_items[item.GUID.Counter] = item;
@@ -48,48 +54,11 @@ public class MailDraft
         return this;
     }
 
-    public void SendReturnToSender(uint senderAcc, ulong senderGuid, ulong receiver_guid, SQLTransaction trans)
+    public MailDraft AddMoney(ulong money)
     {
-        var receiverGuid = ObjectGuid.Create(HighGuid.Player, receiver_guid);
-        var receiver = Global.ObjAccessor.FindPlayer(receiverGuid);
+        m_money = money;
 
-        uint rc_account = 0;
-
-        if (receiver == null)
-            rc_account = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(receiverGuid);
-
-        if (receiver == null && rc_account == 0) // sender not exist
-        {
-            DeleteIncludedItems(trans, true);
-
-            return;
-        }
-
-        // prepare mail and send in other case
-        var needItemDelay = false;
-
-        if (!m_items.Empty())
-        {
-            // if item send to character at another account, then apply item delivery delay
-            needItemDelay = senderAcc != rc_account;
-
-            // set owner to new receiver (to prevent delete item with sender char deleting)
-            foreach (var item in m_items.Values)
-            {
-                item.SaveToDB(trans); // item not in inventory and can be save standalone
-                // owner in data will set at mail receive and item extracting
-                var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
-                stmt.AddValue(0, receiver_guid);
-                stmt.AddValue(1, item.GUID.Counter);
-                trans.Append(stmt);
-            }
-        }
-
-        // If theres is an item, there is a one hour delivery delay.
-        var deliver_delay = needItemDelay ? GetDefaultValue("MailDeliveryDelay", Time.Hour) : 0;
-
-        // will delete item or place to receiver mail list
-        SendMailTo(trans, new MailReceiver(receiver, receiver_guid), new MailSender(MailMessageType.Normal, senderGuid), MailCheckMask.Returned, deliver_delay);
+        return this;
     }
 
     public void SendMailTo(SQLTransaction trans, Player receiver, MailSender sender, MailCheckMask checkMask = MailCheckMask.None, uint deliver_delay = 0)
@@ -107,19 +76,19 @@ public class MailDraft
 
         var mailId = Global.ObjectMgr.GenerateMailID();
 
-        var deliver_time = GameTime.GetGameTime() + deliver_delay;
+        var deliver_time = GameTime.CurrentTime + deliver_delay;
 
         //expire time if COD 3 days, if no COD 30 days, if auction sale pending 1 hour
         uint expire_delay;
 
         // auction mail without any items and money
         if (sender.GetMailMessageType() == MailMessageType.Auction && m_items.Empty() && m_money == 0)
-            expire_delay = GetDefaultValue("MailDeliveryDelay", Time.Hour);
+            expire_delay = GetDefaultValue("MailDeliveryDelay", Time.HOUR);
         // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
         else if (m_COD != 0)
-            expire_delay = 3 * Time.Day;
+            expire_delay = 3 * Time.DAY;
         else
-            expire_delay = (uint)(pSender != null && pSender.IsGameMaster ? 90 * Time.Day : 30 * Time.Day);
+            expire_delay = (uint)(pSender != null && pSender.IsGameMaster ? 90 * Time.DAY : 30 * Time.DAY);
 
         var expire_time = deliver_time + expire_delay;
 
@@ -191,18 +160,81 @@ public class MailDraft
         }
     }
 
-    public MailDraft AddMoney(ulong money)
+    public void SendReturnToSender(uint senderAcc, ulong senderGuid, ulong receiver_guid, SQLTransaction trans)
     {
-        m_money = money;
+        var receiverGuid = ObjectGuid.Create(HighGuid.Player, receiver_guid);
+        var receiver = Global.ObjAccessor.FindPlayer(receiverGuid);
 
-        return this;
+        uint rc_account = 0;
+
+        if (receiver == null)
+            rc_account = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(receiverGuid);
+
+        if (receiver == null && rc_account == 0) // sender not exist
+        {
+            DeleteIncludedItems(trans, true);
+
+            return;
+        }
+
+        // prepare mail and send in other case
+        var needItemDelay = false;
+
+        if (!m_items.Empty())
+        {
+            // if item send to character at another account, then apply item delivery delay
+            needItemDelay = senderAcc != rc_account;
+
+            // set owner to new receiver (to prevent delete item with sender char deleting)
+            foreach (var item in m_items.Values)
+            {
+                item.SaveToDB(trans); // item not in inventory and can be save standalone
+                // owner in data will set at mail receive and item extracting
+                var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
+                stmt.AddValue(0, receiver_guid);
+                stmt.AddValue(1, item.GUID.Counter);
+                trans.Append(stmt);
+            }
+        }
+
+        // If theres is an item, there is a one hour delivery delay.
+        var deliver_delay = needItemDelay ? GetDefaultValue("MailDeliveryDelay", Time.HOUR) : 0;
+
+        // will delete item or place to receiver mail list
+        SendMailTo(trans, new MailReceiver(receiver, receiver_guid), new MailSender(MailMessageType.Normal, senderGuid), MailCheckMask.Returned, deliver_delay);
+    }
+    private void DeleteIncludedItems(SQLTransaction trans, bool inDB = false)
+    {
+        foreach (var item in m_items.Values)
+            if (inDB)
+                item.DeleteFromDB(trans);
+
+        m_items.Clear();
     }
 
-    public MailDraft AddCOD(uint COD)
+    private string GetBody()
     {
-        m_COD = COD;
+        return m_body;
+    }
 
-        return this;
+    private ulong GetCOD()
+    {
+        return m_COD;
+    }
+
+    private uint GetMailTemplateId()
+    {
+        return m_mailTemplateId;
+    }
+
+    private ulong GetMoney()
+    {
+        return m_money;
+    }
+
+    private string GetSubject()
+    {
+        return m_subject;
     }
 
     private void PrepareItems(Player receiver, SQLTransaction trans)
@@ -236,39 +268,5 @@ public class MailDraft
                 }
             }
         }
-    }
-
-    private void DeleteIncludedItems(SQLTransaction trans, bool inDB = false)
-    {
-        foreach (var item in m_items.Values)
-            if (inDB)
-                item.DeleteFromDB(trans);
-
-        m_items.Clear();
-    }
-
-    private uint GetMailTemplateId()
-    {
-        return m_mailTemplateId;
-    }
-
-    private string GetSubject()
-    {
-        return m_subject;
-    }
-
-    private ulong GetMoney()
-    {
-        return m_money;
-    }
-
-    private ulong GetCOD()
-    {
-        return m_COD;
-    }
-
-    private string GetBody()
-    {
-        return m_body;
     }
 }

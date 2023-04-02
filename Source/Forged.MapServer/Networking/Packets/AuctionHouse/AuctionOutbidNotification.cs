@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionOutbidNotification : ServerPacket
 {
-    public AuctionBidderNotification Info;
     public ulong BidAmount;
+    public AuctionBidderNotification Info;
     public ulong MinIncrement;
 
     public AuctionOutbidNotification() : base(ServerOpcodes.AuctionOutbidNotification) { }

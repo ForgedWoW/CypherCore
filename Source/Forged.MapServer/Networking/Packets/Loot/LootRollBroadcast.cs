@@ -8,12 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootRollBroadcast : ServerPacket
 {
+    public bool Autopassed;
+    public LootItemData Item = new();
     public ObjectGuid LootObj;
     public ObjectGuid Player;
     public int Roll; // Roll value can be negative, it means that it is an "offspec" roll but only during roll selection broadcast (not when sending the result)
     public RollVote RollType;
-    public LootItemData Item = new();
-    public bool Autopassed; // Triggers message |HlootHistory:%d|h[Loot]|h: You automatically passed on: %s because you cannot loot that item.
+     // Triggers message |HlootHistory:%d|h[Loot]|h: You automatically passed on: %s because you cannot loot that item.
     public LootRollBroadcast() : base(ServerOpcodes.LootRoll) { }
 
     public override void Write()

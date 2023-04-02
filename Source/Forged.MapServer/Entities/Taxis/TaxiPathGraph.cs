@@ -18,10 +18,10 @@ namespace Forged.MapServer.Entities.Taxis;
 public class TaxiPathGraph
 {
     private readonly CliDB _cliDB;
-    private readonly DB2Manager _db2Manager;
     private readonly ConditionManager _conditionManager;
-    private readonly GameObjectManager _objectManager;
+    private readonly DB2Manager _db2Manager;
     private readonly List<TaxiNodesRecord> _nodesByVertex = new();
+    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, uint> _verticesByNode = new();
     private EdgeWeightedDigraph _graph;
 
@@ -31,30 +31,6 @@ public class TaxiPathGraph
         _db2Manager = db2Manager;
         _conditionManager = conditionManager;
         _objectManager = objectManager;
-    }
-
-    public void Initialize()
-    {
-        if (_graph != null)
-            return;
-
-        List<Tuple<Tuple<uint, uint>, uint>> edges = new();
-
-        // Initialize here
-        foreach (var path in _cliDB.TaxiPathStorage.Values)
-        {
-            var from = _cliDB.TaxiNodesStorage.LookupByKey(path.FromTaxiNode);
-            var to = _cliDB.TaxiNodesStorage.LookupByKey(path.ToTaxiNode);
-
-            if (from != null && to != null && from.Flags.HasAnyFlag(TaxiNodeFlags.Alliance | TaxiNodeFlags.Horde) && to.Flags.HasAnyFlag(TaxiNodeFlags.Alliance | TaxiNodeFlags.Horde))
-                AddVerticeAndEdgeFromNodeInfo(from, to, path.Id, edges);
-        }
-
-        // create graph
-        _graph = new EdgeWeightedDigraph(_nodesByVertex.Count);
-
-        for (var j = 0; j < edges.Count; ++j)
-            _graph.AddEdge(new DirectedEdge(edges[j].Item1.Item1, edges[j].Item1.Item2, edges[j].Item2));
     }
 
     public int GetCompleteNodeRoute(TaxiNodesRecord from, TaxiNodesRecord to, Player player, List<uint> shortestPath)
@@ -121,23 +97,29 @@ public class TaxiPathGraph
                                  });
     }
 
-    private void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)
+    public void Initialize()
     {
-        if (!_db2Manager.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Adventure, false, out uiMapId, out uiMapPosition))
-            _db2Manager.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId, out uiMapPosition);
-    }
+        if (_graph != null)
+            return;
 
-    private uint CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesRecord node)
-    {
-        if (!_verticesByNode.ContainsKey(node.Id))
+        List<Tuple<Tuple<uint, uint>, uint>> edges = new();
+
+        // Initialize here
+        foreach (var path in _cliDB.TaxiPathStorage.Values)
         {
-            _verticesByNode.Add(node.Id, (uint)_nodesByVertex.Count);
-            _nodesByVertex.Add(node);
+            var from = _cliDB.TaxiNodesStorage.LookupByKey(path.FromTaxiNode);
+            var to = _cliDB.TaxiNodesStorage.LookupByKey(path.ToTaxiNode);
+
+            if (from != null && to != null && from.Flags.HasAnyFlag(TaxiNodeFlags.Alliance | TaxiNodeFlags.Horde) && to.Flags.HasAnyFlag(TaxiNodeFlags.Alliance | TaxiNodeFlags.Horde))
+                AddVerticeAndEdgeFromNodeInfo(from, to, path.Id, edges);
         }
 
-        return _verticesByNode[node.Id];
-    }
+        // create graph
+        _graph = new EdgeWeightedDigraph(_nodesByVertex.Count);
 
+        for (var j = 0; j < edges.Count; ++j)
+            _graph.AddEdge(new DirectedEdge(edges[j].Item1.Item1, edges[j].Item1.Item2, edges[j].Item2));
+    }
     private void AddVerticeAndEdgeFromNodeInfo(TaxiNodesRecord from, TaxiNodesRecord to, uint pathId, List<Tuple<Tuple<uint, uint>, uint>> edges)
     {
         if (from.Id != to.Id)
@@ -188,9 +170,15 @@ public class TaxiPathGraph
         }
     }
 
-    private uint GetVertexIDFromNodeID(TaxiNodesRecord node)
+    private uint CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesRecord node)
     {
-        return _verticesByNode.ContainsKey(node.Id) ? _verticesByNode[node.Id] : uint.MaxValue;
+        if (!_verticesByNode.ContainsKey(node.Id))
+        {
+            _verticesByNode.Add(node.Id, (uint)_nodesByVertex.Count);
+            _nodesByVertex.Add(node);
+        }
+
+        return _verticesByNode[node.Id];
     }
 
     private uint GetNodeIDFromVertexID(uint vertexID)
@@ -199,5 +187,15 @@ public class TaxiPathGraph
             return _nodesByVertex[(int)vertexID].Id;
 
         return uint.MaxValue;
+    }
+
+    private void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)
+    {
+        if (!_db2Manager.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Adventure, false, out uiMapId, out uiMapPosition))
+            _db2Manager.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId, out uiMapPosition);
+    }
+    private uint GetVertexIDFromNodeID(TaxiNodesRecord node)
+    {
+        return _verticesByNode.ContainsKey(node.Id) ? _verticesByNode[node.Id] : uint.MaxValue;
     }
 }

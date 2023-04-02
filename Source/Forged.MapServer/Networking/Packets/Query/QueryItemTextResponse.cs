@@ -10,8 +10,8 @@ namespace Forged.MapServer.Networking.Packets.Query;
 internal class QueryItemTextResponse : ServerPacket
 {
     public ObjectGuid Id;
-    public bool Valid;
     public string Text;
+    public bool Valid;
     public QueryItemTextResponse() : base(ServerOpcodes.QueryItemTextResponse) { }
 
     public override void Write()

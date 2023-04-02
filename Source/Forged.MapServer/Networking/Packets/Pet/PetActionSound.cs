@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetActionSound : ServerPacket
 {
-    public ObjectGuid UnitGUID;
     public PetTalk Action;
+    public ObjectGuid UnitGUID;
     public PetActionSound() : base(ServerOpcodes.PetStableResult) { }
 
     public override void Write()

@@ -12,12 +12,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class GameObjectListSearcher : IGridNotifierGameObject
 {
-    private readonly PhaseShift _phaseShift;
-    private readonly List<GameObject> _objects;
     private readonly ICheck<GameObject> _check;
-
-    public GridType GridType { get; set; }
-
+    private readonly List<GameObject> _objects;
+    private readonly PhaseShift _phaseShift;
     public GameObjectListSearcher(WorldObject searcher, List<GameObject> objects, ICheck<GameObject> check, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -26,6 +23,7 @@ public class GameObjectListSearcher : IGridNotifierGameObject
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<GameObject> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

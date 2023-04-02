@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 internal class SpellInterruptLog : ServerPacket
 {
     public ObjectGuid Caster;
-    public ObjectGuid Victim;
     public uint InterruptedSpellID;
     public uint SpellID;
+    public ObjectGuid Victim;
     public SpellInterruptLog() : base(ServerOpcodes.SpellInterruptLog, ConnectionType.Instance) { }
 
     public override void Write()

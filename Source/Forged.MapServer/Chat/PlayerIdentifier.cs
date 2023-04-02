@@ -10,8 +10,8 @@ namespace Forged.MapServer.Chat;
 
 internal class PlayerIdentifier
 {
-    private string _name;
     private ObjectGuid _guid;
+    private string _name;
     private Player _player;
 
     public PlayerIdentifier() { }
@@ -23,24 +23,14 @@ internal class PlayerIdentifier
         _player = player;
     }
 
-    public string GetName()
+    public static PlayerIdentifier FromSelf(CommandHandler handler)
     {
-        return _name;
-    }
+        var player = handler.Player;
 
-    public ObjectGuid GetGUID()
-    {
-        return _guid;
-    }
+        if (player != null)
+            return new PlayerIdentifier(player);
 
-    public bool IsConnected()
-    {
-        return _player != null;
-    }
-
-    public Player GetConnectedPlayer()
-    {
-        return _player;
+        return null;
     }
 
     public static PlayerIdentifier FromTarget(CommandHandler handler)
@@ -55,16 +45,6 @@ internal class PlayerIdentifier
         return null;
     }
 
-    public static PlayerIdentifier FromSelf(CommandHandler handler)
-    {
-        var player = handler.Player;
-
-        if (player != null)
-            return new PlayerIdentifier(player);
-
-        return null;
-    }
-
     public static PlayerIdentifier FromTargetOrSelf(CommandHandler handler)
     {
         var fromTarget = FromTarget(handler);
@@ -75,6 +55,24 @@ internal class PlayerIdentifier
             return FromSelf(handler);
     }
 
+    public Player GetConnectedPlayer()
+    {
+        return _player;
+    }
+
+    public ObjectGuid GetGUID()
+    {
+        return _guid;
+    }
+
+    public string GetName()
+    {
+        return _name;
+    }
+    public bool IsConnected()
+    {
+        return _player != null;
+    }
     public ChatCommandResult TryConsume(CommandHandler handler, string args)
     {
         var next = CommandArgs.TryConsume(out var tempVal, typeof(ulong), handler, args);

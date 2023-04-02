@@ -12,11 +12,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class CreatureWorker : IGridNotifierCreature
 {
-    private readonly PhaseShift _phaseShift;
     private readonly IDoWork<Creature> _doWork;
-
-    public GridType GridType { get; set; }
-
+    private readonly PhaseShift _phaseShift;
     public CreatureWorker(WorldObject searcher, IDoWork<Creature> work, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -24,6 +21,7 @@ public class CreatureWorker : IGridNotifierCreature
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

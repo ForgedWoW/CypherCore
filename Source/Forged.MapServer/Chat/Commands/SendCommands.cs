@@ -14,36 +14,6 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("send")]
 internal class SendCommands
 {
-    [Command("mail", RBACPermissions.CommandSendMail, true)]
-    private static bool HandleSendMailCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text)
-    {
-        // format: name "subject text" "mail text"
-        if (playerIdentifier == null)
-            playerIdentifier = PlayerIdentifier.FromTarget(handler);
-
-        if (playerIdentifier == null)
-            return false;
-
-        if (subject.IsEmpty() || text.IsEmpty())
-            return false;
-
-        // from console show not existed sender
-        MailSender sender = new(MailMessageType.Normal, handler.Session ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
-
-        // @todo Fix poor design
-        SQLTransaction trans = new();
-
-        new MailDraft(subject, text)
-            .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
-
-        DB.Characters.CommitTransaction(trans);
-
-        var nameLink = handler.PlayerLink(playerIdentifier.GetName());
-        handler.SendSysMessage(CypherStrings.MailSent, nameLink);
-
-        return true;
-    }
-
     [Command("items", RBACPermissions.CommandSendItems, true)]
     private static bool HandleSendItemsCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, string itemsStr)
     {
@@ -133,10 +103,10 @@ internal class SendCommands
         return true;
     }
 
-    [Command("money", RBACPermissions.CommandSendMoney, true)]
-    private static bool HandleSendMoneyCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, long money)
+    [Command("mail", RBACPermissions.CommandSendMail, true)]
+    private static bool HandleSendMailCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text)
     {
-        // format: name "subject text" "mail text" money
+        // format: name "subject text" "mail text"
         if (playerIdentifier == null)
             playerIdentifier = PlayerIdentifier.FromTarget(handler);
 
@@ -146,16 +116,13 @@ internal class SendCommands
         if (subject.IsEmpty() || text.IsEmpty())
             return false;
 
-        if (money <= 0)
-            return false;
-
         // from console show not existed sender
         MailSender sender = new(MailMessageType.Normal, handler.Session ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
 
+        // @todo Fix poor design
         SQLTransaction trans = new();
 
         new MailDraft(subject, text)
-            .AddMoney((uint)money)
             .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
         DB.Characters.CommitTransaction(trans);
@@ -165,7 +132,6 @@ internal class SendCommands
 
         return true;
     }
-
     [Command("message", RBACPermissions.CommandSendMessage, true)]
     private static bool HandleSendMessageCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString msgStr)
     {
@@ -198,6 +164,39 @@ internal class SendCommands
         // Confirmation message
         var nameLink = handler.GetNameLink(playerIdentifier.GetConnectedPlayer());
         handler.SendSysMessage(CypherStrings.Sendmessage, nameLink, msgStr);
+
+        return true;
+    }
+
+    [Command("money", RBACPermissions.CommandSendMoney, true)]
+    private static bool HandleSendMoneyCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, long money)
+    {
+        // format: name "subject text" "mail text" money
+        if (playerIdentifier == null)
+            playerIdentifier = PlayerIdentifier.FromTarget(handler);
+
+        if (playerIdentifier == null)
+            return false;
+
+        if (subject.IsEmpty() || text.IsEmpty())
+            return false;
+
+        if (money <= 0)
+            return false;
+
+        // from console show not existed sender
+        MailSender sender = new(MailMessageType.Normal, handler.Session ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
+
+        SQLTransaction trans = new();
+
+        new MailDraft(subject, text)
+            .AddMoney((uint)money)
+            .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
+
+        DB.Characters.CommitTransaction(trans);
+
+        var nameLink = handler.PlayerLink(playerIdentifier.GetName());
+        handler.SendSysMessage(CypherStrings.MailSent, nameLink);
 
         return true;
     }

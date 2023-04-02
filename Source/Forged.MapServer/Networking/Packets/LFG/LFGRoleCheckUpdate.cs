@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LFGRoleCheckUpdate : ServerPacket
 {
-    public byte PartyIndex;
-    public byte RoleCheckStatus;
-    public List<uint> JoinSlots = new();
     public List<ulong> BgQueueIDs = new();
     public int GroupFinderActivityID = 0;
-    public List<LFGRoleCheckUpdateMember> Members = new();
     public bool IsBeginning;
     public bool IsRequeue;
+    public List<uint> JoinSlots = new();
+    public List<LFGRoleCheckUpdateMember> Members = new();
+    public byte PartyIndex;
+    public byte RoleCheckStatus;
     public LFGRoleCheckUpdate() : base(ServerOpcodes.LfgRoleCheckUpdate) { }
 
     public override void Write()

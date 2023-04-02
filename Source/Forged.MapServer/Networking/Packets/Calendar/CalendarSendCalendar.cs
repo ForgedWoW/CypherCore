@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarSendCalendar : ServerPacket
 {
-    public long ServerTime;
+    public List<CalendarSendCalendarEventInfo> Events = new();
     public List<CalendarSendCalendarInviteInfo> Invites = new();
     public List<CalendarSendCalendarRaidLockoutInfo> RaidLockouts = new();
-    public List<CalendarSendCalendarEventInfo> Events = new();
+    public long ServerTime;
     public CalendarSendCalendar() : base(ServerOpcodes.CalendarSendCalendar) { }
 
     public override void Write()

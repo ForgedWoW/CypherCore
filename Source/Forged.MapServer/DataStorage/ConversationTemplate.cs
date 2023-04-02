@@ -7,11 +7,13 @@ namespace Forged.MapServer.DataStorage;
 
 public class ConversationTemplate
 {
+    public List<ConversationActorTemplate> Actors = new();
+    public uint FirstLineId;
     public uint Id;
-    public uint FirstLineId;  // Link to ConversationLine.db2
-    public uint TextureKitId; // Background texture
+    public List<ConversationLineTemplate> Lines = new();
+
     public uint ScriptId;
 
-    public List<ConversationActorTemplate> Actors = new();
-    public List<ConversationLineTemplate> Lines = new();
+    // Link to ConversationLine.db2
+    public uint TextureKitId; // Background texture
 }

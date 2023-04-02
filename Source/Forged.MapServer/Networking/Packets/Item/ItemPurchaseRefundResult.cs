@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemPurchaseRefundResult : ServerPacket
 {
-    public byte Result;
-    public ObjectGuid ItemGUID;
     public ItemPurchaseContents Contents;
+    public ObjectGuid ItemGUID;
+    public byte Result;
     public ItemPurchaseRefundResult() : base(ServerOpcodes.ItemPurchaseRefundResult, ConnectionType.Instance) { }
 
     public override void Write()

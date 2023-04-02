@@ -8,9 +8,8 @@ namespace Forged.MapServer.Entities;
 public struct PassengerInfo
 {
     public ObjectGuid Guid;
-    public bool IsUninteractible;
     public bool IsGravityDisabled;
-
+    public bool IsUninteractible;
     public void Reset()
     {
         Guid = ObjectGuid.Empty;

@@ -15,26 +15,32 @@ public class BlackMarketEntry
     private uint _secondsRemaining;
 
 
-    public uint MarketId { get; private set; }
-
-    public ulong CurrentBid { get; private set; }
-
-    public uint NumBids { get; private set; }
-
     public ulong Bidder { get; private set; }
-
-    public ulong MinIncrement => (CurrentBid / 20) - ((CurrentBid / 20) % MoneyConstants.Gold);
+    public ulong CurrentBid { get; private set; }
     public bool MailSent { get; private set; }
-
-    public void Initialize(uint marketId, uint duration)
+    public uint MarketId { get; private set; }
+    public ulong MinIncrement => (CurrentBid / 20) - ((CurrentBid / 20) % MoneyConstants.Gold);
+    public uint NumBids { get; private set; }
+    public string BuildAuctionMailBody()
     {
-        MarketId = marketId;
-        _secondsRemaining = duration;
+        return GetTemplate().SellerNPC + ":" + CurrentBid;
     }
 
-    public void Update(long newTimeOfUpdate)
+    public string BuildAuctionMailSubject(BMAHMailAuctionAnswers response)
     {
-        _secondsRemaining = (uint)(_secondsRemaining - (newTimeOfUpdate - Global.BlackMarketMgr.LastUpdate));
+        return GetTemplate().Item.ItemID + ":0:" + response + ':' + MarketId + ':' + GetTemplate().Quantity;
+    }
+
+    public void DeleteFromDB(SQLTransaction trans)
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_BLACKMARKET_AUCTIONS);
+        stmt.AddValue(0, MarketId);
+        trans.Append(stmt);
+    }
+
+    public uint GetSecondsRemaining()
+    {
+        return (uint)(_secondsRemaining - (GameTime.CurrentTime - Global.BlackMarketMgr.LastUpdate));
     }
 
     public BlackMarketTemplate GetTemplate()
@@ -42,9 +48,10 @@ public class BlackMarketEntry
         return Global.BlackMarketMgr.GetTemplateByID(MarketId);
     }
 
-    public uint GetSecondsRemaining()
+    public void Initialize(uint marketId, uint duration)
     {
-        return (uint)(_secondsRemaining - (GameTime.GetGameTime() - Global.BlackMarketMgr.LastUpdate));
+        MarketId = marketId;
+        _secondsRemaining = duration;
     }
 
     public bool IsCompleted()
@@ -82,40 +89,6 @@ public class BlackMarketEntry
         return true;
     }
 
-    public void SaveToDB(SQLTransaction trans)
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_BLACKMARKET_AUCTIONS);
-
-        stmt.AddValue(0, MarketId);
-        stmt.AddValue(1, CurrentBid);
-        stmt.AddValue(2, GetExpirationTime());
-        stmt.AddValue(3, NumBids);
-        stmt.AddValue(4, Bidder);
-
-        trans.Append(stmt);
-    }
-
-    public void DeleteFromDB(SQLTransaction trans)
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_BLACKMARKET_AUCTIONS);
-        stmt.AddValue(0, MarketId);
-        trans.Append(stmt);
-    }
-
-    public bool ValidateBid(ulong bid)
-    {
-        if (bid <= CurrentBid)
-            return false;
-
-        if (bid < CurrentBid + MinIncrement)
-            return false;
-
-        if (bid >= BlackMarketConst.MaxBid)
-            return false;
-
-        return true;
-    }
-
     public void PlaceBid(ulong bid, Player player, SQLTransaction trans) //Updated
     {
         if (bid < CurrentBid)
@@ -124,8 +97,8 @@ public class BlackMarketEntry
         CurrentBid = bid;
         ++NumBids;
 
-        if (GetSecondsRemaining() < 30 * Time.Minute)
-            _secondsRemaining += 30 * Time.Minute;
+        if (GetSecondsRemaining() < 30 * Time.MINUTE)
+            _secondsRemaining += 30 * Time.MINUTE;
 
         Bidder = player.GUID.Counter;
 
@@ -145,23 +118,45 @@ public class BlackMarketEntry
         Global.BlackMarketMgr.Update(true);
     }
 
-    public string BuildAuctionMailSubject(BMAHMailAuctionAnswers response)
+    public void SaveToDB(SQLTransaction trans)
     {
-        return GetTemplate().Item.ItemID + ":0:" + response + ':' + MarketId + ':' + GetTemplate().Quantity;
-    }
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_BLACKMARKET_AUCTIONS);
 
-    public string BuildAuctionMailBody()
-    {
-        return GetTemplate().SellerNPC + ":" + CurrentBid;
+        stmt.AddValue(0, MarketId);
+        stmt.AddValue(1, CurrentBid);
+        stmt.AddValue(2, GetExpirationTime());
+        stmt.AddValue(3, NumBids);
+        stmt.AddValue(4, Bidder);
+
+        trans.Append(stmt);
     }
 
     public void SetMailSent()
     {
         MailSent = true;
-    } // Set when mail has been sent
+    }
+
+    public void Update(long newTimeOfUpdate)
+    {
+        _secondsRemaining = (uint)(_secondsRemaining - (newTimeOfUpdate - Global.BlackMarketMgr.LastUpdate));
+    }
+    public bool ValidateBid(ulong bid)
+    {
+        if (bid <= CurrentBid)
+            return false;
+
+        if (bid < CurrentBid + MinIncrement)
+            return false;
+
+        if (bid >= BlackMarketConst.MaxBid)
+            return false;
+
+        return true;
+    }
+     // Set when mail has been sent
 
     private long GetExpirationTime()
     {
-        return GameTime.GetGameTime() + GetSecondsRemaining();
+        return GameTime.CurrentTime + GetSecondsRemaining();
     }
 }

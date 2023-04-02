@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ReadyCheckCompleted : ServerPacket
 {
-    public sbyte PartyIndex;
     public ObjectGuid PartyGUID;
+    public sbyte PartyIndex;
     public ReadyCheckCompleted() : base(ServerOpcodes.ReadyCheckCompleted) { }
 
     public override void Write()

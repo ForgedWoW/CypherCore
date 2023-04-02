@@ -10,16 +10,17 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 public class TraitConfigPacket
 {
-    public int ID;
-    public TraitConfigType Type;
     public int ChrSpecializationID = 0;
     public TraitCombatConfigFlags CombatConfigFlags;
-    public int LocalIdentifier; // Local to specialization
-    public uint SkillLineID;
-    public int TraitSystemID;
     public Dictionary<int, Dictionary<int, TraitEntryPacket>> Entries = new();
+    public int ID;
+    public int LocalIdentifier;
     public string Name = "";
+    // Local to specialization
+    public uint SkillLineID;
 
+    public int TraitSystemID;
+    public TraitConfigType Type;
     public TraitConfigPacket() { }
 
     public TraitConfigPacket(TraitConfig ufConfig)

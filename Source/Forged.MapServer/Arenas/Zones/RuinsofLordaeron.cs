@@ -9,9 +9,35 @@ using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 
+internal struct RuinsofLordaeronObjectTypes
+{
+    public const int Buff1 = 2;
+    public const int Buff2 = 3;
+    public const int Door1 = 0;
+    public const int Door2 = 1;
+    public const int Max = 4;
+}
+
 internal class RuinsofLordaeronArena : Arena
 {
     public RuinsofLordaeronArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate) { }
+
+    public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
+    {
+        if (GetStatus() != BattlegroundStatus.InProgress)
+            return;
+
+        switch (trigger)
+        {
+            case 4696: // buff trigger?
+            case 4697: // buff trigger?
+                break;
+            default:
+                base.HandleAreaTrigger(player, trigger, entered);
+
+                break;
+        }
+    }
 
     public override void PostUpdateImpl(uint diff)
     {
@@ -68,38 +94,11 @@ internal class RuinsofLordaeronArena : Arena
         for (var i = RuinsofLordaeronObjectTypes.Buff1; i <= RuinsofLordaeronObjectTypes.Buff2; ++i)
             SpawnBGObject(i, 60);
     }
-
-    public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
-    {
-        if (GetStatus() != BattlegroundStatus.InProgress)
-            return;
-
-        switch (trigger)
-        {
-            case 4696: // buff trigger?
-            case 4697: // buff trigger?
-                break;
-            default:
-                base.HandleAreaTrigger(player, trigger, entered);
-
-                break;
-        }
-    }
 }
-
-internal struct RuinsofLordaeronObjectTypes
-{
-    public const int Door1 = 0;
-    public const int Door2 = 1;
-    public const int Buff1 = 2;
-    public const int Buff2 = 3;
-    public const int Max = 4;
-}
-
 internal struct RuinsofLordaeronGameObjects
 {
-    public const uint Door1 = 185918;
-    public const uint Door2 = 185917;
     public const uint Buff1 = 184663;
     public const uint Buff2 = 184664;
+    public const uint Door1 = 185918;
+    public const uint Door2 = 185917;
 }

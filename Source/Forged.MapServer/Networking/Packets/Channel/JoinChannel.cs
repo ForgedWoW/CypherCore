@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 public class JoinChannel : ClientPacket
 {
-    public string Password;
     public string ChannelName;
-    public bool CreateVoiceSession;
     public int ChatChannelId;
+    public bool CreateVoiceSession;
     public bool Internal;
+    public string Password;
     public JoinChannel(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 public class GuildChallengeUpdate : ServerPacket
 {
     public int[] CurrentCount = new int[GuildConst.ChallengesTypes];
-    public int[] MaxCount = new int[GuildConst.ChallengesTypes];
     public int[] Gold = new int[GuildConst.ChallengesTypes];
+    public int[] MaxCount = new int[GuildConst.ChallengesTypes];
     public int[] MaxLevelGold = new int[GuildConst.ChallengesTypes];
     public GuildChallengeUpdate() : base(ServerOpcodes.GuildChallengeUpdate) { }
 

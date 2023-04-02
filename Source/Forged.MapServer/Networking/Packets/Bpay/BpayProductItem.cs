@@ -7,17 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BpayProductItem
 {
+    public BpayDisplayInfo Display { get; set; }
     public uint Entry { get; set; }
     public uint ID { get; set; }
-    public byte UnkByte { get; set; }
+    public bool IsPet { get; set; }
     public uint ItemID { get; set; }
+    public uint PetResult { get; set; }
     public uint Quantity { get; set; }
+    public byte UnkByte { get; set; }
     public uint UnkInt1 { get; set; }
     public uint UnkInt2 { get; set; }
-    public bool IsPet { get; set; }
-    public uint PetResult { get; set; }
-    public BpayDisplayInfo Display { get; set; }
-
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(ID);

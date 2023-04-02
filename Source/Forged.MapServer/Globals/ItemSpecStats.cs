@@ -11,10 +11,9 @@ namespace Forged.MapServer.Globals;
 
 internal class ItemSpecStats
 {
-    public uint ItemType;
-    public ItemSpecStat[] ItemSpecStatTypes = new ItemSpecStat[ItemConst.MaxStats];
     public uint ItemSpecStatCount;
-
+    public ItemSpecStat[] ItemSpecStatTypes = new ItemSpecStat[ItemConst.MaxStats];
+    public uint ItemType;
     public ItemSpecStats(ItemRecord item, ItemSparseRecord sparse)
     {
         if (item.ClassID == ItemClass.Weapon)
@@ -189,18 +188,6 @@ internal class ItemSpecStats
                 AddModStat(sparse.StatModifierBonusStat[i]);
     }
 
-    private void AddStat(ItemSpecStat statType)
-    {
-        if (ItemSpecStatCount >= ItemConst.MaxStats)
-            return;
-
-        for (uint i = 0; i < ItemConst.MaxStats; ++i)
-            if (ItemSpecStatTypes[i] == statType)
-                return;
-
-        ItemSpecStatTypes[ItemSpecStatCount++] = statType;
-    }
-
     private void AddModStat(int itemStatType)
     {
         switch ((ItemModType)itemStatType)
@@ -266,5 +253,17 @@ internal class ItemSpecStats
 
                 break;
         }
+    }
+
+    private void AddStat(ItemSpecStat statType)
+    {
+        if (ItemSpecStatCount >= ItemConst.MaxStats)
+            return;
+
+        for (uint i = 0; i < ItemConst.MaxStats; ++i)
+            if (ItemSpecStatTypes[i] == statType)
+                return;
+
+        ItemSpecStatTypes[ItemSpecStatCount++] = statType;
     }
 }

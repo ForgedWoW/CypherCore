@@ -12,17 +12,32 @@ public class VehicleAI : CreatureAI
     private const int VEHICLE_CONDITION_CHECK_TIME = 1000;
     private const int VEHICLE_DISMISS_TIME = 5000;
 
-    private bool _hasConditions;
     private uint _conditionsTimer;
-    private bool _doDismiss;
     private uint _dismissTimer;
-
+    private bool _doDismiss;
+    private bool _hasConditions;
     public VehicleAI(Creature creature) : base(creature)
     {
         _conditionsTimer = VEHICLE_CONDITION_CHECK_TIME;
         LoadConditions();
         _doDismiss = false;
         _dismissTimer = VEHICLE_DISMISS_TIME;
+    }
+
+    public override void AttackStart(Unit victim) { }
+
+    public override void MoveInLineOfSight(Unit who) { }
+
+    public override void OnCharmed(bool isNew)
+    {
+        var charmed = Me.IsCharmed;
+
+        if (!Me.VehicleKit.IsVehicleInUse() && !charmed && _hasConditions) //was used and has conditions
+            _doDismiss = true;                                              //needs reset
+        else if (charmed)
+            _doDismiss = false; //in use again
+
+        _dismissTimer = VEHICLE_DISMISS_TIME; //reset timer
     }
 
     public override void UpdateAI(uint diff)
@@ -42,28 +57,6 @@ public class VehicleAI : CreatureAI
             }
         }
     }
-
-    public override void MoveInLineOfSight(Unit who) { }
-
-    public override void AttackStart(Unit victim) { }
-
-    public override void OnCharmed(bool isNew)
-    {
-        var charmed = Me.IsCharmed;
-
-        if (!Me.VehicleKit.IsVehicleInUse() && !charmed && _hasConditions) //was used and has conditions
-            _doDismiss = true;                                              //needs reset
-        else if (charmed)
-            _doDismiss = false; //in use again
-
-        _dismissTimer = VEHICLE_DISMISS_TIME; //reset timer
-    }
-
-    private void LoadConditions()
-    {
-        _hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, Me.Entry);
-    }
-
     private void CheckConditions(uint diff)
     {
         if (!_hasConditions)
@@ -98,5 +91,10 @@ public class VehicleAI : CreatureAI
         {
             _conditionsTimer -= diff;
         }
+    }
+
+    private void LoadConditions()
+    {
+        _hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, Me.Entry);
     }
 }

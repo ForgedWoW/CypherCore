@@ -9,20 +9,20 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class SetCurrency : ServerPacket
 {
-    public uint Type;
-    public int Quantity;
+    public uint? FirstCraftOperationID;
     public CurrencyGainFlags Flags;
-    public List<UiEventToast> Toasts = new();
-    public int? WeeklyQuantity;
-    public int? TrackedQuantity;
+    public long? LastSpendTime;
     public int? MaxQuantity;
-    public int? TotalEarned;
+    public int Quantity;
     public int? QuantityChange;
     public CurrencyGainSource? QuantityGainSource;
     public CurrencyDestroyReason? QuantityLostSource;
-    public uint? FirstCraftOperationID;
-    public long? LastSpendTime;
     public bool SuppressChatLog;
+    public List<UiEventToast> Toasts = new();
+    public int? TotalEarned;
+    public int? TrackedQuantity;
+    public uint Type;
+    public int? WeeklyQuantity;
     public SetCurrency() : base(ServerOpcodes.SetCurrency, ConnectionType.Instance) { }
 
     public override void Write()

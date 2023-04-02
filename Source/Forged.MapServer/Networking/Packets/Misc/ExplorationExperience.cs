@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class ExplorationExperience : ServerPacket
 {
-    public uint Experience;
     public uint AreaID;
-
+    public uint Experience;
     public ExplorationExperience(uint experience, uint areaID) : base(ServerOpcodes.ExplorationExperience)
     {
         Experience = experience;

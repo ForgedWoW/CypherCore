@@ -7,18 +7,17 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class CriteriaRecord
 {
-    public uint Id;
-    public CriteriaType Type;
     public uint Asset;
-    public uint ModifierTreeId;
-    public byte StartEvent;
-    public uint StartAsset;
-    public ushort StartTimer;
-    public byte FailEvent;
-    public uint FailAsset;
-    public byte Flags;
     public ushort EligibilityWorldStateID;
     public byte EligibilityWorldStateValue;
-
+    public uint FailAsset;
+    public byte FailEvent;
+    public byte Flags;
+    public uint Id;
+    public uint ModifierTreeId;
+    public uint StartAsset;
+    public byte StartEvent;
+    public ushort StartTimer;
+    public CriteriaType Type;
     public CriteriaFlags GetFlags() => (CriteriaFlags)Flags;
 }

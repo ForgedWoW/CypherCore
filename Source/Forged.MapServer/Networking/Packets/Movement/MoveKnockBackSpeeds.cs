@@ -5,11 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public struct MoveKnockBackSpeeds
 {
-    public void Write(WorldPacket data)
-    {
-        data.WriteFloat(HorzSpeed);
-        data.WriteFloat(VertSpeed);
-    }
+    public float HorzSpeed;
+
+    public float VertSpeed;
 
     public void Read(WorldPacket data)
     {
@@ -17,6 +15,9 @@ public struct MoveKnockBackSpeeds
         VertSpeed = data.ReadFloat();
     }
 
-    public float HorzSpeed;
-    public float VertSpeed;
+    public void Write(WorldPacket data)
+    {
+        data.WriteFloat(HorzSpeed);
+        data.WriteFloat(VertSpeed);
+    }
 }

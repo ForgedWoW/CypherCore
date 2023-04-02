@@ -9,11 +9,11 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class CorpseLocation : ServerPacket
 {
-    public ObjectGuid Player;
-    public ObjectGuid Transport;
-    public Vector3 Position;
     public int ActualMapID;
     public int MapID;
+    public ObjectGuid Player;
+    public Vector3 Position;
+    public ObjectGuid Transport;
     public bool Valid;
     public CorpseLocation() : base(ServerOpcodes.CorpseLocation) { }
 

@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class ChangeRealmTicketResponse : ServerPacket
 {
-    public uint Token;
     public bool Allow = true;
     public ByteBuffer Ticket;
+    public uint Token;
     public ChangeRealmTicketResponse() : base(ServerOpcodes.ChangeRealmTicketResponse) { }
 
     public override void Write()

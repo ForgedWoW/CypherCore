@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
 internal class AreaTriggerRePath : ServerPacket
 {
-    public AreaTriggerSplineInfo AreaTriggerSpline;
-    public AreaTriggerOrbitInfo AreaTriggerOrbit;
     public AreaTriggerMovementScriptInfo? AreaTriggerMovementScript;
+    public AreaTriggerOrbitInfo AreaTriggerOrbit;
+    public AreaTriggerSplineInfo AreaTriggerSpline;
     public ObjectGuid TriggerGUID;
     public AreaTriggerRePath() : base(ServerOpcodes.AreaTriggerRePath) { }
 

@@ -8,14 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 public class LootItemData
 {
-    public byte Type;
-    public LootSlotType UIType;
-    public uint Quantity;
-    public byte LootItemType;
-    public byte LootListID;
     public bool CanTradeToTapList;
     public ItemInstance Loot;
-
+    public byte LootItemType;
+    public byte LootListID;
+    public uint Quantity;
+    public byte Type;
+    public LootSlotType UIType;
     public void Write(WorldPacket data)
     {
         data.WriteBits(Type, 2);

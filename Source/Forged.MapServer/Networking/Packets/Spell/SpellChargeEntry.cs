@@ -6,10 +6,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 public class SpellChargeEntry
 {
     public uint Category;
-    public uint NextRecoveryTime;
     public float ChargeModRate = 1.0f;
     public byte ConsumedCharges;
-
+    public uint NextRecoveryTime;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Category);

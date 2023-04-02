@@ -14,42 +14,26 @@ namespace Forged.MapServer.SupportSystem;
 
 public class Ticket
 {
-    protected uint IdProtected;
-    protected ObjectGuid PlayerGuidProtected;
-    protected uint MapIdProtected;
-    protected Vector3 PosProtected;
-    protected ulong CreateTimeProtected;
-    protected ObjectGuid ClosedByProtected; // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
     protected ObjectGuid AssignedToProtected;
+    protected ObjectGuid ClosedByProtected;
+    // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
     protected string CommentProtected;
 
-    public bool IsClosed => !ClosedByProtected.IsEmpty;
+    protected ulong CreateTimeProtected;
+    protected uint IdProtected;
+    protected uint MapIdProtected;
+    protected ObjectGuid PlayerGuidProtected;
+    protected Vector3 PosProtected;
+    public Ticket() { }
 
-    public bool IsAssigned => !AssignedToProtected.IsEmpty;
-
-    public uint Id => IdProtected;
-
-    public ObjectGuid PlayerGuid => PlayerGuidProtected;
-
-    public Player Player => Global.ObjAccessor.FindConnectedPlayer(PlayerGuidProtected);
-
-    public string PlayerName
+    public Ticket(Player player)
     {
-        get
-        {
-            var name = "";
-
-            if (!PlayerGuidProtected.IsEmpty)
-                Global.CharacterCacheStorage.GetCharacterNameByGuid(PlayerGuidProtected, out name);
-
-            return name;
-        }
+        CreateTimeProtected = (ulong)GameTime.CurrentTime;
+        PlayerGuidProtected = player.GUID;
     }
 
     public Player AssignedPlayer => Global.ObjAccessor.FindConnectedPlayer(AssignedToProtected);
-
     public ObjectGuid AssignedToGUID => AssignedToProtected;
-
     public string AssignedToName
     {
         get
@@ -63,19 +47,24 @@ public class Ticket
     }
 
     public string Comment => CommentProtected;
-
-    public Ticket() { }
-
-    public Ticket(Player player)
+    public uint Id => IdProtected;
+    public bool IsAssigned => !AssignedToProtected.IsEmpty;
+    public bool IsClosed => !ClosedByProtected.IsEmpty;
+    public Player Player => Global.ObjAccessor.FindConnectedPlayer(PlayerGuidProtected);
+    public ObjectGuid PlayerGuid => PlayerGuidProtected;
+    public string PlayerName
     {
-        CreateTimeProtected = (ulong)GameTime.GetGameTime();
-        PlayerGuidProtected = player.GUID;
-    }
+        get
+        {
+            var name = "";
 
-    public void TeleportTo(Player player)
-    {
-        player.TeleportTo(MapIdProtected, PosProtected.X, PosProtected.Y, PosProtected.Z, 0.0f);
+            if (!PlayerGuidProtected.IsEmpty)
+                Global.CharacterCacheStorage.GetCharacterNameByGuid(PlayerGuidProtected, out name);
+
+            return name;
+        }
     }
+    public virtual void DeleteFromDB() { }
 
     public virtual string FormatViewMessageString(CommandHandler handler, bool detailed = false)
     {
@@ -103,24 +92,23 @@ public class Ticket
         return ss.ToString();
     }
 
-    public bool IsAssignedTo(ObjectGuid guid)
-    {
-        return guid == AssignedToProtected;
-    }
-
     public bool IsAssignedNotTo(ObjectGuid guid)
     {
         return IsAssigned && !IsAssignedTo(guid);
     }
 
+    public bool IsAssignedTo(ObjectGuid guid)
+    {
+        return guid == AssignedToProtected;
+    }
+
+    public virtual void LoadFromDB(SQLFields fields) { }
+
+    public virtual void SaveToDB() { }
+
     public virtual void SetAssignedTo(ObjectGuid guid, bool IsAdmin = false)
     {
         AssignedToProtected = guid;
-    }
-
-    public virtual void SetUnassigned()
-    {
-        AssignedToProtected.Clear();
     }
 
     public void SetClosedBy(ObjectGuid value)
@@ -139,10 +127,15 @@ public class Ticket
         PosProtected = pos;
     }
 
-    public virtual void LoadFromDB(SQLFields fields) { }
-    public virtual void SaveToDB() { }
-    public virtual void DeleteFromDB() { }
+    public virtual void SetUnassigned()
+    {
+        AssignedToProtected.Clear();
+    }
 
+    public void TeleportTo(Player player)
+    {
+        player.TeleportTo(MapIdProtected, PosProtected.X, PosProtected.Y, PosProtected.Z, 0.0f);
+    }
     private bool IsFromPlayer(ObjectGuid guid)
     {
         return guid == PlayerGuidProtected;

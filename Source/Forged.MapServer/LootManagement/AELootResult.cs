@@ -9,9 +9,8 @@ namespace Forged.MapServer.LootManagement;
 
 public class AELootResult
 {
-    private readonly List<ResultValue> _byOrder = new();
     private readonly Dictionary<Item, int> _byItem = new();
-
+    private readonly List<ResultValue> _byOrder = new();
     public void Add(Item item, byte count, LootType lootType, uint dungeonEncounterId)
     {
         var id = _byItem.LookupByKey(item);
@@ -40,9 +39,9 @@ public class AELootResult
 
     public struct ResultValue
     {
-        public Item Item;
         public byte Count;
-        public LootType LootType;
         public uint DungeonEncounterId;
+        public Item Item;
+        public LootType LootType;
     }
 }

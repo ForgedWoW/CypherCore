@@ -9,22 +9,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public class BgData
 {
-    public uint BgInstanceId { get; set; } //< This variable is set to bg.m_InstanceID,
-
-    //  when player is teleported to BG - (it is Battleground's GUID)
-    public BattlegroundTypeId BgTypeId { get; set; }
-
-    public List<ObjectGuid> BgAfkReporter { get; set; } = new();
-    public byte BgAfkReportedCount { get; set; }
-    public long BgAfkReportedTimer { get; set; }
-
-    public uint BgTeam { get; set; } //< What side the player will be added to
-
-    public uint MountSpell { get; set; }
-    public uint[] TaxiPath { get; set; } = new uint[2];
-
-    public WorldLocation JoinPos { get; set; } //< From where player entered BG
-
     public BgData()
     {
         BgTypeId = BattlegroundTypeId.None;
@@ -32,6 +16,22 @@ public class BgData
         JoinPos = new WorldLocation();
     }
 
+    public byte BgAfkReportedCount { get; set; }
+    public long BgAfkReportedTimer { get; set; }
+    public List<ObjectGuid> BgAfkReporter { get; set; } = new();
+    public uint BgInstanceId { get; set; } //< This variable is set to bg.m_InstanceID,
+
+    public uint BgTeam { get; set; }
+
+    //  when player is teleported to BG - (it is Battleground's GUID)
+    public BattlegroundTypeId BgTypeId { get; set; }
+    //< What side the player will be added to
+
+    public WorldLocation JoinPos { get; set; }
+    public uint MountSpell { get; set; }
+    public uint[] TaxiPath { get; set; } = new uint[2];
+
+     //< From where player entered BG
     public void ClearTaxiPath()
     {
         TaxiPath[0] = TaxiPath[1] = 0;

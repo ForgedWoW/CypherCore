@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverChooseReward : ClientPacket
 {
+    public QuestChoiceItem Choice;
     public ObjectGuid QuestGiverGUID;
     public uint QuestID;
-    public QuestChoiceItem Choice;
     public QuestGiverChooseReward(WorldPacket packet) : base(packet) { }
 
     public override void Read()

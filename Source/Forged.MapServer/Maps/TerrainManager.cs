@@ -16,13 +16,11 @@ namespace Forged.MapServer.Maps;
 
 public class TerrainManager
 {
-    private readonly WorldDatabase _worldDatabase;
     private readonly CliDB _cliDB;
-    private readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
     private readonly HashSet<uint> _keepLoaded = new();
-
+    private readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
     private readonly LimitedThreadTaskManager _threadTaskManager;
-
+    private readonly WorldDatabase _worldDatabase;
     // parent map links
     private MultiMap<uint, uint> _parentMapData = new();
 
@@ -31,6 +29,76 @@ public class TerrainManager
         _worldDatabase = worldDatabase;
         _cliDB = cliDB;
         _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+    }
+
+    public static bool ExistMapAndVMap(uint mapid, float x, float y)
+    {
+        var p = GridDefines.ComputeGridCoord(x, y);
+
+        var gx = (int)((MapConst.MaxGrids - 1) - p.X_Coord);
+        var gy = (int)((MapConst.MaxGrids - 1) - p.Y_Coord);
+
+        return TerrainInfo.ExistMap(mapid, gx, gy) && TerrainInfo.ExistVMap(mapid, gx, gy);
+    }
+
+    public uint GetAreaId(PhaseShift phaseShift, uint mapid, Position pos)
+    {
+        return GetAreaId(phaseShift, mapid, pos.X, pos.Y, pos.Z);
+    }
+
+    public uint GetAreaId(PhaseShift phaseShift, WorldLocation loc)
+    {
+        return GetAreaId(phaseShift, loc.MapId, loc);
+    }
+
+    public uint GetAreaId(PhaseShift phaseShift, uint mapid, float x, float y, float z)
+    {
+        var terrain = LoadTerrain(mapid);
+
+        if (terrain != null)
+            return terrain.GetAreaId(phaseShift, mapid, x, y, z);
+
+        return 0;
+    }
+
+    public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, uint mapid, Position pos)
+    {
+        GetZoneAndAreaId(phaseShift, out zoneid, out areaid, mapid, pos.X, pos.Y, pos.Z);
+    }
+
+    public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, WorldLocation loc)
+    {
+        GetZoneAndAreaId(phaseShift, out zoneid, out areaid, loc.MapId, loc);
+    }
+
+    public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, uint mapid, float x, float y, float z)
+    {
+        zoneid = areaid = 0;
+
+        var terrain = LoadTerrain(mapid);
+
+        if (terrain != null)
+            terrain.GetZoneAndAreaId(phaseShift, mapid, out zoneid, out areaid, x, y, z);
+    }
+
+    public uint GetZoneId(PhaseShift phaseShift, uint mapid, Position pos)
+    {
+        return GetZoneId(phaseShift, mapid, pos.X, pos.Y, pos.Z);
+    }
+
+    public uint GetZoneId(PhaseShift phaseShift, WorldLocation loc)
+    {
+        return GetZoneId(phaseShift, loc.MapId, loc);
+    }
+
+    public uint GetZoneId(PhaseShift phaseShift, uint mapId, float x, float y, float z)
+    {
+        var terrain = LoadTerrain(mapId);
+
+        if (terrain != null)
+            return terrain.GetZoneId(phaseShift, mapId, x, y, z);
+
+        return 0;
     }
 
     public void InitializeParentMapData(MultiMap<uint, uint> mapData)
@@ -44,6 +112,11 @@ public class TerrainManager
             {
                 _keepLoaded.Add(result.Read<uint>(0));
             } while (result.NextRow());
+    }
+
+    public bool KeepMapLoaded(uint mapid)
+    {
+        return _keepLoaded.Contains(mapid);
     }
 
     public TerrainInfo LoadTerrain(uint mapId)
@@ -88,82 +161,6 @@ public class TerrainManager
 
         _threadTaskManager.Wait();
     }
-
-    public uint GetAreaId(PhaseShift phaseShift, uint mapid, Position pos)
-    {
-        return GetAreaId(phaseShift, mapid, pos.X, pos.Y, pos.Z);
-    }
-
-    public uint GetAreaId(PhaseShift phaseShift, WorldLocation loc)
-    {
-        return GetAreaId(phaseShift, loc.MapId, loc);
-    }
-
-    public uint GetAreaId(PhaseShift phaseShift, uint mapid, float x, float y, float z)
-    {
-        var terrain = LoadTerrain(mapid);
-
-        if (terrain != null)
-            return terrain.GetAreaId(phaseShift, mapid, x, y, z);
-
-        return 0;
-    }
-
-    public uint GetZoneId(PhaseShift phaseShift, uint mapid, Position pos)
-    {
-        return GetZoneId(phaseShift, mapid, pos.X, pos.Y, pos.Z);
-    }
-
-    public uint GetZoneId(PhaseShift phaseShift, WorldLocation loc)
-    {
-        return GetZoneId(phaseShift, loc.MapId, loc);
-    }
-
-    public uint GetZoneId(PhaseShift phaseShift, uint mapId, float x, float y, float z)
-    {
-        var terrain = LoadTerrain(mapId);
-
-        if (terrain != null)
-            return terrain.GetZoneId(phaseShift, mapId, x, y, z);
-
-        return 0;
-    }
-
-    public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, uint mapid, Position pos)
-    {
-        GetZoneAndAreaId(phaseShift, out zoneid, out areaid, mapid, pos.X, pos.Y, pos.Z);
-    }
-
-    public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, WorldLocation loc)
-    {
-        GetZoneAndAreaId(phaseShift, out zoneid, out areaid, loc.MapId, loc);
-    }
-
-    public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, uint mapid, float x, float y, float z)
-    {
-        zoneid = areaid = 0;
-
-        var terrain = LoadTerrain(mapid);
-
-        if (terrain != null)
-            terrain.GetZoneAndAreaId(phaseShift, mapid, out zoneid, out areaid, x, y, z);
-    }
-
-    public static bool ExistMapAndVMap(uint mapid, float x, float y)
-    {
-        var p = GridDefines.ComputeGridCoord(x, y);
-
-        var gx = (int)((MapConst.MaxGrids - 1) - p.X_Coord);
-        var gy = (int)((MapConst.MaxGrids - 1) - p.Y_Coord);
-
-        return TerrainInfo.ExistMap(mapid, gx, gy) && TerrainInfo.ExistVMap(mapid, gx, gy);
-    }
-
-    public bool KeepMapLoaded(uint mapid)
-    {
-        return _keepLoaded.Contains(mapid);
-    }
-
     private TerrainInfo LoadTerrainImpl(uint mapId)
     {
         var rootTerrain = new TerrainInfo(mapId, _keepLoaded.Contains(mapId));

@@ -9,13 +9,13 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailAttachedItem
 {
-    public byte Position;
     public ulong AttachID;
-    public ItemInstance Item;
-    public uint Count;
     public int Charges;
-    public uint MaxDurability;
+    public uint Count;
     public uint Durability;
+    public ItemInstance Item;
+    public uint MaxDurability;
+    public byte Position;
     public bool Unlocked;
     private readonly List<ItemEnchantData> Enchants = new();
     private readonly List<ItemGemData> Gems = new();

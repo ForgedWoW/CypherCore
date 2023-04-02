@@ -17,13 +17,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, IGridNotifierCorpse, IGridNotifierGameObject, IGridNotifierDynamicObject, IGridNotifierAreaTrigger, IGridNotifierSceneObject, IGridNotifierConversation
 {
-    private readonly PhaseShift _phaseShift;
     private readonly ICheck<WorldObject> _check;
+    private readonly PhaseShift _phaseShift;
     private WorldObject _object;
-
-    public GridType GridType { get; set; }
-
-    public GridMapTypeMask Mask { get; set; }
 
     public WorldObjectSearcher(WorldObject searcher, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {
@@ -31,6 +27,14 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
         _phaseShift = searcher.Location.PhaseShift;
         _check = check;
         GridType = gridType;
+    }
+
+    public GridType GridType { get; set; }
+
+    public GridMapTypeMask Mask { get; set; }
+    public WorldObject GetTarget()
+    {
+        return _object;
     }
 
     public void Visit(IList<AreaTrigger> objs)
@@ -231,10 +235,5 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
                 return;
             }
         }
-    }
-
-    public WorldObject GetTarget()
-    {
-        return _object;
     }
 }

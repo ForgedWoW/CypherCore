@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class TrainerListSpell
 {
-    public uint SpellID;
     public uint MoneyCost;
+    public uint[] ReqAbility = new uint[SharedConst.MaxTrainerspellAbilityReqs];
+    public byte ReqLevel;
     public uint ReqSkillLine;
     public uint ReqSkillRank;
-    public uint[] ReqAbility = new uint[SharedConst.MaxTrainerspellAbilityReqs];
+    public uint SpellID;
     public TrainerSpellState Usable;
-    public byte ReqLevel;
 }

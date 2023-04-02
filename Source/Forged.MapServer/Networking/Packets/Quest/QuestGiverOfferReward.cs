@@ -8,14 +8,15 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverOfferReward
 {
-    public ObjectGuid QuestGiverGUID;
-    public uint QuestGiverCreatureID = 0;
-    public uint QuestID = 0;
     public bool AutoLaunched = false;
-    public uint SuggestedPartyMembers = 0;
-    public QuestRewards Rewards = new();
     public List<QuestDescEmote> Emotes = new();
-    public uint[] QuestFlags = new uint[3]; // Flags and FlagsEx
+    public uint[] QuestFlags = new uint[3];
+    public uint QuestGiverCreatureID = 0;
+    public ObjectGuid QuestGiverGUID;
+    public uint QuestID = 0;
+    public QuestRewards Rewards = new();
+    public uint SuggestedPartyMembers = 0;
+    // Flags and FlagsEx
 
     public void Write(WorldPacket data)
     {

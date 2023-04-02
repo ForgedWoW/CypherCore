@@ -8,27 +8,26 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonInfo
 {
-    public GarrisonType GarrTypeID;
-    public uint GarrSiteID;
-    public uint GarrSiteLevelID;
-    public uint NumFollowerActivationsRemaining;
-    public uint NumMissionsStartedToday; // might mean something else, but sending 0 here enables follower abilities "Increase success chance of the first mission of the day by %."
-    public int MinAutoTroopLevel;
-    public List<GarrisonPlotInfo> Plots = new();
-    public List<GarrisonBuildingInfo> Buildings = new();
-    public List<GarrisonFollower> Followers = new();
+    public List<int> ArchivedMissions = new();
     public List<GarrisonFollower> AutoTroops = new();
-    public List<GarrisonMission> Missions = new();
-    public List<List<GarrisonMissionReward>> MissionRewards = new();
-    public List<List<GarrisonMissionReward>> MissionOvermaxRewards = new();
-    public List<GarrisonMissionBonusAbility> MissionAreaBonuses = new();
-    public List<GarrisonTalent> Talents = new();
+    public List<GarrisonBuildingInfo> Buildings = new();
+    public List<bool> CanStartMission = new();
     public List<GarrisonCollection> Collections = new();
     public List<GarrisonEventList> EventLists = new();
+    public List<GarrisonFollower> Followers = new();
+    public uint GarrSiteID;
+    public uint GarrSiteLevelID;
+    public GarrisonType GarrTypeID;
+    public int MinAutoTroopLevel;
+    public List<GarrisonMissionBonusAbility> MissionAreaBonuses = new();
+    public List<List<GarrisonMissionReward>> MissionOvermaxRewards = new();
+    public List<List<GarrisonMissionReward>> MissionRewards = new();
+    public List<GarrisonMission> Missions = new();
+    public uint NumFollowerActivationsRemaining;
+    public uint NumMissionsStartedToday; // might mean something else, but sending 0 here enables follower abilities "Increase success chance of the first mission of the day by %."
+    public List<GarrisonPlotInfo> Plots = new();
     public List<GarrisonSpecGroup> SpecGroups = new();
-    public List<bool> CanStartMission = new();
-    public List<int> ArchivedMissions = new();
-
+    public List<GarrisonTalent> Talents = new();
     public void Write(WorldPacket data)
     {
         data.WriteUInt32((uint)GarrTypeID);

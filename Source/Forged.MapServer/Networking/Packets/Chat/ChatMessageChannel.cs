@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class ChatMessageChannel : ClientPacket
 {
-    public Language Language = Language.Universal;
     public ObjectGuid ChannelGUID;
-    public string Text;
+    public Language Language = Language.Universal;
     public string Target;
+    public string Text;
     public ChatMessageChannel(WorldPacket packet) : base(packet) { }
 
     public override void Read()

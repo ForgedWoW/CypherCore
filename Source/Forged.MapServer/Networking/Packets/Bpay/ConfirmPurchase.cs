@@ -7,11 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class ConfirmPurchase : ServerPacket
 {
-    public ulong PurchaseID { get; set; } = 0;
-    public uint ServerToken { get; set; } = 0;
-
     public ConfirmPurchase() : base(ServerOpcodes.BattlePayConfirmPurchase) { }
 
+    public ulong PurchaseID { get; set; } = 0;
+    public uint ServerToken { get; set; } = 0;
     public override void Write()
     {
         _worldPacket.Write(PurchaseID);

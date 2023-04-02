@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public struct NameCacheLookupResult
 {
+    public PlayerGuidLookupData Data;
     public ObjectGuid Player;
     public byte Result; // 0 - full packet, != 0 - only guid
-    public PlayerGuidLookupData Data;
     public NameCacheUnused920 Unused920;
 
     public void Write(WorldPacket data)

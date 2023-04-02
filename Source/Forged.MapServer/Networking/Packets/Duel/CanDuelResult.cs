@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class CanDuelResult : ServerPacket
 {
-    public ObjectGuid TargetGUID;
     public bool Result;
+    public ObjectGuid TargetGUID;
     public CanDuelResult() : base(ServerOpcodes.CanDuelResult) { }
 
     public override void Write()

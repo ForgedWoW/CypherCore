@@ -16,6 +16,7 @@ public class SpellInfoLoadHelper
     public SpellClassOptionsRecord ClassOptions;
     public SpellCooldownsRecord Cooldowns;
     public Dictionary<int, SpellEffectRecord> Effects = new();
+    public List<SpellEmpowerStageRecord> EmpowerStages = new();
     public SpellEquippedItemsRecord EquippedItems;
     public SpellInterruptsRecord Interrupts;
     public List<SpellLabelRecord> Labels = new();
@@ -29,5 +30,4 @@ public class SpellInfoLoadHelper
     public SpellTargetRestrictionsRecord TargetRestrictions;
     public SpellTotemsRecord Totems;
     public List<SpellXSpellVisualRecord> Visuals = new(); // only to group visuals when parsing sSpellXSpellVisualStore, not for loading
-    public List<SpellEmpowerStageRecord> EmpowerStages = new();
 }

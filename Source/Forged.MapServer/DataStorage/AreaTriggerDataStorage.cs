@@ -17,21 +17,128 @@ namespace Forged.MapServer.DataStorage;
 
 public class AreaTriggerDataStorage
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _objectManager;
-    private readonly IConfiguration _configuration;
-    private readonly CliDB _cliDB;
+    private readonly Dictionary<uint, AreaTriggerCreateProperties> _areaTriggerCreateProperties = new();
     private readonly Dictionary<(uint mapId, uint cellId), SortedSet<ulong>> _areaTriggerSpawnsByLocation = new();
     private readonly Dictionary<ulong, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId = new();
     private readonly Dictionary<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore = new();
-    private readonly Dictionary<uint, AreaTriggerCreateProperties> _areaTriggerCreateProperties = new();
-
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly GameObjectManager _objectManager;
+    private readonly WorldDatabase _worldDatabase;
     public AreaTriggerDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, IConfiguration configuration, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _configuration = configuration;
         _cliDB = cliDB;
+    }
+
+    public AreaTriggerCreateProperties GetAreaTriggerCreateProperties(uint spellMiscValue)
+    {
+        if (!_areaTriggerCreateProperties.TryGetValue(spellMiscValue, out var val))
+        {
+            Log.Logger.Warning($"AreaTriggerCreateProperties did not exist for {spellMiscValue}. Using default area trigger properties.");
+            val = AreaTriggerCreateProperties.CreateDefault(spellMiscValue);
+            _areaTriggerCreateProperties[spellMiscValue] = val;
+        }
+
+        return val;
+    }
+
+    public SortedSet<ulong> GetAreaTriggersForMapAndCell(uint mapId, uint cellId)
+    {
+        return _areaTriggerSpawnsByLocation.LookupByKey((mapId, cellId));
+    }
+
+    public AreaTriggerSpawn GetAreaTriggerSpawn(ulong spawnId)
+    {
+        return _areaTriggerSpawnsBySpawnId.LookupByKey(spawnId);
+    }
+
+    public AreaTriggerTemplate GetAreaTriggerTemplate(AreaTriggerId areaTriggerId)
+    {
+        return _areaTriggerTemplateStore.LookupByKey(areaTriggerId);
+    }
+
+    public void LoadAreaTriggerSpawns()
+    {
+        var oldMSTime = Time.MSTime;
+
+        // Load area trigger positions (to put them on the server)
+        //                                            0        1              2             3      4     5     6     7            8              9        10
+        var templates = _worldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, " +
+                                             //11     12          13          14          15          16          17          18          19          20
+                                             "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, ScriptName FROM `areatrigger`");
+
+        if (!templates.IsEmpty())
+            do
+            {
+                var spawnId = templates.Read<ulong>(0);
+                AreaTriggerId areaTriggerId = new(templates.Read<uint>(1), templates.Read<byte>(2) == 1);
+                WorldLocation location = new(templates.Read<uint>(3), templates.Read<float>(4), templates.Read<float>(5), templates.Read<float>(6), templates.Read<float>(7));
+                var shape = (AreaTriggerTypes)templates.Read<byte>(11);
+
+                if (GetAreaTriggerTemplate(areaTriggerId) == null)
+                {
+                    Log.Logger.Error($"Table `areatrigger` has listed areatrigger that doesn't exist: Id: {areaTriggerId.Id}, IsServerSide: {areaTriggerId.IsServerSide} for SpawnId {spawnId}");
+
+                    continue;
+                }
+
+                if (!GridDefines.IsValidMapCoord(location))
+                {
+                    Log.Logger.Error($"Table `areatrigger` has listed an invalid position: SpawnId: {spawnId}, MapId: {location.MapId}, Position: {location}");
+
+                    continue;
+                }
+
+                if (shape >= AreaTriggerTypes.Max)
+                {
+                    Log.Logger.Error($"Table `areatrigger` has listed areatrigger SpawnId: {spawnId} with invalid shape {shape}.");
+
+                    continue;
+                }
+
+                AreaTriggerSpawn spawn = new()
+                {
+                    SpawnId = spawnId,
+                    MapId = location.MapId,
+                    TriggerId = areaTriggerId,
+                    SpawnPoint = new Position(location),
+                    PhaseUseFlags = (PhaseUseFlagsValues)templates.Read<byte>(8),
+                    PhaseId = templates.Read<uint>(9),
+                    PhaseGroup = templates.Read<uint>(10),
+                    Shape =
+                    {
+                        TriggerType = shape
+                    }
+                };
+
+                unsafe
+                {
+                    for (var i = 0; i < SharedConst.MaxAreatriggerEntityData; ++i)
+                        spawn.Shape.DefaultDatas.Data[i] = templates.Read<float>(12 + i);
+                }
+
+                spawn.ScriptId = _objectManager.GetScriptId(templates.Read<string>(20));
+                spawn.SpawnGroupData = _objectManager.GetLegacySpawnGroup();
+
+                // Add the trigger to a map::cell map, which is later used by GridLoader to query
+                var cellCoord = GridDefines.ComputeCellCoord(spawn.SpawnPoint.X, spawn.SpawnPoint.Y);
+
+                if (!_areaTriggerSpawnsByLocation.TryGetValue((spawn.MapId, cellCoord.GetId()), out var val))
+                {
+                    val = new SortedSet<ulong>();
+                    _areaTriggerSpawnsByLocation[(spawn.MapId, cellCoord.GetId())] = val;
+                }
+
+                val.Add(spawnId);
+
+                // add the position to the map
+                _areaTriggerSpawnsBySpawnId[spawnId] = spawn;
+            } while (templates.NextRow());
+
+        Log.Logger.Information($"Loaded {_areaTriggerSpawnsBySpawnId.Count} areatrigger spawns in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
     }
 
     public void LoadAreaTriggerTemplates()
@@ -283,113 +390,5 @@ public class AreaTriggerDataStorage
             Log.Logger.Information("Loaded 0 AreaTrigger templates circular movement infos. DB table `areatrigger_create_properties_orbit` is empty.");
 
         Log.Logger.Information($"Loaded {_areaTriggerTemplateStore.Count} spell areatrigger templates in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
-    }
-
-    public void LoadAreaTriggerSpawns()
-    {
-        var oldMSTime = Time.MSTime;
-
-        // Load area trigger positions (to put them on the server)
-        //                                            0        1              2             3      4     5     6     7            8              9        10
-        var templates = _worldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, " +
-                                             //11     12          13          14          15          16          17          18          19          20
-                                             "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, ScriptName FROM `areatrigger`");
-
-        if (!templates.IsEmpty())
-            do
-            {
-                var spawnId = templates.Read<ulong>(0);
-                AreaTriggerId areaTriggerId = new(templates.Read<uint>(1), templates.Read<byte>(2) == 1);
-                WorldLocation location = new(templates.Read<uint>(3), templates.Read<float>(4), templates.Read<float>(5), templates.Read<float>(6), templates.Read<float>(7));
-                var shape = (AreaTriggerTypes)templates.Read<byte>(11);
-
-                if (GetAreaTriggerTemplate(areaTriggerId) == null)
-                {
-                    Log.Logger.Error($"Table `areatrigger` has listed areatrigger that doesn't exist: Id: {areaTriggerId.Id}, IsServerSide: {areaTriggerId.IsServerSide} for SpawnId {spawnId}");
-
-                    continue;
-                }
-
-                if (!GridDefines.IsValidMapCoord(location))
-                {
-                    Log.Logger.Error($"Table `areatrigger` has listed an invalid position: SpawnId: {spawnId}, MapId: {location.MapId}, Position: {location}");
-
-                    continue;
-                }
-
-                if (shape >= AreaTriggerTypes.Max)
-                {
-                    Log.Logger.Error($"Table `areatrigger` has listed areatrigger SpawnId: {spawnId} with invalid shape {shape}.");
-
-                    continue;
-                }
-
-                AreaTriggerSpawn spawn = new()
-                {
-                    SpawnId = spawnId,
-                    MapId = location.MapId,
-                    TriggerId = areaTriggerId,
-                    SpawnPoint = new Position(location),
-                    PhaseUseFlags = (PhaseUseFlagsValues)templates.Read<byte>(8),
-                    PhaseId = templates.Read<uint>(9),
-                    PhaseGroup = templates.Read<uint>(10),
-                    Shape =
-                    {
-                        TriggerType = shape
-                    }
-                };
-
-                unsafe
-                {
-                    for (var i = 0; i < SharedConst.MaxAreatriggerEntityData; ++i)
-                        spawn.Shape.DefaultDatas.Data[i] = templates.Read<float>(12 + i);
-                }
-
-                spawn.ScriptId = _objectManager.GetScriptId(templates.Read<string>(20));
-                spawn.SpawnGroupData = _objectManager.GetLegacySpawnGroup();
-
-                // Add the trigger to a map::cell map, which is later used by GridLoader to query
-                var cellCoord = GridDefines.ComputeCellCoord(spawn.SpawnPoint.X, spawn.SpawnPoint.Y);
-
-                if (!_areaTriggerSpawnsByLocation.TryGetValue((spawn.MapId, cellCoord.GetId()), out var val))
-                {
-                    val = new SortedSet<ulong>();
-                    _areaTriggerSpawnsByLocation[(spawn.MapId, cellCoord.GetId())] = val;
-                }
-
-                val.Add(spawnId);
-
-                // add the position to the map
-                _areaTriggerSpawnsBySpawnId[spawnId] = spawn;
-            } while (templates.NextRow());
-
-        Log.Logger.Information($"Loaded {_areaTriggerSpawnsBySpawnId.Count} areatrigger spawns in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
-    }
-
-    public AreaTriggerTemplate GetAreaTriggerTemplate(AreaTriggerId areaTriggerId)
-    {
-        return _areaTriggerTemplateStore.LookupByKey(areaTriggerId);
-    }
-
-    public AreaTriggerCreateProperties GetAreaTriggerCreateProperties(uint spellMiscValue)
-    {
-        if (!_areaTriggerCreateProperties.TryGetValue(spellMiscValue, out var val))
-        {
-            Log.Logger.Warning($"AreaTriggerCreateProperties did not exist for {spellMiscValue}. Using default area trigger properties.");
-            val = AreaTriggerCreateProperties.CreateDefault(spellMiscValue);
-            _areaTriggerCreateProperties[spellMiscValue] = val;
-        }
-
-        return val;
-    }
-
-    public SortedSet<ulong> GetAreaTriggersForMapAndCell(uint mapId, uint cellId)
-    {
-        return _areaTriggerSpawnsByLocation.LookupByKey((mapId, cellId));
-    }
-
-    public AreaTriggerSpawn GetAreaTriggerSpawn(ulong spawnId)
-    {
-        return _areaTriggerSpawnsBySpawnId.LookupByKey(spawnId);
     }
 }

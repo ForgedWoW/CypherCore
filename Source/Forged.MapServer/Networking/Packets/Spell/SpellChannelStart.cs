@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellChannelStart : ServerPacket
 {
+    public ObjectGuid CasterGUID;
+    public uint ChannelDuration;
+    public SpellTargetedHealPrediction? HealPrediction;
+    public SpellChannelStartInterruptImmunities? InterruptImmunities;
     public int SpellID;
     public SpellCastVisual Visual;
-    public SpellChannelStartInterruptImmunities? InterruptImmunities;
-    public ObjectGuid CasterGUID;
-    public SpellTargetedHealPrediction? HealPrediction;
-    public uint ChannelDuration;
     public SpellChannelStart() : base(ServerOpcodes.SpellChannelStart, ConnectionType.Instance) { }
 
     public override void Write()

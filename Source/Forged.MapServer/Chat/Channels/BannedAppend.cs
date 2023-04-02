@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct BannedAppend : IChannelAppender
 {
-    public ChatNotify GetNotificationType() => ChatNotify.BannedNotice;
-
     public void Append(ChannelNotify data) { }
+
+    public ChatNotify GetNotificationType() => ChatNotify.BannedNotice;
 }

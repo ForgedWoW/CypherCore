@@ -17,13 +17,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGridNotifierCorpse, IGridNotifierGameObject, IGridNotifierDynamicObject, IGridNotifierAreaTrigger, IGridNotifierSceneObject, IGridNotifierConversation
 {
-    private readonly PhaseShift _phaseShift;
     private readonly IDoWork<WorldObject> _doWork;
-
-    public GridType GridType { get; set; }
-
-    public GridMapTypeMask Mask { get; set; }
-
+    private readonly PhaseShift _phaseShift;
     public WorldObjectWorker(WorldObject searcher, IDoWork<WorldObject> work, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {
         Mask = mapTypeMask;
@@ -32,6 +27,9 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
+
+    public GridMapTypeMask Mask { get; set; }
     public void Visit(IList<AreaTrigger> objs)
     {
         if (!Mask.HasAnyFlag(GridMapTypeMask.AreaTrigger))

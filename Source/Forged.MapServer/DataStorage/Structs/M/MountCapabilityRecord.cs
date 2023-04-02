@@ -7,14 +7,14 @@ namespace Forged.MapServer.DataStorage.Structs.M;
 
 public sealed class MountCapabilityRecord
 {
-    public uint Id;
     public MountCapabilityFlags Flags;
-    public ushort ReqRidingSkill;
+    public int FlightCapabilityID;
+    public uint Id;
+    public uint ModSpellAuraID;
+    public int PlayerConditionID;
     public ushort ReqAreaID;
+    public short ReqMapID;
+    public ushort ReqRidingSkill;
     public uint ReqSpellAuraID;
     public uint ReqSpellKnownID;
-    public uint ModSpellAuraID;
-    public short ReqMapID;
-    public int PlayerConditionID;
-    public int FlightCapabilityID;
 }

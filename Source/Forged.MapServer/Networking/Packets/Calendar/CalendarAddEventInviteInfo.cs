@@ -7,6 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal struct CalendarAddEventInviteInfo
 {
+    public ObjectGuid Guid;
+
+    public byte Moderator;
+
+    public byte Status;
+
+    public ObjectGuid? Unused801_1;
+
+    public ulong? Unused801_2;
+
+    public ulong? Unused801_3;
+
     public void Read(WorldPacket data)
     {
         Guid = data.ReadPackedGuid();
@@ -26,11 +38,4 @@ internal struct CalendarAddEventInviteInfo
         if (hasUnused801_3)
             Unused801_3 = data.ReadUInt64();
     }
-
-    public ObjectGuid Guid;
-    public byte Status;
-    public byte Moderator;
-    public ObjectGuid? Unused801_1;
-    public ulong? Unused801_2;
-    public ulong? Unused801_3;
 }

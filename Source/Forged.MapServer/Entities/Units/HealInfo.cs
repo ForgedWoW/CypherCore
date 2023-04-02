@@ -9,29 +9,6 @@ namespace Forged.MapServer.Entities.Units;
 
 public class HealInfo
 {
-    public Unit Healer { get; }
-
-    public Unit Target { get; }
-
-    public double OriginalHeal { get; }
-
-    public SpellInfo SpellInfo { get; }
-
-    public SpellSchoolMask SchoolMask { get; }
-
-    public double Heal { get; private set; }
-
-    public double EffectiveHeal { get; private set; }
-
-    public double Absorb { get; private set; }
-
-    public ProcFlagsHit HitMask { get; private set; }
-
-    public bool IsCritical
-    {
-        get { return HitMask.HasFlag(ProcFlagsHit.Critical); }
-    }
-
     public HealInfo(Unit healer, Unit target, double heal, SpellInfo spellInfo, SpellSchoolMask schoolMask)
     {
         Healer = healer;
@@ -42,6 +19,21 @@ public class HealInfo
         SchoolMask = schoolMask;
     }
 
+    public double Absorb { get; private set; }
+    public double EffectiveHeal { get; private set; }
+    public double Heal { get; private set; }
+    public Unit Healer { get; }
+
+    public ProcFlagsHit HitMask { get; private set; }
+    public bool IsCritical
+    {
+        get { return HitMask.HasFlag(ProcFlagsHit.Critical); }
+    }
+
+    public double OriginalHeal { get; }
+    public SpellSchoolMask SchoolMask { get; }
+    public SpellInfo SpellInfo { get; }
+    public Unit Target { get; }
     public void AbsorbHeal(double amount)
     {
         amount = Math.Min(amount, Heal);

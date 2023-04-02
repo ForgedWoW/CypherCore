@@ -10,13 +10,48 @@ namespace Forged.MapServer.Accounts;
 
 public sealed class BNetAccountManager
 {
-    private readonly LoginDatabase _loginDatabase;
     private readonly AccountManager _accountManager;
-
+    private readonly LoginDatabase _loginDatabase;
     public BNetAccountManager(LoginDatabase loginDatabase, AccountManager accountManager)
     {
         _loginDatabase = loginDatabase;
         _accountManager = accountManager;
+    }
+
+    public string CalculateShaPassHash(string name, string password)
+    {
+        var sha256 = SHA256.Create();
+        var i = sha256.ComputeHash(Encoding.UTF8.GetBytes(name));
+
+        return sha256.ComputeHash(Encoding.UTF8.GetBytes(i.ToHexString() + ":" + password)).ToHexString(true);
+    }
+
+    public AccountOpResult ChangePassword(uint accountId, string newPassword)
+    {
+        if (!GetName(accountId, out var username))
+            return AccountOpResult.NameNotExist;
+
+        if (newPassword.Length > 16)
+            return AccountOpResult.PassTooLong;
+
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_PASSWORD);
+        stmt.AddValue(0, CalculateShaPassHash(username.ToUpper(), newPassword.ToUpper()));
+        stmt.AddValue(1, accountId);
+        _loginDatabase.DirectExecute(stmt);
+
+        return AccountOpResult.Ok;
+    }
+
+    public bool CheckPassword(uint accountId, string password)
+    {
+        if (!GetName(accountId, out var username))
+            return false;
+
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_CHECK_PASSWORD);
+        stmt.AddValue(0, accountId);
+        stmt.AddValue(1, CalculateShaPassHash(username.ToUpper(), password.ToUpper()));
+
+        return !_loginDatabase.Query(stmt).IsEmpty();
     }
 
     public AccountOpResult CreateBattlenetAccount(string email, string password, bool withGameAccount, out string gameAccountName)
@@ -47,33 +82,65 @@ public sealed class BNetAccountManager
 
         return AccountOpResult.Ok;
     }
-
-    public AccountOpResult ChangePassword(uint accountId, string newPassword)
+    public uint GetId(string username)
     {
-        if (!GetName(accountId, out var username))
-            return AccountOpResult.NameNotExist;
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_EMAIL);
+        stmt.AddValue(0, username);
+        var result = _loginDatabase.Query(stmt);
 
-        if (newPassword.Length > 16)
-            return AccountOpResult.PassTooLong;
+        if (!result.IsEmpty())
+            return result.Read<uint>(0);
 
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_PASSWORD);
-        stmt.AddValue(0, CalculateShaPassHash(username.ToUpper(), newPassword.ToUpper()));
-        stmt.AddValue(1, accountId);
-        _loginDatabase.DirectExecute(stmt);
-
-        return AccountOpResult.Ok;
+        return 0;
     }
 
-    public bool CheckPassword(uint accountId, string password)
+    public uint GetIdByGameAccount(uint gameAccountId)
     {
-        if (!GetName(accountId, out var username))
-            return false;
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
+        stmt.AddValue(0, gameAccountId);
+        var result = _loginDatabase.Query(stmt);
 
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_CHECK_PASSWORD);
+        if (!result.IsEmpty())
+            return result.Read<uint>(0);
+
+        return 0;
+    }
+
+    public QueryCallback GetIdByGameAccountAsync(uint gameAccountId)
+    {
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
+        stmt.AddValue(0, gameAccountId);
+
+        return _loginDatabase.AsyncQuery(stmt);
+    }
+
+    public byte GetMaxIndex(uint accountId)
+    {
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_MAX_ACCOUNT_INDEX);
         stmt.AddValue(0, accountId);
-        stmt.AddValue(1, CalculateShaPassHash(username.ToUpper(), password.ToUpper()));
+        var result = _loginDatabase.Query(stmt);
 
-        return !_loginDatabase.Query(stmt).IsEmpty();
+        if (!result.IsEmpty())
+            return result.Read<byte>(0);
+
+        return 0;
+    }
+
+    public bool GetName(uint accountId, out string name)
+    {
+        name = "";
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_EMAIL_BY_ID);
+        stmt.AddValue(0, accountId);
+        var result = _loginDatabase.Query(stmt);
+
+        if (!result.IsEmpty())
+        {
+            name = result.Read<string>(0);
+
+            return true;
+        }
+
+        return false;
     }
 
     public AccountOpResult LinkWithGameAccount(string email, string gameAccountName)
@@ -117,74 +184,5 @@ public sealed class BNetAccountManager
         _loginDatabase.Execute(stmt);
 
         return AccountOpResult.Ok;
-    }
-
-    public uint GetId(string username)
-    {
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_EMAIL);
-        stmt.AddValue(0, username);
-        var result = _loginDatabase.Query(stmt);
-
-        if (!result.IsEmpty())
-            return result.Read<uint>(0);
-
-        return 0;
-    }
-
-    public bool GetName(uint accountId, out string name)
-    {
-        name = "";
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_EMAIL_BY_ID);
-        stmt.AddValue(0, accountId);
-        var result = _loginDatabase.Query(stmt);
-
-        if (!result.IsEmpty())
-        {
-            name = result.Read<string>(0);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public uint GetIdByGameAccount(uint gameAccountId)
-    {
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
-        stmt.AddValue(0, gameAccountId);
-        var result = _loginDatabase.Query(stmt);
-
-        if (!result.IsEmpty())
-            return result.Read<uint>(0);
-
-        return 0;
-    }
-
-    public QueryCallback GetIdByGameAccountAsync(uint gameAccountId)
-    {
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
-        stmt.AddValue(0, gameAccountId);
-
-        return _loginDatabase.AsyncQuery(stmt);
-    }
-
-    public byte GetMaxIndex(uint accountId)
-    {
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_MAX_ACCOUNT_INDEX);
-        stmt.AddValue(0, accountId);
-        var result = _loginDatabase.Query(stmt);
-
-        if (!result.IsEmpty())
-            return result.Read<byte>(0);
-
-        return 0;
-    }
-
-    public string CalculateShaPassHash(string name, string password)
-    {
-        var sha256 = SHA256.Create();
-        var i = sha256.ComputeHash(Encoding.UTF8.GetBytes(name));
-
-        return sha256.ComputeHash(Encoding.UTF8.GetBytes(i.ToHexString() + ":" + password)).ToHexString(true);
     }
 }

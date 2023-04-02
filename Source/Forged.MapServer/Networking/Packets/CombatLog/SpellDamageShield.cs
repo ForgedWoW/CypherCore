@@ -10,12 +10,12 @@ internal class SpellDamageShield : CombatLogServerPacket
 {
     public ObjectGuid Attacker;
     public ObjectGuid Defender;
-    public uint SpellID;
-    public uint TotalDamage;
+    public uint LogAbsorbed;
     public int OriginalDamage;
     public uint OverKill;
     public uint SchoolMask;
-    public uint LogAbsorbed;
+    public uint SpellID;
+    public uint TotalDamage;
     public SpellDamageShield() : base(ServerOpcodes.SpellDamageShield, ConnectionType.Instance) { }
 
     public override void Write()

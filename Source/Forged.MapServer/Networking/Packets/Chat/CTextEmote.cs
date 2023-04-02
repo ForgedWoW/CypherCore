@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class CTextEmote : ClientPacket
 {
-    public ObjectGuid Target;
     public int EmoteID;
+    public int SequenceVariation;
     public int SoundIndex;
     public uint[] SpellVisualKitIDs;
-    public int SequenceVariation;
+    public ObjectGuid Target;
     public CTextEmote(WorldPacket packet) : base(packet) { }
 
     public override void Read()

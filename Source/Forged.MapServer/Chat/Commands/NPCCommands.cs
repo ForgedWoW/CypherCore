@@ -23,6 +23,45 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("npc")]
 internal class NPCCommands
 {
+    private static void _IterateNotNormalLootMap(CommandHandler handler, MultiMap<ObjectGuid, NotNormalLootItem> map, List<LootItem> items)
+    {
+        foreach (var key in map.Keys)
+        {
+            if (map[key].Empty())
+                continue;
+
+            var list = map[key];
+
+            var player = Global.ObjAccessor.FindConnectedPlayer(key);
+            handler.SendSysMessage(CypherStrings.CommandNpcShowlootSublabel, player ? player.GetName() : $"Offline player (GUID {key})", list.Count);
+
+            foreach (var it in list)
+            {
+                var item = items[it.LootListId];
+
+                if (!it.IsLooted && !item.IsLooted)
+                    _ShowLootEntry(handler, item.Itemid, item.Count, true);
+            }
+        }
+    }
+
+    private static void _ShowLootEntry(CommandHandler handler, uint itemId, byte itemCount, bool alternateString = false)
+    {
+        var name = "Unknown item";
+
+        var itemTemplate = ObjectManager.GetItemTemplate(itemId);
+
+        if (itemTemplate != null)
+            name = itemTemplate.GetName(handler.SessionDbcLocale);
+
+        handler.SendSysMessage(alternateString ? CypherStrings.CommandNpcShowlootEntry2 : CypherStrings.CommandNpcShowlootEntry,
+                               itemCount,
+                               ItemConst.ItemQualityColors[(int)(itemTemplate != null ? itemTemplate.Quality : ItemQuality.Poor)],
+                               itemId,
+                               name,
+                               itemId);
+    }
+
     [Command("despawngroup", RBACPermissions.CommandNpcDespawngroup)]
     private static bool HandleNpcDespawnGroup(CommandHandler handler, string[] opts)
     {
@@ -99,13 +138,13 @@ internal class NPCCommands
         var nativeid = target.NativeDisplayId;
         var entry = target.Entry;
 
-        var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.GetGameTime() : target.Location.Map.GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
+        var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.CurrentTime : target.Location.Map.GetCreatureRespawnTime(target.SpawnId) - GameTime.CurrentTime;
 
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
 
-        var curRespawnDelayStr = Time.secsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
-        var defRespawnDelayStr = Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
+        var curRespawnDelayStr = Time.SecsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
+        var defRespawnDelayStr = Time.SecsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
         handler.SendSysMessage(CypherStrings.NpcinfoChar, target.GetName(), target.SpawnId, target.GUID.ToString(), entry, faction, npcflags, displayid, nativeid);
 
@@ -570,46 +609,6 @@ internal class NPCCommands
 
         return true;
     }
-
-    private static void _ShowLootEntry(CommandHandler handler, uint itemId, byte itemCount, bool alternateString = false)
-    {
-        var name = "Unknown item";
-
-        var itemTemplate = ObjectManager.GetItemTemplate(itemId);
-
-        if (itemTemplate != null)
-            name = itemTemplate.GetName(handler.SessionDbcLocale);
-
-        handler.SendSysMessage(alternateString ? CypherStrings.CommandNpcShowlootEntry2 : CypherStrings.CommandNpcShowlootEntry,
-                               itemCount,
-                               ItemConst.ItemQualityColors[(int)(itemTemplate != null ? itemTemplate.Quality : ItemQuality.Poor)],
-                               itemId,
-                               name,
-                               itemId);
-    }
-
-    private static void _IterateNotNormalLootMap(CommandHandler handler, MultiMap<ObjectGuid, NotNormalLootItem> map, List<LootItem> items)
-    {
-        foreach (var key in map.Keys)
-        {
-            if (map[key].Empty())
-                continue;
-
-            var list = map[key];
-
-            var player = Global.ObjAccessor.FindConnectedPlayer(key);
-            handler.SendSysMessage(CypherStrings.CommandNpcShowlootSublabel, player ? player.GetName() : $"Offline player (GUID {key})", list.Count);
-
-            foreach (var it in list)
-            {
-                var item = items[it.LootListId];
-
-                if (!it.IsLooted && !item.IsLooted)
-                    _ShowLootEntry(handler, item.Itemid, item.Count, true);
-            }
-        }
-    }
-
     [CommandGroup("add")]
     private class AddCommands
     {
@@ -650,7 +649,7 @@ internal class NPCCommands
                 return true;
             }
 
-            var creature = Creature.CreateCreature(id, map, chr.Location);
+            var creature = CreatureFactory.CreateCreature(id, map, chr.Location);
 
             if (!creature)
                 return false;
@@ -668,12 +667,105 @@ internal class NPCCommands
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells()
             // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
             creature.CleanupsBeforeDelete();
-            creature = Creature.CreateCreatureFromDB(db_guid, map, true, true);
+            creature = CreatureFactory.CreateCreatureFromDB(db_guid, map, true, true);
 
             if (!creature)
                 return false;
 
             handler.Session.Player.ObjectManager.AddCreatureToGrid(handler.Session.Player.ObjectManager.GetCreatureData(db_guid));
+
+            return true;
+        }
+
+        [Command("formation", RBACPermissions.CommandNpcAddFormation)]
+        private static bool HandleNpcAddFormationCommand(CommandHandler handler, ulong leaderGUID)
+        {
+            var creature = handler.SelectedCreature;
+
+            if (!creature || creature.SpawnId == 0)
+            {
+                handler.SendSysMessage(CypherStrings.SelectCreature);
+
+                return false;
+            }
+
+            var lowguid = creature.SpawnId;
+
+            if (creature.Formation != null)
+            {
+                handler.SendSysMessage("Selected creature is already member of group {0}", creature.Formation.LeaderSpawnId);
+
+                return false;
+            }
+
+            if (lowguid == 0)
+                return false;
+
+            var chr = handler.Session.Player;
+            var followAngle = (creature.Location.GetAbsoluteAngle(chr.Location) - chr.Location.Orientation) * 180.0f / MathF.PI;
+            var followDist = MathF.Sqrt(MathF.Pow(chr.Location.X - creature.Location.X, 2f) + MathF.Pow(chr.Location.Y - creature.Location.Y, 2f));
+            uint groupAI = 0;
+            FormationMgr.AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
+            creature.SearchFormation();
+
+            var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_CREATURE_FORMATION);
+            stmt.AddValue(0, leaderGUID);
+            stmt.AddValue(1, lowguid);
+            stmt.AddValue(2, followAngle);
+            stmt.AddValue(3, followDist);
+            stmt.AddValue(4, groupAI);
+
+            DB.World.Execute(stmt);
+
+            handler.SendSysMessage("Creature {0} added to formation with leader {1}", lowguid, leaderGUID);
+
+            return true;
+        }
+
+        [Command("move", RBACPermissions.CommandNpcAddMove)]
+        private static bool HandleNpcAddMoveCommand(CommandHandler handler, ulong lowGuid)
+        {
+            // attempt check creature existence by DB data
+            var data = ObjectManager.GetCreatureData(lowGuid);
+
+            if (data == null)
+            {
+                handler.SendSysMessage(CypherStrings.CommandCreatguidnotfound, lowGuid);
+
+                return false;
+            }
+
+            // Update movement type
+            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
+            stmt.AddValue(0, (byte)MovementGeneratorType.Waypoint);
+            stmt.AddValue(1, lowGuid);
+            DB.World.Execute(stmt);
+
+            handler.SendSysMessage(CypherStrings.WaypointAdded);
+
+            return true;
+        }
+
+        [Command("temp", RBACPermissions.CommandNpcAddTemp)]
+        private static bool HandleNpcAddTempSpawnCommand(CommandHandler handler, [OptionalArg] string lootStr, uint id)
+        {
+            var loot = false;
+
+            if (!lootStr.IsEmpty())
+            {
+                if (lootStr.Equals("loot", StringComparison.OrdinalIgnoreCase))
+                    loot = true;
+                else if (lootStr.Equals("noloot", StringComparison.OrdinalIgnoreCase))
+                    loot = false;
+                else
+                    return false;
+            }
+
+            if (ObjectManager.GetCreatureTemplate(id) == null)
+                return false;
+
+            var chr = handler.Session.Player;
+            chr.SummonCreature(id, chr.Location, loot ? TempSummonType.CorpseTimedDespawn : TempSummonType.CorpseDespawn, TimeSpan.FromSeconds(30));
 
             return true;
         }
@@ -732,99 +824,6 @@ internal class NPCCommands
 
             return true;
         }
-
-        [Command("move", RBACPermissions.CommandNpcAddMove)]
-        private static bool HandleNpcAddMoveCommand(CommandHandler handler, ulong lowGuid)
-        {
-            // attempt check creature existence by DB data
-            var data = ObjectManager.GetCreatureData(lowGuid);
-
-            if (data == null)
-            {
-                handler.SendSysMessage(CypherStrings.CommandCreatguidnotfound, lowGuid);
-
-                return false;
-            }
-
-            // Update movement type
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
-            stmt.AddValue(0, (byte)MovementGeneratorType.Waypoint);
-            stmt.AddValue(1, lowGuid);
-            DB.World.Execute(stmt);
-
-            handler.SendSysMessage(CypherStrings.WaypointAdded);
-
-            return true;
-        }
-
-        [Command("formation", RBACPermissions.CommandNpcAddFormation)]
-        private static bool HandleNpcAddFormationCommand(CommandHandler handler, ulong leaderGUID)
-        {
-            var creature = handler.SelectedCreature;
-
-            if (!creature || creature.SpawnId == 0)
-            {
-                handler.SendSysMessage(CypherStrings.SelectCreature);
-
-                return false;
-            }
-
-            var lowguid = creature.SpawnId;
-
-            if (creature.Formation != null)
-            {
-                handler.SendSysMessage("Selected creature is already member of group {0}", creature.Formation.LeaderSpawnId);
-
-                return false;
-            }
-
-            if (lowguid == 0)
-                return false;
-
-            var chr = handler.Session.Player;
-            var followAngle = (creature.Location.GetAbsoluteAngle(chr.Location) - chr.Location.Orientation) * 180.0f / MathF.PI;
-            var followDist = MathF.Sqrt(MathF.Pow(chr.Location.X - creature.Location.X, 2f) + MathF.Pow(chr.Location.Y - creature.Location.Y, 2f));
-            uint groupAI = 0;
-            FormationMgr.AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
-            creature.SearchFormation();
-
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_CREATURE_FORMATION);
-            stmt.AddValue(0, leaderGUID);
-            stmt.AddValue(1, lowguid);
-            stmt.AddValue(2, followAngle);
-            stmt.AddValue(3, followDist);
-            stmt.AddValue(4, groupAI);
-
-            DB.World.Execute(stmt);
-
-            handler.SendSysMessage("Creature {0} added to formation with leader {1}", lowguid, leaderGUID);
-
-            return true;
-        }
-
-        [Command("temp", RBACPermissions.CommandNpcAddTemp)]
-        private static bool HandleNpcAddTempSpawnCommand(CommandHandler handler, [OptionalArg] string lootStr, uint id)
-        {
-            var loot = false;
-
-            if (!lootStr.IsEmpty())
-            {
-                if (lootStr.Equals("loot", StringComparison.OrdinalIgnoreCase))
-                    loot = true;
-                else if (lootStr.Equals("noloot", StringComparison.OrdinalIgnoreCase))
-                    loot = false;
-                else
-                    return false;
-            }
-
-            if (ObjectManager.GetCreatureTemplate(id) == null)
-                return false;
-
-            var chr = handler.Session.Player;
-            chr.SummonCreature(id, chr.Location, loot ? TempSummonType.CorpseTimedDespawn : TempSummonType.CorpseDespawn, TimeSpan.FromSeconds(30));
-
-            return true;
-        }
     }
 
     [CommandGroup("delete")]
@@ -863,7 +862,7 @@ internal class NPCCommands
                 spawnId = creature.SpawnId;
             }
 
-            if (Creature.DeleteFromDB(spawnId))
+            if (CreatureFactory.DeleteFromDB(spawnId))
             {
                 handler.SendSysMessage(CypherStrings.CommandDelcreatmessage);
 
@@ -1337,6 +1336,25 @@ internal class NPCCommands
             return true;
         }
 
+        [Command("spawntime", RBACPermissions.CommandNpcSetSpawntime)]
+        private static bool HandleNpcSetSpawnTimeCommand(CommandHandler handler, uint spawnTime)
+        {
+            var creature = handler.SelectedCreature;
+
+            if (!creature)
+                return false;
+
+            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_SPAWN_TIME_SECS);
+            stmt.AddValue(0, spawnTime);
+            stmt.AddValue(1, creature.SpawnId);
+            DB.World.Execute(stmt);
+
+            creature.RespawnDelay = spawnTime;
+            handler.SendSysMessage(CypherStrings.CommandSpawntime, spawnTime);
+
+            return true;
+        }
+
         [Command("wanderdistance", RBACPermissions.CommandNpcSetSpawndist)]
         private static bool HandleNpcSetWanderDistanceCommand(CommandHandler handler, float option)
         {
@@ -1378,25 +1396,6 @@ internal class NPCCommands
             DB.World.Execute(stmt);
 
             handler.SendSysMessage(CypherStrings.CommandWanderDistance, option);
-
-            return true;
-        }
-
-        [Command("spawntime", RBACPermissions.CommandNpcSetSpawntime)]
-        private static bool HandleNpcSetSpawnTimeCommand(CommandHandler handler, uint spawnTime)
-        {
-            var creature = handler.SelectedCreature;
-
-            if (!creature)
-                return false;
-
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_SPAWN_TIME_SECS);
-            stmt.AddValue(0, spawnTime);
-            stmt.AddValue(1, creature.SpawnId);
-            DB.World.Execute(stmt);
-
-            creature.RespawnDelay = spawnTime;
-            handler.SendSysMessage(CypherStrings.CommandSpawntime, spawnTime);
 
             return true;
         }

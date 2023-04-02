@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class VoidStorageTransfer : ClientPacket
 {
-    public ObjectGuid[] Withdrawals = new ObjectGuid[(int)SharedConst.VoidStorageMaxWithdraw];
     public ObjectGuid[] Deposits = new ObjectGuid[(int)SharedConst.VoidStorageMaxDeposit];
     public ObjectGuid Npc;
+    public ObjectGuid[] Withdrawals = new ObjectGuid[(int)SharedConst.VoidStorageMaxWithdraw];
     public VoidStorageTransfer(WorldPacket packet) : base(packet) { }
 
     public override void Read()

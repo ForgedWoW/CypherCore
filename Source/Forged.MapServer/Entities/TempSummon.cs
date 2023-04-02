@@ -19,39 +19,39 @@ namespace Forged.MapServer.Entities;
 public class TempSummon : Creature
 {
     public SummonPropertiesRecord SummonPropertiesRecord;
-    private TempSummonType _summonType;
-    private uint _timer;
     private uint _lifetime;
     private ObjectGuid _summonerGuid;
-    private uint? _creatureIdVisibleToSummoner;
-    private uint? _displayIdVisibleToSummoner;
-    private bool _canFollowOwner;
 
     public TempSummon(SummonPropertiesRecord propertiesRecord, WorldObject owner, bool isWorldObject) : base(isWorldObject)
     {
         SummonPropertiesRecord = propertiesRecord;
-        _summonType = TempSummonType.ManualDespawn;
+        SummonType = TempSummonType.ManualDespawn;
 
         _summonerGuid = owner?.GUID ?? ObjectGuid.Empty;
         UnitTypeMask |= UnitTypeMask.Summon;
-        _canFollowOwner = true;
+        CanFollowOwner = true;
+    }
+
+    public bool CanFollowOwner { get; set; }
+    public uint? CreatureIdVisibleToSummoner { get; private set; }
+    public uint? DisplayIdVisibleToSummoner { get; private set; }
+    public ObjectGuid SummonerGUID => _summonerGuid;
+
+    public uint Timer { get; private set; }
+    private TempSummonType SummonType { get; set; }
+    public override float GetDamageMultiplierForTarget(WorldObject target)
+    {
+        return 1.0f;
+    }
+
+    public override string GetDebugInfo()
+    {
+        return $"{base.GetDebugInfo()}\nTempSummonType : {SummonType} Summoner: {SummonerGUID} Timer: {Timer}";
     }
 
     public WorldObject GetSummoner()
     {
         return !_summonerGuid.IsEmpty ? Global.ObjAccessor.GetWorldObject(this, _summonerGuid) : null;
-    }
-
-    public void SetSummonerGUID(ObjectGuid summonerGUID)
-    {
-        _summonerGuid = summonerGUID;
-    }
-
-    public Unit GetSummonerUnit()
-    {
-        var summoner = GetSummoner();
-
-        return summoner?.AsUnit;
     }
 
     public Creature GetSummonerCreatureBase()
@@ -66,155 +66,20 @@ public class TempSummon : Creature
         return summoner?.AsGameObject;
     }
 
-    public override float GetDamageMultiplierForTarget(WorldObject target)
+    public Unit GetSummonerUnit()
     {
-        return 1.0f;
-    }
+        var summoner = GetSummoner();
 
-    public override void Update(uint diff)
-    {
-        base.Update(diff);
-
-        if (DeathState == DeathState.Dead)
-        {
-            UnSummon();
-
-            return;
-        }
-
-        switch (_summonType)
-        {
-            case TempSummonType.ManualDespawn:
-            case TempSummonType.DeadDespawn:
-                break;
-            case TempSummonType.TimedDespawn:
-            {
-                if (_timer <= diff)
-                {
-                    UnSummon();
-
-                    return;
-                }
-
-                _timer -= diff;
-
-                break;
-            }
-            case TempSummonType.TimedDespawnOutOfCombat:
-            {
-                if (!IsInCombat)
-                {
-                    if (_timer <= diff)
-                    {
-                        UnSummon();
-
-                        return;
-                    }
-
-                    _timer -= diff;
-                }
-                else if (_timer != _lifetime)
-                {
-                    _timer = _lifetime;
-                }
-
-                break;
-            }
-
-            case TempSummonType.CorpseTimedDespawn:
-            {
-                if (DeathState == DeathState.Corpse)
-                {
-                    if (_timer <= diff)
-                    {
-                        UnSummon();
-
-                        return;
-                    }
-
-                    _timer -= diff;
-                }
-
-                break;
-            }
-            case TempSummonType.CorpseDespawn:
-            {
-                // if m_deathState is DEAD, CORPSE was skipped
-                if (DeathState == DeathState.Corpse)
-                {
-                    UnSummon();
-
-                    return;
-                }
-
-                break;
-            }
-            case TempSummonType.TimedOrCorpseDespawn:
-            {
-                if (DeathState == DeathState.Corpse)
-                {
-                    UnSummon();
-
-                    return;
-                }
-
-                if (!IsInCombat)
-                {
-                    if (_timer <= diff)
-                    {
-                        UnSummon();
-
-                        return;
-                    }
-                    else
-                    {
-                        _timer -= diff;
-                    }
-                }
-                else if (_timer != _lifetime)
-                {
-                    _timer = _lifetime;
-                }
-
-                break;
-            }
-            case TempSummonType.TimedOrDeadDespawn:
-            {
-                if (!IsInCombat && IsAlive)
-                {
-                    if (_timer <= diff)
-                    {
-                        UnSummon();
-
-                        return;
-                    }
-                    else
-                    {
-                        _timer -= diff;
-                    }
-                }
-                else if (_timer != _lifetime)
-                {
-                    _timer = _lifetime;
-                }
-
-                break;
-            }
-            default:
-                UnSummon();
-                Log.Logger.Error("Temporary summoned creature (entry: {0}) have unknown type {1} of ", Entry, _summonType);
-
-                break;
-        }
+        return summoner?.AsUnit;
     }
 
     public virtual void InitStats(uint duration)
     {
-        _timer = duration;
+        Timer = duration;
         _lifetime = duration;
 
-        if (_summonType == TempSummonType.ManualDespawn)
-            _summonType = (duration == 0) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
+        if (SummonType == TempSummonType.ManualDespawn)
+            SummonType = (duration == 0) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
 
         var owner = GetSummonerUnit();
 
@@ -228,12 +93,12 @@ public class TempSummon : Creature
 
             if (summonedData != null)
             {
-                _creatureIdVisibleToSummoner = summonedData.CreatureIdVisibleToSummoner;
+                CreatureIdVisibleToSummoner = summonedData.CreatureIdVisibleToSummoner;
 
                 if (summonedData.CreatureIdVisibleToSummoner.HasValue)
                 {
                     var creatureTemplateVisibleToSummoner = Global.ObjectMgr.GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value);
-                    _displayIdVisibleToSummoner = GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner).CreatureDisplayId;
+                    DisplayIdVisibleToSummoner = GameObjectManager.ChooseDisplayId(creatureTemplateVisibleToSummoner).CreatureDisplayId;
                 }
             }
         }
@@ -290,6 +155,214 @@ public class TempSummon : Creature
         }
     }
 
+    public override void RemoveFromWorld()
+    {
+        if (!Location.IsInWorld)
+            return;
+
+        if (SummonPropertiesRecord != null)
+        {
+            var slot = SummonPropertiesRecord.Slot;
+
+            if (slot > 0)
+            {
+                var owner = GetSummonerUnit();
+
+                if (owner != null)
+                    if (owner.SummonSlot[slot] == GUID)
+                        owner.SummonSlot[slot].Clear();
+            }
+        }
+
+        if (!OwnerGUID.IsEmpty)
+            Log.Logger.Error("Unit {0} has owner guid when removed from world", Entry);
+
+        base.RemoveFromWorld();
+    }
+
+    public override void SaveToDB(uint mapid, List<Difficulty> spawnDifficulties) { }
+
+    public void SetSummonerGUID(ObjectGuid summonerGUID)
+    {
+        _summonerGuid = summonerGUID;
+    }
+    public void SetTempSummonType(TempSummonType type)
+    {
+        SummonType = type;
+    }
+
+    public virtual void UnSummon()
+    {
+        UnSummon(TimeSpan.Zero);
+    }
+
+    public virtual void UnSummon(TimeSpan msTime)
+    {
+        if (msTime != TimeSpan.Zero)
+        {
+            ForcedUnsummonDelayEvent pEvent = new(this);
+
+            Events.AddEvent(pEvent, Events.CalculateTime(msTime));
+
+            return;
+        }
+
+        if (IsPet)
+        {
+            AsPet.Remove(PetSaveMode.NotInSlot);
+
+            return;
+        }
+
+        var owner = GetSummoner();
+
+        if (owner != null)
+        {
+            if (owner.IsCreature)
+                owner.AsCreature.AI?.SummonedCreatureDespawn(this);
+            else if (owner.IsGameObject)
+                owner.AsGameObject.AI?.SummonedCreatureDespawn(this);
+        }
+
+        Location.AddObjectToRemoveList();
+    }
+
+    public override void Update(uint diff)
+    {
+        base.Update(diff);
+
+        if (DeathState == DeathState.Dead)
+        {
+            UnSummon();
+
+            return;
+        }
+
+        switch (SummonType)
+        {
+            case TempSummonType.ManualDespawn:
+            case TempSummonType.DeadDespawn:
+                break;
+            case TempSummonType.TimedDespawn:
+            {
+                if (Timer <= diff)
+                {
+                    UnSummon();
+
+                    return;
+                }
+
+                Timer -= diff;
+
+                break;
+            }
+            case TempSummonType.TimedDespawnOutOfCombat:
+            {
+                if (!IsInCombat)
+                {
+                    if (Timer <= diff)
+                    {
+                        UnSummon();
+
+                        return;
+                    }
+
+                    Timer -= diff;
+                }
+                else if (Timer != _lifetime)
+                {
+                    Timer = _lifetime;
+                }
+
+                break;
+            }
+
+            case TempSummonType.CorpseTimedDespawn:
+            {
+                if (DeathState == DeathState.Corpse)
+                {
+                    if (Timer <= diff)
+                    {
+                        UnSummon();
+
+                        return;
+                    }
+
+                    Timer -= diff;
+                }
+
+                break;
+            }
+            case TempSummonType.CorpseDespawn:
+            {
+                // if m_deathState is DEAD, CORPSE was skipped
+                if (DeathState == DeathState.Corpse)
+                {
+                    UnSummon();
+
+                    return;
+                }
+
+                break;
+            }
+            case TempSummonType.TimedOrCorpseDespawn:
+            {
+                if (DeathState == DeathState.Corpse)
+                {
+                    UnSummon();
+
+                    return;
+                }
+
+                if (!IsInCombat)
+                {
+                    if (Timer <= diff)
+                    {
+                        UnSummon();
+
+                        return;
+                    }
+                    else
+                    {
+                        Timer -= diff;
+                    }
+                }
+                else if (Timer != _lifetime)
+                {
+                    Timer = _lifetime;
+                }
+
+                break;
+            }
+            case TempSummonType.TimedOrDeadDespawn:
+            {
+                if (!IsInCombat && IsAlive)
+                {
+                    if (Timer <= diff)
+                    {
+                        UnSummon();
+
+                        return;
+                    }
+                    else
+                    {
+                        Timer -= diff;
+                    }
+                }
+                else if (Timer != _lifetime)
+                {
+                    Timer = _lifetime;
+                }
+
+                break;
+            }
+            default:
+                UnSummon();
+                Log.Logger.Error("Temporary summoned creature (entry: {0}) have unknown type {1} of ", Entry, SummonType);
+
+                break;
+        }
+    }
     public override void UpdateObjectVisibilityOnCreate()
     {
         List<WorldObject> objectsToUpdate = new();
@@ -346,113 +419,5 @@ public class TempSummon : Creature
 
             originalSmoothPhasing?.ClearViewerDependentInfo(DemonCreatorGUID);
         }
-    }
-
-    public void SetTempSummonType(TempSummonType type)
-    {
-        _summonType = type;
-    }
-
-    public virtual void UnSummon()
-    {
-        UnSummon(TimeSpan.Zero);
-    }
-
-    public virtual void UnSummon(TimeSpan msTime)
-    {
-        if (msTime != TimeSpan.Zero)
-        {
-            ForcedUnsummonDelayEvent pEvent = new(this);
-
-            Events.AddEvent(pEvent, Events.CalculateTime(msTime));
-
-            return;
-        }
-
-        if (IsPet)
-        {
-            AsPet.Remove(PetSaveMode.NotInSlot);
-
-            return;
-        }
-
-        var owner = GetSummoner();
-
-        if (owner != null)
-        {
-            if (owner.IsCreature)
-                owner.AsCreature.AI?.SummonedCreatureDespawn(this);
-            else if (owner.IsGameObject)
-                owner.AsGameObject.AI?.SummonedCreatureDespawn(this);
-        }
-
-        Location.AddObjectToRemoveList();
-    }
-
-    public override void RemoveFromWorld()
-    {
-        if (!Location.IsInWorld)
-            return;
-
-        if (SummonPropertiesRecord != null)
-        {
-            var slot = SummonPropertiesRecord.Slot;
-
-            if (slot > 0)
-            {
-                var owner = GetSummonerUnit();
-
-                if (owner != null)
-                    if (owner.SummonSlot[slot] == GUID)
-                        owner.SummonSlot[slot].Clear();
-            }
-        }
-
-        if (!OwnerGUID.IsEmpty)
-            Log.Logger.Error("Unit {0} has owner guid when removed from world", Entry);
-
-        base.RemoveFromWorld();
-    }
-
-    public override string GetDebugInfo()
-    {
-        return $"{base.GetDebugInfo()}\nTempSummonType : {GetSummonType()} Summoner: {GetSummonerGUID()} Timer: {GetTimer()}";
-    }
-
-    public override void SaveToDB(uint mapid, List<Difficulty> spawnDifficulties) { }
-
-    public ObjectGuid GetSummonerGUID()
-    {
-        return _summonerGuid;
-    }
-
-    public uint GetTimer()
-    {
-        return _timer;
-    }
-
-    public uint? GetCreatureIdVisibleToSummoner()
-    {
-        return _creatureIdVisibleToSummoner;
-    }
-
-    public uint? GetDisplayIdVisibleToSummoner()
-    {
-        return _displayIdVisibleToSummoner;
-    }
-
-    public bool CanFollowOwner()
-    {
-        return _canFollowOwner;
-    }
-
-    public void SetCanFollowOwner(bool can)
-    {
-        _canFollowOwner = can;
-    }
-
-    private TempSummonType GetSummonType()
-    {
-        return _summonType;
     }
 }

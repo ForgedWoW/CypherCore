@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Artifact;
 
 internal class ArtifactXpGain : ServerPacket
 {
-    public ObjectGuid ArtifactGUID;
     public ulong Amount;
+    public ObjectGuid ArtifactGUID;
     public ArtifactXpGain() : base(ServerOpcodes.ArtifactXpGain) { }
 
     public override void Write()

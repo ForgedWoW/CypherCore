@@ -11,14 +11,13 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class Grid
 {
-    private readonly uint _gridX;
-    private readonly uint _gridY;
-    private readonly GridInfo _gridInfo;
     private readonly GridCell[][] _cells = new GridCell[MapConst.MaxCells][];
     private readonly uint _gridId;
-    private GridState _gridState;
+    private readonly GridInfo _gridInfo;
+    private readonly uint _gridX;
+    private readonly uint _gridY;
     private bool _gridObjectDataLoaded;
-
+    private GridState _gridState;
     public Grid(uint id, uint x, uint y, long expiry, bool unload = true)
     {
         _gridId = id;
@@ -39,6 +38,11 @@ public class Grid
 
     public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.GetId(), cell.GetGridX(), cell.GetGridY(), expiry, unload) { }
 
+    public void DecUnloadActiveLock()
+    {
+        _gridInfo.DecUnloadActiveLock();
+    }
+
     public GridCell GetGridCell(uint x, uint y)
     {
         return _cells[x][y];
@@ -49,14 +53,25 @@ public class Grid
         return _gridId;
     }
 
+    public GridInfo GetGridInfoRef()
+    {
+        return _gridInfo;
+    }
+
     public GridState GetGridState()
     {
         return _gridState;
     }
 
-    public void SetGridState(GridState s)
+    public uint GetWorldObjectCountInNGrid<T>() where T : WorldObject
     {
-        _gridState = s;
+        uint count = 0;
+
+        for (uint x = 0; x < MapConst.MaxCells; ++x)
+            for (uint y = 0; y < MapConst.MaxCells; ++y)
+                count += _cells[x][y].GetWorldObjectCountInGrid<T>();
+
+        return count;
     }
 
     public uint GetX()
@@ -69,34 +84,14 @@ public class Grid
         return _gridY;
     }
 
-    public bool IsGridObjectDataLoaded()
-    {
-        return _gridObjectDataLoaded;
-    }
-
-    public void SetGridObjectDataLoaded(bool pLoaded)
-    {
-        _gridObjectDataLoaded = pLoaded;
-    }
-
-    public GridInfo GetGridInfoRef()
-    {
-        return _gridInfo;
-    }
-
-    public void SetUnloadExplicitLock(bool on)
-    {
-        _gridInfo.SetUnloadExplicitLock(on);
-    }
-
     public void IncUnloadActiveLock()
     {
         _gridInfo.IncUnloadActiveLock();
     }
 
-    public void DecUnloadActiveLock()
+    public bool IsGridObjectDataLoaded()
     {
-        _gridInfo.DecUnloadActiveLock();
+        return _gridObjectDataLoaded;
     }
 
     public void ResetTimeTracker(long interval)
@@ -104,6 +99,19 @@ public class Grid
         _gridInfo.ResetTimeTracker(interval);
     }
 
+    public void SetGridObjectDataLoaded(bool pLoaded)
+    {
+        _gridObjectDataLoaded = pLoaded;
+    }
+
+    public void SetGridState(GridState s)
+    {
+        _gridState = s;
+    }
+    public void SetUnloadExplicitLock(bool on)
+    {
+        _gridInfo.SetUnloadExplicitLock(on);
+    }
     public void Update(Map map, uint diff)
     {
         switch (GetGridState())
@@ -173,16 +181,5 @@ public class Grid
     public void VisitGrid(uint x, uint y, IGridNotifier visitor)
     {
         GetGridCell(x, y).Visit(visitor);
-    }
-
-    public uint GetWorldObjectCountInNGrid<T>() where T : WorldObject
-    {
-        uint count = 0;
-
-        for (uint x = 0; x < MapConst.MaxCells; ++x)
-            for (uint y = 0; y < MapConst.MaxCells; ++y)
-                count += _cells[x][y].GetWorldObjectCountInGrid<T>();
-
-        return count;
     }
 }

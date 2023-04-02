@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class BuyBackItem : ClientPacket
 {
-    public ObjectGuid VendorGUID;
     public uint Slot;
+    public ObjectGuid VendorGUID;
     public BuyBackItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -7,6 +7,6 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 public struct LootRequest
 {
-    public ObjectGuid Object;
     public byte LootListID;
+    public ObjectGuid Object;
 }

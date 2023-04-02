@@ -5,11 +5,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class SwapItem : ClientPacket
 {
+    public byte ContainerSlotA;
+    public byte ContainerSlotB;
     public InvUpdate Inv;
     public byte SlotA;
-    public byte ContainerSlotB;
     public byte SlotB;
-    public byte ContainerSlotA;
     public SwapItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

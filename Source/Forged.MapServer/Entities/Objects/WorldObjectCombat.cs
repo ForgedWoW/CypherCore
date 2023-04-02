@@ -28,154 +28,63 @@ public class WorldObjectCombat
         return spellInfo.GetSpellXSpellVisualId(_worldObject);
     }
 
-    public float GetSpellMaxRangeForTarget(Unit target, SpellInfo spellInfo)
+    public ReputationRank GetFactionReactionTo(FactionTemplateRecord factionTemplateEntry, WorldObject target)
     {
-        if (spellInfo.RangeEntry == null)
-            return 0.0f;
+        // always neutral when no template entry found
+        if (factionTemplateEntry == null)
+            return ReputationRank.Neutral;
 
-        if (spellInfo.RangeEntry.RangeMax[0] == spellInfo.RangeEntry.RangeMax[1])
-            return spellInfo.GetMaxRange();
+        var targetFactionTemplateEntry = target.WorldObjectCombat.GetFactionTemplateEntry();
 
-        if (!target)
-            return spellInfo.GetMaxRange(true);
+        if (targetFactionTemplateEntry == null)
+            return ReputationRank.Neutral;
 
-        return spellInfo.GetMaxRange(!IsHostileTo(target));
-    }
+        var targetPlayerOwner = target.AffectingPlayer;
 
-    public float GetSpellMinRangeForTarget(Unit target, SpellInfo spellInfo)
-    {
-        if (spellInfo.RangeEntry == null)
-            return 0.0f;
-
-        if (spellInfo.RangeEntry.RangeMin[0] == spellInfo.RangeEntry.RangeMin[1])
-            return spellInfo.GetMinRange();
-
-        if (!target)
-            return spellInfo.GetMinRange(true);
-
-        return spellInfo.GetMinRange(!IsHostileTo(target));
-    }
-
-    public void ModSpellCastTime(SpellInfo spellInfo, ref int castTime, Spell spell = null)
-    {
-        if (spellInfo == null || castTime < 0)
-            return;
-
-        // called from caster
-        var modOwner = _worldObject.SpellModOwner;
-
-        modOwner?.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref castTime, spell);
-
-        var unitCaster = _worldObject.AsUnit;
-
-        if (!unitCaster)
-            return;
-
-        if (unitCaster.IsPlayer && unitCaster.AsPlayer.GetCommandStatus(PlayerCommandStates.Casttime))
-            castTime = 0;
-        else if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) && ((_worldObject.IsPlayer && spellInfo.SpellFamilyName != 0) || _worldObject.IsCreature))
-            castTime = unitCaster.CanInstantCast ? 0 : (int)(castTime * unitCaster.UnitData.ModCastingSpeed);
-        else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
-            castTime = (int)(castTime * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
-        else if (_worldObject.SpellManager.IsPartOfSkillLine(SkillType.Cooking, spellInfo.Id) && unitCaster.HasAura(67556)) // cooking with Chef Hat.
-            castTime = 500;
-    }
-
-    public void ModSpellDurationTime(SpellInfo spellInfo, ref int duration, Spell spell = null)
-    {
-        if (spellInfo == null || duration < 0)
-            return;
-
-        if (spellInfo.IsChanneled && !spellInfo.HasAttribute(SpellAttr5.SpellHasteAffectsPeriodic))
-            return;
-
-        // called from caster
-        var modOwner = _worldObject.SpellModOwner;
-
-        modOwner?.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref duration, spell);
-
-        var unitCaster = _worldObject.AsUnit;
-
-        if (!unitCaster)
-            return;
-
-        if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) &&
-            ((_worldObject.IsPlayer && spellInfo.SpellFamilyName != 0) || _worldObject.IsCreature))
-            duration = (int)(duration * unitCaster.UnitData.ModCastingSpeed);
-        else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
-            duration = (int)(duration * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
-    }
-
-    public virtual double MeleeSpellMissChance(Unit victim, WeaponAttackType attType, SpellInfo spellInfo)
-    {
-        return 0.0f;
-    }
-
-    public virtual SpellMissInfo MeleeSpellHitResult(Unit victim, SpellInfo spellInfo)
-    {
-        return SpellMissInfo.None;
-    }
-
-    public SpellMissInfo SpellHitResult(Unit victim, SpellInfo spellInfo, bool canReflect = false)
-    {
-        // Check for immune
-        if (victim.IsImmunedToSpell(spellInfo, _worldObject))
-            return SpellMissInfo.Immune;
-
-        // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
-        // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
-        if (spellInfo.HasOnlyDamageEffects && victim.IsImmunedToDamage(spellInfo))
-            return SpellMissInfo.Immune;
-
-        // All positive spells can`t miss
-        // @todo client not show miss log for this spells - so need find info for this in dbc and use it!
-        if (spellInfo.IsPositive && !IsHostileTo(victim)) // prevent from affecting enemy by "positive" spell
-            return SpellMissInfo.None;
-
-        if (_worldObject == victim)
-            return SpellMissInfo.None;
-
-        // Return evade for units in evade mode
-        if (victim.IsCreature && victim.AsCreature.IsEvadingAttacks)
-            return SpellMissInfo.Evade;
-
-        // Try victim reflect spell
-        if (canReflect)
+        if (targetPlayerOwner != null)
         {
-            var reflectchance = victim.GetTotalAuraModifier(AuraType.ReflectSpells);
-            reflectchance += victim.GetTotalAuraModifierByMiscMask(AuraType.ReflectSpellsSchool, (int)spellInfo.GetSchoolMask());
+            // check contested flags
+            if ((factionTemplateEntry.Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0 && targetPlayerOwner.HasPlayerFlag(PlayerFlags.ContestedPVP))
+                return ReputationRank.Hostile;
 
-            if (reflectchance > 0 && RandomHelper.randChance(reflectchance))
-                return SpellMissInfo.Reflect;
+            var repRank = targetPlayerOwner.ReputationMgr.GetForcedRankIfAny(factionTemplateEntry);
+
+            if (repRank != ReputationRank.None)
+                return repRank;
+
+            if (target.IsUnit && !target.AsUnit.HasUnitFlag2(UnitFlags2.IgnoreReputation))
+            {
+                var factionEntry = _worldObject.CliDB.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
+
+                if (factionEntry != null)
+                    if (factionEntry.CanHaveReputation())
+                    {
+                        // CvP case - check reputation, don't allow state higher than neutral when at war
+                        var repRank1 = targetPlayerOwner.ReputationMgr.GetRank(factionEntry);
+
+                        if (targetPlayerOwner.ReputationMgr.IsAtWar(factionEntry))
+                            repRank1 = (ReputationRank)Math.Min((int)ReputationRank.Neutral, (int)repRank1);
+
+                        return repRank1;
+                    }
+            }
         }
 
-        if (spellInfo.HasAttribute(SpellAttr3.AlwaysHit))
-            return SpellMissInfo.None;
+        // common faction based check
+        if (factionTemplateEntry.IsHostileTo(targetFactionTemplateEntry))
+            return ReputationRank.Hostile;
 
-        switch (spellInfo.DmgClass)
-        {
-            case SpellDmgClass.Ranged:
-            case SpellDmgClass.Melee:
-                return MeleeSpellHitResult(victim, spellInfo);
-            case SpellDmgClass.None:
-                return SpellMissInfo.None;
-            case SpellDmgClass.Magic:
-                return MagicSpellHitResult(victim, spellInfo);
-        }
+        if (factionTemplateEntry.IsFriendlyTo(targetFactionTemplateEntry))
+            return ReputationRank.Friendly;
 
-        return SpellMissInfo.None;
-    }
+        if (targetFactionTemplateEntry.IsFriendlyTo(factionTemplateEntry))
+            return ReputationRank.Friendly;
 
-    public void SendSpellMiss(Unit target, uint spellID, SpellMissInfo missInfo)
-    {
-        SpellMissLog spellMissLog = new()
-        {
-            SpellID = spellID,
-            Caster = _worldObject.GUID
-        };
+        if ((factionTemplateEntry.Flags & (ushort)FactionTemplateFlags.HostileByDefault) != 0)
+            return ReputationRank.Hostile;
 
-        spellMissLog.Entries.Add(new SpellLogMissEntry(target.GUID, (byte)missInfo));
-        _worldObject.SendMessageToSet(spellMissLog, true);
+        // neutral by default
+        return ReputationRank.Neutral;
     }
 
     public FactionTemplateRecord GetFactionTemplateEntry()
@@ -208,6 +117,48 @@ public class WorldObjectCombat
         return entry;
     }
 
+    public Unit GetMagicHitRedirectTarget(Unit victim, SpellInfo spellInfo)
+    {
+        // Patch 1.2 notes: Spell Reflection no longer reflects abilities
+        if (spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr1.NoRedirection) || spellInfo.HasAttribute(SpellAttr0.NoImmunities))
+            return victim;
+
+        var magnetAuras = victim.GetAuraEffectsByType(AuraType.SpellMagnet);
+
+        foreach (var aurEff in magnetAuras)
+        {
+            var magnet = aurEff.Base.Caster;
+
+            if (magnet != null)
+                if (spellInfo.CheckExplicitTarget(_worldObject, magnet) == SpellCastResult.SpellCastOk && IsValidAttackTarget(magnet, spellInfo))
+                {
+                    // @todo handle this charge drop by proc in cast phase on explicit target
+                    if (spellInfo.HasHitDelay)
+                    {
+                        // Set up missile speed based delay
+                        var hitDelay = spellInfo.LaunchDelay;
+
+                        if (spellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
+                            hitDelay += spellInfo.Speed;
+                        else if (spellInfo.Speed > 0.0f)
+                            hitDelay += Math.Max(victim.Location.GetDistance(_worldObject), 5.0f) / spellInfo.Speed;
+
+                        var delay = (uint)Math.Floor(hitDelay * 1000.0f);
+                        // Schedule charge drop
+                        aurEff.Base.DropChargeDelayed(delay, AuraRemoveMode.Expire);
+                    }
+                    else
+                    {
+                        aurEff.Base.DropCharge(AuraRemoveMode.Expire);
+                    }
+
+                    return magnet;
+                }
+        }
+
+        return victim;
+    }
+
     public ReputationRank GetReactionTo(WorldObject target)
     {
         // always friendly to self
@@ -224,7 +175,7 @@ public class WorldObjectCombat
             if (tempSummon == null || tempSummon.SummonPropertiesRecord == null)
                 return false;
 
-            if (tempSummon.SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.AttackableBySummoner) && targetGuid == tempSummon.GetSummonerGUID())
+            if (tempSummon.SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.AttackableBySummoner) && targetGuid == tempSummon.SummonerGUID)
                 return true;
 
             return false;
@@ -330,73 +281,42 @@ public class WorldObjectCombat
         return GetFactionReactionTo(GetFactionTemplateEntry(), target);
     }
 
-    public ReputationRank GetFactionReactionTo(FactionTemplateRecord factionTemplateEntry, WorldObject target)
+    public float GetSpellMaxRangeForTarget(Unit target, SpellInfo spellInfo)
     {
-        // always neutral when no template entry found
-        if (factionTemplateEntry == null)
-            return ReputationRank.Neutral;
+        if (spellInfo.RangeEntry == null)
+            return 0.0f;
 
-        var targetFactionTemplateEntry = target.WorldObjectCombat.GetFactionTemplateEntry();
+        if (spellInfo.RangeEntry.RangeMax[0] == spellInfo.RangeEntry.RangeMax[1])
+            return spellInfo.GetMaxRange();
 
-        if (targetFactionTemplateEntry == null)
-            return ReputationRank.Neutral;
+        if (!target)
+            return spellInfo.GetMaxRange(true);
 
-        var targetPlayerOwner = target.AffectingPlayer;
-
-        if (targetPlayerOwner != null)
-        {
-            // check contested flags
-            if ((factionTemplateEntry.Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0 && targetPlayerOwner.HasPlayerFlag(PlayerFlags.ContestedPVP))
-                return ReputationRank.Hostile;
-
-            var repRank = targetPlayerOwner.ReputationMgr.GetForcedRankIfAny(factionTemplateEntry);
-
-            if (repRank != ReputationRank.None)
-                return repRank;
-
-            if (target.IsUnit && !target.AsUnit.HasUnitFlag2(UnitFlags2.IgnoreReputation))
-            {
-                var factionEntry = _worldObject.CliDB.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
-
-                if (factionEntry != null)
-                    if (factionEntry.CanHaveReputation())
-                    {
-                        // CvP case - check reputation, don't allow state higher than neutral when at war
-                        var repRank1 = targetPlayerOwner.ReputationMgr.GetRank(factionEntry);
-
-                        if (targetPlayerOwner.ReputationMgr.IsAtWar(factionEntry))
-                            repRank1 = (ReputationRank)Math.Min((int)ReputationRank.Neutral, (int)repRank1);
-
-                        return repRank1;
-                    }
-            }
-        }
-
-        // common faction based check
-        if (factionTemplateEntry.IsHostileTo(targetFactionTemplateEntry))
-            return ReputationRank.Hostile;
-
-        if (factionTemplateEntry.IsFriendlyTo(targetFactionTemplateEntry))
-            return ReputationRank.Friendly;
-
-        if (targetFactionTemplateEntry.IsFriendlyTo(factionTemplateEntry))
-            return ReputationRank.Friendly;
-
-        if ((factionTemplateEntry.Flags & (ushort)FactionTemplateFlags.HostileByDefault) != 0)
-            return ReputationRank.Hostile;
-
-        // neutral by default
-        return ReputationRank.Neutral;
+        return spellInfo.GetMaxRange(!IsHostileTo(target));
     }
 
-    public bool IsHostileTo(WorldObject target)
+    public float GetSpellMinRangeForTarget(Unit target, SpellInfo spellInfo)
     {
-        return GetReactionTo(target) <= ReputationRank.Hostile;
+        if (spellInfo.RangeEntry == null)
+            return 0.0f;
+
+        if (spellInfo.RangeEntry.RangeMin[0] == spellInfo.RangeEntry.RangeMin[1])
+            return spellInfo.GetMinRange();
+
+        if (!target)
+            return spellInfo.GetMinRange(true);
+
+        return spellInfo.GetMinRange(!IsHostileTo(target));
     }
 
     public bool IsFriendlyTo(WorldObject target)
     {
         return GetReactionTo(target) >= ReputationRank.Friendly;
+    }
+
+    public bool IsHostileTo(WorldObject target)
+    {
+        return GetReactionTo(target) <= ReputationRank.Hostile;
     }
 
     public bool IsNeutralToAll()
@@ -414,35 +334,113 @@ public class WorldObjectCombat
         return myFaction.IsNeutralToAll();
     }
 
-    public void SendPlaySpellVisual(WorldObject target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false, float launchDelay = 0)
+    public bool IsValidAssistTarget(WorldObject target, SpellInfo bySpell = null, bool spellCheck = true)
     {
-        PlaySpellVisual playSpellVisual = new()
+        // some negative spells can be casted at friendly target
+        var isNegativeSpell = bySpell is { IsPositive: false };
+
+        // can assist to self
+        if (_worldObject == target)
+            return true;
+
+        // can't assist unattackable units
+        var unitTarget = target.AsUnit;
+
+        if (unitTarget && unitTarget.HasUnitState(UnitState.Unattackable))
+            return false;
+
+        // can't assist GMs
+        if (target.IsPlayer && target.AsPlayer.IsGameMaster)
+            return false;
+
+        // can't assist own vehicle or passenger
+        var unit = _worldObject.AsUnit;
+
+        if (unit && unitTarget && unit.Vehicle)
         {
-            Source = _worldObject.GUID,
-            Target = target.GUID,
-            TargetPosition = target.Location,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime,
-            LaunchDelay = launchDelay
-        };
+            if (unit.IsOnVehicle(unitTarget))
+                return false;
 
-        _worldObject.SendMessageToSet(playSpellVisual, true);
-    }
+            if (unit.VehicleBase.IsOnVehicle(unitTarget))
+                return false;
+        }
 
-    public void SendPlaySpellVisualKit(uint id, uint type, uint duration)
-    {
-        PlaySpellVisualKit playSpellVisualKit = new()
+        // can't assist invisible
+        if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift)) && !_worldObject.Visibility.CanSeeOrDetect(target, bySpell is { IsAffectingArea: true }))
+            return false;
+
+        // can't assist dead
+        if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget && !unitTarget.IsAlive)
+            return false;
+
+        // can't assist untargetable
+        if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanTargetUntargetable)) && unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.NonAttackable2))
+            return false;
+
+        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.Uninteractible))
+            return false;
+
+        // check flags for negative spells
+        if (isNegativeSpell && unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.OnTaxi | UnitFlags.NotAttackable1))
+            return false;
+
+        if (isNegativeSpell || bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
         {
-            Unit = _worldObject.GUID,
-            KitRecID = id,
-            KitType = type,
-            Duration = duration
-        };
+            if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
+            {
+                if (bySpell == null || !bySpell.HasAttribute(SpellAttr8.AttackIgnoreImmuneToPCFlag))
+                    if (unitTarget != null && unitTarget.IsImmuneToPc())
+                        return false;
+            }
+            else
+            {
+                if (unitTarget != null && unitTarget.IsImmuneToNPC())
+                    return false;
+            }
+        }
 
-        _worldObject.SendMessageToSet(playSpellVisualKit, true);
+        // can't assist non-friendly targets
+        if (GetReactionTo(target) < ReputationRank.Neutral && target.WorldObjectCombat.GetReactionTo(_worldObject) < ReputationRank.Neutral && (!_worldObject.AsCreature || !_worldObject.AsCreature.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+            return false;
+
+        // PvP case
+        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled))
+        {
+            if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
+            {
+                var selfPlayerOwner = _worldObject.AffectingPlayer;
+                var targetPlayerOwner = unitTarget.AffectingPlayer;
+
+                if (selfPlayerOwner != null && targetPlayerOwner != null)
+                    // can't assist player which is dueling someone
+                    if (selfPlayerOwner != targetPlayerOwner && targetPlayerOwner.Duel != null)
+                        return false;
+
+                // can't assist player in ffa_pvp zone from outside
+                if (unitTarget.IsFFAPvP && !unit.IsFFAPvP)
+                    return false;
+
+                // can't assist player out of sanctuary from sanctuary if has pvp enabled
+                if (unitTarget.IsPvP)
+                    if (unit.IsInSanctuary && !unitTarget.IsInSanctuary)
+                        return false;
+            }
+        }
+        // PvC case - player can assist creature only if has specific type flags
+        // !target.HasFlag(UNIT_FIELD_FLAGS, UnitFlags.PvpAttackable) &&
+        else if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
+        {
+            if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
+                if (unitTarget is { IsPvP: false })
+                {
+                    var creatureTarget = target.AsCreature;
+
+                    if (creatureTarget != null)
+                        return (creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist));
+                }
+        }
+
+        return true;
     }
 
     public bool IsValidAttackTarget(WorldObject target, SpellInfo bySpell = null)
@@ -600,157 +598,157 @@ public class WorldObjectCombat
         return true;
     }
 
-    public bool IsValidAssistTarget(WorldObject target, SpellInfo bySpell = null, bool spellCheck = true)
+    public virtual SpellMissInfo MeleeSpellHitResult(Unit victim, SpellInfo spellInfo)
     {
-        // some negative spells can be casted at friendly target
-        var isNegativeSpell = bySpell is { IsPositive: false };
-
-        // can assist to self
-        if (_worldObject == target)
-            return true;
-
-        // can't assist unattackable units
-        var unitTarget = target.AsUnit;
-
-        if (unitTarget && unitTarget.HasUnitState(UnitState.Unattackable))
-            return false;
-
-        // can't assist GMs
-        if (target.IsPlayer && target.AsPlayer.IsGameMaster)
-            return false;
-
-        // can't assist own vehicle or passenger
-        var unit = _worldObject.AsUnit;
-
-        if (unit && unitTarget && unit.Vehicle)
-        {
-            if (unit.IsOnVehicle(unitTarget))
-                return false;
-
-            if (unit.VehicleBase.IsOnVehicle(unitTarget))
-                return false;
-        }
-
-        // can't assist invisible
-        if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift)) && !_worldObject.Visibility.CanSeeOrDetect(target, bySpell is { IsAffectingArea: true }))
-            return false;
-
-        // can't assist dead
-        if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget && !unitTarget.IsAlive)
-            return false;
-
-        // can't assist untargetable
-        if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanTargetUntargetable)) && unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.NonAttackable2))
-            return false;
-
-        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.Uninteractible))
-            return false;
-
-        // check flags for negative spells
-        if (isNegativeSpell && unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.OnTaxi | UnitFlags.NotAttackable1))
-            return false;
-
-        if (isNegativeSpell || bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
-        {
-            if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-            {
-                if (bySpell == null || !bySpell.HasAttribute(SpellAttr8.AttackIgnoreImmuneToPCFlag))
-                    if (unitTarget != null && unitTarget.IsImmuneToPc())
-                        return false;
-            }
-            else
-            {
-                if (unitTarget != null && unitTarget.IsImmuneToNPC())
-                    return false;
-            }
-        }
-
-        // can't assist non-friendly targets
-        if (GetReactionTo(target) < ReputationRank.Neutral && target.WorldObjectCombat.GetReactionTo(_worldObject) < ReputationRank.Neutral && (!_worldObject.AsCreature || !_worldObject.AsCreature.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
-            return false;
-
-        // PvP case
-        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled))
-        {
-            if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-            {
-                var selfPlayerOwner = _worldObject.AffectingPlayer;
-                var targetPlayerOwner = unitTarget.AffectingPlayer;
-
-                if (selfPlayerOwner != null && targetPlayerOwner != null)
-                    // can't assist player which is dueling someone
-                    if (selfPlayerOwner != targetPlayerOwner && targetPlayerOwner.Duel != null)
-                        return false;
-
-                // can't assist player in ffa_pvp zone from outside
-                if (unitTarget.IsFFAPvP && !unit.IsFFAPvP)
-                    return false;
-
-                // can't assist player out of sanctuary from sanctuary if has pvp enabled
-                if (unitTarget.IsPvP)
-                    if (unit.IsInSanctuary && !unitTarget.IsInSanctuary)
-                        return false;
-            }
-        }
-        // PvC case - player can assist creature only if has specific type flags
-        // !target.HasFlag(UNIT_FIELD_FLAGS, UnitFlags.PvpAttackable) &&
-        else if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-        {
-            if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
-                if (unitTarget is { IsPvP: false })
-                {
-                    var creatureTarget = target.AsCreature;
-
-                    if (creatureTarget != null)
-                        return (creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist));
-                }
-        }
-
-        return true;
+        return SpellMissInfo.None;
     }
 
-    public Unit GetMagicHitRedirectTarget(Unit victim, SpellInfo spellInfo)
+    public virtual double MeleeSpellMissChance(Unit victim, WeaponAttackType attType, SpellInfo spellInfo)
     {
-        // Patch 1.2 notes: Spell Reflection no longer reflects abilities
-        if (spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr1.NoRedirection) || spellInfo.HasAttribute(SpellAttr0.NoImmunities))
-            return victim;
-
-        var magnetAuras = victim.GetAuraEffectsByType(AuraType.SpellMagnet);
-
-        foreach (var aurEff in magnetAuras)
-        {
-            var magnet = aurEff.Base.Caster;
-
-            if (magnet != null)
-                if (spellInfo.CheckExplicitTarget(_worldObject, magnet) == SpellCastResult.SpellCastOk && IsValidAttackTarget(magnet, spellInfo))
-                {
-                    // @todo handle this charge drop by proc in cast phase on explicit target
-                    if (spellInfo.HasHitDelay)
-                    {
-                        // Set up missile speed based delay
-                        var hitDelay = spellInfo.LaunchDelay;
-
-                        if (spellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
-                            hitDelay += spellInfo.Speed;
-                        else if (spellInfo.Speed > 0.0f)
-                            hitDelay += Math.Max(victim.Location.GetDistance(_worldObject), 5.0f) / spellInfo.Speed;
-
-                        var delay = (uint)Math.Floor(hitDelay * 1000.0f);
-                        // Schedule charge drop
-                        aurEff.Base.DropChargeDelayed(delay, AuraRemoveMode.Expire);
-                    }
-                    else
-                    {
-                        aurEff.Base.DropCharge(AuraRemoveMode.Expire);
-                    }
-
-                    return magnet;
-                }
-        }
-
-        return victim;
+        return 0.0f;
     }
 
+    public void ModSpellCastTime(SpellInfo spellInfo, ref int castTime, Spell spell = null)
+    {
+        if (spellInfo == null || castTime < 0)
+            return;
+
+        // called from caster
+        var modOwner = _worldObject.SpellModOwner;
+
+        modOwner?.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref castTime, spell);
+
+        var unitCaster = _worldObject.AsUnit;
+
+        if (!unitCaster)
+            return;
+
+        if (unitCaster.IsPlayer && unitCaster.AsPlayer.GetCommandStatus(PlayerCommandStates.Casttime))
+            castTime = 0;
+        else if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) && ((_worldObject.IsPlayer && spellInfo.SpellFamilyName != 0) || _worldObject.IsCreature))
+            castTime = unitCaster.CanInstantCast ? 0 : (int)(castTime * unitCaster.UnitData.ModCastingSpeed);
+        else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
+            castTime = (int)(castTime * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
+        else if (_worldObject.SpellManager.IsPartOfSkillLine(SkillType.Cooking, spellInfo.Id) && unitCaster.HasAura(67556)) // cooking with Chef Hat.
+            castTime = 500;
+    }
+
+    public void ModSpellDurationTime(SpellInfo spellInfo, ref int duration, Spell spell = null)
+    {
+        if (spellInfo == null || duration < 0)
+            return;
+
+        if (spellInfo.IsChanneled && !spellInfo.HasAttribute(SpellAttr5.SpellHasteAffectsPeriodic))
+            return;
+
+        // called from caster
+        var modOwner = _worldObject.SpellModOwner;
+
+        modOwner?.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref duration, spell);
+
+        var unitCaster = _worldObject.AsUnit;
+
+        if (!unitCaster)
+            return;
+
+        if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) &&
+            ((_worldObject.IsPlayer && spellInfo.SpellFamilyName != 0) || _worldObject.IsCreature))
+            duration = (int)(duration * unitCaster.UnitData.ModCastingSpeed);
+        else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
+            duration = (int)(duration * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
+    }
+    public void SendPlaySpellVisual(WorldObject target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false, float launchDelay = 0)
+    {
+        PlaySpellVisual playSpellVisual = new()
+        {
+            Source = _worldObject.GUID,
+            Target = target.GUID,
+            TargetPosition = target.Location,
+            SpellVisualID = spellVisualId,
+            TravelSpeed = travelSpeed,
+            MissReason = missReason,
+            ReflectStatus = reflectStatus,
+            SpeedAsTime = speedAsTime,
+            LaunchDelay = launchDelay
+        };
+
+        _worldObject.SendMessageToSet(playSpellVisual, true);
+    }
+
+    public void SendPlaySpellVisualKit(uint id, uint type, uint duration)
+    {
+        PlaySpellVisualKit playSpellVisualKit = new()
+        {
+            Unit = _worldObject.GUID,
+            KitRecID = id,
+            KitType = type,
+            Duration = duration
+        };
+
+        _worldObject.SendMessageToSet(playSpellVisualKit, true);
+    }
+
+    public void SendSpellMiss(Unit target, uint spellID, SpellMissInfo missInfo)
+    {
+        SpellMissLog spellMissLog = new()
+        {
+            SpellID = spellID,
+            Caster = _worldObject.GUID
+        };
+
+        spellMissLog.Entries.Add(new SpellLogMissEntry(target.GUID, (byte)missInfo));
+        _worldObject.SendMessageToSet(spellMissLog, true);
+    }
+
+    public SpellMissInfo SpellHitResult(Unit victim, SpellInfo spellInfo, bool canReflect = false)
+    {
+        // Check for immune
+        if (victim.IsImmunedToSpell(spellInfo, _worldObject))
+            return SpellMissInfo.Immune;
+
+        // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
+        // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
+        if (spellInfo.HasOnlyDamageEffects && victim.IsImmunedToDamage(spellInfo))
+            return SpellMissInfo.Immune;
+
+        // All positive spells can`t miss
+        // @todo client not show miss log for this spells - so need find info for this in dbc and use it!
+        if (spellInfo.IsPositive && !IsHostileTo(victim)) // prevent from affecting enemy by "positive" spell
+            return SpellMissInfo.None;
+
+        if (_worldObject == victim)
+            return SpellMissInfo.None;
+
+        // Return evade for units in evade mode
+        if (victim.IsCreature && victim.AsCreature.IsEvadingAttacks)
+            return SpellMissInfo.Evade;
+
+        // Try victim reflect spell
+        if (canReflect)
+        {
+            var reflectchance = victim.GetTotalAuraModifier(AuraType.ReflectSpells);
+            reflectchance += victim.GetTotalAuraModifierByMiscMask(AuraType.ReflectSpellsSchool, (int)spellInfo.GetSchoolMask());
+
+            if (reflectchance > 0 && RandomHelper.randChance(reflectchance))
+                return SpellMissInfo.Reflect;
+        }
+
+        if (spellInfo.HasAttribute(SpellAttr3.AlwaysHit))
+            return SpellMissInfo.None;
+
+        switch (spellInfo.DmgClass)
+        {
+            case SpellDmgClass.Ranged:
+            case SpellDmgClass.Melee:
+                return MeleeSpellHitResult(victim, spellInfo);
+            case SpellDmgClass.None:
+                return SpellMissInfo.None;
+            case SpellDmgClass.Magic:
+                return MagicSpellHitResult(victim, spellInfo);
+        }
+
+        return SpellMissInfo.None;
+    }
     private SpellMissInfo MagicSpellHitResult(Unit victim, SpellInfo spellInfo)
     {
         // Can`t miss on dead target (on skinning for example)

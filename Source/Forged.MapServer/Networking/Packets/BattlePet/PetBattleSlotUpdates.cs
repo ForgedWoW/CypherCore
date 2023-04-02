@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class PetBattleSlotUpdates : ServerPacket
 {
-    public List<BattlePetSlot> Slots = new();
     public bool AutoSlotted;
     public bool NewSlot;
+    public List<BattlePetSlot> Slots = new();
     public PetBattleSlotUpdates() : base(ServerOpcodes.PetBattleSlotUpdates) { }
 
     public override void Write()

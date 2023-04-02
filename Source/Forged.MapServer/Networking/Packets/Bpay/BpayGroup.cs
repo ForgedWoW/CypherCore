@@ -5,15 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BpayGroup
 {
+    public string Description { get; set; } = "";
+    public byte DisplayType { get; set; }
     public uint Entry { get; set; }
     public uint GroupId { get; set; }
     public uint IconFileDataID { get; set; }
-    public byte DisplayType { get; set; }
+    public string Name { get; set; } = "";
     public uint Ordering { get; set; }
     public uint Unk { get; set; }
-    public string Name { get; set; } = "";
-    public string Description { get; set; } = "";
-
     public void Write(WorldPacket _worldPacket)
     {
         _worldPacket.Write(GroupId);

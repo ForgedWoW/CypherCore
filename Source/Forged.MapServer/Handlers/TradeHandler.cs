@@ -17,6 +17,19 @@ namespace Forged.MapServer.Handlers;
 
 public class TradeHandler : IWorldSessionHandler
 {
+    public void SendCancelTrade()
+    {
+        if (PlayerRecentlyLoggedOut || PlayerLogout)
+            return;
+
+        TradeStatusPkt info = new()
+        {
+            Status = TradeStatus.Cancelled
+        };
+
+        SendTradeStatus(info);
+    }
+
     public void SendTradeStatus(TradeStatusPkt info)
     {
         info.Clear(); // reuse packet
@@ -92,121 +105,22 @@ public class TradeHandler : IWorldSessionHandler
 
         SendPacket(tradeUpdated);
     }
-
-    public void SendCancelTrade()
+    private static void ClearAcceptTradeMode(TradeData myTrade, TradeData hisTrade)
     {
-        if (PlayerRecentlyLoggedOut || PlayerLogout)
-            return;
-
-        TradeStatusPkt info = new()
-        {
-            Status = TradeStatus.Cancelled
-        };
-
-        SendTradeStatus(info);
+        myTrade.SetInAcceptProcess(false);
+        hisTrade.SetInAcceptProcess(false);
     }
 
-    [WorldPacketHandler(ClientOpcodes.IgnoreTrade)]
-    private void HandleIgnoreTradeOpcode(IgnoreTrade packet) { }
-
-    [WorldPacketHandler(ClientOpcodes.BusyTrade)]
-    private void HandleBusyTradeOpcode(BusyTrade packet) { }
-
-    private void MoveItems(Item[] myItems, Item[] hisItems)
+    private static void ClearAcceptTradeMode(Item[] myItems, Item[] hisItems)
     {
-        var trader = Player.GetTrader();
-
-        if (!trader)
-            return;
-
-        for (byte i = 0; i < (int)TradeSlots.TradedCount; ++i)
+        // clear 'in-trade' flag
+        for (byte i = 0; i < (int)TradeSlots.Count; ++i)
         {
-            List<ItemPosCount> traderDst = new();
-            List<ItemPosCount> playerDst = new();
-            var traderCanTrade = (myItems[i] == null || trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, myItems[i]) == InventoryResult.Ok);
-            var playerCanTrade = (hisItems[i] == null || Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, hisItems[i]) == InventoryResult.Ok);
+            if (myItems[i])
+                myItems[i].SetInTrade(false);
 
-            if (traderCanTrade && playerCanTrade)
-            {
-                // Ok, if trade item exists and can be stored
-                // If we trade in both directions we had to check, if the trade will work before we actually do it
-                // A roll back is not possible after we stored it
-                if (myItems[i])
-                {
-                    // logging
-                    Log.Logger.Debug("partner storing: {0}", myItems[i].GUID.ToString());
-
-                    if (HasPermission(RBACPermissions.LogGmTrade))
-                        Log.outCommand(_player.Session.AccountId,
-                                       "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
-                                       Player.GetName(),
-                                       Player.Session.AccountId,
-                                       myItems[i].Template.GetName(),
-                                       myItems[i].Entry,
-                                       myItems[i].Count,
-                                       trader.GetName(),
-                                       trader.Session.AccountId);
-
-                    // adjust time (depends on /played)
-                    if (myItems[i].IsBOPTradeable)
-                        myItems[i].SetCreatePlayedTime(trader.TotalPlayedTime - (Player.TotalPlayedTime - myItems[i].ItemData.CreatePlayedTime));
-
-                    // store
-                    trader.MoveItemToInventory(traderDst, myItems[i], true, true);
-                }
-
-                if (hisItems[i])
-                {
-                    // logging
-                    Log.Logger.Debug("player storing: {0}", hisItems[i].GUID.ToString());
-
-                    if (HasPermission(RBACPermissions.LogGmTrade))
-                        Log.outCommand(trader.Session.AccountId,
-                                       "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
-                                       trader.GetName(),
-                                       trader.Session.AccountId,
-                                       hisItems[i].Template.GetName(),
-                                       hisItems[i].Entry,
-                                       hisItems[i].Count,
-                                       Player.GetName(),
-                                       Player.Session.AccountId);
-
-
-                    // adjust time (depends on /played)
-                    if (hisItems[i].IsBOPTradeable)
-                        hisItems[i].SetCreatePlayedTime(Player.TotalPlayedTime - (trader.TotalPlayedTime - hisItems[i].ItemData.CreatePlayedTime));
-
-                    // store
-                    Player.MoveItemToInventory(playerDst, hisItems[i], true, true);
-                }
-            }
-            else
-            {
-                // in case of fatal error log error message
-                // return the already removed items to the original owner
-                if (myItems[i])
-                {
-                    if (!traderCanTrade)
-                        Log.Logger.Error("trader can't store item: {0}", myItems[i].GUID.ToString());
-
-                    if (Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, myItems[i]) == InventoryResult.Ok)
-                        Player.MoveItemToInventory(playerDst, myItems[i], true, true);
-                    else
-                        Log.Logger.Error("player can't take item back: {0}", myItems[i].GUID.ToString());
-                }
-
-                // return the already removed items to the original owner
-                if (hisItems[i])
-                {
-                    if (!playerCanTrade)
-                        Log.Logger.Error("player can't store item: {0}", hisItems[i].GUID.ToString());
-
-                    if (trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, hisItems[i]) == InventoryResult.Ok)
-                        trader.MoveItemToInventory(traderDst, hisItems[i], true, true);
-                    else
-                        Log.Logger.Error("trader can't take item back: {0}", hisItems[i].GUID.ToString());
-                }
-            }
+            if (hisItems[i])
+                hisItems[i].SetInTrade(false);
         }
     }
 
@@ -236,25 +150,6 @@ public class TradeHandler : IWorldSessionHandler
                 hisItems[i] = item;
                 hisItems[i].SetInTrade();
             }
-        }
-    }
-
-    private static void ClearAcceptTradeMode(TradeData myTrade, TradeData hisTrade)
-    {
-        myTrade.SetInAcceptProcess(false);
-        hisTrade.SetInAcceptProcess(false);
-    }
-
-    private static void ClearAcceptTradeMode(Item[] myItems, Item[] hisItems)
-    {
-        // clear 'in-trade' flag
-        for (byte i = 0; i < (int)TradeSlots.Count; ++i)
-        {
-            if (myItems[i])
-                myItems[i].SetInTrade(false);
-
-            if (hisItems[i])
-                hisItems[i].SetInTrade(false);
         }
     }
 
@@ -586,14 +481,6 @@ public class TradeHandler : IWorldSessionHandler
         }
     }
 
-    [WorldPacketHandler(ClientOpcodes.UnacceptTrade)]
-    private void HandleUnacceptTrade(UnacceptTrade packet)
-    {
-        var my_trade = Player.GetTradeData();
-
-        my_trade?.SetAccepted(false, true);
-    }
-
     [WorldPacketHandler(ClientOpcodes.BeginTrade)]
     private void HandleBeginTrade(BeginTrade packet)
     {
@@ -607,6 +494,9 @@ public class TradeHandler : IWorldSessionHandler
         SendTradeStatus(info);
     }
 
+    [WorldPacketHandler(ClientOpcodes.BusyTrade)]
+    private void HandleBusyTradeOpcode(BusyTrade packet) { }
+
     [WorldPacketHandler(ClientOpcodes.CancelTrade, Status = SessionStatus.LoggedinOrRecentlyLogout)]
     private void HandleCancelTrade(CancelTrade cancelTrade)
     {
@@ -615,6 +505,25 @@ public class TradeHandler : IWorldSessionHandler
             Player.TradeCancel(true);
     }
 
+    [WorldPacketHandler(ClientOpcodes.ClearTradeItem)]
+    private void HandleClearTradeItem(ClearTradeItem clearTradeItem)
+    {
+        var my_trade = Player.GetTradeData();
+
+        if (my_trade == null)
+            return;
+
+        my_trade.UpdateClientStateIndex();
+
+        // invalid slot number
+        if (clearTradeItem.TradeSlot >= (byte)TradeSlots.Count)
+            return;
+
+        my_trade.SetItem((TradeSlots)clearTradeItem.TradeSlot, null);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.IgnoreTrade)]
+    private void HandleIgnoreTradeOpcode(IgnoreTrade packet) { }
     [WorldPacketHandler(ClientOpcodes.InitiateTrade)]
     private void HandleInitiateTrade(InitiateTrade initiateTrade)
     {
@@ -761,6 +670,9 @@ public class TradeHandler : IWorldSessionHandler
         pOther.Session.SendTradeStatus(info);
     }
 
+    [WorldPacketHandler(ClientOpcodes.SetTradeCurrency)]
+    private void HandleSetTradeCurrency(SetTradeCurrency setTradeCurrency) { }
+
     [WorldPacketHandler(ClientOpcodes.SetTradeGold)]
     private void HandleSetTradeGold(SetTradeGold setTradeGold)
     {
@@ -829,23 +741,109 @@ public class TradeHandler : IWorldSessionHandler
         my_trade.SetItem((TradeSlots)setTradeItem.TradeSlot, item);
     }
 
-    [WorldPacketHandler(ClientOpcodes.ClearTradeItem)]
-    private void HandleClearTradeItem(ClearTradeItem clearTradeItem)
+    [WorldPacketHandler(ClientOpcodes.UnacceptTrade)]
+    private void HandleUnacceptTrade(UnacceptTrade packet)
     {
         var my_trade = Player.GetTradeData();
 
-        if (my_trade == null)
-            return;
-
-        my_trade.UpdateClientStateIndex();
-
-        // invalid slot number
-        if (clearTradeItem.TradeSlot >= (byte)TradeSlots.Count)
-            return;
-
-        my_trade.SetItem((TradeSlots)clearTradeItem.TradeSlot, null);
+        my_trade?.SetAccepted(false, true);
     }
 
-    [WorldPacketHandler(ClientOpcodes.SetTradeCurrency)]
-    private void HandleSetTradeCurrency(SetTradeCurrency setTradeCurrency) { }
+    private void MoveItems(Item[] myItems, Item[] hisItems)
+    {
+        var trader = Player.GetTrader();
+
+        if (!trader)
+            return;
+
+        for (byte i = 0; i < (int)TradeSlots.TradedCount; ++i)
+        {
+            List<ItemPosCount> traderDst = new();
+            List<ItemPosCount> playerDst = new();
+            var traderCanTrade = (myItems[i] == null || trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, myItems[i]) == InventoryResult.Ok);
+            var playerCanTrade = (hisItems[i] == null || Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, hisItems[i]) == InventoryResult.Ok);
+
+            if (traderCanTrade && playerCanTrade)
+            {
+                // Ok, if trade item exists and can be stored
+                // If we trade in both directions we had to check, if the trade will work before we actually do it
+                // A roll back is not possible after we stored it
+                if (myItems[i])
+                {
+                    // logging
+                    Log.Logger.Debug("partner storing: {0}", myItems[i].GUID.ToString());
+
+                    if (HasPermission(RBACPermissions.LogGmTrade))
+                        Log.outCommand(_player.Session.AccountId,
+                                       "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
+                                       Player.GetName(),
+                                       Player.Session.AccountId,
+                                       myItems[i].Template.GetName(),
+                                       myItems[i].Entry,
+                                       myItems[i].Count,
+                                       trader.GetName(),
+                                       trader.Session.AccountId);
+
+                    // adjust time (depends on /played)
+                    if (myItems[i].IsBOPTradeable)
+                        myItems[i].SetCreatePlayedTime(trader.TotalPlayedTime - (Player.TotalPlayedTime - myItems[i].ItemData.CreatePlayedTime));
+
+                    // store
+                    trader.MoveItemToInventory(traderDst, myItems[i], true, true);
+                }
+
+                if (hisItems[i])
+                {
+                    // logging
+                    Log.Logger.Debug("player storing: {0}", hisItems[i].GUID.ToString());
+
+                    if (HasPermission(RBACPermissions.LogGmTrade))
+                        Log.outCommand(trader.Session.AccountId,
+                                       "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
+                                       trader.GetName(),
+                                       trader.Session.AccountId,
+                                       hisItems[i].Template.GetName(),
+                                       hisItems[i].Entry,
+                                       hisItems[i].Count,
+                                       Player.GetName(),
+                                       Player.Session.AccountId);
+
+
+                    // adjust time (depends on /played)
+                    if (hisItems[i].IsBOPTradeable)
+                        hisItems[i].SetCreatePlayedTime(Player.TotalPlayedTime - (trader.TotalPlayedTime - hisItems[i].ItemData.CreatePlayedTime));
+
+                    // store
+                    Player.MoveItemToInventory(playerDst, hisItems[i], true, true);
+                }
+            }
+            else
+            {
+                // in case of fatal error log error message
+                // return the already removed items to the original owner
+                if (myItems[i])
+                {
+                    if (!traderCanTrade)
+                        Log.Logger.Error("trader can't store item: {0}", myItems[i].GUID.ToString());
+
+                    if (Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, myItems[i]) == InventoryResult.Ok)
+                        Player.MoveItemToInventory(playerDst, myItems[i], true, true);
+                    else
+                        Log.Logger.Error("player can't take item back: {0}", myItems[i].GUID.ToString());
+                }
+
+                // return the already removed items to the original owner
+                if (hisItems[i])
+                {
+                    if (!playerCanTrade)
+                        Log.Logger.Error("player can't store item: {0}", hisItems[i].GUID.ToString());
+
+                    if (trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, hisItems[i]) == InventoryResult.Ok)
+                        trader.MoveItemToInventory(traderDst, hisItems[i], true, true);
+                    else
+                        Log.Logger.Error("trader can't take item back: {0}", hisItems[i].GUID.ToString());
+                }
+            }
+        }
+    }
 }

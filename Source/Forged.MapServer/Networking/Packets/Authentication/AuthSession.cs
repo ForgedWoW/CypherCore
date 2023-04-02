@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class AuthSession : ClientPacket
 {
-    public uint RegionID;
     public uint BattlegroupID;
-    public uint RealmID;
-    public Array<byte> LocalChallenge = new(16);
     public byte[] Digest = new byte[24];
     public ulong DosResponse;
+    public Array<byte> LocalChallenge = new(16);
+    public uint RealmID;
     public string RealmJoinTicket;
+    public uint RegionID;
     public bool UseIPv6;
     public AuthSession(WorldPacket packet) : base(packet) { }
 

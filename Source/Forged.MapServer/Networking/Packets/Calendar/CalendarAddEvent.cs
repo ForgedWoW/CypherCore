@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarAddEvent : ClientPacket
 {
-    public uint MaxSize = 100;
     public CalendarAddEventInfo EventInfo = new();
+    public uint MaxSize = 100;
     public CalendarAddEvent(WorldPacket packet) : base(packet) { }
 
     public override void Read()

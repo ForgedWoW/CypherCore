@@ -9,34 +9,38 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class AreaTableRecord
 {
-    public uint Id;
-    public string ZoneName;
-    public LocalizedString AreaName;
-    public ushort ContinentID;
-    public ushort ParentAreaID;
+    public ushort AmbienceID;
+    public float AmbientMultiplier;
     public short AreaBit;
+    public LocalizedString AreaName;
+    public uint ContentTuningID;
+    public ushort ContinentID;
+    public byte FactionGroupMask;
+    public uint[] Flags = new uint[2];
+    public uint Id;
+    public ushort IntroSound;
+    public ushort[] LiquidTypeID = new ushort[4];
+    public byte MountFlags;
+    public ushort ParentAreaID;
+    public short PvpCombatWorldStateID;
     public byte SoundProviderPref;
     public byte SoundProviderPrefUnderwater;
-    public ushort AmbienceID;
     public ushort UwAmbience;
-    public ushort ZoneMusic;
-    public ushort UwZoneMusic;
-    public ushort IntroSound;
     public uint UwIntroSound;
-    public byte FactionGroupMask;
-    public float AmbientMultiplier;
-    public byte MountFlags;
-    public short PvpCombatWorldStateID;
-    public byte WildBattlePetLevelMin;
+    public ushort UwZoneMusic;
     public byte WildBattlePetLevelMax;
+    public byte WildBattlePetLevelMin;
     public byte WindSettingsID;
-    public uint ContentTuningID;
-    public uint[] Flags = new uint[2];
-    public ushort[] LiquidTypeID = new ushort[4];
-
-    public bool IsSanctuary()
+    public ushort ZoneMusic;
+    public string ZoneName;
+    public bool HasFlag(AreaFlags flag)
     {
-        return HasFlag(AreaFlags.Sanctuary);
+        return Flags[0].HasAnyFlag((uint)flag);
+    }
+
+    public bool HasFlag2(AreaFlags2 flag)
+    {
+        return Flags[1].HasAnyFlag((uint)flag);
     }
 
     public bool IsFlyable()
@@ -48,13 +52,8 @@ public sealed class AreaTableRecord
         return false;
     }
 
-    public bool HasFlag(AreaFlags flag)
+    public bool IsSanctuary()
     {
-        return Flags[0].HasAnyFlag((uint)flag);
-    }
-
-    public bool HasFlag2(AreaFlags2 flag)
-    {
-        return Flags[1].HasAnyFlag((uint)flag);
+        return HasFlag(AreaFlags.Sanctuary);
     }
 }

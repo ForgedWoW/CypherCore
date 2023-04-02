@@ -11,11 +11,10 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : Unit
 {
-    public const float MIN_QUIET_DISTANCE = 28.0f;
     public const float MAX_QUIET_DISTANCE = 43.0f;
-    private readonly TimeTracker _timer;
+    public const float MIN_QUIET_DISTANCE = 28.0f;
     private readonly ObjectGuid _fleeTargetGUID;
-
+    private readonly TimeTracker _timer;
     private PathGenerator _path;
 
     public FleeingMovementGenerator(ObjectGuid fright)
@@ -27,6 +26,35 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
         Priority = MovementGeneratorPriority.Highest;
         Flags = MovementGeneratorFlags.InitializationPending;
         BaseUnitState = UnitState.Fleeing;
+    }
+
+    public override void DoDeactivate(T owner)
+    {
+        AddFlag(MovementGeneratorFlags.Deactivated);
+        owner.ClearUnitState(UnitState.FleeingMove);
+    }
+
+    public override void DoFinalize(T owner, bool active, bool movementInform)
+    {
+        AddFlag(MovementGeneratorFlags.Finalized);
+
+        if (active)
+        {
+            if (owner.IsPlayer)
+            {
+                owner.RemoveUnitFlag(UnitFlags.Fleeing);
+                owner.ClearUnitState(UnitState.FleeingMove);
+                owner.StopMoving();
+            }
+            else
+            {
+                owner.RemoveUnitFlag(UnitFlags.Fleeing);
+                owner.ClearUnitState(UnitState.FleeingMove);
+
+                if (owner.Victim != null)
+                    owner.SetTarget(owner.Victim.GUID);
+            }
+        }
     }
 
     public override void DoInitialize(T owner)
@@ -77,36 +105,6 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 
         return true;
     }
-
-    public override void DoDeactivate(T owner)
-    {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-        owner.ClearUnitState(UnitState.FleeingMove);
-    }
-
-    public override void DoFinalize(T owner, bool active, bool movementInform)
-    {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (active)
-        {
-            if (owner.IsPlayer)
-            {
-                owner.RemoveUnitFlag(UnitFlags.Fleeing);
-                owner.ClearUnitState(UnitState.FleeingMove);
-                owner.StopMoving();
-            }
-            else
-            {
-                owner.RemoveUnitFlag(UnitFlags.Fleeing);
-                owner.ClearUnitState(UnitState.FleeingMove);
-
-                if (owner.Victim != null)
-                    owner.SetTarget(owner.Victim.GUID);
-            }
-        }
-    }
-
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.Fleeing;
@@ -115,6 +113,47 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
     public override void UnitSpeedChanged()
     {
         AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
+    }
+
+    private void GetPoint(T owner, Position position)
+    {
+        float casterDistance, casterAngle;
+        var fleeTarget = Global.ObjAccessor.GetUnit(owner, _fleeTargetGUID);
+
+        if (fleeTarget != null)
+        {
+            casterDistance = fleeTarget.GetDistance(owner);
+
+            if (casterDistance > 0.2f)
+                casterAngle = fleeTarget.Location.GetAbsoluteAngle(owner.Location);
+            else
+                casterAngle = RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
+        }
+        else
+        {
+            casterDistance = 0.0f;
+            casterAngle = RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
+        }
+
+        float distance, angle;
+
+        if (casterDistance < MIN_QUIET_DISTANCE)
+        {
+            distance = RandomHelper.FRand(0.4f, 1.3f) * (MIN_QUIET_DISTANCE - casterDistance);
+            angle = casterAngle + RandomHelper.FRand(-MathF.PI / 8.0f, MathF.PI / 8.0f);
+        }
+        else if (casterDistance > MAX_QUIET_DISTANCE)
+        {
+            distance = RandomHelper.FRand(0.4f, 1.0f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
+            angle = -casterAngle + RandomHelper.FRand(-MathF.PI / 4.0f, MathF.PI / 4.0f);
+        }
+        else // we are inside quiet range
+        {
+            distance = RandomHelper.FRand(0.6f, 1.2f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
+            angle = RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
+        }
+
+        owner.MovePositionToFirstCollision(position, distance, angle);
     }
 
     private void SetTargetLocation(T owner)
@@ -165,47 +204,6 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
         var traveltime = (uint)init.Launch();
         _timer.Reset(traveltime + RandomHelper.URand(800, 1500));
     }
-
-    private void GetPoint(T owner, Position position)
-    {
-        float casterDistance, casterAngle;
-        var fleeTarget = Global.ObjAccessor.GetUnit(owner, _fleeTargetGUID);
-
-        if (fleeTarget != null)
-        {
-            casterDistance = fleeTarget.GetDistance(owner);
-
-            if (casterDistance > 0.2f)
-                casterAngle = fleeTarget.Location.GetAbsoluteAngle(owner.Location);
-            else
-                casterAngle = RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
-        }
-        else
-        {
-            casterDistance = 0.0f;
-            casterAngle = RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
-        }
-
-        float distance, angle;
-
-        if (casterDistance < MIN_QUIET_DISTANCE)
-        {
-            distance = RandomHelper.FRand(0.4f, 1.3f) * (MIN_QUIET_DISTANCE - casterDistance);
-            angle = casterAngle + RandomHelper.FRand(-MathF.PI / 8.0f, MathF.PI / 8.0f);
-        }
-        else if (casterDistance > MAX_QUIET_DISTANCE)
-        {
-            distance = RandomHelper.FRand(0.4f, 1.0f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
-            angle = -casterAngle + RandomHelper.FRand(-MathF.PI / 4.0f, MathF.PI / 4.0f);
-        }
-        else // we are inside quiet range
-        {
-            distance = RandomHelper.FRand(0.6f, 1.2f) * (MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
-            angle = RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
-        }
-
-        owner.MovePositionToFirstCollision(position, distance, angle);
-    }
 }
 
 public class TimedFleeingMovementGenerator : FleeingMovementGenerator<Creature>
@@ -215,19 +213,6 @@ public class TimedFleeingMovementGenerator : FleeingMovementGenerator<Creature>
     public TimedFleeingMovementGenerator(ObjectGuid fright, uint time) : base(fright)
     {
         _totalFleeTime = new TimeTracker(time);
-    }
-
-    public override bool Update(Unit owner, uint diff)
-    {
-        if (owner == null || !owner.IsAlive)
-            return false;
-
-        _totalFleeTime.Update(diff);
-
-        if (_totalFleeTime.Passed)
-            return false;
-
-        return DoUpdate(owner.AsCreature, diff);
     }
 
     public override void Finalize(Unit owner, bool active, bool movementInform)
@@ -259,5 +244,18 @@ public class TimedFleeingMovementGenerator : FleeingMovementGenerator<Creature>
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.TimedFleeing;
+    }
+
+    public override bool Update(Unit owner, uint diff)
+    {
+        if (owner == null || !owner.IsAlive)
+            return false;
+
+        _totalFleeTime.Update(diff);
+
+        if (_totalFleeTime.Passed)
+            return false;
+
+        return DoUpdate(owner.AsCreature, diff);
     }
 }

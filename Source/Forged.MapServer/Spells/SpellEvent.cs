@@ -9,13 +9,19 @@ namespace Forged.MapServer.Spells;
 
 public class SpellEvent : BasicEvent
 {
-    public override bool IsDeletable => Spell.IsDeletable;
-
-    public Spell Spell { get; }
-
     public SpellEvent(Spell spell)
     {
         Spell = spell;
+    }
+
+    public override bool IsDeletable => Spell.IsDeletable;
+
+    public Spell Spell { get; }
+    public override void Abort(ulong eTime)
+    {
+        // oops, the spell we try to do is aborted
+        if (Spell.State != SpellState.Finished)
+            Spell.Cancel();
     }
 
     public override bool Execute(ulong etime, uint pTime)
@@ -77,12 +83,5 @@ public class SpellEvent : BasicEvent
         Spell.Caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(etime + 1), false);
 
         return false; // event not complete
-    }
-
-    public override void Abort(ulong eTime)
-    {
-        // oops, the spell we try to do is aborted
-        if (Spell.State != SpellState.Finished)
-            Spell.Cancel();
     }
 }

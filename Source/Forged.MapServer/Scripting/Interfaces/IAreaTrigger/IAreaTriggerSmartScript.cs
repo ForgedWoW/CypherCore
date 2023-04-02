@@ -16,16 +16,15 @@ public interface IAreaTriggerSmartScript : IAreaTriggerScript
         _script.OnInitialize(At);
     }
 
-    public virtual void OnUpdate(uint diff)
-    {
-        _script.OnUpdate(diff);
-    }
-
     public virtual void OnUnitEnter(Unit unit)
     {
         _script.ProcessEventsFor(SmartEvents.AreatriggerOntrigger, unit);
     }
 
+    public virtual void OnUpdate(uint diff)
+    {
+        _script.OnUpdate(diff);
+    }
     public virtual void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
     {
         _script.SetTimedActionList(e, entry, invoker);

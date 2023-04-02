@@ -9,12 +9,21 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ItemEnchantment : BaseUpdateData<Item>
 {
-    public UpdateField<uint> ID = new(0, 1);
-    public UpdateField<uint> Duration = new(0, 2);
     public UpdateField<short> Charges = new(0, 3);
+    public UpdateField<uint> Duration = new(0, 2);
+    public UpdateField<uint> ID = new(0, 1);
     public UpdateField<ushort> Inactive = new(0, 4);
 
     public ItemEnchantment() : base(5) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(ID);
+        ClearChangesMask(Duration);
+        ClearChangesMask(Charges);
+        ClearChangesMask(Inactive);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Item owner, Player receiver)
     {
@@ -49,14 +58,5 @@ public class ItemEnchantment : BaseUpdateData<Item>
             if (changesMask[4])
                 data.WriteUInt16(Inactive);
         }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(ID);
-        ClearChangesMask(Duration);
-        ClearChangesMask(Charges);
-        ClearChangesMask(Inactive);
-        ChangesMask.ResetAll();
     }
 }

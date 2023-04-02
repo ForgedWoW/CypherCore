@@ -8,10 +8,16 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class RestInfo : BaseUpdateData<Player>
 {
-    public UpdateField<uint> Threshold = new(0, 1);
     public UpdateField<byte> StateID = new(0, 2);
-
+    public UpdateField<uint> Threshold = new(0, 1);
     public RestInfo() : base(3) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Threshold);
+        ClearChangesMask(StateID);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
@@ -38,12 +44,5 @@ public class RestInfo : BaseUpdateData<Player>
             if (changesMask[2])
                 data.WriteUInt8(StateID);
         }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Threshold);
-        ClearChangesMask(StateID);
-        ChangesMask.ResetAll();
     }
 }

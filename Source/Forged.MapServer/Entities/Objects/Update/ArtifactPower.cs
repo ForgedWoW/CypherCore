@@ -10,9 +10,8 @@ namespace Forged.MapServer.Entities.Objects.Update;
 public class ArtifactPower
 {
     public ushort ArtifactPowerId;
-    public byte PurchasedRank;
     public byte CurrentRankWithBonus;
-
+    public byte PurchasedRank;
     public void WriteCreate(WorldPacket data, Item owner, Player receiver)
     {
         data.WriteUInt16(ArtifactPowerId);

@@ -46,15 +46,14 @@ public class SendMail : ClientPacket
 
     public class StructSendMail
     {
-        public ObjectGuid Mailbox;
-        public int StationeryID;
-        public long SendMoney;
-        public long Cod;
-        public string Target;
-        public string Subject;
-        public string Body;
         public List<MailAttachment> Attachments = new();
-
+        public string Body;
+        public long Cod;
+        public ObjectGuid Mailbox;
+        public long SendMoney;
+        public int StationeryID;
+        public string Subject;
+        public string Target;
         public struct MailAttachment
         {
             public byte AttachPosition;

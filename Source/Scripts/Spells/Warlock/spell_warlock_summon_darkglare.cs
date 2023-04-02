@@ -32,7 +32,7 @@ public class spell_warlock_summon_darkglare : SpellScript, IHasSpellEffects
                 var aura = effect.Base;
 
                 if (aura != null)
-                    aura.ModDuration(8 * Time.InMilliseconds);
+                    aura.ModDuration(8 * Time.IN_MILLISECONDS);
             }
         }
     }

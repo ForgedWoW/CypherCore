@@ -16,13 +16,17 @@ public class CreatureLastSearcher : IGridNotifierCreature
     private readonly ICheck<Creature> _check;
     private Creature _object;
 
-    public GridType GridType { get; set; }
-
     public CreatureLastSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
         _check = check;
         GridType = gridType;
+    }
+
+    public GridType GridType { get; set; }
+    public Creature GetTarget()
+    {
+        return _object;
     }
 
     public void Visit(IList<Creature> objs)
@@ -37,10 +41,5 @@ public class CreatureLastSearcher : IGridNotifierCreature
             if (_check.Invoke(creature))
                 _object = creature;
         }
-    }
-
-    public Creature GetTarget()
-    {
-        return _object;
     }
 }

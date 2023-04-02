@@ -8,11 +8,11 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class ArtifactPowerRecord
 {
-    public Vector2 DisplayPos;
-    public uint Id;
     public byte ArtifactID;
-    public byte MaxPurchasableRank;
-    public int Label;
+    public Vector2 DisplayPos;
     public ArtifactPowerFlag Flags;
+    public uint Id;
+    public int Label;
+    public byte MaxPurchasableRank;
     public byte Tier;
 }

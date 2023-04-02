@@ -10,16 +10,16 @@ namespace Forged.MapServer.Entities;
 
 public class Guardian : Minion
 {
-    private const int ENTRY_IMP = 416;
-    private const int ENTRY_VOIDWALKER = 1860;
-    private const int ENTRY_SUCCUBUS = 1863;
-    private const int ENTRY_FELHUNTER = 417;
+    private const int ENTRY_BLOODWORM = 28017;
     private const int ENTRY_FELGUARD = 17252;
-    private const int ENTRY_WATER_ELEMENTAL = 510;
-    private const int ENTRY_TREANT = 1964;
+    private const int ENTRY_FELHUNTER = 417;
     private const int ENTRY_FIRE_ELEMENTAL = 15438;
     private const int ENTRY_GHOUL = 26125;
-    private const int ENTRY_BLOODWORM = 28017;
+    private const int ENTRY_IMP = 416;
+    private const int ENTRY_SUCCUBUS = 1863;
+    private const int ENTRY_TREANT = 1964;
+    private const int ENTRY_VOIDWALKER = 1860;
+    private const int ENTRY_WATER_ELEMENTAL = 510;
     private readonly float[] _statFromOwner = new float[(int)Stats.Max];
 
     private float _bonusSpellDamage;
@@ -38,6 +38,16 @@ public class Guardian : Minion
         }
     }
 
+    public float GetBonusDamage()
+    {
+        return _bonusSpellDamage;
+    }
+
+    public float GetBonusStatFromOwner(Stats stat)
+    {
+        return _statFromOwner[(int)stat];
+    }
+
     public override void InitStats(uint duration)
     {
         base.InitStats(duration);
@@ -48,14 +58,6 @@ public class Guardian : Minion
             GetCharmInfo().InitCharmCreateSpells();
 
         ReactState = ReactStates.Aggressive;
-    }
-
-    public override void InitSummon()
-    {
-        base.InitSummon();
-
-        if (OwnerUnit.IsTypeId(TypeId.Player) && OwnerUnit.MinionGUID == GUID && OwnerUnit.CharmedGUID.IsEmpty)
-            OwnerUnit.AsPlayer.CharmSpellInitialize();
     }
 
     // @todo Move stat mods code to pet passive auras
@@ -347,78 +349,13 @@ public class Guardian : Minion
         return true;
     }
 
-    public override bool UpdateStats(Stats stat)
+    public override void InitSummon()
     {
-        var value = GetTotalStatValue(stat);
-        UpdateStatBuffMod(stat);
-        var ownersBonus = 0.0f;
+        base.InitSummon();
 
-        var owner = OwnerUnit;
-        // Handle Death Knight Glyphs and Talents
-        var mod = 0.75f;
-
-        if (IsPetGhoul() && (stat == Stats.Stamina || stat == Stats.Strength))
-        {
-            switch (stat)
-            {
-                case Stats.Stamina:
-                    mod = 0.3f;
-
-                    break; // Default Owner's Stamina scale
-                case Stats.Strength:
-                    mod = 0.7f;
-
-                    break; // Default Owner's Strength scale
-                default: break;
-            }
-
-            ownersBonus = owner.GetStat(stat) * mod;
-            value += ownersBonus;
-        }
-        else if (stat == Stats.Stamina)
-        {
-            ownersBonus = MathFunctions.CalculatePct(owner.GetStat(Stats.Stamina), 30);
-            value += ownersBonus;
-        }
-        //warlock's and mage's pets gain 30% of owner's intellect
-        else if (stat == Stats.Intellect)
-        {
-            if (owner.Class == PlayerClass.Warlock || owner.Class == PlayerClass.Mage)
-            {
-                ownersBonus = MathFunctions.CalculatePct(owner.GetStat(stat), 30);
-                value += ownersBonus;
-            }
-        }
-
-        SetStat(stat, (int)value);
-        _statFromOwner[(int)stat] = ownersBonus;
-        UpdateStatBuffMod(stat);
-
-        switch (stat)
-        {
-            case Stats.Strength:
-                UpdateAttackPowerAndDamage();
-
-                break;
-            case Stats.Agility:
-                UpdateArmor();
-
-                break;
-            case Stats.Stamina:
-                UpdateMaxHealth();
-
-                break;
-            case Stats.Intellect:
-                UpdateMaxPower(PowerType.Mana);
-
-                break;
-            default:
-                break;
-        }
-
-        return true;
+        if (OwnerUnit.IsTypeId(TypeId.Player) && OwnerUnit.MinionGUID == GUID && OwnerUnit.CharmedGUID.IsEmpty)
+            OwnerUnit.AsPlayer.CharmSpellInitialize();
     }
-
     public override bool UpdateAllStats()
     {
         UpdateMaxHealth();
@@ -432,29 +369,6 @@ public class Guardian : Minion
         UpdateAllResistances();
 
         return true;
-    }
-
-    public override void UpdateResistances(SpellSchools school)
-    {
-        if (school > SpellSchools.Normal)
-        {
-            var baseValue = GetFlatModifierValue(UnitMods.ResistanceStart + (int)school, UnitModifierFlatType.Base);
-            var bonusValue = GetTotalAuraModValue(UnitMods.ResistanceStart + (int)school) - baseValue;
-
-            // hunter and warlock pets gain 40% of owner's resistance
-            if (IsPet)
-            {
-                baseValue += MathFunctions.CalculatePct(Owner.GetResistance(school), 40);
-                bonusValue += MathFunctions.CalculatePct(Owner.GetBonusResistanceMod(school), 40);
-            }
-
-            SetResistance(school, (int)baseValue);
-            SetBonusResistanceMod(school, (int)bonusValue);
-        }
-        else
-        {
-            UpdateArmor();
-        }
     }
 
     public override void UpdateArmor()
@@ -475,68 +389,6 @@ public class Guardian : Minion
         value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
 
         SetArmor((int)baseValue, (int)(value - baseValue));
-    }
-
-    public override void UpdateMaxHealth()
-    {
-        var unitMod = UnitMods.Health;
-        var stamina = GetStat(Stats.Stamina) - GetCreateStat(Stats.Stamina);
-
-        float multiplicator;
-
-        switch (Entry)
-        {
-            case ENTRY_IMP:
-                multiplicator = 8.4f;
-
-                break;
-            case ENTRY_VOIDWALKER:
-                multiplicator = 11.0f;
-
-                break;
-            case ENTRY_SUCCUBUS:
-                multiplicator = 9.1f;
-
-                break;
-            case ENTRY_FELHUNTER:
-                multiplicator = 9.5f;
-
-                break;
-            case ENTRY_FELGUARD:
-                multiplicator = 11.0f;
-
-                break;
-            case ENTRY_BLOODWORM:
-                multiplicator = 1.0f;
-
-                break;
-            default:
-                multiplicator = 10.0f;
-
-                break;
-        }
-
-        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreateHealth();
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
-        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total) + stamina * multiplicator;
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
-
-        SetMaxHealth((uint)value);
-    }
-
-    public override void UpdateMaxPower(PowerType power)
-    {
-        if (GetPowerIndex(power) == (uint)PowerType.Max)
-            return;
-
-        var unitMod = UnitMods.PowerStart + (int)power;
-
-        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreatePowerValue(power);
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
-        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
-        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
-
-        SetMaxPower(power, (int)value);
     }
 
     public override void UpdateAttackPowerAndDamage(bool ranged = false)
@@ -659,16 +511,162 @@ public class Guardian : Minion
         SetUpdateFieldStatValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.MaxDamage), (float)maxdamage);
     }
 
-    public float GetBonusDamage()
+    public override void UpdateMaxHealth()
     {
-        return _bonusSpellDamage;
+        var unitMod = UnitMods.Health;
+        var stamina = GetStat(Stats.Stamina) - GetCreateStat(Stats.Stamina);
+
+        float multiplicator;
+
+        switch (Entry)
+        {
+            case ENTRY_IMP:
+                multiplicator = 8.4f;
+
+                break;
+            case ENTRY_VOIDWALKER:
+                multiplicator = 11.0f;
+
+                break;
+            case ENTRY_SUCCUBUS:
+                multiplicator = 9.1f;
+
+                break;
+            case ENTRY_FELHUNTER:
+                multiplicator = 9.5f;
+
+                break;
+            case ENTRY_FELGUARD:
+                multiplicator = 11.0f;
+
+                break;
+            case ENTRY_BLOODWORM:
+                multiplicator = 1.0f;
+
+                break;
+            default:
+                multiplicator = 10.0f;
+
+                break;
+        }
+
+        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreateHealth();
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
+        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total) + stamina * multiplicator;
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
+
+        SetMaxHealth((uint)value);
     }
 
-    public float GetBonusStatFromOwner(Stats stat)
+    public override void UpdateMaxPower(PowerType power)
     {
-        return _statFromOwner[(int)stat];
+        if (GetPowerIndex(power) == (uint)PowerType.Max)
+            return;
+
+        var unitMod = UnitMods.PowerStart + (int)power;
+
+        var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreatePowerValue(power);
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);
+        value += GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
+        value *= GetPctModifierValue(unitMod, UnitModifierPctType.Total);
+
+        SetMaxPower(power, (int)value);
     }
 
+    public override void UpdateResistances(SpellSchools school)
+    {
+        if (school > SpellSchools.Normal)
+        {
+            var baseValue = GetFlatModifierValue(UnitMods.ResistanceStart + (int)school, UnitModifierFlatType.Base);
+            var bonusValue = GetTotalAuraModValue(UnitMods.ResistanceStart + (int)school) - baseValue;
+
+            // hunter and warlock pets gain 40% of owner's resistance
+            if (IsPet)
+            {
+                baseValue += MathFunctions.CalculatePct(Owner.GetResistance(school), 40);
+                bonusValue += MathFunctions.CalculatePct(Owner.GetBonusResistanceMod(school), 40);
+            }
+
+            SetResistance(school, (int)baseValue);
+            SetBonusResistanceMod(school, (int)bonusValue);
+        }
+        else
+        {
+            UpdateArmor();
+        }
+    }
+
+    public override bool UpdateStats(Stats stat)
+    {
+        var value = GetTotalStatValue(stat);
+        UpdateStatBuffMod(stat);
+        var ownersBonus = 0.0f;
+
+        var owner = OwnerUnit;
+        // Handle Death Knight Glyphs and Talents
+        var mod = 0.75f;
+
+        if (IsPetGhoul() && (stat == Stats.Stamina || stat == Stats.Strength))
+        {
+            switch (stat)
+            {
+                case Stats.Stamina:
+                    mod = 0.3f;
+
+                    break; // Default Owner's Stamina scale
+                case Stats.Strength:
+                    mod = 0.7f;
+
+                    break; // Default Owner's Strength scale
+                default: break;
+            }
+
+            ownersBonus = owner.GetStat(stat) * mod;
+            value += ownersBonus;
+        }
+        else if (stat == Stats.Stamina)
+        {
+            ownersBonus = MathFunctions.CalculatePct(owner.GetStat(Stats.Stamina), 30);
+            value += ownersBonus;
+        }
+        //warlock's and mage's pets gain 30% of owner's intellect
+        else if (stat == Stats.Intellect)
+        {
+            if (owner.Class == PlayerClass.Warlock || owner.Class == PlayerClass.Mage)
+            {
+                ownersBonus = MathFunctions.CalculatePct(owner.GetStat(stat), 30);
+                value += ownersBonus;
+            }
+        }
+
+        SetStat(stat, (int)value);
+        _statFromOwner[(int)stat] = ownersBonus;
+        UpdateStatBuffMod(stat);
+
+        switch (stat)
+        {
+            case Stats.Strength:
+                UpdateAttackPowerAndDamage();
+
+                break;
+            case Stats.Agility:
+                UpdateArmor();
+
+                break;
+            case Stats.Stamina:
+                UpdateMaxHealth();
+
+                break;
+            case Stats.Intellect:
+                UpdateMaxPower(PowerType.Mana);
+
+                break;
+            default:
+                break;
+        }
+
+        return true;
+    }
     private void SetBonusDamage(float damage)
     {
         _bonusSpellDamage = damage;

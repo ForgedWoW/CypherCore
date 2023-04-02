@@ -15,9 +15,88 @@ using Serilog;
 
 namespace Forged.MapServer.BattleGrounds;
 
+public struct BattlegroundQueueTypeId
+{
+    public ushort BattlemasterListId;
+    public byte BgType;
+    public bool Rated;
+    public byte TeamSize;
+
+    public BattlegroundQueueTypeId(ushort battlemasterListId, byte bgType, bool rated, byte teamSize)
+    {
+        BattlemasterListId = battlemasterListId;
+        BgType = bgType;
+        Rated = rated;
+        TeamSize = teamSize;
+    }
+
+    public static BattlegroundQueueTypeId FromPacked(ulong packedQueueId)
+    {
+        return new BattlegroundQueueTypeId((ushort)(packedQueueId & 0xFFFF), (byte)((packedQueueId >> 16) & 0xF), ((packedQueueId >> 20) & 1) != 0, (byte)((packedQueueId >> 24) & 0x3F));
+    }
+
+    public static bool operator !=(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
+    {
+        return !(left == right);
+    }
+
+    public static bool operator <(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
+    {
+        if (left.BattlemasterListId != right.BattlemasterListId)
+            return left.BattlemasterListId < right.BattlemasterListId;
+
+        if (left.BgType != right.BgType)
+            return left.BgType < right.BgType;
+
+        if (left.Rated != right.Rated)
+            return (left.Rated ? 1 : 0) < (right.Rated ? 1 : 0);
+
+        return left.TeamSize < right.TeamSize;
+    }
+
+    public static bool operator ==(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
+    {
+        return left.BattlemasterListId == right.BattlemasterListId && left.BgType == right.BgType && left.Rated == right.Rated && left.TeamSize == right.TeamSize;
+    }
+
+    public static bool operator >(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
+    {
+        if (left.BattlemasterListId != right.BattlemasterListId)
+            return left.BattlemasterListId > right.BattlemasterListId;
+
+        if (left.BgType != right.BgType)
+            return left.BgType > right.BgType;
+
+        if (left.Rated != right.Rated)
+            return (left.Rated ? 1 : 0) > (right.Rated ? 1 : 0);
+
+        return left.TeamSize > right.TeamSize;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return BattlemasterListId.GetHashCode() ^ BgType.GetHashCode() ^ Rated.GetHashCode() ^ TeamSize.GetHashCode();
+    }
+
+    public ulong GetPacked()
+    {
+        return (ulong)BattlemasterListId | ((ulong)(BgType & 0xF) << 16) | ((ulong)(Rated ? 1 : 0) << 20) | ((ulong)(TeamSize & 0x3F) << 24) | 0x1F10000000000000;
+    }
+    public override string ToString()
+    {
+        return $"{{ BattlemasterListId: {BattlemasterListId}, Type: {BgType}, Rated: {Rated}, TeamSize: {TeamSize} }}";
+    }
+}
+
 public class BattlegroundQueue
 {
-    private readonly Dictionary<ObjectGuid, PlayerQueueInfo> m_QueuedPlayers = new();
+    // Event handler
+    private readonly EventSystem m_events = new();
 
     /// <summary>
     ///     This two dimensional array is used to store All queued groups
@@ -30,16 +109,12 @@ public class BattlegroundQueue
     /// </summary>
     private readonly List<GroupQueueInfo>[][] m_QueuedGroups = new List<GroupQueueInfo>[(int)BattlegroundBracketId.Max][];
 
-    private readonly uint[][][] m_WaitTimes = new uint[SharedConst.PvpTeamsCount][][];
-    private readonly uint[][] m_WaitTimeLastPlayer = new uint[SharedConst.PvpTeamsCount][];
-    private readonly uint[][] m_SumOfWaitTimes = new uint[SharedConst.PvpTeamsCount][];
-
-    // Event handler
-    private readonly EventSystem m_events = new();
-    private readonly SelectionPool[] m_SelectionPools = new SelectionPool[SharedConst.PvpTeamsCount];
-
+    private readonly Dictionary<ObjectGuid, PlayerQueueInfo> m_QueuedPlayers = new();
     private readonly BattlegroundQueueTypeId m_queueId;
-
+    private readonly SelectionPool[] m_SelectionPools = new SelectionPool[SharedConst.PvpTeamsCount];
+    private readonly uint[][] m_SumOfWaitTimes = new uint[SharedConst.PvpTeamsCount][];
+    private readonly uint[][] m_WaitTimeLastPlayer = new uint[SharedConst.PvpTeamsCount][];
+    private readonly uint[][][] m_WaitTimes = new uint[SharedConst.PvpTeamsCount][][];
     public BattlegroundQueue(BattlegroundQueueTypeId queueId)
     {
         m_queueId = queueId;
@@ -77,7 +152,7 @@ public class BattlegroundQueue
         {
             ArenaTeamId = arenateamid,
             IsInvitedToBGInstanceGUID = 0,
-            JoinTime = GameTime.GetGameTimeMS(),
+            JoinTime = GameTime.CurrentTimeMS,
             RemoveInviteTime = 0,
             Team = team,
             ArenaTeamRating = ArenaRating,
@@ -99,7 +174,7 @@ public class BattlegroundQueue
 
         Log.Logger.Debug("Adding Group to BattlegroundQueue bgTypeId : {0}, bracket_id : {1}, index : {2}", m_queueId.BattlemasterListId, bracketId, index);
 
-        var lastOnlineTime = GameTime.GetGameTimeMS();
+        var lastOnlineTime = GameTime.CurrentTimeMS;
 
         //announce world (this don't need mutex)
         if (m_queueId.Rated && GetDefaultValue("Arena.QueueAnnouncer.Enable", false))
@@ -196,192 +271,6 @@ public class BattlegroundQueue
         }
 
         return ginfo;
-    }
-
-    public uint GetAverageQueueWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracketId)
-    {
-        uint team_index = TeamIds.Alliance; //default set to TeamIndex.Alliance - or non rated arenas!
-
-        if (m_queueId.TeamSize == 0)
-        {
-            if (ginfo.Team == TeamFaction.Horde)
-                team_index = TeamIds.Horde;
-        }
-        else
-        {
-            if (m_queueId.Rated)
-                team_index = TeamIds.Horde; //for rated arenas use TeamIndex.Horde
-        }
-
-        //check if there is enought values(we always add values > 0)
-        if (m_WaitTimes[team_index][(int)bracketId][SharedConst.CountOfPlayersToAverageWaitTime - 1] != 0)
-            return (m_SumOfWaitTimes[team_index][(int)bracketId] / SharedConst.CountOfPlayersToAverageWaitTime);
-        else
-            //if there aren't enough values return 0 - not available
-            return 0;
-    }
-
-    //remove player from queue and from group info, if group info is empty then remove it too
-    public void RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount)
-    {
-        var bracket_id = -1; // signed for proper for-loop finish
-
-        //remove player from map, if he's there
-        var playerQueueInfo = m_QueuedPlayers.LookupByKey(guid);
-
-        if (playerQueueInfo == null)
-        {
-            var playerName = "Unknown";
-            var player = Global.ObjAccessor.FindPlayer(guid);
-
-            if (player)
-                playerName = player.GetName();
-
-            Log.Logger.Debug("BattlegroundQueue: couldn't find player {0} ({1})", playerName, guid.ToString());
-
-            return;
-        }
-
-        var group = playerQueueInfo.GroupInfo;
-        GroupQueueInfo groupQueseInfo = null;
-        // mostly people with the highest levels are in Battlegrounds, thats why
-        // we count from MAX_Battleground_QUEUES - 1 to 0
-
-        var index = (group.Team == TeamFaction.Horde) ? BattlegroundConst.BgQueuePremadeHorde : BattlegroundConst.BgQueuePremadeAlliance;
-
-        for (var bracket_id_tmp = (int)BattlegroundBracketId.Max - 1; bracket_id_tmp >= 0 && bracket_id == -1; --bracket_id_tmp)
-        {
-            //we must check premade and normal team's queue - because when players from premade are joining bg,
-            //they leave groupinfo so we can't use its players size to find out index
-            for (var j = index; j < BattlegroundConst.BgQueueTypesCount; j += SharedConst.PvpTeamsCount)
-                foreach (var k in m_QueuedGroups[bracket_id_tmp][j])
-                    if (k == group)
-                    {
-                        bracket_id = bracket_id_tmp;
-                        groupQueseInfo = k;
-                        //we must store index to be able to erase iterator
-                        index = j;
-
-                        break;
-                    }
-        }
-
-        //player can't be in queue without group, but just in case
-        if (bracket_id == -1)
-        {
-            Log.Logger.Error("BattlegroundQueue: ERROR Cannot find groupinfo for {0}", guid.ToString());
-
-            return;
-        }
-
-        Log.Logger.Debug("BattlegroundQueue: Removing {0}, from bracket_id {1}", guid.ToString(), bracket_id);
-
-        // ALL variables are correctly set
-        // We can ignore leveling up in queue - it should not cause crash
-        // remove player from group
-        // if only one player there, remove group
-
-        // remove player queue info from group queue info
-        if (group.Players.ContainsKey(guid))
-            group.Players.Remove(guid);
-
-        // if invited to bg, and should decrease invited count, then do it
-        if (decreaseInvitedCount && group.IsInvitedToBGInstanceGUID != 0)
-        {
-            var bg = Global.BattlegroundMgr.GetBattleground(group.IsInvitedToBGInstanceGUID, (BattlegroundTypeId)m_queueId.BattlemasterListId);
-
-            if (bg)
-                bg.DecreaseInvitedCount(group.Team);
-        }
-
-        // remove player queue info
-        m_QueuedPlayers.Remove(guid);
-
-        // announce to world if arena team left queue for rated match, show only once
-        if (m_queueId.TeamSize != 0 && m_queueId.Rated && group.Players.Empty() && GetDefaultValue("Arena.QueueAnnouncer.Enable", false))
-        {
-            var team = Global.ArenaTeamMgr.GetArenaTeamById(group.ArenaTeamId);
-
-            if (team != null)
-                Global.WorldMgr.SendWorldText(CypherStrings.ArenaQueueAnnounceWorldExit, team.GetName(), m_queueId.TeamSize, m_queueId.TeamSize, group.ArenaTeamRating);
-        }
-
-        // if player leaves queue and he is invited to rated arena match, then he have to lose
-        if (group.IsInvitedToBGInstanceGUID != 0 && m_queueId.Rated && decreaseInvitedCount)
-        {
-            var at = Global.ArenaTeamMgr.GetArenaTeamById(group.ArenaTeamId);
-
-            if (at != null)
-            {
-                Log.Logger.Debug("UPDATING memberLost's personal arena rating for {0} by opponents rating: {1}", guid.ToString(), group.OpponentsTeamRating);
-                var player = Global.ObjAccessor.FindPlayer(guid);
-
-                if (player)
-                    at.MemberLost(player, group.OpponentsMatchmakerRating);
-                else
-                    at.OfflineMemberLost(guid, group.OpponentsMatchmakerRating);
-
-                at.SaveToDB();
-            }
-        }
-
-        // remove group queue info if needed
-        if (group.Players.Empty())
-        {
-            m_QueuedGroups[bracket_id][index].Remove(groupQueseInfo);
-
-            return;
-        }
-
-        // if group wasn't empty, so it wasn't deleted, and player have left a rated
-        // queue . everyone from the group should leave too
-        // don't remove recursively if already invited to bg!
-        if (group.IsInvitedToBGInstanceGUID == 0 && m_queueId.Rated)
-        {
-            // remove next player, this is recursive
-            // first send removal information
-            var plr2 = Global.ObjAccessor.FindConnectedPlayer(group.Players.FirstOrDefault().Key);
-
-            if (plr2)
-            {
-                var queueSlot = plr2.GetBattlegroundQueueIndex(m_queueId);
-
-                plr2.RemoveBattlegroundQueueId(m_queueId); // must be called this way, because if you move this call to
-                // queue.removeplayer, it causes bugs
-
-                Global.BattlegroundMgr.BuildBattlegroundStatusNone(out var battlefieldStatus, plr2, queueSlot, plr2.GetBattlegroundQueueJoinTime(m_queueId));
-                plr2.SendPacket(battlefieldStatus);
-            }
-
-            // then actually delete, this may delete the group as well!
-            RemovePlayer(group.Players.First().Key, decreaseInvitedCount);
-        }
-    }
-
-    //returns true when player pl_guid is in queue and is invited to bgInstanceGuid
-    public bool IsPlayerInvited(ObjectGuid pl_guid, uint bgInstanceGuid, uint removeTime)
-    {
-        var queueInfo = m_QueuedPlayers.LookupByKey(pl_guid);
-
-        return (queueInfo != null && queueInfo.GroupInfo.IsInvitedToBGInstanceGUID == bgInstanceGuid && queueInfo.GroupInfo.RemoveInviteTime == removeTime);
-    }
-
-    public bool GetPlayerGroupInfoData(ObjectGuid guid, out GroupQueueInfo ginfo)
-    {
-        ginfo = null;
-        var playerQueueInfo = m_QueuedPlayers.LookupByKey(guid);
-
-        if (playerQueueInfo == null)
-            return false;
-
-        ginfo = playerQueueInfo.GroupInfo;
-
-        return true;
-    }
-
-    public void UpdateEvents(uint diff)
-    {
-        m_events.Update(diff);
     }
 
     /// <summary>
@@ -559,7 +448,7 @@ public class BattlegroundQueue
             // (after what time the ratings aren't taken into account when making teams) then
             // the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
             // else leave the discard time on 0, this way all ratings will be discarded
-            var discardTime = (int)(GameTime.GetGameTimeMS() - Global.BattlegroundMgr.GetRatingDiscardTimer());
+            var discardTime = (int)(GameTime.CurrentTimeMS - Global.BattlegroundMgr.GetRatingDiscardTimer());
 
             // we need to find 2 teams which will play next game
             var queueArray = new GroupQueueInfo[SharedConst.PvpTeamsCount];
@@ -635,14 +524,8 @@ public class BattlegroundQueue
         }
     }
 
-    public BattlegroundQueueTypeId GetQueueId()
+    public uint GetAverageQueueWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracketId)
     {
-        return m_queueId;
-    }
-
-    private void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
-    {
-        var timeInQueue = Time.GetMSTimeDiff(ginfo.JoinTime, GameTime.GetGameTimeMS());
         uint team_index = TeamIds.Alliance; //default set to TeamIndex.Alliance - or non rated arenas!
 
         if (m_queueId.TeamSize == 0)
@@ -656,94 +539,380 @@ public class BattlegroundQueue
                 team_index = TeamIds.Horde; //for rated arenas use TeamIndex.Horde
         }
 
-        //store pointer to arrayindex of player that was added first
-        var lastPlayerAddedPointer = m_WaitTimeLastPlayer[team_index][(int)bracket_id];
-        //remove his time from sum
-        m_SumOfWaitTimes[team_index][(int)bracket_id] -= m_WaitTimes[team_index][(int)bracket_id][lastPlayerAddedPointer];
-        //set average time to new
-        m_WaitTimes[team_index][(int)bracket_id][lastPlayerAddedPointer] = timeInQueue;
-        //add new time to sum
-        m_SumOfWaitTimes[team_index][(int)bracket_id] += timeInQueue;
-        //set index of last player added to next one
-        lastPlayerAddedPointer++;
-        m_WaitTimeLastPlayer[team_index][(int)bracket_id] = lastPlayerAddedPointer % SharedConst.CountOfPlayersToAverageWaitTime;
+        //check if there is enought values(we always add values > 0)
+        if (m_WaitTimes[team_index][(int)bracketId][SharedConst.CountOfPlayersToAverageWaitTime - 1] != 0)
+            return (m_SumOfWaitTimes[team_index][(int)bracketId] / SharedConst.CountOfPlayersToAverageWaitTime);
+        else
+            //if there aren't enough values return 0 - not available
+            return 0;
     }
 
-    private uint GetPlayersInQueue(uint id)
+    public bool GetPlayerGroupInfoData(ObjectGuid guid, out GroupQueueInfo ginfo)
     {
-        return m_SelectionPools[id].GetPlayerCount();
+        ginfo = null;
+        var playerQueueInfo = m_QueuedPlayers.LookupByKey(guid);
+
+        if (playerQueueInfo == null)
+            return false;
+
+        ginfo = playerQueueInfo.GroupInfo;
+
+        return true;
     }
 
-    private bool InviteGroupToBG(GroupQueueInfo ginfo, Battleground bg, TeamFaction side)
+    public BattlegroundQueueTypeId GetQueueId()
     {
-        // set side if needed
-        if (side != 0)
-            ginfo.Team = side;
+        return m_queueId;
+    }
 
-        if (ginfo.IsInvitedToBGInstanceGUID == 0)
+    //returns true when player pl_guid is in queue and is invited to bgInstanceGuid
+    public bool IsPlayerInvited(ObjectGuid pl_guid, uint bgInstanceGuid, uint removeTime)
+    {
+        var queueInfo = m_QueuedPlayers.LookupByKey(pl_guid);
+
+        return (queueInfo != null && queueInfo.GroupInfo.IsInvitedToBGInstanceGUID == bgInstanceGuid && queueInfo.GroupInfo.RemoveInviteTime == removeTime);
+    }
+
+    //remove player from queue and from group info, if group info is empty then remove it too
+    public void RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount)
+    {
+        var bracket_id = -1; // signed for proper for-loop finish
+
+        //remove player from map, if he's there
+        var playerQueueInfo = m_QueuedPlayers.LookupByKey(guid);
+
+        if (playerQueueInfo == null)
         {
-            // not yet invited
-            // set invitation
-            ginfo.IsInvitedToBGInstanceGUID = bg.GetInstanceID();
-            var bgTypeId = bg.GetTypeID();
-            var bgQueueTypeId = bg.GetQueueId();
-            var bracket_id = bg.GetBracketId();
+            var playerName = "Unknown";
+            var player = Global.ObjAccessor.FindPlayer(guid);
 
-            // set ArenaTeamId for rated matches
-            if (bg.IsArena() && bg.IsRated())
-                bg.SetArenaTeamIdForTeam(ginfo.Team, ginfo.ArenaTeamId);
+            if (player)
+                playerName = player.GetName();
 
-            ginfo.RemoveInviteTime = GameTime.GetGameTimeMS() + BattlegroundConst.InviteAcceptWaitTime;
+            Log.Logger.Debug("BattlegroundQueue: couldn't find player {0} ({1})", playerName, guid.ToString());
 
-            // loop through the players
-            foreach (var guid in ginfo.Players.Keys)
-            {
-                // get the player
-                var player = Global.ObjAccessor.FindPlayer(guid);
-
-                // if offline, skip him, this should not happen - player is removed from queue when he logs out
-                if (!player)
-                    continue;
-
-                // invite the player
-                PlayerInvitedToBGUpdateAverageWaitTime(ginfo, bracket_id);
-
-                // set invited player counters
-                bg.IncreaseInvitedCount(ginfo.Team);
-
-                player.SetInviteForBattlegroundQueueType(bgQueueTypeId, ginfo.IsInvitedToBGInstanceGUID);
-
-                // create remind invite events
-                BGQueueInviteEvent inviteEvent = new(player.GUID, ginfo.IsInvitedToBGInstanceGUID, bgTypeId, (ArenaTypes)m_queueId.TeamSize, ginfo.RemoveInviteTime);
-                m_events.AddEvent(inviteEvent, m_events.CalculateTime(TimeSpan.FromMilliseconds(BattlegroundConst.InvitationRemindTime)));
-                // create automatic remove events
-                BGQueueRemoveEvent removeEvent = new(player.GUID, ginfo.IsInvitedToBGInstanceGUID, bgQueueTypeId, ginfo.RemoveInviteTime);
-                m_events.AddEvent(removeEvent, m_events.CalculateTime(TimeSpan.FromMilliseconds(BattlegroundConst.InviteAcceptWaitTime)));
-
-                var queueSlot = player.GetBattlegroundQueueIndex(bgQueueTypeId);
-
-                Log.Logger.Debug("Battleground: invited player {0} ({1}) to BG instance {2} queueindex {3} bgtype {4}",
-                                 player.GetName(),
-                                 player.GUID.ToString(),
-                                 bg.GetInstanceID(),
-                                 queueSlot,
-                                 bg.GetTypeID());
-
-                Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime, (ArenaTypes)m_queueId.TeamSize);
-                player.SendPacket(battlefieldStatus);
-            }
-
-            return true;
+            return;
         }
 
+        var group = playerQueueInfo.GroupInfo;
+        GroupQueueInfo groupQueseInfo = null;
+        // mostly people with the highest levels are in Battlegrounds, thats why
+        // we count from MAX_Battleground_QUEUES - 1 to 0
+
+        var index = (group.Team == TeamFaction.Horde) ? BattlegroundConst.BgQueuePremadeHorde : BattlegroundConst.BgQueuePremadeAlliance;
+
+        for (var bracket_id_tmp = (int)BattlegroundBracketId.Max - 1; bracket_id_tmp >= 0 && bracket_id == -1; --bracket_id_tmp)
+        {
+            //we must check premade and normal team's queue - because when players from premade are joining bg,
+            //they leave groupinfo so we can't use its players size to find out index
+            for (var j = index; j < BattlegroundConst.BgQueueTypesCount; j += SharedConst.PvpTeamsCount)
+                foreach (var k in m_QueuedGroups[bracket_id_tmp][j])
+                    if (k == group)
+                    {
+                        bracket_id = bracket_id_tmp;
+                        groupQueseInfo = k;
+                        //we must store index to be able to erase iterator
+                        index = j;
+
+                        break;
+                    }
+        }
+
+        //player can't be in queue without group, but just in case
+        if (bracket_id == -1)
+        {
+            Log.Logger.Error("BattlegroundQueue: ERROR Cannot find groupinfo for {0}", guid.ToString());
+
+            return;
+        }
+
+        Log.Logger.Debug("BattlegroundQueue: Removing {0}, from bracket_id {1}", guid.ToString(), bracket_id);
+
+        // ALL variables are correctly set
+        // We can ignore leveling up in queue - it should not cause crash
+        // remove player from group
+        // if only one player there, remove group
+
+        // remove player queue info from group queue info
+        if (group.Players.ContainsKey(guid))
+            group.Players.Remove(guid);
+
+        // if invited to bg, and should decrease invited count, then do it
+        if (decreaseInvitedCount && group.IsInvitedToBGInstanceGUID != 0)
+        {
+            var bg = Global.BattlegroundMgr.GetBattleground(group.IsInvitedToBGInstanceGUID, (BattlegroundTypeId)m_queueId.BattlemasterListId);
+
+            if (bg)
+                bg.DecreaseInvitedCount(group.Team);
+        }
+
+        // remove player queue info
+        m_QueuedPlayers.Remove(guid);
+
+        // announce to world if arena team left queue for rated match, show only once
+        if (m_queueId.TeamSize != 0 && m_queueId.Rated && group.Players.Empty() && GetDefaultValue("Arena.QueueAnnouncer.Enable", false))
+        {
+            var team = Global.ArenaTeamMgr.GetArenaTeamById(group.ArenaTeamId);
+
+            if (team != null)
+                Global.WorldMgr.SendWorldText(CypherStrings.ArenaQueueAnnounceWorldExit, team.GetName(), m_queueId.TeamSize, m_queueId.TeamSize, group.ArenaTeamRating);
+        }
+
+        // if player leaves queue and he is invited to rated arena match, then he have to lose
+        if (group.IsInvitedToBGInstanceGUID != 0 && m_queueId.Rated && decreaseInvitedCount)
+        {
+            var at = Global.ArenaTeamMgr.GetArenaTeamById(group.ArenaTeamId);
+
+            if (at != null)
+            {
+                Log.Logger.Debug("UPDATING memberLost's personal arena rating for {0} by opponents rating: {1}", guid.ToString(), group.OpponentsTeamRating);
+                var player = Global.ObjAccessor.FindPlayer(guid);
+
+                if (player)
+                    at.MemberLost(player, group.OpponentsMatchmakerRating);
+                else
+                    at.OfflineMemberLost(guid, group.OpponentsMatchmakerRating);
+
+                at.SaveToDB();
+            }
+        }
+
+        // remove group queue info if needed
+        if (group.Players.Empty())
+        {
+            m_QueuedGroups[bracket_id][index].Remove(groupQueseInfo);
+
+            return;
+        }
+
+        // if group wasn't empty, so it wasn't deleted, and player have left a rated
+        // queue . everyone from the group should leave too
+        // don't remove recursively if already invited to bg!
+        if (group.IsInvitedToBGInstanceGUID == 0 && m_queueId.Rated)
+        {
+            // remove next player, this is recursive
+            // first send removal information
+            var plr2 = Global.ObjAccessor.FindConnectedPlayer(group.Players.FirstOrDefault().Key);
+
+            if (plr2)
+            {
+                var queueSlot = plr2.GetBattlegroundQueueIndex(m_queueId);
+
+                plr2.RemoveBattlegroundQueueId(m_queueId); // must be called this way, because if you move this call to
+                // queue.removeplayer, it causes bugs
+
+                Global.BattlegroundMgr.BuildBattlegroundStatusNone(out var battlefieldStatus, plr2, queueSlot, plr2.GetBattlegroundQueueJoinTime(m_queueId));
+                plr2.SendPacket(battlefieldStatus);
+            }
+
+            // then actually delete, this may delete the group as well!
+            RemovePlayer(group.Players.First().Key, decreaseInvitedCount);
+        }
+    }
+    public void UpdateEvents(uint diff)
+    {
+        m_events.Update(diff);
+    }
+    // this method tries to create Battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
+    private bool CheckNormalMatch(Battleground bg_template, BattlegroundBracketId bracket_id, uint minPlayers, uint maxPlayers)
+    {
+        var teamIndex = new int[SharedConst.PvpTeamsCount];
+
+        for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
+        {
+            teamIndex[i] = 0;
+
+            for (; teamIndex[i] != m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i].Count; ++teamIndex[i])
+            {
+                var groupQueueInfo = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i][teamIndex[i]];
+
+                if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0)
+                {
+                    m_SelectionPools[i].AddGroup(groupQueueInfo, maxPlayers);
+
+                    if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
+                        break;
+                }
+            }
+        }
+
+        //try to invite same number of players - this cycle may cause longer wait time even if there are enough players in queue, but we want ballanced bg
+        uint j = TeamIds.Alliance;
+
+        if (m_SelectionPools[TeamIds.Horde].GetPlayerCount() < m_SelectionPools[TeamIds.Alliance].GetPlayerCount())
+            j = TeamIds.Horde;
+
+        if (GetDefaultValue("Battleground.InvitationType", 0) != (int)BattlegroundQueueInvitationType.NoBalance && m_SelectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers && m_SelectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers)
+        {
+            //we will try to invite more groups to team with less players indexed by j
+            ++(teamIndex[j]); //this will not cause a crash, because for cycle above reached break;
+
+            for (; teamIndex[j] != m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + j].Count; ++teamIndex[j])
+            {
+                var groupQueueInfo = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + j][teamIndex[j]];
+
+                if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0)
+                    if (!m_SelectionPools[j].AddGroup(groupQueueInfo, m_SelectionPools[(j + 1) % SharedConst.PvpTeamsCount].GetPlayerCount()))
+                        break;
+            }
+
+            // do not allow to start bg with more than 2 players more on 1 faction
+            if (Math.Abs((m_SelectionPools[TeamIds.Horde].GetPlayerCount() - m_SelectionPools[TeamIds.Alliance].GetPlayerCount())) > 2)
+                return false;
+        }
+
+        //allow 1v0 if debug bg
+        if (Global.BattlegroundMgr.IsTesting() && (m_SelectionPools[TeamIds.Alliance].GetPlayerCount() != 0 || m_SelectionPools[TeamIds.Horde].GetPlayerCount() != 0))
+            return true;
+
+        //return true if there are enough players in selection pools - enable to work .debug bg command correctly
+        return m_SelectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers && m_SelectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers;
+    }
+
+    // this method checks if premade versus premade Battleground is possible
+    // then after 30 mins (default) in queue it moves premade group to normal queue
+    // it tries to invite as much players as it can - to MaxPlayersPerTeam, because premade groups have more than MinPlayersPerTeam players
+    private bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint MinPlayersPerTeam, uint MaxPlayersPerTeam)
+    {
+        //check match
+        if (!m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance].Empty() && !m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeHorde].Empty())
+        {
+            //start premade match
+            //if groups aren't invited
+            GroupQueueInfo ali_group = null;
+            GroupQueueInfo horde_group = null;
+
+            foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance])
+            {
+                ali_group = groupQueueInfo;
+
+                if (ali_group.IsInvitedToBGInstanceGUID == 0)
+                    break;
+            }
+
+            foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeHorde])
+            {
+                horde_group = groupQueueInfo;
+
+                if (horde_group.IsInvitedToBGInstanceGUID == 0)
+                    break;
+            }
+
+            if (ali_group != null && horde_group != null)
+            {
+                m_SelectionPools[TeamIds.Alliance].AddGroup(ali_group, MaxPlayersPerTeam);
+                m_SelectionPools[TeamIds.Horde].AddGroup(horde_group, MaxPlayersPerTeam);
+                //add groups/players from normal queue to size of bigger group
+                var maxPlayers = Math.Min(m_SelectionPools[TeamIds.Alliance].GetPlayerCount(), m_SelectionPools[TeamIds.Horde].GetPlayerCount());
+
+                for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
+                    foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i])
+                        //if groupQueueInfo can join BG and player count is less that maxPlayers, then add group to selectionpool
+                        if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0 && !m_SelectionPools[i].AddGroup(groupQueueInfo, maxPlayers))
+                            break;
+
+                //premade selection pools are set
+                return true;
+            }
+        }
+
+        // now check if we can move group from Premade queue to normal queue (timer has expired) or group size lowered!!
+        // this could be 2 cycles but i'm checking only first team in queue - it can cause problem -
+        // if first is invited to BG and seconds timer expired, but we can ignore it, because players have only 80 seconds to click to enter bg
+        // and when they click or after 80 seconds the queue info is removed from queue
+        var timeBefore = (uint)(GameTime.CurrentTimeMS - GetDefaultValue("Battleground.PremadeGroupWaitForMatch", 30 * Time.MINUTE * Time.IN_MILLISECONDS));
+
+        for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
+            if (!m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance + i].Empty())
+            {
+                var groupQueueInfo = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance + i].First();
+
+                if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0 && (groupQueueInfo.JoinTime < timeBefore || groupQueueInfo.Players.Count < MinPlayersPerTeam))
+                {
+                    //we must insert group to normal queue and erase pointer from premade queue
+                    m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i].Insert(0, groupQueueInfo);
+                    m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance + i].Remove(groupQueueInfo);
+                }
+            }
+
+        //selection pools are not set
         return false;
     }
 
-    /*
-    This function is inviting players to already running Battlegrounds
-    Invitation type is based on config file
-    large groups are disadvantageous, because they will be kicked first if invitation type = 1
-    */
+    // this method will check if we can invite players to same faction skirmish match
+    private bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint minPlayersPerTeam)
+    {
+        if (m_SelectionPools[TeamIds.Alliance].GetPlayerCount() < minPlayersPerTeam && m_SelectionPools[TeamIds.Horde].GetPlayerCount() < minPlayersPerTeam)
+            return false;
+
+        uint teamIndex = TeamIds.Alliance;
+        uint otherTeam = TeamIds.Horde;
+        var otherTeamId = TeamFaction.Horde;
+
+        if (m_SelectionPools[TeamIds.Horde].GetPlayerCount() == minPlayersPerTeam)
+        {
+            teamIndex = TeamIds.Horde;
+            otherTeam = TeamIds.Alliance;
+            otherTeamId = TeamFaction.Alliance;
+        }
+
+        //clear other team's selection
+        m_SelectionPools[otherTeam].Init();
+        //store last ginfo pointer
+        var ginfo = m_SelectionPools[teamIndex].SelectedGroups.Last();
+        //set itr_team to group that was added to selection pool latest
+        var team = 0;
+
+        foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex])
+            if (ginfo == groupQueueInfo)
+                break;
+
+        if (team == m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex].Count - 1)
+            return false;
+
+        var team2 = team;
+        ++team2;
+
+        //invite players to other selection pool
+        for (; team2 != m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex].Count - 1; ++team2)
+        {
+            var groupQueueInfo = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex][team2];
+
+            //if selection pool is full then break;
+            if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0 && !m_SelectionPools[otherTeam].AddGroup(groupQueueInfo, minPlayersPerTeam))
+                break;
+        }
+
+        if (m_SelectionPools[otherTeam].GetPlayerCount() != minPlayersPerTeam)
+            return false;
+
+        //here we have correct 2 selections and we need to change one teams team and move selection pool teams to other team's queue
+        foreach (var groupQueueInfo in m_SelectionPools[otherTeam].SelectedGroups)
+        {
+            //set correct team
+            groupQueueInfo.Team = otherTeamId;
+            //add team to other queue
+            m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + otherTeam].Insert(0, groupQueueInfo);
+            //remove team from old queue
+            var team3 = team;
+            ++team3;
+
+            for (; team3 != m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex].Count - 1; ++team3)
+            {
+                var groupQueueInfo1 = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex][team3];
+
+                if (groupQueueInfo1 == groupQueueInfo)
+                {
+                    m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex].Remove(groupQueueInfo1);
+
+                    break;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private void FillPlayersToBG(Battleground bg, BattlegroundBracketId bracket_id)
     {
         var hordeFree = bg.GetFreeSlotsForTeam(TeamFaction.Horde);
@@ -852,218 +1021,115 @@ public class BattlegroundQueue
         }
     }
 
-    // this method checks if premade versus premade Battleground is possible
-    // then after 30 mins (default) in queue it moves premade group to normal queue
-    // it tries to invite as much players as it can - to MaxPlayersPerTeam, because premade groups have more than MinPlayersPerTeam players
-    private bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint MinPlayersPerTeam, uint MaxPlayersPerTeam)
+    private uint GetPlayersInQueue(uint id)
     {
-        //check match
-        if (!m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance].Empty() && !m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeHorde].Empty())
+        return m_SelectionPools[id].GetPlayerCount();
+    }
+
+    private bool InviteGroupToBG(GroupQueueInfo ginfo, Battleground bg, TeamFaction side)
+    {
+        // set side if needed
+        if (side != 0)
+            ginfo.Team = side;
+
+        if (ginfo.IsInvitedToBGInstanceGUID == 0)
         {
-            //start premade match
-            //if groups aren't invited
-            GroupQueueInfo ali_group = null;
-            GroupQueueInfo horde_group = null;
+            // not yet invited
+            // set invitation
+            ginfo.IsInvitedToBGInstanceGUID = bg.GetInstanceID();
+            var bgTypeId = bg.GetTypeID();
+            var bgQueueTypeId = bg.GetQueueId();
+            var bracket_id = bg.GetBracketId();
 
-            foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance])
+            // set ArenaTeamId for rated matches
+            if (bg.IsArena() && bg.IsRated())
+                bg.SetArenaTeamIdForTeam(ginfo.Team, ginfo.ArenaTeamId);
+
+            ginfo.RemoveInviteTime = GameTime.CurrentTimeMS + BattlegroundConst.InviteAcceptWaitTime;
+
+            // loop through the players
+            foreach (var guid in ginfo.Players.Keys)
             {
-                ali_group = groupQueueInfo;
+                // get the player
+                var player = Global.ObjAccessor.FindPlayer(guid);
 
-                if (ali_group.IsInvitedToBGInstanceGUID == 0)
-                    break;
+                // if offline, skip him, this should not happen - player is removed from queue when he logs out
+                if (!player)
+                    continue;
+
+                // invite the player
+                PlayerInvitedToBGUpdateAverageWaitTime(ginfo, bracket_id);
+
+                // set invited player counters
+                bg.IncreaseInvitedCount(ginfo.Team);
+
+                player.SetInviteForBattlegroundQueueType(bgQueueTypeId, ginfo.IsInvitedToBGInstanceGUID);
+
+                // create remind invite events
+                BGQueueInviteEvent inviteEvent = new(player.GUID, ginfo.IsInvitedToBGInstanceGUID, bgTypeId, (ArenaTypes)m_queueId.TeamSize, ginfo.RemoveInviteTime);
+                m_events.AddEvent(inviteEvent, m_events.CalculateTime(TimeSpan.FromMilliseconds(BattlegroundConst.InvitationRemindTime)));
+                // create automatic remove events
+                BGQueueRemoveEvent removeEvent = new(player.GUID, ginfo.IsInvitedToBGInstanceGUID, bgQueueTypeId, ginfo.RemoveInviteTime);
+                m_events.AddEvent(removeEvent, m_events.CalculateTime(TimeSpan.FromMilliseconds(BattlegroundConst.InviteAcceptWaitTime)));
+
+                var queueSlot = player.GetBattlegroundQueueIndex(bgQueueTypeId);
+
+                Log.Logger.Debug("Battleground: invited player {0} ({1}) to BG instance {2} queueindex {3} bgtype {4}",
+                                 player.GetName(),
+                                 player.GUID.ToString(),
+                                 bg.GetInstanceID(),
+                                 queueSlot,
+                                 bg.GetTypeID());
+
+                Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime, (ArenaTypes)m_queueId.TeamSize);
+                player.SendPacket(battlefieldStatus);
             }
 
-            foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeHorde])
-            {
-                horde_group = groupQueueInfo;
-
-                if (horde_group.IsInvitedToBGInstanceGUID == 0)
-                    break;
-            }
-
-            if (ali_group != null && horde_group != null)
-            {
-                m_SelectionPools[TeamIds.Alliance].AddGroup(ali_group, MaxPlayersPerTeam);
-                m_SelectionPools[TeamIds.Horde].AddGroup(horde_group, MaxPlayersPerTeam);
-                //add groups/players from normal queue to size of bigger group
-                var maxPlayers = Math.Min(m_SelectionPools[TeamIds.Alliance].GetPlayerCount(), m_SelectionPools[TeamIds.Horde].GetPlayerCount());
-
-                for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
-                    foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i])
-                        //if groupQueueInfo can join BG and player count is less that maxPlayers, then add group to selectionpool
-                        if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0 && !m_SelectionPools[i].AddGroup(groupQueueInfo, maxPlayers))
-                            break;
-
-                //premade selection pools are set
-                return true;
-            }
+            return true;
         }
 
-        // now check if we can move group from Premade queue to normal queue (timer has expired) or group size lowered!!
-        // this could be 2 cycles but i'm checking only first team in queue - it can cause problem -
-        // if first is invited to BG and seconds timer expired, but we can ignore it, because players have only 80 seconds to click to enter bg
-        // and when they click or after 80 seconds the queue info is removed from queue
-        var timeBefore = (uint)(GameTime.GetGameTimeMS() - GetDefaultValue("Battleground.PremadeGroupWaitForMatch", 30 * Time.Minute * Time.InMilliseconds));
-
-        for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
-            if (!m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance + i].Empty())
-            {
-                var groupQueueInfo = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance + i].First();
-
-                if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0 && (groupQueueInfo.JoinTime < timeBefore || groupQueueInfo.Players.Count < MinPlayersPerTeam))
-                {
-                    //we must insert group to normal queue and erase pointer from premade queue
-                    m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i].Insert(0, groupQueueInfo);
-                    m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance + i].Remove(groupQueueInfo);
-                }
-            }
-
-        //selection pools are not set
         return false;
     }
 
-    // this method tries to create Battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
-    private bool CheckNormalMatch(Battleground bg_template, BattlegroundBracketId bracket_id, uint minPlayers, uint maxPlayers)
+    private void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
     {
-        var teamIndex = new int[SharedConst.PvpTeamsCount];
+        var timeInQueue = Time.GetMSTimeDiff(ginfo.JoinTime, GameTime.CurrentTimeMS);
+        uint team_index = TeamIds.Alliance; //default set to TeamIndex.Alliance - or non rated arenas!
 
-        for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
+        if (m_queueId.TeamSize == 0)
         {
-            teamIndex[i] = 0;
-
-            for (; teamIndex[i] != m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i].Count; ++teamIndex[i])
-            {
-                var groupQueueInfo = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i][teamIndex[i]];
-
-                if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0)
-                {
-                    m_SelectionPools[i].AddGroup(groupQueueInfo, maxPlayers);
-
-                    if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
-                        break;
-                }
-            }
+            if (ginfo.Team == TeamFaction.Horde)
+                team_index = TeamIds.Horde;
+        }
+        else
+        {
+            if (m_queueId.Rated)
+                team_index = TeamIds.Horde; //for rated arenas use TeamIndex.Horde
         }
 
-        //try to invite same number of players - this cycle may cause longer wait time even if there are enough players in queue, but we want ballanced bg
-        uint j = TeamIds.Alliance;
-
-        if (m_SelectionPools[TeamIds.Horde].GetPlayerCount() < m_SelectionPools[TeamIds.Alliance].GetPlayerCount())
-            j = TeamIds.Horde;
-
-        if (GetDefaultValue("Battleground.InvitationType", 0) != (int)BattlegroundQueueInvitationType.NoBalance && m_SelectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers && m_SelectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers)
-        {
-            //we will try to invite more groups to team with less players indexed by j
-            ++(teamIndex[j]); //this will not cause a crash, because for cycle above reached break;
-
-            for (; teamIndex[j] != m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + j].Count; ++teamIndex[j])
-            {
-                var groupQueueInfo = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + j][teamIndex[j]];
-
-                if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0)
-                    if (!m_SelectionPools[j].AddGroup(groupQueueInfo, m_SelectionPools[(j + 1) % SharedConst.PvpTeamsCount].GetPlayerCount()))
-                        break;
-            }
-
-            // do not allow to start bg with more than 2 players more on 1 faction
-            if (Math.Abs((m_SelectionPools[TeamIds.Horde].GetPlayerCount() - m_SelectionPools[TeamIds.Alliance].GetPlayerCount())) > 2)
-                return false;
-        }
-
-        //allow 1v0 if debug bg
-        if (Global.BattlegroundMgr.IsTesting() && (m_SelectionPools[TeamIds.Alliance].GetPlayerCount() != 0 || m_SelectionPools[TeamIds.Horde].GetPlayerCount() != 0))
-            return true;
-
-        //return true if there are enough players in selection pools - enable to work .debug bg command correctly
-        return m_SelectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers && m_SelectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers;
+        //store pointer to arrayindex of player that was added first
+        var lastPlayerAddedPointer = m_WaitTimeLastPlayer[team_index][(int)bracket_id];
+        //remove his time from sum
+        m_SumOfWaitTimes[team_index][(int)bracket_id] -= m_WaitTimes[team_index][(int)bracket_id][lastPlayerAddedPointer];
+        //set average time to new
+        m_WaitTimes[team_index][(int)bracket_id][lastPlayerAddedPointer] = timeInQueue;
+        //add new time to sum
+        m_SumOfWaitTimes[team_index][(int)bracket_id] += timeInQueue;
+        //set index of last player added to next one
+        lastPlayerAddedPointer++;
+        m_WaitTimeLastPlayer[team_index][(int)bracket_id] = lastPlayerAddedPointer % SharedConst.CountOfPlayersToAverageWaitTime;
     }
-
-    // this method will check if we can invite players to same faction skirmish match
-    private bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint minPlayersPerTeam)
-    {
-        if (m_SelectionPools[TeamIds.Alliance].GetPlayerCount() < minPlayersPerTeam && m_SelectionPools[TeamIds.Horde].GetPlayerCount() < minPlayersPerTeam)
-            return false;
-
-        uint teamIndex = TeamIds.Alliance;
-        uint otherTeam = TeamIds.Horde;
-        var otherTeamId = TeamFaction.Horde;
-
-        if (m_SelectionPools[TeamIds.Horde].GetPlayerCount() == minPlayersPerTeam)
-        {
-            teamIndex = TeamIds.Horde;
-            otherTeam = TeamIds.Alliance;
-            otherTeamId = TeamFaction.Alliance;
-        }
-
-        //clear other team's selection
-        m_SelectionPools[otherTeam].Init();
-        //store last ginfo pointer
-        var ginfo = m_SelectionPools[teamIndex].SelectedGroups.Last();
-        //set itr_team to group that was added to selection pool latest
-        var team = 0;
-
-        foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex])
-            if (ginfo == groupQueueInfo)
-                break;
-
-        if (team == m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex].Count - 1)
-            return false;
-
-        var team2 = team;
-        ++team2;
-
-        //invite players to other selection pool
-        for (; team2 != m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex].Count - 1; ++team2)
-        {
-            var groupQueueInfo = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex][team2];
-
-            //if selection pool is full then break;
-            if (groupQueueInfo.IsInvitedToBGInstanceGUID == 0 && !m_SelectionPools[otherTeam].AddGroup(groupQueueInfo, minPlayersPerTeam))
-                break;
-        }
-
-        if (m_SelectionPools[otherTeam].GetPlayerCount() != minPlayersPerTeam)
-            return false;
-
-        //here we have correct 2 selections and we need to change one teams team and move selection pool teams to other team's queue
-        foreach (var groupQueueInfo in m_SelectionPools[otherTeam].SelectedGroups)
-        {
-            //set correct team
-            groupQueueInfo.Team = otherTeamId;
-            //add team to other queue
-            m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + otherTeam].Insert(0, groupQueueInfo);
-            //remove team from old queue
-            var team3 = team;
-            ++team3;
-
-            for (; team3 != m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex].Count - 1; ++team3)
-            {
-                var groupQueueInfo1 = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex][team3];
-
-                if (groupQueueInfo1 == groupQueueInfo)
-                {
-                    m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + teamIndex].Remove(groupQueueInfo1);
-
-                    break;
-                }
-            }
-        }
-
-        return true;
-    }
-
+    /*
+    This function is inviting players to already running Battlegrounds
+    Invitation type is based on config file
+    large groups are disadvantageous, because they will be kicked first if invitation type = 1
+    */
     // class to select and invite groups to bg
     private class SelectionPool
     {
         public readonly List<GroupQueueInfo> SelectedGroups = new();
 
         private uint PlayerCount;
-
-        public void Init()
-        {
-            SelectedGroups.Clear();
-            PlayerCount = 0;
-        }
 
         public bool AddGroup(GroupQueueInfo ginfo, uint desiredCount)
         {
@@ -1083,6 +1149,16 @@ public class BattlegroundQueue
             return false;
         }
 
+        public uint GetPlayerCount()
+        {
+            return PlayerCount;
+        }
+
+        public void Init()
+        {
+            SelectedGroups.Clear();
+            PlayerCount = 0;
+        }
         public bool KickGroup(uint size)
         {
             //find maxgroup or LAST group with size == size and kick it
@@ -1115,91 +1191,34 @@ public class BattlegroundQueue
 
             return true;
         }
-
-        public uint GetPlayerCount()
-        {
-            return PlayerCount;
-        }
     }
 }
-
-public struct BattlegroundQueueTypeId
+/// <summary>
+///     stores information about the group in queue (also used when joined as solo!)
+/// </summary>
+public class GroupQueueInfo
 {
-    public ushort BattlemasterListId;
-    public byte BgType;
-    public bool Rated;
-    public byte TeamSize;
+    public uint ArenaMatchmakerRating;
+    public uint ArenaTeamId;
+    public uint ArenaTeamRating;
+    public uint IsInvitedToBGInstanceGUID;
+    // team id if rated match
+    public uint JoinTime;
 
-    public BattlegroundQueueTypeId(ushort battlemasterListId, byte bgType, bool rated, byte teamSize)
-    {
-        BattlemasterListId = battlemasterListId;
-        BgType = bgType;
-        Rated = rated;
-        TeamSize = teamSize;
-    }
+    public uint OpponentsMatchmakerRating;
+    // was invited to certain BG
+    // if rated match, inited to the rating of the team
+    // if rated match, inited to the rating of the team
+    public uint OpponentsTeamRating;
 
-    public static BattlegroundQueueTypeId FromPacked(ulong packedQueueId)
-    {
-        return new BattlegroundQueueTypeId((ushort)(packedQueueId & 0xFFFF), (byte)((packedQueueId >> 16) & 0xF), ((packedQueueId >> 20) & 1) != 0, (byte)((packedQueueId >> 24) & 0x3F));
-    }
+    public Dictionary<ObjectGuid, PlayerQueueInfo> Players = new(); // player queue info map
+                                                                    // time when group was added
+    public uint RemoveInviteTime;
 
-    public ulong GetPacked()
-    {
-        return (ulong)BattlemasterListId | ((ulong)(BgType & 0xF) << 16) | ((ulong)(Rated ? 1 : 0) << 20) | ((ulong)(TeamSize & 0x3F) << 24) | 0x1F10000000000000;
-    }
-
-    public static bool operator ==(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
-    {
-        return left.BattlemasterListId == right.BattlemasterListId && left.BgType == right.BgType && left.Rated == right.Rated && left.TeamSize == right.TeamSize;
-    }
-
-    public static bool operator !=(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
-    {
-        return !(left == right);
-    }
-
-    public static bool operator <(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
-    {
-        if (left.BattlemasterListId != right.BattlemasterListId)
-            return left.BattlemasterListId < right.BattlemasterListId;
-
-        if (left.BgType != right.BgType)
-            return left.BgType < right.BgType;
-
-        if (left.Rated != right.Rated)
-            return (left.Rated ? 1 : 0) < (right.Rated ? 1 : 0);
-
-        return left.TeamSize < right.TeamSize;
-    }
-
-    public static bool operator >(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
-    {
-        if (left.BattlemasterListId != right.BattlemasterListId)
-            return left.BattlemasterListId > right.BattlemasterListId;
-
-        if (left.BgType != right.BgType)
-            return left.BgType > right.BgType;
-
-        if (left.Rated != right.Rated)
-            return (left.Rated ? 1 : 0) > (right.Rated ? 1 : 0);
-
-        return left.TeamSize > right.TeamSize;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return base.Equals(obj);
-    }
-
-    public override int GetHashCode()
-    {
-        return BattlemasterListId.GetHashCode() ^ BgType.GetHashCode() ^ Rated.GetHashCode() ^ TeamSize.GetHashCode();
-    }
-
-    public override string ToString()
-    {
-        return $"{{ BattlemasterListId: {BattlemasterListId}, Type: {BgType}, Rated: {Rated}, TeamSize: {TeamSize} }}";
-    }
+    public TeamFaction Team;                                        // Player team (ALLIANCE/HORDE)
+                                                                    // time when we will remove invite for players in group
+                                                                    // for rated arena matches
+                                                                    // for rated arena matches
 }
 
 /// <summary>
@@ -1207,40 +1226,21 @@ public struct BattlegroundQueueTypeId
 /// </summary>
 public class PlayerQueueInfo
 {
+    public GroupQueueInfo GroupInfo;
     public uint LastOnlineTime;      // for tracking and removing offline players from queue after 5 minutes
-    public GroupQueueInfo GroupInfo; // pointer to the associated groupqueueinfo
+                                     // pointer to the associated groupqueueinfo
 }
-
-/// <summary>
-///     stores information about the group in queue (also used when joined as solo!)
-/// </summary>
-public class GroupQueueInfo
-{
-    public Dictionary<ObjectGuid, PlayerQueueInfo> Players = new(); // player queue info map
-    public TeamFaction Team;                                        // Player team (ALLIANCE/HORDE)
-    public uint ArenaTeamId;                                        // team id if rated match
-    public uint JoinTime;                                           // time when group was added
-    public uint RemoveInviteTime;                                   // time when we will remove invite for players in group
-    public uint IsInvitedToBGInstanceGUID;                          // was invited to certain BG
-    public uint ArenaTeamRating;                                    // if rated match, inited to the rating of the team
-    public uint ArenaMatchmakerRating;                              // if rated match, inited to the rating of the team
-    public uint OpponentsTeamRating;                                // for rated arena matches
-    public uint OpponentsMatchmakerRating;                          // for rated arena matches
-}
-
 /// <summary>
 ///     This class is used to invite player to BG again, when minute lasts from his first invitation
 ///     it is capable to solve all possibilities
 /// </summary>
 internal class BGQueueInviteEvent : BasicEvent
 {
+    private readonly ArenaTypes m_ArenaType;
     private readonly uint m_BgInstanceGUID;
     private readonly BattlegroundTypeId m_BgTypeId;
-    private readonly ArenaTypes m_ArenaType;
-    private readonly uint m_RemoveTime;
-
     private readonly ObjectGuid m_PlayerGuid;
-
+    private readonly uint m_RemoveTime;
     public BGQueueInviteEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundTypeId bgTypeId, ArenaTypes arenaType, uint removeTime)
     {
         m_PlayerGuid = plGuid;
@@ -1249,6 +1249,8 @@ internal class BGQueueInviteEvent : BasicEvent
         m_ArenaType = arenaType;
         m_RemoveTime = removeTime;
     }
+
+    public override void Abort(ulong e_time) { }
 
     public override bool Execute(ulong etime, uint pTime)
     {
@@ -1281,8 +1283,6 @@ internal class BGQueueInviteEvent : BasicEvent
 
         return true; //event will be deleted
     }
-
-    public override void Abort(ulong e_time) { }
 }
 
 /// <summary>
@@ -1293,11 +1293,9 @@ internal class BGQueueInviteEvent : BasicEvent
 internal class BGQueueRemoveEvent : BasicEvent
 {
     private readonly uint m_BgInstanceGUID;
-    private readonly uint m_RemoveTime;
-
-    private readonly ObjectGuid m_PlayerGuid;
     private readonly BattlegroundQueueTypeId m_BgQueueTypeId;
-
+    private readonly ObjectGuid m_PlayerGuid;
+    private readonly uint m_RemoveTime;
     public BGQueueRemoveEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundQueueTypeId bgQueueTypeId, uint removeTime)
     {
         m_PlayerGuid = plGuid;
@@ -1305,6 +1303,8 @@ internal class BGQueueRemoveEvent : BasicEvent
         m_RemoveTime = removeTime;
         m_BgQueueTypeId = bgQueueTypeId;
     }
+
+    public override void Abort(ulong e_time) { }
 
     public override bool Execute(ulong etime, uint pTime)
     {
@@ -1344,6 +1344,4 @@ internal class BGQueueRemoveEvent : BasicEvent
         //event will be deleted
         return true;
     }
-
-    public override void Abort(ulong e_time) { }
 }

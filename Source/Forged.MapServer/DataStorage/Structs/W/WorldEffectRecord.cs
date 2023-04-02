@@ -5,11 +5,11 @@ namespace Forged.MapServer.DataStorage.Structs.W;
 
 public sealed class WorldEffectRecord
 {
-    public uint Id;
-    public uint QuestFeedbackEffectID;
-    public byte WhenToDisplay;
-    public byte TargetType;
-    public int TargetAsset;
-    public uint PlayerConditionID;
     public ushort CombatConditionID;
+    public uint Id;
+    public uint PlayerConditionID;
+    public uint QuestFeedbackEffectID;
+    public int TargetAsset;
+    public byte TargetType;
+    public byte WhenToDisplay;
 }

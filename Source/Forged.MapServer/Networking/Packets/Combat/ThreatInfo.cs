@@ -7,6 +7,6 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public struct ThreatInfo
 {
-    public ObjectGuid UnitGUID;
     public long Threat;
+    public ObjectGuid UnitGUID;
 }

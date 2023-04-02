@@ -11,13 +11,12 @@ public class FollowMovementGenerator : MovementGenerator
 {
     private static readonly uint CHECK_INTERVAL = 100;
     private static readonly float FOLLOW_RANGE_TOLERANCE = 1.0f;
-    private readonly float _range;
-    private readonly TimeTracker _checkTimer;
     private readonly AbstractFollower _abstractFollower;
+    private readonly TimeTracker _checkTimer;
+    private readonly float _range;
     private ChaseAngle _angle;
-    private PathGenerator _path;
     private Position _lastTargetPosition;
-
+    private PathGenerator _path;
     public FollowMovementGenerator(Unit target, float range, ChaseAngle angle)
     {
         _abstractFollower = new AbstractFollower(target);
@@ -30,6 +29,34 @@ public class FollowMovementGenerator : MovementGenerator
         BaseUnitState = UnitState.Follow;
 
         _checkTimer = new TimeTracker(CHECK_INTERVAL);
+    }
+
+    public override void Deactivate(Unit owner)
+    {
+        AddFlag(MovementGeneratorFlags.Deactivated);
+        RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.InformEnabled);
+        owner.ClearUnitState(UnitState.FollowMove);
+    }
+
+    public override void Finalize(Unit owner, bool active, bool movementInform)
+    {
+        AddFlag(MovementGeneratorFlags.Finalized);
+
+        if (active)
+        {
+            owner.ClearUnitState(UnitState.FollowMove);
+            UpdatePetSpeed(owner);
+        }
+    }
+
+    public override MovementGeneratorType GetMovementGeneratorType()
+    {
+        return MovementGeneratorType.Follow;
+    }
+
+    public Unit GetTarget()
+    {
+        return _abstractFollower.GetTarget();
     }
 
     public override void Initialize(Unit owner)
@@ -47,6 +74,11 @@ public class FollowMovementGenerator : MovementGenerator
     {
         RemoveFlag(MovementGeneratorFlags.Deactivated);
         Initialize(owner);
+    }
+
+    public override void UnitSpeedChanged()
+    {
+        _lastTargetPosition = null;
     }
 
     public override bool Update(Unit owner, uint diff)
@@ -161,39 +193,22 @@ public class FollowMovementGenerator : MovementGenerator
 
         return true;
     }
-
-    public override void Deactivate(Unit owner)
+    private static void DoMovementInform(Unit owner, Unit target)
     {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-        RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.InformEnabled);
-        owner.ClearUnitState(UnitState.FollowMove);
+        if (!owner.IsCreature)
+            return;
+
+        var ai = owner.AsCreature.AI;
+
+        ai?.MovementInform(MovementGeneratorType.Follow, (uint)target.GUID.Counter);
     }
 
-    public override void Finalize(Unit owner, bool active, bool movementInform)
+    private static bool PositionOkay(Unit owner, Unit target, float range, ChaseAngle? angle = null)
     {
-        AddFlag(MovementGeneratorFlags.Finalized);
+        if (owner.Location.GetExactDistSq(target.Location) > (owner.CombatReach + target.CombatReach + range) * (owner.CombatReach + target.CombatReach + range))
+            return false;
 
-        if (active)
-        {
-            owner.ClearUnitState(UnitState.FollowMove);
-            UpdatePetSpeed(owner);
-        }
-    }
-
-    public Unit GetTarget()
-    {
-        return _abstractFollower.GetTarget();
-    }
-
-
-    public override MovementGeneratorType GetMovementGeneratorType()
-    {
-        return MovementGeneratorType.Follow;
-    }
-
-    public override void UnitSpeedChanged()
-    {
-        _lastTargetPosition = null;
+        return !angle.HasValue || angle.Value.IsAngleOkay(target.Location.GetRelativeAngle(owner.Location));
     }
 
     private void UpdatePetSpeed(Unit owner)
@@ -207,23 +222,5 @@ public class FollowMovementGenerator : MovementGenerator
                 oPet.UpdateSpeed(UnitMoveType.Walk);
                 oPet.UpdateSpeed(UnitMoveType.Swim);
             }
-    }
-
-    private static bool PositionOkay(Unit owner, Unit target, float range, ChaseAngle? angle = null)
-    {
-        if (owner.Location.GetExactDistSq(target.Location) > (owner.CombatReach + target.CombatReach + range) * (owner.CombatReach + target.CombatReach + range))
-            return false;
-
-        return !angle.HasValue || angle.Value.IsAngleOkay(target.Location.GetRelativeAngle(owner.Location));
-    }
-
-    private static void DoMovementInform(Unit owner, Unit target)
-    {
-        if (!owner.IsCreature)
-            return;
-
-        var ai = owner.AsCreature.AI;
-
-        ai?.MovementInform(MovementGeneratorType.Follow, (uint)target.GUID.Counter);
     }
 }

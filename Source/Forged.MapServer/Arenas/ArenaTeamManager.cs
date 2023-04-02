@@ -10,15 +10,33 @@ namespace Forged.MapServer.Arenas;
 
 public class ArenaTeamManager
 {
-    private readonly CharacterDatabase _characterDatabase;
     private readonly Dictionary<uint, ArenaTeam> _arenaTeamStorage = new();
-
+    private readonly CharacterDatabase _characterDatabase;
     private uint _nextArenaTeamId;
 
     public ArenaTeamManager(CharacterDatabase characterDatabase)
     {
         _characterDatabase = characterDatabase;
         _nextArenaTeamId = 1;
+    }
+
+    public void AddArenaTeam(ArenaTeam arenaTeam)
+    {
+        _arenaTeamStorage.TryAdd(arenaTeam.GetId(), arenaTeam);
+    }
+
+    public uint GenerateArenaTeamId()
+    {
+        return _nextArenaTeamId++;
+    }
+
+    public ArenaTeam GetArenaTeamByCaptain(ObjectGuid guid)
+    {
+        foreach (var (_, team) in _arenaTeamStorage)
+            if (team.GetCaptain() == guid)
+                return team;
+
+        return null;
     }
 
     public ArenaTeam GetArenaTeamById(uint arenaTeamId)
@@ -36,29 +54,9 @@ public class ArenaTeamManager
 
         return null;
     }
-
-    public ArenaTeam GetArenaTeamByCaptain(ObjectGuid guid)
+    public Dictionary<uint, ArenaTeam> GetArenaTeamMap()
     {
-        foreach (var (_, team) in _arenaTeamStorage)
-            if (team.GetCaptain() == guid)
-                return team;
-
-        return null;
-    }
-
-    public void AddArenaTeam(ArenaTeam arenaTeam)
-    {
-        _arenaTeamStorage.TryAdd(arenaTeam.GetId(), arenaTeam);
-    }
-
-    public void RemoveArenaTeam(uint arenaTeamId)
-    {
-        _arenaTeamStorage.Remove(arenaTeamId);
-    }
-
-    public uint GenerateArenaTeamId()
-    {
-        return _nextArenaTeamId++;
+        return _arenaTeamStorage;
     }
 
     public void LoadArenaTeams()
@@ -108,13 +106,12 @@ public class ArenaTeamManager
         Log.Logger.Information("Loaded {0} arena teams in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
+    public void RemoveArenaTeam(uint arenaTeamId)
+    {
+        _arenaTeamStorage.Remove(arenaTeamId);
+    }
     public void SetNextArenaTeamId(uint id)
     {
         _nextArenaTeamId = id;
-    }
-
-    public Dictionary<uint, ArenaTeam> GetArenaTeamMap()
-    {
-        return _arenaTeamStorage;
     }
 }

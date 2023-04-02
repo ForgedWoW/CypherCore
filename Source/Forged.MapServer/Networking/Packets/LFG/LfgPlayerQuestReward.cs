@@ -7,16 +7,18 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public class LfgPlayerQuestReward
 {
+    public List<LfgPlayerQuestRewardCurrency> BonusCurrency = new();
+    public List<LfgPlayerQuestRewardCurrency> Currency = new();
+    public int? Honor;
+    public List<LfgPlayerQuestRewardItem> Item = new();
     public uint Mask;
     public uint RewardMoney;
+    public int? RewardSpellID;
     public uint RewardXP;
-    public List<LfgPlayerQuestRewardItem> Item = new();
-    public List<LfgPlayerQuestRewardCurrency> Currency = new();
-    public List<LfgPlayerQuestRewardCurrency> BonusCurrency = new();
-    public int? RewardSpellID; // Only used by SMSG_LFG_PLAYER_INFO
+    // Only used by SMSG_LFG_PLAYER_INFO
     public int? Unused1;
     public ulong? Unused2;
-    public int? Honor; // Only used by SMSG_REQUEST_PVP_REWARDS_RESPONSE
+     // Only used by SMSG_REQUEST_PVP_REWARDS_RESPONSE
 
     public void Write(WorldPacket data)
     {

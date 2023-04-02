@@ -9,13 +9,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class ResurrectRequest : ServerPacket
 {
+    public string Name;
+    public uint PetNumber;
     public ObjectGuid ResurrectOffererGUID;
     public uint ResurrectOffererVirtualRealmAddress;
-    public uint PetNumber;
+    public bool Sickness;
     public uint SpellID;
     public bool UseTimer;
-    public bool Sickness;
-    public string Name;
     public ResurrectRequest() : base(ServerOpcodes.ResurrectRequest) { }
 
     public override void Write()

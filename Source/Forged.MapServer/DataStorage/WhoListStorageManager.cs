@@ -10,8 +10,8 @@ namespace Forged.MapServer.DataStorage;
 
 public class WhoListStorageManager
 {
-    private readonly ObjectAccessor _objectAccessor;
     private readonly GuildManager _guildManager;
+    private readonly ObjectAccessor _objectAccessor;
     private readonly List<WhoListPlayerInfo> _whoListStorage;
 
     public WhoListStorageManager(ObjectAccessor objectAccessor, GuildManager guildManager)
@@ -19,6 +19,11 @@ public class WhoListStorageManager
         _objectAccessor = objectAccessor;
         _guildManager = guildManager;
         _whoListStorage = new List<WhoListPlayerInfo>();
+    }
+
+    public List<WhoListPlayerInfo> GetWhoList()
+    {
+        return _whoListStorage;
     }
 
     public void Update()
@@ -56,10 +61,5 @@ public class WhoListStorageManager
                                                       guildName,
                                                       guildGuid));
         }
-    }
-
-    public List<WhoListPlayerInfo> GetWhoList()
-    {
-        return _whoListStorage;
     }
 }

@@ -50,113 +50,6 @@ public class MiscHandler : IWorldSessionHandler
         SendPacket(loadCUFProfiles);
     }
 
-    [WorldPacketHandler(ClientOpcodes.RequestAccountData, Status = SessionStatus.Authed)]
-    private void HandleRequestAccountData(RequestAccountData request)
-    {
-        if (request.DataType > AccountDataTypes.Max)
-            return;
-
-        var adata = GetAccountData(request.DataType);
-
-        UpdateAccountData data = new();
-        data.Player = Player ? Player.GUID : ObjectGuid.Empty;
-        data.Time = (uint)adata.Time;
-        data.DataType = request.DataType;
-
-        if (!Extensions.IsEmpty(adata.Data))
-        {
-            data.Size = (uint)adata.Data.Length;
-            data.CompressedData = new ByteBuffer(ZLib.Compress(Encoding.UTF8.GetBytes((string)adata.Data)));
-        }
-
-        SendPacket(data);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetSelection)]
-    private void HandleSetSelection(SetSelection packet)
-    {
-        Player.SetSelection(packet.Selection);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
-    private void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
-    {
-        Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
-
-        // If create object failed for current player then client will be stuck on loading screen
-        if (Player.GUID == objectUpdateFailed.ObjectGUID)
-        {
-            LogoutPlayer(true);
-
-            return;
-        }
-
-        // Pretend we've never seen this object
-        Player.ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
-    private void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
-    {
-        Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
-
-        // Client received values update after destroying object
-        // re-register object in m_clientGUIDs to send DestroyObject on next visibility update
-        lock (Player.ClientGuiDs)
-        {
-            Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
-        }
-    }
-
-
-    [WorldPacketHandler(ClientOpcodes.SetActionBarToggles)]
-    private void HandleSetActionBarToggles(SetActionBarToggles packet)
-    {
-        if (!Player) // ignore until not logged (check needed because STATUS_AUTHED)
-        {
-            if (packet.Mask != 0)
-                Log.Logger.Error("WorldSession.HandleSetActionBarToggles in not logged state with value: {0}, ignored", packet.Mask);
-
-            return;
-        }
-
-        Player.SetMultiActionBars(packet.Mask);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.CompleteCinematic)]
-    private void HandleCompleteCinematic(CompleteCinematic packet)
-    {
-        // If player has sight bound to visual waypoint NPC we should remove it
-        Player. // If player has sight bound to visual waypoint NPC we should remove it
-            CinematicMgr.EndCinematic();
-    }
-
-    [WorldPacketHandler(ClientOpcodes.NextCinematicCamera)]
-    private void HandleNextCinematicCamera(NextCinematicCamera packet)
-    {
-        // Sent by client when cinematic actually begun. So we begin the server side process
-        Player. // Sent by client when cinematic actually begun. So we begin the server side process
-            CinematicMgr.NextCinematicCamera();
-    }
-
-    [WorldPacketHandler(ClientOpcodes.CompleteMovie)]
-    private void HandleCompleteMovie(CompleteMovie packet)
-    {
-        var movie = _player.Movie;
-
-        if (movie == 0)
-            return;
-
-        _player.Movie = 0;
-        Global.ScriptMgr.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_player, movie));
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ViolenceLevel, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
-    private void HandleViolenceLevel(ViolenceLevel violenceLevel)
-    {
-        // do something?
-    }
-
     [WorldPacketHandler(ClientOpcodes.AreaTrigger, Processing = PacketProcessing.Inplace)]
     private void HandleAreaTrigger(AreaTriggerPkt packet)
     {
@@ -425,44 +318,31 @@ public class MiscHandler : IWorldSessionHandler
         }
     }
 
-    [WorldPacketHandler(ClientOpcodes.SaveCufProfiles, Processing = PacketProcessing.Inplace)]
-    private void HandleSaveCUFProfiles(SaveCUFProfiles packet)
-    {
-        if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
-        {
-            Log.Logger.Error("HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
-
-            return;
-        }
-
-        for (byte i = 0; i < packet.CUFProfiles.Count; ++i)
-            Player.SaveCufProfile(i, packet.CUFProfiles[i]);
-
-        for (var i = (byte)packet.CUFProfiles.Count; i < PlayerConst.MaxCUFProfiles; ++i)
-            Player.SaveCufProfile(i, null);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetAdvancedCombatLogging, Processing = PacketProcessing.Inplace)]
-    private void HandleSetAdvancedCombatLogging(SetAdvancedCombatLogging setAdvancedCombatLogging)
-    {
-        Player.SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.MountSpecialAnim)]
-    private void HandleMountSpecialAnim(MountSpecial mountSpecial)
-    {
-        SpecialMountAnim specialMountAnim = new();
-        specialMountAnim.UnitGUID = _player.GUID;
-        specialMountAnim.SpellVisualKitIDs.AddRange(mountSpecial.SpellVisualKitIDs);
-        specialMountAnim.SequenceVariation = mountSpecial.SequenceVariation;
-        Player.SendMessageToSet(specialMountAnim, false);
-    }
-
     [WorldPacketHandler(ClientOpcodes.CloseInteraction)]
     private void HandleCloseInteraction(CloseInteraction closeInteraction)
     {
         if (_player.PlayerTalkClass.GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
             _player.PlayerTalkClass.GetInteractionData().Reset();
+    }
+
+    [WorldPacketHandler(ClientOpcodes.CompleteCinematic)]
+    private void HandleCompleteCinematic(CompleteCinematic packet)
+    {
+        // If player has sight bound to visual waypoint NPC we should remove it
+        Player. // If player has sight bound to visual waypoint NPC we should remove it
+            CinematicMgr.EndCinematic();
+    }
+
+    [WorldPacketHandler(ClientOpcodes.CompleteMovie)]
+    private void HandleCompleteMovie(CompleteMovie packet)
+    {
+        var movie = _player.Movie;
+
+        if (movie == 0)
+            return;
+
+        _player.Movie = 0;
+        Global.ScriptMgr.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_player, movie));
     }
 
     [WorldPacketHandler(ClientOpcodes.ConversationLineStarted)]
@@ -472,81 +352,6 @@ public class MiscHandler : IWorldSessionHandler
 
         if (convo != null)
             Global.ScriptMgr.RunScript<IConversationOnConversationLineStarted>(script => script.OnConversationLineStarted(convo, conversationLineStarted.LineID, _player), convo.GetScriptId());
-    }
-
-    [WorldPacketHandler(ClientOpcodes.RequestLatestSplashScreen)]
-    private void HandleRequestLatestSplashScreen(RequestLatestSplashScreen requestLatestSplashScreen)
-    {
-        UISplashScreenRecord splashScreen = null;
-
-        foreach (var itr in CliDB.UISplashScreenStorage.Values)
-        {
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(itr.CharLevelConditionID);
-
-            if (playerCondition != null)
-                if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
-                    continue;
-
-            splashScreen = itr;
-        }
-
-        SplashScreenShowLatest splashScreenShowLatest = new();
-        splashScreenShowLatest.UISplashScreenID = splashScreen?.Id ?? 0;
-        SendPacket(splashScreenShowLatest);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ChatUnregisterAllAddonPrefixes)]
-    private void HandleUnregisterAllAddonPrefixes(ChatUnregisterAllAddonPrefixes packet)
-    {
-        _registeredAddonPrefixes.Clear();
-    }
-
-    [WorldPacketHandler(ClientOpcodes.TogglePvp)]
-    private void HandleTogglePvP(TogglePvP packet)
-    {
-        if (!Player.HasPlayerFlag(PlayerFlags.InPVP))
-        {
-            Player.SetPlayerFlag(PlayerFlags.InPVP);
-            Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
-
-            if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
-                Player.UpdatePvP(true, true);
-        }
-        else if (!Player.IsWarModeLocalActive)
-        {
-            Player.RemovePlayerFlag(PlayerFlags.InPVP);
-            Player.SetPlayerFlag(PlayerFlags.PVPTimer);
-
-            if (!Player.PvpInfo.IsHostile && Player.IsPvP)
-                Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
-        }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetPvp)]
-    private void HandleSetPvP(SetPvP packet)
-    {
-        if (packet.EnablePVP)
-        {
-            Player.SetPlayerFlag(PlayerFlags.InPVP);
-            Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
-
-            if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
-                Player.UpdatePvP(true, true);
-        }
-        else if (!Player.IsWarModeLocalActive)
-        {
-            Player.RemovePlayerFlag(PlayerFlags.InPVP);
-            Player.SetPlayerFlag(PlayerFlags.PVPTimer);
-
-            if (!Player.PvpInfo.IsHostile && Player.IsPvP)
-                Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
-        }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetWarMode)]
-    private void HandleSetWarMode(SetWarMode packet)
-    {
-        _player.SetWarModeDesired(packet.Enable);
     }
 
     [WorldPacketHandler(ClientOpcodes.FarSight)]
@@ -569,58 +374,6 @@ public class MiscHandler : IWorldSessionHandler
         }
 
         Player.UpdateVisibilityForPlayer();
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetTitle, Processing = PacketProcessing.Inplace)]
-    private void HandleSetTitle(SetTitle packet)
-    {
-        // -1 at none
-        if (packet.TitleID > 0)
-        {
-            if (!Player.HasTitle((uint)packet.TitleID))
-                return;
-        }
-        else
-        {
-            packet.TitleID = 0;
-        }
-
-        Player.SetChosenTitle((uint)packet.TitleID);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.ResetInstances)]
-    private void HandleResetInstances(ResetInstances packet)
-    {
-        var map = _player.Map;
-
-        if (map != null && map.Instanceable)
-            return;
-
-        var group = Player.Group;
-
-        if (group)
-        {
-            if (!group.IsLeader(Player.GUID))
-                return;
-
-            if (group.IsLFGGroup)
-                return;
-
-            group.ResetInstances(InstanceResetMethod.Manual, _player);
-        }
-        else
-        {
-            Player.ResetInstances(InstanceResetMethod.Manual);
-        }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.SetTaxiBenchmarkMode, Processing = PacketProcessing.Inplace)]
-    private void HandleSetTaxiBenchmark(SetTaxiBenchmarkMode packet)
-    {
-        if (packet.Enable)
-            _player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
-        else
-            _player.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
     }
 
     [WorldPacketHandler(ClientOpcodes.GuildSetFocusedAchievement)]
@@ -652,6 +405,250 @@ public class MiscHandler : IWorldSessionHandler
         Player.SetPendingBind(0, 0);
     }
 
+    [WorldPacketHandler(ClientOpcodes.MountSpecialAnim)]
+    private void HandleMountSpecialAnim(MountSpecial mountSpecial)
+    {
+        SpecialMountAnim specialMountAnim = new();
+        specialMountAnim.UnitGUID = _player.GUID;
+        specialMountAnim.SpellVisualKitIDs.AddRange(mountSpecial.SpellVisualKitIDs);
+        specialMountAnim.SequenceVariation = mountSpecial.SequenceVariation;
+        Player.SendMessageToSet(specialMountAnim, false);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.NextCinematicCamera)]
+    private void HandleNextCinematicCamera(NextCinematicCamera packet)
+    {
+        // Sent by client when cinematic actually begun. So we begin the server side process
+        Player. // Sent by client when cinematic actually begun. So we begin the server side process
+            CinematicMgr.NextCinematicCamera();
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
+    private void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
+    {
+        Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+
+        // If create object failed for current player then client will be stuck on loading screen
+        if (Player.GUID == objectUpdateFailed.ObjectGUID)
+        {
+            LogoutPlayer(true);
+
+            return;
+        }
+
+        // Pretend we've never seen this object
+        Player.ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
+    private void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
+    {
+        Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+
+        // Client received values update after destroying object
+        // re-register object in m_clientGUIDs to send DestroyObject on next visibility update
+        lock (Player.ClientGuiDs)
+        {
+            Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
+        }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.RequestAccountData, Status = SessionStatus.Authed)]
+    private void HandleRequestAccountData(RequestAccountData request)
+    {
+        if (request.DataType > AccountDataTypes.Max)
+            return;
+
+        var adata = GetAccountData(request.DataType);
+
+        UpdateAccountData data = new();
+        data.Player = Player ? Player.GUID : ObjectGuid.Empty;
+        data.Time = (uint)adata.Time;
+        data.DataType = request.DataType;
+
+        if (!Extensions.IsEmpty(adata.Data))
+        {
+            data.Size = (uint)adata.Data.Length;
+            data.CompressedData = new ByteBuffer(ZLib.Compress(Encoding.UTF8.GetBytes((string)adata.Data)));
+        }
+
+        SendPacket(data);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.RequestLatestSplashScreen)]
+    private void HandleRequestLatestSplashScreen(RequestLatestSplashScreen requestLatestSplashScreen)
+    {
+        UISplashScreenRecord splashScreen = null;
+
+        foreach (var itr in CliDB.UISplashScreenStorage.Values)
+        {
+            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(itr.CharLevelConditionID);
+
+            if (playerCondition != null)
+                if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
+                    continue;
+
+            splashScreen = itr;
+        }
+
+        SplashScreenShowLatest splashScreenShowLatest = new();
+        splashScreenShowLatest.UISplashScreenID = splashScreen?.Id ?? 0;
+        SendPacket(splashScreenShowLatest);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ResetInstances)]
+    private void HandleResetInstances(ResetInstances packet)
+    {
+        var map = _player.Map;
+
+        if (map != null && map.Instanceable)
+            return;
+
+        var group = Player.Group;
+
+        if (group)
+        {
+            if (!group.IsLeader(Player.GUID))
+                return;
+
+            if (group.IsLFGGroup)
+                return;
+
+            group.ResetInstances(InstanceResetMethod.Manual, _player);
+        }
+        else
+        {
+            Player.ResetInstances(InstanceResetMethod.Manual);
+        }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SaveCufProfiles, Processing = PacketProcessing.Inplace)]
+    private void HandleSaveCUFProfiles(SaveCUFProfiles packet)
+    {
+        if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
+        {
+            Log.Logger.Error("HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
+
+            return;
+        }
+
+        for (byte i = 0; i < packet.CUFProfiles.Count; ++i)
+            Player.SaveCufProfile(i, packet.CUFProfiles[i]);
+
+        for (var i = (byte)packet.CUFProfiles.Count; i < PlayerConst.MaxCUFProfiles; ++i)
+            Player.SaveCufProfile(i, null);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetActionBarToggles)]
+    private void HandleSetActionBarToggles(SetActionBarToggles packet)
+    {
+        if (!Player) // ignore until not logged (check needed because STATUS_AUTHED)
+        {
+            if (packet.Mask != 0)
+                Log.Logger.Error("WorldSession.HandleSetActionBarToggles in not logged state with value: {0}, ignored", packet.Mask);
+
+            return;
+        }
+
+        Player.SetMultiActionBars(packet.Mask);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetAdvancedCombatLogging, Processing = PacketProcessing.Inplace)]
+    private void HandleSetAdvancedCombatLogging(SetAdvancedCombatLogging setAdvancedCombatLogging)
+    {
+        Player.SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetPvp)]
+    private void HandleSetPvP(SetPvP packet)
+    {
+        if (packet.EnablePVP)
+        {
+            Player.SetPlayerFlag(PlayerFlags.InPVP);
+            Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
+
+            if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
+                Player.UpdatePvP(true, true);
+        }
+        else if (!Player.IsWarModeLocalActive)
+        {
+            Player.RemovePlayerFlag(PlayerFlags.InPVP);
+            Player.SetPlayerFlag(PlayerFlags.PVPTimer);
+
+            if (!Player.PvpInfo.IsHostile && Player.IsPvP)
+                Player.PvpInfo.EndTimer = GameTime.CurrentTime; // start toggle-off
+        }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetSelection)]
+    private void HandleSetSelection(SetSelection packet)
+    {
+        Player.SetSelection(packet.Selection);
+    }
+    [WorldPacketHandler(ClientOpcodes.SetTaxiBenchmarkMode, Processing = PacketProcessing.Inplace)]
+    private void HandleSetTaxiBenchmark(SetTaxiBenchmarkMode packet)
+    {
+        if (packet.Enable)
+            _player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
+        else
+            _player.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetTitle, Processing = PacketProcessing.Inplace)]
+    private void HandleSetTitle(SetTitle packet)
+    {
+        // -1 at none
+        if (packet.TitleID > 0)
+        {
+            if (!Player.HasTitle((uint)packet.TitleID))
+                return;
+        }
+        else
+        {
+            packet.TitleID = 0;
+        }
+
+        Player.SetChosenTitle((uint)packet.TitleID);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.SetWarMode)]
+    private void HandleSetWarMode(SetWarMode packet)
+    {
+        _player.SetWarModeDesired(packet.Enable);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.TogglePvp)]
+    private void HandleTogglePvP(TogglePvP packet)
+    {
+        if (!Player.HasPlayerFlag(PlayerFlags.InPVP))
+        {
+            Player.SetPlayerFlag(PlayerFlags.InPVP);
+            Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
+
+            if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
+                Player.UpdatePvP(true, true);
+        }
+        else if (!Player.IsWarModeLocalActive)
+        {
+            Player.RemovePlayerFlag(PlayerFlags.InPVP);
+            Player.SetPlayerFlag(PlayerFlags.PVPTimer);
+
+            if (!Player.PvpInfo.IsHostile && Player.IsPvP)
+                Player.PvpInfo.EndTimer = GameTime.CurrentTime; // start toggle-off
+        }
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ChatUnregisterAllAddonPrefixes)]
+    private void HandleUnregisterAllAddonPrefixes(ChatUnregisterAllAddonPrefixes packet)
+    {
+        _registeredAddonPrefixes.Clear();
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ViolenceLevel, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
+    private void HandleViolenceLevel(ViolenceLevel violenceLevel)
+    {
+        // do something?
+    }
     [WorldPacketHandler(ClientOpcodes.Warden3Data)]
     private void HandleWarden3Data(WardenData packet)
     {

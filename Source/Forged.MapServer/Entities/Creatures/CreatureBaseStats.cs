@@ -7,8 +7,8 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureBaseStats
 {
-    public uint BaseMana { get; set; }
     public uint AttackPower { get; set; }
+    public uint BaseMana { get; set; }
     public uint RangedAttackPower { get; set; }
 
     // Helpers

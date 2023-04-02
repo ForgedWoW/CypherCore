@@ -11,11 +11,10 @@ public class SpellCastLogData
 {
     private readonly List<SpellLogPowerData> PowerData = new();
 
-    private long Health;
-    private double AttackPower;
-    private double SpellPower;
     private uint Armor;
-
+    private double AttackPower;
+    private long Health;
+    private double SpellPower;
     public void Initialize(Unit unit)
     {
         Health = unit.Health;

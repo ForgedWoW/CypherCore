@@ -5,9 +5,9 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class AnimationDataRecord
 {
-    public uint Id;
-    public ushort Fallback;
-    public byte BehaviorTier;
     public int BehaviorID;
+    public byte BehaviorTier;
+    public ushort Fallback;
     public int[] Flags = new int[2];
+    public uint Id;
 }

@@ -28,6 +28,36 @@ public class BugTicket : Ticket
         IdProtected = Global.SupportMgr.GenerateBugId();
     }
 
+    public override void DeleteFromDB()
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_BUG);
+        stmt.AddValue(0, IdProtected);
+        DB.Characters.Execute(stmt);
+    }
+
+    public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
+    {
+        var curTime = (ulong)GameTime.CurrentTime;
+
+        StringBuilder ss = new();
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.SecsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText)));
+
+        if (!AssignedToProtected.IsEmpty)
+            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
+
+        if (detailed)
+        {
+            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
+
+            if (!string.IsNullOrEmpty(CommentProtected))
+                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, CommentProtected));
+        }
+
+        return ss.ToString();
+    }
+
     public override void LoadFromDB(SQLFields fields)
     {
         byte idx = 0;
@@ -77,37 +107,6 @@ public class BugTicket : Ticket
 
         DB.Characters.Execute(stmt);
     }
-
-    public override void DeleteFromDB()
-    {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_BUG);
-        stmt.AddValue(0, IdProtected);
-        DB.Characters.Execute(stmt);
-    }
-
-    public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
-    {
-        var curTime = (ulong)GameTime.GetGameTime();
-
-        StringBuilder ss = new();
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.secsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText)));
-
-        if (!AssignedToProtected.IsEmpty)
-            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
-
-        if (detailed)
-        {
-            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
-
-            if (!string.IsNullOrEmpty(CommentProtected))
-                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, CommentProtected));
-        }
-
-        return ss.ToString();
-    }
-
     public void SetFacing(float facing)
     {
         _facing = facing;

@@ -15,13 +15,13 @@ internal class PersistentInstanceScriptValue<T> : PersistentInstanceScriptValueB
         return this;
     }
 
-    private void NotifyValueChanged()
-    {
-        _instance.Instance.UpdateInstanceLock(CreateEvent());
-    }
-
     private void LoadValue(T value)
     {
         _value = value;
+    }
+
+    private void NotifyValueChanged()
+    {
+        _instance.Instance.UpdateInstanceLock(CreateEvent());
     }
 }

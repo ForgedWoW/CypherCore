@@ -16,12 +16,16 @@ public class AssistDelayEvent : BasicEvent
 
     private readonly ObjectGuid m_victim;
 
-    private AssistDelayEvent() { }
-
     public AssistDelayEvent(ObjectGuid victim, Unit owner)
     {
         m_victim = victim;
         m_owner = owner;
+    }
+
+    private AssistDelayEvent() { }
+    public void AddAssistant(ObjectGuid guid)
+    {
+        m_assistants.Add(guid);
     }
 
     public override bool Execute(ulong etime, uint pTime)
@@ -42,10 +46,5 @@ public class AssistDelayEvent : BasicEvent
             }
 
         return true;
-    }
-
-    public void AddAssistant(ObjectGuid guid)
-    {
-        m_assistants.Add(guid);
     }
 }

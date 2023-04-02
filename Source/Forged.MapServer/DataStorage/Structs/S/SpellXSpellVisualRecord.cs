@@ -5,17 +5,17 @@ namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class SpellXSpellVisualRecord
 {
-    public uint Id;
-    public byte DifficultyID;
-    public uint SpellVisualID;
-    public float Probability;
-    public int Flags;
-    public int Priority;
-    public int SpellIconFileID;
     public int ActiveIconFileID;
-    public ushort ViewerUnitConditionID;
-    public uint ViewerPlayerConditionID;
-    public ushort CasterUnitConditionID;
     public uint CasterPlayerConditionID;
+    public ushort CasterUnitConditionID;
+    public byte DifficultyID;
+    public int Flags;
+    public uint Id;
+    public int Priority;
+    public float Probability;
+    public int SpellIconFileID;
     public uint SpellID;
+    public uint SpellVisualID;
+    public uint ViewerPlayerConditionID;
+    public ushort ViewerUnitConditionID;
 }

@@ -8,12 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildPermissionsQueryResults : ServerPacket
 {
-    public int NumTabs;
-    public int WithdrawGoldLimit;
     public int Flags;
+    public int NumTabs;
     public uint RankID;
     public List<GuildRankTabPermissions> Tab;
-
+    public int WithdrawGoldLimit;
     public GuildPermissionsQueryResults() : base(ServerOpcodes.GuildPermissionsQueryResults)
     {
         Tab = new List<GuildRankTabPermissions>();

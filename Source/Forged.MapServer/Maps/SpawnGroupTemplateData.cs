@@ -7,8 +7,8 @@ namespace Forged.MapServer.Maps;
 
 public class SpawnGroupTemplateData
 {
-    public uint GroupId { get; set; }
-    public string Name { get; set; }
-    public uint MapId { get; set; }
     public SpawnGroupFlags Flags { get; set; }
+    public uint GroupId { get; set; }
+    public uint MapId { get; set; }
+    public string Name { get; set; }
 }

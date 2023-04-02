@@ -9,13 +9,12 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ConversationActorField
 {
-    public uint CreatureID;
-    public uint CreatureDisplayInfoID;
     public ObjectGuid ActorGUID;
+    public uint CreatureDisplayInfoID;
+    public uint CreatureID;
     public int Id;
-    public ConversationActorType Type;
     public uint NoActorObject;
-
+    public ConversationActorType Type;
     public void WriteCreate(WorldPacket data, Conversation owner, Player receiver)
     {
         data.WriteUInt32(CreatureID);

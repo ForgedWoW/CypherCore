@@ -8,20 +8,19 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class ClientGossipOptions
 {
-    public int GossipOptionID;
-    public GossipOptionNpc OptionNPC;
-    public byte OptionFlags;
-    public int OptionCost;
-    public uint OptionLanguage;
+    public string Confirm = "";
     public GossipOptionFlags Flags;
+    public int GossipOptionID;
+    public int OptionCost;
+    public byte OptionFlags;
+    public uint OptionLanguage;
+    public GossipOptionNpc OptionNPC;
     public int OrderIndex;
+    public int? OverrideIconID;
+    public int? SpellID;
     public GossipOptionStatus Status;
     public string Text = "";
-    public string Confirm = "";
     public TreasureLootList Treasure = new();
-    public int? SpellID;
-    public int? OverrideIconID;
-
     public void Write(WorldPacket data)
     {
         data.WriteInt32(GossipOptionID);

@@ -10,16 +10,21 @@ namespace Forged.MapServer.Entities.Objects;
 public class WorldObjectVisibility
 {
     private readonly WorldObject _worldObject;
-    private float? _visibilityDistanceOverride;
     private SmoothPhasing _smoothPhasing;
+    private float? _visibilityDistanceOverride;
+    public WorldObjectVisibility(WorldObject worldObject)
+    {
+        ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
+        ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+        _worldObject = worldObject;
+    }
 
-    public FlaggedArray32<StealthType> Stealth { get; set; } = new(2);
-    public FlaggedArray32<StealthType> StealthDetect { get; set; } = new(2);
     public FlaggedArray64<InvisibilityType> Invisibility { get; set; } = new((int)InvisibilityType.Max);
     public FlaggedArray64<InvisibilityType> InvisibilityDetect { get; set; } = new((int)InvisibilityType.Max);
     public FlaggedArray32<ServerSideVisibilityType> ServerSideVisibility { get; set; } = new(2);
     public FlaggedArray32<ServerSideVisibilityType> ServerSideVisibilityDetect { get; set; } = new(2);
-
+    public FlaggedArray32<StealthType> Stealth { get; set; } = new(2);
+    public FlaggedArray32<StealthType> StealthDetect { get; set; } = new(2);
     public float VisibilityRange
     {
         get
@@ -36,137 +41,15 @@ public class WorldObjectVisibility
 
     private bool IsFarVisible { get; set; }
     private bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue;
-
-    public WorldObjectVisibility(WorldObject worldObject)
+    public virtual bool CanAlwaysSee(WorldObject obj)
     {
-        ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
-        ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
-        _worldObject = worldObject;
+        return false;
     }
 
     public virtual bool CanNeverSee(WorldObject obj)
     {
         return _worldObject.Location.Map != obj.Location.Map || !_worldObject.Location.InSamePhase(obj);
     }
-
-    public virtual bool CanAlwaysSee(WorldObject obj)
-    {
-        return false;
-    }
-
-    public virtual bool IsNeverVisibleFor(WorldObject seer)
-    {
-        return !_worldObject.Location.IsInWorld || _worldObject.IsDestroyedObject;
-    }
-
-    public virtual bool IsAlwaysVisibleFor(WorldObject seer)
-    {
-        return false;
-    }
-
-    public virtual bool IsInvisibleDueToDespawn(WorldObject seer)
-    {
-        return false;
-    }
-
-    public virtual bool IsAlwaysDetectableFor(WorldObject seer)
-    {
-        return false;
-    }
-
-    public void SetFarVisible(bool on)
-    {
-        if (_worldObject.IsPlayer)
-            return;
-
-        IsFarVisible = on;
-    }
-
-    public void SetVisibilityDistanceOverride(VisibilityDistanceType type)
-    {
-        if (_worldObject.TypeId == TypeId.Player)
-            return;
-
-        var creature = _worldObject.AsCreature;
-
-        if (creature != null)
-        {
-            creature.RemoveUnitFlag2(UnitFlags2.LargeAoi | UnitFlags2.GiganticAoi | UnitFlags2.InfiniteAoi);
-
-            switch (type)
-            {
-                case VisibilityDistanceType.Large:
-                    creature.SetUnitFlag2(UnitFlags2.LargeAoi);
-
-                    break;
-                case VisibilityDistanceType.Gigantic:
-                    creature.SetUnitFlag2(UnitFlags2.GiganticAoi);
-
-                    break;
-                case VisibilityDistanceType.Infinite:
-                    creature.SetUnitFlag2(UnitFlags2.InfiniteAoi);
-
-                    break;
-            }
-        }
-
-        _visibilityDistanceOverride = SharedConst.VisibilityDistances[(int)type];
-    }
-
-    public float GetSightRange(WorldObject target = null)
-    {
-        if (_worldObject.IsPlayer || _worldObject.IsCreature)
-        {
-            if (!_worldObject.IsPlayer)
-                return _worldObject.IsCreature ? _worldObject.AsCreature.SightDistance : SharedConst.SightRangeUnit;
-
-            if (target is { Visibility: { IsVisibilityOverridden: true, _visibilityDistanceOverride: { } }, IsPlayer: true })
-                return target.Visibility._visibilityDistanceOverride.Value;
-
-            if (target is { Visibility: { IsFarVisible: true, _worldObject.IsPlayer: false } })
-                return SharedConst.MaxVisibilityDistance;
-
-            return _worldObject.AsPlayer.CinematicMgr.IsOnCinematic() ? SharedConst.DefaultVisibilityInstance : _worldObject.Location.Map.VisibilityRange;
-        }
-
-        if (_worldObject.IsDynObject && _worldObject.IsActive)
-            return _worldObject.Location.Map.VisibilityRange;
-
-        return 0.0f;
-    }
-
-    public bool CheckPrivateObjectOwnerVisibility(WorldObject seer)
-    {
-        if (!_worldObject.IsPrivateObject)
-            return true;
-
-        // Owner of this private object
-        if (_worldObject.PrivateObjectOwner == seer.GUID)
-            return true;
-
-        // Another private object of the same owner
-        if (_worldObject.PrivateObjectOwner == seer.PrivateObjectOwner)
-            return true;
-
-        var playerSeer = seer.AsPlayer;
-
-        if (playerSeer != null)
-            if (playerSeer.IsInGroup(_worldObject.PrivateObjectOwner))
-                return true;
-
-        return false;
-    }
-
-    public SmoothPhasing GetOrCreateSmoothPhasing()
-    {
-        return _smoothPhasing ??= new SmoothPhasing();
-    }
-
-    public SmoothPhasing GetSmoothPhasing()
-    {
-        return _smoothPhasing;
-    }
-
     public bool CanSeeOrDetect(WorldObject obj, bool ignoreStealth = false, bool distanceCheck = false, bool checkAlert = false)
     {
         if (_worldObject == obj)
@@ -252,7 +135,9 @@ public class WorldObjectVisibility
         }
 
         // Ghost players, Spirit Healers, and some other NPCs
-        if (!corpseVisibility && !Convert.ToBoolean(obj.Visibility.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibilityDetect.GetValue(ServerSideVisibilityType.Ghost)))
+        if (corpseVisibility || Convert.ToBoolean(obj.Visibility.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibilityDetect.GetValue(ServerSideVisibilityType.Ghost)))
+            return !obj.IsInvisibleDueToDespawn(_worldObject) && CanDetect(obj, ignoreStealth, checkAlert);
+
         {
             // Alive players can see dead players in some cases, but other objects can't do that
             var thisPlayer = _worldObject.AsPlayer;
@@ -277,15 +162,120 @@ public class WorldObjectVisibility
             }
         }
 
-        if (obj.IsInvisibleDueToDespawn(_worldObject))
-            return false;
-
-        if (!CanDetect(obj, ignoreStealth, checkAlert))
-            return false;
-
-        return true;
+        return !obj.IsInvisibleDueToDespawn(_worldObject) && CanDetect(obj, ignoreStealth, checkAlert);
     }
 
+    public bool CheckPrivateObjectOwnerVisibility(WorldObject seer)
+    {
+        if (!_worldObject.IsPrivateObject)
+            return true;
+
+        // Owner of this private object
+        if (_worldObject.PrivateObjectOwner == seer.GUID)
+            return true;
+
+        // Another private object of the same owner
+        if (_worldObject.PrivateObjectOwner == seer.PrivateObjectOwner)
+            return true;
+
+        var playerSeer = seer.AsPlayer;
+
+        if (playerSeer != null)
+            if (playerSeer.IsInGroup(_worldObject.PrivateObjectOwner))
+                return true;
+
+        return false;
+    }
+
+    public SmoothPhasing GetOrCreateSmoothPhasing()
+    {
+        return _smoothPhasing ??= new SmoothPhasing();
+    }
+
+    public float GetSightRange(WorldObject target = null)
+    {
+        if (_worldObject.IsPlayer || _worldObject.IsCreature)
+        {
+            if (!_worldObject.IsPlayer)
+                return _worldObject.IsCreature ? _worldObject.AsCreature.SightDistance : SharedConst.SightRangeUnit;
+
+            if (target is { Visibility: { IsVisibilityOverridden: true, _visibilityDistanceOverride: { } }, IsPlayer: true })
+                return target.Visibility._visibilityDistanceOverride.Value;
+
+            if (target is { Visibility: { IsFarVisible: true, _worldObject.IsPlayer: false } })
+                return SharedConst.MaxVisibilityDistance;
+
+            return _worldObject.AsPlayer.CinematicMgr.IsOnCinematic() ? SharedConst.DefaultVisibilityInstance : _worldObject.Location.Map.VisibilityRange;
+        }
+
+        if (_worldObject.IsDynObject && _worldObject.IsActive)
+            return _worldObject.Location.Map.VisibilityRange;
+
+        return 0.0f;
+    }
+
+    public SmoothPhasing GetSmoothPhasing()
+    {
+        return _smoothPhasing;
+    }
+
+    public virtual bool IsAlwaysDetectableFor(WorldObject seer)
+    {
+        return false;
+    }
+
+    public virtual bool IsAlwaysVisibleFor(WorldObject seer)
+    {
+        return false;
+    }
+
+    public virtual bool IsInvisibleDueToDespawn(WorldObject seer)
+    {
+        return false;
+    }
+
+    public virtual bool IsNeverVisibleFor(WorldObject seer)
+    {
+        return !_worldObject.Location.IsInWorld || _worldObject.IsDestroyedObject;
+    }
+    public void SetFarVisible(bool on)
+    {
+        if (_worldObject.IsPlayer)
+            return;
+
+        IsFarVisible = on;
+    }
+
+    public void SetVisibilityDistanceOverride(VisibilityDistanceType type)
+    {
+        if (_worldObject.TypeId == TypeId.Player)
+            return;
+
+        var creature = _worldObject.AsCreature;
+
+        if (creature != null)
+        {
+            creature.RemoveUnitFlag2(UnitFlags2.LargeAoi | UnitFlags2.GiganticAoi | UnitFlags2.InfiniteAoi);
+
+            switch (type)
+            {
+                case VisibilityDistanceType.Large:
+                    creature.SetUnitFlag2(UnitFlags2.LargeAoi);
+
+                    break;
+                case VisibilityDistanceType.Gigantic:
+                    creature.SetUnitFlag2(UnitFlags2.GiganticAoi);
+
+                    break;
+                case VisibilityDistanceType.Infinite:
+                    creature.SetUnitFlag2(UnitFlags2.InfiniteAoi);
+
+                    break;
+            }
+        }
+
+        _visibilityDistanceOverride = SharedConst.VisibilityDistances[(int)type];
+    }
     private bool CanDetect(WorldObject obj, bool ignoreStealth, bool checkAlert = false)
     {
         var seer = _worldObject;

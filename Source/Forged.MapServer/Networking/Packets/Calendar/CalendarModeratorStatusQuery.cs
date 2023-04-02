@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarModeratorStatusQuery : ClientPacket
 {
-    public ObjectGuid Guid;
     public ulong EventID;
+    public ObjectGuid Guid;
     public ulong InviteID;
     public ulong ModeratorID;
     public byte Status;

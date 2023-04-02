@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Query;
 public class QueryCreatureResponse : ServerPacket
 {
     public bool Allow;
-    public CreatureStats Stats;
     public uint CreatureID;
+    public CreatureStats Stats;
     public QueryCreatureResponse() : base(ServerOpcodes.QueryCreatureResponse, ConnectionType.Instance) { }
 
     public override void Write()

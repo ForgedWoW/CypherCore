@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 public class MoveSetCollisionHeightAck : ClientPacket
 {
     public MovementAck Data;
-    public UpdateCollisionHeightReason Reason;
-    public uint MountDisplayID;
     public float Height = 1.0f;
+    public uint MountDisplayID;
+    public UpdateCollisionHeightReason Reason;
     public MoveSetCollisionHeightAck(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class SellItem : ClientPacket
 {
-    public ObjectGuid VendorGUID;
-    public ObjectGuid ItemGUID;
     public uint Amount;
+    public ObjectGuid ItemGUID;
+    public ObjectGuid VendorGUID;
     public SellItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

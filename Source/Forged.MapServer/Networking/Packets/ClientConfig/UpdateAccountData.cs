@@ -9,11 +9,12 @@ namespace Forged.MapServer.Networking.Packets.ClientConfig;
 
 public class UpdateAccountData : ServerPacket
 {
-    public ObjectGuid Player;
-    public long Time; // UnixTime
-    public uint Size; // decompressed size
-    public AccountDataTypes DataType = 0;
     public ByteBuffer CompressedData;
+    public AccountDataTypes DataType = 0;
+    public ObjectGuid Player;
+    public uint Size;
+    public long Time; // UnixTime
+                      // decompressed size
     public UpdateAccountData() : base(ServerOpcodes.UpdateAccountData) { }
 
     public override void Write()

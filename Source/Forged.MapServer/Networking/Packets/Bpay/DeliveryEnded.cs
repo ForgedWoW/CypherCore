@@ -9,11 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class DeliveryEnded : ServerPacket
 {
-    public List<ItemInstance> Item { get; set; } = new();
-    public ulong DistributionID { get; set; } = 0;
-
     public DeliveryEnded() : base(ServerOpcodes.BattlePayDeliveryEnded) { }
 
+    public ulong DistributionID { get; set; } = 0;
+    public List<ItemInstance> Item { get; set; } = new();
     public override void Write()
     {
         _worldPacket.Write(DistributionID);

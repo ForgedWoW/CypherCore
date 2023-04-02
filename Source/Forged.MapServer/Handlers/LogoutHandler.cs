@@ -12,6 +12,31 @@ namespace Forged.MapServer.Handlers;
 
 public class LogoutHandler : IWorldSessionHandler
 {
+    [WorldPacketHandler(ClientOpcodes.LogoutCancel)]
+    private void HandleLogoutCancel(LogoutCancel packet)
+    {
+        // Player have already logged out serverside, too late to cancel
+        if (!Player)
+            return;
+
+        SetLogoutStartTime(0);
+
+        SendPacket(new LogoutCancelAck());
+
+        // not remove flags if can't free move - its not set in Logout request code.
+        if (Player.CanFreeMove())
+        {
+            //!we can move again
+            Player.SetRooted(false);
+
+            //! Stand Up
+            Player.SetStandState(UnitStandStateType.Stand);
+
+            //! DISABLE_ROTATE
+            Player.RemoveUnitFlag(UnitFlags.Stunned);
+        }
+    }
+
     [WorldPacketHandler(ClientOpcodes.LogoutRequest)]
     private void HandleLogoutRequest(LogoutRequest packet)
     {
@@ -68,31 +93,6 @@ public class LogoutHandler : IWorldSessionHandler
             pl.SetUnitFlag(UnitFlags.Stunned);
         }
 
-        SetLogoutStartTime(GameTime.GetGameTime());
-    }
-
-    [WorldPacketHandler(ClientOpcodes.LogoutCancel)]
-    private void HandleLogoutCancel(LogoutCancel packet)
-    {
-        // Player have already logged out serverside, too late to cancel
-        if (!Player)
-            return;
-
-        SetLogoutStartTime(0);
-
-        SendPacket(new LogoutCancelAck());
-
-        // not remove flags if can't free move - its not set in Logout request code.
-        if (Player.CanFreeMove())
-        {
-            //!we can move again
-            Player.SetRooted(false);
-
-            //! Stand Up
-            Player.SetStandState(UnitStandStateType.Stand);
-
-            //! DISABLE_ROTATE
-            Player.RemoveUnitFlag(UnitFlags.Stunned);
-        }
+        SetLogoutStartTime(GameTime.CurrentTime);
     }
 }

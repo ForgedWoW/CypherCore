@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Totem;
 
 internal class TotemDestroyed : ClientPacket
 {
-    public ObjectGuid TotemGUID;
     public byte Slot;
+    public ObjectGuid TotemGUID;
     public TotemDestroyed(WorldPacket packet) : base(packet) { }
 
     public override void Read()

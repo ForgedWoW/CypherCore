@@ -40,6 +40,27 @@ internal class SimpleCharmedPlayerAI : PlayerAI
         return base.CanAIAttack(who);
     }
 
+    public override void OnCharmed(bool isNew)
+    {
+        if (Me.IsCharmed)
+        {
+            Me.CastStop();
+            Me.AttackStop();
+
+            if (Me.MotionMaster.Size() <= 1)                      // if there is no current movement (we dont want to erase/overwrite any existing stuff)
+                Me.MotionMaster.MovePoint(0, Me.Location, false); // force re-sync of current position for all clients
+        }
+        else
+        {
+            Me.CastStop();
+            Me.AttackStop();
+
+            Me.MotionMaster.Clear(MovementGeneratorPriority.Normal);
+        }
+
+        base.OnCharmed(isNew);
+    }
+
     public override Unit SelectAttackTarget()
     {
         var charmer = Me.Charmer;
@@ -183,28 +204,6 @@ internal class SimpleCharmedPlayerAI : PlayerAI
             Me.MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
         }
     }
-
-    public override void OnCharmed(bool isNew)
-    {
-        if (Me.IsCharmed)
-        {
-            Me.CastStop();
-            Me.AttackStop();
-
-            if (Me.MotionMaster.Size() <= 1)                      // if there is no current movement (we dont want to erase/overwrite any existing stuff)
-                Me.MotionMaster.MovePoint(0, Me.Location, false); // force re-sync of current position for all clients
-        }
-        else
-        {
-            Me.CastStop();
-            Me.AttackStop();
-
-            Me.MotionMaster.Clear(MovementGeneratorPriority.Normal);
-        }
-
-        base.OnCharmed(isNew);
-    }
-
     private Tuple<Spell, Unit> SelectAppropriateCastForSpec()
     {
         List<Tuple<Tuple<Spell, Unit>, uint>> spells = new();

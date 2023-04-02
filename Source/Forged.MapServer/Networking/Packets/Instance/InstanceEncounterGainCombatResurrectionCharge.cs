@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class InstanceEncounterGainCombatResurrectionCharge : ServerPacket
 {
-    public int InCombatResCount;
     public uint CombatResChargeRecovery;
+    public int InCombatResCount;
     public InstanceEncounterGainCombatResurrectionCharge() : base(ServerOpcodes.InstanceEncounterGainCombatResurrectionCharge, ConnectionType.Instance) { }
 
     public override void Write()

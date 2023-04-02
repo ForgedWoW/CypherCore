@@ -9,10 +9,10 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 internal class ProcResist : ServerPacket
 {
     public ObjectGuid Caster;
-    public ObjectGuid Target;
-    public uint SpellID;
-    public float? Rolled;
     public float? Needed;
+    public float? Rolled;
+    public uint SpellID;
+    public ObjectGuid Target;
     public ProcResist() : base(ServerOpcodes.ProcResist) { }
 
     public override void Write()

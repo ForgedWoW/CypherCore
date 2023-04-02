@@ -8,12 +8,11 @@ namespace Forged.MapServer.Text;
 
 internal class CypherStringChatBuilder : MessageBuilder
 {
-    private readonly WorldObject _source;
-    private readonly ChatMsg _msgType;
-    private readonly CypherStrings _textId;
-    private readonly WorldObject _target;
     private readonly object[] _args;
-
+    private readonly ChatMsg _msgType;
+    private readonly WorldObject _source;
+    private readonly WorldObject _target;
+    private readonly CypherStrings _textId;
     public CypherStringChatBuilder(WorldObject obj, ChatMsg msgType, CypherStrings textId, WorldObject target = null, object[] args = null)
     {
         _source = obj;

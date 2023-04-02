@@ -18,6 +18,11 @@ internal class AddonChannelCommandHandler : CommandHandler
 
     public AddonChannelCommandHandler(WorldSession session) : base(session) { }
 
+    public override bool IsHumanReadable()
+    {
+        return _humanReadable;
+    }
+
     public override bool ParseCommands(string str)
     {
         if (str.Length < 5)
@@ -86,12 +91,6 @@ internal class AddonChannelCommandHandler : CommandHandler
         msg.Append(body, lastpos, pos - lastpos);
         Send(msg.ToString());
     }
-
-    public override bool IsHumanReadable()
-    {
-        return _humanReadable;
-    }
-
     private void Send(string msg)
     {
         ChatPkt chat = new();
@@ -105,13 +104,13 @@ internal class AddonChannelCommandHandler : CommandHandler
         _hadAck = true;
     }
 
-    private void SendOK() // o Command OK, no body
-    {
-        Send($"o{_echo:4}\0");
-    }
-
     private void SendFailed() // f Command failed, no body
     {
         Send($"f{_echo:4}\0");
+    }
+
+    private void SendOK() // o Command OK, no body
+    {
+        Send($"o{_echo:4}\0");
     }
 }

@@ -5,8 +5,8 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class AzeriteEssenceRecord
 {
+    public string Description;
     public uint Id;
     public string Name;
-    public string Description;
     public int SpecSetID;
 }

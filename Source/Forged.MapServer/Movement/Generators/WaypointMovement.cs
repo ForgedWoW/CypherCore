@@ -13,14 +13,12 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 {
+    private readonly bool _loadedFromDB;
     private readonly TimeTracker _nextMoveTime;
     private readonly bool _repeating;
-    private readonly bool _loadedFromDB;
-    private uint _pathId;
-
-    private WaypointPath _path;
     private int _currentNode;
-
+    private WaypointPath _path;
+    private uint _pathId;
     public WaypointMovementGenerator(uint pathId = 0, bool repeating = true)
     {
         _nextMoveTime = new TimeTracker();
@@ -46,52 +44,23 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         BaseUnitState = UnitState.Roaming;
     }
 
-    public override void Pause(uint timer = 0)
+    public override void DoDeactivate(Creature owner)
     {
-        if (timer != 0)
-        {
-            // Don't try to paused an already paused generator
-            if (HasFlag(MovementGeneratorFlags.Paused))
-                return;
-
-            AddFlag(MovementGeneratorFlags.TimedPaused);
-            _nextMoveTime.Reset(timer);
-            RemoveFlag(MovementGeneratorFlags.Paused);
-        }
-        else
-        {
-            AddFlag(MovementGeneratorFlags.Paused);
-            _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
-            RemoveFlag(MovementGeneratorFlags.TimedPaused);
-        }
+        AddFlag(MovementGeneratorFlags.Deactivated);
+        owner.ClearUnitState(UnitState.RoamingMove);
     }
 
-    public override void Resume(uint overrideTimer = 0)
+    public override void DoFinalize(Creature owner, bool active, bool movementInform)
     {
-        if (overrideTimer != 0)
-            _nextMoveTime.Reset(overrideTimer);
+        AddFlag(MovementGeneratorFlags.Finalized);
 
-        if (_nextMoveTime.Passed)
-            _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
+        if (active)
+        {
+            owner.ClearUnitState(UnitState.RoamingMove);
 
-        RemoveFlag(MovementGeneratorFlags.Paused);
-    }
-
-    public override bool GetResetPosition(Unit owner, out float x, out float y, out float z)
-    {
-        x = y = z = 0;
-
-        // prevent a crash at empty waypoint path.
-        if (_path == null || _path.Nodes.Empty())
-            return false;
-
-        var waypoint = _path.Nodes.ElementAt(_currentNode);
-
-        x = waypoint.X;
-        y = waypoint.Y;
-        z = waypoint.Z;
-
-        return true;
+            // TODO: Research if this modification is needed, which most likely isnt
+            owner.SetWalk(false);
+        }
     }
 
     public override void DoInitialize(Creature owner)
@@ -214,25 +183,6 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         return true;
     }
 
-    public override void DoDeactivate(Creature owner)
-    {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-        owner.ClearUnitState(UnitState.RoamingMove);
-    }
-
-    public override void DoFinalize(Creature owner, bool active, bool movementInform)
-    {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (active)
-        {
-            owner.ClearUnitState(UnitState.RoamingMove);
-
-            // TODO: Research if this modification is needed, which most likely isnt
-            owner.SetWalk(false);
-        }
-    }
-
     public override string GetDebugInfo()
     {
         return $"Current Node: {_currentNode}\n{base.GetDebugInfo()}";
@@ -243,9 +193,66 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         return MovementGeneratorType.Waypoint;
     }
 
+    public override bool GetResetPosition(Unit owner, out float x, out float y, out float z)
+    {
+        x = y = z = 0;
+
+        // prevent a crash at empty waypoint path.
+        if (_path == null || _path.Nodes.Empty())
+            return false;
+
+        var waypoint = _path.Nodes.ElementAt(_currentNode);
+
+        x = waypoint.X;
+        y = waypoint.Y;
+        z = waypoint.Z;
+
+        return true;
+    }
+
+    public override void Pause(uint timer = 0)
+    {
+        if (timer != 0)
+        {
+            // Don't try to paused an already paused generator
+            if (HasFlag(MovementGeneratorFlags.Paused))
+                return;
+
+            AddFlag(MovementGeneratorFlags.TimedPaused);
+            _nextMoveTime.Reset(timer);
+            RemoveFlag(MovementGeneratorFlags.Paused);
+        }
+        else
+        {
+            AddFlag(MovementGeneratorFlags.Paused);
+            _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
+            RemoveFlag(MovementGeneratorFlags.TimedPaused);
+        }
+    }
+
+    public override void Resume(uint overrideTimer = 0)
+    {
+        if (overrideTimer != 0)
+            _nextMoveTime.Reset(overrideTimer);
+
+        if (_nextMoveTime.Passed)
+            _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
+
+        RemoveFlag(MovementGeneratorFlags.Paused);
+    }
     public override void UnitSpeedChanged()
     {
         AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
+    }
+
+    private bool ComputeNextNode()
+    {
+        if ((_currentNode == _path.Nodes.Count - 1) && !_repeating)
+            return false;
+
+        _currentNode = (_currentNode + 1) % _path.Nodes.Count;
+
+        return true;
     }
 
     private void MovementInform(Creature owner)
@@ -399,17 +406,6 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         // inform formation
         owner.SignalFormationMovement();
     }
-
-    private bool ComputeNextNode()
-    {
-        if ((_currentNode == _path.Nodes.Count - 1) && !_repeating)
-            return false;
-
-        _currentNode = (_currentNode + 1) % _path.Nodes.Count;
-
-        return true;
-    }
-
     private bool UpdateTimer(uint diff)
     {
         _nextMoveTime.Update(diff);

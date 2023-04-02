@@ -7,6 +7,22 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public struct CriteriaProgressPkt
 {
+    public long Date;
+
+    public uint Flags;
+
+    public uint Id;
+
+    public ObjectGuid Player;
+
+    public ulong Quantity;
+
+    public ulong? RafAcceptanceID;
+
+    public long TimeFromCreate;
+
+    public long TimeFromStart;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Id);
@@ -22,13 +38,4 @@ public struct CriteriaProgressPkt
         if (RafAcceptanceID.HasValue)
             data.WriteUInt64(RafAcceptanceID.Value);
     }
-
-    public uint Id;
-    public ulong Quantity;
-    public ObjectGuid Player;
-    public uint Flags;
-    public long Date;
-    public long TimeFromStart;
-    public long TimeFromCreate;
-    public ulong? RafAcceptanceID;
 }

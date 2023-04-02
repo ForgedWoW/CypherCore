@@ -22,8 +22,10 @@ public interface IAuraScript : IBaseSpellScript
     GameObject GObjCaster { get; }
     uint Id { get; }
 
+    bool IsExpired { get; }
     int MaxDuration { get; set; }
     WorldObject Owner { get; }
+    Unit OwnerAsUnit { get; }
     SpellInfo SpellInfo { get; }
 
     byte StackAmount { get; }
@@ -31,8 +33,13 @@ public interface IAuraScript : IBaseSpellScript
     Unit Target { get; }
 
     AuraApplication TargetApplication { get; }
-    Unit OwnerAsUnit { get; }
-    bool IsExpired { get; }
+    void _FinishScriptCall();
+
+    bool _IsDefaultActionPrevented();
+
+    bool _Load(Aura aura);
+
+    void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication aurApp = null);
 
     AuraEffect GetEffect(byte effIndex);
     SpellEffectInfo GetEffectInfo(int effIndex);
@@ -43,8 +50,4 @@ public interface IAuraScript : IBaseSpellScript
     void PreventDefaultAction();
     void Remove(AuraRemoveMode removeMode = AuraRemoveMode.None);
     void SetDuration(int duration, bool withMods = false);
-    void _FinishScriptCall();
-    bool _IsDefaultActionPrevented();
-    bool _Load(Aura aura);
-    void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication aurApp = null);
 }

@@ -7,15 +7,20 @@ namespace Forged.MapServer.DataStorage.Structs.F;
 
 public sealed class FactionTemplateRecord
 {
-    public uint Id;
-    public ushort Faction;
-    public ushort Flags;
-    public byte FactionGroup;
-    public byte FriendGroup;
-    public byte EnemyGroup;
     public ushort[] Enemies = new ushort[MAX_FACTION_RELATIONS];
+    public byte EnemyGroup;
+    public ushort Faction;
+    public byte FactionGroup;
+    public ushort Flags;
     public ushort[] Friend = new ushort[MAX_FACTION_RELATIONS];
+    public byte FriendGroup;
+    public uint Id;
     private static readonly int MAX_FACTION_RELATIONS = 8;
+
+    public bool IsContestedGuardFaction()
+    {
+        return (Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0;
+    }
 
     // helpers
     public bool IsFriendlyTo(FactionTemplateRecord entry)
@@ -68,10 +73,5 @@ public sealed class FactionTemplateRecord
                 return false;
 
         return EnemyGroup == 0 && FriendGroup == 0;
-    }
-
-    public bool IsContestedGuardFaction()
-    {
-        return (Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0;
     }
 }

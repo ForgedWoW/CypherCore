@@ -9,29 +9,28 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellCastData
 {
+    public SpellAmmo Ammo;
     public ObjectGuid CasterGUID;
     public ObjectGuid CasterUnit;
-    public ObjectGuid CastID;
-    public ObjectGuid OriginalCastID;
-    public int SpellID;
-    public SpellCastVisual Visual;
     public SpellCastFlags CastFlags;
     public SpellCastFlagsEx CastFlagsEx;
+    public ObjectGuid CastID;
     public uint CastTime;
-    public List<ObjectGuid> HitTargets = new();
-    public List<ObjectGuid> MissTargets = new();
+    public byte DestLocSpellCastIndex;
     public List<SpellHitStatus> HitStatus = new();
+    public List<ObjectGuid> HitTargets = new();
+    public CreatureImmunities Immunities;
+    public MissileTrajectoryResult MissileTrajectory;
     public List<SpellMissStatus> MissStatus = new();
-    public SpellTargetData Target = new();
+    public List<ObjectGuid> MissTargets = new();
+    public ObjectGuid OriginalCastID;
+    public SpellHealPrediction Predict;
     public List<SpellPowerData> RemainingPower = new();
     public RuneData RemainingRunes;
-    public MissileTrajectoryResult MissileTrajectory;
-    public SpellAmmo Ammo;
-    public byte DestLocSpellCastIndex;
+    public int SpellID;
+    public SpellTargetData Target = new();
     public List<TargetLocation> TargetPoints = new();
-    public CreatureImmunities Immunities;
-    public SpellHealPrediction Predict;
-
+    public SpellCastVisual Visual;
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(CasterGUID);

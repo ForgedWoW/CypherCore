@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class VoidStorageTransferChanges : ServerPacket
 {
-    public List<ObjectGuid> RemovedItems = new();
     public List<VoidItem> AddedItems = new();
+    public List<ObjectGuid> RemovedItems = new();
     public VoidStorageTransferChanges() : base(ServerOpcodes.VoidStorageTransferChanges, ConnectionType.Instance) { }
 
     public override void Write()

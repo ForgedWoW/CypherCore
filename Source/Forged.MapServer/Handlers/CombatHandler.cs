@@ -13,6 +13,12 @@ namespace Forged.MapServer.Handlers;
 
 public class CombatHandler : IWorldSessionHandler
 {
+    [WorldPacketHandler(ClientOpcodes.AttackStop, Processing = PacketProcessing.Inplace)]
+    private void HandleAttackStop(AttackStop packet)
+    {
+        Player.AttackStop();
+    }
+
     [WorldPacketHandler(ClientOpcodes.AttackSwing, Processing = PacketProcessing.Inplace)]
     private void HandleAttackSwing(AttackSwing packet)
     {
@@ -53,13 +59,6 @@ public class CombatHandler : IWorldSessionHandler
 
         Player.Attack(enemy, true);
     }
-
-    [WorldPacketHandler(ClientOpcodes.AttackStop, Processing = PacketProcessing.Inplace)]
-    private void HandleAttackStop(AttackStop packet)
-    {
-        Player.AttackStop();
-    }
-
     [WorldPacketHandler(ClientOpcodes.SetSheathed, Processing = PacketProcessing.Inplace)]
     private void HandleSetSheathed(SetSheathed packet)
     {

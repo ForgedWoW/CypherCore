@@ -10,9 +10,8 @@ namespace Forged.MapServer.Entities.Objects.Update;
 public class UnitChannel
 {
     public uint SpellID;
-    public uint SpellXSpellVisualID;
     public SpellCastVisualField SpellVisual = new();
-
+    public uint SpellXSpellVisualID;
     public void WriteCreate(WorldPacket data, Unit owner, Player receiver)
     {
         data.WriteUInt32(SpellID);

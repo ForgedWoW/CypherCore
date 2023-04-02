@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class SeasonInfo : ServerPacket
 {
+    public int ConquestWeeklyProgressCurrencyID;
+    public int CurrentArenaSeason;
     public int MythicPlusDisplaySeasonID;
     public int MythicPlusMilestoneSeasonID;
     public int PreviousArenaSeason;
-    public int CurrentArenaSeason;
     public int PvpSeasonID;
-    public int ConquestWeeklyProgressCurrencyID;
     public bool WeeklyRewardChestsEnabled;
     public SeasonInfo() : base(ServerOpcodes.SeasonInfo) { }
 

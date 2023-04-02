@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class ReadyCheckResponse : ServerPacket
 {
+    public bool IsReady;
     public ObjectGuid PartyGUID;
     public ObjectGuid Player;
-    public bool IsReady;
     public ReadyCheckResponse() : base(ServerOpcodes.ReadyCheckResponse) { }
 
     public override void Write()

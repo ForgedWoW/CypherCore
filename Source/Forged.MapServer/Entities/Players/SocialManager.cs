@@ -18,8 +18,8 @@ public class SocialManager
 {
     public const int FRIEND_LIMIT_MAX = 50;
     public const int IGNORE_LIMIT = 50;
-    private readonly ObjectAccessor _objectAccessor;
     private readonly IConfiguration _configuration;
+    private readonly ObjectAccessor _objectAccessor;
     private readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
 
     public SocialManager(ObjectAccessor objectAccessor, IConfiguration configuration)
@@ -83,20 +83,6 @@ public class SocialManager
         }
     }
 
-    public void SendFriendStatus(Player player, FriendsResult result, ObjectGuid friendGuid, bool broadcast = false)
-    {
-        FriendInfo fi = new();
-        GetFriendInfo(player, friendGuid, fi);
-
-        FriendStatusPkt friendStatus = new();
-        friendStatus.Initialize(friendGuid, result, fi);
-
-        if (broadcast)
-            BroadcastToFriendListers(player, friendStatus);
-        else
-            player.SendPacket(friendStatus);
-    }
-
     public PlayerSocial LoadFromDB(SQLResult result, ObjectGuid guid)
     {
         PlayerSocial social = new();
@@ -125,6 +111,19 @@ public class SocialManager
         _socialMap.Remove(guid);
     }
 
+    public void SendFriendStatus(Player player, FriendsResult result, ObjectGuid friendGuid, bool broadcast = false)
+    {
+        FriendInfo fi = new();
+        GetFriendInfo(player, friendGuid, fi);
+
+        FriendStatusPkt friendStatus = new();
+        friendStatus.Initialize(friendGuid, result, fi);
+
+        if (broadcast)
+            BroadcastToFriendListers(player, friendStatus);
+        else
+            player.SendPacket(friendStatus);
+    }
     private void BroadcastToFriendListers(Player player, ServerPacket packet)
     {
         if (!player)

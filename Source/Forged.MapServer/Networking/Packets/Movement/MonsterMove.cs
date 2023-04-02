@@ -11,10 +11,9 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MonsterMove : ServerPacket
 {
-    public MovementMonsterSpline SplineData;
     public ObjectGuid MoverGUID;
     public Vector3 Pos;
-
+    public MovementMonsterSpline SplineData;
     public MonsterMove() : base(ServerOpcodes.OnMonsterMove, ConnectionType.Instance)
     {
         SplineData = new MovementMonsterSpline();

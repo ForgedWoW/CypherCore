@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class AutoStoreBagItem : ClientPacket
 {
+    public byte ContainerSlotA;
     public byte ContainerSlotB;
     public InvUpdate Inv;
-    public byte ContainerSlotA;
     public byte SlotA;
     public AutoStoreBagItem(WorldPacket packet) : base(packet) { }
 

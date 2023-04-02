@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Vehicle;
 
 public class RequestVehicleSwitchSeat : ClientPacket
 {
-    public ObjectGuid Vehicle;
     public byte SeatIndex = 255;
+    public ObjectGuid Vehicle;
     public RequestVehicleSwitchSeat(WorldPacket packet) : base(packet) { }
 
     public override void Read()

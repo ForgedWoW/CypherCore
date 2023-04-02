@@ -464,13 +464,13 @@ internal class GameObjectCommands
 
         if (target)
         {
-            var curRespawnDelay = (int)(target.RespawnTimeEx - GameTime.GetGameTime());
+            var curRespawnDelay = (int)(target.RespawnTimeEx - GameTime.CurrentTime);
 
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
-            var curRespawnDelayStr = Time.secsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
-            var defRespawnDelayStr = Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
+            var curRespawnDelayStr = Time.SecsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
+            var defRespawnDelayStr = Time.SecsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
             handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);
         }

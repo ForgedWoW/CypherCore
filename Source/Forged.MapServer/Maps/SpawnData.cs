@@ -13,17 +13,16 @@ namespace Forged.MapServer.Maps;
 public class SpawnData : SpawnMetadata
 {
     public uint Id; // entry in respective _template table
-    public Position SpawnPoint;
-    public PhaseUseFlagsValues PhaseUseFlags;
-    public uint PhaseId;
     public uint PhaseGroup;
-    public int terrainSwapMap;
+    public uint PhaseId;
+    public PhaseUseFlagsValues PhaseUseFlags;
     public uint poolId;
-    public int spawntimesecs;
-    public List<Difficulty> SpawnDifficulties;
     public uint ScriptId;
+    public List<Difficulty> SpawnDifficulties;
+    public Position SpawnPoint;
+    public int spawntimesecs;
     public string StringId;
-
+    public int terrainSwapMap;
     public SpawnData(SpawnObjectType t) : base(t)
     {
         SpawnPoint = new Position();

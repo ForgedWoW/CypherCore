@@ -5,10 +5,10 @@ namespace Forged.MapServer.Networking.Packets.Azerite;
 
 internal class AzeriteEmpoweredItemSelectPower : ClientPacket
 {
-    public int Tier;
     public int AzeritePowerID;
     public byte ContainerSlot;
     public byte Slot;
+    public int Tier;
     public AzeriteEmpoweredItemSelectPower(WorldPacket packet) : base(packet) { }
 
     public override void Read()

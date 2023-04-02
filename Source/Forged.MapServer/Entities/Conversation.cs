@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -21,17 +20,13 @@ namespace Forged.MapServer.Entities;
 
 public class Conversation : WorldObject
 {
-    private readonly ConversationData m_conversationData;
-    private readonly Position _stationaryPosition = new();
-    private readonly Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
     private readonly TimeSpan[] _lastLineEndTimes = new TimeSpan[(int)Locale.Total];
+    private readonly Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
+    private readonly Position _stationaryPosition = new();
+    private readonly ConversationData m_conversationData;
     private ObjectGuid _creatorGuid;
     private TimeSpan _duration;
     private uint _textureKitId;
-
-    public override ObjectGuid OwnerGUID => GetCreatorGuid();
-
-    public override uint Faction => 0;
 
     public Conversation() : base(false)
     {
@@ -44,55 +39,8 @@ public class Conversation : WorldObject
         m_conversationData = new ConversationData();
     }
 
-    public override void AddToWorld()
-    {
-        //- Register the Conversation for guid lookup and for caster
-        if (!Location.IsInWorld)
-        {
-            Location.Map.ObjectsStore.TryAdd(GUID, this);
-            base.AddToWorld();
-        }
-    }
-
-    public override void RemoveFromWorld()
-    {
-        //- Remove the Conversation from the accessor and from all lists of objects in world
-        if (Location.IsInWorld)
-        {
-            base.RemoveFromWorld();
-            Location.Map.ObjectsStore.TryRemove(GUID, out _);
-        }
-    }
-
-    public override void Update(uint diff)
-    {
-        if (GetDuration() > TimeSpan.FromMilliseconds(diff))
-        {
-            _duration -= TimeSpan.FromMilliseconds(diff);
-
-            DoWithSuppressingObjectUpdates(() =>
-            {
-                // Only sent in CreateObject
-                ApplyModUpdateFieldValue(Values.ModifyValue(m_conversationData).ModifyValue(m_conversationData.Progress), diff, true);
-                m_conversationData.ClearChanged(m_conversationData.Progress);
-            });
-        }
-        else
-        {
-            Remove(); // expired
-
-            return;
-        }
-
-        base.Update(diff);
-    }
-
-    public void Remove()
-    {
-        if (Location.IsInWorld)
-            Location.AddObjectToRemoveList(); // calls RemoveFromWorld
-    }
-
+    public override uint Faction => 0;
+    public override ObjectGuid OwnerGUID => GetCreatorGuid();
     public static Conversation CreateConversation(uint conversationEntry, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null, bool autoStart = true)
     {
         var conversationTemplate = Global.ConversationDataStorage.GetConversationTemplate(conversationEntry);
@@ -133,19 +81,14 @@ public class Conversation : WorldObject
         SetUpdateFieldValue(ref actorField.NoActorObject, type == ConversationActorType.WorldObject ? 1 : 0u);
     }
 
-    public TimeSpan GetLineStartTime(Locale locale, int lineId)
+    public override void AddToWorld()
     {
-        return _lineStartTimes.LookupByKey((locale, lineId));
-    }
-
-    public TimeSpan GetLastLineEndTime(Locale locale)
-    {
-        return _lastLineEndTimes[(int)locale];
-    }
-
-    public uint GetScriptId()
-    {
-        return Global.ConversationDataStorage.GetConversationTemplate(Entry).ScriptId;
+        //- Register the Conversation for guid lookup and for caster
+        if (!Location.IsInWorld)
+        {
+            Location.Map.ObjectsStore.TryAdd(GUID, this);
+            base.AddToWorld();
+        }
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -184,14 +127,95 @@ public class Conversation : WorldObject
         base.ClearUpdateMask(remove);
     }
 
+    public ObjectGuid GetCreatorGuid()
+    {
+        return _creatorGuid;
+    }
+
+    public TimeSpan GetLastLineEndTime(Locale locale)
+    {
+        return _lastLineEndTimes[(int)locale];
+    }
+
+    public TimeSpan GetLineStartTime(Locale locale, int lineId)
+    {
+        return _lineStartTimes.LookupByKey((locale, lineId));
+    }
+
+    public uint GetScriptId()
+    {
+        return Global.ConversationDataStorage.GetConversationTemplate(Entry).ScriptId;
+    }
+
     public uint GetTextureKitId()
     {
         return _textureKitId;
     }
 
-    public ObjectGuid GetCreatorGuid()
+    public void Remove()
     {
-        return _creatorGuid;
+        if (Location.IsInWorld)
+            Location.AddObjectToRemoveList(); // calls RemoveFromWorld
+    }
+
+    public override void RemoveFromWorld()
+    {
+        //- Remove the Conversation from the accessor and from all lists of objects in world
+        if (Location.IsInWorld)
+        {
+            base.RemoveFromWorld();
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
+        }
+    }
+
+    public override void Update(uint diff)
+    {
+        if (GetDuration() > TimeSpan.FromMilliseconds(diff))
+        {
+            _duration -= TimeSpan.FromMilliseconds(diff);
+
+            DoWithSuppressingObjectUpdates(() =>
+            {
+                // Only sent in CreateObject
+                ApplyModUpdateFieldValue(Values.ModifyValue(m_conversationData).ModifyValue(m_conversationData.Progress), diff, true);
+                m_conversationData.ClearChanged(m_conversationData.Progress);
+            });
+        }
+        else
+        {
+            Remove(); // expired
+
+            return;
+        }
+
+        base.Update(diff);
+    }
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedConversationMask, Player target)
+    {
+        UpdateMask valuesMask = new((int)TypeId.Max);
+
+        if (requestedObjectMask.IsAnySet())
+            valuesMask.Set((int)TypeId.Object);
+
+        if (requestedConversationMask.IsAnySet())
+            valuesMask.Set((int)TypeId.Conversation);
+
+        WorldPacket buffer = new();
+        buffer.WriteUInt32(valuesMask.GetBlock(0));
+
+        if (valuesMask[(int)TypeId.Object])
+            ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+        if (valuesMask[(int)TypeId.Conversation])
+            m_conversationData.WriteUpdate(buffer, requestedConversationMask, true, this, target);
+
+        WorldPacket buffer1 = new();
+        buffer1.WriteUInt8((byte)UpdateType.Values);
+        buffer1.WritePackedGuid(GUID);
+        buffer1.WriteUInt32(buffer.GetSize());
+        buffer1.WriteBytes(buffer.GetData());
+
+        data.AddUpdateBlock(buffer1);
     }
 
     private void Create(ulong lowGuid, uint conversationEntry, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null)
@@ -271,9 +295,19 @@ public class Conversation : WorldObject
         Global.ScriptMgr.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
     }
 
+    private TimeSpan GetDuration()
+    {
+        return _duration;
+    }
+
+    private void RelocateStationaryPosition(Position pos)
+    {
+        _stationaryPosition.Relocate(pos);
+    }
+
     private bool Start()
     {
-        foreach (var line in m_conversationData.Lines.GetValue())
+        foreach (var line in m_conversationData.Lines.Value)
         {
             var actor = line.ActorIndex < m_conversationData.Actors.Size() ? m_conversationData.Actors[line.ActorIndex] : null;
 
@@ -290,51 +324,11 @@ public class Conversation : WorldObject
 
         return true;
     }
-
-    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedConversationMask, Player target)
-    {
-        UpdateMask valuesMask = new((int)TypeId.Max);
-
-        if (requestedObjectMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Object);
-
-        if (requestedConversationMask.IsAnySet())
-            valuesMask.Set((int)TypeId.Conversation);
-
-        WorldPacket buffer = new();
-        buffer.WriteUInt32(valuesMask.GetBlock(0));
-
-        if (valuesMask[(int)TypeId.Object])
-            ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
-
-        if (valuesMask[(int)TypeId.Conversation])
-            m_conversationData.WriteUpdate(buffer, requestedConversationMask, true, this, target);
-
-        WorldPacket buffer1 = new();
-        buffer1.WriteUInt8((byte)UpdateType.Values);
-        buffer1.WritePackedGuid(GUID);
-        buffer1.WriteUInt32(buffer.GetSize());
-        buffer1.WriteBytes(buffer.GetData());
-
-        data.AddUpdateBlock(buffer1);
-    }
-
-    private TimeSpan GetDuration()
-    {
-        return _duration;
-    }
-
-    private void RelocateStationaryPosition(Position pos)
-    {
-        _stationaryPosition.Relocate(pos);
-    }
-
     private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
     {
-        private readonly Conversation Owner;
-        private readonly ObjectFieldData ObjectMask = new();
         private readonly ConversationData ConversationMask = new();
-
+        private readonly ObjectFieldData ObjectMask = new();
+        private readonly Conversation Owner;
         public ValuesUpdateForPlayerWithMaskSender(Conversation owner)
         {
             Owner = owner;

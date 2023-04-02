@@ -9,30 +9,29 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class AuctionItem
 {
-    public ItemInstance Item;
-    public int Count;
-    public int Charges;
-    public List<ItemEnchantData> Enchantments = new();
-    public uint Flags;
+    public AuctionBucketKey AuctionBucketKey;
     public uint AuctionID;
-    public ObjectGuid Owner;
+    public ulong? BidAmount;
+    public ObjectGuid? Bidder;
+    public ulong? BuyoutPrice;
+    public bool CensorBidInfo;
+    public bool CensorServerSideInfo;
+    public int Charges;
+    public int Count;
+    public ObjectGuid? Creator;
+    public byte DeleteReason;
+    public int DurationLeft;
+    public List<ItemEnchantData> Enchantments = new();
+    public uint EndTime;
+    public uint Flags;
+    public List<ItemGemData> Gems = new();
+    public ItemInstance Item;
+    public ObjectGuid ItemGuid;
     public ulong? MinBid;
     public ulong? MinIncrement;
-    public ulong? BuyoutPrice;
-    public ulong? UnitPrice;
-    public int DurationLeft;
-    public byte DeleteReason;
-    public bool CensorServerSideInfo;
-    public bool CensorBidInfo;
-    public ObjectGuid ItemGuid;
+    public ObjectGuid Owner;
     public ObjectGuid OwnerAccountID;
-    public uint EndTime;
-    public ObjectGuid? Bidder;
-    public ulong? BidAmount;
-    public List<ItemGemData> Gems = new();
-    public AuctionBucketKey AuctionBucketKey;
-    public ObjectGuid? Creator;
-
+    public ulong? UnitPrice;
     public void Write(WorldPacket data)
     {
         data.WriteBit(Item != null);

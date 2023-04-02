@@ -8,15 +8,26 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class CraftingOrderItem : BaseUpdateData<Player>
 {
+    public OptionalUpdateField<byte> DataSlotIndex = new(-1, 6);
     public UpdateField<ulong> Field_0 = new(-1, 0);
     public UpdateField<ObjectGuid> ItemGUID = new(-1, 1);
-    public UpdateField<ObjectGuid> OwnerGUID = new(-1, 2);
     public UpdateField<int> ItemID = new(-1, 3);
+    public UpdateField<ObjectGuid> OwnerGUID = new(-1, 2);
     public UpdateField<uint> Quantity = new(-1, 4);
     public UpdateField<int> ReagentQuality = new(-1, 5);
-    public OptionalUpdateField<byte> DataSlotIndex = new(-1, 6);
-
     public CraftingOrderItem() : base(7) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Field_0);
+        ClearChangesMask(ItemGUID);
+        ClearChangesMask(OwnerGUID);
+        ClearChangesMask(ItemID);
+        ClearChangesMask(Quantity);
+        ClearChangesMask(ReagentQuality);
+        ClearChangesMask(DataSlotIndex);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
@@ -66,17 +77,5 @@ public class CraftingOrderItem : BaseUpdateData<Player>
         if (changesMask[6])
             if (DataSlotIndex.HasValue())
                 data.WriteUInt8(DataSlotIndex);
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Field_0);
-        ClearChangesMask(ItemGUID);
-        ClearChangesMask(OwnerGUID);
-        ClearChangesMask(ItemID);
-        ClearChangesMask(Quantity);
-        ClearChangesMask(ReagentQuality);
-        ClearChangesMask(DataSlotIndex);
-        ChangesMask.ResetAll();
     }
 }

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Trade;
 
 public class SetTradeCurrency : ClientPacket
 {
-    public uint Type;
     public uint Quantity;
+    public uint Type;
     public SetTradeCurrency(WorldPacket packet) : base(packet) { }
 
     public override void Read()

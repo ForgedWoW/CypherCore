@@ -37,43 +37,40 @@ namespace Forged.MapServer.Conditions;
 
 public sealed class ConditionManager
 {
-    public string[] StaticSourceTypeData =
-    {
-        "None", "Creature Loot", "Disenchant Loot", "Fishing Loot", "GameObject Loot", "Item Loot", "Mail Loot", "Milling Loot", "Pickpocketing Loot", "Prospecting Loot", "Reference Loot", "Skinning Loot", "Spell Loot", "Spell Impl. Target", "Gossip Menu", "Gossip Menu Option", "Creature Vehicle", "Spell Expl. Target", "Spell Click Event", "Quest Accept", "Quest Show Mark", "Vehicle Spell", "SmartScript", "Npc Vendor", "Spell Proc", "Terrain Swap", "Phase", "Graveyard", "AreaTrigger", "ConversationLine", "AreaTrigger Client Triggered", "Trainer Spell", "Object Visibility (by ID)", "Spawn Group"
-    };
-
     public ConditionTypeInfo[] StaticConditionTypeData =
     {
         new("None", false, false, false), new("Aura", true, true, true), new("Item Stored", true, true, true), new("Item Equipped", true, false, false), new("Zone", true, false, false), new("Reputation", true, true, false), new("Team", true, false, false), new("Skill", true, true, false), new("Quest Rewarded", true, false, false), new("Quest Taken", true, false, false), new("Drunken", true, false, false), new("WorldState", true, true, false), new("Active Event", true, false, false), new("Instance Info", true, true, true), new("Quest None", true, false, false), new("Class", true, false, false), new("Race", true, false, false), new("Achievement", true, false, false), new("Title", true, false, false), new("SpawnMask", true, false, false), new("Gender", true, false, false), new("Unit State", true, false, false), new("Map", true, false, false), new("Area", true, false, false), new("CreatureType", true, false, false), new("Spell Known", true, false, false), new("Phase", true, false, false), new("Level", true, true, false), new("Quest Completed", true, false, false), new("Near Creature", true, true, true), new("Near GameObject", true, true, false), new("Object Entry or Guid", true, true, true), new("Object TypeMask", true, false, false), new("Relation", true, true, false), new("Reaction", true, true, false), new("Distance", true, true, true), new("Alive", false, false, false), new("Health Value", true, true, false), new("Health Pct", true, true, false), new("Realm Achievement", true, false, false), new("In Water", false, false, false), new("Terrain Swap", true, false, false), new("Sit/stand state", true, true, false), new("Daily Quest Completed", true, false, false), new("Charmed", false, false, false), new("Pet type", true, false, false), new("On Taxi", false, false, false), new("Quest state mask", true, true, false), new("Quest objective progress", true, false, true), new("Map Difficulty", true, false, false), new("Is Gamemaster", true, false, false), new("Object Entry or Guid", true, true, true), new("Object TypeMask", true, false, false), new("BattlePet Species Learned", true, true, true), new("On Scenario Step", true, false, false), new("Scene In Progress", true, false, false), new("Player Condition", true, false, false)
     };
 
-    private readonly GameObjectManager _objectManager;
-    private readonly SpellManager _spellManager;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly LFGManager _lfgManager;
-    private readonly CliDB _cliDB;
-    private readonly DB2Manager _db2Manager;
-    private readonly LanguageManager _languageManager;
-    private readonly IConfiguration _configuration;
+    public string[] StaticSourceTypeData =
+        {
+        "None", "Creature Loot", "Disenchant Loot", "Fishing Loot", "GameObject Loot", "Item Loot", "Mail Loot", "Milling Loot", "Pickpocketing Loot", "Prospecting Loot", "Reference Loot", "Skinning Loot", "Spell Loot", "Spell Impl. Target", "Gossip Menu", "Gossip Menu Option", "Creature Vehicle", "Spell Expl. Target", "Spell Click Event", "Quest Accept", "Quest Show Mark", "Vehicle Spell", "SmartScript", "Npc Vendor", "Spell Proc", "Terrain Swap", "Phase", "Graveyard", "AreaTrigger", "ConversationLine", "AreaTrigger Client Triggered", "Trainer Spell", "Object Visibility (by ID)", "Spawn Group"
+    };
+    private readonly MultiMap<Tuple<uint, bool>, Condition> _areaTriggerConditionContainerStorage = new();
     private readonly AreaTriggerDataStorage _areaTriggerDataStorage;
+    private readonly CliDB _cliDB;
+    private readonly MultiMap<uint, Condition> _conditionReferenceStorage = new();
+    private readonly Dictionary<ConditionSourceType, MultiMap<uint, Condition>> _conditionStorage = new();
+    private readonly IConfiguration _configuration;
     private readonly ConversationDataStorage _conversationDataStorage;
+    private readonly DB2Manager _db2Manager;
     private readonly GameEventManager _gameEventManager;
+    private readonly LanguageManager _languageManager;
+    private readonly LFGManager _lfgManager;
+    private readonly LootStoreBox _lootStorage;
+    private readonly Dictionary<uint, MultiMap<uint, Condition>> _npcVendorConditionContainerStorage = new();
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GameObjectManager _objectManager;
+    private readonly MultiMap<(uint objectType, uint objectId), Condition> _objectVisibilityConditionStorage = new();
+    private readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> _smartEventConditionStorage = new();
+    private readonly Dictionary<uint, MultiMap<uint, Condition>> _spellClickEventConditionStorage = new();
+    private readonly SpellManager _spellManager;
+    private readonly List<uint> _spellsUsedInSpellClickConditions = new();
+    private readonly Dictionary<uint, MultiMap<uint, Condition>> _trainerSpellConditionContainerStorage = new();
+    private readonly Dictionary<uint, MultiMap<uint, Condition>> _vehicleSpellConditionStorage = new();
+    private readonly WorldDatabase _worldDatabase;
     private readonly WorldManager _worldManager;
     private readonly WorldStateManager _worldStateManager;
-    private readonly ObjectAccessor _objectAccessor;
-    private readonly LootStoreBox _lootStorage;
-
-    private readonly Dictionary<ConditionSourceType, MultiMap<uint, Condition>> _conditionStorage = new();
-    private readonly MultiMap<uint, Condition> _conditionReferenceStorage = new();
-    private readonly Dictionary<uint, MultiMap<uint, Condition>> _vehicleSpellConditionStorage = new();
-    private readonly Dictionary<uint, MultiMap<uint, Condition>> _spellClickEventConditionStorage = new();
-    private readonly List<uint> _spellsUsedInSpellClickConditions = new();
-    private readonly Dictionary<uint, MultiMap<uint, Condition>> _npcVendorConditionContainerStorage = new();
-    private readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> _smartEventConditionStorage = new();
-    private readonly MultiMap<Tuple<uint, bool>, Condition> _areaTriggerConditionContainerStorage = new();
-    private readonly Dictionary<uint, MultiMap<uint, Condition>> _trainerSpellConditionContainerStorage = new();
-    private readonly MultiMap<(uint objectType, uint objectId), Condition> _objectVisibilityConditionStorage = new();
-
     public ConditionManager(GameObjectManager objectManager, SpellManager spellManager, WorldDatabase worldDatabase,
                             LFGManager lfgManager, CliDB cliDB, DB2Manager db2Manager, LanguageManager languageManager,
                             IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
@@ -95,6 +92,112 @@ public sealed class ConditionManager
         _worldStateManager = worldStateManager;
         _objectAccessor = objectAccessor;
         _lootStorage = lootStorage;
+    }
+
+    public bool CanHaveSourceGroupSet(ConditionSourceType sourceType)
+    {
+        return sourceType == ConditionSourceType.CreatureLootTemplate ||
+               sourceType == ConditionSourceType.DisenchantLootTemplate ||
+               sourceType == ConditionSourceType.FishingLootTemplate ||
+               sourceType == ConditionSourceType.GameobjectLootTemplate ||
+               sourceType == ConditionSourceType.ItemLootTemplate ||
+               sourceType == ConditionSourceType.MailLootTemplate ||
+               sourceType == ConditionSourceType.MillingLootTemplate ||
+               sourceType == ConditionSourceType.PickpocketingLootTemplate ||
+               sourceType == ConditionSourceType.ProspectingLootTemplate ||
+               sourceType == ConditionSourceType.ReferenceLootTemplate ||
+               sourceType == ConditionSourceType.SkinningLootTemplate ||
+               sourceType == ConditionSourceType.SpellLootTemplate ||
+               sourceType == ConditionSourceType.GossipMenu ||
+               sourceType == ConditionSourceType.GossipMenuOption ||
+               sourceType == ConditionSourceType.VehicleSpell ||
+               sourceType == ConditionSourceType.SpellImplicitTarget ||
+               sourceType == ConditionSourceType.SpellClickEvent ||
+               sourceType == ConditionSourceType.SmartEvent ||
+               sourceType == ConditionSourceType.NpcVendor ||
+               sourceType == ConditionSourceType.Phase ||
+               sourceType == ConditionSourceType.AreaTrigger ||
+               sourceType == ConditionSourceType.TrainerSpell ||
+               sourceType == ConditionSourceType.ObjectIdVisibility;
+    }
+
+    public bool CanHaveSourceIdSet(ConditionSourceType sourceType)
+    {
+        return (sourceType == ConditionSourceType.SmartEvent);
+    }
+
+    public List<Condition> GetConditionsForAreaTrigger(uint areaTriggerId, bool isServerSide)
+    {
+        return _areaTriggerConditionContainerStorage.LookupByKey(Tuple.Create(areaTriggerId, isServerSide));
+    }
+
+    public List<Condition> GetConditionsForSpellClickEvent(uint creatureId, uint spellId)
+    {
+        var multiMap = _spellClickEventConditionStorage.LookupByKey(creatureId);
+
+        if (multiMap == null)
+            return null;
+
+        var conditions = multiMap.LookupByKey(spellId);
+
+        if (conditions.Empty())
+            return null;
+
+        Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
+
+        return conditions;
+    }
+
+    public uint GetPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status)
+    {
+        if (player.Group == null)
+            return 0;
+
+        switch (status)
+        {
+            case PlayerConditionLfgStatus.InLFGDungeon:
+                return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID) ? 1 : 0u;
+            case PlayerConditionLfgStatus.InLFGRandomDungeon:
+                return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID) &&
+                       _lfgManager.SelectedRandomLfgDungeon(player.GUID)
+                           ? 1
+                           : 0u;
+            case PlayerConditionLfgStatus.InLFGFirstRandomDungeon:
+            {
+                if (!_lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID))
+                    return 0;
+
+                var selectedRandomDungeon = _lfgManager.GetSelectedRandomDungeon(player.GUID);
+
+                if (selectedRandomDungeon == 0)
+                    return 0;
+
+                var reward = _lfgManager.GetRandomDungeonReward(selectedRandomDungeon, player.Level);
+
+                if (reward != null)
+                {
+                    var quest = _objectManager.GetQuestTemplate(reward.FirstQuest);
+
+                    if (quest != null)
+                        if (player.CanRewardQuest(quest, false))
+                            return 1;
+                }
+
+                return 0;
+            }
+            case PlayerConditionLfgStatus.PartialClear:
+                break;
+            case PlayerConditionLfgStatus.StrangerCount:
+                break;
+            case PlayerConditionLfgStatus.VoteKickCount:
+                break;
+            case PlayerConditionLfgStatus.BootCount:
+                break;
+            case PlayerConditionLfgStatus.GearDiff:
+                break;
+        }
+
+        return 0;
     }
 
     public GridMapTypeMask GetSearcherTypeMaskForConditionList(List<Condition> conditions)
@@ -135,6 +238,147 @@ public sealed class ConditionManager
             mask |= i.Value;
 
         return mask;
+    }
+
+    public bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint entry)
+    {
+        return sourceType is > ConditionSourceType.None and < ConditionSourceType.Max && _conditionStorage[sourceType].ContainsKey(entry);
+    }
+
+    public bool IsMapMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, Map map)
+    {
+        ConditionSourceInfo conditionSource = new(map);
+
+        return IsObjectMeetingNotGroupedConditions(sourceType, entry, conditionSource);
+    }
+
+    public bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, ConditionSourceInfo sourceInfo)
+    {
+        if (sourceType is > ConditionSourceType.None and < ConditionSourceType.Max)
+        {
+            var conditions = _conditionStorage[sourceType].LookupByKey(entry);
+
+            if (!conditions.Empty())
+            {
+                Log.Logger.Debug("GetConditionsForNotGroupedEntry: found conditions for type {0} and entry {1}", sourceType, entry);
+
+                return IsObjectMeetToConditions(sourceInfo, conditions);
+            }
+        }
+
+        return true;
+    }
+
+    public bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, WorldObject target0, WorldObject target1 = null, WorldObject target2 = null)
+    {
+        ConditionSourceInfo conditionSource = new(target0, target1, target2);
+
+        return IsObjectMeetingNotGroupedConditions(sourceType, entry, conditionSource);
+    }
+
+    public bool IsObjectMeetingSmartEventConditions(long entryOrGuid, uint eventId, SmartScriptType sourceType, Unit unit, WorldObject baseObject)
+    {
+        var multiMap = _smartEventConditionStorage.LookupByKey(Tuple.Create((int)entryOrGuid, (uint)sourceType));
+
+        if (multiMap == null)
+            return true;
+
+        var conditions = multiMap.LookupByKey(eventId + 1);
+
+        if (conditions.Empty())
+            return true;
+
+        Log.Logger.Debug("GetConditionsForSmartEvent: found conditions for Smart Event entry or guid {0} eventId {1}", entryOrGuid, eventId);
+        ConditionSourceInfo sourceInfo = new(unit, baseObject);
+
+        return IsObjectMeetToConditions(sourceInfo, conditions);
+    }
+
+    public bool IsObjectMeetingSpellClickConditions(uint creatureId, uint spellId, WorldObject clicker, WorldObject target)
+    {
+        var multiMap = _spellClickEventConditionStorage.LookupByKey(creatureId);
+
+        if (multiMap == null)
+            return true;
+
+        var conditions = multiMap.LookupByKey(spellId);
+
+        if (conditions.Empty())
+            return true;
+
+        Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
+        ConditionSourceInfo sourceInfo = new(clicker, target);
+
+        return IsObjectMeetToConditions(sourceInfo, conditions);
+    }
+
+    public bool IsObjectMeetingTrainerSpellConditions(uint trainerId, uint spellId, Player player)
+    {
+        var multiMap = _trainerSpellConditionContainerStorage.LookupByKey(trainerId);
+
+        if (multiMap != null)
+        {
+            var conditionList = multiMap.LookupByKey(spellId);
+
+            if (!conditionList.Empty())
+            {
+                Log.Logger.Debug($"GetConditionsForTrainerSpell: found conditions for trainer id {trainerId} spell {spellId}");
+
+                return IsObjectMeetToConditions(player, conditionList);
+            }
+        }
+
+        return true;
+    }
+
+    public bool IsObjectMeetingVehicleSpellConditions(uint creatureId, uint spellId, Player player, Unit vehicle)
+    {
+        var multiMap = _vehicleSpellConditionStorage.LookupByKey(creatureId);
+
+        if (multiMap == null)
+            return true;
+
+        var conditions = multiMap.LookupByKey(spellId);
+
+        if (conditions.Empty())
+            return true;
+
+        Log.Logger.Debug("GetConditionsForVehicleSpell: found conditions for Vehicle entry {0} spell {1}", creatureId, spellId);
+        ConditionSourceInfo sourceInfo = new(player, vehicle);
+
+        return IsObjectMeetToConditions(sourceInfo, conditions);
+    }
+
+    public bool IsObjectMeetingVendorItemConditions(uint creatureId, uint itemId, Player player, Creature vendor)
+    {
+        var multiMap = _npcVendorConditionContainerStorage.LookupByKey(creatureId);
+
+        if (multiMap == null)
+            return true;
+
+        var conditions = multiMap.LookupByKey(itemId);
+
+        if (conditions.Empty())
+            return true;
+
+        Log.Logger.Debug("GetConditionsForNpcVendor: found conditions for creature entry {0} item {1}", creatureId, itemId);
+        ConditionSourceInfo sourceInfo = new(player, vendor);
+
+        return IsObjectMeetToConditions(sourceInfo, conditions);
+    }
+
+    public bool IsObjectMeetingVisibilityByObjectIdConditions(uint objectType, uint entry, WorldObject seer)
+    {
+        var conditions = _objectVisibilityConditionStorage.LookupByKey((objectType, entry));
+
+        if (conditions != null)
+        {
+            Log.Logger.Debug($"IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType {objectType} entry {entry}");
+
+            return IsObjectMeetToConditions(seer, conditions);
+        }
+
+        return true;
     }
 
     public bool IsObjectMeetToConditionList(ConditionSourceInfo sourceInfo, List<Condition> conditions)
@@ -204,574 +448,9 @@ public sealed class ConditionManager
 
         return IsObjectMeetToConditionList(sourceInfo, conditions);
     }
-
-    public bool CanHaveSourceGroupSet(ConditionSourceType sourceType)
-    {
-        return sourceType == ConditionSourceType.CreatureLootTemplate ||
-               sourceType == ConditionSourceType.DisenchantLootTemplate ||
-               sourceType == ConditionSourceType.FishingLootTemplate ||
-               sourceType == ConditionSourceType.GameobjectLootTemplate ||
-               sourceType == ConditionSourceType.ItemLootTemplate ||
-               sourceType == ConditionSourceType.MailLootTemplate ||
-               sourceType == ConditionSourceType.MillingLootTemplate ||
-               sourceType == ConditionSourceType.PickpocketingLootTemplate ||
-               sourceType == ConditionSourceType.ProspectingLootTemplate ||
-               sourceType == ConditionSourceType.ReferenceLootTemplate ||
-               sourceType == ConditionSourceType.SkinningLootTemplate ||
-               sourceType == ConditionSourceType.SpellLootTemplate ||
-               sourceType == ConditionSourceType.GossipMenu ||
-               sourceType == ConditionSourceType.GossipMenuOption ||
-               sourceType == ConditionSourceType.VehicleSpell ||
-               sourceType == ConditionSourceType.SpellImplicitTarget ||
-               sourceType == ConditionSourceType.SpellClickEvent ||
-               sourceType == ConditionSourceType.SmartEvent ||
-               sourceType == ConditionSourceType.NpcVendor ||
-               sourceType == ConditionSourceType.Phase ||
-               sourceType == ConditionSourceType.AreaTrigger ||
-               sourceType == ConditionSourceType.TrainerSpell ||
-               sourceType == ConditionSourceType.ObjectIdVisibility;
-    }
-
-    public bool CanHaveSourceIdSet(ConditionSourceType sourceType)
-    {
-        return (sourceType == ConditionSourceType.SmartEvent);
-    }
-
-    public bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, ConditionSourceInfo sourceInfo)
-    {
-        if (sourceType is > ConditionSourceType.None and < ConditionSourceType.Max)
-        {
-            var conditions = _conditionStorage[sourceType].LookupByKey(entry);
-
-            if (!conditions.Empty())
-            {
-                Log.Logger.Debug("GetConditionsForNotGroupedEntry: found conditions for type {0} and entry {1}", sourceType, entry);
-
-                return IsObjectMeetToConditions(sourceInfo, conditions);
-            }
-        }
-
-        return true;
-    }
-
-    public bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, WorldObject target0, WorldObject target1 = null, WorldObject target2 = null)
-    {
-        ConditionSourceInfo conditionSource = new(target0, target1, target2);
-
-        return IsObjectMeetingNotGroupedConditions(sourceType, entry, conditionSource);
-    }
-
-    public bool IsMapMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, Map map)
-    {
-        ConditionSourceInfo conditionSource = new(map);
-
-        return IsObjectMeetingNotGroupedConditions(sourceType, entry, conditionSource);
-    }
-
-    public bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint entry)
-    {
-        return sourceType is > ConditionSourceType.None and < ConditionSourceType.Max && _conditionStorage[sourceType].ContainsKey(entry);
-    }
-
-    public bool IsObjectMeetingSpellClickConditions(uint creatureId, uint spellId, WorldObject clicker, WorldObject target)
-    {
-        var multiMap = _spellClickEventConditionStorage.LookupByKey(creatureId);
-
-        if (multiMap == null)
-            return true;
-
-        var conditions = multiMap.LookupByKey(spellId);
-
-        if (conditions.Empty())
-            return true;
-
-        Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
-        ConditionSourceInfo sourceInfo = new(clicker, target);
-
-        return IsObjectMeetToConditions(sourceInfo, conditions);
-    }
-
-    public List<Condition> GetConditionsForSpellClickEvent(uint creatureId, uint spellId)
-    {
-        var multiMap = _spellClickEventConditionStorage.LookupByKey(creatureId);
-
-        if (multiMap == null)
-            return null;
-
-        var conditions = multiMap.LookupByKey(spellId);
-
-        if (conditions.Empty())
-            return null;
-
-        Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
-
-        return conditions;
-    }
-
-    public bool IsObjectMeetingVehicleSpellConditions(uint creatureId, uint spellId, Player player, Unit vehicle)
-    {
-        var multiMap = _vehicleSpellConditionStorage.LookupByKey(creatureId);
-
-        if (multiMap == null)
-            return true;
-
-        var conditions = multiMap.LookupByKey(spellId);
-
-        if (conditions.Empty())
-            return true;
-
-        Log.Logger.Debug("GetConditionsForVehicleSpell: found conditions for Vehicle entry {0} spell {1}", creatureId, spellId);
-        ConditionSourceInfo sourceInfo = new(player, vehicle);
-
-        return IsObjectMeetToConditions(sourceInfo, conditions);
-    }
-
-    public bool IsObjectMeetingSmartEventConditions(long entryOrGuid, uint eventId, SmartScriptType sourceType, Unit unit, WorldObject baseObject)
-    {
-        var multiMap = _smartEventConditionStorage.LookupByKey(Tuple.Create((int)entryOrGuid, (uint)sourceType));
-
-        if (multiMap == null)
-            return true;
-
-        var conditions = multiMap.LookupByKey(eventId + 1);
-
-        if (conditions.Empty())
-            return true;
-
-        Log.Logger.Debug("GetConditionsForSmartEvent: found conditions for Smart Event entry or guid {0} eventId {1}", entryOrGuid, eventId);
-        ConditionSourceInfo sourceInfo = new(unit, baseObject);
-
-        return IsObjectMeetToConditions(sourceInfo, conditions);
-    }
-
-    public bool IsObjectMeetingVendorItemConditions(uint creatureId, uint itemId, Player player, Creature vendor)
-    {
-        var multiMap = _npcVendorConditionContainerStorage.LookupByKey(creatureId);
-
-        if (multiMap == null)
-            return true;
-
-        var conditions = multiMap.LookupByKey(itemId);
-
-        if (conditions.Empty())
-            return true;
-
-        Log.Logger.Debug("GetConditionsForNpcVendor: found conditions for creature entry {0} item {1}", creatureId, itemId);
-        ConditionSourceInfo sourceInfo = new(player, vendor);
-
-        return IsObjectMeetToConditions(sourceInfo, conditions);
-    }
-
-    public bool IsSpellUsedInSpellClickConditions(uint spellId)
-    {
-        return _spellsUsedInSpellClickConditions.Contains(spellId);
-    }
-
-    public List<Condition> GetConditionsForAreaTrigger(uint areaTriggerId, bool isServerSide)
-    {
-        return _areaTriggerConditionContainerStorage.LookupByKey(Tuple.Create(areaTriggerId, isServerSide));
-    }
-
-    public bool IsObjectMeetingTrainerSpellConditions(uint trainerId, uint spellId, Player player)
-    {
-        var multiMap = _trainerSpellConditionContainerStorage.LookupByKey(trainerId);
-
-        if (multiMap != null)
-        {
-            var conditionList = multiMap.LookupByKey(spellId);
-
-            if (!conditionList.Empty())
-            {
-                Log.Logger.Debug($"GetConditionsForTrainerSpell: found conditions for trainer id {trainerId} spell {spellId}");
-
-                return IsObjectMeetToConditions(player, conditionList);
-            }
-        }
-
-        return true;
-    }
-
-    public bool IsObjectMeetingVisibilityByObjectIdConditions(uint objectType, uint entry, WorldObject seer)
-    {
-        var conditions = _objectVisibilityConditionStorage.LookupByKey((objectType, entry));
-
-        if (conditions != null)
-        {
-            Log.Logger.Debug($"IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType {objectType} entry {entry}");
-
-            return IsObjectMeetToConditions(seer, conditions);
-        }
-
-        return true;
-    }
-
-    public void LoadConditions(bool isReload = false)
-    {
-        var oldMSTime = Time.MSTime;
-
-        Clean();
-
-        //must clear all custom handled cases (groupped types) before reload
-        if (isReload)
-        {
-            Log.Logger.Information("Reseting Loot Conditions...");
-            _lootStorage.Creature.ResetConditions();
-            _lootStorage.Fishing.ResetConditions();
-            _lootStorage.Gameobject.ResetConditions();
-            _lootStorage.Items.ResetConditions();
-            _lootStorage.Mail.ResetConditions();
-            _lootStorage.Milling.ResetConditions();
-            _lootStorage.Pickpocketing.ResetConditions();
-            _lootStorage.Reference.ResetConditions();
-            _lootStorage.Skinning.ResetConditions();
-            _lootStorage.Disenchant.ResetConditions();
-            _lootStorage.Prospecting.ResetConditions();
-            _lootStorage.Spell.ResetConditions();
-
-            Log.Logger.Information("Re-Loading `gossip_menu` Table for Conditions!");
-            _objectManager.LoadGossipMenu();
-
-            Log.Logger.Information("Re-Loading `gossip_menu_option` Table for Conditions!");
-            _objectManager.LoadGossipMenuItems();
-            _spellManager.UnloadSpellInfoImplicitTargetConditionLists();
-
-            _objectManager.UnloadPhaseConditions();
-        }
-
-        var result = _worldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, " +
-                                          " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 conditions. DB table `conditions` is empty!");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            Condition cond = new();
-            var iSourceTypeOrReferenceId = result.Read<int>(0);
-            cond.SourceGroup = result.Read<uint>(1);
-            cond.SourceEntry = result.Read<int>(2);
-            cond.SourceId = result.Read<uint>(3);
-            cond.ElseGroup = result.Read<uint>(4);
-            var iConditionTypeOrReference = result.Read<int>(5);
-            cond.ConditionTarget = result.Read<byte>(6);
-            cond.ConditionValue1 = result.Read<uint>(7);
-            cond.ConditionValue2 = result.Read<uint>(8);
-            cond.ConditionValue3 = result.Read<uint>(9);
-            cond.NegativeCondition = result.Read<byte>(10) != 0;
-            cond.ErrorType = result.Read<uint>(11);
-            cond.ErrorTextId = result.Read<uint>(12);
-            cond.ScriptId = _objectManager.GetScriptId(result.Read<string>(13));
-
-            if (iConditionTypeOrReference >= 0)
-                cond.ConditionType = (ConditionTypes)iConditionTypeOrReference;
-
-            if (iSourceTypeOrReferenceId >= 0)
-                cond.SourceType = (ConditionSourceType)iSourceTypeOrReferenceId;
-
-            if (iConditionTypeOrReference < 0) //it has a reference
-            {
-                if (iConditionTypeOrReference == iSourceTypeOrReferenceId) //self referencing, skip
-                {
-                    Log.Logger.Debug("Condition reference {0} is referencing self, skipped", iSourceTypeOrReferenceId);
-
-                    continue;
-                }
-
-                cond.ReferenceId = (uint)Math.Abs(iConditionTypeOrReference);
-
-                var rowType = "reference template";
-
-                if (iSourceTypeOrReferenceId >= 0)
-                    rowType = "reference";
-
-                //check for useless data
-                if (cond.ConditionTarget != 0)
-                    Log.Logger.Debug("Condition {0} {1} has useless data in ConditionTarget ({2})!", rowType, iSourceTypeOrReferenceId, cond.ConditionTarget);
-
-                if (cond.ConditionValue1 != 0)
-                    Log.Logger.Debug("Condition {0} {1} has useless data in value1 ({2})!", rowType, iSourceTypeOrReferenceId, cond.ConditionValue1);
-
-                if (cond.ConditionValue2 != 0)
-                    Log.Logger.Debug("Condition {0} {1} has useless data in value2 ({2})!", rowType, iSourceTypeOrReferenceId, cond.ConditionValue2);
-
-                if (cond.ConditionValue3 != 0)
-                    Log.Logger.Debug("Condition {0} {1} has useless data in value3 ({2})!", rowType, iSourceTypeOrReferenceId, cond.ConditionValue3);
-
-                if (cond.NegativeCondition)
-                    Log.Logger.Debug("Condition {0} {1} has useless data in NegativeCondition ({2})!", rowType, iSourceTypeOrReferenceId, cond.NegativeCondition);
-
-                if (cond.SourceGroup != 0 && iSourceTypeOrReferenceId < 0)
-                    Log.Logger.Debug("Condition {0} {1} has useless data in SourceGroup ({2})!", rowType, iSourceTypeOrReferenceId, cond.SourceGroup);
-
-                if (cond.SourceEntry != 0 && iSourceTypeOrReferenceId < 0)
-                    Log.Logger.Debug("Condition {0} {1} has useless data in SourceEntry ({2})!", rowType, iSourceTypeOrReferenceId, cond.SourceEntry);
-            }
-            else if (!IsConditionTypeValid(cond)) //doesn't have reference, validate ConditionType
-            {
-                continue;
-            }
-
-            if (iSourceTypeOrReferenceId < 0) //it is a reference template
-            {
-                _conditionReferenceStorage.Add((uint)Math.Abs(iSourceTypeOrReferenceId), cond); //add to reference storage
-                count++;
-
-                continue;
-            } //end of reference templates
-
-            //if not a reference and SourceType is invalid, skip
-            if (iConditionTypeOrReference >= 0 && !IsSourceTypeValid(cond))
-                continue;
-
-            //Grouping is only allowed for some types (loot templates, gossip menus, gossip items)
-            if (cond.SourceGroup != 0 && !CanHaveSourceGroupSet(cond.SourceType))
-            {
-                Log.Logger.Debug("{0} has not allowed value of SourceGroup = {1}!", cond.ToString(), cond.SourceGroup);
-
-                continue;
-            }
-
-            if (cond.SourceId != 0 && !CanHaveSourceIdSet(cond.SourceType))
-            {
-                Log.Logger.Debug("{0} has not allowed value of SourceId = {1}!", cond.ToString(), cond.SourceId);
-
-                continue;
-            }
-
-            if (cond.ErrorType != 0 && cond.SourceType != ConditionSourceType.Spell)
-            {
-                Log.Logger.Debug("{0} can't have ErrorType ({1}), set to 0!", cond.ToString(), cond.ErrorType);
-                cond.ErrorType = 0;
-            }
-
-            if (cond.ErrorTextId != 0 && cond.ErrorType == 0)
-            {
-                Log.Logger.Debug("{0} has any ErrorType, ErrorTextId ({1}) is set, set to 0!", cond.ToString(), cond.ErrorTextId);
-                cond.ErrorTextId = 0;
-            }
-
-            if (cond.SourceGroup != 0)
-            {
-                var valid = false;
-
-                // handle grouped conditions
-                switch (cond.SourceType)
-                {
-                    case ConditionSourceType.CreatureLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Creature.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.DisenchantLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.FishingLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.GameobjectLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.ItemLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Items.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.MailLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Mail.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.MillingLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Milling.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.PickpocketingLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.ProspectingLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.ReferenceLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Reference.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.SkinningLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.SpellLootTemplate:
-                        valid = AddToLootTemplate(cond, _lootStorage.Spell.GetLootForConditionFill(cond.SourceGroup));
-
-                        break;
-                    case ConditionSourceType.GossipMenu:
-                        valid = AddToGossipMenus(cond);
-
-                        break;
-                    case ConditionSourceType.GossipMenuOption:
-                        valid = AddToGossipMenuItems(cond);
-
-                        break;
-                    case ConditionSourceType.SpellClickEvent:
-                    {
-                        if (!_spellClickEventConditionStorage.ContainsKey(cond.SourceGroup))
-                            _spellClickEventConditionStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
-
-                        _spellClickEventConditionStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
-
-                        if (cond.ConditionType == ConditionTypes.Aura)
-                            _spellsUsedInSpellClickConditions.Add(cond.ConditionValue1);
-
-                        ++count;
-
-                        continue; // do not add to m_AllocatedMemory to avoid double deleting
-                    }
-                    case ConditionSourceType.SpellImplicitTarget:
-                        valid = AddToSpellImplicitTargetConditions(cond);
-
-                        break;
-                    case ConditionSourceType.VehicleSpell:
-                    {
-                        if (!_vehicleSpellConditionStorage.ContainsKey(cond.SourceGroup))
-                            _vehicleSpellConditionStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
-
-                        _vehicleSpellConditionStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
-                        ++count;
-
-                        continue; // do not add to m_AllocatedMemory to avoid double deleting
-                    }
-                    case ConditionSourceType.SmartEvent:
-                    {
-                        //! TODO: PAIR_32 ?
-                        var key = Tuple.Create(cond.SourceEntry, cond.SourceId);
-
-                        if (!_smartEventConditionStorage.ContainsKey(key))
-                            _smartEventConditionStorage[key] = new MultiMap<uint, Condition>();
-
-                        _smartEventConditionStorage[key].Add(cond.SourceGroup, cond);
-                        ++count;
-
-                        continue;
-                    }
-                    case ConditionSourceType.NpcVendor:
-                    {
-                        if (!_npcVendorConditionContainerStorage.ContainsKey(cond.SourceGroup))
-                            _npcVendorConditionContainerStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
-
-                        _npcVendorConditionContainerStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
-                        ++count;
-
-                        continue;
-                    }
-                    case ConditionSourceType.Phase:
-                        valid = AddToPhases(cond);
-
-                        break;
-                    case ConditionSourceType.AreaTrigger:
-                        _areaTriggerConditionContainerStorage.Add(Tuple.Create(cond.SourceGroup, cond.SourceEntry != 0), cond);
-                        ++count;
-
-                        continue;
-                    case ConditionSourceType.TrainerSpell:
-                    {
-                        if (!_trainerSpellConditionContainerStorage.ContainsKey(cond.SourceGroup))
-                            _trainerSpellConditionContainerStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
-
-                        _trainerSpellConditionContainerStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
-                        ++count;
-
-                        continue;
-                    }
-                    case ConditionSourceType.ObjectIdVisibility:
-                    {
-                        _objectVisibilityConditionStorage.Add((cond.SourceGroup, (uint)cond.SourceEntry), cond);
-                        ++count;
-
-                        continue;
-                    }
-                }
-
-                if (!valid)
-                    Log.Logger.Debug("{0} Not handled grouped condition.", cond.ToString());
-                else
-                    ++count;
-
-                continue;
-            }
-
-            //add new Condition to storage based on Type/Entry
-            if (cond.SourceType == ConditionSourceType.SpellClickEvent && cond.ConditionType == ConditionTypes.Aura)
-                _spellsUsedInSpellClickConditions.Add(cond.ConditionValue1);
-
-            _conditionStorage[cond.SourceType].Add((uint)cond.SourceEntry, cond);
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} conditions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public uint GetPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status)
-    {
-        if (player.Group == null)
-            return 0;
-
-        switch (status)
-        {
-            case PlayerConditionLfgStatus.InLFGDungeon:
-                return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID) ? 1 : 0u;
-            case PlayerConditionLfgStatus.InLFGRandomDungeon:
-                return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID) &&
-                       _lfgManager.SelectedRandomLfgDungeon(player.GUID)
-                           ? 1
-                           : 0u;
-            case PlayerConditionLfgStatus.InLFGFirstRandomDungeon:
-            {
-                if (!_lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Location.Map.DifficultyID))
-                    return 0;
-
-                var selectedRandomDungeon = _lfgManager.GetSelectedRandomDungeon(player.GUID);
-
-                if (selectedRandomDungeon == 0)
-                    return 0;
-
-                var reward = _lfgManager.GetRandomDungeonReward(selectedRandomDungeon, player.Level);
-
-                if (reward != null)
-                {
-                    var quest = _objectManager.GetQuestTemplate(reward.FirstQuest);
-
-                    if (quest != null)
-                        if (player.CanRewardQuest(quest, false))
-                            return 1;
-                }
-
-                return 0;
-            }
-            case PlayerConditionLfgStatus.PartialClear:
-                break;
-            case PlayerConditionLfgStatus.StrangerCount:
-                break;
-            case PlayerConditionLfgStatus.VoteKickCount:
-                break;
-            case PlayerConditionLfgStatus.BootCount:
-                break;
-            case PlayerConditionLfgStatus.GearDiff:
-                break;
-        }
-
-        return 0;
-    }
-
     public bool IsPlayerMeetingCondition(Player player, PlayerConditionRecord condition)
     {
-        var levels = _db2Manager.GetContentTuningData(condition.ContentTuningID, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+        var levels = _db2Manager.GetContentTuningData(condition.ContentTuningID, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
         if (levels.HasValue)
         {
@@ -1115,7 +794,7 @@ public sealed class ConditionManager
             var from = Time.GetUnixTimeFromPackedTime(condition.Time[0]);
             var to = Time.GetUnixTimeFromPackedTime(condition.Time[1]);
 
-            if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
+            if (GameTime.CurrentTime < from || GameTime.CurrentTime > to)
                 return false;
         }
 
@@ -1329,6 +1008,10 @@ public sealed class ConditionManager
         return finalResult;
     }
 
+    public bool IsSpellUsedInSpellClickConditions(uint spellId)
+    {
+        return _spellsUsedInSpellClickConditions.Contains(spellId);
+    }
     public bool IsUnitMeetingCondition(Unit unit, Unit otherUnit, UnitConditionRecord condition)
     {
         for (var i = 0; i < condition.Variable.Length; ++i)
@@ -1381,19 +1064,330 @@ public sealed class ConditionManager
         return !condition.GetFlags().HasFlag(UnitConditionFlags.LogicOr);
     }
 
-    private bool AddToLootTemplate(Condition cond, LootTemplate loot)
+    public void LoadConditions(bool isReload = false)
     {
-        if (loot == null)
-        {
-            Log.Logger.Debug("{0} LootTemplate {1} not found.", cond.ToString(), cond.SourceGroup);
+        var oldMSTime = Time.MSTime;
 
-            return false;
+        Clean();
+
+        //must clear all custom handled cases (groupped types) before reload
+        if (isReload)
+        {
+            Log.Logger.Information("Reseting Loot Conditions...");
+            _lootStorage.Creature.ResetConditions();
+            _lootStorage.Fishing.ResetConditions();
+            _lootStorage.Gameobject.ResetConditions();
+            _lootStorage.Items.ResetConditions();
+            _lootStorage.Mail.ResetConditions();
+            _lootStorage.Milling.ResetConditions();
+            _lootStorage.Pickpocketing.ResetConditions();
+            _lootStorage.Reference.ResetConditions();
+            _lootStorage.Skinning.ResetConditions();
+            _lootStorage.Disenchant.ResetConditions();
+            _lootStorage.Prospecting.ResetConditions();
+            _lootStorage.Spell.ResetConditions();
+
+            Log.Logger.Information("Re-Loading `gossip_menu` Table for Conditions!");
+            _objectManager.LoadGossipMenu();
+
+            Log.Logger.Information("Re-Loading `gossip_menu_option` Table for Conditions!");
+            _objectManager.LoadGossipMenuItems();
+            _spellManager.UnloadSpellInfoImplicitTargetConditionLists();
+
+            _objectManager.UnloadPhaseConditions();
         }
 
-        if (loot.AddConditionItem(cond))
-            return true;
+        var result = _worldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, " +
+                                          " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
 
-        Log.Logger.Debug("{0} Item {1} not found in LootTemplate {2}.", cond.ToString(), cond.SourceEntry, cond.SourceGroup);
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 conditions. DB table `conditions` is empty!");
+
+            return;
+        }
+
+        uint count = 0;
+
+        do
+        {
+            Condition cond = new();
+            var iSourceTypeOrReferenceId = result.Read<int>(0);
+            cond.SourceGroup = result.Read<uint>(1);
+            cond.SourceEntry = result.Read<int>(2);
+            cond.SourceId = result.Read<uint>(3);
+            cond.ElseGroup = result.Read<uint>(4);
+            var iConditionTypeOrReference = result.Read<int>(5);
+            cond.ConditionTarget = result.Read<byte>(6);
+            cond.ConditionValue1 = result.Read<uint>(7);
+            cond.ConditionValue2 = result.Read<uint>(8);
+            cond.ConditionValue3 = result.Read<uint>(9);
+            cond.NegativeCondition = result.Read<byte>(10) != 0;
+            cond.ErrorType = result.Read<uint>(11);
+            cond.ErrorTextId = result.Read<uint>(12);
+            cond.ScriptId = _objectManager.GetScriptId(result.Read<string>(13));
+
+            if (iConditionTypeOrReference >= 0)
+                cond.ConditionType = (ConditionTypes)iConditionTypeOrReference;
+
+            if (iSourceTypeOrReferenceId >= 0)
+                cond.SourceType = (ConditionSourceType)iSourceTypeOrReferenceId;
+
+            if (iConditionTypeOrReference < 0) //it has a reference
+            {
+                if (iConditionTypeOrReference == iSourceTypeOrReferenceId) //self referencing, skip
+                {
+                    Log.Logger.Debug("Condition reference {0} is referencing self, skipped", iSourceTypeOrReferenceId);
+
+                    continue;
+                }
+
+                cond.ReferenceId = (uint)Math.Abs(iConditionTypeOrReference);
+
+                var rowType = "reference template";
+
+                if (iSourceTypeOrReferenceId >= 0)
+                    rowType = "reference";
+
+                //check for useless data
+                if (cond.ConditionTarget != 0)
+                    Log.Logger.Debug("Condition {0} {1} has useless data in ConditionTarget ({2})!", rowType, iSourceTypeOrReferenceId, cond.ConditionTarget);
+
+                if (cond.ConditionValue1 != 0)
+                    Log.Logger.Debug("Condition {0} {1} has useless data in value1 ({2})!", rowType, iSourceTypeOrReferenceId, cond.ConditionValue1);
+
+                if (cond.ConditionValue2 != 0)
+                    Log.Logger.Debug("Condition {0} {1} has useless data in value2 ({2})!", rowType, iSourceTypeOrReferenceId, cond.ConditionValue2);
+
+                if (cond.ConditionValue3 != 0)
+                    Log.Logger.Debug("Condition {0} {1} has useless data in value3 ({2})!", rowType, iSourceTypeOrReferenceId, cond.ConditionValue3);
+
+                if (cond.NegativeCondition)
+                    Log.Logger.Debug("Condition {0} {1} has useless data in NegativeCondition ({2})!", rowType, iSourceTypeOrReferenceId, cond.NegativeCondition);
+
+                if (cond.SourceGroup != 0 && iSourceTypeOrReferenceId < 0)
+                    Log.Logger.Debug("Condition {0} {1} has useless data in SourceGroup ({2})!", rowType, iSourceTypeOrReferenceId, cond.SourceGroup);
+
+                if (cond.SourceEntry != 0 && iSourceTypeOrReferenceId < 0)
+                    Log.Logger.Debug("Condition {0} {1} has useless data in SourceEntry ({2})!", rowType, iSourceTypeOrReferenceId, cond.SourceEntry);
+            }
+            else if (!IsConditionTypeValid(cond)) //doesn't have reference, validate ConditionType
+            {
+                continue;
+            }
+
+            if (iSourceTypeOrReferenceId < 0) //it is a reference template
+            {
+                _conditionReferenceStorage.Add((uint)Math.Abs(iSourceTypeOrReferenceId), cond); //add to reference storage
+                count++;
+
+                continue;
+            } //end of reference templates
+
+            //if not a reference and SourceType is invalid, skip
+            if (iConditionTypeOrReference >= 0 && !IsSourceTypeValid(cond))
+                continue;
+
+            //Grouping is only allowed for some types (loot templates, gossip menus, gossip items)
+            if (cond.SourceGroup != 0 && !CanHaveSourceGroupSet(cond.SourceType))
+            {
+                Log.Logger.Debug("{0} has not allowed value of SourceGroup = {1}!", cond.ToString(), cond.SourceGroup);
+
+                continue;
+            }
+
+            if (cond.SourceId != 0 && !CanHaveSourceIdSet(cond.SourceType))
+            {
+                Log.Logger.Debug("{0} has not allowed value of SourceId = {1}!", cond.ToString(), cond.SourceId);
+
+                continue;
+            }
+
+            if (cond.ErrorType != 0 && cond.SourceType != ConditionSourceType.Spell)
+            {
+                Log.Logger.Debug("{0} can't have ErrorType ({1}), set to 0!", cond.ToString(), cond.ErrorType);
+                cond.ErrorType = 0;
+            }
+
+            if (cond.ErrorTextId != 0 && cond.ErrorType == 0)
+            {
+                Log.Logger.Debug("{0} has any ErrorType, ErrorTextId ({1}) is set, set to 0!", cond.ToString(), cond.ErrorTextId);
+                cond.ErrorTextId = 0;
+            }
+
+            if (cond.SourceGroup != 0)
+            {
+                var valid = false;
+
+                // handle grouped conditions
+                switch (cond.SourceType)
+                {
+                    case ConditionSourceType.CreatureLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Creature.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.DisenchantLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.FishingLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.GameobjectLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.ItemLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Items.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.MailLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Mail.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.MillingLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Milling.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.PickpocketingLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.ProspectingLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.ReferenceLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Reference.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.SkinningLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.SpellLootTemplate:
+                        valid = AddToLootTemplate(cond, _lootStorage.Spell.GetLootForConditionFill(cond.SourceGroup));
+
+                        break;
+                    case ConditionSourceType.GossipMenu:
+                        valid = AddToGossipMenus(cond);
+
+                        break;
+                    case ConditionSourceType.GossipMenuOption:
+                        valid = AddToGossipMenuItems(cond);
+
+                        break;
+                    case ConditionSourceType.SpellClickEvent:
+                    {
+                        if (!_spellClickEventConditionStorage.ContainsKey(cond.SourceGroup))
+                            _spellClickEventConditionStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
+
+                        _spellClickEventConditionStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
+
+                        if (cond.ConditionType == ConditionTypes.Aura)
+                            _spellsUsedInSpellClickConditions.Add(cond.ConditionValue1);
+
+                        ++count;
+
+                        continue; // do not add to m_AllocatedMemory to avoid double deleting
+                    }
+                    case ConditionSourceType.SpellImplicitTarget:
+                        valid = AddToSpellImplicitTargetConditions(cond);
+
+                        break;
+                    case ConditionSourceType.VehicleSpell:
+                    {
+                        if (!_vehicleSpellConditionStorage.ContainsKey(cond.SourceGroup))
+                            _vehicleSpellConditionStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
+
+                        _vehicleSpellConditionStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
+                        ++count;
+
+                        continue; // do not add to m_AllocatedMemory to avoid double deleting
+                    }
+                    case ConditionSourceType.SmartEvent:
+                    {
+                        //! TODO: PAIR_32 ?
+                        var key = Tuple.Create(cond.SourceEntry, cond.SourceId);
+
+                        if (!_smartEventConditionStorage.ContainsKey(key))
+                            _smartEventConditionStorage[key] = new MultiMap<uint, Condition>();
+
+                        _smartEventConditionStorage[key].Add(cond.SourceGroup, cond);
+                        ++count;
+
+                        continue;
+                    }
+                    case ConditionSourceType.NpcVendor:
+                    {
+                        if (!_npcVendorConditionContainerStorage.ContainsKey(cond.SourceGroup))
+                            _npcVendorConditionContainerStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
+
+                        _npcVendorConditionContainerStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
+                        ++count;
+
+                        continue;
+                    }
+                    case ConditionSourceType.Phase:
+                        valid = AddToPhases(cond);
+
+                        break;
+                    case ConditionSourceType.AreaTrigger:
+                        _areaTriggerConditionContainerStorage.Add(Tuple.Create(cond.SourceGroup, cond.SourceEntry != 0), cond);
+                        ++count;
+
+                        continue;
+                    case ConditionSourceType.TrainerSpell:
+                    {
+                        if (!_trainerSpellConditionContainerStorage.ContainsKey(cond.SourceGroup))
+                            _trainerSpellConditionContainerStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
+
+                        _trainerSpellConditionContainerStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
+                        ++count;
+
+                        continue;
+                    }
+                    case ConditionSourceType.ObjectIdVisibility:
+                    {
+                        _objectVisibilityConditionStorage.Add((cond.SourceGroup, (uint)cond.SourceEntry), cond);
+                        ++count;
+
+                        continue;
+                    }
+                }
+
+                if (!valid)
+                    Log.Logger.Debug("{0} Not handled grouped condition.", cond.ToString());
+                else
+                    ++count;
+
+                continue;
+            }
+
+            //add new Condition to storage based on Type/Entry
+            if (cond.SourceType == ConditionSourceType.SpellClickEvent && cond.ConditionType == ConditionTypes.Aura)
+                _spellsUsedInSpellClickConditions.Add(cond.ConditionValue1);
+
+            _conditionStorage[cond.SourceType].Add((uint)cond.SourceEntry, cond);
+            ++count;
+        } while (result.NextRow());
+
+        Log.Logger.Information("Loaded {0} conditions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+    }
+    private bool AddToGossipMenuItems(Condition cond)
+    {
+        var pMenuItemBounds = _objectManager.GetGossipMenuItemsMapBounds(cond.SourceGroup);
+
+        foreach (var gossipMenuItem in pMenuItemBounds)
+            if (gossipMenuItem.MenuId == cond.SourceGroup && gossipMenuItem.OrderIndex == cond.SourceEntry)
+            {
+                gossipMenuItem.Conditions.Add(cond);
+
+                return true;
+            }
+
+        Log.Logger.Debug("{0} GossipMenuId {1} Item {2} not found.", cond.ToString(), cond.SourceGroup, cond.SourceEntry);
 
         return false;
     }
@@ -1415,19 +1409,63 @@ public sealed class ConditionManager
         return false;
     }
 
-    private bool AddToGossipMenuItems(Condition cond)
+    private bool AddToLootTemplate(Condition cond, LootTemplate loot)
     {
-        var pMenuItemBounds = _objectManager.GetGossipMenuItemsMapBounds(cond.SourceGroup);
+        if (loot == null)
+        {
+            Log.Logger.Debug("{0} LootTemplate {1} not found.", cond.ToString(), cond.SourceGroup);
 
-        foreach (var gossipMenuItem in pMenuItemBounds)
-            if (gossipMenuItem.MenuId == cond.SourceGroup && gossipMenuItem.OrderIndex == cond.SourceEntry)
+            return false;
+        }
+
+        if (loot.AddConditionItem(cond))
+            return true;
+
+        Log.Logger.Debug("{0} Item {1} not found in LootTemplate {2}.", cond.ToString(), cond.SourceEntry, cond.SourceGroup);
+
+        return false;
+    }
+    private bool AddToPhases(Condition cond)
+    {
+        if (cond.SourceEntry == 0)
+        {
+            var phaseInfo = _objectManager.GetPhaseInfo(cond.SourceGroup);
+
+            if (phaseInfo != null)
             {
-                gossipMenuItem.Conditions.Add(cond);
+                var found = false;
 
-                return true;
+                foreach (var areaId in phaseInfo.Areas)
+                {
+                    var phases = _objectManager.GetPhasesForArea(areaId);
+
+                    if (phases != null)
+                        foreach (var phase in phases)
+                            if (phase.PhaseInfo.Id == cond.SourceGroup)
+                            {
+                                phase.Conditions.Add(cond);
+                                found = true;
+                            }
+                }
+
+                if (found)
+                    return true;
             }
+        }
+        else
+        {
+            var phases = _objectManager.GetPhasesForArea((uint)cond.SourceEntry);
 
-        Log.Logger.Debug("{0} GossipMenuId {1} Item {2} not found.", cond.ToString(), cond.SourceGroup, cond.SourceEntry);
+            foreach (var phase in phases)
+                if (phase.PhaseInfo.Id == cond.SourceGroup)
+                {
+                    phase.Conditions.Add(cond);
+
+                    return true;
+                }
+        }
+
+        Log.Logger.Debug("{0} Area {1} does not have phase {2}.", cond.ToString(), cond.SourceGroup, cond.SourceEntry);
 
         return false;
     }
@@ -1551,613 +1589,434 @@ public sealed class ConditionManager
 
         return true;
     }
-
-    private bool AddToPhases(Condition cond)
+    private void Clean()
     {
-        if (cond.SourceEntry == 0)
+        _conditionReferenceStorage.Clear();
+
+        _conditionStorage.Clear();
+
+        for (ConditionSourceType i = 0; i < ConditionSourceType.Max; ++i)
+            _conditionStorage[i] = new MultiMap<uint, Condition>(); //add new empty list for SourceType
+
+        _vehicleSpellConditionStorage.Clear();
+
+        _smartEventConditionStorage.Clear();
+
+        _spellClickEventConditionStorage.Clear();
+        _spellsUsedInSpellClickConditions.Clear();
+
+        _npcVendorConditionContainerStorage.Clear();
+
+        _areaTriggerConditionContainerStorage.Clear();
+
+        _trainerSpellConditionContainerStorage.Clear();
+
+        _objectVisibilityConditionStorage.Clear();
+    }
+
+    private bool EvalRelOp(ByteBuffer buffer, Player player)
+    {
+        var leftValue = EvalValue(buffer, player);
+
+        var compareLogic = (WorldStateExpressionComparisonType)buffer.ReadUInt8();
+
+        if (compareLogic == WorldStateExpressionComparisonType.None)
+            return leftValue != 0;
+
+        var rightValue = EvalValue(buffer, player);
+
+        switch (compareLogic)
         {
-            var phaseInfo = _objectManager.GetPhaseInfo(cond.SourceGroup);
-
-            if (phaseInfo != null)
-            {
-                var found = false;
-
-                foreach (var areaId in phaseInfo.Areas)
-                {
-                    var phases = _objectManager.GetPhasesForArea(areaId);
-
-                    if (phases != null)
-                        foreach (var phase in phases)
-                            if (phase.PhaseInfo.Id == cond.SourceGroup)
-                            {
-                                phase.Conditions.Add(cond);
-                                found = true;
-                            }
-                }
-
-                if (found)
-                    return true;
-            }
+            case WorldStateExpressionComparisonType.Equal:
+                return leftValue == rightValue;
+            case WorldStateExpressionComparisonType.NotEqual:
+                return leftValue != rightValue;
+            case WorldStateExpressionComparisonType.Less:
+                return leftValue < rightValue;
+            case WorldStateExpressionComparisonType.LessOrEqual:
+                return leftValue <= rightValue;
+            case WorldStateExpressionComparisonType.Greater:
+                return leftValue > rightValue;
+            case WorldStateExpressionComparisonType.GreaterOrEqual:
+                return leftValue >= rightValue;
         }
-        else
-        {
-            var phases = _objectManager.GetPhasesForArea((uint)cond.SourceEntry);
-
-            foreach (var phase in phases)
-                if (phase.PhaseInfo.Id == cond.SourceGroup)
-                {
-                    phase.Conditions.Add(cond);
-
-                    return true;
-                }
-        }
-
-        Log.Logger.Debug("{0} Area {1} does not have phase {2}.", cond.ToString(), cond.SourceGroup, cond.SourceEntry);
 
         return false;
     }
 
-    private bool IsSourceTypeValid(Condition cond)
+    private int EvalSingleValue(ByteBuffer buffer, Player player)
     {
-        switch (cond.SourceType)
+        var valueType = (WorldStateExpressionValueType)buffer.ReadUInt8();
+        var value = 0;
+
+        switch (valueType)
         {
-            case ConditionSourceType.CreatureLootTemplate:
+            case WorldStateExpressionValueType.Constant:
             {
-                if (!_lootStorage.Creature.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `creature_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Creature.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, Item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
+                value = buffer.ReadInt32();
 
                 break;
             }
-            case ConditionSourceType.DisenchantLootTemplate:
+            case WorldStateExpressionValueType.WorldState:
             {
-                if (!_lootStorage.Disenchant.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `disenchant_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
+                var worldStateId = buffer.ReadUInt32();
+                value = _worldStateManager.GetValue((int)worldStateId, player.Location.Map);
 
                 break;
             }
-            case ConditionSourceType.FishingLootTemplate:
+            case WorldStateExpressionValueType.Function:
             {
-                if (!_lootStorage.Fishing.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `fishing_loot_template`, ignoring.", cond.ToString());
+                var functionType = (WorldStateExpressionFunctions)buffer.ReadUInt32();
+                var arg1 = EvalSingleValue(buffer, player);
+                var arg2 = EvalSingleValue(buffer, player);
 
-                    return false;
-                }
+                if (functionType >= WorldStateExpressionFunctions.Max)
+                    return 0;
 
-                var loot = _lootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
+                value = WorldStateExpressionFunction(functionType, player, arg1, arg2);
 
                 break;
             }
-            case ConditionSourceType.GameobjectLootTemplate:
-            {
-                if (!_lootStorage.Gameobject.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `gameobject_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.ItemLootTemplate:
-            {
-                if (!_lootStorage.Items.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `item_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Items.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.MailLootTemplate:
-            {
-                if (!_lootStorage.Mail.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `mail_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Mail.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.MillingLootTemplate:
-            {
-                if (!_lootStorage.Milling.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `milling_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Milling.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.PickpocketingLootTemplate:
-            {
-                if (!_lootStorage.Pickpocketing.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `pickpocketing_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.ProspectingLootTemplate:
-            {
-                if (!_lootStorage.Prospecting.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `prospecting_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.ReferenceLootTemplate:
-            {
-                if (!_lootStorage.Reference.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `reference_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Reference.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.SkinningLootTemplate:
-            {
-                if (!_lootStorage.Skinning.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `skinning_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.SpellLootTemplate:
-            {
-                if (!_lootStorage.Spell.HaveLootFor(cond.SourceGroup))
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `spell_loot_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var loot = _lootStorage.Spell.GetLootForConditionFill(cond.SourceGroup);
-                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.SpellImplicitTarget:
-            {
-                var spellInfo = _spellManager.GetSpellInfo((uint)cond.SourceEntry);
-
-                if (spellInfo == null)
-                {
-                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                if (cond.SourceGroup is > SpellConst.MAX_EFFECT_MASK or 0)
-                {
-                    Log.Logger.Debug("{0} in `condition` table, has incorrect SourceGroup (spell effectMask) set, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var origGroup = cond.SourceGroup;
-
-                foreach (var spellEffectInfo in spellInfo.Effects)
-                {
-                    if (((1 << spellEffectInfo.EffectIndex) & cond.SourceGroup) == 0)
-                        continue;
-
-                    if (spellEffectInfo.ChainTargets > 0)
-                        continue;
-
-                    switch (spellEffectInfo.TargetA.SelectionCategory)
-                    {
-                        case SpellTargetSelectionCategories.Nearby:
-                        case SpellTargetSelectionCategories.Cone:
-                        case SpellTargetSelectionCategories.Area:
-                        case SpellTargetSelectionCategories.Traj:
-                        case SpellTargetSelectionCategories.Line:
-                            continue;
-                    }
-
-                    switch (spellEffectInfo.TargetB.SelectionCategory)
-                    {
-                        case SpellTargetSelectionCategories.Nearby:
-                        case SpellTargetSelectionCategories.Cone:
-                        case SpellTargetSelectionCategories.Area:
-                        case SpellTargetSelectionCategories.Traj:
-                        case SpellTargetSelectionCategories.Line:
-                            continue;
-                    }
-
-                    switch (spellEffectInfo.Effect)
-                    {
-                        case SpellEffectName.PersistentAreaAura:
-                        case SpellEffectName.ApplyAreaAuraParty:
-                        case SpellEffectName.ApplyAreaAuraRaid:
-                        case SpellEffectName.ApplyAreaAuraFriend:
-                        case SpellEffectName.ApplyAreaAuraEnemy:
-                        case SpellEffectName.ApplyAreaAuraPet:
-                        case SpellEffectName.ApplyAreaAuraOwner:
-                        case SpellEffectName.ApplyAuraOnPet:
-                        case SpellEffectName.ApplyAreaAuraSummons:
-                        case SpellEffectName.ApplyAreaAuraPartyNonrandom:
-                            continue;
-                    }
-
-                    Log.Logger.Debug("SourceEntry {0} SourceGroup {1} in `condition` table - spell {2} does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, _CHAIN_ for effect {3}, SourceGroup needs correction, ignoring.", cond.SourceEntry, origGroup, cond.SourceEntry, spellEffectInfo.EffectIndex);
-                    cond.SourceGroup &= ~(1u << spellEffectInfo.EffectIndex);
-                }
-
-                // all effects were removed, no need to add the condition at all
-                if (cond.SourceGroup == 0)
-                    return false;
-
-                break;
-            }
-            case ConditionSourceType.CreatureTemplateVehicle:
-            {
-                if (_objectManager.GetCreatureTemplate((uint)cond.SourceEntry) == null)
-                {
-                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.Spell:
-            case ConditionSourceType.SpellProc:
-            {
-                var spellProto = _spellManager.GetSpellInfo((uint)cond.SourceEntry);
-
-                if (spellProto == null)
-                {
-                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.QuestAvailable:
-                if (_objectManager.GetQuestTemplate((uint)cond.SourceEntry) == null)
-                {
-                    Log.Logger.Debug("{0} SourceEntry specifies non-existing quest, skipped.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.VehicleSpell:
-                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                if (!_spellManager.HasSpellInfo((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.SpellClickEvent:
-                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                if (!_spellManager.HasSpellInfo((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.NpcVendor:
-            {
-                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
-                {
-                    Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                var itemTemplate = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
-
-                if (itemTemplate == null)
-                {
-                    Log.Logger.Debug("{0} SourceEntry in `condition` table item does not exist, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.TerrainSwap:
-                if (!_cliDB.MapStorage.ContainsKey((uint)cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in Map.db2, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.Phase:
-                if (cond.SourceEntry != 0 && !_cliDB.AreaTableStorage.ContainsKey(cond.SourceEntry))
-                {
-                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in AreaTable.db2, ignoring.", cond.ToString());
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.GossipMenu:
-            case ConditionSourceType.GossipMenuOption:
-            case ConditionSourceType.SmartEvent:
-                break;
-            case ConditionSourceType.Graveyard:
-                if (_objectManager.GetWorldSafeLoc((uint)cond.SourceEntry) == null)
-                {
-                    Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.");
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.AreaTrigger:
-                if (cond.SourceEntry != 0 && cond.SourceEntry != 1)
-                {
-                    Log.Logger.Debug($"{cond.ToString()} in `condition` table, unexpected SourceEntry value (expected 0 or 1), ignoring.");
-
-                    return false;
-                }
-
-                if (_areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId(cond.SourceGroup, cond.SourceEntry != 0)) == null)
-                {
-                    Log.Logger.Debug($"{cond.ToString()} in `condition` table, does not exist in `areatrigger_template`, ignoring.");
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.ConversationLine:
-                if (_conversationDataStorage.GetConversationLineTemplate((uint)cond.SourceEntry) == null)
-                {
-                    Log.Logger.Debug($"{cond} does not exist in `conversation_line_template`, ignoring.");
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.AreatriggerClientTriggered:
-                if (!_cliDB.AreaTriggerStorage.ContainsKey(cond.SourceEntry))
-                {
-                    Log.Logger.Debug($"{cond} SourceEntry in `condition` table, does not exists in AreaTrigger.db2, ignoring.");
-
-                    return false;
-                }
-
-                break;
-            case ConditionSourceType.TrainerSpell:
-            {
-                if (_objectManager.GetTrainer(cond.SourceGroup) == null)
-                {
-                    Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, does not exist in `trainer`, ignoring.");
-
-                    return false;
-                }
-
-                if (_spellManager.GetSpellInfo((uint)cond.SourceEntry) == null)
-                {
-                    Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.");
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.ObjectIdVisibility:
-            {
-                if (cond.SourceGroup <= 0 || cond.SourceGroup >= (uint)TypeId.Max)
-                {
-                    Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, is no valid object type, ignoring.");
-
-                    return false;
-                }
-
-                if (cond.SourceGroup == (uint)TypeId.Unit)
-                {
-                    if (_objectManager.GetCreatureTemplate((uint)cond.SourceEntry) == null)
-                    {
-                        Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.");
-
-                        return false;
-                    }
-                }
-                else if (cond.SourceGroup == (uint)TypeId.GameObject)
-                {
-                    if (_objectManager.GetGameObjectTemplate((uint)cond.SourceEntry) == null)
-                    {
-                        Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.");
-
-                        return false;
-                    }
-                }
-                else
-                {
-                    Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, uses unchecked type id, ignoring.");
-
-                    return false;
-                }
-
-                break;
-            }
-            case ConditionSourceType.SpawnGroup:
-            {
-                var spawnGroup = _objectManager.GetSpawnGroupData((uint)cond.SourceEntry);
-
-                if (spawnGroup == null)
-                {
-                    Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `spawn_group_template`, ignoring.");
-
-                    return false;
-                }
-
-                if (spawnGroup.Flags.HasAnyFlag(SpawnGroupFlags.System))
-                {
-                    Log.Logger.Debug($"{cond.ToString()} in `spawn_group_template` table cannot have SPAWNGROUP_FLAG_SYSTEM or SPAWNGROUP_FLAG_MANUAL_SPAWN flags, ignoring.");
-
-                    return false;
-                }
-
-                break;
-            }
-            default:
-                Log.Logger.Debug($"{cond.ToString()} Invalid ConditionSourceType in `condition` table, ignoring.");
-
-                return false;
         }
 
-        return true;
+        return value;
+    }
+
+    private int EvalValue(ByteBuffer buffer, Player player)
+    {
+        var leftValue = EvalSingleValue(buffer, player);
+
+        var operatorType = (WorldStateExpressionOperatorType)buffer.ReadUInt8();
+
+        if (operatorType == WorldStateExpressionOperatorType.None)
+            return leftValue;
+
+        var rightValue = EvalSingleValue(buffer, player);
+
+        switch (operatorType)
+        {
+            case WorldStateExpressionOperatorType.Sum:
+                return leftValue + rightValue;
+            case WorldStateExpressionOperatorType.Substraction:
+                return leftValue - rightValue;
+            case WorldStateExpressionOperatorType.Multiplication:
+                return leftValue * rightValue;
+            case WorldStateExpressionOperatorType.Division:
+                return rightValue == 0 ? 0 : leftValue / rightValue;
+            case WorldStateExpressionOperatorType.Remainder:
+                return rightValue == 0 ? 0 : leftValue % rightValue;
+        }
+
+        return leftValue;
+    }
+
+    private int GetUnitConditionVariable(Unit unit, Unit otherUnit, UnitConditionVariable variable, int value)
+    {
+        switch (variable)
+        {
+            case UnitConditionVariable.Race:
+                return (int)unit.Race;
+            case UnitConditionVariable.Class:
+                return (int)unit.Class;
+            case UnitConditionVariable.Level:
+                return (int)unit.Level;
+            case UnitConditionVariable.IsSelf:
+                return unit == otherUnit ? 1 : 0;
+            case UnitConditionVariable.IsMyPet:
+                return (otherUnit != null && unit.CharmerOrOwnerGUID == otherUnit.GUID) ? 1 : 0;
+            case UnitConditionVariable.IsMaster:
+                return (otherUnit && otherUnit.CharmerOrOwnerGUID == unit.GUID) ? 1 : 0;
+            case UnitConditionVariable.IsTarget:
+                return (otherUnit && otherUnit.Target == unit.GUID) ? 1 : 0;
+            case UnitConditionVariable.CanAssist:
+                return (otherUnit && unit.WorldObjectCombat.IsValidAssistTarget(otherUnit)) ? 1 : 0;
+            case UnitConditionVariable.CanAttack:
+                return (otherUnit && unit.WorldObjectCombat.IsValidAttackTarget(otherUnit)) ? 1 : 0;
+            case UnitConditionVariable.HasPet:
+                return (!unit.CharmedGUID.IsEmpty || !unit.MinionGUID.IsEmpty) ? 1 : 0;
+            case UnitConditionVariable.HasWeapon:
+                var player = unit.AsPlayer;
+
+                if (player != null)
+                    return (player.GetWeaponForAttack(WeaponAttackType.BaseAttack) || player.GetWeaponForAttack(WeaponAttackType.OffAttack)) ? 1 : 0;
+
+                return (unit.GetVirtualItemId(0) != 0 || unit.GetVirtualItemId(1) != 0) ? 1 : 0;
+            case UnitConditionVariable.HealthPct:
+                return (int)unit.HealthPct;
+            case UnitConditionVariable.ManaPct:
+                return (int)unit.GetPowerPct(PowerType.Mana);
+            case UnitConditionVariable.RagePct:
+                return (int)unit.GetPowerPct(PowerType.Rage);
+            case UnitConditionVariable.EnergyPct:
+                return (int)unit.GetPowerPct(PowerType.Energy);
+            case UnitConditionVariable.ComboPoints:
+                return unit.GetPower(PowerType.ComboPoints);
+            case UnitConditionVariable.HasHelpfulAuraSpell:
+                return unit.GetAppliedAurasQuery()
+                           .HasSpellId((uint)value)
+                           .HasNegitiveFlag(false)
+                           .GetResults()
+                           .Any()
+                           ? value
+                           : 0;
+            case UnitConditionVariable.HasHelpfulAuraDispelType:
+                return unit.GetAppliedAurasQuery()
+                           .HasDispelType((DispelType)value)
+                           .HasNegitiveFlag(false)
+                           .GetResults()
+                           .Any()
+                           ? value
+                           : 0;
+            case UnitConditionVariable.HasHelpfulAuraMechanic:
+                return unit.GetAppliedAurasQuery()
+                           .HasNegitiveFlag(false)
+                           .AlsoMatches(aurApp => (aurApp.Base.SpellInfo.GetSpellMechanicMaskByEffectMask(aurApp.EffectMask) & (1ul << value)) != 0)
+                           .GetResults()
+                           .Any()
+                           ? value
+                           : 0;
+            case UnitConditionVariable.HasHarmfulAuraSpell:
+                return unit.GetAppliedAurasQuery()
+                           .HasSpellId((uint)value)
+                           .HasNegitiveFlag()
+                           .GetResults()
+                           .Any()
+                           ? value
+                           : 0;
+            case UnitConditionVariable.HasHarmfulAuraDispelType:
+                return unit.GetAppliedAurasQuery()
+                           .HasDispelType((DispelType)value)
+                           .HasNegitiveFlag()
+                           .GetResults()
+                           .Any()
+                           ? value
+                           : 0;
+            case UnitConditionVariable.HasHarmfulAuraMechanic:
+                return unit.GetAppliedAurasQuery()
+                           .HasNegitiveFlag()
+                           .AlsoMatches(aurApp => (aurApp.Base.SpellInfo.GetSpellMechanicMaskByEffectMask(aurApp.EffectMask) & (1ul << value)) != 0)
+                           .GetResults()
+                           .Any()
+                           ? value
+                           : 0;
+            case UnitConditionVariable.HasHarmfulAuraSchool:
+                return unit.GetAppliedAurasQuery()
+                           .HasNegitiveFlag()
+                           .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.GetSchoolMask() & (1 << value)) != 0)
+                           .GetResults()
+                           .Any()
+                           ? value
+                           : 0;
+            case UnitConditionVariable.DamagePhysicalPct:
+                break;
+            case UnitConditionVariable.DamageHolyPct:
+                break;
+            case UnitConditionVariable.DamageFirePct:
+                break;
+            case UnitConditionVariable.DamageNaturePct:
+                break;
+            case UnitConditionVariable.DamageFrostPct:
+                break;
+            case UnitConditionVariable.DamageShadowPct:
+                break;
+            case UnitConditionVariable.DamageArcanePct:
+                break;
+            case UnitConditionVariable.InCombat:
+                return unit.IsInCombat ? 1 : 0;
+            case UnitConditionVariable.IsMoving:
+                return unit.HasUnitMovementFlag(MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight) ? 1 : 0;
+            case UnitConditionVariable.IsCasting:
+            case UnitConditionVariable.IsCastingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
+                return unit.GetCurrentSpell(CurrentSpellTypes.Generic) != null ? 1 : 0;
+            case UnitConditionVariable.IsChanneling:
+            case UnitConditionVariable.IsChannelingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
+                return unit.ChannelSpellId != 0 ? 1 : 0;
+            case UnitConditionVariable.NumberOfMeleeAttackers:
+                return unit.Attackers.Count(attacker =>
+                {
+                    var distance = Math.Max(unit.CombatReach + attacker.CombatReach + 1.3333334f, 5.0f);
+
+                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || attacker.HasUnitFlag(UnitFlags.PlayerControlled))
+                        distance += 1.0f;
+
+                    return unit.Location.GetExactDistSq(attacker.Location) < distance * distance;
+                });
+            case UnitConditionVariable.IsAttackingMe:
+                return (otherUnit != null && unit.Target == otherUnit.GUID) ? 1 : 0;
+            case UnitConditionVariable.Range:
+                return otherUnit ? (int)unit.Location.GetExactDist(otherUnit.Location) : 0;
+            case UnitConditionVariable.InMeleeRange:
+                if (otherUnit)
+                {
+                    var distance = Math.Max(unit.CombatReach + otherUnit.CombatReach + 1.3333334f, 5.0f);
+
+                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || otherUnit.HasUnitFlag(UnitFlags.PlayerControlled))
+                        distance += 1.0f;
+
+                    return (unit.Location.GetExactDistSq(otherUnit.Location) < distance * distance) ? 1 : 0;
+                }
+
+                return 0;
+            case UnitConditionVariable.PursuitTime:
+                break;
+            case UnitConditionVariable.HasHarmfulAuraCanceledByDamage:
+                return unit.HasNegativeAuraWithInterruptFlag(SpellAuraInterruptFlags.Damage) ? 1 : 0;
+            case UnitConditionVariable.HasHarmfulAuraWithPeriodicDamage:
+                return unit.HasAuraType(AuraType.PeriodicDamage) ? 1 : 0;
+            case UnitConditionVariable.NumberOfEnemies:
+                return unit.GetThreatManager().ThreatListSize;
+            case UnitConditionVariable.NumberOfFriends:
+                break;
+            case UnitConditionVariable.ThreatPhysicalPct:
+                break;
+            case UnitConditionVariable.ThreatHolyPct:
+                break;
+            case UnitConditionVariable.ThreatFirePct:
+                break;
+            case UnitConditionVariable.ThreatNaturePct:
+                break;
+            case UnitConditionVariable.ThreatFrostPct:
+                break;
+            case UnitConditionVariable.ThreatShadowPct:
+                break;
+            case UnitConditionVariable.ThreatArcanePct:
+                break;
+            case UnitConditionVariable.IsInterruptible:
+                break;
+            case UnitConditionVariable.NumberOfAttackers:
+                return unit.Attackers.Count;
+            case UnitConditionVariable.NumberOfRangedAttackers:
+                return unit.Attackers.Count(attacker =>
+                {
+                    var distance = Math.Max(unit.CombatReach + attacker.CombatReach + 1.3333334f, 5.0f);
+
+                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || attacker.HasUnitFlag(UnitFlags.PlayerControlled))
+                        distance += 1.0f;
+
+                    return unit.Location.GetExactDistSq(attacker.Location) >= distance * distance;
+                });
+            case UnitConditionVariable.CreatureType:
+                return (int)unit.CreatureType;
+            case UnitConditionVariable.IsMeleeAttacking:
+            {
+                var target = _objectAccessor.GetUnit(unit, unit.Target);
+
+                if (target != null)
+                {
+                    var distance = Math.Max(unit.CombatReach + target.CombatReach + 1.3333334f, 5.0f);
+
+                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || target.HasUnitFlag(UnitFlags.PlayerControlled))
+                        distance += 1.0f;
+
+                    return (unit.Location.GetExactDistSq(target.Location) < distance * distance) ? 1 : 0;
+                }
+
+                return 0;
+            }
+            case UnitConditionVariable.IsRangedAttacking:
+            {
+                var target = _objectAccessor.GetUnit(unit, unit.Target);
+
+                if (target != null)
+                {
+                    var distance = Math.Max(unit.CombatReach + target.CombatReach + 1.3333334f, 5.0f);
+
+                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || target.HasUnitFlag(UnitFlags.PlayerControlled))
+                        distance += 1.0f;
+
+                    return (unit.Location.GetExactDistSq(target.Location) >= distance * distance) ? 1 : 0;
+                }
+
+                return 0;
+            }
+            case UnitConditionVariable.Health:
+                return (int)unit.Health;
+            case UnitConditionVariable.SpellKnown:
+                return unit.HasSpell((uint)value) ? value : 0;
+            case UnitConditionVariable.HasHarmfulAuraEffect:
+                return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
+            case UnitConditionVariable.IsImmuneToAreaOfEffect:
+                break;
+            case UnitConditionVariable.IsPlayer:
+                return unit.IsPlayer ? 1 : 0;
+            case UnitConditionVariable.DamageMagicPct:
+                break;
+            case UnitConditionVariable.DamageTotalPct:
+                break;
+            case UnitConditionVariable.ThreatMagicPct:
+                break;
+            case UnitConditionVariable.ThreatTotalPct:
+                break;
+            case UnitConditionVariable.HasCritter:
+                return unit.CritterGUID.IsEmpty ? 0 : 1;
+            case UnitConditionVariable.HasTotemInSlot1:
+                return unit.SummonSlot[(int)SummonSlot.Totem].IsEmpty ? 0 : 1;
+            case UnitConditionVariable.HasTotemInSlot2:
+                return unit.SummonSlot[(int)SummonSlot.Totem2].IsEmpty ? 0 : 1;
+            case UnitConditionVariable.HasTotemInSlot3:
+                return unit.SummonSlot[(int)SummonSlot.Totem3].IsEmpty ? 0 : 1;
+            case UnitConditionVariable.HasTotemInSlot4:
+                return unit.SummonSlot[(int)SummonSlot.Totem4].IsEmpty ? 0 : 1;
+            case UnitConditionVariable.HasTotemInSlot5:
+                break;
+            case UnitConditionVariable.Creature:
+                return (int)unit.Entry;
+            case UnitConditionVariable.StringID:
+                break;
+            case UnitConditionVariable.HasAura:
+                return unit.HasAura((uint)value) ? value : 0;
+            case UnitConditionVariable.IsEnemy:
+                return (otherUnit && unit.WorldObjectCombat.GetReactionTo(otherUnit) <= ReputationRank.Hostile) ? 1 : 0;
+            case UnitConditionVariable.IsSpecMelee:
+                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee)) ? 1 : 0;
+            case UnitConditionVariable.IsSpecTank:
+                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 0) ? 1 : 0;
+            case UnitConditionVariable.IsSpecRanged:
+                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Ranged)) ? 1 : 0;
+            case UnitConditionVariable.IsSpecHealer:
+                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 1) ? 1 : 0;
+            case UnitConditionVariable.IsPlayerControlledNPC:
+                return unit.IsCreature && unit.HasUnitFlag(UnitFlags.PlayerControlled) ? 1 : 0;
+            case UnitConditionVariable.IsDying:
+                return unit.Health == 0 ? 1 : 0;
+            case UnitConditionVariable.PathFailCount:
+                break;
+            case UnitConditionVariable.IsMounted:
+                return unit.MountDisplayId != 0 ? 1 : 0;
+            case UnitConditionVariable.Label:
+                break;
+            case UnitConditionVariable.IsMySummon:
+                return (otherUnit && (otherUnit.CharmerGUID == unit.GUID || otherUnit.CreatorGUID == unit.GUID)) ? 1 : 0;
+            case UnitConditionVariable.IsSummoner:
+                return (otherUnit && (unit.CharmerGUID == otherUnit.GUID || unit.CreatorGUID == otherUnit.GUID)) ? 1 : 0;
+            case UnitConditionVariable.IsMyTarget:
+                return (otherUnit && unit.Target == otherUnit.GUID) ? 1 : 0;
+            case UnitConditionVariable.Sex:
+                return (int)unit.Gender;
+            case UnitConditionVariable.LevelWithinContentTuning:
+                var levelRange = _db2Manager.GetContentTuningData((uint)value, 0);
+
+                if (levelRange.HasValue)
+                    return unit.Level >= levelRange.Value.MinLevel && unit.Level <= levelRange.Value.MaxLevel ? value : 0;
+
+                return 0;
+            case UnitConditionVariable.IsFlying:
+                return unit.IsFlying ? 1 : 0;
+            case UnitConditionVariable.IsHovering:
+                return unit.IsHovering ? 1 : 0;
+            case UnitConditionVariable.HasHelpfulAuraEffect:
+                return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
+            case UnitConditionVariable.HasHelpfulAuraSchool:
+                return unit.GetAppliedAurasQuery()
+                           .HasNegitiveFlag()
+                           .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.GetSchoolMask() & (1 << value)) != 0)
+                           .GetResults()
+                           .Any()
+                           ? 1
+                           : 0;
+        }
+
+        return 0;
     }
 
     private bool IsConditionTypeValid(Condition cond)
@@ -2859,36 +2718,572 @@ public sealed class ConditionManager
         return true;
     }
 
+    private bool IsSourceTypeValid(Condition cond)
+    {
+        switch (cond.SourceType)
+        {
+            case ConditionSourceType.CreatureLootTemplate:
+            {
+                if (!_lootStorage.Creature.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `creature_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Creature.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, Item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.DisenchantLootTemplate:
+            {
+                if (!_lootStorage.Disenchant.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `disenchant_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.FishingLootTemplate:
+            {
+                if (!_lootStorage.Fishing.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `fishing_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.GameobjectLootTemplate:
+            {
+                if (!_lootStorage.Gameobject.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `gameobject_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.ItemLootTemplate:
+            {
+                if (!_lootStorage.Items.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `item_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Items.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.MailLootTemplate:
+            {
+                if (!_lootStorage.Mail.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `mail_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Mail.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.MillingLootTemplate:
+            {
+                if (!_lootStorage.Milling.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `milling_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Milling.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.PickpocketingLootTemplate:
+            {
+                if (!_lootStorage.Pickpocketing.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `pickpocketing_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.ProspectingLootTemplate:
+            {
+                if (!_lootStorage.Prospecting.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `prospecting_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.ReferenceLootTemplate:
+            {
+                if (!_lootStorage.Reference.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `reference_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Reference.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.SkinningLootTemplate:
+            {
+                if (!_lootStorage.Skinning.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `skinning_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.SpellLootTemplate:
+            {
+                if (!_lootStorage.Spell.HaveLootFor(cond.SourceGroup))
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `spell_loot_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var loot = _lootStorage.Spell.GetLootForConditionFill(cond.SourceGroup);
+                var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.SpellImplicitTarget:
+            {
+                var spellInfo = _spellManager.GetSpellInfo((uint)cond.SourceEntry);
+
+                if (spellInfo == null)
+                {
+                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                if (cond.SourceGroup is > SpellConst.MAX_EFFECT_MASK or 0)
+                {
+                    Log.Logger.Debug("{0} in `condition` table, has incorrect SourceGroup (spell effectMask) set, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var origGroup = cond.SourceGroup;
+
+                foreach (var spellEffectInfo in spellInfo.Effects)
+                {
+                    if (((1 << spellEffectInfo.EffectIndex) & cond.SourceGroup) == 0)
+                        continue;
+
+                    if (spellEffectInfo.ChainTargets > 0)
+                        continue;
+
+                    switch (spellEffectInfo.TargetA.SelectionCategory)
+                    {
+                        case SpellTargetSelectionCategories.Nearby:
+                        case SpellTargetSelectionCategories.Cone:
+                        case SpellTargetSelectionCategories.Area:
+                        case SpellTargetSelectionCategories.Traj:
+                        case SpellTargetSelectionCategories.Line:
+                            continue;
+                    }
+
+                    switch (spellEffectInfo.TargetB.SelectionCategory)
+                    {
+                        case SpellTargetSelectionCategories.Nearby:
+                        case SpellTargetSelectionCategories.Cone:
+                        case SpellTargetSelectionCategories.Area:
+                        case SpellTargetSelectionCategories.Traj:
+                        case SpellTargetSelectionCategories.Line:
+                            continue;
+                    }
+
+                    switch (spellEffectInfo.Effect)
+                    {
+                        case SpellEffectName.PersistentAreaAura:
+                        case SpellEffectName.ApplyAreaAuraParty:
+                        case SpellEffectName.ApplyAreaAuraRaid:
+                        case SpellEffectName.ApplyAreaAuraFriend:
+                        case SpellEffectName.ApplyAreaAuraEnemy:
+                        case SpellEffectName.ApplyAreaAuraPet:
+                        case SpellEffectName.ApplyAreaAuraOwner:
+                        case SpellEffectName.ApplyAuraOnPet:
+                        case SpellEffectName.ApplyAreaAuraSummons:
+                        case SpellEffectName.ApplyAreaAuraPartyNonrandom:
+                            continue;
+                    }
+
+                    Log.Logger.Debug("SourceEntry {0} SourceGroup {1} in `condition` table - spell {2} does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, _CHAIN_ for effect {3}, SourceGroup needs correction, ignoring.", cond.SourceEntry, origGroup, cond.SourceEntry, spellEffectInfo.EffectIndex);
+                    cond.SourceGroup &= ~(1u << spellEffectInfo.EffectIndex);
+                }
+
+                // all effects were removed, no need to add the condition at all
+                if (cond.SourceGroup == 0)
+                    return false;
+
+                break;
+            }
+            case ConditionSourceType.CreatureTemplateVehicle:
+            {
+                if (_objectManager.GetCreatureTemplate((uint)cond.SourceEntry) == null)
+                {
+                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.Spell:
+            case ConditionSourceType.SpellProc:
+            {
+                var spellProto = _spellManager.GetSpellInfo((uint)cond.SourceEntry);
+
+                if (spellProto == null)
+                {
+                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.QuestAvailable:
+                if (_objectManager.GetQuestTemplate((uint)cond.SourceEntry) == null)
+                {
+                    Log.Logger.Debug("{0} SourceEntry specifies non-existing quest, skipped.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.VehicleSpell:
+                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                if (!_spellManager.HasSpellInfo((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.SpellClickEvent:
+                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                if (!_spellManager.HasSpellInfo((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.NpcVendor:
+            {
+                if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
+                {
+                    Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                var itemTemplate = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
+
+                if (itemTemplate == null)
+                {
+                    Log.Logger.Debug("{0} SourceEntry in `condition` table item does not exist, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.TerrainSwap:
+                if (!_cliDB.MapStorage.ContainsKey((uint)cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in Map.db2, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.Phase:
+                if (cond.SourceEntry != 0 && !_cliDB.AreaTableStorage.ContainsKey(cond.SourceEntry))
+                {
+                    Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in AreaTable.db2, ignoring.", cond.ToString());
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.GossipMenu:
+            case ConditionSourceType.GossipMenuOption:
+            case ConditionSourceType.SmartEvent:
+                break;
+            case ConditionSourceType.Graveyard:
+                if (_objectManager.GetWorldSafeLoc((uint)cond.SourceEntry) == null)
+                {
+                    Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.");
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.AreaTrigger:
+                if (cond.SourceEntry != 0 && cond.SourceEntry != 1)
+                {
+                    Log.Logger.Debug($"{cond.ToString()} in `condition` table, unexpected SourceEntry value (expected 0 or 1), ignoring.");
+
+                    return false;
+                }
+
+                if (_areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId(cond.SourceGroup, cond.SourceEntry != 0)) == null)
+                {
+                    Log.Logger.Debug($"{cond.ToString()} in `condition` table, does not exist in `areatrigger_template`, ignoring.");
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.ConversationLine:
+                if (_conversationDataStorage.GetConversationLineTemplate((uint)cond.SourceEntry) == null)
+                {
+                    Log.Logger.Debug($"{cond} does not exist in `conversation_line_template`, ignoring.");
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.AreatriggerClientTriggered:
+                if (!_cliDB.AreaTriggerStorage.ContainsKey(cond.SourceEntry))
+                {
+                    Log.Logger.Debug($"{cond} SourceEntry in `condition` table, does not exists in AreaTrigger.db2, ignoring.");
+
+                    return false;
+                }
+
+                break;
+            case ConditionSourceType.TrainerSpell:
+            {
+                if (_objectManager.GetTrainer(cond.SourceGroup) == null)
+                {
+                    Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, does not exist in `trainer`, ignoring.");
+
+                    return false;
+                }
+
+                if (_spellManager.GetSpellInfo((uint)cond.SourceEntry) == null)
+                {
+                    Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.");
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.ObjectIdVisibility:
+            {
+                if (cond.SourceGroup <= 0 || cond.SourceGroup >= (uint)TypeId.Max)
+                {
+                    Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, is no valid object type, ignoring.");
+
+                    return false;
+                }
+
+                if (cond.SourceGroup == (uint)TypeId.Unit)
+                {
+                    if (_objectManager.GetCreatureTemplate((uint)cond.SourceEntry) == null)
+                    {
+                        Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.");
+
+                        return false;
+                    }
+                }
+                else if (cond.SourceGroup == (uint)TypeId.GameObject)
+                {
+                    if (_objectManager.GetGameObjectTemplate((uint)cond.SourceEntry) == null)
+                    {
+                        Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.");
+
+                        return false;
+                    }
+                }
+                else
+                {
+                    Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, uses unchecked type id, ignoring.");
+
+                    return false;
+                }
+
+                break;
+            }
+            case ConditionSourceType.SpawnGroup:
+            {
+                var spawnGroup = _objectManager.GetSpawnGroupData((uint)cond.SourceEntry);
+
+                if (spawnGroup == null)
+                {
+                    Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `spawn_group_template`, ignoring.");
+
+                    return false;
+                }
+
+                if (spawnGroup.Flags.HasAnyFlag(SpawnGroupFlags.System))
+                {
+                    Log.Logger.Debug($"{cond.ToString()} in `spawn_group_template` table cannot have SPAWNGROUP_FLAG_SYSTEM or SPAWNGROUP_FLAG_MANUAL_SPAWN flags, ignoring.");
+
+                    return false;
+                }
+
+                break;
+            }
+            default:
+                Log.Logger.Debug($"{cond.ToString()} Invalid ConditionSourceType in `condition` table, ignoring.");
+
+                return false;
+        }
+
+        return true;
+    }
     private void LogUselessConditionValue(Condition cond, byte index, uint value)
     {
         Log.Logger.Debug("{0} has useless data in ConditionValue{1} ({2})!", cond.ToString(true), index, value);
     }
-
-    private void Clean()
-    {
-        _conditionReferenceStorage.Clear();
-
-        _conditionStorage.Clear();
-
-        for (ConditionSourceType i = 0; i < ConditionSourceType.Max; ++i)
-            _conditionStorage[i] = new MultiMap<uint, Condition>(); //add new empty list for SourceType
-
-        _vehicleSpellConditionStorage.Clear();
-
-        _smartEventConditionStorage.Clear();
-
-        _spellClickEventConditionStorage.Clear();
-        _spellsUsedInSpellClickConditions.Clear();
-
-        _npcVendorConditionContainerStorage.Clear();
-
-        _areaTriggerConditionContainerStorage.Clear();
-
-        _trainerSpellConditionContainerStorage.Clear();
-
-        _objectVisibilityConditionStorage.Clear();
-    }
-
     private bool PlayerConditionCompare(int comparisonType, int value1, int value2)
     {
         switch (comparisonType)
@@ -2933,354 +3328,6 @@ public sealed class ConditionManager
 
         return result;
     }
-
-    private int GetUnitConditionVariable(Unit unit, Unit otherUnit, UnitConditionVariable variable, int value)
-    {
-        switch (variable)
-        {
-            case UnitConditionVariable.Race:
-                return (int)unit.Race;
-            case UnitConditionVariable.Class:
-                return (int)unit.Class;
-            case UnitConditionVariable.Level:
-                return (int)unit.Level;
-            case UnitConditionVariable.IsSelf:
-                return unit == otherUnit ? 1 : 0;
-            case UnitConditionVariable.IsMyPet:
-                return (otherUnit != null && unit.CharmerOrOwnerGUID == otherUnit.GUID) ? 1 : 0;
-            case UnitConditionVariable.IsMaster:
-                return (otherUnit && otherUnit.CharmerOrOwnerGUID == unit.GUID) ? 1 : 0;
-            case UnitConditionVariable.IsTarget:
-                return (otherUnit && otherUnit.Target == unit.GUID) ? 1 : 0;
-            case UnitConditionVariable.CanAssist:
-                return (otherUnit && unit.WorldObjectCombat.IsValidAssistTarget(otherUnit)) ? 1 : 0;
-            case UnitConditionVariable.CanAttack:
-                return (otherUnit && unit.WorldObjectCombat.IsValidAttackTarget(otherUnit)) ? 1 : 0;
-            case UnitConditionVariable.HasPet:
-                return (!unit.CharmedGUID.IsEmpty || !unit.MinionGUID.IsEmpty) ? 1 : 0;
-            case UnitConditionVariable.HasWeapon:
-                var player = unit.AsPlayer;
-
-                if (player != null)
-                    return (player.GetWeaponForAttack(WeaponAttackType.BaseAttack) || player.GetWeaponForAttack(WeaponAttackType.OffAttack)) ? 1 : 0;
-
-                return (unit.GetVirtualItemId(0) != 0 || unit.GetVirtualItemId(1) != 0) ? 1 : 0;
-            case UnitConditionVariable.HealthPct:
-                return (int)unit.HealthPct;
-            case UnitConditionVariable.ManaPct:
-                return (int)unit.GetPowerPct(PowerType.Mana);
-            case UnitConditionVariable.RagePct:
-                return (int)unit.GetPowerPct(PowerType.Rage);
-            case UnitConditionVariable.EnergyPct:
-                return (int)unit.GetPowerPct(PowerType.Energy);
-            case UnitConditionVariable.ComboPoints:
-                return unit.GetPower(PowerType.ComboPoints);
-            case UnitConditionVariable.HasHelpfulAuraSpell:
-                return unit.GetAppliedAurasQuery()
-                           .HasSpellId((uint)value)
-                           .HasNegitiveFlag(false)
-                           .GetResults()
-                           .Any()
-                           ? value
-                           : 0;
-            case UnitConditionVariable.HasHelpfulAuraDispelType:
-                return unit.GetAppliedAurasQuery()
-                           .HasDispelType((DispelType)value)
-                           .HasNegitiveFlag(false)
-                           .GetResults()
-                           .Any()
-                           ? value
-                           : 0;
-            case UnitConditionVariable.HasHelpfulAuraMechanic:
-                return unit.GetAppliedAurasQuery()
-                           .HasNegitiveFlag(false)
-                           .AlsoMatches(aurApp => (aurApp.Base.SpellInfo.GetSpellMechanicMaskByEffectMask(aurApp.EffectMask) & (1ul << value)) != 0)
-                           .GetResults()
-                           .Any()
-                           ? value
-                           : 0;
-            case UnitConditionVariable.HasHarmfulAuraSpell:
-                return unit.GetAppliedAurasQuery()
-                           .HasSpellId((uint)value)
-                           .HasNegitiveFlag()
-                           .GetResults()
-                           .Any()
-                           ? value
-                           : 0;
-            case UnitConditionVariable.HasHarmfulAuraDispelType:
-                return unit.GetAppliedAurasQuery()
-                           .HasDispelType((DispelType)value)
-                           .HasNegitiveFlag()
-                           .GetResults()
-                           .Any()
-                           ? value
-                           : 0;
-            case UnitConditionVariable.HasHarmfulAuraMechanic:
-                return unit.GetAppliedAurasQuery()
-                           .HasNegitiveFlag()
-                           .AlsoMatches(aurApp => (aurApp.Base.SpellInfo.GetSpellMechanicMaskByEffectMask(aurApp.EffectMask) & (1ul << value)) != 0)
-                           .GetResults()
-                           .Any()
-                           ? value
-                           : 0;
-            case UnitConditionVariable.HasHarmfulAuraSchool:
-                return unit.GetAppliedAurasQuery()
-                           .HasNegitiveFlag()
-                           .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.GetSchoolMask() & (1 << value)) != 0)
-                           .GetResults()
-                           .Any()
-                           ? value
-                           : 0;
-            case UnitConditionVariable.DamagePhysicalPct:
-                break;
-            case UnitConditionVariable.DamageHolyPct:
-                break;
-            case UnitConditionVariable.DamageFirePct:
-                break;
-            case UnitConditionVariable.DamageNaturePct:
-                break;
-            case UnitConditionVariable.DamageFrostPct:
-                break;
-            case UnitConditionVariable.DamageShadowPct:
-                break;
-            case UnitConditionVariable.DamageArcanePct:
-                break;
-            case UnitConditionVariable.InCombat:
-                return unit.IsInCombat ? 1 : 0;
-            case UnitConditionVariable.IsMoving:
-                return unit.HasUnitMovementFlag(MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight) ? 1 : 0;
-            case UnitConditionVariable.IsCasting:
-            case UnitConditionVariable.IsCastingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
-                return unit.GetCurrentSpell(CurrentSpellTypes.Generic) != null ? 1 : 0;
-            case UnitConditionVariable.IsChanneling:
-            case UnitConditionVariable.IsChannelingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
-                return unit.ChannelSpellId != 0 ? 1 : 0;
-            case UnitConditionVariable.NumberOfMeleeAttackers:
-                return unit.Attackers.Count(attacker =>
-                {
-                    var distance = Math.Max(unit.CombatReach + attacker.CombatReach + 1.3333334f, 5.0f);
-
-                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || attacker.HasUnitFlag(UnitFlags.PlayerControlled))
-                        distance += 1.0f;
-
-                    return unit.Location.GetExactDistSq(attacker.Location) < distance * distance;
-                });
-            case UnitConditionVariable.IsAttackingMe:
-                return (otherUnit != null && unit.Target == otherUnit.GUID) ? 1 : 0;
-            case UnitConditionVariable.Range:
-                return otherUnit ? (int)unit.Location.GetExactDist(otherUnit.Location) : 0;
-            case UnitConditionVariable.InMeleeRange:
-                if (otherUnit)
-                {
-                    var distance = Math.Max(unit.CombatReach + otherUnit.CombatReach + 1.3333334f, 5.0f);
-
-                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || otherUnit.HasUnitFlag(UnitFlags.PlayerControlled))
-                        distance += 1.0f;
-
-                    return (unit.Location.GetExactDistSq(otherUnit.Location) < distance * distance) ? 1 : 0;
-                }
-
-                return 0;
-            case UnitConditionVariable.PursuitTime:
-                break;
-            case UnitConditionVariable.HasHarmfulAuraCanceledByDamage:
-                return unit.HasNegativeAuraWithInterruptFlag(SpellAuraInterruptFlags.Damage) ? 1 : 0;
-            case UnitConditionVariable.HasHarmfulAuraWithPeriodicDamage:
-                return unit.HasAuraType(AuraType.PeriodicDamage) ? 1 : 0;
-            case UnitConditionVariable.NumberOfEnemies:
-                return unit.GetThreatManager().ThreatListSize;
-            case UnitConditionVariable.NumberOfFriends:
-                break;
-            case UnitConditionVariable.ThreatPhysicalPct:
-                break;
-            case UnitConditionVariable.ThreatHolyPct:
-                break;
-            case UnitConditionVariable.ThreatFirePct:
-                break;
-            case UnitConditionVariable.ThreatNaturePct:
-                break;
-            case UnitConditionVariable.ThreatFrostPct:
-                break;
-            case UnitConditionVariable.ThreatShadowPct:
-                break;
-            case UnitConditionVariable.ThreatArcanePct:
-                break;
-            case UnitConditionVariable.IsInterruptible:
-                break;
-            case UnitConditionVariable.NumberOfAttackers:
-                return unit.Attackers.Count;
-            case UnitConditionVariable.NumberOfRangedAttackers:
-                return unit.Attackers.Count(attacker =>
-                {
-                    var distance = Math.Max(unit.CombatReach + attacker.CombatReach + 1.3333334f, 5.0f);
-
-                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || attacker.HasUnitFlag(UnitFlags.PlayerControlled))
-                        distance += 1.0f;
-
-                    return unit.Location.GetExactDistSq(attacker.Location) >= distance * distance;
-                });
-            case UnitConditionVariable.CreatureType:
-                return (int)unit.CreatureType;
-            case UnitConditionVariable.IsMeleeAttacking:
-            {
-                var target = _objectAccessor.GetUnit(unit, unit.Target);
-
-                if (target != null)
-                {
-                    var distance = Math.Max(unit.CombatReach + target.CombatReach + 1.3333334f, 5.0f);
-
-                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || target.HasUnitFlag(UnitFlags.PlayerControlled))
-                        distance += 1.0f;
-
-                    return (unit.Location.GetExactDistSq(target.Location) < distance * distance) ? 1 : 0;
-                }
-
-                return 0;
-            }
-            case UnitConditionVariable.IsRangedAttacking:
-            {
-                var target = _objectAccessor.GetUnit(unit, unit.Target);
-
-                if (target != null)
-                {
-                    var distance = Math.Max(unit.CombatReach + target.CombatReach + 1.3333334f, 5.0f);
-
-                    if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || target.HasUnitFlag(UnitFlags.PlayerControlled))
-                        distance += 1.0f;
-
-                    return (unit.Location.GetExactDistSq(target.Location) >= distance * distance) ? 1 : 0;
-                }
-
-                return 0;
-            }
-            case UnitConditionVariable.Health:
-                return (int)unit.Health;
-            case UnitConditionVariable.SpellKnown:
-                return unit.HasSpell((uint)value) ? value : 0;
-            case UnitConditionVariable.HasHarmfulAuraEffect:
-                return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
-            case UnitConditionVariable.IsImmuneToAreaOfEffect:
-                break;
-            case UnitConditionVariable.IsPlayer:
-                return unit.IsPlayer ? 1 : 0;
-            case UnitConditionVariable.DamageMagicPct:
-                break;
-            case UnitConditionVariable.DamageTotalPct:
-                break;
-            case UnitConditionVariable.ThreatMagicPct:
-                break;
-            case UnitConditionVariable.ThreatTotalPct:
-                break;
-            case UnitConditionVariable.HasCritter:
-                return unit.CritterGUID.IsEmpty ? 0 : 1;
-            case UnitConditionVariable.HasTotemInSlot1:
-                return unit.SummonSlot[(int)SummonSlot.Totem].IsEmpty ? 0 : 1;
-            case UnitConditionVariable.HasTotemInSlot2:
-                return unit.SummonSlot[(int)SummonSlot.Totem2].IsEmpty ? 0 : 1;
-            case UnitConditionVariable.HasTotemInSlot3:
-                return unit.SummonSlot[(int)SummonSlot.Totem3].IsEmpty ? 0 : 1;
-            case UnitConditionVariable.HasTotemInSlot4:
-                return unit.SummonSlot[(int)SummonSlot.Totem4].IsEmpty ? 0 : 1;
-            case UnitConditionVariable.HasTotemInSlot5:
-                break;
-            case UnitConditionVariable.Creature:
-                return (int)unit.Entry;
-            case UnitConditionVariable.StringID:
-                break;
-            case UnitConditionVariable.HasAura:
-                return unit.HasAura((uint)value) ? value : 0;
-            case UnitConditionVariable.IsEnemy:
-                return (otherUnit && unit.WorldObjectCombat.GetReactionTo(otherUnit) <= ReputationRank.Hostile) ? 1 : 0;
-            case UnitConditionVariable.IsSpecMelee:
-                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee)) ? 1 : 0;
-            case UnitConditionVariable.IsSpecTank:
-                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 0) ? 1 : 0;
-            case UnitConditionVariable.IsSpecRanged:
-                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Ranged)) ? 1 : 0;
-            case UnitConditionVariable.IsSpecHealer:
-                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 1) ? 1 : 0;
-            case UnitConditionVariable.IsPlayerControlledNPC:
-                return unit.IsCreature && unit.HasUnitFlag(UnitFlags.PlayerControlled) ? 1 : 0;
-            case UnitConditionVariable.IsDying:
-                return unit.Health == 0 ? 1 : 0;
-            case UnitConditionVariable.PathFailCount:
-                break;
-            case UnitConditionVariable.IsMounted:
-                return unit.MountDisplayId != 0 ? 1 : 0;
-            case UnitConditionVariable.Label:
-                break;
-            case UnitConditionVariable.IsMySummon:
-                return (otherUnit && (otherUnit.CharmerGUID == unit.GUID || otherUnit.CreatorGUID == unit.GUID)) ? 1 : 0;
-            case UnitConditionVariable.IsSummoner:
-                return (otherUnit && (unit.CharmerGUID == otherUnit.GUID || unit.CreatorGUID == otherUnit.GUID)) ? 1 : 0;
-            case UnitConditionVariable.IsMyTarget:
-                return (otherUnit && unit.Target == otherUnit.GUID) ? 1 : 0;
-            case UnitConditionVariable.Sex:
-                return (int)unit.Gender;
-            case UnitConditionVariable.LevelWithinContentTuning:
-                var levelRange = _db2Manager.GetContentTuningData((uint)value, 0);
-
-                if (levelRange.HasValue)
-                    return unit.Level >= levelRange.Value.MinLevel && unit.Level <= levelRange.Value.MaxLevel ? value : 0;
-
-                return 0;
-            case UnitConditionVariable.IsFlying:
-                return unit.IsFlying ? 1 : 0;
-            case UnitConditionVariable.IsHovering:
-                return unit.IsHovering ? 1 : 0;
-            case UnitConditionVariable.HasHelpfulAuraEffect:
-                return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
-            case UnitConditionVariable.HasHelpfulAuraSchool:
-                return unit.GetAppliedAurasQuery()
-                           .HasNegitiveFlag()
-                           .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.GetSchoolMask() & (1 << value)) != 0)
-                           .GetResults()
-                           .Any()
-                           ? 1
-                           : 0;
-        }
-
-        return 0;
-    }
-
-    private int EvalSingleValue(ByteBuffer buffer, Player player)
-    {
-        var valueType = (WorldStateExpressionValueType)buffer.ReadUInt8();
-        var value = 0;
-
-        switch (valueType)
-        {
-            case WorldStateExpressionValueType.Constant:
-            {
-                value = buffer.ReadInt32();
-
-                break;
-            }
-            case WorldStateExpressionValueType.WorldState:
-            {
-                var worldStateId = buffer.ReadUInt32();
-                value = _worldStateManager.GetValue((int)worldStateId, player.Location.Map);
-
-                break;
-            }
-            case WorldStateExpressionValueType.Function:
-            {
-                var functionType = (WorldStateExpressionFunctions)buffer.ReadUInt32();
-                var arg1 = EvalSingleValue(buffer, player);
-                var arg2 = EvalSingleValue(buffer, player);
-
-                if (functionType >= WorldStateExpressionFunctions.Max)
-                    return 0;
-
-                value = WorldStateExpressionFunction(functionType, player, arg1, arg2);
-
-                break;
-            }
-        }
-
-        return value;
-    }
-
     private int WorldStateExpressionFunction(WorldStateExpressionFunctions functionType, Player player, int arg1, int arg2)
     {
         switch (functionType)
@@ -3288,17 +3335,17 @@ public sealed class ConditionManager
             case WorldStateExpressionFunctions.Random:
                 return (int)RandomHelper.URand(Math.Min(arg1, arg2), Math.Max(arg1, arg2));
             case WorldStateExpressionFunctions.Month:
-                return GameTime.GetDateAndTime().Month + 1;
+                return GameTime.DateAndTime.Month + 1;
             case WorldStateExpressionFunctions.Day:
-                return GameTime.GetDateAndTime().Day + 1;
+                return GameTime.DateAndTime.Day + 1;
             case WorldStateExpressionFunctions.TimeOfDay:
-                var localTime = GameTime.GetDateAndTime();
+                var localTime = GameTime.DateAndTime;
 
-                return localTime.Hour * Time.Minute + localTime.Minute;
+                return localTime.Hour * Time.MINUTE + localTime.Minute;
             case WorldStateExpressionFunctions.Region:
                 return _worldManager.Realm.Id.Region;
             case WorldStateExpressionFunctions.ClockHour:
-                var currentHour = GameTime.GetDateAndTime().Hour + 1;
+                var currentHour = GameTime.DateAndTime.Hour + 1;
 
                 return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
             case WorldStateExpressionFunctions.OldDifficultyId:
@@ -3311,16 +3358,16 @@ public sealed class ConditionManager
             case WorldStateExpressionFunctions.HolidayActive:
                 return _gameEventManager.IsHolidayActive((HolidayIds)arg1) ? 1 : 0;
             case WorldStateExpressionFunctions.TimerCurrentTime:
-                return (int)GameTime.GetGameTime();
+                return (int)GameTime.CurrentTime;
             case WorldStateExpressionFunctions.WeekNumber:
-                var now = GameTime.GetGameTime();
+                var now = GameTime.CurrentTime;
                 uint raidOrigin = 1135695600;
                 var region = _cliDB.CfgRegionsStorage.LookupByKey(_worldManager.Realm.Id.Region);
 
                 if (region != null)
                     raidOrigin = region.Raidorigin;
 
-                return (int)(now - raidOrigin) / Time.Week;
+                return (int)(now - raidOrigin) / Time.WEEK;
             case WorldStateExpressionFunctions.DifficultyId:
                 return (int)player.Location.Map.DifficultyID;
             case WorldStateExpressionFunctions.WarModeActive:
@@ -3370,67 +3417,16 @@ public sealed class ConditionManager
                 return 0;
         }
     }
-
-    private int EvalValue(ByteBuffer buffer, Player player)
-    {
-        var leftValue = EvalSingleValue(buffer, player);
-
-        var operatorType = (WorldStateExpressionOperatorType)buffer.ReadUInt8();
-
-        if (operatorType == WorldStateExpressionOperatorType.None)
-            return leftValue;
-
-        var rightValue = EvalSingleValue(buffer, player);
-
-        switch (operatorType)
-        {
-            case WorldStateExpressionOperatorType.Sum:
-                return leftValue + rightValue;
-            case WorldStateExpressionOperatorType.Substraction:
-                return leftValue - rightValue;
-            case WorldStateExpressionOperatorType.Multiplication:
-                return leftValue * rightValue;
-            case WorldStateExpressionOperatorType.Division:
-                return rightValue == 0 ? 0 : leftValue / rightValue;
-            case WorldStateExpressionOperatorType.Remainder:
-                return rightValue == 0 ? 0 : leftValue % rightValue;
-        }
-
-        return leftValue;
-    }
-
-    private bool EvalRelOp(ByteBuffer buffer, Player player)
-    {
-        var leftValue = EvalValue(buffer, player);
-
-        var compareLogic = (WorldStateExpressionComparisonType)buffer.ReadUInt8();
-
-        if (compareLogic == WorldStateExpressionComparisonType.None)
-            return leftValue != 0;
-
-        var rightValue = EvalValue(buffer, player);
-
-        switch (compareLogic)
-        {
-            case WorldStateExpressionComparisonType.Equal:
-                return leftValue == rightValue;
-            case WorldStateExpressionComparisonType.NotEqual:
-                return leftValue != rightValue;
-            case WorldStateExpressionComparisonType.Less:
-                return leftValue < rightValue;
-            case WorldStateExpressionComparisonType.LessOrEqual:
-                return leftValue <= rightValue;
-            case WorldStateExpressionComparisonType.Greater:
-                return leftValue > rightValue;
-            case WorldStateExpressionComparisonType.GreaterOrEqual:
-                return leftValue >= rightValue;
-        }
-
-        return false;
-    }
-
     public struct ConditionTypeInfo
     {
+        public bool HasConditionValue1;
+
+        public bool HasConditionValue2;
+
+        public bool HasConditionValue3;
+
+        public string Name;
+
         public ConditionTypeInfo(string name, params bool[] args)
         {
             Name = name;
@@ -3438,10 +3434,5 @@ public sealed class ConditionManager
             HasConditionValue2 = args[1];
             HasConditionValue3 = args[2];
         }
-
-        public string Name;
-        public bool HasConditionValue1;
-        public bool HasConditionValue2;
-        public bool HasConditionValue3;
     }
 }

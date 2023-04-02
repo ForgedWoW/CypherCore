@@ -20,161 +20,20 @@ namespace Forged.MapServer.Maps;
 
 public class TransportManager
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _objectManager;
     private readonly CliDB _cliDB;
     private readonly DB2Manager _db2Manager;
-    private readonly Dictionary<uint, TransportTemplate> _transportTemplates = new();
-    private readonly MultiMap<uint, TransportSpawn> _transportsByMap = new();
+    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, TransportAnimation> _transportAnimations = new();
+    private readonly MultiMap<uint, TransportSpawn> _transportsByMap = new();
     private readonly Dictionary<ulong, TransportSpawn> _transportSpawns = new();
-
+    private readonly Dictionary<uint, TransportTemplate> _transportTemplates = new();
+    private readonly WorldDatabase _worldDatabase;
     public TransportManager(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, DB2Manager db2Manager)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _cliDB = cliDB;
         _db2Manager = db2Manager;
-    }
-
-    public void LoadTransportTemplates()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 transports templates. DB table `gameobject_template` has no transports!");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var entry = result.Read<uint>(0);
-            var goInfo = _objectManager.GetGameObjectTemplate(entry);
-
-            if (goInfo == null)
-            {
-                Log.Logger.Error("Transport {0} has no associated GameObjectTemplate from `gameobject_template` , skipped.", entry);
-
-                continue;
-            }
-
-            if (!_cliDB.TaxiPathNodesByPath.ContainsKey(goInfo.MoTransport.taxiPathID))
-            {
-                Log.Logger.Error("Transport {0} (name: {1}) has an invalid path specified in `gameobject_template`.`data0` ({2}) field, skipped.", entry, goInfo.name, goInfo.MoTransport.taxiPathID);
-
-                continue;
-            }
-
-            if (goInfo.MoTransport.taxiPathID == 0)
-                continue;
-
-            // paths are generated per template, saves us from generating it again in case of instanced transports
-            TransportTemplate transport = new();
-
-            GeneratePath(goInfo, transport);
-            _transportTemplates[entry] = transport;
-
-            ++count;
-        } while (result.NextRow());
-
-
-        Log.Logger.Information("Loaded {0} transports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void LoadTransportAnimationAndRotation()
-    {
-        foreach (var anim in _cliDB.TransportAnimationStorage.Values)
-            AddPathNodeToTransport(anim.TransportID, anim.TimeIndex, anim);
-
-        foreach (var rot in _cliDB.TransportRotationStorage.Values)
-            AddPathRotationToTransport(rot.GameObjectsID, rot.TimeIndex, rot);
-    }
-
-    public void LoadTransportSpawns()
-    {
-        if (_transportTemplates.Empty())
-            return;
-
-        var oldMSTime = Time.MSTime;
-
-        var result = _worldDatabase.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
-
-        uint count = 0;
-
-        if (!result.IsEmpty())
-            do
-            {
-                var guid = result.Read<ulong>(0);
-                var entry = result.Read<uint>(1);
-                var phaseUseFlags = (PhaseUseFlagsValues)result.Read<byte>(2);
-                var phaseId = result.Read<uint>(3);
-                var phaseGroupId = result.Read<uint>(4);
-
-                var transportTemplate = GetTransportTemplate(entry);
-
-                if (transportTemplate == null)
-                {
-                    Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with unknown gameobject `entry` set, skipped.");
-
-                    continue;
-                }
-
-                if ((phaseUseFlags & ~PhaseUseFlagsValues.All) != 0)
-                {
-                    Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with unknown `phaseUseFlags` set, removed unknown value.");
-                    phaseUseFlags &= PhaseUseFlagsValues.All;
-                }
-
-                if (phaseUseFlags.HasFlag(PhaseUseFlagsValues.AlwaysVisible) && phaseUseFlags.HasFlag(PhaseUseFlagsValues.Inverse))
-                {
-                    Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE, removing PHASE_USE_FLAGS_INVERSE.");
-                    phaseUseFlags &= ~PhaseUseFlagsValues.Inverse;
-                }
-
-                if (phaseGroupId != 0 && phaseId != 0)
-                {
-                    Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0");
-                    phaseGroupId = 0;
-                }
-
-                if (phaseId != 0)
-                    if (!_cliDB.PhaseStorage.ContainsKey(phaseId))
-                    {
-                        Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseid` {phaseId} does not exist, set to 0");
-                        phaseId = 0;
-                    }
-
-                if (phaseGroupId != 0)
-                    if (_db2Manager.GetPhasesForGroup(phaseGroupId) == null)
-                    {
-                        Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseGroup` {phaseGroupId} does not exist, set to 0");
-                        phaseGroupId = 0;
-                    }
-
-                TransportSpawn spawn = new()
-                {
-                    SpawnId = guid,
-                    TransportGameObjectId = entry,
-                    PhaseUseFlags = phaseUseFlags,
-                    PhaseId = phaseId,
-                    PhaseGroup = phaseGroupId
-                };
-
-                foreach (var mapId in transportTemplate.MapIds)
-                    _transportsByMap.Add(mapId, spawn);
-
-                _transportSpawns[guid] = spawn;
-
-                count++;
-            } while (result.NextRow());
-
-        Log.Logger.Information($"Spawned {count} continent transports in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
     public void AddPathNodeToTransport(uint transportEntry, uint timeSeg, TransportAnimationRecord node)
@@ -284,11 +143,6 @@ public class TransportManager
             CreateTransport(transport.TransportGameObjectId, map, transport.SpawnId, transport.PhaseUseFlags, transport.PhaseId, transport.PhaseGroup);
     }
 
-    public TransportTemplate GetTransportTemplate(uint entry)
-    {
-        return _transportTemplates.LookupByKey(entry);
-    }
-
     public TransportAnimation GetTransportAnimInfo(uint entry)
     {
         return _transportAnimations.LookupByKey(entry);
@@ -299,11 +153,150 @@ public class TransportManager
         return _transportSpawns.LookupByKey(spawnId);
     }
 
-    private void Unload()
+    public TransportTemplate GetTransportTemplate(uint entry)
     {
-        _transportTemplates.Clear();
+        return _transportTemplates.LookupByKey(entry);
     }
 
+    public void LoadTransportAnimationAndRotation()
+    {
+        foreach (var anim in _cliDB.TransportAnimationStorage.Values)
+            AddPathNodeToTransport(anim.TransportID, anim.TimeIndex, anim);
+
+        foreach (var rot in _cliDB.TransportRotationStorage.Values)
+            AddPathRotationToTransport(rot.GameObjectsID, rot.TimeIndex, rot);
+    }
+
+    public void LoadTransportSpawns()
+    {
+        if (_transportTemplates.Empty())
+            return;
+
+        var oldMSTime = Time.MSTime;
+
+        var result = _worldDatabase.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
+
+        uint count = 0;
+
+        if (!result.IsEmpty())
+            do
+            {
+                var guid = result.Read<ulong>(0);
+                var entry = result.Read<uint>(1);
+                var phaseUseFlags = (PhaseUseFlagsValues)result.Read<byte>(2);
+                var phaseId = result.Read<uint>(3);
+                var phaseGroupId = result.Read<uint>(4);
+
+                var transportTemplate = GetTransportTemplate(entry);
+
+                if (transportTemplate == null)
+                {
+                    Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with unknown gameobject `entry` set, skipped.");
+
+                    continue;
+                }
+
+                if ((phaseUseFlags & ~PhaseUseFlagsValues.All) != 0)
+                {
+                    Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with unknown `phaseUseFlags` set, removed unknown value.");
+                    phaseUseFlags &= PhaseUseFlagsValues.All;
+                }
+
+                if (phaseUseFlags.HasFlag(PhaseUseFlagsValues.AlwaysVisible) && phaseUseFlags.HasFlag(PhaseUseFlagsValues.Inverse))
+                {
+                    Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE, removing PHASE_USE_FLAGS_INVERSE.");
+                    phaseUseFlags &= ~PhaseUseFlagsValues.Inverse;
+                }
+
+                if (phaseGroupId != 0 && phaseId != 0)
+                {
+                    Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0");
+                    phaseGroupId = 0;
+                }
+
+                if (phaseId != 0)
+                    if (!_cliDB.PhaseStorage.ContainsKey(phaseId))
+                    {
+                        Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseid` {phaseId} does not exist, set to 0");
+                        phaseId = 0;
+                    }
+
+                if (phaseGroupId != 0)
+                    if (_db2Manager.GetPhasesForGroup(phaseGroupId) == null)
+                    {
+                        Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseGroup` {phaseGroupId} does not exist, set to 0");
+                        phaseGroupId = 0;
+                    }
+
+                TransportSpawn spawn = new()
+                {
+                    SpawnId = guid,
+                    TransportGameObjectId = entry,
+                    PhaseUseFlags = phaseUseFlags,
+                    PhaseId = phaseId,
+                    PhaseGroup = phaseGroupId
+                };
+
+                foreach (var mapId in transportTemplate.MapIds)
+                    _transportsByMap.Add(mapId, spawn);
+
+                _transportSpawns[guid] = spawn;
+
+                count++;
+            } while (result.NextRow());
+
+        Log.Logger.Information($"Spawned {count} continent transports in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+    }
+
+    public void LoadTransportTemplates()
+    {
+        var oldMSTime = Time.MSTime;
+
+        var result = _worldDatabase.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 transports templates. DB table `gameobject_template` has no transports!");
+
+            return;
+        }
+
+        uint count = 0;
+
+        do
+        {
+            var entry = result.Read<uint>(0);
+            var goInfo = _objectManager.GetGameObjectTemplate(entry);
+
+            if (goInfo == null)
+            {
+                Log.Logger.Error("Transport {0} has no associated GameObjectTemplate from `gameobject_template` , skipped.", entry);
+
+                continue;
+            }
+
+            if (!_cliDB.TaxiPathNodesByPath.ContainsKey(goInfo.MoTransport.taxiPathID))
+            {
+                Log.Logger.Error("Transport {0} (name: {1}) has an invalid path specified in `gameobject_template`.`data0` ({2}) field, skipped.", entry, goInfo.name, goInfo.MoTransport.taxiPathID);
+
+                continue;
+            }
+
+            if (goInfo.MoTransport.taxiPathID == 0)
+                continue;
+
+            // paths are generated per template, saves us from generating it again in case of instanced transports
+            TransportTemplate transport = new();
+
+            GeneratePath(goInfo, transport);
+            _transportTemplates[entry] = transport;
+
+            ++count;
+        } while (result.NextRow());
+
+
+        Log.Logger.Information("Loaded {0} transports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+    }
     private static void InitializeLeg(TransportPathLeg leg, List<TransportPathEvent> outEvents, List<TaxiPathNodeRecord> pathPoints, List<TaxiPathNodeRecord> pauses, List<TaxiPathNodeRecord> events, GameObjectTemplate goInfo, ref uint totalTime)
     {
         List<Vector3> splinePath = new(pathPoints.Select(node => new Vector3(node.Loc.X, node.Loc.Y, node.Loc.Z)));
@@ -381,7 +374,7 @@ public class TransportManager
                     {
                         TransportPathEvent tEvent = new()
                         {
-                            Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum + (pausePointIndex == eventPointIndex ? pathPoints[eventPointIndex].Delay * Time.InMilliseconds : 0),
+                            Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum + (pausePointIndex == eventPointIndex ? pathPoints[eventPointIndex].Delay * Time.IN_MILLISECONDS : 0),
                             EventId = pathPoints[eventPointIndex].DepartureEventID
                         };
 
@@ -403,12 +396,12 @@ public class TransportManager
                 TransportPathSegment segment = new()
                 {
                     SegmentEndArrivalTimestamp = leg.Duration + delaySum,
-                    Delay = pathPoints[pausePointIndex].Delay * Time.InMilliseconds,
+                    Delay = pathPoints[pausePointIndex].Delay * Time.IN_MILLISECONDS,
                     DistanceFromLegStartAtEnd = splineLengthToCurrentNode
                 };
 
                 leg.Segments.Add(segment);
-                delaySum += pathPoints[pausePointIndex].Delay * Time.InMilliseconds;
+                delaySum += pathPoints[pausePointIndex].Delay * Time.IN_MILLISECONDS;
                 splineLengthToPreviousNode = splineLengthToCurrentNode;
             }
 
@@ -531,5 +524,10 @@ public class TransportManager
             InitializeLeg(leg, transport.Events, pathPoints, pauses, events, goInfo, ref totalTime);
 
         transport.TotalPathTime = totalTime;
+    }
+
+    private void Unload()
+    {
+        _transportTemplates.Clear();
     }
 }

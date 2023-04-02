@@ -9,19 +9,17 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 public class PetSpells : ServerPacket
 {
-    public ObjectGuid PetGUID;
-    public ushort CreatureFamily;
-    public ushort Specialization;
-    public uint TimeLimit;
-    public ReactStates ReactState;
-    public CommandStates CommandState;
-    public byte Flag;
-
     public uint[] ActionButtons = new uint[10];
-
     public List<uint> Actions = new();
+    public CommandStates CommandState;
     public List<PetSpellCooldown> Cooldowns = new();
+    public ushort CreatureFamily;
+    public byte Flag;
+    public ObjectGuid PetGUID;
+    public ReactStates ReactState;
+    public ushort Specialization;
     public List<PetSpellHistory> SpellHistory = new();
+    public uint TimeLimit;
     public PetSpells() : base(ServerOpcodes.PetSpellsMessage, ConnectionType.Instance) { }
 
     public override void Write()

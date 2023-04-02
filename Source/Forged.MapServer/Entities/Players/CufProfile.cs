@@ -8,24 +8,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public class CufProfile
 {
-    public string ProfileName { get; set; }
-    public ushort FrameHeight { get; set; }
-    public ushort FrameWidth { get; set; }
-    public byte SortBy { get; set; }
-    public byte HealthText { get; set; }
-
-    // LeftAlign, TopAlight, BottomAlign
-    public byte TopPoint { get; set; }
-    public byte BottomPoint { get; set; }
-    public byte LeftPoint { get; set; }
-
-    // LeftOffset, TopOffset and BottomOffset
-    public ushort TopOffset { get; set; }
-    public ushort BottomOffset { get; set; }
-    public ushort LeftOffset { get; set; }
-
-    public BitSet BoolOptions { get; set; }
-
     public CufProfile()
     {
         BoolOptions = new BitSet((int)CUFBoolOptions.BoolOptionsCount);
@@ -36,7 +18,7 @@ public class CufProfile
     {
         ProfileName = name;
 
-        BoolOptions = new BitSet(new uint[]
+        BoolOptions = new BitSet(new[]
         {
             boolOptions
         });
@@ -53,11 +35,21 @@ public class CufProfile
         LeftOffset = leftOffset;
     }
 
-    public void SetOption(CUFBoolOptions opt, byte arg)
-    {
-        BoolOptions.Set((int)opt, arg != 0);
-    }
+    public BitSet BoolOptions { get; set; }
+    public ushort BottomOffset { get; set; }
+    public byte BottomPoint { get; set; }
+    public ushort FrameHeight { get; set; }
+    public ushort FrameWidth { get; set; }
+    public byte HealthText { get; set; }
+    public ushort LeftOffset { get; set; }
+    public byte LeftPoint { get; set; }
+    public string ProfileName { get; set; }
+    public byte SortBy { get; set; }
+    // LeftOffset, TopOffset and BottomOffset
+    public ushort TopOffset { get; set; }
 
+    // LeftAlign, TopAlight, BottomAlign
+    public byte TopPoint { get; set; }
     public bool GetOption(CUFBoolOptions opt)
     {
         return BoolOptions.Get((int)opt);
@@ -71,5 +63,9 @@ public class CufProfile
         return (ulong)array[0];
     }
 
+    public void SetOption(CUFBoolOptions opt, byte arg)
+    {
+        BoolOptions.Set((int)opt, arg != 0);
+    }
     // More fields can be added to BoolOptions without changing DB schema (up to 32, currently 27)
 }

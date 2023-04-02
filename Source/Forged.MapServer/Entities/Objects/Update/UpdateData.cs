@@ -10,12 +10,11 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateData
 {
+    private readonly ByteBuffer _data = new();
     private readonly List<ObjectGuid> _destroyGUIDs = new();
     private readonly List<ObjectGuid> _outOfRangeGUIDs = new();
-    private readonly ByteBuffer _data = new();
-    private uint _mapId;
     private uint _blockCount;
-
+    private uint _mapId;
     public UpdateData(uint mapId)
     {
         _mapId = mapId;
@@ -82,16 +81,15 @@ public class UpdateData
         _mapId = 0;
     }
 
-    public bool HasData()
-    {
-        return _blockCount > 0 || !_outOfRangeGUIDs.Empty() || !_destroyGUIDs.Empty();
-    }
-
     public List<ObjectGuid> GetOutOfRangeGUIDs()
     {
         return _outOfRangeGUIDs;
     }
 
+    public bool HasData()
+    {
+        return _blockCount > 0 || !_outOfRangeGUIDs.Empty() || !_destroyGUIDs.Empty();
+    }
     public void SetMapId(ushort mapId)
     {
         _mapId = mapId;

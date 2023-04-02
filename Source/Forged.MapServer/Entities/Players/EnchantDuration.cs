@@ -8,14 +8,14 @@ namespace Forged.MapServer.Entities.Players;
 
 public class EnchantDuration
 {
-    public Item Item { get; set; }
-    public EnchantmentSlot Slot { get; set; }
-    public uint Leftduration { get; set; }
-
     public EnchantDuration(Item item = null, EnchantmentSlot slot = EnchantmentSlot.Max, uint leftduration = 0)
     {
         Item = item;
         Slot = slot;
         Leftduration = leftduration;
     }
+
+    public Item Item { get; set; }
+    public uint Leftduration { get; set; }
+    public EnchantmentSlot Slot { get; set; }
 }

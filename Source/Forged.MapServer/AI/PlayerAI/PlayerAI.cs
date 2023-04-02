@@ -16,17 +16,12 @@ namespace Forged.MapServer.AI.PlayerAI;
 
 public class PlayerAI : UnitAI
 {
-    public enum SpellTarget
-    {
-        None,
-        Victim,
-        Charmer,
-        Self
-    }
-
     protected new Player Me;
-    private readonly uint _selfSpec;
+
     private readonly bool _isSelfHealer;
+
+    private readonly uint _selfSpec;
+
     private bool _isSelfRangedAttacker;
 
     public PlayerAI(Player player) : base(player)
@@ -37,35 +32,85 @@ public class PlayerAI : UnitAI
         _isSelfRangedAttacker = IsPlayerRangedAttacker(player);
     }
 
-    public Tuple<Spell, Unit> VerifySpellCast(uint spellId, SpellTarget target)
+    public enum SpellTarget
     {
-        Unit pTarget = null;
+        None,
+        Victim,
+        Charmer,
+        Self
+    }
+    public void CancelAllShapeshifts()
+    {
+        var shapeshiftAuras = Me.GetAuraEffectsByType(AuraType.ModShapeshift);
+        List<Aura> removableShapeshifts = new();
 
-        switch (target)
+        foreach (var auraEff in shapeshiftAuras)
         {
-            case SpellTarget.None:
-                break;
-            case SpellTarget.Victim:
-                pTarget = Me.Victim;
+            var aura = auraEff.Base;
 
-                if (!pTarget)
-                    return null;
+            var auraInfo = aura?.SpellInfo;
 
-                break;
-            case SpellTarget.Charmer:
-                pTarget = Me.Charmer;
+            if (auraInfo == null)
+                continue;
 
-                if (!pTarget)
-                    return null;
+            if (auraInfo.HasAttribute(SpellAttr0.NoAuraCancel))
+                continue;
 
-                break;
-            case SpellTarget.Self:
-                pTarget = Me;
+            if (!auraInfo.IsPositive || auraInfo.IsPassive)
+                continue;
 
-                break;
+            removableShapeshifts.Add(aura);
         }
 
-        return VerifySpellCast(spellId, pTarget);
+        foreach (var aura in removableShapeshifts)
+            Me.RemoveOwnedAura(aura, AuraRemoveMode.Cancel);
+    }
+
+    public void DoAutoAttackIfReady()
+    {
+        if (IsRangedAttacker())
+            DoRangedAttackIfReady();
+        else
+            DoMeleeAttackIfReady();
+    }
+
+    public void DoCastAtTarget(Tuple<Spell, Unit> spell)
+    {
+        SpellCastTargets targets = new()
+        {
+            UnitTarget = spell.Item2
+        };
+
+        spell.Item1.Prepare(targets);
+    }
+
+    public Creature GetCharmer()
+    {
+        if (Me.CharmerGUID.IsCreature)
+            return ObjectAccessor.GetCreature(Me, Me.CharmerGUID);
+
+        return null;
+    }
+
+    public uint GetSpec(Player who = null)
+    {
+        return (who == null || who == Me) ? _selfSpec : who.GetPrimarySpecialization();
+    }
+
+    // helper functions to determine player info
+    public bool IsHealer(Player who = null)
+    {
+        return (!who || who == Me) ? _isSelfHealer : IsPlayerHealer(who);
+    }
+
+    public bool IsRangedAttacker(Player who = null)
+    {
+        return (!who || who == Me) ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who);
+    }
+
+    public virtual Unit SelectAttackTarget()
+    {
+        return Me.Charmer ? Me.Charmer.Victim : null;
     }
 
     public Tuple<Spell, Unit> SelectSpellCast(List<Tuple<Tuple<Spell, Unit>, uint>> spells)
@@ -99,6 +144,11 @@ public class PlayerAI : UnitAI
         return selected;
     }
 
+    public void SetIsRangedAttacker(bool state)
+    {
+        _isSelfRangedAttacker = state;
+    }
+
     public void VerifyAndPushSpellCast<T>(List<Tuple<Tuple<Spell, Unit>, uint>> spells, uint spellId, T target, uint weight) where T : Unit
     {
         var spell = VerifySpellCast(spellId, target);
@@ -107,85 +157,97 @@ public class PlayerAI : UnitAI
             spells.Add(Tuple.Create(spell, weight));
     }
 
-    public void DoCastAtTarget(Tuple<Spell, Unit> spell)
+    public Tuple<Spell, Unit> VerifySpellCast(uint spellId, SpellTarget target)
     {
-        SpellCastTargets targets = new()
+        Unit pTarget = null;
+
+        switch (target)
         {
-            UnitTarget = spell.Item2
-        };
+            case SpellTarget.None:
+                break;
+            case SpellTarget.Victim:
+                pTarget = Me.Victim;
 
-        spell.Item1.Prepare(targets);
-    }
+                if (!pTarget)
+                    return null;
 
-    public void DoAutoAttackIfReady()
-    {
-        if (IsRangedAttacker())
-            DoRangedAttackIfReady();
-        else
-            DoMeleeAttackIfReady();
-    }
+                break;
+            case SpellTarget.Charmer:
+                pTarget = Me.Charmer;
 
-    public void CancelAllShapeshifts()
-    {
-        var shapeshiftAuras = Me.GetAuraEffectsByType(AuraType.ModShapeshift);
-        List<Aura> removableShapeshifts = new();
+                if (!pTarget)
+                    return null;
 
-        foreach (var auraEff in shapeshiftAuras)
-        {
-            var aura = auraEff.Base;
+                break;
+            case SpellTarget.Self:
+                pTarget = Me;
 
-            var auraInfo = aura?.SpellInfo;
-
-            if (auraInfo == null)
-                continue;
-
-            if (auraInfo.HasAttribute(SpellAttr0.NoAuraCancel))
-                continue;
-
-            if (!auraInfo.IsPositive || auraInfo.IsPassive)
-                continue;
-
-            removableShapeshifts.Add(aura);
+                break;
         }
 
-        foreach (var aura in removableShapeshifts)
-            Me.RemoveOwnedAura(aura, AuraRemoveMode.Cancel);
+        return VerifySpellCast(spellId, pTarget);
+    }
+    private void DoRangedAttackIfReady()
+    {
+        if (Me.HasUnitState(UnitState.Casting))
+            return;
+
+        if (!Me.IsAttackReady(WeaponAttackType.RangedAttack))
+            return;
+
+        var victim = Me.Victim;
+
+        if (!victim)
+            return;
+
+        uint rangedAttackSpell = 0;
+
+        var rangedItem = Me.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.Ranged);
+        var rangedTemplate = rangedItem ? rangedItem.Template : null;
+
+        if (rangedTemplate != null)
+            switch ((ItemSubClassWeapon)rangedTemplate.SubClass)
+            {
+                case ItemSubClassWeapon.Bow:
+                case ItemSubClassWeapon.Gun:
+                case ItemSubClassWeapon.Crossbow:
+                    rangedAttackSpell = Spells.Shoot;
+
+                    break;
+                case ItemSubClassWeapon.Thrown:
+                    rangedAttackSpell = Spells.Throw;
+
+                    break;
+                case ItemSubClassWeapon.Wand:
+                    rangedAttackSpell = Spells.Wand;
+
+                    break;
+            }
+
+        if (rangedAttackSpell == 0)
+            return;
+
+        var spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, Me.Location.Map.DifficultyID);
+
+        if (spellInfo == null)
+            return;
+
+        Spell spell = new(Me, spellInfo, TriggerCastFlags.CastDirectly);
+
+        if (spell.CheckPetCast(victim) != SpellCastResult.SpellCastOk)
+            return;
+
+        SpellCastTargets targets = new()
+        {
+            UnitTarget = victim
+        };
+
+        spell.Prepare(targets);
+
+        Me.ResetAttackTimer(WeaponAttackType.RangedAttack);
     }
 
-    public Creature GetCharmer()
-    {
-        if (Me.CharmerGUID.IsCreature)
-            return ObjectAccessor.GetCreature(Me, Me.CharmerGUID);
-
-        return null;
-    }
-
-    // helper functions to determine player info
-    public bool IsHealer(Player who = null)
-    {
-        return (!who || who == Me) ? _isSelfHealer : IsPlayerHealer(who);
-    }
-
-    public bool IsRangedAttacker(Player who = null)
-    {
-        return (!who || who == Me) ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who);
-    }
-
-    public uint GetSpec(Player who = null)
-    {
-        return (who == null || who == Me) ? _selfSpec : who.GetPrimarySpecialization();
-    }
-
-    public void SetIsRangedAttacker(bool state)
-    {
-        _isSelfRangedAttacker = state;
-    } // this allows overriding of the default ranged attacker detection
-
-    public virtual Unit SelectAttackTarget()
-    {
-        return Me.Charmer ? Me.Charmer.Victim : null;
-    }
-
+    // this allows overriding of the default ranged attacker detection
     private bool IsPlayerHealer(Player who)
     {
         if (!who)
@@ -280,65 +342,5 @@ public class PlayerAI : UnitAI
             return Tuple.Create(spell, target);
 
         return null;
-    }
-
-    private void DoRangedAttackIfReady()
-    {
-        if (Me.HasUnitState(UnitState.Casting))
-            return;
-
-        if (!Me.IsAttackReady(WeaponAttackType.RangedAttack))
-            return;
-
-        var victim = Me.Victim;
-
-        if (!victim)
-            return;
-
-        uint rangedAttackSpell = 0;
-
-        var rangedItem = Me.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.Ranged);
-        var rangedTemplate = rangedItem ? rangedItem.Template : null;
-
-        if (rangedTemplate != null)
-            switch ((ItemSubClassWeapon)rangedTemplate.SubClass)
-            {
-                case ItemSubClassWeapon.Bow:
-                case ItemSubClassWeapon.Gun:
-                case ItemSubClassWeapon.Crossbow:
-                    rangedAttackSpell = Spells.Shoot;
-
-                    break;
-                case ItemSubClassWeapon.Thrown:
-                    rangedAttackSpell = Spells.Throw;
-
-                    break;
-                case ItemSubClassWeapon.Wand:
-                    rangedAttackSpell = Spells.Wand;
-
-                    break;
-            }
-
-        if (rangedAttackSpell == 0)
-            return;
-
-        var spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, Me.Location.Map.DifficultyID);
-
-        if (spellInfo == null)
-            return;
-
-        Spell spell = new(Me, spellInfo, TriggerCastFlags.CastDirectly);
-
-        if (spell.CheckPetCast(victim) != SpellCastResult.SpellCastOk)
-            return;
-
-        SpellCastTargets targets = new()
-        {
-            UnitTarget = victim
-        };
-
-        spell.Prepare(targets);
-
-        Me.ResetAttackTimer(WeaponAttackType.RangedAttack);
     }
 }

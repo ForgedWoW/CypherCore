@@ -7,7 +7,7 @@ namespace Forged.MapServer.DataStorage.Structs.G;
 
 public sealed class GlobalCurveRecord
 {
-    public uint Id;
     public uint CurveID;
+    public uint Id;
     public GlobalCurve Type;
 }

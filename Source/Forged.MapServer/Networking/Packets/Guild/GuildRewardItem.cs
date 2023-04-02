@@ -7,14 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildRewardItem
 {
-    public uint ItemID;
-    public uint Unk4;
     public List<uint> AchievementsRequired = new();
-    public ulong RaceMask;
+    public ulong Cost;
+    public uint ItemID;
     public int MinGuildLevel;
     public int MinGuildRep;
-    public ulong Cost;
-
+    public ulong RaceMask;
+    public uint Unk4;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(ItemID);

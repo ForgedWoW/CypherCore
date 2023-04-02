@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 internal class AuctionPlaceBid : ClientPacket
 {
     public ObjectGuid Auctioneer;
-    public ulong BidAmount;
     public uint AuctionID;
+    public ulong BidAmount;
     public AddOnInfo? TaintedBy;
 
     public AuctionPlaceBid(WorldPacket packet) : base(packet) { }

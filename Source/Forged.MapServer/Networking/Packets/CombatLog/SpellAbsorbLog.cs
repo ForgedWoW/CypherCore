@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellAbsorbLog : CombatLogServerPacket
 {
-    public ObjectGuid Attacker;
-    public ObjectGuid Victim;
-    public ObjectGuid Caster;
+    public int Absorbed;
     public uint AbsorbedSpellID;
     public uint AbsorbSpellID;
-    public int Absorbed;
+    public ObjectGuid Attacker;
+    public ObjectGuid Caster;
     public uint OriginalDamage;
     public bool Unk;
+    public ObjectGuid Victim;
     public SpellAbsorbLog() : base(ServerOpcodes.SpellAbsorbLog, ConnectionType.Instance) { }
 
     public override void Write()

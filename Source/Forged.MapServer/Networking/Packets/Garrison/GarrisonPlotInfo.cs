@@ -7,14 +7,16 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 public struct GarrisonPlotInfo
 {
+    public uint GarrPlotInstanceID;
+
+    public Position PlotPos;
+
+    public uint PlotType;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(GarrPlotInstanceID);
         data.WriteXYZO(PlotPos);
         data.WriteUInt32(PlotType);
     }
-
-    public uint GarrPlotInstanceID;
-    public Position PlotPos;
-    public uint PlotType;
 }

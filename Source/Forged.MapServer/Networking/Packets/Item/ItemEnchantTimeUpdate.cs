@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemEnchantTimeUpdate : ServerPacket
 {
-    public ObjectGuid OwnerGuid;
-    public ObjectGuid ItemGuid;
     public uint DurationLeft;
+    public ObjectGuid ItemGuid;
+    public ObjectGuid OwnerGuid;
     public uint Slot;
     public ItemEnchantTimeUpdate() : base(ServerOpcodes.ItemEnchantTimeUpdate, ConnectionType.Instance) { }
 

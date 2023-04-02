@@ -5,10 +5,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public class PlayerCreateInfoAction
 {
-    public byte Button { get; set; }
-    public byte Type { get; set; }
-    public uint Action { get; set; }
-
     public PlayerCreateInfoAction() : this(0, 0, 0) { }
 
     public PlayerCreateInfoAction(byte button, uint action, byte type)
@@ -17,4 +13,8 @@ public class PlayerCreateInfoAction
         Type = type;
         Action = action;
     }
+
+    public uint Action { get; set; }
+    public byte Button { get; set; }
+    public byte Type { get; set; }
 }

@@ -8,36 +8,20 @@ namespace Forged.MapServer.DataStorage.Structs.M;
 
 public sealed class MapDifficultyRecord
 {
-    public uint Id;
-    public LocalizedString Message; // m_message_lang (text showed when transfer to map failed)
+    public int ContentTuningID;
     public uint DifficultyID;
-    public int LockID;
-    public MapDifficultyResetInterval ResetInterval;
-    public uint MaxPlayers;
+    public int Flags;
+    public uint Id;
     public int ItemContext;
     public uint ItemContextPickerID;
-    public int Flags;
-    public int ContentTuningID;
+    public int LockID;
     public uint MapID;
-
-    public bool HasResetSchedule()
+    public uint MaxPlayers;
+    public LocalizedString Message; // m_message_lang (text showed when transfer to map failed)
+    public MapDifficultyResetInterval ResetInterval;
+    public MapDifficultyFlags GetFlags()
     {
-        return ResetInterval != MapDifficultyResetInterval.Anytime;
-    }
-
-    public bool IsUsingEncounterLocks()
-    {
-        return GetFlags().HasFlag(MapDifficultyFlags.UseLootBasedLockInsteadOfInstanceLock);
-    }
-
-    public bool IsRestoringDungeonState()
-    {
-        return GetFlags().HasFlag(MapDifficultyFlags.ResumeDungeonProgressBasedOnLockout);
-    }
-
-    public bool IsExtendable()
-    {
-        return !GetFlags().HasFlag(MapDifficultyFlags.DisableLockExtension);
+        return (MapDifficultyFlags)Flags;
     }
 
     public uint GetRaidDuration()
@@ -51,8 +35,23 @@ public sealed class MapDifficultyRecord
         return 0;
     }
 
-    public MapDifficultyFlags GetFlags()
+    public bool HasResetSchedule()
     {
-        return (MapDifficultyFlags)Flags;
+        return ResetInterval != MapDifficultyResetInterval.Anytime;
+    }
+
+    public bool IsExtendable()
+    {
+        return !GetFlags().HasFlag(MapDifficultyFlags.DisableLockExtension);
+    }
+
+    public bool IsRestoringDungeonState()
+    {
+        return GetFlags().HasFlag(MapDifficultyFlags.ResumeDungeonProgressBasedOnLockout);
+    }
+
+    public bool IsUsingEncounterLocks()
+    {
+        return GetFlags().HasFlag(MapDifficultyFlags.UseLootBasedLockInsteadOfInstanceLock);
     }
 }

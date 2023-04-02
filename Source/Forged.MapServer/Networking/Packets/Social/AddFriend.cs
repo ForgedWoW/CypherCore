@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class AddFriend : ClientPacket
 {
-    public string Notes;
     public string Name;
+    public string Notes;
     public AddFriend(WorldPacket packet) : base(packet) { }
 
     public override void Read()

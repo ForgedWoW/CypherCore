@@ -8,17 +8,15 @@ namespace Forged.MapServer.Chat;
 
 internal class HyperlinkDataTokenizer
 {
-    private readonly StringArguments _arg;
     private readonly bool _allowEmptyTokens;
-
-    public bool IsEmpty => _arg.Empty();
-
+    private readonly StringArguments _arg;
     public HyperlinkDataTokenizer(string arg, bool allowEmptyTokens = false)
     {
         _arg = new StringArguments(arg);
         _allowEmptyTokens = allowEmptyTokens;
     }
 
+    public bool IsEmpty => _arg.Empty();
     public bool TryConsumeTo(out byte val)
     {
         if (IsEmpty)

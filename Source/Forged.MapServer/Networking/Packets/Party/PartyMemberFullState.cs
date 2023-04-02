@@ -18,15 +18,6 @@ internal class PartyMemberFullState : ServerPacket
     public PartyMemberStats MemberStats = new();
     public PartyMemberFullState() : base(ServerOpcodes.PartyMemberFullState) { }
 
-    public override void Write()
-    {
-        _worldPacket.WriteBit(ForEnemy);
-        _worldPacket.FlushBits();
-
-        MemberStats.Write(_worldPacket);
-        _worldPacket.WritePackedGuid(MemberGuid);
-    }
-
     public void Initialize(Player player)
     {
         ForEnemy = false;
@@ -144,5 +135,14 @@ internal class PartyMemberFullState : ServerPacket
                 MemberStats.PetStats.Auras.Add(aura);
             }
         }
+    }
+
+    public override void Write()
+    {
+        _worldPacket.WriteBit(ForEnemy);
+        _worldPacket.FlushBits();
+
+        MemberStats.Write(_worldPacket);
+        _worldPacket.WritePackedGuid(MemberGuid);
     }
 }

@@ -5,9 +5,9 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ContentTuningXExpectedRecord
 {
-    public uint Id;
-    public int ExpectedStatModID;
-    public int MinMythicPlusSeasonID;
-    public int MaxMythicPlusSeasonID;
     public uint ContentTuningID;
+    public int ExpectedStatModID;
+    public uint Id;
+    public int MaxMythicPlusSeasonID;
+    public int MinMythicPlusSeasonID;
 }

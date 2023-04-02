@@ -5,13 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellHistoryEntry
 {
-    public uint SpellID;
-    public uint ItemID;
     public uint Category;
-    public int RecoveryTime;
     public int CategoryRecoveryTime;
+    public uint ItemID;
     public float ModRate = 1.0f;
     public bool OnHold;
+    public int RecoveryTime;
+    public uint SpellID;
     private readonly uint? unused622_1; // This field is not used for anything in the client in 6.2.2.20444
     private readonly uint? unused622_2; // This field is not used for anything in the client in 6.2.2.20444
 

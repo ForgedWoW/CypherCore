@@ -9,17 +9,19 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 public class LootResponse : ServerPacket
 {
+    public bool Acquired;
+    public byte AcquireReason;
+    public bool AELooting;
+    public uint Coins;
+    public List<LootCurrency> Currencies = new();
+    public LootError FailureReason = LootError.NoLoot;
+    // Most common value
+    public List<LootItemData> Items = new();
+
+    public LootMethod LootMethod;
     public ObjectGuid LootObj;
     public ObjectGuid Owner;
     public byte Threshold = 2; // Most common value, 2 = Uncommon
-    public LootMethod LootMethod;
-    public byte AcquireReason;
-    public LootError FailureReason = LootError.NoLoot; // Most common value
-    public uint Coins;
-    public List<LootItemData> Items = new();
-    public List<LootCurrency> Currencies = new();
-    public bool Acquired;
-    public bool AELooting;
     public LootResponse() : base(ServerOpcodes.LootResponse, ConnectionType.Instance) { }
 
     public override void Write()

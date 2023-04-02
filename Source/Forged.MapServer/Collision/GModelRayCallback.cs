@@ -13,9 +13,8 @@ public class GModelRayCallback : WorkerCallback
 {
     public bool Hit;
 
-    private readonly List<Vector3> _vertices;
     private readonly List<MeshTriangle> _triangles;
-
+    private readonly List<Vector3> _vertices;
     public GModelRayCallback(List<MeshTriangle> tris, List<Vector3> vert)
     {
         _vertices = vert;

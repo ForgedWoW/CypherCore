@@ -8,19 +8,23 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class SummonRequest : ServerPacket
 {
+    public int AreaID;
+
+    public SummonReason Reason;
+
+    public bool SkipStartingArea;
+
+    public ObjectGuid SummonerGUID;
+
+    public uint SummonerVirtualRealmAddress;
+
+    public SummonRequest() : base(ServerOpcodes.SummonRequest, ConnectionType.Instance) { }
+
     public enum SummonReason
     {
         Spell = 0,
         Scenario = 1
     }
-
-    public ObjectGuid SummonerGUID;
-    public uint SummonerVirtualRealmAddress;
-    public int AreaID;
-    public SummonReason Reason;
-    public bool SkipStartingArea;
-    public SummonRequest() : base(ServerOpcodes.SummonRequest, ConnectionType.Instance) { }
-
     public override void Write()
     {
         _worldPacket.WritePackedGuid(SummonerGUID);

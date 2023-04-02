@@ -8,18 +8,18 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LFGProposalUpdate : ServerPacket
 {
-    public RideTicket Ticket;
-    public ulong InstanceID;
-    public uint ProposalID;
-    public uint Slot;
-    public byte State;
     public uint CompletedMask;
     public uint EncounterMask;
-    public byte Unused;
-    public bool ValidCompletedMask;
-    public bool ProposalSilent;
+    public ulong InstanceID;
     public bool IsRequeue;
     public List<LFGProposalUpdatePlayer> Players = new();
+    public uint ProposalID;
+    public bool ProposalSilent;
+    public uint Slot;
+    public byte State;
+    public RideTicket Ticket;
+    public byte Unused;
+    public bool ValidCompletedMask;
     public LFGProposalUpdate() : base(ServerOpcodes.LfgProposalUpdate) { }
 
     public override void Write()

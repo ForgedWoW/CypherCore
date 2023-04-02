@@ -10,23 +10,39 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ConversationData : BaseUpdateData<Conversation>
 {
-    public UpdateField<bool> DontPlayBroadcastTextSounds = new(0, 1);
-    public UpdateField<List<ConversationLine>> Lines = new(0, 2);
     public DynamicUpdateField<ConversationActorField> Actors = new(0, 3);
-    public UpdateField<uint> LastLineEndTime = new(0, 4);
-    public UpdateField<uint> Progress = new(0, 5);
+    public UpdateField<bool> DontPlayBroadcastTextSounds = new(0, 1);
     public UpdateField<uint> Flags = new(0, 6);
-
+    public UpdateField<uint> LastLineEndTime = new(0, 4);
+    public UpdateField<List<ConversationLine>> Lines = new(0, 2);
+    public UpdateField<uint> Progress = new(0, 5);
     public ConversationData() : base(0, TypeId.Conversation, 7) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(DontPlayBroadcastTextSounds);
+        ClearChangesMask(Lines);
+        ClearChangesMask(Actors);
+        ClearChangesMask(LastLineEndTime);
+        ClearChangesMask(Progress);
+        ChangesMask.ResetAll();
+    }
+
+    public uint GetViewerLastLineEndTime(ConversationData conversationLineData, Conversation conversation, Player receiver)
+    {
+        var locale = receiver.Session.SessionDbLocaleIndex;
+
+        return (uint)conversation.GetLastLineEndTime(locale).TotalMilliseconds;
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Conversation owner, Player receiver)
     {
-        data.WriteInt32(Lines.GetValue().Count);
+        data.WriteInt32(Lines.Value.Count);
         data.WriteUInt32(GetViewerLastLineEndTime(this, owner, receiver));
         data.WriteUInt32(Progress);
 
-        for (var i = 0; i < Lines.GetValue().Count; ++i)
-            Lines.GetValue()[i].WriteCreate(data, owner, receiver);
+        for (var i = 0; i < Lines.Value.Count; ++i)
+            Lines.Value[i].WriteCreate(data, owner, receiver);
 
         data.WriteBit(DontPlayBroadcastTextSounds);
         data.WriteInt32(Actors.Size());
@@ -89,22 +105,5 @@ public class ConversationData : BaseUpdateData<Conversation>
         }
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(DontPlayBroadcastTextSounds);
-        ClearChangesMask(Lines);
-        ClearChangesMask(Actors);
-        ClearChangesMask(LastLineEndTime);
-        ClearChangesMask(Progress);
-        ChangesMask.ResetAll();
-    }
-
-    public uint GetViewerLastLineEndTime(ConversationData conversationLineData, Conversation conversation, Player receiver)
-    {
-        var locale = receiver.Session.SessionDbLocaleIndex;
-
-        return (uint)conversation.GetLastLineEndTime(locale).TotalMilliseconds;
     }
 }

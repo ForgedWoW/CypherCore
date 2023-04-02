@@ -5,6 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Transmogification;
 
 internal struct TransmogrifyItem
 {
+    public int ItemModifiedAppearanceID;
+
+    public int SecondaryItemModifiedAppearanceID;
+
+    public uint Slot;
+
+    public int SpellItemEnchantmentID;
+
     public void Read(WorldPacket data)
     {
         ItemModifiedAppearanceID = data.ReadInt32();
@@ -12,9 +20,4 @@ internal struct TransmogrifyItem
         SpellItemEnchantmentID = data.ReadInt32();
         SecondaryItemModifiedAppearanceID = data.ReadInt32();
     }
-
-    public int ItemModifiedAppearanceID;
-    public uint Slot;
-    public int SpellItemEnchantmentID;
-    public int SecondaryItemModifiedAppearanceID;
 }

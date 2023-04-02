@@ -20,6 +20,39 @@ public class PetitionManager
         _characterDatabase = characterDatabase;
     }
 
+    public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)
+    {
+        Petition p = new()
+        {
+            PetitionGuid = petitionGuid,
+            OwnerGuid = ownerGuid,
+            PetitionName = name
+        };
+
+        p.Signatures.Clear();
+
+        _petitionStorage[petitionGuid] = p;
+
+        if (isLoading)
+            return;
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PETITION);
+        stmt.AddValue(0, ownerGuid.Counter);
+        stmt.AddValue(1, petitionGuid.Counter);
+        stmt.AddValue(2, name);
+        _characterDatabase.Execute(stmt);
+    }
+
+    public Petition GetPetition(ObjectGuid petitionGuid)
+    {
+        return _petitionStorage.LookupByKey(petitionGuid);
+    }
+
+    public Petition GetPetitionByOwner(ObjectGuid ownerGuid)
+    {
+        return _petitionStorage.FirstOrDefault(p => p.Value.OwnerGuid == ownerGuid).Value;
+    }
+
     public void LoadPetitions()
     {
         var oldMsTime = Time.MSTime;
@@ -73,30 +106,6 @@ public class PetitionManager
 
         Log.Logger.Information($"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
     }
-
-    public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)
-    {
-        Petition p = new()
-        {
-            PetitionGuid = petitionGuid,
-            OwnerGuid = ownerGuid,
-            PetitionName = name
-        };
-
-        p.Signatures.Clear();
-
-        _petitionStorage[petitionGuid] = p;
-
-        if (isLoading)
-            return;
-
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PETITION);
-        stmt.AddValue(0, ownerGuid.Counter);
-        stmt.AddValue(1, petitionGuid.Counter);
-        stmt.AddValue(2, name);
-        _characterDatabase.Execute(stmt);
-    }
-
     public void RemovePetition(ObjectGuid petitionGuid)
     {
         _petitionStorage.Remove(petitionGuid);
@@ -114,17 +123,6 @@ public class PetitionManager
 
         _characterDatabase.CommitTransaction(trans);
     }
-
-    public Petition GetPetition(ObjectGuid petitionGuid)
-    {
-        return _petitionStorage.LookupByKey(petitionGuid);
-    }
-
-    public Petition GetPetitionByOwner(ObjectGuid ownerGuid)
-    {
-        return _petitionStorage.FirstOrDefault(p => p.Value.OwnerGuid == ownerGuid).Value;
-    }
-
     public void RemovePetitionsByOwner(ObjectGuid ownerGuid)
     {
         foreach (var key in _petitionStorage.Keys.ToList())

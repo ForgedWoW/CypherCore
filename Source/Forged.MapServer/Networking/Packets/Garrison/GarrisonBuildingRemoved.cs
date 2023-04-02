@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonBuildingRemoved : ServerPacket
 {
+    public uint GarrBuildingID;
+    public uint GarrPlotInstanceID;
     public GarrisonType GarrTypeID;
     public GarrisonError Result;
-    public uint GarrPlotInstanceID;
-    public uint GarrBuildingID;
     public GarrisonBuildingRemoved() : base(ServerOpcodes.GarrisonBuildingRemoved, ConnectionType.Instance) { }
 
     public override void Write()

@@ -19,19 +19,20 @@ public class SummonList : List<ObjectGuid>
         _me = creature;
     }
 
-    public void Summon(Creature summon)
+    public void Despawn(Creature summon)
     {
-        Add(summon.GUID);
+        Remove(summon.GUID);
     }
 
-    public void DoZoneInCombat(uint entry = 0)
+    public void DespawnAll()
     {
-        foreach (var id in this)
+        while (!this.Empty())
         {
-            var summon = ObjectAccessor.GetCreature(_me, id);
+            var summon = ObjectAccessor.GetCreature(_me, this.FirstOrDefault());
+            RemoveAt(0);
 
-            if (summon && summon.IsAIEnabled && (entry == 0 || summon.Entry == entry))
-                summon.AI.DoZoneInCombat();
+            if (summon)
+                summon.DespawnOrUnsummon();
         }
     }
 
@@ -53,23 +54,6 @@ public class SummonList : List<ObjectGuid>
         }
     }
 
-    public void DespawnAll()
-    {
-        while (!this.Empty())
-        {
-            var summon = ObjectAccessor.GetCreature(_me, this.FirstOrDefault());
-            RemoveAt(0);
-
-            if (summon)
-                summon.DespawnOrUnsummon();
-        }
-    }
-
-    public void Despawn(Creature summon)
-    {
-        Remove(summon.GUID);
-    }
-
     public void DespawnIf(ICheck<ObjectGuid> predicate)
     {
         this.RemoveAll(predicate);
@@ -78,13 +62,6 @@ public class SummonList : List<ObjectGuid>
     public void DespawnIf(Predicate<ObjectGuid> predicate)
     {
         RemoveAll(predicate);
-    }
-
-    public void RemoveNotExisting()
-    {
-        foreach (var id in this)
-            if (!ObjectAccessor.GetCreature(_me, id))
-                Remove(id);
     }
 
     public void DoAction(int info, ICheck<ObjectGuid> predicate, ushort max = 0)
@@ -103,6 +80,17 @@ public class SummonList : List<ObjectGuid>
         DoActionImpl(info, listCopy);
     }
 
+    public void DoZoneInCombat(uint entry = 0)
+    {
+        foreach (var id in this)
+        {
+            var summon = ObjectAccessor.GetCreature(_me, id);
+
+            if (summon && summon.IsAIEnabled && (entry == 0 || summon.Entry == entry))
+                summon.AI.DoZoneInCombat();
+        }
+    }
+
     public bool HasEntry(uint entry)
     {
         foreach (var id in this)
@@ -116,6 +104,17 @@ public class SummonList : List<ObjectGuid>
         return false;
     }
 
+    public void RemoveNotExisting()
+    {
+        foreach (var id in this)
+            if (!ObjectAccessor.GetCreature(_me, id))
+                Remove(id);
+    }
+
+    public void Summon(Creature summon)
+    {
+        Add(summon.GUID);
+    }
     private void DoActionImpl(int action, List<ObjectGuid> summons)
     {
         foreach (var guid in summons)

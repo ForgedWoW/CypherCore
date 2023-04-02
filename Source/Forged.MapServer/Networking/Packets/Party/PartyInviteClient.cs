@@ -9,9 +9,9 @@ internal class PartyInviteClient : ClientPacket
 {
     public byte PartyIndex;
     public uint ProposedRoles;
+    public ObjectGuid TargetGUID;
     public string TargetName;
     public string TargetRealm;
-    public ObjectGuid TargetGUID;
     public PartyInviteClient(WorldPacket packet) : base(packet) { }
 
     public override void Read()

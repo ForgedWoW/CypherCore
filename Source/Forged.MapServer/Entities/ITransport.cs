@@ -10,19 +10,27 @@ namespace Forged.MapServer.Entities;
 
 public interface ITransport
 {
-    ObjectGuid GetTransportGUID();
+    static void CalculatePassengerOffset(Position pos, float transX, float transY, float transZ, float transO)
+    {
+        pos.Orientation = Position.NormalizeOrientation(pos.Orientation - transO);
 
-    // This method transforms supplied transport offsets into global coordinates
-    void CalculatePassengerPosition(Position pos);
+        pos.Z -= transZ;
+        pos.Y -= transY; // y = searchedY * std::cos(o) + searchedX * std::sin(o)
+        pos.X -= transX; // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
+        float inx = pos.X, iny = pos.Y;
+        pos.Y = (iny - inx * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
+        pos.X = (inx + iny * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
+    }
 
-    // This method transforms supplied global coordinates into local offsets
-    void CalculatePassengerOffset(Position pos);
+    static void CalculatePassengerPosition(Position pos, float transX, float transY, float transZ, float transO)
+    {
+        float inx = pos.X, iny = pos.Y, inz = pos.Z;
+        pos.Orientation = Position.NormalizeOrientation(transO + pos.Orientation);
 
-    float GetTransportOrientation();
-
-    void AddPassenger(WorldObject passenger);
-
-    ITransport RemovePassenger(WorldObject passenger);
+        pos.X = transX + inx * MathF.Cos(transO) - iny * MathF.Sin(transO);
+        pos.Y = transY + iny * MathF.Cos(transO) + inx * MathF.Sin(transO);
+        pos.Z = transZ + inz;
+    }
 
     public static void UpdatePassengerPosition(ITransport transport, Map map, WorldObject passenger, Position pos, bool setHomePosition)
     {
@@ -81,27 +89,17 @@ public interface ITransport
         vehicle?.RelocatePassengers();
     }
 
-    static void CalculatePassengerPosition(Position pos, float transX, float transY, float transZ, float transO)
-    {
-        float inx = pos.X, iny = pos.Y, inz = pos.Z;
-        pos.Orientation = Position.NormalizeOrientation(transO + pos.Orientation);
+    void AddPassenger(WorldObject passenger);
 
-        pos.X = transX + inx * MathF.Cos(transO) - iny * MathF.Sin(transO);
-        pos.Y = transY + iny * MathF.Cos(transO) + inx * MathF.Sin(transO);
-        pos.Z = transZ + inz;
-    }
+    // This method transforms supplied global coordinates into local offsets
+    void CalculatePassengerOffset(Position pos);
 
-    static void CalculatePassengerOffset(Position pos, float transX, float transY, float transZ, float transO)
-    {
-        pos.Orientation = Position.NormalizeOrientation(pos.Orientation - transO);
-
-        pos.Z -= transZ;
-        pos.Y -= transY; // y = searchedY * std::cos(o) + searchedX * std::sin(o)
-        pos.X -= transX; // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
-        float inx = pos.X, iny = pos.Y;
-        pos.Y = (iny - inx * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
-        pos.X = (inx + iny * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
-    }
+    // This method transforms supplied transport offsets into global coordinates
+    void CalculatePassengerPosition(Position pos);
 
     int GetMapIdForSpawning();
+
+    ObjectGuid GetTransportGUID();
+    float GetTransportOrientation();
+    ITransport RemovePassenger(WorldObject passenger);
 }

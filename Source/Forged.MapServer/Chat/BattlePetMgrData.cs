@@ -15,14 +15,13 @@ public class BattlePetMgrData
 {
     public Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetBreedStates = new();
     public Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetSpeciesStates = new();
-    private readonly WorldDatabase _worldDatabase;
-    private readonly CliDB _cliDB;
-    private readonly GameObjectManager _objectManager;
+    private readonly MultiMap<uint, byte> _availableBreedsPerSpecies = new();
     private readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesByCreature = new();
     private readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesBySpell = new();
-    private readonly MultiMap<uint, byte> _availableBreedsPerSpecies = new();
+    private readonly CliDB _cliDB;
     private readonly Dictionary<uint, BattlePetBreedQuality> _defaultQualityPerSpecies = new();
-
+    private readonly GameObjectManager _objectManager;
+    private readonly WorldDatabase _worldDatabase;
     public BattlePetMgrData(LoginDatabase loginDatabase, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;
@@ -76,6 +75,14 @@ public class BattlePetMgrData
         return _battlePetSpeciesBySpell.LookupByKey(spellId);
     }
 
+    public BattlePetBreedQuality GetDefaultPetQuality(uint species)
+    {
+        if (!_defaultQualityPerSpecies.ContainsKey(species))
+            return BattlePetBreedQuality.Poor; // Default
+
+        return _defaultQualityPerSpecies[species];
+    }
+
     public ushort RollPetBreed(uint species)
     {
         var list = _availableBreedsPerSpecies.LookupByKey(species);
@@ -85,15 +92,6 @@ public class BattlePetMgrData
 
         return list.SelectRandom();
     }
-
-    public BattlePetBreedQuality GetDefaultPetQuality(uint species)
-    {
-        if (!_defaultQualityPerSpecies.ContainsKey(species))
-            return BattlePetBreedQuality.Poor; // Default
-
-        return _defaultQualityPerSpecies[species];
-    }
-
     public uint SelectPetDisplay(BattlePetSpeciesRecord speciesEntry)
     {
         var creatureTemplate = _objectManager.GetCreatureTemplate(speciesEntry.CreatureID);

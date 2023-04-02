@@ -8,9 +8,8 @@ namespace Forged.MapServer.Networking.Packets.GameObject;
 
 internal class GameObjectInteraction : ServerPacket
 {
-    public ObjectGuid ObjectGUID;
     public PlayerInteractionType InteractionType;
-
+    public ObjectGuid ObjectGUID;
     public GameObjectInteraction() : base(ServerOpcodes.GameObjectInteraction) { }
 
     public override void Write()

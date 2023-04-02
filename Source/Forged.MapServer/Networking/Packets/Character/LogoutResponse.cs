@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class LogoutResponse : ServerPacket
 {
-    public int LogoutResult;
     public bool Instant = false;
+    public int LogoutResult;
     public LogoutResponse() : base(ServerOpcodes.LogoutResponse, ConnectionType.Instance) { }
 
     public override void Write()

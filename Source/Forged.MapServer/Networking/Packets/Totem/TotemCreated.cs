@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Totem;
 
 internal class TotemCreated : ServerPacket
 {
-    public ObjectGuid Totem;
-    public uint SpellID;
+    public bool CannotDismiss;
     public uint Duration;
     public byte Slot;
+    public uint SpellID;
     public float TimeMod = 1.0f;
-    public bool CannotDismiss;
+    public ObjectGuid Totem;
     public TotemCreated() : base(ServerOpcodes.TotemCreated) { }
 
     public override void Write()

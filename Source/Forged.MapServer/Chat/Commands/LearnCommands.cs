@@ -79,39 +79,6 @@ internal class LearnCommands
     [CommandGroup("all")]
     private class LearnAllCommands
     {
-        [Command("blizzard", CypherStrings.CommandLearnAllBlizzardHelp, RBACPermissions.CommandLearnAllGm)]
-        private static bool HandleLearnAllGMCommand(CommandHandler handler)
-        {
-            foreach (var skillSpell in Global.SpellMgr.GetSkillLineAbilityMapBounds((uint)SkillType.Internal))
-            {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(skillSpell.Spell, Difficulty.None);
-
-                if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, handler.Session.Player, false))
-                    continue;
-
-                handler.Session.Player.LearnSpell(skillSpell.Spell, false);
-            }
-
-            handler.SendSysMessage(CypherStrings.LearningGmSkills);
-
-            return true;
-        }
-
-        [Command("debug", CypherStrings.CommandLearnAllDebugHelp, RBACPermissions.CommandLearn)]
-        private static bool HandleLearnDebugSpellsCommand(CommandHandler handler)
-        {
-            var player = handler.Player;
-            player.LearnSpell(63364, false); /* 63364 - Saronite Barrier (reduces damage taken by 99%) */
-            player.LearnSpell(1908, false);  /*  1908 - Uber Heal Over Time (heals target to full constantly) */
-            player.LearnSpell(27680, false); /* 27680 - Berserk (+500% damage, +150% speed, 10m duration) */
-            player.LearnSpell(62555, false); /* 62555 - Berserk (+500% damage, +150% melee haste, 10m duration) */
-            player.LearnSpell(64238, false); /* 64238 - Berserk (+900% damage, +150% melee haste, 30m duration) */
-            player.LearnSpell(72525, false); /* 72525 - Berserk (+240% damage, +160% haste, infinite duration) */
-            player.LearnSpell(66776, false); /* 66776 - Rage (+300% damage, -95% damage taken, +100% speed, infinite duration) */
-
-            return true;
-        }
-
         [Command("crafts", CypherStrings.CommandLearnAllCraftsHelp, RBACPermissions.CommandLearnAllCrafts)]
         private static bool HandleLearnAllCraftsCommand(CommandHandler handler, PlayerIdentifier player)
         {
@@ -151,6 +118,24 @@ internal class LearnCommands
             return true;
         }
 
+        [Command("blizzard", CypherStrings.CommandLearnAllBlizzardHelp, RBACPermissions.CommandLearnAllGm)]
+        private static bool HandleLearnAllGMCommand(CommandHandler handler)
+        {
+            foreach (var skillSpell in Global.SpellMgr.GetSkillLineAbilityMapBounds((uint)SkillType.Internal))
+            {
+                var spellInfo = Global.SpellMgr.GetSpellInfo(skillSpell.Spell, Difficulty.None);
+
+                if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, handler.Session.Player, false))
+                    continue;
+
+                handler.Session.Player.LearnSpell(skillSpell.Spell, false);
+            }
+
+            handler.SendSysMessage(CypherStrings.LearningGmSkills);
+
+            return true;
+        }
+
         [Command("languages", CypherStrings.CommandLearnAllLanguagesHelp, RBACPermissions.CommandLearnAllLang)]
         private static bool HandleLearnAllLangCommand(CommandHandler handler)
         {
@@ -164,6 +149,12 @@ internal class LearnCommands
 
             handler.SendSysMessage(CypherStrings.CommandLearnAllLang);
 
+            return true;
+        }
+
+        [Command("pettalents", CypherStrings.CommandLearnAllPettalentHelp, RBACPermissions.CommandLearnMyPetTalents)]
+        private static bool HandleLearnAllPetTalentsCommand(CommandHandler handler)
+        {
             return true;
         }
 
@@ -268,12 +259,20 @@ internal class LearnCommands
             return true;
         }
 
-        [Command("pettalents", CypherStrings.CommandLearnAllPettalentHelp, RBACPermissions.CommandLearnMyPetTalents)]
-        private static bool HandleLearnAllPetTalentsCommand(CommandHandler handler)
+        [Command("debug", CypherStrings.CommandLearnAllDebugHelp, RBACPermissions.CommandLearn)]
+        private static bool HandleLearnDebugSpellsCommand(CommandHandler handler)
         {
+            var player = handler.Player;
+            player.LearnSpell(63364, false); /* 63364 - Saronite Barrier (reduces damage taken by 99%) */
+            player.LearnSpell(1908, false);  /*  1908 - Uber Heal Over Time (heals target to full constantly) */
+            player.LearnSpell(27680, false); /* 27680 - Berserk (+500% damage, +150% speed, 10m duration) */
+            player.LearnSpell(62555, false); /* 62555 - Berserk (+500% damage, +150% melee haste, 10m duration) */
+            player.LearnSpell(64238, false); /* 64238 - Berserk (+900% damage, +150% melee haste, 30m duration) */
+            player.LearnSpell(72525, false); /* 72525 - Berserk (+240% damage, +160% haste, infinite duration) */
+            player.LearnSpell(66776, false); /* 66776 - Rage (+300% damage, -95% damage taken, +100% speed, infinite duration) */
+
             return true;
         }
-
         private static void HandleLearnSkillRecipesHelper(Player player, uint skillId)
         {
             var classmask = player.ClassMask;

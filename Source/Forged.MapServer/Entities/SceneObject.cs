@@ -20,10 +20,6 @@ public class SceneObject : WorldObject
     private readonly Position _stationaryPosition = new();
     private ObjectGuid _createdBySpellCast;
 
-    public override ObjectGuid OwnerGUID => _sceneObjectData.CreatedBy;
-
-    public override uint Faction => 0;
-
     public SceneObject() : base(false)
     {
         ObjectTypeMask |= TypeMask.SceneObject;
@@ -36,32 +32,8 @@ public class SceneObject : WorldObject
         _stationaryPosition = new Position();
     }
 
-    public override void AddToWorld()
-    {
-        if (!Location.IsInWorld)
-        {
-            Location.Map.ObjectsStore.TryAdd(GUID, this);
-            base.AddToWorld();
-        }
-    }
-
-    public override void RemoveFromWorld()
-    {
-        if (Location.IsInWorld)
-        {
-            base.RemoveFromWorld();
-            Location.Map.ObjectsStore.TryRemove(GUID, out _);
-        }
-    }
-
-    public override void Update(uint diff)
-    {
-        base.Update(diff);
-
-        if (ShouldBeRemoved())
-            Remove();
-    }
-
+    public override uint Faction => 0;
+    public override ObjectGuid OwnerGUID => _sceneObjectData.CreatedBy;
     public static SceneObject CreateSceneObject(uint sceneId, Unit creator, Position pos, ObjectGuid privateObjectOwner)
     {
         var sceneTemplate = ObjectManager.GetSceneTemplate(sceneId);
@@ -81,6 +53,15 @@ public class SceneObject : WorldObject
         }
 
         return sceneObject;
+    }
+
+    public override void AddToWorld()
+    {
+        if (!Location.IsInWorld)
+        {
+            Location.Map.ObjectsStore.TryAdd(GUID, this);
+            base.AddToWorld();
+        }
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -119,62 +100,27 @@ public class SceneObject : WorldObject
         base.ClearUpdateMask(remove);
     }
 
+    public override void RemoveFromWorld()
+    {
+        if (Location.IsInWorld)
+        {
+            base.RemoveFromWorld();
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
+        }
+    }
+
     public void SetCreatedBySpellCast(ObjectGuid castId)
     {
         _createdBySpellCast = castId;
     }
 
-    private void Remove()
+    public override void Update(uint diff)
     {
-        if (Location.IsInWorld)
-            Location.AddObjectToRemoveList();
+        base.Update(diff);
+
+        if (ShouldBeRemoved())
+            Remove();
     }
-
-    private bool ShouldBeRemoved()
-    {
-        var creator = Global.ObjAccessor.GetUnit(this, OwnerGUID);
-
-        if (creator == null)
-            return true;
-
-        if (!_createdBySpellCast.IsEmpty)
-        {
-            // search for a dummy aura on creator
-
-            var linkedAura = creator.GetAuraQuery().HasSpellId(_createdBySpellCast.Entry).HasCastId(_createdBySpellCast).GetResults().FirstOrDefault();
-
-            if (linkedAura == null)
-                return true;
-        }
-
-        return false;
-    }
-
-    private bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
-    {
-        Location.WorldRelocate(map, pos);
-        CheckAddToMap();
-        RelocateStationaryPosition(pos);
-
-        PrivateObjectOwner = privateObjectOwner;
-
-        Create(ObjectGuid.Create(HighGuid.SceneObject, Location.MapId, sceneId, lowGuid));
-        PhasingHandler.InheritPhaseShift(this, creator);
-
-        Entry = scriptPackageId;
-        ObjectScale = 1.0f;
-
-        SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.ScriptPackageID), (int)scriptPackageId);
-        SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.RndSeedVal), GameTime.GetGameTimeMS());
-        SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GUID);
-        SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.SceneType), (uint)type);
-
-        if (!Location.Map.AddToMap(this))
-            return false;
-
-        return true;
-    }
-
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedSceneObjectMask, Player target)
     {
         UpdateMask valuesMask = new((int)TypeId.Max);
@@ -203,15 +149,65 @@ public class SceneObject : WorldObject
         data.AddUpdateBlock(buffer1);
     }
 
+    private bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
+    {
+        Location.WorldRelocate(map, pos);
+        CheckAddToMap();
+        RelocateStationaryPosition(pos);
+
+        PrivateObjectOwner = privateObjectOwner;
+
+        Create(ObjectGuid.Create(HighGuid.SceneObject, Location.MapId, sceneId, lowGuid));
+        PhasingHandler.InheritPhaseShift(this, creator);
+
+        Entry = scriptPackageId;
+        ObjectScale = 1.0f;
+
+        SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.ScriptPackageID), (int)scriptPackageId);
+        SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.RndSeedVal), GameTime.CurrentTimeMS);
+        SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GUID);
+        SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.SceneType), (uint)type);
+
+        if (!Location.Map.AddToMap(this))
+            return false;
+
+        return true;
+    }
+
     private void RelocateStationaryPosition(Position pos)
     {
         _stationaryPosition.Relocate(pos);
     }
 
+    private void Remove()
+    {
+        if (Location.IsInWorld)
+            Location.AddObjectToRemoveList();
+    }
+
+    private bool ShouldBeRemoved()
+    {
+        var creator = Global.ObjAccessor.GetUnit(this, OwnerGUID);
+
+        if (creator == null)
+            return true;
+
+        if (!_createdBySpellCast.IsEmpty)
+        {
+            // search for a dummy aura on creator
+
+            var linkedAura = creator.GetAuraQuery().HasSpellId(_createdBySpellCast.Entry).HasCastId(_createdBySpellCast).GetResults().FirstOrDefault();
+
+            if (linkedAura == null)
+                return true;
+        }
+
+        return false;
+    }
     private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
     {
-        private readonly SceneObject _owner;
         private readonly ObjectFieldData _objectMask = new();
+        private readonly SceneObject _owner;
         private readonly SceneObjectData _sceneObjectData = new();
 
         public ValuesUpdateForPlayerWithMaskSender(SceneObject owner)

@@ -14,15 +14,46 @@ namespace Forged.MapServer.Entities;
 
 public class VehicleJoinEvent : BasicEvent
 {
-    public Vehicle Target;
     public Unit Passenger;
     public KeyValuePair<sbyte, VehicleSeat> Seat;
-
+    public Vehicle Target;
     public VehicleJoinEvent(Vehicle v, Unit u)
     {
         Target = v;
         Passenger = u;
         Seat = Target.Seats.Last();
+    }
+
+    public override void Abort(ulong e_time)
+    {
+        // Check if the Vehicle was already uninstalled, in which case all auras were removed already
+        if (Target != null)
+        {
+            Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
+                             Passenger.GUID.ToString(),
+                             Passenger.Entry,
+                             Target.GetBase().GUID.ToString(),
+                             Target.GetBase().Entry,
+                             Seat.Key);
+
+            // Remove the pending event when Abort was called on the event directly
+            Target.RemovePendingEvent(this);
+
+            // @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
+            // When this code is triggered it means that something went wrong in @Vehicle.AddPassenger, and we should remove
+            // the aura manually.
+            Target.GetBase().RemoveAurasByType(AuraType.ControlVehicle, Passenger.GUID);
+        }
+        else
+        {
+            Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
+                             Passenger.GUID.ToString(),
+                             Passenger.Entry,
+                             Seat.Key);
+        }
+
+        if (Passenger.Location.IsInWorld && Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
+            Passenger.AsCreature.DespawnOrUnsummon();
     }
 
     public override bool Execute(ulong etime, uint pTime)
@@ -146,37 +177,5 @@ public class VehicleJoinEvent : BasicEvent
         }
 
         return true;
-    }
-
-    public override void Abort(ulong e_time)
-    {
-        // Check if the Vehicle was already uninstalled, in which case all auras were removed already
-        if (Target != null)
-        {
-            Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
-                             Passenger.GUID.ToString(),
-                             Passenger.Entry,
-                             Target.GetBase().GUID.ToString(),
-                             Target.GetBase().Entry,
-                             Seat.Key);
-
-            // Remove the pending event when Abort was called on the event directly
-            Target.RemovePendingEvent(this);
-
-            // @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
-            // When this code is triggered it means that something went wrong in @Vehicle.AddPassenger, and we should remove
-            // the aura manually.
-            Target.GetBase().RemoveAurasByType(AuraType.ControlVehicle, Passenger.GUID);
-        }
-        else
-        {
-            Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
-                             Passenger.GUID.ToString(),
-                             Passenger.Entry,
-                             Seat.Key);
-        }
-
-        if (Passenger.Location.IsInWorld && Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
-            Passenger.AsCreature.DespawnOrUnsummon();
     }
 }

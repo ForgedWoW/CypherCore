@@ -7,12 +7,11 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionGetCommodityQuoteResult : ServerPacket
 {
-    public ulong? TotalPrice;
+    public uint DesiredDelay;
+    public int ItemID;
     public uint? Quantity;
     public int? QuoteDuration;
-    public int ItemID;
-    public uint DesiredDelay;
-
+    public ulong? TotalPrice;
     public AuctionGetCommodityQuoteResult() : base(ServerOpcodes.AuctionGetCommodityQuoteResult) { }
 
     public override void Write()

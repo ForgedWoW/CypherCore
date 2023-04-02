@@ -9,18 +9,18 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LFGUpdateStatus : ServerPacket
 {
-    public RideTicket Ticket = new();
-    public byte SubType;
-    public byte Reason;
-    public List<uint> Slots = new();
-    public uint RequestedRoles;
-    public List<ObjectGuid> SuspendedPlayers = new();
-    public uint QueueMapID;
-    public bool NotifyUI;
     public bool IsParty;
     public bool Joined;
     public bool LfgJoined;
+    public bool NotifyUI;
     public bool Queued;
+    public uint QueueMapID;
+    public byte Reason;
+    public uint RequestedRoles;
+    public List<uint> Slots = new();
+    public byte SubType;
+    public List<ObjectGuid> SuspendedPlayers = new();
+    public RideTicket Ticket = new();
     public bool Unused;
     public LFGUpdateStatus() : base(ServerOpcodes.LfgUpdateStatus) { }
 

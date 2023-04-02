@@ -18,10 +18,10 @@ public class spell_pal_crusader_strike : SpellScript, ISpellOnHit
         if (caster.HasAura(PaladinSpells.CRUSADERS_MIGHT))
         {
             if (caster.SpellHistory.HasCooldown(PaladinSpells.HolyShock))
-                caster.SpellHistory.ModifyCooldown(PaladinSpells.HolyShock, TimeSpan.FromMilliseconds(-1 * Time.InMilliseconds));
+                caster.SpellHistory.ModifyCooldown(PaladinSpells.HolyShock, TimeSpan.FromMilliseconds(-1 * Time.IN_MILLISECONDS));
 
             if (caster.SpellHistory.HasCooldown(PaladinSpells.LIGHT_OF_DAWN))
-                caster.SpellHistory.ModifyCooldown(PaladinSpells.LIGHT_OF_DAWN, TimeSpan.FromMilliseconds(-1 * Time.InMilliseconds));
+                caster.SpellHistory.ModifyCooldown(PaladinSpells.LIGHT_OF_DAWN, TimeSpan.FromMilliseconds(-1 * Time.IN_MILLISECONDS));
         }
     }
 }

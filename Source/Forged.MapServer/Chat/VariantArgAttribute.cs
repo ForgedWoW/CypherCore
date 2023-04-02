@@ -8,10 +8,10 @@ namespace Forged.MapServer.Chat;
 [AttributeUsage(AttributeTargets.Parameter)]
 public class VariantArgAttribute : Attribute
 {
-    public Type[] Types { get; set; }
-
     public VariantArgAttribute(params Type[] types)
     {
         Types = types;
     }
+
+    public Type[] Types { get; set; }
 }

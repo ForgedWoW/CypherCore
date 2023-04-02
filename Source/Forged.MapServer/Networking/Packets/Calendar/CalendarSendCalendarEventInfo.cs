@@ -9,6 +9,22 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal struct CalendarSendCalendarEventInfo
 {
+    public long Date;
+
+    public ulong EventClubID;
+
+    public ulong EventID;
+
+    public string EventName;
+
+    public CalendarEventType EventType;
+
+    public CalendarFlags Flags;
+
+    public ObjectGuid OwnerGuid;
+
+    public int TextureID;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(EventID);
@@ -23,13 +39,4 @@ internal struct CalendarSendCalendarEventInfo
         data.FlushBits();
         data.WriteString(EventName);
     }
-
-    public ulong EventID;
-    public string EventName;
-    public CalendarEventType EventType;
-    public long Date;
-    public CalendarFlags Flags;
-    public int TextureID;
-    public ulong EventClubID;
-    public ObjectGuid OwnerGuid;
 }

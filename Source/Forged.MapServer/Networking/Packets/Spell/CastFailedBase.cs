@@ -10,11 +10,10 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 internal class CastFailedBase : ServerPacket
 {
     public ObjectGuid CastID;
-    public int SpellID;
-    public SpellCastResult Reason;
     public int FailedArg1 = -1;
     public int FailedArg2 = -1;
-
+    public SpellCastResult Reason;
+    public int SpellID;
     public CastFailedBase(ServerOpcodes opcode, ConnectionType connectionType) : base(opcode, connectionType) { }
 
     public override void Write()

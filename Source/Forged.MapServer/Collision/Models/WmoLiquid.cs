@@ -10,13 +10,12 @@ namespace Forged.MapServer.Collision.Models;
 
 public class WmoLiquid
 {
+    private Vector3 _corner;
+    private byte[] _flags;
+    private float[] _height;
     private uint _tilesX;
     private uint _tilesY;
-    private Vector3 _corner;
     private uint _type;
-    private float[] _height;
-    private byte[] _flags;
-
     public WmoLiquid() { }
 
     public WmoLiquid(uint width, uint height, Vector3 corner, uint type)
@@ -69,6 +68,33 @@ public class WmoLiquid
         }
     }
 
+    public static WmoLiquid ReadFromFile(BinaryReader reader)
+    {
+        WmoLiquid liquid = new()
+        {
+            _tilesX = reader.ReadUInt32(),
+            _tilesY = reader.ReadUInt32(),
+            _corner = reader.Read<Vector3>(),
+            _type = reader.ReadUInt32()
+        };
+
+        if (liquid._tilesX != 0 && liquid._tilesY != 0)
+        {
+            var size = (liquid._tilesX + 1) * (liquid._tilesY + 1);
+            liquid._height = reader.ReadArray<float>(size);
+
+            size = liquid._tilesX * liquid._tilesY;
+            liquid._flags = reader.ReadArray<byte>(size);
+        }
+        else
+        {
+            liquid._height = new float[1];
+            liquid._height[0] = reader.ReadSingle();
+        }
+
+        return liquid;
+    }
+
     public bool GetLiquidHeight(Vector3 pos, out float liqHeight)
     {
         // simple case
@@ -118,34 +144,6 @@ public class WmoLiquid
 
         return true;
     }
-
-    public static WmoLiquid ReadFromFile(BinaryReader reader)
-    {
-        WmoLiquid liquid = new()
-        {
-            _tilesX = reader.ReadUInt32(),
-            _tilesY = reader.ReadUInt32(),
-            _corner = reader.Read<Vector3>(),
-            _type = reader.ReadUInt32()
-        };
-
-        if (liquid._tilesX != 0 && liquid._tilesY != 0)
-        {
-            var size = (liquid._tilesX + 1) * (liquid._tilesY + 1);
-            liquid._height = reader.ReadArray<float>(size);
-
-            size = liquid._tilesX * liquid._tilesY;
-            liquid._flags = reader.ReadArray<byte>(size);
-        }
-        else
-        {
-            liquid._height = new float[1];
-            liquid._height[0] = reader.ReadSingle();
-        }
-
-        return liquid;
-    }
-
     public uint GetLiquidType()
     {
         return _type;

@@ -11,6 +11,32 @@ public class ItemModList
 {
     public Array<ItemMod> Values = new((int)ItemModifier.Max);
 
+    public static bool operator !=(ItemModList left, ItemModList right)
+    {
+        return !(left == right);
+    }
+
+    public static bool operator ==(ItemModList left, ItemModList right)
+    {
+        if (left.Values.Count != right.Values.Count)
+            return false;
+
+        return !left.Values.Except(right.Values).Any();
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is ItemModList)
+            return (ItemModList)obj == this;
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return Values.GetHashCode();
+    }
+
     public void Read(WorldPacket data)
     {
         var itemModListCount = data.ReadBits<uint>(6);
@@ -31,31 +57,5 @@ public class ItemModList
 
         foreach (var itemMod in Values)
             itemMod.Write(data);
-    }
-
-    public override int GetHashCode()
-    {
-        return Values.GetHashCode();
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj is ItemModList)
-            return (ItemModList)obj == this;
-
-        return false;
-    }
-
-    public static bool operator ==(ItemModList left, ItemModList right)
-    {
-        if (left.Values.Count != right.Values.Count)
-            return false;
-
-        return !left.Values.Except(right.Values).Any();
-    }
-
-    public static bool operator !=(ItemModList left, ItemModList right)
-    {
-        return !(left == right);
     }
 }

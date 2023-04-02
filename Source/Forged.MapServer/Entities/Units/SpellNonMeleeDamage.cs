@@ -10,26 +10,24 @@ namespace Forged.MapServer.Entities.Units;
 
 public class SpellNonMeleeDamage
 {
-    public Unit Target;
-    public Unit Attacker;
-    public ObjectGuid CastId;
-    public SpellInfo Spell;
-    public SpellCastVisual SpellVisual;
-    public double Damage;
-    public double OriginalDamage;
-    public SpellSchoolMask SchoolMask;
     public double Absorb;
-    public double Resist;
-    public bool PeriodicLog;
+    public Unit Attacker;
     public double Blocked;
-
-    public int HitInfo;
-
+    public ObjectGuid CastId;
     // Used for help
     public double CleanDamage;
-    public bool FullBlock;
-    public long PreHitHealth;
 
+    public double Damage;
+    public bool FullBlock;
+    public int HitInfo;
+    public double OriginalDamage;
+    public bool PeriodicLog;
+    public long PreHitHealth;
+    public double Resist;
+    public SpellSchoolMask SchoolMask;
+    public SpellInfo Spell;
+    public SpellCastVisual SpellVisual;
+    public Unit Target;
     public SpellNonMeleeDamage(Unit attacker, Unit target, SpellInfo spellInfo, SpellCastVisual spellVisual, SpellSchoolMask schoolMask, ObjectGuid castId = default)
     {
         Target = target;

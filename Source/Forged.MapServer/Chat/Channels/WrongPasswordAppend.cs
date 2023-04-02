@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct WrongPasswordAppend : IChannelAppender
 {
-    public ChatNotify GetNotificationType() => ChatNotify.WrongPasswordNotice;
-
     public void Append(ChannelNotify data) { }
+
+    public ChatNotify GetNotificationType() => ChatNotify.WrongPasswordNotice;
 }

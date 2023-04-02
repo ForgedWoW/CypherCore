@@ -11,9 +11,9 @@ namespace Forged.MapServer.BattlePets;
 
 public class BattlePet
 {
-    public BattlePetStruct PacketInfo;
-    public long NameTimestamp;
     public DeclinedName DeclinedName;
+    public long NameTimestamp;
+    public BattlePetStruct PacketInfo;
     public BattlePetSaveInfo SaveInfo;
 
     public void CalculateStats()

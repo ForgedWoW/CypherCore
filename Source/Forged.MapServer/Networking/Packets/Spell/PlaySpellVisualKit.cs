@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class PlaySpellVisualKit : ServerPacket
 {
-    public ObjectGuid Unit;
+    public uint Duration;
     public uint KitRecID;
     public uint KitType;
-    public uint Duration;
     public bool MountedVisual;
+    public ObjectGuid Unit;
     public PlaySpellVisualKit() : base(ServerOpcodes.PlaySpellVisualKit) { }
 
     public override void Write()

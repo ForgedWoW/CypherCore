@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetJournal : ServerPacket
 {
-    public ushort Trap;
     public bool HasJournalLock = false;
-    public List<BattlePetSlot> Slots = new();
     public List<BattlePetStruct> Pets = new();
+    public List<BattlePetSlot> Slots = new();
+    public ushort Trap;
     public BattlePetJournal() : base(ServerOpcodes.BattlePetJournal) { }
 
     public override void Write()

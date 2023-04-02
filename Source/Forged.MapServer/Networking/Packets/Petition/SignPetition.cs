@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class SignPetition : ClientPacket
 {
-    public ObjectGuid PetitionGUID;
     public byte Choice;
+    public ObjectGuid PetitionGUID;
     public SignPetition(WorldPacket packet) : base(packet) { }
 
     public override void Read()

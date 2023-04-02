@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 internal class GossipOptionNPCInteraction : ServerPacket
 {
+    public int? FriendshipFactionID;
     public ObjectGuid GossipGUID;
     public int GossipNpcOptionID;
-    public int? FriendshipFactionID;
     public GossipOptionNPCInteraction() : base(ServerOpcodes.GossipOptionNpcInteraction) { }
 
     public override void Write()

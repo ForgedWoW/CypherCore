@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class BuySucceeded : ServerPacket
 {
-    public ObjectGuid VendorGUID;
     public uint Muid;
-    public uint QuantityBought;
     public uint NewQuantity;
+    public uint QuantityBought;
+    public ObjectGuid VendorGUID;
     public BuySucceeded() : base(ServerOpcodes.BuySucceeded) { }
 
     public override void Write()

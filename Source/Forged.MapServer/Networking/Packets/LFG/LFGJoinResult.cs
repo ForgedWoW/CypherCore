@@ -9,11 +9,11 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LFGJoinResult : ServerPacket
 {
-    public RideTicket Ticket = new();
-    public byte Result;
-    public byte ResultDetail;
     public List<LFGBlackListPkt> BlackList = new();
     public List<string> BlackListNames = new();
+    public byte Result;
+    public byte ResultDetail;
+    public RideTicket Ticket = new();
     public LFGJoinResult() : base(ServerOpcodes.LfgJoinResult) { }
 
     public override void Write()

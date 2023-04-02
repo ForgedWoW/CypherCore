@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class SpellClick : ClientPacket
 {
+    public bool IsSoftInteract;
     public ObjectGuid SpellClickUnitGuid;
     public bool TryAutoDismount;
-    public bool IsSoftInteract;
     public SpellClick(WorldPacket packet) : base(packet) { }
 
     public override void Read()

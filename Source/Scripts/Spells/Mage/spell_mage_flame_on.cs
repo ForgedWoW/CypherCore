@@ -24,6 +24,6 @@ internal class spell_mage_flame_on : AuraScript, IHasAuraEffects
     private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
     {
         canBeRecalculated.Value = false;
-        amount.Value = -MathFunctions.GetPctOf(GetEffectInfo(2).CalcValue() * Time.InMilliseconds, CliDB.SpellCategoryStorage.LookupByKey(Global.SpellMgr.GetSpellInfo(MageSpells.FireBlast, Difficulty.None).ChargeCategoryId).ChargeRecoveryTime);
+        amount.Value = -MathFunctions.GetPctOf(GetEffectInfo(2).CalcValue() * Time.IN_MILLISECONDS, CliDB.SpellCategoryStorage.LookupByKey(Global.SpellMgr.GetSpellInfo(MageSpells.FireBlast, Difficulty.None).ChargeCategoryId).ChargeRecoveryTime);
     }
 }

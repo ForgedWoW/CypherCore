@@ -33,7 +33,7 @@ public class MapConst
     public const float LiquidTileSize = (533.333f / 128.0f);
 
     public const int MinMapUpdateDelay = 1;
-    public const int MinGridDelay = (Time.Minute * Time.InMilliseconds);
+    public const int MinGridDelay = (Time.MINUTE * Time.IN_MILLISECONDS);
 
     public const int MapResolution = 128;
     public const float DefaultHeightSearch = 50.0f;

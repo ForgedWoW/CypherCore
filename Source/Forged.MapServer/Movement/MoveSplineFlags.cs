@@ -8,8 +8,8 @@ namespace Forged.MapServer.Movement;
 
 public class MoveSplineFlag
 {
-    public SplineFlag Flags;
     public byte animTier;
+    public SplineFlag Flags;
     public MoveSplineFlag() { }
 
     public MoveSplineFlag(SplineFlag f)
@@ -22,14 +22,39 @@ public class MoveSplineFlag
         Flags = f.Flags;
     }
 
-    public bool IsSmooth()
+    public void EnableAnimation()
     {
-        return Flags.HasAnyFlag(SplineFlag.Catmullrom);
+        Flags = (Flags & ~(SplineFlag.Falling | SplineFlag.Parabolic | SplineFlag.FallingSlow | SplineFlag.FadeObject)) | SplineFlag.Animation;
     }
 
-    public bool IsLinear()
+    public void EnableCatmullRom()
     {
-        return !IsSmooth();
+        Flags = (Flags & ~SplineFlag.SmoothGroundPath) | SplineFlag.Catmullrom;
+    }
+
+    public void EnableFalling()
+    {
+        Flags = (Flags & ~(SplineFlag.Parabolic | SplineFlag.Animation | SplineFlag.Flying)) | SplineFlag.Falling;
+    }
+
+    public void EnableFlying()
+    {
+        Flags = (Flags & ~SplineFlag.Falling) | SplineFlag.Flying;
+    }
+
+    public void EnableParabolic()
+    {
+        Flags = (Flags & ~(SplineFlag.Falling | SplineFlag.Animation | SplineFlag.FallingSlow | SplineFlag.FadeObject)) | SplineFlag.Parabolic;
+    }
+
+    public void EnableTransportEnter()
+    {
+        Flags = (Flags & ~SplineFlag.TransportExit) | SplineFlag.TransportEnter;
+    }
+
+    public void EnableTransportExit()
+    {
+        Flags = (Flags & ~SplineFlag.TransportEnter) | SplineFlag.TransportExit;
     }
 
     public bool HasAllFlags(SplineFlag f)
@@ -42,46 +67,20 @@ public class MoveSplineFlag
         return (Flags & f) != 0;
     }
 
+    public bool IsLinear()
+    {
+        return !IsSmooth();
+    }
+
+    public bool IsSmooth()
+    {
+        return Flags.HasAnyFlag(SplineFlag.Catmullrom);
+    }
     public void SetUnsetFlag(SplineFlag f, bool Set = true)
     {
         if (Set)
             Flags |= f;
         else
             Flags &= ~f;
-    }
-
-    public void EnableAnimation()
-    {
-        Flags = (Flags & ~(SplineFlag.Falling | SplineFlag.Parabolic | SplineFlag.FallingSlow | SplineFlag.FadeObject)) | SplineFlag.Animation;
-    }
-
-    public void EnableParabolic()
-    {
-        Flags = (Flags & ~(SplineFlag.Falling | SplineFlag.Animation | SplineFlag.FallingSlow | SplineFlag.FadeObject)) | SplineFlag.Parabolic;
-    }
-
-    public void EnableFlying()
-    {
-        Flags = (Flags & ~SplineFlag.Falling) | SplineFlag.Flying;
-    }
-
-    public void EnableFalling()
-    {
-        Flags = (Flags & ~(SplineFlag.Parabolic | SplineFlag.Animation | SplineFlag.Flying)) | SplineFlag.Falling;
-    }
-
-    public void EnableCatmullRom()
-    {
-        Flags = (Flags & ~SplineFlag.SmoothGroundPath) | SplineFlag.Catmullrom;
-    }
-
-    public void EnableTransportEnter()
-    {
-        Flags = (Flags & ~SplineFlag.TransportExit) | SplineFlag.TransportEnter;
-    }
-
-    public void EnableTransportExit()
-    {
-        Flags = (Flags & ~SplineFlag.TransportEnter) | SplineFlag.TransportExit;
     }
 }

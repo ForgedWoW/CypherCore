@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SetMeleeAnimKit : ServerPacket
 {
-    public ObjectGuid Unit;
     public ushort AnimKitID;
+    public ObjectGuid Unit;
     public SetMeleeAnimKit() : base(ServerOpcodes.SetMeleeAnimKit, ConnectionType.Instance) { }
 
     public override void Write()

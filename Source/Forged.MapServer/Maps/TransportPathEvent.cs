@@ -5,6 +5,6 @@ namespace Forged.MapServer.Maps;
 
 public struct TransportPathEvent
 {
-    public uint Timestamp;
     public uint EventId;
+    public uint Timestamp;
 }

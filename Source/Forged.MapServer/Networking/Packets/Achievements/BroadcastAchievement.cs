@@ -9,10 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class BroadcastAchievement : ServerPacket
 {
-    public ObjectGuid PlayerGUID;
-    public string Name = "";
     public uint AchievementID;
     public bool GuildAchievement;
+    public string Name = "";
+    public ObjectGuid PlayerGUID;
     public BroadcastAchievement() : base(ServerOpcodes.BroadcastAchievement) { }
 
     public override void Write()

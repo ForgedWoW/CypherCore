@@ -26,357 +26,136 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    public void UpdateSkillsForLevel()
-    {
-        var race = Race;
-        var maxSkill = GetMaxSkillValueForLevel();
-        SkillInfo skillInfoField = ActivePlayerData.Skill;
-
-        foreach (var pair in _skillStatus)
-        {
-            if (pair.Value.State == SkillState.Deleted || skillInfoField.SkillRank[pair.Value.Pos] == 0)
-                continue;
-
-            var pskill = pair.Key;
-            var rcEntry = DB2Manager.GetSkillRaceClassInfo(pskill, Race, Class);
-
-            if (rcEntry == null)
-                continue;
-
-            if (Global.SpellMgr.GetSkillRangeType(rcEntry) == SkillRangeType.Level)
-            {
-                if (rcEntry.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
-                    SetSkillRank(pair.Value.Pos, maxSkill);
-
-                SetSkillMaxRank(pair.Value.Pos, maxSkill);
-
-                if (pair.Value.State != SkillState.New)
-                    pair.Value.State = SkillState.Changed;
-            }
-
-            // Update level dependent skillline spells
-            LearnSkillRewardedSpells(rcEntry.SkillID, skillInfoField.SkillRank[pair.Value.Pos], race);
-        }
-    }
-
-    public ushort GetSkillValue(SkillType skill)
-    {
-        if (skill == 0)
-            return 0;
-
-        SkillInfo skillInfo = ActivePlayerData.Skill;
-
-        var skillStatusData = _skillStatus.LookupByKey(skill);
-
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
-            return 0;
-
-        int result = skillInfo.SkillRank[skillStatusData.Pos];
-        result += skillInfo.SkillTempBonus[skillStatusData.Pos];
-        result += skillInfo.SkillPermBonus[skillStatusData.Pos];
-
-        return (ushort)(result < 0 ? 0 : result);
-    }
-
-    public ushort GetPureSkillValue(SkillType skill)
-    {
-        if (skill == 0)
-            return 0;
-
-        SkillInfo skillInfo = ActivePlayerData.Skill;
-
-        var skillStatusData = _skillStatus.LookupByKey((uint)skill);
-
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
-            return 0;
-
-        return skillInfo.SkillRank[skillStatusData.Pos];
-    }
-
-    public ushort GetSkillStep(SkillType skill)
-    {
-        if (skill == 0)
-            return 0;
-
-        SkillInfo skillInfo = ActivePlayerData.Skill;
-
-        var skillStatusData = _skillStatus.LookupByKey(skill);
-
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
-            return 0;
-
-        return skillInfo.SkillStep[skillStatusData.Pos];
-    }
-
-    public ushort GetPureMaxSkillValue(SkillType skill)
-    {
-        if (skill == 0)
-            return 0;
-
-        SkillInfo skillInfo = ActivePlayerData.Skill;
-
-        var skillStatusData = _skillStatus.LookupByKey(skill);
-
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
-            return 0;
-
-        return skillInfo.SkillMaxRank[skillStatusData.Pos];
-    }
-
-    public ushort GetBaseSkillValue(SkillType skill)
-    {
-        if (skill == 0)
-            return 0;
-
-        SkillInfo skillInfo = ActivePlayerData.Skill;
-
-        var skillStatusData = _skillStatus.LookupByKey(skill);
-
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
-            return 0;
-
-        int result = skillInfo.SkillRank[skillStatusData.Pos];
-        result += skillInfo.SkillPermBonus[skillStatusData.Pos];
-
-        return (ushort)(result < 0 ? 0 : result);
-    }
-
-    public ushort GetSkillPermBonusValue(uint skill)
-    {
-        if (skill == 0)
-            return 0;
-
-        SkillInfo skillInfo = ActivePlayerData.Skill;
-
-        var skillStatusData = _skillStatus.LookupByKey(skill);
-
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
-            return 0;
-
-        return skillInfo.SkillPermBonus[skillStatusData.Pos];
-    }
-
-    public ushort GetSkillTempBonusValue(uint skill)
-    {
-        if (skill == 0)
-            return 0;
-
-        SkillInfo skillInfo = ActivePlayerData.Skill;
-
-        var skillStatusData = _skillStatus.LookupByKey(skill);
-
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
-            return 0;
-
-        return skillInfo.SkillTempBonus[skillStatusData.Pos];
-    }
-
-    public void PetSpellInitialize()
-    {
-        var pet = CurrentPet;
-
-        if (!pet)
-            return;
-
-        Log.Logger.Debug("Pet Spells Groups");
-
-        var charmInfo = pet.GetCharmInfo();
-
-        PetSpells petSpellsPacket = new()
-        {
-            PetGUID = pet.GUID,
-            CreatureFamily = (ushort)pet.Template.Family, // creature family (required for pet talents)
-            Specialization = pet.Specialization,
-            TimeLimit = (uint)pet.Duration,
-            ReactState = pet.ReactState,
-            CommandState = charmInfo.GetCommandState()
-        };
-
-        // action bar loop
-        for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
-            petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).PackedData;
-
-        if (pet.IsPermanentPetFor(this))
-            // spells loop
-            foreach (var pair in pet.Spells)
-            {
-                if (pair.Value.State == PetSpellState.Removed)
-                    continue;
-
-                petSpellsPacket.Actions.Add(UnitActionBarEntry.MAKE_UNIT_ACTION_BUTTON(pair.Key, (uint)pair.Value.Active));
-            }
-
-        // Cooldowns
-        pet.
-            // Cooldowns
-            SpellHistory.WritePacket(petSpellsPacket);
-
-        SendPacket(petSpellsPacket);
-    }
-
-    public bool CanSeeSpellClickOn(Creature creature)
-    {
-        if (!creature.HasNpcFlag(NPCFlags.SpellClick))
-            return false;
-
-        var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(creature.Entry);
-
-        if (clickBounds.Empty())
-            return true;
-
-        foreach (var spellClickInfo in clickBounds)
-        {
-            if (!spellClickInfo.IsFitToRequirements(this, creature))
-                return false;
-
-            if (Global.ConditionMgr.IsObjectMeetingSpellClickConditions(creature.Entry, spellClickInfo.spellId, this, creature))
-                return true;
-        }
-
-        return false;
-    }
-
-    public override SpellInfo GetCastSpellInfo(SpellInfo spellInfo)
-    {
-        var overrides = _overrideSpells.LookupByKey(spellInfo.Id);
-
-        if (!overrides.Empty())
-            foreach (var spellId in overrides)
-            {
-                var newInfo = Global.SpellMgr.GetSpellInfo(spellId, Location.Map.DifficultyID);
-
-                if (newInfo != null)
-                    return GetCastSpellInfo(newInfo);
-            }
-
-        return base.GetCastSpellInfo(spellInfo);
-    }
-
-    public void SetOverrideSpellsId(uint overrideSpellsId)
-    {
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OverrideSpellsID), overrideSpellsId);
-    }
-
     public void AddOverrideSpell(uint overridenSpellId, uint newSpellId)
     {
         _overrideSpells.Add(overridenSpellId, newSpellId);
     }
 
-    public void RemoveOverrideSpell(uint overridenSpellId, uint newSpellId)
+    public void AddSpellMod(SpellModifier mod, bool apply)
     {
-        _overrideSpells.Remove(overridenSpellId, newSpellId);
-    }
+        Log.Logger.Debug("Player.AddSpellMod {0}", mod.SpellId);
 
-    public void LearnSpecializationSpells()
-    {
-        var specSpells = DB2Manager.GetSpecializationSpells(GetPrimarySpecialization());
+        // First, manipulate our spellmodifier container
+        if (apply)
+            _spellModifiers[(int)mod.Op][(int)mod.Type].Add(mod);
+        else
+            _spellModifiers[(int)mod.Op][(int)mod.Type].Remove(mod);
 
-        if (specSpells != null)
-            for (var j = 0; j < specSpells.Count; ++j)
-            {
-                var specSpell = specSpells[j];
-                var spellInfo = Global.SpellMgr.GetSpellInfo(specSpell.SpellID, Difficulty.None);
-
-                if (spellInfo == null || spellInfo.SpellLevel > Level)
-                    continue;
-
-                LearnSpell(specSpell.SpellID, true);
-
-                if (specSpell.OverridesSpellID != 0)
-                    AddOverrideSpell(specSpell.OverridesSpellID, specSpell.SpellID);
-            }
-    }
-
-    public void SendSpellCategoryCooldowns()
-    {
-        SpellCategoryCooldown cooldowns = new();
-
-        var categoryCooldownAuras = GetAuraEffectsByType(AuraType.ModSpellCategoryCooldown);
-
-        foreach (var aurEff in categoryCooldownAuras)
+        // Now, send spellmodifier packet
+        switch (mod.Type)
         {
-            var categoryId = (uint)aurEff.MiscValue;
-            var cooldownInfo = cooldowns.CategoryCooldowns.Find(p => p.Category == categoryId);
+            case SpellModType.Flat:
+            case SpellModType.Pct:
+                if (!IsLoading)
+                {
+                    var opcode = (mod.Type == SpellModType.Flat ? ServerOpcodes.SetFlatSpellModifier : ServerOpcodes.SetPctSpellModifier);
+                    SetSpellModifier packet = new(opcode);
 
-            if (cooldownInfo == null)
-                cooldowns.CategoryCooldowns.Add(new SpellCategoryCooldown.CategoryCooldownInfo(categoryId, -(int)aurEff.Amount));
-            else
-                cooldownInfo.ModCooldown -= (int)aurEff.Amount;
-        }
+                    // @todo Implement sending of bulk modifiers instead of single
+                    SpellModifierInfo spellMod = new()
+                    {
+                        ModIndex = (byte)mod.Op
+                    };
 
-        SendPacket(cooldowns);
-    }
+                    for (var eff = 0; eff < 128; ++eff)
+                    {
+                        FlagArray128 mask = new()
+                        {
+                            [eff / 32] = 1u << (eff % 32)
+                        };
 
-    public bool UpdateSkillPro(SkillType skillId, int chance, uint step)
-    {
-        return UpdateSkillPro((uint)skillId, chance, step);
-    }
+                        if ((mod as SpellModifierByClassMask).Mask & mask)
+                        {
+                            SpellModifierData modData = new();
 
-    public bool UpdateSkillPro(uint skillId, int chance, uint step)
-    {
-        // levels sync. with spell requirement for skill levels to learn
-        // bonus abilities in sSkillLineAbilityStore
-        // Used only to avoid scan DBC at each skill grow
-        uint[] bonusSkillLevels =
-        {
-            75, 150, 225, 300, 375, 450, 525, 600, 700, 850
-        };
+                            if (mod.Type == SpellModType.Flat)
+                            {
+                                modData.ModifierValue = 0.0f;
 
-        Log.Logger.Debug("UpdateSkillPro(SkillId {0}, Chance {0:D3}%)", skillId, chance / 10.0f);
+                                foreach (SpellModifierByClassMask spell in _spellModifiers[(int)mod.Op][(int)SpellModType.Flat])
+                                    if (spell.Mask & mask)
+                                        modData.ModifierValue += spell.Value;
+                            }
+                            else
+                            {
+                                modData.ModifierValue = 1.0f;
 
-        if (skillId == 0)
-            return false;
+                                foreach (SpellModifierByClassMask spell in _spellModifiers[(int)mod.Op][(int)SpellModType.Pct])
+                                    if (spell.Mask & mask)
+                                        modData.ModifierValue *= 1.0f + MathFunctions.CalculatePct(1.0f, spell.Value);
+                            }
 
-        if (chance <= 0) // speedup in 0 chance case
-        {
-            Log.Logger.Debug("Player:UpdateSkillPro Chance={0:D3}% missed", chance / 10.0f);
+                            modData.ClassIndex = (byte)eff;
 
-            return false;
-        }
+                            spellMod.ModifierData.Add(modData);
+                        }
+                    }
 
-        var skillStatusData = _skillStatus.LookupByKey(skillId);
+                    packet.Modifiers.Add(spellMod);
 
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted)
-            return false;
-
-        SkillInfo skillInfoField = ActivePlayerData.Skill;
-
-        var value = skillInfoField.SkillRank[skillStatusData.Pos];
-        var max = skillInfoField.SkillMaxRank[skillStatusData.Pos];
-
-        if (max == 0 || value == 0 || value >= max)
-            return false;
-
-        if (RandomHelper.IRand(1, 1000) > chance)
-        {
-            Log.Logger.Debug("Player:UpdateSkillPro Chance={0:F3}% missed", chance / 10.0f);
-
-            return false;
-        }
-
-        var newValue = (ushort)(value + step);
-
-        if (newValue > max)
-            newValue = max;
-
-        SetSkillRank(skillStatusData.Pos, newValue);
-
-        if (skillStatusData.State != SkillState.New)
-            skillStatusData.State = SkillState.Changed;
-
-        foreach (var bsl in bonusSkillLevels)
-            if (value < bsl && newValue >= bsl)
-            {
-                LearnSkillRewardedSpells(skillId, newValue, Race);
+                    SendPacket(packet);
+                }
 
                 break;
-            }
+            case SpellModType.LabelFlat:
+                if (apply)
+                {
+                    AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellFlatModByLabel), (mod as SpellFlatModifierByLabel).Value);
+                }
+                else
+                {
+                    var firstIndex = ActivePlayerData.SpellFlatModByLabel.FindIndex((mod as SpellFlatModifierByLabel).Value);
 
-        UpdateSkillEnchantments(skillId, value, newValue);
-        UpdateCriteria(CriteriaType.SkillRaised, skillId);
-        Log.Logger.Debug("Player:UpdateSkillPro Chance={0:F3}% taken", chance / 10.0f);
+                    if (firstIndex >= 0)
+                        RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellFlatModByLabel), firstIndex);
+                }
 
-        return true;
+                break;
+            case SpellModType.LabelPct:
+                if (apply)
+                {
+                    AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellPctModByLabel), (mod as SpellPctModifierByLabel).Value);
+                }
+                else
+                {
+                    var firstIndex = ActivePlayerData.SpellPctModByLabel.FindIndex((mod as SpellPctModifierByLabel).Value);
+
+                    if (firstIndex >= 0)
+                        RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellPctModByLabel), firstIndex);
+                }
+
+                break;
+        }
+    }
+
+    public void AddStoredAuraTeleportLocation(uint spellId)
+    {
+        StoredAuraTeleportLocation storedLocation = new()
+        {
+            Loc = new WorldLocation(Location),
+            CurrentState = StoredAuraTeleportLocation.State.Changed
+        };
+
+        _storedAuraTeleportLocations[spellId] = storedLocation;
+    }
+
+    public void AddTemporarySpell(uint spellId)
+    {
+        var spell = _spells.LookupByKey(spellId);
+
+        // spell already added - do not do anything
+        if (spell != null)
+            return;
+
+        PlayerSpell newspell = new()
+        {
+            State = PlayerSpellState.Temporary,
+            Active = true,
+            Dependent = false,
+            Disabled = false
+        };
+
+        _spells[spellId] = newspell;
     }
 
     public void ApplyEnchantment(Item item, EnchantmentSlot slot, bool apply, bool applyDur = true, bool ignoreCondition = false)
@@ -454,7 +233,7 @@ public partial class Player
                             UpdateDamageDoneMods(attackType, apply ? -1 : (int)slot);
                     }
 
-                        break;
+                    break;
                     case ItemEnchantmentType.EquipSpell:
                         if (enchantSpellID != 0)
                         {
@@ -757,6 +536,1176 @@ public partial class Player
         }
     }
 
+    public void ApplyItemDependentAuras(Item item, bool apply)
+    {
+        if (apply)
+        {
+            var spells = GetSpellMap();
+
+            foreach (var pair in spells)
+            {
+                if (pair.Value.State == PlayerSpellState.Removed || pair.Value.Disabled)
+                    continue;
+
+                var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key, Difficulty.None);
+
+                if (spellInfo == null || !spellInfo.IsPassive || spellInfo.EquippedItemClass < 0)
+                    continue;
+
+                if (!HasAura(pair.Key) && HasItemFitToSpellRequirements(spellInfo))
+                    AddAura(pair.Key, this); // no SMSG_SPELL_GO in sniff found
+            }
+        }
+        else
+        {
+            RemoveItemDependentAurasAndCasts(item);
+        }
+    }
+
+    public void ApplyModToSpell(SpellModifier mod, Spell spell)
+    {
+        if (spell == null)
+            return;
+
+        // don't do anything with no charges
+        if (mod.OwnerAura.IsUsingCharges && mod.OwnerAura.Charges == 0)
+            return;
+
+        // register inside spell, proc system uses this to drop charges
+        spell.AppliedMods.Add(mod.OwnerAura);
+    }
+
+    public void ApplySpellMod(SpellInfo spellInfo, SpellModOp op, ref int basevalue, Spell spell = null)
+    {
+        double val = basevalue;
+        ApplySpellMod(spellInfo, op, ref val, spell);
+        basevalue = (int)val;
+    }
+
+    public void ApplySpellMod(SpellInfo spellInfo, SpellModOp op, ref uint basevalue, Spell spell = null)
+    {
+        double val = basevalue;
+        ApplySpellMod(spellInfo, op, ref val, spell);
+        basevalue = (uint)val;
+    }
+
+    public void ApplySpellMod(SpellInfo spellInfo, SpellModOp op, ref float basevalue, Spell spell = null)
+    {
+        double val = basevalue;
+        ApplySpellMod(spellInfo, op, ref val, spell);
+        basevalue = (float)val;
+    }
+
+    public void ApplySpellMod(SpellInfo spellInfo, SpellModOp op, ref double basevalue, Spell spell = null)
+    {
+        double totalmul = 1.0f;
+        double totalflat = 0;
+
+        GetSpellModValues(spellInfo, op, spell, basevalue, ref totalflat, ref totalmul);
+
+        basevalue = (basevalue + totalflat) * totalmul;
+    }
+
+    public bool CanNoReagentCast(SpellInfo spellInfo)
+    {
+        // don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP
+        if (spellInfo.HasAttribute(SpellAttr5.NoReagentCostWithAura) &&
+            HasUnitFlag(UnitFlags.Preparation))
+            return true;
+
+        // Check no reagent use mask
+        FlagArray128 noReagentMask = new()
+        {
+            [0] = ActivePlayerData.NoReagentCostMask[0],
+            [1] = ActivePlayerData.NoReagentCostMask[1],
+            [2] = ActivePlayerData.NoReagentCostMask[2],
+            [3] = ActivePlayerData.NoReagentCostMask[3]
+        };
+
+        if (spellInfo.SpellFamilyFlags & noReagentMask)
+            return true;
+
+        return false;
+    }
+
+    public bool CanSeeSpellClickOn(Creature creature)
+    {
+        if (!creature.HasNpcFlag(NPCFlags.SpellClick))
+            return false;
+
+        var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(creature.Entry);
+
+        if (clickBounds.Empty())
+            return true;
+
+        foreach (var spellClickInfo in clickBounds)
+        {
+            if (!spellClickInfo.IsFitToRequirements(this, creature))
+                return false;
+
+            if (Global.ConditionMgr.IsObjectMeetingSpellClickConditions(creature.Entry, spellClickInfo.spellId, this, creature))
+                return true;
+        }
+
+        return false;
+    }
+
+    public bool CanUseMastery()
+    {
+        var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
+
+        if (chrSpec != null)
+            return HasSpell(chrSpec.MasterySpellID[0]) || HasSpell(chrSpec.MasterySpellID[1]);
+
+        return false;
+    }
+
+    public void CastItemCombatSpell(DamageInfo damageInfo)
+    {
+        var target = damageInfo.Victim;
+
+        if (target == null || !target.IsAlive || target == this)
+            return;
+
+        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+        {
+            // If usable, try to cast item spell
+            var item = GetItemByPos(InventorySlots.Bag0, i);
+
+            if (item != null)
+                if (!item.IsBroken && CanUseAttackType(damageInfo.AttackType))
+                {
+                    var proto = item.Template;
+
+                    if (proto != null)
+                    {
+                        // Additional check for weapons
+                        if (proto.Class == ItemClass.Weapon)
+                        {
+                            // offhand item cannot proc from main hand hit etc
+                            byte slot;
+
+                            switch (damageInfo.AttackType)
+                            {
+                                case WeaponAttackType.BaseAttack:
+                                case WeaponAttackType.RangedAttack:
+                                    slot = EquipmentSlot.MainHand;
+
+                                    break;
+                                case WeaponAttackType.OffAttack:
+                                    slot = EquipmentSlot.OffHand;
+
+                                    break;
+                                default:
+                                    slot = EquipmentSlot.End;
+
+                                    break;
+                            }
+
+                            if (slot != i)
+                                continue;
+
+                            // Check if item is useable (forms or disarm)
+                            if (damageInfo.AttackType == WeaponAttackType.BaseAttack)
+                                if (!IsUseEquipedWeapon(true) && !IsInFeralForm)
+                                    continue;
+                        }
+
+                        CastItemCombatSpell(damageInfo, item, proto);
+                    }
+                }
+        }
+    }
+
+    public void CastItemCombatSpell(DamageInfo damageInfo, Item item, ItemTemplate proto)
+    {
+        // Can do effect if any damage done to target
+        // for done procs allow normal + critical + absorbs by default
+        var canTrigger = damageInfo.HitMask.HasAnyFlag(ProcFlagsHit.Normal | ProcFlagsHit.Critical | ProcFlagsHit.Absorb);
+
+        if (canTrigger)
+            if (!item.Template.HasFlag(ItemFlags.Legacy))
+                foreach (var effectData in item.Effects)
+                {
+                    // wrong triggering type
+                    if (effectData.TriggerType != ItemSpelltriggerType.OnProc)
+                        continue;
+
+                    var spellInfo = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
+
+                    if (spellInfo == null)
+                    {
+                        Log.Logger.Error("WORLD: unknown Item spellid {0}", effectData.SpellID);
+
+                        continue;
+                    }
+
+                    float chance = spellInfo.ProcChance;
+
+                    if (proto.SpellPPMRate != 0)
+                    {
+                        var weaponSpeed = GetBaseAttackTime(damageInfo.AttackType);
+                        chance = GetPpmProcChance(weaponSpeed, proto.SpellPPMRate, spellInfo);
+                    }
+                    else if (chance > 100.0f)
+                    {
+                        chance = GetWeaponProcChance();
+                    }
+
+                    if (RandomHelper.randChance(chance) && Global.ScriptMgr.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.ScriptId))
+                        CastSpell(damageInfo.Victim, spellInfo.Id, item);
+                }
+
+        // item combat enchantments
+        for (byte eSlot = 0; eSlot < (byte)EnchantmentSlot.Max; ++eSlot)
+        {
+            var enchantID = item.GetEnchantmentId((EnchantmentSlot)eSlot);
+            var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
+
+            if (pEnchant == null)
+                continue;
+
+            for (byte s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
+            {
+                if (pEnchant.Effect[s] != ItemEnchantmentType.CombatSpell)
+                    continue;
+
+                var entry = Global.SpellMgr.GetSpellEnchantProcEvent(enchantID);
+
+                if (entry != null && entry.HitMask != 0)
+                {
+                    // Check hit/crit/dodge/parry requirement
+                    if ((entry.HitMask & (uint)damageInfo.HitMask) == 0)
+                        continue;
+                }
+                else
+                {
+                    // for done procs allow normal + critical + absorbs by default
+                    if (!canTrigger)
+                        continue;
+                }
+
+                // check if enchant procs only on white hits
+                if (entry != null && entry.AttributesMask.HasAnyFlag(EnchantProcAttributes.WhiteHit) && damageInfo.SpellInfo != null)
+                    continue;
+
+                var spellInfo = Global.SpellMgr.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
+
+                if (spellInfo == null)
+                {
+                    Log.Logger.Error("Player.CastItemCombatSpell(GUID: {0}, name: {1}, enchant: {2}): unknown spell {3} is casted, ignoring...",
+                                     GUID.ToString(),
+                                     GetName(),
+                                     enchantID,
+                                     pEnchant.EffectArg[s]);
+
+                    continue;
+                }
+
+                var chance = pEnchant.EffectPointsMin[s] != 0 ? pEnchant.EffectPointsMin[s] : GetWeaponProcChance();
+
+                if (entry != null)
+                {
+                    if (entry.ProcsPerMinute != 0)
+                        chance = GetPpmProcChance(proto.Delay, entry.ProcsPerMinute, spellInfo);
+                    else if (entry.Chance != 0)
+                        chance = entry.Chance;
+                }
+
+                // Apply spell mods
+                ApplySpellMod(spellInfo, SpellModOp.ProcChance, ref chance);
+
+                // Shiv has 100% chance to apply the poison
+                if (FindCurrentSpellBySpellId(5938) != null && eSlot == (byte)EnchantmentSlot.Temp)
+                    chance = 100.0f;
+
+                if (RandomHelper.randChance(chance))
+                {
+                    if (spellInfo.IsPositive)
+                        CastSpell(this, spellInfo.Id, item);
+                    else
+                        CastSpell(damageInfo.Victim, spellInfo.Id, item);
+                }
+
+                if (RandomHelper.randChance(chance))
+                {
+                    var target = spellInfo.IsPositive ? this : damageInfo.Victim;
+
+                    CastSpellExtraArgs args = new(item);
+
+                    // reduce effect values if enchant is limited
+                    if (entry != null && entry.AttributesMask.HasAnyFlag(EnchantProcAttributes.Limit60) && target.GetLevelForTarget(this) > 60)
+                    {
+                        var lvlDifference = (int)target.GetLevelForTarget(this) - 60;
+                        var lvlPenaltyFactor = 4; // 4% lost effectiveness per level
+
+                        var effectPct = Math.Max(0, 100 - (lvlDifference * lvlPenaltyFactor));
+
+                        foreach (var spellEffectInfo in spellInfo.Effects)
+                            if (spellEffectInfo.IsEffect())
+                                args.AddSpellMod(SpellValueMod.BasePoint0 + spellEffectInfo.EffectIndex, MathFunctions.CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
+                    }
+
+                    CastSpell(target, spellInfo.Id, args);
+                }
+            }
+        }
+    }
+
+    public void CastItemUseSpell(Item item, SpellCastTargets targets, ObjectGuid castCount, uint[] misc)
+    {
+        if (!item.Template.HasFlag(ItemFlags.Legacy))
+            // item spells casted at use
+            foreach (var effectData in item.Effects)
+            {
+                // wrong triggering type
+                if (effectData.TriggerType != ItemSpelltriggerType.OnUse)
+                    continue;
+
+                var spellInfo = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
+
+                if (spellInfo == null)
+                {
+                    Log.Logger.Error("Player.CastItemUseSpell: Item (Entry: {0}) in have wrong spell id {1}, ignoring", item.Entry, effectData.SpellID);
+
+                    continue;
+                }
+
+                Spell spell = new(this, spellInfo, TriggerCastFlags.None);
+
+                SpellPrepare spellPrepare = new()
+                {
+                    ClientCastID = castCount,
+                    ServerCastID = spell.CastId
+                };
+
+                SendPacket(spellPrepare);
+
+                spell.FromClient = true;
+                spell.CastItem = item;
+                spell.SpellMisc.Data0 = misc[0];
+                spell.SpellMisc.Data1 = misc[1];
+                spell.Prepare(targets);
+
+                return;
+            }
+
+        // Item enchantments spells casted at use
+        for (EnchantmentSlot eSlot = 0; eSlot < EnchantmentSlot.Max; ++eSlot)
+        {
+            var enchantID = item.GetEnchantmentId(eSlot);
+            var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
+
+            if (pEnchant == null)
+                continue;
+
+            for (byte s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
+            {
+                if (pEnchant.Effect[s] != ItemEnchantmentType.UseSpell)
+                    continue;
+
+                var spellInfo = Global.SpellMgr.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
+
+                if (spellInfo == null)
+                {
+                    Log.Logger.Error("Player.CastItemUseSpell Enchant {0}, cast unknown spell {1}", enchantID, pEnchant.EffectArg[s]);
+
+                    continue;
+                }
+
+                Spell spell = new(this, spellInfo, TriggerCastFlags.None);
+
+                SpellPrepare spellPrepare = new()
+                {
+                    ClientCastID = castCount,
+                    ServerCastID = spell.CastId
+                };
+
+                SendPacket(spellPrepare);
+
+                spell.FromClient = true;
+                spell.CastItem = item;
+                spell.SpellMisc.Data0 = misc[0];
+                spell.SpellMisc.Data1 = misc[1];
+                spell.Prepare(targets);
+
+                return;
+            }
+        }
+    }
+
+    public override bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect aurEff)
+    {
+        var spellInfo = aurEff.SpellInfo;
+
+        if (spellInfo.EquippedItemClass == ItemClass.None)
+            return true;
+
+        var item = GetWeaponForAttack(attackType, true);
+
+        if (item == null || !item.IsFitToSpellRequirements(spellInfo))
+            return false;
+
+        return true;
+    }
+
+    public ushort GetBaseSkillValue(SkillType skill)
+    {
+        if (skill == 0)
+            return 0;
+
+        SkillInfo skillInfo = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey(skill);
+
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
+            return 0;
+
+        int result = skillInfo.SkillRank[skillStatusData.Pos];
+        result += skillInfo.SkillPermBonus[skillStatusData.Pos];
+
+        return (ushort)(result < 0 ? 0 : result);
+    }
+
+    public override SpellInfo GetCastSpellInfo(SpellInfo spellInfo)
+    {
+        var overrides = _overrideSpells.LookupByKey(spellInfo.Id);
+
+        if (!overrides.Empty())
+            foreach (var spellId in overrides)
+            {
+                var newInfo = Global.SpellMgr.GetSpellInfo(spellId, Location.Map.DifficultyID);
+
+                if (newInfo != null)
+                    return GetCastSpellInfo(newInfo);
+            }
+
+        return base.GetCastSpellInfo(spellInfo);
+    }
+
+    public uint GetLastPotionId()
+    {
+        return _lastPotionId;
+    }
+
+    public override SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = WeaponAttackType.BaseAttack)
+    {
+        var weapon = GetWeaponForAttack(attackType, true);
+
+        if (weapon != null)
+            return (SpellSchoolMask)(1 << (int)weapon.Template.DamageType);
+
+        return SpellSchoolMask.Normal;
+    }
+
+    public int GetProfessionSlotFor(uint skillId)
+    {
+        var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
+
+        if (skillEntry == null)
+            return -1;
+
+        if (skillEntry.ParentSkillLineID == 0 || skillEntry.CategoryID != SkillCategory.Profession)
+            return -1;
+
+        var slot = 0;
+
+        foreach (var bit in ActivePlayerData.ProfessionSkillLine)
+        {
+            if (bit == skillId)
+                return slot;
+
+            slot++;
+        }
+
+        return -1;
+    }
+
+    public ushort GetPureMaxSkillValue(SkillType skill)
+    {
+        if (skill == 0)
+            return 0;
+
+        SkillInfo skillInfo = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey(skill);
+
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
+            return 0;
+
+        return skillInfo.SkillMaxRank[skillStatusData.Pos];
+    }
+
+    public ushort GetPureSkillValue(SkillType skill)
+    {
+        if (skill == 0)
+            return 0;
+
+        SkillInfo skillInfo = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey((uint)skill);
+
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
+            return 0;
+
+        return skillInfo.SkillRank[skillStatusData.Pos];
+    }
+
+    public uint GetRuneBaseCooldown()
+    {
+        double cooldown = RuneCooldowns.Base;
+
+        var regenAura = GetAuraEffectsByType(AuraType.ModPowerRegenPercent);
+
+        foreach (var i in regenAura)
+            if (i.MiscValue == (int)PowerType.Runes)
+                cooldown *= 1.0f - i.Amount / 100.0f;
+
+        // Runes cooldown are now affected by player's haste from equipment ...
+        var hastePct = GetRatingBonusValue(CombatRating.HasteMelee);
+
+        // ... and some auras.
+        hastePct += GetTotalAuraModifier(AuraType.ModMeleeHaste);
+        hastePct += GetTotalAuraModifier(AuraType.ModMeleeHaste2);
+        hastePct += GetTotalAuraModifier(AuraType.ModMeleeHaste3);
+
+        cooldown *= 1.0f - (hastePct / 100.0f);
+
+        return (uint)cooldown;
+    }
+
+    public uint GetRuneCooldown(byte index)
+    {
+        return _runes.Cooldown[index];
+    }
+
+    public byte GetRunesState()
+    {
+        return (byte)(_runes.RuneState & ((1 << GetMaxPower(PowerType.Runes)) - 1));
+    }
+
+    public ushort GetSkillPermBonusValue(uint skill)
+    {
+        if (skill == 0)
+            return 0;
+
+        SkillInfo skillInfo = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey(skill);
+
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
+            return 0;
+
+        return skillInfo.SkillPermBonus[skillStatusData.Pos];
+    }
+
+    public ushort GetSkillStep(SkillType skill)
+    {
+        if (skill == 0)
+            return 0;
+
+        SkillInfo skillInfo = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey(skill);
+
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
+            return 0;
+
+        return skillInfo.SkillStep[skillStatusData.Pos];
+    }
+
+    public ushort GetSkillTempBonusValue(uint skill)
+    {
+        if (skill == 0)
+            return 0;
+
+        SkillInfo skillInfo = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey(skill);
+
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
+            return 0;
+
+        return skillInfo.SkillTempBonus[skillStatusData.Pos];
+    }
+
+    public ushort GetSkillValue(SkillType skill)
+    {
+        if (skill == 0)
+            return 0;
+
+        SkillInfo skillInfo = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey(skill);
+
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
+            return 0;
+
+        int result = skillInfo.SkillRank[skillStatusData.Pos];
+        result += skillInfo.SkillTempBonus[skillStatusData.Pos];
+        result += skillInfo.SkillPermBonus[skillStatusData.Pos];
+
+        return (ushort)(result < 0 ? 0 : result);
+    }
+
+    public Dictionary<uint, PlayerSpell> GetSpellMap()
+    {
+        return _spells;
+    }
+
+    public void GetSpellModValues<T>(SpellInfo spellInfo, SpellModOp op, Spell spell, T baseValue, ref double flat, ref double pct) where T : IComparable
+    {
+        flat = 0;
+        pct = 1.0f;
+
+        // Drop charges for triggering spells instead of triggered ones
+        if (SpellModTakingSpell)
+            spell = SpellModTakingSpell;
+
+        switch (op)
+        {
+            // special case, if a mod makes spell instant, only consume that mod
+            case SpellModOp.ChangeCastTime:
+            {
+                SpellModifier modInstantSpell = null;
+
+                foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Pct])
+                {
+                    if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                        continue;
+
+                    if (baseValue.CompareTo(10000d) < 0 && mod.Value <= -100)
+                    {
+                        modInstantSpell = mod;
+
+                        break;
+                    }
+                }
+
+                if (modInstantSpell == null)
+                    foreach (SpellPctModifierByLabel mod in _spellModifiers[(int)op][(int)SpellModType.LabelPct])
+                    {
+                        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                            continue;
+
+                        if (baseValue.CompareTo(10000d) < 0 && mod.Value.ModifierValue <= -1.0f)
+                        {
+                            modInstantSpell = mod;
+
+                            break;
+                        }
+                    }
+
+                if (modInstantSpell != null)
+                {
+                    ApplyModToSpell(modInstantSpell, spell);
+                    pct = 0.0f;
+
+                    return;
+                }
+
+                break;
+            }
+            // special case if two mods apply 100% critical chance, only consume one
+            case SpellModOp.CritChance:
+            {
+                SpellModifier modCritical = null;
+
+                foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Flat])
+                {
+                    if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                        continue;
+
+                    if (mod.Value >= 100)
+                    {
+                        modCritical = mod;
+
+                        break;
+                    }
+                }
+
+                if (modCritical == null)
+                    foreach (SpellFlatModifierByLabel mod in _spellModifiers[(int)op][(int)SpellModType.LabelFlat])
+                    {
+                        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                            continue;
+
+                        if (mod.Value.ModifierValue >= 100)
+                        {
+                            modCritical = mod;
+
+                            break;
+                        }
+                    }
+
+                if (modCritical != null)
+                {
+                    ApplyModToSpell(modCritical, spell);
+                    flat = 100;
+
+                    return;
+                }
+
+                break;
+            }
+            default:
+                break;
+        }
+
+        foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Flat])
+        {
+            if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                continue;
+
+            var value = mod.Value;
+
+            if (value == 0)
+                continue;
+
+            flat += value;
+            ApplyModToSpell(mod, spell);
+        }
+
+        foreach (SpellFlatModifierByLabel mod in _spellModifiers[(int)op][(int)SpellModType.LabelFlat])
+        {
+            if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                continue;
+
+            var value = mod.Value.ModifierValue;
+
+            if (value == 0)
+                continue;
+
+            flat += value;
+            ApplyModToSpell(mod, spell);
+        }
+
+        foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Pct])
+        {
+            if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                continue;
+
+            // skip percent mods for null basevalue (most important for spell mods with charges)
+            if (baseValue + (dynamic)flat == 0)
+                continue;
+
+            var value = mod.Value;
+
+            if (value == 0)
+                continue;
+
+            // special case (skip > 10sec spell casts for instant cast setting)
+            if (op == SpellModOp.ChangeCastTime)
+                if (baseValue.CompareTo(10000d) > 0 && value <= -100)
+                    continue;
+
+            pct *= 1.0f + MathFunctions.CalculatePct(1.0f, value);
+            ApplyModToSpell(mod, spell);
+        }
+
+        foreach (SpellPctModifierByLabel mod in _spellModifiers[(int)op][(int)SpellModType.LabelPct])
+        {
+            if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                continue;
+
+            // skip percent mods for null basevalue (most important for spell mods with charges)
+            if (baseValue + (dynamic)flat == 0)
+                continue;
+
+            var value = mod.Value.ModifierValue;
+
+            if (value == 1.0f)
+                continue;
+
+            // special case (skip > 10sec spell casts for instant cast setting)
+            if (op == SpellModOp.ChangeCastTime)
+                if (baseValue.CompareTo(10000d) > 0 && value <= -1.0f)
+                    continue;
+
+            pct *= value;
+            ApplyModToSpell(mod, spell);
+        }
+    }
+
+    public int GetSpellPenetrationItemMod()
+    {
+        return _spellPenetrationItemMod;
+    }
+
+    public WorldLocation GetStoredAuraTeleportLocation(uint spellId)
+    {
+        var auraLocation = _storedAuraTeleportLocations.LookupByKey(spellId);
+
+        return auraLocation?.Loc;
+    }
+
+    public bool HasActiveSpell(uint spellId)
+    {
+        var spell = _spells.LookupByKey(spellId);
+
+        if (spell != null)
+            return spell.State != PlayerSpellState.Removed && spell.Active && !spell.Disabled;
+
+        return false;
+    }
+
+    public bool HasItemFitToSpellRequirements(SpellInfo spellInfo, Item ignoreItem = null)
+    {
+        if (spellInfo.EquippedItemClass < 0)
+            return true;
+
+        // scan other equipped items for same requirements (mostly 2 daggers/etc)
+        // for optimize check 2 used cases only
+        switch (spellInfo.EquippedItemClass)
+        {
+            case ItemClass.Weapon:
+            {
+                var item = GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
+
+                if (item)
+                    if (item != ignoreItem && item.IsFitToSpellRequirements(spellInfo))
+                        return true;
+
+                item = GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+
+                if (item)
+                    if (item != ignoreItem && item.IsFitToSpellRequirements(spellInfo))
+                        return true;
+
+                break;
+            }
+            case ItemClass.Armor:
+            {
+                if (!spellInfo.HasAttribute(SpellAttr8.ArmorSpecialization))
+                {
+                    // most used check: shield only
+                    if ((spellInfo.EquippedItemSubClassMask & (1 << (int)ItemSubClassArmor.Shield)) != 0)
+                    {
+                        var item = GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+
+                        if (item != null)
+                            if (item != ignoreItem && item.IsFitToSpellRequirements(spellInfo))
+                                return true;
+
+                        // special check to filter things like Shield Wall, the aura is not permanent and must stay even without required item
+                        if (!spellInfo.IsPassive)
+                            foreach (var spellEffectInfo in spellInfo.Effects)
+                                if (spellEffectInfo.IsAura())
+                                    return true;
+                    }
+
+                    // tabard not have dependent spells
+                    for (var i = EquipmentSlot.Start; i < EquipmentSlot.MainHand; ++i)
+                    {
+                        var item = GetUseableItemByPos(InventorySlots.Bag0, i);
+
+                        if (item)
+                            if (item != ignoreItem && item.IsFitToSpellRequirements(spellInfo))
+                                return true;
+                    }
+                }
+                else
+                {
+                    // requires item equipped in all armor slots
+                    foreach (var i in new[]
+                             {
+                                 EquipmentSlot.Head, EquipmentSlot.Shoulders, EquipmentSlot.Chest, EquipmentSlot.Waist, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Wrist, EquipmentSlot.Hands
+                             })
+                    {
+                        var item = GetUseableItemByPos(InventorySlots.Bag0, i);
+
+                        if (!item || item == ignoreItem || !item.IsFitToSpellRequirements(spellInfo))
+                            return false;
+                    }
+
+                    return true;
+                }
+
+                break;
+            }
+            default:
+                Log.Logger.Error("HasItemFitToSpellRequirements: Not handled spell requirement for item class {0}", spellInfo.EquippedItemClass);
+
+                break;
+        }
+
+        return false;
+    }
+
+    public bool HasSkill(SkillType skill)
+    {
+        return HasSkill((uint)skill);
+    }
+
+    public bool HasSkill(uint skill)
+    {
+        if (skill == 0)
+            return false;
+
+        SkillInfo skillInfoField = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey(skill);
+
+        return skillStatusData != null && skillStatusData.State != SkillState.Deleted && skillInfoField.SkillRank[skillStatusData.Pos] != 0;
+    }
+
+    public override bool HasSpell(uint spellId)
+    {
+        var spell = _spells.LookupByKey(spellId);
+
+        if (spell != null)
+            return spell.State != PlayerSpellState.Removed && !spell.Disabled;
+
+        return false;
+    }
+
+    public void InitRunes()
+    {
+        if (Class != PlayerClass.Deathknight)
+            return;
+
+        var runeIndex = GetPowerIndex(PowerType.Runes);
+
+        if (runeIndex == (int)PowerType.Max)
+            return;
+
+        _runes = new Runes
+        {
+            RuneState = 0
+        };
+
+        for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
+            SetRuneCooldown(i, 0); // reset cooldowns
+
+        // set a base regen timer equal to 10 sec
+        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)runeIndex), 0.0f);
+        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)runeIndex), 0.0f);
+    }
+
+    public void LearnCustomSpells()
+    {
+        //if (!WorldConfig.GetBoolValue(WorldCfg.StartAllSpells)) // this is not all spells, just custom ones.
+        //    return;
+
+        // learn default race/class spells
+        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+
+        foreach (var tspell in info.CustomSpells)
+        {
+            Log.Logger.Debug("PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", Class, Race, tspell);
+
+            if (!Location.IsInWorld) // will send in INITIAL_SPELLS in list anyway at map add
+                AddSpell(tspell, true, true, true, false);
+            else // but send in normal spell in game learn case
+                LearnSpell(tspell, true);
+        }
+    }
+
+    public void LearnDefaultSkill(SkillRaceClassInfoRecord rcInfo)
+    {
+        var skillId = (SkillType)rcInfo.SkillID;
+
+        switch (Global.SpellMgr.GetSkillRangeType(rcInfo))
+        {
+            case SkillRangeType.Language:
+                SetSkill(skillId, 0, 300, 300);
+
+                break;
+            case SkillRangeType.Level:
+            {
+                ushort skillValue = 1;
+                var maxValue = GetMaxSkillValueForLevel();
+
+                if (rcInfo.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
+                    skillValue = maxValue;
+                else if (Class == PlayerClass.Deathknight)
+                    skillValue = (ushort)Math.Min(Math.Max(1, (Level - 1) * 5), maxValue);
+
+                SetSkill(skillId, 0, skillValue, maxValue);
+
+                break;
+            }
+            case SkillRangeType.Mono:
+                SetSkill(skillId, 0, 1, 1);
+
+                break;
+            case SkillRangeType.Rank:
+            {
+                var tier = Global.ObjectMgr.GetSkillTier(rcInfo.SkillTierID);
+                var maxValue = (ushort)tier.Value[0];
+                ushort skillValue = 1;
+
+                if (rcInfo.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
+                    skillValue = maxValue;
+                else if (Class == PlayerClass.Deathknight)
+                    skillValue = (ushort)Math.Min(Math.Max(1, (Level - 1) * 5), maxValue);
+
+                SetSkill(skillId, 1, skillValue, maxValue);
+
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    public void LearnDefaultSkills()
+    {
+        // learn default race/class skills
+        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+
+        foreach (var rcInfo in info.Skills)
+        {
+            if (HasSkill((SkillType)rcInfo.SkillID))
+                continue;
+
+            if (rcInfo.MinLevel > Level)
+                continue;
+
+            LearnDefaultSkill(rcInfo);
+        }
+    }
+
+    public void LearnSkillRewardedSpells(uint skillId, uint skillValue, Race race)
+    {
+        var raceMask = SharedConst.GetMaskForRace(race);
+        var classMask = ClassMask;
+
+        var skillLineAbilities = DB2Manager.GetSkillLineAbilitiesBySkill(skillId);
+
+        foreach (var ability in skillLineAbilities)
+        {
+            if (ability.SkillLine != skillId)
+                continue;
+
+            var spellInfo = Global.SpellMgr.GetSpellInfo(ability.Spell, Difficulty.None);
+
+            if (spellInfo == null)
+                continue;
+
+            switch (ability.AcquireMethod)
+            {
+                case AbilityLearnType.OnSkillValue:
+                case AbilityLearnType.OnSkillLearn:
+                    break;
+                case AbilityLearnType.RewardedFromQuest:
+                    if (!ability.Flags.HasAnyFlag(SkillLineAbilityFlags.CanFallbackToLearnedOnSkillLearn) ||
+                        !spellInfo.MeetsFutureSpellPlayerCondition(this))
+                        continue;
+
+                    break;
+                default:
+                    continue;
+            }
+
+            // AcquireMethod == 2 && NumSkillUps == 1 -. automatically learn riding skill spell, else we skip it (client shows riding in spellbook as trainable).
+            if (skillId == (uint)SkillType.Riding && (ability.AcquireMethod != AbilityLearnType.OnSkillLearn || ability.NumSkillUps != 1))
+                continue;
+
+            // Check race if set
+            if (ability.RaceMask != 0 && !Convert.ToBoolean(ability.RaceMask & raceMask))
+                continue;
+
+            // Check class if set
+            if (ability.ClassMask != 0 && !Convert.ToBoolean(ability.ClassMask & classMask))
+                continue;
+
+            // check level, skip class spells if not high enough
+            if (Level < spellInfo.SpellLevel)
+                continue;
+
+            // need unlearn spell
+            if (skillValue < ability.MinSkillLineRank && ability.AcquireMethod == AbilityLearnType.OnSkillValue)
+                RemoveSpell(ability.Spell);
+            // need learn
+            else if (!Location.IsInWorld)
+                AddSpell(ability.Spell, true, true, true, false, false, ability.SkillLine);
+            else
+                LearnSpell(ability.Spell, true, ability.SkillLine);
+        }
+    }
+
+    public void LearnSpecializationSpells()
+    {
+        var specSpells = DB2Manager.GetSpecializationSpells(GetPrimarySpecialization());
+
+        if (specSpells != null)
+            for (var j = 0; j < specSpells.Count; ++j)
+            {
+                var specSpell = specSpells[j];
+                var spellInfo = Global.SpellMgr.GetSpellInfo(specSpell.SpellID, Difficulty.None);
+
+                if (spellInfo == null || spellInfo.SpellLevel > Level)
+                    continue;
+
+                LearnSpell(specSpell.SpellID, true);
+
+                if (specSpell.OverridesSpellID != 0)
+                    AddOverrideSpell(specSpell.OverridesSpellID, specSpell.SpellID);
+            }
+    }
+
+    public void LearnSpell<T>(T spellId, bool dependent, uint fromSkill = 0, bool suppressMessaging = false, int? traitDefinitionId = null) where T : struct, Enum
+    {
+        LearnSpell(Convert.ToUInt32(spellId), dependent, fromSkill, suppressMessaging, traitDefinitionId);
+    }
+
+    public void LearnSpell(uint spellId, bool dependent, uint fromSkill = 0, bool suppressMessaging = false, int? traitDefinitionId = null)
+    {
+        var playerSpell = _spells.LookupByKey(spellId);
+
+        var disabled = playerSpell is { Disabled: true };
+        var active = !disabled || playerSpell.Active;
+        var favorite = playerSpell?.Favorite ?? false;
+
+        var learning = AddSpell(spellId, active, true, dependent, false, false, fromSkill, favorite, traitDefinitionId);
+
+        // prevent duplicated entires in spell book, also not send if not in world (loading)
+        if (learning && Location.IsInWorld)
+        {
+            LearnedSpells learnedSpells = new();
+
+            LearnedSpellInfo learnedSpellInfo = new()
+            {
+                SpellID = spellId,
+                IsFavorite = favorite,
+                TraitDefinitionID = traitDefinitionId
+            };
+
+            learnedSpells.SuppressMessaging = suppressMessaging;
+            learnedSpells.ClientLearnedSpellData.Add(learnedSpellInfo);
+            SendPacket(learnedSpells);
+        }
+
+        // learn all disabled higher ranks and required spells (recursive)
+        if (disabled)
+        {
+            var nextSpell = Global.SpellMgr.GetNextSpellInChain(spellId);
+
+            if (nextSpell != 0)
+            {
+                var spell = _spells.LookupByKey(nextSpell);
+
+                if (spellId != 0 && spell.Disabled)
+                    LearnSpell(nextSpell, false, fromSkill);
+            }
+
+            var spellsRequiringSpell = Global.SpellMgr.GetSpellsRequiringSpellBounds(spellId);
+
+            foreach (var id in spellsRequiringSpell)
+            {
+                var spell1 = _spells.LookupByKey(id);
+
+                if (spell1 is { Disabled: true })
+                    LearnSpell(id, false, fromSkill);
+            }
+        }
+        else
+        {
+            UpdateQuestObjectiveProgress(QuestObjectiveType.LearnSpell, (int)spellId, 1);
+        }
+    }
+
     public void ModifySkillBonus(SkillType skillid, int val, bool talent)
     {
         ModifySkillBonus((uint)skillid, val, talent);
@@ -784,17 +1733,47 @@ public partial class Player
                 ModifySkillBonus(childSkillLine.Id, val, talent);
     }
 
-    public void StopCastingBindSight()
+    public void PetSpellInitialize()
     {
-        var target = Viewpoint;
+        var pet = CurrentPet;
 
-        if (target)
-            if (target.IsTypeMask(TypeMask.Unit))
+        if (!pet)
+            return;
+
+        Log.Logger.Debug("Pet Spells Groups");
+
+        var charmInfo = pet.GetCharmInfo();
+
+        PetSpells petSpellsPacket = new()
+        {
+            PetGUID = pet.GUID,
+            CreatureFamily = (ushort)pet.Template.Family, // creature family (required for pet talents)
+            Specialization = pet.Specialization,
+            TimeLimit = (uint)pet.Duration,
+            ReactState = pet.ReactState,
+            CommandState = charmInfo.GetCommandState()
+        };
+
+        // action bar loop
+        for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
+            petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).PackedData;
+
+        if (pet.IsPermanentPetFor(this))
+            // spells loop
+            foreach (var pair in pet.Spells)
             {
-                ((Unit)target).RemoveAurasByType(AuraType.BindSight, GUID);
-                ((Unit)target).RemoveAurasByType(AuraType.ModPossess, GUID);
-                ((Unit)target).RemoveAurasByType(AuraType.ModPossessPet, GUID);
+                if (pair.Value.State == PetSpellState.Removed)
+                    continue;
+
+                petSpellsPacket.Actions.Add(UnitActionBarEntry.MAKE_UNIT_ACTION_BUTTON(pair.Key, (uint)pair.Value.Active));
             }
+
+        // Cooldowns
+        pet.
+            // Cooldowns
+            SpellHistory.WritePacket(petSpellsPacket);
+
+        SendPacket(petSpellsPacket);
     }
 
     public void RemoveArenaEnchantments(EnchantmentSlot slot)
@@ -852,65 +1831,368 @@ public partial class Player
         }
     }
 
-    public void UpdatePotionCooldown(Spell spell = null)
+    public void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
     {
-        // no potion used i combat or still in combat
-        if (_lastPotionId == 0 || IsInCombat)
+        // remove cooldowns on spells that have < 10 min CD
+        SpellHistory
+            .ResetCooldowns(p =>
+                            {
+                                var spellInfo = Global.SpellMgr.GetSpellInfo(p.Key, Difficulty.None);
+
+                                return spellInfo.RecoveryTime < 10 * Time.MINUTE * Time.IN_MILLISECONDS && spellInfo.CategoryRecoveryTime < 10 * Time.MINUTE * Time.IN_MILLISECONDS && !spellInfo.HasAttribute(SpellAttr6.DoNotResetCooldownInArena);
+                            },
+                            true);
+
+        // pet cooldowns
+        if (removeActivePetCooldowns)
+        {
+            var pet = CurrentPet;
+
+            if (pet)
+                pet.SpellHistory.ResetAllCooldowns();
+        }
+    }
+
+    public void RemoveOverrideSpell(uint overridenSpellId, uint newSpellId)
+    {
+        _overrideSpells.Remove(overridenSpellId, newSpellId);
+    }
+
+    public void RemoveSpell<T>(T spellId, bool disabled = false, bool learnLowRank = true, bool suppressMessaging = false) where T : struct, Enum
+    {
+        RemoveSpell(Convert.ToUInt32(spellId), disabled, learnLowRank, suppressMessaging);
+    }
+
+    public void RemoveSpell(uint spellId, bool disabled = false, bool learnLowRank = true, bool suppressMessaging = false)
+    {
+        var pSpell = _spells.LookupByKey(spellId);
+
+        if (pSpell == null)
             return;
 
-        // Call not from spell cast, send cooldown event for item spells if no in combat
-        if (!spell)
+        if (pSpell.State == PlayerSpellState.Removed || (disabled && pSpell.Disabled) || pSpell.State == PlayerSpellState.Temporary)
+            return;
+
+        // unlearn non talent higher ranks (recursive)
+        var nextSpell = Global.SpellMgr.GetNextSpellInChain(spellId);
+
+        if (nextSpell != 0)
         {
-            // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-            var proto = Global.ObjectMgr.GetItemTemplate(_lastPotionId);
+            var spellInfo1 = Global.SpellMgr.GetSpellInfo(nextSpell, Difficulty.None);
 
-            if (proto != null)
-                for (byte idx = 0; idx < proto.Effects.Count; ++idx)
-                    if (proto.Effects[idx].SpellID != 0 && proto.Effects[idx].TriggerType == ItemSpelltriggerType.OnUse)
-                    {
-                        var spellInfo = Global.SpellMgr.GetSpellInfo((uint)proto.Effects[idx].SpellID, Difficulty.None);
-
-                        if (spellInfo != null)
-                            SpellHistory.SendCooldownEvent(spellInfo, _lastPotionId);
-                    }
+            if (HasSpell(nextSpell) && !spellInfo1.HasAttribute(SpellCustomAttributes.IsTalent))
+                RemoveSpell(nextSpell, disabled, false);
         }
-        // from spell cases (m_lastPotionId set in Spell.SendSpellCooldown)
+
+        //unlearn spells dependent from recently removed spells
+        var spellsRequiringSpell = Global.SpellMgr.GetSpellsRequiringSpellBounds(spellId);
+
+        foreach (var id in spellsRequiringSpell)
+            RemoveSpell(id, disabled);
+
+        // re-search, it can be corrupted in prev loop
+        pSpell = _spells.LookupByKey(spellId);
+
+        if (pSpell == null)
+            return; // already unleared
+
+        var curActive = pSpell.Active;
+        var curDependent = pSpell.Dependent;
+
+        if (disabled)
+        {
+            pSpell.Disabled = disabled;
+
+            if (pSpell.State != PlayerSpellState.New)
+                pSpell.State = PlayerSpellState.Changed;
+        }
         else
         {
-            if (spell.IsIgnoringCooldowns)
-                return;
+            if (pSpell.State == PlayerSpellState.New)
+                _spells.Remove(spellId);
             else
-                SpellHistory.SendCooldownEvent(spell.SpellInfo, _lastPotionId, spell);
+                pSpell.State = PlayerSpellState.Removed;
         }
 
-        _lastPotionId = 0;
+        RemoveOwnedAura(spellId, GUID);
+
+        // remove pet auras
+        foreach (var petAur in Global.SpellMgr.GetPetAuras(spellId)?.Values)
+            RemovePetAura(petAur);
+
+        // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+
+        if (spellInfo != null && spellInfo.IsPrimaryProfessionFirstRank)
+        {
+            var freeProfs = FreePrimaryProfessionPoints + 1;
+
+            if (freeProfs <= GetDefaultValue("MaxPrimaryTradeSkill", 2))
+                SetFreePrimaryProfessions(freeProfs);
+        }
+
+        // remove dependent skill
+        var spellLearnSkill = Global.SpellMgr.GetSpellLearnSkill(spellId);
+
+        if (spellLearnSkill != null)
+        {
+            var prevSpell = Global.SpellMgr.GetPrevSpellInChain(spellId);
+
+            if (prevSpell == 0) // first rank, remove skill
+            {
+                SetSkill(spellLearnSkill.Skill, 0, 0, 0);
+            }
+            else
+            {
+                // search prev. skill setting by spell ranks chain
+                var prevSkill = Global.SpellMgr.GetSpellLearnSkill(prevSpell);
+
+                while (prevSkill == null && prevSpell != 0)
+                {
+                    prevSpell = Global.SpellMgr.GetPrevSpellInChain(prevSpell);
+                    prevSkill = Global.SpellMgr.GetSpellLearnSkill(Global.SpellMgr.GetFirstSpellInChain(prevSpell));
+                }
+
+                if (prevSkill == null) // not found prev skill setting, remove skill
+                {
+                    SetSkill(spellLearnSkill.Skill, 0, 0, 0);
+                }
+                else // set to prev. skill setting values
+                {
+                    uint skillValue = GetPureSkillValue(prevSkill.Skill);
+                    uint skillMaxValue = GetPureMaxSkillValue(prevSkill.Skill);
+
+                    if (skillValue > prevSkill.Value)
+                        skillValue = prevSkill.Value;
+
+                    uint newSkillMaxValue = prevSkill.Maxvalue == 0 ? GetMaxSkillValueForLevel() : prevSkill.Maxvalue;
+
+                    if (skillMaxValue > newSkillMaxValue)
+                        skillMaxValue = newSkillMaxValue;
+
+                    SetSkill(prevSkill.Skill, prevSkill.Step, skillValue, skillMaxValue);
+                }
+            }
+        }
+
+        // remove dependent spells
+        var spellBounds = Global.SpellMgr.GetSpellLearnSpellMapBounds(spellId);
+
+        foreach (var spellNode in spellBounds)
+        {
+            RemoveSpell(spellNode.Spell, disabled);
+
+            if (spellNode.OverridesSpell != 0)
+                RemoveOverrideSpell(spellNode.OverridesSpell, spellNode.Spell);
+        }
+
+        // activate lesser rank in spellbook/action bar, and cast it if need
+        var prevActivate = false;
+
+        var prevID = Global.SpellMgr.GetPrevSpellInChain(spellId);
+
+        if (prevID != 0)
+            // if ranked non-stackable spell: need activate lesser rank and update dendence state
+            // No need to check for spellInfo != NULL here because if cur_active is true, then that means that the spell was already in m_spells, and only valid spells can be pushed there.
+            if (curActive && spellInfo.IsRanked)
+            {
+                // need manually update dependence state (learn spell ignore like attempts)
+                var prevSpell = _spells.LookupByKey(prevID);
+
+                if (prevSpell != null)
+                {
+                    if (prevSpell.Dependent != curDependent)
+                    {
+                        prevSpell.Dependent = curDependent;
+
+                        if (prevSpell.State != PlayerSpellState.New)
+                            prevSpell.State = PlayerSpellState.Changed;
+                    }
+
+                    // now re-learn if need re-activate
+                    if (!prevSpell.Active && learnLowRank)
+                        if (AddSpell(prevID, true, false, prevSpell.Dependent, prevSpell.Disabled))
+                        {
+                            // downgrade spell ranks in spellbook and action bar
+                            SendSupercededSpell(spellId, prevID);
+                            prevActivate = true;
+                        }
+                }
+            }
+
+        _overrideSpells.Remove(spellId);
+
+        if (_canTitanGrip)
+            if (spellInfo != null && spellInfo.IsPassive && spellInfo.HasEffect(SpellEffectName.TitanGrip))
+            {
+                RemoveAura(_titanGripPenaltySpellId);
+                SetCanTitanGrip(false);
+            }
+
+        if (CanDualWield)
+            if (spellInfo != null && spellInfo.IsPassive && spellInfo.HasEffect(SpellEffectName.DualWield))
+                SetCanDualWield(false);
+
+        if (GetDefaultValue("OffhandCheckAtSpellUnlearn", true))
+            AutoUnequipOffhandIfNeed();
+
+        // remove from spell book if not replaced by lesser rank
+        if (!prevActivate)
+        {
+            UnlearnedSpells unlearnedSpells = new();
+            unlearnedSpells.SpellID.Add(spellId);
+            unlearnedSpells.SuppressMessaging = suppressMessaging;
+            SendPacket(unlearnedSpells);
+        }
     }
 
-    public bool CanUseMastery()
+    public void RemoveStoredAuraTeleportLocation(uint spellId)
     {
-        var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
+        var storedLocation = _storedAuraTeleportLocations.LookupByKey(spellId);
 
-        if (chrSpec != null)
-            return HasSpell(chrSpec.MasterySpellID[0]) || HasSpell(chrSpec.MasterySpellID[1]);
-
-        return false;
+        if (storedLocation != null)
+            storedLocation.CurrentState = StoredAuraTeleportLocation.State.Deleted;
     }
 
-    public bool HasSkill(SkillType skill)
+    public void RemoveTemporarySpell(uint spellId)
     {
-        return HasSkill((uint)skill);
+        var spell = _spells.LookupByKey(spellId);
+
+        // spell already not in list - do not do anything
+        if (spell is not { State: PlayerSpellState.Temporary })
+            return;
+
+        // spell has other state than temporary - do not change it
+
+        _spells.Remove(spellId);
     }
 
-    public bool HasSkill(uint skill)
+    public void ResetSpells(bool myClassOnly = false)
     {
-        if (skill == 0)
-            return false;
+        // not need after this call
+        if (HasAtLoginFlag(AtLoginFlags.ResetSpells))
+            RemoveAtLoginFlag(AtLoginFlags.ResetSpells, true);
 
-        SkillInfo skillInfoField = ActivePlayerData.Skill;
+        // make full copy of map (spells removed and marked as deleted at another spell remove
+        // and we can't use original map for safe iterative with visit each spell at loop end
+        var smap = GetSpellMap();
 
-        var skillStatusData = _skillStatus.LookupByKey(skill);
+        uint family;
 
-        return skillStatusData != null && skillStatusData.State != SkillState.Deleted && skillInfoField.SkillRank[skillStatusData.Pos] != 0;
+        if (myClassOnly)
+        {
+            var clsEntry = CliDB.ChrClassesStorage.LookupByKey(Class);
+
+            if (clsEntry == null)
+                return;
+
+            family = clsEntry.SpellClassSet;
+
+            foreach (var spellId in smap.Keys)
+            {
+                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+
+                if (spellInfo == null)
+                    continue;
+
+                // skip server-side/triggered spells
+                if (spellInfo.SpellLevel == 0)
+                    continue;
+
+                // skip wrong class/race skills
+                if (!IsSpellFitByClassAndRace(spellInfo.Id))
+                    continue;
+
+                // skip other spell families
+                if ((uint)spellInfo.SpellFamilyName != family)
+                    continue;
+
+                // skip broken spells
+                if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
+                    continue;
+            }
+        }
+        else
+        {
+            foreach (var spellId in smap.Keys)
+                RemoveSpell(spellId, false, false); // only iter.first can be accessed, object by iter.second can be deleted already
+        }
+
+        LearnDefaultSkills();
+        LearnCustomSpells();
+        LearnQuestRewardedSpells();
+    }
+
+    public void ResyncRunes()
+    {
+        var maxRunes = GetMaxPower(PowerType.Runes);
+
+        ResyncRunes data = new()
+        {
+            Runes =
+            {
+                Start = (byte)((1 << maxRunes) - 1),
+                Count = GetRunesState()
+            }
+        };
+
+        float baseCd = GetRuneBaseCooldown();
+
+        for (byte i = 0; i < maxRunes; ++i)
+            data.Runes.Cooldowns.Add((byte)((baseCd - GetRuneCooldown(i)) / baseCd * 255));
+
+        SendPacket(data);
+    }
+
+    public void SendSpellCategoryCooldowns()
+    {
+        SpellCategoryCooldown cooldowns = new();
+
+        var categoryCooldownAuras = GetAuraEffectsByType(AuraType.ModSpellCategoryCooldown);
+
+        foreach (var aurEff in categoryCooldownAuras)
+        {
+            var categoryId = (uint)aurEff.MiscValue;
+            var cooldownInfo = cooldowns.CategoryCooldowns.Find(p => p.Category == categoryId);
+
+            if (cooldownInfo == null)
+                cooldowns.CategoryCooldowns.Add(new SpellCategoryCooldown.CategoryCooldownInfo(categoryId, -(int)aurEff.Amount));
+            else
+                cooldownInfo.ModCooldown -= (int)aurEff.Amount;
+        }
+
+        SendPacket(cooldowns);
+    }
+
+    public void SetLastPotionId(uint itemID)
+    {
+        _lastPotionId = itemID;
+    }
+
+    public void SetNoRegentCostMask(FlagArray128 mask)
+    {
+        for (byte i = 0; i < 4; ++i)
+            SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NoReagentCostMask, i), mask[i]);
+    }
+
+    public void SetOverrideSpellsId(uint overrideSpellsId)
+    {
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OverrideSpellsID), overrideSpellsId);
+    }
+
+    public void SetPetSpellPower(uint spellPower)
+    {
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.PetSpellPower), spellPower);
+    }
+
+    public void SetRuneCooldown(byte index, uint cooldown)
+    {
+        _runes.Cooldown[index] = cooldown;
+        _runes.SetRuneState(index, (cooldown == 0));
+        var activeRunes = _runes.Cooldown.Count(p => p == 0);
+
+        if (activeRunes != GetPower(PowerType.Runes))
+            SetPower(PowerType.Runes, activeRunes);
     }
 
     public void SetSkill(SkillType skill, uint step, uint newVal, uint maxVal)
@@ -1150,6 +2432,125 @@ public partial class Player
         }
     }
 
+    public void SetSkillLineId(uint pos, ushort skillLineId)
+    {
+        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
+        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillLineID, (int)pos), skillLineId);
+    }
+
+    public void SetSkillMaxRank(uint pos, ushort max)
+    {
+        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
+        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillMaxRank, (int)pos), max);
+    }
+
+    public void SetSkillPermBonus(uint pos, ushort bonus)
+    {
+        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
+        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillPermBonus, (int)pos), bonus);
+    }
+
+    public void SetSkillRank(uint pos, ushort rank)
+    {
+        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
+        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillRank, (int)pos), rank);
+    }
+
+    public void SetSkillStartingRank(uint pos, ushort starting)
+    {
+        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
+        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillStartingRank, (int)pos), starting);
+    }
+
+    public void SetSkillStep(uint pos, ushort step)
+    {
+        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
+        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillStep, (int)pos), step);
+    }
+
+    public void SetSkillTempBonus(uint pos, ushort bonus)
+    {
+        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
+        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillTempBonus, (int)pos), bonus);
+    }
+
+    public void SetSpellFavorite(uint spellId, bool favorite)
+    {
+        var spell = _spells.LookupByKey(spellId);
+
+        if (spell == null)
+            return;
+
+        spell.Favorite = favorite;
+
+        if (spell.State == PlayerSpellState.Unchanged)
+            spell.State = PlayerSpellState.Changed;
+    }
+
+    public void SetSpellModTakingSpell(Spell spell, bool apply)
+    {
+        if (apply && SpellModTakingSpell != null)
+            return;
+
+        if (!apply && (SpellModTakingSpell == null || SpellModTakingSpell != spell))
+            return;
+
+        SpellModTakingSpell = apply ? spell : null;
+    }
+
+    public void StopCastingBindSight()
+    {
+        var target = Viewpoint;
+
+        if (target)
+            if (target.IsTypeMask(TypeMask.Unit))
+            {
+                ((Unit)target).RemoveAurasByType(AuraType.BindSight, GUID);
+                ((Unit)target).RemoveAurasByType(AuraType.ModPossess, GUID);
+                ((Unit)target).RemoveAurasByType(AuraType.ModPossessPet, GUID);
+            }
+    }
+
+    public void UpdateAllRunesRegen()
+    {
+        if (Class != PlayerClass.Deathknight)
+            return;
+
+        var runeIndex = GetPowerIndex(PowerType.Runes);
+
+        if (runeIndex == (int)PowerType.Max)
+            return;
+
+        var runeEntry = DB2Manager.GetPowerTypeEntry(PowerType.Runes);
+
+        var cooldown = GetRuneBaseCooldown();
+        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)runeIndex), (float)(1 * Time.IN_MILLISECONDS) / cooldown - runeEntry.RegenPeace);
+        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)runeIndex), (float)(1 * Time.IN_MILLISECONDS) / cooldown - runeEntry.RegenCombat);
+    }
+
+    public void UpdateAllWeaponDependentCritAuras()
+    {
+        for (var attackType = WeaponAttackType.BaseAttack; attackType < WeaponAttackType.Max; ++attackType)
+            UpdateWeaponDependentCritAuras(attackType);
+    }
+
+    public void UpdateAreaDependentAuras(uint newArea)
+    {
+        // remove auras from spells with area limitations
+        // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
+        OwnedAurasList
+            .CallOnMatch((aura) => aura.SpellInfo.CheckLocation(Location.MapId, _zoneUpdateId, newArea, this) != SpellCastResult.SpellCastOk,
+                         (pair) => RemoveOwnedAura(pair.SpellInfo.Id, pair));
+
+        // some auras applied at subzone enter
+        var saBounds = Global.SpellMgr.GetSpellAreaForAreaMapBounds(newArea);
+
+        foreach (var spell in saBounds)
+            if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoCast) && spell.IsFitToRequirements(this, _zoneUpdateId, newArea))
+                if (!HasAura(spell.SpellId))
+                    CastSpell(this, spell.SpellId, true);
+    }
+
     public bool UpdateCraftSkill(SpellInfo spellInfo)
     {
         if (spellInfo.HasAttribute(SpellAttr1.NoSkillIncrease))
@@ -1182,6 +2583,42 @@ public partial class Player
                                                       spellIdx.TrivialSkillLineRankLow),
                                       craftSkillGain);
             }
+
+        return false;
+    }
+
+    public void UpdateEquipSpellsAtFormChange()
+    {
+        for (byte i = 0; i < InventorySlots.BagEnd; ++i)
+            if (_items[i] && !_items[i].IsBroken && CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+            {
+                ApplyItemEquipSpell(_items[i], false, true); // remove spells that not fit to form
+                ApplyItemEquipSpell(_items[i], true, true);  // add spells that fit form but not active
+            }
+
+        UpdateItemSetAuras(true);
+    }
+
+    public bool UpdateFishingSkill()
+    {
+        Log.Logger.Debug("UpdateFishingSkill");
+
+        uint skillValue = GetPureSkillValue(SkillType.ClassicFishing);
+
+        if (skillValue >= GetMaxSkillValue(SkillType.ClassicFishing))
+            return false;
+
+        var stepsNeededToLevelUp = GetFishingStepsNeededToLevelUp(skillValue);
+        ++_fishingSteps;
+
+        if (_fishingSteps >= stepsNeededToLevelUp)
+        {
+            _fishingSteps = 0;
+
+            var gatheringSkillGain = GetDefaultValue("SkillGain.Gathering", 1);
+
+            return UpdateSkillPro(SkillType.ClassicFishing, 100 * 10, gatheringSkillGain);
+        }
 
         return false;
     }
@@ -1265,388 +2702,150 @@ public partial class Player
         return false;
     }
 
-    public bool UpdateFishingSkill()
+    public void UpdatePotionCooldown(Spell spell = null)
     {
-        Log.Logger.Debug("UpdateFishingSkill");
+        // no potion used i combat or still in combat
+        if (_lastPotionId == 0 || IsInCombat)
+            return;
 
-        uint skillValue = GetPureSkillValue(SkillType.ClassicFishing);
+        // Call not from spell cast, send cooldown event for item spells if no in combat
+        if (!spell)
+        {
+            // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
+            var proto = Global.ObjectMgr.GetItemTemplate(_lastPotionId);
 
-        if (skillValue >= GetMaxSkillValue(SkillType.ClassicFishing))
+            if (proto != null)
+                for (byte idx = 0; idx < proto.Effects.Count; ++idx)
+                    if (proto.Effects[idx].SpellID != 0 && proto.Effects[idx].TriggerType == ItemSpelltriggerType.OnUse)
+                    {
+                        var spellInfo = Global.SpellMgr.GetSpellInfo((uint)proto.Effects[idx].SpellID, Difficulty.None);
+
+                        if (spellInfo != null)
+                            SpellHistory.SendCooldownEvent(spellInfo, _lastPotionId);
+                    }
+        }
+        // from spell cases (m_lastPotionId set in Spell.SendSpellCooldown)
+        else
+        {
+            if (spell.IsIgnoringCooldowns)
+                return;
+            else
+                SpellHistory.SendCooldownEvent(spell.SpellInfo, _lastPotionId, spell);
+        }
+
+        _lastPotionId = 0;
+    }
+
+    public bool UpdateSkillPro(SkillType skillId, int chance, uint step)
+    {
+        return UpdateSkillPro((uint)skillId, chance, step);
+    }
+
+    public bool UpdateSkillPro(uint skillId, int chance, uint step)
+    {
+        // levels sync. with spell requirement for skill levels to learn
+        // bonus abilities in sSkillLineAbilityStore
+        // Used only to avoid scan DBC at each skill grow
+        uint[] bonusSkillLevels =
+        {
+            75, 150, 225, 300, 375, 450, 525, 600, 700, 850
+        };
+
+        Log.Logger.Debug("UpdateSkillPro(SkillId {0}, Chance {0:D3}%)", skillId, chance / 10.0f);
+
+        if (skillId == 0)
             return false;
 
-        var stepsNeededToLevelUp = GetFishingStepsNeededToLevelUp(skillValue);
-        ++_fishingSteps;
-
-        if (_fishingSteps >= stepsNeededToLevelUp)
+        if (chance <= 0) // speedup in 0 chance case
         {
-            _fishingSteps = 0;
+            Log.Logger.Debug("Player:UpdateSkillPro Chance={0:D3}% missed", chance / 10.0f);
 
-            var gatheringSkillGain = GetDefaultValue("SkillGain.Gathering", 1);
-
-            return UpdateSkillPro(SkillType.ClassicFishing, 100 * 10, gatheringSkillGain);
+            return false;
         }
 
-        return false;
-    }
+        var skillStatusData = _skillStatus.LookupByKey(skillId);
 
-    public void CastItemUseSpell(Item item, SpellCastTargets targets, ObjectGuid castCount, uint[] misc)
-    {
-        if (!item.Template.HasFlag(ItemFlags.Legacy))
-            // item spells casted at use
-            foreach (var effectData in item.Effects)
-            {
-                // wrong triggering type
-                if (effectData.TriggerType != ItemSpelltriggerType.OnUse)
-                    continue;
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted)
+            return false;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
+        SkillInfo skillInfoField = ActivePlayerData.Skill;
 
-                if (spellInfo == null)
-                {
-                    Log.Logger.Error("Player.CastItemUseSpell: Item (Entry: {0}) in have wrong spell id {1}, ignoring", item.Entry, effectData.SpellID);
+        var value = skillInfoField.SkillRank[skillStatusData.Pos];
+        var max = skillInfoField.SkillMaxRank[skillStatusData.Pos];
 
-                    continue;
-                }
+        if (max == 0 || value == 0 || value >= max)
+            return false;
 
-                Spell spell = new(this, spellInfo, TriggerCastFlags.None);
-
-                SpellPrepare spellPrepare = new()
-                {
-                    ClientCastID = castCount,
-                    ServerCastID = spell.CastId
-                };
-
-                SendPacket(spellPrepare);
-
-                spell.FromClient = true;
-                spell.CastItem = item;
-                spell.SpellMisc.Data0 = misc[0];
-                spell.SpellMisc.Data1 = misc[1];
-                spell.Prepare(targets);
-
-                return;
-            }
-
-        // Item enchantments spells casted at use
-        for (EnchantmentSlot eSlot = 0; eSlot < EnchantmentSlot.Max; ++eSlot)
+        if (RandomHelper.IRand(1, 1000) > chance)
         {
-            var enchantID = item.GetEnchantmentId(eSlot);
-            var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
+            Log.Logger.Debug("Player:UpdateSkillPro Chance={0:F3}% missed", chance / 10.0f);
 
-            if (pEnchant == null)
-                continue;
-
-            for (byte s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
-            {
-                if (pEnchant.Effect[s] != ItemEnchantmentType.UseSpell)
-                    continue;
-
-                var spellInfo = Global.SpellMgr.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
-
-                if (spellInfo == null)
-                {
-                    Log.Logger.Error("Player.CastItemUseSpell Enchant {0}, cast unknown spell {1}", enchantID, pEnchant.EffectArg[s]);
-
-                    continue;
-                }
-
-                Spell spell = new(this, spellInfo, TriggerCastFlags.None);
-
-                SpellPrepare spellPrepare = new()
-                {
-                    ClientCastID = castCount,
-                    ServerCastID = spell.CastId
-                };
-
-                SendPacket(spellPrepare);
-
-                spell.FromClient = true;
-                spell.CastItem = item;
-                spell.SpellMisc.Data0 = misc[0];
-                spell.SpellMisc.Data1 = misc[1];
-                spell.Prepare(targets);
-
-                return;
-            }
-        }
-    }
-
-    public uint GetLastPotionId()
-    {
-        return _lastPotionId;
-    }
-
-    public void SetLastPotionId(uint itemID)
-    {
-        _lastPotionId = itemID;
-    }
-
-    public void LearnSkillRewardedSpells(uint skillId, uint skillValue, Race race)
-    {
-        var raceMask = SharedConst.GetMaskForRace(race);
-        var classMask = ClassMask;
-
-        var skillLineAbilities = DB2Manager.GetSkillLineAbilitiesBySkill(skillId);
-
-        foreach (var ability in skillLineAbilities)
-        {
-            if (ability.SkillLine != skillId)
-                continue;
-
-            var spellInfo = Global.SpellMgr.GetSpellInfo(ability.Spell, Difficulty.None);
-
-            if (spellInfo == null)
-                continue;
-
-            switch (ability.AcquireMethod)
-            {
-                case AbilityLearnType.OnSkillValue:
-                case AbilityLearnType.OnSkillLearn:
-                    break;
-                case AbilityLearnType.RewardedFromQuest:
-                    if (!ability.Flags.HasAnyFlag(SkillLineAbilityFlags.CanFallbackToLearnedOnSkillLearn) ||
-                        !spellInfo.MeetsFutureSpellPlayerCondition(this))
-                        continue;
-
-                    break;
-                default:
-                    continue;
-            }
-
-            // AcquireMethod == 2 && NumSkillUps == 1 -. automatically learn riding skill spell, else we skip it (client shows riding in spellbook as trainable).
-            if (skillId == (uint)SkillType.Riding && (ability.AcquireMethod != AbilityLearnType.OnSkillLearn || ability.NumSkillUps != 1))
-                continue;
-
-            // Check race if set
-            if (ability.RaceMask != 0 && !Convert.ToBoolean(ability.RaceMask & raceMask))
-                continue;
-
-            // Check class if set
-            if (ability.ClassMask != 0 && !Convert.ToBoolean(ability.ClassMask & classMask))
-                continue;
-
-            // check level, skip class spells if not high enough
-            if (Level < spellInfo.SpellLevel)
-                continue;
-
-            // need unlearn spell
-            if (skillValue < ability.MinSkillLineRank && ability.AcquireMethod == AbilityLearnType.OnSkillValue)
-                RemoveSpell(ability.Spell);
-            // need learn
-            else if (!Location.IsInWorld)
-                AddSpell(ability.Spell, true, true, true, false, false, ability.SkillLine);
-            else
-                LearnSpell(ability.Spell, true, ability.SkillLine);
-        }
-    }
-
-    public int GetProfessionSlotFor(uint skillId)
-    {
-        var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
-
-        if (skillEntry == null)
-            return -1;
-
-        if (skillEntry.ParentSkillLineID == 0 || skillEntry.CategoryID != SkillCategory.Profession)
-            return -1;
-
-        var slot = 0;
-
-        foreach (var bit in ActivePlayerData.ProfessionSkillLine)
-        {
-            if (bit == skillId)
-                return slot;
-
-            slot++;
+            return false;
         }
 
-        return -1;
-    }
+        var newValue = (ushort)(value + step);
 
-    public bool HasItemFitToSpellRequirements(SpellInfo spellInfo, Item ignoreItem = null)
-    {
-        if (spellInfo.EquippedItemClass < 0)
-            return true;
+        if (newValue > max)
+            newValue = max;
 
-        // scan other equipped items for same requirements (mostly 2 daggers/etc)
-        // for optimize check 2 used cases only
-        switch (spellInfo.EquippedItemClass)
-        {
-            case ItemClass.Weapon:
+        SetSkillRank(skillStatusData.Pos, newValue);
+
+        if (skillStatusData.State != SkillState.New)
+            skillStatusData.State = SkillState.Changed;
+
+        foreach (var bsl in bonusSkillLevels)
+            if (value < bsl && newValue >= bsl)
             {
-                var item = GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
-
-                if (item)
-                    if (item != ignoreItem && item.IsFitToSpellRequirements(spellInfo))
-                        return true;
-
-                item = GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
-
-                if (item)
-                    if (item != ignoreItem && item.IsFitToSpellRequirements(spellInfo))
-                        return true;
+                LearnSkillRewardedSpells(skillId, newValue, Race);
 
                 break;
             }
-            case ItemClass.Armor:
+
+        UpdateSkillEnchantments(skillId, value, newValue);
+        UpdateCriteria(CriteriaType.SkillRaised, skillId);
+        Log.Logger.Debug("Player:UpdateSkillPro Chance={0:F3}% taken", chance / 10.0f);
+
+        return true;
+    }
+
+    public void UpdateSkillsForLevel()
+    {
+        var race = Race;
+        var maxSkill = GetMaxSkillValueForLevel();
+        SkillInfo skillInfoField = ActivePlayerData.Skill;
+
+        foreach (var pair in _skillStatus)
+        {
+            if (pair.Value.State == SkillState.Deleted || skillInfoField.SkillRank[pair.Value.Pos] == 0)
+                continue;
+
+            var pskill = pair.Key;
+            var rcEntry = DB2Manager.GetSkillRaceClassInfo(pskill, Race, Class);
+
+            if (rcEntry == null)
+                continue;
+
+            if (Global.SpellMgr.GetSkillRangeType(rcEntry) == SkillRangeType.Level)
             {
-                if (!spellInfo.HasAttribute(SpellAttr8.ArmorSpecialization))
-                {
-                    // most used check: shield only
-                    if ((spellInfo.EquippedItemSubClassMask & (1 << (int)ItemSubClassArmor.Shield)) != 0)
-                    {
-                        var item = GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+                if (rcEntry.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
+                    SetSkillRank(pair.Value.Pos, maxSkill);
 
-                        if (item != null)
-                            if (item != ignoreItem && item.IsFitToSpellRequirements(spellInfo))
-                                return true;
+                SetSkillMaxRank(pair.Value.Pos, maxSkill);
 
-                        // special check to filter things like Shield Wall, the aura is not permanent and must stay even without required item
-                        if (!spellInfo.IsPassive)
-                            foreach (var spellEffectInfo in spellInfo.Effects)
-                                if (spellEffectInfo.IsAura())
-                                    return true;
-                    }
-
-                    // tabard not have dependent spells
-                    for (var i = EquipmentSlot.Start; i < EquipmentSlot.MainHand; ++i)
-                    {
-                        var item = GetUseableItemByPos(InventorySlots.Bag0, i);
-
-                        if (item)
-                            if (item != ignoreItem && item.IsFitToSpellRequirements(spellInfo))
-                                return true;
-                    }
-                }
-                else
-                {
-                    // requires item equipped in all armor slots
-                    foreach (var i in new[]
-                             {
-                                 EquipmentSlot.Head, EquipmentSlot.Shoulders, EquipmentSlot.Chest, EquipmentSlot.Waist, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Wrist, EquipmentSlot.Hands
-                             })
-                    {
-                        var item = GetUseableItemByPos(InventorySlots.Bag0, i);
-
-                        if (!item || item == ignoreItem || !item.IsFitToSpellRequirements(spellInfo))
-                            return false;
-                    }
-
-                    return true;
-                }
-
-                break;
+                if (pair.Value.State != SkillState.New)
+                    pair.Value.State = SkillState.Changed;
             }
-            default:
-                Log.Logger.Error("HasItemFitToSpellRequirements: Not handled spell requirement for item class {0}", spellInfo.EquippedItemClass);
 
-                break;
+            // Update level dependent skillline spells
+            LearnSkillRewardedSpells(rcEntry.SkillID, skillInfoField.SkillRank[pair.Value.Pos], race);
         }
-
-        return false;
     }
-
-    public Dictionary<uint, PlayerSpell> GetSpellMap()
-    {
-        return _spells;
-    }
-
-    public override SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = WeaponAttackType.BaseAttack)
-    {
-        var weapon = GetWeaponForAttack(attackType, true);
-
-        if (weapon != null)
-            return (SpellSchoolMask)(1 << (int)weapon.Template.DamageType);
-
-        return SpellSchoolMask.Normal;
-    }
-
-    public void UpdateAllWeaponDependentCritAuras()
-    {
-        for (var attackType = WeaponAttackType.BaseAttack; attackType < WeaponAttackType.Max; ++attackType)
-            UpdateWeaponDependentCritAuras(attackType);
-    }
-
     public void UpdateWeaponDependentAuras(WeaponAttackType attackType)
     {
         UpdateWeaponDependentCritAuras(attackType);
         UpdateDamageDoneMods(attackType);
         UpdateDamagePctDoneMods(attackType);
     }
-
-    public void ApplyItemDependentAuras(Item item, bool apply)
-    {
-        if (apply)
-        {
-            var spells = GetSpellMap();
-
-            foreach (var pair in spells)
-            {
-                if (pair.Value.State == PlayerSpellState.Removed || pair.Value.Disabled)
-                    continue;
-
-                var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key, Difficulty.None);
-
-                if (spellInfo == null || !spellInfo.IsPassive || spellInfo.EquippedItemClass < 0)
-                    continue;
-
-                if (!HasAura(pair.Key) && HasItemFitToSpellRequirements(spellInfo))
-                    AddAura(pair.Key, this); // no SMSG_SPELL_GO in sniff found
-            }
-        }
-        else
-        {
-            RemoveItemDependentAurasAndCasts(item);
-        }
-    }
-
-    public override bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect aurEff)
-    {
-        var spellInfo = aurEff.SpellInfo;
-
-        if (spellInfo.EquippedItemClass == ItemClass.None)
-            return true;
-
-        var item = GetWeaponForAttack(attackType, true);
-
-        if (item == null || !item.IsFitToSpellRequirements(spellInfo))
-            return false;
-
-        return true;
-    }
-
-    public void AddTemporarySpell(uint spellId)
-    {
-        var spell = _spells.LookupByKey(spellId);
-
-        // spell already added - do not do anything
-        if (spell != null)
-            return;
-
-        PlayerSpell newspell = new()
-        {
-            State = PlayerSpellState.Temporary,
-            Active = true,
-            Dependent = false,
-            Disabled = false
-        };
-
-        _spells[spellId] = newspell;
-    }
-
-    public void RemoveTemporarySpell(uint spellId)
-    {
-        var spell = _spells.LookupByKey(spellId);
-
-        // spell already not in list - do not do anything
-        if (spell is not { State: PlayerSpellState.Temporary })
-            return;
-
-        // spell has other state than temporary - do not change it
-
-        _spells.Remove(spellId);
-    }
-
     public void UpdateZoneDependentAuras(uint newZone)
     {
         // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone.area update
@@ -1657,1391 +2856,9 @@ public partial class Player
                 if (!HasAura(spell.SpellId))
                     CastSpell(this, spell.SpellId, true);
     }
-
-    public void UpdateAreaDependentAuras(uint newArea)
-    {
-        // remove auras from spells with area limitations
-        // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
-        OwnedAurasList
-            .CallOnMatch((aura) => aura.SpellInfo.CheckLocation(Location.MapId, _zoneUpdateId, newArea, this) != SpellCastResult.SpellCastOk,
-                         (pair) => RemoveOwnedAura(pair.SpellInfo.Id, pair));
-
-        // some auras applied at subzone enter
-        var saBounds = Global.SpellMgr.GetSpellAreaForAreaMapBounds(newArea);
-
-        foreach (var spell in saBounds)
-            if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoCast) && spell.IsFitToRequirements(this, _zoneUpdateId, newArea))
-                if (!HasAura(spell.SpellId))
-                    CastSpell(this, spell.SpellId, true);
-    }
-
-    public void ApplyModToSpell(SpellModifier mod, Spell spell)
-    {
-        if (spell == null)
-            return;
-
-        // don't do anything with no charges
-        if (mod.OwnerAura.IsUsingCharges && mod.OwnerAura.Charges == 0)
-            return;
-
-        // register inside spell, proc system uses this to drop charges
-        spell.AppliedMods.Add(mod.OwnerAura);
-    }
-
-    public void LearnCustomSpells()
-    {
-        //if (!WorldConfig.GetBoolValue(WorldCfg.StartAllSpells)) // this is not all spells, just custom ones.
-        //    return;
-
-        // learn default race/class spells
-        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
-
-        foreach (var tspell in info.CustomSpells)
-        {
-            Log.Logger.Debug("PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", Class, Race, tspell);
-
-            if (!Location.IsInWorld) // will send in INITIAL_SPELLS in list anyway at map add
-                AddSpell(tspell, true, true, true, false);
-            else // but send in normal spell in game learn case
-                LearnSpell(tspell, true);
-        }
-    }
-
-    public void LearnDefaultSkills()
-    {
-        // learn default race/class skills
-        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
-
-        foreach (var rcInfo in info.Skills)
-        {
-            if (HasSkill((SkillType)rcInfo.SkillID))
-                continue;
-
-            if (rcInfo.MinLevel > Level)
-                continue;
-
-            LearnDefaultSkill(rcInfo);
-        }
-    }
-
-    public void LearnDefaultSkill(SkillRaceClassInfoRecord rcInfo)
-    {
-        var skillId = (SkillType)rcInfo.SkillID;
-
-        switch (Global.SpellMgr.GetSkillRangeType(rcInfo))
-        {
-            case SkillRangeType.Language:
-                SetSkill(skillId, 0, 300, 300);
-
-                break;
-            case SkillRangeType.Level:
-            {
-                ushort skillValue = 1;
-                var maxValue = GetMaxSkillValueForLevel();
-
-                if (rcInfo.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
-                    skillValue = maxValue;
-                else if (Class == PlayerClass.Deathknight)
-                    skillValue = (ushort)Math.Min(Math.Max(1, (Level - 1) * 5), maxValue);
-
-                SetSkill(skillId, 0, skillValue, maxValue);
-
-                break;
-            }
-            case SkillRangeType.Mono:
-                SetSkill(skillId, 0, 1, 1);
-
-                break;
-            case SkillRangeType.Rank:
-            {
-                var tier = Global.ObjectMgr.GetSkillTier(rcInfo.SkillTierID);
-                var maxValue = (ushort)tier.Value[0];
-                ushort skillValue = 1;
-
-                if (rcInfo.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
-                    skillValue = maxValue;
-                else if (Class == PlayerClass.Deathknight)
-                    skillValue = (ushort)Math.Min(Math.Max(1, (Level - 1) * 5), maxValue);
-
-                SetSkill(skillId, 1, skillValue, maxValue);
-
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    public void LearnSpell<T>(T spellId, bool dependent, uint fromSkill = 0, bool suppressMessaging = false, int? traitDefinitionId = null) where T : struct, Enum
-    {
-        LearnSpell(Convert.ToUInt32(spellId), dependent, fromSkill, suppressMessaging, traitDefinitionId);
-    }
-
-    public void LearnSpell(uint spellId, bool dependent, uint fromSkill = 0, bool suppressMessaging = false, int? traitDefinitionId = null)
-    {
-        var playerSpell = _spells.LookupByKey(spellId);
-
-        var disabled = playerSpell is { Disabled: true };
-        var active = !disabled || playerSpell.Active;
-        var favorite = playerSpell?.Favorite ?? false;
-
-        var learning = AddSpell(spellId, active, true, dependent, false, false, fromSkill, favorite, traitDefinitionId);
-
-        // prevent duplicated entires in spell book, also not send if not in world (loading)
-        if (learning && Location.IsInWorld)
-        {
-            LearnedSpells learnedSpells = new();
-
-            LearnedSpellInfo learnedSpellInfo = new()
-            {
-                SpellID = spellId,
-                IsFavorite = favorite,
-                TraitDefinitionID = traitDefinitionId
-            };
-
-            learnedSpells.SuppressMessaging = suppressMessaging;
-            learnedSpells.ClientLearnedSpellData.Add(learnedSpellInfo);
-            SendPacket(learnedSpells);
-        }
-
-        // learn all disabled higher ranks and required spells (recursive)
-        if (disabled)
-        {
-            var nextSpell = Global.SpellMgr.GetNextSpellInChain(spellId);
-
-            if (nextSpell != 0)
-            {
-                var spell = _spells.LookupByKey(nextSpell);
-
-                if (spellId != 0 && spell.Disabled)
-                    LearnSpell(nextSpell, false, fromSkill);
-            }
-
-            var spellsRequiringSpell = Global.SpellMgr.GetSpellsRequiringSpellBounds(spellId);
-
-            foreach (var id in spellsRequiringSpell)
-            {
-                var spell1 = _spells.LookupByKey(id);
-
-                if (spell1 is { Disabled: true })
-                    LearnSpell(id, false, fromSkill);
-            }
-        }
-        else
-        {
-            UpdateQuestObjectiveProgress(QuestObjectiveType.LearnSpell, (int)spellId, 1);
-        }
-    }
-
-    public void RemoveSpell<T>(T spellId, bool disabled = false, bool learnLowRank = true, bool suppressMessaging = false) where T : struct, Enum
-    {
-        RemoveSpell(Convert.ToUInt32(spellId), disabled, learnLowRank, suppressMessaging);
-    }
-
-    public void RemoveSpell(uint spellId, bool disabled = false, bool learnLowRank = true, bool suppressMessaging = false)
-    {
-        var pSpell = _spells.LookupByKey(spellId);
-
-        if (pSpell == null)
-            return;
-
-        if (pSpell.State == PlayerSpellState.Removed || (disabled && pSpell.Disabled) || pSpell.State == PlayerSpellState.Temporary)
-            return;
-
-        // unlearn non talent higher ranks (recursive)
-        var nextSpell = Global.SpellMgr.GetNextSpellInChain(spellId);
-
-        if (nextSpell != 0)
-        {
-            var spellInfo1 = Global.SpellMgr.GetSpellInfo(nextSpell, Difficulty.None);
-
-            if (HasSpell(nextSpell) && !spellInfo1.HasAttribute(SpellCustomAttributes.IsTalent))
-                RemoveSpell(nextSpell, disabled, false);
-        }
-
-        //unlearn spells dependent from recently removed spells
-        var spellsRequiringSpell = Global.SpellMgr.GetSpellsRequiringSpellBounds(spellId);
-
-        foreach (var id in spellsRequiringSpell)
-            RemoveSpell(id, disabled);
-
-        // re-search, it can be corrupted in prev loop
-        pSpell = _spells.LookupByKey(spellId);
-
-        if (pSpell == null)
-            return; // already unleared
-
-        var curActive = pSpell.Active;
-        var curDependent = pSpell.Dependent;
-
-        if (disabled)
-        {
-            pSpell.Disabled = disabled;
-
-            if (pSpell.State != PlayerSpellState.New)
-                pSpell.State = PlayerSpellState.Changed;
-        }
-        else
-        {
-            if (pSpell.State == PlayerSpellState.New)
-                _spells.Remove(spellId);
-            else
-                pSpell.State = PlayerSpellState.Removed;
-        }
-
-        RemoveOwnedAura(spellId, GUID);
-
-        // remove pet auras
-        foreach (var petAur in Global.SpellMgr.GetPetAuras(spellId)?.Values)
-            RemovePetAura(petAur);
-
-        // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
-
-        if (spellInfo != null && spellInfo.IsPrimaryProfessionFirstRank)
-        {
-            var freeProfs = FreePrimaryProfessionPoints + 1;
-
-            if (freeProfs <= GetDefaultValue("MaxPrimaryTradeSkill", 2))
-                SetFreePrimaryProfessions(freeProfs);
-        }
-
-        // remove dependent skill
-        var spellLearnSkill = Global.SpellMgr.GetSpellLearnSkill(spellId);
-
-        if (spellLearnSkill != null)
-        {
-            var prevSpell = Global.SpellMgr.GetPrevSpellInChain(spellId);
-
-            if (prevSpell == 0) // first rank, remove skill
-            {
-                SetSkill(spellLearnSkill.Skill, 0, 0, 0);
-            }
-            else
-            {
-                // search prev. skill setting by spell ranks chain
-                var prevSkill = Global.SpellMgr.GetSpellLearnSkill(prevSpell);
-
-                while (prevSkill == null && prevSpell != 0)
-                {
-                    prevSpell = Global.SpellMgr.GetPrevSpellInChain(prevSpell);
-                    prevSkill = Global.SpellMgr.GetSpellLearnSkill(Global.SpellMgr.GetFirstSpellInChain(prevSpell));
-                }
-
-                if (prevSkill == null) // not found prev skill setting, remove skill
-                {
-                    SetSkill(spellLearnSkill.Skill, 0, 0, 0);
-                }
-                else // set to prev. skill setting values
-                {
-                    uint skillValue = GetPureSkillValue(prevSkill.Skill);
-                    uint skillMaxValue = GetPureMaxSkillValue(prevSkill.Skill);
-
-                    if (skillValue > prevSkill.Value)
-                        skillValue = prevSkill.Value;
-
-                    uint newSkillMaxValue = prevSkill.Maxvalue == 0 ? GetMaxSkillValueForLevel() : prevSkill.Maxvalue;
-
-                    if (skillMaxValue > newSkillMaxValue)
-                        skillMaxValue = newSkillMaxValue;
-
-                    SetSkill(prevSkill.Skill, prevSkill.Step, skillValue, skillMaxValue);
-                }
-            }
-        }
-
-        // remove dependent spells
-        var spellBounds = Global.SpellMgr.GetSpellLearnSpellMapBounds(spellId);
-
-        foreach (var spellNode in spellBounds)
-        {
-            RemoveSpell(spellNode.Spell, disabled);
-
-            if (spellNode.OverridesSpell != 0)
-                RemoveOverrideSpell(spellNode.OverridesSpell, spellNode.Spell);
-        }
-
-        // activate lesser rank in spellbook/action bar, and cast it if need
-        var prevActivate = false;
-
-        var prevID = Global.SpellMgr.GetPrevSpellInChain(spellId);
-
-        if (prevID != 0)
-            // if ranked non-stackable spell: need activate lesser rank and update dendence state
-            // No need to check for spellInfo != NULL here because if cur_active is true, then that means that the spell was already in m_spells, and only valid spells can be pushed there.
-            if (curActive && spellInfo.IsRanked)
-            {
-                // need manually update dependence state (learn spell ignore like attempts)
-                var prevSpell = _spells.LookupByKey(prevID);
-
-                if (prevSpell != null)
-                {
-                    if (prevSpell.Dependent != curDependent)
-                    {
-                        prevSpell.Dependent = curDependent;
-
-                        if (prevSpell.State != PlayerSpellState.New)
-                            prevSpell.State = PlayerSpellState.Changed;
-                    }
-
-                    // now re-learn if need re-activate
-                    if (!prevSpell.Active && learnLowRank)
-                        if (AddSpell(prevID, true, false, prevSpell.Dependent, prevSpell.Disabled))
-                        {
-                            // downgrade spell ranks in spellbook and action bar
-                            SendSupercededSpell(spellId, prevID);
-                            prevActivate = true;
-                        }
-                }
-            }
-
-        _overrideSpells.Remove(spellId);
-
-        if (_canTitanGrip)
-            if (spellInfo != null && spellInfo.IsPassive && spellInfo.HasEffect(SpellEffectName.TitanGrip))
-            {
-                RemoveAura(_titanGripPenaltySpellId);
-                SetCanTitanGrip(false);
-            }
-
-        if (CanDualWield)
-            if (spellInfo != null && spellInfo.IsPassive && spellInfo.HasEffect(SpellEffectName.DualWield))
-                SetCanDualWield(false);
-
-        if (GetDefaultValue("OffhandCheckAtSpellUnlearn", true))
-            AutoUnequipOffhandIfNeed();
-
-        // remove from spell book if not replaced by lesser rank
-        if (!prevActivate)
-        {
-            UnlearnedSpells unlearnedSpells = new();
-            unlearnedSpells.SpellID.Add(spellId);
-            unlearnedSpells.SuppressMessaging = suppressMessaging;
-            SendPacket(unlearnedSpells);
-        }
-    }
-
-    public void SetSpellFavorite(uint spellId, bool favorite)
-    {
-        var spell = _spells.LookupByKey(spellId);
-
-        if (spell == null)
-            return;
-
-        spell.Favorite = favorite;
-
-        if (spell.State == PlayerSpellState.Unchanged)
-            spell.State = PlayerSpellState.Changed;
-    }
-
-    public void AddStoredAuraTeleportLocation(uint spellId)
-    {
-        StoredAuraTeleportLocation storedLocation = new()
-        {
-            Loc = new WorldLocation(Location),
-            CurrentState = StoredAuraTeleportLocation.State.Changed
-        };
-
-        _storedAuraTeleportLocations[spellId] = storedLocation;
-    }
-
-    public void RemoveStoredAuraTeleportLocation(uint spellId)
-    {
-        var storedLocation = _storedAuraTeleportLocations.LookupByKey(spellId);
-
-        if (storedLocation != null)
-            storedLocation.CurrentState = StoredAuraTeleportLocation.State.Deleted;
-    }
-
-    public WorldLocation GetStoredAuraTeleportLocation(uint spellId)
-    {
-        var auraLocation = _storedAuraTeleportLocations.LookupByKey(spellId);
-
-        return auraLocation?.Loc;
-    }
-
-    public override bool HasSpell(uint spellId)
-    {
-        var spell = _spells.LookupByKey(spellId);
-
-        if (spell != null)
-            return spell.State != PlayerSpellState.Removed && !spell.Disabled;
-
-        return false;
-    }
-
-    public bool HasActiveSpell(uint spellId)
-    {
-        var spell = _spells.LookupByKey(spellId);
-
-        if (spell != null)
-            return spell.State != PlayerSpellState.Removed && spell.Active && !spell.Disabled;
-
-        return false;
-    }
-
-    public void AddSpellMod(SpellModifier mod, bool apply)
-    {
-        Log.Logger.Debug("Player.AddSpellMod {0}", mod.SpellId);
-
-        // First, manipulate our spellmodifier container
-        if (apply)
-            _spellModifiers[(int)mod.Op][(int)mod.Type].Add(mod);
-        else
-            _spellModifiers[(int)mod.Op][(int)mod.Type].Remove(mod);
-
-        // Now, send spellmodifier packet
-        switch (mod.Type)
-        {
-            case SpellModType.Flat:
-            case SpellModType.Pct:
-                if (!IsLoading)
-                {
-                    var opcode = (mod.Type == SpellModType.Flat ? ServerOpcodes.SetFlatSpellModifier : ServerOpcodes.SetPctSpellModifier);
-                    SetSpellModifier packet = new(opcode);
-
-                    // @todo Implement sending of bulk modifiers instead of single
-                    SpellModifierInfo spellMod = new()
-                    {
-                        ModIndex = (byte)mod.Op
-                    };
-
-                    for (var eff = 0; eff < 128; ++eff)
-                    {
-                        FlagArray128 mask = new()
-                        {
-                            [eff / 32] = 1u << (eff % 32)
-                        };
-
-                        if ((mod as SpellModifierByClassMask).Mask & mask)
-                        {
-                            SpellModifierData modData = new();
-
-                            if (mod.Type == SpellModType.Flat)
-                            {
-                                modData.ModifierValue = 0.0f;
-
-                                foreach (SpellModifierByClassMask spell in _spellModifiers[(int)mod.Op][(int)SpellModType.Flat])
-                                    if (spell.Mask & mask)
-                                        modData.ModifierValue += spell.Value;
-                            }
-                            else
-                            {
-                                modData.ModifierValue = 1.0f;
-
-                                foreach (SpellModifierByClassMask spell in _spellModifiers[(int)mod.Op][(int)SpellModType.Pct])
-                                    if (spell.Mask & mask)
-                                        modData.ModifierValue *= 1.0f + MathFunctions.CalculatePct(1.0f, spell.Value);
-                            }
-
-                            modData.ClassIndex = (byte)eff;
-
-                            spellMod.ModifierData.Add(modData);
-                        }
-                    }
-
-                    packet.Modifiers.Add(spellMod);
-
-                    SendPacket(packet);
-                }
-
-                break;
-            case SpellModType.LabelFlat:
-                if (apply)
-                {
-                    AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellFlatModByLabel), (mod as SpellFlatModifierByLabel).Value);
-                }
-                else
-                {
-                    var firstIndex = ActivePlayerData.SpellFlatModByLabel.FindIndex((mod as SpellFlatModifierByLabel).Value);
-
-                    if (firstIndex >= 0)
-                        RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellFlatModByLabel), firstIndex);
-                }
-
-                break;
-            case SpellModType.LabelPct:
-                if (apply)
-                {
-                    AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellPctModByLabel), (mod as SpellPctModifierByLabel).Value);
-                }
-                else
-                {
-                    var firstIndex = ActivePlayerData.SpellPctModByLabel.FindIndex((mod as SpellPctModifierByLabel).Value);
-
-                    if (firstIndex >= 0)
-                        RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellPctModByLabel), firstIndex);
-                }
-
-                break;
-        }
-    }
-
-    public void ApplySpellMod(SpellInfo spellInfo, SpellModOp op, ref int basevalue, Spell spell = null)
-    {
-        double val = basevalue;
-        ApplySpellMod(spellInfo, op, ref val, spell);
-        basevalue = (int)val;
-    }
-
-    public void ApplySpellMod(SpellInfo spellInfo, SpellModOp op, ref uint basevalue, Spell spell = null)
-    {
-        double val = basevalue;
-        ApplySpellMod(spellInfo, op, ref val, spell);
-        basevalue = (uint)val;
-    }
-
-    public void ApplySpellMod(SpellInfo spellInfo, SpellModOp op, ref float basevalue, Spell spell = null)
-    {
-        double val = basevalue;
-        ApplySpellMod(spellInfo, op, ref val, spell);
-        basevalue = (float)val;
-    }
-
-    public void ApplySpellMod(SpellInfo spellInfo, SpellModOp op, ref double basevalue, Spell spell = null)
-    {
-        double totalmul = 1.0f;
-        double totalflat = 0;
-
-        GetSpellModValues(spellInfo, op, spell, basevalue, ref totalflat, ref totalmul);
-
-        basevalue = (basevalue + totalflat) * totalmul;
-    }
-
-    public void GetSpellModValues<T>(SpellInfo spellInfo, SpellModOp op, Spell spell, T baseValue, ref double flat, ref double pct) where T : IComparable
-    {
-        flat = 0;
-        pct = 1.0f;
-
-        // Drop charges for triggering spells instead of triggered ones
-        if (SpellModTakingSpell)
-            spell = SpellModTakingSpell;
-
-        switch (op)
-        {
-            // special case, if a mod makes spell instant, only consume that mod
-            case SpellModOp.ChangeCastTime:
-            {
-                SpellModifier modInstantSpell = null;
-
-                foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Pct])
-                {
-                    if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                        continue;
-
-                    if (baseValue.CompareTo(10000d) < 0 && mod.Value <= -100)
-                    {
-                        modInstantSpell = mod;
-
-                        break;
-                    }
-                }
-
-                if (modInstantSpell == null)
-                    foreach (SpellPctModifierByLabel mod in _spellModifiers[(int)op][(int)SpellModType.LabelPct])
-                    {
-                        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                            continue;
-
-                        if (baseValue.CompareTo(10000d) < 0 && mod.Value.ModifierValue <= -1.0f)
-                        {
-                            modInstantSpell = mod;
-
-                            break;
-                        }
-                    }
-
-                if (modInstantSpell != null)
-                {
-                    ApplyModToSpell(modInstantSpell, spell);
-                    pct = 0.0f;
-
-                    return;
-                }
-
-                break;
-            }
-            // special case if two mods apply 100% critical chance, only consume one
-            case SpellModOp.CritChance:
-            {
-                SpellModifier modCritical = null;
-
-                foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Flat])
-                {
-                    if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                        continue;
-
-                    if (mod.Value >= 100)
-                    {
-                        modCritical = mod;
-
-                        break;
-                    }
-                }
-
-                if (modCritical == null)
-                    foreach (SpellFlatModifierByLabel mod in _spellModifiers[(int)op][(int)SpellModType.LabelFlat])
-                    {
-                        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                            continue;
-
-                        if (mod.Value.ModifierValue >= 100)
-                        {
-                            modCritical = mod;
-
-                            break;
-                        }
-                    }
-
-                if (modCritical != null)
-                {
-                    ApplyModToSpell(modCritical, spell);
-                    flat = 100;
-
-                    return;
-                }
-
-                break;
-            }
-            default:
-                break;
-        }
-
-        foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Flat])
-        {
-            if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                continue;
-
-            var value = mod.Value;
-
-            if (value == 0)
-                continue;
-
-            flat += value;
-            ApplyModToSpell(mod, spell);
-        }
-
-        foreach (SpellFlatModifierByLabel mod in _spellModifiers[(int)op][(int)SpellModType.LabelFlat])
-        {
-            if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                continue;
-
-            var value = mod.Value.ModifierValue;
-
-            if (value == 0)
-                continue;
-
-            flat += value;
-            ApplyModToSpell(mod, spell);
-        }
-
-        foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Pct])
-        {
-            if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                continue;
-
-            // skip percent mods for null basevalue (most important for spell mods with charges)
-            if (baseValue + (dynamic)flat == 0)
-                continue;
-
-            var value = mod.Value;
-
-            if (value == 0)
-                continue;
-
-            // special case (skip > 10sec spell casts for instant cast setting)
-            if (op == SpellModOp.ChangeCastTime)
-                if (baseValue.CompareTo(10000d) > 0 && value <= -100)
-                    continue;
-
-            pct *= 1.0f + MathFunctions.CalculatePct(1.0f, value);
-            ApplyModToSpell(mod, spell);
-        }
-
-        foreach (SpellPctModifierByLabel mod in _spellModifiers[(int)op][(int)SpellModType.LabelPct])
-        {
-            if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-                continue;
-
-            // skip percent mods for null basevalue (most important for spell mods with charges)
-            if (baseValue + (dynamic)flat == 0)
-                continue;
-
-            var value = mod.Value.ModifierValue;
-
-            if (value == 1.0f)
-                continue;
-
-            // special case (skip > 10sec spell casts for instant cast setting)
-            if (op == SpellModOp.ChangeCastTime)
-                if (baseValue.CompareTo(10000d) > 0 && value <= -1.0f)
-                    continue;
-
-            pct *= value;
-            ApplyModToSpell(mod, spell);
-        }
-    }
-
-    public void SetSpellModTakingSpell(Spell spell, bool apply)
-    {
-        if (apply && SpellModTakingSpell != null)
-            return;
-
-        if (!apply && (SpellModTakingSpell == null || SpellModTakingSpell != spell))
-            return;
-
-        SpellModTakingSpell = apply ? spell : null;
-    }
-
-    public void UpdateEquipSpellsAtFormChange()
-    {
-        for (byte i = 0; i < InventorySlots.BagEnd; ++i)
-            if (_items[i] && !_items[i].IsBroken && CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
-            {
-                ApplyItemEquipSpell(_items[i], false, true); // remove spells that not fit to form
-                ApplyItemEquipSpell(_items[i], true, true);  // add spells that fit form but not active
-            }
-
-        UpdateItemSetAuras(true);
-    }
-
-    public int GetSpellPenetrationItemMod()
-    {
-        return _spellPenetrationItemMod;
-    }
-
-    public void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
-    {
-        // remove cooldowns on spells that have < 10 min CD
-        SpellHistory
-            .ResetCooldowns(p =>
-                            {
-                                var spellInfo = Global.SpellMgr.GetSpellInfo(p.Key, Difficulty.None);
-
-                                return spellInfo.RecoveryTime < 10 * Time.Minute * Time.InMilliseconds && spellInfo.CategoryRecoveryTime < 10 * Time.Minute * Time.InMilliseconds && !spellInfo.HasAttribute(SpellAttr6.DoNotResetCooldownInArena);
-                            },
-                            true);
-
-        // pet cooldowns
-        if (removeActivePetCooldowns)
-        {
-            var pet = CurrentPet;
-
-            if (pet)
-                pet.SpellHistory.ResetAllCooldowns();
-        }
-    }
-
     /**********************************/
     /*************Runes****************/
     /**********************************/
-    public void SetRuneCooldown(byte index, uint cooldown)
-    {
-        _runes.Cooldown[index] = cooldown;
-        _runes.SetRuneState(index, (cooldown == 0));
-        var activeRunes = _runes.Cooldown.Count(p => p == 0);
-
-        if (activeRunes != GetPower(PowerType.Runes))
-            SetPower(PowerType.Runes, activeRunes);
-    }
-
-    public byte GetRunesState()
-    {
-        return (byte)(_runes.RuneState & ((1 << GetMaxPower(PowerType.Runes)) - 1));
-    }
-
-    public uint GetRuneBaseCooldown()
-    {
-        double cooldown = RuneCooldowns.Base;
-
-        var regenAura = GetAuraEffectsByType(AuraType.ModPowerRegenPercent);
-
-        foreach (var i in regenAura)
-            if (i.MiscValue == (int)PowerType.Runes)
-                cooldown *= 1.0f - i.Amount / 100.0f;
-
-        // Runes cooldown are now affected by player's haste from equipment ...
-        var hastePct = GetRatingBonusValue(CombatRating.HasteMelee);
-
-        // ... and some auras.
-        hastePct += GetTotalAuraModifier(AuraType.ModMeleeHaste);
-        hastePct += GetTotalAuraModifier(AuraType.ModMeleeHaste2);
-        hastePct += GetTotalAuraModifier(AuraType.ModMeleeHaste3);
-
-        cooldown *= 1.0f - (hastePct / 100.0f);
-
-        return (uint)cooldown;
-    }
-
-    public void ResyncRunes()
-    {
-        var maxRunes = GetMaxPower(PowerType.Runes);
-
-        ResyncRunes data = new()
-        {
-            Runes =
-            {
-                Start = (byte)((1 << maxRunes) - 1),
-                Count = GetRunesState()
-            }
-        };
-
-        float baseCd = GetRuneBaseCooldown();
-
-        for (byte i = 0; i < maxRunes; ++i)
-            data.Runes.Cooldowns.Add((byte)((baseCd - GetRuneCooldown(i)) / baseCd * 255));
-
-        SendPacket(data);
-    }
-
-    public void InitRunes()
-    {
-        if (Class != PlayerClass.Deathknight)
-            return;
-
-        var runeIndex = GetPowerIndex(PowerType.Runes);
-
-        if (runeIndex == (int)PowerType.Max)
-            return;
-
-        _runes = new Runes
-        {
-            RuneState = 0
-        };
-
-        for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
-            SetRuneCooldown(i, 0); // reset cooldowns
-
-        // set a base regen timer equal to 10 sec
-        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)runeIndex), 0.0f);
-        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)runeIndex), 0.0f);
-    }
-
-    public void UpdateAllRunesRegen()
-    {
-        if (Class != PlayerClass.Deathknight)
-            return;
-
-        var runeIndex = GetPowerIndex(PowerType.Runes);
-
-        if (runeIndex == (int)PowerType.Max)
-            return;
-
-        var runeEntry = DB2Manager.GetPowerTypeEntry(PowerType.Runes);
-
-        var cooldown = GetRuneBaseCooldown();
-        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)runeIndex), (float)(1 * Time.InMilliseconds) / cooldown - runeEntry.RegenPeace);
-        SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)runeIndex), (float)(1 * Time.InMilliseconds) / cooldown - runeEntry.RegenCombat);
-    }
-
-    public uint GetRuneCooldown(byte index)
-    {
-        return _runes.Cooldown[index];
-    }
-
-    public bool CanNoReagentCast(SpellInfo spellInfo)
-    {
-        // don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP
-        if (spellInfo.HasAttribute(SpellAttr5.NoReagentCostWithAura) &&
-            HasUnitFlag(UnitFlags.Preparation))
-            return true;
-
-        // Check no reagent use mask
-        FlagArray128 noReagentMask = new()
-        {
-            [0] = ActivePlayerData.NoReagentCostMask[0],
-            [1] = ActivePlayerData.NoReagentCostMask[1],
-            [2] = ActivePlayerData.NoReagentCostMask[2],
-            [3] = ActivePlayerData.NoReagentCostMask[3]
-        };
-
-        if (spellInfo.SpellFamilyFlags & noReagentMask)
-            return true;
-
-        return false;
-    }
-
-    public void SetNoRegentCostMask(FlagArray128 mask)
-    {
-        for (byte i = 0; i < 4; ++i)
-            SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NoReagentCostMask, i), mask[i]);
-    }
-
-    public void CastItemCombatSpell(DamageInfo damageInfo)
-    {
-        var target = damageInfo.Victim;
-
-        if (target == null || !target.IsAlive || target == this)
-            return;
-
-        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
-        {
-            // If usable, try to cast item spell
-            var item = GetItemByPos(InventorySlots.Bag0, i);
-
-            if (item != null)
-                if (!item.IsBroken && CanUseAttackType(damageInfo.AttackType))
-                {
-                    var proto = item.Template;
-
-                    if (proto != null)
-                    {
-                        // Additional check for weapons
-                        if (proto.Class == ItemClass.Weapon)
-                        {
-                            // offhand item cannot proc from main hand hit etc
-                            byte slot;
-
-                            switch (damageInfo.AttackType)
-                            {
-                                case WeaponAttackType.BaseAttack:
-                                case WeaponAttackType.RangedAttack:
-                                    slot = EquipmentSlot.MainHand;
-
-                                    break;
-                                case WeaponAttackType.OffAttack:
-                                    slot = EquipmentSlot.OffHand;
-
-                                    break;
-                                default:
-                                    slot = EquipmentSlot.End;
-
-                                    break;
-                            }
-
-                            if (slot != i)
-                                continue;
-
-                            // Check if item is useable (forms or disarm)
-                            if (damageInfo.AttackType == WeaponAttackType.BaseAttack)
-                                if (!IsUseEquipedWeapon(true) && !IsInFeralForm)
-                                    continue;
-                        }
-
-                        CastItemCombatSpell(damageInfo, item, proto);
-                    }
-                }
-        }
-    }
-
-    public void CastItemCombatSpell(DamageInfo damageInfo, Item item, ItemTemplate proto)
-    {
-        // Can do effect if any damage done to target
-        // for done procs allow normal + critical + absorbs by default
-        var canTrigger = damageInfo.HitMask.HasAnyFlag(ProcFlagsHit.Normal | ProcFlagsHit.Critical | ProcFlagsHit.Absorb);
-
-        if (canTrigger)
-            if (!item.Template.HasFlag(ItemFlags.Legacy))
-                foreach (var effectData in item.Effects)
-                {
-                    // wrong triggering type
-                    if (effectData.TriggerType != ItemSpelltriggerType.OnProc)
-                        continue;
-
-                    var spellInfo = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
-
-                    if (spellInfo == null)
-                    {
-                        Log.Logger.Error("WORLD: unknown Item spellid {0}", effectData.SpellID);
-
-                        continue;
-                    }
-
-                    float chance = spellInfo.ProcChance;
-
-                    if (proto.SpellPPMRate != 0)
-                    {
-                        var weaponSpeed = GetBaseAttackTime(damageInfo.AttackType);
-                        chance = GetPpmProcChance(weaponSpeed, proto.SpellPPMRate, spellInfo);
-                    }
-                    else if (chance > 100.0f)
-                    {
-                        chance = GetWeaponProcChance();
-                    }
-
-                    if (RandomHelper.randChance(chance) && Global.ScriptMgr.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.ScriptId))
-                        CastSpell(damageInfo.Victim, spellInfo.Id, item);
-                }
-
-        // item combat enchantments
-        for (byte eSlot = 0; eSlot < (byte)EnchantmentSlot.Max; ++eSlot)
-        {
-            var enchantID = item.GetEnchantmentId((EnchantmentSlot)eSlot);
-            var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
-
-            if (pEnchant == null)
-                continue;
-
-            for (byte s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
-            {
-                if (pEnchant.Effect[s] != ItemEnchantmentType.CombatSpell)
-                    continue;
-
-                var entry = Global.SpellMgr.GetSpellEnchantProcEvent(enchantID);
-
-                if (entry != null && entry.HitMask != 0)
-                {
-                    // Check hit/crit/dodge/parry requirement
-                    if ((entry.HitMask & (uint)damageInfo.HitMask) == 0)
-                        continue;
-                }
-                else
-                {
-                    // for done procs allow normal + critical + absorbs by default
-                    if (!canTrigger)
-                        continue;
-                }
-
-                // check if enchant procs only on white hits
-                if (entry != null && entry.AttributesMask.HasAnyFlag(EnchantProcAttributes.WhiteHit) && damageInfo.SpellInfo != null)
-                    continue;
-
-                var spellInfo = Global.SpellMgr.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
-
-                if (spellInfo == null)
-                {
-                    Log.Logger.Error("Player.CastItemCombatSpell(GUID: {0}, name: {1}, enchant: {2}): unknown spell {3} is casted, ignoring...",
-                                     GUID.ToString(),
-                                     GetName(),
-                                     enchantID,
-                                     pEnchant.EffectArg[s]);
-
-                    continue;
-                }
-
-                var chance = pEnchant.EffectPointsMin[s] != 0 ? pEnchant.EffectPointsMin[s] : GetWeaponProcChance();
-
-                if (entry != null)
-                {
-                    if (entry.ProcsPerMinute != 0)
-                        chance = GetPpmProcChance(proto.Delay, entry.ProcsPerMinute, spellInfo);
-                    else if (entry.Chance != 0)
-                        chance = entry.Chance;
-                }
-
-                // Apply spell mods
-                ApplySpellMod(spellInfo, SpellModOp.ProcChance, ref chance);
-
-                // Shiv has 100% chance to apply the poison
-                if (FindCurrentSpellBySpellId(5938) != null && eSlot == (byte)EnchantmentSlot.Temp)
-                    chance = 100.0f;
-
-                if (RandomHelper.randChance(chance))
-                {
-                    if (spellInfo.IsPositive)
-                        CastSpell(this, spellInfo.Id, item);
-                    else
-                        CastSpell(damageInfo.Victim, spellInfo.Id, item);
-                }
-
-                if (RandomHelper.randChance(chance))
-                {
-                    var target = spellInfo.IsPositive ? this : damageInfo.Victim;
-
-                    CastSpellExtraArgs args = new(item);
-
-                    // reduce effect values if enchant is limited
-                    if (entry != null && entry.AttributesMask.HasAnyFlag(EnchantProcAttributes.Limit60) && target.GetLevelForTarget(this) > 60)
-                    {
-                        var lvlDifference = (int)target.GetLevelForTarget(this) - 60;
-                        var lvlPenaltyFactor = 4; // 4% lost effectiveness per level
-
-                        var effectPct = Math.Max(0, 100 - (lvlDifference * lvlPenaltyFactor));
-
-                        foreach (var spellEffectInfo in spellInfo.Effects)
-                            if (spellEffectInfo.IsEffect())
-                                args.AddSpellMod(SpellValueMod.BasePoint0 + spellEffectInfo.EffectIndex, MathFunctions.CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
-                    }
-
-                    CastSpell(target, spellInfo.Id, args);
-                }
-            }
-        }
-    }
-
-    public void ResetSpells(bool myClassOnly = false)
-    {
-        // not need after this call
-        if (HasAtLoginFlag(AtLoginFlags.ResetSpells))
-            RemoveAtLoginFlag(AtLoginFlags.ResetSpells, true);
-
-        // make full copy of map (spells removed and marked as deleted at another spell remove
-        // and we can't use original map for safe iterative with visit each spell at loop end
-        var smap = GetSpellMap();
-
-        uint family;
-
-        if (myClassOnly)
-        {
-            var clsEntry = CliDB.ChrClassesStorage.LookupByKey(Class);
-
-            if (clsEntry == null)
-                return;
-
-            family = clsEntry.SpellClassSet;
-
-            foreach (var spellId in smap.Keys)
-            {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
-
-                if (spellInfo == null)
-                    continue;
-
-                // skip server-side/triggered spells
-                if (spellInfo.SpellLevel == 0)
-                    continue;
-
-                // skip wrong class/race skills
-                if (!IsSpellFitByClassAndRace(spellInfo.Id))
-                    continue;
-
-                // skip other spell families
-                if ((uint)spellInfo.SpellFamilyName != family)
-                    continue;
-
-                // skip broken spells
-                if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
-                    continue;
-            }
-        }
-        else
-        {
-            foreach (var spellId in smap.Keys)
-                RemoveSpell(spellId, false, false); // only iter.first can be accessed, object by iter.second can be deleted already
-        }
-
-        LearnDefaultSkills();
-        LearnCustomSpells();
-        LearnQuestRewardedSpells();
-    }
-
-    public void SetPetSpellPower(uint spellPower)
-    {
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.PetSpellPower), spellPower);
-    }
-
-    public void SetSkillLineId(uint pos, ushort skillLineId)
-    {
-        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
-        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillLineID, (int)pos), skillLineId);
-    }
-
-    public void SetSkillStep(uint pos, ushort step)
-    {
-        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
-        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillStep, (int)pos), step);
-    }
-
-    public void SetSkillRank(uint pos, ushort rank)
-    {
-        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
-        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillRank, (int)pos), rank);
-    }
-
-    public void SetSkillStartingRank(uint pos, ushort starting)
-    {
-        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
-        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillStartingRank, (int)pos), starting);
-    }
-
-    public void SetSkillMaxRank(uint pos, ushort max)
-    {
-        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
-        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillMaxRank, (int)pos), max);
-    }
-
-    public void SetSkillTempBonus(uint pos, ushort bonus)
-    {
-        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
-        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillTempBonus, (int)pos), bonus);
-    }
-
-    public void SetSkillPermBonus(uint pos, ushort bonus)
-    {
-        SkillInfo skillInfo = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Skill);
-        SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillPermBonus, (int)pos), bonus);
-    }
-
-    private ushort GetMaxSkillValue(SkillType skill)
-    {
-        if (skill == 0)
-            return 0;
-
-        SkillInfo skillInfo = ActivePlayerData.Skill;
-
-        var skillStatusData = _skillStatus.LookupByKey(skill);
-
-        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
-            return 0;
-
-        int result = skillInfo.SkillMaxRank[skillStatusData.Pos];
-        result += skillInfo.SkillTempBonus[skillStatusData.Pos];
-        result += skillInfo.SkillPermBonus[skillStatusData.Pos];
-
-        return (ushort)(result < 0 ? 0 : result);
-    }
-
-    private void InitializeSelfResurrectionSpells()
-    {
-        ClearSelfResSpell();
-
-        var spells = new uint[3];
-
-        var dummyAuras = GetAuraEffectsByType(AuraType.Dummy);
-
-        foreach (var auraEffect in dummyAuras)
-            // Soulstone Resurrection                           // prio: 3 (max, non death persistent)
-            if (auraEffect.SpellInfo.SpellFamilyName == SpellFamilyNames.Warlock && auraEffect.SpellInfo.SpellFamilyFlags[1].HasAnyFlag(0x1000000u))
-                spells[0] = 3026;
-            // Twisting Nether                                  // prio: 2 (max)
-            else if (auraEffect.Id == 23701 && RandomHelper.randChance(10))
-                spells[1] = 23700;
-
-        // Reincarnation (passive spell)  // prio: 1
-        if (HasSpell(20608) && !SpellHistory.HasCooldown(21169))
-            spells[2] = 21169;
-
-        foreach (var selfResSpell in spells)
-            if (selfResSpell != 0)
-                AddSelfResSpell(selfResSpell);
-    }
-
-    private void RemoveSpecializationSpells()
-    {
-        for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
-        {
-            var specialization = DB2Manager.GetChrSpecializationByIndex(Class, i);
-
-            if (specialization != null)
-            {
-                var specSpells = DB2Manager.GetSpecializationSpells(specialization.Id);
-
-                if (specSpells != null)
-                    for (var j = 0; j < specSpells.Count; ++j)
-                    {
-                        var specSpell = specSpells[j];
-                        RemoveSpell(specSpell.SpellID, true);
-
-                        if (specSpell.OverridesSpellID != 0)
-                            RemoveOverrideSpell(specSpell.OverridesSpellID, specSpell.SpellID);
-                    }
-
-                for (uint j = 0; j < PlayerConst.MaxMasterySpells; ++j)
-                {
-                    var mastery = specialization.MasterySpellID[j];
-
-                    if (mastery != 0)
-                        RemoveAura(mastery);
-                }
-            }
-        }
-    }
-
-    private void InitializeSkillFields()
-    {
-        uint i = 0;
-
-        foreach (var skillLine in CliDB.SkillLineStorage.Values)
-        {
-            var rcEntry = DB2Manager.GetSkillRaceClassInfo(skillLine.Id, Race, Class);
-
-            if (rcEntry != null)
-            {
-                SetSkillLineId(i, (ushort)skillLine.Id);
-                SetSkillStartingRank(i, 1);
-                _skillStatus.Add(skillLine.Id, new SkillStatusData(i, SkillState.Unchanged));
-
-                if (++i >= SkillConst.MaxPlayerSkills)
-                    break;
-            }
-        }
-    }
-
-    private void UpdateSkillEnchantments(uint skillID, ushort currValue, ushort newValue)
-    {
-        for (byte i = 0; i < InventorySlots.BagEnd; ++i)
-            if (_items[i] != null)
-                for (EnchantmentSlot slot = 0; slot < EnchantmentSlot.Max; ++slot)
-                {
-                    var enchID = _items[i].GetEnchantmentId(slot);
-
-                    if (enchID == 0)
-                        continue;
-
-                    var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchID);
-
-                    if (enchant == null)
-                        return;
-
-                    if (enchant.RequiredSkillID == skillID)
-                    {
-                        // Checks if the enchantment needs to be applied or removed
-                        if (currValue < enchant.RequiredSkillRank && newValue >= enchant.RequiredSkillRank)
-                            ApplyEnchantment(_items[i], slot, true);
-                        else if (newValue < enchant.RequiredSkillRank && currValue >= enchant.RequiredSkillRank)
-                            ApplyEnchantment(_items[i], slot, false);
-                    }
-
-                    // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
-                    // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
-                    if ((slot == EnchantmentSlot.Sock1 || slot == EnchantmentSlot.Sock2 || slot == EnchantmentSlot.Sock3) && _items[i].GetSocketColor((uint)(slot - EnchantmentSlot.Sock1)) == 0)
-                    {
-                        var pPrismaticEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(_items[i].GetEnchantmentId(EnchantmentSlot.Prismatic));
-
-                        if (pPrismaticEnchant != null && pPrismaticEnchant.RequiredSkillID == skillID)
-                        {
-                            if (currValue < pPrismaticEnchant.RequiredSkillRank && newValue >= pPrismaticEnchant.RequiredSkillRank)
-                                ApplyEnchantment(_items[i], slot, true);
-                            else if (newValue < pPrismaticEnchant.RequiredSkillRank && currValue >= pPrismaticEnchant.RequiredSkillRank)
-                                ApplyEnchantment(_items[i], slot, false);
-                        }
-                    }
-                }
-    }
-
-    private void UpdateEnchantTime(uint time)
-    {
-        for (var i = 0; i < _enchantDurations.Count; ++i)
-        {
-            var enchantDuration = _enchantDurations[i];
-
-            if (enchantDuration.Item.GetEnchantmentId(enchantDuration.Slot) == 0)
-            {
-                _enchantDurations.Remove(enchantDuration);
-            }
-            else if (enchantDuration.Leftduration <= time)
-            {
-                ApplyEnchantment(enchantDuration.Item, enchantDuration.Slot, false, false);
-                enchantDuration.Item.ClearEnchantment(enchantDuration.Slot);
-                _enchantDurations.Remove(enchantDuration);
-            }
-            else if (enchantDuration.Leftduration > time)
-            {
-                enchantDuration.Leftduration -= time;
-            }
-        }
-    }
-
-    private void ApplyEnchantment(Item item, bool apply)
-    {
-        for (EnchantmentSlot slot = 0; slot < EnchantmentSlot.Max; ++slot)
-            ApplyEnchantment(item, slot, apply);
-    }
-
-    private void AddEnchantmentDurations(Item item)
-    {
-        for (EnchantmentSlot x = 0; x < EnchantmentSlot.Max; ++x)
-        {
-            if (item.GetEnchantmentId(x) == 0)
-                continue;
-
-            var duration = item.GetEnchantmentDuration(x);
-
-            if (duration > 0)
-                AddEnchantmentDuration(item, x, duration);
-        }
-    }
-
     private void AddEnchantmentDuration(Item item, EnchantmentSlot slot, uint duration)
     {
         if (item == null)
@@ -3070,376 +2887,18 @@ public partial class Player
         }
     }
 
-    private void RemoveEnchantmentDurations(Item item)
+    private void AddEnchantmentDurations(Item item)
     {
-        for (var i = 0; i < _enchantDurations.Count; ++i)
+        for (EnchantmentSlot x = 0; x < EnchantmentSlot.Max; ++x)
         {
-            var enchantDuration = _enchantDurations[i];
-
-            if (enchantDuration.Item == item)
-            {
-                // save duration in item
-                item.SetEnchantmentDuration(enchantDuration.Slot, enchantDuration.Leftduration, this);
-                _enchantDurations.Remove(enchantDuration);
-            }
-        }
-    }
-
-    private void RemoveEnchantmentDurationsReferences(Item item)
-    {
-        for (var i = 0; i < _enchantDurations.Count; ++i)
-        {
-            var enchantDuration = _enchantDurations[i];
-
-            if (enchantDuration.Item == item)
-                _enchantDurations.Remove(enchantDuration);
-        }
-    }
-
-    private byte GetFishingStepsNeededToLevelUp(uint skillValue)
-    {
-        // These formulas are guessed to be as close as possible to how the skill difficulty curve for fishing was on Retail.
-        if (skillValue < 75)
-            return 1;
-
-        if (skillValue <= 300)
-            return (byte)(skillValue / 44);
-
-        return (byte)(skillValue / 31);
-    }
-
-    private int SkillGainChance(uint skillValue, uint grayLevel, uint greenLevel, uint yellowLevel)
-    {
-        if (skillValue >= grayLevel)
-            return GetDefaultValue("SkillChance.Grey", 0) * 10;
-
-        if (skillValue >= greenLevel)
-            return GetDefaultValue("SkillChance.Green", 25) * 10;
-
-        if (skillValue >= yellowLevel)
-            return GetDefaultValue("SkillChance.Yellow", 75) * 10;
-
-        return GetDefaultValue("SkillChance.Orange", 100) * 10;
-    }
-
-    private bool EnchantmentFitsRequirements(uint enchantmentcondition, sbyte slot)
-    {
-        if (enchantmentcondition == 0)
-            return true;
-
-        var condition = CliDB.SpellItemEnchantmentConditionStorage.LookupByKey(enchantmentcondition);
-
-        if (condition == null)
-            return true;
-
-        byte[] curcount =
-        {
-            0, 0, 0, 0
-        };
-
-        //counting current equipped gem colors
-        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
-        {
-            if (i == slot)
+            if (item.GetEnchantmentId(x) == 0)
                 continue;
 
-            var pItem2 = GetItemByPos(InventorySlots.Bag0, i);
+            var duration = item.GetEnchantmentDuration(x);
 
-            if (pItem2 is { IsBroken: false })
-                foreach (var gemData in pItem2.ItemData.Gems)
-                {
-                    var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
-
-                    if (gemProto == null)
-                        continue;
-
-                    var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
-
-                    if (gemProperty == null)
-                        continue;
-
-                    var gemColor = (uint)gemProperty.Type;
-
-                    for (byte b = 0, tmpcolormask = 1; b < 4; b++, tmpcolormask <<= 1)
-                        if (Convert.ToBoolean(tmpcolormask & gemColor))
-                            ++curcount[b];
-                }
+            if (duration > 0)
+                AddEnchantmentDuration(item, x, duration);
         }
-
-        var activate = true;
-
-        for (byte i = 0; i < 5; i++)
-        {
-            if (condition.LtOperandType[i] == 0)
-                continue;
-
-            uint curGem = curcount[condition.LtOperandType[i] - 1];
-
-            // if have <CompareColor> use them as count, else use <value> from Condition
-            uint cmpGem = condition.RtOperandType[i] != 0 ? curcount[condition.RtOperandType[i] - 1] : condition.RtOperand[i];
-
-            switch (condition.Operator[i])
-            {
-                case 2: // requires less <color> than (<value> || <comparecolor>) gems
-                    activate &= (curGem < cmpGem);
-
-                    break;
-                case 3: // requires more <color> than (<value> || <comparecolor>) gems
-                    activate &= (curGem > cmpGem);
-
-                    break;
-                case 5: // requires at least <color> than (<value> || <comparecolor>) gems
-                    activate &= (curGem >= cmpGem);
-
-                    break;
-            }
-        }
-
-        Log.Logger.Debug("Checking Condition {0}, there are {1} Meta Gems, {2} Red Gems, {3} Yellow Gems and {4} Blue Gems, Activate:{5}", enchantmentcondition, curcount[0], curcount[1], curcount[2], curcount[3], activate ? "yes" : "no");
-
-        return activate;
-    }
-
-    private void CorrectMetaGemEnchants(byte exceptslot, bool apply)
-    {
-        //cycle all equipped items
-        for (var slot = EquipmentSlot.Start; slot < EquipmentSlot.End; ++slot)
-        {
-            //enchants for the slot being socketed are handled by Player.ApplyItemMods
-            if (slot == exceptslot)
-                continue;
-
-            var pItem = GetItemByPos(InventorySlots.Bag0, slot);
-
-            if (pItem == null || pItem.GetSocketColor(0) == 0)
-                continue;
-
-            for (var enchantSlot = EnchantmentSlot.Sock1; enchantSlot < EnchantmentSlot.Sock3; ++enchantSlot)
-            {
-                var enchantID = pItem.GetEnchantmentId(enchantSlot);
-
-                if (enchantID == 0)
-                    continue;
-
-                var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
-
-                if (enchantEntry == null)
-                    continue;
-
-                uint condition = enchantEntry.ConditionID;
-
-                if (condition != 0)
-                {
-                    //was enchant active with/without item?
-                    var wasactive = EnchantmentFitsRequirements(condition, (sbyte)(apply ? exceptslot : -1));
-
-                    //should it now be?
-                    if (wasactive ^ EnchantmentFitsRequirements(condition, (sbyte)(apply ? -1 : exceptslot)))
-                        // ignore item gem conditions
-                        //if state changed, (dis)apply enchant
-                        ApplyEnchantment(pItem, enchantSlot, !wasactive, true, true);
-                }
-            }
-        }
-    }
-
-    private int FindEmptyProfessionSlotFor(uint skillId)
-    {
-        var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
-
-        if (skillEntry == null)
-            return -1;
-
-        if (skillEntry.ParentSkillLineID != 0 || skillEntry.CategoryID != SkillCategory.Profession)
-            return -1;
-
-        var index = 0;
-
-        // if there is no same profession, find any free slot
-        foreach (var b in ActivePlayerData.ProfessionSkillLine)
-        {
-            if (b == 0)
-                return index;
-
-            index++;
-        }
-
-        return -1;
-    }
-
-    private void RemoveItemDependentAurasAndCasts(Item pItem)
-    {
-        OwnedAurasList
-            .CallOnMatch((aura) =>
-                         {
-                             // skip not self applied auras
-                             var spellInfo = aura.SpellInfo;
-
-                             if (aura.CasterGuid != GUID)
-                                 return false;
-
-                             // skip if not item dependent or have alternative item
-                             if (HasItemFitToSpellRequirements(spellInfo, pItem))
-                                 return false;
-
-                             // no alt item, remove aura, restart check
-                             return true;
-                         },
-                         (pair) => RemoveOwnedAura(pair));
-
-        // currently casted spells can be dependent from item
-        for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
-        {
-            var spell = GetCurrentSpell(i);
-
-            if (spell != null)
-                if (spell.State != SpellState.Delayed && !HasItemFitToSpellRequirements(spell.SpellInfo, pItem))
-                    InterruptSpell(i);
-        }
-    }
-
-    private void CastAllObtainSpells()
-    {
-        var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
-
-        for (var slot = InventorySlots.ItemStart; slot < inventoryEnd; ++slot)
-        {
-            var item = GetItemByPos(InventorySlots.Bag0, slot);
-
-            if (item)
-                ApplyItemObtainSpells(item, true);
-        }
-
-        for (var i = InventorySlots.BagStart; i < InventorySlots.BagEnd; ++i)
-        {
-            var bag = GetBagByPos(i);
-
-            if (!bag)
-                continue;
-
-            for (byte slot = 0; slot < bag.GetBagSize(); ++slot)
-            {
-                var item = bag.GetItemByPos(slot);
-
-                if (item)
-                    ApplyItemObtainSpells(item, true);
-            }
-        }
-    }
-
-    private void ApplyItemObtainSpells(Item item, bool apply)
-    {
-        if (item.Template.HasFlag(ItemFlags.Legacy))
-            return;
-
-        foreach (var effect in item.Effects)
-        {
-            if (effect.TriggerType != ItemSpelltriggerType.OnPickup) // On obtain trigger
-                continue;
-
-            var spellId = effect.SpellID;
-
-            if (spellId <= 0)
-                continue;
-
-            if (apply)
-            {
-                if (!HasAura((uint)spellId))
-                    CastSpell(this, (uint)spellId, new CastSpellExtraArgs().SetCastItem(item));
-            }
-            else
-            {
-                RemoveAura((uint)spellId);
-            }
-        }
-    }
-
-    // this one rechecks weapon auras and stores them in BaseModGroup container
-    // needed for things like axe specialization applying only to axe weapons in case of dual-wield
-    private void UpdateWeaponDependentCritAuras(WeaponAttackType attackType)
-    {
-        BaseModGroup modGroup;
-
-        switch (attackType)
-        {
-            case WeaponAttackType.BaseAttack:
-                modGroup = BaseModGroup.CritPercentage;
-
-                break;
-            case WeaponAttackType.OffAttack:
-                modGroup = BaseModGroup.OffhandCritPercentage;
-
-                break;
-            case WeaponAttackType.RangedAttack:
-                modGroup = BaseModGroup.RangedCritPercentage;
-
-                break;
-            default:
-                return;
-        }
-
-        double amount = 0.0f;
-        amount += GetTotalAuraModifier(AuraType.ModWeaponCritPercent, auraEffect => CheckAttackFitToAuraRequirement(attackType, auraEffect));
-
-        // these auras don't have item requirement (only Combat Expertise in 3.3.5a)
-        amount += GetTotalAuraModifier(AuraType.ModCritPct);
-
-        SetBaseModFlatValue(modGroup, amount);
-    }
-
-    private void SendKnownSpells()
-    {
-        SendKnownSpells knownSpells = new()
-        {
-            InitialLogin = IsLoading
-        };
-
-        foreach (var spell in _spells.ToList())
-        {
-            if (spell.Value.State == PlayerSpellState.Removed)
-                continue;
-
-            if (!spell.Value.Active || spell.Value.Disabled)
-                continue;
-
-            knownSpells.KnownSpells.Add(spell.Key);
-
-            if (spell.Value.Favorite)
-                knownSpells.FavoriteSpells.Add(spell.Key);
-        }
-
-        SendPacket(knownSpells);
-    }
-
-    private void SendUnlearnSpells()
-    {
-        SendPacket(new SendUnlearnSpells());
-    }
-
-    private bool HandlePassiveSpellLearn(SpellInfo spellInfo)
-    {
-        // note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
-        // talent dependent passives activated at form apply have proper stance data
-        var form = ShapeshiftForm;
-
-        var needCast = (spellInfo.Stances == 0 ||
-                         (form != 0 && Convert.ToBoolean(spellInfo.Stances & (1ul << ((int)form - 1)))) ||
-                         (form == 0 && spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm)));
-
-        // Check EquippedItemClass
-        // passive spells which apply aura and have an item requirement are to be added manually, instead of casted
-        if (spellInfo.EquippedItemClass >= 0)
-            foreach (var spellEffectInfo in spellInfo.Effects)
-                if (spellEffectInfo.IsAura())
-                {
-                    if (!HasAura(spellInfo.Id) && HasItemFitToSpellRequirements(spellInfo))
-                        AddAura(spellInfo.Id, this);
-
-                    return false;
-                }
-
-        //Check CasterAuraStates
-        return needCast && (spellInfo.CasterAuraState == 0 || HasAuraState(spellInfo.CasterAuraState));
     }
 
     private bool AddSpell(uint spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, uint fromSkill = 0, bool favorite = false, int? traitDefinitionId = null)
@@ -3849,6 +3308,327 @@ public partial class Player
         return active && !disabled && !supercededOld;
     }
 
+    private void ApplyEnchantment(Item item, bool apply)
+    {
+        for (EnchantmentSlot slot = 0; slot < EnchantmentSlot.Max; ++slot)
+            ApplyEnchantment(item, slot, apply);
+    }
+
+    private void ApplyItemObtainSpells(Item item, bool apply)
+    {
+        if (item.Template.HasFlag(ItemFlags.Legacy))
+            return;
+
+        foreach (var effect in item.Effects)
+        {
+            if (effect.TriggerType != ItemSpelltriggerType.OnPickup) // On obtain trigger
+                continue;
+
+            var spellId = effect.SpellID;
+
+            if (spellId <= 0)
+                continue;
+
+            if (apply)
+            {
+                if (!HasAura((uint)spellId))
+                    CastSpell(this, (uint)spellId, new CastSpellExtraArgs().SetCastItem(item));
+            }
+            else
+            {
+                RemoveAura((uint)spellId);
+            }
+        }
+    }
+
+    private void CastAllObtainSpells()
+    {
+        var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
+
+        for (var slot = InventorySlots.ItemStart; slot < inventoryEnd; ++slot)
+        {
+            var item = GetItemByPos(InventorySlots.Bag0, slot);
+
+            if (item)
+                ApplyItemObtainSpells(item, true);
+        }
+
+        for (var i = InventorySlots.BagStart; i < InventorySlots.BagEnd; ++i)
+        {
+            var bag = GetBagByPos(i);
+
+            if (!bag)
+                continue;
+
+            for (byte slot = 0; slot < bag.GetBagSize(); ++slot)
+            {
+                var item = bag.GetItemByPos(slot);
+
+                if (item)
+                    ApplyItemObtainSpells(item, true);
+            }
+        }
+    }
+
+    private void CorrectMetaGemEnchants(byte exceptslot, bool apply)
+    {
+        //cycle all equipped items
+        for (var slot = EquipmentSlot.Start; slot < EquipmentSlot.End; ++slot)
+        {
+            //enchants for the slot being socketed are handled by Player.ApplyItemMods
+            if (slot == exceptslot)
+                continue;
+
+            var pItem = GetItemByPos(InventorySlots.Bag0, slot);
+
+            if (pItem == null || pItem.GetSocketColor(0) == 0)
+                continue;
+
+            for (var enchantSlot = EnchantmentSlot.Sock1; enchantSlot < EnchantmentSlot.Sock3; ++enchantSlot)
+            {
+                var enchantID = pItem.GetEnchantmentId(enchantSlot);
+
+                if (enchantID == 0)
+                    continue;
+
+                var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
+
+                if (enchantEntry == null)
+                    continue;
+
+                uint condition = enchantEntry.ConditionID;
+
+                if (condition != 0)
+                {
+                    //was enchant active with/without item?
+                    var wasactive = EnchantmentFitsRequirements(condition, (sbyte)(apply ? exceptslot : -1));
+
+                    //should it now be?
+                    if (wasactive ^ EnchantmentFitsRequirements(condition, (sbyte)(apply ? -1 : exceptslot)))
+                        // ignore item gem conditions
+                        //if state changed, (dis)apply enchant
+                        ApplyEnchantment(pItem, enchantSlot, !wasactive, true, true);
+                }
+            }
+        }
+    }
+
+    private bool EnchantmentFitsRequirements(uint enchantmentcondition, sbyte slot)
+    {
+        if (enchantmentcondition == 0)
+            return true;
+
+        var condition = CliDB.SpellItemEnchantmentConditionStorage.LookupByKey(enchantmentcondition);
+
+        if (condition == null)
+            return true;
+
+        byte[] curcount =
+        {
+            0, 0, 0, 0
+        };
+
+        //counting current equipped gem colors
+        for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+        {
+            if (i == slot)
+                continue;
+
+            var pItem2 = GetItemByPos(InventorySlots.Bag0, i);
+
+            if (pItem2 is { IsBroken: false })
+                foreach (var gemData in pItem2.ItemData.Gems)
+                {
+                    var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
+
+                    if (gemProto == null)
+                        continue;
+
+                    var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
+
+                    if (gemProperty == null)
+                        continue;
+
+                    var gemColor = (uint)gemProperty.Type;
+
+                    for (byte b = 0, tmpcolormask = 1; b < 4; b++, tmpcolormask <<= 1)
+                        if (Convert.ToBoolean(tmpcolormask & gemColor))
+                            ++curcount[b];
+                }
+        }
+
+        var activate = true;
+
+        for (byte i = 0; i < 5; i++)
+        {
+            if (condition.LtOperandType[i] == 0)
+                continue;
+
+            uint curGem = curcount[condition.LtOperandType[i] - 1];
+
+            // if have <CompareColor> use them as count, else use <value> from Condition
+            uint cmpGem = condition.RtOperandType[i] != 0 ? curcount[condition.RtOperandType[i] - 1] : condition.RtOperand[i];
+
+            switch (condition.Operator[i])
+            {
+                case 2: // requires less <color> than (<value> || <comparecolor>) gems
+                    activate &= (curGem < cmpGem);
+
+                    break;
+                case 3: // requires more <color> than (<value> || <comparecolor>) gems
+                    activate &= (curGem > cmpGem);
+
+                    break;
+                case 5: // requires at least <color> than (<value> || <comparecolor>) gems
+                    activate &= (curGem >= cmpGem);
+
+                    break;
+            }
+        }
+
+        Log.Logger.Debug("Checking Condition {0}, there are {1} Meta Gems, {2} Red Gems, {3} Yellow Gems and {4} Blue Gems, Activate:{5}", enchantmentcondition, curcount[0], curcount[1], curcount[2], curcount[3], activate ? "yes" : "no");
+
+        return activate;
+    }
+
+    private int FindEmptyProfessionSlotFor(uint skillId)
+    {
+        var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
+
+        if (skillEntry == null)
+            return -1;
+
+        if (skillEntry.ParentSkillLineID != 0 || skillEntry.CategoryID != SkillCategory.Profession)
+            return -1;
+
+        var index = 0;
+
+        // if there is no same profession, find any free slot
+        foreach (var b in ActivePlayerData.ProfessionSkillLine)
+        {
+            if (b == 0)
+                return index;
+
+            index++;
+        }
+
+        return -1;
+    }
+
+    private byte GetFishingStepsNeededToLevelUp(uint skillValue)
+    {
+        // These formulas are guessed to be as close as possible to how the skill difficulty curve for fishing was on Retail.
+        if (skillValue < 75)
+            return 1;
+
+        if (skillValue <= 300)
+            return (byte)(skillValue / 44);
+
+        return (byte)(skillValue / 31);
+    }
+
+    private ushort GetMaxSkillValue(SkillType skill)
+    {
+        if (skill == 0)
+            return 0;
+
+        SkillInfo skillInfo = ActivePlayerData.Skill;
+
+        var skillStatusData = _skillStatus.LookupByKey(skill);
+
+        if (skillStatusData == null || skillStatusData.State == SkillState.Deleted || skillInfo.SkillRank[skillStatusData.Pos] == 0)
+            return 0;
+
+        int result = skillInfo.SkillMaxRank[skillStatusData.Pos];
+        result += skillInfo.SkillTempBonus[skillStatusData.Pos];
+        result += skillInfo.SkillPermBonus[skillStatusData.Pos];
+
+        return (ushort)(result < 0 ? 0 : result);
+    }
+
+    private float GetWeaponProcChance()
+    {
+        // normalized proc chance for weapon attack speed
+        // (odd formula...)
+        if (IsAttackReady())
+            return (GetBaseAttackTime(WeaponAttackType.BaseAttack) * 1.8f / 1000.0f);
+        else if (HaveOffhandWeapon() && IsAttackReady(WeaponAttackType.OffAttack))
+            return (GetBaseAttackTime(WeaponAttackType.OffAttack) * 1.6f / 1000.0f);
+
+        return 0;
+    }
+
+    private bool HandlePassiveSpellLearn(SpellInfo spellInfo)
+    {
+        // note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
+        // talent dependent passives activated at form apply have proper stance data
+        var form = ShapeshiftForm;
+
+        var needCast = (spellInfo.Stances == 0 ||
+                        (form != 0 && Convert.ToBoolean(spellInfo.Stances & (1ul << ((int)form - 1)))) ||
+                        (form == 0 && spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm)));
+
+        // Check EquippedItemClass
+        // passive spells which apply aura and have an item requirement are to be added manually, instead of casted
+        if (spellInfo.EquippedItemClass >= 0)
+            foreach (var spellEffectInfo in spellInfo.Effects)
+                if (spellEffectInfo.IsAura())
+                {
+                    if (!HasAura(spellInfo.Id) && HasItemFitToSpellRequirements(spellInfo))
+                        AddAura(spellInfo.Id, this);
+
+                    return false;
+                }
+
+        //Check CasterAuraStates
+        return needCast && (spellInfo.CasterAuraState == 0 || HasAuraState(spellInfo.CasterAuraState));
+    }
+
+    private void InitializeSelfResurrectionSpells()
+    {
+        ClearSelfResSpell();
+
+        var spells = new uint[3];
+
+        var dummyAuras = GetAuraEffectsByType(AuraType.Dummy);
+
+        foreach (var auraEffect in dummyAuras)
+            // Soulstone Resurrection                           // prio: 3 (max, non death persistent)
+            if (auraEffect.SpellInfo.SpellFamilyName == SpellFamilyNames.Warlock && auraEffect.SpellInfo.SpellFamilyFlags[1].HasAnyFlag(0x1000000u))
+                spells[0] = 3026;
+            // Twisting Nether                                  // prio: 2 (max)
+            else if (auraEffect.Id == 23701 && RandomHelper.randChance(10))
+                spells[1] = 23700;
+
+        // Reincarnation (passive spell)  // prio: 1
+        if (HasSpell(20608) && !SpellHistory.HasCooldown(21169))
+            spells[2] = 21169;
+
+        foreach (var selfResSpell in spells)
+            if (selfResSpell != 0)
+                AddSelfResSpell(selfResSpell);
+    }
+
+    private void InitializeSkillFields()
+    {
+        uint i = 0;
+
+        foreach (var skillLine in CliDB.SkillLineStorage.Values)
+        {
+            var rcEntry = DB2Manager.GetSkillRaceClassInfo(skillLine.Id, Race, Class);
+
+            if (rcEntry != null)
+            {
+                SetSkillLineId(i, (ushort)skillLine.Id);
+                SetSkillStartingRank(i, 1);
+                _skillStatus.Add(skillLine.Id, new SkillStatusData(i, SkillState.Unchanged));
+
+                if (++i >= SkillConst.MaxPlayerSkills)
+                    break;
+            }
+        }
+    }
+
     private bool IsAffectedBySpellmod(SpellInfo spellInfo, SpellModifier mod, Spell spell)
     {
         if (mod == null || spellInfo == null)
@@ -3901,6 +3681,117 @@ public partial class Player
         }
 
         return spellInfo.IsAffectedBySpellMod(mod);
+    }
+
+    private void RemoveEnchantmentDurations(Item item)
+    {
+        for (var i = 0; i < _enchantDurations.Count; ++i)
+        {
+            var enchantDuration = _enchantDurations[i];
+
+            if (enchantDuration.Item == item)
+            {
+                // save duration in item
+                item.SetEnchantmentDuration(enchantDuration.Slot, enchantDuration.Leftduration, this);
+                _enchantDurations.Remove(enchantDuration);
+            }
+        }
+    }
+
+    private void RemoveEnchantmentDurationsReferences(Item item)
+    {
+        for (var i = 0; i < _enchantDurations.Count; ++i)
+        {
+            var enchantDuration = _enchantDurations[i];
+
+            if (enchantDuration.Item == item)
+                _enchantDurations.Remove(enchantDuration);
+        }
+    }
+
+    private void RemoveItemDependentAurasAndCasts(Item pItem)
+    {
+        OwnedAurasList
+            .CallOnMatch((aura) =>
+                         {
+                             // skip not self applied auras
+                             var spellInfo = aura.SpellInfo;
+
+                             if (aura.CasterGuid != GUID)
+                                 return false;
+
+                             // skip if not item dependent or have alternative item
+                             if (HasItemFitToSpellRequirements(spellInfo, pItem))
+                                 return false;
+
+                             // no alt item, remove aura, restart check
+                             return true;
+                         },
+                         (pair) => RemoveOwnedAura(pair));
+
+        // currently casted spells can be dependent from item
+        for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
+        {
+            var spell = GetCurrentSpell(i);
+
+            if (spell != null)
+                if (spell.State != SpellState.Delayed && !HasItemFitToSpellRequirements(spell.SpellInfo, pItem))
+                    InterruptSpell(i);
+        }
+    }
+
+    private void RemoveSpecializationSpells()
+    {
+        for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
+        {
+            var specialization = DB2Manager.GetChrSpecializationByIndex(Class, i);
+
+            if (specialization != null)
+            {
+                var specSpells = DB2Manager.GetSpecializationSpells(specialization.Id);
+
+                if (specSpells != null)
+                    for (var j = 0; j < specSpells.Count; ++j)
+                    {
+                        var specSpell = specSpells[j];
+                        RemoveSpell(specSpell.SpellID, true);
+
+                        if (specSpell.OverridesSpellID != 0)
+                            RemoveOverrideSpell(specSpell.OverridesSpellID, specSpell.SpellID);
+                    }
+
+                for (uint j = 0; j < PlayerConst.MaxMasterySpells; ++j)
+                {
+                    var mastery = specialization.MasterySpellID[j];
+
+                    if (mastery != 0)
+                        RemoveAura(mastery);
+                }
+            }
+        }
+    }
+    private void SendKnownSpells()
+    {
+        SendKnownSpells knownSpells = new()
+        {
+            InitialLogin = IsLoading
+        };
+
+        foreach (var spell in _spells.ToList())
+        {
+            if (spell.Value.State == PlayerSpellState.Removed)
+                continue;
+
+            if (!spell.Value.Active || spell.Value.Disabled)
+                continue;
+
+            knownSpells.KnownSpells.Add(spell.Key);
+
+            if (spell.Value.Favorite)
+                knownSpells.FavoriteSpells.Add(spell.Key);
+        }
+
+        SendPacket(knownSpells);
     }
 
     private void SendSpellModifiers()
@@ -3970,6 +3861,48 @@ public partial class Player
         SendPacket(supercededSpells);
     }
 
+    private void SendUnlearnSpells()
+    {
+        SendPacket(new SendUnlearnSpells());
+    }
+
+    private int SkillGainChance(uint skillValue, uint grayLevel, uint greenLevel, uint yellowLevel)
+    {
+        if (skillValue >= grayLevel)
+            return GetDefaultValue("SkillChance.Grey", 0) * 10;
+
+        if (skillValue >= greenLevel)
+            return GetDefaultValue("SkillChance.Green", 25) * 10;
+
+        if (skillValue >= yellowLevel)
+            return GetDefaultValue("SkillChance.Yellow", 75) * 10;
+
+        return GetDefaultValue("SkillChance.Orange", 100) * 10;
+    }
+
+    private void UpdateEnchantTime(uint time)
+    {
+        for (var i = 0; i < _enchantDurations.Count; ++i)
+        {
+            var enchantDuration = _enchantDurations[i];
+
+            if (enchantDuration.Item.GetEnchantmentId(enchantDuration.Slot) == 0)
+            {
+                _enchantDurations.Remove(enchantDuration);
+            }
+            else if (enchantDuration.Leftduration <= time)
+            {
+                ApplyEnchantment(enchantDuration.Item, enchantDuration.Slot, false, false);
+                enchantDuration.Item.ClearEnchantment(enchantDuration.Slot);
+                _enchantDurations.Remove(enchantDuration);
+            }
+            else if (enchantDuration.Leftduration > time)
+            {
+                enchantDuration.Leftduration -= time;
+            }
+        }
+    }
+
     private void UpdateItemSetAuras(bool formChange = false)
     {
         // item set bonuses not dependent from item broken state
@@ -3997,15 +3930,77 @@ public partial class Player
         }
     }
 
-    private float GetWeaponProcChance()
+    private void UpdateSkillEnchantments(uint skillID, ushort currValue, ushort newValue)
     {
-        // normalized proc chance for weapon attack speed
-        // (odd formula...)
-        if (IsAttackReady())
-            return (GetBaseAttackTime(WeaponAttackType.BaseAttack) * 1.8f / 1000.0f);
-        else if (HaveOffhandWeapon() && IsAttackReady(WeaponAttackType.OffAttack))
-            return (GetBaseAttackTime(WeaponAttackType.OffAttack) * 1.6f / 1000.0f);
+        for (byte i = 0; i < InventorySlots.BagEnd; ++i)
+            if (_items[i] != null)
+                for (EnchantmentSlot slot = 0; slot < EnchantmentSlot.Max; ++slot)
+                {
+                    var enchID = _items[i].GetEnchantmentId(slot);
 
-        return 0;
+                    if (enchID == 0)
+                        continue;
+
+                    var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchID);
+
+                    if (enchant == null)
+                        return;
+
+                    if (enchant.RequiredSkillID == skillID)
+                    {
+                        // Checks if the enchantment needs to be applied or removed
+                        if (currValue < enchant.RequiredSkillRank && newValue >= enchant.RequiredSkillRank)
+                            ApplyEnchantment(_items[i], slot, true);
+                        else if (newValue < enchant.RequiredSkillRank && currValue >= enchant.RequiredSkillRank)
+                            ApplyEnchantment(_items[i], slot, false);
+                    }
+
+                    // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
+                    // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
+                    if ((slot == EnchantmentSlot.Sock1 || slot == EnchantmentSlot.Sock2 || slot == EnchantmentSlot.Sock3) && _items[i].GetSocketColor((uint)(slot - EnchantmentSlot.Sock1)) == 0)
+                    {
+                        var pPrismaticEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(_items[i].GetEnchantmentId(EnchantmentSlot.Prismatic));
+
+                        if (pPrismaticEnchant != null && pPrismaticEnchant.RequiredSkillID == skillID)
+                        {
+                            if (currValue < pPrismaticEnchant.RequiredSkillRank && newValue >= pPrismaticEnchant.RequiredSkillRank)
+                                ApplyEnchantment(_items[i], slot, true);
+                            else if (newValue < pPrismaticEnchant.RequiredSkillRank && currValue >= pPrismaticEnchant.RequiredSkillRank)
+                                ApplyEnchantment(_items[i], slot, false);
+                        }
+                    }
+                }
+    }
+    // this one rechecks weapon auras and stores them in BaseModGroup container
+    // needed for things like axe specialization applying only to axe weapons in case of dual-wield
+    private void UpdateWeaponDependentCritAuras(WeaponAttackType attackType)
+    {
+        BaseModGroup modGroup;
+
+        switch (attackType)
+        {
+            case WeaponAttackType.BaseAttack:
+                modGroup = BaseModGroup.CritPercentage;
+
+                break;
+            case WeaponAttackType.OffAttack:
+                modGroup = BaseModGroup.OffhandCritPercentage;
+
+                break;
+            case WeaponAttackType.RangedAttack:
+                modGroup = BaseModGroup.RangedCritPercentage;
+
+                break;
+            default:
+                return;
+        }
+
+        double amount = 0.0f;
+        amount += GetTotalAuraModifier(AuraType.ModWeaponCritPercent, auraEffect => CheckAttackFitToAuraRequirement(attackType, auraEffect));
+
+        // these auras don't have item requirement (only Combat Expertise in 3.3.5a)
+        amount += GetTotalAuraModifier(AuraType.ModCritPct);
+
+        SetBaseModFlatValue(modGroup, amount);
     }
 }

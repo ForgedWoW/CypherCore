@@ -8,9 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class PlaySpeakerBoxSound : ServerPacket
 {
-    public ObjectGuid SourceObjectGUID;
     public uint SoundKitID;
-
+    public ObjectGuid SourceObjectGUID;
     public PlaySpeakerBoxSound(ObjectGuid sourceObjectGuid, uint soundKitID) : base(ServerOpcodes.PlaySpeakerbotSound)
     {
         SourceObjectGUID = sourceObjectGuid;

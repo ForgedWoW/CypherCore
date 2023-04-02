@@ -46,6 +46,14 @@ public class AreaBoundary
 
         public DoublePosition(Position pos) : this(pos.X, pos.Y, pos.Z, pos.Orientation) { }
 
+        public double GetDoubleExactDist2dSq(DoublePosition pos)
+        {
+            var offX = GetDoublePositionX() - pos.GetDoublePositionX();
+            var offY = GetDoublePositionY() - pos.GetDoublePositionY();
+
+            return (offX * offX) + (offY * offY);
+        }
+
         public double GetDoublePositionX()
         {
             return _doublePosX;
@@ -54,14 +62,6 @@ public class AreaBoundary
         public double GetDoublePositionY()
         {
             return _doublePosY;
-        }
-
-        public double GetDoubleExactDist2dSq(DoublePosition pos)
-        {
-            var offX = GetDoublePositionX() - pos.GetDoublePositionX();
-            var offY = GetDoublePositionY() - pos.GetDoublePositionY();
-
-            return (offX * offX) + (offY * offY);
         }
     }
 }

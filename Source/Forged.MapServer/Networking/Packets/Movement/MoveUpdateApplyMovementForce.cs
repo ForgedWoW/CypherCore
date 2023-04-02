@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveUpdateApplyMovementForce : ServerPacket
 {
-    public MovementInfo Status = new();
     public MovementForce Force = new();
+    public MovementInfo Status = new();
     public MoveUpdateApplyMovementForce() : base(ServerOpcodes.MoveUpdateApplyMovementForce) { }
 
     public override void Write()

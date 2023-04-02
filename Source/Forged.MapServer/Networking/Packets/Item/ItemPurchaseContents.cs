@@ -5,10 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemPurchaseContents
 {
-    public ulong Money;
-    public ItemPurchaseRefundItem[] Items = new ItemPurchaseRefundItem[5];
     public ItemPurchaseRefundCurrency[] Currencies = new ItemPurchaseRefundCurrency[5];
-
+    public ItemPurchaseRefundItem[] Items = new ItemPurchaseRefundItem[5];
+    public ulong Money;
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(Money);

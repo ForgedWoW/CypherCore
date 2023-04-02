@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemTimeUpdate : ServerPacket
 {
-    public ObjectGuid ItemGuid;
     public uint DurationLeft;
+    public ObjectGuid ItemGuid;
     public ItemTimeUpdate() : base(ServerOpcodes.ItemTimeUpdate) { }
 
     public override void Write()

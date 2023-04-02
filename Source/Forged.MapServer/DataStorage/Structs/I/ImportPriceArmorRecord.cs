@@ -5,10 +5,10 @@ namespace Forged.MapServer.DataStorage.Structs.I;
 
 public sealed class ImportPriceArmorRecord
 {
-    public uint Id;
-    public float ClothModifier;
-    public float LeatherModifier;
     public float ChainModifier;
+    public float ClothModifier;
+    public uint Id;
+    public float LeatherModifier;
     public float PlateModifier;
 }
 

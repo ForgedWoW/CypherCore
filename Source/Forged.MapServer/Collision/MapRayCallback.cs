@@ -9,8 +9,8 @@ namespace Forged.MapServer.Collision;
 
 public class MapRayCallback : WorkerCallback
 {
-    private readonly ModelInstance[] _prims;
     private readonly ModelIgnoreFlags _flags;
+    private readonly ModelInstance[] _prims;
     private bool _hit;
 
     public MapRayCallback(ModelInstance[] val, ModelIgnoreFlags ignoreFlags)
@@ -18,6 +18,11 @@ public class MapRayCallback : WorkerCallback
         _prims = val;
         _hit = false;
         _flags = ignoreFlags;
+    }
+
+    public bool DidHit()
+    {
+        return _hit;
     }
 
     public override bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit = true)
@@ -31,10 +36,5 @@ public class MapRayCallback : WorkerCallback
             _hit = true;
 
         return result;
-    }
-
-    public bool DidHit()
-    {
-        return _hit;
     }
 }

@@ -8,25 +8,25 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class AreaPOIRecord
 {
-    public LocalizedString Name;
-    public LocalizedString Description;
-    public uint ID;
-    public Vector3 Pos;
-    public int PortLocID;
-    public uint PlayerConditionID;
-    public uint UiTextureAtlasMemberID;
-    public uint Flags;
-    public int WmoGroupID;
-    public int PoiDataType;
-    public int PoiData;
-    public uint Field_9_1_0;
-    public int Field_10_0_0_45141_012;
-    public ushort ContinentID;
     public short AreaID;
-    public ushort WorldStateID;
-    public ushort UiWidgetSetID;
-    public ushort UiTextureKitID;
+    public ushort ContinentID;
+    public LocalizedString Description;
+    public int Field_10_0_0_45141_012;
+    public uint Field_9_1_0;
     public ushort Field_9_1_0_38783;
-    public byte Importance;
+    public uint Flags;
     public byte Icon;
+    public uint ID;
+    public byte Importance;
+    public LocalizedString Name;
+    public uint PlayerConditionID;
+    public int PoiData;
+    public int PoiDataType;
+    public int PortLocID;
+    public Vector3 Pos;
+    public uint UiTextureAtlasMemberID;
+    public ushort UiTextureKitID;
+    public ushort UiWidgetSetID;
+    public int WmoGroupID;
+    public ushort WorldStateID;
 }

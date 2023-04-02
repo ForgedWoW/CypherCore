@@ -12,9 +12,8 @@ namespace Forged.MapServer.Entities.Items;
 internal class ItemAdditionalLoadInfo
 {
     public ArtifactData Artifact;
-    public AzeriteData AzeriteItem;
     public AzeriteEmpoweredData AzeriteEmpoweredItem;
-
+    public AzeriteData AzeriteItem;
     public static void Init(Dictionary<ulong, ItemAdditionalLoadInfo> loadInfo, SQLResult artifactResult, SQLResult azeriteItemResult, SQLResult azeriteItemMilestonePowersResult,
                             SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult)
     {

@@ -9,12 +9,11 @@ namespace Forged.MapServer.Networking.Packets.Hotfix;
 
 public class DBReply : ServerPacket
 {
-    public uint TableHash;
-    public uint Timestamp;
+    public ByteBuffer Data = new();
     public uint RecordID;
     public HotfixRecord.Status Status = HotfixRecord.Status.Invalid;
-
-    public ByteBuffer Data = new();
+    public uint TableHash;
+    public uint Timestamp;
     public DBReply() : base(ServerOpcodes.DbReply) { }
 
     public override void Write()

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class SetContactNotes : ClientPacket
 {
-    public QualifiedGUID Player;
     public string Notes;
+    public QualifiedGUID Player;
     public SetContactNotes(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -7,12 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public struct QualifiedGUID
 {
+    public ObjectGuid Guid;
+
+    public uint VirtualRealmAddress;
+
     public void Read(WorldPacket data)
     {
         VirtualRealmAddress = data.ReadUInt32();
         Guid = data.ReadPackedGuid();
     }
-
-    public ObjectGuid Guid;
-    public uint VirtualRealmAddress;
 }

@@ -21,18 +21,12 @@ public class DynamicObject : WorldObject
 {
     private readonly DynamicObjectData _dynamicObjectData;
     private Aura _aura;
-    private Aura _removedAura;
     private Unit _caster;
-    private int _duration; // for non-aura dynobjects
+    private int _duration;
+    // for non-aura dynobjects
     private bool _isViewpoint;
 
-    public override uint Faction
-    {
-        get { return _caster.Faction; }
-    }
-
-    public override ObjectGuid OwnerGUID => GetCasterGUID();
-
+    private Aura _removedAura;
     public DynamicObject(bool isWorldObject) : base(isWorldObject)
     {
         ObjectTypeMask |= TypeMask.DynamicObject;
@@ -43,14 +37,12 @@ public class DynamicObject : WorldObject
         _dynamicObjectData = new DynamicObjectData();
     }
 
-    public override void Dispose()
+    public override uint Faction
     {
-        // make sure all references were properly removed
-        _removedAura = null;
-
-        base.Dispose();
+        get { return _caster.Faction; }
     }
 
+    public override ObjectGuid OwnerGUID => GetCasterGUID();
     public override void AddToWorld()
     {
         // Register the dynamicObject for guid lookup and for caster
@@ -60,153 +52,6 @@ public class DynamicObject : WorldObject
             base.AddToWorld();
             BindToCaster();
         }
-    }
-
-    public override void RemoveFromWorld()
-    {
-        // Remove the dynamicObject from the accessor and from all lists of objects in world
-        if (Location.IsInWorld)
-        {
-            if (_isViewpoint)
-                RemoveCasterViewpoint();
-
-            if (_aura != null)
-                RemoveAura();
-
-            // dynobj could get removed in Aura.RemoveAura
-            if (!Location.IsInWorld)
-                return;
-
-            UnbindFromCaster();
-            base.RemoveFromWorld();
-            Location.Map.ObjectsStore.TryRemove(GUID, out _);
-        }
-    }
-
-    public bool CreateDynamicObject(ulong guidlow, Unit caster, SpellInfo spell, Position pos, float radius, DynamicObjectType type, SpellCastVisualField spellVisual)
-    {
-        Location.WorldRelocate(caster.Location.Map, pos);
-        CheckAddToMap();
-
-        if (!Location.IsPositionValid)
-        {
-            Log.Logger.Error("DynamicObject (spell {0}) not created. Suggested coordinates isn't valid (X: {1} Y: {2})", spell.Id, Location.X, Location.Y);
-
-            return false;
-        }
-
-        Create(ObjectGuid.Create(HighGuid.DynamicObject, Location.MapId, spell.Id, guidlow));
-        PhasingHandler.InheritPhaseShift(this, caster);
-
-        Location.UpdatePositionData();
-        Location.SetZoneScript();
-
-        Entry = spell.Id;
-        ObjectScale = 1f;
-
-        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Caster), caster.GUID);
-        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Type), (byte)type);
-
-        SpellCastVisualField spellCastVisual = Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.SpellVisual);
-        SetUpdateFieldValue(ref spellCastVisual.SpellXSpellVisualID, spellVisual.SpellXSpellVisualID);
-        SetUpdateFieldValue(ref spellCastVisual.ScriptVisualID, spellVisual.ScriptVisualID);
-
-        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.SpellID), spell.Id);
-        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Radius), radius);
-        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.CastTime), GameTime.GetGameTimeMS());
-
-        if (IsWorldObject())
-            SetActive(true); //must before add to map to be put in world container
-
-        var transport = caster.Transport;
-
-        if (transport != null)
-        {
-            var newPos = pos.Copy();
-            transport.CalculatePassengerOffset(newPos);
-            MovementInfo.Transport.Pos.Relocate(newPos);
-
-            // This object must be added to transport before adding to map for the client to properly display it
-            transport.AddPassenger(this);
-        }
-
-        if (!Location.Map.AddToMap(this))
-        {
-            // Returning false will cause the object to be deleted - remove from transport
-            transport?.RemovePassenger(this);
-
-            return false;
-        }
-
-        return true;
-    }
-
-    public override void Update(uint diff)
-    {
-        // caster has to be always available and in the same map
-        var expired = false;
-
-        if (_aura != null)
-        {
-            if (!_aura.IsRemoved)
-                _aura.UpdateOwner(diff, this);
-
-            // _aura may be set to null in Aura.UpdateOwner call
-            if (_aura != null && (_aura.IsRemoved || _aura.IsExpired))
-                expired = true;
-        }
-        else
-        {
-            if (GetDuration() > diff)
-                _duration -= (int)diff;
-            else
-                expired = true;
-        }
-
-        if (expired)
-            Remove();
-        else
-            Global.ScriptMgr.ForEach<IDynamicObjectOnUpdate>(p => p.OnUpdate(this, diff));
-    }
-
-    public void Remove()
-    {
-        if (Location.IsInWorld)
-            Location.AddObjectToRemoveList();
-    }
-
-    public void SetDuration(int newDuration)
-    {
-        if (_aura == null)
-            _duration = newDuration;
-        else
-            _aura.SetDuration(newDuration);
-    }
-
-    public void Delay(int delaytime)
-    {
-        SetDuration(GetDuration() - delaytime);
-    }
-
-    public void SetAura(Aura aura)
-    {
-        _aura = aura;
-    }
-
-    public void SetCasterViewpoint()
-    {
-        var caster = _caster.AsPlayer;
-
-        if (caster != null)
-        {
-            caster.SetViewpoint(this, true);
-            _isViewpoint = true;
-        }
-    }
-
-    public SpellInfo GetSpellInfo()
-    {
-        return Global.SpellMgr.GetSpellInfo(GetSpellId(), Location.Map.DifficultyID);
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -245,14 +90,79 @@ public class DynamicObject : WorldObject
         base.ClearUpdateMask(remove);
     }
 
+    public bool CreateDynamicObject(ulong guidlow, Unit caster, SpellInfo spell, Position pos, float radius, DynamicObjectType type, SpellCastVisualField spellVisual)
+    {
+        Location.WorldRelocate(caster.Location.Map, pos);
+        CheckAddToMap();
+
+        if (!Location.IsPositionValid)
+        {
+            Log.Logger.Error("DynamicObject (spell {0}) not created. Suggested coordinates isn't valid (X: {1} Y: {2})", spell.Id, Location.X, Location.Y);
+
+            return false;
+        }
+
+        Create(ObjectGuid.Create(HighGuid.DynamicObject, Location.MapId, spell.Id, guidlow));
+        PhasingHandler.InheritPhaseShift(this, caster);
+
+        Location.UpdatePositionData();
+        Location.SetZoneScript();
+
+        Entry = spell.Id;
+        ObjectScale = 1f;
+
+        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Caster), caster.GUID);
+        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Type), (byte)type);
+
+        SpellCastVisualField spellCastVisual = Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.SpellVisual);
+        SetUpdateFieldValue(ref spellCastVisual.SpellXSpellVisualID, spellVisual.SpellXSpellVisualID);
+        SetUpdateFieldValue(ref spellCastVisual.ScriptVisualID, spellVisual.ScriptVisualID);
+
+        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.SpellID), spell.Id);
+        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Radius), radius);
+        SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.CastTime), GameTime.CurrentTimeMS);
+
+        if (IsWorldObject())
+            SetActive(true); //must before add to map to be put in world container
+
+        var transport = caster.Transport;
+
+        if (transport != null)
+        {
+            var newPos = pos.Copy();
+            transport.CalculatePassengerOffset(newPos);
+            MovementInfo.Transport.Pos.Relocate(newPos);
+
+            // This object must be added to transport before adding to map for the client to properly display it
+            transport.AddPassenger(this);
+        }
+
+        if (!Location.Map.AddToMap(this))
+        {
+            // Returning false will cause the object to be deleted - remove from transport
+            transport?.RemovePassenger(this);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public void Delay(int delaytime)
+    {
+        SetDuration(GetDuration() - delaytime);
+    }
+
+    public override void Dispose()
+    {
+        // make sure all references were properly removed
+        _removedAura = null;
+
+        base.Dispose();
+    }
     public Unit GetCaster()
     {
         return _caster;
-    }
-
-    public uint GetSpellId()
-    {
-        return _dynamicObjectData.SpellID;
     }
 
     public ObjectGuid GetCasterGUID()
@@ -265,44 +175,97 @@ public class DynamicObject : WorldObject
         return _dynamicObjectData.Radius;
     }
 
-    private int GetDuration()
+    public uint GetSpellId()
     {
-        if (_aura == null)
-            return _duration;
-        else
-            return _aura.Duration;
+        return _dynamicObjectData.SpellID;
     }
 
-    private void RemoveAura()
+    public SpellInfo GetSpellInfo()
     {
-        _removedAura = _aura;
-        _aura = null;
-
-        if (!_removedAura.IsRemoved)
-            _removedAura._Remove(AuraRemoveMode.Default);
+        return Global.SpellMgr.GetSpellInfo(GetSpellId(), Location.Map.DifficultyID);
     }
 
-    private void RemoveCasterViewpoint()
+    public void Remove()
+    {
+        if (Location.IsInWorld)
+            Location.AddObjectToRemoveList();
+    }
+
+    public override void RemoveFromWorld()
+    {
+        // Remove the dynamicObject from the accessor and from all lists of objects in world
+        if (Location.IsInWorld)
+        {
+            if (_isViewpoint)
+                RemoveCasterViewpoint();
+
+            if (_aura != null)
+                RemoveAura();
+
+            // dynobj could get removed in Aura.RemoveAura
+            if (!Location.IsInWorld)
+                return;
+
+            UnbindFromCaster();
+            base.RemoveFromWorld();
+            Location.Map.ObjectsStore.TryRemove(GUID, out _);
+        }
+    }
+    public void SetAura(Aura aura)
+    {
+        _aura = aura;
+    }
+
+    public void SetCasterViewpoint()
     {
         var caster = _caster.AsPlayer;
 
         if (caster != null)
         {
-            caster.SetViewpoint(this, false);
-            _isViewpoint = false;
+            caster.SetViewpoint(this, true);
+            _isViewpoint = true;
         }
     }
 
+    public void SetDuration(int newDuration)
+    {
+        if (_aura == null)
+            _duration = newDuration;
+        else
+            _aura.SetDuration(newDuration);
+    }
+
+    public override void Update(uint diff)
+    {
+        // caster has to be always available and in the same map
+        var expired = false;
+
+        if (_aura != null)
+        {
+            if (!_aura.IsRemoved)
+                _aura.UpdateOwner(diff, this);
+
+            // _aura may be set to null in Aura.UpdateOwner call
+            if (_aura != null && (_aura.IsRemoved || _aura.IsExpired))
+                expired = true;
+        }
+        else
+        {
+            if (GetDuration() > diff)
+                _duration -= (int)diff;
+            else
+                expired = true;
+        }
+
+        if (expired)
+            Remove();
+        else
+            Global.ScriptMgr.ForEach<IDynamicObjectOnUpdate>(p => p.OnUpdate(this, diff));
+    }
     private void BindToCaster()
     {
         _caster = Global.ObjAccessor.GetUnit(this, GetCasterGUID());
         _caster.RegisterDynObject(this);
-    }
-
-    private void UnbindFromCaster()
-    {
-        _caster.UnregisterDynObject(this);
-        _caster = null;
     }
 
     private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedDynamicObjectMask, Player target)
@@ -333,12 +296,43 @@ public class DynamicObject : WorldObject
         data.AddUpdateBlock(buffer1);
     }
 
+    private int GetDuration()
+    {
+        if (_aura == null)
+            return _duration;
+        else
+            return _aura.Duration;
+    }
+
+    private void RemoveAura()
+    {
+        _removedAura = _aura;
+        _aura = null;
+
+        if (!_removedAura.IsRemoved)
+            _removedAura._Remove(AuraRemoveMode.Default);
+    }
+
+    private void RemoveCasterViewpoint()
+    {
+        var caster = _caster.AsPlayer;
+
+        if (caster != null)
+        {
+            caster.SetViewpoint(this, false);
+            _isViewpoint = false;
+        }
+    }
+    private void UnbindFromCaster()
+    {
+        _caster.UnregisterDynObject(this);
+        _caster = null;
+    }
     private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
     {
-        private readonly DynamicObject _owner;
-        private readonly ObjectFieldData _objectMask = new();
         private readonly DynamicObjectData _dynamicObjectData = new();
-
+        private readonly ObjectFieldData _objectMask = new();
+        private readonly DynamicObject _owner;
         public ValuesUpdateForPlayerWithMaskSender(DynamicObject owner)
         {
             _owner = owner;

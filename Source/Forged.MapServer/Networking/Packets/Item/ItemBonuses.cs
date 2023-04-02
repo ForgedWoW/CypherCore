@@ -9,43 +9,11 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemBonuses
 {
-    public ItemContext Context;
     public List<uint> BonusListIDs = new();
-
-    public void Write(WorldPacket data)
+    public ItemContext Context;
+    public static bool operator !=(ItemBonuses left, ItemBonuses right)
     {
-        data.WriteUInt8((byte)Context);
-        data.WriteInt32(BonusListIDs.Count);
-
-        foreach (var bonusID in BonusListIDs)
-            data.WriteUInt32(bonusID);
-    }
-
-    public void Read(WorldPacket data)
-    {
-        Context = (ItemContext)data.ReadUInt8();
-        var bonusListIdSize = data.ReadUInt32();
-
-        BonusListIDs = new List<uint>();
-
-        for (var i = 0u; i < bonusListIdSize; ++i)
-        {
-            var bonusId = data.ReadUInt32();
-            BonusListIDs.Add(bonusId);
-        }
-    }
-
-    public override int GetHashCode()
-    {
-        return Context.GetHashCode() ^ BonusListIDs.GetHashCode();
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj is ItemBonuses)
-            return (ItemBonuses)obj == this;
-
-        return false;
+        return !(left == right);
     }
 
     public static bool operator ==(ItemBonuses left, ItemBonuses right)
@@ -65,8 +33,39 @@ public class ItemBonuses
         return left.BonusListIDs.SequenceEqual(right.BonusListIDs);
     }
 
-    public static bool operator !=(ItemBonuses left, ItemBonuses right)
+    public override bool Equals(object obj)
     {
-        return !(left == right);
+        if (obj is ItemBonuses)
+            return (ItemBonuses)obj == this;
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return Context.GetHashCode() ^ BonusListIDs.GetHashCode();
+    }
+
+    public void Read(WorldPacket data)
+    {
+        Context = (ItemContext)data.ReadUInt8();
+        var bonusListIdSize = data.ReadUInt32();
+
+        BonusListIDs = new List<uint>();
+
+        for (var i = 0u; i < bonusListIdSize; ++i)
+        {
+            var bonusId = data.ReadUInt32();
+            BonusListIDs.Add(bonusId);
+        }
+    }
+
+    public void Write(WorldPacket data)
+    {
+        data.WriteUInt8((byte)Context);
+        data.WriteInt32(BonusListIDs.Count);
+
+        foreach (var bonusID in BonusListIDs)
+            data.WriteUInt32(bonusID);
     }
 }

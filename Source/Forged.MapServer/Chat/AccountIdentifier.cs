@@ -21,6 +21,25 @@ internal class AccountIdentifier
         _session = session;
     }
 
+    public static AccountIdentifier FromTarget(CommandHandler handler)
+    {
+        var player = handler.Player;
+
+        var target = player?.SelectedPlayer;
+
+        var session = target?.Session;
+
+        if (session != null)
+            return new AccountIdentifier(session);
+
+        return null;
+    }
+
+    public WorldSession GetConnectedSession()
+    {
+        return _session;
+    }
+
     public uint GetID()
     {
         return _id;
@@ -35,12 +54,6 @@ internal class AccountIdentifier
     {
         return _session != null;
     }
-
-    public WorldSession GetConnectedSession()
-    {
-        return _session;
-    }
-
     public ChatCommandResult TryConsume(CommandHandler handler, string args)
     {
         var next = CommandArgs.TryConsume(out var text, typeof(string), handler, args);
@@ -67,19 +80,5 @@ internal class AccountIdentifier
             return next;
         else
             return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserAccountIdNoExist, _id));
-    }
-
-    public static AccountIdentifier FromTarget(CommandHandler handler)
-    {
-        var player = handler.Player;
-
-        var target = player?.SelectedPlayer;
-
-        var session = target?.Session;
-
-        if (session != null)
-            return new AccountIdentifier(session);
-
-        return null;
     }
 }

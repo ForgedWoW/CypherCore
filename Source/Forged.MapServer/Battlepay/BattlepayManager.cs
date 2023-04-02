@@ -21,9 +21,8 @@ public class BattlepayManager
     private readonly WorldSession _session;
     private readonly string _walletName = "";
     private Purchase _actualTransaction = new();
-    private ulong _purchaseIDCount;
     private ulong _distributionIDCount;
-
+    private ulong _purchaseIDCount;
     public BattlepayManager(WorldSession session)
     {
         _session = session;
@@ -32,109 +31,19 @@ public class BattlepayManager
         _walletName = "Credits";
     }
 
-    public uint GetBattlePayCredits()
+    //C++ TO C# CONVERTER WARNING: 'const' methods are not available in C#:
+    //ORIGINAL LINE: void AddBattlePetFromBpayShop(uint battlePetCreatureID) const
+    public void AddBattlePetFromBpayShop(uint battlePetCreatureID)
     {
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+        var speciesEntry = BattlePets.BattlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID);
 
-        stmt.AddValue(0, _session.BattlenetAccountId);
-
-        var result_don = DB.Login.Query(stmt);
-
-        if (result_don == null)
-            return 0;
-
-        var fields = result_don.GetFields();
-        var credits = fields.Read<uint>(0);
-
-        return credits * 10000; // currency precision .. in retail it like gold and copper .. 10 usd is 100000 battlepay credit
-    }
-
-    public bool HasBattlePayCredits(uint count)
-    {
-        if (GetBattlePayCredits() >= count)
-            return true;
-
-        _session.Player.SendSysMessage(20000, count);
-
-        return false;
-    }
-
-    public bool UpdateBattlePayCredits(ulong price)
-    {
-        //TC_LOG_INFO("server.BattlePay", "UpdateBattlePayCredits: GetBattlePayCredits(): {} - price: {}", GetBattlePayCredits(), price);
-        var calcCredit = (GetBattlePayCredits() - price) / 10000;
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
-        stmt.AddValue(0, calcCredit);
-        stmt.AddValue(1, _session.BattlenetAccountId);
-        DB.Login.Execute(stmt);
-
-        return true;
-    }
-
-
-    public bool ModifyBattlePayCredits(uint credits)
-    {
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
-        stmt.AddValue(0, credits);
-        stmt.AddValue(1, _session.BattlenetAccountId);
-        DB.Login.Execute(stmt);
-        SendBattlePayMessage(3, "", credits);
-
-        return true;
-    }
-
-
-    public void SendBattlePayMessage(uint bpaymessageID, string name, uint value = 0)
-    {
-        var msg = "";
-
-        if (bpaymessageID == 1)
-            msg += "The purchase '" + name + "' was successful!";
-
-        if (bpaymessageID == 2)
-            msg += "Remaining credits: " + GetBattlePayCredits() / 10000 + " .";
-
-        if (bpaymessageID == 10)
-            msg += "You cannot purchase '" + name + "' . Contact a game master to find out more.";
-
-        if (bpaymessageID == 11)
-            msg += "Your bags are too full to add : " + name + " .";
-
-        if (bpaymessageID == 12)
-            msg += "You have already purchased : " + name + " .";
-
-        if (bpaymessageID == 20)
-            msg += "The battle pay credits have been updated for the character '" + name + "' ! Available credits:" + value + " .";
-
-        if (bpaymessageID == 21)
-            msg += "You must enter an amount !";
-
-        if (bpaymessageID == 3)
-            msg += "You have now '" + value + "' credits.";
-
-        _session.CommandHandler.SendSysMessage(msg);
-    }
-
-    public void SendBattlePayBattlePetDelivered(ObjectGuid petguid, uint creatureID)
-    {
-        var response = new BattlePayBattlePetDelivered
+        if (BattlePets.BattlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID) != null)
         {
-            DisplayID = creatureID,
-            BattlePetGuid = petguid
-        };
+            _session.BattlePetMgr.AddPet(speciesEntry.Id, BattlePets.BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePets.BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePets.BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
 
-        _session.SendPacket(response);
-        Log.Logger.Error("Send BattlePayBattlePetDelivered guid: {} && creatureID: {}", petguid.Counter, creatureID);
-    }
-
-    public uint GetShopCurrency()
-    {
-        return (uint)ConfigMgr.GetDefaultValue("FeatureSystem.BpayStore.Currency", 1);
-    }
-
-    public bool IsAvailable()
-    {
-        return GetDefaultValue("FeatureSystem.BpayStore.Enabled", false);
+            //it gives back false information need to get the pet guid from the add pet method somehow
+            SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
+        }
     }
 
     public bool AlreadyOwnProduct(uint itemId)
@@ -159,19 +68,98 @@ public class BattlepayManager
         return false;
     }
 
-    public void SavePurchase(Purchase purchase)
+    public void AssignDistributionToCharacter(in ObjectGuid targetCharGuid, ulong distributionId, uint productId, ushort specialization_id, ushort choice_id)
     {
-        var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(purchase.ProductID);
-        var displayInfo = BattlePayDataStoreMgr.Instance.GetDisplayInfo(productInfo.Entry);
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
-        stmt.AddValue(0, _session.AccountId);
-        stmt.AddValue(1, Global.WorldMgr.VirtualRealmAddress);
-        stmt.AddValue(2, _session.Player ? _session.Player.GUID.Counter : 0);
-        stmt.AddValue(3, purchase.ProductID);
-        stmt.AddValue(4, displayInfo.Name1);
-        stmt.AddValue(5, purchase.CurrentPrice);
-        stmt.AddValue(6, _session.RemoteAddress);
+        var upgrade = new UpgradeStarted
+        {
+            CharacterGUID = targetCharGuid
+        };
+
+        _session.SendPacket(upgrade);
+
+        var assignResponse = new BattlePayStartDistributionAssignToTargetResponse
+        {
+            DistributionID = distributionId,
+            unkint1 = 0,
+            unkint2 = 0
+        };
+
+        _session.SendPacket(upgrade);
+
+        var purchase = GetPurchase();
+        purchase.Status = (ushort)BpayDistributionStatus.ADD_TO_PROCESS; // DistributionStatus.Globals.BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS;
+
+        SendBattlePayDistribution(productId, purchase.Status, distributionId, targetCharGuid);
+    }
+
+    public ulong GenerateNewDistributionId()
+    {
+        return (0x1E77800000000000 | ++_distributionIDCount);
+    }
+
+    public ulong GenerateNewPurchaseID()
+    {
+        return (0x1E77800000000000 | ++_purchaseIDCount);
+    }
+
+    public uint GetBattlePayCredits()
+    {
+        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+
+        stmt.AddValue(0, _session.BattlenetAccountId);
+
+        var result_don = DB.Login.Query(stmt);
+
+        if (result_don == null)
+            return 0;
+
+        var fields = result_don.GetFields();
+        var credits = fields.Read<uint>(0);
+
+        return credits * 10000; // currency precision .. in retail it like gold and copper .. 10 usd is 100000 battlepay credit
+    }
+
+    //C++ TO C# CONVERTER WARNING: 'const' methods are not available in C#:
+    //ORIGINAL LINE: string const& GetDefaultWalletName() const
+    public string GetDefaultWalletName()
+    {
+        return _walletName;
+    }
+
+    public Purchase GetPurchase()
+    {
+        return _actualTransaction;
+    }
+
+    public uint GetShopCurrency()
+    {
+        return (uint)ConfigMgr.GetDefaultValue("FeatureSystem.BpayStore.Currency", 1);
+    }
+
+    public bool HasBattlePayCredits(uint count)
+    {
+        if (GetBattlePayCredits() >= count)
+            return true;
+
+        _session.Player.SendSysMessage(20000, count);
+
+        return false;
+    }
+
+    public bool IsAvailable()
+    {
+        return GetDefaultValue("FeatureSystem.BpayStore.Enabled", false);
+    }
+
+    public bool ModifyBattlePayCredits(uint credits)
+    {
+        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
+        stmt.AddValue(0, credits);
+        stmt.AddValue(1, _session.BattlenetAccountId);
         DB.Login.Execute(stmt);
+        SendBattlePayMessage(3, "", credits);
+
+        return true;
     }
 
     public void ProcessDelivery(Purchase purchase)
@@ -407,7 +395,7 @@ public class BattlepayManager
                         player.SendABunchOfItemsInMail(itemstosendinmail, "Ingame Shop - You bought an item set!");
                 }
 
-                    break;
+                break;
 
                 case ProductType.Gold: // 30
                     if (player)
@@ -962,18 +950,18 @@ public class BattlepayManager
                     }
 
                     break;
-                /*
-            case Battlepay::VueloDL:
-                if (!player)
-                    player->AddItem(128706, 1);
-                player->CompletedAchievement(sAchievementStore.LookupEntry(10018));
-                player->CompletedAchievement(sAchievementStore.LookupEntry(11190));
-                player->CompletedAchievement(sAchievementStore.LookupEntry(11446));
-                player->GetSession()->SendNotification("|cff00FF00Has aprendido poder volar en las Islas Abruptas, Costas Abruptas y Draenor");
-                break;
-                //default:
-                    //break;
-                    */
+                    /*
+                case Battlepay::VueloDL:
+                    if (!player)
+                        player->AddItem(128706, 1);
+                    player->CompletedAchievement(sAchievementStore.LookupEntry(10018));
+                    player->CompletedAchievement(sAchievementStore.LookupEntry(11190));
+                    player->CompletedAchievement(sAchievementStore.LookupEntry(11446));
+                    player->GetSession()->SendNotification("|cff00FF00Has aprendido poder volar en las Islas Abruptas, Costas Abruptas y Draenor");
+                    break;
+                    //default:
+                        //break;
+                        */
             }
         }
         /*
@@ -987,102 +975,156 @@ public class BattlepayManager
         _actualTransaction = purchase;
     }
 
-    public ulong GenerateNewPurchaseID()
+    public void SavePurchase(Purchase purchase)
     {
-        return (0x1E77800000000000 | ++_purchaseIDCount);
+        var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(purchase.ProductID);
+        var displayInfo = BattlePayDataStoreMgr.Instance.GetDisplayInfo(productInfo.Entry);
+        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
+        stmt.AddValue(0, _session.AccountId);
+        stmt.AddValue(1, Global.WorldMgr.VirtualRealmAddress);
+        stmt.AddValue(2, _session.Player ? _session.Player.GUID.Counter : 0);
+        stmt.AddValue(3, purchase.ProductID);
+        stmt.AddValue(4, displayInfo.Name1);
+        stmt.AddValue(5, purchase.CurrentPrice);
+        stmt.AddValue(6, _session.RemoteAddress);
+        DB.Login.Execute(stmt);
     }
 
-    public ulong GenerateNewDistributionId()
+    public void SendAccountCredits()
     {
-        return (0x1E77800000000000 | ++_distributionIDCount);
+        //    auto sessionId = _session->GetAccountId();
+        //
+        //    LoginDatabasePreparedStatement* stmt = DB.Login.GetPreparedStatement(LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+        //    stmt->setUInt32(0, _session->GetAccountId());
+        //    PreparedQueryResult result = DB.Login.Query(stmt);
+        //
+        //    auto sSession = sWorld->FindSession(sessionId);
+        //    if (!sSession)
+        //        return;
+        //
+        //    uint64 balance = 0;
+        //    if (result)
+        //    {
+        //        auto fields = result->Fetch();
+        //        if (auto balanceStr = fields[0].GetCString())
+        //            balance = atoi(balanceStr);
+        //    }
+        //
+        //    auto player = sSession->GetPlayer();
+        //    if (!player)
+        //        return;
+        //
+        //    SendBattlePayMessage(2, "");
     }
 
-    public Purchase GetPurchase()
+    public void SendBattlePayBattlePetDelivered(ObjectGuid petguid, uint creatureID)
     {
-        return _actualTransaction;
-    }
-
-    //C++ TO C# CONVERTER WARNING: 'const' methods are not available in C#:
-    //ORIGINAL LINE: string const& GetDefaultWalletName() const
-    public string GetDefaultWalletName()
-    {
-        return _walletName;
-    }
-
-    public Tuple<bool, BpayDisplayInfo> WriteDisplayInfo(uint displayInfoEntry, uint productId = 0)
-    {
-        //C++ TO C# CONVERTER TASK: Lambda expressions cannot be assigned to 'var':
-        var qualityColor = (uint displayInfoOrProductInfoEntry) =>
+        var response = new BattlePayBattlePetDelivered
         {
-            var productAddon = BattlePayDataStoreMgr.Instance.GetProductAddon(displayInfoOrProductInfoEntry);
-
-            if (productAddon == null)
-                return "|cffffffff";
-
-            switch (BattlePayDataStoreMgr.Instance.GetProductAddon(displayInfoOrProductInfoEntry).NameColorIndex)
-            {
-                case 0:
-                    return "|cffffffff";
-                case 1:
-                    return "|cff1eff00";
-                case 2:
-                    return "|cff0070dd";
-                case 3:
-                    return "|cffa335ee";
-                case 4:
-                    return "|cffff8000";
-                case 5:
-                    return "|cffe5cc80";
-                case 6:
-                    return "|cffe5cc80";
-                default:
-                    return "|cffffffff";
-            }
+            DisplayID = creatureID,
+            BattlePetGuid = petguid
         };
 
-        var info = new BpayDisplayInfo();
+        _session.SendPacket(response);
+        Log.Logger.Error("Send BattlePayBattlePetDelivered guid: {} && creatureID: {}", petguid.Counter, creatureID);
+    }
 
-        var displayInfo = BattlePayDataStoreMgr.Instance.GetDisplayInfo(displayInfoEntry);
+    public void SendBattlePayDistribution(uint productId, ushort status, ulong distributionId, ObjectGuid targetGuid)
+    {
+        var distributionBattlePay = new DistributionUpdate();
+        var product = BattlePayDataStoreMgr.Instance.GetProduct(productId);
 
-        if (displayInfo == null)
-            return Tuple.Create(false, info);
+        var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(productId);
 
-        info.CreatureDisplayID = displayInfo.CreatureDisplayID;
-        info.VisualID = displayInfo.VisualID;
-        info.Name1 = qualityColor(displayInfoEntry) + displayInfo.Name1;
-        info.Name2 = displayInfo.Name2;
-        info.Name3 = displayInfo.Name3;
-        info.Name4 = displayInfo.Name4;
-        info.Name5 = displayInfo.Name5;
-        info.Name6 = displayInfo.Name6;
-        info.Name7 = displayInfo.Name7;
-        info.Flags = displayInfo.Flags;
-        info.Unk1 = displayInfo.Unk1;
-        info.Unk2 = displayInfo.Unk2;
-        info.Unk3 = displayInfo.Unk3;
-        info.UnkInt1 = displayInfo.UnkInt1;
-        info.UnkInt2 = displayInfo.UnkInt2;
-        info.UnkInt3 = displayInfo.UnkInt3;
+        distributionBattlePay.DistributionObject.DistributionID = distributionId;
+        distributionBattlePay.DistributionObject.Status = status;
+        distributionBattlePay.DistributionObject.ProductID = productId;
+        distributionBattlePay.DistributionObject.Revoked = false; // not needed for us
 
-        for (var v = 0; v < displayInfo.Visuals.Count; v++)
+        if (!targetGuid.IsEmpty)
         {
-            var visual = displayInfo.Visuals[v];
-
-            var _Visual = new BpayVisual
-            {
-                Name = visual.Name,
-                DisplayId = visual.DisplayId,
-                VisualId = visual.VisualId,
-                Unk = visual.Unk
-            };
-
-            info.Visuals.Add(_Visual);
+            distributionBattlePay.DistributionObject.TargetPlayer = targetGuid;
+            distributionBattlePay.DistributionObject.TargetVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
+            distributionBattlePay.DistributionObject.TargetNativeRealm = Global.WorldMgr.VirtualRealmAddress;
         }
 
-        if (displayInfo.Flags != 0)
-            info.Flags = displayInfo.Flags;
+        var productData = new BpayProduct
+        {
+            ProductId = product.ProductId,
+            Type = product.Type,
+            Flags = product.Flags,
+            Unk1 = product.Unk1,
+            DisplayId = product.DisplayId,
+            ItemId = product.ItemId,
+            Unk4 = product.Unk4,
+            Unk5 = product.Unk5,
+            Unk6 = product.Unk6,
+            Unk7 = product.Unk7,
+            Unk8 = product.Unk8,
+            Unk9 = product.Unk9,
+            UnkString = product.UnkString,
+            UnkBit = product.UnkBit,
+            UnkBits = product.UnkBits
+        };
 
-        return Tuple.Create(true, info);
+        foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
+        {
+            var productItem = new BpayProductItem
+            {
+                ID = item.ID,
+                UnkByte = item.UnkByte,
+                ItemID = item.ItemID,
+                Quantity = item.Quantity,
+                UnkInt1 = item.UnkInt1,
+                UnkInt2 = item.UnkInt2,
+                IsPet = item.IsPet,
+                PetResult = item.PetResult
+            };
+
+            var dInfo = WriteDisplayInfo(productInfo.Entry);
+
+            if (dInfo.Item1)
+                productItem.Display = dInfo.Item2;
+        }
+
+        var data = WriteDisplayInfo(productInfo.Entry);
+
+        if (data.Item1)
+            productData.Display = data.Item2;
+
+        distributionBattlePay.DistributionObject.Product = productData;
+        _session.SendPacket(distributionBattlePay);
+    }
+
+    public void SendBattlePayMessage(uint bpaymessageID, string name, uint value = 0)
+    {
+        var msg = "";
+
+        if (bpaymessageID == 1)
+            msg += "The purchase '" + name + "' was successful!";
+
+        if (bpaymessageID == 2)
+            msg += "Remaining credits: " + GetBattlePayCredits() / 10000 + " .";
+
+        if (bpaymessageID == 10)
+            msg += "You cannot purchase '" + name + "' . Contact a game master to find out more.";
+
+        if (bpaymessageID == 11)
+            msg += "Your bags are too full to add : " + name + " .";
+
+        if (bpaymessageID == 12)
+            msg += "You have already purchased : " + name + " .";
+
+        if (bpaymessageID == 20)
+            msg += "The battle pay credits have been updated for the character '" + name + "' ! Available credits:" + value + " .";
+
+        if (bpaymessageID == 21)
+            msg += "You must enter an amount !";
+
+        if (bpaymessageID == 3)
+            msg += "You have now '" + value + "' credits.";
+
+        _session.CommandHandler.SendSysMessage(msg);
     }
 
     //C++ TO C# CONVERTER TASK: There is no C# equivalent to C++ suffix return type syntax:
@@ -1270,124 +1312,6 @@ public class BattlepayManager
         _session.SendPacket(response);
     }
 
-    public void SendAccountCredits()
-    {
-        //    auto sessionId = _session->GetAccountId();
-        //
-        //    LoginDatabasePreparedStatement* stmt = DB.Login.GetPreparedStatement(LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
-        //    stmt->setUInt32(0, _session->GetAccountId());
-        //    PreparedQueryResult result = DB.Login.Query(stmt);
-        //
-        //    auto sSession = sWorld->FindSession(sessionId);
-        //    if (!sSession)
-        //        return;
-        //
-        //    uint64 balance = 0;
-        //    if (result)
-        //    {
-        //        auto fields = result->Fetch();
-        //        if (auto balanceStr = fields[0].GetCString())
-        //            balance = atoi(balanceStr);
-        //    }
-        //
-        //    auto player = sSession->GetPlayer();
-        //    if (!player)
-        //        return;
-        //
-        //    SendBattlePayMessage(2, "");
-    }
-
-    public void SendBattlePayDistribution(uint productId, ushort status, ulong distributionId, ObjectGuid targetGuid)
-    {
-        var distributionBattlePay = new DistributionUpdate();
-        var product = BattlePayDataStoreMgr.Instance.GetProduct(productId);
-
-        var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(productId);
-
-        distributionBattlePay.DistributionObject.DistributionID = distributionId;
-        distributionBattlePay.DistributionObject.Status = status;
-        distributionBattlePay.DistributionObject.ProductID = productId;
-        distributionBattlePay.DistributionObject.Revoked = false; // not needed for us
-
-        if (!targetGuid.IsEmpty)
-        {
-            distributionBattlePay.DistributionObject.TargetPlayer = targetGuid;
-            distributionBattlePay.DistributionObject.TargetVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
-            distributionBattlePay.DistributionObject.TargetNativeRealm = Global.WorldMgr.VirtualRealmAddress;
-        }
-
-        var productData = new BpayProduct
-        {
-            ProductId = product.ProductId,
-            Type = product.Type,
-            Flags = product.Flags,
-            Unk1 = product.Unk1,
-            DisplayId = product.DisplayId,
-            ItemId = product.ItemId,
-            Unk4 = product.Unk4,
-            Unk5 = product.Unk5,
-            Unk6 = product.Unk6,
-            Unk7 = product.Unk7,
-            Unk8 = product.Unk8,
-            Unk9 = product.Unk9,
-            UnkString = product.UnkString,
-            UnkBit = product.UnkBit,
-            UnkBits = product.UnkBits
-        };
-
-        foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
-        {
-            var productItem = new BpayProductItem
-            {
-                ID = item.ID,
-                UnkByte = item.UnkByte,
-                ItemID = item.ItemID,
-                Quantity = item.Quantity,
-                UnkInt1 = item.UnkInt1,
-                UnkInt2 = item.UnkInt2,
-                IsPet = item.IsPet,
-                PetResult = item.PetResult
-            };
-
-            var dInfo = WriteDisplayInfo(productInfo.Entry);
-
-            if (dInfo.Item1)
-                productItem.Display = dInfo.Item2;
-        }
-
-        var data = WriteDisplayInfo(productInfo.Entry);
-
-        if (data.Item1)
-            productData.Display = data.Item2;
-
-        distributionBattlePay.DistributionObject.Product = productData;
-        _session.SendPacket(distributionBattlePay);
-    }
-
-    public void AssignDistributionToCharacter(in ObjectGuid targetCharGuid, ulong distributionId, uint productId, ushort specialization_id, ushort choice_id)
-    {
-        var upgrade = new UpgradeStarted
-        {
-            CharacterGUID = targetCharGuid
-        };
-
-        _session.SendPacket(upgrade);
-
-        var assignResponse = new BattlePayStartDistributionAssignToTargetResponse
-        {
-            DistributionID = distributionId,
-            unkint1 = 0,
-            unkint2 = 0
-        };
-
-        _session.SendPacket(upgrade);
-
-        var purchase = GetPurchase();
-        purchase.Status = (ushort)BpayDistributionStatus.ADD_TO_PROCESS; // DistributionStatus.Globals.BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS;
-
-        SendBattlePayDistribution(productId, purchase.Status, distributionId, targetCharGuid);
-    }
-
     public void Update(uint diff)
     {
         Log.Logger.Information("BattlepayManager::Update");
@@ -1458,18 +1382,90 @@ public class BattlepayManager
         */
     }
 
-    //C++ TO C# CONVERTER WARNING: 'const' methods are not available in C#:
-    //ORIGINAL LINE: void AddBattlePetFromBpayShop(uint battlePetCreatureID) const
-    public void AddBattlePetFromBpayShop(uint battlePetCreatureID)
+    public bool UpdateBattlePayCredits(ulong price)
     {
-        var speciesEntry = BattlePets.BattlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID);
+        //TC_LOG_INFO("server.BattlePay", "UpdateBattlePayCredits: GetBattlePayCredits(): {} - price: {}", GetBattlePayCredits(), price);
+        var calcCredit = (GetBattlePayCredits() - price) / 10000;
+        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
+        stmt.AddValue(0, calcCredit);
+        stmt.AddValue(1, _session.BattlenetAccountId);
+        DB.Login.Execute(stmt);
 
-        if (BattlePets.BattlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID) != null)
+        return true;
+    }
+    public Tuple<bool, BpayDisplayInfo> WriteDisplayInfo(uint displayInfoEntry, uint productId = 0)
+    {
+        //C++ TO C# CONVERTER TASK: Lambda expressions cannot be assigned to 'var':
+        var qualityColor = (uint displayInfoOrProductInfoEntry) =>
         {
-            _session.BattlePetMgr.AddPet(speciesEntry.Id, BattlePets.BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePets.BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePets.BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+            var productAddon = BattlePayDataStoreMgr.Instance.GetProductAddon(displayInfoOrProductInfoEntry);
 
-            //it gives back false information need to get the pet guid from the add pet method somehow
-            SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
+            if (productAddon == null)
+                return "|cffffffff";
+
+            switch (BattlePayDataStoreMgr.Instance.GetProductAddon(displayInfoOrProductInfoEntry).NameColorIndex)
+            {
+                case 0:
+                    return "|cffffffff";
+                case 1:
+                    return "|cff1eff00";
+                case 2:
+                    return "|cff0070dd";
+                case 3:
+                    return "|cffa335ee";
+                case 4:
+                    return "|cffff8000";
+                case 5:
+                    return "|cffe5cc80";
+                case 6:
+                    return "|cffe5cc80";
+                default:
+                    return "|cffffffff";
+            }
+        };
+
+        var info = new BpayDisplayInfo();
+
+        var displayInfo = BattlePayDataStoreMgr.Instance.GetDisplayInfo(displayInfoEntry);
+
+        if (displayInfo == null)
+            return Tuple.Create(false, info);
+
+        info.CreatureDisplayID = displayInfo.CreatureDisplayID;
+        info.VisualID = displayInfo.VisualID;
+        info.Name1 = qualityColor(displayInfoEntry) + displayInfo.Name1;
+        info.Name2 = displayInfo.Name2;
+        info.Name3 = displayInfo.Name3;
+        info.Name4 = displayInfo.Name4;
+        info.Name5 = displayInfo.Name5;
+        info.Name6 = displayInfo.Name6;
+        info.Name7 = displayInfo.Name7;
+        info.Flags = displayInfo.Flags;
+        info.Unk1 = displayInfo.Unk1;
+        info.Unk2 = displayInfo.Unk2;
+        info.Unk3 = displayInfo.Unk3;
+        info.UnkInt1 = displayInfo.UnkInt1;
+        info.UnkInt2 = displayInfo.UnkInt2;
+        info.UnkInt3 = displayInfo.UnkInt3;
+
+        for (var v = 0; v < displayInfo.Visuals.Count; v++)
+        {
+            var visual = displayInfo.Visuals[v];
+
+            var _Visual = new BpayVisual
+            {
+                Name = visual.Name,
+                DisplayId = visual.DisplayId,
+                VisualId = visual.VisualId,
+                Unk = visual.Unk
+            };
+
+            info.Visuals.Add(_Visual);
         }
+
+        if (displayInfo.Flags != 0)
+            info.Flags = displayInfo.Flags;
+
+        return Tuple.Create(true, info);
     }
 }

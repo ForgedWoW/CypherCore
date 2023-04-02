@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
 public class BlackMarketRequestItemsResult : ServerPacket
 {
-    public long LastUpdateID;
     public List<BlackMarketItem> Items = new();
+    public long LastUpdateID;
     public BlackMarketRequestItemsResult() : base(ServerOpcodes.BlackMarketRequestItemsResult) { }
 
     public override void Write()

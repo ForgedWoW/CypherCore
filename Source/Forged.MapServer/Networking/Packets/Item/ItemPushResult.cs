@@ -10,39 +10,58 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class ItemPushResult : ServerPacket
 {
+    public int BattlePetBreedID;
+
+    public uint BattlePetBreedQuality;
+
+    public int BattlePetLevel;
+
+    public int BattlePetSpeciesID;
+
+    public CraftingData CraftingData;
+
+    public bool Created;
+
+    public DisplayType DisplayText;
+
+    public int DungeonEncounterID;
+
+    public uint? FirstCraftOperationID;
+
+    public bool IsBonusRoll;
+
+    public bool IsEncounterLoot;
+
+    public ItemInstance Item;
+
+    public ObjectGuid ItemGUID;
+
+    public ObjectGuid PlayerGUID;
+
+    public bool Pushed;
+
+    // only set if different than real ID (similar to CreatureTemplate.KillCredit)
+    public uint Quantity;
+
+    public uint QuantityInInventory;
+
+    public int QuestLogItemID;
+
+    public byte Slot;
+
+    public int SlotInBag;
+
+    // Item ID used for updating quest progress
+    public List<UiEventToast> Toasts = new();
+
+    public ItemPushResult() : base(ServerOpcodes.ItemPushResult) { }
+
     public enum DisplayType
     {
         Hidden = 0,
         Normal = 1,
         EncounterLoot = 2
     }
-
-    public ObjectGuid PlayerGUID;
-    public byte Slot;
-    public int SlotInBag;
-    public ItemInstance Item;
-
-    public int QuestLogItemID; // Item ID used for updating quest progress
-
-    // only set if different than real ID (similar to CreatureTemplate.KillCredit)
-    public uint Quantity;
-    public uint QuantityInInventory;
-    public int DungeonEncounterID;
-    public int BattlePetSpeciesID;
-    public int BattlePetBreedID;
-    public uint BattlePetBreedQuality;
-    public int BattlePetLevel;
-    public ObjectGuid ItemGUID;
-    public List<UiEventToast> Toasts = new();
-    public CraftingData CraftingData;
-    public uint? FirstCraftOperationID;
-    public bool Pushed;
-    public DisplayType DisplayText;
-    public bool Created;
-    public bool IsBonusRoll;
-    public bool IsEncounterLoot;
-    public ItemPushResult() : base(ServerOpcodes.ItemPushResult) { }
-
     public override void Write()
     {
         _worldPacket.WritePackedGuid(PlayerGUID);

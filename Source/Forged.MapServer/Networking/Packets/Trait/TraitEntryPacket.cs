@@ -7,11 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Trait;
 
 public class TraitEntryPacket
 {
-    public int TraitNodeID;
-    public int TraitNodeEntryID;
-    public int Rank;
     public int GrantedRanks;
-
+    public int Rank;
+    public int TraitNodeEntryID;
+    public int TraitNodeID;
     public TraitEntryPacket() { }
 
     public TraitEntryPacket(TraitEntry ufEntry)

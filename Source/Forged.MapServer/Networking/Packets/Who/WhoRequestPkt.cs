@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Who;
 
 public class WhoRequestPkt : ClientPacket
 {
+    public List<int> Areas = new();
     public WhoRequest Request = new();
     public uint RequestID;
-    public List<int> Areas = new();
     public WhoRequestPkt(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -7,6 +7,14 @@ namespace Forged.MapServer.DataStorage;
 
 public class HotfixRecord
 {
+    public Status HotfixStatus = Status.Invalid;
+
+    public HotfixId ID;
+
+    public int RecordID;
+
+    public uint TableHash;
+
     public enum Status
     {
         NotSet = 0,
@@ -15,23 +23,17 @@ public class HotfixRecord
         Invalid = 3,
         NotPublic = 4
     }
-
-    public uint TableHash;
-    public int RecordID;
-    public HotfixId ID;
-    public Status HotfixStatus = Status.Invalid;
+    public void Read(WorldPacket data)
+    {
+        ID.Read(data);
+        TableHash = data.ReadUInt32();
+        RecordID = data.ReadInt32();
+    }
 
     public void Write(WorldPacket data)
     {
         ID.Write(data);
         data.WriteUInt32(TableHash);
         data.WriteInt32(RecordID);
-    }
-
-    public void Read(WorldPacket data)
-    {
-        ID.Read(data);
-        TableHash = data.ReadUInt32();
-        RecordID = data.ReadInt32();
     }
 }

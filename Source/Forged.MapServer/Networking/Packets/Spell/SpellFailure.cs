@@ -9,10 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 public class SpellFailure : ServerPacket
 {
     public ObjectGuid CasterUnit;
+    public ObjectGuid CastID;
+    public ushort Reason;
     public uint SpellID;
     public SpellCastVisual Visual;
-    public ushort Reason;
-    public ObjectGuid CastID;
     public SpellFailure() : base(ServerOpcodes.SpellFailure, ConnectionType.Instance) { }
 
     public override void Write()

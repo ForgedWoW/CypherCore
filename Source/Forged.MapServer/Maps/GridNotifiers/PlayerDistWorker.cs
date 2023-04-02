@@ -11,12 +11,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class PlayerDistWorker : IGridNotifierPlayer
 {
-    private readonly WorldObject _searcher;
     private readonly float _dist;
     private readonly IDoWork<Player> _doWork;
-
-    public GridType GridType { get; set; }
-
+    private readonly WorldObject _searcher;
     public PlayerDistWorker(WorldObject searcher, float dist, IDoWork<Player> work, GridType gridType)
     {
         _searcher = searcher;
@@ -25,6 +22,7 @@ public class PlayerDistWorker : IGridNotifierPlayer
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Player> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

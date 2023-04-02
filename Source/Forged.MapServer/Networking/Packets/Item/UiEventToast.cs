@@ -5,9 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public struct UiEventToast
 {
-    public int UiEventToastID;
     public int Asset;
-
+    public int UiEventToastID;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(UiEventToastID);

@@ -9,14 +9,13 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
 {
-    private readonly WorldObject _source;
-    private readonly Unit _refUnit;
-    private readonly float _range;
-    private readonly bool _raid;
-    private readonly bool _playerOnly;
     private readonly bool _incOwnRadius;
     private readonly bool _incTargetRadius;
-
+    private readonly bool _playerOnly;
+    private readonly bool _raid;
+    private readonly float _range;
+    private readonly Unit _refUnit;
+    private readonly WorldObject _source;
     public AnyGroupedUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool raid, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         _source = obj;

@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailCommandResult : ServerPacket
 {
-    public ulong MailID;
+    public ulong AttachID;
+    public int BagResult;
     public int Command;
     public int ErrorCode;
-    public int BagResult;
-    public ulong AttachID;
+    public ulong MailID;
     public int QtyInInventory;
     public MailCommandResult() : base(ServerOpcodes.MailCommandResult) { }
 

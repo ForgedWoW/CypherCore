@@ -16,13 +16,31 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
     private readonly ObjectGuid _phaseOwner;
     private uint _phaseId;
 
-    public GridType GridType { get; set; }
-
     public PersonalPhaseGridLoader(Grid grid, Map map, Cell cell, ObjectGuid phaseOwner, GridType gridType) : base(grid, map, cell)
     {
         _phaseId = 0;
         _phaseOwner = phaseOwner;
         GridType = gridType;
+    }
+
+    public GridType GridType { get; set; }
+    public void Load(uint phaseId)
+    {
+        _phaseId = phaseId;
+        i_cell.Data.Celly = 0;
+
+        for (uint x = 0; x < MapConst.MaxCells; ++x)
+        {
+            i_cell.Data.Cellx = x;
+
+            for (uint y = 0; y < MapConst.MaxCells; ++y)
+            {
+                i_cell.Data.Celly = y;
+
+                //Load creatures and game objects
+                i_grid.VisitGrid(x, y, this);
+            }
+        }
     }
 
     public void Visit(IList<Creature> objs)
@@ -41,24 +59,5 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
 
         if (cell_guids != null)
             LoadHelper<GameObject>(cell_guids.gameobjects, cellCoord, ref i_gameObjects, i_map, _phaseId, _phaseOwner);
-    }
-
-    public void Load(uint phaseId)
-    {
-        _phaseId = phaseId;
-        i_cell.Data.Celly = 0;
-
-        for (uint x = 0; x < MapConst.MaxCells; ++x)
-        {
-            i_cell.Data.Cellx = x;
-
-            for (uint y = 0; y < MapConst.MaxCells; ++y)
-            {
-                i_cell.Data.Celly = y;
-
-                //Load creatures and game objects
-                i_grid.VisitGrid(x, y, this);
-            }
-        }
     }
 }

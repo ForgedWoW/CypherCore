@@ -10,18 +10,18 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarSendEvent : ServerPacket
 {
-    public ObjectGuid OwnerGuid;
+    public long Date;
+    public string Description;
     public ObjectGuid EventGuildID;
     public ulong EventID;
-    public long Date;
-    public long LockDate;
-    public CalendarFlags Flags;
-    public int TextureID;
-    public CalendarEventType GetEventType;
-    public CalendarSendEventType EventType;
-    public string Description;
     public string EventName;
+    public CalendarSendEventType EventType;
+    public CalendarFlags Flags;
+    public CalendarEventType GetEventType;
     public List<CalendarEventInviteInfo> Invites = new();
+    public long LockDate;
+    public ObjectGuid OwnerGuid;
+    public int TextureID;
     public CalendarSendEvent() : base(ServerOpcodes.CalendarSendEvent) { }
 
     public override void Write()

@@ -5,15 +5,15 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ChrCustomizationElementRecord
 {
-    public uint Id;
-    public uint ChrCustomizationChoiceID;
-    public int RelatedChrCustomizationChoiceID;
-    public int ChrCustomizationGeosetID;
-    public int ChrCustomizationSkinnedModelID;
-    public int ChrCustomizationMaterialID;
+    public int ChrCustItemGeoModifyID;
     public int ChrCustomizationBoneSetID;
+    public uint ChrCustomizationChoiceID;
     public int ChrCustomizationCondModelID;
     public int ChrCustomizationDisplayInfoID;
-    public int ChrCustItemGeoModifyID;
+    public int ChrCustomizationGeosetID;
+    public int ChrCustomizationMaterialID;
+    public int ChrCustomizationSkinnedModelID;
     public int ChrCustomizationVoiceID;
+    public uint Id;
+    public int RelatedChrCustomizationChoiceID;
 }

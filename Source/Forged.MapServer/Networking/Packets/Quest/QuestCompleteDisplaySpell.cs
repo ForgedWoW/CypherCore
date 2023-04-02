@@ -5,9 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public struct QuestCompleteDisplaySpell
 {
-    public uint SpellID;
     public uint PlayerConditionID;
-
+    public uint SpellID;
     public QuestCompleteDisplaySpell(uint spellID, uint playerConditionID)
     {
         SpellID = spellID;

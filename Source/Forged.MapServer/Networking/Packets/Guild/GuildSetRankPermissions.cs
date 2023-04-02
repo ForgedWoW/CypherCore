@@ -7,14 +7,14 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildSetRankPermissions : ClientPacket
 {
-    public byte RankID;
-    public int RankOrder;
-    public uint WithdrawGoldLimit;
     public uint Flags;
     public uint OldFlags;
+    public byte RankID;
+    public string RankName;
+    public int RankOrder;
     public uint[] TabFlags = new uint[GuildConst.MaxBankTabs];
     public uint[] TabWithdrawItemLimit = new uint[GuildConst.MaxBankTabs];
-    public string RankName;
+    public uint WithdrawGoldLimit;
     public GuildSetRankPermissions(WorldPacket packet) : base(packet) { }
 
     public override void Read()

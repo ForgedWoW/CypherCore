@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class MirrorImageCreatureData : ServerPacket
 {
-    public ObjectGuid UnitGUID;
     public int DisplayID;
     public int SpellVisualKitID;
+    public ObjectGuid UnitGUID;
     public MirrorImageCreatureData() : base(ServerOpcodes.MirrorImageCreatureData) { }
 
     public override void Write()

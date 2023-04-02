@@ -14,10 +14,9 @@ namespace Forged.MapServer.Entities.Creatures;
 public class FormationMgr
 {
     private readonly IConfiguration _configuration;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<ulong, FormationInfo> _creatureGroupMap = new();
-
+    private readonly GameObjectManager _objectManager;
+    private readonly WorldDatabase _worldDatabase;
     public FormationMgr(IConfiguration configuration, WorldDatabase worldDatabase, GameObjectManager objectManager)
     {
         _configuration = configuration;
@@ -55,24 +54,31 @@ public class FormationMgr
         {
             //Create new group
             Log.Logger.Debug("Group not found: {0}. Creating new group.", leaderSpawnId);
-            CreatureGroup group = new(leaderSpawnId);
+            CreatureGroup group = new(leaderSpawnId, this);
             map.CreatureGroupHolder[leaderSpawnId] = group;
             group.AddMember(creature);
         }
     }
 
-    public void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
+    public void AddFormationMember(ulong spawnId, float followAng, float followDist, ulong leaderSpawnId, uint groupAI)
     {
-        Log.Logger.Debug("Deleting member GUID: {0} from group {1}", group.LeaderSpawnId, member.SpawnId);
-        group.RemoveMember(member);
-
-        if (group.IsEmpty)
+        FormationInfo member = new()
         {
-            var map = member.Location.Map;
+            LeaderSpawnId = leaderSpawnId,
+            FollowDist = followDist,
+            FollowAngle = followAng,
+            GroupAi = groupAI
+        };
 
-            Log.Logger.Debug("Deleting group with InstanceID {0}", member.InstanceId);
-            map.CreatureGroupHolder.Remove(group.LeaderSpawnId);
-        }
+        for (var i = 0; i < 2; ++i)
+            member.LeaderWaypointIDs[i] = 0;
+
+        _creatureGroupMap.Add(spawnId, member);
+    }
+
+    public FormationInfo GetFormationInfo(ulong spawnId)
+    {
+        return _creatureGroupMap.LookupByKey(spawnId);
     }
 
     public void LoadCreatureFormations()
@@ -158,24 +164,17 @@ public class FormationMgr
         Log.Logger.Information("Loaded {0} creatures in formations in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    public FormationInfo GetFormationInfo(ulong spawnId)
+    public void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
     {
-        return _creatureGroupMap.LookupByKey(spawnId);
-    }
+        Log.Logger.Debug("Deleting member GUID: {0} from group {1}", group.LeaderSpawnId, member.SpawnId);
+        group.RemoveMember(member);
 
-    public void AddFormationMember(ulong spawnId, float followAng, float followDist, ulong leaderSpawnId, uint groupAI)
-    {
-        FormationInfo member = new()
+        if (group.IsEmpty)
         {
-            LeaderSpawnId = leaderSpawnId,
-            FollowDist = followDist,
-            FollowAngle = followAng,
-            GroupAi = groupAI
-        };
+            var map = member.Location.Map;
 
-        for (var i = 0; i < 2; ++i)
-            member.LeaderWaypointIDs[i] = 0;
-
-        _creatureGroupMap.Add(spawnId, member);
+            Log.Logger.Debug("Deleting group with InstanceID {0}", member.InstanceId);
+            map.CreatureGroupHolder.Remove(group.LeaderSpawnId);
+        }
     }
 }

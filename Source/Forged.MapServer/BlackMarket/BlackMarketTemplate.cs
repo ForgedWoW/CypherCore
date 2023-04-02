@@ -11,14 +11,13 @@ namespace Forged.MapServer.BlackMarket;
 
 public class BlackMarketTemplate
 {
-    public uint MarketID;
-    public uint SellerNPC;
-    public uint Quantity;
-    public ulong MinBid;
-    public long Duration;
     public float Chance;
+    public long Duration;
     public ItemInstance Item;
-
+    public uint MarketID;
+    public ulong MinBid;
+    public uint Quantity;
+    public uint SellerNPC;
     public bool LoadFromDB(SQLFields fields)
     {
         MarketID = fields.Read<uint>(0);

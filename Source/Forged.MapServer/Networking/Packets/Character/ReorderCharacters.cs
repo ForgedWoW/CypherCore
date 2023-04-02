@@ -25,7 +25,7 @@ public class ReorderCharacters : ClientPacket
 
     public struct ReorderInfo
     {
-        public ObjectGuid PlayerGUID;
         public byte NewPosition;
+        public ObjectGuid PlayerGUID;
     }
 }

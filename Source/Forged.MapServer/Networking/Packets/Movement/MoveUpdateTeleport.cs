@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MoveUpdateTeleport : ServerPacket
 {
-    public MovementInfo Status;
-    public List<MovementForce> MovementForces;
-    public float? SwimBackSpeed;
-    public float? FlightSpeed;
-    public float? SwimSpeed;
-    public float? WalkSpeed;
-    public float? TurnRate;
-    public float? RunSpeed;
     public float? FlightBackSpeed;
-    public float? RunBackSpeed;
+    public float? FlightSpeed;
+    public List<MovementForce> MovementForces;
     public float? PitchRate;
+    public float? RunBackSpeed;
+    public float? RunSpeed;
+    public MovementInfo Status;
+    public float? SwimBackSpeed;
+    public float? SwimSpeed;
+    public float? TurnRate;
+    public float? WalkSpeed;
     public MoveUpdateTeleport() : base(ServerOpcodes.MoveUpdateTeleport) { }
 
     public override void Write()

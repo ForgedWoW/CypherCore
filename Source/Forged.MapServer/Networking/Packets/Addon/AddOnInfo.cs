@@ -5,11 +5,10 @@ namespace Forged.MapServer.Networking.Packets.Addon;
 
 public struct AddOnInfo
 {
+    public bool Disabled;
+    public bool Loaded;
     public string Name;
     public string Version;
-    public bool Loaded;
-    public bool Disabled;
-
     public void Read(WorldPacket data)
     {
         data.ResetBitPos();

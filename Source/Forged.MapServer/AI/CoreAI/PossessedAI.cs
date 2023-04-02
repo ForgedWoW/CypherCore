@@ -19,24 +19,13 @@ public class PossessedAI : CreatureAI
         Me.Attack(target, true);
     }
 
-    public override void UpdateAI(uint diff)
-    {
-        if (Me.Victim != null)
-        {
-            if (!Me.WorldObjectCombat.IsValidAttackTarget(Me.Victim))
-                Me.AttackStop();
-            else
-                DoMeleeAttackIfReady();
-        }
-    }
+    public override void EnterEvadeMode(EvadeReason why) { }
 
     public override void JustDied(Unit unit)
     {
         // We died while possessed, disable our loot
         Me.RemoveDynamicFlag(UnitDynFlags.Lootable);
     }
-
-    public override void MoveInLineOfSight(Unit who) { }
 
     public override void JustEnteredCombat(Unit who)
     {
@@ -50,5 +39,16 @@ public class PossessedAI : CreatureAI
 
     public override void JustStartedThreateningMe(Unit who) { }
 
-    public override void EnterEvadeMode(EvadeReason why) { }
+    public override void MoveInLineOfSight(Unit who) { }
+
+    public override void UpdateAI(uint diff)
+    {
+        if (Me.Victim != null)
+        {
+            if (!Me.WorldObjectCombat.IsValidAttackTarget(Me.Victim))
+                Me.AttackStop();
+            else
+                DoMeleeAttackIfReady();
+        }
+    }
 }

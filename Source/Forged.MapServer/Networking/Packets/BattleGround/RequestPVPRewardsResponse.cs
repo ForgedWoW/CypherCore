@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class RequestPVPRewardsResponse : ServerPacket
 {
-    public uint RatedRewardPointsThisWeek;
-    public uint ArenaRewardPointsThisWeek;
-    public uint RatedMaxRewardPointsThisWeek;
-    public uint ArenaRewardPoints;
-    public uint RandomRewardPointsThisWeek;
     public uint ArenaMaxRewardPointsThisWeek;
-    public uint RatedRewardPoints;
+    public uint ArenaRewardPoints;
+    public uint ArenaRewardPointsThisWeek;
     public uint MaxRewardPointsThisWeek;
-    public uint RewardPointsThisWeek;
     public uint RandomMaxRewardPointsThisWeek;
+    public uint RandomRewardPointsThisWeek;
+    public uint RatedMaxRewardPointsThisWeek;
+    public uint RatedRewardPoints;
+    public uint RatedRewardPointsThisWeek;
+    public uint RewardPointsThisWeek;
     public RequestPVPRewardsResponse() : base(ServerOpcodes.RequestPvpRewardsResponse) { }
 
     public override void Write()

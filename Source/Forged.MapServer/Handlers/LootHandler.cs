@@ -93,81 +93,6 @@ public class LootHandler : IWorldSessionHandler
         UnitCombatHelpers.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
     }
 
-    [WorldPacketHandler(ClientOpcodes.LootMoney)]
-    private void HandleLootMoney(LootMoney lootMoney)
-    {
-        var player = Player;
-
-        foreach (var lootView in player.GetAELootView())
-        {
-            var loot = lootView.Value;
-            var guid = loot.GetOwnerGUID();
-            var shareMoney = loot.loot_type == LootType.Corpse;
-
-            loot.NotifyMoneyRemoved(player.Map);
-
-            if (shareMoney && player.Group != null) //item, pickpocket and players can be looted only single player
-            {
-                var group = player.Group;
-
-                List<Player> playersNear = new();
-
-                for (var refe = group.FirstMember; refe != null; refe = refe.Next())
-                {
-                    var member = refe.Source;
-
-                    if (!member)
-                        continue;
-
-                    if (!loot.HasAllowedLooter(member.GUID))
-                        continue;
-
-                    if (player.IsAtGroupRewardDistance(member))
-                        playersNear.Add(member);
-                }
-
-                var goldPerPlayer = (ulong)(loot.gold / playersNear.Count);
-
-                foreach (var pl in playersNear)
-                {
-                    var goldMod = MathFunctions.CalculatePct(goldPerPlayer, pl.GetTotalAuraModifierByMiscValue(AuraType.ModMoneyGain, 1));
-
-                    pl.ModifyMoney((long)(goldPerPlayer + goldMod));
-                    pl.UpdateCriteria(CriteriaType.MoneyLootedFromCreatures, goldPerPlayer);
-
-                    LootMoneyNotify packet = new();
-                    packet.Money = goldPerPlayer;
-                    packet.MoneyMod = (ulong)goldMod;
-                    packet.SoleLooter = playersNear.Count <= 1 ? true : false;
-                    pl.SendPacket(packet);
-                }
-            }
-            else
-            {
-                var goldMod = MathFunctions.CalculatePct((uint)loot.gold, (double)player.GetTotalAuraModifierByMiscValue(AuraType.ModMoneyGain, 1));
-
-                player.ModifyMoney((long)(loot.gold + goldMod));
-                player.UpdateCriteria(CriteriaType.MoneyLootedFromCreatures, loot.gold);
-
-                LootMoneyNotify packet = new();
-                packet.Money = loot.gold;
-                packet.MoneyMod = (ulong)goldMod;
-                packet.SoleLooter = true; // "You loot..."
-                SendPacket(packet);
-            }
-
-            loot.gold = 0;
-
-            // Delete the money loot record from the DB
-            if (loot.loot_type == LootType.Item)
-                Global.LootItemStorage.RemoveStoredMoneyForContainer(guid.Counter);
-
-            // Delete container if empty
-            if (loot.IsLooted() && guid.IsItem)
-                player.Session.DoLootRelease(loot);
-        }
-    }
-
     [WorldPacketHandler(ClientOpcodes.LootUnit)]
     private void HandleLoot(LootUnit packet)
     {
@@ -211,17 +136,6 @@ public class LootHandler : IWorldSessionHandler
                 SendPacket(new AELootTargetsAck());
             }
         }
-    }
-
-    [WorldPacketHandler(ClientOpcodes.LootRelease)]
-    private void HandleLootRelease(LootRelease packet)
-    {
-        // cheaters can modify lguid to prevent correct apply loot release code and re-loot
-        // use internal stored guid
-        var loot = Player.GetLootByWorldObjectGUID(packet.Unit);
-
-        if (loot != null)
-            DoLootRelease(loot);
     }
 
     [WorldPacketHandler(ClientOpcodes.MasterLootItem)]
@@ -316,6 +230,90 @@ public class LootHandler : IWorldSessionHandler
         }
     }
 
+    [WorldPacketHandler(ClientOpcodes.LootMoney)]
+    private void HandleLootMoney(LootMoney lootMoney)
+    {
+        var player = Player;
+
+        foreach (var lootView in player.GetAELootView())
+        {
+            var loot = lootView.Value;
+            var guid = loot.GetOwnerGUID();
+            var shareMoney = loot.loot_type == LootType.Corpse;
+
+            loot.NotifyMoneyRemoved(player.Map);
+
+            if (shareMoney && player.Group != null) //item, pickpocket and players can be looted only single player
+            {
+                var group = player.Group;
+
+                List<Player> playersNear = new();
+
+                for (var refe = group.FirstMember; refe != null; refe = refe.Next())
+                {
+                    var member = refe.Source;
+
+                    if (!member)
+                        continue;
+
+                    if (!loot.HasAllowedLooter(member.GUID))
+                        continue;
+
+                    if (player.IsAtGroupRewardDistance(member))
+                        playersNear.Add(member);
+                }
+
+                var goldPerPlayer = (ulong)(loot.gold / playersNear.Count);
+
+                foreach (var pl in playersNear)
+                {
+                    var goldMod = MathFunctions.CalculatePct(goldPerPlayer, pl.GetTotalAuraModifierByMiscValue(AuraType.ModMoneyGain, 1));
+
+                    pl.ModifyMoney((long)(goldPerPlayer + goldMod));
+                    pl.UpdateCriteria(CriteriaType.MoneyLootedFromCreatures, goldPerPlayer);
+
+                    LootMoneyNotify packet = new();
+                    packet.Money = goldPerPlayer;
+                    packet.MoneyMod = (ulong)goldMod;
+                    packet.SoleLooter = playersNear.Count <= 1 ? true : false;
+                    pl.SendPacket(packet);
+                }
+            }
+            else
+            {
+                var goldMod = MathFunctions.CalculatePct((uint)loot.gold, (double)player.GetTotalAuraModifierByMiscValue(AuraType.ModMoneyGain, 1));
+
+                player.ModifyMoney((long)(loot.gold + goldMod));
+                player.UpdateCriteria(CriteriaType.MoneyLootedFromCreatures, loot.gold);
+
+                LootMoneyNotify packet = new();
+                packet.Money = loot.gold;
+                packet.MoneyMod = (ulong)goldMod;
+                packet.SoleLooter = true; // "You loot..."
+                SendPacket(packet);
+            }
+
+            loot.gold = 0;
+
+            // Delete the money loot record from the DB
+            if (loot.loot_type == LootType.Item)
+                Global.LootItemStorage.RemoveStoredMoneyForContainer(guid.Counter);
+
+            // Delete container if empty
+            if (loot.IsLooted() && guid.IsItem)
+                player.Session.DoLootRelease(loot);
+        }
+    }
+    [WorldPacketHandler(ClientOpcodes.LootRelease)]
+    private void HandleLootRelease(LootRelease packet)
+    {
+        // cheaters can modify lguid to prevent correct apply loot release code and re-loot
+        // use internal stored guid
+        var loot = Player.GetLootByWorldObjectGUID(packet.Unit);
+
+        if (loot != null)
+            DoLootRelease(loot);
+    }
     [WorldPacketHandler(ClientOpcodes.LootRoll)]
     private void HandleLootRoll(LootRollPacket packet)
     {

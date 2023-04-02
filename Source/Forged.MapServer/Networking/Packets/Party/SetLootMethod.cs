@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class SetLootMethod : ClientPacket
 {
-    public sbyte PartyIndex;
     public ObjectGuid LootMasterGUID;
     public LootMethod LootMethod;
     public ItemQuality LootThreshold;
+    public sbyte PartyIndex;
     public SetLootMethod(WorldPacket packet) : base(packet) { }
 
     public override void Read()

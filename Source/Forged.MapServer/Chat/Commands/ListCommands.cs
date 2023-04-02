@@ -18,6 +18,13 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("list")]
 internal class ListCommands
 {
+    private static string GetZoneName(uint zoneId, Locale locale)
+    {
+        var zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
+
+        return zoneEntry != null ? zoneEntry.AreaName[locale] : "<unknown zone>";
+    }
+
     [Command("creature", RBACPermissions.CommandListCreature, true)]
     private static bool HandleListCreatureCommand(CommandHandler handler, uint creatureId, uint? countArg)
     {
@@ -501,7 +508,7 @@ internal class ListCommands
                 var gridY = ri.GridId / MapConst.MaxGrids;
                 var gridX = ri.GridId % MapConst.MaxGrids;
 
-                var respawnTime = ri.RespawnTime > GameTime.GetGameTime() ? Time.secsToTimeString((ulong)(ri.RespawnTime - GameTime.GetGameTime()), TimeFormat.ShortText) : stringOverdue;
+                var respawnTime = ri.RespawnTime > GameTime.CurrentTime ? Time.SecsToTimeString((ulong)(ri.RespawnTime - GameTime.CurrentTime), TimeFormat.ShortText) : stringOverdue;
                 handler.SendSysMessage($"{ri.SpawnId} | {ri.Entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.SpawnGroupData.GroupId) ? "" : " (inactive)")}");
             }
         }
@@ -577,14 +584,6 @@ internal class ListCommands
 
         return true;
     }
-
-    private static string GetZoneName(uint zoneId, Locale locale)
-    {
-        var zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
-
-        return zoneEntry != null ? zoneEntry.AreaName[locale] : "<unknown zone>";
-    }
-
     [CommandGroup("auras")]
     private class ListAuraCommands
     {

@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Social;
 
 public class AddIgnore : ClientPacket
 {
-    public string Name;
     public ObjectGuid AccountGUID;
+    public string Name;
     public AddIgnore(WorldPacket packet) : base(packet) { }
 
     public override void Read()

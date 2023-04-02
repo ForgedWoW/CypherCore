@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.Conditions;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.P;
 using Forged.MapServer.DataStorage.Structs.T;
@@ -24,259 +22,6 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    public void InitTalentForLevel()
-    {
-        var level = Level;
-
-        // talents base at level diff (talents = level - 9 but some can be used already)
-        if (level < PlayerConst.MinSpecializationLevel)
-            ResetTalentSpecialization();
-
-        var talentTiers = Global.DB2Mgr.GetNumTalentsAtLevel(level, Class);
-
-        if (level < 10)
-        {
-            // Remove all talent points
-            ResetTalents(true);
-        }
-        else
-        {
-            if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
-                for (var t = talentTiers; t < PlayerConst.MaxTalentTiers; ++t)
-                    for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-                        foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, t, c))
-                            RemoveTalent(talent);
-        }
-
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxTalentTiers), talentTiers);
-
-        if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
-            for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
-            {
-                for (var slot = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
-                {
-                    var pvpTalent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(spec)[slot]);
-
-                    if (pvpTalent != null)
-                        RemovePvpTalent(pvpTalent, spec);
-                }
-            }
-
-        if (!Session.PlayerLoading)
-            SendTalentsInfoData(); // update at client
-    }
-
-    public bool AddTalent(TalentRecord talent, byte spec, bool learning)
-    {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
-
-        if (spellInfo == null)
-        {
-            Log.Logger.Error("Player.AddTalent: Spell (ID: {0}) does not exist.", talent.SpellID);
-
-            return false;
-        }
-
-        if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
-        {
-            Log.Logger.Error("Player.AddTalent: Spell (ID: {0}) is invalid", talent.SpellID);
-
-            return false;
-        }
-
-        if (GetTalentMap(spec).ContainsKey(talent.Id))
-            GetTalentMap(spec)[talent.Id] = PlayerSpellState.Unchanged;
-        else
-            GetTalentMap(spec)[talent.Id] = learning ? PlayerSpellState.New : PlayerSpellState.Unchanged;
-
-        if (spec == GetActiveTalentGroup())
-        {
-            LearnSpell(talent.SpellID, true);
-
-            if (talent.OverridesSpellID != 0)
-                AddOverrideSpell(talent.OverridesSpellID, talent.SpellID);
-        }
-
-        if (learning)
-            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeTalent);
-
-        return true;
-    }
-
-    public void RemoveTalent(TalentRecord talent)
-    {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
-
-        if (spellInfo == null)
-            return;
-
-        RemoveSpell(talent.SpellID, true);
-
-        // search for spells that the talent teaches and unlearn them
-        foreach (var spellEffectInfo in spellInfo.Effects)
-            if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell) && spellEffectInfo.TriggerSpell > 0)
-                RemoveSpell(spellEffectInfo.TriggerSpell, true);
-
-        if (talent.OverridesSpellID != 0)
-            RemoveOverrideSpell(talent.OverridesSpellID, talent.SpellID);
-
-        var talentMap = GetTalentMap(GetActiveTalentGroup());
-
-        // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-        if (talentMap.ContainsKey(talent.Id))
-            talentMap[talent.Id] = PlayerSpellState.Removed;
-    }
-
-    public TalentLearnResult LearnTalent(uint talentId, ref int spellOnCooldown)
-    {
-        if (IsInCombat)
-            return TalentLearnResult.FailedAffectingCombat;
-
-        if (IsDead)
-            return TalentLearnResult.FailedCantDoThatRightNow;
-
-        if (GetPrimarySpecialization() == 0)
-            return TalentLearnResult.FailedNoPrimaryTreeSelected;
-
-        var talentInfo = CliDB.TalentStorage.LookupByKey(talentId);
-
-        if (talentInfo == null)
-            return TalentLearnResult.FailedUnknown;
-
-        if (talentInfo.SpecID != 0 && talentInfo.SpecID != GetPrimarySpecialization())
-            return TalentLearnResult.FailedUnknown;
-
-        // prevent learn talent for different class (cheating)
-        if (talentInfo.ClassID != (byte)Class)
-            return TalentLearnResult.FailedUnknown;
-
-        // check if we have enough talent points
-        if (talentInfo.TierID >= ActivePlayerData.MaxTalentTiers)
-            return TalentLearnResult.FailedUnknown;
-
-        // TODO: prevent changing talents that are on cooldown
-
-        // Check if there is a different talent for us to learn in selected slot
-        // Example situation:
-        // Warrior talent row 2 slot 0
-        // Talent.dbc has an entry for each specialization
-        // but only 2 out of 3 have SpecID != 0
-        // We need to make sure that if player is in one of these defined specs he will not learn the other choice
-        TalentRecord bestSlotMatch = null;
-
-        foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, talentInfo.ColumnIndex))
-            if (talent.SpecID == 0)
-            {
-                bestSlotMatch = talent;
-            }
-
-            else if (talent.SpecID == GetPrimarySpecialization())
-            {
-                bestSlotMatch = talent;
-
-                break;
-            }
-
-        if (talentInfo != bestSlotMatch)
-            return TalentLearnResult.FailedUnknown;
-
-        // Check if player doesn't have any talent in current tier
-        for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-            foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, c))
-            {
-                if (talent.SpecID != 0 && talent.SpecID != GetPrimarySpecialization())
-                    continue;
-
-                if (!HasTalent(talent.Id, GetActiveTalentGroup()))
-                    continue;
-
-                if (!HasPlayerFlag(PlayerFlags.Resting) && HasUnitFlag2(UnitFlags2.AllowChangingTalents))
-                    return TalentLearnResult.FailedRestArea;
-
-                if (SpellHistory.HasCooldown(talent.SpellID))
-                {
-                    spellOnCooldown = (int)talent.SpellID;
-
-                    return TalentLearnResult.FailedCantRemoveTalent;
-                }
-
-                RemoveTalent(talent);
-            }
-
-        // spell not set in talent.dbc
-        var spellid = talentInfo.SpellID;
-
-        if (spellid == 0)
-        {
-            Log.Logger.Error("Player.LearnTalent: Talent.dbc has no spellInfo for talent: {0} (spell id = 0)", talentId);
-
-            return TalentLearnResult.FailedUnknown;
-        }
-
-        // already known
-        if (HasTalent(talentId, GetActiveTalentGroup()) || HasSpell(spellid))
-            return TalentLearnResult.FailedUnknown;
-
-        if (!AddTalent(talentInfo, GetActiveTalentGroup(), true))
-            return TalentLearnResult.FailedUnknown;
-
-        Log.Logger.Debug("Player.LearnTalent: TalentID: {0} Spell: {1} Group: {2}", talentId, spellid, GetActiveTalentGroup());
-
-        return TalentLearnResult.LearnOk;
-    }
-
-    public void ResetTalentSpecialization()
-    {
-        // Reset only talents that have different spells for each spec
-        var @class = Class;
-
-        for (uint t = 0; t < PlayerConst.MaxTalentTiers; ++t)
-        {
-            for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-                if (Global.DB2Mgr.GetTalentsByPosition(@class, t, c).Count > 1)
-                    foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(@class, t, c))
-                        RemoveTalent(talent);
-        }
-
-        ResetPvpTalents();
-        RemoveSpecializationSpells();
-
-        var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class);
-        SetPrimarySpecialization(defaultSpec.Id);
-        SetActiveTalentGroup(defaultSpec.OrderIndex);
-
-        LearnSpecializationSpells();
-
-        SendTalentsInfoData();
-        UpdateItemSetAuras();
-    }
-
-    public uint GetPrimarySpecialization()
-    {
-        return PlayerData.CurrentSpecID;
-    }
-
-    public byte GetActiveTalentGroup()
-    {
-        return _specializationInfo.ActiveGroup;
-    }
-
-    // Loot Spec
-    public void SetLootSpecId(uint id)
-    {
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.LootSpecID), (ushort)id);
-    }
-
-    public uint GetLootSpecId()
-    {
-        return ActivePlayerData.LootSpecID;
-    }
-
-    public uint GetDefaultSpecId()
-    {
-        return Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class).Id;
-    }
-
     public void ActivateTalentGroup(ChrSpecializationRecord spec)
     {
         if (GetActiveTalentGroup() == spec.OrderIndex)
@@ -489,14 +234,107 @@ public partial class Player
         }
     }
 
-    public Dictionary<uint, PlayerSpellState> GetTalentMap(uint spec)
+    public bool AddTalent(TalentRecord talent, byte spec, bool learning)
     {
-        return _specializationInfo.Talents[spec];
+        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
+
+        if (spellInfo == null)
+        {
+            Log.Logger.Error("Player.AddTalent: Spell (ID: {0}) does not exist.", talent.SpellID);
+
+            return false;
+        }
+
+        if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
+        {
+            Log.Logger.Error("Player.AddTalent: Spell (ID: {0}) is invalid", talent.SpellID);
+
+            return false;
+        }
+
+        if (GetTalentMap(spec).ContainsKey(talent.Id))
+            GetTalentMap(spec)[talent.Id] = PlayerSpellState.Unchanged;
+        else
+            GetTalentMap(spec)[talent.Id] = learning ? PlayerSpellState.New : PlayerSpellState.Unchanged;
+
+        if (spec == GetActiveTalentGroup())
+        {
+            LearnSpell(talent.SpellID, true);
+
+            if (talent.OverridesSpellID != 0)
+                AddOverrideSpell(talent.OverridesSpellID, talent.SpellID);
+        }
+
+        if (learning)
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeTalent);
+
+        return true;
+    }
+
+    //Traits
+    public void CreateTraitConfig(TraitConfigPacket traitConfig)
+    {
+        var configId = TraitMgr.GenerateNewTraitConfigId();
+
+        bool HasConfigId(int id)
+        {
+            return ActivePlayerData.TraitConfigs.FindIndexIf(config => config.ID == id) >= 0;
+        }
+
+        while (HasConfigId(configId))
+            configId = TraitMgr.GenerateNewTraitConfigId();
+
+        traitConfig.ID = configId;
+
+        var traitConfigIndex = ActivePlayerData.TraitConfigs.Size();
+        AddTraitConfig(traitConfig);
+
+        foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(traitConfig, this))
+        {
+            var entryIndex = traitConfig.Entries.LookupByKey(grantedEntry.TraitNodeID)?.LookupByKey(grantedEntry.TraitNodeEntryID);
+
+            if (entryIndex == null)
+            {
+                TraitConfig value = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, traitConfigIndex);
+                AddDynamicUpdateFieldValue(value.ModifyValue(value.Entries), grantedEntry);
+            }
+        }
+
+        _traitConfigStates[(int)configId] = PlayerSpellState.Changed;
+    }
+
+    public void DeleteTraitConfig(int deletedConfigId)
+    {
+        var deletedIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == deletedConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
+
+        if (deletedIndex < 0)
+            return;
+
+        RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData)
+                                            .ModifyValue(ActivePlayerData.TraitConfigs),
+                                      deletedIndex);
+
+        _traitConfigStates[deletedConfigId] = PlayerSpellState.Removed;
+    }
+
+    public byte GetActiveTalentGroup()
+    {
+        return _specializationInfo.ActiveGroup;
+    }
+
+    public uint GetDefaultSpecId()
+    {
+        return Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class).Id;
     }
 
     public List<uint> GetGlyphs(byte spec)
     {
         return _specializationInfo.Glyphs[spec];
+    }
+
+    public uint GetLootSpecId()
+    {
+        return ActivePlayerData.LootSpecID;
     }
 
     public uint GetNextResetTalentsCost()
@@ -518,7 +356,7 @@ public partial class Player
         }
         else
         {
-            var months = (ulong)(GameTime.GetGameTime() - GetTalentResetTime()) / Time.Month;
+            var months = (ulong)(GameTime.CurrentTime - GetTalentResetTime()) / Time.MONTH;
 
             if (months > 0)
             {
@@ -540,6 +378,265 @@ public partial class Player
                 return newCost;
             }
         }
+    }
+
+    public uint GetPrimarySpecialization()
+    {
+        return PlayerData.CurrentSpecID;
+    }
+
+    public Dictionary<uint, PlayerSpellState> GetTalentMap(uint spec)
+    {
+        return _specializationInfo.Talents[spec];
+    }
+
+    public TraitConfig GetTraitConfig(int configId)
+    {
+        var index = ActivePlayerData.TraitConfigs.FindIndexIf(config => config.ID == configId);
+
+        if (index < 0)
+            return null;
+
+        return ActivePlayerData.TraitConfigs[index];
+    }
+
+    public void InitTalentForLevel()
+    {
+        var level = Level;
+
+        // talents base at level diff (talents = level - 9 but some can be used already)
+        if (level < PlayerConst.MinSpecializationLevel)
+            ResetTalentSpecialization();
+
+        var talentTiers = Global.DB2Mgr.GetNumTalentsAtLevel(level, Class);
+
+        if (level < 10)
+        {
+            // Remove all talent points
+            ResetTalents(true);
+        }
+        else
+        {
+            if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
+                for (var t = talentTiers; t < PlayerConst.MaxTalentTiers; ++t)
+                    for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
+                        foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, t, c))
+                            RemoveTalent(talent);
+        }
+
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxTalentTiers), talentTiers);
+
+        if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
+            for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
+            {
+                for (var slot = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
+                {
+                    var pvpTalent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(spec)[slot]);
+
+                    if (pvpTalent != null)
+                        RemovePvpTalent(pvpTalent, spec);
+                }
+            }
+
+        if (!Session.PlayerLoading)
+            SendTalentsInfoData(); // update at client
+    }
+    public TalentLearnResult LearnPvpTalent(uint talentID, byte slot, ref uint spellOnCooldown)
+    {
+        if (slot >= PlayerConst.MaxPvpTalentSlots)
+            return TalentLearnResult.FailedUnknown;
+
+        if (IsInCombat)
+            return TalentLearnResult.FailedAffectingCombat;
+
+        if (IsDead)
+            return TalentLearnResult.FailedCantDoThatRightNow;
+
+        var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentID);
+
+        if (talentInfo == null)
+            return TalentLearnResult.FailedUnknown;
+
+        if (talentInfo.SpecID != GetPrimarySpecialization())
+            return TalentLearnResult.FailedUnknown;
+
+        if (talentInfo.LevelRequired > Level)
+            return TalentLearnResult.FailedUnknown;
+
+        if (Global.DB2Mgr.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
+            return TalentLearnResult.FailedUnknown;
+
+        var talentCategory = CliDB.PvpTalentCategoryStorage.LookupByKey(talentInfo.PvpTalentCategoryID);
+
+        if (talentCategory != null)
+            if (!Convert.ToBoolean(talentCategory.TalentSlotMask & (1 << slot)))
+                return TalentLearnResult.FailedUnknown;
+
+        // Check if player doesn't have this talent in other slot
+        if (HasPvpTalent(talentID, GetActiveTalentGroup()))
+            return TalentLearnResult.FailedUnknown;
+
+        var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(talentInfo.PlayerConditionID);
+
+        if (playerCondition != null)
+            if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
+                return TalentLearnResult.FailedCantDoThatRightNow;
+
+        var talent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
+
+        if (talent != null)
+        {
+            if (!HasPlayerFlag(PlayerFlags.Resting) && !HasUnitFlag2(UnitFlags2.AllowChangingTalents))
+                return TalentLearnResult.FailedRestArea;
+
+            if (SpellHistory.HasCooldown(talent.SpellID))
+            {
+                spellOnCooldown = talent.SpellID;
+
+                return TalentLearnResult.FailedCantRemoveTalent;
+            }
+
+            RemovePvpTalent(talent, GetActiveTalentGroup());
+        }
+
+        if (!AddPvpTalent(talentInfo, GetActiveTalentGroup(), slot))
+            return TalentLearnResult.FailedUnknown;
+
+        return TalentLearnResult.LearnOk;
+    }
+
+    public TalentLearnResult LearnTalent(uint talentId, ref int spellOnCooldown)
+    {
+        if (IsInCombat)
+            return TalentLearnResult.FailedAffectingCombat;
+
+        if (IsDead)
+            return TalentLearnResult.FailedCantDoThatRightNow;
+
+        if (GetPrimarySpecialization() == 0)
+            return TalentLearnResult.FailedNoPrimaryTreeSelected;
+
+        var talentInfo = CliDB.TalentStorage.LookupByKey(talentId);
+
+        if (talentInfo == null)
+            return TalentLearnResult.FailedUnknown;
+
+        if (talentInfo.SpecID != 0 && talentInfo.SpecID != GetPrimarySpecialization())
+            return TalentLearnResult.FailedUnknown;
+
+        // prevent learn talent for different class (cheating)
+        if (talentInfo.ClassID != (byte)Class)
+            return TalentLearnResult.FailedUnknown;
+
+        // check if we have enough talent points
+        if (talentInfo.TierID >= ActivePlayerData.MaxTalentTiers)
+            return TalentLearnResult.FailedUnknown;
+
+        // TODO: prevent changing talents that are on cooldown
+
+        // Check if there is a different talent for us to learn in selected slot
+        // Example situation:
+        // Warrior talent row 2 slot 0
+        // Talent.dbc has an entry for each specialization
+        // but only 2 out of 3 have SpecID != 0
+        // We need to make sure that if player is in one of these defined specs he will not learn the other choice
+        TalentRecord bestSlotMatch = null;
+
+        foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, talentInfo.ColumnIndex))
+            if (talent.SpecID == 0)
+            {
+                bestSlotMatch = talent;
+            }
+
+            else if (talent.SpecID == GetPrimarySpecialization())
+            {
+                bestSlotMatch = talent;
+
+                break;
+            }
+
+        if (talentInfo != bestSlotMatch)
+            return TalentLearnResult.FailedUnknown;
+
+        // Check if player doesn't have any talent in current tier
+        for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
+            foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, c))
+            {
+                if (talent.SpecID != 0 && talent.SpecID != GetPrimarySpecialization())
+                    continue;
+
+                if (!HasTalent(talent.Id, GetActiveTalentGroup()))
+                    continue;
+
+                if (!HasPlayerFlag(PlayerFlags.Resting) && HasUnitFlag2(UnitFlags2.AllowChangingTalents))
+                    return TalentLearnResult.FailedRestArea;
+
+                if (SpellHistory.HasCooldown(talent.SpellID))
+                {
+                    spellOnCooldown = (int)talent.SpellID;
+
+                    return TalentLearnResult.FailedCantRemoveTalent;
+                }
+
+                RemoveTalent(talent);
+            }
+
+        // spell not set in talent.dbc
+        var spellid = talentInfo.SpellID;
+
+        if (spellid == 0)
+        {
+            Log.Logger.Error("Player.LearnTalent: Talent.dbc has no spellInfo for talent: {0} (spell id = 0)", talentId);
+
+            return TalentLearnResult.FailedUnknown;
+        }
+
+        // already known
+        if (HasTalent(talentId, GetActiveTalentGroup()) || HasSpell(spellid))
+            return TalentLearnResult.FailedUnknown;
+
+        if (!AddTalent(talentInfo, GetActiveTalentGroup(), true))
+            return TalentLearnResult.FailedUnknown;
+
+        Log.Logger.Debug("Player.LearnTalent: TalentID: {0} Spell: {1} Group: {2}", talentId, spellid, GetActiveTalentGroup());
+
+        return TalentLearnResult.LearnOk;
+    }
+
+    public void RemoveTalent(TalentRecord talent)
+    {
+        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
+
+        if (spellInfo == null)
+            return;
+
+        RemoveSpell(talent.SpellID, true);
+
+        // search for spells that the talent teaches and unlearn them
+        foreach (var spellEffectInfo in spellInfo.Effects)
+            if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell) && spellEffectInfo.TriggerSpell > 0)
+                RemoveSpell(spellEffectInfo.TriggerSpell, true);
+
+        if (talent.OverridesSpellID != 0)
+            RemoveOverrideSpell(talent.OverridesSpellID, talent.SpellID);
+
+        var talentMap = GetTalentMap(GetActiveTalentGroup());
+
+        // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
+        if (talentMap.ContainsKey(talent.Id))
+            talentMap[talent.Id] = PlayerSpellState.Removed;
+    }
+    public void RenameTraitConfig(int editedConfigId, string newName)
+    {
+        var editedIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == editedConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
+
+        if (editedIndex < 0)
+            return;
+
+        TraitConfig traitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, editedIndex);
+        SetUpdateFieldValue(traitConfig.ModifyValue(traitConfig.Name), newName);
+
+        _traitConfigStates[editedConfigId] = PlayerSpellState.Changed;
     }
 
     public bool ResetTalents(bool noCost = false)
@@ -593,10 +690,47 @@ public partial class Player
             UpdateCriteria(CriteriaType.TotalRespecs, 1);
 
             SetTalentResetCost(cost);
-            SetTalentResetTime(GameTime.GetGameTime());
+            SetTalentResetTime(GameTime.CurrentTime);
         }
 
         return true;
+    }
+
+    public void ResetTalentSpecialization()
+    {
+        // Reset only talents that have different spells for each spec
+        var @class = Class;
+
+        for (uint t = 0; t < PlayerConst.MaxTalentTiers; ++t)
+        {
+            for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
+                if (Global.DB2Mgr.GetTalentsByPosition(@class, t, c).Count > 1)
+                    foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(@class, t, c))
+                        RemoveTalent(talent);
+        }
+
+        ResetPvpTalents();
+        RemoveSpecializationSpells();
+
+        var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class);
+        SetPrimarySpecialization(defaultSpec.Id);
+        SetActiveTalentGroup(defaultSpec.OrderIndex);
+
+        LearnSpecializationSpells();
+
+        SendTalentsInfoData();
+        UpdateItemSetAuras();
+    }
+    public void SendRespecWipeConfirm(ObjectGuid guid, uint cost, SpecResetType respecType)
+    {
+        RespecWipeConfirm respecWipeConfirm = new()
+        {
+            RespecMaster = guid,
+            Cost = cost,
+            RespecType = respecType
+        };
+
+        SendPacket(respecWipeConfirm);
     }
 
     public void SendTalentsInfoData()
@@ -692,80 +826,74 @@ public partial class Player
         SendPacket(packet);
     }
 
-    public void SendRespecWipeConfirm(ObjectGuid guid, uint cost, SpecResetType respecType)
+    // Loot Spec
+    public void SetLootSpecId(uint id)
     {
-        RespecWipeConfirm respecWipeConfirm = new()
-        {
-            RespecMaster = guid,
-            Cost = cost,
-            RespecType = respecType
-        };
-
-        SendPacket(respecWipeConfirm);
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.LootSpecID), (ushort)id);
     }
-
-    public TalentLearnResult LearnPvpTalent(uint talentID, byte slot, ref uint spellOnCooldown)
+    public void SetTraitConfigUseSharedActionBars(int traitConfigId, bool usesSharedActionBars, bool isLastSelectedSavedConfig)
     {
-        if (slot >= PlayerConst.MaxPvpTalentSlots)
-            return TalentLearnResult.FailedUnknown;
+        var configIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == traitConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
 
-        if (IsInCombat)
-            return TalentLearnResult.FailedAffectingCombat;
+        if (configIndex < 0)
+            return;
 
-        if (IsDead)
-            return TalentLearnResult.FailedCantDoThatRightNow;
+        var currentlyUsesSharedActionBars = ((TraitCombatConfigFlags)(int)ActivePlayerData.TraitConfigs[configIndex].CombatConfigFlags).HasFlag(TraitCombatConfigFlags.SharedActionBars);
 
-        var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentID);
+        if (currentlyUsesSharedActionBars == usesSharedActionBars)
+            return;
 
-        if (talentInfo == null)
-            return TalentLearnResult.FailedUnknown;
+        TraitConfig traitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, configIndex);
 
-        if (talentInfo.SpecID != GetPrimarySpecialization())
-            return TalentLearnResult.FailedUnknown;
-
-        if (talentInfo.LevelRequired > Level)
-            return TalentLearnResult.FailedUnknown;
-
-        if (Global.DB2Mgr.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
-            return TalentLearnResult.FailedUnknown;
-
-        var talentCategory = CliDB.PvpTalentCategoryStorage.LookupByKey(talentInfo.PvpTalentCategoryID);
-
-        if (talentCategory != null)
-            if (!Convert.ToBoolean(talentCategory.TalentSlotMask & (1 << slot)))
-                return TalentLearnResult.FailedUnknown;
-
-        // Check if player doesn't have this talent in other slot
-        if (HasPvpTalent(talentID, GetActiveTalentGroup()))
-            return TalentLearnResult.FailedUnknown;
-
-        var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(talentInfo.PlayerConditionID);
-
-        if (playerCondition != null)
-            if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
-                return TalentLearnResult.FailedCantDoThatRightNow;
-
-        var talent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
-
-        if (talent != null)
+        if (usesSharedActionBars)
         {
-            if (!HasPlayerFlag(PlayerFlags.Resting) && !HasUnitFlag2(UnitFlags2.AllowChangingTalents))
-                return TalentLearnResult.FailedRestArea;
+            SetUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.SharedActionBars);
 
-            if (SpellHistory.HasCooldown(talent.SpellID))
-            {
-                spellOnCooldown = talent.SpellID;
+            var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
+            stmt.AddValue(0, GUID.Counter);
+            stmt.AddValue(1, traitConfigId);
+            DB.Characters.Execute(stmt);
 
-                return TalentLearnResult.FailedCantRemoveTalent;
-            }
+            if (isLastSelectedSavedConfig)
+                StartLoadingActionButtons(); // load action buttons that were saved in shared mode
+        }
+        else
+        {
+            RemoveUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.SharedActionBars);
 
-            RemovePvpTalent(talent, GetActiveTalentGroup());
+            // trigger a save with traitConfigId
+            foreach (var (_, button) in _actionButtons)
+                if (button.UState != ActionButtonUpdateState.Deleted)
+                    button.UState = ActionButtonUpdateState.New;
         }
 
-        if (!AddPvpTalent(talentInfo, GetActiveTalentGroup(), slot))
-            return TalentLearnResult.FailedUnknown;
+        _traitConfigStates[traitConfigId] = PlayerSpellState.Changed;
+    }
 
-        return TalentLearnResult.LearnOk;
+    public void SetTraitConfigUseStarterBuild(int traitConfigId, bool useStarterBuild)
+    {
+        var configIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == traitConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) != TraitCombatConfigFlags.None; });
+
+        if (configIndex < 0)
+            return;
+
+        var currentlyUsesStarterBuild = ((TraitCombatConfigFlags)(int)ActivePlayerData.TraitConfigs[configIndex].CombatConfigFlags).HasFlag(TraitCombatConfigFlags.StarterBuild);
+
+        if (currentlyUsesStarterBuild == useStarterBuild)
+            return;
+
+        if (useStarterBuild)
+        {
+            TraitConfig traitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, configIndex);
+            SetUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.StarterBuild);
+        }
+        else
+        {
+            TraitConfig traitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, configIndex);
+            RemoveUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.StarterBuild);
+        }
+
+        _traitConfigStates[(int)traitConfigId] = PlayerSpellState.Changed;
     }
 
     public void TogglePvpTalents(bool enable)
@@ -795,49 +923,6 @@ public partial class Player
             }
         }
     }
-
-    //Traits
-    public void CreateTraitConfig(TraitConfigPacket traitConfig)
-    {
-        var configId = TraitMgr.GenerateNewTraitConfigId();
-
-        bool HasConfigId(int id)
-        {
-            return ActivePlayerData.TraitConfigs.FindIndexIf(config => config.ID == id) >= 0;
-        }
-
-        while (HasConfigId(configId))
-            configId = TraitMgr.GenerateNewTraitConfigId();
-
-        traitConfig.ID = configId;
-
-        var traitConfigIndex = ActivePlayerData.TraitConfigs.Size();
-        AddTraitConfig(traitConfig);
-
-        foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(traitConfig, this))
-        {
-            var entryIndex = traitConfig.Entries.LookupByKey(grantedEntry.TraitNodeID)?.LookupByKey(grantedEntry.TraitNodeEntryID);
-
-            if (entryIndex == null)
-            {
-                TraitConfig value = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, traitConfigIndex);
-                AddDynamicUpdateFieldValue(value.ModifyValue(value.Entries), grantedEntry);
-            }
-        }
-
-        _traitConfigStates[(int)configId] = PlayerSpellState.Changed;
-    }
-
-    public TraitConfig GetTraitConfig(int configId)
-    {
-        var index = ActivePlayerData.TraitConfigs.FindIndexIf(config => config.ID == configId);
-
-        if (index < 0)
-            return null;
-
-        return ActivePlayerData.TraitConfigs[index];
-    }
-
     public void UpdateTraitConfig(TraitConfigPacket newConfig, int savedConfigId, bool withCastTime)
     {
         var index = ActivePlayerData.TraitConfigs.FindIndexIf(config => config.ID == newConfig.ID);
@@ -897,186 +982,6 @@ public partial class Player
             finalizeTraitConfigUpdate();
         }
     }
-
-    public void RenameTraitConfig(int editedConfigId, string newName)
-    {
-        var editedIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == editedConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
-
-        if (editedIndex < 0)
-            return;
-
-        TraitConfig traitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, editedIndex);
-        SetUpdateFieldValue(traitConfig.ModifyValue(traitConfig.Name), newName);
-
-        _traitConfigStates[editedConfigId] = PlayerSpellState.Changed;
-    }
-
-    public void DeleteTraitConfig(int deletedConfigId)
-    {
-        var deletedIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == deletedConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
-
-        if (deletedIndex < 0)
-            return;
-
-        RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData)
-                                            .ModifyValue(ActivePlayerData.TraitConfigs),
-                                      deletedIndex);
-
-        _traitConfigStates[deletedConfigId] = PlayerSpellState.Removed;
-    }
-
-    public void SetTraitConfigUseStarterBuild(int traitConfigId, bool useStarterBuild)
-    {
-        var configIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == traitConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) != TraitCombatConfigFlags.None; });
-
-        if (configIndex < 0)
-            return;
-
-        var currentlyUsesStarterBuild = ((TraitCombatConfigFlags)(int)ActivePlayerData.TraitConfigs[configIndex].CombatConfigFlags).HasFlag(TraitCombatConfigFlags.StarterBuild);
-
-        if (currentlyUsesStarterBuild == useStarterBuild)
-            return;
-
-        if (useStarterBuild)
-        {
-            TraitConfig traitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, configIndex);
-            SetUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.StarterBuild);
-        }
-        else
-        {
-            TraitConfig traitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, configIndex);
-            RemoveUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.StarterBuild);
-        }
-
-        _traitConfigStates[(int)traitConfigId] = PlayerSpellState.Changed;
-    }
-
-    public void SetTraitConfigUseSharedActionBars(int traitConfigId, bool usesSharedActionBars, bool isLastSelectedSavedConfig)
-    {
-        var configIndex = ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig => { return traitConfig.ID == traitConfigId && (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None; });
-
-        if (configIndex < 0)
-            return;
-
-        var currentlyUsesSharedActionBars = ((TraitCombatConfigFlags)(int)ActivePlayerData.TraitConfigs[configIndex].CombatConfigFlags).HasFlag(TraitCombatConfigFlags.SharedActionBars);
-
-        if (currentlyUsesSharedActionBars == usesSharedActionBars)
-            return;
-
-        TraitConfig traitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, configIndex);
-
-        if (usesSharedActionBars)
-        {
-            SetUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.SharedActionBars);
-
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
-            stmt.AddValue(0, GUID.Counter);
-            stmt.AddValue(1, traitConfigId);
-            DB.Characters.Execute(stmt);
-
-            if (isLastSelectedSavedConfig)
-                StartLoadingActionButtons(); // load action buttons that were saved in shared mode
-        }
-        else
-        {
-            RemoveUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.SharedActionBars);
-
-            // trigger a save with traitConfigId
-            foreach (var (_, button) in _actionButtons)
-                if (button.UState != ActionButtonUpdateState.Deleted)
-                    button.UState = ActionButtonUpdateState.New;
-        }
-
-        _traitConfigStates[traitConfigId] = PlayerSpellState.Changed;
-    }
-
-    private bool HasTalent(uint talentId, byte group)
-    {
-        return GetTalentMap(group).ContainsKey(talentId) && GetTalentMap(group)[talentId] != PlayerSpellState.Removed;
-    }
-
-    private uint GetTalentResetCost()
-    {
-        return _specializationInfo.ResetTalentsCost;
-    }
-
-    private void SetTalentResetCost(uint cost)
-    {
-        _specializationInfo.ResetTalentsCost = cost;
-    }
-
-    private long GetTalentResetTime()
-    {
-        return _specializationInfo.ResetTalentsTime;
-    }
-
-    private void SetTalentResetTime(long time)
-    {
-        _specializationInfo.ResetTalentsTime = time;
-    }
-
-    private void SetPrimarySpecialization(uint spec)
-    {
-        SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.CurrentSpecID), spec);
-    }
-
-    private void SetActiveTalentGroup(byte group)
-    {
-        _specializationInfo.ActiveGroup = group;
-    }
-
-    private void StartLoadingActionButtons(Action callback = null)
-    {
-        uint traitConfigId = 0;
-
-        var traitConfig = GetTraitConfig((int)(uint)ActivePlayerData.ActiveCombatTraitConfigID);
-
-        if (traitConfig != null)
-        {
-            var usedSavedTraitConfigIndex = ActivePlayerData.TraitConfigs.FindIndexIf(savedConfig => { return (TraitConfigType)(int)savedConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)savedConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None && ((TraitCombatConfigFlags)(int)savedConfig.CombatConfigFlags & TraitCombatConfigFlags.SharedActionBars) == TraitCombatConfigFlags.None && savedConfig.LocalIdentifier == traitConfig.LocalIdentifier; });
-
-            if (usedSavedTraitConfigIndex >= 0)
-                traitConfigId = (uint)(int)ActivePlayerData.TraitConfigs[usedSavedTraitConfigIndex].ID;
-        }
-
-        // load them asynchronously
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
-        stmt.AddValue(0, GUID.Counter);
-        stmt.AddValue(1, GetActiveTalentGroup());
-        stmt.AddValue(2, traitConfigId);
-
-        var myGuid = GUID;
-
-        var mySess = Session;
-
-        mySess.QueryProcessor
-              .AddCallback(DB.Characters.AsyncQuery(stmt)
-                             .WithCallback(result =>
-                             {
-                                 // safe callback, we can't pass this pointer directly
-                                 // in case player logs out before db response (player would be deleted in that case)
-                                 var thisPlayer = mySess.Player;
-
-                                 if (thisPlayer != null && thisPlayer.GUID == myGuid)
-                                     thisPlayer.LoadActions(result);
-
-                                 callback?.Invoke();
-                             }));
-    }
-
-    //Pvp
-    private void ResetPvpTalents()
-    {
-        for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
-            foreach (var talentId in GetPvpTalentMap(spec))
-            {
-                var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentId);
-
-                if (talentInfo != null)
-                    RemovePvpTalent(talentInfo, spec);
-            }
-    }
-
     private bool AddPvpTalent(PvpTalentRecord talent, byte activeTalentGroup, byte slot)
     {
         //ASSERT(talent);
@@ -1110,43 +1015,17 @@ public partial class Player
         return true;
     }
 
-    private void RemovePvpTalent(PvpTalentRecord talent, byte activeTalentGroup)
-    {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
-
-        if (spellInfo == null)
-            return;
-
-        RemoveSpell(talent.SpellID, true);
-
-        // Move this to toggle ?
-        if (talent.OverridesSpellID != 0)
-            RemoveOverrideSpell(talent.OverridesSpellID, talent.SpellID);
-
-        // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-        var talents = GetPvpTalentMap(activeTalentGroup);
-
-        for (var i = 0; i < PlayerConst.MaxPvpTalentSlots; ++i)
-            if (talents[i] == talent.Id)
-                talents[i] = 0;
-    }
-
-    private bool HasPvpTalent(uint talentID, byte activeTalentGroup)
-    {
-        return GetPvpTalentMap(activeTalentGroup).Contains(talentID);
-    }
-
     private void AddTraitConfig(TraitConfigPacket traitConfig)
     {
         var setter = new TraitConfig();
-        setter.ModifyValue(setter.ID).SetValue(traitConfig.ID);
-        setter.ModifyValue(setter.Name).SetValue(traitConfig.Name);
-        setter.ModifyValue(setter.Type).SetValue((int)traitConfig.Type);
-        setter.ModifyValue(setter.SkillLineID).SetValue((int)traitConfig.SkillLineID);
-        setter.ModifyValue(setter.ChrSpecializationID).SetValue(traitConfig.ChrSpecializationID);
-        setter.ModifyValue(setter.CombatConfigFlags).SetValue((int)traitConfig.CombatConfigFlags);
-        setter.ModifyValue(setter.LocalIdentifier).SetValue(traitConfig.LocalIdentifier);
-        setter.ModifyValue(setter.TraitSystemID).SetValue(traitConfig.TraitSystemID);
+        setter.ModifyValue(setter.ID).Value = traitConfig.ID;
+        setter.ModifyValue(setter.Name).Value = traitConfig.Name;
+        setter.ModifyValue(setter.Type).Value = (int)traitConfig.Type;
+        setter.ModifyValue(setter.SkillLineID).Value = (int)traitConfig.SkillLineID;
+        setter.ModifyValue(setter.ChrSpecializationID).Value = traitConfig.ChrSpecializationID;
+        setter.ModifyValue(setter.CombatConfigFlags).Value = (int)traitConfig.CombatConfigFlags;
+        setter.ModifyValue(setter.LocalIdentifier).Value = traitConfig.LocalIdentifier;
+        setter.ModifyValue(setter.TraitSystemID).Value = traitConfig.TraitSystemID;
 
         AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs), setter);
 
@@ -1163,6 +1042,38 @@ public partial class Player
 
                 AddDynamicUpdateFieldValue(setter.ModifyValue(setter.Entries), newEntry);
             }
+    }
+
+    private void ApplyTraitConfig(int configId, bool apply)
+    {
+        var traitConfig = GetTraitConfig(configId);
+
+        if (traitConfig == null)
+            return;
+
+        foreach (var traitEntry in traitConfig.Entries)
+            ApplyTraitEntry(traitEntry.TraitNodeEntryID, traitEntry.Rank, traitEntry.GrantedRanks, apply);
+    }
+
+    private void ApplyTraitEntry(int traitNodeEntryId, int rank, int grantedRanks, bool apply)
+    {
+        var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(traitNodeEntryId);
+
+        if (traitNodeEntry == null)
+            return;
+
+        var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitNodeEntry.TraitDefinitionID);
+
+        if (traitDefinition == null)
+            return;
+
+        if (traitDefinition.SpellID != 0)
+        {
+            if (apply)
+                LearnSpell(traitDefinition.SpellID, true, 0, false, traitNodeEntry.TraitDefinitionID);
+            else
+                RemoveSpell(traitDefinition.SpellID);
+        }
     }
 
     private void ApplyTraitEntryChanges(int editedConfigId, TraitConfigPacket newConfig, bool applyTraits, bool consumeCurrencies)
@@ -1278,35 +1189,113 @@ public partial class Player
         _traitConfigStates[(int)editedConfigId] = PlayerSpellState.Changed;
     }
 
-    private void ApplyTraitConfig(int configId, bool apply)
+    private uint GetTalentResetCost()
     {
-        var traitConfig = GetTraitConfig(configId);
-
-        if (traitConfig == null)
-            return;
-
-        foreach (var traitEntry in traitConfig.Entries)
-            ApplyTraitEntry(traitEntry.TraitNodeEntryID, traitEntry.Rank, traitEntry.GrantedRanks, apply);
+        return _specializationInfo.ResetTalentsCost;
     }
 
-    private void ApplyTraitEntry(int traitNodeEntryId, int rank, int grantedRanks, bool apply)
+    private long GetTalentResetTime()
     {
-        var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(traitNodeEntryId);
+        return _specializationInfo.ResetTalentsTime;
+    }
 
-        if (traitNodeEntry == null)
+    private bool HasPvpTalent(uint talentID, byte activeTalentGroup)
+    {
+        return GetPvpTalentMap(activeTalentGroup).Contains(talentID);
+    }
+
+    private bool HasTalent(uint talentId, byte group)
+    {
+        return GetTalentMap(group).ContainsKey(talentId) && GetTalentMap(group)[talentId] != PlayerSpellState.Removed;
+    }
+    private void RemovePvpTalent(PvpTalentRecord talent, byte activeTalentGroup)
+    {
+        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
+
+        if (spellInfo == null)
             return;
 
-        var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitNodeEntry.TraitDefinitionID);
+        RemoveSpell(talent.SpellID, true);
 
-        if (traitDefinition == null)
-            return;
+        // Move this to toggle ?
+        if (talent.OverridesSpellID != 0)
+            RemoveOverrideSpell(talent.OverridesSpellID, talent.SpellID);
 
-        if (traitDefinition.SpellID != 0)
+        // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
+        var talents = GetPvpTalentMap(activeTalentGroup);
+
+        for (var i = 0; i < PlayerConst.MaxPvpTalentSlots; ++i)
+            if (talents[i] == talent.Id)
+                talents[i] = 0;
+    }
+
+    //Pvp
+    private void ResetPvpTalents()
+    {
+        for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
+            foreach (var talentId in GetPvpTalentMap(spec))
+            {
+                var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentId);
+
+                if (talentInfo != null)
+                    RemovePvpTalent(talentInfo, spec);
+            }
+    }
+
+    private void SetActiveTalentGroup(byte group)
+    {
+        _specializationInfo.ActiveGroup = group;
+    }
+
+    private void SetPrimarySpecialization(uint spec)
+    {
+        SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.CurrentSpecID), spec);
+    }
+
+    private void SetTalentResetCost(uint cost)
+    {
+        _specializationInfo.ResetTalentsCost = cost;
+    }
+    private void SetTalentResetTime(long time)
+    {
+        _specializationInfo.ResetTalentsTime = time;
+    }
+    private void StartLoadingActionButtons(Action callback = null)
+    {
+        uint traitConfigId = 0;
+
+        var traitConfig = GetTraitConfig((int)(uint)ActivePlayerData.ActiveCombatTraitConfigID);
+
+        if (traitConfig != null)
         {
-            if (apply)
-                LearnSpell(traitDefinition.SpellID, true, 0, false, traitNodeEntry.TraitDefinitionID);
-            else
-                RemoveSpell(traitDefinition.SpellID);
+            var usedSavedTraitConfigIndex = ActivePlayerData.TraitConfigs.FindIndexIf(savedConfig => { return (TraitConfigType)(int)savedConfig.Type == TraitConfigType.Combat && ((TraitCombatConfigFlags)(int)savedConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None && ((TraitCombatConfigFlags)(int)savedConfig.CombatConfigFlags & TraitCombatConfigFlags.SharedActionBars) == TraitCombatConfigFlags.None && savedConfig.LocalIdentifier == traitConfig.LocalIdentifier; });
+
+            if (usedSavedTraitConfigIndex >= 0)
+                traitConfigId = (uint)(int)ActivePlayerData.TraitConfigs[usedSavedTraitConfigIndex].ID;
         }
+
+        // load them asynchronously
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
+        stmt.AddValue(0, GUID.Counter);
+        stmt.AddValue(1, GetActiveTalentGroup());
+        stmt.AddValue(2, traitConfigId);
+
+        var myGuid = GUID;
+
+        var mySess = Session;
+
+        mySess.QueryProcessor
+              .AddCallback(DB.Characters.AsyncQuery(stmt)
+                             .WithCallback(result =>
+                             {
+                                 // safe callback, we can't pass this pointer directly
+                                 // in case player logs out before db response (player would be deleted in that case)
+                                 var thisPlayer = mySess.Player;
+
+                                 if (thisPlayer != null && thisPlayer.GUID == myGuid)
+                                     thisPlayer.LoadActions(result);
+
+                                 callback?.Invoke();
+                             }));
     }
 }

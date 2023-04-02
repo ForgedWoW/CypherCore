@@ -5,6 +5,24 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal struct CalendarUpdateEventInfo
 {
+    public ulong ClubID;
+
+    public string Description;
+
+    public ulong EventID;
+
+    public byte EventType;
+
+    public uint Flags;
+
+    public ulong ModeratorID;
+
+    public uint TextureID;
+
+    public long Time;
+
+    public string Title;
+
     public void Read(WorldPacket data)
     {
         ClubID = data.ReadUInt64();
@@ -21,14 +39,4 @@ internal struct CalendarUpdateEventInfo
         Title = data.ReadString(titleLen);
         Description = data.ReadString(descLen);
     }
-
-    public ulong ClubID;
-    public ulong EventID;
-    public ulong ModeratorID;
-    public string Title;
-    public string Description;
-    public byte EventType;
-    public uint TextureID;
-    public long Time;
-    public uint Flags;
 }

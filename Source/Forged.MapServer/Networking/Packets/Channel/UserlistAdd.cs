@@ -11,9 +11,9 @@ internal class UserlistAdd : ServerPacket
 {
     public ObjectGuid AddedUserGUID;
     public ChannelFlags ChannelFlags;
-    public ChannelMemberFlags UserFlags;
     public uint ChannelID;
     public string ChannelName;
+    public ChannelMemberFlags UserFlags;
     public UserlistAdd() : base(ServerOpcodes.UserlistAdd) { }
 
     public override void Write()

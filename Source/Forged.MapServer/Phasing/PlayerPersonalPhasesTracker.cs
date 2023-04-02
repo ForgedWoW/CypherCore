@@ -15,15 +15,20 @@ internal class PlayerPersonalPhasesTracker
 
     public bool IsEmpty => _spawns.Empty();
 
-    public void RegisterTrackedObject(uint phaseId, WorldObject obj)
+    public bool IsGridLoadedForPhase(uint gridId, uint phaseId)
     {
-        _spawns[phaseId].Objects.Add(obj);
+        var spawns = _spawns.LookupByKey(phaseId);
+
+        if (spawns != null)
+            return spawns.Grids.Contains((ushort)gridId);
+
+        return false;
     }
 
-    public void UnregisterTrackedObject(WorldObject obj)
+    public void MarkAllPhasesForDeletion()
     {
         foreach (var spawns in _spawns.Values)
-            spawns.Objects.Remove(obj);
+            spawns.DurationRemaining = PersonalPhaseSpawns.DELETE_TIME_DEFAULT;
     }
 
     public void OnOwnerPhasesChanged(WorldObject owner)
@@ -45,35 +50,9 @@ internal class PlayerPersonalPhasesTracker
         }
     }
 
-    public void MarkAllPhasesForDeletion()
+    public void RegisterTrackedObject(uint phaseId, WorldObject obj)
     {
-        foreach (var spawns in _spawns.Values)
-            spawns.DurationRemaining = PersonalPhaseSpawns.DELETE_TIME_DEFAULT;
-    }
-
-    public void Update(Map map, uint diff)
-    {
-        foreach (var itr in _spawns.ToList())
-            if (itr.Value.DurationRemaining.HasValue)
-            {
-                itr.Value.DurationRemaining = itr.Value.DurationRemaining.Value - TimeSpan.FromMilliseconds(diff);
-
-                if (itr.Value.DurationRemaining.Value <= TimeSpan.Zero)
-                {
-                    DespawnPhase(map, itr.Value);
-                    _spawns.Remove(itr.Key);
-                }
-            }
-    }
-
-    public bool IsGridLoadedForPhase(uint gridId, uint phaseId)
-    {
-        var spawns = _spawns.LookupByKey(phaseId);
-
-        if (spawns != null)
-            return spawns.Grids.Contains((ushort)gridId);
-
-        return false;
+        _spawns[phaseId].Objects.Add(obj);
     }
 
     public void SetGridLoadedForPhase(uint gridId, uint phaseId)
@@ -96,6 +75,25 @@ internal class PlayerPersonalPhasesTracker
         }
     }
 
+    public void UnregisterTrackedObject(WorldObject obj)
+    {
+        foreach (var spawns in _spawns.Values)
+            spawns.Objects.Remove(obj);
+    }
+    public void Update(Map map, uint diff)
+    {
+        foreach (var itr in _spawns.ToList())
+            if (itr.Value.DurationRemaining.HasValue)
+            {
+                itr.Value.DurationRemaining = itr.Value.DurationRemaining.Value - TimeSpan.FromMilliseconds(diff);
+
+                if (itr.Value.DurationRemaining.Value <= TimeSpan.Zero)
+                {
+                    DespawnPhase(map, itr.Value);
+                    _spawns.Remove(itr.Key);
+                }
+            }
+    }
     private void DespawnPhase(Map map, PersonalPhaseSpawns spawns)
     {
         foreach (var obj in spawns.Objects)

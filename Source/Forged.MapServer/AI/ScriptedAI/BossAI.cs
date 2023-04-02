@@ -28,97 +28,6 @@ public class BossAI : ScriptedAI
         Scheduler.SetValidator(() => !Me.HasUnitState(UnitState.Casting));
     }
 
-    public void _Reset()
-    {
-        if (!Me.IsAlive)
-            return;
-
-        Me.CombatPulseDelay = 0;
-        Me.ResetLootMode();
-        Events.Reset();
-        Summons.DespawnAll();
-        Scheduler.CancelAll();
-
-        if (Instance != null && Instance.GetBossState(_bossId) != EncounterState.Done)
-            Instance.SetBossState(_bossId, EncounterState.NotStarted);
-    }
-
-    public void _JustDied()
-    {
-        Events.Reset();
-        Summons.DespawnAll();
-        Scheduler.CancelAll();
-
-        Instance?.SetBossState(_bossId, EncounterState.Done);
-    }
-
-    public void _JustEngagedWith(Unit who)
-    {
-        if (Instance != null)
-        {
-            // bosses do not respawn, check only on enter combat
-            if (!Instance.CheckRequiredBosses(_bossId, who.AsPlayer))
-            {
-                EnterEvadeMode(EvadeReason.SequenceBreak);
-
-                return;
-            }
-
-            Instance.SetBossState(_bossId, EncounterState.InProgress);
-        }
-
-        Me.CombatPulseDelay = 5;
-        Me.SetActive(true);
-        DoZoneInCombat();
-        ScheduleTasks();
-    }
-
-    public void TeleportCheaters()
-    {
-        foreach (var pair in Me.GetCombatManager().PvECombatRefs)
-        {
-            var target = pair.Value.GetOther(Me);
-
-            if (target.ControlledByPlayer && !IsInBoundary(target.Location))
-                target.NearTeleportTo(Me.Location);
-        }
-    }
-
-    public override void JustSummoned(Creature summon)
-    {
-        Summons.Summon(summon);
-
-        if (Me.IsEngaged)
-            DoZoneInCombat(summon);
-    }
-
-    public override void SummonedCreatureDespawn(Creature summon)
-    {
-        Summons.Despawn(summon);
-    }
-
-    public override void UpdateAI(uint diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        Events.Update(diff);
-
-        if (Me.HasUnitState(UnitState.Casting))
-            return;
-
-
-        Events.ExecuteEvents(eventId =>
-        {
-            ExecuteEvent(eventId);
-
-            if (Me.HasUnitState(UnitState.Casting))
-                return;
-        });
-
-        DoMeleeAttackIfReady();
-    }
-
     public void _DespawnAtEvade()
     {
         _DespawnAtEvade(TimeSpan.FromSeconds(30));
@@ -151,33 +60,34 @@ public class BossAI : ScriptedAI
             Instance.SetBossState(_bossId, EncounterState.Fail);
     }
 
-    public virtual void ExecuteEvent(uint eventId) { }
-
-    public virtual void ScheduleTasks() { }
-
-    public override void Reset()
+    public void _JustDied()
     {
-        _Reset();
+        Events.Reset();
+        Summons.DespawnAll();
+        Scheduler.CancelAll();
+
+        Instance?.SetBossState(_bossId, EncounterState.Done);
     }
 
-    public override void JustEngagedWith(Unit who)
+    public void _JustEngagedWith(Unit who)
     {
-        _JustEngagedWith(who);
-    }
+        if (Instance != null)
+        {
+            // bosses do not respawn, check only on enter combat
+            if (!Instance.CheckRequiredBosses(_bossId, who.AsPlayer))
+            {
+                EnterEvadeMode(EvadeReason.SequenceBreak);
 
-    public override void JustDied(Unit killer)
-    {
-        _JustDied();
-    }
+                return;
+            }
 
-    public override void JustReachedHome()
-    {
-        _JustReachedHome();
-    }
+            Instance.SetBossState(_bossId, EncounterState.InProgress);
+        }
 
-    public override bool CanAIAttack(Unit victim)
-    {
-        return IsInBoundary(victim.Location);
+        Me.CombatPulseDelay = 5;
+        Me.SetActive(true);
+        DoZoneInCombat();
+        ScheduleTasks();
     }
 
     public void _JustReachedHome()
@@ -185,11 +95,98 @@ public class BossAI : ScriptedAI
         Me.SetActive(false);
     }
 
+    public void _Reset()
+    {
+        if (!Me.IsAlive)
+            return;
+
+        Me.CombatPulseDelay = 0;
+        Me.ResetLootMode();
+        Events.Reset();
+        Summons.DespawnAll();
+        Scheduler.CancelAll();
+
+        if (Instance != null && Instance.GetBossState(_bossId) != EncounterState.Done)
+            Instance.SetBossState(_bossId, EncounterState.NotStarted);
+    }
+    public override bool CanAIAttack(Unit victim)
+    {
+        return IsInBoundary(victim.Location);
+    }
+
+    public virtual void ExecuteEvent(uint eventId) { }
+
     public uint GetBossId()
     {
         return _bossId;
     }
 
+    public override void JustDied(Unit killer)
+    {
+        _JustDied();
+    }
+
+    public override void JustEngagedWith(Unit who)
+    {
+        _JustEngagedWith(who);
+    }
+
+    public override void JustReachedHome()
+    {
+        _JustReachedHome();
+    }
+
+    public override void JustSummoned(Creature summon)
+    {
+        Summons.Summon(summon);
+
+        if (Me.IsEngaged)
+            DoZoneInCombat(summon);
+    }
+
+    public override void Reset()
+    {
+        _Reset();
+    }
+
+    public virtual void ScheduleTasks() { }
+
+    public override void SummonedCreatureDespawn(Creature summon)
+    {
+        Summons.Despawn(summon);
+    }
+
+    public void TeleportCheaters()
+    {
+        foreach (var pair in Me.GetCombatManager().PvECombatRefs)
+        {
+            var target = pair.Value.GetOther(Me);
+
+            if (target.ControlledByPlayer && !IsInBoundary(target.Location))
+                target.NearTeleportTo(Me.Location);
+        }
+    }
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        Events.Update(diff);
+
+        if (Me.HasUnitState(UnitState.Casting))
+            return;
+
+
+        Events.ExecuteEvents(eventId =>
+        {
+            ExecuteEvent(eventId);
+
+            if (Me.HasUnitState(UnitState.Casting))
+                return;
+        });
+
+        DoMeleeAttackIfReady();
+    }
     private void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool reset = true)
     {
         Log.Logger.Debug($"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");

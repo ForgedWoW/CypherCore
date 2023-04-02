@@ -54,7 +54,7 @@ internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellE
             var duration = Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).GetEffect(0).CalcValue(Caster);
 
             CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-            args.AddSpellMod(SpellValueMod.Duration, duration * Time.InMilliseconds);
+            args.AddSpellMod(SpellValueMod.Duration, duration * Time.IN_MILLISECONDS);
             caster.CastSpell(caster, RogueSpells.SliceAndDice, args);
         }
     }

@@ -10,11 +10,19 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ObjectFieldData : BaseUpdateData<WorldObject>
 {
-    public UpdateField<uint> EntryId = new(0, 1);
     public UpdateField<uint> DynamicFlags = new(0, 2);
+    public UpdateField<uint> EntryId = new(0, 1);
     public UpdateField<float> Scale = new(0, 3);
 
     public ObjectFieldData() : base(0, TypeId.Object, 4) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(EntryId);
+        ClearChangesMask(DynamicFlags);
+        ClearChangesMask(Scale);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, WorldObject owner, Player receiver)
     {
@@ -46,28 +54,6 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
                 data.WriteFloat(Scale);
         }
     }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(EntryId);
-        ClearChangesMask(DynamicFlags);
-        ClearChangesMask(Scale);
-        ChangesMask.ResetAll();
-    }
-
-    private uint GetViewerDependentEntryId(ObjectFieldData objectData, WorldObject obj, Player receiver)
-    {
-        uint entryId = objectData.EntryId;
-        var unit = obj.AsUnit;
-
-        var summon = unit?.ToTempSummon();
-            
-        if (summon != null && summon.GetSummonerGUID() == receiver.GUID && summon.GetCreatureIdVisibleToSummoner().HasValue)
-            entryId = summon.GetCreatureIdVisibleToSummoner().Value;
-
-        return entryId;
-    }
-
     private uint GetViewerDependentDynamicFlags(ObjectFieldData objectData, WorldObject obj, Player receiver)
     {
         uint unitDynFlags = objectData.DynamicFlags;
@@ -172,5 +158,18 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
         }
 
         return unitDynFlags;
+    }
+
+    private uint GetViewerDependentEntryId(ObjectFieldData objectData, WorldObject obj, Player receiver)
+    {
+        uint entryId = objectData.EntryId;
+        var unit = obj.AsUnit;
+
+        var summon = unit?.ToTempSummon();
+
+        if (summon != null && summon.SummonerGUID == receiver.GUID && summon.CreatureIdVisibleToSummoner.HasValue)
+            entryId = summon.CreatureIdVisibleToSummoner.Value;
+
+        return entryId;
     }
 }

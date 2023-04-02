@@ -18,6 +18,31 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("go")]
 internal class GoCommands
 {
+    private static bool DoTeleport(CommandHandler handler, Position pos, uint mapId = 0xFFFFFFFF)
+    {
+        var player = handler.Session.Player;
+
+        if (mapId == 0xFFFFFFFF)
+            mapId = player.Location.MapId;
+
+        if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
+        {
+            handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
+
+            return false;
+        }
+
+        // stop flight if need
+        if (player.IsInFlight)
+            player.FinishTaxiFlight();
+        else
+            player.SaveRecallPosition(); // save only in non-flight case
+
+        player.TeleportTo(new WorldLocation(mapId, pos));
+
+        return true;
+    }
+
     [Command("areatrigger", RBACPermissions.CommandGo)]
     private static bool HandleGoAreaTriggerCommand(CommandHandler handler, uint areaTriggerId)
     {
@@ -408,6 +433,30 @@ internal class GoCommands
         return DoTeleport(handler, new Position(node.Pos.X, node.Pos.Y, node.Pos.Z), node.ContinentID);
     }
 
+    private static bool HandleGoTicketCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
+    {
+        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+
+        if (ticket == null)
+        {
+            handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
+
+            return true;
+        }
+
+        var player = handler.Session.Player;
+
+        // stop flight if need
+        if (player.IsInFlight)
+            player.FinishTaxiFlight();
+        else
+            player.SaveRecallPosition(); // save only in non-flight case
+
+        ticket.TeleportTo(player);
+
+        return true;
+    }
+
     //teleport at coordinates, including Z and orientation
     [Command("xyz", RBACPermissions.CommandGo)]
     private static bool HandleGoXYZCommand(CommandHandler handler, float x, float y, float? z, uint? id, float? o)
@@ -491,74 +540,9 @@ internal class GoCommands
 
         return true;
     }
-
-    private static bool HandleGoTicketCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
-    {
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
-
-        if (ticket == null)
-        {
-            handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
-
-            return true;
-        }
-
-        var player = handler.Session.Player;
-
-        // stop flight if need
-        if (player.IsInFlight)
-            player.FinishTaxiFlight();
-        else
-            player.SaveRecallPosition(); // save only in non-flight case
-
-        ticket.TeleportTo(player);
-
-        return true;
-    }
-
-    private static bool DoTeleport(CommandHandler handler, Position pos, uint mapId = 0xFFFFFFFF)
-    {
-        var player = handler.Session.Player;
-
-        if (mapId == 0xFFFFFFFF)
-            mapId = player.Location.MapId;
-
-        if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
-        {
-            handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
-
-            return false;
-        }
-
-        // stop flight if need
-        if (player.IsInFlight)
-            player.FinishTaxiFlight();
-        else
-            player.SaveRecallPosition(); // save only in non-flight case
-
-        player.TeleportTo(new WorldLocation(mapId, pos));
-
-        return true;
-    }
-
     [CommandGroup("creature")]
     private class GoCommandCreature
     {
-        [Command("", RBACPermissions.CommandGo)]
-        private static bool HandleGoCreatureSpawnIdCommand(CommandHandler handler, ulong spawnId)
-        {
-            var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
-
-            if (spawnpoint == null)
-            {
-                handler.SendSysMessage(CypherStrings.CommandGocreatnotfound);
-
-                return false;
-            }
-
-            return DoTeleport(handler, spawnpoint.SpawnPoint, spawnpoint.MapId);
-        }
-
         [Command("id", RBACPermissions.CommandGo)]
         private static bool HandleGoCreatureCIdCommand(CommandHandler handler, uint id)
         {
@@ -590,26 +574,26 @@ internal class GoCommands
 
             return DoTeleport(handler, spawnpoint.SpawnPoint, spawnpoint.MapId);
         }
-    }
 
-    [CommandGroup("gameobject")]
-    private class GoCommandGameobject
-    {
         [Command("", RBACPermissions.CommandGo)]
-        private static bool HandleGoGameObjectSpawnIdCommand(CommandHandler handler, ulong spawnId)
+        private static bool HandleGoCreatureSpawnIdCommand(CommandHandler handler, ulong spawnId)
         {
-            var spawnpoint = Global.ObjectMgr.GetGameObjectData(spawnId);
+            var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
 
             if (spawnpoint == null)
             {
-                handler.SendSysMessage(CypherStrings.CommandGoobjnotfound);
+                handler.SendSysMessage(CypherStrings.CommandGocreatnotfound);
 
                 return false;
             }
 
             return DoTeleport(handler, spawnpoint.SpawnPoint, spawnpoint.MapId);
         }
+    }
 
+    [CommandGroup("gameobject")]
+    private class GoCommandGameobject
+    {
         [Command("id", RBACPermissions.CommandGo)]
         private static bool HandleGoGameObjectGOIdCommand(CommandHandler handler, uint goId)
         {
@@ -631,6 +615,21 @@ internal class GoCommands
                     break;
                 }
             }
+
+            if (spawnpoint == null)
+            {
+                handler.SendSysMessage(CypherStrings.CommandGoobjnotfound);
+
+                return false;
+            }
+
+            return DoTeleport(handler, spawnpoint.SpawnPoint, spawnpoint.MapId);
+        }
+
+        [Command("", RBACPermissions.CommandGo)]
+        private static bool HandleGoGameObjectSpawnIdCommand(CommandHandler handler, ulong spawnId)
+        {
+            var spawnpoint = Global.ObjectMgr.GetGameObjectData(spawnId);
 
             if (spawnpoint == null)
             {

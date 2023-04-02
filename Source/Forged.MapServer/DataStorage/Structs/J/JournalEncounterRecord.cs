@@ -8,16 +8,16 @@ namespace Forged.MapServer.DataStorage.Structs.J;
 
 public sealed class JournalEncounterRecord
 {
-    public LocalizedString Name;
     public LocalizedString Description;
-    public Vector2 Map;
+    public sbyte DifficultyMask;
+    public ushort DungeonEncounterID;
+    public ushort FirstSectionID;
+    public int Flags;
     public uint Id;
     public ushort JournalInstanceID;
-    public ushort DungeonEncounterID;
-    public uint OrderIndex;
-    public ushort FirstSectionID;
-    public ushort UiMapID;
+    public Vector2 Map;
     public uint MapDisplayConditionID;
-    public int Flags;
-    public sbyte DifficultyMask;
+    public LocalizedString Name;
+    public uint OrderIndex;
+    public ushort UiMapID;
 }

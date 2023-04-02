@@ -8,19 +8,18 @@ namespace Forged.MapServer.LootManagement;
 
 internal class StoredLootItem
 {
-    public uint ItemId;
-    public uint Count;
-    public uint ItemIndex;
-    public bool FollowRules;
-    public bool FFA;
     public bool Blocked;
+    public List<uint> BonusListIDs;
+    public ItemContext Context;
+    public uint Count;
     public bool Counted;
-    public bool UnderThreshold;
+    public bool FFA;
+    public bool FollowRules;
+    public uint ItemId;
+    public uint ItemIndex;
     public bool NeedsQuest;
     public uint RandomBonusListId;
-    public ItemContext Context;
-    public List<uint> BonusListIDs;
-
+    public bool UnderThreshold;
     public StoredLootItem(LootItem lootItem)
     {
         ItemId = lootItem.Itemid;

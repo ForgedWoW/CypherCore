@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteRemoved : ServerPacket
 {
-    public ObjectGuid InviteGuid;
+    public bool ClearPending;
     public ulong EventID;
     public uint Flags;
-    public bool ClearPending;
+    public ObjectGuid InviteGuid;
     public CalendarInviteRemoved() : base(ServerOpcodes.CalendarInviteRemoved) { }
 
     public override void Write()

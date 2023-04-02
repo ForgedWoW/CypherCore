@@ -31,6 +31,25 @@ internal class CheatCommands
         return true;
     }
 
+    [Command("status", RBACPermissions.CommandCheatStatus)]
+    private static bool HandleCheatStatusCommand(CommandHandler handler)
+    {
+        var player = handler.Session.Player;
+
+        var enabled = "ON";
+        var disabled = "OFF";
+
+        handler.SendSysMessage(CypherStrings.CommandCheatStatus);
+        handler.SendSysMessage(CypherStrings.CommandCheatGod, player.GetCommandStatus(PlayerCommandStates.God) ? enabled : disabled);
+        handler.SendSysMessage(CypherStrings.CommandCheatCd, player.GetCommandStatus(PlayerCommandStates.Cooldown) ? enabled : disabled);
+        handler.SendSysMessage(CypherStrings.CommandCheatCt, player.GetCommandStatus(PlayerCommandStates.Casttime) ? enabled : disabled);
+        handler.SendSysMessage(CypherStrings.CommandCheatPower, player.GetCommandStatus(PlayerCommandStates.Power) ? enabled : disabled);
+        handler.SendSysMessage(CypherStrings.CommandCheatWw, player.GetCommandStatus(PlayerCommandStates.Waterwalk) ? enabled : disabled);
+        handler.SendSysMessage(CypherStrings.CommandCheatTaxinodes, player.IsTaxiCheater ? enabled : disabled);
+
+        return true;
+    }
+
     [Command("cooldown", RBACPermissions.CommandCheatCooldown)]
     private static bool HandleCoolDownCheatCommand(CommandHandler handler, bool? enableArg)
     {
@@ -138,26 +157,6 @@ internal class CheatCommands
 
         return true;
     }
-
-    [Command("status", RBACPermissions.CommandCheatStatus)]
-    private static bool HandleCheatStatusCommand(CommandHandler handler)
-    {
-        var player = handler.Session.Player;
-
-        var enabled = "ON";
-        var disabled = "OFF";
-
-        handler.SendSysMessage(CypherStrings.CommandCheatStatus);
-        handler.SendSysMessage(CypherStrings.CommandCheatGod, player.GetCommandStatus(PlayerCommandStates.God) ? enabled : disabled);
-        handler.SendSysMessage(CypherStrings.CommandCheatCd, player.GetCommandStatus(PlayerCommandStates.Cooldown) ? enabled : disabled);
-        handler.SendSysMessage(CypherStrings.CommandCheatCt, player.GetCommandStatus(PlayerCommandStates.Casttime) ? enabled : disabled);
-        handler.SendSysMessage(CypherStrings.CommandCheatPower, player.GetCommandStatus(PlayerCommandStates.Power) ? enabled : disabled);
-        handler.SendSysMessage(CypherStrings.CommandCheatWw, player.GetCommandStatus(PlayerCommandStates.Waterwalk) ? enabled : disabled);
-        handler.SendSysMessage(CypherStrings.CommandCheatTaxinodes, player.IsTaxiCheater ? enabled : disabled);
-
-        return true;
-    }
-
     [Command("taxi", RBACPermissions.CommandCheatTaxi)]
     private static bool HandleTaxiCheatCommand(CommandHandler handler, bool? enableArg)
     {

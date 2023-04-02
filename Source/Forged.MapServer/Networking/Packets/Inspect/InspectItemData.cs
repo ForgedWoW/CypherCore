@@ -10,15 +10,14 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public class InspectItemData
 {
+    public List<AzeriteEssenceData> AzeriteEssences = new();
+    public List<int> AzeritePowers = new();
     public ObjectGuid CreatorGUID;
-    public ItemInstance Item;
-    public byte Index;
-    public bool Usable;
     public List<InspectEnchantData> Enchants = new();
     public List<ItemGemData> Gems = new();
-    public List<int> AzeritePowers = new();
-    public List<AzeriteEssenceData> AzeriteEssences = new();
-
+    public byte Index;
+    public ItemInstance Item;
+    public bool Usable;
     public InspectItemData(Entities.Items.Item item, byte index)
     {
         CreatorGUID = item.Creator;

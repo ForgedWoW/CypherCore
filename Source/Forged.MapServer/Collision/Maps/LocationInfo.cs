@@ -7,11 +7,10 @@ namespace Forged.MapServer.Collision.Maps;
 
 public class LocationInfo
 {
-    public int RootId;
+    public float GroundZ;
     public ModelInstance HitInstance;
     public GroupModel HitModel;
-    public float GroundZ;
-
+    public int RootId;
     public LocationInfo()
     {
         GroundZ = float.NegativeInfinity;

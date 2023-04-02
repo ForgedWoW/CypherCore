@@ -9,9 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class RaidMarkersChanged : ServerPacket
 {
-    public sbyte PartyIndex;
     public uint ActiveMarkers;
-
+    public sbyte PartyIndex;
     public List<RaidMarker> RaidMarkers = new();
     public RaidMarkersChanged() : base(ServerOpcodes.RaidMarkersChanged) { }
 

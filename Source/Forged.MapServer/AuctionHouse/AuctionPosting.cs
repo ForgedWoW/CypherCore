@@ -15,28 +15,30 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionPosting
 {
-    public uint Id;
-    public AuctionsBucketData Bucket;
-
-    public List<Item> Items = new();
-    public ObjectGuid Owner;
-    public ObjectGuid OwnerAccount;
+    public ulong BidAmount;
     public ObjectGuid Bidder;
-    public ulong MinBid;
+    public List<ObjectGuid> BidderHistory = new();
+    public AuctionsBucketData Bucket;
     public ulong BuyoutOrUnitPrice;
     public ulong Deposit;
-    public ulong BidAmount;
-    public DateTime StartTime = DateTime.MinValue;
     public DateTime EndTime = DateTime.MinValue;
+    public uint Id;
+    public List<Item> Items = new();
+    public ulong MinBid;
+    public ObjectGuid Owner;
+    public ObjectGuid OwnerAccount;
     public AuctionPostingServerFlag ServerFlags;
-
-    public List<ObjectGuid> BidderHistory = new();
-
+    public DateTime StartTime = DateTime.MinValue;
     public bool IsCommodity => Items.Count > 1 || Items[0].Template.MaxStackSize > 1;
 
     public uint TotalItemCount
     {
         get { return (uint)Items.Sum(item => item.Count); }
+    }
+
+    public static ulong CalculateMinIncrement(ulong bidAmount)
+    {
+        return MathFunctions.CalculatePct(bidAmount / MoneyConstants.Silver, 5) * MoneyConstants.Silver;
     }
 
     public void BuildAuctionItem(AuctionItem auctionItem, bool alwaysSendItem, bool sendKey, bool censorServerInfo, bool censorBidInfo)
@@ -106,7 +108,7 @@ public class AuctionPosting
         }
 
         // all (not optional<>)
-        auctionItem.DurationLeft = (int)Math.Max((EndTime - GameTime.GetSystemTime()).TotalMilliseconds, 0L);
+        auctionItem.DurationLeft = (int)Math.Max((EndTime - GameTime.SystemTime).TotalMilliseconds, 0L);
         auctionItem.DeleteReason = 0;
 
         // SMSG_AUCTION_LIST_ITEMS_RESULT (only if owned)
@@ -132,12 +134,6 @@ public class AuctionPosting
         if (!Items[0].ItemData.Creator.Value.IsEmpty)
             auctionItem.Creator = Items[0].ItemData.Creator;
     }
-
-    public static ulong CalculateMinIncrement(ulong bidAmount)
-    {
-        return MathFunctions.CalculatePct(bidAmount / MoneyConstants.Silver, 5) * MoneyConstants.Silver;
-    }
-
     public ulong CalculateMinIncrement()
     {
         return CalculateMinIncrement(BidAmount);
@@ -146,9 +142,8 @@ public class AuctionPosting
     public class Sorter : IComparer<AuctionPosting>
     {
         private readonly Locale _locale;
-        private readonly AuctionSortDef[] _sorts;
         private readonly int _sortCount;
-
+        private readonly AuctionSortDef[] _sorts;
         public Sorter(Locale locale, AuctionSortDef[] sorts, int sortCount)
         {
             _locale = locale;

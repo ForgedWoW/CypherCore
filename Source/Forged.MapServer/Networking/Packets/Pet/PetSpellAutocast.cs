@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetSpellAutocast : ClientPacket
 {
+    public bool AutocastEnabled;
     public ObjectGuid PetGUID;
     public uint SpellID;
-    public bool AutocastEnabled;
     public PetSpellAutocast(WorldPacket packet) : base(packet) { }
 
     public override void Read()

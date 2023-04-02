@@ -7,6 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal struct VirtualRealmNameInfo
 {
+    public bool IsInternalRealm;
+
+    public bool IsLocal;
+
+    // true if the realm is the same as the account's home realm
+    // @todo research
+    public string RealmNameActual;
+
+    // the name of the realm
+    public string RealmNameNormalized;
+
     public VirtualRealmNameInfo(bool isHomeRealm, bool isInternalRealm, string realmNameActual, string realmNameNormalized)
     {
         IsLocal = isHomeRealm;
@@ -27,8 +38,5 @@ internal struct VirtualRealmNameInfo
         data.WriteString(RealmNameNormalized);
     }
 
-    public bool IsLocal;               // true if the realm is the same as the account's home realm
-    public bool IsInternalRealm;       // @todo research
-    public string RealmNameActual;     // the name of the realm
-    public string RealmNameNormalized; // the name of the realm without spaces
+ // the name of the realm without spaces
 }

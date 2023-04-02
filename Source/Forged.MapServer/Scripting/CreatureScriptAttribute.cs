@@ -8,8 +8,6 @@ namespace Forged.MapServer.Scripting;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class CreatureScriptAttribute : ScriptAttribute
 {
-    public uint[] CreatureIds { get; private set; }
-
     public CreatureScriptAttribute(params uint[] creatureIds)
     {
         CreatureIds = creatureIds;
@@ -29,4 +27,6 @@ public class CreatureScriptAttribute : ScriptAttribute
     {
         CreatureIds = creatureIds;
     }
+
+    public uint[] CreatureIds { get; private set; }
 }

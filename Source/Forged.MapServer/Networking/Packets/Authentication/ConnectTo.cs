@@ -12,23 +12,25 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class ConnectTo : ServerPacket
 {
-    public enum AddressType
-    {
-        IPv4 = 1,
-        IPv6 = 2,
-        NamedSocket = 3 // not supported by windows client
-    }
+    public byte Con;
 
     public ulong Key;
-    public ConnectToSerial Serial;
+
     public ConnectPayload Payload;
-    public byte Con;
+
+    public ConnectToSerial Serial;
 
     public ConnectTo() : base(ServerOpcodes.ConnectTo)
     {
         Payload = new ConnectPayload();
     }
 
+    public enum AddressType
+    {
+        IPv4 = 1,
+        IPv6 = 2,
+        NamedSocket = 3 // not supported by windows client
+    }
     public override void Write()
     {
         ByteBuffer whereBuffer = new();
@@ -67,19 +69,18 @@ internal class ConnectTo : ServerPacket
         _worldPacket.WriteUInt64(Key);
     }
 
-    public class ConnectPayload
-    {
-        public SocketAddress Where;
-        public ushort Port;
-        public byte[] Signature = new byte[256];
-    }
-
     public struct SocketAddress
     {
-        public AddressType Type;
-
         public byte[] IPv4;
         public byte[] IPv6;
         public string NameSocket;
+        public AddressType Type;
+    }
+
+    public class ConnectPayload
+    {
+        public ushort Port;
+        public byte[] Signature = new byte[256];
+        public SocketAddress Where;
     }
 }

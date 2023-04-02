@@ -9,10 +9,10 @@ namespace Forged.MapServer.Spells;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class AuraEffectHandlerAttribute : Attribute
 {
-    public AuraType AuraType { get; set; }
-
     public AuraEffectHandlerAttribute(AuraType type)
     {
         AuraType = type;
     }
+
+    public AuraType AuraType { get; set; }
 }

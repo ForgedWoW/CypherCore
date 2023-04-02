@@ -5,7 +5,7 @@ namespace Forged.MapServer.DataStorage.Structs.T;
 
 public sealed class TraitNodeGroupRecord
 {
+    public int Flags;
     public uint Id;
     public int TraitTreeID;
-    public int Flags;
 }

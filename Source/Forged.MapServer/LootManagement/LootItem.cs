@@ -14,25 +14,29 @@ namespace Forged.MapServer.LootManagement;
 
 public class LootItem
 {
+    public List<ObjectGuid> AllowedGuiDs = new();
+    public List<uint> BonusListIDs = new();
+    public List<Condition> Conditions = new();
+    public ItemContext Context;
+    public byte Count;
+    public bool FollowLootRules;
+    public bool Freeforall;
+    public bool IsBlocked;
+    public bool IsCounted;
+    public bool IsLooted;
+    // free for all
+    public bool IsUnderthreshold;
+
     public uint Itemid;
     public uint LootListId;
+    public bool NeedsQuest;
     public uint RandomBonusListId;
-    public List<uint> BonusListIDs = new();
-    public ItemContext Context;
-    public List<Condition> Conditions = new(); // additional loot condition
-    public List<ObjectGuid> AllowedGuiDs = new();
+    // additional loot condition
     public ObjectGuid RollWinnerGuid; // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
-    public byte Count;
-    public bool IsLooted;
-    public bool IsBlocked;
-    public bool Freeforall; // free for all
-    public bool IsUnderthreshold;
-    public bool IsCounted;
-    public bool NeedsQuest; // quest drop
-    public bool FollowLootRules;
-    private readonly GameObjectManager _objectManager;
     private readonly ConditionManager _conditionManager;
 
+    // quest drop
+    private readonly GameObjectManager _objectManager;
     public LootItem(GameObjectManager objectManager, ConditionManager conditionManager)
     {
         _objectManager = objectManager;
@@ -51,17 +55,6 @@ public class LootItem
         NeedsQuest = li.NeedsQuest;
 
         RandomBonusListId = ItemEnchantmentManager.GenerateItemRandomBonusListId(Itemid);
-    }
-
-    /// <summary>
-    ///     Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
-    /// </summary>
-    /// <param name="player"> </param>
-    /// <param name="loot"> </param>
-    /// <returns> </returns>
-    public bool AllowedForPlayer(Player player, Loot loot)
-    {
-        return AllowedForPlayer(player, loot, Itemid, NeedsQuest, FollowLootRules, false, Conditions, _objectManager, _conditionManager);
     }
 
     public static bool AllowedForPlayer(Player player, Loot loot, uint itemid, bool needsQuest, bool followLootRules, bool strictUsabilityCheck, List<Condition> conditions, GameObjectManager objectManager, ConditionManager conditionManager)
@@ -123,9 +116,19 @@ public class LootItem
         AllowedGuiDs.Add(player.GUID);
     }
 
-    public bool HasAllowedLooter(ObjectGuid looter)
+    /// <summary>
+    ///     Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
+    /// </summary>
+    /// <param name="player"> </param>
+    /// <param name="loot"> </param>
+    /// <returns> </returns>
+    public bool AllowedForPlayer(Player player, Loot loot)
     {
-        return AllowedGuiDs.Contains(looter);
+        return AllowedForPlayer(player, loot, Itemid, NeedsQuest, FollowLootRules, false, Conditions, _objectManager, _conditionManager);
+    }
+    public List<ObjectGuid> GetAllowedLooters()
+    {
+        return AllowedGuiDs;
     }
 
     public LootSlotType? GetUiTypeForPlayer(Player player, Loot loot)
@@ -193,8 +196,8 @@ public class LootItem
         return null;
     }
 
-    public List<ObjectGuid> GetAllowedLooters()
+    public bool HasAllowedLooter(ObjectGuid looter)
     {
-        return AllowedGuiDs;
+        return AllowedGuiDs.Contains(looter);
     }
 }

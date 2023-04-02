@@ -8,7 +8,7 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct ThrottledAppend : IChannelAppender
 {
-    public ChatNotify GetNotificationType() => ChatNotify.ThrottledNotice;
-
     public void Append(ChannelNotify data) { }
+
+    public ChatNotify GetNotificationType() => ChatNotify.ThrottledNotice;
 }

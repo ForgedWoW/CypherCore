@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestUpdateAddPvPCredit : ServerPacket
 {
-    public uint QuestID;
     public ushort Count;
+    public uint QuestID;
     public QuestUpdateAddPvPCredit() : base(ServerOpcodes.QuestUpdateAddPvpCredit, ConnectionType.Instance) { }
 
     public override void Write()

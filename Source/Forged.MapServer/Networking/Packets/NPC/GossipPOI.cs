@@ -9,13 +9,13 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 internal class GossipPOI : ServerPacket
 {
-    public uint Id;
     public uint Flags;
-    public Vector3 Pos;
     public uint Icon;
+    public uint Id;
     public uint Importance;
-    public uint WMOGroupID;
     public string Name;
+    public Vector3 Pos;
+    public uint WMOGroupID;
     public GossipPOI() : base(ServerOpcodes.GossipPoi) { }
 
     public override void Write()

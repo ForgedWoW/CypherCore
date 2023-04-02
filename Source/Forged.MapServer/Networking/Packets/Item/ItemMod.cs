@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemMod
 {
-    public uint Value;
     public ItemModifier Type;
-
+    public uint Value;
     public ItemMod()
     {
         Type = ItemModifier.Max;
@@ -19,6 +18,32 @@ public class ItemMod
     {
         Value = value;
         Type = type;
+    }
+
+    public static bool operator !=(ItemMod left, ItemMod right)
+    {
+        return !(left == right);
+    }
+
+    public static bool operator ==(ItemMod left, ItemMod right)
+    {
+        if (left.Value != right.Value)
+            return false;
+
+        return left.Type != right.Type;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is ItemMod)
+            return (ItemMod)obj == this;
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode() ^ Type.GetHashCode();
     }
 
     public void Read(WorldPacket data)
@@ -31,31 +56,5 @@ public class ItemMod
     {
         data.WriteUInt32(Value);
         data.WriteUInt8((byte)Type);
-    }
-
-    public override int GetHashCode()
-    {
-        return Value.GetHashCode() ^ Type.GetHashCode();
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj is ItemMod)
-            return (ItemMod)obj == this;
-
-        return false;
-    }
-
-    public static bool operator ==(ItemMod left, ItemMod right)
-    {
-        if (left.Value != right.Value)
-            return false;
-
-        return left.Type != right.Type;
-    }
-
-    public static bool operator !=(ItemMod left, ItemMod right)
-    {
-        return !(left == right);
     }
 }

@@ -12,101 +12,6 @@ namespace Forged.MapServer.Miscellaneous;
 
 public class Formulas
 {
-    public static float HKHonorAtLevelF(uint level, float multiplier = 1.0f)
-    {
-        var honor = multiplier * level * 1.55f;
-        Global.ScriptMgr.ForEach<IFormulaOnHonorCalculation>(p => p.OnHonorCalculation(honor, level, multiplier));
-
-        return honor;
-    }
-
-    public static uint HKHonorAtLevel(uint level, float multiplier = 1.0f)
-    {
-        return (uint)Math.Ceiling(HKHonorAtLevelF(level, multiplier));
-    }
-
-    public static uint GetGrayLevel(uint pl_level)
-    {
-        uint level;
-
-        if (pl_level < 7)
-        {
-            level = 0;
-        }
-        else if (pl_level < 35)
-        {
-            byte count = 0;
-
-            for (var i = 15; i <= pl_level; ++i)
-                if (i % 5 == 0)
-                    ++count;
-
-            level = (uint)((pl_level - 7) - (count - 1));
-        }
-        else
-        {
-            level = pl_level - 10;
-        }
-
-        Global.ScriptMgr.ForEach<IFormulaOnGrayLevelCalculation>(p => p.OnGrayLevelCalculation(level, pl_level));
-
-        return level;
-    }
-
-    public static XPColorChar GetColorCode(uint pl_level, uint mob_level)
-    {
-        XPColorChar color;
-
-        if (mob_level >= pl_level + 5)
-            color = XPColorChar.Red;
-        else if (mob_level >= pl_level + 3)
-            color = XPColorChar.Orange;
-        else if (mob_level >= pl_level - 2)
-            color = XPColorChar.Yellow;
-        else if (mob_level > GetGrayLevel(pl_level))
-            color = XPColorChar.Green;
-        else
-            color = XPColorChar.Gray;
-
-        Global.ScriptMgr.ForEach<IFormulaOnColorCodeCaclculation>(p => p.OnColorCodeCalculation(color, pl_level, mob_level));
-
-        return color;
-    }
-
-    public static uint GetZeroDifference(uint pl_level)
-    {
-        uint diff;
-
-        if (pl_level < 4)
-            diff = 5;
-        else if (pl_level < 10)
-            diff = 6;
-        else if (pl_level < 12)
-            diff = 7;
-        else if (pl_level < 16)
-            diff = 8;
-        else if (pl_level < 20)
-            diff = 9;
-        else if (pl_level < 30)
-            diff = 11;
-        else if (pl_level < 40)
-            diff = 12;
-        else if (pl_level < 45)
-            diff = 13;
-        else if (pl_level < 50)
-            diff = 14;
-        else if (pl_level < 55)
-            diff = 15;
-        else if (pl_level < 60)
-            diff = 16;
-        else
-            diff = 17;
-
-        Global.ScriptMgr.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, pl_level));
-
-        return diff;
-    }
-
     public static uint BaseGain(uint pl_level, uint mob_level)
     {
         uint baseGain;
@@ -150,6 +55,117 @@ public class Formulas
         return baseGain;
     }
 
+    public static uint BgConquestRatingCalculator(uint rate)
+    {
+        // WowWiki: Battlegroundratings receive a bonus of 22.2% to the cap they generate
+        return (uint)((ConquestRatingCalculator(rate) * 1.222f) + 0.5f);
+    }
+
+    public static uint ConquestRatingCalculator(uint rate)
+    {
+        if (rate <= 1500)
+            return 1350; // Default conquest points
+        else if (rate > 3000)
+            rate = 3000;
+
+        // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
+        return (uint)(1.4326 * ((1511.26 / (1 + 1639.28 / Math.Exp(0.00412 * rate))) + 850.15));
+    }
+
+    public static XPColorChar GetColorCode(uint pl_level, uint mob_level)
+    {
+        XPColorChar color;
+
+        if (mob_level >= pl_level + 5)
+            color = XPColorChar.Red;
+        else if (mob_level >= pl_level + 3)
+            color = XPColorChar.Orange;
+        else if (mob_level >= pl_level - 2)
+            color = XPColorChar.Yellow;
+        else if (mob_level > GetGrayLevel(pl_level))
+            color = XPColorChar.Green;
+        else
+            color = XPColorChar.Gray;
+
+        Global.ScriptMgr.ForEach<IFormulaOnColorCodeCaclculation>(p => p.OnColorCodeCalculation(color, pl_level, mob_level));
+
+        return color;
+    }
+
+    public static uint GetGrayLevel(uint pl_level)
+    {
+        uint level;
+
+        if (pl_level < 7)
+        {
+            level = 0;
+        }
+        else if (pl_level < 35)
+        {
+            byte count = 0;
+
+            for (var i = 15; i <= pl_level; ++i)
+                if (i % 5 == 0)
+                    ++count;
+
+            level = (uint)((pl_level - 7) - (count - 1));
+        }
+        else
+        {
+            level = pl_level - 10;
+        }
+
+        Global.ScriptMgr.ForEach<IFormulaOnGrayLevelCalculation>(p => p.OnGrayLevelCalculation(level, pl_level));
+
+        return level;
+    }
+
+    public static uint GetZeroDifference(uint pl_level)
+    {
+        uint diff;
+
+        if (pl_level < 4)
+            diff = 5;
+        else if (pl_level < 10)
+            diff = 6;
+        else if (pl_level < 12)
+            diff = 7;
+        else if (pl_level < 16)
+            diff = 8;
+        else if (pl_level < 20)
+            diff = 9;
+        else if (pl_level < 30)
+            diff = 11;
+        else if (pl_level < 40)
+            diff = 12;
+        else if (pl_level < 45)
+            diff = 13;
+        else if (pl_level < 50)
+            diff = 14;
+        else if (pl_level < 55)
+            diff = 15;
+        else if (pl_level < 60)
+            diff = 16;
+        else
+            diff = 17;
+
+        Global.ScriptMgr.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, pl_level));
+
+        return diff;
+    }
+
+    public static uint HKHonorAtLevel(uint level, float multiplier = 1.0f)
+    {
+        return (uint)Math.Ceiling(HKHonorAtLevelF(level, multiplier));
+    }
+
+    public static float HKHonorAtLevelF(uint level, float multiplier = 1.0f)
+    {
+        var honor = multiplier * level * 1.55f;
+        Global.ScriptMgr.ForEach<IFormulaOnHonorCalculation>(p => p.OnHonorCalculation(honor, level, multiplier));
+
+        return honor;
+    }
     public static uint XPGain(Player player, Unit u, bool isBattleGround = false)
     {
         var creature = u.AsCreature;
@@ -228,24 +244,6 @@ public class Formulas
 
         return rate;
     }
-
-    public static uint ConquestRatingCalculator(uint rate)
-    {
-        if (rate <= 1500)
-            return 1350; // Default conquest points
-        else if (rate > 3000)
-            rate = 3000;
-
-        // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
-        return (uint)(1.4326 * ((1511.26 / (1 + 1639.28 / Math.Exp(0.00412 * rate))) + 850.15));
-    }
-
-    public static uint BgConquestRatingCalculator(uint rate)
-    {
-        // WowWiki: Battlegroundratings receive a bonus of 22.2% to the cap they generate
-        return (uint)((ConquestRatingCalculator(rate) * 1.222f) + 0.5f);
-    }
-
     private static Expansion GetExpansionForLevel(uint level)
     {
         if (level < 60)

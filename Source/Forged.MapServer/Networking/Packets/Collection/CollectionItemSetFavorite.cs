@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Collection;
 
 internal class CollectionItemSetFavorite : ClientPacket
 {
-    public CollectionType Type;
     public uint Id;
     public bool IsFavorite;
+    public CollectionType Type;
     public CollectionItemSetFavorite(WorldPacket packet) : base(packet) { }
 
     public override void Read()

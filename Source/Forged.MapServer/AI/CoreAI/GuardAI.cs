@@ -13,14 +13,6 @@ public class GuardAI : ScriptedAI.ScriptedAI
 {
     public GuardAI(Creature creature) : base(creature) { }
 
-    public override void UpdateAI(uint diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
-
     public override bool CanSeeAlways(WorldObject obj)
     {
         var unit = obj.AsUnit;
@@ -58,5 +50,13 @@ public class GuardAI : ScriptedAI.ScriptedAI
 
         if (player != null)
             Me.SendZoneUnderAttackMessage(player);
+    }
+
+    public override void UpdateAI(uint diff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
     }
 }

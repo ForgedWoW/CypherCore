@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public class SpellLogMissEntry
 {
-    public ObjectGuid Victim;
     public byte MissReason;
+    public ObjectGuid Victim;
     private SpellLogMissDebug? Debug;
 
     public SpellLogMissEntry(ObjectGuid victim, byte missReason)

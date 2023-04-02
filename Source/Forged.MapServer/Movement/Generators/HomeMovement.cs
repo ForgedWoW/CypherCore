@@ -16,34 +16,6 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
         BaseUnitState = UnitState.Roaming;
     }
 
-    public override void DoInitialize(T owner)
-    {
-        RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated);
-        AddFlag(MovementGeneratorFlags.Initialized);
-
-        owner.SetNoSearchAssistance(false);
-
-        SetTargetLocation(owner);
-    }
-
-    public override void DoReset(T owner)
-    {
-        RemoveFlag(MovementGeneratorFlags.Deactivated);
-        DoInitialize(owner);
-    }
-
-    public override bool DoUpdate(T owner, uint diff)
-    {
-        if (HasFlag(MovementGeneratorFlags.Interrupted) || owner.MoveSpline.Finalized())
-        {
-            AddFlag(MovementGeneratorFlags.InformEnabled);
-
-            return false;
-        }
-
-        return true;
-    }
-
     public override void DoDeactivate(T owner)
     {
         AddFlag(MovementGeneratorFlags.Deactivated);
@@ -77,6 +49,33 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
         }
     }
 
+    public override void DoInitialize(T owner)
+    {
+        RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated);
+        AddFlag(MovementGeneratorFlags.Initialized);
+
+        owner.SetNoSearchAssistance(false);
+
+        SetTargetLocation(owner);
+    }
+
+    public override void DoReset(T owner)
+    {
+        RemoveFlag(MovementGeneratorFlags.Deactivated);
+        DoInitialize(owner);
+    }
+
+    public override bool DoUpdate(T owner, uint diff)
+    {
+        if (HasFlag(MovementGeneratorFlags.Interrupted) || owner.MoveSpline.Finalized())
+        {
+            AddFlag(MovementGeneratorFlags.InformEnabled);
+
+            return false;
+        }
+
+        return true;
+    }
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.Home;

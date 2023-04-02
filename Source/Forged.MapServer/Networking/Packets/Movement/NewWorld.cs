@@ -8,10 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class NewWorld : ServerPacket
 {
-    public uint MapID;
-    public uint Reason;
     public TeleportLocation Loc = new();
-    public Position MovementOffset; // Adjusts all pending movement events by this offset
+    public uint MapID;
+    public Position MovementOffset;
+    public uint Reason;
+    // Adjusts all pending movement events by this offset
     public NewWorld() : base(ServerOpcodes.NewWorld) { }
 
     public override void Write()

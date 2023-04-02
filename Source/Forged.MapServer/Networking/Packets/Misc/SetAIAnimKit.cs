@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SetAIAnimKit : ServerPacket
 {
-    public ObjectGuid Unit;
     public ushort AnimKitID;
+    public ObjectGuid Unit;
     public SetAIAnimKit() : base(ServerOpcodes.SetAiAnimKit, ConnectionType.Instance) { }
 
     public override void Write()

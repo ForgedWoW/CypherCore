@@ -13,11 +13,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class PlayerWorker : IGridNotifierPlayer
 {
-    private readonly PhaseShift _phaseShift;
     private readonly Action<Player> _action;
-
-    public GridType GridType { get; set; }
-
+    private readonly PhaseShift _phaseShift;
     public PlayerWorker(WorldObject searcher, Action<Player> action, GridType gridType)
     {
         _phaseShift = searcher.Location.PhaseShift;
@@ -25,6 +22,7 @@ public class PlayerWorker : IGridNotifierPlayer
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Player> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

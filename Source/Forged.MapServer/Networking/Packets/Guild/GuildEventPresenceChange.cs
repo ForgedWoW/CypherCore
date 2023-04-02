@@ -10,10 +10,10 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 public class GuildEventPresenceChange : ServerPacket
 {
     public ObjectGuid Guid;
-    public uint VirtualRealmAddress;
-    public string Name;
-    public bool Mobile;
     public bool LoggedOn;
+    public bool Mobile;
+    public string Name;
+    public uint VirtualRealmAddress;
     public GuildEventPresenceChange() : base(ServerOpcodes.GuildEventPresenceChange) { }
 
     public override void Write()

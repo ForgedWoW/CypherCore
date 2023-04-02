@@ -5,10 +5,10 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFProposalResponse : ClientPacket
 {
-    public RideTicket Ticket = new();
+    public bool Accepted;
     public ulong InstanceID;
     public uint ProposalID;
-    public bool Accepted;
+    public RideTicket Ticket = new();
     public DFProposalResponse(WorldPacket packet) : base(packet) { }
 
     public override void Read()

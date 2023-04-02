@@ -11,9 +11,9 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharFactionChangeResult : ServerPacket
 {
-    public ResponseCodes Result = 0;
-    public ObjectGuid Guid;
     public CharFactionChangeDisplayInfo Display;
+    public ObjectGuid Guid;
+    public ResponseCodes Result = 0;
     public CharFactionChangeResult() : base(ServerOpcodes.CharFactionChangeResult) { }
 
     public override void Write()
@@ -41,9 +41,9 @@ public class CharFactionChangeResult : ServerPacket
 
     public class CharFactionChangeDisplayInfo
     {
-        public string Name;
-        public byte SexID;
-        public byte RaceID;
         public Array<ChrCustomizationChoice> Customizations = new(72);
+        public string Name;
+        public byte RaceID;
+        public byte SexID;
     }
 }

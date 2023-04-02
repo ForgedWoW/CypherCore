@@ -8,58 +8,6 @@ namespace Forged.MapServer.Chat;
 
 internal class Hyperlink
 {
-    public static ChatCommandResult TryParse(out dynamic value, Type type, CommandHandler handler, string arg)
-    {
-        value = default;
-
-        var info = ParseHyperlink(arg);
-
-        // invalid hyperlinks cannot be consumed
-        if (info == null)
-            return default;
-
-        var errorResult = ChatCommandResult.FromErrorMessage(handler.GetCypherString(CypherStrings.CmdparserLinkdataInvalid));
-
-        // store value
-        switch (Type.GetTypeCode(type))
-        {
-            case TypeCode.UInt32:
-            {
-                if (!uint.TryParse(info.Data, out var tempValue))
-                    return errorResult;
-
-                value = tempValue;
-
-                break;
-            }
-            case TypeCode.UInt64:
-            {
-                if (!ulong.TryParse(info.Data, out var tempValue))
-                    return errorResult;
-
-                value = tempValue;
-
-                break;
-            }
-            case TypeCode.String:
-            {
-                value = info.Data;
-
-                break;
-            }
-            default:
-                return errorResult;
-        }
-
-        // finally, skip any potential delimiters
-        var (token, next) = info.Tail.Tokenize();
-
-        if (token.IsEmpty()) /* empty token = first character is delimiter, skip past it */
-            return new ChatCommandResult(next);
-        else
-            return new ChatCommandResult(info.Tail);
-    }
-
     public static bool CheckAllLinks(string str)
     {
         // Step 1: Disallow all control sequences except ||, |H, |h, |c and |r
@@ -182,6 +130,57 @@ internal class Hyperlink
         return new HyperlinkInfo(currentString.Substring(pos), color, currentString.Substring(tagStart, tagLength), currentString.Substring(dataStart, dataLength), currentString.Substring(textStart, textLength));
     }
 
+    public static ChatCommandResult TryParse(out dynamic value, Type type, CommandHandler handler, string arg)
+    {
+        value = default;
+
+        var info = ParseHyperlink(arg);
+
+        // invalid hyperlinks cannot be consumed
+        if (info == null)
+            return default;
+
+        var errorResult = ChatCommandResult.FromErrorMessage(handler.GetCypherString(CypherStrings.CmdparserLinkdataInvalid));
+
+        // store value
+        switch (Type.GetTypeCode(type))
+        {
+            case TypeCode.UInt32:
+            {
+                if (!uint.TryParse(info.Data, out var tempValue))
+                    return errorResult;
+
+                value = tempValue;
+
+                break;
+            }
+            case TypeCode.UInt64:
+            {
+                if (!ulong.TryParse(info.Data, out var tempValue))
+                    return errorResult;
+
+                value = tempValue;
+
+                break;
+            }
+            case TypeCode.String:
+            {
+                value = info.Data;
+
+                break;
+            }
+            default:
+                return errorResult;
+        }
+
+        // finally, skip any potential delimiters
+        var (token, next) = info.Tail.Tokenize();
+
+        if (token.IsEmpty()) /* empty token = first character is delimiter, skip past it */
+            return new ChatCommandResult(next);
+        else
+            return new ChatCommandResult(info.Tail);
+    }
     private static byte toHex(char c)
     {
         return (byte)(c is >= '0' and <= '9' ? c - '0' + 0x10 : c is >= 'a' and <= 'f' ? c - 'a' + 0x1a : 0x00);

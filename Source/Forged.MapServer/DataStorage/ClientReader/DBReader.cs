@@ -12,12 +12,11 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 internal class DBReader
 {
-    public WDCHeader Header;
-    public FieldMetaData[] FieldMeta;
     public ColumnMetaData[] ColumnMeta;
-    public Value32[][] PalletData;
     public Dictionary<int, Value32>[] CommonData;
-
+    public FieldMetaData[] FieldMeta;
+    public WDCHeader Header;
+    public Value32[][] PalletData;
     public Dictionary<int, WDC3Row> Records = new();
     private const uint WDC3FmtSig = 0x33434457; // WDC3
 

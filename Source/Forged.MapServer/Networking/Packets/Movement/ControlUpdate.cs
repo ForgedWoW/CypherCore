@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class ControlUpdate : ServerPacket
 {
-    public bool On;
     public ObjectGuid Guid;
+    public bool On;
     public ControlUpdate() : base(ServerOpcodes.ControlUpdate) { }
 
     public override void Write()

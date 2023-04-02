@@ -9,55 +9,20 @@ namespace Forged.MapServer.BattleGrounds;
 
 public class BattlegroundScore
 {
-    public ObjectGuid PlayerGuid;
-    public int TeamId;
-
-    // Default score, present in every type
-    public uint KillingBlows;
-    public uint Deaths;
-    public uint HonorableKills;
     public uint BonusHonor;
     public uint DamageDone;
+    public uint Deaths;
     public uint HealingDone;
+    public uint HonorableKills;
+    // Default score, present in every type
+    public uint KillingBlows;
 
+    public ObjectGuid PlayerGuid;
+    public int TeamId;
     public BattlegroundScore(ObjectGuid playerGuid, TeamFaction team)
     {
         PlayerGuid = playerGuid;
         TeamId = (int)(team == TeamFaction.Alliance ? PvPTeamId.Alliance : PvPTeamId.Horde);
-    }
-
-    public virtual void UpdateScore(ScoreType type, uint value)
-    {
-        switch (type)
-        {
-            case ScoreType.KillingBlows:
-                KillingBlows += value;
-
-                break;
-            case ScoreType.Deaths:
-                Deaths += value;
-
-                break;
-            case ScoreType.HonorableKills:
-                HonorableKills += value;
-
-                break;
-            case ScoreType.BonusHonor:
-                BonusHonor += value;
-
-                break;
-            case ScoreType.DamageDone:
-                DamageDone += value;
-
-                break;
-            case ScoreType.HealingDone:
-                HealingDone += value;
-
-                break;
-            default:
-
-                break;
-        }
     }
 
     public virtual void BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData)
@@ -108,5 +73,39 @@ public class BattlegroundScore
     public virtual uint GetAttr5()
     {
         return 0;
+    }
+
+    public virtual void UpdateScore(ScoreType type, uint value)
+    {
+        switch (type)
+        {
+            case ScoreType.KillingBlows:
+                KillingBlows += value;
+
+                break;
+            case ScoreType.Deaths:
+                Deaths += value;
+
+                break;
+            case ScoreType.HonorableKills:
+                HonorableKills += value;
+
+                break;
+            case ScoreType.BonusHonor:
+                BonusHonor += value;
+
+                break;
+            case ScoreType.DamageDone:
+                DamageDone += value;
+
+                break;
+            case ScoreType.HealingDone:
+                HealingDone += value;
+
+                break;
+            default:
+
+                break;
+        }
     }
 }

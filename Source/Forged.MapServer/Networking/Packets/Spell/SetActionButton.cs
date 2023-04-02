@@ -9,12 +9,6 @@ public class SetActionButton : ClientPacket
     public byte Index;
     public SetActionButton(WorldPacket packet) : base(packet) { }
 
-    public override void Read()
-    {
-        Action = _worldPacket.ReadUInt64();
-        Index = _worldPacket.ReadUInt8();
-    }
-
     public uint GetButtonAction()
     {
         return (uint)(Action & 0x00FFFFFFFFFFFFFF);
@@ -23,5 +17,11 @@ public class SetActionButton : ClientPacket
     public uint GetButtonType()
     {
         return (uint)((Action & 0xFF00000000000000) >> 56);
+    }
+
+    public override void Read()
+    {
+        Action = _worldPacket.ReadUInt64();
+        Index = _worldPacket.ReadUInt8();
     }
 }

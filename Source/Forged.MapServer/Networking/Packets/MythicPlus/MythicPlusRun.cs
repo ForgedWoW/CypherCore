@@ -7,17 +7,16 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class MythicPlusRun
 {
-    public int MapChallengeModeID;
     public bool Completed;
-    public uint Level;
-    public int DurationMs;
-    public long StartDate;
     public long CompletionDate;
-    public int Season;
+    public int DurationMs;
+    public int[] KeystoneAffixIDs = new int[4];
+    public uint Level;
+    public int MapChallengeModeID;
     public List<MythicPlusMember> Members = new();
     public float RunScore;
-    public int[] KeystoneAffixIDs = new int[4];
-
+    public int Season;
+    public long StartDate;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(MapChallengeModeID);

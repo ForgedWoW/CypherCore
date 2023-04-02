@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 internal class DefenseMessage : ServerPacket
 {
-    public uint ZoneID;
     public string MessageText = "";
+    public uint ZoneID;
     public DefenseMessage() : base(ServerOpcodes.DefenseMessage) { }
 
     public override void Write()

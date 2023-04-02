@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class LogXPGain : ServerPacket
 {
-    public ObjectGuid Victim;
-    public int Original;
-    public PlayerLogXPReason Reason;
     public int Amount;
     public float GroupBonus;
+    public int Original;
+    public PlayerLogXPReason Reason;
+    public ObjectGuid Victim;
     public LogXPGain() : base(ServerOpcodes.LogXpGain) { }
 
     public override void Write()

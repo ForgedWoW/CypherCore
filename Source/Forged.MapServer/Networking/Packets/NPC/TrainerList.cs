@@ -10,11 +10,11 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class TrainerList : ServerPacket
 {
-    public ObjectGuid TrainerGUID;
-    public int TrainerType;
-    public int TrainerID = 1;
-    public List<TrainerListSpell> Spells = new();
     public string Greeting;
+    public List<TrainerListSpell> Spells = new();
+    public ObjectGuid TrainerGUID;
+    public int TrainerID = 1;
+    public int TrainerType;
     public TrainerList() : base(ServerOpcodes.TrainerList, ConnectionType.Instance) { }
 
     public override void Write()

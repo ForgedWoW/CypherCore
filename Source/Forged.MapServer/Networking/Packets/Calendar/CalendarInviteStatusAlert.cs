@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteStatusAlert : ServerPacket
 {
+    public long Date;
     public ulong EventID;
     public uint Flags;
-    public long Date;
     public byte Status;
     public CalendarInviteStatusAlert() : base(ServerOpcodes.CalendarInviteStatusAlert) { }
 

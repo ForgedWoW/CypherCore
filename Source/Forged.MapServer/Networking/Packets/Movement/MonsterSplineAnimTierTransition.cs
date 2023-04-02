@@ -5,11 +5,10 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public struct MonsterSplineAnimTierTransition
 {
-    public int TierTransitionID;
-    public uint StartTime;
-    public uint EndTime;
     public byte AnimTier;
-
+    public uint EndTime;
+    public uint StartTime;
+    public int TierTransitionID;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(TierTransitionID);

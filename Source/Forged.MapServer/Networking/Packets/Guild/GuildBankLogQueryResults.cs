@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankLogQueryResults : ServerPacket
 {
-    public int Tab;
     public List<GuildBankLogEntry> Entry;
+    public int Tab;
     public ulong? WeeklyBonusMoney;
 
     public GuildBankLogQueryResults() : base(ServerOpcodes.GuildBankLogQueryResults)

@@ -13,19 +13,28 @@ namespace Forged.MapServer.DataStorage;
 
 public class ConversationDataStorage
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _objectManager;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
-    private readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
     private readonly Dictionary<uint, ConversationLineTemplate> _conversationLineTemplateStorage = new();
-
+    private readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
+    private readonly GameObjectManager _objectManager;
+    private readonly WorldDatabase _worldDatabase;
     public ConversationDataStorage(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, IConfiguration configuration)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _cliDB = cliDB;
         _configuration = configuration;
+    }
+
+    public ConversationLineTemplate GetConversationLineTemplate(uint conversationLineId)
+    {
+        return _conversationLineTemplateStorage.LookupByKey(conversationLineId);
+    }
+
+    public ConversationTemplate GetConversationTemplate(uint conversationId)
+    {
+        return _conversationTemplateStorage.LookupByKey(conversationId);
     }
 
     public void LoadConversationTemplates()
@@ -192,30 +201,17 @@ public class ConversationDataStorage
             Log.Logger.Information("Loaded 0 Conversation templates. DB table `conversation_template` is empty.");
         }
     }
-
-    public ConversationTemplate GetConversationTemplate(uint conversationId)
-    {
-        return _conversationTemplateStorage.LookupByKey(conversationId);
-    }
-
-    public ConversationLineTemplate GetConversationLineTemplate(uint conversationLineId)
-    {
-        return _conversationLineTemplateStorage.LookupByKey(conversationLineId);
-    }
-
     private struct ConversationActorDbRow
     {
-        private readonly WorldDatabase _worldDatabase;
-        private readonly GameObjectManager _objectManager;
+        public uint ActorIndex;
+        public uint ConversationId;
+        public uint CreatureDisplayInfoId;
+        public uint CreatureId;
+        public ulong SpawnId;
         private readonly CliDB _cliDB;
         private readonly IConfiguration _configuration;
-        public uint ConversationId;
-        public uint ActorIndex;
-
-        public ulong SpawnId;
-        public uint CreatureId;
-        public uint CreatureDisplayInfoId;
-
+        private readonly GameObjectManager _objectManager;
+        private readonly WorldDatabase _worldDatabase;
         public ConversationActorDbRow(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, IConfiguration configuration)
         {
             _worldDatabase = worldDatabase;

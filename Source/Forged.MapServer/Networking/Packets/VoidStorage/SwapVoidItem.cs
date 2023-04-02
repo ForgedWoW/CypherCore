@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
 internal class SwapVoidItem : ClientPacket
 {
+    public uint DstSlot;
     public ObjectGuid Npc;
     public ObjectGuid VoidItemGuid;
-    public uint DstSlot;
     public SwapVoidItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

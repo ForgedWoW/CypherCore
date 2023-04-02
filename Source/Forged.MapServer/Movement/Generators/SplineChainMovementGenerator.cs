@@ -12,14 +12,14 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class SplineChainMovementGenerator : MovementGenerator
 {
-    private readonly uint _id;
     private readonly List<SplineChainLink> _chain = new();
     private readonly byte _chainSize;
+    private readonly uint _id;
     private readonly bool _walk;
-    private byte _nextIndex;
-    private byte _nextFirstWP; // only used for resuming
     private uint _msToNext;
-
+    private byte _nextFirstWP;
+    private byte _nextIndex;
+    // only used for resuming
     public SplineChainMovementGenerator(uint id, List<SplineChainLink> chain, bool walk = false)
     {
         _id = id;
@@ -51,6 +51,37 @@ public class SplineChainMovementGenerator : MovementGenerator
             AddFlag(MovementGeneratorFlags.Finalized);
 
         BaseUnitState = UnitState.Roaming;
+    }
+
+    public override void Deactivate(Unit owner)
+    {
+        AddFlag(MovementGeneratorFlags.Deactivated);
+        owner.ClearUnitState(UnitState.RoamingMove);
+    }
+
+    public override void Finalize(Unit owner, bool active, bool movementInform)
+    {
+        AddFlag(MovementGeneratorFlags.Finalized);
+
+        if (active)
+            owner.ClearUnitState(UnitState.RoamingMove);
+
+        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
+        {
+            var ai = owner.AsCreature.AI;
+
+            ai?.MovementInform(MovementGeneratorType.SplineChain, _id);
+        }
+    }
+
+    public uint GetId()
+    {
+        return _id;
+    }
+
+    public override MovementGeneratorType GetMovementGeneratorType()
+    {
+        return MovementGeneratorType.SplineChain;
     }
 
     public override void Initialize(Unit owner)
@@ -162,36 +193,20 @@ public class SplineChainMovementGenerator : MovementGenerator
 
         return true;
     }
-
-    public override void Deactivate(Unit owner)
+    private SplineChainResumeInfo GetResumeInfo(Unit owner)
     {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-        owner.ClearUnitState(UnitState.RoamingMove);
-    }
+        if (_nextIndex == 0)
+            return new SplineChainResumeInfo(_id, _chain, _walk, 0, 0, _msToNext);
 
-    public override void Finalize(Unit owner, bool active, bool movementInform)
-    {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (active)
-            owner.ClearUnitState(UnitState.RoamingMove);
-
-        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
+        if (owner.MoveSpline.Finalized())
         {
-            var ai = owner.AsCreature.AI;
-
-            ai?.MovementInform(MovementGeneratorType.SplineChain, _id);
+            if (_nextIndex < _chainSize)
+                return new SplineChainResumeInfo(_id, _chain, _walk, _nextIndex, 0, 1u);
+            else
+                return new SplineChainResumeInfo();
         }
-    }
 
-    public override MovementGeneratorType GetMovementGeneratorType()
-    {
-        return MovementGeneratorType.SplineChain;
-    }
-
-    public uint GetId()
-    {
-        return _id;
+        return new SplineChainResumeInfo(_id, _chain, _walk, (byte)(_nextIndex - 1), (byte)owner.MoveSpline.CurrentSplineIdx(), _msToNext);
     }
 
     private uint SendPathSpline(Unit owner, float velocity, Span<Vector3> path)
@@ -229,21 +244,5 @@ public class SplineChainMovementGenerator : MovementGenerator
         {
             Log.Logger.Debug($"SplineChainMovementGenerator::SendSplineFor: sent spline on index {index}, duration: {actualDuration} ms. ({owner.GUID})");
         }
-    }
-
-    private SplineChainResumeInfo GetResumeInfo(Unit owner)
-    {
-        if (_nextIndex == 0)
-            return new SplineChainResumeInfo(_id, _chain, _walk, 0, 0, _msToNext);
-
-        if (owner.MoveSpline.Finalized())
-        {
-            if (_nextIndex < _chainSize)
-                return new SplineChainResumeInfo(_id, _chain, _walk, _nextIndex, 0, 1u);
-            else
-                return new SplineChainResumeInfo();
-        }
-
-        return new SplineChainResumeInfo(_id, _chain, _walk, (byte)(_nextIndex - 1), (byte)owner.MoveSpline.CurrentSplineIdx(), _msToNext);
     }
 }

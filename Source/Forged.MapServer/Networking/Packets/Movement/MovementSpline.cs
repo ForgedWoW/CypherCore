@@ -10,27 +10,35 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MovementSpline
 {
-    public uint Flags;           // Spline flags
-    public MonsterMoveType Face; // Movement direction (see MonsterMoveType enum)
-    public int Elapsed;
-    public uint MoveTime;
-    public uint FadeObjectTime;
-    public List<Vector3> Points = new(); // Spline path
-    public byte Mode;                    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
-    public bool VehicleExitVoluntary;
-    public bool Interpolate;
-    public ObjectGuid TransportGUID;
-    public sbyte VehicleSeat = -1;
-    public List<Vector3> PackedDeltas = new();
-    public MonsterSplineFilter SplineFilter;
-    public MonsterSplineSpellEffectExtraData? SpellEffectExtraData;
-    public MonsterSplineJumpExtraData? JumpExtraData;
     public MonsterSplineAnimTierTransition? AnimTierTransition;
-    public MonsterSplineUnknown901 Unknown901;
+    public int Elapsed;
+    public MonsterMoveType Face;
     public float FaceDirection;
     public ObjectGuid FaceGUID;
     public Vector3 FaceSpot;
+    public uint FadeObjectTime;
+    public uint Flags;           // Spline flags
+    public bool Interpolate;
 
+    public MonsterSplineJumpExtraData? JumpExtraData;
+
+    public byte Mode;
+
+    // Movement direction (see MonsterMoveType enum)
+    public uint MoveTime;
+    public List<Vector3> PackedDeltas = new();
+    public List<Vector3> Points = new(); // Spline path
+    public MonsterSplineSpellEffectExtraData? SpellEffectExtraData;
+
+    public MonsterSplineFilter SplineFilter;
+
+    public ObjectGuid TransportGUID;
+
+    public MonsterSplineUnknown901 Unknown901;
+
+    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
+    public bool VehicleExitVoluntary;
+    public sbyte VehicleSeat = -1;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(Flags);

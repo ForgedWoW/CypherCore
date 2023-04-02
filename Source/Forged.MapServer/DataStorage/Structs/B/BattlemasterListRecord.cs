@@ -8,22 +8,22 @@ namespace Forged.MapServer.DataStorage.Structs.B;
 
 public sealed class BattlemasterListRecord
 {
-    public uint Id;
-    public LocalizedString Name;
-    public string GameType;
-    public string ShortDescription;
-    public string LongDescription;
-    public sbyte InstanceType;
-    public byte MinLevel;
-    public byte MaxLevel;
-    public sbyte RatedPlayers;
-    public sbyte MinPlayers;
-    public int MaxPlayers;
-    public sbyte GroupsAllowed;
-    public sbyte MaxGroupSize;
-    public ushort HolidayWorldState;
     public BattlemasterListFlags Flags;
+    public string GameType;
+    public sbyte GroupsAllowed;
+    public ushort HolidayWorldState;
     public int IconFileDataID;
-    public int RequiredPlayerConditionID;
+    public uint Id;
+    public sbyte InstanceType;
+    public string LongDescription;
     public short[] MapId = new short[16];
+    public sbyte MaxGroupSize;
+    public byte MaxLevel;
+    public int MaxPlayers;
+    public byte MinLevel;
+    public sbyte MinPlayers;
+    public LocalizedString Name;
+    public sbyte RatedPlayers;
+    public int RequiredPlayerConditionID;
+    public string ShortDescription;
 }

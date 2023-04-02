@@ -8,33 +8,28 @@ namespace Forged.MapServer.Entities.Units;
 
 public class ProcEventInfo
 {
-    public Unit Actor { get; }
+    public ProcEventInfo(Unit actor, Unit actionTarget, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsSpellType spellTypeMask,
+                         ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
+    {
+        Actor = actor;
+        ActionTarget = actionTarget;
+        ProcTarget = procTarget;
+        TypeMask = typeMask;
+        SpellTypeMask = spellTypeMask;
+        SpellPhaseMask = spellPhaseMask;
+        HitMask = hitMask;
+        ProcSpell = spell;
+        DamageInfo = damageInfo;
+        HealInfo = healInfo;
+    }
 
     public Unit ActionTarget { get; }
-
-    public Unit ProcTarget { get; }
-
-    public ProcFlagsInit TypeMask { get; }
-
-    public ProcFlagsSpellType SpellTypeMask { get; }
-
-    public ProcFlagsSpellPhase SpellPhaseMask { get; }
-
+    public Unit Actor { get; }
+    public DamageInfo DamageInfo { get; }
+    public HealInfo HealInfo { get; }
     public ProcFlagsHit HitMask { get; }
-
-    public SpellInfo SpellInfo
-    {
-        get
-        {
-            if (ProcSpell)
-                return ProcSpell.SpellInfo;
-
-            if (DamageInfo != null)
-                return DamageInfo.SpellInfo;
-
-            return HealInfo?.SpellInfo;
-        }
-    }
+    public Spell ProcSpell { get; }
+    public Unit ProcTarget { get; }
 
     public SpellSchoolMask SchoolMask
     {
@@ -53,24 +48,21 @@ public class ProcEventInfo
         }
     }
 
-    public DamageInfo DamageInfo { get; }
-
-    public HealInfo HealInfo { get; }
-
-    public Spell ProcSpell { get; }
-
-    public ProcEventInfo(Unit actor, Unit actionTarget, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsSpellType spellTypeMask,
-                         ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
+    public SpellInfo SpellInfo
     {
-        Actor = actor;
-        ActionTarget = actionTarget;
-        ProcTarget = procTarget;
-        TypeMask = typeMask;
-        SpellTypeMask = spellTypeMask;
-        SpellPhaseMask = spellPhaseMask;
-        HitMask = hitMask;
-        ProcSpell = spell;
-        DamageInfo = damageInfo;
-        HealInfo = healInfo;
+        get
+        {
+            if (ProcSpell)
+                return ProcSpell.SpellInfo;
+
+            if (DamageInfo != null)
+                return DamageInfo.SpellInfo;
+
+            return HealInfo?.SpellInfo;
+        }
     }
+
+    public ProcFlagsSpellPhase SpellPhaseMask { get; }
+    public ProcFlagsSpellType SpellTypeMask { get; }
+    public ProcFlagsInit TypeMask { get; }
 }

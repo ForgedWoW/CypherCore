@@ -40,35 +40,32 @@ public class SmartScript
     private readonly Dictionary<uint, uint> _counterList = new();
     private readonly List<SmartScriptHolder> _events = new();
     private readonly List<SmartScriptHolder> _installEvents = new();
-    private readonly List<SmartScriptHolder> _storedEvents = new();
     private readonly List<uint> _remIDs = new();
+    private readonly List<SmartScriptHolder> _storedEvents = new();
     private readonly Dictionary<uint, ObjectGuidList> _storedTargets = new();
-    private List<SmartScriptHolder> _timedActionList = new();
-    private ObjectGuid mTimedActionListInvoker;
-    private Creature _me;
-    private ObjectGuid _meOrigGUID;
+    private SmartEventFlags _allEventFlags;
+    private AreaTrigger _areaTrigger;
+    private uint _currentPriority;
+    private uint _eventPhase;
+    private bool _eventSortingRequired;
     private GameObject _go;
     private ObjectGuid _goOrigGUID;
-    private Player _player;
-    private AreaTriggerRecord _trigger;
-    private AreaTrigger _areaTrigger;
-    private SceneTemplate _sceneTemplate;
-    private Quest.Quest _quest;
-    private SmartScriptType _scriptType;
-    private uint _eventPhase;
-
-    private uint _pathId;
-
-    private uint _textTimer;
     private uint _lastTextID;
-    private ObjectGuid _textGUID;
-    private uint _talkerEntry;
-    private bool _useTextTimer;
-    private uint _currentPriority;
-    private bool _eventSortingRequired;
+    private Creature _me;
+    private ObjectGuid _meOrigGUID;
     private uint _nestedEventsCounter;
-    private SmartEventFlags _allEventFlags;
-
+    private uint _pathId;
+    private Player _player;
+    private Quest.Quest _quest;
+    private SceneTemplate _sceneTemplate;
+    private SmartScriptType _scriptType;
+    private uint _talkerEntry;
+    private ObjectGuid _textGUID;
+    private uint _textTimer;
+    private List<SmartScriptHolder> _timedActionList = new();
+    private AreaTriggerRecord _trigger;
+    private bool _useTextTimer;
+    private ObjectGuid mTimedActionListInvoker;
     public SmartScript()
     {
         _go = null;
@@ -87,158 +84,68 @@ public class SmartScript
         _scriptType = SmartScriptType.Creature;
     }
 
-    public void OnReset()
-    {
-        ResetBaseObject();
-
-        lock (_events)
-        {
-            foreach (var holder in _events)
-            {
-                if (!holder.Event.event_flags.HasAnyFlag(SmartEventFlags.DontReset))
-                {
-                    InitTimer(holder);
-                    holder.RunOnce = false;
-                }
-
-                if (holder.Priority != SmartScriptHolder.DefaultPriority)
-                {
-                    holder.Priority = SmartScriptHolder.DefaultPriority;
-                    _eventSortingRequired = true;
-                }
-            }
-        }
-
-        ProcessEventsFor(SmartEvents.Reset);
-        LastInvoker.Clear();
-    }
-
-    public void ProcessEventsFor(SmartEvents e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
-    {
-        _nestedEventsCounter++;
-
-        // Allow only a fixed number of nested ProcessEventsFor calls
-        if (_nestedEventsCounter > MaxNestedEvents)
-            Log.Logger.Warning($"SmartScript::ProcessEventsFor: reached the limit of max allowed nested ProcessEventsFor() calls with event {e}, skipping!\n{GetBaseObject().GetDebugInfo()}");
-        else if (_nestedEventsCounter == 1)
-            lock (_events) // only lock on the first event to prevent deadlock.
-            {
-                Process(e, unit, var0, var1, bvar, spell, gob, varString);
-            }
-        else
-            Process(e, unit, var0, var1, bvar, spell, gob, varString);
-
-        --_nestedEventsCounter;
-
-        void Process(SmartEvents e, Unit unit, uint var0, uint var1, bool bvar, SpellInfo spell, GameObject gob, string varString)
-        {
-            foreach (var Event in _events)
-            {
-                var eventType = Event.GetEventType();
-
-                if (eventType == SmartEvents.Link) //special handling
-                    continue;
-
-                if (eventType == e)
-                    if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(Event.EntryOrGuid, Event.EventId, Event.SourceType, unit, GetBaseObject()))
-                        ProcessEvent(Event, unit, var0, var1, bvar, spell, gob, varString);
-            }
-        }
-    }
-
     public bool CheckTimer(SmartScriptHolder e)
     {
         return e.Active;
     }
 
-    public void OnUpdate(uint diff)
+    public Unit DoSelectBelowHpPctFriendlyWithEntry(uint entry, float range, byte minHPDiff = 1, bool excludeSelf = true)
     {
-        if ((_scriptType == SmartScriptType.Creature || _scriptType == SmartScriptType.GameObject || _scriptType == SmartScriptType.AreaTriggerEntity || _scriptType == SmartScriptType.AreaTriggerEntityServerside) && !GetBaseObject())
-            return;
+        FriendlyBelowHpPctEntryInRange u_check = new(_me, entry, range, minHPDiff, excludeSelf);
+        UnitLastSearcher searcher = new(_me, u_check, GridType.All);
+        Cell.VisitGrid(_me, searcher, range);
 
-        if (_me is { IsInEvadeMode: true })
-        {
-            // Check if the timed action list finished and clear it if so.
-            // This is required by SMART_ACTION_CALL_TIMED_ACTIONLIST failing if mTimedActionList is not empty.
-            if (!_timedActionList.Empty())
-            {
-                var needCleanup1 = true;
+        return searcher.GetTarget();
+    }
 
-                foreach (var scriptholder in _timedActionList)
-                    if (scriptholder.EnableTimed)
-                        needCleanup1 = false;
+    public uint GetPathId()
+    {
+        return _pathId;
+    }
 
-                if (needCleanup1)
-                    _timedActionList.Clear();
-            }
+    public List<WorldObject> GetStoredTargetList(uint id, WorldObject obj)
+    {
+        var list = _storedTargets.LookupByKey(id);
 
-            return;
-        }
+        return list?.GetObjectList(obj);
+    }
 
-        InstallEvents(); //before UpdateTimers
+    public bool HasAnyEventWithFlag(SmartEventFlags flag)
+    {
+        return _allEventFlags.HasAnyFlag(flag);
+    }
 
-        if (_eventSortingRequired)
-        {
-            lock (_events)
-            {
-                SortEvents(_events);
-            }
+    public bool IsCharmedCreature(WorldObject obj)
+    {
+        if (!obj)
+            return false;
 
-            _eventSortingRequired = false;
-        }
+        var creatureObj = obj.AsCreature;
 
-        lock (_events)
-        {
-            foreach (var holder in _events)
-                UpdateTimer(holder, diff);
-        }
+        if (creatureObj)
+            return creatureObj.IsCharmed;
 
-        if (!_storedEvents.Empty())
-            foreach (var holder in _storedEvents)
-                UpdateTimer(holder, diff);
+        return false;
+    }
 
-        var needCleanup = true;
+    public bool IsCreature(WorldObject obj)
+    {
+        return obj != null && obj.IsTypeId(TypeId.Unit);
+    }
 
-        if (!_timedActionList.Empty())
-            for (var i = 0; i < _timedActionList.Count; ++i)
-            {
-                var scriptHolder = _timedActionList[i];
+    public bool IsGameObject(WorldObject obj)
+    {
+        return obj != null && obj.IsTypeId(TypeId.GameObject);
+    }
 
-                if (scriptHolder.EnableTimed)
-                {
-                    UpdateTimer(scriptHolder, diff);
-                    needCleanup = false;
-                }
-            }
+    public bool IsPlayer(WorldObject obj)
+    {
+        return obj != null && obj.IsTypeId(TypeId.Player);
+    }
 
-        if (needCleanup)
-            _timedActionList.Clear();
-
-        if (!_remIDs.Empty())
-        {
-            foreach (var id in _remIDs)
-                RemoveStoredEvent(id);
-
-            _remIDs.Clear();
-        }
-
-        if (_useTextTimer && _me != null)
-        {
-            if (_textTimer < diff)
-            {
-                var textID = _lastTextID;
-                _lastTextID = 0;
-                var entry = _talkerEntry;
-                _talkerEntry = 0;
-                _textTimer = 0;
-                _useTextTimer = false;
-                ProcessEventsFor(SmartEvents.TextOver, null, textID, entry);
-            }
-            else
-            {
-                _textTimer -= diff;
-            }
-        }
+    public bool IsUnit(WorldObject obj)
+    {
+        return obj != null && (obj.IsTypeId(TypeId.Unit) || obj.IsTypeId(TypeId.Player));
     }
 
     public void OnInitialize(WorldObject obj, AreaTriggerRecord at = null, SceneTemplate scene = null, Quest.Quest qst = null)
@@ -345,13 +252,157 @@ public class SmartScript
         ProcessEventsFor(_me.IsEngaged ? SmartEvents.IcLos : SmartEvents.OocLos, who);
     }
 
-    public Unit DoSelectBelowHpPctFriendlyWithEntry(uint entry, float range, byte minHPDiff = 1, bool excludeSelf = true)
+    public void OnReset()
     {
-        FriendlyBelowHpPctEntryInRange u_check = new(_me, entry, range, minHPDiff, excludeSelf);
-        UnitLastSearcher searcher = new(_me, u_check, GridType.All);
-        Cell.VisitGrid(_me, searcher, range);
+        ResetBaseObject();
 
-        return searcher.GetTarget();
+        lock (_events)
+        {
+            foreach (var holder in _events)
+            {
+                if (!holder.Event.event_flags.HasAnyFlag(SmartEventFlags.DontReset))
+                {
+                    InitTimer(holder);
+                    holder.RunOnce = false;
+                }
+
+                if (holder.Priority != SmartScriptHolder.DefaultPriority)
+                {
+                    holder.Priority = SmartScriptHolder.DefaultPriority;
+                    _eventSortingRequired = true;
+                }
+            }
+        }
+
+        ProcessEventsFor(SmartEvents.Reset);
+        LastInvoker.Clear();
+    }
+
+    public void OnUpdate(uint diff)
+    {
+        if ((_scriptType == SmartScriptType.Creature || _scriptType == SmartScriptType.GameObject || _scriptType == SmartScriptType.AreaTriggerEntity || _scriptType == SmartScriptType.AreaTriggerEntityServerside) && !GetBaseObject())
+            return;
+
+        if (_me is { IsInEvadeMode: true })
+        {
+            // Check if the timed action list finished and clear it if so.
+            // This is required by SMART_ACTION_CALL_TIMED_ACTIONLIST failing if mTimedActionList is not empty.
+            if (!_timedActionList.Empty())
+            {
+                var needCleanup1 = true;
+
+                foreach (var scriptholder in _timedActionList)
+                    if (scriptholder.EnableTimed)
+                        needCleanup1 = false;
+
+                if (needCleanup1)
+                    _timedActionList.Clear();
+            }
+
+            return;
+        }
+
+        InstallEvents(); //before UpdateTimers
+
+        if (_eventSortingRequired)
+        {
+            lock (_events)
+            {
+                SortEvents(_events);
+            }
+
+            _eventSortingRequired = false;
+        }
+
+        lock (_events)
+        {
+            foreach (var holder in _events)
+                UpdateTimer(holder, diff);
+        }
+
+        if (!_storedEvents.Empty())
+            foreach (var holder in _storedEvents)
+                UpdateTimer(holder, diff);
+
+        var needCleanup = true;
+
+        if (!_timedActionList.Empty())
+            for (var i = 0; i < _timedActionList.Count; ++i)
+            {
+                var scriptHolder = _timedActionList[i];
+
+                if (scriptHolder.EnableTimed)
+                {
+                    UpdateTimer(scriptHolder, diff);
+                    needCleanup = false;
+                }
+            }
+
+        if (needCleanup)
+            _timedActionList.Clear();
+
+        if (!_remIDs.Empty())
+        {
+            foreach (var id in _remIDs)
+                RemoveStoredEvent(id);
+
+            _remIDs.Clear();
+        }
+
+        if (_useTextTimer && _me != null)
+        {
+            if (_textTimer < diff)
+            {
+                var textID = _lastTextID;
+                _lastTextID = 0;
+                var entry = _talkerEntry;
+                _talkerEntry = 0;
+                _textTimer = 0;
+                _useTextTimer = false;
+                ProcessEventsFor(SmartEvents.TextOver, null, textID, entry);
+            }
+            else
+            {
+                _textTimer -= diff;
+            }
+        }
+    }
+
+    public void ProcessEventsFor(SmartEvents e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
+    {
+        _nestedEventsCounter++;
+
+        // Allow only a fixed number of nested ProcessEventsFor calls
+        if (_nestedEventsCounter > MaxNestedEvents)
+            Log.Logger.Warning($"SmartScript::ProcessEventsFor: reached the limit of max allowed nested ProcessEventsFor() calls with event {e}, skipping!\n{GetBaseObject().GetDebugInfo()}");
+        else if (_nestedEventsCounter == 1)
+            lock (_events) // only lock on the first event to prevent deadlock.
+            {
+                Process(e, unit, var0, var1, bvar, spell, gob, varString);
+            }
+        else
+            Process(e, unit, var0, var1, bvar, spell, gob, varString);
+
+        --_nestedEventsCounter;
+
+        void Process(SmartEvents e, Unit unit, uint var0, uint var1, bool bvar, SpellInfo spell, GameObject gob, string varString)
+        {
+            foreach (var Event in _events)
+            {
+                var eventType = Event.GetEventType();
+
+                if (eventType == SmartEvents.Link) //special handling
+                    continue;
+
+                if (eventType == e)
+                    if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(Event.EntryOrGuid, Event.EventId, Event.SourceType, unit, GetBaseObject()))
+                        ProcessEvent(Event, unit, var0, var1, bvar, spell, gob, varString);
+            }
+        }
+    }
+    public void SetPathId(uint id)
+    {
+        _pathId = id;
     }
 
     public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker, uint startFromEventId = 0)
@@ -385,60 +436,934 @@ public class SmartScript
             InitTimer(scriptHolder);
         }
     }
-
-    public void SetPathId(uint id)
+    private void AddToStoredTargetList(List<WorldObject> targets, uint id)
     {
-        _pathId = id;
+        var inserted = _storedTargets.TryAdd(id, new ObjectGuidList(targets));
+
+        if (!inserted)
+            foreach (var obj in targets)
+                _storedTargets[id].AddGuid(obj.GUID);
     }
 
-    public uint GetPathId()
+    private SmartScriptHolder CreateSmartEvent(SmartEvents e, SmartEventFlags event_flags, uint event_param1, uint event_param2, uint event_param3, uint event_param4, uint event_param5,
+                                               SmartActions action, uint action_param1, uint action_param2, uint action_param3, uint action_param4, uint action_param5, uint action_param6, uint action_param7,
+                                               SmartTargets t, uint target_param1, uint target_param2, uint target_param3, uint target_param4, uint phaseMask)
     {
-        return _pathId;
+        SmartScriptHolder script = new();
+        script.Event.type = e;
+        script.Event.raw.param1 = event_param1;
+        script.Event.raw.param2 = event_param2;
+        script.Event.raw.param3 = event_param3;
+        script.Event.raw.param4 = event_param4;
+        script.Event.raw.param5 = event_param5;
+        script.Event.event_phase_mask = phaseMask;
+        script.Event.event_flags = event_flags;
+        script.Event.event_chance = 100;
+
+        script.Action.type = action;
+        script.Action.raw.param1 = action_param1;
+        script.Action.raw.param2 = action_param2;
+        script.Action.raw.param3 = action_param3;
+        script.Action.raw.param4 = action_param4;
+        script.Action.raw.param5 = action_param5;
+        script.Action.raw.param6 = action_param6;
+        script.Action.raw.param7 = action_param7;
+
+        script.Target.type = t;
+        script.Target.raw.param1 = target_param1;
+        script.Target.raw.param2 = target_param2;
+        script.Target.raw.param3 = target_param3;
+        script.Target.raw.param4 = target_param4;
+
+        script.SourceType = SmartScriptType.Creature;
+        InitTimer(script);
+
+        return script;
     }
 
-    public bool HasAnyEventWithFlag(SmartEventFlags flag)
+    private void DecPhase(uint p)
     {
-        return _allEventFlags.HasAnyFlag(flag);
+        if (p >= _eventPhase)
+            SetPhase(0);
+        else
+            SetPhase(_eventPhase - p);
     }
 
-    public bool IsUnit(WorldObject obj)
+    private Unit DoFindClosestFriendlyInRange(float range)
     {
-        return obj != null && (obj.IsTypeId(TypeId.Unit) || obj.IsTypeId(TypeId.Player));
+        if (!_me)
+            return null;
+
+        var u_check = new AnyFriendlyUnitInObjectRangeCheck(_me, _me, range);
+        var searcher = new UnitLastSearcher(_me, u_check, GridType.All);
+        Cell.VisitGrid(_me, searcher, range);
+
+        return searcher.GetTarget();
     }
 
-    public bool IsPlayer(WorldObject obj)
+    private void DoFindFriendlyCC(List<Creature> creatures, float range)
     {
-        return obj != null && obj.IsTypeId(TypeId.Player);
+        if (_me == null)
+            return;
+
+        var u_check = new FriendlyCCedInRange(_me, range);
+        var searcher = new CreatureListSearcher(_me, creatures, u_check, GridType.Grid);
+        Cell.VisitGrid(_me, searcher, range);
     }
 
-    public bool IsCreature(WorldObject obj)
+    private void DoFindFriendlyMissingBuff(List<Creature> creatures, float range, uint spellid)
     {
-        return obj != null && obj.IsTypeId(TypeId.Unit);
+        if (_me == null)
+            return;
+
+        var u_check = new FriendlyMissingBuffInRange(_me, range, spellid);
+        var searcher = new CreatureListSearcher(_me, creatures, u_check, GridType.Grid);
+        Cell.VisitGrid(_me, searcher, range);
     }
 
-    public bool IsCharmedCreature(WorldObject obj)
+    private Unit DoSelectLowestHpFriendly(float range, uint MinHPDiff)
     {
-        if (!obj)
+        if (!_me)
+            return null;
+
+        var u_check = new MostHPMissingInRange<Unit>(_me, range, MinHPDiff);
+        var searcher = new UnitLastSearcher(_me, u_check, GridType.Grid);
+        Cell.VisitGrid(_me, searcher, range);
+
+        return searcher.GetTarget();
+    }
+
+    private Unit DoSelectLowestHpPercentFriendly(float range, uint minHpPct, uint maxHpPct)
+    {
+        if (_me == null)
+            return null;
+
+        MostHPPercentMissingInRange u_check = new(_me, range, minHpPct, maxHpPct);
+        UnitLastSearcher searcher = new(_me, u_check, GridType.Grid);
+        Cell.VisitGrid(_me, searcher, range);
+
+        return searcher.GetTarget();
+    }
+
+    private void FillScript(List<SmartScriptHolder> e, WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest.Quest quest)
+    {
+        if (e.Empty())
+        {
+            if (obj != null)
+                Log.Logger.Debug($"SmartScript: EventMap for Entry {obj.Entry} is empty but is using SmartScript.");
+
+            if (at != null)
+                Log.Logger.Debug($"SmartScript: EventMap for AreaTrigger {at.Id} is empty but is using SmartScript.");
+
+            if (scene != null)
+                Log.Logger.Debug($"SmartScript: EventMap for SceneId {scene.SceneId} is empty but is using SmartScript.");
+
+            if (quest != null)
+                Log.Logger.Debug($"SmartScript: EventMap for Quest {quest.Id} is empty but is using SmartScript.");
+
+            return;
+        }
+
+        foreach (var holder in e)
+        {
+            if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.DifficultyAll)) //if has instance flag add only if in it
+            {
+                if (!(obj != null && obj.Location.Map.IsDungeon))
+                    continue;
+
+                // TODO: fix it for new maps and difficulties
+                switch (obj.Location.Map.DifficultyID)
+                {
+                    case Difficulty.Normal:
+                    case Difficulty.Raid10N:
+                        if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.Difficulty0))
+                            lock (_events)
+                            {
+                                _events.Add(holder);
+                            }
+
+                        break;
+                    case Difficulty.Heroic:
+                    case Difficulty.Raid25N:
+                        if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.Difficulty1))
+                            lock (_events)
+                            {
+                                _events.Add(holder);
+                            }
+
+                        break;
+                    case Difficulty.Raid10HC:
+                        if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.Difficulty2))
+                            lock (_events)
+                            {
+                                _events.Add(holder);
+                            }
+
+                        break;
+                    case Difficulty.Raid25HC:
+                        if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.Difficulty3))
+                            lock (_events)
+                            {
+                                _events.Add(holder);
+                            }
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            _allEventFlags |= holder.Event.event_flags;
+
+            lock (_events)
+            {
+                _events.Add(holder); //NOTE: 'world(0)' events still get processed in ANY instance mode
+            }
+        }
+    }
+
+    private Creature FindCreatureNear(WorldObject searchObject, ulong guid)
+    {
+        var bounds = searchObject.Location.Map.CreatureBySpawnIdStore.LookupByKey(guid);
+
+        if (bounds.Empty())
+            return null;
+
+        var foundCreature = bounds.Find(creature => creature.IsAlive);
+
+        return foundCreature ?? bounds[0];
+    }
+
+    private GameObject FindGameObjectNear(WorldObject searchObject, ulong guid)
+    {
+        var bounds = searchObject.Location.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
+
+        if (bounds.Empty())
+            return null;
+
+        return bounds[0];
+    }
+
+    private WorldObject GetBaseObject()
+    {
+        WorldObject obj = null;
+
+        if (_me != null)
+            obj = _me;
+        else if (_go != null)
+            obj = _go;
+        else if (_areaTrigger != null)
+            obj = _areaTrigger;
+        else if (_player != null)
+            obj = _player;
+
+        return obj;
+    }
+
+    private WorldObject GetBaseObjectOrUnitInvoker(Unit invoker)
+    {
+        return GetBaseObject() ?? invoker;
+    }
+
+    private uint GetCounterValue(uint id)
+    {
+        if (_counterList.ContainsKey(id))
+            return _counterList[id];
+
+        return 0;
+    }
+
+    private Unit GetLastInvoker(Unit invoker = null)
+    {
+        // Look for invoker only on map of base object... Prevents multithreaded crashes
+        var baseObject = GetBaseObject();
+
+        if (baseObject != null)
+            return Global.ObjAccessor.GetUnit(baseObject, LastInvoker);
+        // used for area triggers invoker cast
+        else if (invoker != null)
+            return Global.ObjAccessor.GetUnit(invoker, LastInvoker);
+
+        return null;
+    }
+
+    private void GetScript()
+    {
+        List<SmartScriptHolder> e;
+
+        if (_me != null)
+        {
+            e = Global.SmartAIMgr.GetScript(-((int)_me.SpawnId), _scriptType);
+
+            if (e.Empty())
+                e = Global.SmartAIMgr.GetScript((int)_me.Entry, _scriptType);
+
+            FillScript(e, _me, null, null, null);
+        }
+        else if (_go != null)
+        {
+            e = Global.SmartAIMgr.GetScript(-((int)_go.SpawnId), _scriptType);
+
+            if (e.Empty())
+                e = Global.SmartAIMgr.GetScript((int)_go.Entry, _scriptType);
+
+            FillScript(e, _go, null, null, null);
+        }
+        else if (_trigger != null)
+        {
+            e = Global.SmartAIMgr.GetScript((int)_trigger.Id, _scriptType);
+            FillScript(e, null, _trigger, null, null);
+        }
+        else if (_areaTrigger != null)
+        {
+            e = Global.SmartAIMgr.GetScript((int)_areaTrigger.Entry, _scriptType);
+            FillScript(e, _areaTrigger, null, null, null);
+        }
+        else if (_sceneTemplate != null)
+        {
+            e = Global.SmartAIMgr.GetScript((int)_sceneTemplate.SceneId, _scriptType);
+            FillScript(e, null, null, _sceneTemplate, null);
+        }
+        else if (_quest != null)
+        {
+            e = Global.SmartAIMgr.GetScript((int)_quest.Id, _scriptType);
+            FillScript(e, null, null, null, _quest);
+        }
+    }
+
+    private List<WorldObject> GetTargets(SmartScriptHolder e, WorldObject invoker = null)
+    {
+        WorldObject scriptTrigger = null;
+
+        if (invoker != null)
+        {
+            scriptTrigger = invoker;
+        }
+        else
+        {
+            var tempLastInvoker = GetLastInvoker();
+
+            if (tempLastInvoker != null)
+                scriptTrigger = tempLastInvoker;
+        }
+
+        var baseObject = GetBaseObject();
+
+        List<WorldObject> targets = new();
+
+        switch (e.GetTargetType())
+        {
+            case SmartTargets.Self:
+                if (baseObject != null)
+                    targets.Add(baseObject);
+
+                break;
+            case SmartTargets.Victim:
+                if (_me is { Victim: { } })
+                    targets.Add(_me.Victim);
+
+                break;
+            case SmartTargets.HostileSecondAggro:
+                if (_me != null)
+                {
+                    if (e.Target.hostilRandom.powerType != 0)
+                    {
+                        var u = _me.AI.SelectTarget(SelectTargetMethod.MaxThreat, 1, new PowerUsersSelector(_me, (PowerType)(e.Target.hostilRandom.powerType - 1), (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0));
+
+                        if (u != null)
+                            targets.Add(u);
+                    }
+                    else
+                    {
+                        var u = _me.AI.SelectTarget(SelectTargetMethod.MaxThreat, 1, (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0);
+
+                        if (u != null)
+                            targets.Add(u);
+                    }
+                }
+
+                break;
+            case SmartTargets.HostileLastAggro:
+                if (_me != null)
+                {
+                    if (e.Target.hostilRandom.powerType != 0)
+                    {
+                        var u = _me.AI.SelectTarget(SelectTargetMethod.MinThreat, 1, new PowerUsersSelector(_me, (PowerType)(e.Target.hostilRandom.powerType - 1), (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0));
+
+                        if (u != null)
+                            targets.Add(u);
+                    }
+                    else
+                    {
+                        var u = _me.AI.SelectTarget(SelectTargetMethod.MinThreat, 1, (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0);
+
+                        if (u != null)
+                            targets.Add(u);
+                    }
+                }
+
+                break;
+            case SmartTargets.HostileRandom:
+                if (_me != null)
+                {
+                    if (e.Target.hostilRandom.powerType != 0)
+                    {
+                        var u = _me.AI.SelectTarget(SelectTargetMethod.Random, 1, new PowerUsersSelector(_me, (PowerType)(e.Target.hostilRandom.powerType - 1), (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0));
+
+                        if (u != null)
+                            targets.Add(u);
+                    }
+                    else
+                    {
+                        var u = _me.AI.SelectTarget(SelectTargetMethod.Random, 1, (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0);
+
+                        if (u != null)
+                            targets.Add(u);
+                    }
+                }
+
+                break;
+            case SmartTargets.HostileRandomNotTop:
+                if (_me != null)
+                {
+                    if (e.Target.hostilRandom.powerType != 0)
+                    {
+                        var u = _me.AI.SelectTarget(SelectTargetMethod.Random, 1, new PowerUsersSelector(_me, (PowerType)(e.Target.hostilRandom.powerType - 1), (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0));
+
+                        if (u != null)
+                            targets.Add(u);
+                    }
+                    else
+                    {
+                        var u = _me.AI.SelectTarget(SelectTargetMethod.Random, 1, (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0);
+
+                        if (u != null)
+                            targets.Add(u);
+                    }
+                }
+
+                break;
+            case SmartTargets.Farthest:
+                if (_me)
+                {
+                    var u = _me.AI.SelectTarget(SelectTargetMethod.MaxDistance, 0, new FarthestTargetSelector(_me, (float)e.Target.farthest.maxDist, e.Target.farthest.playerOnly != 0, e.Target.farthest.isInLos != 0));
+
+                    if (u != null)
+                        targets.Add(u);
+                }
+
+                break;
+            case SmartTargets.ActionInvoker:
+                if (scriptTrigger != null)
+                    targets.Add(scriptTrigger);
+
+                break;
+            case SmartTargets.ActionInvokerVehicle:
+                if (scriptTrigger is { AsUnit.Vehicle: { } } && scriptTrigger.AsUnit.Vehicle.GetBase() != null)
+                    targets.Add(scriptTrigger.AsUnit.Vehicle.GetBase());
+
+                break;
+            case SmartTargets.InvokerParty:
+                var player = scriptTrigger?.AsPlayer;
+
+                if (player != null)
+                {
+                    var group = player.Group;
+
+                    if (group)
+                        for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
+                        {
+                            var member = groupRef.Source;
+
+                            if (member)
+                                if (member.Location.IsInMap(player))
+                                    targets.Add(member);
+                        }
+                    // We still add the player to the list if there is no group. If we do
+                    // this even if there is a group (thus the else-check), it will add the
+                    // same player to the list twice. We don't want that to happen.
+                    else
+                        targets.Add(scriptTrigger);
+                }
+
+                break;
+            case SmartTargets.CreatureRange:
+            {
+                var refObj = baseObject;
+
+                if (refObj == null)
+                    refObj = scriptTrigger;
+
+                if (refObj == null)
+                {
+                    Log.Logger.Error($"SMART_TARGET_CREATURE_RANGE: {e} is missing base object or invoker.");
+
+                    break;
+                }
+
+                var units = GetWorldObjectsInDist(e.Target.unitRange.maxDist);
+
+                foreach (var obj in units)
+                {
+                    if (!IsCreature(obj))
+                        continue;
+
+                    if (_me != null && _me == obj)
+                        continue;
+
+                    if ((e.Target.unitRange.creature == 0 || obj.AsCreature.Entry == e.Target.unitRange.creature) && refObj.Location.IsInRange(obj, e.Target.unitRange.minDist, e.Target.unitRange.maxDist))
+                        targets.Add(obj);
+                }
+
+                if (e.Target.unitRange.maxSize != 0)
+                    targets.RandomResize(e.Target.unitRange.maxSize);
+
+                break;
+            }
+            case SmartTargets.CreatureDistance:
+            {
+                var units = GetWorldObjectsInDist(e.Target.unitDistance.dist);
+
+                foreach (var obj in units)
+                {
+                    if (!IsCreature(obj))
+                        continue;
+
+                    if (_me != null && _me == obj)
+                        continue;
+
+                    if (e.Target.unitDistance.creature == 0 || obj.AsCreature.Entry == e.Target.unitDistance.creature)
+                        targets.Add(obj);
+                }
+
+                if (e.Target.unitDistance.maxSize != 0)
+                    targets.RandomResize(e.Target.unitDistance.maxSize);
+
+                break;
+            }
+            case SmartTargets.GameobjectDistance:
+            {
+                var units = GetWorldObjectsInDist(e.Target.goDistance.dist);
+
+                foreach (var obj in units)
+                {
+                    if (!IsGameObject(obj))
+                        continue;
+
+                    if (_go != null && _go == obj)
+                        continue;
+
+                    if (e.Target.goDistance.entry == 0 || obj.AsGameObject.Entry == e.Target.goDistance.entry)
+                        targets.Add(obj);
+                }
+
+                if (e.Target.goDistance.maxSize != 0)
+                    targets.RandomResize(e.Target.goDistance.maxSize);
+
+                break;
+            }
+            case SmartTargets.GameobjectRange:
+            {
+                var refObj = baseObject;
+
+                if (refObj == null)
+                    refObj = scriptTrigger;
+
+                if (refObj == null)
+                {
+                    Log.Logger.Error($"SMART_TARGET_GAMEOBJECT_RANGE: {e} is missing base object or invoker.");
+
+                    break;
+                }
+
+                var units = GetWorldObjectsInDist(e.Target.goRange.maxDist);
+
+                foreach (var obj in units)
+                {
+                    if (!IsGameObject(obj))
+                        continue;
+
+                    if (_go != null && _go == obj)
+                        continue;
+
+                    if ((e.Target.goRange.entry == 0 || obj.AsGameObject.Entry == e.Target.goRange.entry) && refObj.Location.IsInRange(obj, e.Target.goRange.minDist, e.Target.goRange.maxDist))
+                        targets.Add(obj);
+                }
+
+                if (e.Target.goRange.maxSize != 0)
+                    targets.RandomResize(e.Target.goRange.maxSize);
+
+                break;
+            }
+            case SmartTargets.CreatureGuid:
+            {
+                if (scriptTrigger == null && baseObject == null)
+                {
+                    Log.Logger.Error($"SMART_TARGET_CREATURE_GUID {e} can not be used without invoker");
+
+                    break;
+                }
+
+                var target = FindCreatureNear(scriptTrigger ?? baseObject, e.Target.unitGUID.dbGuid);
+
+                if (target)
+                    if (target != null && (e.Target.unitGUID.entry == 0 || target.Entry == e.Target.unitGUID.entry))
+                        targets.Add(target);
+
+                break;
+            }
+            case SmartTargets.GameobjectGuid:
+            {
+                if (scriptTrigger == null && baseObject == null)
+                {
+                    Log.Logger.Error($"SMART_TARGET_GAMEOBJECT_GUID {e} can not be used without invoker");
+
+                    break;
+                }
+
+                var target = FindGameObjectNear(scriptTrigger ?? baseObject, e.Target.goGUID.dbGuid);
+
+                if (target)
+                    if (target != null && (e.Target.goGUID.entry == 0 || target.Entry == e.Target.goGUID.entry))
+                        targets.Add(target);
+
+                break;
+            }
+            case SmartTargets.PlayerRange:
+            {
+                var units = GetWorldObjectsInDist(e.Target.playerRange.maxDist);
+
+                if (!units.Empty() && baseObject != null)
+                    foreach (var obj in units)
+                        if (IsPlayer(obj) && baseObject.Location.IsInRange(obj, e.Target.playerRange.minDist, e.Target.playerRange.maxDist))
+                            targets.Add(obj);
+
+                break;
+            }
+            case SmartTargets.PlayerDistance:
+            {
+                var units = GetWorldObjectsInDist(e.Target.playerDistance.dist);
+
+                foreach (var obj in units)
+                    if (IsPlayer(obj))
+                        targets.Add(obj);
+
+                break;
+            }
+            case SmartTargets.Stored:
+            {
+                var refObj = baseObject;
+
+                if (refObj == null)
+                    refObj = scriptTrigger;
+
+                if (refObj == null)
+                {
+                    Log.Logger.Error($"SMART_TARGET_STORED: {e} is missing base object or invoker.");
+
+                    break;
+                }
+
+                var stored = GetStoredTargetList(e.Target.stored.id, refObj);
+
+                if (stored != null)
+                    targets.AddRange(stored);
+
+                break;
+            }
+            case SmartTargets.ClosestCreature:
+            {
+                var refObj = baseObject;
+
+                if (refObj == null)
+                    refObj = scriptTrigger;
+
+                if (refObj == null)
+                {
+                    Log.Logger.Error($"SMART_TARGET_CLOSEST_CREATURE: {e} is missing base object or invoker.");
+
+                    break;
+                }
+
+                var target = refObj.Location.FindNearestCreature(e.Target.unitClosest.entry, e.Target.unitClosest.dist != 0 ? e.Target.unitClosest.dist : 100, e.Target.unitClosest.dead == 0);
+
+                if (target)
+                    targets.Add(target);
+
+                break;
+            }
+            case SmartTargets.ClosestGameobject:
+            {
+                var refObj = baseObject;
+
+                if (refObj == null)
+                    refObj = scriptTrigger;
+
+                if (refObj == null)
+                {
+                    Log.Logger.Error($"SMART_TARGET_CLOSEST_GAMEOBJECT: {e} is missing base object or invoker.");
+
+                    break;
+                }
+
+                var target = refObj.Location.FindNearestGameObject(e.Target.goClosest.entry, e.Target.goClosest.dist != 0 ? e.Target.goClosest.dist : 100);
+
+                if (target)
+                    targets.Add(target);
+
+                break;
+            }
+            case SmartTargets.ClosestPlayer:
+            {
+                var refObj = baseObject;
+
+                if (refObj == null)
+                    refObj = scriptTrigger;
+
+                if (refObj == null)
+                {
+                    Log.Logger.Error($"SMART_TARGET_CLOSEST_PLAYER: {e} is missing base object or invoker.");
+
+                    break;
+                }
+
+                var target = refObj.Location.SelectNearestPlayer(e.Target.playerDistance.dist);
+
+                if (target)
+                    targets.Add(target);
+
+                break;
+            }
+            case SmartTargets.OwnerOrSummoner:
+            {
+                if (_me != null)
+                {
+                    var charmerOrOwnerGuid = _me.CharmerOrOwnerGUID;
+
+                    if (charmerOrOwnerGuid.IsEmpty)
+                    {
+                        var tempSummon = _me.ToTempSummon();
+
+                        if (tempSummon)
+                        {
+                            var summoner = tempSummon.GetSummoner();
+
+                            if (summoner)
+                                charmerOrOwnerGuid = summoner.GUID;
+                        }
+                    }
+
+                    if (charmerOrOwnerGuid.IsEmpty)
+                        charmerOrOwnerGuid = _me.CreatorGUID;
+
+                    var owner = Global.ObjAccessor.GetWorldObject(_me, charmerOrOwnerGuid);
+
+                    if (owner != null)
+                        targets.Add(owner);
+                }
+                else if (_go != null)
+                {
+                    var owner = Global.ObjAccessor.GetUnit(_go, _go.OwnerGUID);
+
+                    if (owner)
+                        targets.Add(owner);
+                }
+
+                // Get owner of owner
+                if (e.Target.owner.useCharmerOrOwner != 0 && !targets.Empty())
+                {
+                    var owner = targets.First();
+                    targets.Clear();
+
+                    var unitBase = Global.ObjAccessor.GetUnit(owner, owner.CharmerOrOwnerGUID);
+
+                    if (unitBase != null)
+                        targets.Add(unitBase);
+                }
+
+                break;
+            }
+            case SmartTargets.ThreatList:
+            {
+                if (_me is { CanHaveThreatList: true })
+                    foreach (var refe in _me.GetThreatManager().SortedThreatList)
+                        if (e.Target.threatList.maxDist == 0 || _me.IsWithinCombatRange(refe.Victim, e.Target.threatList.maxDist))
+                            targets.Add(refe.Victim);
+
+                break;
+            }
+            case SmartTargets.ClosestEnemy:
+            {
+                var target = _me?.SelectNearestTarget(e.Target.closestAttackable.maxDist);
+
+                if (target != null)
+                    targets.Add(target);
+
+                break;
+            }
+            case SmartTargets.ClosestFriendly:
+            {
+                if (_me != null)
+                {
+                    var target = DoFindClosestFriendlyInRange(e.Target.closestFriendly.maxDist);
+
+                    if (target != null)
+                        targets.Add(target);
+                }
+
+                break;
+            }
+            case SmartTargets.LootRecipients:
+            {
+                if (_me)
+                    foreach (var tapperGuid in _me.TapList)
+                    {
+                        var tapper = Global.ObjAccessor.GetPlayer(_me, tapperGuid);
+
+                        if (tapper != null)
+                            targets.Add(tapper);
+                    }
+
+                break;
+            }
+            case SmartTargets.VehiclePassenger:
+            {
+                if (_me && _me.IsVehicle)
+                    foreach (var pair in _me.VehicleKit.Seats)
+                        if (e.Target.vehicle.seatMask == 0 || (e.Target.vehicle.seatMask & (1 << pair.Key)) != 0)
+                        {
+                            var u = Global.ObjAccessor.GetUnit(_me, pair.Value.Passenger.Guid);
+
+                            if (u != null)
+                                targets.Add(u);
+                        }
+
+                break;
+            }
+            case SmartTargets.ClosestUnspawnedGameobject:
+            {
+                var target = baseObject.Location.FindNearestUnspawnedGameObject(e.Target.goClosest.entry, (float)(e.Target.goClosest.dist != 0 ? e.Target.goClosest.dist : 100));
+
+                if (target != null)
+                    targets.Add(target);
+
+                break;
+            }
+            case SmartTargets.Position:
+            default:
+                break;
+        }
+
+        return targets;
+    }
+
+    private List<WorldObject> GetWorldObjectsInDist(float dist)
+    {
+        List<WorldObject> targets = new();
+        var obj = GetBaseObject();
+
+        if (obj == null)
+            return targets;
+
+        var u_check = new AllWorldObjectsInRange(obj, dist);
+        var searcher = new WorldObjectListSearcher(obj, targets, u_check);
+        Cell.VisitGrid(obj, searcher, dist);
+
+        return targets;
+    }
+
+    private void IncPhase(uint p)
+    {
+        // protect phase from overflowing
+        SetPhase(Math.Min((uint)SmartPhase.Phase12, _eventPhase + p));
+    }
+
+    private void InitTimer(SmartScriptHolder e)
+    {
+        switch (e.GetEventType())
+        {
+            //set only events which have initial timers
+            case SmartEvents.Update:
+            case SmartEvents.UpdateIc:
+            case SmartEvents.UpdateOoc:
+                RecalcTimer(e, e.Event.minMaxRepeat.min, e.Event.minMaxRepeat.max);
+
+                break;
+            case SmartEvents.DistanceCreature:
+            case SmartEvents.DistanceGameobject:
+                RecalcTimer(e, e.Event.distance.repeat, e.Event.distance.repeat);
+
+                break;
+            default:
+                e.Active = true;
+
+                break;
+        }
+    }
+
+    private void InstallEvents()
+    {
+        if (!_installEvents.Empty())
+        {
+            lock (_events)
+            {
+                foreach (var holder in _installEvents)
+                    _events.Add(holder); //must be before UpdateTimers
+            }
+
+            _installEvents.Clear();
+        }
+    }
+
+    private bool IsInPhase(uint p)
+    {
+        if (_eventPhase == 0)
             return false;
 
-        var creatureObj = obj.AsCreature;
+        return ((1 << (int)(_eventPhase - 1)) & p) != 0;
+    }
 
-        if (creatureObj)
-            return creatureObj.IsCharmed;
+    private bool IsSmart(Creature creature, bool silent = false)
+    {
+        if (creature == null)
+            return false;
+
+        var smart = true;
+
+        if (creature.GetAI<SmartAI>() == null)
+            smart = false;
+
+        if (!smart && !silent)
+            Log.Logger.Error("SmartScript: Action target Creature (GUID: {0} Entry: {1}) is not using SmartAI, action skipped to prevent crash.", creature?.SpawnId ?? (_me?.SpawnId ?? 0), creature?.Entry ?? (_me?.Entry ?? 0));
+
+        return smart;
+    }
+
+    private bool IsSmart(GameObject gameObject, bool silent = false)
+    {
+        if (gameObject == null)
+            return false;
+
+        var smart = true;
+
+        if (gameObject.GetAI<SmartGameObjectAI>() == null)
+            smart = false;
+
+        if (!smart && !silent)
+            Log.Logger.Error("SmartScript: Action target GameObject (GUID: {0} Entry: {1}) is not using SmartGameObjectAI, action skipped to prevent crash.", gameObject?.SpawnId ?? (_go?.SpawnId ?? 0), gameObject?.Entry ?? (_go?.Entry ?? 0));
+
+        return smart;
+    }
+
+    private bool IsSmart(bool silent = false)
+    {
+        if (_me != null)
+            return IsSmart(_me, silent);
+
+        if (_go != null)
+            return IsSmart(_go, silent);
 
         return false;
-    }
-
-    public bool IsGameObject(WorldObject obj)
-    {
-        return obj != null && obj.IsTypeId(TypeId.GameObject);
-    }
-
-    public List<WorldObject> GetStoredTargetList(uint id, WorldObject obj)
-    {
-        var list = _storedTargets.LookupByKey(id);
-
-        return list?.GetObjectList(obj);
     }
 
     private void ProcessAction(SmartScriptHolder e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
@@ -3140,597 +4065,6 @@ public class SmartScript
         }
     }
 
-    private void ProcessTimedAction(SmartScriptHolder e, uint min, uint max, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
-    {
-        // We may want to execute action rarely and because of this if condition is not fulfilled the action will be rechecked in a long time
-        if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(e.EntryOrGuid, e.EventId, e.SourceType, unit, GetBaseObject()))
-        {
-            RecalcTimer(e, min, max);
-            ProcessAction(e, unit, var0, var1, bvar, spell, gob, varString);
-        }
-        else
-        {
-            RecalcTimer(e, Math.Min(min, 5000), Math.Min(min, 5000));
-        }
-    }
-
-    private SmartScriptHolder CreateSmartEvent(SmartEvents e, SmartEventFlags event_flags, uint event_param1, uint event_param2, uint event_param3, uint event_param4, uint event_param5,
-                                               SmartActions action, uint action_param1, uint action_param2, uint action_param3, uint action_param4, uint action_param5, uint action_param6, uint action_param7,
-                                               SmartTargets t, uint target_param1, uint target_param2, uint target_param3, uint target_param4, uint phaseMask)
-    {
-        SmartScriptHolder script = new();
-        script.Event.type = e;
-        script.Event.raw.param1 = event_param1;
-        script.Event.raw.param2 = event_param2;
-        script.Event.raw.param3 = event_param3;
-        script.Event.raw.param4 = event_param4;
-        script.Event.raw.param5 = event_param5;
-        script.Event.event_phase_mask = phaseMask;
-        script.Event.event_flags = event_flags;
-        script.Event.event_chance = 100;
-
-        script.Action.type = action;
-        script.Action.raw.param1 = action_param1;
-        script.Action.raw.param2 = action_param2;
-        script.Action.raw.param3 = action_param3;
-        script.Action.raw.param4 = action_param4;
-        script.Action.raw.param5 = action_param5;
-        script.Action.raw.param6 = action_param6;
-        script.Action.raw.param7 = action_param7;
-
-        script.Target.type = t;
-        script.Target.raw.param1 = target_param1;
-        script.Target.raw.param2 = target_param2;
-        script.Target.raw.param3 = target_param3;
-        script.Target.raw.param4 = target_param4;
-
-        script.SourceType = SmartScriptType.Creature;
-        InitTimer(script);
-
-        return script;
-    }
-
-    private List<WorldObject> GetTargets(SmartScriptHolder e, WorldObject invoker = null)
-    {
-        WorldObject scriptTrigger = null;
-
-        if (invoker != null)
-        {
-            scriptTrigger = invoker;
-        }
-        else
-        {
-            var tempLastInvoker = GetLastInvoker();
-
-            if (tempLastInvoker != null)
-                scriptTrigger = tempLastInvoker;
-        }
-
-        var baseObject = GetBaseObject();
-
-        List<WorldObject> targets = new();
-
-        switch (e.GetTargetType())
-        {
-            case SmartTargets.Self:
-                if (baseObject != null)
-                    targets.Add(baseObject);
-
-                break;
-            case SmartTargets.Victim:
-                if (_me is { Victim: { } })
-                    targets.Add(_me.Victim);
-
-                break;
-            case SmartTargets.HostileSecondAggro:
-                if (_me != null)
-                {
-                    if (e.Target.hostilRandom.powerType != 0)
-                    {
-                        var u = _me.AI.SelectTarget(SelectTargetMethod.MaxThreat, 1, new PowerUsersSelector(_me, (PowerType)(e.Target.hostilRandom.powerType - 1), (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0));
-
-                        if (u != null)
-                            targets.Add(u);
-                    }
-                    else
-                    {
-                        var u = _me.AI.SelectTarget(SelectTargetMethod.MaxThreat, 1, (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0);
-
-                        if (u != null)
-                            targets.Add(u);
-                    }
-                }
-
-                break;
-            case SmartTargets.HostileLastAggro:
-                if (_me != null)
-                {
-                    if (e.Target.hostilRandom.powerType != 0)
-                    {
-                        var u = _me.AI.SelectTarget(SelectTargetMethod.MinThreat, 1, new PowerUsersSelector(_me, (PowerType)(e.Target.hostilRandom.powerType - 1), (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0));
-
-                        if (u != null)
-                            targets.Add(u);
-                    }
-                    else
-                    {
-                        var u = _me.AI.SelectTarget(SelectTargetMethod.MinThreat, 1, (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0);
-
-                        if (u != null)
-                            targets.Add(u);
-                    }
-                }
-
-                break;
-            case SmartTargets.HostileRandom:
-                if (_me != null)
-                {
-                    if (e.Target.hostilRandom.powerType != 0)
-                    {
-                        var u = _me.AI.SelectTarget(SelectTargetMethod.Random, 1, new PowerUsersSelector(_me, (PowerType)(e.Target.hostilRandom.powerType - 1), (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0));
-
-                        if (u != null)
-                            targets.Add(u);
-                    }
-                    else
-                    {
-                        var u = _me.AI.SelectTarget(SelectTargetMethod.Random, 1, (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0);
-
-                        if (u != null)
-                            targets.Add(u);
-                    }
-                }
-
-                break;
-            case SmartTargets.HostileRandomNotTop:
-                if (_me != null)
-                {
-                    if (e.Target.hostilRandom.powerType != 0)
-                    {
-                        var u = _me.AI.SelectTarget(SelectTargetMethod.Random, 1, new PowerUsersSelector(_me, (PowerType)(e.Target.hostilRandom.powerType - 1), (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0));
-
-                        if (u != null)
-                            targets.Add(u);
-                    }
-                    else
-                    {
-                        var u = _me.AI.SelectTarget(SelectTargetMethod.Random, 1, (float)e.Target.hostilRandom.maxDist, e.Target.hostilRandom.playerOnly != 0);
-
-                        if (u != null)
-                            targets.Add(u);
-                    }
-                }
-
-                break;
-            case SmartTargets.Farthest:
-                if (_me)
-                {
-                    var u = _me.AI.SelectTarget(SelectTargetMethod.MaxDistance, 0, new FarthestTargetSelector(_me, (float)e.Target.farthest.maxDist, e.Target.farthest.playerOnly != 0, e.Target.farthest.isInLos != 0));
-
-                    if (u != null)
-                        targets.Add(u);
-                }
-
-                break;
-            case SmartTargets.ActionInvoker:
-                if (scriptTrigger != null)
-                    targets.Add(scriptTrigger);
-
-                break;
-            case SmartTargets.ActionInvokerVehicle:
-                if (scriptTrigger is { AsUnit.Vehicle: { } } && scriptTrigger.AsUnit.Vehicle.GetBase() != null)
-                    targets.Add(scriptTrigger.AsUnit.Vehicle.GetBase());
-
-                break;
-            case SmartTargets.InvokerParty:
-                var player = scriptTrigger?.AsPlayer;
-
-                if (player != null)
-                {
-                    var group = player.Group;
-
-                    if (group)
-                        for (var groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
-                        {
-                            var member = groupRef.Source;
-
-                            if (member)
-                                if (member.Location.IsInMap(player))
-                                    targets.Add(member);
-                        }
-                    // We still add the player to the list if there is no group. If we do
-                    // this even if there is a group (thus the else-check), it will add the
-                    // same player to the list twice. We don't want that to happen.
-                    else
-                        targets.Add(scriptTrigger);
-                }
-
-                break;
-            case SmartTargets.CreatureRange:
-            {
-                var refObj = baseObject;
-
-                if (refObj == null)
-                    refObj = scriptTrigger;
-
-                if (refObj == null)
-                {
-                    Log.Logger.Error($"SMART_TARGET_CREATURE_RANGE: {e} is missing base object or invoker.");
-
-                    break;
-                }
-
-                var units = GetWorldObjectsInDist(e.Target.unitRange.maxDist);
-
-                foreach (var obj in units)
-                {
-                    if (!IsCreature(obj))
-                        continue;
-
-                    if (_me != null && _me == obj)
-                        continue;
-
-                    if ((e.Target.unitRange.creature == 0 || obj.AsCreature.Entry == e.Target.unitRange.creature) && refObj.Location.IsInRange(obj, e.Target.unitRange.minDist, e.Target.unitRange.maxDist))
-                        targets.Add(obj);
-                }
-
-                if (e.Target.unitRange.maxSize != 0)
-                    targets.RandomResize(e.Target.unitRange.maxSize);
-
-                break;
-            }
-            case SmartTargets.CreatureDistance:
-            {
-                var units = GetWorldObjectsInDist(e.Target.unitDistance.dist);
-
-                foreach (var obj in units)
-                {
-                    if (!IsCreature(obj))
-                        continue;
-
-                    if (_me != null && _me == obj)
-                        continue;
-
-                    if (e.Target.unitDistance.creature == 0 || obj.AsCreature.Entry == e.Target.unitDistance.creature)
-                        targets.Add(obj);
-                }
-
-                if (e.Target.unitDistance.maxSize != 0)
-                    targets.RandomResize(e.Target.unitDistance.maxSize);
-
-                break;
-            }
-            case SmartTargets.GameobjectDistance:
-            {
-                var units = GetWorldObjectsInDist(e.Target.goDistance.dist);
-
-                foreach (var obj in units)
-                {
-                    if (!IsGameObject(obj))
-                        continue;
-
-                    if (_go != null && _go == obj)
-                        continue;
-
-                    if (e.Target.goDistance.entry == 0 || obj.AsGameObject.Entry == e.Target.goDistance.entry)
-                        targets.Add(obj);
-                }
-
-                if (e.Target.goDistance.maxSize != 0)
-                    targets.RandomResize(e.Target.goDistance.maxSize);
-
-                break;
-            }
-            case SmartTargets.GameobjectRange:
-            {
-                var refObj = baseObject;
-
-                if (refObj == null)
-                    refObj = scriptTrigger;
-
-                if (refObj == null)
-                {
-                    Log.Logger.Error($"SMART_TARGET_GAMEOBJECT_RANGE: {e} is missing base object or invoker.");
-
-                    break;
-                }
-
-                var units = GetWorldObjectsInDist(e.Target.goRange.maxDist);
-
-                foreach (var obj in units)
-                {
-                    if (!IsGameObject(obj))
-                        continue;
-
-                    if (_go != null && _go == obj)
-                        continue;
-
-                    if ((e.Target.goRange.entry == 0 || obj.AsGameObject.Entry == e.Target.goRange.entry) && refObj.Location.IsInRange(obj, e.Target.goRange.minDist, e.Target.goRange.maxDist))
-                        targets.Add(obj);
-                }
-
-                if (e.Target.goRange.maxSize != 0)
-                    targets.RandomResize(e.Target.goRange.maxSize);
-
-                break;
-            }
-            case SmartTargets.CreatureGuid:
-            {
-                if (scriptTrigger == null && baseObject == null)
-                {
-                    Log.Logger.Error($"SMART_TARGET_CREATURE_GUID {e} can not be used without invoker");
-
-                    break;
-                }
-
-                var target = FindCreatureNear(scriptTrigger ?? baseObject, e.Target.unitGUID.dbGuid);
-
-                if (target)
-                    if (target != null && (e.Target.unitGUID.entry == 0 || target.Entry == e.Target.unitGUID.entry))
-                        targets.Add(target);
-
-                break;
-            }
-            case SmartTargets.GameobjectGuid:
-            {
-                if (scriptTrigger == null && baseObject == null)
-                {
-                    Log.Logger.Error($"SMART_TARGET_GAMEOBJECT_GUID {e} can not be used without invoker");
-
-                    break;
-                }
-
-                var target = FindGameObjectNear(scriptTrigger ?? baseObject, e.Target.goGUID.dbGuid);
-
-                if (target)
-                    if (target != null && (e.Target.goGUID.entry == 0 || target.Entry == e.Target.goGUID.entry))
-                        targets.Add(target);
-
-                break;
-            }
-            case SmartTargets.PlayerRange:
-            {
-                var units = GetWorldObjectsInDist(e.Target.playerRange.maxDist);
-
-                if (!units.Empty() && baseObject != null)
-                    foreach (var obj in units)
-                        if (IsPlayer(obj) && baseObject.Location.IsInRange(obj, e.Target.playerRange.minDist, e.Target.playerRange.maxDist))
-                            targets.Add(obj);
-
-                break;
-            }
-            case SmartTargets.PlayerDistance:
-            {
-                var units = GetWorldObjectsInDist(e.Target.playerDistance.dist);
-
-                foreach (var obj in units)
-                    if (IsPlayer(obj))
-                        targets.Add(obj);
-
-                break;
-            }
-            case SmartTargets.Stored:
-            {
-                var refObj = baseObject;
-
-                if (refObj == null)
-                    refObj = scriptTrigger;
-
-                if (refObj == null)
-                {
-                    Log.Logger.Error($"SMART_TARGET_STORED: {e} is missing base object or invoker.");
-
-                    break;
-                }
-
-                var stored = GetStoredTargetList(e.Target.stored.id, refObj);
-
-                if (stored != null)
-                    targets.AddRange(stored);
-
-                break;
-            }
-            case SmartTargets.ClosestCreature:
-            {
-                var refObj = baseObject;
-
-                if (refObj == null)
-                    refObj = scriptTrigger;
-
-                if (refObj == null)
-                {
-                    Log.Logger.Error($"SMART_TARGET_CLOSEST_CREATURE: {e} is missing base object or invoker.");
-
-                    break;
-                }
-
-                var target = refObj.Location.FindNearestCreature(e.Target.unitClosest.entry, e.Target.unitClosest.dist != 0 ? e.Target.unitClosest.dist : 100, e.Target.unitClosest.dead == 0);
-
-                if (target)
-                    targets.Add(target);
-
-                break;
-            }
-            case SmartTargets.ClosestGameobject:
-            {
-                var refObj = baseObject;
-
-                if (refObj == null)
-                    refObj = scriptTrigger;
-
-                if (refObj == null)
-                {
-                    Log.Logger.Error($"SMART_TARGET_CLOSEST_GAMEOBJECT: {e} is missing base object or invoker.");
-
-                    break;
-                }
-
-                var target = refObj.Location.FindNearestGameObject(e.Target.goClosest.entry, e.Target.goClosest.dist != 0 ? e.Target.goClosest.dist : 100);
-
-                if (target)
-                    targets.Add(target);
-
-                break;
-            }
-            case SmartTargets.ClosestPlayer:
-            {
-                var refObj = baseObject;
-
-                if (refObj == null)
-                    refObj = scriptTrigger;
-
-                if (refObj == null)
-                {
-                    Log.Logger.Error($"SMART_TARGET_CLOSEST_PLAYER: {e} is missing base object or invoker.");
-
-                    break;
-                }
-
-                var target = refObj.Location.SelectNearestPlayer(e.Target.playerDistance.dist);
-
-                if (target)
-                    targets.Add(target);
-
-                break;
-            }
-            case SmartTargets.OwnerOrSummoner:
-            {
-                if (_me != null)
-                {
-                    var charmerOrOwnerGuid = _me.CharmerOrOwnerGUID;
-
-                    if (charmerOrOwnerGuid.IsEmpty)
-                    {
-                        var tempSummon = _me.ToTempSummon();
-
-                        if (tempSummon)
-                        {
-                            var summoner = tempSummon.GetSummoner();
-
-                            if (summoner)
-                                charmerOrOwnerGuid = summoner.GUID;
-                        }
-                    }
-
-                    if (charmerOrOwnerGuid.IsEmpty)
-                        charmerOrOwnerGuid = _me.CreatorGUID;
-
-                    var owner = Global.ObjAccessor.GetWorldObject(_me, charmerOrOwnerGuid);
-
-                    if (owner != null)
-                        targets.Add(owner);
-                }
-                else if (_go != null)
-                {
-                    var owner = Global.ObjAccessor.GetUnit(_go, _go.OwnerGUID);
-
-                    if (owner)
-                        targets.Add(owner);
-                }
-
-                // Get owner of owner
-                if (e.Target.owner.useCharmerOrOwner != 0 && !targets.Empty())
-                {
-                    var owner = targets.First();
-                    targets.Clear();
-
-                    var unitBase = Global.ObjAccessor.GetUnit(owner, owner.CharmerOrOwnerGUID);
-
-                    if (unitBase != null)
-                        targets.Add(unitBase);
-                }
-
-                break;
-            }
-            case SmartTargets.ThreatList:
-            {
-                if (_me is { CanHaveThreatList: true })
-                    foreach (var refe in _me.GetThreatManager().SortedThreatList)
-                        if (e.Target.threatList.maxDist == 0 || _me.IsWithinCombatRange(refe.Victim, e.Target.threatList.maxDist))
-                            targets.Add(refe.Victim);
-
-                break;
-            }
-            case SmartTargets.ClosestEnemy:
-            {
-                var target = _me?.SelectNearestTarget(e.Target.closestAttackable.maxDist);
-
-                if (target != null)
-                    targets.Add(target);
-
-                break;
-            }
-            case SmartTargets.ClosestFriendly:
-            {
-                if (_me != null)
-                {
-                    var target = DoFindClosestFriendlyInRange(e.Target.closestFriendly.maxDist);
-
-                    if (target != null)
-                        targets.Add(target);
-                }
-
-                break;
-            }
-            case SmartTargets.LootRecipients:
-            {
-                if (_me)
-                    foreach (var tapperGuid in _me.TapList)
-                    {
-                        var tapper = Global.ObjAccessor.GetPlayer(_me, tapperGuid);
-
-                        if (tapper != null)
-                            targets.Add(tapper);
-                    }
-
-                break;
-            }
-            case SmartTargets.VehiclePassenger:
-            {
-                if (_me && _me.IsVehicle)
-                    foreach (var pair in _me.VehicleKit.Seats)
-                        if (e.Target.vehicle.seatMask == 0 || (e.Target.vehicle.seatMask & (1 << pair.Key)) != 0)
-                        {
-                            var u = Global.ObjAccessor.GetUnit(_me, pair.Value.Passenger.Guid);
-
-                            if (u != null)
-                                targets.Add(u);
-                        }
-
-                break;
-            }
-            case SmartTargets.ClosestUnspawnedGameobject:
-            {
-                var target = baseObject.Location.FindNearestUnspawnedGameObject(e.Target.goClosest.entry, (float)(e.Target.goClosest.dist != 0 ? e.Target.goClosest.dist : 100));
-
-                if (target != null)
-                    targets.Add(target);
-
-                break;
-            }
-            case SmartTargets.Position:
-            default:
-                break;
-        }
-
-        return targets;
-    }
-
-    private List<WorldObject> GetWorldObjectsInDist(float dist)
-    {
-        List<WorldObject> targets = new();
-        var obj = GetBaseObject();
-
-        if (obj == null)
-            return targets;
-
-        var u_check = new AllWorldObjectsInRange(obj, dist);
-        var searcher = new WorldObjectListSearcher(obj, targets, u_check);
-        Cell.VisitGrid(obj, searcher, dist);
-
-        return targets;
-    }
-
     private void ProcessEvent(SmartScriptHolder e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
     {
         if (!e.Active && e.GetEventType() != SmartEvents.Link)
@@ -4302,7 +4636,7 @@ public class SmartScript
                             }
                     }
 
-                        break;
+                    break;
                     case SmartTargets.ActionInvoker:
                         unitTarget = DoSelectLowestHpPercentFriendly((float)e.Event.friendlyHealthPct.radius, e.Event.friendlyHealthPct.minHpPct, e.Event.friendlyHealthPct.maxHpPct);
 
@@ -4409,26 +4743,28 @@ public class SmartScript
         }
     }
 
-    private void InitTimer(SmartScriptHolder e)
+    private void ProcessTimedAction(SmartScriptHolder e, uint min, uint max, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
     {
-        switch (e.GetEventType())
+        // We may want to execute action rarely and because of this if condition is not fulfilled the action will be rechecked in a long time
+        if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(e.EntryOrGuid, e.EventId, e.SourceType, unit, GetBaseObject()))
         {
-            //set only events which have initial timers
-            case SmartEvents.Update:
-            case SmartEvents.UpdateIc:
-            case SmartEvents.UpdateOoc:
-                RecalcTimer(e, e.Event.minMaxRepeat.min, e.Event.minMaxRepeat.max);
+            RecalcTimer(e, min, max);
+            ProcessAction(e, unit, var0, var1, bvar, spell, gob, varString);
+        }
+        else
+        {
+            RecalcTimer(e, Math.Min(min, 5000), Math.Min(min, 5000));
+        }
+    }
+    private void RaisePriority(SmartScriptHolder e)
+    {
+        e.Timer = 1;
 
-                break;
-            case SmartEvents.DistanceCreature:
-            case SmartEvents.DistanceGameobject:
-                RecalcTimer(e, e.Event.distance.repeat, e.Event.distance.repeat);
-
-                break;
-            default:
-                e.Active = true;
-
-                break;
+        // Change priority only if it's set to default, otherwise keep the current order of events
+        if (e.Priority == SmartScriptHolder.DefaultPriority)
+        {
+            e.Priority = _currentPriority++;
+            _eventSortingRequired = true;
         }
     }
 
@@ -4440,6 +4776,101 @@ public class SmartScript
         // min/max was checked at loading!
         e.Timer = RandomHelper.URand(min, max);
         e.Active = e.Timer == 0;
+    }
+
+    private void RemoveStoredEvent(uint id)
+    {
+        if (!_storedEvents.Empty())
+            foreach (var holder in _storedEvents)
+                if (holder.EventId == id)
+                {
+                    _storedEvents.Remove(holder);
+
+                    return;
+                }
+    }
+
+    private void ResetBaseObject()
+    {
+        WorldObject lookupRoot = _me;
+
+        if (!lookupRoot)
+            lookupRoot = _go;
+
+        if (lookupRoot)
+        {
+            if (!_meOrigGUID.IsEmpty)
+            {
+                var m = ObjectAccessor.GetCreature(lookupRoot, _meOrigGUID);
+
+                if (m != null)
+                {
+                    _me = m;
+                    _go = null;
+                    _areaTrigger = null;
+                }
+            }
+
+            if (!_goOrigGUID.IsEmpty)
+            {
+                var o = ObjectAccessor.GetGameObject(lookupRoot, _goOrigGUID);
+
+                if (o != null)
+                {
+                    _me = null;
+                    _go = o;
+                    _areaTrigger = null;
+                }
+            }
+        }
+
+        _goOrigGUID.Clear();
+        _meOrigGUID.Clear();
+    }
+
+    private void RetryLater(SmartScriptHolder e, bool ignoreChanceRoll = false)
+    {
+        RaisePriority(e);
+
+        // This allows to retry the action later without rolling again the chance roll (which might fail and end up not executing the action)
+        if (ignoreChanceRoll)
+            e.Event.event_flags |= SmartEventFlags.TempIgnoreChanceRoll;
+
+        e.RunOnce = false;
+    }
+
+    private void SetPhase(uint p)
+    {
+        _eventPhase = p;
+    }
+
+    private void SortEvents(List<SmartScriptHolder> events)
+    {
+        events.Sort();
+    }
+
+    private void StoreCounter(uint id, uint value, uint reset)
+    {
+        if (_counterList.ContainsKey(id))
+        {
+            if (reset == 0)
+                _counterList[id] += value;
+            else
+                _counterList[id] = value;
+        }
+        else
+        {
+            _counterList.Add(id, value);
+        }
+
+        ProcessEventsFor(SmartEvents.CounterSet, null, id);
+    }
+
+    private void StoreTargetList(List<WorldObject> targets, uint id)
+    {
+        // insert or replace
+        _storedTargets.Remove(id);
+        _storedTargets.Add(id, new ObjectGuidList(targets));
     }
 
     private void UpdateTimer(SmartScriptHolder e, uint diff)
@@ -4541,442 +4972,5 @@ public class SmartScript
             if (e.EntryOrGuid == 15294 && _me.GUID.Counter == 55039 && e.Timer != 0)
                 Log.Logger.Error("Called UpdateTimer: reduce timer: e.timer: {0}, diff: {1}  current time: {2}", e.Timer, diff, Time.MSTime);
         }
-    }
-
-    private void InstallEvents()
-    {
-        if (!_installEvents.Empty())
-        {
-            lock (_events)
-            {
-                foreach (var holder in _installEvents)
-                    _events.Add(holder); //must be before UpdateTimers
-            }
-
-            _installEvents.Clear();
-        }
-    }
-
-    private void SortEvents(List<SmartScriptHolder> events)
-    {
-        events.Sort();
-    }
-
-    private void RaisePriority(SmartScriptHolder e)
-    {
-        e.Timer = 1;
-
-        // Change priority only if it's set to default, otherwise keep the current order of events
-        if (e.Priority == SmartScriptHolder.DefaultPriority)
-        {
-            e.Priority = _currentPriority++;
-            _eventSortingRequired = true;
-        }
-    }
-
-    private void RetryLater(SmartScriptHolder e, bool ignoreChanceRoll = false)
-    {
-        RaisePriority(e);
-
-        // This allows to retry the action later without rolling again the chance roll (which might fail and end up not executing the action)
-        if (ignoreChanceRoll)
-            e.Event.event_flags |= SmartEventFlags.TempIgnoreChanceRoll;
-
-        e.RunOnce = false;
-    }
-
-    private void FillScript(List<SmartScriptHolder> e, WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest.Quest quest)
-    {
-        if (e.Empty())
-        {
-            if (obj != null)
-                Log.Logger.Debug($"SmartScript: EventMap for Entry {obj.Entry} is empty but is using SmartScript.");
-
-            if (at != null)
-                Log.Logger.Debug($"SmartScript: EventMap for AreaTrigger {at.Id} is empty but is using SmartScript.");
-
-            if (scene != null)
-                Log.Logger.Debug($"SmartScript: EventMap for SceneId {scene.SceneId} is empty but is using SmartScript.");
-
-            if (quest != null)
-                Log.Logger.Debug($"SmartScript: EventMap for Quest {quest.Id} is empty but is using SmartScript.");
-
-            return;
-        }
-
-        foreach (var holder in e)
-        {
-            if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.DifficultyAll)) //if has instance flag add only if in it
-            {
-                if (!(obj != null && obj.Location.Map.IsDungeon))
-                    continue;
-
-                // TODO: fix it for new maps and difficulties
-                switch (obj.Location.Map.DifficultyID)
-                {
-                    case Difficulty.Normal:
-                    case Difficulty.Raid10N:
-                        if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.Difficulty0))
-                            lock (_events)
-                            {
-                                _events.Add(holder);
-                            }
-
-                        break;
-                    case Difficulty.Heroic:
-                    case Difficulty.Raid25N:
-                        if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.Difficulty1))
-                            lock (_events)
-                            {
-                                _events.Add(holder);
-                            }
-
-                        break;
-                    case Difficulty.Raid10HC:
-                        if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.Difficulty2))
-                            lock (_events)
-                            {
-                                _events.Add(holder);
-                            }
-
-                        break;
-                    case Difficulty.Raid25HC:
-                        if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.Difficulty3))
-                            lock (_events)
-                            {
-                                _events.Add(holder);
-                            }
-
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            _allEventFlags |= holder.Event.event_flags;
-
-            lock (_events)
-            {
-                _events.Add(holder); //NOTE: 'world(0)' events still get processed in ANY instance mode
-            }
-        }
-    }
-
-    private void GetScript()
-    {
-        List<SmartScriptHolder> e;
-
-        if (_me != null)
-        {
-            e = Global.SmartAIMgr.GetScript(-((int)_me.SpawnId), _scriptType);
-
-            if (e.Empty())
-                e = Global.SmartAIMgr.GetScript((int)_me.Entry, _scriptType);
-
-            FillScript(e, _me, null, null, null);
-        }
-        else if (_go != null)
-        {
-            e = Global.SmartAIMgr.GetScript(-((int)_go.SpawnId), _scriptType);
-
-            if (e.Empty())
-                e = Global.SmartAIMgr.GetScript((int)_go.Entry, _scriptType);
-
-            FillScript(e, _go, null, null, null);
-        }
-        else if (_trigger != null)
-        {
-            e = Global.SmartAIMgr.GetScript((int)_trigger.Id, _scriptType);
-            FillScript(e, null, _trigger, null, null);
-        }
-        else if (_areaTrigger != null)
-        {
-            e = Global.SmartAIMgr.GetScript((int)_areaTrigger.Entry, _scriptType);
-            FillScript(e, _areaTrigger, null, null, null);
-        }
-        else if (_sceneTemplate != null)
-        {
-            e = Global.SmartAIMgr.GetScript((int)_sceneTemplate.SceneId, _scriptType);
-            FillScript(e, null, null, _sceneTemplate, null);
-        }
-        else if (_quest != null)
-        {
-            e = Global.SmartAIMgr.GetScript((int)_quest.Id, _scriptType);
-            FillScript(e, null, null, null, _quest);
-        }
-    }
-
-    private Unit DoSelectLowestHpFriendly(float range, uint MinHPDiff)
-    {
-        if (!_me)
-            return null;
-
-        var u_check = new MostHPMissingInRange<Unit>(_me, range, MinHPDiff);
-        var searcher = new UnitLastSearcher(_me, u_check, GridType.Grid);
-        Cell.VisitGrid(_me, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    private Unit DoSelectLowestHpPercentFriendly(float range, uint minHpPct, uint maxHpPct)
-    {
-        if (_me == null)
-            return null;
-
-        MostHPPercentMissingInRange u_check = new(_me, range, minHpPct, maxHpPct);
-        UnitLastSearcher searcher = new(_me, u_check, GridType.Grid);
-        Cell.VisitGrid(_me, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    private void DoFindFriendlyCC(List<Creature> creatures, float range)
-    {
-        if (_me == null)
-            return;
-
-        var u_check = new FriendlyCCedInRange(_me, range);
-        var searcher = new CreatureListSearcher(_me, creatures, u_check, GridType.Grid);
-        Cell.VisitGrid(_me, searcher, range);
-    }
-
-    private void DoFindFriendlyMissingBuff(List<Creature> creatures, float range, uint spellid)
-    {
-        if (_me == null)
-            return;
-
-        var u_check = new FriendlyMissingBuffInRange(_me, range, spellid);
-        var searcher = new CreatureListSearcher(_me, creatures, u_check, GridType.Grid);
-        Cell.VisitGrid(_me, searcher, range);
-    }
-
-    private Unit DoFindClosestFriendlyInRange(float range)
-    {
-        if (!_me)
-            return null;
-
-        var u_check = new AnyFriendlyUnitInObjectRangeCheck(_me, _me, range);
-        var searcher = new UnitLastSearcher(_me, u_check, GridType.All);
-        Cell.VisitGrid(_me, searcher, range);
-
-        return searcher.GetTarget();
-    }
-
-    private Unit GetLastInvoker(Unit invoker = null)
-    {
-        // Look for invoker only on map of base object... Prevents multithreaded crashes
-        var baseObject = GetBaseObject();
-
-        if (baseObject != null)
-            return Global.ObjAccessor.GetUnit(baseObject, LastInvoker);
-        // used for area triggers invoker cast
-        else if (invoker != null)
-            return Global.ObjAccessor.GetUnit(invoker, LastInvoker);
-
-        return null;
-    }
-
-    private WorldObject GetBaseObject()
-    {
-        WorldObject obj = null;
-
-        if (_me != null)
-            obj = _me;
-        else if (_go != null)
-            obj = _go;
-        else if (_areaTrigger != null)
-            obj = _areaTrigger;
-        else if (_player != null)
-            obj = _player;
-
-        return obj;
-    }
-
-    private WorldObject GetBaseObjectOrUnitInvoker(Unit invoker)
-    {
-        return GetBaseObject() ?? invoker;
-    }
-
-    private bool IsSmart(Creature creature, bool silent = false)
-    {
-        if (creature == null)
-            return false;
-
-        var smart = true;
-
-        if (creature.GetAI<SmartAI>() == null)
-            smart = false;
-
-        if (!smart && !silent)
-            Log.Logger.Error("SmartScript: Action target Creature (GUID: {0} Entry: {1}) is not using SmartAI, action skipped to prevent crash.", creature?.SpawnId ?? (_me?.SpawnId ?? 0), creature?.Entry ?? (_me?.Entry ?? 0));
-
-        return smart;
-    }
-
-    private bool IsSmart(GameObject gameObject, bool silent = false)
-    {
-        if (gameObject == null)
-            return false;
-
-        var smart = true;
-
-        if (gameObject.GetAI<SmartGameObjectAI>() == null)
-            smart = false;
-
-        if (!smart && !silent)
-            Log.Logger.Error("SmartScript: Action target GameObject (GUID: {0} Entry: {1}) is not using SmartGameObjectAI, action skipped to prevent crash.", gameObject?.SpawnId ?? (_go?.SpawnId ?? 0), gameObject?.Entry ?? (_go?.Entry ?? 0));
-
-        return smart;
-    }
-
-    private bool IsSmart(bool silent = false)
-    {
-        if (_me != null)
-            return IsSmart(_me, silent);
-
-        if (_go != null)
-            return IsSmart(_go, silent);
-
-        return false;
-    }
-
-    private void StoreTargetList(List<WorldObject> targets, uint id)
-    {
-        // insert or replace
-        _storedTargets.Remove(id);
-        _storedTargets.Add(id, new ObjectGuidList(targets));
-    }
-
-    private void AddToStoredTargetList(List<WorldObject> targets, uint id)
-    {
-        var inserted = _storedTargets.TryAdd(id, new ObjectGuidList(targets));
-
-        if (!inserted)
-            foreach (var obj in targets)
-                _storedTargets[id].AddGuid(obj.GUID);
-    }
-
-    private void StoreCounter(uint id, uint value, uint reset)
-    {
-        if (_counterList.ContainsKey(id))
-        {
-            if (reset == 0)
-                _counterList[id] += value;
-            else
-                _counterList[id] = value;
-        }
-        else
-        {
-            _counterList.Add(id, value);
-        }
-
-        ProcessEventsFor(SmartEvents.CounterSet, null, id);
-    }
-
-    private uint GetCounterValue(uint id)
-    {
-        if (_counterList.ContainsKey(id))
-            return _counterList[id];
-
-        return 0;
-    }
-
-    private GameObject FindGameObjectNear(WorldObject searchObject, ulong guid)
-    {
-        var bounds = searchObject.Location.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
-
-        if (bounds.Empty())
-            return null;
-
-        return bounds[0];
-    }
-
-    private Creature FindCreatureNear(WorldObject searchObject, ulong guid)
-    {
-        var bounds = searchObject.Location.Map.CreatureBySpawnIdStore.LookupByKey(guid);
-
-        if (bounds.Empty())
-            return null;
-
-        var foundCreature = bounds.Find(creature => creature.IsAlive);
-
-        return foundCreature ?? bounds[0];
-    }
-
-    private void ResetBaseObject()
-    {
-        WorldObject lookupRoot = _me;
-
-        if (!lookupRoot)
-            lookupRoot = _go;
-
-        if (lookupRoot)
-        {
-            if (!_meOrigGUID.IsEmpty)
-            {
-                var m = ObjectAccessor.GetCreature(lookupRoot, _meOrigGUID);
-
-                if (m != null)
-                {
-                    _me = m;
-                    _go = null;
-                    _areaTrigger = null;
-                }
-            }
-
-            if (!_goOrigGUID.IsEmpty)
-            {
-                var o = ObjectAccessor.GetGameObject(lookupRoot, _goOrigGUID);
-
-                if (o != null)
-                {
-                    _me = null;
-                    _go = o;
-                    _areaTrigger = null;
-                }
-            }
-        }
-
-        _goOrigGUID.Clear();
-        _meOrigGUID.Clear();
-    }
-
-    private void IncPhase(uint p)
-    {
-        // protect phase from overflowing
-        SetPhase(Math.Min((uint)SmartPhase.Phase12, _eventPhase + p));
-    }
-
-    private void DecPhase(uint p)
-    {
-        if (p >= _eventPhase)
-            SetPhase(0);
-        else
-            SetPhase(_eventPhase - p);
-    }
-
-    private void SetPhase(uint p)
-    {
-        _eventPhase = p;
-    }
-
-    private bool IsInPhase(uint p)
-    {
-        if (_eventPhase == 0)
-            return false;
-
-        return ((1 << (int)(_eventPhase - 1)) & p) != 0;
-    }
-
-    private void RemoveStoredEvent(uint id)
-    {
-        if (!_storedEvents.Empty())
-            foreach (var holder in _storedEvents)
-                if (holder.EventId == id)
-                {
-                    _storedEvents.Remove(holder);
-
-                    return;
-                }
     }
 }

@@ -17,19 +17,18 @@ internal class Transport : GameObjectTypeBase, ITransport
 {
     private static readonly TimeSpan PositionUpdateInterval = TimeSpan.FromMilliseconds(50);
     private readonly TransportAnimation _animationInfo;
-    private readonly List<uint> _stopFrames = new();
-    private readonly TimeTracker _positionUpdateTimer = new();
     private readonly List<WorldObject> _passengers = new();
-    private uint _pathProgress;
-    private uint _stateChangeTime;
-    private uint _stateChangeProgress;
+    private readonly TimeTracker _positionUpdateTimer = new();
+    private readonly List<uint> _stopFrames = new();
     private bool _autoCycleBetweenStopFrames;
-
+    private uint _pathProgress;
+    private uint _stateChangeProgress;
+    private uint _stateChangeTime;
     public Transport(GameObject owner) : base(owner)
     {
         _animationInfo = Global.TransportMgr.GetTransportAnimInfo(owner.Template.entry);
-        _pathProgress = GameTime.GetGameTimeMS() % GetTransportPeriod();
-        _stateChangeTime = GameTime.GetGameTimeMS();
+        _pathProgress = GameTime.CurrentTimeMS % GetTransportPeriod();
+        _stateChangeTime = GameTime.CurrentTimeMS;
         _stateChangeProgress = _pathProgress;
 
         var goInfo = Owner.Template;
@@ -86,16 +85,6 @@ internal class Transport : GameObjectTypeBase, ITransport
         _positionUpdateTimer.Reset(PositionUpdateInterval);
     }
 
-    public ObjectGuid GetTransportGUID()
-    {
-        return Owner.GUID;
-    }
-
-    public float GetTransportOrientation()
-    {
-        return Owner.Location.Orientation;
-    }
-
     public void AddPassenger(WorldObject passenger)
     {
         if (!Owner.Location.IsInWorld)
@@ -108,6 +97,105 @@ internal class Transport : GameObjectTypeBase, ITransport
             passenger.MovementInfo.Transport.Guid = GetTransportGUID();
             Log.Logger.Debug($"Object {passenger.GetName()} boarded transport {Owner.GetName()}.");
         }
+    }
+
+    public void CalculatePassengerOffset(Position pos)
+    {
+        ITransport.CalculatePassengerOffset(pos, Owner.Location.X, Owner.Location.Y, Owner.Location.Z, Owner.Location.Orientation);
+    }
+
+    public void CalculatePassengerPosition(Position pos)
+    {
+        ITransport.CalculatePassengerPosition(pos, Owner.Location.X, Owner.Location.Y, Owner.Location.Z, Owner.Location.Orientation);
+    }
+
+    public int GetMapIdForSpawning()
+    {
+        return Owner.Template.Transport.SpawnMap;
+    }
+
+    public List<uint> GetPauseTimes()
+    {
+        return _stopFrames;
+    }
+
+    public ObjectGuid GetTransportGUID()
+    {
+        return Owner.GUID;
+    }
+
+    public float GetTransportOrientation()
+    {
+        return Owner.Location.Orientation;
+    }
+    public uint GetTransportPeriod()
+    {
+        if (_animationInfo != null)
+            return _animationInfo.TotalTime;
+
+        return 1;
+    }
+
+    public override void OnRelocated()
+    {
+        UpdatePassengerPositions();
+    }
+
+    public override void OnStateChanged(GameObjectState oldState, GameObjectState newState)
+    {
+        if (_stopFrames.Empty())
+        {
+            if (newState != GameObjectState.TransportActive)
+                Owner.SetGoState(GameObjectState.TransportActive);
+
+            return;
+        }
+
+        uint stopPathProgress = 0;
+
+        if (newState != GameObjectState.TransportActive)
+        {
+            var stopFrame = (int)(newState - GameObjectState.TransportStopped);
+            stopPathProgress = _stopFrames[stopFrame];
+        }
+
+        _stateChangeTime = GameTime.CurrentTimeMS;
+        _stateChangeProgress = _pathProgress;
+        var timeToStop = (uint)Math.Abs(_pathProgress - stopPathProgress);
+        Owner.SetLevel(GameTime.CurrentTimeMS + timeToStop);
+        Owner.SetPathProgressForClient((float)_pathProgress / (float)GetTransportPeriod());
+
+        if (oldState == GameObjectState.Active || oldState == newState)
+        {
+            // initialization
+            if (_pathProgress > stopPathProgress)
+                Owner.SetDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
+            else
+                Owner.RemoveDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
+
+            return;
+        }
+
+        var pauseTimesCount = _stopFrames.Count;
+        var newToOldStateDelta = newState - oldState;
+
+        if (newToOldStateDelta < 0)
+            newToOldStateDelta += pauseTimesCount + 1;
+
+        var oldToNewStateDelta = oldState - newState;
+
+        if (oldToNewStateDelta < 0)
+            oldToNewStateDelta += pauseTimesCount + 1;
+
+        // this additional check is neccessary because client doesn't check dynamic flags on progress update
+        // instead it multiplies progress from dynamicflags field by -1 and then compares that against 0
+        // when calculating path progress while we simply check the flag if (!_owner.HasDynamicFlag(GO_DYNFLAG_LO_INVERTED_MOVEMENT))
+        var isAtStartOfPath = _stateChangeProgress == 0;
+
+        if (oldToNewStateDelta < newToOldStateDelta && !isAtStartOfPath)
+            Owner.SetDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
+        else
+            Owner.RemoveDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
     }
 
     public ITransport RemovePassenger(WorldObject passenger)
@@ -125,20 +213,9 @@ internal class Transport : GameObjectTypeBase, ITransport
 
         return this;
     }
-
-    public void CalculatePassengerPosition(Position pos)
+    public void SetAutoCycleBetweenStopFrames(bool on)
     {
-        ITransport.CalculatePassengerPosition(pos, Owner.Location.X, Owner.Location.Y, Owner.Location.Z, Owner.Location.Orientation);
-    }
-
-    public void CalculatePassengerOffset(Position pos)
-    {
-        ITransport.CalculatePassengerOffset(pos, Owner.Location.X, Owner.Location.Y, Owner.Location.Z, Owner.Location.Orientation);
-    }
-
-    public int GetMapIdForSpawning()
-    {
-        return Owner.Template.Transport.SpawnMap;
+        _autoCycleBetweenStopFrames = on;
     }
 
     public override void Update(uint diff)
@@ -153,7 +230,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 
         _positionUpdateTimer.Reset(PositionUpdateInterval);
 
-        var now = GameTime.GetGameTimeMS();
+        var now = GameTime.CurrentTimeMS;
         var period = GetTransportPeriod();
         uint newProgress = 0;
 
@@ -298,10 +375,10 @@ internal class Transport : GameObjectTypeBase, ITransport
 
         if (oldAnimation != null && newAnimation != null)
         {
-            var pathRotation = new Quaternion(Owner.GameObjectFieldData.ParentRotation.GetValue().X,
-                                              Owner.GameObjectFieldData.ParentRotation.GetValue().Y,
-                                              Owner.GameObjectFieldData.ParentRotation.GetValue().Z,
-                                              Owner.GameObjectFieldData.ParentRotation.GetValue().W).ToMatrix();
+            var pathRotation = new Quaternion(Owner.GameObjectFieldData.ParentRotation.Value.X,
+                                              Owner.GameObjectFieldData.ParentRotation.Value.Y,
+                                              Owner.GameObjectFieldData.ParentRotation.Value.Z,
+                                              Owner.GameObjectFieldData.ParentRotation.Value.W).ToMatrix();
 
             Vector3 prev = new(oldAnimation.Pos.X, oldAnimation.Pos.Y, oldAnimation.Pos.Z);
             Vector3 next = new(newAnimation.Pos.X, newAnimation.Pos.Y, newAnimation.Pos.Z);
@@ -345,69 +422,6 @@ internal class Transport : GameObjectTypeBase, ITransport
         // update progress marker for client
         Owner.SetPathProgressForClient((float)_pathProgress / (float)period);
     }
-
-    public override void OnStateChanged(GameObjectState oldState, GameObjectState newState)
-    {
-        if (_stopFrames.Empty())
-        {
-            if (newState != GameObjectState.TransportActive)
-                Owner.SetGoState(GameObjectState.TransportActive);
-
-            return;
-        }
-
-        uint stopPathProgress = 0;
-
-        if (newState != GameObjectState.TransportActive)
-        {
-            var stopFrame = (int)(newState - GameObjectState.TransportStopped);
-            stopPathProgress = _stopFrames[stopFrame];
-        }
-
-        _stateChangeTime = GameTime.GetGameTimeMS();
-        _stateChangeProgress = _pathProgress;
-        var timeToStop = (uint)Math.Abs(_pathProgress - stopPathProgress);
-        Owner.SetLevel(GameTime.GetGameTimeMS() + timeToStop);
-        Owner.SetPathProgressForClient((float)_pathProgress / (float)GetTransportPeriod());
-
-        if (oldState == GameObjectState.Active || oldState == newState)
-        {
-            // initialization
-            if (_pathProgress > stopPathProgress)
-                Owner.SetDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
-            else
-                Owner.RemoveDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
-
-            return;
-        }
-
-        var pauseTimesCount = _stopFrames.Count;
-        var newToOldStateDelta = newState - oldState;
-
-        if (newToOldStateDelta < 0)
-            newToOldStateDelta += pauseTimesCount + 1;
-
-        var oldToNewStateDelta = oldState - newState;
-
-        if (oldToNewStateDelta < 0)
-            oldToNewStateDelta += pauseTimesCount + 1;
-
-        // this additional check is neccessary because client doesn't check dynamic flags on progress update
-        // instead it multiplies progress from dynamicflags field by -1 and then compares that against 0
-        // when calculating path progress while we simply check the flag if (!_owner.HasDynamicFlag(GO_DYNFLAG_LO_INVERTED_MOVEMENT))
-        var isAtStartOfPath = _stateChangeProgress == 0;
-
-        if (oldToNewStateDelta < newToOldStateDelta && !isAtStartOfPath)
-            Owner.SetDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
-        else
-            Owner.RemoveDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement);
-    }
-
-    public override void OnRelocated()
-    {
-        UpdatePassengerPositions();
-    }
-
     public void UpdatePassengerPositions()
     {
         foreach (var passenger in _passengers)
@@ -416,23 +430,5 @@ internal class Transport : GameObjectTypeBase, ITransport
             CalculatePassengerPosition(pos);
             ITransport.UpdatePassengerPosition(this, Owner.Location.Map, passenger, pos, true);
         }
-    }
-
-    public uint GetTransportPeriod()
-    {
-        if (_animationInfo != null)
-            return _animationInfo.TotalTime;
-
-        return 1;
-    }
-
-    public List<uint> GetPauseTimes()
-    {
-        return _stopFrames;
-    }
-
-    public void SetAutoCycleBetweenStopFrames(bool on)
-    {
-        _autoCycleBetweenStopFrames = on;
     }
 }

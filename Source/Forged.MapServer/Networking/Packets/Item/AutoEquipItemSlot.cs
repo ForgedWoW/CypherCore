@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class AutoEquipItemSlot : ClientPacket
 {
+    public InvUpdate Inv;
     public ObjectGuid Item;
     public byte ItemDstSlot;
-    public InvUpdate Inv;
     public AutoEquipItemSlot(WorldPacket packet) : base(packet) { }
 
     public override void Read()

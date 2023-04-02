@@ -10,13 +10,12 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridUnloader : IGridNotifierWorldObject
 {
-    public GridType GridType { get; set; }
-
     internal ObjectGridUnloader(GridType gridType = GridType.Grid)
     {
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<WorldObject> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

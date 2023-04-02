@@ -24,11 +24,6 @@ public class CombatAI : CreatureAI
         base.InitializeAI();
     }
 
-    public override void Reset()
-    {
-        Events.Reset();
-    }
-
     public override void JustDied(Unit killer)
     {
         foreach (var id in _spells)
@@ -56,6 +51,15 @@ public class CombatAI : CreatureAI
         }
     }
 
+    public override void Reset()
+    {
+        Events.Reset();
+    }
+    public override void SpellInterrupted(uint spellId, uint unTimeMs)
+    {
+        Events.RescheduleEvent(spellId, TimeSpan.FromMilliseconds(unTimeMs));
+    }
+
     public override void UpdateAI(uint diff)
     {
         if (!UpdateVictim())
@@ -80,10 +84,5 @@ public class CombatAI : CreatureAI
         {
             DoMeleeAttackIfReady();
         }
-    }
-
-    public override void SpellInterrupted(uint spellId, uint unTimeMs)
-    {
-        Events.RescheduleEvent(spellId, TimeSpan.FromMilliseconds(unTimeMs));
     }
 }

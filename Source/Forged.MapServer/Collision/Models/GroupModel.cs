@@ -11,14 +11,13 @@ namespace Forged.MapServer.Collision.Models;
 
 public class GroupModel : IModel
 {
-    private readonly List<Vector3> _vertices = new();
-    private readonly List<MeshTriangle> _triangles = new();
     private readonly BIH _meshTree = new();
+    private readonly List<MeshTriangle> _triangles = new();
+    private readonly List<Vector3> _vertices = new();
     private AxisAlignedBox _iBound;
-    private uint _iMogpFlags;
     private uint _iGroupWmoid;
     private WmoLiquid _iLiquid;
-
+    private uint _iMogpFlags;
     public GroupModel()
     {
         _iLiquid = null;
@@ -44,6 +43,68 @@ public class GroupModel : IModel
         _iMogpFlags = mogpFlags;
         _iGroupWmoid = groupWMOID;
         _iLiquid = null;
+    }
+
+    public override AxisAlignedBox GetBounds()
+    {
+        return _iBound;
+    }
+
+    public bool GetLiquidLevel(Vector3 pos, out float liqHeight)
+    {
+        liqHeight = 0f;
+
+        if (_iLiquid != null)
+            return _iLiquid.GetLiquidHeight(pos, out liqHeight);
+
+        return false;
+    }
+
+    public uint GetLiquidType()
+    {
+        if (_iLiquid != null)
+            return _iLiquid.GetLiquidType();
+
+        return 0;
+    }
+
+    public uint GetMogpFlags()
+    {
+        return _iMogpFlags;
+    }
+
+    public uint GetWmoID()
+    {
+        return _iGroupWmoid;
+    }
+
+    public override bool IntersectRay(Ray ray, ref float distance, bool stopAtFirstHit)
+    {
+        if (_triangles.Empty())
+            return false;
+
+        GModelRayCallback callback = new(_triangles, _vertices);
+        _meshTree.IntersectRay(ray, callback, ref distance, stopAtFirstHit);
+
+        return callback.Hit;
+    }
+
+    public bool IsInsideObject(Vector3 pos, Vector3 down, out float z_dist)
+    {
+        z_dist = 0f;
+
+        if (_triangles.Empty() || !_iBound.contains(pos))
+            return false;
+
+        var rPos = pos - 0.1f * down;
+        var dist = float.PositiveInfinity;
+        Ray ray = new(rPos, down);
+        var hit = IntersectRay(ray, ref dist, false);
+
+        if (hit)
+            z_dist = dist - 0.1f;
+
+        return hit;
     }
 
     public bool ReadFromFile(BinaryReader reader)
@@ -97,67 +158,5 @@ public class GroupModel : IModel
             _iLiquid = WmoLiquid.ReadFromFile(reader);
 
         return true;
-    }
-
-    public override bool IntersectRay(Ray ray, ref float distance, bool stopAtFirstHit)
-    {
-        if (_triangles.Empty())
-            return false;
-
-        GModelRayCallback callback = new(_triangles, _vertices);
-        _meshTree.IntersectRay(ray, callback, ref distance, stopAtFirstHit);
-
-        return callback.Hit;
-    }
-
-    public bool IsInsideObject(Vector3 pos, Vector3 down, out float z_dist)
-    {
-        z_dist = 0f;
-
-        if (_triangles.Empty() || !_iBound.contains(pos))
-            return false;
-
-        var rPos = pos - 0.1f * down;
-        var dist = float.PositiveInfinity;
-        Ray ray = new(rPos, down);
-        var hit = IntersectRay(ray, ref dist, false);
-
-        if (hit)
-            z_dist = dist - 0.1f;
-
-        return hit;
-    }
-
-    public bool GetLiquidLevel(Vector3 pos, out float liqHeight)
-    {
-        liqHeight = 0f;
-
-        if (_iLiquid != null)
-            return _iLiquid.GetLiquidHeight(pos, out liqHeight);
-
-        return false;
-    }
-
-    public uint GetLiquidType()
-    {
-        if (_iLiquid != null)
-            return _iLiquid.GetLiquidType();
-
-        return 0;
-    }
-
-    public override AxisAlignedBox GetBounds()
-    {
-        return _iBound;
-    }
-
-    public uint GetMogpFlags()
-    {
-        return _iMogpFlags;
-    }
-
-    public uint GetWmoID()
-    {
-        return _iGroupWmoid;
     }
 }

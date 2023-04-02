@@ -8,10 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class UpgradeStarted : ServerPacket
 {
-    public ObjectGuid CharacterGUID { get; set; } = new();
-
     public UpgradeStarted() : base(ServerOpcodes.CharacterUpgradeStarted) { }
 
+    public ObjectGuid CharacterGUID { get; set; } = new();
     public override void Write()
     {
         _worldPacket.Write(CharacterGUID);

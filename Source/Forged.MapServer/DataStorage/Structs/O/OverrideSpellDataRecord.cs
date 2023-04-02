@@ -7,8 +7,8 @@ namespace Forged.MapServer.DataStorage.Structs.O;
 
 public sealed class OverrideSpellDataRecord
 {
-    public uint Id;
-    public uint[] Spells = new uint[SharedConst.MaxOverrideSpell];
-    public uint PlayerActionBarFileDataID;
     public byte Flags;
+    public uint Id;
+    public uint PlayerActionBarFileDataID;
+    public uint[] Spells = new uint[SharedConst.MaxOverrideSpell];
 }

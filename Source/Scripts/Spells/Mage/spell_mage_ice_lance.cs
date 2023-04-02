@@ -46,7 +46,7 @@ internal class spell_mage_ice_lance : SpellScript, IHasSpellEffects
             {
                 var icyVeins = caster.GetAura(MageSpells.IcyVeins);
 
-                icyVeins?.SetDuration(icyVeins.Duration + thermalVoid.SpellInfo.GetEffect(0).CalcValue(caster) * Time.InMilliseconds);
+                icyVeins?.SetDuration(icyVeins.Duration + thermalVoid.SpellInfo.GetEffect(0).CalcValue(caster) * Time.IN_MILLISECONDS);
             }
 
             // Chain Reaction

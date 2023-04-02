@@ -10,14 +10,33 @@ namespace Forged.MapServer.Spells.Skills;
 
 public class SkillExtraItems
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly SpellManager _spellManager;
     private readonly Dictionary<uint, SkillExtraItemEntry> _skillExtraItemStorage = new();
-
+    private readonly SpellManager _spellManager;
+    private readonly WorldDatabase _worldDatabase;
     public SkillExtraItems(WorldDatabase worldDatabase, SpellManager spellManager)
     {
         _worldDatabase = worldDatabase;
         _spellManager = spellManager;
+    }
+
+    public bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)
+    {
+        // get the info for the specified spell
+        var specEntry = _skillExtraItemStorage.LookupByKey(spellId);
+
+        if (specEntry == null)
+            return false;
+
+        // the player doesn't have the required specialization, return false
+        if (!player.HasSpell(specEntry.RequiredSpecialization))
+            return false;
+
+        // set the arguments to the appropriate values
+        additionalChance = specEntry.AdditionalCreateChance;
+        additionalMax = specEntry.AdditionalMaxNum;
+
+        // enable extra item creation
+        return true;
     }
 
     // loads the extra item creation info from DB
@@ -89,26 +108,6 @@ public class SkillExtraItems
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)
-    {
-        // get the info for the specified spell
-        var specEntry = _skillExtraItemStorage.LookupByKey(spellId);
-
-        if (specEntry == null)
-            return false;
-
-        // the player doesn't have the required specialization, return false
-        if (!player.HasSpell(specEntry.RequiredSpecialization))
-            return false;
-
-        // set the arguments to the appropriate values
-        additionalChance = specEntry.AdditionalCreateChance;
-        additionalMax = specEntry.AdditionalMaxNum;
-
-        // enable extra item creation
-        return true;
     }
 }
 

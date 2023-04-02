@@ -8,12 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class RandomRoll : ServerPacket
 {
+    public int Max;
+    public int Min;
+    public int Result;
     public ObjectGuid Roller;
     public ObjectGuid RollerWowAccount;
-    public int Min;
-    public int Max;
-    public int Result;
-
     public RandomRoll() : base(ServerOpcodes.RandomRoll) { }
 
     public override void Write()

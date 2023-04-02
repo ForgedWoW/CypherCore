@@ -8,11 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class PurchaseListResponse : ServerPacket
 {
-    public uint Result { get; set; } = 0;
-    public List<BpayPurchase> Purchase { get; set; } = new();
-
     public PurchaseListResponse() : base(ServerOpcodes.BattlePayGetPurchaseListResponse) { }
 
+    public List<BpayPurchase> Purchase { get; set; } = new();
+    public uint Result { get; set; } = 0;
     public override void Write()
     {
         _worldPacket.Write(Result);

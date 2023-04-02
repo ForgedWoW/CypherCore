@@ -7,12 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class SaveGuildEmblem : ClientPacket
 {
-    public ObjectGuid Vendor;
-    public uint BStyle;
-    public uint EStyle;
     public uint BColor;
-    public uint EColor;
     public uint Bg;
+    public uint BStyle;
+    public uint EColor;
+    public uint EStyle;
+    public ObjectGuid Vendor;
     public SaveGuildEmblem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

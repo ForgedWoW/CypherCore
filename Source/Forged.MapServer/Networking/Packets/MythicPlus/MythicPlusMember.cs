@@ -8,17 +8,16 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 public struct MythicPlusMember
 {
     public ObjectGuid BnetAccountGUID;
-    public ulong GuildClubMemberID;
-    public ObjectGuid GUID;
-    public ObjectGuid GuildGUID;
-    public uint NativeRealmAddress;
-    public uint VirtualRealmAddress;
     public int ChrSpecializationID;
-    public short RaceID;
-    public int ItemLevel;
     public int CovenantID;
+    public ObjectGuid GUID;
+    public ulong GuildClubMemberID;
+    public ObjectGuid GuildGUID;
+    public int ItemLevel;
+    public uint NativeRealmAddress;
+    public short RaceID;
     public int SoulbindID;
-
+    public uint VirtualRealmAddress;
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(BnetAccountGUID);

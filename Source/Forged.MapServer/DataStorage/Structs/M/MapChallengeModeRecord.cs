@@ -7,11 +7,11 @@ namespace Forged.MapServer.DataStorage.Structs.M;
 
 public sealed class MapChallengeModeRecord
 {
-    public LocalizedString Name;
+    public short[] CriteriaCount = new short[3];
+    public uint ExpansionLevel;
+    public byte Flags;
     public uint Id;
     public ushort MapID;
-    public byte Flags;
-    public uint ExpansionLevel;
+    public LocalizedString Name;
     public int RequiredWorldStateID; // maybe?
-    public short[] CriteriaCount = new short[3];
 }

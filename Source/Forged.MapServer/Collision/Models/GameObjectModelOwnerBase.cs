@@ -8,11 +8,17 @@ namespace Forged.MapServer.Collision.Models;
 
 public abstract class GameObjectModelOwnerBase
 {
-    public abstract bool IsSpawned();
     public abstract uint GetDisplayId();
+
     public abstract byte GetNameSetId();
-    public abstract bool IsInPhase(PhaseShift phaseShift);
+
     public abstract Vector3 GetPosition();
+
     public abstract Quaternion GetRotation();
+
     public abstract float GetScale();
+
+    public abstract bool IsInPhase(PhaseShift phaseShift);
+
+    public abstract bool IsSpawned();
 }

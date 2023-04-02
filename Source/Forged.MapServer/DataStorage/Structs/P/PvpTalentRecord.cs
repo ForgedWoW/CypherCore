@@ -5,14 +5,14 @@ namespace Forged.MapServer.DataStorage.Structs.P;
 
 public sealed class PvpTalentRecord
 {
+    public int ActionBarSpellID;
     public string Description;
+    public int Flags;
     public uint Id;
+    public int LevelRequired;
+    public uint OverridesSpellID;
+    public int PlayerConditionID;
+    public int PvpTalentCategoryID;
     public int SpecID;
     public uint SpellID;
-    public uint OverridesSpellID;
-    public int Flags;
-    public int ActionBarSpellID;
-    public int PvpTalentCategoryID;
-    public int LevelRequired;
-    public int PlayerConditionID;
 }

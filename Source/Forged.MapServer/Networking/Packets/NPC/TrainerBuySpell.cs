@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 internal class TrainerBuySpell : ClientPacket
 {
+    public uint SpellID;
     public ObjectGuid TrainerGUID;
     public uint TrainerID;
-    public uint SpellID;
     public TrainerBuySpell(WorldPacket packet) : base(packet) { }
 
     public override void Read()

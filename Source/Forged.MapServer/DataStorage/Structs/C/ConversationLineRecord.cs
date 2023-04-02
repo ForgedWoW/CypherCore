@@ -5,13 +5,13 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ConversationLineRecord
 {
-    public uint Id;
-    public uint BroadcastTextID;
-    public uint SpellVisualKitID;
     public int AdditionalDuration;
-    public ushort NextConversationLineID;
     public ushort AnimKitID;
-    public byte SpeechType;
-    public byte StartAnimation;
+    public uint BroadcastTextID;
     public byte EndAnimation;
+    public uint Id;
+    public ushort NextConversationLineID;
+    public byte SpeechType;
+    public uint SpellVisualKitID;
+    public byte StartAnimation;
 }

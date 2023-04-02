@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 internal class GuildAchievementMembers : ServerPacket
 {
-    public ObjectGuid GuildGUID;
     public uint AchievementID;
+    public ObjectGuid GuildGUID;
     public List<ObjectGuid> Member = new();
     public GuildAchievementMembers() : base(ServerOpcodes.GuildAchievementMembers) { }
 

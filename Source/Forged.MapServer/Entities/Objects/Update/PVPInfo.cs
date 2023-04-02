@@ -8,26 +8,48 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class PVPInfo : BaseUpdateData<Player>
 {
-    public UpdateField<bool> Disqualified = new(0, 1);
     public UpdateField<sbyte> Bracket = new(0, 2);
-    public UpdateField<uint> PvpRatingID = new(0, 3);
-    public UpdateField<uint> WeeklyPlayed = new(0, 4);
-    public UpdateField<uint> WeeklyWon = new(0, 5);
-    public UpdateField<uint> SeasonPlayed = new(0, 6);
-    public UpdateField<uint> SeasonWon = new(0, 7);
-    public UpdateField<uint> Rating = new(0, 8);
-    public UpdateField<uint> WeeklyBestRating = new(0, 9);
-    public UpdateField<uint> SeasonBestRating = new(0, 10);
-    public UpdateField<uint> PvpTierID = new(0, 11);
-    public UpdateField<uint> WeeklyBestWinPvpTierID = new(0, 12);
+    public UpdateField<bool> Disqualified = new(0, 1);
     public UpdateField<uint> Field_28 = new(0, 13);
     public UpdateField<uint> Field_2C = new(0, 14);
-    public UpdateField<uint> WeeklyRoundsPlayed = new(0, 15);
-    public UpdateField<uint> WeeklyRoundsWon = new(0, 16);
+    public UpdateField<uint> PvpRatingID = new(0, 3);
+    public UpdateField<uint> PvpTierID = new(0, 11);
+    public UpdateField<uint> Rating = new(0, 8);
+    public UpdateField<uint> SeasonBestRating = new(0, 10);
+    public UpdateField<uint> SeasonPlayed = new(0, 6);
     public UpdateField<uint> SeasonRoundsPlayed = new(0, 17);
     public UpdateField<uint> SeasonRoundsWon = new(0, 18);
-
+    public UpdateField<uint> SeasonWon = new(0, 7);
+    public UpdateField<uint> WeeklyBestRating = new(0, 9);
+    public UpdateField<uint> WeeklyBestWinPvpTierID = new(0, 12);
+    public UpdateField<uint> WeeklyPlayed = new(0, 4);
+    public UpdateField<uint> WeeklyRoundsPlayed = new(0, 15);
+    public UpdateField<uint> WeeklyRoundsWon = new(0, 16);
+    public UpdateField<uint> WeeklyWon = new(0, 5);
     public PVPInfo() : base(19) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Disqualified);
+        ClearChangesMask(Bracket);
+        ClearChangesMask(PvpRatingID);
+        ClearChangesMask(WeeklyPlayed);
+        ClearChangesMask(WeeklyWon);
+        ClearChangesMask(SeasonPlayed);
+        ClearChangesMask(SeasonWon);
+        ClearChangesMask(Rating);
+        ClearChangesMask(WeeklyBestRating);
+        ClearChangesMask(SeasonBestRating);
+        ClearChangesMask(PvpTierID);
+        ClearChangesMask(WeeklyBestWinPvpTierID);
+        ClearChangesMask(Field_28);
+        ClearChangesMask(Field_2C);
+        ClearChangesMask(WeeklyRoundsPlayed);
+        ClearChangesMask(WeeklyRoundsWon);
+        ClearChangesMask(SeasonRoundsPlayed);
+        ClearChangesMask(SeasonRoundsWon);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
@@ -122,28 +144,5 @@ public class PVPInfo : BaseUpdateData<Player>
         }
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Disqualified);
-        ClearChangesMask(Bracket);
-        ClearChangesMask(PvpRatingID);
-        ClearChangesMask(WeeklyPlayed);
-        ClearChangesMask(WeeklyWon);
-        ClearChangesMask(SeasonPlayed);
-        ClearChangesMask(SeasonWon);
-        ClearChangesMask(Rating);
-        ClearChangesMask(WeeklyBestRating);
-        ClearChangesMask(SeasonBestRating);
-        ClearChangesMask(PvpTierID);
-        ClearChangesMask(WeeklyBestWinPvpTierID);
-        ClearChangesMask(Field_28);
-        ClearChangesMask(Field_2C);
-        ClearChangesMask(WeeklyRoundsPlayed);
-        ClearChangesMask(WeeklyRoundsWon);
-        ClearChangesMask(SeasonRoundsPlayed);
-        ClearChangesMask(SeasonRoundsWon);
-        ChangesMask.ResetAll();
     }
 }

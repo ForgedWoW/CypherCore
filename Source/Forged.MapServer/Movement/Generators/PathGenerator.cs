@@ -11,24 +11,62 @@ using Serilog;
 
 namespace Forged.MapServer.Movement.Generators;
 
+public enum NavArea
+{
+    Empty = 0,
+    MagmaSlime = 8, // don't need to differentiate between them
+    Water = 9,
+    GroundSteep = 10,
+    Ground = 11,
+    MaxValue = Ground,
+    MinValue = MagmaSlime,
+
+    AllMask = 0x3F // max allowed value
+    // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
+    // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable) 
+}
+
+[Flags]
+public enum NavTerrainFlag
+{
+    Empty = 0x00,
+    Ground = 1 << (NavArea.MaxValue - NavArea.Ground),
+    GroundSteep = 1 << (NavArea.MaxValue - NavArea.GroundSteep),
+    Water = 1 << (NavArea.MaxValue - NavArea.Water),
+    MagmaSlime = 1 << (NavArea.MaxValue - NavArea.MagmaSlime)
+}
+
+[Flags]
+public enum PathType
+{
+    Blank = 0x00,                                   // path not built yet
+    Normal = 0x01,                                  // normal path
+    Shortcut = 0x02,                                // travel through obstacles, terrain, air, etc (old behavior)
+    Incomplete = 0x04,                              // we have partial path to follow - getting closer to target
+    NoPath = 0x08,                                  // no valid path at all or error in generating one
+    NotUsingPath = 0x10,                            // used when we are either flying/swiming or on map w/o mmaps
+    Short = 0x20,                                   // path is longer or equal to its limited path length
+    FarFromPolyStart = 0x40,                        // start position is far from the mmap poligon
+    FarFromPolyEnd = 0x80,                          // end positions is far from the mmap poligon
+    FarFromPoly = FarFromPolyStart | FarFromPolyEnd // start or end positions are far from the mmap poligon
+}
+
 public class PathGenerator
 {
+    private readonly Detour.dtQueryFilter _filter = new();
+    private readonly Detour.dtNavMesh _navMesh;
+    private readonly Detour.dtNavMeshQuery _navMeshQuery;
     private readonly ulong[] _pathPolyRefs = new ulong[74];
     private readonly WorldObject _source;
-    private readonly Detour.dtQueryFilter _filter = new();
-    private readonly Detour.dtNavMeshQuery _navMeshQuery;
-    private readonly Detour.dtNavMesh _navMesh;
-
-    private uint _polyLength;
-    private uint _pointPathLimit;
-    private bool _useRaycast; // use raycast if true for a straight line path
-    private bool _forceDestination;
-    private bool _useStraightPath;
-    private Vector3[] _pathPoints;
-
     private Vector3 _actualEndPosition;
-    private Vector3 _startPosition;
     private Vector3 _endPosition;
+    private bool _forceDestination;
+    private Vector3[] _pathPoints;
+    private uint _pointPathLimit;
+    private uint _polyLength;
+    private Vector3 _startPosition;
+    private bool _useRaycast; // use raycast if true for a straight line path
+    private bool _useStraightPath;
     private PathType pathType;
 
     public PathGenerator(WorldObject owner)
@@ -86,6 +124,51 @@ public class PathGenerator
         BuildPolyPath(start, dest);
 
         return true;
+    }
+
+    public Vector3 GetActualEndPosition()
+    {
+        return _actualEndPosition;
+    }
+
+    public Vector3 GetEndPosition()
+    {
+        return _endPosition;
+    }
+
+    public Vector3[] GetPath()
+    {
+        return _pathPoints;
+    }
+
+    public PathType GetPathType()
+    {
+        return pathType;
+    }
+
+    public Vector3 GetStartPosition()
+    {
+        return _startPosition;
+    }
+
+    public bool IsInvalidDestinationZ(WorldObject target)
+    {
+        return (target.Location.Z - GetActualEndPosition().Z) > 5.0f;
+    }
+
+    public void SetPathLengthLimit(float distance)
+    {
+        _pointPathLimit = Math.Min((uint)(distance / 4.0f), 74);
+    }
+
+    public void SetUseRaycast(bool useRaycast)
+    {
+        _useRaycast = useRaycast;
+    }
+
+    public void SetUseStraightPath(bool useStraightPath)
+    {
+        _useStraightPath = useStraightPath;
     }
 
     public void ShortenPathUntilDist(Position pos, float dist)
@@ -156,130 +239,110 @@ public class PathGenerator
         _pathPoints[i] += (_pathPoints[i - 1] - _pathPoints[i]).direction() * (dist - (_pathPoints[i] - target).Length());
         Array.Resize(ref _pathPoints, i + 1);
     }
-
-    public bool IsInvalidDestinationZ(WorldObject target)
+    private void AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)
     {
-        return (target.Location.Z - GetActualEndPosition().Z) > 5.0f;
+        if (startFarFromPoly)
+            pathType |= PathType.FarFromPolyStart;
+
+        if (endFarFromPoly)
+            pathType |= PathType.FarFromPolyEnd;
     }
 
-    public Vector3 GetStartPosition()
+    private void BuildPointPath(float[] startPoint, float[] endPoint)
     {
-        return _startPosition;
-    }
+        var pathPoints = new float[74 * 3];
+        var pointCount = 0;
+        uint dtResult;
 
-    public Vector3 GetEndPosition()
-    {
-        return _endPosition;
-    }
-
-    public Vector3 GetActualEndPosition()
-    {
-        return _actualEndPosition;
-    }
-
-    public Vector3[] GetPath()
-    {
-        return _pathPoints;
-    }
-
-    public PathType GetPathType()
-    {
-        return pathType;
-    }
-
-    public void SetUseStraightPath(bool useStraightPath)
-    {
-        _useStraightPath = useStraightPath;
-    }
-
-    public void SetPathLengthLimit(float distance)
-    {
-        _pointPathLimit = Math.Min((uint)(distance / 4.0f), 74);
-    }
-
-    public void SetUseRaycast(bool useRaycast)
-    {
-        _useRaycast = useRaycast;
-    }
-
-    private ulong GetPathPolyByPosition(ulong[] polyPath, uint polyPathSize, float[] point, ref float distance)
-    {
-        if (polyPath == null || polyPathSize == 0)
-            return 0;
-
-        ulong nearestPoly = 0;
-        var minDist = float.MaxValue;
-
-        for (uint i = 0; i < polyPathSize; ++i)
+        if (_useRaycast)
         {
-            var closestPoint = new float[3];
-            var posOverPoly = false;
+            // _straightLine uses raycast and it currently doesn't support building a point path, only a 2-point path with start and hitpoint/end is returned
+            Log.Logger.Error($"PathGenerator::BuildPointPath() called with _useRaycast for unit {_source.GUID}");
+            BuildShortcut();
+            pathType = PathType.NoPath;
 
-            if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPoly(polyPath[i], point, closestPoint, ref posOverPoly)))
-                continue;
+            return;
+        }
+        else if (_useStraightPath)
+        {
+            dtResult = _navMeshQuery.findStraightPath(startPoint, // start position
+                                                      endPoint,   // end position
+                                                      _pathPolyRefs,
+                                                      (int)_polyLength,
+                                                      pathPoints, // [out] path corner points
+                                                      null,       // [out] flags
+                                                      null,       // [out] shortened path
+                                                      ref pointCount,
+                                                      (int)_pointPathLimit,
+                                                      0); // maximum number of points/polygons to use
+        }
+        else
+        {
+            dtResult = FindSmoothPath(startPoint,     // start position
+                                      endPoint,       // end position
+                                      _pathPolyRefs,  // current path
+                                      _polyLength,    // length of current path
+                                      out pathPoints, // [out] path corner points
+                                      out pointCount,
+                                      _pointPathLimit); // maximum number of points
+        }
 
-            var d = Detour.dtVdistSqr(point, closestPoint);
+        // Special case with start and end positions very close to each other
+        if (_polyLength == 1 && pointCount == 1)
+        {
+            // First point is start position, append end position
+            Detour.dtVcopy(pathPoints, 1 * 3, endPoint, 0);
+            pointCount++;
+        }
+        else if (pointCount < 2 || Detour.dtStatusFailed(dtResult))
+        {
+            // only happens if pass bad data to findStraightPath or navmesh is broken
+            // single point paths can be generated here
+            // @todo check the exact cases
+            Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned\n", pointCount);
+            BuildShortcut();
+            pathType |= PathType.NoPath;
 
-            if (d < minDist)
+            return;
+        }
+        else if (pointCount == _pointPathLimit)
+        {
+            Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned, lower than limit set to {1}\n", pointCount, _pointPathLimit);
+            BuildShortcut();
+            pathType |= PathType.Short;
+
+            return;
+        }
+
+        _pathPoints = new Vector3[pointCount];
+
+        for (uint i = 0; i < pointCount; ++i)
+            _pathPoints[i] = new Vector3(pathPoints[i * 3 + 2], pathPoints[i * 3], pathPoints[i * 3 + 1]);
+
+        NormalizePath();
+
+        // first point is always our current location - we need the next one
+        SetActualEndPosition(_pathPoints[pointCount - 1]);
+
+        // force the given destination, if needed
+        if (_forceDestination && (!pathType.HasAnyFlag(PathType.Normal) || !InRange(GetEndPosition(), GetActualEndPosition(), 1.0f, 1.0f)))
+        {
+            // we may want to keep partial subpath
+            if (Dist3DSqr(GetActualEndPosition(), GetEndPosition()) < 0.3f * Dist3DSqr(GetStartPosition(), GetEndPosition()))
             {
-                minDist = d;
-                nearestPoly = polyPath[i];
+                SetActualEndPosition(GetEndPosition());
+                _pathPoints[^1] = GetEndPosition();
+            }
+            else
+            {
+                SetActualEndPosition(GetEndPosition());
+                BuildShortcut();
             }
 
-            if (minDist < 1.0f) // shortcut out - close enough for us
-                break;
+            pathType = (PathType.Normal | PathType.NotUsingPath);
         }
 
-        distance = (float)Math.Sqrt(minDist);
-
-        return (minDist < 3.0f) ? nearestPoly : 0u;
-    }
-
-    private ulong GetPolyByLocation(float[] point, ref float distance)
-    {
-        // first we check the current path
-        // if the current path doesn't contain the current poly,
-        // we need to use the expensive navMesh.findNearestPoly
-        var polyRef = GetPathPolyByPosition(_pathPolyRefs, _polyLength, point, ref distance);
-
-        if (polyRef != 0)
-            return polyRef;
-
-        // we don't have it in our old path
-        // try to get it by findNearestPoly()
-        // first try with low search box
-        float[] extents =
-        {
-            3.0f, 5.0f, 3.0f
-        }; // bounds of poly search area
-
-        float[] closestPoint =
-        {
-            0.0f, 0.0f, 0.0f
-        };
-
-        if (Detour.dtStatusSucceed(_navMeshQuery.findNearestPoly(point, extents, _filter, ref polyRef, ref closestPoint)) && polyRef != 0)
-        {
-            distance = Detour.dtVdist(closestPoint, point);
-
-            return polyRef;
-        }
-
-        // still nothing ..
-        // try with bigger search box
-        // Note that the extent should not overlap more than 128 polygons in the navmesh (see dtNavMeshQuery.findNearestPoly)
-        extents[1] = 50.0f;
-
-        if (Detour.dtStatusSucceed(_navMeshQuery.findNearestPoly(point, extents, _filter, ref polyRef, ref closestPoint)) && polyRef != 0)
-        {
-            distance = Detour.dtVdist(closestPoint, point);
-
-            return polyRef;
-        }
-
-        distance = float.MaxValue;
-
-        return 0;
+        Log.Logger.Debug("PathGenerator.BuildPointPath path type {0} size {1} poly-size {2}\n", pathType, pointCount, _polyLength);
     }
 
     private void BuildPolyPath(Vector3 startPos, Vector3 endPos)
@@ -690,190 +753,60 @@ public class PathGenerator
         BuildPointPath(startPoint, endPoint);
     }
 
-    private void BuildPointPath(float[] startPoint, float[] endPoint)
+    private void BuildShortcut()
     {
-        var pathPoints = new float[74 * 3];
-        var pointCount = 0;
-        uint dtResult;
+        Log.Logger.Debug("BuildShortcut : making shortcut\n");
 
-        if (_useRaycast)
-        {
-            // _straightLine uses raycast and it currently doesn't support building a point path, only a 2-point path with start and hitpoint/end is returned
-            Log.Logger.Error($"PathGenerator::BuildPointPath() called with _useRaycast for unit {_source.GUID}");
-            BuildShortcut();
-            pathType = PathType.NoPath;
+        Clear();
 
-            return;
-        }
-        else if (_useStraightPath)
-        {
-            dtResult = _navMeshQuery.findStraightPath(startPoint, // start position
-                                                      endPoint,   // end position
-                                                      _pathPolyRefs,
-                                                      (int)_polyLength,
-                                                      pathPoints, // [out] path corner points
-                                                      null,       // [out] flags
-                                                      null,       // [out] shortened path
-                                                      ref pointCount,
-                                                      (int)_pointPathLimit,
-                                                      0); // maximum number of points/polygons to use
-        }
-        else
-        {
-            dtResult = FindSmoothPath(startPoint,     // start position
-                                      endPoint,       // end position
-                                      _pathPolyRefs,  // current path
-                                      _polyLength,    // length of current path
-                                      out pathPoints, // [out] path corner points
-                                      out pointCount,
-                                      _pointPathLimit); // maximum number of points
-        }
+        // make two point path, our curr pos is the start, and dest is the end
+        _pathPoints = new Vector3[2];
 
-        // Special case with start and end positions very close to each other
-        if (_polyLength == 1 && pointCount == 1)
-        {
-            // First point is start position, append end position
-            Detour.dtVcopy(pathPoints, 1 * 3, endPoint, 0);
-            pointCount++;
-        }
-        else if (pointCount < 2 || Detour.dtStatusFailed(dtResult))
-        {
-            // only happens if pass bad data to findStraightPath or navmesh is broken
-            // single point paths can be generated here
-            // @todo check the exact cases
-            Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned\n", pointCount);
-            BuildShortcut();
-            pathType |= PathType.NoPath;
-
-            return;
-        }
-        else if (pointCount == _pointPathLimit)
-        {
-            Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned, lower than limit set to {1}\n", pointCount, _pointPathLimit);
-            BuildShortcut();
-            pathType |= PathType.Short;
-
-            return;
-        }
-
-        _pathPoints = new Vector3[pointCount];
-
-        for (uint i = 0; i < pointCount; ++i)
-            _pathPoints[i] = new Vector3(pathPoints[i * 3 + 2], pathPoints[i * 3], pathPoints[i * 3 + 1]);
+        // set start and a default next position
+        _pathPoints[0] = GetStartPosition();
+        _pathPoints[1] = GetActualEndPosition();
 
         NormalizePath();
 
-        // first point is always our current location - we need the next one
-        SetActualEndPosition(_pathPoints[pointCount - 1]);
-
-        // force the given destination, if needed
-        if (_forceDestination && (!pathType.HasAnyFlag(PathType.Normal) || !InRange(GetEndPosition(), GetActualEndPosition(), 1.0f, 1.0f)))
-        {
-            // we may want to keep partial subpath
-            if (Dist3DSqr(GetActualEndPosition(), GetEndPosition()) < 0.3f * Dist3DSqr(GetStartPosition(), GetEndPosition()))
-            {
-                SetActualEndPosition(GetEndPosition());
-                _pathPoints[^1] = GetEndPosition();
-            }
-            else
-            {
-                SetActualEndPosition(GetEndPosition());
-                BuildShortcut();
-            }
-
-            pathType = (PathType.Normal | PathType.NotUsingPath);
-        }
-
-        Log.Logger.Debug("PathGenerator.BuildPointPath path type {0} size {1} poly-size {2}\n", pathType, pointCount, _polyLength);
+        pathType = PathType.Shortcut;
     }
 
-    private uint FixupCorridor(ulong[] path, uint npath, uint maxPath, ulong[] visited, int nvisited)
+    private void Clear()
     {
-        var furthestPath = -1;
-        var furthestVisited = -1;
-
-        // Find furthest common polygon.
-        for (var i = (int)npath - 1; i >= 0; --i)
-        {
-            var found = false;
-
-            for (var j = (int)nvisited - 1; j >= 0; --j)
-                if (path[i] == visited[j])
-                {
-                    furthestPath = i;
-                    furthestVisited = j;
-                    found = true;
-                }
-
-            if (found)
-                break;
-        }
-
-        // If no intersection found just return current path.
-        if (furthestPath == -1 || furthestVisited == -1)
-            return npath;
-
-        // Concatenate paths.
-
-        // Adjust beginning of the buffer to include the visited.
-        var req = (uint)(nvisited - furthestVisited);
-        var orig = (uint)((furthestPath + 1) < npath ? furthestPath + 1 : (int)npath);
-        var size = npath > orig ? npath - orig : 0;
-
-        if (req + size > maxPath)
-            size = maxPath - req;
-
-        if (size != 0)
-            Array.Copy(path, (int)orig, path, (int)req, (int)size);
-
-        // Store visited
-        for (uint i = 0; i < req; ++i)
-            path[i] = visited[(nvisited - 1) - i];
-
-        return req + size;
+        _polyLength = 0;
+        _pathPoints = null;
     }
 
-    private bool GetSteerTarget(float[] startPos, float[] endPos, float minTargetDist, ulong[] path, uint pathSize, out float[] steerPos, out Detour.dtStraightPathFlags steerPosFlag, out ulong steerPosRef)
+    private void CreateFilter()
     {
-        steerPosRef = 0;
-        steerPos = new float[3];
-        steerPosFlag = 0;
+        NavTerrainFlag includeFlags = 0;
+        NavTerrainFlag excludeFlags = 0;
 
-        // Find steer target.
-        var steerPath = new float[3 * 3];
-        var steerPathFlags = new byte[3];
-        var steerPathPolys = new ulong[3];
-        var nsteerPath = 0;
-        var dtResult = _navMeshQuery.findStraightPath(startPos, endPos, path, (int)pathSize, steerPath, steerPathFlags, steerPathPolys, ref nsteerPath, 3, 0);
-
-        if (nsteerPath == 0 || Detour.dtStatusFailed(dtResult))
-            return false;
-
-        // Find vertex far enough to steer to.
-        uint ns = 0;
-
-        while (ns < nsteerPath)
+        if (_source.IsTypeId(TypeId.Unit))
         {
-            Span<float> span = steerPath;
+            var creature = _source.AsCreature;
 
-            // Stop at Off-Mesh link or when point is further than slop away.
-            if ((steerPathFlags[ns].HasAnyFlag((byte)Detour.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
-                 !InRangeYZX(span[((int)ns * 3)..].ToArray(), startPos, minTargetDist, 1000.0f)))
-                break;
+            if (creature.CanWalk)
+                includeFlags |= NavTerrainFlag.Ground;
 
-            ns++;
+            // creatures don't take environmental damage
+            if (creature.CanEnterWater)
+                includeFlags |= (NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
+        }
+        else
+        {
+            includeFlags = (NavTerrainFlag.Ground | NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
         }
 
-        // Failed to find good point to steer to.
-        if (ns >= nsteerPath)
-            return false;
+        _filter.setIncludeFlags((ushort)includeFlags);
+        _filter.setExcludeFlags((ushort)excludeFlags);
 
-        Detour.dtVcopy(steerPos, 0, steerPath, (int)ns * 3);
-        steerPos[1] = startPos[1]; // keep Z value
-        steerPosFlag = (Detour.dtStraightPathFlags)steerPathFlags[ns];
-        steerPosRef = steerPathPolys[ns];
+        UpdateFilter();
+    }
 
-        return true;
+    private float Dist3DSqr(Vector3 p1, Vector3 p2)
+    {
+        return (p1 - p2).LengthSquared();
     }
 
     private uint FindSmoothPath(float[] startPos, float[] endPos, ulong[] polyPath, uint polyPathSize, out float[] smoothPath, out int smoothPathSize, uint maxSmoothPathSize)
@@ -1020,6 +953,231 @@ public class PathGenerator
         return nsmoothPath < 74 ? Detour.DT_SUCCESS : Detour.DT_FAILURE;
     }
 
+    private uint FixupCorridor(ulong[] path, uint npath, uint maxPath, ulong[] visited, int nvisited)
+    {
+        var furthestPath = -1;
+        var furthestVisited = -1;
+
+        // Find furthest common polygon.
+        for (var i = (int)npath - 1; i >= 0; --i)
+        {
+            var found = false;
+
+            for (var j = (int)nvisited - 1; j >= 0; --j)
+                if (path[i] == visited[j])
+                {
+                    furthestPath = i;
+                    furthestVisited = j;
+                    found = true;
+                }
+
+            if (found)
+                break;
+        }
+
+        // If no intersection found just return current path.
+        if (furthestPath == -1 || furthestVisited == -1)
+            return npath;
+
+        // Concatenate paths.
+
+        // Adjust beginning of the buffer to include the visited.
+        var req = (uint)(nvisited - furthestVisited);
+        var orig = (uint)((furthestPath + 1) < npath ? furthestPath + 1 : (int)npath);
+        var size = npath > orig ? npath - orig : 0;
+
+        if (req + size > maxPath)
+            size = maxPath - req;
+
+        if (size != 0)
+            Array.Copy(path, (int)orig, path, (int)req, (int)size);
+
+        // Store visited
+        for (uint i = 0; i < req; ++i)
+            path[i] = visited[(nvisited - 1) - i];
+
+        return req + size;
+    }
+
+    private NavTerrainFlag GetNavTerrain(float x, float y, float z)
+    {
+        var liquidStatus = _source.Location.Map.GetLiquidStatus(_source.Location.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out var data, _source.Location.CollisionHeight);
+
+        if (liquidStatus == ZLiquidStatus.NoWater)
+            return NavTerrainFlag.Ground;
+
+        data.type_flags &= ~LiquidHeaderTypeFlags.DarkWater;
+
+        switch (data.type_flags)
+        {
+            case LiquidHeaderTypeFlags.Water:
+            case LiquidHeaderTypeFlags.Ocean:
+                return NavTerrainFlag.Water;
+            case LiquidHeaderTypeFlags.Magma:
+            case LiquidHeaderTypeFlags.Slime:
+                return NavTerrainFlag.MagmaSlime;
+            default:
+                return NavTerrainFlag.Ground;
+        }
+    }
+
+    private ulong GetPathPolyByPosition(ulong[] polyPath, uint polyPathSize, float[] point, ref float distance)
+    {
+        if (polyPath == null || polyPathSize == 0)
+            return 0;
+
+        ulong nearestPoly = 0;
+        var minDist = float.MaxValue;
+
+        for (uint i = 0; i < polyPathSize; ++i)
+        {
+            var closestPoint = new float[3];
+            var posOverPoly = false;
+
+            if (Detour.dtStatusFailed(_navMeshQuery.closestPointOnPoly(polyPath[i], point, closestPoint, ref posOverPoly)))
+                continue;
+
+            var d = Detour.dtVdistSqr(point, closestPoint);
+
+            if (d < minDist)
+            {
+                minDist = d;
+                nearestPoly = polyPath[i];
+            }
+
+            if (minDist < 1.0f) // shortcut out - close enough for us
+                break;
+        }
+
+        distance = (float)Math.Sqrt(minDist);
+
+        return (minDist < 3.0f) ? nearestPoly : 0u;
+    }
+
+    private ulong GetPolyByLocation(float[] point, ref float distance)
+    {
+        // first we check the current path
+        // if the current path doesn't contain the current poly,
+        // we need to use the expensive navMesh.findNearestPoly
+        var polyRef = GetPathPolyByPosition(_pathPolyRefs, _polyLength, point, ref distance);
+
+        if (polyRef != 0)
+            return polyRef;
+
+        // we don't have it in our old path
+        // try to get it by findNearestPoly()
+        // first try with low search box
+        float[] extents =
+        {
+            3.0f, 5.0f, 3.0f
+        }; // bounds of poly search area
+
+        float[] closestPoint =
+        {
+            0.0f, 0.0f, 0.0f
+        };
+
+        if (Detour.dtStatusSucceed(_navMeshQuery.findNearestPoly(point, extents, _filter, ref polyRef, ref closestPoint)) && polyRef != 0)
+        {
+            distance = Detour.dtVdist(closestPoint, point);
+
+            return polyRef;
+        }
+
+        // still nothing ..
+        // try with bigger search box
+        // Note that the extent should not overlap more than 128 polygons in the navmesh (see dtNavMeshQuery.findNearestPoly)
+        extents[1] = 50.0f;
+
+        if (Detour.dtStatusSucceed(_navMeshQuery.findNearestPoly(point, extents, _filter, ref polyRef, ref closestPoint)) && polyRef != 0)
+        {
+            distance = Detour.dtVdist(closestPoint, point);
+
+            return polyRef;
+        }
+
+        distance = float.MaxValue;
+
+        return 0;
+    }
+    private bool GetSteerTarget(float[] startPos, float[] endPos, float minTargetDist, ulong[] path, uint pathSize, out float[] steerPos, out Detour.dtStraightPathFlags steerPosFlag, out ulong steerPosRef)
+    {
+        steerPosRef = 0;
+        steerPos = new float[3];
+        steerPosFlag = 0;
+
+        // Find steer target.
+        var steerPath = new float[3 * 3];
+        var steerPathFlags = new byte[3];
+        var steerPathPolys = new ulong[3];
+        var nsteerPath = 0;
+        var dtResult = _navMeshQuery.findStraightPath(startPos, endPos, path, (int)pathSize, steerPath, steerPathFlags, steerPathPolys, ref nsteerPath, 3, 0);
+
+        if (nsteerPath == 0 || Detour.dtStatusFailed(dtResult))
+            return false;
+
+        // Find vertex far enough to steer to.
+        uint ns = 0;
+
+        while (ns < nsteerPath)
+        {
+            Span<float> span = steerPath;
+
+            // Stop at Off-Mesh link or when point is further than slop away.
+            if ((steerPathFlags[ns].HasAnyFlag((byte)Detour.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
+                 !InRangeYZX(span[((int)ns * 3)..].ToArray(), startPos, minTargetDist, 1000.0f)))
+                break;
+
+            ns++;
+        }
+
+        // Failed to find good point to steer to.
+        if (ns >= nsteerPath)
+            return false;
+
+        Detour.dtVcopy(steerPos, 0, steerPath, (int)ns * 3);
+        steerPos[1] = startPos[1]; // keep Z value
+        steerPosFlag = (Detour.dtStraightPathFlags)steerPathFlags[ns];
+        steerPosRef = steerPathPolys[ns];
+
+        return true;
+    }
+    private bool HaveTile(Vector3 p)
+    {
+        int tx = -1, ty = -1;
+
+        float[] point =
+        {
+            p.Y, p.Z, p.X
+        };
+
+        _navMesh.calcTileLoc(point, ref tx, ref ty);
+
+        // Workaround
+        // For some reason, often the tx and ty variables wont get a valid value
+        // Use this check to prevent getting negative tile coords and crashing on getTileAt
+        if (tx < 0 || ty < 0)
+            return false;
+
+        return (_navMesh.getTileAt(tx, ty, 0) != null);
+    }
+
+    private bool InRange(Vector3 p1, Vector3 p2, float r, float h)
+    {
+        var d = p1 - p2;
+
+        return (d.X * d.X + d.Y * d.Y) < r * r && Math.Abs(d.Z) < h;
+    }
+
+    private bool InRangeYZX(float[] v1, float[] v2, float r, float h)
+    {
+        var dx = v2[0] - v1[0];
+        var dy = v2[1] - v1[1]; // elevation
+        var dz = v2[2] - v1[2];
+
+        return (dx * dx + dz * dz) < r * r && Math.Abs(dy) < h;
+    }
+
     private void NormalizePath()
     {
         for (uint i = 0; i < _pathPoints.Length; ++i)
@@ -1028,50 +1186,20 @@ public class PathGenerator
             point.Z = _source.Location.UpdateAllowedPositionZ(point.X, point.Y, point.Z);
         }
     }
-
-    private void BuildShortcut()
+    private void SetActualEndPosition(Vector3 point)
     {
-        Log.Logger.Debug("BuildShortcut : making shortcut\n");
-
-        Clear();
-
-        // make two point path, our curr pos is the start, and dest is the end
-        _pathPoints = new Vector3[2];
-
-        // set start and a default next position
-        _pathPoints[0] = GetStartPosition();
-        _pathPoints[1] = GetActualEndPosition();
-
-        NormalizePath();
-
-        pathType = PathType.Shortcut;
+        _actualEndPosition = point;
     }
 
-    private void CreateFilter()
+    private void SetEndPosition(Vector3 point)
     {
-        NavTerrainFlag includeFlags = 0;
-        NavTerrainFlag excludeFlags = 0;
+        _actualEndPosition = point;
+        _endPosition = point;
+    }
 
-        if (_source.IsTypeId(TypeId.Unit))
-        {
-            var creature = _source.AsCreature;
-
-            if (creature.CanWalk)
-                includeFlags |= NavTerrainFlag.Ground;
-
-            // creatures don't take environmental damage
-            if (creature.CanEnterWater)
-                includeFlags |= (NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
-        }
-        else
-        {
-            includeFlags = (NavTerrainFlag.Ground | NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
-        }
-
-        _filter.setIncludeFlags((ushort)includeFlags);
-        _filter.setExcludeFlags((ushort)excludeFlags);
-
-        UpdateFilter();
+    private void SetStartPosition(Vector3 point)
+    {
+        _startPosition = point;
     }
 
     private void UpdateFilter()
@@ -1097,142 +1225,7 @@ public class PathGenerator
                     _filter.setIncludeFlags((ushort)(_filter.getIncludeFlags() | (ushort)NavTerrainFlag.GroundSteep));
         }
     }
-
-    private NavTerrainFlag GetNavTerrain(float x, float y, float z)
-    {
-        var liquidStatus = _source.Location.Map.GetLiquidStatus(_source.Location.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out var data, _source.Location.CollisionHeight);
-
-        if (liquidStatus == ZLiquidStatus.NoWater)
-            return NavTerrainFlag.Ground;
-
-        data.type_flags &= ~LiquidHeaderTypeFlags.DarkWater;
-
-        switch (data.type_flags)
-        {
-            case LiquidHeaderTypeFlags.Water:
-            case LiquidHeaderTypeFlags.Ocean:
-                return NavTerrainFlag.Water;
-            case LiquidHeaderTypeFlags.Magma:
-            case LiquidHeaderTypeFlags.Slime:
-                return NavTerrainFlag.MagmaSlime;
-            default:
-                return NavTerrainFlag.Ground;
-        }
-    }
-
-    private bool InRange(Vector3 p1, Vector3 p2, float r, float h)
-    {
-        var d = p1 - p2;
-
-        return (d.X * d.X + d.Y * d.Y) < r * r && Math.Abs(d.Z) < h;
-    }
-
-    private float Dist3DSqr(Vector3 p1, Vector3 p2)
-    {
-        return (p1 - p2).LengthSquared();
-    }
-
-    private void AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)
-    {
-        if (startFarFromPoly)
-            pathType |= PathType.FarFromPolyStart;
-
-        if (endFarFromPoly)
-            pathType |= PathType.FarFromPolyEnd;
-    }
-
-    private void Clear()
-    {
-        _polyLength = 0;
-        _pathPoints = null;
-    }
-
-    private bool HaveTile(Vector3 p)
-    {
-        int tx = -1, ty = -1;
-
-        float[] point =
-        {
-            p.Y, p.Z, p.X
-        };
-
-        _navMesh.calcTileLoc(point, ref tx, ref ty);
-
-        // Workaround
-        // For some reason, often the tx and ty variables wont get a valid value
-        // Use this check to prevent getting negative tile coords and crashing on getTileAt
-        if (tx < 0 || ty < 0)
-            return false;
-
-        return (_navMesh.getTileAt(tx, ty, 0) != null);
-    }
-
-    private bool InRangeYZX(float[] v1, float[] v2, float r, float h)
-    {
-        var dx = v2[0] - v1[0];
-        var dy = v2[1] - v1[1]; // elevation
-        var dz = v2[2] - v1[2];
-
-        return (dx * dx + dz * dz) < r * r && Math.Abs(dy) < h;
-    }
-
-    private void SetStartPosition(Vector3 point)
-    {
-        _startPosition = point;
-    }
-
-    private void SetEndPosition(Vector3 point)
-    {
-        _actualEndPosition = point;
-        _endPosition = point;
-    }
-
-    private void SetActualEndPosition(Vector3 point)
-    {
-        _actualEndPosition = point;
-    }
 }
-
-[Flags]
-public enum PathType
-{
-    Blank = 0x00,                                   // path not built yet
-    Normal = 0x01,                                  // normal path
-    Shortcut = 0x02,                                // travel through obstacles, terrain, air, etc (old behavior)
-    Incomplete = 0x04,                              // we have partial path to follow - getting closer to target
-    NoPath = 0x08,                                  // no valid path at all or error in generating one
-    NotUsingPath = 0x10,                            // used when we are either flying/swiming or on map w/o mmaps
-    Short = 0x20,                                   // path is longer or equal to its limited path length
-    FarFromPolyStart = 0x40,                        // start position is far from the mmap poligon
-    FarFromPolyEnd = 0x80,                          // end positions is far from the mmap poligon
-    FarFromPoly = FarFromPolyStart | FarFromPolyEnd // start or end positions are far from the mmap poligon
-}
-
-public enum NavArea
-{
-    Empty = 0,
-    MagmaSlime = 8, // don't need to differentiate between them
-    Water = 9,
-    GroundSteep = 10,
-    Ground = 11,
-    MaxValue = Ground,
-    MinValue = MagmaSlime,
-
-    AllMask = 0x3F // max allowed value
-    // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
-    // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable) 
-}
-
-[Flags]
-public enum NavTerrainFlag
-{
-    Empty = 0x00,
-    Ground = 1 << (NavArea.MaxValue - NavArea.Ground),
-    GroundSteep = 1 << (NavArea.MaxValue - NavArea.GroundSteep),
-    Water = 1 << (NavArea.MaxValue - NavArea.Water),
-    MagmaSlime = 1 << (NavArea.MaxValue - NavArea.MagmaSlime)
-}
-
 public enum PolyFlag
 {
     Walk = 1,

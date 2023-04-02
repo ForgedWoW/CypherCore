@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SetSpellCharges : ServerPacket
 {
-    public bool IsPet;
     public uint Category;
-    public uint NextRecoveryTime;
-    public byte ConsumedCharges;
     public float ChargeModRate = 1.0f;
+    public byte ConsumedCharges;
+    public bool IsPet;
+    public uint NextRecoveryTime;
     public SetSpellCharges() : base(ServerOpcodes.SetSpellCharges) { }
 
     public override void Write()

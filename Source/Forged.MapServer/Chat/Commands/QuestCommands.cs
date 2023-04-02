@@ -17,6 +17,85 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("quest")]
 internal class QuestCommands
 {
+    private static void CompleteObjective(Player player, QuestObjective obj)
+    {
+        switch (obj.Type)
+        {
+            case QuestObjectiveType.Item:
+            {
+                var curItemCount = player.GetItemCount((uint)obj.ObjectID, true);
+                List<ItemPosCount> dest = new();
+                var msg = player.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, (uint)obj.ObjectID, (uint)(obj.Amount - curItemCount));
+
+                if (msg == InventoryResult.Ok)
+                {
+                    var item = player.StoreNewItem(dest, (uint)obj.ObjectID, true);
+                    player.SendNewItem(item, (uint)(obj.Amount - curItemCount), true, false);
+                }
+
+                break;
+            }
+            case QuestObjectiveType.Monster:
+            {
+                var creatureInfo = Global.ObjectMgr.GetCreatureTemplate((uint)obj.ObjectID);
+
+                if (creatureInfo != null)
+                    for (var z = 0; z < obj.Amount; ++z)
+                        player.KilledMonster(creatureInfo, ObjectGuid.Empty);
+
+                break;
+            }
+            case QuestObjectiveType.GameObject:
+            {
+                for (var z = 0; z < obj.Amount; ++z)
+                    player.KillCreditGO((uint)obj.ObjectID);
+
+                break;
+            }
+            case QuestObjectiveType.MinReputation:
+            {
+                var curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
+
+                if (curRep < obj.Amount)
+                {
+                    var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
+
+                    if (factionEntry != null)
+                        player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
+                }
+
+                break;
+            }
+            case QuestObjectiveType.MaxReputation:
+            {
+                var curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
+
+                if (curRep > obj.Amount)
+                {
+                    var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
+
+                    if (factionEntry != null)
+                        player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
+                }
+
+                break;
+            }
+            case QuestObjectiveType.Money:
+            {
+                player.ModifyMoney(obj.Amount);
+
+                break;
+            }
+            case QuestObjectiveType.PlayerKills:
+            {
+                for (var z = 0; z < obj.Amount; ++z)
+                    player.KilledPlayerCredit(ObjectGuid.Empty);
+
+                break;
+            }
+        }
+    }
+
     [Command("add", RBACPermissions.CommandQuestAdd)]
     private static bool HandleQuestAdd(CommandHandler handler, Quest.Quest quest)
     {
@@ -163,86 +242,6 @@ internal class QuestCommands
 
         return true;
     }
-
-    private static void CompleteObjective(Player player, QuestObjective obj)
-    {
-        switch (obj.Type)
-        {
-            case QuestObjectiveType.Item:
-            {
-                var curItemCount = player.GetItemCount((uint)obj.ObjectID, true);
-                List<ItemPosCount> dest = new();
-                var msg = player.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, (uint)obj.ObjectID, (uint)(obj.Amount - curItemCount));
-
-                if (msg == InventoryResult.Ok)
-                {
-                    var item = player.StoreNewItem(dest, (uint)obj.ObjectID, true);
-                    player.SendNewItem(item, (uint)(obj.Amount - curItemCount), true, false);
-                }
-
-                break;
-            }
-            case QuestObjectiveType.Monster:
-            {
-                var creatureInfo = Global.ObjectMgr.GetCreatureTemplate((uint)obj.ObjectID);
-
-                if (creatureInfo != null)
-                    for (var z = 0; z < obj.Amount; ++z)
-                        player.KilledMonster(creatureInfo, ObjectGuid.Empty);
-
-                break;
-            }
-            case QuestObjectiveType.GameObject:
-            {
-                for (var z = 0; z < obj.Amount; ++z)
-                    player.KillCreditGO((uint)obj.ObjectID);
-
-                break;
-            }
-            case QuestObjectiveType.MinReputation:
-            {
-                var curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
-
-                if (curRep < obj.Amount)
-                {
-                    var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
-
-                    if (factionEntry != null)
-                        player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
-                }
-
-                break;
-            }
-            case QuestObjectiveType.MaxReputation:
-            {
-                var curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
-
-                if (curRep > obj.Amount)
-                {
-                    var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
-
-                    if (factionEntry != null)
-                        player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
-                }
-
-                break;
-            }
-            case QuestObjectiveType.Money:
-            {
-                player.ModifyMoney(obj.Amount);
-
-                break;
-            }
-            case QuestObjectiveType.PlayerKills:
-            {
-                for (var z = 0; z < obj.Amount; ++z)
-                    player.KilledPlayerCredit(ObjectGuid.Empty);
-
-                break;
-            }
-        }
-    }
-
     [CommandGroup("objective")]
     private class ObjectiveCommands
     {

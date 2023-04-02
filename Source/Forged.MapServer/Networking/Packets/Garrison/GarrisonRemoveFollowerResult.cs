@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonRemoveFollowerResult : ServerPacket
 {
+    public uint Destroyed;
     public ulong FollowerDBID;
     public int GarrTypeID;
     public uint Result;
-    public uint Destroyed;
     public GarrisonRemoveFollowerResult() : base(ServerOpcodes.GarrisonRemoveFollowerResult) { }
 
     public override void Write()

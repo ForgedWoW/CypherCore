@@ -18,15 +18,14 @@ namespace Forged.MapServer.Chat.Channels;
 
 public class ChannelManager
 {
-    private readonly Dictionary<string, Channel> _customChannels = new();
     private readonly Dictionary<ObjectGuid, Channel> _channels = new();
-    private readonly TeamFaction _team;
-    private readonly IConfiguration _configuration;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly Realm _realm;
     private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly Dictionary<string, Channel> _customChannels = new();
     private readonly ObjectGuidGenerator _guidGenerator;
-
+    private readonly Realm _realm;
+    private readonly TeamFaction _team;
     public ChannelManager(TeamFaction team, IConfiguration configuration, CharacterDatabase characterDatabase, Realm realm, CliDB cliDB)
     {
         _team = team;
@@ -35,6 +34,102 @@ public class ChannelManager
         _realm = realm;
         _cliDB = cliDB;
         _guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
+    }
+
+    public Channel CreateCustomChannel(string name)
+    {
+        if (_customChannels.ContainsKey(name.ToLower()))
+            return null;
+
+        Channel newChannel = new(CreateCustomChannelGuid(), name, _team);
+        newChannel.SetDirty();
+
+        _customChannels[name.ToLower()] = newChannel;
+
+        return newChannel;
+    }
+
+    public Channel GetChannel(uint channelId, string name, Player player, bool notify = true, AreaTableRecord zoneEntry = null)
+    {
+        Channel result = null;
+
+        if (channelId != 0) // builtin
+        {
+            var channel = _channels.LookupByKey(CreateBuiltinChannelGuid(channelId, zoneEntry));
+
+            if (channel != null)
+                result = channel;
+        }
+        else // custom
+        {
+            var channel = _customChannels.LookupByKey(name.ToLower());
+
+            if (channel != null)
+                result = channel;
+        }
+
+        if (result == null && notify)
+        {
+            var channelName = name;
+            Channel.GetChannelName(ref channelName, channelId, player.Session.SessionDbcLocale, zoneEntry);
+
+            SendNotOnChannelNotify(player, channelName);
+        }
+
+        return result;
+    }
+
+    public Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
+    {
+        foreach (var channel in playerSearcher.JoinedChannels)
+            if (channel.GetGUID() == channelGuid)
+                return channel;
+
+        return null;
+    }
+
+    public Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
+    {
+        foreach (var channel in playerSearcher.JoinedChannels)
+        {
+            var chanName = channel.GetName(playerSearcher.Session.SessionDbcLocale);
+
+            if (chanName.ToLower().Equals(namePart.ToLower()))
+                return channel;
+        }
+
+        return null;
+    }
+
+    public Channel GetCustomChannel(string name)
+    {
+        return _customChannels.LookupByKey(name.ToLower());
+    }
+
+    public Channel GetSystemChannel(uint channelId, AreaTableRecord zoneEntry = null)
+    {
+        var channelGuid = CreateBuiltinChannelGuid(channelId, zoneEntry);
+        var currentChannel = _channels.LookupByKey(channelGuid);
+
+        if (currentChannel != null)
+            return currentChannel;
+
+        var newChannel = new Channel(channelGuid, channelId, _team, zoneEntry);
+        _channels[channelGuid] = newChannel;
+
+        return newChannel;
+    }
+
+    public void LeftChannel(uint channelId, AreaTableRecord zoneEntry)
+    {
+        var guid = CreateBuiltinChannelGuid(channelId, zoneEntry);
+        var channel = _channels.LookupByKey(guid);
+
+        if (channel == null)
+            return;
+
+        if (channel.GetNumPlayers() == 0)
+            _channels.Remove(guid);
     }
 
     public void LoadFromDB()
@@ -52,7 +147,7 @@ public class ChannelManager
         if (days != 0)
         {
             var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
-            stmt.AddValue(0, days * Time.Day);
+            stmt.AddValue(0, days * Time.DAY);
             _characterDatabase.Execute(stmt);
         }
 
@@ -97,109 +192,11 @@ public class ChannelManager
 
         Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
-
-    public Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
-    {
-        foreach (var channel in playerSearcher.JoinedChannels)
-        {
-            var chanName = channel.GetName(playerSearcher.Session.SessionDbcLocale);
-
-            if (chanName.ToLower().Equals(namePart.ToLower()))
-                return channel;
-        }
-
-        return null;
-    }
-
     public void SaveToDB()
     {
         foreach (var pair in _customChannels)
             pair.Value.UpdateChannelInDB();
     }
-
-    public Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
-    {
-        foreach (var channel in playerSearcher.JoinedChannels)
-            if (channel.GetGUID() == channelGuid)
-                return channel;
-
-        return null;
-    }
-
-    public Channel GetSystemChannel(uint channelId, AreaTableRecord zoneEntry = null)
-    {
-        var channelGuid = CreateBuiltinChannelGuid(channelId, zoneEntry);
-        var currentChannel = _channels.LookupByKey(channelGuid);
-
-        if (currentChannel != null)
-            return currentChannel;
-
-        var newChannel = new Channel(channelGuid, channelId, _team, zoneEntry);
-        _channels[channelGuid] = newChannel;
-
-        return newChannel;
-    }
-
-    public Channel CreateCustomChannel(string name)
-    {
-        if (_customChannels.ContainsKey(name.ToLower()))
-            return null;
-
-        Channel newChannel = new(CreateCustomChannelGuid(), name, _team);
-        newChannel.SetDirty();
-
-        _customChannels[name.ToLower()] = newChannel;
-
-        return newChannel;
-    }
-
-    public Channel GetCustomChannel(string name)
-    {
-        return _customChannels.LookupByKey(name.ToLower());
-    }
-
-    public Channel GetChannel(uint channelId, string name, Player player, bool notify = true, AreaTableRecord zoneEntry = null)
-    {
-        Channel result = null;
-
-        if (channelId != 0) // builtin
-        {
-            var channel = _channels.LookupByKey(CreateBuiltinChannelGuid(channelId, zoneEntry));
-
-            if (channel != null)
-                result = channel;
-        }
-        else // custom
-        {
-            var channel = _customChannels.LookupByKey(name.ToLower());
-
-            if (channel != null)
-                result = channel;
-        }
-
-        if (result == null && notify)
-        {
-            var channelName = name;
-            Channel.GetChannelName(ref channelName, channelId, player.Session.SessionDbcLocale, zoneEntry);
-
-            SendNotOnChannelNotify(player, channelName);
-        }
-
-        return result;
-    }
-
-    public void LeftChannel(uint channelId, AreaTableRecord zoneEntry)
-    {
-        var guid = CreateBuiltinChannelGuid(channelId, zoneEntry);
-        var channel = _channels.LookupByKey(guid);
-
-        if (channel == null)
-            return;
-
-        if (channel.GetNumPlayers() == 0)
-            _channels.Remove(guid);
-    }
-
     public void SendNotOnChannelNotify(Player player, string name)
     {
         ChannelNotify notify = new()
@@ -209,19 +206,6 @@ public class ChannelManager
         };
 
         player.SendPacket(notify);
-    }
-
-    private ObjectGuid CreateCustomChannelGuid()
-    {
-        ulong high = 0;
-        high |= (ulong)HighGuid.ChatChannel << 58;
-        high |= (ulong)_realm.Id.Index << 42;
-        high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
-
-        ObjectGuid channelGuid = new();
-        channelGuid.SetRawValue(high, _guidGenerator.Generate());
-
-        return channelGuid;
     }
 
     private ObjectGuid CreateBuiltinChannelGuid(uint channelId, AreaTableRecord zoneEntry = null)
@@ -245,6 +229,19 @@ public class ChannelManager
 
         ObjectGuid channelGuid = new();
         channelGuid.SetRawValue(high, channelId);
+
+        return channelGuid;
+    }
+
+    private ObjectGuid CreateCustomChannelGuid()
+    {
+        ulong high = 0;
+        high |= (ulong)HighGuid.ChatChannel << 58;
+        high |= (ulong)_realm.Id.Index << 42;
+        high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
+
+        ObjectGuid channelGuid = new();
+        channelGuid.SetRawValue(high, _guidGenerator.Generate());
 
         return channelGuid;
     }

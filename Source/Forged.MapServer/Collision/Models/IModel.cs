@@ -11,15 +11,16 @@ namespace Forged.MapServer.Collision.Models;
 
 public class IModel
 {
-    public virtual Vector3 GetPosition()
-    {
-        return default;
-    }
-
     public virtual AxisAlignedBox GetBounds()
     {
         return default;
     }
+
+    public virtual Vector3 GetPosition()
+    {
+        return default;
+    }
+    public virtual void IntersectPoint(Vector3 point, AreaInfo info, PhaseShift phaseShift) { }
 
     public virtual bool IntersectRay(Ray ray, ref float maxDist, bool stopAtFirstHit, PhaseShift phaseShift, ModelIgnoreFlags ignoreFlags)
     {
@@ -35,6 +36,4 @@ public class IModel
     {
         return false;
     }
-
-    public virtual void IntersectPoint(Vector3 point, AreaInfo info, PhaseShift phaseShift) { }
 }

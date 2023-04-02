@@ -7,21 +7,20 @@ namespace Forged.MapServer.Globals;
 
 public class QuestPOIBlobData
 {
-    public int BlobIndex;
-    public int ObjectiveIndex;
-    public int QuestObjectiveID;
-    public int QuestObjectID;
-    public int MapID;
-    public int UiMapID;
-    public int Priority;
-    public int Flags;
-    public int WorldEffectID;
-    public int PlayerConditionID;
-    public int NavigationPlayerConditionID;
-    public int SpawnTrackingID;
-    public List<QuestPOIBlobPoint> Points;
     public bool AlwaysAllowMergingBlobs;
-
+    public int BlobIndex;
+    public int Flags;
+    public int MapID;
+    public int NavigationPlayerConditionID;
+    public int ObjectiveIndex;
+    public int PlayerConditionID;
+    public List<QuestPOIBlobPoint> Points;
+    public int Priority;
+    public int QuestObjectID;
+    public int QuestObjectiveID;
+    public int SpawnTrackingID;
+    public int UiMapID;
+    public int WorldEffectID;
     public QuestPOIBlobData(int blobIndex, int objectiveIndex, int questObjectiveID, int questObjectID, int mapID, int uiMapID, int priority, int flags,
                             int worldEffectID, int playerConditionID, int navigationPlayerConditionID, int spawnTrackingID, List<QuestPOIBlobPoint> points, bool alwaysAllowMergingBlobs)
     {

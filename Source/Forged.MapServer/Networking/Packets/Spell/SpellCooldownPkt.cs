@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellCooldownPkt : ServerPacket
 {
-    public List<SpellCooldownStruct> SpellCooldowns = new();
     public ObjectGuid Caster;
     public SpellCooldownFlags Flags;
+    public List<SpellCooldownStruct> SpellCooldowns = new();
     public SpellCooldownPkt() : base(ServerOpcodes.SpellCooldown, ConnectionType.Instance) { }
 
     public override void Write()

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootRollPacket : ClientPacket
 {
-    public ObjectGuid LootObj;
     public byte LootListID;
+    public ObjectGuid LootObj;
     public RollVote RollType;
     public LootRollPacket(WorldPacket packet) : base(packet) { }
 

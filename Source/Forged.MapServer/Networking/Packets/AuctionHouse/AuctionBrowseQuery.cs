@@ -12,17 +12,16 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 internal class AuctionBrowseQuery : ClientPacket
 {
     public ObjectGuid Auctioneer;
-    public uint Offset;
-    public byte MinLevel = 1;
-    public byte MaxLevel = SharedConst.MaxLevel;
     public AuctionHouseFilterMask Filters;
-    public byte[] KnownPets;
-    public sbyte MaxPetLevel;
-    public AddOnInfo? TaintedBy;
-    public string Name;
     public Array<AuctionListFilterClass> ItemClassFilters = new(7);
+    public byte[] KnownPets;
+    public byte MaxLevel = SharedConst.MaxLevel;
+    public sbyte MaxPetLevel;
+    public byte MinLevel = 1;
+    public string Name;
+    public uint Offset;
     public Array<AuctionSortDef> Sorts = new(2);
-
+    public AddOnInfo? TaintedBy;
     public AuctionBrowseQuery(WorldPacket packet) : base(packet) { }
 
     public override void Read()

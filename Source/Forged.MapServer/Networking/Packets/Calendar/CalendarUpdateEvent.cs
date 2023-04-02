@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarUpdateEvent : ClientPacket
 {
-    public uint MaxSize;
     public CalendarUpdateEventInfo EventInfo;
+    public uint MaxSize;
     public CalendarUpdateEvent(WorldPacket packet) : base(packet) { }
 
     public override void Read()

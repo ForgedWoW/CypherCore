@@ -9,9 +9,8 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class ObjectTypeIdCheck : ICheck<WorldObject>
 {
-    private readonly TypeId _typeId;
     private readonly bool _equals;
-
+    private readonly TypeId _typeId;
     public ObjectTypeIdCheck(TypeId typeId, bool equals)
     {
         _typeId = typeId;

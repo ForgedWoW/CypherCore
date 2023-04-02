@@ -10,17 +10,52 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class AzeriteItemData : BaseUpdateData<AzeriteItem>
 {
-    public UpdateField<bool> Enabled = new(0, 1);
-    public DynamicUpdateField<UnlockedAzeriteEssence> UnlockedEssences = new(0, 2);
-    public DynamicUpdateField<uint> UnlockedEssenceMilestones = new(0, 4);
-    public DynamicUpdateField<SelectedAzeriteEssences> SelectedEssences = new(0, 3);
-    public UpdateField<ulong> Xp = new(0, 5);
-    public UpdateField<uint> Level = new(0, 6);
     public UpdateField<uint> AuraLevel = new(0, 7);
+    public UpdateField<int> DebugKnowledgeWeek = new(0, 9);
+    public UpdateField<bool> Enabled = new(0, 1);
     public UpdateField<uint> KnowledgeLevel = new(0, 8);
-    public UpdateField<int> DEBUGknowledgeWeek = new(0, 9);
-
+    public UpdateField<uint> Level = new(0, 6);
+    public DynamicUpdateField<SelectedAzeriteEssences> SelectedEssences = new(0, 3);
+    public DynamicUpdateField<uint> UnlockedEssenceMilestones = new(0, 4);
+    public DynamicUpdateField<UnlockedAzeriteEssence> UnlockedEssences = new(0, 2);
+    public UpdateField<ulong> Xp = new(0, 5);
     public AzeriteItemData() : base(10) { }
+
+    public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
+    {
+        if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
+            allowedMaskForTarget.Or(new UpdateMask(9,
+                                                   new[]
+                                                   {
+                                                       0x000003E2u
+                                                   }));
+    }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Enabled);
+        ClearChangesMask(UnlockedEssences);
+        ClearChangesMask(UnlockedEssenceMilestones);
+        ClearChangesMask(SelectedEssences);
+        ClearChangesMask(Xp);
+        ClearChangesMask(Level);
+        ClearChangesMask(AuraLevel);
+        ClearChangesMask(KnowledgeLevel);
+        ClearChangesMask(DebugKnowledgeWeek);
+        ChangesMask.ResetAll();
+    }
+
+    public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
+    {
+        UpdateMask allowedMaskForTarget = new(9,
+                                              new[]
+                                              {
+                                                  0x0000001Du
+                                              });
+
+        AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
+        changesMask.And(allowedMaskForTarget);
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, AzeriteItem owner, Player receiver)
     {
@@ -30,7 +65,7 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
             data.WriteUInt32(Level);
             data.WriteUInt32(AuraLevel);
             data.WriteUInt32(KnowledgeLevel);
-            data.WriteInt32(DEBUGknowledgeWeek);
+            data.WriteInt32(DebugKnowledgeWeek);
         }
 
         data.WriteInt32(UnlockedEssences.Size());
@@ -63,29 +98,6 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
         WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
     }
-
-    public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
-    {
-        if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
-            allowedMaskForTarget.OR(new UpdateMask(9,
-                                                   new[]
-                                                   {
-                                                       0x000003E2u
-                                                   }));
-    }
-
-    public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
-    {
-        UpdateMask allowedMaskForTarget = new(9,
-                                              new[]
-                                              {
-                                                  0x0000001Du
-                                              });
-
-        AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
-        changesMask.AND(allowedMaskForTarget);
-    }
-
     public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, AzeriteItem owner, Player receiver)
     {
         data.WriteBits(changesMask.GetBlock(0), 10);
@@ -152,23 +164,9 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
                 data.WriteUInt32(KnowledgeLevel);
 
             if (changesMask[9])
-                data.WriteInt32(DEBUGknowledgeWeek);
+                data.WriteInt32(DebugKnowledgeWeek);
         }
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Enabled);
-        ClearChangesMask(UnlockedEssences);
-        ClearChangesMask(UnlockedEssenceMilestones);
-        ClearChangesMask(SelectedEssences);
-        ClearChangesMask(Xp);
-        ClearChangesMask(Level);
-        ClearChangesMask(AuraLevel);
-        ClearChangesMask(KnowledgeLevel);
-        ClearChangesMask(DEBUGknowledgeWeek);
-        ChangesMask.ResetAll();
     }
 }

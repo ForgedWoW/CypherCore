@@ -10,34 +10,11 @@ namespace Forged.MapServer.Collision;
 
 public class BIHWrap<T> where T : IModel
 {
-    private readonly BIH _tree = new();
-    private readonly List<T> _objects = new();
     private readonly Dictionary<T, int> _obj2Idx = new();
+    private readonly List<T> _objects = new();
     private readonly HashSet<T> _objectsToPush = new();
+    private readonly BIH _tree = new();
     private int _unbalancedTimes;
-
-    public void Insert(T obj)
-    {
-        ++_unbalancedTimes;
-
-        lock (_objects)
-        {
-            _objectsToPush.Add(obj);
-        }
-    }
-
-    public void Remove(T obj)
-    {
-        ++_unbalancedTimes;
-
-        lock (_objects)
-        {
-            if (_obj2Idx.TryGetValue(obj, out var idx))
-                _objects[idx] = null;
-            else
-                _objectsToPush.Remove(obj);
-        }
-    }
 
     public void Balance()
     {
@@ -55,13 +32,13 @@ public class BIHWrap<T> where T : IModel
         }
     }
 
-    public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float maxDist)
+    public void Insert(T obj)
     {
+        ++_unbalancedTimes;
+
         lock (_objects)
         {
-            Balance();
-            MDLCallback tempCb = new(intersectCallback, _objects.ToArray(), _objects.Count);
-            _tree.IntersectRay(ray, tempCb, ref maxDist, true);
+            _objectsToPush.Add(obj);
         }
     }
 
@@ -75,10 +52,32 @@ public class BIHWrap<T> where T : IModel
         }
     }
 
+    public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float maxDist)
+    {
+        lock (_objects)
+        {
+            Balance();
+            MDLCallback tempCb = new(intersectCallback, _objects.ToArray(), _objects.Count);
+            _tree.IntersectRay(ray, tempCb, ref maxDist, true);
+        }
+    }
+
+    public void Remove(T obj)
+    {
+        ++_unbalancedTimes;
+
+        lock (_objects)
+        {
+            if (_obj2Idx.TryGetValue(obj, out var idx))
+                _objects[idx] = null;
+            else
+                _objectsToPush.Remove(obj);
+        }
+    }
     public class MDLCallback : WorkerCallback
     {
-        private readonly T[] _objects;
         private readonly WorkerCallback _callback;
+        private readonly T[] _objects;
         private readonly int _objectsSize;
 
         public MDLCallback(WorkerCallback callback, T[] objectsArray, int size)

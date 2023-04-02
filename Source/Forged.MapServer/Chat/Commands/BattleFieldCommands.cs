@@ -34,22 +34,6 @@ internal class BattleFieldCommands
         return true;
     }
 
-    [Command("start", RBACPermissions.CommandBfStart)]
-    private static bool HandleBattlefieldStart(CommandHandler handler, uint battleId)
-    {
-        var bf = Global.BattleFieldMgr.GetBattlefieldByBattleId(handler.Player.Location.Map, battleId);
-
-        if (bf == null)
-            return false;
-
-        bf.StartBattle();
-
-        if (battleId == 1)
-            handler.SendGlobalGMSysMessage("Wintergrasp (Command start used)");
-
-        return true;
-    }
-
     [Command("stop", RBACPermissions.CommandBfStop)]
     private static bool HandleBattlefieldEnd(CommandHandler handler, uint battleId)
     {
@@ -66,6 +50,21 @@ internal class BattleFieldCommands
         return true;
     }
 
+    [Command("start", RBACPermissions.CommandBfStart)]
+    private static bool HandleBattlefieldStart(CommandHandler handler, uint battleId)
+    {
+        var bf = Global.BattleFieldMgr.GetBattlefieldByBattleId(handler.Player.Location.Map, battleId);
+
+        if (bf == null)
+            return false;
+
+        bf.StartBattle();
+
+        if (battleId == 1)
+            handler.SendGlobalGMSysMessage("Wintergrasp (Command start used)");
+
+        return true;
+    }
     [Command("switch", RBACPermissions.CommandBfSwitch)]
     private static bool HandleBattlefieldSwitch(CommandHandler handler, uint battleId)
     {
@@ -90,7 +89,7 @@ internal class BattleFieldCommands
         if (bf == null)
             return false;
 
-        bf.SetTimer(time * Time.InMilliseconds);
+        bf.SetTimer(time * Time.IN_MILLISECONDS);
 
         if (battleId == 1)
             handler.SendGlobalGMSysMessage("Wintergrasp (Command timer used)");

@@ -13,34 +13,28 @@ public enum TimeFormat
 
 public static class Time
 {
-    public const int Minute = 60;
-    public const int Hour = Minute * 60;
-    public const int Day = Hour * 24;
-    public const int Week = Day * 7;
-    public const int Month = Day * 30;
-    public const int Year = Month * 12;
-    public const int InMilliseconds = 1000;
+    public const int MINUTE = 60;
+    public const int HOUR = MINUTE * 60;
+    public const int DAY = HOUR * 24;
+    public const int WEEK = DAY * 7;
+    public const int MONTH = DAY * 30;
+    public const int YEAR = MONTH * 12;
+    public const int IN_MILLISECONDS = 1000;
 
     public static readonly DateTime ApplicationStartTime = DateTime.Now;
 
 	/// <summary>
 	///     Gets the current Unix time.
 	/// </summary>
-	public static long UnixTime
-    {
-        get { return DateTimeToUnixTime(DateTime.Now); }
-    }
+	public static long UnixTime => DateTimeToUnixTime(DateTime.Now);
 
-	/// <summary>
+    /// <summary>
 	///     Gets the current Unix time, in milliseconds.
 	/// </summary>
-	public static long UnixTimeMilliseconds
-    {
-        get { return ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds(); }
-    }
+	public static long UnixTimeMilliseconds => ((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
 
 
-	/// <summary>
+    /// <summary>
 	///     Gets the system uptime.
 	/// </summary>
 	/// <returns> the system uptime in milliseconds </returns>
@@ -52,8 +46,8 @@ public static class Time
     {
         if (oldMSTime > newMSTime)
             return (0xFFFFFFFF - oldMSTime) + newMSTime;
-        else
-            return newMSTime - oldMSTime;
+
+        return newMSTime - oldMSTime;
     }
 
     public static uint GetMSTimeDiff(uint oldMSTime, DateTime newTime)
@@ -69,8 +63,8 @@ public static class Time
 
         if (oldMSTime > newMSTime)
             return (0xFFFFFFFF - oldMSTime) + newMSTime;
-        else
-            return newMSTime - oldMSTime;
+
+        return newMSTime - oldMSTime;
     }
 
     public static DateTime UnixTimeToDateTime(long unixTime)
@@ -103,36 +97,35 @@ public static class Time
         var timeLocal = UnixTimeToDateTime(time);
         timeLocal = new DateTime(timeLocal.Year, timeLocal.Month, timeLocal.Day, 0, 0, 0, timeLocal.Kind);
         var midnightLocal = DateTimeToUnixTime(timeLocal);
-        var hourLocal = midnightLocal + hour * Hour;
+        var hourLocal = midnightLocal + hour * HOUR;
 
         if (onlyAfterTime && hourLocal <= time)
-            hourLocal += Day;
+            hourLocal += DAY;
 
         return hourLocal;
     }
 
-    public static long LocalTimeToUTCTime(long time)
+    public static long LocalTimeToUtcTime(long time)
     {
         return DateTimeToUnixTime(UnixTimeToDateTime(time).ToUniversalTime());
     }
 
-    public static string secsToTimeString(ulong timeInSecs, TimeFormat timeFormat = TimeFormat.FullText, bool hoursOnly = false)
+    public static string SecsToTimeString(ulong timeInSecs, TimeFormat timeFormat = TimeFormat.FullText, bool hoursOnly = false)
     {
-        var secs = timeInSecs % Minute;
-        var minutes = timeInSecs % Hour / Minute;
-        var hours = timeInSecs % Day / Hour;
-        var days = timeInSecs / Day;
+        var secs = timeInSecs % MINUTE;
+        var minutes = timeInSecs % HOUR / MINUTE;
+        var hours = timeInSecs % DAY / HOUR;
+        var days = timeInSecs / DAY;
 
         if (timeFormat == TimeFormat.Numeric)
         {
             if (days != 0)
                 return $"{days}:{hours}:{minutes}:{secs:2}";
-            else if (hours != 0)
+
+            if (hours != 0)
                 return $"{hours}:{minutes}:{secs:2}";
-            else if (minutes != 0)
-                return $"{minutes}:{secs:2}";
-            else
-                return $"0:{secs:2}";
+
+            return minutes != 0 ? $"{minutes}:{secs:2}" : $"0:{secs:2}";
         }
 
         StringBuilder ss = new();
@@ -148,10 +141,7 @@ public static class Time
 
                     break;
                 case TimeFormat.FullText:
-                    if (days == 1)
-                        ss.Append(" Day ");
-                    else
-                        ss.Append(" Days ");
+                    ss.Append(days == 1 ? " Day " : " Days ");
 
                     break;
                 default:
@@ -171,10 +161,7 @@ public static class Time
                     break;
                 case TimeFormat.FullText:
 
-                    if (hours <= 1)
-                        ss.Append(" Hour ");
-                    else
-                        ss.Append(" Hours ");
+                    ss.Append(hours <= 1 ? " Hour " : " Hours ");
 
                     break;
                 default:
@@ -195,10 +182,7 @@ public static class Time
 
                         break;
                     case TimeFormat.FullText:
-                        if (minutes == 1)
-                            ss.Append(" Minute ");
-                        else
-                            ss.Append(" Minutes ");
+                        ss.Append(minutes == 1 ? " Minute " : " Minutes ");
 
                         break;
                     default:
@@ -217,10 +201,7 @@ public static class Time
 
                         break;
                     case TimeFormat.FullText:
-                        if (secs <= 1)
-                            ss.Append(" Second.");
-                        else
-                            ss.Append(" Seconds.");
+                        ss.Append(secs <= 1 ? " Second." : " Seconds.");
 
                         break;
                     default:
@@ -236,7 +217,6 @@ public static class Time
     {
         var secs = 0;
         var buffer = 0;
-        int multiplier;
 
         foreach (var c in timestring)
             if (char.IsDigit(c))
@@ -246,18 +226,20 @@ public static class Time
             }
             else
             {
+                int multiplier;
+
                 switch (c)
                 {
                     case 'd':
-                        multiplier = Day;
+                        multiplier = DAY;
 
                         break;
                     case 'h':
-                        multiplier = Hour;
+                        multiplier = HOUR;
 
                         break;
                     case 'm':
-                        multiplier = Minute;
+                        multiplier = MINUTE;
 
                         break;
                     case 's':
@@ -278,9 +260,9 @@ public static class Time
 
     public static string GetTimeString(long time)
     {
-        var days = time / Day;
-        var hours = (time % Day) / Hour;
-        var minute = (time % Hour) / Minute;
+        var days = time / DAY;
+        var hours = (time % DAY) / HOUR;
+        var minute = (time % HOUR) / MINUTE;
 
         return $"Days: {days} Hours: {hours} Minutes: {minute}";
     }
@@ -372,35 +354,24 @@ public class TimeTracker
 
 public class IntervalTimer
 {
-    private long _interval;
-    private long _current;
+    public bool Passed => Current >= Interval;
 
-    public bool Passed => _current >= _interval;
+    public long Interval { get; set; }
 
-    public long Interval
-    {
-        get => _interval;
-        set => _interval = value;
-    }
-
-    public long Current
-    {
-        get => _current;
-        set => _current = value;
-    }
+    public long Current { get; set; }
 
     public void Update(long diff)
     {
-        _current += diff;
+        Current += diff;
 
-        if (_current < 0)
-            _current = 0;
+        if (Current < 0)
+            Current = 0;
     }
 
     public void Reset()
     {
-        if (_current >= _interval)
-            _current %= _interval;
+        if (Current >= Interval)
+            Current %= Interval;
     }
 }
 
@@ -409,10 +380,10 @@ public class PeriodicTimer
     private int _period;
     private int _expireTime;
 
-    public PeriodicTimer(int period, int start_time)
+    public PeriodicTimer(int period, int startTime)
     {
         _period = period;
-        _expireTime = start_time;
+        _expireTime = startTime;
     }
 
     public bool Update(int diff)
@@ -425,24 +396,24 @@ public class PeriodicTimer
         return true;
     }
 
-    public void SetPeriodic(int period, int start_time)
+    public void SetPeriodic(int period, int startTime)
     {
-        _expireTime = start_time;
+        _expireTime = startTime;
         _period = period;
     }
 
     // Tracker interface
-    public void TUpdate(int diff)
+    public void Modify(int diff)
     {
         _expireTime -= diff;
     }
 
-    public bool TPassed()
+    public bool Passed()
     {
         return _expireTime <= 0;
     }
 
-    public void TReset(int diff, int period)
+    public void Reset(int diff, int period)
     {
         _expireTime += period > diff ? period : diff;
     }

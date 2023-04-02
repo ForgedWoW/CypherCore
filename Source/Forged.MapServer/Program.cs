@@ -26,6 +26,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Taxis;
 using Forged.MapServer.Entities.Units;
@@ -84,6 +85,7 @@ InitializeServer();
 void InitializeServer()
 {
     // we initialize the server by resolving these.
+    container.Resolve<ClassFactory>();
     var cliDB = container.Resolve<CliDB>();
     var sm = container.Resolve<ScriptManager>();
     container.Resolve<WorldServiceManager>().LoadHandlers(container);
@@ -427,6 +429,7 @@ void RegisterFactories()
     // We are doing this to inject the container into the class factory. The container is not yet built at this point, so we need to do this after the container is built.
     // ReSharper disable once AccessToModifiedClosure
     builder.RegisterType<ClassFactory>().SingleInstance().OnActivated(c => c.Instance.Initialize(container));
+    builder.RegisterType<CreatureFactory>().SingleInstance();
 }
 
 void RegisterInstanced()
@@ -434,4 +437,7 @@ void RegisterInstanced()
     builder.RegisterType<Loot>();
     builder.RegisterType<Spell>();
     builder.RegisterType<CollectionMgr>();
+    builder.RegisterType<UnitData>();
+    builder.RegisterType<GossipMenu>();
+    builder.RegisterType<PlayerMenu>();
 }

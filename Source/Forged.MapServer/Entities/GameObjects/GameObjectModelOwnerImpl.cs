@@ -16,11 +16,6 @@ internal class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
         _owner = owner;
     }
 
-    public override bool IsSpawned()
-    {
-        return _owner.IsSpawned;
-    }
-
     public override uint GetDisplayId()
     {
         return _owner.DisplayId;
@@ -29,11 +24,6 @@ internal class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
     public override byte GetNameSetId()
     {
         return _owner.GetNameSetId();
-    }
-
-    public override bool IsInPhase(PhaseShift phaseShift)
-    {
-        return _owner.Location.PhaseShift.CanSee(phaseShift);
     }
 
     public override Vector3 GetPosition()
@@ -49,5 +39,15 @@ internal class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
     public override float GetScale()
     {
         return _owner.ObjectScale;
+    }
+
+    public override bool IsInPhase(PhaseShift phaseShift)
+    {
+        return _owner.Location.PhaseShift.CanSee(phaseShift);
+    }
+
+    public override bool IsSpawned()
+    {
+        return _owner.IsSpawned;
     }
 }

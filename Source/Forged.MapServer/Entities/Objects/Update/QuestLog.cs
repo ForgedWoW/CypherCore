@@ -8,14 +8,24 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class QuestLog : BaseUpdateData<Player>
 {
-    public UpdateField<uint> QuestID = new(0, 1);
-    public UpdateField<uint> StateFlags = new(0, 2);
-    public UpdateField<uint> EndTime = new(0, 3);
     public UpdateField<uint> AcceptTime = new(0, 4);
+    public UpdateField<uint> EndTime = new(0, 3);
     public UpdateField<uint> ObjectiveFlags = new(0, 5);
     public UpdateFieldArray<ushort> ObjectiveProgress = new(24, 6, 7);
-
+    public UpdateField<uint> QuestID = new(0, 1);
+    public UpdateField<uint> StateFlags = new(0, 2);
     public QuestLog() : base(31) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(QuestID);
+        ClearChangesMask(StateFlags);
+        ClearChangesMask(EndTime);
+        ClearChangesMask(AcceptTime);
+        ClearChangesMask(ObjectiveFlags);
+        ClearChangesMask(ObjectiveProgress);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
@@ -65,16 +75,5 @@ public class QuestLog : BaseUpdateData<Player>
             for (var i = 0; i < 24; ++i)
                 if (changesMask[7 + i])
                     data.WriteUInt16(ObjectiveProgress[i]);
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(QuestID);
-        ClearChangesMask(StateFlags);
-        ClearChangesMask(EndTime);
-        ClearChangesMask(AcceptTime);
-        ClearChangesMask(ObjectiveFlags);
-        ClearChangesMask(ObjectiveProgress);
-        ChangesMask.ResetAll();
     }
 }

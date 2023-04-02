@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class AchievementEarned : ServerPacket
 {
+    public uint AchievementID;
     public ObjectGuid Earner;
     public uint EarnerNativeRealm;
     public uint EarnerVirtualRealm;
-    public uint AchievementID;
-    public long Time;
     public bool Initial;
     public ObjectGuid Sender;
+    public long Time;
     public AchievementEarned() : base(ServerOpcodes.AchievementEarned, ConnectionType.Instance) { }
 
     public override void Write()

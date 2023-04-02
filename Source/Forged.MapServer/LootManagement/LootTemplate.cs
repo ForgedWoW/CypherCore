@@ -15,12 +15,15 @@ namespace Forged.MapServer.LootManagement;
 
 public class LootTemplate
 {
-    private readonly IConfiguration _configuration;
-    private readonly GameObjectManager _objectManager;
     private readonly ConditionManager _conditionManager;
+    private readonly IConfiguration _configuration;
+    private readonly List<LootStoreItem> _entries = new();
+    // not grouped only
+    private readonly Dictionary<int, LootGroup> _groups = new();
+
     private readonly LootStoreBox _lootStorage;
-    private readonly List<LootStoreItem> _entries = new();       // not grouped only
-    private readonly Dictionary<int, LootGroup> _groups = new(); // groups have own (optimised) processing, grouped entries go there
+    private readonly GameObjectManager _objectManager;
+    // groups have own (optimised) processing, grouped entries go there
 
     public LootTemplate(IConfiguration configuration, GameObjectManager objectManager, ConditionManager conditionManager, LootStoreBox lootStorage)
     {
@@ -28,6 +31,56 @@ public class LootTemplate
         _objectManager = objectManager;
         _conditionManager = conditionManager;
         _lootStorage = lootStorage;
+    }
+
+    public bool AddConditionItem(Condition cond)
+    {
+        if (cond == null || !cond.IsLoaded()) //should never happen, checked at loading
+        {
+            Log.Logger.Error("LootTemplate.addConditionItem: condition is null");
+
+            return false;
+        }
+
+        if (!_entries.Empty())
+            foreach (var i in _entries)
+                if (i.Itemid == cond.SourceEntry)
+                {
+                    i.Conditions.Add(cond);
+
+                    return true;
+                }
+
+        if (!_groups.Empty())
+            foreach (var group in _groups.Values)
+            {
+                if (group == null)
+                    continue;
+
+                var itemList = group.GetExplicitlyChancedItemList();
+
+                if (!itemList.Empty())
+                    foreach (var i in itemList)
+                        if (i.Itemid == cond.SourceEntry)
+                        {
+                            i.Conditions.Add(cond);
+
+                            return true;
+                        }
+
+                itemList = group.GetEqualChancedItemList();
+
+                if (!itemList.Empty())
+                    foreach (var i in itemList)
+                        if (i.Itemid == cond.SourceEntry)
+                        {
+                            i.Conditions.Add(cond);
+
+                            return true;
+                        }
+            }
+
+        return false;
     }
 
     public void AddEntry(LootStoreItem item)
@@ -43,6 +96,130 @@ public class LootTemplate
         {
             _entries.Add(item);
         }
+    }
+
+    public void CheckLootRefs(Dictionary<uint, LootTemplate> store, List<uint> refSet)
+    {
+        foreach (var item in _entries)
+            if (item.Reference > 0)
+            {
+                if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
+                    _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
+                else
+                {
+                    refSet?.Remove(item.Reference);
+                }
+            }
+
+        foreach (var group in _groups.Values)
+            group.CheckLootRefs(store, refSet);
+    }
+
+    public void CopyConditions(List<Condition> conditions)
+    {
+        foreach (var i in _entries)
+            i.Conditions.Clear();
+
+        foreach (var group in _groups.Values)
+            group.CopyConditions(conditions);
+    }
+
+    public void CopyConditions(LootItem li)
+    {
+        // Copies the conditions list from a template item to a LootItem
+        foreach (var item in _entries)
+        {
+            if (item.Itemid != li.Itemid)
+                continue;
+
+            li.Conditions = item.Conditions;
+
+            break;
+        }
+    }
+
+    public bool HasQuestDrop(Dictionary<uint, LootTemplate> store, byte groupId = 0)
+    {
+        if (groupId != 0) // Group reference
+        {
+            if (groupId > _groups.Count)
+                return false; // Error message [should be] already printed at loading stage
+
+            if (_groups[groupId - 1] == null)
+                return false;
+
+            return _groups[groupId - 1].HasQuestDrop();
+        }
+
+        foreach (var item in _entries)
+            if (item.Reference > 0) // References
+            {
+                var referenced = store.LookupByKey(item.Reference);
+
+                if (referenced == null)
+                    continue; // Error message [should be] already printed at loading stage
+
+                if (referenced.HasQuestDrop(store, item.Groupid))
+                    return true;
+            }
+            else if (item.NeedsQuest)
+            {
+                return true; // quest drop found
+            }
+
+        // Now processing groups
+        foreach (var group in _groups.Values)
+            if (group.HasQuestDrop())
+                return true;
+
+        return false;
+    }
+
+    public bool HasQuestDropForPlayer(Dictionary<uint, LootTemplate> store, Player player, byte groupId = 0)
+    {
+        if (groupId != 0) // Group reference
+        {
+            if (groupId > _groups.Count)
+                return false; // Error message already printed at loading stage
+
+            if (_groups[groupId - 1] == null)
+                return false;
+
+            return _groups[groupId - 1].HasQuestDropForPlayer(player);
+        }
+
+        // Checking non-grouped entries
+        foreach (var item in _entries)
+            if (item.Reference > 0) // References processing
+            {
+                var referenced = store.LookupByKey(item.Reference);
+
+                if (referenced == null)
+                    continue; // Error message already printed at loading stage
+
+                if (referenced.HasQuestDropForPlayer(store, player, item.Groupid))
+                    return true;
+            }
+            else if (player.HasQuestForItem(item.Itemid))
+            {
+                return true; // active quest drop found
+            }
+
+        // Now checking groups
+        foreach (var group in _groups.Values)
+            if (group.HasQuestDropForPlayer(player))
+                return true;
+
+        return false;
+    }
+
+    public bool IsReference(uint id)
+    {
+        foreach (var storeItem in _entries)
+            if (storeItem.Itemid == id && storeItem.Reference > 0)
+                return true;
+
+        return false; //not found or not reference
     }
 
     public void Process(Loot loot, bool rate, ushort lootMode, byte groupId, Player personalLooter = null)
@@ -198,105 +375,6 @@ public class LootTemplate
                 }
             }
     }
-
-    public void CopyConditions(List<Condition> conditions)
-    {
-        foreach (var i in _entries)
-            i.Conditions.Clear();
-
-        foreach (var group in _groups.Values)
-            group.CopyConditions(conditions);
-    }
-
-    public void CopyConditions(LootItem li)
-    {
-        // Copies the conditions list from a template item to a LootItem
-        foreach (var item in _entries)
-        {
-            if (item.Itemid != li.Itemid)
-                continue;
-
-            li.Conditions = item.Conditions;
-
-            break;
-        }
-    }
-
-    public bool HasQuestDrop(Dictionary<uint, LootTemplate> store, byte groupId = 0)
-    {
-        if (groupId != 0) // Group reference
-        {
-            if (groupId > _groups.Count)
-                return false; // Error message [should be] already printed at loading stage
-
-            if (_groups[groupId - 1] == null)
-                return false;
-
-            return _groups[groupId - 1].HasQuestDrop();
-        }
-
-        foreach (var item in _entries)
-            if (item.Reference > 0) // References
-            {
-                var referenced = store.LookupByKey(item.Reference);
-
-                if (referenced == null)
-                    continue; // Error message [should be] already printed at loading stage
-
-                if (referenced.HasQuestDrop(store, item.Groupid))
-                    return true;
-            }
-            else if (item.NeedsQuest)
-            {
-                return true; // quest drop found
-            }
-
-        // Now processing groups
-        foreach (var group in _groups.Values)
-            if (group.HasQuestDrop())
-                return true;
-
-        return false;
-    }
-
-    public bool HasQuestDropForPlayer(Dictionary<uint, LootTemplate> store, Player player, byte groupId = 0)
-    {
-        if (groupId != 0) // Group reference
-        {
-            if (groupId > _groups.Count)
-                return false; // Error message already printed at loading stage
-
-            if (_groups[groupId - 1] == null)
-                return false;
-
-            return _groups[groupId - 1].HasQuestDropForPlayer(player);
-        }
-
-        // Checking non-grouped entries
-        foreach (var item in _entries)
-            if (item.Reference > 0) // References processing
-            {
-                var referenced = store.LookupByKey(item.Reference);
-
-                if (referenced == null)
-                    continue; // Error message already printed at loading stage
-
-                if (referenced.HasQuestDropForPlayer(store, player, item.Groupid))
-                    return true;
-            }
-            else if (player.HasQuestForItem(item.Itemid))
-            {
-                return true; // active quest drop found
-            }
-
-        // Now checking groups
-        foreach (var group in _groups.Values)
-            if (group.HasQuestDropForPlayer(player))
-                return true;
-
-        return false;
-    }
-
     public void Verify(LootStore lootstore, uint id)
     {
         // Checking group chances
@@ -305,83 +383,6 @@ public class LootTemplate
 
         // @todo References validity checks
     }
-
-    public void CheckLootRefs(Dictionary<uint, LootTemplate> store, List<uint> refSet)
-    {
-        foreach (var item in _entries)
-            if (item.Reference > 0)
-            {
-                if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
-                    _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
-                else
-                {
-                    refSet?.Remove(item.Reference);
-                }
-            }
-
-        foreach (var group in _groups.Values)
-            group.CheckLootRefs(store, refSet);
-    }
-
-    public bool AddConditionItem(Condition cond)
-    {
-        if (cond == null || !cond.IsLoaded()) //should never happen, checked at loading
-        {
-            Log.Logger.Error("LootTemplate.addConditionItem: condition is null");
-
-            return false;
-        }
-
-        if (!_entries.Empty())
-            foreach (var i in _entries)
-                if (i.Itemid == cond.SourceEntry)
-                {
-                    i.Conditions.Add(cond);
-
-                    return true;
-                }
-
-        if (!_groups.Empty())
-            foreach (var group in _groups.Values)
-            {
-                if (group == null)
-                    continue;
-
-                var itemList = group.GetExplicitlyChancedItemList();
-
-                if (!itemList.Empty())
-                    foreach (var i in itemList)
-                        if (i.Itemid == cond.SourceEntry)
-                        {
-                            i.Conditions.Add(cond);
-
-                            return true;
-                        }
-
-                itemList = group.GetEqualChancedItemList();
-
-                if (!itemList.Empty())
-                    foreach (var i in itemList)
-                        if (i.Itemid == cond.SourceEntry)
-                        {
-                            i.Conditions.Add(cond);
-
-                            return true;
-                        }
-            }
-
-        return false;
-    }
-
-    public bool IsReference(uint id)
-    {
-        foreach (var storeItem in _entries)
-            if (storeItem.Itemid == id && storeItem.Reference > 0)
-                return true;
-
-        return false; //not found or not reference
-    }
-
     // True if template includes at least 1 drop for the player
     private bool HasDropForPlayer(Player player, byte groupId, bool strictUsabilityCheck)
     {
@@ -431,11 +432,13 @@ public class LootTemplate
 
     public class LootGroup // A set of loot definitions for items (refs are not allowed)
     {
-        private readonly GameObjectManager _objectManager;
         private readonly ConditionManager _conditionManager;
+        private readonly List<LootStoreItem> _equalChanced = new();
+        private readonly List<LootStoreItem> _explicitlyChanced = new();
         private readonly LootStoreBox _lootStorage;
-        private readonly List<LootStoreItem> _explicitlyChanced = new(); // Entries with chances defined in DB
-        private readonly List<LootStoreItem> _equalChanced = new();      // Zero chances - every entry takes the same chance
+        private readonly GameObjectManager _objectManager;
+        // Entries with chances defined in DB
+        // Zero chances - every entry takes the same chance
 
         public LootGroup(GameObjectManager gameObjectManager, ConditionManager conditionManager, LootStoreBox lootStorage)
         {
@@ -450,6 +453,79 @@ public class LootTemplate
                 _explicitlyChanced.Add(item);
             else
                 _equalChanced.Add(item);
+        }
+
+        public void CheckLootRefs(Dictionary<uint, LootTemplate> store, List<uint> refSet)
+        {
+            foreach (var item in _explicitlyChanced)
+                if (item.Reference > 0)
+                {
+                    if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
+                        _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
+                    else
+                    {
+                        refSet?.Remove(item.Reference);
+                    }
+                }
+
+            foreach (var item in _equalChanced)
+                if (item.Reference > 0)
+                {
+                    if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
+                        _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
+                    else
+                    {
+                        refSet?.Remove(item.Reference);
+                    }
+                }
+        }
+
+        public void CopyConditions(List<Condition> conditions)
+        {
+            foreach (var i in _explicitlyChanced)
+                i.Conditions.Clear();
+
+            foreach (var i in _equalChanced)
+                i.Conditions.Clear();
+        }
+
+        public List<LootStoreItem> GetEqualChancedItemList()
+        {
+            return _equalChanced;
+        }
+
+        public List<LootStoreItem> GetExplicitlyChancedItemList()
+        {
+            return _explicitlyChanced;
+        }
+
+        public bool HasDropForPlayer(Player player, bool strictUsabilityCheck)
+        {
+            foreach (var lootStoreItem in _explicitlyChanced)
+                if (LootItem.AllowedForPlayer(player,
+                                              null,
+                                              lootStoreItem.Itemid,
+                                              lootStoreItem.NeedsQuest,
+                                              !lootStoreItem.NeedsQuest || _objectManager.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                              strictUsabilityCheck,
+                                              lootStoreItem.Conditions,
+                                              _objectManager,
+                                              _conditionManager))
+                    return true;
+
+            foreach (var lootStoreItem in _equalChanced)
+                if (LootItem.AllowedForPlayer(player,
+                                              null,
+                                              lootStoreItem.Itemid,
+                                              lootStoreItem.NeedsQuest,
+                                              !lootStoreItem.NeedsQuest || _objectManager.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                              strictUsabilityCheck,
+                                              lootStoreItem.Conditions,
+                                              _objectManager,
+                                              _conditionManager))
+                    return true;
+
+            return false;
         }
 
         public bool HasQuestDrop()
@@ -496,80 +572,6 @@ public class LootTemplate
             if (chance >= 100.0f && !_equalChanced.Empty())
                 Log.Logger.Error("Table '{0}' entry {1} group {2} has items with chance=0% but group total chance >= 100% ({3})", lootstore.GetName(), id, groupID, chance);
         }
-
-        public void CheckLootRefs(Dictionary<uint, LootTemplate> store, List<uint> refSet)
-        {
-            foreach (var item in _explicitlyChanced)
-                if (item.Reference > 0)
-                {
-                    if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
-                        _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
-                    else
-                    {
-                        refSet?.Remove(item.Reference);
-                    }
-                }
-
-            foreach (var item in _equalChanced)
-                if (item.Reference > 0)
-                {
-                    if (_lootStorage.Reference.GetLootFor(item.Reference) == null)
-                        _lootStorage.Reference.ReportNonExistingId(item.Reference, item.Itemid);
-                    else
-                    {
-                        refSet?.Remove(item.Reference);
-                    }
-                }
-        }
-
-        public List<LootStoreItem> GetExplicitlyChancedItemList()
-        {
-            return _explicitlyChanced;
-        }
-
-        public List<LootStoreItem> GetEqualChancedItemList()
-        {
-            return _equalChanced;
-        }
-
-        public void CopyConditions(List<Condition> conditions)
-        {
-            foreach (var i in _explicitlyChanced)
-                i.Conditions.Clear();
-
-            foreach (var i in _equalChanced)
-                i.Conditions.Clear();
-        }
-
-        public bool HasDropForPlayer(Player player, bool strictUsabilityCheck)
-        {
-            foreach (var lootStoreItem in _explicitlyChanced)
-                if (LootItem.AllowedForPlayer(player,
-                                              null,
-                                              lootStoreItem.Itemid,
-                                              lootStoreItem.NeedsQuest,
-                                              !lootStoreItem.NeedsQuest || _objectManager.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
-                                              strictUsabilityCheck,
-                                              lootStoreItem.Conditions,
-                                              _objectManager,
-                                              _conditionManager))
-                    return true;
-
-            foreach (var lootStoreItem in _equalChanced)
-                if (LootItem.AllowedForPlayer(player,
-                                              null,
-                                              lootStoreItem.Itemid,
-                                              lootStoreItem.NeedsQuest,
-                                              !lootStoreItem.NeedsQuest || _objectManager.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
-                                              strictUsabilityCheck,
-                                              lootStoreItem.Conditions,
-                                              _objectManager,
-                                              _conditionManager))
-                    return true;
-
-            return false;
-        }
-
         private float RawTotalChance()
         {
             float result = 0;

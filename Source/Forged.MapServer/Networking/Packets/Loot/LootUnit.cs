@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootUnit : ClientPacket
 {
-    public ObjectGuid Unit;
     public bool IsSoftInteract;
+    public ObjectGuid Unit;
     public LootUnit(WorldPacket packet) : base(packet) { }
 
     public override void Read()

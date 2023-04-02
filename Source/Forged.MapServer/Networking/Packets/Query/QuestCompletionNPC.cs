@@ -7,6 +7,6 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class QuestCompletionNPC
 {
-    public uint QuestID;
     public List<uint> NPCs = new();
+    public uint QuestID;
 }

@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class CriteriaUpdate : ServerPacket
 {
+    public long CreationTime;
     public uint CriteriaID;
-    public ulong Quantity;
-    public ObjectGuid PlayerGUID;
-    public uint Flags;
     public long CurrentTime;
     public long ElapsedTime;
-    public long CreationTime;
+    public uint Flags;
+    public ObjectGuid PlayerGUID;
+    public ulong Quantity;
     public ulong? RafAcceptanceID;
     public CriteriaUpdate() : base(ServerOpcodes.CriteriaUpdate, ConnectionType.Instance) { }
 

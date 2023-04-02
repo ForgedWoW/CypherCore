@@ -9,9 +9,8 @@ namespace Forged.MapServer.Entities.Objects.Update;
 public class CTROptions
 {
     public uint ContentTuningConditionMask;
-    public uint Field_4;
     public uint ExpansionLevelMask;
-
+    public uint Field_4;
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
         data.WriteUInt32(ContentTuningConditionMask);

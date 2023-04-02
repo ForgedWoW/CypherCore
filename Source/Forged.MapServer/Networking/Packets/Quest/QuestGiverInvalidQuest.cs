@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class QuestGiverInvalidQuest : ServerPacket
 {
-    public QuestFailedReasons Reason;
     public int ContributionRewardID;
-    public bool SendErrorMessage;
+    public QuestFailedReasons Reason;
     public string ReasonText = "";
+    public bool SendErrorMessage;
     public QuestGiverInvalidQuest() : base(ServerOpcodes.QuestGiverInvalidQuest) { }
 
     public override void Write()

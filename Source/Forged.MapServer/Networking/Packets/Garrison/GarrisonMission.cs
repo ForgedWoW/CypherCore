@@ -7,22 +7,21 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonMission
 {
-    public ulong DbID;
-    public int MissionRecID;
-    public long OfferTime;
-    public uint OfferDuration;
-    public long StartTime = 2288912640;
-    public uint TravelDuration;
-    public uint MissionDuration;
-    public int MissionState = 0;
-    public int SuccessChance = 0;
-    public uint Flags = 0;
-    public float MissionScalar = 1.0f;
     public int ContentTuningID = 0;
+    public ulong DbID;
     public List<GarrisonEncounter> Encounters = new();
-    public List<GarrisonMissionReward> Rewards = new();
+    public uint Flags = 0;
+    public uint MissionDuration;
+    public int MissionRecID;
+    public float MissionScalar = 1.0f;
+    public int MissionState = 0;
+    public uint OfferDuration;
+    public long OfferTime;
     public List<GarrisonMissionReward> OvermaxRewards = new();
-
+    public List<GarrisonMissionReward> Rewards = new();
+    public long StartTime = 2288912640;
+    public int SuccessChance = 0;
+    public uint TravelDuration;
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(DbID);

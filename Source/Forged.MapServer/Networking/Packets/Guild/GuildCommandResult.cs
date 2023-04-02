@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildCommandResult : ServerPacket
 {
+    public GuildCommandType Command;
     public string Name;
     public GuildCommandError Result;
-    public GuildCommandType Command;
     public GuildCommandResult() : base(ServerOpcodes.GuildCommandResult) { }
 
     public override void Write()

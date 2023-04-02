@@ -7,13 +7,23 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellCastVisual
 {
-    public uint SpellXSpellVisualID;
     public uint ScriptVisualID;
-
+    public uint SpellXSpellVisualID;
     public SpellCastVisual(uint spellXSpellVisualID, uint scriptVisualID)
     {
         SpellXSpellVisualID = spellXSpellVisualID;
         ScriptVisualID = scriptVisualID;
+    }
+
+    public static implicit operator SpellCastVisualField(SpellCastVisual spellCastVisual)
+    {
+        SpellCastVisualField visual = new()
+        {
+            SpellXSpellVisualID = spellCastVisual.SpellXSpellVisualID,
+            ScriptVisualID = spellCastVisual.ScriptVisualID
+        };
+
+        return visual;
     }
 
     public void Read(WorldPacket data)
@@ -26,16 +36,5 @@ public struct SpellCastVisual
     {
         data.WriteUInt32(SpellXSpellVisualID);
         data.WriteUInt32(ScriptVisualID);
-    }
-
-    public static implicit operator SpellCastVisualField(SpellCastVisual spellCastVisual)
-    {
-        SpellCastVisualField visual = new()
-        {
-            SpellXSpellVisualID = spellCastVisual.SpellXSpellVisualID,
-            ScriptVisualID = spellCastVisual.ScriptVisualID
-        };
-
-        return visual;
     }
 }

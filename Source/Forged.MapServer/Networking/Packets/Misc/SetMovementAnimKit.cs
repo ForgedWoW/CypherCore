@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class SetMovementAnimKit : ServerPacket
 {
-    public ObjectGuid Unit;
     public ushort AnimKitID;
+    public ObjectGuid Unit;
     public SetMovementAnimKit() : base(ServerOpcodes.SetMovementAnimKit, ConnectionType.Instance) { }
 
     public override void Write()

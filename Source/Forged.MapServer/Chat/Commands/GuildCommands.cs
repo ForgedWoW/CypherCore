@@ -76,6 +76,46 @@ internal class GuildCommands
         return true;
     }
 
+    [Command("info", RBACPermissions.CommandGuildInfo, true)]
+    private static bool HandleGuildInfoCommand(CommandHandler handler, StringArguments args)
+    {
+        Guild guild = null;
+        var target = handler.SelectedPlayerOrSelf;
+
+        if (!args.Empty() && args[0] != '\0')
+        {
+            if (char.IsDigit(args[0]))
+                guild = Global.GuildMgr.GetGuildById(args.NextUInt64());
+            else
+                guild = Global.GuildMgr.GetGuildByName(args.NextString());
+        }
+        else if (target)
+        {
+            guild = target.Guild;
+        }
+
+        if (!guild)
+            return false;
+
+        // Display Guild Information
+        handler.SendSysMessage(CypherStrings.GuildInfoName, guild.GetName(), guild.GetId()); // Guild Id + Name
+
+        if (Global.CharacterCacheStorage.GetCharacterNameByGuid(guild.GetLeaderGUID(), out var guildMasterName))
+            handler.SendSysMessage(CypherStrings.GuildInfoGuildMaster, guildMasterName, guild.GetLeaderGUID().ToString()); // Guild Master
+
+        // Format creation date
+
+        var createdDateTime = Time.UnixTimeToDateTime(guild.GetCreatedDate());
+        handler.SendSysMessage(CypherStrings.GuildInfoCreationDate, createdDateTime.ToLongDateString()); // Creation Date
+        handler.SendSysMessage(CypherStrings.GuildInfoMemberCount, guild.GetMembersCount());             // Number of Members
+        handler.SendSysMessage(CypherStrings.GuildInfoBankGold, guild.GetBankMoney() / 100 / 100);       // Bank Gold (in gold coins)
+        handler.SendSysMessage(CypherStrings.GuildInfoLevel, guild.GetLevel());                          // Level
+        handler.SendSysMessage(CypherStrings.GuildInfoMotd, guild.GetMOTD());                            // Message of the Day
+        handler.SendSysMessage(CypherStrings.GuildInfoExtraInfo, guild.GetInfo());                       // Extra Information
+
+        return true;
+    }
+
     [Command("invite", RBACPermissions.CommandGuildInvite, true)]
     private static bool HandleGuildInviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
     {
@@ -94,30 +134,6 @@ internal class GuildCommands
             return false;
 
         targetGuild.AddMember(null, targetIdentifier.GetGUID());
-
-        return true;
-    }
-
-    [Command("uninvite", RBACPermissions.CommandGuildUninvite, true)]
-    private static bool HandleGuildUninviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
-    {
-        if (targetIdentifier == null)
-            targetIdentifier = PlayerIdentifier.FromTargetOrSelf(handler);
-
-        if (targetIdentifier == null)
-            return false;
-
-        var guildId = targetIdentifier.IsConnected() ? targetIdentifier.GetConnectedPlayer().GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(targetIdentifier.GetGUID());
-
-        if (guildId == 0)
-            return false;
-
-        var targetGuild = Global.GuildMgr.GetGuildById(guildId);
-
-        if (targetGuild == null)
-            return false;
-
-        targetGuild.DeleteMember(null, targetIdentifier.GetGUID(), false, true, true);
 
         return true;
     }
@@ -189,42 +205,26 @@ internal class GuildCommands
         return true;
     }
 
-    [Command("info", RBACPermissions.CommandGuildInfo, true)]
-    private static bool HandleGuildInfoCommand(CommandHandler handler, StringArguments args)
+    [Command("uninvite", RBACPermissions.CommandGuildUninvite, true)]
+    private static bool HandleGuildUninviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
     {
-        Guild guild = null;
-        var target = handler.SelectedPlayerOrSelf;
+        if (targetIdentifier == null)
+            targetIdentifier = PlayerIdentifier.FromTargetOrSelf(handler);
 
-        if (!args.Empty() && args[0] != '\0')
-        {
-            if (char.IsDigit(args[0]))
-                guild = Global.GuildMgr.GetGuildById(args.NextUInt64());
-            else
-                guild = Global.GuildMgr.GetGuildByName(args.NextString());
-        }
-        else if (target)
-        {
-            guild = target.Guild;
-        }
-
-        if (!guild)
+        if (targetIdentifier == null)
             return false;
 
-        // Display Guild Information
-        handler.SendSysMessage(CypherStrings.GuildInfoName, guild.GetName(), guild.GetId()); // Guild Id + Name
+        var guildId = targetIdentifier.IsConnected() ? targetIdentifier.GetConnectedPlayer().GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(targetIdentifier.GetGUID());
 
-        if (Global.CharacterCacheStorage.GetCharacterNameByGuid(guild.GetLeaderGUID(), out var guildMasterName))
-            handler.SendSysMessage(CypherStrings.GuildInfoGuildMaster, guildMasterName, guild.GetLeaderGUID().ToString()); // Guild Master
+        if (guildId == 0)
+            return false;
 
-        // Format creation date
+        var targetGuild = Global.GuildMgr.GetGuildById(guildId);
 
-        var createdDateTime = Time.UnixTimeToDateTime(guild.GetCreatedDate());
-        handler.SendSysMessage(CypherStrings.GuildInfoCreationDate, createdDateTime.ToLongDateString()); // Creation Date
-        handler.SendSysMessage(CypherStrings.GuildInfoMemberCount, guild.GetMembersCount());             // Number of Members
-        handler.SendSysMessage(CypherStrings.GuildInfoBankGold, guild.GetBankMoney() / 100 / 100);       // Bank Gold (in gold coins)
-        handler.SendSysMessage(CypherStrings.GuildInfoLevel, guild.GetLevel());                          // Level
-        handler.SendSysMessage(CypherStrings.GuildInfoMotd, guild.GetMOTD());                            // Message of the Day
-        handler.SendSysMessage(CypherStrings.GuildInfoExtraInfo, guild.GetInfo());                       // Extra Information
+        if (targetGuild == null)
+            return false;
+
+        targetGuild.DeleteMember(null, targetIdentifier.GetGUID(), false, true, true);
 
         return true;
     }

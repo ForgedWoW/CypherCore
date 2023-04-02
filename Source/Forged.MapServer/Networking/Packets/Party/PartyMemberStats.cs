@@ -9,35 +9,28 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyMemberStats
 {
-    public ushort Level;
-    public GroupMemberOnlineStatus Status;
-
+    public List<PartyMemberAuraStates> Auras = new();
+    public CTROptions ChromieTime;
     public int CurrentHealth;
-    public int MaxHealth;
-
-    public byte PowerType;
     public ushort CurrentPower;
+    public DungeonScoreSummary DungeonScore = new();
+    public ushort Level;
+    public int MaxHealth;
     public ushort MaxPower;
-
-    public ushort ZoneID;
+    public sbyte[] PartyType = new sbyte[2];
+    public PartyMemberPetStats PetStats;
+    public PartyMemberPhaseStates Phases = new();
     public short PositionX;
     public short PositionY;
     public short PositionZ;
-
-    public int VehicleSeat;
-
-    public PartyMemberPhaseStates Phases = new();
-    public List<PartyMemberAuraStates> Auras = new();
-    public PartyMemberPetStats PetStats;
-
     public ushort PowerDisplayID;
+    public byte PowerType;
     public ushort SpecID;
-    public ushort WmoGroupID;
+    public GroupMemberOnlineStatus Status;
+    public int VehicleSeat;
     public uint WmoDoodadPlacementID;
-    public sbyte[] PartyType = new sbyte[2];
-    public CTROptions ChromieTime;
-    public DungeonScoreSummary DungeonScore = new();
-
+    public ushort WmoGroupID;
+    public ushort ZoneID;
     public void Write(WorldPacket data)
     {
         for (byte i = 0; i < 2; i++)

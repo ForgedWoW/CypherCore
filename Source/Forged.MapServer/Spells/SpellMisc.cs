@@ -36,7 +36,7 @@ public struct SpellMisc
 
     public uint[] GetRawData()
     {
-        return new uint[]
+        return new[]
         {
             Data0, Data1
         };

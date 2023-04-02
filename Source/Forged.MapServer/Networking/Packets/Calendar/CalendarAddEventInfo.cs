@@ -8,14 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 internal class CalendarAddEventInfo
 {
     public ulong ClubId;
-    public string Title;
     public string Description;
     public byte EventType;
-    public int TextureID;
-    public long Time;
     public uint Flags;
     public CalendarAddEventInviteInfo[] Invites = new CalendarAddEventInviteInfo[(int)SharedConst.CalendarMaxInvites];
-
+    public int TextureID;
+    public long Time;
+    public string Title;
     public void Read(WorldPacket data)
     {
         ClubId = data.ReadUInt64();

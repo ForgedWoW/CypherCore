@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class MasterLootCandidateList : ServerPacket
 {
-    public List<ObjectGuid> Players = new();
     public ObjectGuid LootObj;
+    public List<ObjectGuid> Players = new();
     public MasterLootCandidateList() : base(ServerOpcodes.MasterLootCandidateList, ConnectionType.Instance) { }
 
     public override void Write()

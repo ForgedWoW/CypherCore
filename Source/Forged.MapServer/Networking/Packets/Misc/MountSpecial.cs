@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class MountSpecial : ClientPacket
 {
-    public int[] SpellVisualKitIDs;
     public int SequenceVariation;
+    public int[] SpellVisualKitIDs;
     public MountSpecial(WorldPacket packet) : base(packet) { }
 
     public override void Read()

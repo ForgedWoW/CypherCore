@@ -11,9 +11,10 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class AuthResponse : ServerPacket
 {
+    public BattlenetRpcErrorCode Result;
     public AuthSuccessInfo SuccessInfo;  // contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
     public AuthWaitInfo? WaitInfo;       // contains the queue wait information in case the account is in the login queue.
-    public BattlenetRpcErrorCode Result; // the result of the authentication process, possible values are @ref BattlenetRpcErrorCode
+     // the result of the authentication process, possible values are @ref BattlenetRpcErrorCode
     public AuthResponse() : base(ServerOpcodes.AuthResponse) { }
 
     public override void Write()
@@ -105,34 +106,50 @@ internal class AuthResponse : ServerPacket
 
     public class AuthSuccessInfo
     {
+        public byte AccountExpansionLevel;
         public byte ActiveExpansionLevel;  // the current server expansion, the possible values are in @ref Expansions
-        public byte AccountExpansionLevel; // the current expansion of this account, the possible values are in @ref Expansions
-        public uint TimeRested;            // affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
+        public List<RaceClassAvailability> AvailableClasses;
 
-        public uint VirtualRealmAddress;    // a special identifier made from the Index, BattleGroup and Region. @todo implement
-        public uint TimeSecondsUntilPCKick; // @todo research
-        public uint CurrencyID;             // this is probably used for the ingame shop. @todo implement
-        public long Time;
+        public uint CurrencyID;
+
+        public long? ExpansionTrialExpiration;
+
+        public bool ForceCharacterTemplate;
 
         public GameTime GameTimeInfo;
 
-        public List<VirtualRealmInfo> VirtualRealms = new(); // list of realms connected to this one (inclusive) @todo implement
-        public List<CharacterTemplate> Templates = new();    // list of pre-made character templates. @todo implement
-
-        public List<RaceClassAvailability> AvailableClasses; // the minimum AccountExpansion required to select the classes
-
         public bool IsExpansionTrial;
-        public bool ForceCharacterTemplate;    // forces the client to always use a character template when creating a new character. @see Templates. @todo implement
-        public ushort? NumPlayersHorde;        // number of horde players in this realm. @todo implement
-        public ushort? NumPlayersAlliance;     // number of alliance players in this realm. @todo implement
-        public long? ExpansionTrialExpiration; // expansion trial expiration unix timestamp
+
+        public ushort? NumPlayersAlliance;
+
+        // the minimum AccountExpansion required to select the classes
+        // forces the client to always use a character template when creating a new character. @see Templates. @todo implement
+        public ushort? NumPlayersHorde;
+
+        public List<CharacterTemplate> Templates = new();
+
+        // this is probably used for the ingame shop. @todo implement
+        public long Time;
+
+        // the current expansion of this account, the possible values are in @ref Expansions
+        public uint TimeRested;            // affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
+
+        public uint TimeSecondsUntilPCKick;
+        public uint VirtualRealmAddress;    // a special identifier made from the Index, BattleGroup and Region. @todo implement
+                                            // @todo research
+        public List<VirtualRealmInfo> VirtualRealms = new(); // list of realms connected to this one (inclusive) @todo implement
+            // list of pre-made character templates. @todo implement
+
+        // number of horde players in this realm. @todo implement
+             // number of alliance players in this realm. @todo implement
+         // expansion trial expiration unix timestamp
 
         public struct GameTime
         {
             public uint BillingPlan;
+            public bool InGameRoom;
             public uint TimeRemain;
             public uint Unknown735;
-            public bool InGameRoom;
         }
     }
 }

@@ -11,6 +11,12 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("ban")]
 internal class BanCommands
 {
+    [Command("playeraccount", RBACPermissions.CommandBanPlayeraccount, true)]
+    private static bool HandleBanAccountByCharCommand(CommandHandler handler, string playerName, uint duration, string reason)
+    {
+        return HandleBanHelper(BanMode.Character, playerName, duration, reason, handler);
+    }
+
     [Command("account", RBACPermissions.CommandBanAccount, true)]
     private static bool HandleBanAccountCommand(CommandHandler handler, string playerName, uint duration, string reason)
     {
@@ -45,9 +51,9 @@ internal class BanCommands
                 if (duration > 0)
                 {
                     if (GetDefaultValue("ShowBanInWorld", false))
-                        Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+                        Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
                     else
-                        handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+                        handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
                 }
                 else
                 {
@@ -71,19 +77,6 @@ internal class BanCommands
 
         return true;
     }
-
-    [Command("playeraccount", RBACPermissions.CommandBanPlayeraccount, true)]
-    private static bool HandleBanAccountByCharCommand(CommandHandler handler, string playerName, uint duration, string reason)
-    {
-        return HandleBanHelper(BanMode.Character, playerName, duration, reason, handler);
-    }
-
-    [Command("ip", RBACPermissions.CommandBanIp, true)]
-    private static bool HandleBanIPCommand(CommandHandler handler, string ipAddress, uint duration, string reason)
-    {
-        return HandleBanHelper(BanMode.IP, ipAddress, duration, reason, handler);
-    }
-
     private static bool HandleBanHelper(BanMode mode, string nameOrIP, uint duration, string reason, CommandHandler handler)
     {
         if (nameOrIP.IsEmpty())
@@ -118,9 +111,9 @@ internal class BanCommands
                 if (duration > 0)
                 {
                     if (GetDefaultValue("ShowBanInWorld", false))
-                        Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.secsToTimeString(duration), reason);
+                        Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.SecsToTimeString(duration), reason);
                     else
-                        handler.SendSysMessage(CypherStrings.BanYoubanned, nameOrIP, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+                        handler.SendSysMessage(CypherStrings.BanYoubanned, nameOrIP, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
                 }
                 else
                 {
@@ -158,5 +151,11 @@ internal class BanCommands
         }
 
         return true;
+    }
+
+    [Command("ip", RBACPermissions.CommandBanIp, true)]
+    private static bool HandleBanIPCommand(CommandHandler handler, string ipAddress, uint duration, string reason)
+    {
+        return HandleBanHelper(BanMode.IP, ipAddress, duration, reason, handler);
     }
 }

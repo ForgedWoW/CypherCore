@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyInviteResponse : ClientPacket
 {
-    public byte PartyIndex;
     public bool Accept;
+    public byte PartyIndex;
     public uint? RolesDesired;
     public PartyInviteResponse(WorldPacket packet) : base(packet) { }
 

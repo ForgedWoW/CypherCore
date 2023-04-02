@@ -9,41 +9,34 @@ public class MovementForces
 {
     private readonly List<MovementForce> _forces = new();
 
-    public float ModMagnitude { get; set; } = 1.0f;
-
     public bool IsEmpty => _forces.Empty() && ModMagnitude == 1.0f;
+    public float ModMagnitude { get; set; } = 1.0f;
+    public bool Add(MovementForce newForce)
+    {
+        var movementForce = FindMovementForce(newForce.ID);
+
+        if (movementForce != null)
+            return false;
+
+        _forces.Add(newForce);
+
+        return true;
+    }
 
     public List<MovementForce> GetForces()
     {
         return _forces;
     }
-
-    public bool Add(MovementForce newForce)
-    {
-        var movementForce = FindMovementForce(newForce.ID);
-
-        if (movementForce == null)
-        {
-            _forces.Add(newForce);
-
-            return true;
-        }
-
-        return false;
-    }
-
     public bool Remove(ObjectGuid id)
     {
         var movementForce = FindMovementForce(id);
 
-        if (movementForce != null)
-        {
-            _forces.Remove(movementForce);
+        if (movementForce == null)
+            return false;
 
-            return true;
-        }
+        _forces.Remove(movementForce);
 
-        return false;
+        return true;
     }
 
     private MovementForce FindMovementForce(ObjectGuid id)

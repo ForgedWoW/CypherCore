@@ -10,17 +10,30 @@ public class UpdateTime
 {
     private readonly uint[] _updateTimeDataTable = new uint[500];
     private uint _averageUpdateTime;
+    private uint _maxUpdateTime;
+    private uint _maxUpdateTimeOfCurrentTable;
+    private uint _maxUpdateTimeOfLastTable;
+    private uint _recordedTime;
     private uint _totalUpdateTime;
     private uint _updateTimeTableIndex;
-    private uint _maxUpdateTime;
-    private uint _maxUpdateTimeOfLastTable;
-    private uint _maxUpdateTimeOfCurrentTable;
-
-    private uint _recordedTime;
-
     public uint GetAverageUpdateTime()
     {
         return _averageUpdateTime;
+    }
+
+    public uint GetLastUpdateTime()
+    {
+        return _updateTimeDataTable[_updateTimeTableIndex != 0 ? _updateTimeTableIndex - 1 : _updateTimeDataTable.Length - 1u];
+    }
+
+    public uint GetMaxUpdateTime()
+    {
+        return _maxUpdateTime;
+    }
+
+    public uint GetMaxUpdateTimeOfCurrentTable()
+    {
+        return Math.Max(_maxUpdateTimeOfCurrentTable, _maxUpdateTimeOfLastTable);
     }
 
     public uint GetTimeWeightedAverageUpdateTime()
@@ -38,20 +51,20 @@ public class UpdateTime
 
         return sum / weightsum;
     }
-
-    public uint GetMaxUpdateTime()
+    public void RecordUpdateTimeDuration(string text, uint minUpdateTime)
     {
-        return _maxUpdateTime;
+        var thisTime = Time.MSTime;
+        var diff = Time.GetMSTimeDiff(_recordedTime, thisTime);
+
+        if (diff > minUpdateTime)
+            Log.Logger.Information($"Recored Update Time of {text}: {diff}.");
+
+        _recordedTime = thisTime;
     }
 
-    public uint GetMaxUpdateTimeOfCurrentTable()
+    public void RecordUpdateTimeReset()
     {
-        return Math.Max(_maxUpdateTimeOfCurrentTable, _maxUpdateTimeOfLastTable);
-    }
-
-    public uint GetLastUpdateTime()
-    {
-        return _updateTimeDataTable[_updateTimeTableIndex != 0 ? _updateTimeTableIndex - 1 : _updateTimeDataTable.Length - 1u];
+        _recordedTime = Time.MSTime;
     }
 
     public void UpdateWithDiff(uint diff)
@@ -77,39 +90,17 @@ public class UpdateTime
         else if (_updateTimeTableIndex != 0)
             _averageUpdateTime = _totalUpdateTime / _updateTimeTableIndex;
     }
-
-    public void RecordUpdateTimeReset()
-    {
-        _recordedTime = Time.MSTime;
-    }
-
-    public void RecordUpdateTimeDuration(string text, uint minUpdateTime)
-    {
-        var thisTime = Time.MSTime;
-        var diff = Time.GetMSTimeDiff(_recordedTime, thisTime);
-
-        if (diff > minUpdateTime)
-            Log.Logger.Information($"Recored Update Time of {text}: {diff}.");
-
-        _recordedTime = thisTime;
-    }
 }
 
 public class WorldUpdateTime : UpdateTime
 {
+    private uint _lastRecordTime;
     private uint _recordUpdateTimeInverval;
     private uint _recordUpdateTimeMin;
-    private uint _lastRecordTime;
-
     public void LoadFromConfig()
     {
         _recordUpdateTimeInverval = ConfigMgr.GetDefaultValue("RecordUpdateTimeDiffInterval", 60000u);
         _recordUpdateTimeMin = ConfigMgr.GetDefaultValue("MinRecordUpdateTimeDiff", 100u);
-    }
-
-    public void SetRecordUpdateTimeInterval(uint t)
-    {
-        _recordUpdateTimeInverval = t;
     }
 
     public void RecordUpdateTime(uint gameTimeMs, uint diff, uint sessionCount)
@@ -125,5 +116,10 @@ public class WorldUpdateTime : UpdateTime
     public void RecordUpdateTimeDuration(string text)
     {
         RecordUpdateTimeDuration(text, _recordUpdateTimeMin);
+    }
+
+    public void SetRecordUpdateTimeInterval(uint t)
+    {
+        _recordUpdateTimeInverval = t;
     }
 }

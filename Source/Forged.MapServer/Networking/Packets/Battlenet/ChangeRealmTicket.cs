@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 internal class ChangeRealmTicket : ClientPacket
 {
-    public uint Token;
     public Array<byte> Secret = new(32);
+    public uint Token;
     public ChangeRealmTicket(WorldPacket packet) : base(packet) { }
 
     public override void Read()

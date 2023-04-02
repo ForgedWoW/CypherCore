@@ -22,9 +22,8 @@ public class LanguageManager
     };
 
     private readonly CliDB _cliDB;
-    private readonly SpellManager _spellManager;
-
     private readonly MultiMap<uint, LanguageDesc> _langsMap = new();
+    private readonly SpellManager _spellManager;
     private readonly MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
 
     public LanguageManager(CliDB cliDB, SpellManager spellManager)
@@ -33,10 +32,23 @@ public class LanguageManager
         _spellManager = spellManager;
     }
 
-    public void LoadSpellEffectLanguage(SpellEffectRecord spellEffect)
+    public bool ForEachLanguage(Func<uint, LanguageDesc, bool> callback)
     {
-        var languageId = (uint)spellEffect.EffectMiscValue[0];
-        _langsMap.Add(languageId, new LanguageDesc(spellEffect.SpellID, 0)); // register without a skill id for now
+        foreach (var pair in _langsMap.KeyValueList)
+            if (!callback(pair.Key, pair.Value))
+                return false;
+
+        return true;
+    }
+
+    public List<LanguageDesc> GetLanguageDescById(Language languageId)
+    {
+        return _langsMap.LookupByKey((uint)languageId);
+    }
+
+    public bool IsLanguageExist(Language languageId)
+    {
+        return _cliDB.LanguagesStorage.HasRecord((uint)languageId);
     }
 
     public void LoadLanguages()
@@ -98,6 +110,11 @@ public class LanguageManager
         Log.Logger.Information($"Loaded {_wordsMap.Count} word groups from {wordsNum} words in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
+    public void LoadSpellEffectLanguage(SpellEffectRecord spellEffect)
+    {
+        var languageId = (uint)spellEffect.EffectMiscValue[0];
+        _langsMap.Add(languageId, new LanguageDesc(spellEffect.SpellID, 0)); // register without a skill id for now
+    }
     public string Translate(string msg, uint language, Locale locale)
     {
         var textToTranslate = StripHyperlinks(msg);
@@ -157,29 +174,47 @@ public class LanguageManager
 
         return result;
     }
-
-    public bool IsLanguageExist(Language languageId)
+    private static char upper_backslash(char c)
     {
-        return _cliDB.LanguagesStorage.HasRecord((uint)languageId);
-    }
-
-    public List<LanguageDesc> GetLanguageDescById(Language languageId)
-    {
-        return _langsMap.LookupByKey((uint)languageId);
-    }
-
-    public bool ForEachLanguage(Func<uint, LanguageDesc, bool> callback)
-    {
-        foreach (var pair in _langsMap.KeyValueList)
-            if (!callback(pair.Key, pair.Value))
-                return false;
-
-        return true;
+        return c == '/' ? '\\' : char.ToUpper(c);
     }
 
     private List<string> FindWordGroup(uint language, uint wordLen)
     {
         return _wordsMap.LookupByKey(Tuple.Create(language, (byte)wordLen));
+    }
+
+    private void ReplaceUntranslatableCharactersWithSpace(ref string text)
+    {
+        var chars = text.ToCharArray();
+
+        for (var i = 0; i < text.Length; ++i)
+        {
+            var w = chars[i];
+
+            if (!Extensions.isExtendedLatinCharacter(w) && !char.IsNumber(w) && w <= 0xFF && w != '\\')
+                chars[i] = ' ';
+        }
+
+        text = new string(chars);
+    }
+
+    private uint SStrHash(string str, bool caseInsensitive, uint seed = 0x7FED7FED)
+    {
+        var shift = 0xEEEEEEEE;
+
+        for (var i = 0; i < str.Length; ++i)
+        {
+            var c = str[i];
+
+            if (caseInsensitive)
+                c = upper_backslash(c);
+
+            seed = (SHashtable[c >> 4] - SHashtable[c & 0xF]) ^ (shift + seed);
+            shift = c + seed + 33 * shift + 3;
+        }
+
+        return seed != 0 ? seed : 1;
     }
 
     private string StripHyperlinks(string source)
@@ -243,43 +278,5 @@ public class LanguageManager
         }
 
         return new string(destChar, 0, destSize);
-    }
-
-    private void ReplaceUntranslatableCharactersWithSpace(ref string text)
-    {
-        var chars = text.ToCharArray();
-
-        for (var i = 0; i < text.Length; ++i)
-        {
-            var w = chars[i];
-
-            if (!Extensions.isExtendedLatinCharacter(w) && !char.IsNumber(w) && w <= 0xFF && w != '\\')
-                chars[i] = ' ';
-        }
-
-        text = new string(chars);
-    }
-
-    private static char upper_backslash(char c)
-    {
-        return c == '/' ? '\\' : char.ToUpper(c);
-    }
-
-    private uint SStrHash(string str, bool caseInsensitive, uint seed = 0x7FED7FED)
-    {
-        var shift = 0xEEEEEEEE;
-
-        for (var i = 0; i < str.Length; ++i)
-        {
-            var c = str[i];
-
-            if (caseInsensitive)
-                c = upper_backslash(c);
-
-            seed = (SHashtable[c >> 4] - SHashtable[c & 0xF]) ^ (shift + seed);
-            shift = c + seed + 33 * shift + 3;
-        }
-
-        return seed != 0 ? seed : 1;
     }
 }

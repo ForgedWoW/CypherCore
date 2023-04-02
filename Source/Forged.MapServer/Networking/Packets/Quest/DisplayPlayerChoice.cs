@@ -10,19 +10,19 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class DisplayPlayerChoice : ServerPacket
 {
-    public ObjectGuid SenderGUID;
     public int ChoiceID;
-    public int UiTextureKitID;
-    public uint SoundKitID;
-    public uint CloseUISoundKitID;
-    public byte NumRerolls;
-    public long Duration;
-    public string Question;
-    public string PendingChoiceText;
-    public List<PlayerChoiceResponse> Responses = new();
     public bool CloseChoiceFrame;
+    public uint CloseUISoundKitID;
+    public long Duration;
     public bool HideWarboardHeader;
     public bool KeepOpenAfterChoice;
+    public byte NumRerolls;
+    public string PendingChoiceText;
+    public string Question;
+    public List<PlayerChoiceResponse> Responses = new();
+    public ObjectGuid SenderGUID;
+    public uint SoundKitID;
+    public int UiTextureKitID;
     public DisplayPlayerChoice() : base(ServerOpcodes.DisplayPlayerChoice) { }
 
     public override void Write()

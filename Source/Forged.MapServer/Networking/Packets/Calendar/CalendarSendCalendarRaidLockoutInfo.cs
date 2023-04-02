@@ -5,6 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal struct CalendarSendCalendarRaidLockoutInfo
 {
+    public uint DifficultyID;
+
+    public int ExpireTime;
+
+    public ulong InstanceID;
+
+    public int MapID;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(InstanceID);
@@ -12,9 +20,4 @@ internal struct CalendarSendCalendarRaidLockoutInfo
         data.WriteUInt32(DifficultyID);
         data.WriteInt32(ExpireTime);
     }
-
-    public ulong InstanceID;
-    public int MapID;
-    public uint DifficultyID;
-    public int ExpireTime;
 }

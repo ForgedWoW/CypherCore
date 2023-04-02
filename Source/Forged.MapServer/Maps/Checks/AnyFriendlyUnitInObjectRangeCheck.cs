@@ -10,13 +10,12 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
 {
-    private readonly WorldObject _obj;
     private readonly Unit _funit;
-    private readonly float _range;
-    private readonly bool _playerOnly;
     private readonly bool _incOwnRadius;
     private readonly bool _incTargetRadius;
-
+    private readonly WorldObject _obj;
+    private readonly bool _playerOnly;
+    private readonly float _range;
     public AnyFriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         _obj = obj;

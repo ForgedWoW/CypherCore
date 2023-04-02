@@ -29,20 +29,43 @@ public class AchievementManager : CriteriaHandler
 
     public ICollection<uint> CompletedAchievementIds => CompletedAchievements.Keys;
 
-    /// <summary>
-    ///     called at player login. The player might have fulfilled some achievements when the achievement system wasn't working yet
-    /// </summary>
-    /// <param name="referencePlayer"> </param>
-    public void CheckAllAchievementCriteria(Player referencePlayer)
+    public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer)
     {
-        // suppress sending packets
-        for (CriteriaType i = 0; i < CriteriaType.Count; ++i)
-            UpdateCriteria(i, 0, 0, 0, null, referencePlayer);
+        var achievement = tree.Achievement;
+
+        if (achievement == null)
+            return;
+
+        // check again the completeness for SUMM and REQ COUNT achievements,
+        // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
+        if (achievement.Flags.HasAnyFlag(AchievementFlags.Summ))
+            if (IsCompletedAchievement(achievement))
+                CompletedAchievement(achievement, referencePlayer);
+
+        var achRefList = Global.AchievementMgr.GetAchievementByReferencedId(achievement.Id);
+
+        foreach (var refAchievement in achRefList)
+            if (IsCompletedAchievement(refAchievement))
+                CompletedAchievement(refAchievement, referencePlayer);
     }
 
-    public bool HasAchieved(uint achievementId)
+    public override bool CanCompleteCriteriaTree(CriteriaTree tree)
     {
-        return CompletedAchievements.ContainsKey(achievementId);
+        var achievement = tree.Achievement;
+
+        if (achievement == null)
+            return false;
+
+        // counter can never complete
+        if (achievement.Flags.HasAnyFlag(AchievementFlags.Counter))
+            return false;
+
+        if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
+            // someone on this realm has already completed that achievement
+            if (Global.AchievementMgr.IsRealmCompleted(achievement))
+                return false;
+
+        return true;
     }
 
     public override bool CanUpdateCriteriaTree(Criteria criteria, CriteriaTree tree, Player referencePlayer)
@@ -98,24 +121,18 @@ public class AchievementManager : CriteriaHandler
         return base.CanUpdateCriteriaTree(criteria, tree, referencePlayer);
     }
 
-    public override bool CanCompleteCriteriaTree(CriteriaTree tree)
+    /// <summary>
+    ///     called at player login. The player might have fulfilled some achievements when the achievement system wasn't working yet
+    /// </summary>
+    /// <param name="referencePlayer"> </param>
+    public void CheckAllAchievementCriteria(Player referencePlayer)
     {
-        var achievement = tree.Achievement;
-
-        if (achievement == null)
-            return false;
-
-        // counter can never complete
-        if (achievement.Flags.HasAnyFlag(AchievementFlags.Counter))
-            return false;
-
-        if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
-            // someone on this realm has already completed that achievement
-            if (Global.AchievementMgr.IsRealmCompleted(achievement))
-                return false;
-
-        return true;
+        // suppress sending packets
+        for (CriteriaType i = 0; i < CriteriaType.Count; ++i)
+            UpdateCriteria(i, 0, 0, 0, null, referencePlayer);
     }
+
+    public virtual void CompletedAchievement(AchievementRecord entry, Player referencePlayer) { }
 
     public override void CompletedCriteriaTree(CriteriaTree tree, Player referencePlayer)
     {
@@ -136,33 +153,14 @@ public class AchievementManager : CriteriaHandler
             CompletedAchievement(achievement, referencePlayer);
     }
 
-    public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer)
+    public bool HasAchieved(uint achievementId)
     {
-        var achievement = tree.Achievement;
-
-        if (achievement == null)
-            return;
-
-        // check again the completeness for SUMM and REQ COUNT achievements,
-        // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
-        if (achievement.Flags.HasAnyFlag(AchievementFlags.Summ))
-            if (IsCompletedAchievement(achievement))
-                CompletedAchievement(achievement, referencePlayer);
-
-        var achRefList = Global.AchievementMgr.GetAchievementByReferencedId(achievement.Id);
-
-        foreach (var refAchievement in achRefList)
-            if (IsCompletedAchievement(refAchievement))
-                CompletedAchievement(refAchievement, referencePlayer);
+        return CompletedAchievements.ContainsKey(achievementId);
     }
-
     public override bool RequiredAchievementSatisfied(uint achievementId)
     {
         return HasAchieved(achievementId);
     }
-
-    public virtual void CompletedAchievement(AchievementRecord entry, Player referencePlayer) { }
-
     private bool IsCompletedAchievement(AchievementRecord entry)
     {
         // counter can never complete

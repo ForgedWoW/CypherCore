@@ -11,13 +11,6 @@ public class UpdateFieldHolder
 
     public UpdateFieldHolder(WorldObject owner) { }
 
-    public BaseUpdateData<T> ModifyValue<T>(BaseUpdateData<T> updateData)
-    {
-        _changesMask.Set(updateData.Bit);
-
-        return updateData;
-    }
-
     public void ClearChangesMask<T>(BaseUpdateData<T> updateData)
     {
         _changesMask.Reset(updateData.Bit);
@@ -41,5 +34,12 @@ public class UpdateFieldHolder
     public bool HasChanged(TypeId index)
     {
         return _changesMask[(int)index];
+    }
+
+    public BaseUpdateData<T> ModifyValue<T>(BaseUpdateData<T> updateData)
+    {
+        _changesMask.Set(updateData.Bit);
+
+        return updateData;
     }
 }

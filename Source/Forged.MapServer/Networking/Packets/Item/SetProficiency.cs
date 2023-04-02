@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class SetProficiency : ServerPacket
 {
-    public uint ProficiencyMask;
     public byte ProficiencyClass;
+    public uint ProficiencyMask;
     public SetProficiency() : base(ServerOpcodes.SetProficiency, ConnectionType.Instance) { }
 
     public override void Write()

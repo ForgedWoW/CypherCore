@@ -8,11 +8,11 @@ namespace Forged.MapServer.DataStorage;
 
 internal class UiMapAssignmentStatus
 {
-    public UiMapAssignmentRecord UiMapAssignment;
-    public InsideStruct Inside;
-    public OutsideStruct Outside;
-    public sbyte MapPriority;
     public sbyte AreaPriority;
+    public InsideStruct Inside;
+    public sbyte MapPriority;
+    public OutsideStruct Outside;
+    public UiMapAssignmentRecord UiMapAssignment;
     public sbyte WmoPriority;
 
     public UiMapAssignmentStatus()
@@ -150,15 +150,15 @@ internal class UiMapAssignmentStatus
     // distances if inside
     public class InsideStruct
     {
-        public float DistanceToRegionCenterSquared = float.MaxValue;
         public float DistanceToRegionBottom = float.MaxValue;
+        public float DistanceToRegionCenterSquared = float.MaxValue;
     }
 
     // distances if outside
     public class OutsideStruct
     {
+        public float DistanceToRegionBottom = float.MaxValue;
         public float DistanceToRegionEdgeSquared = float.MaxValue;
         public float DistanceToRegionTop = float.MaxValue;
-        public float DistanceToRegionBottom = float.MaxValue;
     }
 }

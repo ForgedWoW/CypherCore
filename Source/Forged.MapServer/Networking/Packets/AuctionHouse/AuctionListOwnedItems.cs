@@ -11,9 +11,8 @@ internal class AuctionListOwnedItems : ClientPacket
 {
     public ObjectGuid Auctioneer;
     public uint Offset;
-    public AddOnInfo? TaintedBy;
     public Array<AuctionSortDef> Sorts = new(2);
-
+    public AddOnInfo? TaintedBy;
     public AuctionListOwnedItems(WorldPacket packet) : base(packet) { }
 
     public override void Read()

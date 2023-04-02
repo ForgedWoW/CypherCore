@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class DungeonScoreMapData
 {
-    public int MapChallengeModeID;
     public List<DungeonScoreBestRunForAffix> BestRuns = new();
+    public int MapChallengeModeID;
     public float OverAllScore;
 
     public void Write(WorldPacket data)

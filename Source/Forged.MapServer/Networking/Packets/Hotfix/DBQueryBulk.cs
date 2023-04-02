@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Hotfix;
 
 internal class DBQueryBulk : ClientPacket
 {
-    public uint TableHash;
     public List<DBQueryRecord> Queries = new();
+    public uint TableHash;
     public DBQueryBulk(WorldPacket packet) : base(packet) { }
 
     public override void Read()
@@ -23,11 +23,11 @@ internal class DBQueryBulk : ClientPacket
 
     public struct DBQueryRecord
     {
+        public uint RecordID;
+
         public DBQueryRecord(uint recordId)
         {
             RecordID = recordId;
         }
-
-        public uint RecordID;
     }
 }

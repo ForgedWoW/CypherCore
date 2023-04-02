@@ -10,21 +10,21 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverRequestItems : ServerPacket
 {
-    public ObjectGuid QuestGiverGUID;
-    public uint QuestGiverCreatureID;
-    public uint QuestID;
+    public bool AutoLaunched;
+    public List<QuestObjectiveCollect> Collect = new();
     public uint CompEmoteDelay;
     public uint CompEmoteType;
-    public bool AutoLaunched;
-    public uint SuggestPartyMembers;
-    public int MoneyToGet;
-    public List<QuestObjectiveCollect> Collect = new();
-    public List<QuestCurrency> Currency = new();
-    public int StatusFlags;
-    public uint[] QuestFlags = new uint[3];
-    public string QuestTitle = "";
     public string CompletionText = "";
     public List<ConditionalQuestText> ConditionalCompletionText = new();
+    public List<QuestCurrency> Currency = new();
+    public int MoneyToGet;
+    public uint[] QuestFlags = new uint[3];
+    public uint QuestGiverCreatureID;
+    public ObjectGuid QuestGiverGUID;
+    public uint QuestID;
+    public string QuestTitle = "";
+    public int StatusFlags;
+    public uint SuggestPartyMembers;
     public QuestGiverRequestItems() : base(ServerOpcodes.QuestGiverRequestItems) { }
 
     public override void Write()

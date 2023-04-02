@@ -10,12 +10,11 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 internal class AuctionListItemsByBucketKey : ClientPacket
 {
     public ObjectGuid Auctioneer;
-    public uint Offset;
-    public sbyte Unknown830;
-    public AddOnInfo? TaintedBy;
-    public Array<AuctionSortDef> Sorts = new(2);
     public AuctionBucketKey BucketKey;
-
+    public uint Offset;
+    public Array<AuctionSortDef> Sorts = new(2);
+    public AddOnInfo? TaintedBy;
+    public sbyte Unknown830;
     public AuctionListItemsByBucketKey(WorldPacket packet) : base(packet) { }
 
     public override void Read()

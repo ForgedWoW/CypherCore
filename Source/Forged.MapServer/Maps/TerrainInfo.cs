@@ -19,17 +19,18 @@ namespace Forged.MapServer.Maps;
 public class TerrainInfo
 {
     private static readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(1);
-    private readonly uint _mapId;
-    private readonly bool _keepLoaded = false;
     private readonly List<TerrainInfo> _childTerrain = new();
-    private readonly object _loadLock = new();
-    private readonly GridMap[][] _gridMap = new GridMap[MapConst.MaxGrids][];
-    private readonly ushort[][] _referenceCountFromMap = new ushort[MapConst.MaxGrids][];
-    private readonly BitSet _loadedGrids = new(MapConst.MaxGrids * MapConst.MaxGrids);
-    private readonly BitSet _gridFileExists = new(MapConst.MaxGrids * MapConst.MaxGrids); // cache what grids are available for this map (not including parent/child maps)
-
     // global garbage collection timer
     private readonly TimeTracker _cleanupTimer;
+
+    private readonly BitSet _gridFileExists = new(MapConst.MaxGrids * MapConst.MaxGrids);
+    private readonly GridMap[][] _gridMap = new GridMap[MapConst.MaxGrids][];
+    private readonly bool _keepLoaded = false;
+    private readonly BitSet _loadedGrids = new(MapConst.MaxGrids * MapConst.MaxGrids);
+    private readonly object _loadLock = new();
+    private readonly uint _mapId;
+    private readonly ushort[][] _referenceCountFromMap = new ushort[MapConst.MaxGrids][];
+     // cache what grids are available for this map (not including parent/child maps)
     private TerrainInfo _parentTerrain;
 
     public TerrainInfo(uint mapId, bool keeLoaded)
@@ -43,41 +44,6 @@ public class TerrainInfo
             _gridMap[i] = new GridMap[MapConst.MaxGrids];
             _referenceCountFromMap[i] = new ushort[MapConst.MaxGrids];
         }
-    }
-
-    public string GetMapName()
-    {
-        return CliDB.MapStorage.LookupByKey(GetId()).MapName[Global.WorldMgr.DefaultDbcLocale];
-    }
-
-    public void DiscoverGridMapFiles()
-    {
-        var tileListName = $"{Global.WorldMgr.DataPath}/maps/{GetId():D4}.tilelist";
-
-        // tile list is optional
-        if (File.Exists(tileListName))
-        {
-            using var reader = new BinaryReader(new FileStream(tileListName, FileMode.Open, FileAccess.Read));
-            var mapMagic = reader.ReadUInt32();
-            var versionMagic = reader.ReadUInt32();
-
-            if (mapMagic == MapConst.MapMagic && versionMagic == MapConst.MapVersionMagic)
-            {
-                var build = reader.ReadUInt32();
-                var tilesData = reader.ReadArray<byte>(MapConst.MaxGrids * MapConst.MaxGrids);
-                Array.Reverse(tilesData);
-
-                for (var gx = 0; gx < MapConst.MaxGrids; ++gx)
-                    for (var gy = 0; gy < MapConst.MaxGrids; ++gy)
-                        _gridFileExists[GetBitsetIndex(gx, gy)] = tilesData[GetBitsetIndex(gx, gy)] == 49; // char of 1
-
-                return;
-            }
-        }
-
-        for (var gx = 0; gx < MapConst.MaxGrids; ++gx)
-            for (var gy = 0; gy < MapConst.MaxGrids; ++gy)
-                _gridFileExists[GetBitsetIndex(gx, gy)] = ExistMap(GetId(), gx, gy, false);
     }
 
     public static bool ExistMap(uint mapid, int gx, int gy, bool log = true)
@@ -150,154 +116,15 @@ public class TerrainInfo
         return true;
     }
 
-    public bool HasChildTerrainGridFile(uint mapId, int gx, int gy)
+    public static bool IsInWMOInterior(uint mogpFlags)
     {
-        var childMap = _childTerrain.Find(childTerrain => childTerrain.GetId() == mapId);
-
-        return childMap != null && childMap._gridFileExists[GetBitsetIndex(gx, gy)];
+        return (mogpFlags & 0x2000) != 0;
     }
 
     public void AddChildTerrain(TerrainInfo childTerrain)
     {
         childTerrain._parentTerrain = this;
         _childTerrain.Add(childTerrain);
-    }
-
-    public void LoadMapAndVMap(int gx, int gy)
-    {
-        if (++_referenceCountFromMap[gx][gy] != 1) // check if already loaded
-            return;
-
-        lock (_loadLock)
-        {
-            LoadMapAndVMapImpl(gx, gy);
-        }
-    }
-
-    public void LoadMapAndVMapImpl(int gx, int gy)
-    {
-        LoadMap(gx, gy);
-        LoadVMap(gx, gy);
-        LoadMMap(gx, gy);
-
-        foreach (var childTerrain in _childTerrain)
-            childTerrain.LoadMapAndVMapImpl(gx, gy);
-
-        _loadedGrids[GetBitsetIndex(gx, gy)] = true;
-    }
-
-    public void LoadMap(int gx, int gy)
-    {
-        if (_gridMap[gx][gy] != null)
-            return;
-
-        if (!_gridFileExists[GetBitsetIndex(gx, gy)])
-            return;
-
-        // map file name
-        var fileName = $"{Global.WorldMgr.DataPath}/maps/{GetId():D4}_{gx:D2}_{gy:D2}.map";
-        Log.Logger.Information($"Loading map {fileName}");
-
-        // loading data
-        GridMap gridMap = new();
-        var gridMapLoadResult = gridMap.LoadData(fileName);
-
-        if (gridMapLoadResult == LoadResult.Success)
-            _gridMap[gx][gy] = gridMap;
-        else
-            _gridFileExists[GetBitsetIndex(gx, gy)] = false;
-
-        if (gridMapLoadResult == LoadResult.ReadFromFileFailed)
-            Log.Logger.Error($"Error loading map file: {fileName}");
-    }
-
-    public void LoadVMap(int gx, int gy)
-    {
-        if (!Global.VMapMgr.IsMapLoadingEnabled)
-            return;
-
-        // x and y are swapped !!
-        var vmapLoadResult = Global.VMapMgr.LoadMap(GetId(), gx, gy);
-
-        switch (vmapLoadResult)
-        {
-            case LoadResult.Success:
-                Log.Logger.Debug($"VMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
-
-                break;
-            case LoadResult.VersionMismatch:
-            case LoadResult.ReadFromFileFailed:
-                Log.Logger.Error($"Could not load VMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
-
-                break;
-            case LoadResult.DisabledInConfig:
-                Log.Logger.Debug($"Ignored VMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
-
-                break;
-        }
-    }
-
-    public void LoadMMap(int gx, int gy)
-    {
-        if (!Global.DisableMgr.IsPathfindingEnabled(GetId()))
-            return;
-
-        var mmapLoadResult = Global.MMapMgr.LoadMap(Global.WorldMgr.DataPath, GetId(), gx, gy);
-
-        if (mmapLoadResult)
-            Log.Logger.Debug($"MMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");
-        else
-            Log.Logger.Warning($"Could not load MMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");
-    }
-
-    public void UnloadMap(int gx, int gy)
-    {
-        if (_keepLoaded)
-            return;
-
-        --_referenceCountFromMap[gx][gy];
-        // unload later
-    }
-
-    public void UnloadMapImpl(int gx, int gy)
-    {
-        if (_keepLoaded)
-            return;
-
-        _gridMap[gx][gy] = null;
-        Global.VMapMgr.UnloadMap(GetId(), gx, gy);
-        Global.MMapMgr.UnloadMap(GetId(), gx, gy);
-
-        foreach (var childTerrain in _childTerrain)
-            childTerrain.UnloadMapImpl(gx, gy);
-
-        _loadedGrids[GetBitsetIndex(gx, gy)] = false;
-    }
-
-    public GridMap GetGrid(uint mapId, float x, float y, bool loadIfMissing = true)
-    {
-        // half opt method
-        var gx = (int)(MapConst.CenterGridId - x / MapConst.SizeofGrids); //grid x
-        var gy = (int)(MapConst.CenterGridId - y / MapConst.SizeofGrids); //grid y
-
-        // ensure GridMap is loaded
-        if (!_loadedGrids[GetBitsetIndex(gx, gy)] && loadIfMissing)
-            lock (_loadLock)
-            {
-                LoadMapAndVMapImpl(gx, gy);
-            }
-
-        var grid = _gridMap[gx][gy];
-
-        if (mapId != GetId())
-        {
-            var childMap = _childTerrain.Find(childTerrain => childTerrain.GetId() == mapId);
-
-            if (childMap != null && childMap._gridMap[gx][gy] != null)
-                grid = childMap.GetGrid(mapId, x, y, false);
-        }
-
-        return grid;
     }
 
     public void CleanUpGrids(uint diff)
@@ -319,9 +146,147 @@ public class TerrainInfo
         _cleanupTimer.Reset(_cleanupInterval);
     }
 
-    public static bool IsInWMOInterior(uint mogpFlags)
+    public void DiscoverGridMapFiles()
     {
-        return (mogpFlags & 0x2000) != 0;
+        var tileListName = $"{Global.WorldMgr.DataPath}/maps/{GetId():D4}.tilelist";
+
+        // tile list is optional
+        if (File.Exists(tileListName))
+        {
+            using var reader = new BinaryReader(new FileStream(tileListName, FileMode.Open, FileAccess.Read));
+            var mapMagic = reader.ReadUInt32();
+            var versionMagic = reader.ReadUInt32();
+
+            if (mapMagic == MapConst.MapMagic && versionMagic == MapConst.MapVersionMagic)
+            {
+                var build = reader.ReadUInt32();
+                var tilesData = reader.ReadArray<byte>(MapConst.MaxGrids * MapConst.MaxGrids);
+                Array.Reverse(tilesData);
+
+                for (var gx = 0; gx < MapConst.MaxGrids; ++gx)
+                    for (var gy = 0; gy < MapConst.MaxGrids; ++gy)
+                        _gridFileExists[GetBitsetIndex(gx, gy)] = tilesData[GetBitsetIndex(gx, gy)] == 49; // char of 1
+
+                return;
+            }
+        }
+
+        for (var gx = 0; gx < MapConst.MaxGrids; ++gx)
+            for (var gy = 0; gy < MapConst.MaxGrids; ++gy)
+                _gridFileExists[GetBitsetIndex(gx, gy)] = ExistMap(GetId(), gx, gy, false);
+    }
+
+    public uint GetAreaId(PhaseShift phaseShift, uint mapId, Position pos, DynamicMapTree dynamicMapTree = null)
+    {
+        return GetAreaId(phaseShift, mapId, pos.X, pos.Y, pos.Z, dynamicMapTree);
+    }
+
+    public uint GetAreaId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
+    {
+        var vmapZ = z;
+        var hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, vmapZ, out var mogpFlags, out var adtId, out var rootId, out var groupId, dynamicMapTree);
+
+        uint gridAreaId = 0;
+        var gridMapHeight = MapConst.InvalidHeight;
+        var gmap = GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y);
+
+        if (gmap != null)
+        {
+            gridAreaId = gmap.GetArea(x, y);
+            gridMapHeight = gmap.GetHeight(x, y);
+        }
+
+        uint areaId = 0;
+
+        // floor is the height we are closer to (but only if above)
+        if (hasVmapArea && MathFunctions.fuzzyGe(z, vmapZ - MapConst.GroundHeightTolerance) && (MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || vmapZ > gridMapHeight))
+        {
+            // wmo found
+            var wmoEntry = Global.DB2Mgr.GetWMOAreaTable(rootId, adtId, groupId);
+
+            if (wmoEntry != null)
+                areaId = wmoEntry.AreaTableID;
+
+            if (areaId == 0)
+                areaId = gridAreaId;
+        }
+        else
+        {
+            areaId = gridAreaId;
+        }
+
+        if (areaId == 0)
+            areaId = CliDB.MapStorage.LookupByKey(GetId()).AreaTableID;
+
+        return areaId;
+    }
+
+    public bool GetAreaInfo(PhaseShift phaseShift, uint mapId, float x, float y, float z, out uint mogpflags, out int adtId, out int rootId, out int groupId, DynamicMapTree dynamicMapTree = null)
+    {
+        mogpflags = 0;
+        adtId = 0;
+        rootId = 0;
+        groupId = 0;
+
+        var vmap_z = z;
+        var dynamic_z = z;
+        var check_z = z;
+        var terrainMapId = PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y);
+
+        uint dflags = 0;
+        var dadtId = 0;
+        var drootId = 0;
+        var dgroupId = 0;
+
+        var hasVmapAreaInfo = Global.VMapMgr.GetAreaInfo(terrainMapId, x, y, ref vmap_z, out var vflags, out var vadtId, out var vrootId, out var vgroupId);
+        var hasDynamicAreaInfo = dynamicMapTree?.GetAreaInfo(x, y, ref dynamic_z, phaseShift, out dflags, out dadtId, out drootId, out dgroupId) ?? false;
+
+        if (hasVmapAreaInfo)
+        {
+            if (hasDynamicAreaInfo && dynamic_z > vmap_z)
+            {
+                check_z = dynamic_z;
+                mogpflags = dflags;
+                adtId = dadtId;
+                rootId = drootId;
+                groupId = dgroupId;
+            }
+            else
+            {
+                check_z = vmap_z;
+                mogpflags = vflags;
+                adtId = vadtId;
+                rootId = vrootId;
+                groupId = vgroupId;
+            }
+        }
+        else if (hasDynamicAreaInfo)
+        {
+            check_z = dynamic_z;
+            mogpflags = dflags;
+            adtId = dadtId;
+            rootId = drootId;
+            groupId = dgroupId;
+        }
+
+        if (hasVmapAreaInfo || hasDynamicAreaInfo)
+        {
+            // check if there's terrain between player height and object height
+            var gmap = GetGrid(terrainMapId, x, y);
+
+            if (gmap != null)
+            {
+                var mapHeight = gmap.GetHeight(x, y);
+
+                // z + 2.0f condition taken from GetHeight(), not sure if it's such a great choice...
+                if (z + 2.0f > mapHeight && mapHeight > check_z)
+                    return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public void GetFullTerrainStatusForPosition(PhaseShift phaseShift, uint mapId, float x, float y, float z, PositionFullTerrainStatus data, LiquidHeaderTypeFlags reqLiquidType = LiquidHeaderTypeFlags.AllLiquids, float collisionHeight = MapConst.DefaultCollesionHeight, DynamicMapTree dynamicMapTree = null)
@@ -491,6 +456,47 @@ public class TerrainInfo
         }
     }
 
+    public GridMap GetGrid(uint mapId, float x, float y, bool loadIfMissing = true)
+    {
+        // half opt method
+        var gx = (int)(MapConst.CenterGridId - x / MapConst.SizeofGrids); //grid x
+        var gy = (int)(MapConst.CenterGridId - y / MapConst.SizeofGrids); //grid y
+
+        // ensure GridMap is loaded
+        if (!_loadedGrids[GetBitsetIndex(gx, gy)] && loadIfMissing)
+            lock (_loadLock)
+            {
+                LoadMapAndVMapImpl(gx, gy);
+            }
+
+        var grid = _gridMap[gx][gy];
+
+        if (mapId != GetId())
+        {
+            var childMap = _childTerrain.Find(childTerrain => childTerrain.GetId() == mapId);
+
+            if (childMap != null && childMap._gridMap[gx][gy] != null)
+                grid = childMap.GetGrid(mapId, x, y, false);
+        }
+
+        return grid;
+    }
+
+    public float GetGridHeight(PhaseShift phaseShift, uint mapId, float x, float y)
+    {
+        var gmap = GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y);
+
+        if (gmap != null)
+            return gmap.GetHeight(x, y);
+
+        return MapConst.VMAPInvalidHeightValue;
+    }
+
+    public uint GetId()
+    {
+        return _mapId;
+    }
+
     public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, uint mapId, float x, float y, float z, LiquidHeaderTypeFlags ReqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
     {
         data = null;
@@ -598,151 +604,10 @@ public class TerrainInfo
         return result;
     }
 
-    public bool GetAreaInfo(PhaseShift phaseShift, uint mapId, float x, float y, float z, out uint mogpflags, out int adtId, out int rootId, out int groupId, DynamicMapTree dynamicMapTree = null)
+    public string GetMapName()
     {
-        mogpflags = 0;
-        adtId = 0;
-        rootId = 0;
-        groupId = 0;
-
-        var vmap_z = z;
-        var dynamic_z = z;
-        var check_z = z;
-        var terrainMapId = PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y);
-
-        uint dflags = 0;
-        var dadtId = 0;
-        var drootId = 0;
-        var dgroupId = 0;
-
-        var hasVmapAreaInfo = Global.VMapMgr.GetAreaInfo(terrainMapId, x, y, ref vmap_z, out var vflags, out var vadtId, out var vrootId, out var vgroupId);
-        var hasDynamicAreaInfo = dynamicMapTree?.GetAreaInfo(x, y, ref dynamic_z, phaseShift, out dflags, out dadtId, out drootId, out dgroupId) ?? false;
-
-        if (hasVmapAreaInfo)
-        {
-            if (hasDynamicAreaInfo && dynamic_z > vmap_z)
-            {
-                check_z = dynamic_z;
-                mogpflags = dflags;
-                adtId = dadtId;
-                rootId = drootId;
-                groupId = dgroupId;
-            }
-            else
-            {
-                check_z = vmap_z;
-                mogpflags = vflags;
-                adtId = vadtId;
-                rootId = vrootId;
-                groupId = vgroupId;
-            }
-        }
-        else if (hasDynamicAreaInfo)
-        {
-            check_z = dynamic_z;
-            mogpflags = dflags;
-            adtId = dadtId;
-            rootId = drootId;
-            groupId = dgroupId;
-        }
-
-        if (hasVmapAreaInfo || hasDynamicAreaInfo)
-        {
-            // check if there's terrain between player height and object height
-            var gmap = GetGrid(terrainMapId, x, y);
-
-            if (gmap != null)
-            {
-                var mapHeight = gmap.GetHeight(x, y);
-
-                // z + 2.0f condition taken from GetHeight(), not sure if it's such a great choice...
-                if (z + 2.0f > mapHeight && mapHeight > check_z)
-                    return false;
-            }
-
-            return true;
-        }
-
-        return false;
+        return CliDB.MapStorage.LookupByKey(GetId()).MapName[Global.WorldMgr.DefaultDbcLocale];
     }
-
-    public uint GetAreaId(PhaseShift phaseShift, uint mapId, Position pos, DynamicMapTree dynamicMapTree = null)
-    {
-        return GetAreaId(phaseShift, mapId, pos.X, pos.Y, pos.Z, dynamicMapTree);
-    }
-
-    public uint GetAreaId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
-    {
-        var vmapZ = z;
-        var hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, vmapZ, out var mogpFlags, out var adtId, out var rootId, out var groupId, dynamicMapTree);
-
-        uint gridAreaId = 0;
-        var gridMapHeight = MapConst.InvalidHeight;
-        var gmap = GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y);
-
-        if (gmap != null)
-        {
-            gridAreaId = gmap.GetArea(x, y);
-            gridMapHeight = gmap.GetHeight(x, y);
-        }
-
-        uint areaId = 0;
-
-        // floor is the height we are closer to (but only if above)
-        if (hasVmapArea && MathFunctions.fuzzyGe(z, vmapZ - MapConst.GroundHeightTolerance) && (MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || vmapZ > gridMapHeight))
-        {
-            // wmo found
-            var wmoEntry = Global.DB2Mgr.GetWMOAreaTable(rootId, adtId, groupId);
-
-            if (wmoEntry != null)
-                areaId = wmoEntry.AreaTableID;
-
-            if (areaId == 0)
-                areaId = gridAreaId;
-        }
-        else
-        {
-            areaId = gridAreaId;
-        }
-
-        if (areaId == 0)
-            areaId = CliDB.MapStorage.LookupByKey(GetId()).AreaTableID;
-
-        return areaId;
-    }
-
-    public uint GetZoneId(PhaseShift phaseShift, uint mapId, Position pos, DynamicMapTree dynamicMapTree = null)
-    {
-        return GetZoneId(phaseShift, mapId, pos.X, pos.Y, pos.Z, dynamicMapTree);
-    }
-
-    public uint GetZoneId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
-    {
-        var areaId = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
-        var area = CliDB.AreaTableStorage.LookupByKey(areaId);
-
-        if (area != null)
-            if (area.ParentAreaID != 0)
-                return area.ParentAreaID;
-
-        return areaId;
-    }
-
-    public void GetZoneAndAreaId(PhaseShift phaseShift, uint mapId, out uint zoneid, out uint areaid, Position pos, DynamicMapTree dynamicMapTree = null)
-    {
-        GetZoneAndAreaId(phaseShift, mapId, out zoneid, out areaid, pos.X, pos.Y, pos.Z, dynamicMapTree);
-    }
-
-    public void GetZoneAndAreaId(PhaseShift phaseShift, uint mapId, out uint zoneid, out uint areaid, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
-    {
-        areaid = zoneid = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
-        var area = CliDB.AreaTableStorage.LookupByKey(areaid);
-
-        if (area != null)
-            if (area.ParentAreaID != 0)
-                zoneid = area.ParentAreaID;
-    }
-
     public float GetMinHeight(PhaseShift phaseShift, uint mapId, float x, float y)
     {
         var grid = GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y);
@@ -751,16 +616,6 @@ public class TerrainInfo
             return grid.GetMinHeight(x, y);
 
         return -500.0f;
-    }
-
-    public float GetGridHeight(PhaseShift phaseShift, uint mapId, float x, float y)
-    {
-        var gmap = GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y);
-
-        if (gmap != null)
-            return gmap.GetHeight(x, y);
-
-        return MapConst.VMAPInvalidHeightValue;
     }
 
     public float GetStaticHeight(PhaseShift phaseShift, uint mapId, Position pos, bool checkVMap = true, float maxSearchDist = MapConst.DefaultHeightSearch)
@@ -817,16 +672,6 @@ public class TerrainInfo
         return 0;
     }
 
-    public bool IsInWater(PhaseShift phaseShift, uint mapId, float x, float y, float pZ, out LiquidData data)
-    {
-        return (GetLiquidStatus(phaseShift, mapId, x, y, pZ, LiquidHeaderTypeFlags.AllLiquids, out data) & (ZLiquidStatus.InWater | ZLiquidStatus.UnderWater)) != 0;
-    }
-
-    public bool IsUnderWater(PhaseShift phaseShift, uint mapId, float x, float y, float z)
-    {
-        return (GetLiquidStatus(phaseShift, mapId, x, y, z, LiquidHeaderTypeFlags.Water | LiquidHeaderTypeFlags.Ocean, out _) & ZLiquidStatus.UnderWater) != 0;
-    }
-
     public float GetWaterOrGroundLevel(PhaseShift phaseShift, uint mapId, float x, float y, float z, ref float ground, bool swim = false, float collisionHeight = MapConst.DefaultCollesionHeight, DynamicMapTree dynamicMapTree = null)
     {
         if (GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y) != null)
@@ -855,11 +700,162 @@ public class TerrainInfo
         return MapConst.VMAPInvalidHeightValue;
     }
 
-    public uint GetId()
+    public void GetZoneAndAreaId(PhaseShift phaseShift, uint mapId, out uint zoneid, out uint areaid, Position pos, DynamicMapTree dynamicMapTree = null)
     {
-        return _mapId;
+        GetZoneAndAreaId(phaseShift, mapId, out zoneid, out areaid, pos.X, pos.Y, pos.Z, dynamicMapTree);
     }
 
+    public void GetZoneAndAreaId(PhaseShift phaseShift, uint mapId, out uint zoneid, out uint areaid, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
+    {
+        areaid = zoneid = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
+        var area = CliDB.AreaTableStorage.LookupByKey(areaid);
+
+        if (area != null)
+            if (area.ParentAreaID != 0)
+                zoneid = area.ParentAreaID;
+    }
+
+    public uint GetZoneId(PhaseShift phaseShift, uint mapId, Position pos, DynamicMapTree dynamicMapTree = null)
+    {
+        return GetZoneId(phaseShift, mapId, pos.X, pos.Y, pos.Z, dynamicMapTree);
+    }
+
+    public uint GetZoneId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
+    {
+        var areaId = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
+        var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+
+        if (area != null)
+            if (area.ParentAreaID != 0)
+                return area.ParentAreaID;
+
+        return areaId;
+    }
+
+    public bool HasChildTerrainGridFile(uint mapId, int gx, int gy)
+    {
+        var childMap = _childTerrain.Find(childTerrain => childTerrain.GetId() == mapId);
+
+        return childMap != null && childMap._gridFileExists[GetBitsetIndex(gx, gy)];
+    }
+    public bool IsInWater(PhaseShift phaseShift, uint mapId, float x, float y, float pZ, out LiquidData data)
+    {
+        return (GetLiquidStatus(phaseShift, mapId, x, y, pZ, LiquidHeaderTypeFlags.AllLiquids, out data) & (ZLiquidStatus.InWater | ZLiquidStatus.UnderWater)) != 0;
+    }
+
+    public bool IsUnderWater(PhaseShift phaseShift, uint mapId, float x, float y, float z)
+    {
+        return (GetLiquidStatus(phaseShift, mapId, x, y, z, LiquidHeaderTypeFlags.Water | LiquidHeaderTypeFlags.Ocean, out _) & ZLiquidStatus.UnderWater) != 0;
+    }
+
+    public void LoadMap(int gx, int gy)
+    {
+        if (_gridMap[gx][gy] != null)
+            return;
+
+        if (!_gridFileExists[GetBitsetIndex(gx, gy)])
+            return;
+
+        // map file name
+        var fileName = $"{Global.WorldMgr.DataPath}/maps/{GetId():D4}_{gx:D2}_{gy:D2}.map";
+        Log.Logger.Information($"Loading map {fileName}");
+
+        // loading data
+        GridMap gridMap = new();
+        var gridMapLoadResult = gridMap.LoadData(fileName);
+
+        if (gridMapLoadResult == LoadResult.Success)
+            _gridMap[gx][gy] = gridMap;
+        else
+            _gridFileExists[GetBitsetIndex(gx, gy)] = false;
+
+        if (gridMapLoadResult == LoadResult.ReadFromFileFailed)
+            Log.Logger.Error($"Error loading map file: {fileName}");
+    }
+
+    public void LoadMapAndVMap(int gx, int gy)
+    {
+        if (++_referenceCountFromMap[gx][gy] != 1) // check if already loaded
+            return;
+
+        lock (_loadLock)
+        {
+            LoadMapAndVMapImpl(gx, gy);
+        }
+    }
+
+    public void LoadMapAndVMapImpl(int gx, int gy)
+    {
+        LoadMap(gx, gy);
+        LoadVMap(gx, gy);
+        LoadMMap(gx, gy);
+
+        foreach (var childTerrain in _childTerrain)
+            childTerrain.LoadMapAndVMapImpl(gx, gy);
+
+        _loadedGrids[GetBitsetIndex(gx, gy)] = true;
+    }
+    public void LoadMMap(int gx, int gy)
+    {
+        if (!Global.DisableMgr.IsPathfindingEnabled(GetId()))
+            return;
+
+        var mmapLoadResult = Global.MMapMgr.LoadMap(Global.WorldMgr.DataPath, GetId(), gx, gy);
+
+        if (mmapLoadResult)
+            Log.Logger.Debug($"MMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");
+        else
+            Log.Logger.Warning($"Could not load MMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");
+    }
+
+    public void LoadVMap(int gx, int gy)
+    {
+        if (!Global.VMapMgr.IsMapLoadingEnabled)
+            return;
+
+        // x and y are swapped !!
+        var vmapLoadResult = Global.VMapMgr.LoadMap(GetId(), gx, gy);
+
+        switch (vmapLoadResult)
+        {
+            case LoadResult.Success:
+                Log.Logger.Debug($"VMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
+
+                break;
+            case LoadResult.VersionMismatch:
+            case LoadResult.ReadFromFileFailed:
+                Log.Logger.Error($"Could not load VMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
+
+                break;
+            case LoadResult.DisabledInConfig:
+                Log.Logger.Debug($"Ignored VMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
+
+                break;
+        }
+    }
+    public void UnloadMap(int gx, int gy)
+    {
+        if (_keepLoaded)
+            return;
+
+        --_referenceCountFromMap[gx][gy];
+        // unload later
+    }
+
+    public void UnloadMapImpl(int gx, int gy)
+    {
+        if (_keepLoaded)
+            return;
+
+        _gridMap[gx][gy] = null;
+        Global.VMapMgr.UnloadMap(GetId(), gx, gy);
+        Global.MMapMgr.UnloadMap(GetId(), gx, gy);
+
+        foreach (var childTerrain in _childTerrain)
+            childTerrain.UnloadMapImpl(gx, gy);
+
+        _loadedGrids[GetBitsetIndex(gx, gy)] = false;
+    }
     private static int GetBitsetIndex(int gx, int gy)
     {
         return gx * MapConst.MaxGrids + gy;

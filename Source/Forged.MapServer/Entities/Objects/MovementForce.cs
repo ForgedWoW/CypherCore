@@ -10,11 +10,11 @@ namespace Forged.MapServer.Entities.Objects;
 
 public class MovementForce
 {
-    public ObjectGuid ID { get; set; }
-    public Vector3 Origin { get; set; }
     public Vector3 Direction { get; set; }
-    public uint TransportID { get; set; }
+    public ObjectGuid ID { get; set; }
     public float Magnitude { get; set; }
+    public Vector3 Origin { get; set; }
+    public uint TransportID { get; set; }
     public MovementForceType Type { get; set; }
     public int Unused910 { get; set; }
 

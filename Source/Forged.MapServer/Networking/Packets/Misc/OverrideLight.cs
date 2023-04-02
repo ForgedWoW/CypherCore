@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 internal class OverrideLight : ServerPacket
 {
     public uint AreaLightID;
-    public uint TransitionMilliseconds;
     public uint OverrideLightID;
+    public uint TransitionMilliseconds;
     public OverrideLight() : base(ServerOpcodes.OverrideLight) { }
 
     public override void Write()

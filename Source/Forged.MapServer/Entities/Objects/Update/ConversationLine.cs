@@ -9,12 +9,24 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ConversationLine
 {
+    public byte ActorIndex;
+    public byte ChatType;
     public uint ConversationLineID;
+    public byte Flags;
     public uint StartTime;
     public uint UiCameraID;
-    public byte ActorIndex;
-    public byte Flags;
-    public byte ChatType;
+    public uint GetViewerStartTime(ConversationLine conversationLine, Conversation conversation, Player receiver)
+    {
+        var startTime = conversationLine.StartTime;
+        var locale = receiver.Session.SessionDbLocaleIndex;
+
+        var localizedStartTime = conversation.GetLineStartTime(locale, (int)conversationLine.ConversationLineID);
+
+        if (localizedStartTime != TimeSpan.Zero)
+            startTime = (uint)localizedStartTime.TotalMilliseconds;
+
+        return startTime;
+    }
 
     public void WriteCreate(WorldPacket data, Conversation owner, Player receiver)
     {
@@ -34,18 +46,5 @@ public class ConversationLine
         data.WriteUInt8(ActorIndex);
         data.WriteUInt8(Flags);
         data.WriteUInt8(ChatType);
-    }
-
-    public uint GetViewerStartTime(ConversationLine conversationLine, Conversation conversation, Player receiver)
-    {
-        var startTime = conversationLine.StartTime;
-        var locale = receiver.Session.SessionDbLocaleIndex;
-
-        var localizedStartTime = conversation.GetLineStartTime(locale, (int)conversationLine.ConversationLineID);
-
-        if (localizedStartTime != TimeSpan.Zero)
-            startTime = (uint)localizedStartTime.TotalMilliseconds;
-
-        return startTime;
     }
 }

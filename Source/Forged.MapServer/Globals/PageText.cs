@@ -5,8 +5,8 @@ namespace Forged.MapServer.Globals;
 
 public class PageText
 {
-    public string Text;
+    public byte Flags;
     public uint NextPageID;
     public int PlayerConditionID;
-    public byte Flags;
+    public string Text;
 }

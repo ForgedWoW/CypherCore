@@ -5,17 +5,17 @@ namespace Forged.MapServer.DataStorage.Structs.G;
 
 public sealed class GarrTalentTreeRecord
 {
-    public uint Id;
-    public string Name;
-    public byte GarrTypeID;
     public int ClassID;
-    public sbyte MaxTiers;
-    public sbyte UiOrder;
-    public int Flags;
-    public ushort UiTextureKitID;
-    public int GarrTalentTreeType;
-    public int PlayerConditionID;
-    public byte FeatureTypeIndex;
-    public sbyte FeatureSubtypeIndex;
     public int CurrencyID;
+    public sbyte FeatureSubtypeIndex;
+    public byte FeatureTypeIndex;
+    public int Flags;
+    public int GarrTalentTreeType;
+    public byte GarrTypeID;
+    public uint Id;
+    public sbyte MaxTiers;
+    public string Name;
+    public int PlayerConditionID;
+    public sbyte UiOrder;
+    public ushort UiTextureKitID;
 }

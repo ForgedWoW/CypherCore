@@ -5,12 +5,13 @@ namespace Forged.MapServer.World;
 
 internal struct Autobroadcast
 {
+    public string Message;
+
+    public byte Weight;
+
     public Autobroadcast(string message, byte weight)
     {
         Message = message;
         Weight = weight;
     }
-
-    public string Message;
-    public byte Weight;
 }

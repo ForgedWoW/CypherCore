@@ -7,11 +7,16 @@ public interface ICoord
 {
     uint X_Coord { get; set; }
     uint Y_Coord { get; set; }
+    void Dec_x(uint val);
+
+    void Dec_y(uint val);
+
+    uint GetId();
+
+    void Inc_x(uint val);
+
+    void Inc_y(uint val);
+
     bool IsCoordValid();
     ICoord Normalize();
-    uint GetId();
-    void Dec_x(uint val);
-    void Inc_x(uint val);
-    void Dec_y(uint val);
-    void Inc_y(uint val);
 }

@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonPurchaseBuilding : ClientPacket
 {
-    public ObjectGuid NpcGUID;
     public uint BuildingID;
+    public ObjectGuid NpcGUID;
     public uint PlotInstanceID;
     public GarrisonPurchaseBuilding(WorldPacket packet) : base(packet) { }
 

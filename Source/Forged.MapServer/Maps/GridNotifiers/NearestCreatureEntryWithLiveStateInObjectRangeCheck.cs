@@ -10,9 +10,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 internal class NearestCreatureEntryWithLiveStateInObjectRangeCheck : ICheck<Creature>
 {
-    private readonly WorldObject _obj;
-    private readonly uint _entry;
     private readonly bool _alive;
+    private readonly uint _entry;
+    private readonly WorldObject _obj;
     private float _range;
 
     public NearestCreatureEntryWithLiveStateInObjectRangeCheck(WorldObject obj, uint entry, bool alive, float range)

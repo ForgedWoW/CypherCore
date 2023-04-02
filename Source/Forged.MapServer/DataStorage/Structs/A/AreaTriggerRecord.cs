@@ -7,19 +7,19 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class AreaTriggerRecord
 {
-    public Vector3 Pos;
-    public uint Id;
-    public ushort ContinentID;
-    public sbyte PhaseUseFlags;
-    public ushort PhaseID;
-    public ushort PhaseGroupID;
-    public float Radius;
+    public short AreaTriggerActionSetID;
+    public float BoxHeight;
     public float BoxLength;
     public float BoxWidth;
-    public float BoxHeight;
     public float BoxYaw;
-    public sbyte ShapeType;
-    public short ShapeID;
-    public short AreaTriggerActionSetID;
+    public ushort ContinentID;
     public sbyte Flags;
+    public uint Id;
+    public ushort PhaseGroupID;
+    public ushort PhaseID;
+    public sbyte PhaseUseFlags;
+    public Vector3 Pos;
+    public float Radius;
+    public short ShapeID;
+    public sbyte ShapeType;
 }

@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.Scene;
 
 internal class PlayScene : ServerPacket
 {
-    public uint SceneID;
+    public bool Encrypted;
+    public Position Location;
     public uint PlaybackFlags;
+    public uint SceneID;
     public uint SceneInstanceID;
     public uint SceneScriptPackageID;
     public ObjectGuid TransportGUID;
-    public Position Location;
-    public bool Encrypted;
     public PlayScene() : base(ServerOpcodes.PlayScene, ConnectionType.Instance) { }
 
     public override void Write()

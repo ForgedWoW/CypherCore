@@ -9,17 +9,17 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct VoiceOffAppend : IChannelAppender
 {
+    private readonly ObjectGuid _guid;
+
     public VoiceOffAppend(ObjectGuid guid)
     {
         _guid = guid;
     }
-
-    public ChatNotify GetNotificationType() => ChatNotify.VoiceOffNotice;
 
     public void Append(ChannelNotify data)
     {
         data.SenderGuid = _guid;
     }
 
-    private readonly ObjectGuid _guid;
+    public ChatNotify GetNotificationType() => ChatNotify.VoiceOffNotice;
 }

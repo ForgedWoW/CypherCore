@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionBuy : ClientPacket
 {
-    public ObjectGuid Unit;
     public string Title;
+    public ObjectGuid Unit;
     public uint Unused910;
     public PetitionBuy(WorldPacket packet) : base(packet) { }
 

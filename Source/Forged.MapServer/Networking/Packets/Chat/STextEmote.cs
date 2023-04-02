@@ -8,11 +8,11 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class STextEmote : ServerPacket
 {
-    public ObjectGuid SourceGUID;
-    public ObjectGuid SourceAccountGUID;
-    public ObjectGuid TargetGUID;
-    public int SoundIndex = -1;
     public int EmoteID;
+    public int SoundIndex = -1;
+    public ObjectGuid SourceAccountGUID;
+    public ObjectGuid SourceGUID;
+    public ObjectGuid TargetGUID;
     public STextEmote() : base(ServerOpcodes.TextEmote, ConnectionType.Instance) { }
 
     public override void Write()

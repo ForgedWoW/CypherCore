@@ -9,24 +9,23 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 public class GarrisonFollower
 {
-    public ulong DbID;
-    public uint GarrFollowerID;
-    public uint Quality;
-    public uint FollowerLevel;
-    public uint ItemLevelWeapon;
-    public uint ItemLevelArmor;
-    public uint Xp;
-    public uint Durability;
+    public List<GarrAbilityRecord> AbilityID = new();
+    public sbyte BoardIndex;
     public uint CurrentBuildingID;
     public uint CurrentMissionID;
-    public List<GarrAbilityRecord> AbilityID = new();
-    public uint ZoneSupportSpellID;
-    public uint FollowerStatus;
-    public int Health;
-    public long HealingTimestamp;
-    public sbyte BoardIndex;
     public string CustomName = "";
-
+    public ulong DbID;
+    public uint Durability;
+    public uint FollowerLevel;
+    public uint FollowerStatus;
+    public uint GarrFollowerID;
+    public long HealingTimestamp;
+    public int Health;
+    public uint ItemLevelArmor;
+    public uint ItemLevelWeapon;
+    public uint Quality;
+    public uint Xp;
+    public uint ZoneSupportSpellID;
     public void Write(WorldPacket data)
     {
         data.WriteUInt64(DbID);

@@ -6,6 +6,6 @@ namespace Forged.MapServer.Entities.Creatures;
 public class CreatureSummonedData
 {
     public uint? CreatureIdVisibleToSummoner { get; set; }
-    public uint? GroundMountDisplayId { get; set; }
     public uint? FlyingMountDisplayId { get; set; }
+    public uint? GroundMountDisplayId { get; set; }
 }

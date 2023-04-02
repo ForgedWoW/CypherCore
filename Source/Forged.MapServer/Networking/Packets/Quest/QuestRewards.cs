@@ -7,31 +7,30 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestRewards
 {
-    public uint ChoiceItemCount;
-    public uint ItemCount;
-    public uint Money;
-    public uint XP;
-    public uint ArtifactXP;
     public uint ArtifactCategoryID;
-    public uint Honor;
-    public uint Title;
-    public uint FactionFlags;
-    public int[] SpellCompletionDisplayID = new int[SharedConst.QuestRewardDisplaySpellCount];
-    public uint SpellCompletionID;
-    public uint SkillLineID;
-    public uint NumSkillUps;
-    public uint TreasurePickerID;
+    public uint ArtifactXP;
+    public uint ChoiceItemCount;
     public QuestChoiceItem[] ChoiceItems = new QuestChoiceItem[SharedConst.QuestRewardChoicesCount];
-    public uint[] ItemID = new uint[SharedConst.QuestRewardItemCount];
-    public uint[] ItemQty = new uint[SharedConst.QuestRewardItemCount];
-    public uint[] FactionID = new uint[SharedConst.QuestRewardReputationsCount];
-    public int[] FactionValue = new int[SharedConst.QuestRewardReputationsCount];
-    public int[] FactionOverride = new int[SharedConst.QuestRewardReputationsCount];
-    public int[] FactionCapIn = new int[SharedConst.QuestRewardReputationsCount];
     public uint[] CurrencyID = new uint[SharedConst.QuestRewardCurrencyCount];
     public uint[] CurrencyQty = new uint[SharedConst.QuestRewardCurrencyCount];
+    public int[] FactionCapIn = new int[SharedConst.QuestRewardReputationsCount];
+    public uint FactionFlags;
+    public uint[] FactionID = new uint[SharedConst.QuestRewardReputationsCount];
+    public int[] FactionOverride = new int[SharedConst.QuestRewardReputationsCount];
+    public int[] FactionValue = new int[SharedConst.QuestRewardReputationsCount];
+    public uint Honor;
     public bool IsBoostSpell;
-
+    public uint ItemCount;
+    public uint[] ItemID = new uint[SharedConst.QuestRewardItemCount];
+    public uint[] ItemQty = new uint[SharedConst.QuestRewardItemCount];
+    public uint Money;
+    public uint NumSkillUps;
+    public uint SkillLineID;
+    public int[] SpellCompletionDisplayID = new int[SharedConst.QuestRewardDisplaySpellCount];
+    public uint SpellCompletionID;
+    public uint Title;
+    public uint TreasurePickerID;
+    public uint XP;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(ChoiceItemCount);

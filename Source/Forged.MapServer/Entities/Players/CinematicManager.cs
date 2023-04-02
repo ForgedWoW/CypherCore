@@ -17,14 +17,6 @@ public class CinematicManager : IDisposable
     private readonly Player _player;
     private readonly Position _remoteSightPosition;
     private TempSummon _cinematicObject;
-    public uint CinematicDiff { get; set; }
-    public uint LastCinematicCheck { get; set; }
-    public CinematicSequencesRecord ActiveCinematic { get; set; }
-    public int ActiveCinematicCameraIndex { get; set; }
-    public uint CinematicLength { get; set; }
-
-    public List<FlyByCamera> CinematicCamera { get; set; }
-
     public CinematicManager(Player playerref)
     {
         _player = playerref;
@@ -32,16 +24,48 @@ public class CinematicManager : IDisposable
         _remoteSightPosition = new Position();
     }
 
+    public CinematicSequencesRecord ActiveCinematic { get; set; }
+    public int ActiveCinematicCameraIndex { get; set; }
+    public List<FlyByCamera> CinematicCamera { get; set; }
+    public uint CinematicDiff { get; set; }
+    public uint CinematicLength { get; set; }
+    public uint LastCinematicCheck { get; set; }
+    public void BeginCinematic(CinematicSequencesRecord cinematic)
+    {
+        ActiveCinematic = cinematic;
+        ActiveCinematicCameraIndex = -1;
+    }
+
     public virtual void Dispose()
     {
         if (CinematicCamera != null && ActiveCinematic != null)
             EndCinematic();
     }
-
-    public void BeginCinematic(CinematicSequencesRecord cinematic)
+    public void EndCinematic()
     {
-        ActiveCinematic = cinematic;
+        if (ActiveCinematic == null)
+            return;
+
+        CinematicDiff = 0;
+        CinematicCamera = null;
+        ActiveCinematic = null;
         ActiveCinematicCameraIndex = -1;
+
+        if (_cinematicObject)
+        {
+            var vpObject = _player.Viewpoint;
+
+            if (vpObject)
+                if (vpObject == _cinematicObject)
+                    _player.SetViewpoint(_cinematicObject, false);
+
+            _cinematicObject.Location.AddObjectToRemoveList();
+        }
+    }
+
+    public bool IsOnCinematic()
+    {
+        return CinematicCamera != null;
     }
 
     public void NextCinematicCamera()
@@ -85,29 +109,6 @@ public class CinematicManager : IDisposable
             }
         }
     }
-
-    public void EndCinematic()
-    {
-        if (ActiveCinematic == null)
-            return;
-
-        CinematicDiff = 0;
-        CinematicCamera = null;
-        ActiveCinematic = null;
-        ActiveCinematicCameraIndex = -1;
-
-        if (_cinematicObject)
-        {
-            var vpObject = _player.Viewpoint;
-
-            if (vpObject)
-                if (vpObject == _cinematicObject)
-                    _player.SetViewpoint(_cinematicObject, false);
-
-            _cinematicObject.Location.AddObjectToRemoveList();
-        }
-    }
-
     public void UpdateCinematicLocation(uint diff)
     {
         if (ActiveCinematic == null || ActiveCinematicCameraIndex == -1 || CinematicCamera == null || CinematicCamera.Count == 0)
@@ -143,7 +144,7 @@ public class CinematicManager : IDisposable
         var workDiff = (int)CinematicDiff;
 
         // Modify result based on camera direction (Humans for example, have the camera point behind)
-        workDiff += (int)((2 * Time.InMilliseconds) * Math.Cos(angle));
+        workDiff += (int)((2 * Time.IN_MILLISECONDS) * Math.Cos(angle));
 
         // Get an iterator to the last entry in the cameras, to make sure we don't go beyond the end
         var endItr = CinematicCamera.LastOrDefault();
@@ -192,12 +193,7 @@ public class CinematicManager : IDisposable
             _cinematicObject.MonsterMoveWithSpeed(interPosition.X, interPosition.Y, interPosition.Z, 500.0f, false, true);
 
         // If we never received an end packet 10 seconds after the final timestamp then force an end
-        if (CinematicDiff > CinematicLength + 10 * Time.InMilliseconds)
+        if (CinematicDiff > CinematicLength + 10 * Time.IN_MILLISECONDS)
             EndCinematic();
-    }
-
-    public bool IsOnCinematic()
-    {
-        return CinematicCamera != null;
     }
 }

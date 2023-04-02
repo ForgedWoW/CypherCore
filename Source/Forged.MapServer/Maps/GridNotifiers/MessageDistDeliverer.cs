@@ -14,16 +14,13 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamicObject, IGridNotifierCreature where T : IDoWork<Player>
 {
-    private readonly WorldObject _source;
+    private readonly float _distSq;
     private readonly T _packetSender;
     private readonly PhaseShift _phaseShift;
-    private readonly float _distSq;
-    private readonly TeamFaction _team;
-    private readonly Player _skippedReceiver;
     private readonly bool _required3dDist;
-
-    public GridType GridType { get; set; } = GridType.World;
-
+    private readonly Player _skippedReceiver;
+    private readonly WorldObject _source;
+    private readonly TeamFaction _team;
     public MessageDistDeliverer(WorldObject src, T packetSender, float dist, bool own_team_only = false, Player skipped = null, bool req3dDist = false)
     {
         _source = src;
@@ -38,6 +35,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
         _required3dDist = req3dDist;
     }
 
+    public GridType GridType { get; set; } = GridType.World;
     public void Visit(IList<Creature> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

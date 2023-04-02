@@ -5,14 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal struct PlayerChoiceResponseMawPower
 {
-    public int Unused901_1;
-    public int TypeArtFileID;
+    public int MaxStacks;
     public int? Rarity;
     public uint? RarityColor;
-    public int Unused901_2;
     public int SpellID;
-    public int MaxStacks;
-
+    public int TypeArtFileID;
+    public int Unused901_1;
+    public int Unused901_2;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Unused901_1);

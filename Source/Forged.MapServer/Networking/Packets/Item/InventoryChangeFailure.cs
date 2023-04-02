@@ -10,12 +10,12 @@ public class InventoryChangeFailure : ServerPacket
 {
     public InventoryResult BagResult;
     public byte ContainerBSlot;
-    public ObjectGuid SrcContainer;
     public ObjectGuid DstContainer;
-    public int SrcSlot;
-    public int LimitCategory;
-    public int Level;
     public ObjectGuid[] Item = new ObjectGuid[2];
+    public int Level;
+    public int LimitCategory;
+    public ObjectGuid SrcContainer;
+    public int SrcSlot;
     public InventoryChangeFailure() : base(ServerOpcodes.InventoryChangeFailure) { }
 
     public override void Write()

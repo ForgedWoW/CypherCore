@@ -5,7 +5,7 @@ namespace Forged.MapServer.DataStorage.Structs.G;
 
 public sealed class GameObjectArtKitRecord
 {
-    public uint Id;
     public int AttachModelFileID;
+    public uint Id;
     public int[] TextureVariationFileID = new int[3];
 }

@@ -8,15 +8,26 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ArenaCooldown : BaseUpdateData<Player>
 {
-    public UpdateField<int> SpellID = new(0, 1);
     public UpdateField<int> Charges = new(0, 2);
-    public UpdateField<uint> Flags = new(0, 3);
-    public UpdateField<uint> StartTime = new(0, 4);
     public UpdateField<uint> EndTime = new(0, 5);
-    public UpdateField<uint> NextChargeTime = new(0, 6);
+    public UpdateField<uint> Flags = new(0, 3);
     public UpdateField<byte> MaxCharges = new(0, 7);
-
+    public UpdateField<uint> NextChargeTime = new(0, 6);
+    public UpdateField<int> SpellID = new(0, 1);
+    public UpdateField<uint> StartTime = new(0, 4);
     public ArenaCooldown() : base(8) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(SpellID);
+        ClearChangesMask(Charges);
+        ClearChangesMask(Flags);
+        ClearChangesMask(StartTime);
+        ClearChangesMask(EndTime);
+        ClearChangesMask(NextChargeTime);
+        ClearChangesMask(MaxCharges);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
@@ -63,17 +74,5 @@ public class ArenaCooldown : BaseUpdateData<Player>
             if (changesMask[7])
                 data.WriteUInt8(MaxCharges);
         }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(SpellID);
-        ClearChangesMask(Charges);
-        ClearChangesMask(Flags);
-        ClearChangesMask(StartTime);
-        ClearChangesMask(EndTime);
-        ClearChangesMask(NextChargeTime);
-        ClearChangesMask(MaxCharges);
-        ChangesMask.ResetAll();
     }
 }

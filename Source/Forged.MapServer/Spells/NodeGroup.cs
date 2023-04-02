@@ -8,8 +8,8 @@ namespace Forged.MapServer.Spells;
 
 internal class NodeGroup
 {
-    public TraitNodeGroupRecord Data;
     public List<TraitCondRecord> Conditions = new();
     public List<TraitCostRecord> Costs = new();
+    public TraitNodeGroupRecord Data;
     public List<Node> Nodes = new();
 }

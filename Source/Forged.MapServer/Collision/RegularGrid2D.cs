@@ -12,9 +12,8 @@ namespace Forged.MapServer.Collision;
 public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, new()
 {
     public const int CELL_NUMBER = 64;
-    public const float HGRID_MAP_SIZE = (533.33333f * 64.0f); // shouldn't be changed
     public const float CELL_SIZE = HGRID_MAP_SIZE / CELL_NUMBER;
-
+    public const float HGRID_MAP_SIZE = (533.33333f * 64.0f); // shouldn't be changed
     private readonly MultiMap<T, Node> _memberTable = new();
     private readonly Node[][] _nodes = new Node[CELL_NUMBER][];
 
@@ -22,36 +21,6 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
     {
         for (var x = 0; x < CELL_NUMBER; ++x)
             _nodes[x] = new Node[CELL_NUMBER];
-    }
-
-    public virtual void Insert(T value)
-    {
-        lock (_memberTable)
-        {
-            var bounds = value.GetBounds();
-            var low = Cell.ComputeCell(bounds.Lo.X, bounds.Lo.Y);
-            var high = Cell.ComputeCell(bounds.Hi.X, bounds.Hi.Y);
-
-            for (var x = low.x; x <= high.x; ++x)
-            {
-                for (var y = low.y; y <= high.y; ++y)
-                {
-                    var node = GetGrid(x, y);
-                    node.Insert(value);
-                    _memberTable.Add(value, node);
-                }
-            }
-        }
-    }
-
-    public virtual void Remove(T value)
-    {
-        // Remove the member
-
-        lock (_memberTable)
-        {
-            _memberTable.Remove(value);
-        }
     }
 
     public virtual void Balance()
@@ -81,6 +50,38 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
         {
             return _memberTable.Empty();
         }
+    }
+
+    public virtual void Insert(T value)
+    {
+        lock (_memberTable)
+        {
+            var bounds = value.GetBounds();
+            var low = Cell.ComputeCell(bounds.Lo.X, bounds.Lo.Y);
+            var high = Cell.ComputeCell(bounds.Hi.X, bounds.Hi.Y);
+
+            for (var x = low.x; x <= high.x; ++x)
+            {
+                for (var y = low.y; y <= high.y; ++y)
+                {
+                    var node = GetGrid(x, y);
+                    node.Insert(value);
+                    _memberTable.Add(value, node);
+                }
+            }
+        }
+    }
+
+    public void IntersectPoint(Vector3 point, WorkerCallback intersectCallback)
+    {
+        var cell = Cell.ComputeCell(point.X, point.Y);
+
+        if (!cell.IsValid())
+            return;
+
+        var node = _nodes[cell.x][cell.y];
+
+        node?.IntersectPoint(point, intersectCallback);
     }
 
     public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float max_dist)
@@ -164,18 +165,6 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
         } while (cell.IsValid());
     }
 
-    public void IntersectPoint(Vector3 point, WorkerCallback intersectCallback)
-    {
-        var cell = Cell.ComputeCell(point.X, point.Y);
-
-        if (!cell.IsValid())
-            return;
-
-        var node = _nodes[cell.x][cell.y];
-
-        node?.IntersectPoint(point, intersectCallback);
-    }
-
     // Optimized verson of intersectRay function for rays with vertical directions
     public void IntersectZAllignedRay(Ray ray, WorkerCallback intersectCallback, ref float max_dist)
     {
@@ -189,6 +178,15 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
         node?.IntersectRay(ray, intersectCallback, ref max_dist);
     }
 
+    public virtual void Remove(T value)
+    {
+        // Remove the member
+
+        lock (_memberTable)
+        {
+            _memberTable.Remove(value);
+        }
+    }
     private Node GetGrid(int x, int y)
     {
         if (_nodes[x][y] == null)
@@ -201,26 +199,6 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
     {
         public int x, y;
 
-        public static bool operator ==(Cell c1, Cell c2)
-        {
-            return c1.x == c2.x && c1.y == c2.y;
-        }
-
-        public static bool operator !=(Cell c1, Cell c2)
-        {
-            return !(c1 == c2);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return x.GetHashCode() ^ y.GetHashCode();
-        }
-
         public static Cell ComputeCell(float fx, float fy)
         {
             Cell c = new()
@@ -232,6 +210,24 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
             return c;
         }
 
+        public static bool operator !=(Cell c1, Cell c2)
+        {
+            return !(c1 == c2);
+        }
+
+        public static bool operator ==(Cell c1, Cell c2)
+        {
+            return c1.x == c2.x && c1.y == c2.y;
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return x.GetHashCode() ^ y.GetHashCode();
+        }
         public bool IsValid()
         {
             return x is >= 0 and < CELL_NUMBER && y is >= 0 and < CELL_NUMBER;

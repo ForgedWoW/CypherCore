@@ -9,11 +9,11 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 internal class UserlistUpdate : ServerPacket
 {
-    public ObjectGuid UpdatedUserGUID;
     public ChannelFlags ChannelFlags;
-    public ChannelMemberFlags UserFlags;
     public uint ChannelID;
     public string ChannelName;
+    public ObjectGuid UpdatedUserGUID;
+    public ChannelMemberFlags UserFlags;
     public UserlistUpdate() : base(ServerOpcodes.UserlistUpdate) { }
 
     public override void Write()

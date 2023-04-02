@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetSetAction : ClientPacket
 {
-    public ObjectGuid PetGUID;
-    public uint Index;
     public uint Action;
+    public uint Index;
+    public ObjectGuid PetGUID;
     public PetSetAction(WorldPacket packet) : base(packet) { }
 
     public override void Read()

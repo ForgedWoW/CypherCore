@@ -17,163 +17,24 @@ public abstract class Warden
 {
     internal readonly SARC4 InputCrypto;
     internal readonly SARC4 OutputCrypto;
-    internal WorldSession Session;
+    internal uint CheckTimer;
+    // Timer for sending check requests
+    internal uint ClientResponseTimer;
+
+    // Timer for client response delay
+    internal bool DataSent;
+
+    internal bool Initialized;
     internal byte[] InputKey = new byte[16];
+    internal ClientWardenModule Module;
     internal byte[] OutputKey = new byte[16];
     internal byte[] Seed = new byte[16];
-    internal uint CheckTimer;          // Timer for sending check requests
-    internal uint ClientResponseTimer; // Timer for client response delay
-    internal bool DataSent;
-    internal ClientWardenModule Module;
-    internal bool Initialized;
-
+    internal WorldSession Session;
     protected Warden()
     {
         InputCrypto = new SARC4();
         OutputCrypto = new SARC4();
-        CheckTimer = 10 * Time.InMilliseconds;
-    }
-
-    public void MakeModuleForClient()
-    {
-        Log.Logger.Debug("Make module for client");
-        InitializeModuleForClient(out Module);
-
-        // md5 hash
-        var ctx = MD5.Create();
-        ctx.Initialize();
-        ctx.TransformBlock(Module.CompressedData, 0, Module.CompressedData.Length, Module.CompressedData, 0);
-        ctx.TransformBlock(Module.Id, 0, Module.Id.Length, Module.Id, 0);
-    }
-
-    public void SendModuleToClient()
-    {
-        Log.Logger.Debug("Send module to client");
-
-        // Create packet structure
-        WardenModuleTransfer packet = new();
-
-        var sizeLeft = Module.CompressedSize;
-        var pos = 0;
-        uint burstSize;
-
-        while (sizeLeft > 0)
-        {
-            burstSize = sizeLeft < 500 ? sizeLeft : 500u;
-            packet.Command = WardenOpcodes.SmsgModuleCache;
-            packet.DataSize = (ushort)burstSize;
-            Buffer.BlockCopy(Module.CompressedData, pos, packet.Data, 0, (int)burstSize);
-            sizeLeft -= burstSize;
-            pos += (int)burstSize;
-
-            Warden3DataServer pkt1 = new()
-            {
-                Data = EncryptData(packet)
-            };
-
-            Session.SendPacket(pkt1);
-        }
-    }
-
-    public void RequestModule()
-    {
-        Log.Logger.Debug("Request module");
-
-        // Create packet structure
-        WardenModuleUse request = new()
-        {
-            Command = WardenOpcodes.SmsgModuleUse,
-            ModuleId = Module.Id,
-            ModuleKey = Module.Key,
-            Size = Module.CompressedSize
-        };
-
-        Warden3DataServer packet = new()
-        {
-            Data = EncryptData(request)
-        };
-
-        Session.SendPacket(packet);
-    }
-
-    public void Update(uint diff)
-    {
-        if (!Initialized)
-            return;
-
-        if (DataSent)
-        {
-            var maxClientResponseDelay = GetDefaultValue("Warden.ClientResponseDelay", 600);
-
-            if (maxClientResponseDelay > 0)
-            {
-                // Kick player if client response delays more than set in config
-                if (ClientResponseTimer > maxClientResponseDelay * Time.InMilliseconds)
-                {
-                    Log.Logger.Warning("{0} (latency: {1}, IP: {2}) exceeded Warden module response delay for more than {3} - disconnecting client",
-                                       Session.GetPlayerInfo(),
-                                       Session.Latency,
-                                       Session.RemoteAddress,
-                                       Time.secsToTimeString(maxClientResponseDelay, TimeFormat.ShortText));
-
-                    Session.KickPlayer("Warden::Update Warden module response delay exceeded");
-                }
-                else
-                {
-                    ClientResponseTimer += diff;
-                }
-            }
-        }
-        else
-        {
-            if (diff >= CheckTimer)
-                RequestChecks();
-            else
-                CheckTimer -= diff;
-        }
-    }
-
-    public void DecryptData(byte[] buffer)
-    {
-        InputCrypto.ProcessBuffer(buffer, buffer.Length);
-    }
-
-    public ByteBuffer EncryptData(byte[] buffer)
-    {
-        OutputCrypto.ProcessBuffer(buffer, buffer.Length);
-
-        return new ByteBuffer(buffer);
-    }
-
-    public bool IsValidCheckSum(uint checksum, byte[] data, ushort length)
-    {
-        var newChecksum = BuildChecksum(data, length);
-
-        if (checksum != newChecksum)
-        {
-            Log.Logger.Debug("CHECKSUM IS NOT VALID");
-
-            return false;
-        }
-        else
-        {
-            Log.Logger.Debug("CHECKSUM IS VALID");
-
-            return true;
-        }
-    }
-
-    public uint BuildChecksum(byte[] data, uint length)
-    {
-        var sha = SHA1.Create();
-
-        var hash = sha.ComputeHash(data, 0, (int)length);
-        uint checkSum = 0;
-
-        for (byte i = 0; i < 5; ++i)
-            checkSum ^= BitConverter.ToUInt32(hash, i * 4);
-
-        return checkSum;
+        CheckTimer = 10 * Time.IN_MILLISECONDS;
     }
 
     public string ApplyPenalty(WardenCheck check = null)
@@ -211,6 +72,33 @@ public abstract class Warden
 
         return action.ToString();
     }
+
+    public uint BuildChecksum(byte[] data, uint length)
+    {
+        var sha = SHA1.Create();
+
+        var hash = sha.ComputeHash(data, 0, (int)length);
+        uint checkSum = 0;
+
+        for (byte i = 0; i < 5; ++i)
+            checkSum ^= BitConverter.ToUInt32(hash, i * 4);
+
+        return checkSum;
+    }
+
+    public void DecryptData(byte[] buffer)
+    {
+        InputCrypto.ProcessBuffer(buffer, buffer.Length);
+    }
+
+    public ByteBuffer EncryptData(byte[] buffer)
+    {
+        OutputCrypto.ProcessBuffer(buffer, buffer.Length);
+
+        return new ByteBuffer(buffer);
+    }
+
+    public abstract void HandleCheckResult(ByteBuffer buff);
 
     public void HandleData(ByteBuffer buff)
     {
@@ -253,20 +141,133 @@ public abstract class Warden
         }
     }
 
+    public abstract void HandleHashResult(ByteBuffer buff);
+
     public abstract void Init(WorldSession session, BigInteger k);
 
     public abstract void InitializeModule();
 
-    public abstract void RequestHash();
-
-    public abstract void HandleHashResult(ByteBuffer buff);
-
-    public abstract void HandleCheckResult(ByteBuffer buff);
-
     public abstract void InitializeModuleForClient(out ClientWardenModule module);
+
+    public bool IsValidCheckSum(uint checksum, byte[] data, ushort length)
+    {
+        var newChecksum = BuildChecksum(data, length);
+
+        if (checksum != newChecksum)
+        {
+            Log.Logger.Debug("CHECKSUM IS NOT VALID");
+
+            return false;
+        }
+        else
+        {
+            Log.Logger.Debug("CHECKSUM IS VALID");
+
+            return true;
+        }
+    }
+
+    public void MakeModuleForClient()
+    {
+        Log.Logger.Debug("Make module for client");
+        InitializeModuleForClient(out Module);
+
+        // md5 hash
+        var ctx = MD5.Create();
+        ctx.Initialize();
+        ctx.TransformBlock(Module.CompressedData, 0, Module.CompressedData.Length, Module.CompressedData, 0);
+        ctx.TransformBlock(Module.Id, 0, Module.Id.Length, Module.Id, 0);
+    }
 
     public abstract void RequestChecks();
 
+    public abstract void RequestHash();
+
+    public void RequestModule()
+    {
+        Log.Logger.Debug("Request module");
+
+        // Create packet structure
+        WardenModuleUse request = new()
+        {
+            Command = WardenOpcodes.SmsgModuleUse,
+            ModuleId = Module.Id,
+            ModuleKey = Module.Key,
+            Size = Module.CompressedSize
+        };
+
+        Warden3DataServer packet = new()
+        {
+            Data = EncryptData(request)
+        };
+
+        Session.SendPacket(packet);
+    }
+
+    public void SendModuleToClient()
+    {
+        Log.Logger.Debug("Send module to client");
+
+        // Create packet structure
+        WardenModuleTransfer packet = new();
+
+        var sizeLeft = Module.CompressedSize;
+        var pos = 0;
+        uint burstSize;
+
+        while (sizeLeft > 0)
+        {
+            burstSize = sizeLeft < 500 ? sizeLeft : 500u;
+            packet.Command = WardenOpcodes.SmsgModuleCache;
+            packet.DataSize = (ushort)burstSize;
+            Buffer.BlockCopy(Module.CompressedData, pos, packet.Data, 0, (int)burstSize);
+            sizeLeft -= burstSize;
+            pos += (int)burstSize;
+
+            Warden3DataServer pkt1 = new()
+            {
+                Data = EncryptData(packet)
+            };
+
+            Session.SendPacket(pkt1);
+        }
+    }
+    public void Update(uint diff)
+    {
+        if (!Initialized)
+            return;
+
+        if (DataSent)
+        {
+            var maxClientResponseDelay = GetDefaultValue("Warden.ClientResponseDelay", 600);
+
+            if (maxClientResponseDelay > 0)
+            {
+                // Kick player if client response delays more than set in config
+                if (ClientResponseTimer > maxClientResponseDelay * Time.IN_MILLISECONDS)
+                {
+                    Log.Logger.Warning("{0} (latency: {1}, IP: {2}) exceeded Warden module response delay for more than {3} - disconnecting client",
+                                       Session.GetPlayerInfo(),
+                                       Session.Latency,
+                                       Session.RemoteAddress,
+                                       Time.SecsToTimeString(maxClientResponseDelay, TimeFormat.ShortText));
+
+                    Session.KickPlayer("Warden::Update Warden module response delay exceeded");
+                }
+                else
+                {
+                    ClientResponseTimer += diff;
+                }
+            }
+        }
+        else
+        {
+            if (diff >= CheckTimer)
+                RequestChecks();
+            else
+                CheckTimer -= diff;
+        }
+    }
     private bool ProcessLuaCheckResponse(string msg)
     {
         var WARDEN_TOKEN = "_TW\t";

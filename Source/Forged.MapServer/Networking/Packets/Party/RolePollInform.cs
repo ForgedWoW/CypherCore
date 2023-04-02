@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class RolePollInform : ServerPacket
 {
-    public sbyte PartyIndex;
     public ObjectGuid From;
+    public sbyte PartyIndex;
     public RolePollInform() : base(ServerOpcodes.RolePollInform) { }
 
     public override void Write()

@@ -20,24 +20,21 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionManager
 {
-    private const int MIN_AUCTION_TIME = 12 * Time.Hour;
+    private const int MIN_AUCTION_TIME = 12 * Time.HOUR;
+    private readonly AuctionHouseObject _allianceAuctions;
+    private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
-    private readonly GameObjectManager _objectManager;
-    private readonly CharacterCache _characterCache;
-    private readonly AuctionHouseObject _hordeAuctions;
-    private readonly AuctionHouseObject _allianceAuctions;
-    private readonly AuctionHouseObject _neutralAuctions;
     private readonly AuctionHouseObject _goblinAuctions;
-    private readonly Dictionary<ObjectGuid, PlayerPendingAuctions> _pendingAuctionsByPlayer = new();
+    private readonly AuctionHouseObject _hordeAuctions;
     private readonly Dictionary<ObjectGuid, Item> _itemsByGuid = new();
+    private readonly AuctionHouseObject _neutralAuctions;
+    private readonly GameObjectManager _objectManager;
+    private readonly Dictionary<ObjectGuid, PlayerPendingAuctions> _pendingAuctionsByPlayer = new();
     private readonly Dictionary<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects = new();
 
-    private uint _replicateIdGenerator;
     private DateTime _playerThrottleObjectsCleanupTime;
-
-    public uint GenerateReplicationId => ++_replicateIdGenerator;
-
+    private uint _replicateIdGenerator;
     public AuctionManager(CharacterDatabase characterDatabase, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache)
     {
         _characterDatabase = characterDatabase;
@@ -49,25 +46,137 @@ public class AuctionManager
         _neutralAuctions = new AuctionHouseObject(1);
         _goblinAuctions = new AuctionHouseObject(7);
         _replicateIdGenerator = 0;
-        _playerThrottleObjectsCleanupTime = GameTime.Now() + TimeSpan.FromHours(1);
+        _playerThrottleObjectsCleanupTime = GameTime.Now + TimeSpan.FromHours(1);
     }
 
-    public AuctionHouseObject GetAuctionsMap(uint factionTemplateId)
+    public uint GenerateReplicationId => ++_replicateIdGenerator;
+    public void AddAItem(Item item)
     {
-        if (GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
-            return _neutralAuctions;
+        if (item == null || _itemsByGuid.ContainsKey(item.GUID)) return;
 
-        // teams have linked auction houses
-        var uEntry = _cliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
+        _itemsByGuid[item.GUID] = item;
+    }
 
-        if (uEntry == null)
-            return _neutralAuctions;
-        else if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Alliance))
-            return _allianceAuctions;
-        else if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Horde))
-            return _hordeAuctions;
+    public string BuildAuctionInvoiceMailBody(ObjectGuid guid, ulong bid, ulong buyout, uint deposit, ulong consignment, uint moneyDelay, uint eta)
+    {
+        return $"{guid}:{bid}:{buyout}:{deposit}:{consignment}:{moneyDelay}:{eta}:0";
+    }
+
+    public string BuildAuctionMailSubject(uint itemId, AuctionMailType type, uint auctionId, uint itemCount, uint battlePetSpeciesId, ItemContext context, List<uint> bonusListIds)
+    {
+        var str = $"{itemId}:0:{(uint)type}:{auctionId}:{itemCount}:{battlePetSpeciesId}:0:0:0:0:{(uint)context}:{bonusListIds.Count}";
+
+        foreach (var bonusListId in bonusListIds)
+            str += ':' + bonusListId;
+
+        return str;
+    }
+
+    public string BuildAuctionSoldMailBody(ObjectGuid guid, ulong bid, ulong buyout, uint deposit, ulong consignment)
+    {
+        return $"{guid}:{bid}:{buyout}:{deposit}:{consignment}:0";
+    }
+
+    public string BuildAuctionWonMailBody(ObjectGuid guid, ulong bid, ulong buyout)
+    {
+        return $"{guid}:{bid}:{buyout}:0";
+    }
+
+    public string BuildCommodityAuctionMailSubject(AuctionMailType type, uint itemId, uint itemCount)
+    {
+        return BuildAuctionMailSubject(itemId, type, 0, itemCount, 0, ItemContext.None, null);
+    }
+
+    public string BuildItemAuctionMailSubject(AuctionMailType type, AuctionPosting auction)
+    {
+        return BuildAuctionMailSubject(auction.Items[0].Entry,
+                                       type,
+                                       auction.Id,
+                                       auction.TotalItemCount,
+                                       auction.Items[0].GetModifier(ItemModifier.BattlePetSpeciesId),
+                                       auction.Items[0].GetContext(),
+                                       auction.Items[0].GetBonusListIDs());
+    }
+
+    public AuctionThrottleResult CheckThrottle(Player player, bool addonTainted, AuctionCommand command = AuctionCommand.SellItem)
+    {
+        var now = GameTime.Now;
+
+        var throttleObject = _playerThrottleObjects.GetOrAdd(player.GUID, () => new PlayerThrottleObject());
+
+        if (now > throttleObject.PeriodEnd)
+        {
+            throttleObject.PeriodEnd = now + TimeSpan.FromMinutes(1);
+            throttleObject.QueriesRemaining = 100;
+        }
+
+        if (throttleObject.QueriesRemaining == 0)
+        {
+            player.Session.SendAuctionCommandResult(0, command, AuctionResult.AuctionHouseBusy, throttleObject.PeriodEnd - now);
+
+            return new AuctionThrottleResult(TimeSpan.Zero, true);
+        }
+
+        if ((--throttleObject.QueriesRemaining) == 0)
+            return new AuctionThrottleResult(throttleObject.PeriodEnd - now, false);
         else
-            return _neutralAuctions;
+            return new AuctionThrottleResult(TimeSpan.FromMilliseconds(GetDefaultValue(addonTainted ? "Auction.TaintedSearchDelay" : "Auction.SearchDelay")), false);
+    }
+
+    public Item GetAItem(ObjectGuid itemGuid)
+    {
+        return _itemsByGuid.LookupByKey(itemGuid);
+    }
+
+    public AuctionHouseRecord GetAuctionHouseEntry(uint factionTemplateId)
+    {
+        uint houseId = 0;
+
+        return GetAuctionHouseEntry(factionTemplateId, ref houseId);
+    }
+
+    public AuctionHouseRecord GetAuctionHouseEntry(uint factionTemplateId, ref uint houseId)
+    {
+        uint houseid = 1; // Auction House
+
+        if (!GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
+            // FIXME: found way for proper auctionhouse selection by another way
+            // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
+            // but no easy way convert creature faction to player race faction for specific city
+            switch (factionTemplateId)
+            {
+                case 120:
+                    houseid = 7;
+
+                    break; // booty bay, Blackwater Auction House
+                case 474:
+                    houseid = 7;
+
+                    break; // gadgetzan, Blackwater Auction House
+                case 855:
+                    houseid = 7;
+
+                    break; // everlook, Blackwater Auction House
+                default:   // default
+                {
+                    var u_entry = CliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
+
+                    if (u_entry == null)
+                        houseid = 1; // Auction House
+                    else if ((u_entry.FactionGroup & (int)FactionMasks.Alliance) != 0)
+                        houseid = 2; // Alliance Auction House
+                    else if ((u_entry.FactionGroup & (int)FactionMasks.Horde) != 0)
+                        houseid = 6; // Horde Auction House
+                    else
+                        houseid = 1; // Auction House
+
+                    break;
+                }
+            }
+
+        houseId = houseid;
+
+        return _cliDB.AuctionHouseStorage.LookupByKey(houseid);
     }
 
     public AuctionHouseObject GetAuctionsById(uint auctionHouseId)
@@ -89,66 +198,36 @@ public class AuctionManager
         return _neutralAuctions;
     }
 
-    public Item GetAItem(ObjectGuid itemGuid)
+    public AuctionHouseObject GetAuctionsMap(uint factionTemplateId)
     {
-        return _itemsByGuid.LookupByKey(itemGuid);
-    }
+        if (GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
+            return _neutralAuctions;
 
+        // teams have linked auction houses
+        var uEntry = _cliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
+
+        if (uEntry == null)
+            return _neutralAuctions;
+        else if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Alliance))
+            return _allianceAuctions;
+        else if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Horde))
+            return _hordeAuctions;
+        else
+            return _neutralAuctions;
+    }
     public ulong GetCommodityAuctionDeposit(ItemTemplate item, TimeSpan time, uint quantity)
     {
         var sellPrice = item.SellPrice;
 
-        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.Minute)));
+        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.MINUTE)));
     }
 
     public ulong GetItemAuctionDeposit(Player player, Item item, TimeSpan time)
     {
         var sellPrice = item.GetSellPrice(player);
 
-        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(sellPrice * 0.15, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.Minute)));
+        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(sellPrice * 0.15, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.MINUTE)));
     }
-
-    public string BuildItemAuctionMailSubject(AuctionMailType type, AuctionPosting auction)
-    {
-        return BuildAuctionMailSubject(auction.Items[0].Entry,
-                                       type,
-                                       auction.Id,
-                                       auction.TotalItemCount,
-                                       auction.Items[0].GetModifier(ItemModifier.BattlePetSpeciesId),
-                                       auction.Items[0].GetContext(),
-                                       auction.Items[0].GetBonusListIDs());
-    }
-
-    public string BuildCommodityAuctionMailSubject(AuctionMailType type, uint itemId, uint itemCount)
-    {
-        return BuildAuctionMailSubject(itemId, type, 0, itemCount, 0, ItemContext.None, null);
-    }
-
-    public string BuildAuctionMailSubject(uint itemId, AuctionMailType type, uint auctionId, uint itemCount, uint battlePetSpeciesId, ItemContext context, List<uint> bonusListIds)
-    {
-        var str = $"{itemId}:0:{(uint)type}:{auctionId}:{itemCount}:{battlePetSpeciesId}:0:0:0:0:{(uint)context}:{bonusListIds.Count}";
-
-        foreach (var bonusListId in bonusListIds)
-            str += ':' + bonusListId;
-
-        return str;
-    }
-
-    public string BuildAuctionWonMailBody(ObjectGuid guid, ulong bid, ulong buyout)
-    {
-        return $"{guid}:{bid}:{buyout}:0";
-    }
-
-    public string BuildAuctionSoldMailBody(ObjectGuid guid, ulong bid, ulong buyout, uint deposit, ulong consignment)
-    {
-        return $"{guid}:{bid}:{buyout}:{deposit}:{consignment}:0";
-    }
-
-    public string BuildAuctionInvoiceMailBody(ObjectGuid guid, ulong bid, ulong buyout, uint deposit, ulong consignment, uint moneyDelay, uint eta)
-    {
-        return $"{guid}:{bid}:{buyout}:{deposit}:{consignment}:{moneyDelay}:{eta}:0";
-    }
-
     public void LoadAuctions()
     {
         var oldMSTime = Time.MSTime;
@@ -283,32 +362,6 @@ public class AuctionManager
 
         Log.Logger.Information($"Loaded {count} auctions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
-
-    public void AddAItem(Item item)
-    {
-        if (item == null || _itemsByGuid.ContainsKey(item.GUID)) return;
-
-        _itemsByGuid[item.GUID] = item;
-    }
-
-    public bool RemoveAItem(ObjectGuid guid, bool deleteItem = false, SQLTransaction trans = null)
-    {
-        var item = _itemsByGuid.LookupByKey(guid);
-
-        if (item == null)
-            return false;
-
-        if (deleteItem)
-        {
-            item.FSetState(ItemUpdateState.Removed);
-            item.SaveToDB(trans);
-        }
-
-        _itemsByGuid.Remove(guid);
-
-        return true;
-    }
-
     public bool PendingAuctionAdd(Player player, uint auctionHouseId, uint auctionId, ulong deposit)
     {
         var pendingAuction = _pendingAuctionsByPlayer.GetOrAdd(player.GUID, () => new PlayerPendingAuctions());
@@ -370,10 +423,10 @@ public class AuctionManager
                 var auction = GetAuctionsById(pendingAuction.AuctionHouseId).GetAuction(pendingAuction.AuctionId);
 
                 if (auction != null)
-                    auction.EndTime = GameTime.GetSystemTime();
+                    auction.EndTime = GameTime.SystemTime;
 
                 var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
-                stmt.AddValue(0, (uint)GameTime.GetGameTime());
+                stmt.AddValue(0, (uint)GameTime.CurrentTime);
                 stmt.AddValue(1, pendingAuction.AuctionId);
                 trans.Append(stmt);
                 ++auctionIndex;
@@ -384,6 +437,42 @@ public class AuctionManager
 
         _pendingAuctionsByPlayer.Remove(player.GUID);
         player.ModifyMoney(-(long)totaldeposit);
+    }
+
+    public bool RemoveAItem(ObjectGuid guid, bool deleteItem = false, SQLTransaction trans = null)
+    {
+        var item = _itemsByGuid.LookupByKey(guid);
+
+        if (item == null)
+            return false;
+
+        if (deleteItem)
+        {
+            item.FSetState(ItemUpdateState.Removed);
+            item.SaveToDB(trans);
+        }
+
+        _itemsByGuid.Remove(guid);
+
+        return true;
+    }
+    public void Update()
+    {
+        _hordeAuctions.Update();
+        _allianceAuctions.Update();
+        _neutralAuctions.Update();
+        _goblinAuctions.Update();
+
+        var now = GameTime.Now;
+
+        if (now >= _playerThrottleObjectsCleanupTime)
+        {
+            foreach (var pair in _playerThrottleObjects.ToList())
+                if (pair.Value.PeriodEnd < now)
+                    _playerThrottleObjects.Remove(pair.Key);
+
+            _playerThrottleObjectsCleanupTime = now + TimeSpan.FromHours(1);
+        }
     }
 
     public void UpdatePendingAuctions()
@@ -413,10 +502,10 @@ public class AuctionManager
                     var auction = GetAuctionsById(pendingAuction.AuctionHouseId).GetAuction(pendingAuction.AuctionId);
 
                     if (auction != null)
-                        auction.EndTime = GameTime.GetSystemTime();
+                        auction.EndTime = GameTime.SystemTime;
 
                     var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
-                    stmt.AddValue(0, (uint)GameTime.GetGameTime());
+                    stmt.AddValue(0, (uint)GameTime.CurrentTime);
                     stmt.AddValue(1, pendingAuction.AuctionId);
                     trans.Append(stmt);
                 }
@@ -426,106 +515,10 @@ public class AuctionManager
             }
         }
     }
-
-    public void Update()
-    {
-        _hordeAuctions.Update();
-        _allianceAuctions.Update();
-        _neutralAuctions.Update();
-        _goblinAuctions.Update();
-
-        var now = GameTime.Now();
-
-        if (now >= _playerThrottleObjectsCleanupTime)
-        {
-            foreach (var pair in _playerThrottleObjects.ToList())
-                if (pair.Value.PeriodEnd < now)
-                    _playerThrottleObjects.Remove(pair.Key);
-
-            _playerThrottleObjectsCleanupTime = now + TimeSpan.FromHours(1);
-        }
-    }
-
-    public AuctionThrottleResult CheckThrottle(Player player, bool addonTainted, AuctionCommand command = AuctionCommand.SellItem)
-    {
-        var now = GameTime.Now();
-
-        var throttleObject = _playerThrottleObjects.GetOrAdd(player.GUID, () => new PlayerThrottleObject());
-
-        if (now > throttleObject.PeriodEnd)
-        {
-            throttleObject.PeriodEnd = now + TimeSpan.FromMinutes(1);
-            throttleObject.QueriesRemaining = 100;
-        }
-
-        if (throttleObject.QueriesRemaining == 0)
-        {
-            player.Session.SendAuctionCommandResult(0, command, AuctionResult.AuctionHouseBusy, throttleObject.PeriodEnd - now);
-
-            return new AuctionThrottleResult(TimeSpan.Zero, true);
-        }
-
-        if ((--throttleObject.QueriesRemaining) == 0)
-            return new AuctionThrottleResult(throttleObject.PeriodEnd - now, false);
-        else
-            return new AuctionThrottleResult(TimeSpan.FromMilliseconds(GetDefaultValue(addonTainted ? "Auction.TaintedSearchDelay" : "Auction.SearchDelay")), false);
-    }
-
-    public AuctionHouseRecord GetAuctionHouseEntry(uint factionTemplateId)
-    {
-        uint houseId = 0;
-
-        return GetAuctionHouseEntry(factionTemplateId, ref houseId);
-    }
-
-    public AuctionHouseRecord GetAuctionHouseEntry(uint factionTemplateId, ref uint houseId)
-    {
-        uint houseid = 1; // Auction House
-
-        if (!GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
-            // FIXME: found way for proper auctionhouse selection by another way
-            // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
-            // but no easy way convert creature faction to player race faction for specific city
-            switch (factionTemplateId)
-            {
-                case 120:
-                    houseid = 7;
-
-                    break; // booty bay, Blackwater Auction House
-                case 474:
-                    houseid = 7;
-
-                    break; // gadgetzan, Blackwater Auction House
-                case 855:
-                    houseid = 7;
-
-                    break; // everlook, Blackwater Auction House
-                default:   // default
-                {
-                    var u_entry = CliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
-
-                    if (u_entry == null)
-                        houseid = 1; // Auction House
-                    else if ((u_entry.FactionGroup & (int)FactionMasks.Alliance) != 0)
-                        houseid = 2; // Alliance Auction House
-                    else if ((u_entry.FactionGroup & (int)FactionMasks.Horde) != 0)
-                        houseid = 6; // Horde Auction House
-                    else
-                        houseid = 1; // Auction House
-
-                    break;
-                }
-            }
-
-        houseId = houseid;
-
-        return _cliDB.AuctionHouseStorage.LookupByKey(houseid);
-    }
-
     private class PendingAuctionInfo
     {
-        public readonly uint AuctionId;
         public readonly uint AuctionHouseId;
+        public readonly uint AuctionId;
         public readonly ulong Deposit;
 
         public PendingAuctionInfo(uint auctionId, uint auctionHouseId, ulong deposit)

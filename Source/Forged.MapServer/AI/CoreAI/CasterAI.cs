@@ -18,6 +18,11 @@ public class CasterAI : CombatAI
         _attackDistance = SharedConst.MeleeRange;
     }
 
+    public override void AttackStart(Unit victim)
+    {
+        AttackStartCaster(victim, _attackDistance);
+    }
+
     public override void InitializeAI()
     {
         base.InitializeAI();
@@ -35,12 +40,6 @@ public class CasterAI : CombatAI
         if (_attackDistance == 30.0f)
             _attackDistance = SharedConst.MeleeRange;
     }
-
-    public override void AttackStart(Unit victim)
-    {
-        AttackStartCaster(victim, _attackDistance);
-    }
-
     public override void JustEngagedWith(Unit victim)
     {
         if (_spells.Empty())

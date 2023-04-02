@@ -5,9 +5,8 @@ namespace Forged.MapServer.Quest;
 
 public struct QuestRewardDisplaySpell
 {
-    public uint SpellId;
     public uint PlayerConditionId;
-
+    public uint SpellId;
     public QuestRewardDisplaySpell(uint spellId, uint playerConditionId)
     {
         SpellId = spellId;

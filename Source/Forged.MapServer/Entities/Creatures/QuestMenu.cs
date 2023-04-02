@@ -28,6 +28,11 @@ public class QuestMenu
         _questMenuItems.Clear();
     }
 
+    public QuestMenuItem GetItem(int index)
+    {
+        return _questMenuItems.LookupByIndex(index);
+    }
+
     public int GetMenuItemCount()
     {
         return _questMenuItems.Count;
@@ -37,12 +42,6 @@ public class QuestMenu
     {
         return _questMenuItems.Empty();
     }
-
-    public QuestMenuItem GetItem(int index)
-    {
-        return _questMenuItems.LookupByIndex(index);
-    }
-
     private bool HasItem(uint questId)
     {
         foreach (var item in _questMenuItems)

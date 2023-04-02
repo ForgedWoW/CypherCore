@@ -21,31 +21,28 @@ namespace Forged.MapServer.OutdoorPVP;
 
 public class OutdoorPvPManager
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly DisableManager _disableManager;
-    private readonly GameObjectManager _objectManager;
-    private readonly ScriptManager _scriptManager;
     private readonly CliDB _cliDB;
     private readonly DB2Manager _db2Manager;
-
-    // contains all initiated outdoor pvp events
-    // used when initing / cleaning up
-    private readonly MultiMap<Map, OutdoorPvP> _outdoorPvPByMap = new();
-
-    // maps the zone ids to an outdoor pvp event
-    // used in player event handling
-    private readonly Dictionary<(Map map, uint zoneId), OutdoorPvP> _outdoorPvPMap = new();
-
+    private readonly DisableManager _disableManager;
+    private readonly GameObjectManager _objectManager;
     // Holds the outdoor PvP templates
     private readonly uint[] _outdoorMapIds =
     {
         0, 530, 530, 530, 530, 1
     };
 
+    // contains all initiated outdoor pvp events
+    // used when initing / cleaning up
+    private readonly MultiMap<Map, OutdoorPvP> _outdoorPvPByMap = new();
+
     private readonly Dictionary<OutdoorPvPTypes, uint> _outdoorPvPDatas = new();
+    // maps the zone ids to an outdoor pvp event
+    // used in player event handling
+    private readonly Dictionary<(Map map, uint zoneId), OutdoorPvP> _outdoorPvPMap = new();
 
+    private readonly ScriptManager _scriptManager;
     private readonly LimitedThreadTaskManager _threadTaskManager;
-
+    private readonly WorldDatabase _worldDatabase;
     // update interval
     private uint _updateTimer;
 
@@ -61,42 +58,9 @@ public class OutdoorPvPManager
         _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
     }
 
-    public void InitOutdoorPvP()
+    public void AddZone(uint zoneid, OutdoorPvP handle)
     {
-        var oldMSTime = Time.MSTime;
-
-        //                                             0       1
-        var result = _worldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var typeId = (OutdoorPvPTypes)result.Read<byte>(0);
-
-            if (_disableManager.IsDisabledFor(DisableType.OutdoorPVP, (uint)typeId, null))
-                continue;
-
-            if (typeId >= OutdoorPvPTypes.Max)
-            {
-                Log.Logger.Error("Invalid OutdoorPvPTypes value {0} in outdoorpvp_template; skipped.", typeId);
-
-                continue;
-            }
-
-            _outdoorPvPDatas[typeId] = _objectManager.GetScriptId(result.Read<string>(1));
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {count} outdoor PvP definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+        _outdoorPvPMap[(handle.GetMap(), zoneid)] = handle;
     }
 
     public void CreateOutdoorPvPForMap(Map map)
@@ -138,9 +102,49 @@ public class OutdoorPvPManager
         _outdoorPvPByMap.Remove(map);
     }
 
-    public void AddZone(uint zoneid, OutdoorPvP handle)
+    public string GetDefenseMessage(uint zoneId, uint id, Locale locale)
     {
-        _outdoorPvPMap[(handle.GetMap(), zoneid)] = handle;
+        var bct = _cliDB.BroadcastTextStorage.LookupByKey(id);
+
+        if (bct != null)
+            return _db2Manager.GetBroadcastTextValue(bct, locale);
+
+        Log.Logger.Error("Can not find DefenseMessage (Zone: {0}, Id: {1}). BroadcastText (Id: {2}) does not exist.", zoneId, id, id);
+
+        return "";
+    }
+
+    public OutdoorPvP GetOutdoorPvPToZoneId(Map map, uint zoneid)
+    {
+        return _outdoorPvPMap.LookupByKey((map, zoneid));
+    }
+
+    public bool HandleCustomSpell(Player player, uint spellId, GameObject go)
+    {
+        var pvp = player.GetOutdoorPvP();
+
+        if (pvp != null && pvp.HasPlayer(player))
+            return pvp.HandleCustomSpell(player, spellId, go);
+
+        return false;
+    }
+
+    public void HandleDropFlag(Player player, uint spellId)
+    {
+        var pvp = player.GetOutdoorPvP();
+
+        if (pvp != null && pvp.HasPlayer(player))
+            pvp.HandleDropFlag(player, spellId);
+    }
+
+    public bool HandleOpenGo(Player player, GameObject go)
+    {
+        var pvp = player.GetOutdoorPvP();
+
+        if (pvp != null && pvp.HasPlayer(player))
+            return pvp.HandleOpenGo(player, go);
+
+        return false;
     }
 
     public void HandlePlayerEnterZone(Player player, uint zoneid)
@@ -172,11 +176,51 @@ public class OutdoorPvPManager
         Log.Logger.Debug("Player {0} left outdoorpvp id {1}", player.GUID.ToString(), outdoor.GetTypeId());
     }
 
-    public OutdoorPvP GetOutdoorPvPToZoneId(Map map, uint zoneid)
+    public void HandlePlayerResurrects(Player player, uint zoneid)
     {
-        return _outdoorPvPMap.LookupByKey((map, zoneid));
+        var pvp = player.GetOutdoorPvP();
+
+        if (pvp != null && pvp.HasPlayer(player))
+            pvp.HandlePlayerResurrects(player, zoneid);
     }
 
+    public void InitOutdoorPvP()
+    {
+        var oldMSTime = Time.MSTime;
+
+        //                                             0       1
+        var result = _worldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
+
+            return;
+        }
+
+        uint count = 0;
+
+        do
+        {
+            var typeId = (OutdoorPvPTypes)result.Read<byte>(0);
+
+            if (_disableManager.IsDisabledFor(DisableType.OutdoorPVP, (uint)typeId, null))
+                continue;
+
+            if (typeId >= OutdoorPvPTypes.Max)
+            {
+                Log.Logger.Error("Invalid OutdoorPvPTypes value {0} in outdoorpvp_template; skipped.", typeId);
+
+                continue;
+            }
+
+            _outdoorPvPDatas[typeId] = _objectManager.GetScriptId(result.Read<string>(1));
+
+            ++count;
+        } while (result.NextRow());
+
+        Log.Logger.Information($"Loaded {count} outdoor PvP definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+    }
     public void Update(uint diff)
     {
         _updateTimer += diff;
@@ -189,53 +233,5 @@ public class OutdoorPvPManager
             _threadTaskManager.Wait();
             _updateTimer = 0;
         }
-    }
-
-    public bool HandleCustomSpell(Player player, uint spellId, GameObject go)
-    {
-        var pvp = player.GetOutdoorPvP();
-
-        if (pvp != null && pvp.HasPlayer(player))
-            return pvp.HandleCustomSpell(player, spellId, go);
-
-        return false;
-    }
-
-    public bool HandleOpenGo(Player player, GameObject go)
-    {
-        var pvp = player.GetOutdoorPvP();
-
-        if (pvp != null && pvp.HasPlayer(player))
-            return pvp.HandleOpenGo(player, go);
-
-        return false;
-    }
-
-    public void HandleDropFlag(Player player, uint spellId)
-    {
-        var pvp = player.GetOutdoorPvP();
-
-        if (pvp != null && pvp.HasPlayer(player))
-            pvp.HandleDropFlag(player, spellId);
-    }
-
-    public void HandlePlayerResurrects(Player player, uint zoneid)
-    {
-        var pvp = player.GetOutdoorPvP();
-
-        if (pvp != null && pvp.HasPlayer(player))
-            pvp.HandlePlayerResurrects(player, zoneid);
-    }
-
-    public string GetDefenseMessage(uint zoneId, uint id, Locale locale)
-    {
-        var bct = _cliDB.BroadcastTextStorage.LookupByKey(id);
-
-        if (bct != null)
-            return _db2Manager.GetBroadcastTextValue(bct, locale);
-
-        Log.Logger.Error("Can not find DefenseMessage (Zone: {0}, Id: {1}). BroadcastText (Id: {2}) does not exist.", zoneId, id, id);
-
-        return "";
     }
 }

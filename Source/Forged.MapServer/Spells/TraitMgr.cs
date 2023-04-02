@@ -20,21 +20,354 @@ internal class TraitMgr
     private readonly CliDB _cliDB;
     private readonly DB2Manager _db2Manager;
 
-    private readonly Dictionary<int, NodeGroup> _traitGroups = new();
-    private readonly Dictionary<int, Node> _traitNodes = new();
-    private readonly Dictionary<int, Tree> _traitTrees = new();
     private readonly int[] _skillLinesByClass = new int[(int)PlayerClass.Max];
-    private readonly MultiMap<int, Tree> _traitTreesBySkillLine = new();
-    private readonly MultiMap<int, Tree> _traitTreesByTraitSystem = new();
     private readonly MultiMap<int, TraitCurrencySourceRecord> _traitCurrencySourcesByCurrency = new();
     private readonly MultiMap<int, TraitDefinitionEffectPointsRecord> _traitDefinitionEffectPointModifiers = new();
+    private readonly Dictionary<int, NodeGroup> _traitGroups = new();
+    private readonly Dictionary<int, Node> _traitNodes = new();
     private readonly MultiMap<int, TraitTreeLoadoutEntryRecord> _traitTreeLoadoutsByChrSpecialization = new();
+    private readonly Dictionary<int, Tree> _traitTrees = new();
+    private readonly MultiMap<int, Tree> _traitTreesBySkillLine = new();
+    private readonly MultiMap<int, Tree> _traitTreesByTraitSystem = new();
     private int _configIdGenerator;
 
     public TraitMgr(CliDB cliDB, DB2Manager db2Manager)
     {
         _cliDB = cliDB;
         _db2Manager = db2Manager;
+    }
+
+    public void FillOwnedCurrenciesMap(TraitConfigPacket traitConfig, Player player, Dictionary<int, int> currencies)
+    {
+        var trees = GetTreesForConfig(traitConfig);
+
+        if (trees == null)
+            return;
+
+        bool HasTraitNodeEntry(int traitNodeEntryId)
+        {
+            return traitConfig.Entries.Any(traitEntry => traitEntry.Value.TryGetValue(traitNodeEntryId, out var entry) && (entry.Rank > 0 || entry.GrantedRanks > 0));
+        }
+
+        foreach (var tree in trees)
+        {
+            foreach (var currency in tree.Currencies)
+                switch (currency.GetCurrencyType())
+                {
+                    case TraitCurrencyType.Gold:
+                    {
+                        if (!currencies.ContainsKey((int)currency.Id))
+                            currencies[(int)currency.Id] = 0;
+
+                        // TODO amount is never used.
+                        //var amount = currencies[(int)currency.Id];
+
+                        //if (player.Money > (ulong)(int.MaxValue - amount))
+                        //	amount = int.MaxValue;
+                        //else
+                        //	amount += (int)player.Money;
+
+                        break;
+                    }
+                    case TraitCurrencyType.CurrencyTypesBased:
+                        if (!currencies.ContainsKey((int)currency.Id))
+                            currencies[(int)currency.Id] = 0;
+
+                        currencies[(int)currency.Id] += (int)player.GetCurrencyQuantity((uint)currency.CurrencyTypesID);
+
+                        break;
+                    case TraitCurrencyType.TraitSourced:
+                        var currencySources = _traitCurrencySourcesByCurrency.LookupByKey(currency.Id);
+
+                        if (currencySources != null)
+                            foreach (var currencySource in currencySources)
+                            {
+                                if (currencySource.QuestID != 0 && !player.IsQuestRewarded(currencySource.QuestID))
+                                    continue;
+
+                                if (currencySource.AchievementID != 0 && !player.HasAchieved(currencySource.AchievementID))
+                                    continue;
+
+                                if (currencySource.PlayerLevel != 0 && player.Level < currencySource.PlayerLevel)
+                                    continue;
+
+                                if (currencySource.TraitNodeEntryID != 0 && !HasTraitNodeEntry(currencySource.TraitNodeEntryID))
+                                    continue;
+
+                                if (!currencies.ContainsKey(currencySource.TraitCurrencyID))
+                                    currencies[currencySource.TraitCurrencyID] = 0;
+
+                                currencies[currencySource.TraitCurrencyID] += currencySource.Amount;
+                            }
+
+                        break;
+                }
+        }
+    }
+
+    public void FillSpentCurrenciesMap(TraitEntryPacket entry, Dictionary<int, int> cachedCurrencies)
+    {
+        var node = _traitNodes.LookupByKey(entry.TraitNodeID);
+
+        foreach (var group in node.Groups)
+        {
+            foreach (var cost in group.Costs)
+            {
+                if (!cachedCurrencies.ContainsKey(cost.TraitCurrencyID))
+                    cachedCurrencies[cost.TraitCurrencyID] = 0;
+
+                cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
+            }
+        }
+
+        var nodeEntryItr = node.Entries.Find(nodeEntry => nodeEntry.Data.Id == entry.TraitNodeEntryID);
+
+        if (nodeEntryItr != null)
+            foreach (var cost in nodeEntryItr.Costs)
+            {
+                if (!cachedCurrencies.ContainsKey(cost.TraitCurrencyID))
+                    cachedCurrencies[cost.TraitCurrencyID] = 0;
+
+                cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
+            }
+
+        foreach (var cost in node.Costs)
+        {
+            if (!cachedCurrencies.ContainsKey(cost.TraitCurrencyID))
+                cachedCurrencies[cost.TraitCurrencyID] = 0;
+
+            cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
+        }
+
+        var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
+
+        if (tree != null)
+            foreach (var cost in tree.Costs)
+            {
+                if (!cachedCurrencies.ContainsKey(cost.TraitCurrencyID))
+                    cachedCurrencies[cost.TraitCurrencyID] = 0;
+
+                cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
+            }
+    }
+
+    public void FillSpentCurrenciesMap(TraitConfigPacket traitConfig, Dictionary<int, int> cachedCurrencies)
+    {
+        foreach (var kvp in traitConfig.Entries.Values)
+            foreach (var entry in kvp.Values)
+                FillSpentCurrenciesMap(entry, cachedCurrencies);
+    }
+
+    public int GenerateNewTraitConfigId()
+    {
+        if (_configIdGenerator == int.MaxValue)
+            _configIdGenerator = 0;
+
+        return ++_configIdGenerator;
+    }
+
+    public TraitConfigType GetConfigTypeForTree(int traitTreeId)
+    {
+        var tree = _traitTrees.LookupByKey(traitTreeId);
+
+        if (tree == null)
+            return TraitConfigType.Invalid;
+
+        return tree.ConfigType;
+    }
+
+    public List<TraitEntry> GetGrantedTraitEntriesForConfig(TraitConfigPacket traitConfig, Player player)
+    {
+        List<TraitEntry> entries = new();
+        var trees = GetTreesForConfig(traitConfig);
+
+        if (trees == null)
+            return entries;
+
+        TraitEntry GetOrCreateEntry(uint nodeId, uint entryId)
+        {
+            var foundTraitEntry = entries.Find(traitEntry => traitEntry.TraitNodeID == nodeId && traitEntry.TraitNodeEntryID == entryId);
+
+            if (foundTraitEntry == null)
+            {
+                foundTraitEntry = new TraitEntry
+                {
+                    TraitNodeID = (int)nodeId,
+                    TraitNodeEntryID = (int)entryId,
+                    Rank = 0,
+                    GrantedRanks = 0
+                };
+
+                entries.Add(foundTraitEntry);
+            }
+
+            return foundTraitEntry;
+        }
+
+        foreach (var tree in trees)
+        {
+            foreach (var node in tree.Nodes)
+            {
+                foreach (var entry in node.Entries)
+                    foreach (var condition in entry.Conditions)
+                        if (condition.GetCondType() == TraitConditionType.Granted && MeetsTraitCondition(traitConfig, player, condition, node))
+                            GetOrCreateEntry(node.Data.Id, entry.Data.Id).GrantedRanks += condition.GrantedRanks;
+
+                foreach (var condition in node.Conditions)
+                    if (condition.GetCondType() == TraitConditionType.Granted && MeetsTraitCondition(traitConfig, player, condition, node))
+                        foreach (var entry in node.Entries)
+                            GetOrCreateEntry(node.Data.Id, entry.Data.Id).GrantedRanks += condition.GrantedRanks;
+
+                foreach (var group in node.Groups)
+                    foreach (var condition in group.Conditions)
+                        if (condition.GetCondType() == TraitConditionType.Granted && MeetsTraitCondition(traitConfig, player, condition, node))
+                            foreach (var entry in node.Entries)
+                                GetOrCreateEntry(node.Data.Id, entry.Data.Id).GrantedRanks += condition.GrantedRanks;
+            }
+        }
+
+        return entries;
+    }
+
+    public List<TraitDefinitionEffectPointsRecord> GetTraitDefinitionEffectPointModifiers(int traitDefinitionId)
+    {
+        return _traitDefinitionEffectPointModifiers.LookupByKey(traitDefinitionId);
+    }
+
+    public List<Tree> GetTreesForConfig(TraitConfigPacket traitConfig)
+    {
+        switch (traitConfig.Type)
+        {
+            case TraitConfigType.Combat:
+                var chrSpecializationEntry = _cliDB.ChrSpecializationStorage.LookupByKey((uint)traitConfig.ChrSpecializationID);
+
+                if (chrSpecializationEntry != null)
+                    return _traitTreesBySkillLine.LookupByKey(_skillLinesByClass[chrSpecializationEntry.ClassID]);
+
+                break;
+            case TraitConfigType.Profession:
+                return _traitTreesBySkillLine.LookupByKey(traitConfig.SkillLineID);
+            case TraitConfigType.Generic:
+                return _traitTreesByTraitSystem.LookupByKey(traitConfig.TraitSystemID);
+        }
+
+        return null;
+    }
+
+    public bool HasEnoughCurrency(TraitEntryPacket entry, Dictionary<int, int> currencies)
+    {
+        int GetCurrencyCount(int currencyId)
+        {
+            return currencies.LookupByKey(currencyId);
+        }
+
+        var node = _traitNodes.LookupByKey(entry.TraitNodeID);
+
+        foreach (var group in node.Groups)
+            foreach (var cost in group.Costs)
+                if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
+                    return false;
+
+        var nodeEntryItr = node.Entries.Find(nodeEntry => nodeEntry.Data.Id == entry.TraitNodeEntryID);
+
+        if (nodeEntryItr != null)
+            foreach (var cost in nodeEntryItr.Costs)
+                if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
+                    return false;
+
+        foreach (var cost in node.Costs)
+            if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
+                return false;
+
+        var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
+
+        if (tree != null)
+            foreach (var cost in tree.Costs)
+                if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
+                    return false;
+
+        return true;
+    }
+
+    public void InitializeStarterBuildTraitConfig(TraitConfigPacket traitConfig, Player player)
+    {
+        traitConfig.Entries.Clear();
+        var trees = GetTreesForConfig(traitConfig);
+
+        if (trees == null)
+            return;
+
+        foreach (var grant in GetGrantedTraitEntriesForConfig(traitConfig, player))
+        {
+            TraitEntryPacket newEntry = new()
+            {
+                TraitNodeID = grant.TraitNodeID,
+                TraitNodeEntryID = grant.TraitNodeEntryID,
+                GrantedRanks = grant.GrantedRanks
+            };
+
+            traitConfig.AddEntry(newEntry);
+        }
+
+        Dictionary<int, int> currencies = new();
+        FillOwnedCurrenciesMap(traitConfig, player, currencies);
+
+        var loadoutEntries = _traitTreeLoadoutsByChrSpecialization.LookupByKey(traitConfig.ChrSpecializationID);
+
+        if (loadoutEntries != null)
+        {
+            TraitEntryPacket FindEntry(TraitConfigPacket config, int traitNodeId, int traitNodeEntryId)
+            {
+                return config.Entries.LookupByKey(traitNodeId)?.LookupByKey(traitNodeEntryId);
+            }
+
+            foreach (var loadoutEntry in loadoutEntries)
+            {
+                var addedRanks = loadoutEntry.NumPoints;
+                var node = _traitNodes.LookupByKey(loadoutEntry.SelectedTraitNodeID);
+
+                TraitEntryPacket newEntry = new()
+                {
+                    TraitNodeID = loadoutEntry.SelectedTraitNodeID,
+                    TraitNodeEntryID = loadoutEntry.SelectedTraitNodeEntryID
+                };
+
+                if (newEntry.TraitNodeEntryID == 0)
+                    newEntry.TraitNodeEntryID = (int)node.Entries[0].Data.Id;
+
+                var entryInConfig = FindEntry(traitConfig, newEntry.TraitNodeID, newEntry.TraitNodeEntryID);
+
+                if (entryInConfig != null)
+                    addedRanks -= entryInConfig.Rank;
+
+                newEntry.Rank = addedRanks;
+
+                if (!HasEnoughCurrency(newEntry, currencies))
+                    continue;
+
+                if (entryInConfig != null)
+                    entryInConfig.Rank += addedRanks;
+                else
+                    traitConfig.AddEntry(newEntry);
+
+                TakeCurrencyCost(newEntry, currencies);
+            }
+        }
+    }
+
+    public bool IsValidEntry(TraitEntryPacket traitEntry)
+    {
+        var node = _traitNodes.LookupByKey(traitEntry.TraitNodeID);
+
+        var entryItr = node?.Entries.Find(entry => entry.Data.Id == traitEntry.TraitNodeEntryID);
+
+        if (entryItr == null)
+            return false;
+
+        if (entryItr.Data.MaxRanks < traitEntry.Rank + traitEntry.GrantedRanks)
+            return false;
+
+        return true;
     }
 
     public void Load()
@@ -315,229 +648,11 @@ internal class TraitMgr
      * Generates new TraitConfig identifier.
      * Because this only needs to be unique for each character we let it overflow
      */
-    public int GenerateNewTraitConfigId()
-    {
-        if (_configIdGenerator == int.MaxValue)
-            _configIdGenerator = 0;
-
-        return ++_configIdGenerator;
-    }
-
-    public TraitConfigType GetConfigTypeForTree(int traitTreeId)
-    {
-        var tree = _traitTrees.LookupByKey(traitTreeId);
-
-        if (tree == null)
-            return TraitConfigType.Invalid;
-
-        return tree.ConfigType;
-    }
-
     /**
      * @brief Finds relevant TraitTree identifiers
      * @param traitConfig config data
      * @return Trait tree data
      */
-    public List<Tree> GetTreesForConfig(TraitConfigPacket traitConfig)
-    {
-        switch (traitConfig.Type)
-        {
-            case TraitConfigType.Combat:
-                var chrSpecializationEntry = _cliDB.ChrSpecializationStorage.LookupByKey((uint)traitConfig.ChrSpecializationID);
-
-                if (chrSpecializationEntry != null)
-                    return _traitTreesBySkillLine.LookupByKey(_skillLinesByClass[chrSpecializationEntry.ClassID]);
-
-                break;
-            case TraitConfigType.Profession:
-                return _traitTreesBySkillLine.LookupByKey(traitConfig.SkillLineID);
-            case TraitConfigType.Generic:
-                return _traitTreesByTraitSystem.LookupByKey(traitConfig.TraitSystemID);
-        }
-
-        return null;
-    }
-
-    public bool HasEnoughCurrency(TraitEntryPacket entry, Dictionary<int, int> currencies)
-    {
-        int GetCurrencyCount(int currencyId)
-        {
-            return currencies.LookupByKey(currencyId);
-        }
-
-        var node = _traitNodes.LookupByKey(entry.TraitNodeID);
-
-        foreach (var group in node.Groups)
-            foreach (var cost in group.Costs)
-                if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
-                    return false;
-
-        var nodeEntryItr = node.Entries.Find(nodeEntry => nodeEntry.Data.Id == entry.TraitNodeEntryID);
-
-        if (nodeEntryItr != null)
-            foreach (var cost in nodeEntryItr.Costs)
-                if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
-                    return false;
-
-        foreach (var cost in node.Costs)
-            if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
-                return false;
-
-        var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
-
-        if (tree != null)
-            foreach (var cost in tree.Costs)
-                if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
-                    return false;
-
-        return true;
-    }
-
-    public void TakeCurrencyCost(TraitEntryPacket entry, Dictionary<int, int> currencies)
-    {
-        var node = _traitNodes.LookupByKey(entry.TraitNodeID);
-
-        foreach (var group in node.Groups)
-            foreach (var cost in group.Costs)
-                currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
-
-        var nodeEntryItr = node.Entries.Find(nodeEntry => nodeEntry.Data.Id == entry.TraitNodeEntryID);
-
-        if (nodeEntryItr != null)
-            foreach (var cost in nodeEntryItr.Costs)
-                currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
-
-        foreach (var cost in node.Costs)
-            currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
-
-        var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
-
-        if (tree != null)
-            foreach (var cost in tree.Costs)
-                currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
-    }
-
-    public void FillOwnedCurrenciesMap(TraitConfigPacket traitConfig, Player player, Dictionary<int, int> currencies)
-    {
-        var trees = GetTreesForConfig(traitConfig);
-
-        if (trees == null)
-            return;
-
-        bool HasTraitNodeEntry(int traitNodeEntryId)
-        {
-            return traitConfig.Entries.Any(traitEntry => traitEntry.Value.TryGetValue(traitNodeEntryId, out var entry) && (entry.Rank > 0 || entry.GrantedRanks > 0));
-        }
-
-        foreach (var tree in trees)
-        {
-            foreach (var currency in tree.Currencies)
-                switch (currency.GetCurrencyType())
-                {
-                    case TraitCurrencyType.Gold:
-                    {
-                        if (!currencies.ContainsKey((int)currency.Id))
-                            currencies[(int)currency.Id] = 0;
-
-                        // TODO amount is never used.
-                        //var amount = currencies[(int)currency.Id];
-
-                        //if (player.Money > (ulong)(int.MaxValue - amount))
-                        //	amount = int.MaxValue;
-                        //else
-                        //	amount += (int)player.Money;
-
-                        break;
-                    }
-                    case TraitCurrencyType.CurrencyTypesBased:
-                        if (!currencies.ContainsKey((int)currency.Id))
-                            currencies[(int)currency.Id] = 0;
-
-                        currencies[(int)currency.Id] += (int)player.GetCurrencyQuantity((uint)currency.CurrencyTypesID);
-
-                        break;
-                    case TraitCurrencyType.TraitSourced:
-                        var currencySources = _traitCurrencySourcesByCurrency.LookupByKey(currency.Id);
-
-                        if (currencySources != null)
-                            foreach (var currencySource in currencySources)
-                            {
-                                if (currencySource.QuestID != 0 && !player.IsQuestRewarded(currencySource.QuestID))
-                                    continue;
-
-                                if (currencySource.AchievementID != 0 && !player.HasAchieved(currencySource.AchievementID))
-                                    continue;
-
-                                if (currencySource.PlayerLevel != 0 && player.Level < currencySource.PlayerLevel)
-                                    continue;
-
-                                if (currencySource.TraitNodeEntryID != 0 && !HasTraitNodeEntry(currencySource.TraitNodeEntryID))
-                                    continue;
-
-                                if (!currencies.ContainsKey(currencySource.TraitCurrencyID))
-                                    currencies[currencySource.TraitCurrencyID] = 0;
-
-                                currencies[currencySource.TraitCurrencyID] += currencySource.Amount;
-                            }
-
-                        break;
-                }
-        }
-    }
-
-    public void FillSpentCurrenciesMap(TraitEntryPacket entry, Dictionary<int, int> cachedCurrencies)
-    {
-        var node = _traitNodes.LookupByKey(entry.TraitNodeID);
-
-        foreach (var group in node.Groups)
-        {
-            foreach (var cost in group.Costs)
-            {
-                if (!cachedCurrencies.ContainsKey(cost.TraitCurrencyID))
-                    cachedCurrencies[cost.TraitCurrencyID] = 0;
-
-                cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
-            }
-        }
-
-        var nodeEntryItr = node.Entries.Find(nodeEntry => nodeEntry.Data.Id == entry.TraitNodeEntryID);
-
-        if (nodeEntryItr != null)
-            foreach (var cost in nodeEntryItr.Costs)
-            {
-                if (!cachedCurrencies.ContainsKey(cost.TraitCurrencyID))
-                    cachedCurrencies[cost.TraitCurrencyID] = 0;
-
-                cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
-            }
-
-        foreach (var cost in node.Costs)
-        {
-            if (!cachedCurrencies.ContainsKey(cost.TraitCurrencyID))
-                cachedCurrencies[cost.TraitCurrencyID] = 0;
-
-            cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
-        }
-
-        var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
-
-        if (tree != null)
-            foreach (var cost in tree.Costs)
-            {
-                if (!cachedCurrencies.ContainsKey(cost.TraitCurrencyID))
-                    cachedCurrencies[cost.TraitCurrencyID] = 0;
-
-                cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
-            }
-    }
-
-    public void FillSpentCurrenciesMap(TraitConfigPacket traitConfig, Dictionary<int, int> cachedCurrencies)
-    {
-        foreach (var kvp in traitConfig.Entries.Values)
-            foreach (var entry in kvp.Values)
-                FillSpentCurrenciesMap(entry, cachedCurrencies);
-    }
-
     public bool MeetsTraitCondition(TraitConfigPacket traitConfig, Player player, TraitCondRecord condition, Node node)
     {
         if (condition.QuestID != 0 && !player.IsQuestRewarded(condition.QuestID))
@@ -576,74 +691,29 @@ internal class TraitMgr
         return true;
     }
 
-    public List<TraitEntry> GetGrantedTraitEntriesForConfig(TraitConfigPacket traitConfig, Player player)
+    public void TakeCurrencyCost(TraitEntryPacket entry, Dictionary<int, int> currencies)
     {
-        List<TraitEntry> entries = new();
-        var trees = GetTreesForConfig(traitConfig);
+        var node = _traitNodes.LookupByKey(entry.TraitNodeID);
 
-        if (trees == null)
-            return entries;
+        foreach (var group in node.Groups)
+            foreach (var cost in group.Costs)
+                currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
 
-        TraitEntry GetOrCreateEntry(uint nodeId, uint entryId)
-        {
-            var foundTraitEntry = entries.Find(traitEntry => traitEntry.TraitNodeID == nodeId && traitEntry.TraitNodeEntryID == entryId);
+        var nodeEntryItr = node.Entries.Find(nodeEntry => nodeEntry.Data.Id == entry.TraitNodeEntryID);
 
-            if (foundTraitEntry == null)
-            {
-                foundTraitEntry = new TraitEntry
-                {
-                    TraitNodeID = (int)nodeId,
-                    TraitNodeEntryID = (int)entryId,
-                    Rank = 0,
-                    GrantedRanks = 0
-                };
+        if (nodeEntryItr != null)
+            foreach (var cost in nodeEntryItr.Costs)
+                currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
 
-                entries.Add(foundTraitEntry);
-            }
+        foreach (var cost in node.Costs)
+            currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
 
-            return foundTraitEntry;
-        }
+        var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
 
-        foreach (var tree in trees)
-        {
-            foreach (var node in tree.Nodes)
-            {
-                foreach (var entry in node.Entries)
-                    foreach (var condition in entry.Conditions)
-                        if (condition.GetCondType() == TraitConditionType.Granted && MeetsTraitCondition(traitConfig, player, condition, node))
-                            GetOrCreateEntry(node.Data.Id, entry.Data.Id).GrantedRanks += condition.GrantedRanks;
-
-                foreach (var condition in node.Conditions)
-                    if (condition.GetCondType() == TraitConditionType.Granted && MeetsTraitCondition(traitConfig, player, condition, node))
-                        foreach (var entry in node.Entries)
-                            GetOrCreateEntry(node.Data.Id, entry.Data.Id).GrantedRanks += condition.GrantedRanks;
-
-                foreach (var group in node.Groups)
-                    foreach (var condition in group.Conditions)
-                        if (condition.GetCondType() == TraitConditionType.Granted && MeetsTraitCondition(traitConfig, player, condition, node))
-                            foreach (var entry in node.Entries)
-                                GetOrCreateEntry(node.Data.Id, entry.Data.Id).GrantedRanks += condition.GrantedRanks;
-            }
-        }
-
-        return entries;
+        if (tree != null)
+            foreach (var cost in tree.Costs)
+                currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
     }
-
-    public bool IsValidEntry(TraitEntryPacket traitEntry)
-    {
-        var node = _traitNodes.LookupByKey(traitEntry.TraitNodeID);
-
-        var entryItr = node?.Entries.Find(entry => entry.Data.Id == traitEntry.TraitNodeEntryID);
-
-        if (entryItr == null)
-            return false;
-
-        if (entryItr.Data.MaxRanks < traitEntry.Rank + traitEntry.GrantedRanks)
-            return false;
-
-        return true;
-    }
-
     public TalentLearnResult ValidateConfig(TraitConfigPacket traitConfig, Player player, bool requireSpendingAllCurrencies = false)
     {
         int GetNodeEntryCount(int traitNodeId)
@@ -768,76 +838,5 @@ internal class TraitMgr
             }
 
         return TalentLearnResult.LearnOk;
-    }
-
-    public List<TraitDefinitionEffectPointsRecord> GetTraitDefinitionEffectPointModifiers(int traitDefinitionId)
-    {
-        return _traitDefinitionEffectPointModifiers.LookupByKey(traitDefinitionId);
-    }
-
-    public void InitializeStarterBuildTraitConfig(TraitConfigPacket traitConfig, Player player)
-    {
-        traitConfig.Entries.Clear();
-        var trees = GetTreesForConfig(traitConfig);
-
-        if (trees == null)
-            return;
-
-        foreach (var grant in GetGrantedTraitEntriesForConfig(traitConfig, player))
-        {
-            TraitEntryPacket newEntry = new()
-            {
-                TraitNodeID = grant.TraitNodeID,
-                TraitNodeEntryID = grant.TraitNodeEntryID,
-                GrantedRanks = grant.GrantedRanks
-            };
-
-            traitConfig.AddEntry(newEntry);
-        }
-
-        Dictionary<int, int> currencies = new();
-        FillOwnedCurrenciesMap(traitConfig, player, currencies);
-
-        var loadoutEntries = _traitTreeLoadoutsByChrSpecialization.LookupByKey(traitConfig.ChrSpecializationID);
-
-        if (loadoutEntries != null)
-        {
-            TraitEntryPacket FindEntry(TraitConfigPacket config, int traitNodeId, int traitNodeEntryId)
-            {
-                return config.Entries.LookupByKey(traitNodeId)?.LookupByKey(traitNodeEntryId);
-            }
-
-            foreach (var loadoutEntry in loadoutEntries)
-            {
-                var addedRanks = loadoutEntry.NumPoints;
-                var node = _traitNodes.LookupByKey(loadoutEntry.SelectedTraitNodeID);
-
-                TraitEntryPacket newEntry = new()
-                {
-                    TraitNodeID = loadoutEntry.SelectedTraitNodeID,
-                    TraitNodeEntryID = loadoutEntry.SelectedTraitNodeEntryID
-                };
-
-                if (newEntry.TraitNodeEntryID == 0)
-                    newEntry.TraitNodeEntryID = (int)node.Entries[0].Data.Id;
-
-                var entryInConfig = FindEntry(traitConfig, newEntry.TraitNodeID, newEntry.TraitNodeEntryID);
-
-                if (entryInConfig != null)
-                    addedRanks -= entryInConfig.Rank;
-
-                newEntry.Rank = addedRanks;
-
-                if (!HasEnoughCurrency(newEntry, currencies))
-                    continue;
-
-                if (entryInConfig != null)
-                    entryInConfig.Rank += addedRanks;
-                else
-                    traitConfig.AddEntry(newEntry);
-
-                TakeCurrencyCost(newEntry, currencies);
-            }
-        }
     }
 }

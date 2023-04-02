@@ -36,7 +36,7 @@ public class spell_monk_essence_font_heal : SpellScript, IHasSpellEffects
                 if (unit == caster)
                     return true;
 
-                if (unit.HasAura(MonkSpells.ESSENCE_FONT_HEAL) && unit.GetAura(MonkSpells.ESSENCE_FONT_HEAL).Duration > 5 * Time.InMilliseconds)
+                if (unit.HasAura(MonkSpells.ESSENCE_FONT_HEAL) && unit.GetAura(MonkSpells.ESSENCE_FONT_HEAL).Duration > 5 * Time.IN_MILLISECONDS)
                     return true;
 
                 return false;

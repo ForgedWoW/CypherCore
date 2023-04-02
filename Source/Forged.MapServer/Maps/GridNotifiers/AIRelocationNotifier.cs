@@ -11,11 +11,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class AIRelocationNotifier : IGridNotifierCreature
 {
-    private readonly Unit _unit;
     private readonly bool _isCreature;
-
-    public GridType GridType { get; set; }
-
+    private readonly Unit _unit;
     public AIRelocationNotifier(Unit unit, GridType gridType)
     {
         _unit = unit;
@@ -23,6 +20,7 @@ public class AIRelocationNotifier : IGridNotifierCreature
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

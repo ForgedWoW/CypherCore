@@ -16,24 +16,23 @@ namespace Forged.MapServer.SupportSystem;
 
 public class SupportManager
 {
-    private readonly CharacterDatabase _characterDatabase;
     private readonly Dictionary<uint, BugTicket> _bugTicketList = new();
+    private readonly CharacterDatabase _characterDatabase;
     private readonly Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
     private readonly Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
 
-    private bool _supportSystemStatus;
-    private bool _ticketSystemStatus;
     private bool _bugSystemStatus;
     private bool _complaintSystemStatus;
-    private bool _suggestionSystemStatus;
     private uint _lastBugId;
+    private ulong _lastChange;
     private uint _lastComplaintId;
     private uint _lastSuggestionId;
     private uint _openBugTicketCount;
     private uint _openComplaintTicketCount;
     private uint _openSuggestionTicketCount;
-    private ulong _lastChange;
-
+    private bool _suggestionSystemStatus;
+    private bool _supportSystemStatus;
+    private bool _ticketSystemStatus;
     public SupportManager(IConfiguration configuration, CharacterDatabase characterDatabase)
     {
         _characterDatabase = characterDatabase;
@@ -42,6 +41,120 @@ public class SupportManager
         SetBugSystemStatus(configuration.GetDefaultValue("Support.BugsEnabled", false));
         SetComplaintSystemStatus(configuration.GetDefaultValue("Support.ComplaintsEnabled", false));
         SetSuggestionSystemStatus(configuration.GetDefaultValue("Support.SuggestionsEnabled", false));
+    }
+
+    public void AddTicket<T>(T ticket) where T : Ticket
+    {
+        switch (typeof(T).Name)
+        {
+            case "BugTicket":
+                _bugTicketList[ticket.Id] = ticket as BugTicket;
+
+                if (!ticket.IsClosed)
+                    ++_openBugTicketCount;
+
+                break;
+            case "ComplaintTicket":
+                _complaintTicketList[ticket.Id] = ticket as ComplaintTicket;
+
+                if (!ticket.IsClosed)
+                    ++_openComplaintTicketCount;
+
+                break;
+            case "SuggestionTicket":
+                _suggestionTicketList[ticket.Id] = ticket as SuggestionTicket;
+
+                if (!ticket.IsClosed)
+                    ++_openSuggestionTicketCount;
+
+                break;
+        }
+
+        ticket.SaveToDB();
+    }
+
+    public void CloseTicket<T>(uint ticketId, ObjectGuid closedBy) where T : Ticket
+    {
+        var ticket = GetTicket<T>(ticketId);
+
+        if (ticket != null)
+        {
+            ticket.SetClosedBy(closedBy);
+
+            if (!closedBy.IsEmpty)
+                switch (typeof(T).Name)
+                {
+                    case "BugTicket":
+                        --_openBugTicketCount;
+
+                        break;
+                    case "ComplaintTicket":
+                        --_openComplaintTicketCount;
+
+                        break;
+                    case "SuggestionTicket":
+                        --_openSuggestionTicketCount;
+
+                        break;
+                }
+
+            ticket.SaveToDB();
+        }
+    }
+
+    public uint GenerateBugId()
+    {
+        return ++_lastBugId;
+    }
+
+    public uint GenerateComplaintId()
+    {
+        return ++_lastComplaintId;
+    }
+
+    public uint GenerateSuggestionId()
+    {
+        return ++_lastSuggestionId;
+    }
+
+    public bool GetBugSystemStatus()
+    {
+        return _supportSystemStatus && _bugSystemStatus;
+    }
+
+    public bool GetComplaintSystemStatus()
+    {
+        return _supportSystemStatus && _complaintSystemStatus;
+    }
+
+    public ulong GetLastChange()
+    {
+        return _lastChange;
+    }
+
+    public uint GetOpenTicketCount<T>() where T : Ticket
+    {
+        switch (typeof(T).Name)
+        {
+            case "BugTicket":
+                return _openBugTicketCount;
+            case "ComplaintTicket":
+                return _openComplaintTicketCount;
+            case "SuggestionTicket":
+                return _openSuggestionTicketCount;
+        }
+
+        return 0;
+    }
+
+    public bool GetSuggestionSystemStatus()
+    {
+        return _supportSystemStatus && _suggestionSystemStatus;
+    }
+
+    public bool GetSupportSystemStatus()
+    {
+        return _supportSystemStatus;
     }
 
     public T GetTicket<T>(uint id) where T : Ticket
@@ -58,20 +171,9 @@ public class SupportManager
 
         return default;
     }
-
-    public uint GetOpenTicketCount<T>() where T : Ticket
+    public bool GetTicketSystemStatus()
     {
-        switch (typeof(T).Name)
-        {
-            case "BugTicket":
-                return _openBugTicketCount;
-            case "ComplaintTicket":
-                return _openComplaintTicketCount;
-            case "SuggestionTicket":
-                return _openSuggestionTicketCount;
-        }
-
-        return 0;
+        return _supportSystemStatus && _ticketSystemStatus;
     }
 
     public void LoadBugTickets()
@@ -205,37 +307,6 @@ public class SupportManager
 
         Log.Logger.Information("Loaded {0} GM suggestions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
-
-    public void AddTicket<T>(T ticket) where T : Ticket
-    {
-        switch (typeof(T).Name)
-        {
-            case "BugTicket":
-                _bugTicketList[ticket.Id] = ticket as BugTicket;
-
-                if (!ticket.IsClosed)
-                    ++_openBugTicketCount;
-
-                break;
-            case "ComplaintTicket":
-                _complaintTicketList[ticket.Id] = ticket as ComplaintTicket;
-
-                if (!ticket.IsClosed)
-                    ++_openComplaintTicketCount;
-
-                break;
-            case "SuggestionTicket":
-                _suggestionTicketList[ticket.Id] = ticket as SuggestionTicket;
-
-                if (!ticket.IsClosed)
-                    ++_openSuggestionTicketCount;
-
-                break;
-        }
-
-        ticket.SaveToDB();
-    }
-
     public void RemoveTicket<T>(uint ticketId) where T : Ticket
     {
         var ticket = GetTicket<T>(ticketId);
@@ -261,36 +332,6 @@ public class SupportManager
             }
         }
     }
-
-    public void CloseTicket<T>(uint ticketId, ObjectGuid closedBy) where T : Ticket
-    {
-        var ticket = GetTicket<T>(ticketId);
-
-        if (ticket != null)
-        {
-            ticket.SetClosedBy(closedBy);
-
-            if (!closedBy.IsEmpty)
-                switch (typeof(T).Name)
-                {
-                    case "BugTicket":
-                        --_openBugTicketCount;
-
-                        break;
-                    case "ComplaintTicket":
-                        --_openComplaintTicketCount;
-
-                        break;
-                    case "SuggestionTicket":
-                        --_openSuggestionTicketCount;
-
-                        break;
-                }
-
-            ticket.SaveToDB();
-        }
-    }
-
     public void ResetTickets<T>() where T : Ticket
     {
         PreparedStatement stmt;
@@ -329,31 +370,29 @@ public class SupportManager
         }
     }
 
-    public void ShowList<T>(CommandHandler handler) where T : Ticket
+    public void SetBugSystemStatus(bool status)
     {
-        handler.SendSysMessage(CypherStrings.CommandTicketshowlist);
+        _bugSystemStatus = status;
+    }
 
-        switch (typeof(T).Name)
-        {
-            case "BugTicket":
-                foreach (var ticket in _bugTicketList.Values)
-                    if (!ticket.IsClosed)
-                        handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+    public void SetComplaintSystemStatus(bool status)
+    {
+        _complaintSystemStatus = status;
+    }
 
-                break;
-            case "ComplaintTicket":
-                foreach (var ticket in _complaintTicketList.Values)
-                    if (!ticket.IsClosed)
-                        handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+    public void SetSuggestionSystemStatus(bool status)
+    {
+        _suggestionSystemStatus = status;
+    }
 
-                break;
-            case "SuggestionTicket":
-                foreach (var ticket in _suggestionTicketList.Values)
-                    if (!ticket.IsClosed)
-                        handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+    public void SetSupportSystemStatus(bool status)
+    {
+        _supportSystemStatus = status;
+    }
 
-                break;
-        }
+    public void SetTicketSystemStatus(bool status)
+    {
+        _ticketSystemStatus = status;
     }
 
     public void ShowClosedList<T>(CommandHandler handler) where T : Ticket
@@ -383,84 +422,39 @@ public class SupportManager
         }
     }
 
-    public bool GetSupportSystemStatus()
+    public void ShowList<T>(CommandHandler handler) where T : Ticket
     {
-        return _supportSystemStatus;
-    }
+        handler.SendSysMessage(CypherStrings.CommandTicketshowlist);
 
-    public bool GetTicketSystemStatus()
-    {
-        return _supportSystemStatus && _ticketSystemStatus;
-    }
+        switch (typeof(T).Name)
+        {
+            case "BugTicket":
+                foreach (var ticket in _bugTicketList.Values)
+                    if (!ticket.IsClosed)
+                        handler.SendSysMessage(ticket.FormatViewMessageString(handler));
 
-    public bool GetBugSystemStatus()
-    {
-        return _supportSystemStatus && _bugSystemStatus;
-    }
+                break;
+            case "ComplaintTicket":
+                foreach (var ticket in _complaintTicketList.Values)
+                    if (!ticket.IsClosed)
+                        handler.SendSysMessage(ticket.FormatViewMessageString(handler));
 
-    public bool GetComplaintSystemStatus()
-    {
-        return _supportSystemStatus && _complaintSystemStatus;
-    }
+                break;
+            case "SuggestionTicket":
+                foreach (var ticket in _suggestionTicketList.Values)
+                    if (!ticket.IsClosed)
+                        handler.SendSysMessage(ticket.FormatViewMessageString(handler));
 
-    public bool GetSuggestionSystemStatus()
-    {
-        return _supportSystemStatus && _suggestionSystemStatus;
+                break;
+        }
     }
-
-    public ulong GetLastChange()
-    {
-        return _lastChange;
-    }
-
-    public void SetSupportSystemStatus(bool status)
-    {
-        _supportSystemStatus = status;
-    }
-
-    public void SetTicketSystemStatus(bool status)
-    {
-        _ticketSystemStatus = status;
-    }
-
-    public void SetBugSystemStatus(bool status)
-    {
-        _bugSystemStatus = status;
-    }
-
-    public void SetComplaintSystemStatus(bool status)
-    {
-        _complaintSystemStatus = status;
-    }
-
-    public void SetSuggestionSystemStatus(bool status)
-    {
-        _suggestionSystemStatus = status;
-    }
-
     public void UpdateLastChange()
     {
-        _lastChange = (ulong)GameTime.GetGameTime();
+        _lastChange = (ulong)GameTime.CurrentTime;
     }
-
-    public uint GenerateBugId()
-    {
-        return ++_lastBugId;
-    }
-
-    public uint GenerateComplaintId()
-    {
-        return ++_lastComplaintId;
-    }
-
-    public uint GenerateSuggestionId()
-    {
-        return ++_lastSuggestionId;
-    }
-
     private long GetAge(ulong t)
     {
-        return (GameTime.GetGameTime() - (long)t) / Time.Day;
+        return (GameTime.CurrentTime - (long)t) / Time.DAY;
     }
 
     private IEnumerable<KeyValuePair<uint, ComplaintTicket>> GetComplaintsByPlayerGuid(ObjectGuid playerGuid)

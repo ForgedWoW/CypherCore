@@ -9,11 +9,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class PlayObjectSound : ServerPacket
 {
-    public ObjectGuid TargetObjectGUID;
-    public ObjectGuid SourceObjectGUID;
-    public uint SoundKitID;
-    public Vector3 Position;
     public int BroadcastTextID;
+    public Vector3 Position;
+    public uint SoundKitID;
+    public ObjectGuid SourceObjectGUID;
+    public ObjectGuid TargetObjectGUID;
     public PlayObjectSound() : base(ServerOpcodes.PlayObjectSound) { }
 
     public override void Write()

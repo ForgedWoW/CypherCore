@@ -9,6 +9,26 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("pet")]
 internal class PetCommands
 {
+    private static Pet GetSelectedPlayerPetOrOwn(CommandHandler handler)
+    {
+        var target = handler.SelectedUnit;
+
+        if (target)
+        {
+            if (target.IsTypeId(TypeId.Player))
+                return target.AsPlayer.CurrentPet;
+
+            if (target.IsPet)
+                return target.AsPet;
+
+            return null;
+        }
+
+        var player = handler.Session.Player;
+
+        return player ? player.CurrentPet : null;
+    }
+
     [Command("create", RBACPermissions.CommandPetCreate)]
     private static bool HandlePetCreateCommand(CommandHandler handler)
     {
@@ -105,26 +125,6 @@ internal class PetCommands
         return true;
     }
 
-    [Command("unlearn", RBACPermissions.CommandPetUnlearn)]
-    private static bool HandlePetUnlearnCommand(CommandHandler handler, uint spellId)
-    {
-        var pet = GetSelectedPlayerPetOrOwn(handler);
-
-        if (!pet)
-        {
-            handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
-
-            return false;
-        }
-
-        if (pet.HasSpell(spellId))
-            pet.RemoveSpell(spellId, false);
-        else
-            handler.SendSysMessage("Pet doesn't have that spell");
-
-        return true;
-    }
-
     [Command("level", RBACPermissions.CommandPetLevel)]
     private static bool HandlePetLevelCommand(CommandHandler handler, int level)
     {
@@ -160,23 +160,23 @@ internal class PetCommands
         return true;
     }
 
-    private static Pet GetSelectedPlayerPetOrOwn(CommandHandler handler)
+    [Command("unlearn", RBACPermissions.CommandPetUnlearn)]
+    private static bool HandlePetUnlearnCommand(CommandHandler handler, uint spellId)
     {
-        var target = handler.SelectedUnit;
+        var pet = GetSelectedPlayerPetOrOwn(handler);
 
-        if (target)
+        if (!pet)
         {
-            if (target.IsTypeId(TypeId.Player))
-                return target.AsPlayer.CurrentPet;
+            handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
 
-            if (target.IsPet)
-                return target.AsPet;
-
-            return null;
+            return false;
         }
 
-        var player = handler.Session.Player;
+        if (pet.HasSpell(spellId))
+            pet.RemoveSpell(spellId, false);
+        else
+            handler.SendSysMessage("Pet doesn't have that spell");
 
-        return player ? player.CurrentPet : null;
+        return true;
     }
 }

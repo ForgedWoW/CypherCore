@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootList : ServerPacket
 {
-    public ObjectGuid Owner;
     public ObjectGuid LootObj;
     public ObjectGuid? Master;
+    public ObjectGuid Owner;
     public ObjectGuid? RoundRobinWinner;
     public LootList() : base(ServerOpcodes.LootList, ConnectionType.Instance) { }
 

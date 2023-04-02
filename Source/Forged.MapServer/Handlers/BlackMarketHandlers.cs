@@ -19,16 +19,6 @@ namespace Forged.MapServer.Handlers;
 
 public class BlackMarketHandlers : IWorldSessionHandler
 {
-    public void SendBlackMarketWonNotification(BlackMarketEntry entry, Item item)
-    {
-        BlackMarketWon packet = new();
-
-        packet.MarketID = entry.MarketId;
-        packet.Item = new ItemInstance(item);
-
-        SendPacket(packet);
-    }
-
     public void SendBlackMarketOutbidNotification(BlackMarketTemplate templ)
     {
         BlackMarketOutbid packet = new();
@@ -40,54 +30,15 @@ public class BlackMarketHandlers : IWorldSessionHandler
         SendPacket(packet);
     }
 
-    [WorldPacketHandler(ClientOpcodes.BlackMarketOpen)]
-    private void HandleBlackMarketOpen(BlackMarketOpen blackMarketOpen)
+    public void SendBlackMarketWonNotification(BlackMarketEntry entry, Item item)
     {
-        var unit = Player.GetNPCIfCanInteractWith(blackMarketOpen.Guid, NPCFlags.BlackMarket, NPCFlags2.BlackMarketView);
+        BlackMarketWon packet = new();
 
-        if (!unit)
-        {
-            Log.Logger.Debug("WORLD: HandleBlackMarketHello - {0} not found or you can't interact with him.", blackMarketOpen.Guid.ToString());
+        packet.MarketID = entry.MarketId;
+        packet.Item = new ItemInstance(item);
 
-            return;
-        }
-
-        // remove fake death
-        if (Player.HasUnitState(UnitState.Died))
-            Player.RemoveAurasByType(AuraType.FeignDeath);
-
-        SendBlackMarketOpenResult(blackMarketOpen.Guid, unit);
+        SendPacket(packet);
     }
-
-    private void SendBlackMarketOpenResult(ObjectGuid guid, Creature auctioneer)
-    {
-        NPCInteractionOpenResult npcInteraction = new();
-        npcInteraction.Npc = guid;
-        npcInteraction.InteractionType = PlayerInteractionType.BlackMarketAuctioneer;
-        npcInteraction.Success = Global.BlackMarketMgr.IsEnabled;
-        SendPacket(npcInteraction);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.BlackMarketRequestItems)]
-    private void HandleBlackMarketRequestItems(BlackMarketRequestItems blackMarketRequestItems)
-    {
-        if (!Global.BlackMarketMgr.IsEnabled)
-            return;
-
-        var unit = Player.GetNPCIfCanInteractWith(blackMarketRequestItems.Guid, NPCFlags.BlackMarket, NPCFlags2.BlackMarketView);
-
-        if (!unit)
-        {
-            Log.Logger.Debug("WORLD: HandleBlackMarketRequestItems - {0} not found or you can't interact with him.", blackMarketRequestItems.Guid.ToString());
-
-            return;
-        }
-
-        BlackMarketRequestItemsResult result = new();
-        Global.BlackMarketMgr.BuildItemsResponse(result, Player);
-        SendPacket(result);
-    }
-
     [WorldPacketHandler(ClientOpcodes.BlackMarketBidOnItem)]
     private void HandleBlackMarketBidOnItem(BlackMarketBidOnItem blackMarketBidOnItem)
     {
@@ -156,6 +107,45 @@ public class BlackMarketHandlers : IWorldSessionHandler
         SendBlackMarketBidOnItemResult(BlackMarketError.Ok, blackMarketBidOnItem.MarketID, blackMarketBidOnItem.Item);
     }
 
+    [WorldPacketHandler(ClientOpcodes.BlackMarketOpen)]
+    private void HandleBlackMarketOpen(BlackMarketOpen blackMarketOpen)
+    {
+        var unit = Player.GetNPCIfCanInteractWith(blackMarketOpen.Guid, NPCFlags.BlackMarket, NPCFlags2.BlackMarketView);
+
+        if (!unit)
+        {
+            Log.Logger.Debug("WORLD: HandleBlackMarketHello - {0} not found or you can't interact with him.", blackMarketOpen.Guid.ToString());
+
+            return;
+        }
+
+        // remove fake death
+        if (Player.HasUnitState(UnitState.Died))
+            Player.RemoveAurasByType(AuraType.FeignDeath);
+
+        SendBlackMarketOpenResult(blackMarketOpen.Guid, unit);
+    }
+
+    [WorldPacketHandler(ClientOpcodes.BlackMarketRequestItems)]
+    private void HandleBlackMarketRequestItems(BlackMarketRequestItems blackMarketRequestItems)
+    {
+        if (!Global.BlackMarketMgr.IsEnabled)
+            return;
+
+        var unit = Player.GetNPCIfCanInteractWith(blackMarketRequestItems.Guid, NPCFlags.BlackMarket, NPCFlags2.BlackMarketView);
+
+        if (!unit)
+        {
+            Log.Logger.Debug("WORLD: HandleBlackMarketRequestItems - {0} not found or you can't interact with him.", blackMarketRequestItems.Guid.ToString());
+
+            return;
+        }
+
+        BlackMarketRequestItemsResult result = new();
+        Global.BlackMarketMgr.BuildItemsResponse(result, Player);
+        SendPacket(result);
+    }
+
     private void SendBlackMarketBidOnItemResult(BlackMarketError result, uint marketId, ItemInstance item)
     {
         BlackMarketBidOnItemResult packet = new();
@@ -165,5 +155,14 @@ public class BlackMarketHandlers : IWorldSessionHandler
         packet.Result = result;
 
         SendPacket(packet);
+    }
+
+    private void SendBlackMarketOpenResult(ObjectGuid guid, Creature auctioneer)
+    {
+        NPCInteractionOpenResult npcInteraction = new();
+        npcInteraction.Npc = guid;
+        npcInteraction.InteractionType = PlayerInteractionType.BlackMarketAuctioneer;
+        npcInteraction.Success = Global.BlackMarketMgr.IsEnabled;
+        SendPacket(npcInteraction);
     }
 }

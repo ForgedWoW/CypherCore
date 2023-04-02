@@ -14,30 +14,6 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class AuraApplication
 {
-    public Guid Guid { get; } = Guid.NewGuid();
-
-    public Unit Target { get; }
-
-    public Aura Base { get; }
-
-    public byte Slot { get; }
-
-    public AuraFlags Flags { get; private set; }
-
-    public HashSet<int> EffectMask { get; } = new();
-
-    public bool IsPositive => Flags.HasAnyFlag(AuraFlags.Positive);
-
-    public HashSet<int> EffectsToApply { get; private set; } = new();
-
-    public AuraRemoveMode RemoveMode { get; set; } // Store info for know remove aura reason
-
-    public bool HasRemoveMode => RemoveMode != 0;
-
-    public bool IsNeedClientUpdate { get; private set; }
-
-    private bool IsSelfcasted => Flags.HasAnyFlag(AuraFlags.NoCaster);
-
     public AuraApplication(Unit target, Unit caster, Aura aura, HashSet<int> effMask)
     {
         Target = target;
@@ -77,16 +53,20 @@ public class AuraApplication
         _InitFlags(caster, effMask);
     }
 
-    public void _Remove()
-    {
-        // update for out of range group members
-        if (Slot < SpellConst.MaxAuras)
-        {
-            Target.RemoveVisibleAura(this);
-            ClientUpdate(true);
-        }
-    }
+    public Aura Base { get; }
+    public HashSet<int> EffectMask { get; } = new();
+    public HashSet<int> EffectsToApply { get; private set; } = new();
+    public AuraFlags Flags { get; private set; }
+    public Guid Guid { get; } = Guid.NewGuid();
 
+    public bool HasRemoveMode => RemoveMode != 0;
+    public bool IsNeedClientUpdate { get; private set; }
+    public bool IsPositive => Flags.HasAnyFlag(AuraFlags.Positive);
+    public AuraRemoveMode RemoveMode { get; set; }
+    public byte Slot { get; }
+    public Unit Target { get; }
+    // Store info for know remove aura reason
+    private bool IsSelfcasted => Flags.HasAnyFlag(AuraFlags.NoCaster);
     public void _HandleEffect(int effIndex, bool apply)
     {
         var aurEff = Base.GetEffect(effIndex);
@@ -121,51 +101,15 @@ public class AuraApplication
         SetNeedClientUpdate();
     }
 
-    public void UpdateApplyEffectMask(HashSet<int> newEffMask, bool canHandleNewEffects)
+    public void _Remove()
     {
-        if (EffectsToApply.SetEquals(newEffMask))
-            return;
-
-        var toAdd = newEffMask.ToHashSet();
-        var toRemove = EffectsToApply.ToHashSet();
-
-        toAdd.SymmetricExceptWith(EffectsToApply);
-        toRemove.SymmetricExceptWith(newEffMask);
-
-        toAdd.ExceptWith(EffectsToApply);
-        toRemove.ExceptWith(newEffMask);
-
-        // quick check, removes application completely
-        if (toAdd.SetEquals(toRemove) && toAdd.Count == 0)
+        // update for out of range group members
+        if (Slot < SpellConst.MaxAuras)
         {
-            Target._UnapplyAura(this, AuraRemoveMode.Default);
-
-            return;
-        }
-
-        // update real effects only if they were applied already
-        EffectsToApply = newEffMask;
-
-        foreach (var eff in Base.AuraEffects)
-        {
-            if (HasEffect(eff.Key) && toRemove.Contains(eff.Key))
-                _HandleEffect(eff.Key, false);
-
-            if (canHandleNewEffects)
-                if (toAdd.Contains(eff.Key))
-                    _HandleEffect(eff.Key, true);
+            Target.RemoveVisibleAura(this);
+            ClientUpdate(true);
         }
     }
-
-    public void SetNeedClientUpdate()
-    {
-        if (IsNeedClientUpdate || RemoveMode != AuraRemoveMode.None)
-            return;
-
-        IsNeedClientUpdate = true;
-        Target.SetVisibleAuraUpdate(this);
-    }
-
     public void BuildUpdatePacket(ref AuraInfo auraInfo, bool remove)
     {
         auraInfo.Slot = Slot;
@@ -257,6 +201,50 @@ public class AuraApplication
         return EffectMask.Contains(effect);
     }
 
+    public void SetNeedClientUpdate()
+    {
+        if (IsNeedClientUpdate || RemoveMode != AuraRemoveMode.None)
+            return;
+
+        IsNeedClientUpdate = true;
+        Target.SetVisibleAuraUpdate(this);
+    }
+
+    public void UpdateApplyEffectMask(HashSet<int> newEffMask, bool canHandleNewEffects)
+    {
+        if (EffectsToApply.SetEquals(newEffMask))
+            return;
+
+        var toAdd = newEffMask.ToHashSet();
+        var toRemove = EffectsToApply.ToHashSet();
+
+        toAdd.SymmetricExceptWith(EffectsToApply);
+        toRemove.SymmetricExceptWith(newEffMask);
+
+        toAdd.ExceptWith(EffectsToApply);
+        toRemove.ExceptWith(newEffMask);
+
+        // quick check, removes application completely
+        if (toAdd.SetEquals(toRemove) && toAdd.Count == 0)
+        {
+            Target._UnapplyAura(this, AuraRemoveMode.Default);
+
+            return;
+        }
+
+        // update real effects only if they were applied already
+        EffectsToApply = newEffMask;
+
+        foreach (var eff in Base.AuraEffects)
+        {
+            if (HasEffect(eff.Key) && toRemove.Contains(eff.Key))
+                _HandleEffect(eff.Key, false);
+
+            if (canHandleNewEffects)
+                if (toAdd.Contains(eff.Key))
+                    _HandleEffect(eff.Key, true);
+        }
+    }
     private void _InitFlags(Unit caster, HashSet<int> effMask)
     {
         // mark as selfcasted if needed

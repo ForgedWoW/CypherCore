@@ -9,13 +9,12 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildBankQueryResults : ServerPacket
 {
+    public bool FullUpdate;
     public List<GuildBankItemInfo> ItemInfo;
+    public ulong Money;
+    public int Tab;
     public List<GuildBankTabInfo> TabInfo;
     public int WithdrawalsRemaining;
-    public int Tab;
-    public ulong Money;
-    public bool FullUpdate;
-
     public GuildBankQueryResults() : base(ServerOpcodes.GuildBankQueryResults)
     {
         ItemInfo = new List<GuildBankItemInfo>();

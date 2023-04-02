@@ -45,7 +45,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 
             if (aur != null)
             {
-                aur.SetDuration(Math.Min(duration * Time.InMilliseconds + aur.Duration, aur.MaxDuration));
+                aur.SetDuration(Math.Min(duration * Time.IN_MILLISECONDS + aur.Duration, aur.MaxDuration));
 
                 return;
             }
@@ -53,7 +53,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
             aur = caster.AddAura(DemonHunterSpells.METAMORPHOSIS_HAVOC, caster);
 
             if (aur != null)
-                aur.SetDuration(duration * Time.InMilliseconds);
+                aur.SetDuration(duration * Time.IN_MILLISECONDS);
         }
 
         // Check only if we are above the second threshold and we are falling under it just now
@@ -63,7 +63,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 
             if (aur != null)
             {
-                aur.SetDuration(Math.Min(duration * Time.InMilliseconds + aur.Duration, aur.MaxDuration));
+                aur.SetDuration(Math.Min(duration * Time.IN_MILLISECONDS + aur.Duration, aur.MaxDuration));
 
                 return;
             }

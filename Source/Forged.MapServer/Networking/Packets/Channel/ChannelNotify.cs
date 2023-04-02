@@ -9,17 +9,17 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 public class ChannelNotify : ServerPacket
 {
-    public string Sender = "";
-    public ObjectGuid SenderGuid;
-    public ObjectGuid SenderAccountID;
-    public ChatNotify Type;
-    public ChannelMemberFlags OldFlags;
-    public ChannelMemberFlags NewFlags;
     public string Channel;
+    public int ChatChannelID;
+    public ChannelMemberFlags NewFlags;
+    public ChannelMemberFlags OldFlags;
+    public string Sender = "";
+    public ObjectGuid SenderAccountID;
+    public ObjectGuid SenderGuid;
     public uint SenderVirtualRealm;
     public ObjectGuid TargetGuid;
     public uint TargetVirtualRealm;
-    public int ChatChannelID;
+    public ChatNotify Type;
     public ChannelNotify() : base(ServerOpcodes.ChannelNotify) { }
 
     public override void Write()

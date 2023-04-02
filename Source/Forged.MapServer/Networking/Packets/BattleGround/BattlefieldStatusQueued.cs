@@ -7,13 +7,13 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusQueued : ServerPacket
 {
-    public uint AverageWaitTime;
-    public BattlefieldStatusHeader Hdr = new();
     public bool AsGroup;
-    public bool SuspendedQueue;
+    public uint AverageWaitTime;
     public bool EligibleForMatchmaking;
-    public uint WaitTime;
+    public BattlefieldStatusHeader Hdr = new();
+    public bool SuspendedQueue;
     public int Unused920;
+    public uint WaitTime;
     public BattlefieldStatusQueued() : base(ServerOpcodes.BattlefieldStatusQueued) { }
 
     public override void Write()

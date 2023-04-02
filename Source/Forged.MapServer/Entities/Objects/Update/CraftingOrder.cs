@@ -9,22 +9,31 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class CraftingOrder : BaseUpdateData<Player>
 {
+    public UpdateField<CraftingOrderData> Data = new(-1, 2);
     public DynamicUpdateField<ItemEnchantData> Enchantments = new(-1, 0);
     public DynamicUpdateField<ItemGemData> Gems = new(-1, 1);
-    public UpdateField<CraftingOrderData> Data = new(-1, 2);
     public OptionalUpdateField<ItemInstance> RecraftItemInfo = new(-1, 3);
 
     public CraftingOrder() : base(4) { }
 
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Enchantments);
+        ClearChangesMask(Gems);
+        ClearChangesMask(Data);
+        ClearChangesMask(RecraftItemInfo);
+        ChangesMask.ResetAll();
+    }
+
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
-        Data.GetValue().WriteCreate(data, owner, receiver);
+        Data.Value.WriteCreate(data, owner, receiver);
         data.WriteBits(RecraftItemInfo.HasValue(), 1);
         data.WriteBits(Enchantments.Size(), 4);
         data.WriteBits(Gems.Size(), 2);
 
         if (RecraftItemInfo.HasValue())
-            RecraftItemInfo.GetValue().Write(data);
+            RecraftItemInfo.Value.Write(data);
 
         for (var i = 0; i < Enchantments.Size(); ++i)
             Enchantments[i].Write(data);
@@ -73,23 +82,14 @@ public class CraftingOrder : BaseUpdateData<Player>
                     Gems[i].Write(data);
 
         if (changesMask[2])
-            Data.GetValue().WriteUpdate(data, ignoreChangesMask, owner, receiver);
+            Data.Value.WriteUpdate(data, ignoreChangesMask, owner, receiver);
 
         data.WriteBits(RecraftItemInfo.HasValue(), 1);
 
         if (changesMask[3])
             if (RecraftItemInfo.HasValue())
-                RecraftItemInfo.GetValue().Write(data);
+                RecraftItemInfo.Value.Write(data);
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Enchantments);
-        ClearChangesMask(Gems);
-        ClearChangesMask(Data);
-        ClearChangesMask(RecraftItemInfo);
-        ChangesMask.ResetAll();
     }
 }

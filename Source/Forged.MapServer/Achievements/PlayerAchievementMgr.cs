@@ -33,28 +33,6 @@ public class PlayerAchievementMgr : AchievementManager
         _owner = owner;
     }
 
-    public override void Reset()
-    {
-        base.Reset();
-
-        foreach (var iter in CompletedAchievements)
-        {
-            AchievementDeleted achievementDeleted = new()
-            {
-                AchievementID = iter.Key
-            };
-
-            SendPacket(achievementDeleted);
-        }
-
-        CompletedAchievements.Clear();
-        AchievementPoints = 0;
-        DeleteFromDB(_owner.GUID);
-
-        // re-fill data
-        CheckAllAchievementCriteria(_owner);
-    }
-
     public static void DeleteFromDB(ObjectGuid guid)
     {
         SQLTransaction trans = new();
@@ -68,280 +46,6 @@ public class PlayerAchievementMgr : AchievementManager
         DB.Characters.Execute(stmt);
 
         DB.Characters.CommitTransaction(trans);
-    }
-
-    public void LoadFromDB(SQLResult achievementResult, SQLResult criteriaResult)
-    {
-        if (!achievementResult.IsEmpty())
-            do
-            {
-                var achievementid = achievementResult.Read<uint>(0);
-
-                // must not happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
-                var achievement = CliDB.AchievementStorage.LookupByKey(achievementid);
-
-                if (achievement == null)
-                    continue;
-
-                CompletedAchievementData ca = new()
-                {
-                    Date = achievementResult.Read<long>(1),
-                    Changed = false
-                };
-
-                AchievementPoints += achievement.Points;
-
-                // title achievement rewards are retroactive
-                var reward = Global.AchievementMgr.GetAchievementReward(achievement);
-
-                if (reward != null)
-                {
-                    var titleId = reward.TitleId[Player.TeamForRace(_owner.Race) == TeamFaction.Alliance ? 0 : 1];
-
-                    if (titleId != 0)
-                    {
-                        var titleEntry = CliDB.CharTitlesStorage.LookupByKey(titleId);
-
-                        if (titleEntry != null)
-                            _owner.SetTitle(titleEntry);
-                    }
-                }
-
-                CompletedAchievements[achievementid] = ca;
-            } while (achievementResult.NextRow());
-
-        if (!criteriaResult.IsEmpty())
-        {
-            var now = GameTime.GetGameTime();
-
-            do
-            {
-                var id = criteriaResult.Read<uint>(0);
-                var counter = criteriaResult.Read<ulong>(1);
-                var date = criteriaResult.Read<long>(2);
-
-                var criteria = Global.CriteriaMgr.GetCriteria(id);
-
-                if (criteria == null)
-                {
-                    // Removing non-existing criteria data for all characters
-                    Log.Logger.Error("Non-existing achievement criteria {0} data removed from table `character_achievement_progress`.", id);
-
-                    var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
-                    stmt.AddValue(0, id);
-                    DB.Characters.Execute(stmt);
-
-                    continue;
-                }
-
-                if (criteria.Entry.StartTimer != 0 && (date + criteria.Entry.StartTimer) < now)
-                    continue;
-
-                CriteriaProgress progress = new()
-                {
-                    Counter = counter,
-                    Date = date,
-                    PlayerGUID = _owner.GUID,
-                    Changed = false
-                };
-
-                _criteriaProgress[id] = progress;
-            } while (criteriaResult.NextRow());
-        }
-    }
-
-    public void SaveToDB(SQLTransaction trans)
-    {
-        if (!CompletedAchievements.Empty())
-            foreach (var pair in CompletedAchievements)
-            {
-                if (!pair.Value.Changed)
-                    continue;
-
-                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
-                stmt.AddValue(0, pair.Key);
-                stmt.AddValue(1, _owner.GUID.Counter);
-                trans.Append(stmt);
-
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT);
-                stmt.AddValue(0, _owner.GUID.Counter);
-                stmt.AddValue(1, pair.Key);
-                stmt.AddValue(2, pair.Value.Date);
-                trans.Append(stmt);
-
-                pair.Value.Changed = false;
-            }
-
-        if (!_criteriaProgress.Empty())
-            foreach (var pair in _criteriaProgress)
-            {
-                if (!pair.Value.Changed)
-                    continue;
-
-                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
-                stmt.AddValue(0, _owner.GUID.Counter);
-                stmt.AddValue(1, pair.Key);
-                trans.Append(stmt);
-
-                if (pair.Value.Counter != 0)
-                {
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT_PROGRESS);
-                    stmt.AddValue(0, _owner.GUID.Counter);
-                    stmt.AddValue(1, pair.Key);
-                    stmt.AddValue(2, pair.Value.Counter);
-                    stmt.AddValue(3, pair.Value.Date);
-                    trans.Append(stmt);
-                }
-
-                pair.Value.Changed = false;
-            }
-    }
-
-    public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete)
-    {
-        Log.Logger.Debug($"ResetAchievementCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
-
-        // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
-        if (_owner.IsGameMaster || _owner.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
-            return;
-
-        var achievementCriteriaList = Global.CriteriaMgr.GetCriteriaByFailEvent(failEvent, (int)failAsset);
-
-        if (!achievementCriteriaList.Empty())
-            foreach (var achievementCriteria in achievementCriteriaList)
-            {
-                var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(achievementCriteria.Id);
-                var allComplete = true;
-
-                foreach (var tree in trees)
-                    // don't update already completed criteria if not forced or achievement already complete
-                    if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || !HasAchieved(tree.Achievement.Id))
-                    {
-                        allComplete = false;
-
-                        break;
-                    }
-
-                if (allComplete)
-                    continue;
-
-                RemoveCriteriaProgress(achievementCriteria);
-            }
-    }
-
-    public override void SendAllData(Player receiver)
-    {
-        AllAccountCriteria allAccountCriteria = new();
-        AllAchievementData achievementData = new();
-
-        foreach (var pair in CompletedAchievements)
-        {
-            var achievement = VisibleAchievementCheck(pair);
-
-            if (achievement == null)
-                continue;
-
-            EarnedAchievement earned = new()
-            {
-                Id = pair.Key,
-                Date = pair.Value.Date
-            };
-
-            if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
-            {
-                earned.Owner = _owner.GUID;
-                earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.VirtualRealmAddress;
-            }
-
-            achievementData.Data.Earned.Add(earned);
-        }
-
-        foreach (var pair in _criteriaProgress)
-        {
-            var criteria = Global.CriteriaMgr.GetCriteria(pair.Key);
-
-            CriteriaProgressPkt progress = new()
-            {
-                Id = pair.Key,
-                Quantity = pair.Value.Counter,
-                Player = pair.Value.PlayerGUID,
-                Flags = 0,
-                Date = pair.Value.Date,
-                TimeFromStart = 0,
-                TimeFromCreate = 0
-            };
-
-            achievementData.Data.Progress.Add(progress);
-
-            if (criteria.FlagsCu.HasAnyFlag(CriteriaFlagsCu.Account))
-            {
-                CriteriaProgressPkt accountProgress = new()
-                {
-                    Id = pair.Key,
-                    Quantity = pair.Value.Counter,
-                    Player = _owner.Session.BattlenetAccountGUID,
-                    Flags = 0,
-                    Date = pair.Value.Date,
-                    TimeFromStart = 0,
-                    TimeFromCreate = 0
-                };
-
-                allAccountCriteria.Progress.Add(accountProgress);
-            }
-        }
-
-        if (!allAccountCriteria.Progress.Empty())
-            SendPacket(allAccountCriteria);
-
-        SendPacket(achievementData);
-    }
-
-    public void SendAchievementInfo(Player receiver)
-    {
-        RespondInspectAchievements inspectedAchievements = new()
-        {
-            Player = _owner.GUID
-        };
-
-        foreach (var pair in CompletedAchievements)
-        {
-            var achievement = VisibleAchievementCheck(pair);
-
-            if (achievement == null)
-                continue;
-
-            EarnedAchievement earned = new()
-            {
-                Id = pair.Key,
-                Date = pair.Value.Date
-            };
-
-            if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
-            {
-                earned.Owner = _owner.GUID;
-                earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.VirtualRealmAddress;
-            }
-
-            inspectedAchievements.Data.Earned.Add(earned);
-        }
-
-        foreach (var pair in _criteriaProgress)
-        {
-            CriteriaProgressPkt progress = new()
-            {
-                Id = pair.Key,
-                Quantity = pair.Value.Counter,
-                Player = pair.Value.PlayerGUID,
-                Flags = 0,
-                Date = pair.Value.Date,
-                TimeFromStart = 0,
-                TimeFromCreate = 0
-            };
-
-            inspectedAchievements.Data.Progress.Add(progress);
-        }
-
-        receiver.SendPacket(inspectedAchievements);
     }
 
     public override void CompletedAchievement(AchievementRecord achievement, Player referencePlayer)
@@ -372,7 +76,7 @@ public class PlayerAchievementMgr : AchievementManager
 
         CompletedAchievementData ca = new()
         {
-            Date = GameTime.GetGameTime(),
+            Date = GameTime.CurrentTime,
             Changed = true
         };
 
@@ -455,6 +159,96 @@ public class PlayerAchievementMgr : AchievementManager
         }
     }
 
+    public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
+    {
+        return Global.CriteriaMgr.GetPlayerCriteriaByType(type, asset);
+    }
+
+    public override string GetOwnerInfo()
+    {
+        return $"{_owner.GUID} {_owner.GetName()}";
+    }
+
+    public void LoadFromDB(SQLResult achievementResult, SQLResult criteriaResult)
+    {
+        if (!achievementResult.IsEmpty())
+            do
+            {
+                var achievementid = achievementResult.Read<uint>(0);
+
+                // must not happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
+                var achievement = CliDB.AchievementStorage.LookupByKey(achievementid);
+
+                if (achievement == null)
+                    continue;
+
+                CompletedAchievementData ca = new()
+                {
+                    Date = achievementResult.Read<long>(1),
+                    Changed = false
+                };
+
+                AchievementPoints += achievement.Points;
+
+                // title achievement rewards are retroactive
+                var reward = Global.AchievementMgr.GetAchievementReward(achievement);
+
+                if (reward != null)
+                {
+                    var titleId = reward.TitleId[Player.TeamForRace(_owner.Race) == TeamFaction.Alliance ? 0 : 1];
+
+                    if (titleId != 0)
+                    {
+                        var titleEntry = CliDB.CharTitlesStorage.LookupByKey(titleId);
+
+                        if (titleEntry != null)
+                            _owner.SetTitle(titleEntry);
+                    }
+                }
+
+                CompletedAchievements[achievementid] = ca;
+            } while (achievementResult.NextRow());
+
+        if (!criteriaResult.IsEmpty())
+        {
+            var now = GameTime.CurrentTime;
+
+            do
+            {
+                var id = criteriaResult.Read<uint>(0);
+                var counter = criteriaResult.Read<ulong>(1);
+                var date = criteriaResult.Read<long>(2);
+
+                var criteria = Global.CriteriaMgr.GetCriteria(id);
+
+                if (criteria == null)
+                {
+                    // Removing non-existing criteria data for all characters
+                    Log.Logger.Error("Non-existing achievement criteria {0} data removed from table `character_achievement_progress`.", id);
+
+                    var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+                    stmt.AddValue(0, id);
+                    DB.Characters.Execute(stmt);
+
+                    continue;
+                }
+
+                if (criteria.Entry.StartTimer != 0 && (date + criteria.Entry.StartTimer) < now)
+                    continue;
+
+                CriteriaProgress progress = new()
+                {
+                    Counter = counter,
+                    Date = date,
+                    PlayerGUID = _owner.GUID,
+                    Changed = false
+                };
+
+                _criteriaProgress[id] = progress;
+            } while (criteriaResult.NextRow());
+        }
+    }
+
     public bool ModifierTreeSatisfied(uint modifierTreeId)
     {
         var modifierTree = Global.CriteriaMgr.GetModifierTree(modifierTreeId);
@@ -463,6 +257,229 @@ public class PlayerAchievementMgr : AchievementManager
             return ModifierTreeSatisfied(modifierTree, 0, 0, null, _owner);
 
         return false;
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+
+        foreach (var iter in CompletedAchievements)
+        {
+            AchievementDeleted achievementDeleted = new()
+            {
+                AchievementID = iter.Key
+            };
+
+            SendPacket(achievementDeleted);
+        }
+
+        CompletedAchievements.Clear();
+        AchievementPoints = 0;
+        DeleteFromDB(_owner.GUID);
+
+        // re-fill data
+        CheckAllAchievementCriteria(_owner);
+    }
+    public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete)
+    {
+        Log.Logger.Debug($"ResetAchievementCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
+
+        // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
+        if (_owner.IsGameMaster || _owner.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
+            return;
+
+        var achievementCriteriaList = Global.CriteriaMgr.GetCriteriaByFailEvent(failEvent, (int)failAsset);
+
+        if (!achievementCriteriaList.Empty())
+            foreach (var achievementCriteria in achievementCriteriaList)
+            {
+                var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(achievementCriteria.Id);
+                var allComplete = true;
+
+                foreach (var tree in trees)
+                    // don't update already completed criteria if not forced or achievement already complete
+                    if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || !HasAchieved(tree.Achievement.Id))
+                    {
+                        allComplete = false;
+
+                        break;
+                    }
+
+                if (allComplete)
+                    continue;
+
+                RemoveCriteriaProgress(achievementCriteria);
+            }
+    }
+
+    public void SaveToDB(SQLTransaction trans)
+    {
+        if (!CompletedAchievements.Empty())
+            foreach (var pair in CompletedAchievements)
+            {
+                if (!pair.Value.Changed)
+                    continue;
+
+                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+                stmt.AddValue(0, pair.Key);
+                stmt.AddValue(1, _owner.GUID.Counter);
+                trans.Append(stmt);
+
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT);
+                stmt.AddValue(0, _owner.GUID.Counter);
+                stmt.AddValue(1, pair.Key);
+                stmt.AddValue(2, pair.Value.Date);
+                trans.Append(stmt);
+
+                pair.Value.Changed = false;
+            }
+
+        if (!_criteriaProgress.Empty())
+            foreach (var pair in _criteriaProgress)
+            {
+                if (!pair.Value.Changed)
+                    continue;
+
+                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
+                stmt.AddValue(0, _owner.GUID.Counter);
+                stmt.AddValue(1, pair.Key);
+                trans.Append(stmt);
+
+                if (pair.Value.Counter != 0)
+                {
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT_PROGRESS);
+                    stmt.AddValue(0, _owner.GUID.Counter);
+                    stmt.AddValue(1, pair.Key);
+                    stmt.AddValue(2, pair.Value.Counter);
+                    stmt.AddValue(3, pair.Value.Date);
+                    trans.Append(stmt);
+                }
+
+                pair.Value.Changed = false;
+            }
+    }
+    public void SendAchievementInfo(Player receiver)
+    {
+        RespondInspectAchievements inspectedAchievements = new()
+        {
+            Player = _owner.GUID
+        };
+
+        foreach (var pair in CompletedAchievements)
+        {
+            var achievement = VisibleAchievementCheck(pair);
+
+            if (achievement == null)
+                continue;
+
+            EarnedAchievement earned = new()
+            {
+                Id = pair.Key,
+                Date = pair.Value.Date
+            };
+
+            if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
+            {
+                earned.Owner = _owner.GUID;
+                earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+            }
+
+            inspectedAchievements.Data.Earned.Add(earned);
+        }
+
+        foreach (var pair in _criteriaProgress)
+        {
+            CriteriaProgressPkt progress = new()
+            {
+                Id = pair.Key,
+                Quantity = pair.Value.Counter,
+                Player = pair.Value.PlayerGUID,
+                Flags = 0,
+                Date = pair.Value.Date,
+                TimeFromStart = 0,
+                TimeFromCreate = 0
+            };
+
+            inspectedAchievements.Data.Progress.Add(progress);
+        }
+
+        receiver.SendPacket(inspectedAchievements);
+    }
+
+    public override void SendAllData(Player receiver)
+    {
+        AllAccountCriteria allAccountCriteria = new();
+        AllAchievementData achievementData = new();
+
+        foreach (var pair in CompletedAchievements)
+        {
+            var achievement = VisibleAchievementCheck(pair);
+
+            if (achievement == null)
+                continue;
+
+            EarnedAchievement earned = new()
+            {
+                Id = pair.Key,
+                Date = pair.Value.Date
+            };
+
+            if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
+            {
+                earned.Owner = _owner.GUID;
+                earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+            }
+
+            achievementData.Data.Earned.Add(earned);
+        }
+
+        foreach (var pair in _criteriaProgress)
+        {
+            var criteria = Global.CriteriaMgr.GetCriteria(pair.Key);
+
+            CriteriaProgressPkt progress = new()
+            {
+                Id = pair.Key,
+                Quantity = pair.Value.Counter,
+                Player = pair.Value.PlayerGUID,
+                Flags = 0,
+                Date = pair.Value.Date,
+                TimeFromStart = 0,
+                TimeFromCreate = 0
+            };
+
+            achievementData.Data.Progress.Add(progress);
+
+            if (criteria.FlagsCu.HasAnyFlag(CriteriaFlagsCu.Account))
+            {
+                CriteriaProgressPkt accountProgress = new()
+                {
+                    Id = pair.Key,
+                    Quantity = pair.Value.Counter,
+                    Player = _owner.Session.BattlenetAccountGUID,
+                    Flags = 0,
+                    Date = pair.Value.Date,
+                    TimeFromStart = 0,
+                    TimeFromCreate = 0
+                };
+
+                allAccountCriteria.Progress.Add(accountProgress);
+            }
+        }
+
+        if (!allAccountCriteria.Progress.Empty())
+            SendPacket(allAccountCriteria);
+
+        SendPacket(achievementData);
+    }
+    public override void SendCriteriaProgressRemoved(uint criteriaId)
+    {
+        CriteriaDeleted criteriaDeleted = new()
+        {
+            CriteriaID = criteriaId
+        };
+
+        SendPacket(criteriaDeleted);
     }
 
     public override void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted)
@@ -503,32 +520,10 @@ public class PlayerAchievementMgr : AchievementManager
             SendPacket(criteriaUpdate);
         }
     }
-
-    public override void SendCriteriaProgressRemoved(uint criteriaId)
-    {
-        CriteriaDeleted criteriaDeleted = new()
-        {
-            CriteriaID = criteriaId
-        };
-
-        SendPacket(criteriaDeleted);
-    }
-
     public override void SendPacket(ServerPacket data)
     {
         _owner.SendPacket(data);
     }
-
-    public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
-    {
-        return Global.CriteriaMgr.GetPlayerCriteriaByType(type, asset);
-    }
-
-    public override string GetOwnerInfo()
-    {
-        return $"{_owner.GUID} {_owner.GetName()}";
-    }
-
     private void SendAchievementEarned(AchievementRecord achievement)
     {
         // Don't send for achievements with ACHIEVEMENT_FLAG_HIDDEN
@@ -578,7 +573,7 @@ public class PlayerAchievementMgr : AchievementManager
 
         achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
         achievementEarned.AchievementID = achievement.Id;
-        achievementEarned.Time = GameTime.GetGameTime();
+        achievementEarned.Time = GameTime.CurrentTime;
 
         if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
             _owner.SendMessageToSetInRange(achievementEarned, GetDefaultValue("ListenRange.Say", 25.0f), true);

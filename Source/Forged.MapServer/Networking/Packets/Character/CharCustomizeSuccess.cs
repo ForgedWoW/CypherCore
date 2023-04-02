@@ -11,12 +11,10 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class CharCustomizeSuccess : ServerPacket
 {
-    private readonly string CharName = "";
-    private readonly byte SexID;
-    private readonly Array<ChrCustomizationChoice> Customizations = new(72);
-
     private readonly ObjectGuid CharGUID;
-
+    private readonly string CharName = "";
+    private readonly Array<ChrCustomizationChoice> Customizations = new(72);
+    private readonly byte SexID;
     public CharCustomizeSuccess(CharCustomizeInfo customizeInfo) : base(ServerOpcodes.CharCustomizeSuccess)
     {
         CharGUID = customizeInfo.CharGUID;

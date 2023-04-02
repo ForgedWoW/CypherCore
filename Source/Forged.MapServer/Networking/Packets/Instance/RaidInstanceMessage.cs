@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Instance;
 
 internal class RaidInstanceMessage : ServerPacket
 {
-    public InstanceResetWarningType Type;
-    public uint MapID;
     public Difficulty DifficultyID;
-    public bool Locked;
     public bool Extended;
+    public bool Locked;
+    public uint MapID;
+    public InstanceResetWarningType Type;
     public RaidInstanceMessage() : base(ServerOpcodes.RaidInstanceMessage) { }
 
     public override void Write()

@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetActionFeedbackPacket : ServerPacket
 {
-    public uint SpellID;
     public PetActionFeedback Response;
+    public uint SpellID;
     public PetActionFeedbackPacket() : base(ServerOpcodes.PetStableResult) { }
 
     public override void Write()

@@ -7,9 +7,9 @@ namespace Forged.MapServer.DataStorage;
 
 public class CharacterTemplate
 {
-    public uint TemplateSetId;
     public List<CharacterTemplateClass> Classes;
-    public string Name;
     public string Description;
     public byte Level;
+    public string Name;
+    public uint TemplateSetId;
 }

@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 public class SpellInstakillLog : ServerPacket
 {
-    public ObjectGuid Target;
     public ObjectGuid Caster;
     public uint SpellID;
+    public ObjectGuid Target;
     public SpellInstakillLog() : base(ServerOpcodes.SpellInstakillLog, ConnectionType.Instance) { }
 
     public override void Write()

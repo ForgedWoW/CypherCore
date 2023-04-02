@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteRemovedAlert : ServerPacket
 {
-    public ulong EventID;
     public long Date;
+    public ulong EventID;
     public CalendarFlags Flags;
     public CalendarInviteStatus Status;
     public CalendarInviteRemovedAlert() : base(ServerOpcodes.CalendarInviteRemovedAlert) { }

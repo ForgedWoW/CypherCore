@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class RealmQueryResponse : ServerPacket
 {
-    public uint VirtualRealmAddress;
     public byte LookupState;
     public VirtualRealmNameInfo NameInfo;
+    public uint VirtualRealmAddress;
     public RealmQueryResponse() : base(ServerOpcodes.RealmQueryResponse) { }
 
     public override void Write()

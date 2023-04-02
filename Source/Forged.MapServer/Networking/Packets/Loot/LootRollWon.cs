@@ -8,12 +8,12 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootRollWon : ServerPacket
 {
+    public LootItemData Item = new();
     public ObjectGuid LootObj;
-    public ObjectGuid Winner;
+    public bool MainSpec;
     public int Roll;
     public RollVote RollType;
-    public LootItemData Item = new();
-    public bool MainSpec;
+    public ObjectGuid Winner;
     public LootRollWon() : base(ServerOpcodes.LootRollWon) { }
 
     public override void Write()

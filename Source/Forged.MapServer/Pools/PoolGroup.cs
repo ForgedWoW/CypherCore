@@ -11,30 +11,13 @@ namespace Forged.MapServer.Pools;
 
 public class PoolGroup<T>
 {
-    private readonly List<PoolObject> _explicitlyChanced = new();
     private readonly List<PoolObject> _equalChanced = new();
-
+    private readonly List<PoolObject> _explicitlyChanced = new();
     private uint _poolId;
 
     public PoolGroup()
     {
         _poolId = 0;
-    }
-
-    public bool IsEmptyDeepCheck()
-    {
-        if (typeof(T).Name != "Pool")
-            return IsEmpty();
-
-        foreach (var explicitlyChanced in _explicitlyChanced)
-            if (!Global.PoolMgr.IsEmpty((uint)explicitlyChanced.Guid))
-                return false;
-
-        foreach (var equalChanced in _equalChanced)
-            if (!Global.PoolMgr.IsEmpty((uint)equalChanced.Guid))
-                return false;
-
-        return true;
     }
 
     public void AddEntry(PoolObject poolitem, uint maxentries)
@@ -94,6 +77,31 @@ public class PoolGroup<T>
             }
     }
 
+    public uint GetPoolId()
+    {
+        return _poolId;
+    }
+
+    public bool IsEmpty()
+    {
+        return _explicitlyChanced.Empty() && _equalChanced.Empty();
+    }
+
+    public bool IsEmptyDeepCheck()
+    {
+        if (typeof(T).Name != "Pool")
+            return IsEmpty();
+
+        foreach (var explicitlyChanced in _explicitlyChanced)
+            if (!Global.PoolMgr.IsEmpty((uint)explicitlyChanced.Guid))
+                return false;
+
+        foreach (var equalChanced in _equalChanced)
+            if (!Global.PoolMgr.IsEmpty((uint)equalChanced.Guid))
+                return false;
+
+        return true;
+    }
     public void RemoveOneRelation(uint child_pool_id)
     {
         if (typeof(T).Name != "Pool")
@@ -114,6 +122,11 @@ public class PoolGroup<T>
 
                 break;
             }
+    }
+
+    public void SetPoolId(uint pool_id)
+    {
+        _poolId = pool_id;
     }
 
     public void SpawnObject(SpawnedPoolData spawns, uint limit, ulong triggerFrom)
@@ -175,22 +188,6 @@ public class PoolGroup<T>
         if (triggerFrom != 0)
             DespawnObject(spawns, triggerFrom);
     }
-
-    public void SetPoolId(uint pool_id)
-    {
-        _poolId = pool_id;
-    }
-
-    public bool IsEmpty()
-    {
-        return _explicitlyChanced.Empty() && _equalChanced.Empty();
-    }
-
-    public uint GetPoolId()
-    {
-        return _poolId;
-    }
-
     private void Despawn1Object(SpawnedPoolData spawns, ulong guid, bool alwaysDeleteRespawnTime = false, bool saveRespawnTime = true)
     {
         switch (typeof(T).Name)
@@ -241,6 +238,34 @@ public class PoolGroup<T>
         }
     }
 
+    private void RemoveRespawnTimeFromDB(SpawnedPoolData spawns, ulong guid)
+    {
+        switch (typeof(T).Name)
+        {
+            case "Creature":
+                spawns.Map.RemoveRespawnTime(SpawnObjectType.Creature, guid, null, true);
+
+                break;
+            case "GameObject":
+                spawns.Map.RemoveRespawnTime(SpawnObjectType.GameObject, guid, null, true);
+
+                break;
+        }
+    }
+
+    private void ReSpawn1Object(SpawnedPoolData spawns, PoolObject obj)
+    {
+        switch (typeof(T).Name)
+        {
+            case "Creature":
+            case "GameObject":
+                Despawn1Object(spawns, obj.Guid, false, false);
+                Spawn1Object(spawns, obj);
+
+                break;
+        }
+    }
+
     private void Spawn1Object(SpawnedPoolData spawns, PoolObject obj)
     {
         switch (typeof(T).Name)
@@ -253,7 +278,7 @@ public class PoolGroup<T>
                     // Spawn if necessary (loaded grids only)
                     // We use spawn coords to spawn
                     if (spawns.Map.IsGridLoaded(data.SpawnPoint))
-                        Creature.CreateCreatureFromDB(obj.Guid, spawns.Map);
+                        CreatureFactory.CreateCreatureFromDB(obj.Guid, spawns.Map);
             }
 
                 break;
@@ -277,34 +302,6 @@ public class PoolGroup<T>
                 break;
             case "Pool":
                 Global.PoolMgr.SpawnPool(spawns, (uint)obj.Guid);
-
-                break;
-        }
-    }
-
-    private void ReSpawn1Object(SpawnedPoolData spawns, PoolObject obj)
-    {
-        switch (typeof(T).Name)
-        {
-            case "Creature":
-            case "GameObject":
-                Despawn1Object(spawns, obj.Guid, false, false);
-                Spawn1Object(spawns, obj);
-
-                break;
-        }
-    }
-
-    private void RemoveRespawnTimeFromDB(SpawnedPoolData spawns, ulong guid)
-    {
-        switch (typeof(T).Name)
-        {
-            case "Creature":
-                spawns.Map.RemoveRespawnTime(SpawnObjectType.Creature, guid, null, true);
-
-                break;
-            case "GameObject":
-                spawns.Map.RemoveRespawnTime(SpawnObjectType.GameObject, guid, null, true);
 
                 break;
         }

@@ -10,9 +10,8 @@ namespace Forged.MapServer.Spells;
 
 public class WorldObjectSpellLineTargetCheck : WorldObjectSpellAreaTargetCheck
 {
-    private readonly Position _position;
     private readonly float _lineWidth;
-
+    private readonly Position _position;
     public WorldObjectSpellLineTargetCheck(Position srcPosition, Position dstPosition, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
         : base(range, caster.Location, caster, caster, spellInfo, selectionType, condList, objectType)
     {

@@ -12,19 +12,16 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 internal class WDC3Row
 {
+    private readonly ColumnMetaData[] _columnMeta;
+    private readonly Dictionary<int, Value32>[] _commonData;
     private readonly BitReader _data;
+    private readonly bool _dataHasId;
     private readonly int _dataOffset;
+    private readonly FieldMetaData[] _fieldMeta;
+    private readonly Value32[][] _palletData;
     private readonly int _recordsOffset;
     private readonly int _refId;
-    private readonly bool _dataHasId;
-
-    private readonly FieldMetaData[] _fieldMeta;
-    private readonly ColumnMetaData[] _columnMeta;
-    private readonly Value32[][] _palletData;
-    private readonly Dictionary<int, Value32>[] _commonData;
     private readonly Dictionary<long, string> _stringsTable;
-
-    public int Id { get; set; }
 
     public WDC3Row(DBReader reader, BitReader data, int recordsOffset, int id, int refId, Dictionary<long, string> stringsTable)
     {
@@ -54,6 +51,7 @@ internal class WDC3Row
         }
     }
 
+    public int Id { get; set; }
     public T As<T>() where T : new()
     {
         _data.Position = 0;

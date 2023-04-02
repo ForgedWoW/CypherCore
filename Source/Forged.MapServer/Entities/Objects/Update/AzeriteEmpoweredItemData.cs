@@ -14,6 +14,12 @@ public class AzeriteEmpoweredItemData : BaseUpdateData<Item>
 
     public AzeriteEmpoweredItemData() : base(0, TypeId.AzeriteEmpoweredItem, 6) { }
 
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Selections);
+        ChangesMask.ResetAll();
+    }
+
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Item owner, Player receiver)
     {
         for (var i = 0; i < 5; ++i)
@@ -38,11 +44,5 @@ public class AzeriteEmpoweredItemData : BaseUpdateData<Item>
             for (var i = 0; i < 5; ++i)
                 if (ChangesMask[1 + i])
                     data.WriteInt32(Selections[i]);
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Selections);
-        ChangesMask.ResetAll();
     }
 }

@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonPlaceBuildingResult : ServerPacket
 {
-    public GarrisonType GarrTypeID;
-    public GarrisonError Result;
     public GarrisonBuildingInfo BuildingInfo = new();
+    public GarrisonType GarrTypeID;
     public bool PlayActivationCinematic;
+    public GarrisonError Result;
     public GarrisonPlaceBuildingResult() : base(ServerOpcodes.GarrisonPlaceBuildingResult, ConnectionType.Instance) { }
 
     public override void Write()

@@ -18,15 +18,6 @@ public class DynObjAura : Aura
         DynobjOwner.SetAura(this);
     }
 
-    public override void Remove(AuraRemoveMode removeMode = AuraRemoveMode.Default)
-    {
-        if (IsRemoved)
-            return;
-
-        _Remove(removeMode);
-        base.Remove(removeMode);
-    }
-
     public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
     {
         var targets = new Dictionary<Unit, HashSet<int>>();
@@ -64,5 +55,14 @@ public class DynObjAura : Aura
         }
 
         return targets;
+    }
+
+    public override void Remove(AuraRemoveMode removeMode = AuraRemoveMode.Default)
+    {
+        if (IsRemoved)
+            return;
+
+        _Remove(removeMode);
+        base.Remove(removeMode);
     }
 }

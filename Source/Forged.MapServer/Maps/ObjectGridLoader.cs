@@ -14,11 +14,35 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierAreaTrigger
 {
-    public GridType GridType { get; set; }
-
     public ObjectGridLoader(Grid grid, Map map, Cell cell, GridType gridType) : base(grid, map, cell)
     {
         GridType = gridType;
+    }
+
+    public GridType GridType { get; set; }
+    public void LoadN()
+    {
+        i_creatures = 0;
+        i_gameObjects = 0;
+        i_corpses = 0;
+        i_cell.Data.Celly = 0;
+
+        for (uint x = 0; x < MapConst.MaxCells; ++x)
+        {
+            i_cell.Data.Cellx = x;
+
+            for (uint y = 0; y < MapConst.MaxCells; ++y)
+            {
+                i_cell.Data.Celly = y;
+
+                i_grid.VisitGrid(x, y, this);
+
+                ObjectWorldLoader worker = new(this, GridType.World);
+                i_grid.VisitGrid(x, y, worker);
+            }
+        }
+
+        Log.Logger.Debug($"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GetGridId()} on map {i_map.Id}");
     }
 
     public void Visit(IList<AreaTrigger> objs)
@@ -52,31 +76,6 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
             return;
 
         LoadHelper<GameObject>(cellguids.gameobjects, cellCoord, ref i_gameObjects, i_map);
-    }
-
-    public void LoadN()
-    {
-        i_creatures = 0;
-        i_gameObjects = 0;
-        i_corpses = 0;
-        i_cell.Data.Celly = 0;
-
-        for (uint x = 0; x < MapConst.MaxCells; ++x)
-        {
-            i_cell.Data.Cellx = x;
-
-            for (uint y = 0; y < MapConst.MaxCells; ++y)
-            {
-                i_cell.Data.Celly = y;
-
-                i_grid.VisitGrid(x, y, this);
-
-                ObjectWorldLoader worker = new(this, GridType.World);
-                i_grid.VisitGrid(x, y, worker);
-            }
-        }
-
-        Log.Logger.Debug($"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GetGridId()} on map {i_map.Id}");
     }
 }
 

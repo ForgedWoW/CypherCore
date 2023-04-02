@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusFailed : ServerPacket
 {
-    public ulong QueueID;
     public ObjectGuid ClientID;
+    public ulong QueueID;
     public int Reason;
     public RideTicket Ticket = new();
     public BattlefieldStatusFailed() : base(ServerOpcodes.BattlefieldStatusFailed) { }

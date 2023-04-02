@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class LootAllPassed : ServerPacket
 {
-    public ObjectGuid LootObj;
     public LootItemData Item = new();
+    public ObjectGuid LootObj;
     public LootAllPassed() : base(ServerOpcodes.LootAllPassed) { }
 
     public override void Write()

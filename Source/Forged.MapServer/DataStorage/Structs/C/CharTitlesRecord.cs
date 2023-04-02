@@ -7,9 +7,9 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class CharTitlesRecord
 {
+    public sbyte Flags;
     public uint Id;
+    public ushort MaskID;
     public LocalizedString Name;
     public LocalizedString Name1;
-    public ushort MaskID;
-    public sbyte Flags;
 }

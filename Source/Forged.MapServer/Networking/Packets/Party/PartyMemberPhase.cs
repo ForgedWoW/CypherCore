@@ -5,6 +5,10 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 public struct PartyMemberPhase
 {
+    public ushort Flags;
+
+    public ushort Id;
+
     public PartyMemberPhase(uint flags, uint id)
     {
         Flags = (ushort)flags;
@@ -16,7 +20,4 @@ public struct PartyMemberPhase
         data.WriteUInt16(Flags);
         data.WriteUInt16(Id);
     }
-
-    public ushort Flags;
-    public ushort Id;
 }

@@ -7,7 +7,7 @@ namespace Forged.MapServer.DataStorage.Structs.G;
 
 public sealed class GemPropertiesRecord
 {
-    public uint Id;
     public ushort EnchantId;
+    public uint Id;
     public SocketColor Type;
 }

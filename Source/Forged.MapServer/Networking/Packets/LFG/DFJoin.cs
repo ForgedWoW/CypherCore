@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class DFJoin : ClientPacket
 {
-    public bool QueueAsGroup;
     public byte PartyIndex;
+    public bool QueueAsGroup;
     public LfgRoles Roles;
     public List<uint> Slots = new();
     private bool Unknown; // Always false in 7.2.5

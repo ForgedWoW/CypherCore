@@ -14,36 +14,27 @@ namespace Forged.MapServer.Entities;
 
 public class Totem : Minion
 {
-    private TotemType _totemType;
     private uint _duration;
-
+    private TotemType _totemType;
     public Totem(SummonPropertiesRecord propertiesRecord, Unit owner) : base(propertiesRecord, owner, false)
     {
         UnitTypeMask |= UnitTypeMask.Totem;
         _totemType = TotemType.Passive;
     }
 
-    public override void Update(uint diff)
+    public uint GetSpell(byte slot = 0)
     {
-        if (!OwnerUnit.IsAlive || !IsAlive)
-        {
-            UnSummon(); // remove self
+        return Spells[slot];
+    }
 
-            return;
-        }
+    public uint GetTotemDuration()
+    {
+        return _duration;
+    }
 
-        if (_duration <= diff)
-        {
-            UnSummon(); // remove self
-
-            return;
-        }
-        else
-        {
-            _duration -= diff;
-        }
-
-        base.Update(diff);
+    public TotemType GetTotemType()
+    {
+        return _totemType;
     }
 
     public override void InitStats(uint duration)
@@ -95,6 +86,36 @@ public class Totem : Minion
         // Some totems can have both instant effect and passive spell
         if (GetSpell(1) != 0)
             CastSpell(this, GetSpell(1), true);
+    }
+
+    public override bool IsImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, bool requireImmunityPurgesEffectAttribute = false)
+    {
+        // immune to all positive spells, except of stoneclaw totem absorb and sentry totem bind sight
+        // totems positive spells have unit_caster target
+        if (spellEffectInfo.Effect != SpellEffectName.Dummy &&
+            spellEffectInfo.Effect != SpellEffectName.ScriptEffect &&
+            spellInfo.IsPositive &&
+            spellEffectInfo.TargetA.Target != Targets.UnitCaster &&
+            spellEffectInfo.TargetA.CheckType != SpellTargetCheckTypes.Entry)
+            return true;
+
+        switch (spellEffectInfo.ApplyAuraName)
+        {
+            case AuraType.PeriodicDamage:
+            case AuraType.PeriodicLeech:
+            case AuraType.ModFear:
+            case AuraType.Transform:
+                return true;
+            default:
+                break;
+        }
+
+        return base.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
+    }
+
+    public void SetTotemDuration(uint duration)
+    {
+        _duration = duration;
     }
 
     public override void UnSummon()
@@ -152,70 +173,47 @@ public class Totem : Minion
         Location.AddObjectToRemoveList();
     }
 
-    public override bool IsImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, bool requireImmunityPurgesEffectAttribute = false)
+    public override void Update(uint diff)
     {
-        // immune to all positive spells, except of stoneclaw totem absorb and sentry totem bind sight
-        // totems positive spells have unit_caster target
-        if (spellEffectInfo.Effect != SpellEffectName.Dummy &&
-            spellEffectInfo.Effect != SpellEffectName.ScriptEffect &&
-            spellInfo.IsPositive &&
-            spellEffectInfo.TargetA.Target != Targets.UnitCaster &&
-            spellEffectInfo.TargetA.CheckType != SpellTargetCheckTypes.Entry)
-            return true;
-
-        switch (spellEffectInfo.ApplyAuraName)
+        if (!OwnerUnit.IsAlive || !IsAlive)
         {
-            case AuraType.PeriodicDamage:
-            case AuraType.PeriodicLeech:
-            case AuraType.ModFear:
-            case AuraType.Transform:
-                return true;
-            default:
-                break;
+            UnSummon(); // remove self
+
+            return;
         }
 
-        return base.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
-    }
+        if (_duration <= diff)
+        {
+            UnSummon(); // remove self
 
-    public uint GetSpell(byte slot = 0)
-    {
-        return Spells[slot];
-    }
+            return;
+        }
+        else
+        {
+            _duration -= diff;
+        }
 
-    public uint GetTotemDuration()
-    {
-        return _duration;
+        base.Update(diff);
     }
-
-    public void SetTotemDuration(uint duration)
-    {
-        _duration = duration;
-    }
-
-    public TotemType GetTotemType()
-    {
-        return _totemType;
-    }
-
-    public override bool UpdateStats(Stats stat)
-    {
-        return true;
-    }
-
     public override bool UpdateAllStats()
     {
         return true;
     }
 
-    public override void UpdateResistances(SpellSchools school) { }
-
     public override void UpdateArmor() { }
+
+    public override void UpdateAttackPowerAndDamage(bool ranged = false) { }
+
+    public override void UpdateDamagePhysical(WeaponAttackType attType) { }
 
     public override void UpdateMaxHealth() { }
 
     public override void UpdateMaxPower(PowerType power) { }
 
-    public override void UpdateAttackPowerAndDamage(bool ranged = false) { }
+    public override void UpdateResistances(SpellSchools school) { }
 
-    public override void UpdateDamagePhysical(WeaponAttackType attType) { }
+    public override bool UpdateStats(Stats stat)
+    {
+        return true;
+    }
 }

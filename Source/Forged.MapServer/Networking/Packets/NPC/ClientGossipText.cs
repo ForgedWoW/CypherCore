@@ -7,14 +7,13 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class ClientGossipText
 {
-    public uint QuestID;
     public uint ContentTuningID;
-    public int QuestType;
-    public bool Repeatable;
-    public string QuestTitle;
     public uint QuestFlags;
     public uint QuestFlagsEx;
-
+    public uint QuestID;
+    public string QuestTitle;
+    public int QuestType;
+    public bool Repeatable;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(QuestID);

@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 internal class SetItemPurchaseData : ServerPacket
 {
-    public uint PurchaseTime;
-    public uint Flags;
     public ItemPurchaseContents Contents = new();
+    public uint Flags;
     public ObjectGuid ItemGUID;
+    public uint PurchaseTime;
     public SetItemPurchaseData() : base(ServerOpcodes.SetItemPurchaseData, ConnectionType.Instance) { }
 
     public override void Write()

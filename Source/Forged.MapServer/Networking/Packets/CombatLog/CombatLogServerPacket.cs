@@ -16,27 +16,26 @@ public class CombatLogServerPacket : ServerPacket
         LogData = new SpellCastLogData();
     }
 
-    public override void Write() { }
+    public void FlushBits()
+    {
+        _worldPacket.FlushBits();
+    }
 
     public void SetAdvancedCombatLogging(bool value)
     {
         _includeLogData = value;
     }
 
-    public void WriteLogDataBit()
-    {
-        _worldPacket.WriteBit(_includeLogData);
-    }
-
-    public void FlushBits()
-    {
-        _worldPacket.FlushBits();
-    }
-
+    public override void Write() { }
     public void WriteLogData()
     {
         if (_includeLogData)
             LogData.Write(_worldPacket);
+    }
+
+    public void WriteLogDataBit()
+    {
+        _worldPacket.WriteBit(_includeLogData);
     }
 }
 

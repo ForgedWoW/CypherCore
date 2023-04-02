@@ -10,15 +10,17 @@ internal class AuctionCommandResult : ServerPacket
 {
     public uint AuctionID;
 
-    ///< the id of the auction that triggered this notification
-    public int Command;
-
-    /// < the type of action that triggered this notification. Possible values are @ ref AuctionAction
-    public int ErrorCode;
-
     /// < the error code that was generated when trying to perform the action. Possible values are @ ref AuctionError
     public int BagResult;
 
+    ///< the id of the auction that triggered this notification
+    public int Command;
+
+    ///< the amount of money that the player bid in copper
+    public uint DesiredDelay;
+
+    /// < the type of action that triggered this notification. Possible values are @ ref AuctionAction
+    public int ErrorCode;
     /// < the bid error. Possible values are @ ref AuctionError
     public ObjectGuid Guid;
 
@@ -27,10 +29,6 @@ internal class AuctionCommandResult : ServerPacket
 
     ///< the sum of outbid is (1% of current bid) * 5, if the bid is too small, then this value is 1 copper.
     public ulong Money;
-
-    ///< the amount of money that the player bid in copper
-    public uint DesiredDelay;
-
     public AuctionCommandResult() : base(ServerOpcodes.AuctionCommandResult) { }
 
     public override void Write()

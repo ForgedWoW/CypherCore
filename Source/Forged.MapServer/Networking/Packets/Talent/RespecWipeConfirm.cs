@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Talent;
 
 internal class RespecWipeConfirm : ServerPacket
 {
-    public ObjectGuid RespecMaster;
     public uint Cost;
+    public ObjectGuid RespecMaster;
     public SpecResetType RespecType;
     public RespecWipeConfirm() : base(ServerOpcodes.RespecWipeConfirm) { }
 

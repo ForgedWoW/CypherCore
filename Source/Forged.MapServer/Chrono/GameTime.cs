@@ -9,56 +9,29 @@ public class GameTime
 {
     private static readonly long StartTime = Time.UnixTime;
 
-    private static long _gameTime = Time.UnixTime;
-    private static uint _gameMSTime = 0;
+    public static long CurrentTime { get; private set; } = Time.UnixTime;
 
-    private static DateTime _gameTimeSystemPoint = DateTime.MinValue;
-    private static DateTime _gameTimeSteadyPoint = DateTime.MinValue;
+    public static uint CurrentTimeMS { get; private set; }
 
-    private static DateTime _dateTime;
+    public static DateTime DateAndTime { get; private set; }
+
+    public static DateTime Now { get; private set; } = DateTime.MinValue;
+
+    public static DateTime SystemTime { get; private set; } = DateTime.MinValue;
+
+    public static long Uptime => (CurrentTime - StartTime);
 
     public static long GetStartTime()
     {
         return StartTime;
     }
-
-    public static long GetGameTime()
-    {
-        return _gameTime;
-    }
-
-    public static uint GetGameTimeMS()
-    {
-        return _gameMSTime;
-    }
-
-    public static DateTime GetSystemTime()
-    {
-        return _gameTimeSystemPoint;
-    }
-
-    public static DateTime Now()
-    {
-        return _gameTimeSteadyPoint;
-    }
-
-    public static uint GetUptime()
-    {
-        return (uint)(_gameTime - StartTime);
-    }
-
-    public static DateTime GetDateAndTime()
-    {
-        return _dateTime;
-    }
-
     public static void UpdateGameTimers()
     {
-        _gameTime = Time.UnixTime;
-        _gameMSTime = Time.MSTime;
-        _gameTimeSystemPoint = DateTime.Now;
-        _gameTimeSteadyPoint = DateTime.Now;
+        CurrentTime = Time.UnixTime;
+        CurrentTimeMS = Time.MSTime;
+        SystemTime = DateTime.Now;
+        Now = DateTime.Now;
 
-        _dateTime = Time.UnixTimeToDateTime(_gameTime);
+        DateAndTime = Time.UnixTimeToDateTime(CurrentTime);
     }
 }

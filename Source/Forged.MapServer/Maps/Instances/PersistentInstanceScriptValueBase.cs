@@ -18,16 +18,15 @@ public class PersistentInstanceScriptValueBase
         _instance.RegisterPersistentScriptValue(this);
     }
 
-    public string GetName()
-    {
-        return _name;
-    }
-
     public UpdateAdditionalSaveDataEvent CreateEvent()
     {
         return new UpdateAdditionalSaveDataEvent(_name, _value);
     }
 
+    public string GetName()
+    {
+        return _name;
+    }
     public void LoadValue(long value)
     {
         _value = value;

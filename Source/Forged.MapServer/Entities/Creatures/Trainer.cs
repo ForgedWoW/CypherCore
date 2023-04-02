@@ -13,11 +13,10 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class Trainer
 {
-    private readonly uint _id;
-    private readonly TrainerType _type;
-    private readonly List<TrainerSpell> _spells;
     private readonly string[] _greeting = new string[(int)Locale.Total];
-
+    private readonly uint _id;
+    private readonly List<TrainerSpell> _spells;
+    private readonly TrainerType _type;
     public Trainer(uint id, TrainerType type, string greeting, List<TrainerSpell> spells)
     {
         _id = id;
@@ -25,6 +24,11 @@ public class Trainer
         _spells = spells;
 
         _greeting[(int)Locale.enUS] = greeting;
+    }
+
+    public void AddGreetingLocale(Locale locale, string greeting)
+    {
+        _greeting[(int)locale] = greeting;
     }
 
     public void SendSpells(Creature npc, Player player, Locale locale)
@@ -129,17 +133,6 @@ public class Trainer
             player.LearnSpell(trainerSpell.SpellId, dependent);
         }
     }
-
-    public void AddGreetingLocale(Locale locale, string greeting)
-    {
-        _greeting[(int)locale] = greeting;
-    }
-
-    private TrainerSpell GetSpell(uint spellId)
-    {
-        return _spells.Find(trainerSpell => trainerSpell.SpellId == spellId);
-    }
-
     private bool CanTeachSpell(Player player, TrainerSpell trainerSpell)
     {
         var state = GetSpellState(player, trainerSpell);
@@ -166,6 +159,18 @@ public class Trainer
         return true;
     }
 
+    private string GetGreeting(Locale locale)
+    {
+        if (_greeting[(int)locale].IsEmpty())
+            return _greeting[(int)Locale.enUS];
+
+        return _greeting[(int)locale];
+    }
+
+    private TrainerSpell GetSpell(uint spellId)
+    {
+        return _spells.Find(trainerSpell => trainerSpell.SpellId == spellId);
+    }
     private TrainerSpellState GetSpellState(Player player, TrainerSpell trainerSpell)
     {
         if (player.HasSpell(trainerSpell.SpellId))
@@ -218,13 +223,5 @@ public class Trainer
         };
 
         player.SendPacket(trainerBuyFailed);
-    }
-
-    private string GetGreeting(Locale locale)
-    {
-        if (_greeting[(int)locale].IsEmpty())
-            return _greeting[(int)Locale.enUS];
-
-        return _greeting[(int)locale];
     }
 }

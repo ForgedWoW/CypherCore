@@ -9,15 +9,14 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildNewsEvent
 {
-    public int Id;
     public uint CompletedDate;
-    public int Type;
-    public int Flags;
     public int[] Data = new int[2];
+    public int Flags;
+    public int Id;
+    public ItemInstance Item;
     public ObjectGuid MemberGuid;
     public List<ObjectGuid> MemberList = new();
-    public ItemInstance Item;
-
+    public int Type;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(Id);

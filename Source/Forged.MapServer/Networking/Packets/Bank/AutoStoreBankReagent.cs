@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Bank;
 internal class AutoStoreBankReagent : ClientPacket
 {
     public InvUpdate Inv;
-    public byte Slot;
     public byte PackSlot;
+    public byte Slot;
     public AutoStoreBankReagent(WorldPacket packet) : base(packet) { }
 
     public override void Read()

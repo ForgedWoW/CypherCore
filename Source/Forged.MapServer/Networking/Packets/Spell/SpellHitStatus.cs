@@ -7,6 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellHitStatus
 {
+    public SpellMissInfo Reason;
+
     public SpellHitStatus(SpellMissInfo reason)
     {
         Reason = reason;
@@ -16,6 +18,4 @@ public struct SpellHitStatus
     {
         data.WriteUInt8((byte)Reason);
     }
-
-    public SpellMissInfo Reason;
 }

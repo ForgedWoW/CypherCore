@@ -8,16 +8,6 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateFieldArray<T> : IEnumerable<T> where T : new()
 {
-    public T[] Values { get; set; }
-    public int FirstElementBit { get; set; }
-    public int Bit { get; set; }
-
-    public T this[int index]
-    {
-        get { return Values[index]; }
-        set { Values[index] = value; }
-    }
-
     public UpdateFieldArray(uint size, int bit, int firstElementBit)
     {
         Values = new T[size];
@@ -29,6 +19,14 @@ public class UpdateFieldArray<T> : IEnumerable<T> where T : new()
         FirstElementBit = firstElementBit;
     }
 
+    public int Bit { get; set; }
+    public int FirstElementBit { get; set; }
+    public T[] Values { get; set; }
+    public T this[int index]
+    {
+        get => Values[index];
+        set => Values[index] = value;
+    }
     public IEnumerator<T> GetEnumerator()
     {
         foreach (var obj in Values)

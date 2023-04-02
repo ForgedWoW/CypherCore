@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Achievements;
 
 public class GuildCriteriaDeleted : ServerPacket
 {
-    public ObjectGuid GuildGUID;
     public uint CriteriaID;
+    public ObjectGuid GuildGUID;
     public GuildCriteriaDeleted() : base(ServerOpcodes.GuildCriteriaDeleted) { }
 
     public override void Write()

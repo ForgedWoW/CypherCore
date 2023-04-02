@@ -8,15 +8,14 @@ namespace Forged.MapServer.Scenarios;
 public class ScenarioPOI
 {
     public int BlobIndex;
-    public int MapID;
-    public int UiMapID;
-    public int Priority;
     public int Flags;
-    public int WorldEffectID;
-    public int PlayerConditionID;
+    public int MapID;
     public int NavigationPlayerConditionID;
+    public int PlayerConditionID;
     public List<ScenarioPOIPoint> Points = new();
-
+    public int Priority;
+    public int UiMapID;
+    public int WorldEffectID;
     public ScenarioPOI(int blobIndex, int mapID, int uiMapID, int priority, int flags, int worldEffectID, int playerConditionID, int navigationPlayerConditionID, List<ScenarioPOIPoint> points)
     {
         BlobIndex = blobIndex;

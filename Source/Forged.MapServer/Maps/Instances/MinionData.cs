@@ -5,12 +5,12 @@ namespace Forged.MapServer.Maps.Instances;
 
 public class MinionData
 {
-    public uint Entry { get; set; }
-    public uint BossId { get; set; }
-
     public MinionData(uint _entry, uint _bossid)
     {
         Entry = _entry;
         BossId = _bossid;
     }
+
+    public uint BossId { get; set; }
+    public uint Entry { get; set; }
 }

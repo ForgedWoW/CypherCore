@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 internal class MoveSplineDone : ClientPacket
 {
-    public MovementInfo Status;
     public int SplineID;
+    public MovementInfo Status;
     public MoveSplineDone(WorldPacket packet) : base(packet) { }
 
     public override void Read()

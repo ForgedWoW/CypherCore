@@ -10,9 +10,8 @@ namespace Forged.MapServer.Spells;
 
 public class WorldObjectSpellTrajTargetCheck : WorldObjectSpellTargetCheck
 {
-    private readonly float _range;
     private readonly Position _position;
-
+    private readonly float _range;
     public WorldObjectSpellTrajTargetCheck(float range, Position position, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
         : base(caster, caster, spellInfo, selectionType, condList, objectType)
     {

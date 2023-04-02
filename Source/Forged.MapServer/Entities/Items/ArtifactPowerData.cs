@@ -6,6 +6,6 @@ namespace Forged.MapServer.Entities.Items;
 public class ArtifactPowerData
 {
     public uint ArtifactPowerId;
-    public byte PurchasedRank;
     public byte CurrentRankWithBonus;
+    public byte PurchasedRank;
 }

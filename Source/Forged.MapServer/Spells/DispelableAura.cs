@@ -18,9 +18,14 @@ public class DispelableAura
         _charges = dispelCharges;
     }
 
-    public bool RollDispel()
+    public bool DecrementCharge(byte charges)
     {
-        return RandomHelper.randChance(_chance);
+        if (_charges == 0)
+            return false;
+
+        _charges -= charges;
+
+        return _charges > 0;
     }
 
     public Aura GetAura()
@@ -38,13 +43,8 @@ public class DispelableAura
         ++_charges;
     }
 
-    public bool DecrementCharge(byte charges)
+    public bool RollDispel()
     {
-        if (_charges == 0)
-            return false;
-
-        _charges -= charges;
-
-        return _charges > 0;
+        return RandomHelper.randChance(_chance);
     }
 }

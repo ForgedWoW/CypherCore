@@ -1651,7 +1651,7 @@ internal class npc_train_wrecker : NullCreatureAI
     {
         _isSearching = true;
         _nextAction = 0;
-        _timer = 1 * Time.InMilliseconds;
+        _timer = 1 * Time.IN_MILLISECONDS;
     }
 
     public override void UpdateAI(uint diff)
@@ -1675,7 +1675,7 @@ internal class npc_train_wrecker : NullCreatureAI
                 }
                 else
                 {
-                    _timer = 3 * Time.InMilliseconds;
+                    _timer = 3 * Time.IN_MILLISECONDS;
                 }
             }
         }
@@ -1702,7 +1702,7 @@ internal class npc_train_wrecker : NullCreatureAI
                     {
                         Me.SetFacingTo(target.Location.Orientation);
                         Me.HandleEmoteCommand(Emote.OneshotAttack1h);
-                        _timer = (uint)(1.5 * Time.InMilliseconds);
+                        _timer = (uint)(1.5 * Time.IN_MILLISECONDS);
                         _nextAction = TrainWrecker.EventDoWreck;
                     }
                     else
@@ -1726,7 +1726,7 @@ internal class npc_train_wrecker : NullCreatureAI
                     if (target)
                     {
                         Me.CastSpell(target, SpellIds.WreckTrain, false);
-                        _timer = 2 * Time.InMilliseconds;
+                        _timer = 2 * Time.IN_MILLISECONDS;
                         _nextAction = TrainWrecker.EventDoDance;
                     }
                     else

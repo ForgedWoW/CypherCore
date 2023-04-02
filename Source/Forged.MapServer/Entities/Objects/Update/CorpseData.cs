@@ -9,21 +9,38 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class CorpseData : BaseUpdateData<Corpse>
 {
+    public UpdateField<byte> Class = new(0, 9);
     public DynamicUpdateField<ChrCustomizationChoice> Customizations = new(0, 1);
+    public UpdateField<uint> DisplayID = new(0, 6);
     public UpdateField<uint> DynamicFlags = new(0, 2);
+    public UpdateField<int> FactionTemplate = new(0, 11);
+    public UpdateField<uint> Flags = new(0, 10);
+    public UpdateField<ObjectGuid> GuildGUID = new(0, 5);
+    public UpdateFieldArray<uint> Items = new(19, 13, 14);
     public UpdateField<ObjectGuid> Owner = new(0, 3);
     public UpdateField<ObjectGuid> PartyGUID = new(0, 4);
-    public UpdateField<ObjectGuid> GuildGUID = new(0, 5);
-    public UpdateField<uint> DisplayID = new(0, 6);
     public UpdateField<byte> RaceID = new(0, 7);
     public UpdateField<byte> Sex = new(0, 8);
-    public UpdateField<byte> Class = new(0, 9);
-    public UpdateField<uint> Flags = new(0, 10);
-    public UpdateField<int> FactionTemplate = new(0, 11);
     public UpdateField<uint> StateSpellVisualKitID = new(0, 12);
-    public UpdateFieldArray<uint> Items = new(19, 13, 14);
-
     public CorpseData() : base(0, TypeId.Corpse, 33) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Customizations);
+        ClearChangesMask(DynamicFlags);
+        ClearChangesMask(Owner);
+        ClearChangesMask(PartyGUID);
+        ClearChangesMask(GuildGUID);
+        ClearChangesMask(DisplayID);
+        ClearChangesMask(RaceID);
+        ClearChangesMask(Sex);
+        ClearChangesMask(Class);
+        ClearChangesMask(Flags);
+        ClearChangesMask(FactionTemplate);
+        ClearChangesMask(StateSpellVisualKitID);
+        ClearChangesMask(Items);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Corpse owner, Player receiver)
     {
@@ -117,23 +134,5 @@ public class CorpseData : BaseUpdateData<Corpse>
             for (var i = 0; i < 19; ++i)
                 if (changesMask[14 + i])
                     data.WriteUInt32(Items[i]);
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Customizations);
-        ClearChangesMask(DynamicFlags);
-        ClearChangesMask(Owner);
-        ClearChangesMask(PartyGUID);
-        ClearChangesMask(GuildGUID);
-        ClearChangesMask(DisplayID);
-        ClearChangesMask(RaceID);
-        ClearChangesMask(Sex);
-        ClearChangesMask(Class);
-        ClearChangesMask(Flags);
-        ClearChangesMask(FactionTemplate);
-        ClearChangesMask(StateSpellVisualKitID);
-        ClearChangesMask(Items);
-        ChangesMask.ResetAll();
     }
 }

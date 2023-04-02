@@ -9,13 +9,12 @@ namespace Forged.MapServer.Networking.Packets.Who;
 
 public class WhoEntry
 {
-    public PlayerGuidLookupData PlayerData = new();
-    public ObjectGuid GuildGUID;
-    public uint GuildVirtualRealmAddress;
-    public string GuildName = "";
     public int AreaID;
+    public ObjectGuid GuildGUID;
+    public string GuildName = "";
+    public uint GuildVirtualRealmAddress;
     public bool IsGM;
-
+    public PlayerGuidLookupData PlayerData = new();
     public void Write(WorldPacket data)
     {
         PlayerData.Write(data);

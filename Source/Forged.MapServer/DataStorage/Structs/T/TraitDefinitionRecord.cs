@@ -7,12 +7,12 @@ namespace Forged.MapServer.DataStorage.Structs.T;
 
 public sealed class TraitDefinitionRecord
 {
-    public LocalizedString OverrideName;
-    public LocalizedString OverrideSubtext;
-    public LocalizedString OverrideDescription;
     public uint Id;
-    public uint SpellID;
+    public LocalizedString OverrideDescription;
     public int OverrideIcon;
+    public LocalizedString OverrideName;
     public uint OverridesSpellID;
+    public LocalizedString OverrideSubtext;
+    public uint SpellID;
     public uint VisibleSpellID;
 }

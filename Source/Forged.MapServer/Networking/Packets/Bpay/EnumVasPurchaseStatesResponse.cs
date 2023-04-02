@@ -7,11 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class EnumVasPurchaseStatesResponse : ServerPacket
 {
-    public byte Result { get; set; } = 0;
-
     public EnumVasPurchaseStatesResponse() : base(ServerOpcodes.EnumVasPurchaseStatesResponse) { }
 
-
+    public byte Result { get; set; } = 0;
     /*WorldPacket const* WorldPackets::BattlePay::BattlePayVasPurchaseStarted::Write()
     {
         _worldPacket << UnkInt;

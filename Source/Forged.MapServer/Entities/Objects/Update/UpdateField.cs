@@ -5,10 +5,6 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateField<T> : IUpdateField<T> where T : new()
 {
-    public T Value { get; set; }
-    public int BlockBit { get; set; }
-    public int Bit { get; set; }
-
     public UpdateField(int blockBit, int bit)
     {
         BlockBit = blockBit;
@@ -16,16 +12,9 @@ public class UpdateField<T> : IUpdateField<T> where T : new()
         Value = new T();
     }
 
-    public void SetValue(T value)
-    {
-        Value = value;
-    }
-
-    public T GetValue()
-    {
-        return Value;
-    }
-
+    public int Bit { get; set; }
+    public int BlockBit { get; set; }
+    public T Value { get; set; }
     public static implicit operator T(UpdateField<T> updateField)
     {
         return updateField.Value;

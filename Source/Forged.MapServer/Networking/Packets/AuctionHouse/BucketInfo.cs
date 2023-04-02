@@ -7,18 +7,17 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public class BucketInfo
 {
+    public byte? BattlePetBreedID;
+    public bool ContainsOnlyCollectedAppearances;
+    public bool ContainsOwnerItem;
+    public List<uint> ItemModifiedAppearanceIDs = new();
     public AuctionBucketKey Key;
-    public int TotalQuantity;
+    public byte? MaxBattlePetLevel;
+    public byte? MaxBattlePetQuality;
     public ulong MinPrice;
     public int RequiredLevel;
-    public List<uint> ItemModifiedAppearanceIDs = new();
-    public byte? MaxBattlePetQuality;
-    public byte? MaxBattlePetLevel;
-    public byte? BattlePetBreedID;
+    public int TotalQuantity;
     public uint? Unk901_1;
-    public bool ContainsOwnerItem;
-    public bool ContainsOnlyCollectedAppearances;
-
     public void Write(WorldPacket data)
     {
         Key.Write(data);

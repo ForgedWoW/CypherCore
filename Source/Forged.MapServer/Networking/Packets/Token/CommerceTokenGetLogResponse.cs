@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Token;
 
 internal class CommerceTokenGetLogResponse : ServerPacket
 {
-    public uint UnkInt; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
     public TokenResult Result;
+    public uint UnkInt; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
     private readonly List<AuctionableTokenInfo> AuctionableTokenAuctionableList = new();
     public CommerceTokenGetLogResponse() : base(ServerOpcodes.CommerceTokenGetLogResponse, ConnectionType.Instance) { }
 
@@ -31,10 +31,10 @@ internal class CommerceTokenGetLogResponse : ServerPacket
 
     private struct AuctionableTokenInfo
     {
-        public ulong UnkInt1;
-        public long UnkInt2;
-        public uint Owner;
         public ulong BuyoutPrice;
         public uint DurationLeft;
+        public uint Owner;
+        public ulong UnkInt1;
+        public long UnkInt2;
     }
 }

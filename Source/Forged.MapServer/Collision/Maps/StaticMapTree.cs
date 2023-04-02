@@ -15,17 +15,137 @@ namespace Forged.MapServer.Collision.Maps;
 
 public class StaticMapTree
 {
-    private readonly uint _mapId;
-    private readonly BIH _tree = new();
-    private readonly ConcurrentDictionary<uint, uint> _spawnIndices = new();
-    private readonly ConcurrentDictionary<uint, bool> _loadedTiles = new();
     private readonly ConcurrentDictionary<uint, uint> _loadedSpawns = new();
-    private ModelInstance[] _treeValues;
+    private readonly ConcurrentDictionary<uint, bool> _loadedTiles = new();
+    private readonly uint _mapId;
+    private readonly ConcurrentDictionary<uint, uint> _spawnIndices = new();
+    private readonly BIH _tree = new();
     private uint _nTreeValues;
-
+    private ModelInstance[] _treeValues;
     public StaticMapTree(uint mapId)
     {
         _mapId = mapId;
+    }
+
+    public static LoadResult CanLoadMap(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
+    {
+        var fullname = vmapPath + VMapManager.GetMapFileName(mapID);
+
+        if (!File.Exists(fullname))
+            return LoadResult.FileNotFound;
+
+        using (BinaryReader reader = new(new FileStream(fullname, FileMode.Open, FileAccess.Read)))
+        {
+            if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
+                return LoadResult.VersionMismatch;
+        }
+
+        var stream = OpenMapTileFile(vmapPath, mapID, tileX, tileY, vm).File;
+
+        if (stream == null)
+            return LoadResult.FileNotFound;
+
+        using (BinaryReader reader = new(stream))
+        {
+            if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
+                return LoadResult.VersionMismatch;
+        }
+
+        return LoadResult.Success;
+    }
+
+    public static string GetTileFileName(uint mapID, int tileX, int tileY)
+    {
+        return $"{mapID:D4}_{tileY:D2}_{tileX:D2}.vmtile";
+    }
+
+    public bool GetAreaInfo(ref Vector3 pos, out uint flags, out int adtId, out int rootId, out int groupId)
+    {
+        flags = 0;
+        adtId = 0;
+        rootId = 0;
+        groupId = 0;
+
+        AreaInfoCallback intersectionCallBack = new(_treeValues);
+        _tree.IntersectPoint(pos, intersectionCallBack);
+
+        if (intersectionCallBack.AInfo.Result)
+        {
+            flags = intersectionCallBack.AInfo.Flags;
+            adtId = intersectionCallBack.AInfo.AdtId;
+            rootId = intersectionCallBack.AInfo.RootId;
+            groupId = intersectionCallBack.AInfo.GroupId;
+            pos.Z = intersectionCallBack.AInfo.GroundZ;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public float GetHeight(Vector3 pPos, float maxSearchDist)
+    {
+        var height = float.PositiveInfinity;
+        Vector3 dir = new(0, 0, -1);
+        Ray ray = new(pPos, dir); // direction with length of 1
+        var maxDist = maxSearchDist;
+
+        if (GetIntersectionTime(ray, ref maxDist, false, ModelIgnoreFlags.Nothing))
+            height = pPos.Z - maxDist;
+
+        return height;
+    }
+
+    public bool GetLocationInfo(Vector3 pos, LocationInfo info)
+    {
+        LocationInfoCallback intersectionCallBack = new(_treeValues, info);
+        _tree.IntersectPoint(pos, intersectionCallBack);
+
+        return intersectionCallBack.Result;
+    }
+
+    public bool GetObjectHitPos(Vector3 pPos1, Vector3 pPos2, out Vector3 pResultHitPos, float pModifyDist)
+    {
+        bool result;
+        var maxDist = (pPos2 - pPos1).Length();
+
+        // prevent NaN values which can cause BIH intersection to enter infinite loop
+        if (maxDist < 1e-10f)
+        {
+            pResultHitPos = pPos2;
+
+            return false;
+        }
+
+        var dir = (pPos2 - pPos1) / maxDist; // direction with length of 1
+        Ray ray = new(pPos1, dir);
+        var dist = maxDist;
+
+        if (GetIntersectionTime(ray, ref dist, false, ModelIgnoreFlags.Nothing))
+        {
+            pResultHitPos = pPos1 + dir * dist;
+
+            if (pModifyDist < 0)
+            {
+                if ((pResultHitPos - pPos1).Length() > -pModifyDist)
+                    pResultHitPos += dir * pModifyDist;
+                else
+                    pResultHitPos = pPos1;
+            }
+            else
+            {
+                pResultHitPos += dir * pModifyDist;
+            }
+
+            result = true;
+        }
+        else
+        {
+            pResultHitPos = pPos2;
+            result = false;
+        }
+
+        return result;
     }
 
     public LoadResult InitMap(string fname)
@@ -67,21 +187,25 @@ public class StaticMapTree
         return LoadResult.Success;
     }
 
-    public void UnloadMap(VMapManager vm)
+    public bool IsInLineOfSight(Vector3 pos1, Vector3 pos2, ModelIgnoreFlags ignoreFlags)
     {
-        lock (_loadedSpawns)
-        {
-            foreach (var id in _loadedSpawns)
-            {
-                for (uint refCount = 0; refCount < id.Key; ++refCount)
-                    vm.ReleaseModelInstance(_treeValues[id.Key].Name);
+        var maxDist = (pos2 - pos1).Length();
 
-                _treeValues[id.Key].SetUnloaded();
-            }
+        // return false if distance is over max float, in case of cheater teleporting to the end of the universe
+        if (maxDist is float.MaxValue or float.PositiveInfinity)
+            return false;
 
-            _loadedSpawns.Clear();
-            _loadedTiles.Clear();
-        }
+        // prevent NaN values which can cause BIH intersection to enter infinite loop
+        if (maxDist < 1e-10f)
+            return true;
+
+        // direction with length of 1
+        Ray ray = new(pos1, (pos2 - pos1) / maxDist);
+
+        if (GetIntersectionTime(ray, ref maxDist, true, ignoreFlags))
+            return false;
+
+        return true;
     }
 
     public LoadResult LoadMapTile(int tileX, int tileY, VMapManager vm)
@@ -168,6 +292,30 @@ public class StaticMapTree
         }
     }
 
+    public int NumLoadedTiles()
+    {
+        lock (_loadedTiles)
+        {
+            return _loadedTiles.Count;
+        }
+    }
+
+    public void UnloadMap(VMapManager vm)
+    {
+        lock (_loadedSpawns)
+        {
+            foreach (var id in _loadedSpawns)
+            {
+                for (uint refCount = 0; refCount < id.Key; ++refCount)
+                    vm.ReleaseModelInstance(_treeValues[id.Key].Name);
+
+                _treeValues[id.Key].SetUnloaded();
+            }
+
+            _loadedSpawns.Clear();
+            _loadedTiles.Clear();
+        }
+    }
     public void UnloadMapTile(int tileX, int tileY, VMapManager vm)
     {
         lock (_loadedTiles)
@@ -219,163 +367,6 @@ public class StaticMapTree
             _loadedTiles.TryRemove(tileID, out _);
         }
     }
-
-    public static LoadResult CanLoadMap(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
-    {
-        var fullname = vmapPath + VMapManager.GetMapFileName(mapID);
-
-        if (!File.Exists(fullname))
-            return LoadResult.FileNotFound;
-
-        using (BinaryReader reader = new(new FileStream(fullname, FileMode.Open, FileAccess.Read)))
-        {
-            if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
-                return LoadResult.VersionMismatch;
-        }
-
-        var stream = OpenMapTileFile(vmapPath, mapID, tileX, tileY, vm).File;
-
-        if (stream == null)
-            return LoadResult.FileNotFound;
-
-        using (BinaryReader reader = new(stream))
-        {
-            if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
-                return LoadResult.VersionMismatch;
-        }
-
-        return LoadResult.Success;
-    }
-
-    public static string GetTileFileName(uint mapID, int tileX, int tileY)
-    {
-        return $"{mapID:D4}_{tileY:D2}_{tileX:D2}.vmtile";
-    }
-
-    public bool GetAreaInfo(ref Vector3 pos, out uint flags, out int adtId, out int rootId, out int groupId)
-    {
-        flags = 0;
-        adtId = 0;
-        rootId = 0;
-        groupId = 0;
-
-        AreaInfoCallback intersectionCallBack = new(_treeValues);
-        _tree.IntersectPoint(pos, intersectionCallBack);
-
-        if (intersectionCallBack.AInfo.Result)
-        {
-            flags = intersectionCallBack.AInfo.Flags;
-            adtId = intersectionCallBack.AInfo.AdtId;
-            rootId = intersectionCallBack.AInfo.RootId;
-            groupId = intersectionCallBack.AInfo.GroupId;
-            pos.Z = intersectionCallBack.AInfo.GroundZ;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public bool GetLocationInfo(Vector3 pos, LocationInfo info)
-    {
-        LocationInfoCallback intersectionCallBack = new(_treeValues, info);
-        _tree.IntersectPoint(pos, intersectionCallBack);
-
-        return intersectionCallBack.Result;
-    }
-
-    public float GetHeight(Vector3 pPos, float maxSearchDist)
-    {
-        var height = float.PositiveInfinity;
-        Vector3 dir = new(0, 0, -1);
-        Ray ray = new(pPos, dir); // direction with length of 1
-        var maxDist = maxSearchDist;
-
-        if (GetIntersectionTime(ray, ref maxDist, false, ModelIgnoreFlags.Nothing))
-            height = pPos.Z - maxDist;
-
-        return height;
-    }
-
-    public bool GetObjectHitPos(Vector3 pPos1, Vector3 pPos2, out Vector3 pResultHitPos, float pModifyDist)
-    {
-        bool result;
-        var maxDist = (pPos2 - pPos1).Length();
-
-        // prevent NaN values which can cause BIH intersection to enter infinite loop
-        if (maxDist < 1e-10f)
-        {
-            pResultHitPos = pPos2;
-
-            return false;
-        }
-
-        var dir = (pPos2 - pPos1) / maxDist; // direction with length of 1
-        Ray ray = new(pPos1, dir);
-        var dist = maxDist;
-
-        if (GetIntersectionTime(ray, ref dist, false, ModelIgnoreFlags.Nothing))
-        {
-            pResultHitPos = pPos1 + dir * dist;
-
-            if (pModifyDist < 0)
-            {
-                if ((pResultHitPos - pPos1).Length() > -pModifyDist)
-                    pResultHitPos += dir * pModifyDist;
-                else
-                    pResultHitPos = pPos1;
-            }
-            else
-            {
-                pResultHitPos += dir * pModifyDist;
-            }
-
-            result = true;
-        }
-        else
-        {
-            pResultHitPos = pPos2;
-            result = false;
-        }
-
-        return result;
-    }
-
-    public bool IsInLineOfSight(Vector3 pos1, Vector3 pos2, ModelIgnoreFlags ignoreFlags)
-    {
-        var maxDist = (pos2 - pos1).Length();
-
-        // return false if distance is over max float, in case of cheater teleporting to the end of the universe
-        if (maxDist is float.MaxValue or float.PositiveInfinity)
-            return false;
-
-        // prevent NaN values which can cause BIH intersection to enter infinite loop
-        if (maxDist < 1e-10f)
-            return true;
-
-        // direction with length of 1
-        Ray ray = new(pos1, (pos2 - pos1) / maxDist);
-
-        if (GetIntersectionTime(ray, ref maxDist, true, ignoreFlags))
-            return false;
-
-        return true;
-    }
-
-    public int NumLoadedTiles()
-    {
-        lock (_loadedTiles)
-        {
-            return _loadedTiles.Count;
-        }
-    }
-
-    private static uint PackTileID(int tileX, int tileY)
-    {
-        return (uint)(tileX << 16 | tileY);
-    }
-
-
     private static TileFileOpenResult OpenMapTileFile(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
     {
         TileFileOpenResult result = new()
@@ -411,6 +402,10 @@ public class StaticMapTree
         return result;
     }
 
+    private static uint PackTileID(int tileX, int tileY)
+    {
+        return (uint)(tileX << 16 | tileY);
+    }
     private bool GetIntersectionTime(Ray pRay, ref float pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags)
     {
         var distance = pMaxDist;

@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.System;
 
 public class SetTimeZoneInformation : ServerPacket
 {
-    public string ServerTimeTZ;
     public string GameTimeTZ;
     public string ServerRegionalTZ;
+    public string ServerTimeTZ;
     public SetTimeZoneInformation() : base(ServerOpcodes.SetTimeZoneInformation) { }
 
     public override void Write()

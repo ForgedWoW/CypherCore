@@ -17,17 +17,30 @@ using Serilog;
 
 namespace Forged.MapServer.Conditions;
 
+public enum DisableType
+{
+    Spell = 0,
+    Quest = 1,
+    Map = 2,
+    Battleground = 3,
+    Criteria = 4,
+    OutdoorPVP = 5,
+    VMAP = 6,
+    MMAP = 7,
+    LFGMap = 8,
+    Max = 9
+}
+
 public class DisableManager
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly IConfiguration _configuration;
     private readonly CliDB _cliDB;
-    private readonly SpellManager _spellManager;
-    private readonly DB2Manager _db2Manager;
+    private readonly IConfiguration _configuration;
     private readonly CriteriaManager _criteriaManager;
-    private readonly GameObjectManager _objectManager;
+    private readonly DB2Manager _db2Manager;
     private readonly Dictionary<DisableType, Dictionary<uint, DisableData>> _disableMap = new();
-
+    private readonly GameObjectManager _objectManager;
+    private readonly SpellManager _spellManager;
+    private readonly WorldDatabase _worldDatabase;
     public DisableManager(WorldDatabase worldDatabase, IConfiguration configuration, CliDB cliDB, SpellManager spellManager,
                           DB2Manager db2Manager, CriteriaManager criteriaManager, GameObjectManager objectManager)
     {
@@ -38,6 +51,173 @@ public class DisableManager
         _db2Manager = db2Manager;
         _criteriaManager = criteriaManager;
         _objectManager = objectManager;
+    }
+
+    public void CheckQuestDisables()
+    {
+        if (!_disableMap.ContainsKey(DisableType.Quest) || _disableMap[DisableType.Quest].Count == 0)
+        {
+            Log.Logger.Information("Checked 0 quest disables.");
+
+            return;
+        }
+
+        var oldMSTime = Time.MSTime;
+
+        // check only quests, rest already done at startup
+        foreach (var pair in _disableMap[DisableType.Quest])
+        {
+            var entry = pair.Key;
+
+            if (_objectManager.GetQuestTemplate(entry) == null)
+            {
+                Log.Logger.Error("Quest entry {0} from `disables` doesn't exist, skipped.", entry);
+                _disableMap[DisableType.Quest].Remove(entry);
+
+                continue;
+            }
+
+            if (pair.Value.Flags != 0)
+                Log.Logger.Error("Disable flags specified for quest {0}, useless data.", entry);
+        }
+
+        Log.Logger.Information("Checked {0} quest disables in {1} ms", _disableMap[DisableType.Quest].Count, Time.GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    public bool IsDisabledFor(DisableType type, uint entry, WorldObject refe, ushort flags = 0)
+    {
+        if (!_disableMap.ContainsKey(type) || _disableMap[type].Empty())
+            return false;
+
+        var data = _disableMap[type].LookupByKey(entry);
+
+        if (data == null) // not disabled
+            return false;
+
+        switch (type)
+        {
+            case DisableType.Spell:
+            {
+                var spellFlags = (DisableFlags)data.Flags;
+
+                if (refe != null)
+                {
+                    if ((refe.IsPlayer && spellFlags.HasFlag(DisableFlags.SpellPlayer)) ||
+                        (refe.IsCreature && (spellFlags.HasFlag(DisableFlags.SpellCreature) || (refe.AsUnit.IsPet && spellFlags.HasFlag(DisableFlags.SpellPet)))) ||
+                        (refe.IsGameObject && spellFlags.HasFlag(DisableFlags.SpellGameobject)))
+                    {
+                        if (spellFlags.HasAnyFlag(DisableFlags.SpellArenas | DisableFlags.SpellBattleGrounds))
+                        {
+                            var map = refe.Location.Map;
+
+                            if (map != null)
+                            {
+                                if (spellFlags.HasFlag(DisableFlags.SpellArenas) && map.IsBattleArena)
+                                    return true; // Current map is Arena and this spell is disabled here
+
+                                if (spellFlags.HasFlag(DisableFlags.SpellBattleGrounds) && map.IsBattleground)
+                                    return true; // Current map is a Battleground and this spell is disabled here
+                            }
+                        }
+
+                        if (spellFlags.HasFlag(DisableFlags.SpellMap))
+                        {
+                            var mapIds = data.Param0;
+
+                            if (mapIds.Contains(refe.Location.MapId))
+                                return true; // Spell is disabled on current map
+
+                            if (!spellFlags.HasFlag(DisableFlags.SpellArea))
+                                return false; // Spell is disabled on another map, but not this one, return false
+
+                            // Spell is disabled in an area, but not explicitly our current mapId. Continue processing.
+                        }
+
+                        if (spellFlags.HasFlag(DisableFlags.SpellArea))
+                        {
+                            var areaIds = data.Param1;
+
+                            if (areaIds.Contains(refe.Location.Area))
+                                return true; // Spell is disabled in this area
+
+                            return false; // Spell is disabled in another area, but not this one, return false
+                        }
+                        else
+                        {
+                            return true; // Spell disabled for all maps
+                        }
+                    }
+
+                    return false;
+                }
+                else if (spellFlags.HasFlag(DisableFlags.SpellDeprecatedSpell)) // call not from spellcast
+                {
+                    return true;
+                }
+                else if (flags.HasAnyFlag((byte)DisableFlags.SpellLOS))
+                {
+                    return spellFlags.HasFlag(DisableFlags.SpellLOS);
+                }
+
+                break;
+            }
+            case DisableType.Map:
+            case DisableType.LFGMap:
+                var player = refe.AsPlayer;
+
+                if (player != null)
+                {
+                    var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
+
+                    if (mapEntry.IsDungeon())
+                    {
+                        var disabledModes = (DisableFlags)data.Flags;
+                        var targetDifficulty = player.GetDifficultyId(mapEntry);
+                        _db2Manager.GetDownscaledMapDifficultyData(entry, ref targetDifficulty);
+
+                        switch (targetDifficulty)
+                        {
+                            case Difficulty.Normal:
+                                return disabledModes.HasFlag(DisableFlags.DungeonStatusNormal);
+                            case Difficulty.Heroic:
+                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic);
+                            case Difficulty.Raid10HC:
+                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic10Man);
+                            case Difficulty.Raid25HC:
+                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic25Man);
+                            default:
+                                return false;
+                        }
+                    }
+                    else if (mapEntry.InstanceType == MapTypes.Common)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            case DisableType.Quest:
+                return true;
+            case DisableType.Battleground:
+            case DisableType.OutdoorPVP:
+            case DisableType.Criteria:
+            case DisableType.MMAP:
+                return true;
+            case DisableType.VMAP:
+                return flags.HasAnyFlag(data.Flags);
+        }
+
+        return false;
+    }
+
+    public bool IsPathfindingEnabled(uint mapId)
+    {
+        return _configuration.GetDefaultValue("mmap.EnablePathFinding", true) && !IsDisabledFor(DisableType.MMAP, mapId, null);
+    }
+
+    public bool IsVMAPDisabledFor(uint entry, byte flags)
+    {
+        return IsDisabledFor(DisableType.VMAP, entry, null, flags);
     }
 
     public void LoadDisables()
@@ -301,174 +481,6 @@ public class DisableManager
 
         Log.Logger.Information("Loaded {0} disables in {1} ms", totalCount, Time.GetMSTimeDiffToNow(oldMSTime));
     }
-
-    public void CheckQuestDisables()
-    {
-        if (!_disableMap.ContainsKey(DisableType.Quest) || _disableMap[DisableType.Quest].Count == 0)
-        {
-            Log.Logger.Information("Checked 0 quest disables.");
-
-            return;
-        }
-
-        var oldMSTime = Time.MSTime;
-
-        // check only quests, rest already done at startup
-        foreach (var pair in _disableMap[DisableType.Quest])
-        {
-            var entry = pair.Key;
-
-            if (_objectManager.GetQuestTemplate(entry) == null)
-            {
-                Log.Logger.Error("Quest entry {0} from `disables` doesn't exist, skipped.", entry);
-                _disableMap[DisableType.Quest].Remove(entry);
-
-                continue;
-            }
-
-            if (pair.Value.Flags != 0)
-                Log.Logger.Error("Disable flags specified for quest {0}, useless data.", entry);
-        }
-
-        Log.Logger.Information("Checked {0} quest disables in {1} ms", _disableMap[DisableType.Quest].Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public bool IsDisabledFor(DisableType type, uint entry, WorldObject refe, ushort flags = 0)
-    {
-        if (!_disableMap.ContainsKey(type) || _disableMap[type].Empty())
-            return false;
-
-        var data = _disableMap[type].LookupByKey(entry);
-
-        if (data == null) // not disabled
-            return false;
-
-        switch (type)
-        {
-            case DisableType.Spell:
-            {
-                var spellFlags = (DisableFlags)data.Flags;
-
-                if (refe != null)
-                {
-                    if ((refe.IsPlayer && spellFlags.HasFlag(DisableFlags.SpellPlayer)) ||
-                        (refe.IsCreature && (spellFlags.HasFlag(DisableFlags.SpellCreature) || (refe.AsUnit.IsPet && spellFlags.HasFlag(DisableFlags.SpellPet)))) ||
-                        (refe.IsGameObject && spellFlags.HasFlag(DisableFlags.SpellGameobject)))
-                    {
-                        if (spellFlags.HasAnyFlag(DisableFlags.SpellArenas | DisableFlags.SpellBattleGrounds))
-                        {
-                            var map = refe.Location.Map;
-
-                            if (map != null)
-                            {
-                                if (spellFlags.HasFlag(DisableFlags.SpellArenas) && map.IsBattleArena)
-                                    return true; // Current map is Arena and this spell is disabled here
-
-                                if (spellFlags.HasFlag(DisableFlags.SpellBattleGrounds) && map.IsBattleground)
-                                    return true; // Current map is a Battleground and this spell is disabled here
-                            }
-                        }
-
-                        if (spellFlags.HasFlag(DisableFlags.SpellMap))
-                        {
-                            var mapIds = data.Param0;
-
-                            if (mapIds.Contains(refe.Location.MapId))
-                                return true; // Spell is disabled on current map
-
-                            if (!spellFlags.HasFlag(DisableFlags.SpellArea))
-                                return false; // Spell is disabled on another map, but not this one, return false
-
-                            // Spell is disabled in an area, but not explicitly our current mapId. Continue processing.
-                        }
-
-                        if (spellFlags.HasFlag(DisableFlags.SpellArea))
-                        {
-                            var areaIds = data.Param1;
-
-                            if (areaIds.Contains(refe.Location.Area))
-                                return true; // Spell is disabled in this area
-
-                            return false; // Spell is disabled in another area, but not this one, return false
-                        }
-                        else
-                        {
-                            return true; // Spell disabled for all maps
-                        }
-                    }
-
-                    return false;
-                }
-                else if (spellFlags.HasFlag(DisableFlags.SpellDeprecatedSpell)) // call not from spellcast
-                {
-                    return true;
-                }
-                else if (flags.HasAnyFlag((byte)DisableFlags.SpellLOS))
-                {
-                    return spellFlags.HasFlag(DisableFlags.SpellLOS);
-                }
-
-                break;
-            }
-            case DisableType.Map:
-            case DisableType.LFGMap:
-                var player = refe.AsPlayer;
-
-                if (player != null)
-                {
-                    var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
-
-                    if (mapEntry.IsDungeon())
-                    {
-                        var disabledModes = (DisableFlags)data.Flags;
-                        var targetDifficulty = player.GetDifficultyId(mapEntry);
-                        _db2Manager.GetDownscaledMapDifficultyData(entry, ref targetDifficulty);
-
-                        switch (targetDifficulty)
-                        {
-                            case Difficulty.Normal:
-                                return disabledModes.HasFlag(DisableFlags.DungeonStatusNormal);
-                            case Difficulty.Heroic:
-                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic);
-                            case Difficulty.Raid10HC:
-                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic10Man);
-                            case Difficulty.Raid25HC:
-                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic25Man);
-                            default:
-                                return false;
-                        }
-                    }
-                    else if (mapEntry.InstanceType == MapTypes.Common)
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            case DisableType.Quest:
-                return true;
-            case DisableType.Battleground:
-            case DisableType.OutdoorPVP:
-            case DisableType.Criteria:
-            case DisableType.MMAP:
-                return true;
-            case DisableType.VMAP:
-                return flags.HasAnyFlag(data.Flags);
-        }
-
-        return false;
-    }
-
-    public bool IsVMAPDisabledFor(uint entry, byte flags)
-    {
-        return IsDisabledFor(DisableType.VMAP, entry, null, flags);
-    }
-
-    public bool IsPathfindingEnabled(uint mapId)
-    {
-        return _configuration.GetDefaultValue("mmap.EnablePathFinding", true) && !IsDisabledFor(DisableType.MMAP, mapId, null);
-    }
-
     public class DisableData
     {
         public ushort Flags;
@@ -476,21 +488,6 @@ public class DisableManager
         public List<uint> Param1 = new();
     }
 }
-
-public enum DisableType
-{
-    Spell = 0,
-    Quest = 1,
-    Map = 2,
-    Battleground = 3,
-    Criteria = 4,
-    OutdoorPVP = 5,
-    VMAP = 6,
-    MMAP = 7,
-    LFGMap = 8,
-    Max = 9
-}
-
 [Flags]
 public enum DisableFlags
 {

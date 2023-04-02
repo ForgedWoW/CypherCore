@@ -39,181 +39,135 @@ namespace Forged.MapServer.Spells;
 
 public partial class Spell : IDisposable
 {
-    public SpellInfo SpellInfo;
-    public Item CastItem;
-    public ObjectGuid CastItemGuid;
-    public uint CastItemEntry;
-    public int CastItemLevel;
-    public ObjectGuid CastId;
-    public ObjectGuid OriginalCastId;
-    public bool FromClient;
-    public SpellCastFlagsEx CastFlagsEx;
-    public SpellMisc SpellMisc;
-    public object CustomArg;
-    public SpellCastVisual SpellVisual;
-    public SpellCastTargets Targets;
-    public sbyte ComboPointGain;
-    public SpellCustomErrors CustomErrors;
-
     public List<Aura> AppliedMods;
-    public SpellValue SpellValue;
-    public Spell SelfContainer;
-
-    // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
-    public Unit UnitTarget;
-    public Item ItemTarget;
-    public GameObject GameObjTarget;
+    public SpellCastFlagsEx CastFlagsEx;
+    public ObjectGuid CastId;
+    public Item CastItem;
+    public uint CastItemEntry;
+    public ObjectGuid CastItemGuid;
+    public int CastItemLevel;
+    public sbyte ComboPointGain;
     public Corpse CorpseTarget;
-    public WorldLocation DestTarget;
+    public object CustomArg;
+    public SpellCustomErrors CustomErrors;
     public double Damage;
-    public SpellMissInfo TargetMissInfo;
-    public double Variance;
-    public SpellEffectInfo EffectInfo;
-
     // Damage and healing in effects need just calculate
-    public double DamageInEffects;  // Damge   in effects count here
-    public double HealingInEffects; // Healing in effects count here
+    public double DamageInEffects;
+
+    public WorldLocation DestTarget;
+    public SpellEffectInfo EffectInfo;
+    public bool FromClient;
+    public GameObject GameObjTarget;
+    // Damge   in effects count here
+    public double HealingInEffects;
+
+    public Item ItemTarget;
+    public ObjectGuid OriginalCastId;
+    public Spell SelfContainer;
+    public SpellInfo SpellInfo;
+    public SpellMisc SpellMisc;
+    public SpellValue SpellValue;
+    public SpellCastVisual SpellVisual;
+    public SpellMissInfo TargetMissInfo;
+    public SpellCastTargets Targets;
+    // if need this can be replaced by Aura copy
+    // we can't store original aura link to prevent access to deleted auras
+    // and in same time need aura data and after aura deleting.
+    public SpellInfo TriggeredByAuraSpell;
 
     // *****************************************
     // Spell target subsystem
     // *****************************************
     // Targets store structures and data
     public List<TargetInfo> UniqueTargetInfo = new();
+
+    // Healing in effects count here
     public List<TargetInfo> UniqueTargetInfoOrgi = new();
 
-    // if need this can be replaced by Aura copy
-    // we can't store original aura link to prevent access to deleted auras
-    // and in same time need aura data and after aura deleting.
-    public SpellInfo TriggeredByAuraSpell;
-    private static readonly List<ISpellScript> Dummy = new();
-    private static readonly List<(ISpellScript, ISpellEffect)> DummySpellEffects = new();
-
-    //Spell data
-    internal SpellSchoolMask SpellSchoolMask; // Spell school (can be overwrite for some spells (wand shoot for example)
-    internal WeaponAttackType AttackType;     // For weapon based attack
-
-    internal bool NeedComboPoints;
-
-    // used in effects handlers
-    internal UnitAura SpellAura;
+    // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
+    public Unit UnitTarget;
+    public double Variance;
+    internal WeaponAttackType AttackType;
     internal DynObjAura DynObjAura;
-
+    internal ProcFlagsHit HitMask;
+    internal bool NeedComboPoints;
     // ******************************************
     // Spell trigger system
     // ******************************************
-    internal ProcFlagsInit ProcAttacker; // Attacker trigger flags
-    internal ProcFlagsInit ProcVictim;   // Victim   trigger flags
-    internal ProcFlagsHit HitMask;
-    private readonly Dictionary<Type, List<ISpellScript>> _spellScriptsByType = new();
-    private readonly Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>> _effectHandlers = new();
-    private readonly Dictionary<byte, SpellEmpowerStageRecord> _empowerStages = new();
+    internal ProcFlagsInit ProcAttacker;
 
+    // Attacker trigger flags
+    internal ProcFlagsInit ProcVictim;
 
-    private readonly Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
-    private readonly bool _canReflect; // can reflect this spell?
+    // For weapon based attack
+    // used in effects handlers
+    internal UnitAura SpellAura;
+
+    //Spell data
+    internal SpellSchoolMask SpellSchoolMask;
+
+    private static readonly List<ISpellScript> Dummy = new();
+    private static readonly List<(ISpellScript, ISpellEffect)> DummySpellEffects = new();
+
+    private readonly HashSet<int> _applyMultiplierMask = new();
+
+    private readonly bool _canReflect;
+
+    private readonly HashSet<int> _channelTargetEffectMask = new();
+
+    // can reflect this spell?
     private readonly Dictionary<int, double> _damageMultipliers = new();
 
+    private readonly Dictionary<int, SpellDestination> _destTargets = new();
+
+    private readonly Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>> _effectHandlers = new();
+
+    private readonly Dictionary<byte, SpellEmpowerStageRecord> _empowerStages = new();
+
+    private readonly Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
+
+    private readonly List<HitTriggerSpell> _hitTriggerSpells = new();
+
+    private readonly LootFactory _lootFactory;
+
+    // Spell school (can be overwrite for some spells (wand shoot for example)
+    // Victim   trigger flags
+    private readonly Dictionary<Type, List<ISpellScript>> _spellScriptsByType = new();
+    private readonly TriggerCastFlags _triggeredCastFlags;
+    private readonly List<CorpseTargetInfo> _uniqueCorpseTargetInfo = new();
     private readonly List<GOTargetInfo> _uniqueGoTargetInfo = new();
     private readonly List<ItemTargetInfo> _uniqueItemInfo = new();
-    private readonly List<CorpseTargetInfo> _uniqueCorpseTargetInfo = new();
-    private readonly Dictionary<int, SpellDestination> _destTargets = new();
-    private readonly List<HitTriggerSpell> _hitTriggerSpells = new();
-    private readonly TriggerCastFlags _triggeredCastFlags;
-    private readonly LootFactory _lootFactory;
-    private readonly HashSet<int> _applyMultiplierMask = new();
-    private readonly HashSet<int> _channelTargetEffectMask = new(); // Mask req. alive targets
+    // Mask req. alive targets
 
-    private List<SpellScript> _loadedScripts = new();
-    private PathGenerator _preGeneratedPath;
-    private ObjectGuid _originalCasterGuid;
-
-    private int _channeledDuration; // Calculated channeled spell duration in order to calculate correct pushback.
-    private byte _runesState;
+    private int _channeledDuration;
     private byte _delayAtDamageCount;
-
-    // Delayed spells system
-    private bool _launchHandled;    // were launch actions handled
-    private bool _immediateHandled; // were immediate actions handled? (used by delayed spells only)
-
-    // These vars are used in both delayed spell system and modified immediate spell system
-    private bool _referencedFromCurrentSpell;
-    private bool _executedCurrently;
     private SpellEffectHandleMode _effectHandleMode;
+    private uint _empoweredSpellDelta;
+    private byte _empoweredSpellStage;
+    // Empower spell meta
+    private EmpowerState _empowerState = EmpowerState.None;
 
+    private bool _executedCurrently;
     // -------------------------------------------
     private GameObject _focusObject;
 
-    private int _timer;
+    private bool _immediateHandled;
+    // Delayed spells system
+    private bool _launchHandled;
 
-    // Empower spell meta
-    private EmpowerState _empowerState = EmpowerState.None;
-    private byte _empoweredSpellStage;
-    private uint _empoweredSpellDelta;
+    private List<SpellScript> _loadedScripts = new();
+    private ObjectGuid _originalCasterGuid;
+    private PathGenerator _preGeneratedPath;
+    // These vars are used in both delayed spell system and modified immediate spell system
+    private bool _referencedFromCurrentSpell;
 
+    // Calculated channeled spell duration in order to calculate correct pushback.
+    private byte _runesState;
     private SpellEvent _spellEvent;
 
-    public SpellState State { get; set; }
-
-    public int CastTime { get; private set; }
-
-    private bool IsAutoRepeat { get; set; }
-
-    public bool IsDeletable => !_referencedFromCurrentSpell && !_executedCurrently;
-
-    public bool IsInterruptable => !_executedCurrently;
-
-    public ulong DelayStart { get; set; }
-
-    public ulong DelayMoment { get; private set; }
-
-    public WorldObject Caster { get; }
-
-    public ObjectGuid OriginalCasterGuid => _originalCasterGuid;
-
-    public Unit OriginalCaster { get; private set; }
-
-    public List<SpellPowerCost> PowerCost { get; private set; } = new();
-
-    private bool DontReport => Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.DontReportCastError);
-
-    public bool IsEmpowered => SpellInfo.EmpowerStages.Count > 0 && Caster.IsPlayer;
-
-    public byte? EmpoweredStage { get; set; }
-
-    public CurrentSpellTypes CurrentContainer
-    {
-        get
-        {
-            if (SpellInfo.IsNextMeleeSwingSpell)
-                return CurrentSpellTypes.Melee;
-            else if (IsAutoRepeat)
-                return CurrentSpellTypes.AutoRepeat;
-            else if (SpellInfo.IsChanneled)
-                return CurrentSpellTypes.Channeled;
-
-            return CurrentSpellTypes.Generic;
-        }
-    }
-
-    public Difficulty CastDifficulty => Caster.Location.Map.DifficultyID;
-
-    public bool IsPositive => SpellInfo.IsPositive && (TriggeredByAuraSpell == null || TriggeredByAuraSpell.IsPositive);
-
-    public Unit UnitCasterForEffectHandlers => OriginalCaster ?? Caster.AsUnit;
-
-    public bool IsTriggered => _triggeredCastFlags.HasAnyFlag(TriggerCastFlags.FullMask);
-
-    public bool IsIgnoringCooldowns => _triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnoreSpellAndCategoryCD);
-
-    public bool IsFocusDisabled => _triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreSetFacing) || (SpellInfo.IsChanneled && !SpellInfo.HasAttribute(SpellAttr1.TrackTargetInChannel));
-
-    public bool IsProcDisabled => _triggeredCastFlags.HasAnyFlag(TriggerCastFlags.DisallowProcEvents);
-
-    public bool IsChannelActive => Caster.IsUnit && Caster.AsUnit.ChannelSpellId != 0;
-
-    public bool TriggeredAllowProc => _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc);
-
-
+    // were launch actions handled
+    // were immediate actions handled? (used by delayed spells only)
+    private int _timer;
     public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, LootFactory lootFactory, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
     {
         SpellInfo = info;
@@ -305,837 +259,201 @@ public partial class Spell : IDisposable
         EmpoweredStage = empoweredStage;
     }
 
-    public virtual void Dispose()
+    public Difficulty CastDifficulty => Caster.Location.Map.DifficultyID;
+    public WorldObject Caster { get; }
+    public int CastTime { get; private set; }
+    public CurrentSpellTypes CurrentContainer
     {
-        // unload scripts
-        for (var i = 0; i < _loadedScripts.Count; ++i)
-            _loadedScripts[i]._Unload();
-
-        if (_referencedFromCurrentSpell && SelfContainer && SelfContainer == this)
+        get
         {
-            // Clean the reference to avoid later crash.
-            // If this error is repeating, we may have to add an ASSERT to better track down how we get into this case.
-            Log.Logger.Error("SPELL: deleting spell for spell ID {0}. However, spell still referenced.", SpellInfo.Id);
-            SelfContainer = null;
+            if (SpellInfo.IsNextMeleeSwingSpell)
+                return CurrentSpellTypes.Melee;
+            else if (IsAutoRepeat)
+                return CurrentSpellTypes.AutoRepeat;
+            else if (SpellInfo.IsChanneled)
+                return CurrentSpellTypes.Channeled;
+
+            return CurrentSpellTypes.Generic;
         }
     }
 
-    public void InitExplicitTargets(SpellCastTargets targets)
+    public ulong DelayMoment { get; private set; }
+    public ulong DelayStart { get; set; }
+    public byte? EmpoweredStage { get; set; }
+    public bool IsChannelActive => Caster.IsUnit && Caster.AsUnit.ChannelSpellId != 0;
+    public bool IsDeletable => !_referencedFromCurrentSpell && !_executedCurrently;
+    public bool IsEmpowered => SpellInfo.EmpowerStages.Count > 0 && Caster.IsPlayer;
+    public bool IsFocusDisabled => _triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreSetFacing) || (SpellInfo.IsChanneled && !SpellInfo.HasAttribute(SpellAttr1.TrackTargetInChannel));
+    public bool IsIgnoringCooldowns => _triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnoreSpellAndCategoryCD);
+    public bool IsInterruptable => !_executedCurrently;
+    public bool IsPositive => SpellInfo.IsPositive && (TriggeredByAuraSpell == null || TriggeredByAuraSpell.IsPositive);
+    public bool IsProcDisabled => _triggeredCastFlags.HasAnyFlag(TriggerCastFlags.DisallowProcEvents);
+    public bool IsTriggered => _triggeredCastFlags.HasAnyFlag(TriggerCastFlags.FullMask);
+    public Unit OriginalCaster { get; private set; }
+    public ObjectGuid OriginalCasterGuid => _originalCasterGuid;
+    public List<SpellPowerCost> PowerCost { get; private set; } = new();
+    public SpellState State { get; set; }
+    public bool TriggeredAllowProc => _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc);
+    public Unit UnitCasterForEffectHandlers => OriginalCaster ?? Caster.AsUnit;
+    private bool DontReport => Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.DontReportCastError);
+    private bool IsAutoRepeat { get; set; }
+    public static Spell ExtractSpellFromEvent(BasicEvent basicEvent)
     {
-        Targets = targets;
+        var spellEvent = (SpellEvent)basicEvent;
 
-        // this function tries to correct spell explicit targets for spell
-        // client doesn't send explicit targets correctly sometimes - we need to fix such spells serverside
-        // this also makes sure that we correctly send explicit targets to client (removes redundant data)
-        var neededTargets = SpellInfo.GetExplicitTargetMask();
+        return spellEvent?.Spell;
+    }
 
-        var target = Targets.ObjectTarget;
+    public static implicit operator bool(Spell spell)
+    {
+        return spell != null;
+    }
 
-        if (target != null)
+    public static void SendCastResult(Player caster, SpellInfo spellInfo, SpellCastVisual spellVisual, ObjectGuid castCount, SpellCastResult result, SpellCustomErrors customError = SpellCustomErrors.None, int? param1 = null, int? param2 = null)
+    {
+        if (result == SpellCastResult.SpellCastOk)
+            return;
+
+        CastFailed packet = new();
+
         {
-            // check if object target is valid with needed target flags
-            // for unit case allow corpse target mask because player with not released corpse is a unit target
-            if ((target.AsUnit && !neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask)) || (target.IsTypeId(TypeId.GameObject) && !neededTargets.HasFlag(SpellCastTargetFlags.GameobjectMask)) || (target.IsTypeId(TypeId.Corpse) && !neededTargets.HasFlag(SpellCastTargetFlags.CorpseMask)))
-                Targets.RemoveObjectTarget();
-        }
-        else
-        {
-            // try to select correct unit target if not provided by client or by serverside cast
-            if (neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitMask))
-            {
-                Unit unit = null;
-                // try to use player selection as a target
-                var playerCaster = Caster.AsPlayer;
-
-                if (playerCaster != null)
-                {
-                    // selection has to be found and to be valid target for the spell
-                    var selectedUnit = Global.ObjAccessor.GetUnit(Caster, playerCaster.Target);
-
-                    if (selectedUnit != null)
-                        if (SpellInfo.CheckExplicitTarget(Caster, selectedUnit) == SpellCastResult.SpellCastOk)
-                            unit = selectedUnit;
-                }
-                // try to use attacked unit as a target
-                else if (Caster.IsTypeId(TypeId.Unit) && neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitEnemy | SpellCastTargetFlags.Unit))
-                {
-                    unit = Caster.AsUnit.Victim;
-                }
-
-                // didn't find anything - let's use self as target
-                if (unit == null && neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitRaid | SpellCastTargetFlags.UnitParty | SpellCastTargetFlags.UnitAlly))
-                    unit = Caster.AsUnit;
-
-                Targets.UnitTarget = unit;
-            }
+            Visual = spellVisual
         }
 
-        // check if spell needs dst target
-        if (neededTargets.HasFlag(SpellCastTargetFlags.DestLocation))
-        {
-            // and target isn't set
-            if (!Targets.HasDst)
-            {
-                // try to use unit target if provided
-                var targett = targets.ObjectTarget;
+        F
+        lSpellCastFailedArgs(packet, castCount, spellInfo, result, customError, param1, param2, caster);
+        caster.SendPacket(packet);
+    }
 
-                if (targett != null)
-                    Targets.SetDst(targett);
-                // or use self if not available
-                else
-                    Targets.SetDst(Caster);
-            }
-        }
-        else
-        {
-            Targets.RemoveDst();
-        }
+    public double CalculateSpellDamage(Unit target, SpellEffectInfo spellEffectInfo, double? basePoints = null, uint castItemId = 0, int itemLevel = -1)
+    {
+        return CalculateSpellDamage(out _, target, spellEffectInfo, basePoints, castItemId, itemLevel);
+    }
 
-        if (neededTargets.HasFlag(SpellCastTargetFlags.SourceLocation))
+    // function uses real base points (typically value - 1)
+    public double CalculateSpellDamage(out double variance, Unit target, SpellEffectInfo spellEffectInfo, double? basePoints = null, uint castItemId = 0, int itemLevel = -1)
+    {
+        variance = 0.0f;
+
+        return spellEffectInfo != null ? spellEffectInfo.CalcValue(out variance, this, basePoints, target, castItemId, itemLevel) : 0;
+    }
+
+    public void CallScriptAfterHitHandlers()
+    {
+        foreach (var script in GetSpellScripts<ISpellAfterHit>())
         {
-            if (!targets.HasSrc)
-                Targets.SetSrc(Caster);
-        }
-        else
-        {
-            Targets.RemoveSrc();
+            script._PrepareScriptCall(SpellScriptHookType.AfterHit);
+            ((ISpellAfterHit)script).AfterHit();
+            script._FinishScriptCall();
         }
     }
 
-    public void SelectSpellTargets()
+    public void CallScriptBeforeHitHandlers(SpellMissInfo missInfo)
     {
-        // select targets for cast phase
-        SelectExplicitTargets();
+        foreach (var script in GetSpellScripts<ISpellBeforeHit>())
+        {
+            script._InitHit();
+            script._PrepareScriptCall(SpellScriptHookType.BeforeHit);
+            ((ISpellBeforeHit)script).BeforeHit(missInfo);
+            script._FinishScriptCall();
+        }
+    }
 
-        var processedAreaEffectsMask = new HashSet<int>();
+    public void CallScriptCalcCritChanceHandlers(Unit victim, ref double critChance)
+    {
+        foreach (var loadedScript in GetSpellScripts<ISpellCalcCritChance>())
+        {
+            loadedScript._PrepareScriptCall(SpellScriptHookType.CalcCritChance);
 
+            ((ISpellCalcCritChance)loadedScript).CalcCritChance(victim, ref critChance);
+
+            loadedScript._FinishScriptCall();
+        }
+    }
+
+    public void CallScriptOnHitHandlers()
+    {
+        foreach (var script in GetSpellScripts<ISpellOnHit>())
+        {
+            script._PrepareScriptCall(SpellScriptHookType.Hit);
+            ((ISpellOnHit)script).OnHit();
+            script._FinishScriptCall();
+        }
+    }
+
+    public void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo damageInfo, ref double resistAmount, ref double absorbAmount)
+    {
+        foreach (var script in GetSpellScripts<ISpellCalculateResistAbsorb>())
+        {
+            script._PrepareScriptCall(SpellScriptHookType.OnResistAbsorbCalculation);
+
+            ((ISpellCalculateResistAbsorb)script).CalculateResistAbsorb(damageInfo, ref resistAmount, ref absorbAmount);
+
+            script._FinishScriptCall();
+        }
+    }
+
+    public bool CanAutoCast(Unit target)
+    {
+        if (!target)
+            return (CheckPetCast(target) == SpellCastResult.SpellCastOk);
+
+        var targetguid = target.GUID;
+
+        // check if target already has the same or a more powerful aura
         foreach (var spellEffectInfo in SpellInfo.Effects)
         {
-            // not call for empty effect.
-            // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
-            if (!spellEffectInfo.IsEffect())
+            if (!spellEffectInfo.IsAura())
                 continue;
 
-            // set expected type of implicit targets to be sent to client
-            var implicitTargetMask = SpellInfo.GetTargetFlagMask(spellEffectInfo.TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(spellEffectInfo.TargetB.ObjectType);
+            var auraType = spellEffectInfo.ApplyAuraName;
+            var auras = target.GetAuraEffectsByType(auraType);
 
-            if (Convert.ToBoolean(implicitTargetMask & SpellCastTargetFlags.Unit))
-                Targets.SetTargetFlag(SpellCastTargetFlags.Unit);
-
-            if (Convert.ToBoolean(implicitTargetMask & (SpellCastTargetFlags.Gameobject | SpellCastTargetFlags.GameobjectItem)))
-                Targets.SetTargetFlag(SpellCastTargetFlags.Gameobject);
-
-            SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetA, processedAreaEffectsMask);
-            SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetB, processedAreaEffectsMask);
-
-            // Select targets of effect based on effect type
-            // those are used when no valid target could be added for spell effect based on spell target type
-            // some spell effects use explicit target as a default target added to target map (like SPELL_EFFECT_LEARN_SPELL)
-            // some spell effects add target to target map only when target type specified (like SPELL_EFFECT_WEAPON)
-            // some spell effects don't add anything to target map (confirmed with sniffs) (like SPELL_EFFECT_DESTROY_ALL_TOTEMS)
-            SelectEffectTypeImplicitTargets(spellEffectInfo);
-
-            if (Targets.HasDst)
-                AddDestTarget(Targets.Dst, spellEffectInfo.EffectIndex);
-
-            if (spellEffectInfo.TargetA.ObjectType == SpellTargetObjectTypes.Unit || spellEffectInfo.TargetA.ObjectType == SpellTargetObjectTypes.UnitAndDest || spellEffectInfo.TargetB.ObjectType == SpellTargetObjectTypes.Unit || spellEffectInfo.TargetB.ObjectType == SpellTargetObjectTypes.UnitAndDest)
+            foreach (var eff in auras)
             {
-                if (SpellInfo.HasAttribute(SpellAttr1.RequireAllTargets))
+                if (SpellInfo.Id == eff.SpellInfo.Id)
+                    return false;
+
+                switch (Global.SpellMgr.CheckSpellGroupStackRules(SpellInfo, eff.SpellInfo))
                 {
-                    var noTargetFound = !UniqueTargetInfo.Any(target => target.Effects.Contains(spellEffectInfo.EffectIndex));
-
-                    if (noTargetFound)
-                    {
-                        SendCastResult(SpellCastResult.BadImplicitTargets);
-                        Finish(SpellCastResult.BadImplicitTargets);
-
-                        return;
-                    }
-                }
-
-                if (SpellInfo.HasAttribute(SpellAttr2.FailOnAllTargetsImmune))
-                {
-                    var anyNonImmuneTargetFound = UniqueTargetInfo.Any(target => target.Effects.Contains(spellEffectInfo.EffectIndex) && target.MissCondition != SpellMissInfo.Immune && target.MissCondition != SpellMissInfo.Immune2);
-
-                    if (!anyNonImmuneTargetFound)
-                    {
-                        SendCastResult(SpellCastResult.Immune);
-                        Finish(SpellCastResult.Immune);
-
-                        return;
-                    }
-                }
-            }
-
-            if (SpellInfo.IsChanneled)
-            {
-                // maybe do this for all spells?
-                if (_focusObject == null && UniqueTargetInfo.Empty() && _uniqueGoTargetInfo.Empty() && _uniqueItemInfo.Empty() && !Targets.HasDst)
-                {
-                    SendCastResult(SpellCastResult.BadImplicitTargets);
-                    Finish(SpellCastResult.BadImplicitTargets);
-
-                    return;
-                }
-
-                foreach (var ihit in UniqueTargetInfo)
-                    if (ihit.Effects.Contains(spellEffectInfo.EffectIndex))
-                    {
-                        _channelTargetEffectMask.Add(spellEffectInfo.EffectIndex);
+                    case SpellGroupStackRule.Exclusive:
+                        return false;
+                    case SpellGroupStackRule.ExclusiveFromSameCaster:
+                        if (Caster == eff.Caster)
+                            return false;
 
                         break;
-                    }
-            }
-        }
-
-        var dstDelay = CalculateDelayMomentForDst(SpellInfo.LaunchDelay);
-
-        if (dstDelay != 0)
-            DelayMoment = dstDelay;
-    }
-
-    public void RecalculateDelayMomentForDst()
-    {
-        DelayMoment = CalculateDelayMomentForDst(0.0f);
-        Caster.Events.ModifyEventTime(_spellEvent, TimeSpan.FromMilliseconds(DelayStart + DelayMoment));
-    }
-
-    public GridMapTypeMask GetSearcherTypeMask(SpellTargetObjectTypes objType, List<Condition> condList)
-    {
-        // this function selects which containers need to be searched for spell target
-        var retMask = GridMapTypeMask.All;
-
-        // filter searchers based on searched object type
-        switch (objType)
-        {
-            case SpellTargetObjectTypes.Unit:
-            case SpellTargetObjectTypes.UnitAndDest:
-                retMask &= GridMapTypeMask.Player | GridMapTypeMask.Creature;
-
-                break;
-            case SpellTargetObjectTypes.Corpse:
-            case SpellTargetObjectTypes.CorpseEnemy:
-            case SpellTargetObjectTypes.CorpseAlly:
-                retMask &= GridMapTypeMask.Player | GridMapTypeMask.Corpse | GridMapTypeMask.Creature;
-
-                break;
-            case SpellTargetObjectTypes.Gobj:
-            case SpellTargetObjectTypes.GobjItem:
-                retMask &= GridMapTypeMask.GameObject;
-
-                break;
-            default:
-                break;
-        }
-
-        if (SpellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
-            retMask &= GridMapTypeMask.Corpse | GridMapTypeMask.Player;
-
-        if (SpellInfo.HasAttribute(SpellAttr3.OnlyOnGhosts))
-            retMask &= GridMapTypeMask.Player;
-
-        if (SpellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
-            retMask &= ~GridMapTypeMask.Player;
-
-        if (condList != null)
-            retMask &= Global.ConditionMgr.GetSearcherTypeMaskForConditionList(condList);
-
-        return retMask;
-    }
-
-    public void CleanupTargetList()
-    {
-        UniqueTargetInfo.Clear();
-        _uniqueGoTargetInfo.Clear();
-        _uniqueItemInfo.Clear();
-        DelayMoment = 0;
-    }
-
-    public long GetUnitTargetCountForEffect(int effect)
-    {
-        return UniqueTargetInfo.Count(targetInfo => targetInfo.MissCondition == SpellMissInfo.None && targetInfo.Effects.Contains(effect));
-    }
-
-    public long GetGameObjectTargetCountForEffect(int effect)
-    {
-        return _uniqueGoTargetInfo.Count(targetInfo => targetInfo.Effects.Contains(effect));
-    }
-
-    public long GetItemTargetCountForEffect(int effect)
-    {
-        return _uniqueItemInfo.Count(targetInfo => targetInfo.Effects.Contains(effect));
-    }
-
-    public long GetCorpseTargetCountForEffect(int effect)
-    {
-        return _uniqueCorpseTargetInfo.Count(targetInfo => targetInfo.Effects.Contains(effect));
-    }
-
-    public SpellMissInfo PreprocessSpellHit(Unit unit, TargetInfo hitInfo)
-    {
-        if (unit == null)
-            return SpellMissInfo.Evade;
-
-        // Target may have begun evading between launch and hit phases - re-check now
-        var creatureTarget = unit.AsCreature;
-
-        if (creatureTarget is { IsEvadingAttacks: true })
-            return SpellMissInfo.Evade;
-
-        // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
-        if (SpellInfo.HasHitDelay && unit.IsImmunedToSpell(SpellInfo, Caster))
-            return SpellMissInfo.Immune;
-
-        CallScriptBeforeHitHandlers(hitInfo.MissCondition);
-
-        var player = unit.AsPlayer;
-
-        if (player != null)
-        {
-            player.StartCriteriaTimer(CriteriaStartEvent.BeSpellTarget, SpellInfo.Id);
-            player.UpdateCriteria(CriteriaType.BeSpellTarget, SpellInfo.Id, 0, 0, Caster);
-            player.UpdateCriteria(CriteriaType.GainAura, SpellInfo.Id);
-        }
-
-        var casterPlayer = Caster.AsPlayer;
-
-        if (casterPlayer)
-        {
-            casterPlayer.StartCriteriaTimer(CriteriaStartEvent.CastSpell, SpellInfo.Id);
-            casterPlayer.UpdateCriteria(CriteriaType.LandTargetedSpellOnTarget, SpellInfo.Id, 0, 0, unit);
-        }
-
-        if (Caster != unit)
-        {
-            // Recheck  UNIT_FLAG_NON_ATTACKABLE for delayed spells
-            if (SpellInfo.HasHitDelay && unit.HasUnitFlag(UnitFlags.NonAttackable) && unit.CharmerOrOwnerGUID != Caster.GUID)
-                return SpellMissInfo.Evade;
-
-            if (Caster.WorldObjectCombat.IsValidAttackTarget(unit, SpellInfo))
-            {
-                unit.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.HostileActionReceived);
-            }
-            else if (Caster.WorldObjectCombat.IsFriendlyTo(unit))
-            {
-                // for delayed spells ignore negative spells (after duel end) for friendly targets
-                if (SpellInfo.HasHitDelay && unit.IsPlayer && !IsPositive && !Caster.WorldObjectCombat.IsValidAssistTarget(unit, SpellInfo))
-                    return SpellMissInfo.Evade;
-
-                // assisting case, healing and resurrection
-                if (unit.HasUnitState(UnitState.AttackPlayer))
-                {
-                    var playerOwner = Caster.CharmerOrOwnerPlayerOrPlayerItself;
-
-                    if (playerOwner != null)
-                    {
-                        playerOwner.SetContestedPvP();
-                        playerOwner.UpdatePvP(true);
-                    }
-                }
-
-                if (OriginalCaster && unit.IsInCombat && SpellInfo.HasInitialAggro)
-                {
-                    if (OriginalCaster.HasUnitFlag(UnitFlags.PlayerControlled))          // only do explicit combat forwarding for PvP enabled units
-                        OriginalCaster.GetCombatManager().InheritCombatStatesFrom(unit); // for creature v creature combat, the threat forward does it for us
-
-                    unit.GetThreatManager().ForwardThreatForAssistingMe(OriginalCaster, 0.0f, null, true);
-                }
-            }
-        }
-
-        // original caster for auras
-        var origCaster = Caster;
-
-        if (OriginalCaster)
-            origCaster = OriginalCaster;
-
-        // check immunity due to diminishing returns
-        if (Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffects, unit).Count != 0)
-        {
-            foreach (var spellEffectInfo in SpellInfo.Effects)
-                hitInfo.AuraBasePoints[spellEffectInfo.EffectIndex] = (SpellValue.CustomBasePointsMask & (1 << spellEffectInfo.EffectIndex)) != 0 ? SpellValue.EffectBasePoints[spellEffectInfo.EffectIndex] : spellEffectInfo.CalcBaseValue(OriginalCaster, unit, CastItemEntry, CastItemLevel);
-
-            // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-            hitInfo.DrGroup = SpellInfo.DiminishingReturnsGroupForSpell;
-
-            var diminishLevel = DiminishingLevels.Level1;
-
-            if (hitInfo.DrGroup != 0)
-            {
-                diminishLevel = unit.GetDiminishing(hitInfo.DrGroup);
-                var type = SpellInfo.DiminishingReturnsGroupType;
-
-                // Increase Diminishing on unit, current informations for actually casts will use values above
-                if (type == DiminishingReturnsType.All || (type == DiminishingReturnsType.Player && unit.IsAffectedByDiminishingReturns))
-                    unit.IncrDiminishing(SpellInfo);
-            }
-
-            // Now Reduce spell duration using data received at spell hit
-            // check whatever effects we're going to apply, diminishing returns only apply to negative aura effects
-            hitInfo.Positive = true;
-
-            if (origCaster == unit || !origCaster.WorldObjectCombat.IsFriendlyTo(unit))
-                foreach (var spellEffectInfo in SpellInfo.Effects)
-                    // mod duration only for effects applying aura!
-                    if (hitInfo.Effects.Contains(spellEffectInfo.EffectIndex) &&
-                        spellEffectInfo.IsUnitOwnedAuraEffect &&
-                        !SpellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))
-                    {
-                        hitInfo.Positive = false;
+                    case SpellGroupStackRule.ExclusiveSameEffect: // this one has further checks, but i don't think they're necessary for autocast logic
+                    case SpellGroupStackRule.ExclusiveHighest:
+                        if (Math.Abs(spellEffectInfo.BasePoints) <= Math.Abs(eff.Amount))
+                            return false;
 
                         break;
-                    }
-
-            hitInfo.AuraDuration = Aura.CalcMaxDuration(SpellInfo, origCaster);
-
-            // unit is immune to aura if it was diminished to 0 duration
-            if (!hitInfo.Positive && !unit.ApplyDiminishingToDuration(SpellInfo, ref hitInfo.AuraDuration, origCaster, diminishLevel))
-                if (SpellInfo.Effects.All(effInfo => !effInfo.IsEffect() || effInfo.IsEffect(SpellEffectName.ApplyAura)))
-                    return SpellMissInfo.Immune;
-        }
-
-        return SpellMissInfo.None;
-    }
-
-    public void DoSpellEffectHit(Unit unit, SpellEffectInfo spellEffectInfo, TargetInfo hitInfo)
-    {
-        var aura_effmask = Aura.BuildEffectMaskForOwner(SpellInfo,
-                                                        new HashSet<int>()
-                                                        {
-                                                            spellEffectInfo.EffectIndex
-                                                        },
-                                                        unit);
-
-        if (aura_effmask.Count != 0)
-        {
-            var caster = Caster;
-
-            if (OriginalCaster)
-                caster = OriginalCaster;
-
-            if (caster != null)
-            {
-                // delayed spells with multiple targets need to create a new aura object, otherwise we'll access a deleted aura
-                if (hitInfo.HitAura == null)
-                {
-                    var resetPeriodicTimer = (SpellInfo.StackAmount < 2) && !_triggeredCastFlags.HasFlag(TriggerCastFlags.DontResetPeriodicTimer);
-                    var allAuraEffectMask = Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffects, unit);
-
-                    AuraCreateInfo createInfo = new(CastId, SpellInfo, CastDifficulty, allAuraEffectMask, unit);
-                    createInfo.SetCasterGuid(caster.GUID);
-                    createInfo.SetBaseAmount(hitInfo.AuraBasePoints);
-                    createInfo.SetCastItem(CastItemGuid, CastItemEntry, CastItemLevel);
-                    createInfo.SetPeriodicReset(resetPeriodicTimer);
-                    createInfo.SetOwnerEffectMask(aura_effmask);
-
-                    var aura = Aura.TryRefreshStackOrCreate(createInfo, false);
-
-                    if (aura != null)
-                    {
-                        hitInfo.HitAura = aura.ToUnitAura();
-
-                        // Set aura stack amount to desired value
-                        if (SpellValue.AuraStackAmount > 1)
-                        {
-                            if (!createInfo.IsRefresh)
-                                hitInfo.HitAura.SetStackAmount((byte)SpellValue.AuraStackAmount);
-                            else
-                                hitInfo.HitAura.ModStackAmount(SpellValue.AuraStackAmount);
-                        }
-
-                        hitInfo.HitAura.SetDiminishGroup(hitInfo.DrGroup);
-
-                        if (!SpellValue.Duration.HasValue)
-                        {
-                            hitInfo.AuraDuration = ModSpellDuration(SpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, hitInfo.HitAura.AuraEffects.Keys.ToHashSet());
-
-                            if (hitInfo.AuraDuration > 0)
-                            {
-                                hitInfo.AuraDuration *= (int)SpellValue.DurationMul;
-
-                                // Haste modifies duration of channeled spells
-                                if (SpellInfo.IsChanneled)
-                                {
-                                    caster.WorldObjectCombat.ModSpellDurationTime(SpellInfo, ref hitInfo.AuraDuration, this);
-                                }
-                                else if (SpellInfo.HasAttribute(SpellAttr8.HasteAffectsDuration))
-                                {
-                                    var origDuration = hitInfo.AuraDuration;
-                                    hitInfo.AuraDuration = 0;
-
-                                    foreach (var auraEff in hitInfo.HitAura.AuraEffects)
-                                    {
-                                        var period = auraEff.Value.Period;
-
-                                        if (period != 0) // period is hastened by UNIT_MOD_CAST_SPEED
-                                            hitInfo.AuraDuration = Math.Max(Math.Max(origDuration / period, 1) * period, hitInfo.AuraDuration);
-                                    }
-
-                                    // if there is no periodic effect
-                                    if (hitInfo.AuraDuration == 0)
-                                        hitInfo.AuraDuration = (int)(origDuration * OriginalCaster.UnitData.ModCastingSpeed);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            hitInfo.AuraDuration = SpellValue.Duration.Value;
-                        }
-
-                        if (hitInfo.AuraDuration != hitInfo.HitAura.MaxDuration)
-                        {
-                            hitInfo.HitAura.SetMaxDuration(hitInfo.AuraDuration);
-                            hitInfo.HitAura.SetDuration(hitInfo.AuraDuration);
-                        }
-
-                        if (createInfo.IsRefresh)
-                            hitInfo.HitAura.AddStaticApplication(unit, aura_effmask);
-                    }
-                }
-                else
-                {
-                    hitInfo.HitAura.AddStaticApplication(unit, aura_effmask);
+                    case SpellGroupStackRule.Default:
+                    default:
+                        break;
                 }
             }
         }
 
-        SpellAura = hitInfo.HitAura;
-        HandleEffects(unit, null, null, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
-        SpellAura = null;
-    }
+        var result = CheckPetCast(target);
 
-
-    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, int effIndex)
-    {
-        return ModSpellDuration(spellInfo,
-                                target,
-                                duration,
-                                positive,
-                                new HashSet<int>()
-                                {
-                                    effIndex
-                                });
-    }
-
-    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, HashSet<int> effectMask)
-    {
-        // don't mod permanent auras duration
-        if (duration < 0)
-            return duration;
-
-        // some auras are not affected by duration modifiers
-        if (spellInfo.HasAttribute(SpellAttr7.IgnoreDurationMods))
-            return duration;
-
-        // cut duration only of negative effects
-        var unitTarget = target.AsUnit;
-
-        if (!unitTarget)
-            return duration;
-
-        if (!positive)
+        if (result == SpellCastResult.SpellCastOk || result == SpellCastResult.UnitNotInfront)
         {
-            var mechanicMask = spellInfo.GetSpellMechanicMaskByEffectMask(effectMask);
+            // do not check targets for ground-targeted spells (we target them on top of the intended target anyway)
+            if (SpellInfo.ExplicitTargetMask.HasFlag(SpellCastTargetFlags.DestLocation))
+                return true;
 
-            bool MechanicCheck(AuraEffect aurEff)
-            {
-                if ((mechanicMask & (1ul << aurEff.MiscValue)) != 0)
+            SelectSpellTargets();
+
+            //check if among target units, our WANTED target is as well (.only self cast spells return false)
+            foreach (var ihit in UniqueTargetInfo)
+                if (ihit.TargetGuid == targetguid)
                     return true;
-
-                return false;
-            }
-
-            // Find total mod value (negative bonus)
-            var durationModAlways = unitTarget.GetTotalAuraModifier(AuraType.MechanicDurationMod, MechanicCheck);
-            // Find max mod (negative bonus)
-            var durationModNotStack = unitTarget.GetMaxNegativeAuraModifier(AuraType.MechanicDurationModNotStack, MechanicCheck);
-
-            // Select strongest negative mod
-            var durationMod = Math.Min(durationModAlways, durationModNotStack);
-
-            if (durationMod != 0)
-                MathFunctions.AddPct(ref duration, durationMod);
-
-            // there are only negative mods currently
-            durationModAlways = unitTarget.GetTotalAuraModifierByMiscValue(AuraType.ModAuraDurationByDispel, (int)spellInfo.Dispel);
-            durationModNotStack = unitTarget.GetMaxNegativeAuraModifierByMiscValue(AuraType.ModAuraDurationByDispelNotStack, (int)spellInfo.Dispel);
-
-            durationMod = Math.Min(durationModAlways, durationModNotStack);
-
-            if (durationMod != 0)
-                MathFunctions.AddPct(ref duration, durationMod);
-        }
-        else
-        {
-            // else positive mods here, there are no currently
-            // when there will be, change GetTotalAuraModifierByMiscValue to GetMaxPositiveAuraModifierByMiscValue
-
-            // Mixology - duration boost
-            if (unitTarget.IsPlayer)
-                if (spellInfo.SpellFamilyName == SpellFamilyNames.Potion &&
-                    (
-                        SpellManager.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirBattle) ||
-                        SpellManager.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirGuardian)))
-                {
-                    var effect = spellInfo.GetEffect(0);
-
-                    if (unitTarget.HasAura(53042) && effect != null && unitTarget.HasSpell(effect.TriggerSpell))
-                        duration *= 2;
-                }
         }
 
-        return Math.Max(duration, 0);
-    }
-
-    public void DoTriggersOnSpellHit(Unit unit)
-    {
-        // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
-        // this is executed after spell proc spells on target hit
-        // spells are triggered for each hit spell target
-        // info confirmed with retail sniffs of permafrost and shadow weaving
-        if (!_hitTriggerSpells.Empty())
-        {
-            var _duration = 0;
-
-            foreach (var hit in _hitTriggerSpells)
-                if (CanExecuteTriggersOnHit(unit, hit.TriggeredByAura) && RandomHelper.randChance(hit.Chance))
-                {
-                    Caster.CastSpell(unit,
-                                      hit.TriggeredSpell.Id,
-                                      new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                          .SetTriggeringSpell(this)
-                                          .SetCastDifficulty(hit.TriggeredSpell.Difficulty));
-
-                    Log.Logger.Debug("Spell {0} triggered spell {1} by SPELL_AURA_ADD_TARGET_TRIGGER aura", SpellInfo.Id, hit.TriggeredSpell.Id);
-
-                    // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
-                    // set duration of current aura to the triggered spell
-                    if (hit.TriggeredSpell.Duration == -1)
-                    {
-                        var triggeredAur = unit.GetAura(hit.TriggeredSpell.Id, Caster.GUID);
-
-                        if (triggeredAur != null)
-                        {
-                            // get duration from aura-only once
-                            if (_duration == 0)
-                            {
-                                var aur = unit.GetAura(SpellInfo.Id, Caster.GUID);
-                                _duration = aur?.Duration ?? -1;
-                            }
-
-                            triggeredAur.SetDuration(_duration);
-                        }
-                    }
-                }
-        }
-
-        // trigger linked auras remove/apply
-        // @todo remove/cleanup this, as this table is not documented and people are doing stupid things with it
-        var spellTriggered = Global.SpellMgr.GetSpellLinked(SpellLinkedType.Hit, SpellInfo.Id);
-
-        if (spellTriggered != null)
-            foreach (var id in spellTriggered)
-                if (id < 0)
-                    unit.RemoveAura((uint)-id);
-                else
-                    unit.CastSpell(unit, (uint)id, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(Caster.GUID).SetTriggeringSpell(this));
-    }
-
-    public SpellCastResult Prepare(SpellCastTargets targets, AuraEffect triggeredByAura = null)
-    {
-        if (CastItem != null)
-        {
-            CastItemGuid = CastItem.GUID;
-            CastItemEntry = CastItem.Entry;
-
-            var owner = CastItem.OwnerUnit;
-
-            if (owner)
-            {
-                CastItemLevel = (int)CastItem.GetItemLevel(owner);
-            }
-            else if (CastItem.OwnerGUID == Caster.GUID)
-            {
-                CastItemLevel = (int)CastItem.GetItemLevel(Caster.AsPlayer);
-            }
-            else
-            {
-                SendCastResult(SpellCastResult.EquippedItem);
-                Finish(SpellCastResult.EquippedItem);
-
-                return SpellCastResult.EquippedItem;
-            }
-        }
-
-        InitExplicitTargets(targets);
-
-        State = SpellState.Preparing;
-
-        if (triggeredByAura != null)
-        {
-            TriggeredByAuraSpell = triggeredByAura.SpellInfo;
-            CastItemLevel = triggeredByAura.Base.CastItemLevel;
-        }
-
-        // create and add update event for this spell
-        _spellEvent = new SpellEvent(this);
-        Caster.Events.AddEvent(_spellEvent, Caster.Events.CalculateTime(TimeSpan.FromMilliseconds(1)));
-
-        // check disables
-        if (Global.DisableMgr.IsDisabledFor(DisableType.Spell, SpellInfo.Id, Caster))
-        {
-            SendCastResult(SpellCastResult.SpellUnavailable);
-            Finish(SpellCastResult.SpellUnavailable);
-
-            return SpellCastResult.SpellUnavailable;
-        }
-
-        // Prevent casting at cast another spell (ServerSide check)
-        if (!_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreCastInProgress) && Caster.AsUnit != null && Caster.AsUnit.IsNonMeleeSpellCast(false, true, true, SpellInfo.Id == 75) && !CastId.IsEmpty)
-        {
-            SendCastResult(SpellCastResult.SpellInProgress);
-            Finish(SpellCastResult.SpellInProgress);
-
-            return SpellCastResult.SpellInProgress;
-        }
-
-        LoadScripts();
-
-        // Fill cost data (not use power for item casts
-        if (CastItem == null)
-            PowerCost = SpellInfo.CalcPowerCost(Caster, SpellSchoolMask, this);
-
-        // Set combo point requirement
-        if (Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnoreComboPoints) || CastItem != null)
-            NeedComboPoints = false;
-
-        int param1 = 0, param2 = 0;
-        var result = CheckCast(true, ref param1, ref param2);
-
-        // target is checked in too many locations and with different results to handle each of them
-        // handle just the general SPELL_FAILED_BAD_TARGETS result which is the default result for most DBC target checks
-        if (Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnoreTargetCheck) && result == SpellCastResult.BadTargets)
-            result = SpellCastResult.SpellCastOk;
-
-        if (result != SpellCastResult.SpellCastOk)
-        {
-            // Periodic auras should be interrupted when aura triggers a spell which can't be cast
-            // for example bladestorm aura should be removed on disarm as of patch 3.3.5
-            // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
-            // a possible alternative sollution for those would be validating aura target on unit state change
-            if (triggeredByAura != null && triggeredByAura.IsPeriodic() && !triggeredByAura.Base.IsPassive)
-            {
-                SendChannelUpdate(0);
-                triggeredByAura.Base.SetDuration(0);
-            }
-
-            if (param1 != 0 || param2 != 0)
-                SendCastResult(result, param1, param2);
-            else
-                SendCastResult(result);
-
-            // queue autorepeat spells for future repeating
-            if (CurrentContainer == CurrentSpellTypes.AutoRepeat && Caster.IsUnit)
-                Caster.AsUnit.SetCurrentCastSpell(this);
-
-            Finish(result);
-
-            return result;
-        }
-
-        // Prepare data for triggers
-        PrepareDataForTriggerSystem();
-
-        CastTime = CallScriptCalcCastTimeHandlers(SpellInfo.CalcCastTime(this));
-
-        foreach (var stage in _empowerStages)
-        {
-            var ct = (int)stage.Value.DurationMs;
-            Caster.WorldObjectCombat.ModSpellCastTime(SpellInfo, ref ct);
-            stage.Value.DurationMs = (uint)CallScriptCalcCastTimeHandlers(ct);
-        }
-
-        if (Caster.IsUnit && Caster.AsUnit.IsMoving)
-        {
-            result = CheckMovement();
-
-            if (result != SpellCastResult.SpellCastOk)
-            {
-                SendCastResult(result);
-                Finish(result);
-
-                return result;
-            }
-        }
-
-        // Creatures focus their target when possible
-        if (CastTime != 0 && Caster.IsCreature && !SpellInfo.IsNextMeleeSwingSpell && !IsAutoRepeat && !Caster.AsUnit.HasUnitFlag(UnitFlags.Possessed))
-        {
-            // Channeled spells and some triggered spells do not focus a cast target. They face their target later on via channel object guid and via spell attribute or not at all
-            var focusTarget = !SpellInfo.IsChanneled && !_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreSetFacing);
-
-            if (focusTarget && Targets.ObjectTarget && Caster != Targets.ObjectTarget)
-                Caster.AsCreature.SetSpellFocus(this, Targets.ObjectTarget);
-            else
-                Caster.AsCreature.SetSpellFocus(this, null);
-        }
-
-        CallScriptOnPrecastHandler();
-
-        // set timer base at cast time
-        ReSetTimer();
-
-        Log.Logger.Debug("Spell.prepare: spell id {0} source {1} caster {2} customCastFlags {3} mask {4}", SpellInfo.Id, Caster.Entry, OriginalCaster != null ? (int)OriginalCaster.Entry : -1, _triggeredCastFlags, Targets.TargetMask);
-
-        if (SpellInfo.HasAttribute(SpellAttr12.StartCooldownOnCastStart))
-            SendSpellCooldown();
-
-        //Containers for channeled spells have to be set
-        // @todoApply this to all casted spells if needed
-        // Why check duration? 29350: channelled triggers channelled
-        if (_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.CastDirectly) && (!SpellInfo.IsChanneled || SpellInfo.MaxDuration == 0))
-        {
-            Cast(true);
-        }
-        else
-        {
-            // commented out !m_spellInfo->StartRecoveryTime, it forces instant spells with global cooldown to be processed in spell::update
-            // as a result a spell that passed CheckCast and should be processed instantly may suffer from this delayed process
-            // the easiest bug to observe is LoS check in AddUnitTarget, even if spell passed the CheckCast LoS check the situation can change in spell::update
-            // because target could be relocated in the meantime, making the spell fly to the air (no targets can be registered, so no effects processed, nothing in combat log)
-            var willCastDirectly = CastTime == 0 && /*!m_spellInfo->StartRecoveryTime && */ CurrentContainer == CurrentSpellTypes.Generic;
-
-            var unitCaster = Caster.AsUnit;
-
-            if (unitCaster != null)
-            {
-                // stealth must be removed at cast starting (at show channel bar)
-                // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
-                if (!_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnoreAuraInterruptFlags) && !SpellInfo.HasAttribute(SpellAttr2.NotAnAction))
-                    unitCaster.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Action, SpellInfo);
-
-                // Do not register as current spell when requested to ignore cast in progress
-                // We don't want to interrupt that other spell with cast time
-                if (!willCastDirectly || !_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreCastInProgress))
-                    unitCaster.SetCurrentCastSpell(this);
-            }
-
-            SendSpellStart();
-
-            if (!_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnoreGCD))
-                TriggerGlobalCooldown();
-
-            // Call CreatureAI hook OnSpellStart
-            var caster = Caster.AsCreature;
-
-            if (caster is { IsAIEnabled: true })
-                caster.AI.OnSpellStart(SpellInfo);
-
-            if (willCastDirectly)
-                Cast(true);
-        }
-
-        return SpellCastResult.SpellCastOk;
+        // either the cast failed or the intended target wouldn't be hit
+        return false;
     }
 
     public void Cancel()
@@ -1201,6 +519,24 @@ public partial class Spell : IDisposable
         Finish(SpellCastResult.Interrupted);
     }
 
+    public bool CanExecuteTriggersOnHit(Unit unit, SpellInfo triggeredByAura = null)
+    {
+        var onlyOnTarget = triggeredByAura != null && triggeredByAura.HasAttribute(SpellAttr4.ClassTriggerOnlyOnTarget);
+
+        if (!onlyOnTarget)
+            return true;
+
+        // If triggeredByAura has SPELL_ATTR4_CLASS_TRIGGER_ONLY_ON_TARGET then it can only proc on either noncaster units...
+        if (unit != Caster)
+            return true;
+
+        // ... or caster if it is the only target
+        if (UniqueTargetInfo.Count == 1)
+            return true;
+
+        return false;
+    }
+
     public void Cast(bool skipCheck = false)
     {
         var modOwner = Caster.SpellModOwner;
@@ -1218,483 +554,6 @@ public partial class Spell : IDisposable
 
         if (lastSpellMod)
             modOwner.SetSpellModTakingSpell(lastSpellMod, true);
-    }
-
-    public ulong HandleDelayed(ulong offset)
-    {
-        if (!UpdatePointers())
-        {
-            // finish the spell if UpdatePointers() returned false, something wrong happened there
-            Finish(SpellCastResult.Fizzle);
-
-            return 0;
-        }
-
-        var single_missile = Targets.HasDst;
-        ulong next_time = 0;
-
-        if (!_launchHandled)
-        {
-            var launchMoment = (ulong)Math.Floor(SpellInfo.LaunchDelay * 1000.0f);
-
-            if (launchMoment > offset)
-                return launchMoment;
-
-            HandleLaunchPhase();
-            _launchHandled = true;
-
-            if (DelayMoment > offset)
-            {
-                if (single_missile)
-                    return DelayMoment;
-
-                next_time = DelayMoment;
-
-                if ((UniqueTargetInfo.Count > 2 || (UniqueTargetInfo.Count == 1 && UniqueTargetInfo[0].TargetGuid == Caster.GUID)) || !_uniqueGoTargetInfo.Empty())
-                    offset = 0; // if LaunchDelay was present then the only target that has timeDelay = 0 is m_caster - and that is the only target we want to process now
-            }
-        }
-
-        if (single_missile && offset == 0)
-            return DelayMoment;
-
-        var modOwner = Caster.SpellModOwner;
-
-        modOwner?.SetSpellModTakingSpell(this, true);
-
-        PrepareTargetProcessing();
-
-        if (!_immediateHandled && offset != 0)
-        {
-            _handle_immediate_phase();
-            _immediateHandled = true;
-        }
-
-        // now recheck units targeting correctness (need before any effects apply to prevent adding immunity at first effect not allow apply second spell effect and similar cases)
-        {
-            List<TargetInfo> delayedTargets = new();
-
-            UniqueTargetInfo.RemoveAll(target =>
-            {
-                if (single_missile || target.TimeDelay <= offset)
-                {
-                    target.TimeDelay = offset;
-                    delayedTargets.Add(target);
-
-                    return true;
-                }
-                else if (next_time == 0 || target.TimeDelay < next_time)
-                {
-                    next_time = target.TimeDelay;
-                }
-
-                return false;
-            });
-
-            DoProcessTargetContainer(delayedTargets);
-
-            if (next_time == 0)
-                CallScriptOnHitHandlers();
-        }
-
-        // now recheck gameobject targeting correctness
-        {
-            List<GOTargetInfo> delayedGOTargets = new();
-
-            _uniqueGoTargetInfo.RemoveAll(goTarget =>
-            {
-                if (single_missile || goTarget.TimeDelay <= offset)
-                {
-                    goTarget.TimeDelay = offset;
-                    delayedGOTargets.Add(goTarget);
-
-                    return true;
-                }
-                else if (next_time == 0 || goTarget.TimeDelay < next_time)
-                {
-                    next_time = goTarget.TimeDelay;
-                }
-
-                return false;
-            });
-
-            DoProcessTargetContainer(delayedGOTargets);
-        }
-
-        FinishTargetProcessing();
-
-        if (modOwner)
-            modOwner.SetSpellModTakingSpell(this, false);
-
-        // All targets passed - need finish phase
-        if (next_time == 0)
-        {
-            // spell is finished, perform some last features of the spell here
-            _handle_finish_phase();
-
-            Finish(); // successfully finish spell cast
-
-            // return zero, spell is finished now
-            return 0;
-        }
-        else
-        {
-            // spell is unfinished, return next execution time
-            return next_time;
-        }
-    }
-
-    public void Update(uint difftime)
-    {
-        if (!UpdatePointers())
-        {
-            // cancel the spell if UpdatePointers() returned false, something wrong happened there
-            Cancel();
-
-            return;
-        }
-
-        if (!Targets.UnitTargetGUID.IsEmpty && Targets.UnitTarget == null)
-        {
-            Log.Logger.Debug("Spell {0} is cancelled due to removal of target.", SpellInfo.Id);
-            Cancel();
-
-            return;
-        }
-
-        // check if the player caster has moved before the spell finished
-        // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING effect
-        if (_timer != 0 && Caster.IsUnit && Caster.AsUnit.IsMoving && CheckMovement() != SpellCastResult.SpellCastOk)
-            // if charmed by creature, trust the AI not to cheat and allow the cast to proceed
-            // @todo this is a hack, "creature" movesplines don't differentiate turning/moving right now
-            // however, checking what type of movement the spline is for every single spline would be really expensive
-            if (!Caster.AsUnit.CharmerGUID.IsCreature)
-                Cancel();
-
-        switch (State)
-        {
-            case SpellState.Preparing:
-            {
-                if (_timer > 0)
-                {
-                    if (difftime >= _timer)
-                        _timer = 0;
-                    else
-                        _timer -= (int)difftime;
-                }
-
-                if (_timer == 0 && !SpellInfo.IsNextMeleeSwingSpell)
-                    // don't CheckCast for instant spells - done in spell.prepare, skip duplicate checks, needed for range checks for example
-                    Cast(CastTime == 0);
-
-                break;
-            }
-            case SpellState.Casting:
-            {
-                if (_timer != 0)
-                {
-                    // check if there are alive targets left
-                    if (!UpdateChanneledTargetList())
-                    {
-                        Log.Logger.Debug("Channeled spell {0} is removed due to lack of targets", SpellInfo.Id);
-                        _timer = 0;
-
-                        // Also remove applied auras
-                        foreach (var target in UniqueTargetInfo)
-                        {
-                            var unit = Caster.GUID == target.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, target.TargetGuid);
-
-                            if (unit)
-                                unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
-                        }
-                    }
-
-                    if (_timer > 0)
-                    {
-                        UpdateEmpoweredSpell(difftime);
-
-                        if (difftime >= _timer)
-                            _timer = 0;
-                        else
-                            _timer -= (int)difftime;
-                    }
-                }
-
-                if (_timer == 0)
-                {
-                    EndEmpoweredSpell();
-                    SendChannelUpdate(0);
-                    Finish();
-
-                    // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
-                    var creatureCaster = Caster.AsCreature;
-
-                    if (creatureCaster is { IsAIEnabled: true })
-                        creatureCaster.AI.OnChannelFinished(SpellInfo);
-                }
-
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    public void EndEmpoweredSpell()
-    {
-        if (GetPlayerIfIsEmpowered(out var p) &&
-            SpellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // ensure stage is valid
-        {
-            var duration = SpellInfo.Duration;
-            var timeCasted = SpellInfo.Duration - _timer;
-
-            if (MathFunctions.GetPctOf(timeCasted, duration) < p.EmpoweredSpellMinHoldPct) // ensure we held for long enough
-                return;
-
-            ForEachSpellScript<ISpellOnEpowerSpellEnd>(s => s.EmpowerSpellEnd(stageinfo, _empoweredSpellDelta));
-
-            var stageUpdate = new SpellEmpowerStageUpdate
-            {
-                Caster = p.GUID,
-                CastID = CastId,
-                TimeRemaining = _timer
-            };
-
-            var unusedDurations = new List<uint>();
-
-            var nextStage = _empoweredSpellStage;
-            nextStage++;
-
-            while (SpellInfo.EmpowerStages.TryGetValue(nextStage, out var nextStageinfo))
-            {
-                unusedDurations.Add(nextStageinfo.DurationMs);
-                nextStage++;
-            }
-
-            stageUpdate.RemainingStageDurations = unusedDurations;
-            p.SendPacket(stageUpdate);
-        }
-    }
-
-    public void Finish(SpellCastResult result = SpellCastResult.SpellCastOk)
-    {
-        if (State == SpellState.Finished)
-            return;
-
-        State = SpellState.Finished;
-
-        if (!Caster)
-            return;
-
-        var unitCaster = Caster.AsUnit;
-
-        if (unitCaster == null)
-            return;
-
-        // successful cast of the initial autorepeat spell is moved to idle state so that it is not deleted as long as autorepeat is active
-        if (IsAutoRepeat && unitCaster.GetCurrentSpell(CurrentSpellTypes.AutoRepeat) == this)
-            State = SpellState.Idle;
-
-        if (SpellInfo.IsChanneled)
-            unitCaster.UpdateInterruptMask();
-
-        if (unitCaster.HasUnitState(UnitState.Casting) && !unitCaster.IsNonMeleeSpellCast(false, false, true))
-            unitCaster.ClearUnitState(UnitState.Casting);
-
-        // Unsummon summon as possessed creatures on spell cancel
-        if (SpellInfo.IsChanneled && unitCaster.IsTypeId(TypeId.Player))
-        {
-            var charm = unitCaster.Charmed;
-
-            if (charm != null)
-                if (charm.IsTypeId(TypeId.Unit) && charm.AsCreature.HasUnitTypeMask(UnitTypeMask.Puppet) && charm.UnitData.CreatedBySpell == SpellInfo.Id)
-                    ((Puppet)charm).UnSummon();
-        }
-
-        var creatureCaster = unitCaster.AsCreature;
-
-        creatureCaster?.ReleaseSpellFocus(this);
-
-        if (!SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs))
-            UnitCombatHelpers.ProcSkillsAndAuras(unitCaster, null, new ProcFlagsInit(ProcFlags.CastEnded), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, this, null, null);
-
-        if (result != SpellCastResult.SpellCastOk)
-        {
-            // on failure (or manual cancel) send TraitConfigCommitFailed to revert talent UI saved config selection
-            if (Caster.IsPlayer && SpellInfo.HasEffect(SpellEffectName.ChangeActiveCombatTraitConfig))
-                if (CustomArg is TraitConfig)
-                    Caster.AsPlayer.SendPacket(new TraitConfigCommitFailed((CustomArg as TraitConfig).ID));
-
-            return;
-        }
-
-        if (unitCaster.IsTypeId(TypeId.Unit) && unitCaster.AsCreature.IsSummon)
-        {
-            // Unsummon statue
-            uint spell = unitCaster.UnitData.CreatedBySpell;
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spell, CastDifficulty);
-
-            if (spellInfo != null && spellInfo.IconFileDataId == 134230)
-            {
-                Log.Logger.Debug("Statue {0} is unsummoned in spell {1} finish", unitCaster.GUID.ToString(), SpellInfo.Id);
-
-                // Avoid infinite loops with setDeathState(JUST_DIED) being called over and over
-                // It might make sense to do this check in Unit::setDeathState() and all overloaded functions
-                if (unitCaster.DeathState != DeathState.JustDied)
-                    unitCaster.SetDeathState(DeathState.JustDied);
-
-                return;
-            }
-        }
-
-        if (IsAutoActionResetSpell())
-            if (!SpellInfo.HasAttribute(SpellAttr2.DoNotResetCombatTimers))
-            {
-                unitCaster.ResetAttackTimer();
-
-                if (unitCaster.HaveOffhandWeapon())
-                    unitCaster.ResetAttackTimer(WeaponAttackType.OffAttack);
-
-                unitCaster.ResetAttackTimer(WeaponAttackType.RangedAttack);
-            }
-
-        // potions disabled by client, send event "not in combat" if need
-        if (unitCaster.IsTypeId(TypeId.Player))
-            if (TriggeredByAuraSpell == null)
-                unitCaster.AsPlayer.UpdatePotionCooldown(this);
-
-        // Stop Attack for some spells
-        if (SpellInfo.HasAttribute(SpellAttr0.CancelsAutoAttackCombat))
-            unitCaster.AttackStop();
-    }
-
-    public void SendCastResult(SpellCastResult result, int? param1 = null, int? param2 = null)
-    {
-        if (result == SpellCastResult.SpellCastOk)
-            return;
-
-        if (!Caster.IsTypeId(TypeId.Player))
-            return;
-
-        if (Caster.AsPlayer.IsLoading) // don't send cast results at loading time
-            return;
-
-        if (_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.DontReportCastError))
-            result = SpellCastResult.DontReport;
-
-        CastFailed castFailed = new();
-
-        {
-            Visual = SpellVisual
-        }
-
-        F
-        lSpellCastFailedArgs(castFailed, CastId, SpellInfo, result, CustomErrors, param1, param2, Caster.AsPlayer);
-        Caster.AsPlayer.SendPacket(castFailed);
-    }
-
-    public void SendPetCastResult(SpellCastResult result, int? param1 = null, int? param2 = null)
-    {
-        if (result == SpellCastResult.SpellCastOk)
-            return;
-
-        var owner = Caster.CharmerOrOwner;
-
-        if (!owner || !owner.IsTypeId(TypeId.Player))
-            return;
-
-        if (_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.DontReportCastError))
-            result = SpellCastResult.DontReport;
-
-        PetCastFailed petCastFailed = new();
-        FillSpellCastFailedArgs(petCastFailed, CastId, SpellInfo, result, SpellCustomErrors.None, param1, param2, owner.AsPlayer);
-        owner.AsPlayer.SendPacket(petCastFailed);
-    }
-
-    public static void SendCastResult(Player caster, SpellInfo spellInfo, SpellCastVisual spellVisual, ObjectGuid castCount, SpellCastResult result, SpellCustomErrors customError = SpellCustomErrors.None, int? param1 = null, int? param2 = null)
-    {
-        if (result == SpellCastResult.SpellCastOk)
-            return;
-
-        CastFailed packet = new();
-
-        {
-            Visual = spellVisual
-        }
-
-        F
-        lSpellCastFailedArgs(packet, castCount, spellInfo, result, customError, param1, param2, caster);
-        caster.SendPacket(packet);
-    }
-
-    public SpellLogEffect GetExecuteLogEffect(SpellEffectName effect)
-    {
-        var spellLogEffect = _executeLogEffects.LookupByKey(effect);
-
-        if (spellLogEffect != null)
-            return spellLogEffect;
-
-        SpellLogEffect executeLogEffect = new();
-
-        {
-            Effect = (int)effect
-        }
-
-        _
-        ecuteLogEffects.Add(effect, executeLogEffect);
-
-        return executeLogEffect;
-    }
-
-    public void SendChannelUpdate(uint time)
-    {
-        // GameObjects don't channel
-        var unitCaster = Caster.AsUnit;
-
-        if (unitCaster == null)
-            return;
-
-        if (time == 0)
-        {
-            unitCaster.ClearChannelObjects();
-            unitCaster.ChannelSpellId = 0;
-            unitCaster.SetChannelVisual(new SpellCastVisualField());
-        }
-
-        SpellChannelUpdate spellChannelUpdate = new();
-
-        {
-            CasterGUID = unitCaster.GUID,
-            TimeRemaining = (int)time
-        }
-
-        s
-        tCaster.SendMessageToSet(spellChannelUpdate, true);
-    }
-
-    public void HandleEffects(Unit pUnitTarget, Item pItemTarget, GameObject pGoTarget, Corpse pCorpseTarget, SpellEffectInfo spellEffectInfo, SpellEffectHandleMode mode)
-    {
-        _effectHandleMode = mode;
-        UnitTarget = pUnitTarget;
-        ItemTarget = pItemTarget;
-        GameObjTarget = pGoTarget;
-        CorpseTarget = pCorpseTarget;
-        DestTarget = _destTargets[spellEffectInfo.EffectIndex].Position;
-        EffectInfo = spellEffectInfo;
-
-        Damage = CalculateDamage(spellEffectInfo, UnitTarget, out Variance);
-
-        var preventDefault = CallScriptEffectHandlers(spellEffectInfo.EffectIndex, mode);
-
-        if (!preventDefault)
-            Global.SpellMgr.GetSpellEffectHandler(spellEffectInfo.Effect).Invoke(this);
-    }
-
-    public static Spell ExtractSpellFromEvent(BasicEvent basicEvent)
-    {
-        var spellEvent = (SpellEvent)basicEvent;
-
-        return spellEvent?.Spell;
     }
 
     public SpellCastResult CheckCast(bool strict)
@@ -2011,7 +870,7 @@ public partial class Spell : IDisposable
         var player = Caster.AsPlayer;
 
         if (player is { InArena: true })
-            /* || player.InRatedBattleground() NYI*/
+        /* || player.InRatedBattleground() NYI*/
         {
             castResult = CheckArenaAndRatedBattlegroundCastRules();
 
@@ -2341,7 +1200,7 @@ public partial class Spell : IDisposable
                         break;
 
                     if (!Caster.IsTypeId(TypeId.Player) // only players can open locks, gather etc.
-                        // we need a go target in case of TARGET_GAMEOBJECT_TARGET
+                                                        // we need a go target in case of TARGET_GAMEOBJECT_TARGET
                         ||
                         (spellEffectInfo.TargetA.Target == Framework.Constants.Targets.GameobjectTarget && Targets.GOTarget == null))
                         return SpellCastResult.BadTargets;
@@ -2996,6 +1855,30 @@ public partial class Spell : IDisposable
         return SpellCastResult.SpellCastOk;
     }
 
+    public SpellCastResult CheckMovement()
+    {
+        if (IsTriggered)
+            return SpellCastResult.SpellCastOk;
+
+        var unitCaster = Caster.AsUnit;
+
+        if (unitCaster != null)
+            if (!unitCaster.CanCastSpellWhileMoving(SpellInfo))
+            {
+                if (State == SpellState.Preparing)
+                {
+                    if (CastTime > 0 && SpellInfo.InterruptFlags.HasFlag(SpellInterruptFlags.Movement))
+                        return SpellCastResult.Moving;
+                }
+                else if (State == SpellState.Casting && !SpellInfo.IsMoveAllowedChannel)
+                {
+                    return SpellCastResult.Moving;
+                }
+            }
+
+        return SpellCastResult.SpellCastOk;
+    }
+
     public SpellCastResult CheckPetCast(Unit target)
     {
         var unitCaster = Caster.AsUnit;
@@ -3035,67 +1918,73 @@ public partial class Spell : IDisposable
         return CheckCast(true);
     }
 
-    public bool CanAutoCast(Unit target)
+    public bool CheckTargetHookEffect(ITargetHookHandler th, int effIndexToCheck)
     {
-        if (!target)
-            return (CheckPetCast(target) == SpellCastResult.SpellCastOk);
+        if (SpellInfo.Effects.Count <= effIndexToCheck)
+            return false;
 
-        var targetguid = target.GUID;
+        return CheckTargetHookEffect(th, SpellInfo.GetEffect(effIndexToCheck));
+    }
 
-        // check if target already has the same or a more powerful aura
-        foreach (var spellEffectInfo in SpellInfo.Effects)
+    public bool CheckTargetHookEffect(ITargetHookHandler th, SpellEffectInfo spellEffectInfo)
+    {
+        if (th.TargetType == 0)
+            return false;
+
+        if (spellEffectInfo.TargetA.Target != th.TargetType && spellEffectInfo.TargetB.Target != th.TargetType)
+            return false;
+
+        SpellImplicitTargetInfo targetInfo = new(th.TargetType);
+
+        switch (targetInfo.SelectionCategory)
         {
-            if (!spellEffectInfo.IsAura())
-                continue;
+            case SpellTargetSelectionCategories.Channel: // SINGLE
+                return !th.Area;
+            case SpellTargetSelectionCategories.Nearby: // BOTH
+                return true;
+            case SpellTargetSelectionCategories.Cone: // AREA
+            case SpellTargetSelectionCategories.Line: // AREA
+                return th.Area;
+            case SpellTargetSelectionCategories.Area: // AREA
+                if (targetInfo.ObjectType == SpellTargetObjectTypes.UnitAndDest)
+                    return th.Area || th.Dest;
 
-            var auraType = spellEffectInfo.ApplyAuraName;
-            var auras = target.GetAuraEffectsByType(auraType);
-
-            foreach (var eff in auras)
-            {
-                if (SpellInfo.Id == eff.SpellInfo.Id)
-                    return false;
-
-                switch (Global.SpellMgr.CheckSpellGroupStackRules(SpellInfo, eff.SpellInfo))
+                return th.Area;
+            case SpellTargetSelectionCategories.Default:
+                switch (targetInfo.ObjectType)
                 {
-                    case SpellGroupStackRule.Exclusive:
+                    case SpellTargetObjectTypes.Src: // EMPTY
                         return false;
-                    case SpellGroupStackRule.ExclusiveFromSameCaster:
-                        if (Caster == eff.Caster)
-                            return false;
-
-                        break;
-                    case SpellGroupStackRule.ExclusiveSameEffect: // this one has further checks, but i don't think they're necessary for autocast logic
-                    case SpellGroupStackRule.ExclusiveHighest:
-                        if (Math.Abs(spellEffectInfo.BasePoints) <= Math.Abs(eff.Amount))
-                            return false;
-
-                        break;
-                    case SpellGroupStackRule.Default:
+                    case SpellTargetObjectTypes.Dest: // Dest
+                        return th.Dest;
                     default:
+                        switch (targetInfo.ReferenceType)
+                        {
+                            case SpellTargetReferenceTypes.Caster: // SINGLE
+                                return !th.Area;
+                            case SpellTargetReferenceTypes.Target: // BOTH
+                                return true;
+                            default:
+                                break;
+                        }
+
                         break;
                 }
-            }
+
+                break;
+            default:
+                break;
         }
 
-        var result = CheckPetCast(target);
-
-        if (result == SpellCastResult.SpellCastOk || result == SpellCastResult.UnitNotInfront)
-        {
-            // do not check targets for ground-targeted spells (we target them on top of the intended target anyway)
-            if (SpellInfo.ExplicitTargetMask.HasFlag(SpellCastTargetFlags.DestLocation))
-                return true;
-
-            SelectSpellTargets();
-
-            //check if among target units, our WANTED target is as well (.only self cast spells return false)
-            foreach (var ihit in UniqueTargetInfo)
-                if (ihit.TargetGuid == targetguid)
-                    return true;
-        }
-
-        // either the cast failed or the intended target wouldn't be hit
         return false;
+    }
+
+    public void CleanupTargetList()
+    {
+        UniqueTargetInfo.Clear();
+        _uniqueGoTargetInfo.Clear();
+        _uniqueItemInfo.Clear();
+        DelayMoment = 0;
     }
 
     public void Delayed() // only called in DealDamage()
@@ -3200,9 +2089,371 @@ public partial class Spell : IDisposable
         SendChannelUpdate((uint)_timer);
     }
 
-    public bool HasPowerTypeCost(PowerType power)
+    public virtual void Dispose()
     {
-        return GetPowerTypeCostAmount(power).HasValue;
+        // unload scripts
+        for (var i = 0; i < _loadedScripts.Count; ++i)
+            _loadedScripts[i]._Unload();
+
+        if (_referencedFromCurrentSpell && SelfContainer && SelfContainer == this)
+        {
+            // Clean the reference to avoid later crash.
+            // If this error is repeating, we may have to add an ASSERT to better track down how we get into this case.
+            Log.Logger.Error("SPELL: deleting spell for spell ID {0}. However, spell still referenced.", SpellInfo.Id);
+            SelfContainer = null;
+        }
+    }
+
+    public void DoSpellEffectHit(Unit unit, SpellEffectInfo spellEffectInfo, TargetInfo hitInfo)
+    {
+        var aura_effmask = Aura.BuildEffectMaskForOwner(SpellInfo,
+                                                        new HashSet<int>()
+                                                        {
+                                                            spellEffectInfo.EffectIndex
+                                                        },
+                                                        unit);
+
+        if (aura_effmask.Count != 0)
+        {
+            var caster = Caster;
+
+            if (OriginalCaster)
+                caster = OriginalCaster;
+
+            if (caster != null)
+            {
+                // delayed spells with multiple targets need to create a new aura object, otherwise we'll access a deleted aura
+                if (hitInfo.HitAura == null)
+                {
+                    var resetPeriodicTimer = (SpellInfo.StackAmount < 2) && !_triggeredCastFlags.HasFlag(TriggerCastFlags.DontResetPeriodicTimer);
+                    var allAuraEffectMask = Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffects, unit);
+
+                    AuraCreateInfo createInfo = new(CastId, SpellInfo, CastDifficulty, allAuraEffectMask, unit);
+                    createInfo.SetCasterGuid(caster.GUID);
+                    createInfo.SetBaseAmount(hitInfo.AuraBasePoints);
+                    createInfo.SetCastItem(CastItemGuid, CastItemEntry, CastItemLevel);
+                    createInfo.SetPeriodicReset(resetPeriodicTimer);
+                    createInfo.SetOwnerEffectMask(aura_effmask);
+
+                    var aura = Aura.TryRefreshStackOrCreate(createInfo, false);
+
+                    if (aura != null)
+                    {
+                        hitInfo.HitAura = aura.ToUnitAura();
+
+                        // Set aura stack amount to desired value
+                        if (SpellValue.AuraStackAmount > 1)
+                        {
+                            if (!createInfo.IsRefresh)
+                                hitInfo.HitAura.SetStackAmount((byte)SpellValue.AuraStackAmount);
+                            else
+                                hitInfo.HitAura.ModStackAmount(SpellValue.AuraStackAmount);
+                        }
+
+                        hitInfo.HitAura.SetDiminishGroup(hitInfo.DrGroup);
+
+                        if (!SpellValue.Duration.HasValue)
+                        {
+                            hitInfo.AuraDuration = ModSpellDuration(SpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, hitInfo.HitAura.AuraEffects.Keys.ToHashSet());
+
+                            if (hitInfo.AuraDuration > 0)
+                            {
+                                hitInfo.AuraDuration *= (int)SpellValue.DurationMul;
+
+                                // Haste modifies duration of channeled spells
+                                if (SpellInfo.IsChanneled)
+                                {
+                                    caster.WorldObjectCombat.ModSpellDurationTime(SpellInfo, ref hitInfo.AuraDuration, this);
+                                }
+                                else if (SpellInfo.HasAttribute(SpellAttr8.HasteAffectsDuration))
+                                {
+                                    var origDuration = hitInfo.AuraDuration;
+                                    hitInfo.AuraDuration = 0;
+
+                                    foreach (var auraEff in hitInfo.HitAura.AuraEffects)
+                                    {
+                                        var period = auraEff.Value.Period;
+
+                                        if (period != 0) // period is hastened by UNIT_MOD_CAST_SPEED
+                                            hitInfo.AuraDuration = Math.Max(Math.Max(origDuration / period, 1) * period, hitInfo.AuraDuration);
+                                    }
+
+                                    // if there is no periodic effect
+                                    if (hitInfo.AuraDuration == 0)
+                                        hitInfo.AuraDuration = (int)(origDuration * OriginalCaster.UnitData.ModCastingSpeed);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            hitInfo.AuraDuration = SpellValue.Duration.Value;
+                        }
+
+                        if (hitInfo.AuraDuration != hitInfo.HitAura.MaxDuration)
+                        {
+                            hitInfo.HitAura.SetMaxDuration(hitInfo.AuraDuration);
+                            hitInfo.HitAura.SetDuration(hitInfo.AuraDuration);
+                        }
+
+                        if (createInfo.IsRefresh)
+                            hitInfo.HitAura.AddStaticApplication(unit, aura_effmask);
+                    }
+                }
+                else
+                {
+                    hitInfo.HitAura.AddStaticApplication(unit, aura_effmask);
+                }
+            }
+        }
+
+        SpellAura = hitInfo.HitAura;
+        HandleEffects(unit, null, null, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
+        SpellAura = null;
+    }
+
+    public void DoTriggersOnSpellHit(Unit unit)
+    {
+        // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
+        // this is executed after spell proc spells on target hit
+        // spells are triggered for each hit spell target
+        // info confirmed with retail sniffs of permafrost and shadow weaving
+        if (!_hitTriggerSpells.Empty())
+        {
+            var _duration = 0;
+
+            foreach (var hit in _hitTriggerSpells)
+                if (CanExecuteTriggersOnHit(unit, hit.TriggeredByAura) && RandomHelper.randChance(hit.Chance))
+                {
+                    Caster.CastSpell(unit,
+                                      hit.TriggeredSpell.Id,
+                                      new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                          .SetTriggeringSpell(this)
+                                          .SetCastDifficulty(hit.TriggeredSpell.Difficulty));
+
+                    Log.Logger.Debug("Spell {0} triggered spell {1} by SPELL_AURA_ADD_TARGET_TRIGGER aura", SpellInfo.Id, hit.TriggeredSpell.Id);
+
+                    // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
+                    // set duration of current aura to the triggered spell
+                    if (hit.TriggeredSpell.Duration == -1)
+                    {
+                        var triggeredAur = unit.GetAura(hit.TriggeredSpell.Id, Caster.GUID);
+
+                        if (triggeredAur != null)
+                        {
+                            // get duration from aura-only once
+                            if (_duration == 0)
+                            {
+                                var aur = unit.GetAura(SpellInfo.Id, Caster.GUID);
+                                _duration = aur?.Duration ?? -1;
+                            }
+
+                            triggeredAur.SetDuration(_duration);
+                        }
+                    }
+                }
+        }
+
+        // trigger linked auras remove/apply
+        // @todo remove/cleanup this, as this table is not documented and people are doing stupid things with it
+        var spellTriggered = Global.SpellMgr.GetSpellLinked(SpellLinkedType.Hit, SpellInfo.Id);
+
+        if (spellTriggered != null)
+            foreach (var id in spellTriggered)
+                if (id < 0)
+                    unit.RemoveAura((uint)-id);
+                else
+                    unit.CastSpell(unit, (uint)id, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(Caster.GUID).SetTriggeringSpell(this));
+    }
+
+    public void EndEmpoweredSpell()
+    {
+        if (GetPlayerIfIsEmpowered(out var p) &&
+            SpellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // ensure stage is valid
+        {
+            var duration = SpellInfo.Duration;
+            var timeCasted = SpellInfo.Duration - _timer;
+
+            if (MathFunctions.GetPctOf(timeCasted, duration) < p.EmpoweredSpellMinHoldPct) // ensure we held for long enough
+                return;
+
+            ForEachSpellScript<ISpellOnEpowerSpellEnd>(s => s.EmpowerSpellEnd(stageinfo, _empoweredSpellDelta));
+
+            var stageUpdate = new SpellEmpowerStageUpdate
+            {
+                Caster = p.GUID,
+                CastID = CastId,
+                TimeRemaining = _timer
+            };
+
+            var unusedDurations = new List<uint>();
+
+            var nextStage = _empoweredSpellStage;
+            nextStage++;
+
+            while (SpellInfo.EmpowerStages.TryGetValue(nextStage, out var nextStageinfo))
+            {
+                unusedDurations.Add(nextStageinfo.DurationMs);
+                nextStage++;
+            }
+
+            stageUpdate.RemainingStageDurations = unusedDurations;
+            p.SendPacket(stageUpdate);
+        }
+    }
+
+    public void Finish(SpellCastResult result = SpellCastResult.SpellCastOk)
+    {
+        if (State == SpellState.Finished)
+            return;
+
+        State = SpellState.Finished;
+
+        if (!Caster)
+            return;
+
+        var unitCaster = Caster.AsUnit;
+
+        if (unitCaster == null)
+            return;
+
+        // successful cast of the initial autorepeat spell is moved to idle state so that it is not deleted as long as autorepeat is active
+        if (IsAutoRepeat && unitCaster.GetCurrentSpell(CurrentSpellTypes.AutoRepeat) == this)
+            State = SpellState.Idle;
+
+        if (SpellInfo.IsChanneled)
+            unitCaster.UpdateInterruptMask();
+
+        if (unitCaster.HasUnitState(UnitState.Casting) && !unitCaster.IsNonMeleeSpellCast(false, false, true))
+            unitCaster.ClearUnitState(UnitState.Casting);
+
+        // Unsummon summon as possessed creatures on spell cancel
+        if (SpellInfo.IsChanneled && unitCaster.IsTypeId(TypeId.Player))
+        {
+            var charm = unitCaster.Charmed;
+
+            if (charm != null)
+                if (charm.IsTypeId(TypeId.Unit) && charm.AsCreature.HasUnitTypeMask(UnitTypeMask.Puppet) && charm.UnitData.CreatedBySpell == SpellInfo.Id)
+                    ((Puppet)charm).UnSummon();
+        }
+
+        var creatureCaster = unitCaster.AsCreature;
+
+        creatureCaster?.ReleaseSpellFocus(this);
+
+        if (!SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs))
+            UnitCombatHelpers.ProcSkillsAndAuras(unitCaster, null, new ProcFlagsInit(ProcFlags.CastEnded), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, this, null, null);
+
+        if (result != SpellCastResult.SpellCastOk)
+        {
+            // on failure (or manual cancel) send TraitConfigCommitFailed to revert talent UI saved config selection
+            if (Caster.IsPlayer && SpellInfo.HasEffect(SpellEffectName.ChangeActiveCombatTraitConfig))
+                if (CustomArg is TraitConfig)
+                    Caster.AsPlayer.SendPacket(new TraitConfigCommitFailed((CustomArg as TraitConfig).ID));
+
+            return;
+        }
+
+        if (unitCaster.IsTypeId(TypeId.Unit) && unitCaster.AsCreature.IsSummon)
+        {
+            // Unsummon statue
+            uint spell = unitCaster.UnitData.CreatedBySpell;
+            var spellInfo = Global.SpellMgr.GetSpellInfo(spell, CastDifficulty);
+
+            if (spellInfo != null && spellInfo.IconFileDataId == 134230)
+            {
+                Log.Logger.Debug("Statue {0} is unsummoned in spell {1} finish", unitCaster.GUID.ToString(), SpellInfo.Id);
+
+                // Avoid infinite loops with setDeathState(JUST_DIED) being called over and over
+                // It might make sense to do this check in Unit::setDeathState() and all overloaded functions
+                if (unitCaster.DeathState != DeathState.JustDied)
+                    unitCaster.SetDeathState(DeathState.JustDied);
+
+                return;
+            }
+        }
+
+        if (IsAutoActionResetSpell())
+            if (!SpellInfo.HasAttribute(SpellAttr2.DoNotResetCombatTimers))
+            {
+                unitCaster.ResetAttackTimer();
+
+                if (unitCaster.HaveOffhandWeapon())
+                    unitCaster.ResetAttackTimer(WeaponAttackType.OffAttack);
+
+                unitCaster.ResetAttackTimer(WeaponAttackType.RangedAttack);
+            }
+
+        // potions disabled by client, send event "not in combat" if need
+        if (unitCaster.IsTypeId(TypeId.Player))
+            if (TriggeredByAuraSpell == null)
+                unitCaster.AsPlayer.UpdatePotionCooldown(this);
+
+        // Stop Attack for some spells
+        if (SpellInfo.HasAttribute(SpellAttr0.CancelsAutoAttackCombat))
+            unitCaster.AttackStop();
+    }
+
+    public void ForEachSpellScript<T>(Action<T> action) where T : ISpellScript
+    {
+        foreach (T script in GetSpellScripts<T>())
+            try
+            {
+                action.Invoke(script);
+            }
+            catch (Exception e)
+            {
+                Log.Logger.Error(e);
+            }
+    }
+
+    public long GetCorpseTargetCountForEffect(int effect)
+    {
+        return _uniqueCorpseTargetInfo.Count(targetInfo => targetInfo.Effects.Contains(effect));
+    }
+
+    public List<(ISpellScript, ISpellEffect)> GetEffectScripts(SpellScriptHookType h, int index)
+    {
+        if (_effectHandlers.TryGetValue(index, out var effDict) &&
+            effDict.TryGetValue(h, out var scripts))
+            return scripts;
+
+        return DummySpellEffects;
+    }
+
+    public SpellLogEffect GetExecuteLogEffect(SpellEffectName effect)
+    {
+        var spellLogEffect = _executeLogEffects.LookupByKey(effect);
+
+        if (spellLogEffect != null)
+            return spellLogEffect;
+
+        SpellLogEffect executeLogEffect = new();
+
+        {
+            Effect = (int)effect
+        }
+
+        _
+        ecuteLogEffects.Add(effect, executeLogEffect);
+
+        return executeLogEffect;
+    }
+
+    public long GetGameObjectTargetCountForEffect(int effect)
+    {
+        return _uniqueGoTargetInfo.Count(targetInfo => targetInfo.Effects.Contains(effect));
+    }
+
+    public long GetItemTargetCountForEffect(int effect)
+    {
+        return _uniqueItemInfo.Count(targetInfo => targetInfo.Effects.Contains(effect));
+    }
+
+    public bool GetPlayerIfIsEmpowered(out Player p)
+    {
+        p = null;
+
+        return SpellInfo.EmpowerStages.Count > 0 && Caster.TryGetAsPlayer(out p);
     }
 
     public int? GetPowerTypeCostAmount(PowerType power)
@@ -3212,6 +2463,884 @@ public partial class Spell : IDisposable
         return powerCost?.Amount;
     }
 
+    public GridMapTypeMask GetSearcherTypeMask(SpellTargetObjectTypes objType, List<Condition> condList)
+    {
+        // this function selects which containers need to be searched for spell target
+        var retMask = GridMapTypeMask.All;
+
+        // filter searchers based on searched object type
+        switch (objType)
+        {
+            case SpellTargetObjectTypes.Unit:
+            case SpellTargetObjectTypes.UnitAndDest:
+                retMask &= GridMapTypeMask.Player | GridMapTypeMask.Creature;
+
+                break;
+            case SpellTargetObjectTypes.Corpse:
+            case SpellTargetObjectTypes.CorpseEnemy:
+            case SpellTargetObjectTypes.CorpseAlly:
+                retMask &= GridMapTypeMask.Player | GridMapTypeMask.Corpse | GridMapTypeMask.Creature;
+
+                break;
+            case SpellTargetObjectTypes.Gobj:
+            case SpellTargetObjectTypes.GobjItem:
+                retMask &= GridMapTypeMask.GameObject;
+
+                break;
+            default:
+                break;
+        }
+
+        if (SpellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
+            retMask &= GridMapTypeMask.Corpse | GridMapTypeMask.Player;
+
+        if (SpellInfo.HasAttribute(SpellAttr3.OnlyOnGhosts))
+            retMask &= GridMapTypeMask.Player;
+
+        if (SpellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
+            retMask &= ~GridMapTypeMask.Player;
+
+        if (condList != null)
+            retMask &= Global.ConditionMgr.GetSearcherTypeMaskForConditionList(condList);
+
+        return retMask;
+    }
+
+    public List<ISpellScript> GetSpellScripts<T>() where T : ISpellScript
+    {
+        if (_spellScriptsByType.TryGetValue(typeof(T), out var scripts))
+            return scripts;
+
+        return Dummy;
+    }
+
+    public long GetUnitTargetCountForEffect(int effect)
+    {
+        return UniqueTargetInfo.Count(targetInfo => targetInfo.MissCondition == SpellMissInfo.None && targetInfo.Effects.Contains(effect));
+    }
+
+    public ulong HandleDelayed(ulong offset)
+    {
+        if (!UpdatePointers())
+        {
+            // finish the spell if UpdatePointers() returned false, something wrong happened there
+            Finish(SpellCastResult.Fizzle);
+
+            return 0;
+        }
+
+        var single_missile = Targets.HasDst;
+        ulong next_time = 0;
+
+        if (!_launchHandled)
+        {
+            var launchMoment = (ulong)Math.Floor(SpellInfo.LaunchDelay * 1000.0f);
+
+            if (launchMoment > offset)
+                return launchMoment;
+
+            HandleLaunchPhase();
+            _launchHandled = true;
+
+            if (DelayMoment > offset)
+            {
+                if (single_missile)
+                    return DelayMoment;
+
+                next_time = DelayMoment;
+
+                if ((UniqueTargetInfo.Count > 2 || (UniqueTargetInfo.Count == 1 && UniqueTargetInfo[0].TargetGuid == Caster.GUID)) || !_uniqueGoTargetInfo.Empty())
+                    offset = 0; // if LaunchDelay was present then the only target that has timeDelay = 0 is m_caster - and that is the only target we want to process now
+            }
+        }
+
+        if (single_missile && offset == 0)
+            return DelayMoment;
+
+        var modOwner = Caster.SpellModOwner;
+
+        modOwner?.SetSpellModTakingSpell(this, true);
+
+        PrepareTargetProcessing();
+
+        if (!_immediateHandled && offset != 0)
+        {
+            _handle_immediate_phase();
+            _immediateHandled = true;
+        }
+
+        // now recheck units targeting correctness (need before any effects apply to prevent adding immunity at first effect not allow apply second spell effect and similar cases)
+        {
+            List<TargetInfo> delayedTargets = new();
+
+            UniqueTargetInfo.RemoveAll(target =>
+            {
+                if (single_missile || target.TimeDelay <= offset)
+                {
+                    target.TimeDelay = offset;
+                    delayedTargets.Add(target);
+
+                    return true;
+                }
+                else if (next_time == 0 || target.TimeDelay < next_time)
+                {
+                    next_time = target.TimeDelay;
+                }
+
+                return false;
+            });
+
+            DoProcessTargetContainer(delayedTargets);
+
+            if (next_time == 0)
+                CallScriptOnHitHandlers();
+        }
+
+        // now recheck gameobject targeting correctness
+        {
+            List<GOTargetInfo> delayedGOTargets = new();
+
+            _uniqueGoTargetInfo.RemoveAll(goTarget =>
+            {
+                if (single_missile || goTarget.TimeDelay <= offset)
+                {
+                    goTarget.TimeDelay = offset;
+                    delayedGOTargets.Add(goTarget);
+
+                    return true;
+                }
+                else if (next_time == 0 || goTarget.TimeDelay < next_time)
+                {
+                    next_time = goTarget.TimeDelay;
+                }
+
+                return false;
+            });
+
+            DoProcessTargetContainer(delayedGOTargets);
+        }
+
+        FinishTargetProcessing();
+
+        if (modOwner)
+            modOwner.SetSpellModTakingSpell(this, false);
+
+        // All targets passed - need finish phase
+        if (next_time == 0)
+        {
+            // spell is finished, perform some last features of the spell here
+            _handle_finish_phase();
+
+            Finish(); // successfully finish spell cast
+
+            // return zero, spell is finished now
+            return 0;
+        }
+        else
+        {
+            // spell is unfinished, return next execution time
+            return next_time;
+        }
+    }
+
+    public void HandleEffects(Unit pUnitTarget, Item pItemTarget, GameObject pGoTarget, Corpse pCorpseTarget, SpellEffectInfo spellEffectInfo, SpellEffectHandleMode mode)
+    {
+        _effectHandleMode = mode;
+        UnitTarget = pUnitTarget;
+        ItemTarget = pItemTarget;
+        GameObjTarget = pGoTarget;
+        CorpseTarget = pCorpseTarget;
+        DestTarget = _destTargets[spellEffectInfo.EffectIndex].Position;
+        EffectInfo = spellEffectInfo;
+
+        Damage = CalculateDamage(spellEffectInfo, UnitTarget, out Variance);
+
+        var preventDefault = CallScriptEffectHandlers(spellEffectInfo.EffectIndex, mode);
+
+        if (!preventDefault)
+            Global.SpellMgr.GetSpellEffectHandler(spellEffectInfo.Effect).Invoke(this);
+    }
+
+    public bool HasPowerTypeCost(PowerType power)
+    {
+        return GetPowerTypeCostAmount(power).HasValue;
+    }
+
+    public void InitExplicitTargets(SpellCastTargets targets)
+    {
+        Targets = targets;
+
+        // this function tries to correct spell explicit targets for spell
+        // client doesn't send explicit targets correctly sometimes - we need to fix such spells serverside
+        // this also makes sure that we correctly send explicit targets to client (removes redundant data)
+        var neededTargets = SpellInfo.GetExplicitTargetMask();
+
+        var target = Targets.ObjectTarget;
+
+        if (target != null)
+        {
+            // check if object target is valid with needed target flags
+            // for unit case allow corpse target mask because player with not released corpse is a unit target
+            if ((target.AsUnit && !neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask)) || (target.IsTypeId(TypeId.GameObject) && !neededTargets.HasFlag(SpellCastTargetFlags.GameobjectMask)) || (target.IsTypeId(TypeId.Corpse) && !neededTargets.HasFlag(SpellCastTargetFlags.CorpseMask)))
+                Targets.RemoveObjectTarget();
+        }
+        else
+        {
+            // try to select correct unit target if not provided by client or by serverside cast
+            if (neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitMask))
+            {
+                Unit unit = null;
+                // try to use player selection as a target
+                var playerCaster = Caster.AsPlayer;
+
+                if (playerCaster != null)
+                {
+                    // selection has to be found and to be valid target for the spell
+                    var selectedUnit = Global.ObjAccessor.GetUnit(Caster, playerCaster.Target);
+
+                    if (selectedUnit != null)
+                        if (SpellInfo.CheckExplicitTarget(Caster, selectedUnit) == SpellCastResult.SpellCastOk)
+                            unit = selectedUnit;
+                }
+                // try to use attacked unit as a target
+                else if (Caster.IsTypeId(TypeId.Unit) && neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitEnemy | SpellCastTargetFlags.Unit))
+                {
+                    unit = Caster.AsUnit.Victim;
+                }
+
+                // didn't find anything - let's use self as target
+                if (unit == null && neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitRaid | SpellCastTargetFlags.UnitParty | SpellCastTargetFlags.UnitAlly))
+                    unit = Caster.AsUnit;
+
+                Targets.UnitTarget = unit;
+            }
+        }
+
+        // check if spell needs dst target
+        if (neededTargets.HasFlag(SpellCastTargetFlags.DestLocation))
+        {
+            // and target isn't set
+            if (!Targets.HasDst)
+            {
+                // try to use unit target if provided
+                var targett = targets.ObjectTarget;
+
+                if (targett != null)
+                    Targets.SetDst(targett);
+                // or use self if not available
+                else
+                    Targets.SetDst(Caster);
+            }
+        }
+        else
+        {
+            Targets.RemoveDst();
+        }
+
+        if (neededTargets.HasFlag(SpellCastTargetFlags.SourceLocation))
+        {
+            if (!targets.HasSrc)
+                Targets.SetSrc(Caster);
+        }
+        else
+        {
+            Targets.RemoveSrc();
+        }
+    }
+
+    public bool IsTriggeredByAura(SpellInfo auraSpellInfo)
+    {
+        return (auraSpellInfo == TriggeredByAuraSpell);
+    }
+
+    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, int effIndex)
+    {
+        return ModSpellDuration(spellInfo,
+                                target,
+                                duration,
+                                positive,
+                                new HashSet<int>()
+                                {
+                                    effIndex
+                                });
+    }
+
+    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, HashSet<int> effectMask)
+    {
+        // don't mod permanent auras duration
+        if (duration < 0)
+            return duration;
+
+        // some auras are not affected by duration modifiers
+        if (spellInfo.HasAttribute(SpellAttr7.IgnoreDurationMods))
+            return duration;
+
+        // cut duration only of negative effects
+        var unitTarget = target.AsUnit;
+
+        if (!unitTarget)
+            return duration;
+
+        if (!positive)
+        {
+            var mechanicMask = spellInfo.GetSpellMechanicMaskByEffectMask(effectMask);
+
+            bool MechanicCheck(AuraEffect aurEff)
+            {
+                if ((mechanicMask & (1ul << aurEff.MiscValue)) != 0)
+                    return true;
+
+                return false;
+            }
+
+            // Find total mod value (negative bonus)
+            var durationModAlways = unitTarget.GetTotalAuraModifier(AuraType.MechanicDurationMod, MechanicCheck);
+            // Find max mod (negative bonus)
+            var durationModNotStack = unitTarget.GetMaxNegativeAuraModifier(AuraType.MechanicDurationModNotStack, MechanicCheck);
+
+            // Select strongest negative mod
+            var durationMod = Math.Min(durationModAlways, durationModNotStack);
+
+            if (durationMod != 0)
+                MathFunctions.AddPct(ref duration, durationMod);
+
+            // there are only negative mods currently
+            durationModAlways = unitTarget.GetTotalAuraModifierByMiscValue(AuraType.ModAuraDurationByDispel, (int)spellInfo.Dispel);
+            durationModNotStack = unitTarget.GetMaxNegativeAuraModifierByMiscValue(AuraType.ModAuraDurationByDispelNotStack, (int)spellInfo.Dispel);
+
+            durationMod = Math.Min(durationModAlways, durationModNotStack);
+
+            if (durationMod != 0)
+                MathFunctions.AddPct(ref duration, durationMod);
+        }
+        else
+        {
+            // else positive mods here, there are no currently
+            // when there will be, change GetTotalAuraModifierByMiscValue to GetMaxPositiveAuraModifierByMiscValue
+
+            // Mixology - duration boost
+            if (unitTarget.IsPlayer)
+                if (spellInfo.SpellFamilyName == SpellFamilyNames.Potion &&
+                    (
+                        SpellManager.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirBattle) ||
+                        SpellManager.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirGuardian)))
+                {
+                    var effect = spellInfo.GetEffect(0);
+
+                    if (unitTarget.HasAura(53042) && effect != null && unitTarget.HasSpell(effect.TriggerSpell))
+                        duration *= 2;
+                }
+        }
+
+        return Math.Max(duration, 0);
+    }
+
+    public SpellCastResult Prepare(SpellCastTargets targets, AuraEffect triggeredByAura = null)
+    {
+        if (CastItem != null)
+        {
+            CastItemGuid = CastItem.GUID;
+            CastItemEntry = CastItem.Entry;
+
+            var owner = CastItem.OwnerUnit;
+
+            if (owner)
+            {
+                CastItemLevel = (int)CastItem.GetItemLevel(owner);
+            }
+            else if (CastItem.OwnerGUID == Caster.GUID)
+            {
+                CastItemLevel = (int)CastItem.GetItemLevel(Caster.AsPlayer);
+            }
+            else
+            {
+                SendCastResult(SpellCastResult.EquippedItem);
+                Finish(SpellCastResult.EquippedItem);
+
+                return SpellCastResult.EquippedItem;
+            }
+        }
+
+        InitExplicitTargets(targets);
+
+        State = SpellState.Preparing;
+
+        if (triggeredByAura != null)
+        {
+            TriggeredByAuraSpell = triggeredByAura.SpellInfo;
+            CastItemLevel = triggeredByAura.Base.CastItemLevel;
+        }
+
+        // create and add update event for this spell
+        _spellEvent = new SpellEvent(this);
+        Caster.Events.AddEvent(_spellEvent, Caster.Events.CalculateTime(TimeSpan.FromMilliseconds(1)));
+
+        // check disables
+        if (Global.DisableMgr.IsDisabledFor(DisableType.Spell, SpellInfo.Id, Caster))
+        {
+            SendCastResult(SpellCastResult.SpellUnavailable);
+            Finish(SpellCastResult.SpellUnavailable);
+
+            return SpellCastResult.SpellUnavailable;
+        }
+
+        // Prevent casting at cast another spell (ServerSide check)
+        if (!_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreCastInProgress) && Caster.AsUnit != null && Caster.AsUnit.IsNonMeleeSpellCast(false, true, true, SpellInfo.Id == 75) && !CastId.IsEmpty)
+        {
+            SendCastResult(SpellCastResult.SpellInProgress);
+            Finish(SpellCastResult.SpellInProgress);
+
+            return SpellCastResult.SpellInProgress;
+        }
+
+        LoadScripts();
+
+        // Fill cost data (not use power for item casts
+        if (CastItem == null)
+            PowerCost = SpellInfo.CalcPowerCost(Caster, SpellSchoolMask, this);
+
+        // Set combo point requirement
+        if (Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnoreComboPoints) || CastItem != null)
+            NeedComboPoints = false;
+
+        int param1 = 0, param2 = 0;
+        var result = CheckCast(true, ref param1, ref param2);
+
+        // target is checked in too many locations and with different results to handle each of them
+        // handle just the general SPELL_FAILED_BAD_TARGETS result which is the default result for most DBC target checks
+        if (Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnoreTargetCheck) && result == SpellCastResult.BadTargets)
+            result = SpellCastResult.SpellCastOk;
+
+        if (result != SpellCastResult.SpellCastOk)
+        {
+            // Periodic auras should be interrupted when aura triggers a spell which can't be cast
+            // for example bladestorm aura should be removed on disarm as of patch 3.3.5
+            // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
+            // a possible alternative sollution for those would be validating aura target on unit state change
+            if (triggeredByAura != null && triggeredByAura.IsPeriodic() && !triggeredByAura.Base.IsPassive)
+            {
+                SendChannelUpdate(0);
+                triggeredByAura.Base.SetDuration(0);
+            }
+
+            if (param1 != 0 || param2 != 0)
+                SendCastResult(result, param1, param2);
+            else
+                SendCastResult(result);
+
+            // queue autorepeat spells for future repeating
+            if (CurrentContainer == CurrentSpellTypes.AutoRepeat && Caster.IsUnit)
+                Caster.AsUnit.SetCurrentCastSpell(this);
+
+            Finish(result);
+
+            return result;
+        }
+
+        // Prepare data for triggers
+        PrepareDataForTriggerSystem();
+
+        CastTime = CallScriptCalcCastTimeHandlers(SpellInfo.CalcCastTime(this));
+
+        foreach (var stage in _empowerStages)
+        {
+            var ct = (int)stage.Value.DurationMs;
+            Caster.WorldObjectCombat.ModSpellCastTime(SpellInfo, ref ct);
+            stage.Value.DurationMs = (uint)CallScriptCalcCastTimeHandlers(ct);
+        }
+
+        if (Caster.IsUnit && Caster.AsUnit.IsMoving)
+        {
+            result = CheckMovement();
+
+            if (result != SpellCastResult.SpellCastOk)
+            {
+                SendCastResult(result);
+                Finish(result);
+
+                return result;
+            }
+        }
+
+        // Creatures focus their target when possible
+        if (CastTime != 0 && Caster.IsCreature && !SpellInfo.IsNextMeleeSwingSpell && !IsAutoRepeat && !Caster.AsUnit.HasUnitFlag(UnitFlags.Possessed))
+        {
+            // Channeled spells and some triggered spells do not focus a cast target. They face their target later on via channel object guid and via spell attribute or not at all
+            var focusTarget = !SpellInfo.IsChanneled && !_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreSetFacing);
+
+            if (focusTarget && Targets.ObjectTarget && Caster != Targets.ObjectTarget)
+                Caster.AsCreature.SetSpellFocus(this, Targets.ObjectTarget);
+            else
+                Caster.AsCreature.SetSpellFocus(this, null);
+        }
+
+        CallScriptOnPrecastHandler();
+
+        // set timer base at cast time
+        ReSetTimer();
+
+        Log.Logger.Debug("Spell.prepare: spell id {0} source {1} caster {2} customCastFlags {3} mask {4}", SpellInfo.Id, Caster.Entry, OriginalCaster != null ? (int)OriginalCaster.Entry : -1, _triggeredCastFlags, Targets.TargetMask);
+
+        if (SpellInfo.HasAttribute(SpellAttr12.StartCooldownOnCastStart))
+            SendSpellCooldown();
+
+        //Containers for channeled spells have to be set
+        // @todoApply this to all casted spells if needed
+        // Why check duration? 29350: channelled triggers channelled
+        if (_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.CastDirectly) && (!SpellInfo.IsChanneled || SpellInfo.MaxDuration == 0))
+        {
+            Cast(true);
+        }
+        else
+        {
+            // commented out !m_spellInfo->StartRecoveryTime, it forces instant spells with global cooldown to be processed in spell::update
+            // as a result a spell that passed CheckCast and should be processed instantly may suffer from this delayed process
+            // the easiest bug to observe is LoS check in AddUnitTarget, even if spell passed the CheckCast LoS check the situation can change in spell::update
+            // because target could be relocated in the meantime, making the spell fly to the air (no targets can be registered, so no effects processed, nothing in combat log)
+            var willCastDirectly = CastTime == 0 && /*!m_spellInfo->StartRecoveryTime && */ CurrentContainer == CurrentSpellTypes.Generic;
+
+            var unitCaster = Caster.AsUnit;
+
+            if (unitCaster != null)
+            {
+                // stealth must be removed at cast starting (at show channel bar)
+                // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
+                if (!_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnoreAuraInterruptFlags) && !SpellInfo.HasAttribute(SpellAttr2.NotAnAction))
+                    unitCaster.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Action, SpellInfo);
+
+                // Do not register as current spell when requested to ignore cast in progress
+                // We don't want to interrupt that other spell with cast time
+                if (!willCastDirectly || !_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreCastInProgress))
+                    unitCaster.SetCurrentCastSpell(this);
+            }
+
+            SendSpellStart();
+
+            if (!_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnoreGCD))
+                TriggerGlobalCooldown();
+
+            // Call CreatureAI hook OnSpellStart
+            var caster = Caster.AsCreature;
+
+            if (caster is { IsAIEnabled: true })
+                caster.AI.OnSpellStart(SpellInfo);
+
+            if (willCastDirectly)
+                Cast(true);
+        }
+
+        return SpellCastResult.SpellCastOk;
+    }
+
+    public SpellMissInfo PreprocessSpellHit(Unit unit, TargetInfo hitInfo)
+    {
+        if (unit == null)
+            return SpellMissInfo.Evade;
+
+        // Target may have begun evading between launch and hit phases - re-check now
+        var creatureTarget = unit.AsCreature;
+
+        if (creatureTarget is { IsEvadingAttacks: true })
+            return SpellMissInfo.Evade;
+
+        // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
+        if (SpellInfo.HasHitDelay && unit.IsImmunedToSpell(SpellInfo, Caster))
+            return SpellMissInfo.Immune;
+
+        CallScriptBeforeHitHandlers(hitInfo.MissCondition);
+
+        var player = unit.AsPlayer;
+
+        if (player != null)
+        {
+            player.StartCriteriaTimer(CriteriaStartEvent.BeSpellTarget, SpellInfo.Id);
+            player.UpdateCriteria(CriteriaType.BeSpellTarget, SpellInfo.Id, 0, 0, Caster);
+            player.UpdateCriteria(CriteriaType.GainAura, SpellInfo.Id);
+        }
+
+        var casterPlayer = Caster.AsPlayer;
+
+        if (casterPlayer)
+        {
+            casterPlayer.StartCriteriaTimer(CriteriaStartEvent.CastSpell, SpellInfo.Id);
+            casterPlayer.UpdateCriteria(CriteriaType.LandTargetedSpellOnTarget, SpellInfo.Id, 0, 0, unit);
+        }
+
+        if (Caster != unit)
+        {
+            // Recheck  UNIT_FLAG_NON_ATTACKABLE for delayed spells
+            if (SpellInfo.HasHitDelay && unit.HasUnitFlag(UnitFlags.NonAttackable) && unit.CharmerOrOwnerGUID != Caster.GUID)
+                return SpellMissInfo.Evade;
+
+            if (Caster.WorldObjectCombat.IsValidAttackTarget(unit, SpellInfo))
+            {
+                unit.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.HostileActionReceived);
+            }
+            else if (Caster.WorldObjectCombat.IsFriendlyTo(unit))
+            {
+                // for delayed spells ignore negative spells (after duel end) for friendly targets
+                if (SpellInfo.HasHitDelay && unit.IsPlayer && !IsPositive && !Caster.WorldObjectCombat.IsValidAssistTarget(unit, SpellInfo))
+                    return SpellMissInfo.Evade;
+
+                // assisting case, healing and resurrection
+                if (unit.HasUnitState(UnitState.AttackPlayer))
+                {
+                    var playerOwner = Caster.CharmerOrOwnerPlayerOrPlayerItself;
+
+                    if (playerOwner != null)
+                    {
+                        playerOwner.SetContestedPvP();
+                        playerOwner.UpdatePvP(true);
+                    }
+                }
+
+                if (OriginalCaster && unit.IsInCombat && SpellInfo.HasInitialAggro)
+                {
+                    if (OriginalCaster.HasUnitFlag(UnitFlags.PlayerControlled))          // only do explicit combat forwarding for PvP enabled units
+                        OriginalCaster.GetCombatManager().InheritCombatStatesFrom(unit); // for creature v creature combat, the threat forward does it for us
+
+                    unit.GetThreatManager().ForwardThreatForAssistingMe(OriginalCaster, 0.0f, null, true);
+                }
+            }
+        }
+
+        // original caster for auras
+        var origCaster = Caster;
+
+        if (OriginalCaster)
+            origCaster = OriginalCaster;
+
+        // check immunity due to diminishing returns
+        if (Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffects, unit).Count != 0)
+        {
+            foreach (var spellEffectInfo in SpellInfo.Effects)
+                hitInfo.AuraBasePoints[spellEffectInfo.EffectIndex] = (SpellValue.CustomBasePointsMask & (1 << spellEffectInfo.EffectIndex)) != 0 ? SpellValue.EffectBasePoints[spellEffectInfo.EffectIndex] : spellEffectInfo.CalcBaseValue(OriginalCaster, unit, CastItemEntry, CastItemLevel);
+
+            // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
+            hitInfo.DrGroup = SpellInfo.DiminishingReturnsGroupForSpell;
+
+            var diminishLevel = DiminishingLevels.Level1;
+
+            if (hitInfo.DrGroup != 0)
+            {
+                diminishLevel = unit.GetDiminishing(hitInfo.DrGroup);
+                var type = SpellInfo.DiminishingReturnsGroupType;
+
+                // Increase Diminishing on unit, current informations for actually casts will use values above
+                if (type == DiminishingReturnsType.All || (type == DiminishingReturnsType.Player && unit.IsAffectedByDiminishingReturns))
+                    unit.IncrDiminishing(SpellInfo);
+            }
+
+            // Now Reduce spell duration using data received at spell hit
+            // check whatever effects we're going to apply, diminishing returns only apply to negative aura effects
+            hitInfo.Positive = true;
+
+            if (origCaster == unit || !origCaster.WorldObjectCombat.IsFriendlyTo(unit))
+                foreach (var spellEffectInfo in SpellInfo.Effects)
+                    // mod duration only for effects applying aura!
+                    if (hitInfo.Effects.Contains(spellEffectInfo.EffectIndex) &&
+                        spellEffectInfo.IsUnitOwnedAuraEffect &&
+                        !SpellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))
+                    {
+                        hitInfo.Positive = false;
+
+                        break;
+                    }
+
+            hitInfo.AuraDuration = Aura.CalcMaxDuration(SpellInfo, origCaster);
+
+            // unit is immune to aura if it was diminished to 0 duration
+            if (!hitInfo.Positive && !unit.ApplyDiminishingToDuration(SpellInfo, ref hitInfo.AuraDuration, origCaster, diminishLevel))
+                if (SpellInfo.Effects.All(effInfo => !effInfo.IsEffect() || effInfo.IsEffect(SpellEffectName.ApplyAura)))
+                    return SpellMissInfo.Immune;
+        }
+
+        return SpellMissInfo.None;
+    }
+
+    public void RecalculateDelayMomentForDst()
+    {
+        DelayMoment = CalculateDelayMomentForDst(0.0f);
+        Caster.Events.ModifyEventTime(_spellEvent, TimeSpan.FromMilliseconds(DelayStart + DelayMoment));
+    }
+
+    public void SelectSpellTargets()
+    {
+        // select targets for cast phase
+        SelectExplicitTargets();
+
+        var processedAreaEffectsMask = new HashSet<int>();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+        {
+            // not call for empty effect.
+            // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
+            if (!spellEffectInfo.IsEffect())
+                continue;
+
+            // set expected type of implicit targets to be sent to client
+            var implicitTargetMask = SpellInfo.GetTargetFlagMask(spellEffectInfo.TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(spellEffectInfo.TargetB.ObjectType);
+
+            if (Convert.ToBoolean(implicitTargetMask & SpellCastTargetFlags.Unit))
+                Targets.SetTargetFlag(SpellCastTargetFlags.Unit);
+
+            if (Convert.ToBoolean(implicitTargetMask & (SpellCastTargetFlags.Gameobject | SpellCastTargetFlags.GameobjectItem)))
+                Targets.SetTargetFlag(SpellCastTargetFlags.Gameobject);
+
+            SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetA, processedAreaEffectsMask);
+            SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetB, processedAreaEffectsMask);
+
+            // Select targets of effect based on effect type
+            // those are used when no valid target could be added for spell effect based on spell target type
+            // some spell effects use explicit target as a default target added to target map (like SPELL_EFFECT_LEARN_SPELL)
+            // some spell effects add target to target map only when target type specified (like SPELL_EFFECT_WEAPON)
+            // some spell effects don't add anything to target map (confirmed with sniffs) (like SPELL_EFFECT_DESTROY_ALL_TOTEMS)
+            SelectEffectTypeImplicitTargets(spellEffectInfo);
+
+            if (Targets.HasDst)
+                AddDestTarget(Targets.Dst, spellEffectInfo.EffectIndex);
+
+            if (spellEffectInfo.TargetA.ObjectType == SpellTargetObjectTypes.Unit || spellEffectInfo.TargetA.ObjectType == SpellTargetObjectTypes.UnitAndDest || spellEffectInfo.TargetB.ObjectType == SpellTargetObjectTypes.Unit || spellEffectInfo.TargetB.ObjectType == SpellTargetObjectTypes.UnitAndDest)
+            {
+                if (SpellInfo.HasAttribute(SpellAttr1.RequireAllTargets))
+                {
+                    var noTargetFound = !UniqueTargetInfo.Any(target => target.Effects.Contains(spellEffectInfo.EffectIndex));
+
+                    if (noTargetFound)
+                    {
+                        SendCastResult(SpellCastResult.BadImplicitTargets);
+                        Finish(SpellCastResult.BadImplicitTargets);
+
+                        return;
+                    }
+                }
+
+                if (SpellInfo.HasAttribute(SpellAttr2.FailOnAllTargetsImmune))
+                {
+                    var anyNonImmuneTargetFound = UniqueTargetInfo.Any(target => target.Effects.Contains(spellEffectInfo.EffectIndex) && target.MissCondition != SpellMissInfo.Immune && target.MissCondition != SpellMissInfo.Immune2);
+
+                    if (!anyNonImmuneTargetFound)
+                    {
+                        SendCastResult(SpellCastResult.Immune);
+                        Finish(SpellCastResult.Immune);
+
+                        return;
+                    }
+                }
+            }
+
+            if (SpellInfo.IsChanneled)
+            {
+                // maybe do this for all spells?
+                if (_focusObject == null && UniqueTargetInfo.Empty() && _uniqueGoTargetInfo.Empty() && _uniqueItemInfo.Empty() && !Targets.HasDst)
+                {
+                    SendCastResult(SpellCastResult.BadImplicitTargets);
+                    Finish(SpellCastResult.BadImplicitTargets);
+
+                    return;
+                }
+
+                foreach (var ihit in UniqueTargetInfo)
+                    if (ihit.Effects.Contains(spellEffectInfo.EffectIndex))
+                    {
+                        _channelTargetEffectMask.Add(spellEffectInfo.EffectIndex);
+
+                        break;
+                    }
+            }
+        }
+
+        var dstDelay = CalculateDelayMomentForDst(SpellInfo.LaunchDelay);
+
+        if (dstDelay != 0)
+            DelayMoment = dstDelay;
+    }
+    public void SendCastResult(SpellCastResult result, int? param1 = null, int? param2 = null)
+    {
+        if (result == SpellCastResult.SpellCastOk)
+            return;
+
+        if (!Caster.IsTypeId(TypeId.Player))
+            return;
+
+        if (Caster.AsPlayer.IsLoading) // don't send cast results at loading time
+            return;
+
+        if (_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.DontReportCastError))
+            result = SpellCastResult.DontReport;
+
+        CastFailed castFailed = new();
+
+        {
+            Visual = SpellVisual
+        }
+
+        F
+        lSpellCastFailedArgs(castFailed, CastId, SpellInfo, result, CustomErrors, param1, param2, Caster.AsPlayer);
+        Caster.AsPlayer.SendPacket(castFailed);
+    }
+
+    public void SendChannelUpdate(uint time)
+    {
+        // GameObjects don't channel
+        var unitCaster = Caster.AsUnit;
+
+        if (unitCaster == null)
+            return;
+
+        if (time == 0)
+        {
+            unitCaster.ClearChannelObjects();
+            unitCaster.ChannelSpellId = 0;
+            unitCaster.SetChannelVisual(new SpellCastVisualField());
+        }
+
+        SpellChannelUpdate spellChannelUpdate = new();
+
+        {
+            CasterGUID = unitCaster.GUID,
+            TimeRemaining = (int)time
+        }
+
+        s
+        tCaster.SendMessageToSet(spellChannelUpdate, true);
+    }
+
+    public void SendPetCastResult(SpellCastResult result, int? param1 = null, int? param2 = null)
+    {
+        if (result == SpellCastResult.SpellCastOk)
+            return;
+
+        var owner = Caster.CharmerOrOwner;
+
+        if (!owner || !owner.IsTypeId(TypeId.Player))
+            return;
+
+        if (_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.DontReportCastError))
+            result = SpellCastResult.DontReport;
+
+        PetCastFailed petCastFailed = new();
+        FillSpellCastFailedArgs(petCastFailed, CastId, SpellInfo, result, SpellCustomErrors.None, param1, param2, owner.AsPlayer);
+        owner.AsPlayer.SendPacket(petCastFailed);
+    }
+
+    public void SetEmpowerState(EmpowerState state)
+    {
+        if (_empowerState != EmpowerState.Finished)
+        {
+            if (_empowerState == EmpowerState.None && state == EmpowerState.Canceled)
+                _empowerState = EmpowerState.CanceledStartup;
+            else if (_empowerState == EmpowerState.CanceledStartup && state == EmpowerState.Empowering)
+                _empowerState = EmpowerState.None;
+            else
+                _empowerState = state;
+        }
+    }
+
+    public void SetReferencedFromCurrent(bool yes)
+    {
+        _referencedFromCurrentSpell = yes;
+    }
 
     public void SetSpellValue(SpellValueMod mod, float value)
     {
@@ -3256,230 +3385,6 @@ public partial class Spell : IDisposable
         }
     }
 
-    public bool CheckTargetHookEffect(ITargetHookHandler th, int effIndexToCheck)
-    {
-        if (SpellInfo.Effects.Count <= effIndexToCheck)
-            return false;
-
-        return CheckTargetHookEffect(th, SpellInfo.GetEffect(effIndexToCheck));
-    }
-
-    public bool CheckTargetHookEffect(ITargetHookHandler th, SpellEffectInfo spellEffectInfo)
-    {
-        if (th.TargetType == 0)
-            return false;
-
-        if (spellEffectInfo.TargetA.Target != th.TargetType && spellEffectInfo.TargetB.Target != th.TargetType)
-            return false;
-
-        SpellImplicitTargetInfo targetInfo = new(th.TargetType);
-
-        switch (targetInfo.SelectionCategory)
-        {
-            case SpellTargetSelectionCategories.Channel: // SINGLE
-                return !th.Area;
-            case SpellTargetSelectionCategories.Nearby: // BOTH
-                return true;
-            case SpellTargetSelectionCategories.Cone: // AREA
-            case SpellTargetSelectionCategories.Line: // AREA
-                return th.Area;
-            case SpellTargetSelectionCategories.Area: // AREA
-                if (targetInfo.ObjectType == SpellTargetObjectTypes.UnitAndDest)
-                    return th.Area || th.Dest;
-
-                return th.Area;
-            case SpellTargetSelectionCategories.Default:
-                switch (targetInfo.ObjectType)
-                {
-                    case SpellTargetObjectTypes.Src: // EMPTY
-                        return false;
-                    case SpellTargetObjectTypes.Dest: // Dest
-                        return th.Dest;
-                    default:
-                        switch (targetInfo.ReferenceType)
-                        {
-                            case SpellTargetReferenceTypes.Caster: // SINGLE
-                                return !th.Area;
-                            case SpellTargetReferenceTypes.Target: // BOTH
-                                return true;
-                            default:
-                                break;
-                        }
-
-                        break;
-                }
-
-                break;
-            default:
-                break;
-        }
-
-        return false;
-    }
-
-    public void CallScriptBeforeHitHandlers(SpellMissInfo missInfo)
-    {
-        foreach (var script in GetSpellScripts<ISpellBeforeHit>())
-        {
-            script._InitHit();
-            script._PrepareScriptCall(SpellScriptHookType.BeforeHit);
-            ((ISpellBeforeHit)script).BeforeHit(missInfo);
-            script._FinishScriptCall();
-        }
-    }
-
-    public void CallScriptOnHitHandlers()
-    {
-        foreach (var script in GetSpellScripts<ISpellOnHit>())
-        {
-            script._PrepareScriptCall(SpellScriptHookType.Hit);
-            ((ISpellOnHit)script).OnHit();
-            script._FinishScriptCall();
-        }
-    }
-
-    public void CallScriptAfterHitHandlers()
-    {
-        foreach (var script in GetSpellScripts<ISpellAfterHit>())
-        {
-            script._PrepareScriptCall(SpellScriptHookType.AfterHit);
-            ((ISpellAfterHit)script).AfterHit();
-            script._FinishScriptCall();
-        }
-    }
-
-    public void CallScriptCalcCritChanceHandlers(Unit victim, ref double critChance)
-    {
-        foreach (var loadedScript in GetSpellScripts<ISpellCalcCritChance>())
-        {
-            loadedScript._PrepareScriptCall(SpellScriptHookType.CalcCritChance);
-
-            ((ISpellCalcCritChance)loadedScript).CalcCritChance(victim, ref critChance);
-
-            loadedScript._FinishScriptCall();
-        }
-    }
-
-    public void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo damageInfo, ref double resistAmount, ref double absorbAmount)
-    {
-        foreach (var script in GetSpellScripts<ISpellCalculateResistAbsorb>())
-        {
-            script._PrepareScriptCall(SpellScriptHookType.OnResistAbsorbCalculation);
-
-            ((ISpellCalculateResistAbsorb)script).CalculateResistAbsorb(damageInfo, ref resistAmount, ref absorbAmount);
-
-            script._FinishScriptCall();
-        }
-    }
-
-    public bool CanExecuteTriggersOnHit(Unit unit, SpellInfo triggeredByAura = null)
-    {
-        var onlyOnTarget = triggeredByAura != null && triggeredByAura.HasAttribute(SpellAttr4.ClassTriggerOnlyOnTarget);
-
-        if (!onlyOnTarget)
-            return true;
-
-        // If triggeredByAura has SPELL_ATTR4_CLASS_TRIGGER_ONLY_ON_TARGET then it can only proc on either noncaster units...
-        if (unit != Caster)
-            return true;
-
-        // ... or caster if it is the only target
-        if (UniqueTargetInfo.Count == 1)
-            return true;
-
-        return false;
-    }
-
-    public List<ISpellScript> GetSpellScripts<T>() where T : ISpellScript
-    {
-        if (_spellScriptsByType.TryGetValue(typeof(T), out var scripts))
-            return scripts;
-
-        return Dummy;
-    }
-
-    public void ForEachSpellScript<T>(Action<T> action) where T : ISpellScript
-    {
-        foreach (T script in GetSpellScripts<T>())
-            try
-            {
-                action.Invoke(script);
-            }
-            catch (Exception e)
-            {
-                Log.Logger.Error(e);
-            }
-    }
-
-    public List<(ISpellScript, ISpellEffect)> GetEffectScripts(SpellScriptHookType h, int index)
-    {
-        if (_effectHandlers.TryGetValue(index, out var effDict) &&
-            effDict.TryGetValue(h, out var scripts))
-            return scripts;
-
-        return DummySpellEffects;
-    }
-
-
-    public SpellCastResult CheckMovement()
-    {
-        if (IsTriggered)
-            return SpellCastResult.SpellCastOk;
-
-        var unitCaster = Caster.AsUnit;
-
-        if (unitCaster != null)
-            if (!unitCaster.CanCastSpellWhileMoving(SpellInfo))
-            {
-                if (State == SpellState.Preparing)
-                {
-                    if (CastTime > 0 && SpellInfo.InterruptFlags.HasFlag(SpellInterruptFlags.Movement))
-                        return SpellCastResult.Moving;
-                }
-                else if (State == SpellState.Casting && !SpellInfo.IsMoveAllowedChannel)
-                {
-                    return SpellCastResult.Moving;
-                }
-            }
-
-        return SpellCastResult.SpellCastOk;
-    }
-
-    public bool IsTriggeredByAura(SpellInfo auraSpellInfo)
-    {
-        return (auraSpellInfo == TriggeredByAuraSpell);
-    }
-
-    public void SetReferencedFromCurrent(bool yes)
-    {
-        _referencedFromCurrentSpell = yes;
-    }
-
-    public bool GetPlayerIfIsEmpowered(out Player p)
-    {
-        p = null;
-
-        return SpellInfo.EmpowerStages.Count > 0 && Caster.TryGetAsPlayer(out p);
-    }
-
-    public static implicit operator bool(Spell spell)
-    {
-        return spell != null;
-    }
-
-    public void SetEmpowerState(EmpowerState state)
-    {
-        if (_empowerState != EmpowerState.Finished)
-        {
-            if (_empowerState == EmpowerState.None && state == EmpowerState.Canceled)
-                _empowerState = EmpowerState.CanceledStartup;
-            else if (_empowerState == EmpowerState.CanceledStartup && state == EmpowerState.Empowering)
-                _empowerState = EmpowerState.None;
-            else
-                _empowerState = state;
-        }
-    }
-
     public bool TryGetTotalEmpowerDuration(bool includeBaseCast, out int duration)
     {
         if (_empowerStages.Count > 0)
@@ -3494,2030 +3399,352 @@ public partial class Spell : IDisposable
         return false;
     }
 
-    private void SelectExplicitTargets()
+    public void Update(uint difftime)
     {
-        // here go all explicit target changes made to explicit targets after spell prepare phase is finished
-        var target = Targets.UnitTarget;
-
-        if (target != null)
-            // check for explicit target redirection, for Grounding Totem for example
-            if (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.UnitEnemy) || (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.Unit) && !Caster.WorldObjectCombat.IsFriendlyTo(target)))
-            {
-                Unit redirect = null;
-
-                switch (SpellInfo.DmgClass)
-                {
-                    case SpellDmgClass.Magic:
-                        redirect = Caster.WorldObjectCombat.GetMagicHitRedirectTarget(target, SpellInfo);
-
-                        break;
-                    case SpellDmgClass.Melee:
-                    case SpellDmgClass.Ranged:
-                        // should gameobjects cast damagetype melee/ranged spells this needs to be changed
-                        redirect = Caster.AsUnit.GetMeleeHitRedirectTarget(target, SpellInfo);
-
-                        break;
-                    default:
-                        break;
-                }
-
-                if (redirect != null && (redirect != target))
-                    Targets.UnitTarget = redirect;
-            }
-    }
-
-    private ulong CalculateDelayMomentForDst(float launchDelay)
-    {
-        if (Targets.HasDst)
+        if (!UpdatePointers())
         {
-            if (Targets.HasTraj)
-            {
-                var speed = Targets.SpeedXY;
-
-                if (speed > 0.0f)
-                    return (ulong)(Math.Floor((Targets.Dist2d / speed + launchDelay) * 1000.0f));
-            }
-            else if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
-            {
-                return (ulong)(Math.Floor((SpellInfo.Speed + launchDelay) * 1000.0f));
-            }
-            else if (SpellInfo.Speed > 0.0f)
-            {
-                // We should not subtract caster size from dist calculation (fixes execution time desync with animation on client, eg. Malleable Goo cast by PP)
-                var dist = Caster.Location.GetExactDist(Targets.DstPos);
-
-                return (ulong)(Math.Floor((dist / SpellInfo.Speed + launchDelay) * 1000.0f));
-            }
-
-            return (ulong)Math.Floor(launchDelay * 1000.0f);
-        }
-
-        return 0;
-    }
-
-    private void SelectEffectImplicitTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> processedEffectMask)
-    {
-        if (targetType.Target == 0)
-            return;
-
-        // set the same target list for all effects
-        // some spells appear to need this, however this requires more research
-        switch (targetType.SelectionCategory)
-        {
-            case SpellTargetSelectionCategories.Nearby:
-            case SpellTargetSelectionCategories.Cone:
-            case SpellTargetSelectionCategories.Area:
-            case SpellTargetSelectionCategories.Line:
-            {
-                // targets for effect already selected
-                if (processedEffectMask.Contains(spellEffectInfo.EffectIndex))
-                    return;
-
-                var j = 0;
-
-                // choose which targets we can select at once
-                foreach (var effect in SpellInfo.Effects)
-                {
-                    if (effect.IsEffect() &&
-                        spellEffectInfo.TargetA.Target == effect.TargetA.Target &&
-                        spellEffectInfo.TargetB.Target == effect.TargetB.Target &&
-                        spellEffectInfo.ImplicitTargetConditions == effect.ImplicitTargetConditions &&
-                        spellEffectInfo.CalcRadius(Caster) == effect.CalcRadius(Caster) &&
-                        CheckScriptEffectImplicitTargets(spellEffectInfo.EffectIndex, j))
-                        processedEffectMask.Add(j);
-
-                    j++;
-                }
-
-
-                break;
-            }
-            default:
-                break;
-        }
-
-        switch (targetType.SelectionCategory)
-        {
-            case SpellTargetSelectionCategories.Channel:
-                SelectImplicitChannelTargets(spellEffectInfo, targetType);
-
-                break;
-            case SpellTargetSelectionCategories.Nearby:
-                SelectImplicitNearbyTargets(spellEffectInfo, targetType, processedEffectMask);
-
-                break;
-            case SpellTargetSelectionCategories.Cone:
-                SelectImplicitConeTargets(spellEffectInfo, targetType, processedEffectMask);
-
-                break;
-            case SpellTargetSelectionCategories.Area:
-                SelectImplicitAreaTargets(spellEffectInfo, targetType, processedEffectMask);
-
-                break;
-            case SpellTargetSelectionCategories.Traj:
-                // just in case there is no dest, explanation in SelectImplicitDestDestTargets
-                CheckDst();
-
-                SelectImplicitTrajTargets(spellEffectInfo, targetType);
-
-                break;
-            case SpellTargetSelectionCategories.Line:
-                SelectImplicitLineTargets(spellEffectInfo, targetType, processedEffectMask);
-
-                break;
-            case SpellTargetSelectionCategories.Default:
-                switch (targetType.ObjectType)
-                {
-                    case SpellTargetObjectTypes.Src:
-                        switch (targetType.ReferenceType)
-                        {
-                            case SpellTargetReferenceTypes.Caster:
-                                Targets.SetSrc(Caster);
-
-                                break;
-                        }
-
-                        break;
-                    case SpellTargetObjectTypes.Dest:
-                        switch (targetType.ReferenceType)
-                        {
-                            case SpellTargetReferenceTypes.Caster:
-                                SelectImplicitCasterDestTargets(spellEffectInfo, targetType);
-
-                                break;
-                            case SpellTargetReferenceTypes.Target:
-                                SelectImplicitTargetDestTargets(spellEffectInfo, targetType);
-
-                                break;
-                            case SpellTargetReferenceTypes.Dest:
-                                SelectImplicitDestDestTargets(spellEffectInfo, targetType);
-
-                                break;
-                        }
-
-                        break;
-                    default:
-                        switch (targetType.ReferenceType)
-                        {
-                            case SpellTargetReferenceTypes.Caster:
-                                SelectImplicitCasterObjectTargets(spellEffectInfo, targetType);
-
-                                break;
-                            case SpellTargetReferenceTypes.Target:
-                                SelectImplicitTargetObjectTargets(spellEffectInfo, targetType);
-
-                                break;
-                        }
-
-                        break;
-                }
-
-                break;
-            case SpellTargetSelectionCategories.Nyi:
-                Log.Logger.Debug("SPELL: target type {0}, found in spellID {1}, effect {2} is not implemented yet!", SpellInfo.Id, spellEffectInfo.EffectIndex, targetType.Target);
-
-                break;
-        }
-    }
-
-    private void SelectImplicitChannelTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
-    {
-        if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
-            return;
-
-        var channeledSpell = OriginalCaster.GetCurrentSpell(CurrentSpellTypes.Channeled);
-
-        if (channeledSpell == null)
-        {
-            Log.Logger.Debug("Spell.SelectImplicitChannelTargets: cannot find channel spell for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+            // cancel the spell if UpdatePointers() returned false, something wrong happened there
+            Cancel();
 
             return;
         }
 
-        switch (targetType.Target)
+        if (!Targets.UnitTargetGUID.IsEmpty && Targets.UnitTarget == null)
         {
-            case Framework.Constants.Targets.UnitChannelTarget:
-            {
-                foreach (var channelTarget in OriginalCaster.UnitData.ChannelObjects)
-                {
-                    WorldObject target = Global.ObjAccessor.GetUnit(Caster, channelTarget);
-                    CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
-                    // unit target may be no longer avalible - teleported out of map for example
-                    var unitTarget = target ? target.AsUnit : null;
+            Log.Logger.Debug("Spell {0} is cancelled due to removal of target.", SpellInfo.Id);
+            Cancel();
 
-                    if (unitTarget)
-                        AddUnitTarget(unitTarget, spellEffectInfo.EffectIndex);
+            return;
+        }
+
+        // check if the player caster has moved before the spell finished
+        // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING effect
+        if (_timer != 0 && Caster.IsUnit && Caster.AsUnit.IsMoving && CheckMovement() != SpellCastResult.SpellCastOk)
+            // if charmed by creature, trust the AI not to cheat and allow the cast to proceed
+            // @todo this is a hack, "creature" movesplines don't differentiate turning/moving right now
+            // however, checking what type of movement the spline is for every single spline would be really expensive
+            if (!Caster.AsUnit.CharmerGUID.IsCreature)
+                Cancel();
+
+        switch (State)
+        {
+            case SpellState.Preparing:
+            {
+                if (_timer > 0)
+                {
+                    if (difftime >= _timer)
+                        _timer = 0;
                     else
-                        Log.Logger.Debug("SPELL: cannot find channel spell target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+                        _timer -= (int)difftime;
                 }
+
+                if (_timer == 0 && !SpellInfo.IsNextMeleeSwingSpell)
+                    // don't CheckCast for instant spells - done in spell.prepare, skip duplicate checks, needed for range checks for example
+                    Cast(CastTime == 0);
 
                 break;
             }
-            case Framework.Constants.Targets.DestChannelTarget:
+            case SpellState.Casting:
             {
-                if (channeledSpell.Targets.HasDst)
+                if (_timer != 0)
                 {
-                    Targets.SetDst(channeledSpell.Targets);
-                }
-                else
-                {
-                    List<ObjectGuid> channelObjects = OriginalCaster.UnitData.ChannelObjects;
-                    var target = !channelObjects.Empty() ? Global.ObjAccessor.GetWorldObject(Caster, channelObjects[0]) : null;
-
-                    if (target != null)
+                    // check if there are alive targets left
+                    if (!UpdateChanneledTargetList())
                     {
-                        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
+                        Log.Logger.Debug("Channeled spell {0} is removed due to lack of targets", SpellInfo.Id);
+                        _timer = 0;
 
-                        if (target)
+                        // Also remove applied auras
+                        foreach (var target in UniqueTargetInfo)
                         {
-                            SpellDestination dest = new(target);
+                            var unit = Caster.GUID == target.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, target.TargetGuid);
 
-                            if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                                dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-                            CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-                            Targets.Dst = dest;
+                            if (unit)
+                                unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
                         }
                     }
-                    else
+
+                    if (_timer > 0)
                     {
-                        Log.Logger.Debug("SPELL: cannot find channel spell destination for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
-                    }
-                }
+                        UpdateEmpoweredSpell(difftime);
 
-                break;
-            }
-            case Framework.Constants.Targets.DestChannelCaster:
-            {
-                SpellDestination dest = new(channeledSpell.Caster);
-
-                if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                    dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-                CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-                Targets.Dst = dest;
-
-                break;
-            }
-        }
-    }
-
-    private void SelectImplicitNearbyTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
-    {
-        if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
-            return;
-
-        var range = 0.0f;
-
-        switch (targetType.CheckType)
-        {
-            case SpellTargetCheckTypes.Enemy:
-                range = SpellInfo.GetMaxRange(false, Caster, this);
-
-                break;
-            case SpellTargetCheckTypes.Ally:
-            case SpellTargetCheckTypes.Party:
-            case SpellTargetCheckTypes.Raid:
-            case SpellTargetCheckTypes.RaidClass:
-                range = SpellInfo.GetMaxRange(true, Caster, this);
-
-                break;
-            case SpellTargetCheckTypes.Entry:
-            case SpellTargetCheckTypes.Default:
-                range = SpellInfo.GetMaxRange(IsPositive, Caster, this);
-
-                break;
-        }
-
-        var condList = spellEffectInfo.ImplicitTargetConditions;
-
-        // handle emergency case - try to use other provided targets if no conditions provided
-        if (targetType.CheckType == SpellTargetCheckTypes.Entry && (condList == null || condList.Empty()))
-        {
-            Log.Logger.Debug("Spell.SelectImplicitNearbyTargets: no conditions entry for target with TARGET_CHECK_ENTRY of spell ID {0}, effect {1} - selecting default targets", SpellInfo.Id, spellEffectInfo.EffectIndex);
-
-            switch (targetType.ObjectType)
-            {
-                case SpellTargetObjectTypes.Gobj:
-                    if (SpellInfo.RequiresSpellFocus != 0)
-                    {
-                        if (_focusObject != null)
-                        {
-                            AddGOTarget(_focusObject, effMask);
-                        }
+                        if (difftime >= _timer)
+                            _timer = 0;
                         else
-                        {
-                            SendCastResult(SpellCastResult.BadImplicitTargets);
-                            Finish(SpellCastResult.BadImplicitTargets);
-                        }
-
-                        return;
+                            _timer -= (int)difftime;
                     }
-
-                    break;
-                case SpellTargetObjectTypes.Dest:
-                    if (SpellInfo.RequiresSpellFocus != 0)
-                    {
-                        if (_focusObject != null)
-                        {
-                            SpellDestination dest = new(_focusObject);
-
-                            if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                                dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-                            CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-                            Targets.Dst = dest;
-                        }
-                        else
-                        {
-                            SendCastResult(SpellCastResult.BadImplicitTargets);
-                            Finish(SpellCastResult.BadImplicitTargets);
-                        }
-
-                        return;
-                    }
-
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        var target = SearchNearbyTarget(range, targetType.ObjectType, targetType.CheckType, condList);
-
-        if (target == null)
-        {
-            Log.Logger.Debug("Spell.SelectImplicitNearbyTargets: cannot find nearby target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
-            SendCastResult(SpellCastResult.BadImplicitTargets);
-            Finish(SpellCastResult.BadImplicitTargets);
-
-            return;
-        }
-
-        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
-
-        if (!target)
-        {
-            Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set NULL target, effect {spellEffectInfo.EffectIndex}");
-            SendCastResult(SpellCastResult.BadImplicitTargets);
-            Finish(SpellCastResult.BadImplicitTargets);
-
-            return;
-        }
-
-        switch (targetType.ObjectType)
-        {
-            case SpellTargetObjectTypes.Unit:
-                var unitTarget = target.AsUnit;
-
-                if (unitTarget != null)
-                {
-                    AddUnitTarget(unitTarget, effMask, true, false);
-                }
-                else
-                {
-                    Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected unit, got {target.GUID.High}, effect {effMask}");
-                    SendCastResult(SpellCastResult.BadImplicitTargets);
-                    Finish(SpellCastResult.BadImplicitTargets);
-
-                    return;
                 }
 
-                break;
-            case SpellTargetObjectTypes.Gobj:
-                var gobjTarget = target.AsGameObject;
-
-                if (gobjTarget != null)
+                if (_timer == 0)
                 {
-                    AddGOTarget(gobjTarget, effMask);
-                }
-                else
-                {
-                    Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected gameobject, got {target.GUID.High}, effect {effMask}");
-                    SendCastResult(SpellCastResult.BadImplicitTargets);
-                    Finish(SpellCastResult.BadImplicitTargets);
-
-                    return;
-                }
-
-                break;
-            case SpellTargetObjectTypes.Corpse:
-                var corpseTarget = target.AsCorpse;
-
-                if (corpseTarget != null)
-                {
-                    AddCorpseTarget(corpseTarget, effMask);
-                }
-                else
-                {
-                    Log.Logger.Debug($"Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected corpse, got {target.GUID.TypeId}, effect {effMask}");
-                    SendCastResult(SpellCastResult.BadImplicitTargets);
-                    Finish(SpellCastResult.BadImplicitTargets);
-
-                    return;
-                }
-
-                break;
-            case SpellTargetObjectTypes.Dest:
-                SpellDestination dest = new(target);
-
-                if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                    dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-                CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-                Targets.Dst = dest;
-
-                break;
-        }
-
-        SelectImplicitChainTargets(spellEffectInfo, targetType, target, effMask);
-    }
-
-    private void SelectImplicitConeTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
-    {
-        Position coneSrc = new(Caster.Location);
-        var coneAngle = SpellInfo.ConeAngle;
-
-        switch (targetType.ReferenceType)
-        {
-            case SpellTargetReferenceTypes.Caster:
-                break;
-            case SpellTargetReferenceTypes.Dest:
-                if (Caster.Location.GetExactDist2d(Targets.DstPos) > 0.1f)
-                    coneSrc.Orientation = Caster.Location.GetAbsoluteAngle(Targets.DstPos);
-
-                break;
-            default:
-                break;
-        }
-
-        switch (targetType.Target)
-        {
-            case Framework.Constants.Targets.UnitCone180DegEnemy:
-                if (coneAngle == 0.0f)
-                    coneAngle = 180.0f;
-
-                break;
-            default:
-                break;
-        }
-
-        List<WorldObject> targets = new();
-        var objectType = targetType.ObjectType;
-        var selectionType = targetType.CheckType;
-
-        var condList = spellEffectInfo.ImplicitTargetConditions;
-        var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
-
-        var containerTypeMask = GetSearcherTypeMask(objectType, condList);
-
-        if (containerTypeMask != 0)
-        {
-            var extraSearchRadius = radius > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
-            var spellCone = new WorldObjectSpellConeTargetCheck(coneSrc, MathFunctions.DegToRad(coneAngle), SpellInfo.Width != 0 ? SpellInfo.Width : Caster.CombatReach, radius, Caster, SpellInfo, selectionType, condList, objectType);
-            var searcher = new WorldObjectListSearcher(Caster, targets, spellCone, containerTypeMask);
-            SearchTargets(searcher, containerTypeMask, Caster, Caster.Location, radius + extraSearchRadius);
-
-            CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
-
-            if (!targets.Empty())
-            {
-                // Other special target selection goes here
-                var maxTargets = SpellValue.MaxAffectedTargets;
-
-                if (maxTargets != 0)
-                    targets.RandomResize(maxTargets);
-
-                foreach (var obj in targets)
-                    if (obj.IsUnit)
-                        AddUnitTarget(obj.AsUnit, effMask, false);
-                    else if (obj.IsGameObject)
-                        AddGOTarget(obj.AsGameObject, effMask);
-                    else if (obj.IsCorpse)
-                        AddCorpseTarget(obj.AsCorpse, effMask);
-            }
-        }
-    }
-
-    private void SelectImplicitAreaTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
-    {
-        WorldObject referer = null;
-
-        switch (targetType.ReferenceType)
-        {
-            case SpellTargetReferenceTypes.Src:
-            case SpellTargetReferenceTypes.Dest:
-            case SpellTargetReferenceTypes.Caster:
-                referer = Caster;
-
-                break;
-            case SpellTargetReferenceTypes.Target:
-                referer = Targets.UnitTarget;
-
-                break;
-            case SpellTargetReferenceTypes.Last:
-            {
-                referer = Caster;
-
-                // find last added target for this effect
-                foreach (var target in UniqueTargetInfo)
-                    if (target.Effects.Contains(spellEffectInfo.EffectIndex))
-                    {
-                        referer = Global.ObjAccessor.GetUnit(Caster, target.TargetGuid);
-
-                        break;
-                    }
-
-                break;
-            }
-        }
-
-        if (referer == null)
-            return;
-
-        Position center = Caster.Location;
-
-        switch (targetType.ReferenceType)
-        {
-            case SpellTargetReferenceTypes.Src:
-                center = Targets.SrcPos;
-
-                break;
-            case SpellTargetReferenceTypes.Dest:
-                center = Targets.DstPos;
-
-                break;
-            case SpellTargetReferenceTypes.Caster:
-            case SpellTargetReferenceTypes.Target:
-            case SpellTargetReferenceTypes.Last:
-                center = referer.Location;
-
-                break;
-        }
-
-        var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
-        List<WorldObject> targets = new();
-
-        switch (targetType.Target)
-        {
-            case Framework.Constants.Targets.UnitCasterAndPassengers:
-                targets.Add(Caster);
-                var unit = Caster.AsUnit;
-
-                if (unit != null)
-                {
-                    var vehicleKit = unit.VehicleKit1;
-
-                    if (vehicleKit != null)
-                        for (sbyte seat = 0; seat < SharedConst.MaxVehicleSeats; ++seat)
-                        {
-                            var passenger = vehicleKit.GetPassenger(seat);
-
-                            if (passenger != null)
-                                targets.Add(passenger);
-                        }
-                }
-
-                break;
-            case Framework.Constants.Targets.UnitTargetAllyOrRaid:
-                var targetedUnit = Targets.UnitTarget;
-
-                if (targetedUnit != null)
-                {
-                    if (!Caster.IsUnit || !Caster.AsUnit.IsInRaidWith(targetedUnit))
-                        targets.Add(Targets.UnitTarget);
-                    else
-                        SearchAreaTargets(targets, radius, targetedUnit.Location, referer, targetType.ObjectType, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions);
-                }
-
-                break;
-            case Framework.Constants.Targets.UnitCasterAndSummons:
-                targets.Add(Caster);
-                SearchAreaTargets(targets, radius, center, referer, targetType.ObjectType, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions);
-
-                break;
-            default:
-                SearchAreaTargets(targets, radius, center, referer, targetType.ObjectType, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions);
-
-                break;
-        }
-
-        if (targetType.ObjectType == SpellTargetObjectTypes.UnitAndDest)
-        {
-            SpellDestination dest = new(referer);
-
-            if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-            CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-
-            Targets.ModDst(dest);
-        }
-
-        CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
-
-        if (targetType.Target == Framework.Constants.Targets.UnitSrcAreaFurthestEnemy)
-            targets.Sort(new ObjectDistanceOrderPred(referer, false));
-
-        if (!targets.Empty())
-        {
-            // Other special target selection goes here
-            var maxTargets = SpellValue.MaxAffectedTargets;
-
-            if (maxTargets != 0)
-            {
-                if (targetType.Target != Framework.Constants.Targets.UnitSrcAreaFurthestEnemy)
-                    targets.RandomResize(maxTargets);
-                else if (targets.Count > maxTargets)
-                    targets.Resize(maxTargets);
-            }
-
-            foreach (var obj in targets)
-                if (obj.IsUnit)
-                    AddUnitTarget(obj.AsUnit, effMask, false, true, center);
-                else if (obj.IsGameObject)
-                    AddGOTarget(obj.AsGameObject, effMask);
-                else if (obj.IsCorpse)
-                    AddCorpseTarget(obj.AsCorpse, effMask);
-        }
-    }
-
-    private void SelectImplicitCasterDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
-    {
-        SpellDestination dest = new(Caster);
-
-        switch (targetType.Target)
-        {
-            case Framework.Constants.Targets.DestCaster:
-                break;
-            case Framework.Constants.Targets.DestHome:
-                var playerCaster = Caster.AsPlayer;
-
-                if (playerCaster != null)
-                    dest = new SpellDestination(playerCaster.Homebind);
-
-                break;
-            case Framework.Constants.Targets.DestDb:
-                var st = Global.SpellMgr.GetSpellTargetPosition(SpellInfo.Id, spellEffectInfo.EffectIndex);
-
-                if (st != null)
-                {
-                    // @todo fix this check
-                    if (SpellInfo.HasEffect(SpellEffectName.TeleportUnits) || SpellInfo.HasEffect(SpellEffectName.TeleportWithSpellVisualKitLoadingScreen) || SpellInfo.HasEffect(SpellEffectName.Bind))
-                        dest = new SpellDestination(st.X, st.Y, st.Z, st.Orientation, st.TargetMapId);
-                    else if (st.TargetMapId == Caster.Location.MapId)
-                        dest = new SpellDestination(st.X, st.Y, st.Z, st.Orientation);
-                }
-                else
-                {
-                    Log.Logger.Debug("SPELL: unknown target coordinates for spell ID {0}", SpellInfo.Id);
-                    var target = Targets.ObjectTarget;
-
-                    if (target)
-                        dest = new SpellDestination(target);
-                }
-
-                break;
-            case Framework.Constants.Targets.DestCasterFishing:
-            {
-                var minDist = SpellInfo.GetMinRange(true);
-                var maxDist = SpellInfo.GetMaxRange(true);
-                var dis = (float)RandomHelper.NextDouble() * (maxDist - minDist) + minDist;
-                var angle = (float)RandomHelper.NextDouble() * (MathFunctions.PI * 35.0f / 180.0f) - (float)(Math.PI * 17.5f / 180.0f);
-                var pos = new Position();
-                Caster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis, angle);
-
-                var ground = Caster.Location.GetMapHeight(pos);
-                var liquidLevel = MapConst.VMAPInvalidHeightValue;
-
-                if (Caster.Location.Map.GetLiquidStatus(Caster.Location.PhaseShift, pos, LiquidHeaderTypeFlags.AllLiquids, out var liquidData, Caster.Location.CollisionHeight) != 0)
-                    liquidLevel = liquidData.level;
-
-                if (liquidLevel <= ground) // When there is no liquid Map.GetWaterOrGroundLevel returns ground level
-                {
-                    SendCastResult(SpellCastResult.NotHere);
+                    EndEmpoweredSpell();
                     SendChannelUpdate(0);
-                    Finish(SpellCastResult.NotHere);
+                    Finish();
 
-                    return;
+                    // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
+                    var creatureCaster = Caster.AsCreature;
+
+                    if (creatureCaster is { IsAIEnabled: true })
+                        creatureCaster.AI.OnChannelFinished(SpellInfo);
                 }
-
-                if (ground + 0.75 > liquidLevel)
-                {
-                    SendCastResult(SpellCastResult.TooShallow);
-                    SendChannelUpdate(0);
-                    Finish(SpellCastResult.TooShallow);
-
-                    return;
-                }
-
-                dest = new SpellDestination(pos.X, pos.Y, liquidLevel, Caster.Location.Orientation);
-
-                break;
-            }
-            case Framework.Constants.Targets.DestCasterFrontLeap:
-            case Framework.Constants.Targets.DestCasterMovementDirection:
-            {
-                var unitCaster = Caster.AsUnit;
-
-                if (unitCaster == null)
-                    break;
-
-                var dist = spellEffectInfo.CalcRadius(unitCaster);
-                var angle = targetType.CalcDirectionAngle();
-
-                if (targetType.Target == Framework.Constants.Targets.DestCasterMovementDirection)
-                    switch (Caster.MovementInfo.MovementFlags & (MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight))
-                    {
-                        case MovementFlag.None:
-                        case MovementFlag.Forward:
-                        case MovementFlag.Forward | MovementFlag.Backward:
-                        case MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
-                        case MovementFlag.Forward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
-                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
-                            angle = 0.0f;
-
-                            break;
-                        case MovementFlag.Backward:
-                        case MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
-                            angle = MathF.PI;
-
-                            break;
-                        case MovementFlag.StrafeLeft:
-                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft:
-                            angle = (MathF.PI / 2);
-
-                            break;
-                        case MovementFlag.Forward | MovementFlag.StrafeLeft:
-                            angle = (MathF.PI / 4);
-
-                            break;
-                        case MovementFlag.Backward | MovementFlag.StrafeLeft:
-                            angle = (3 * MathF.PI / 4);
-
-                            break;
-                        case MovementFlag.StrafeRight:
-                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeRight:
-                            angle = (-MathF.PI / 2);
-
-                            break;
-                        case MovementFlag.Forward | MovementFlag.StrafeRight:
-                            angle = (-MathF.PI / 4);
-
-                            break;
-                        case MovementFlag.Backward | MovementFlag.StrafeRight:
-                            angle = (-3 * MathF.PI / 4);
-
-                            break;
-                        default:
-                            angle = 0.0f;
-
-                            break;
-                    }
-
-                Position pos = new(dest.Position);
-
-                unitCaster.MovePositionToFirstCollision(pos, dist, angle);
-                dest.Relocate(pos);
-
-                break;
-            }
-            case Framework.Constants.Targets.DestCasterGround:
-            case Framework.Constants.Targets.DestCasterGround2:
-                dest.Position.Z = Caster.Location.GetMapWaterOrGroundLevel(dest.Position.X, dest.Position.Y, dest.Position.Z);
-
-                break;
-            case Framework.Constants.Targets.DestSummoner:
-            {
-                var unitCaster = Caster.AsUnit;
-
-                var casterSummon = unitCaster?.ToTempSummon();
-
-                var summoner = casterSummon?.GetSummoner();
-
-                if (summoner != null)
-                    dest = new SpellDestination(summoner);
-
-                break;
-            }
-            default:
-            {
-                var dist = spellEffectInfo.CalcRadius(Caster);
-                var angl = targetType.CalcDirectionAngle();
-                var objSize = Caster.CombatReach;
-
-                switch (targetType.Target)
-                {
-                    case Framework.Constants.Targets.DestCasterSummon:
-                        dist = SharedConst.PetFollowDist;
-
-                        break;
-                    case Framework.Constants.Targets.DestCasterRandom:
-                        if (dist > objSize)
-                            dist = objSize + (dist - objSize) * (float)RandomHelper.NextDouble();
-
-                        break;
-                    case Framework.Constants.Targets.DestCasterFrontLeft:
-                    case Framework.Constants.Targets.DestCasterBackLeft:
-                    case Framework.Constants.Targets.DestCasterFrontRight:
-                    case Framework.Constants.Targets.DestCasterBackRight:
-                    {
-                        var DefaultTotemDistance = 3.0f;
-
-                        if (!spellEffectInfo.HasRadius && !spellEffectInfo.HasMaxRadius)
-                            dist = DefaultTotemDistance;
-
-                        break;
-                    }
-                    default:
-                        break;
-                }
-
-                if (dist < objSize)
-                    dist = objSize;
-
-                Position pos = new(dest.Position);
-                Caster.MovePositionToFirstCollision(pos, dist, angl);
-
-                dest.Relocate(pos);
-
-                break;
-            }
-        }
-
-        if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-            dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-        CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-        Targets.Dst = dest;
-    }
-
-    private void SelectImplicitTargetDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
-    {
-        var target = Targets.ObjectTarget;
-
-        SpellDestination dest = new(target);
-
-        switch (targetType.Target)
-        {
-            case Framework.Constants.Targets.DestTargetEnemy:
-            case Framework.Constants.Targets.DestAny:
-            case Framework.Constants.Targets.DestTargetAlly:
-                break;
-            default:
-            {
-                var angle = targetType.CalcDirectionAngle();
-                var dist = spellEffectInfo.CalcRadius(null);
-
-                if (targetType.Target == Framework.Constants.Targets.DestRandom)
-                    dist *= (float)RandomHelper.NextDouble();
-
-                Position pos = new(dest.Position);
-                target.MovePositionToFirstCollision(pos, dist, angle);
-
-                dest.Relocate(pos);
-            }
-
-                break;
-        }
-
-        if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-            dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-        CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-        Targets.Dst = dest;
-    }
-
-    private void SelectImplicitDestDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
-    {
-        // set destination to caster if no dest provided
-        // can only happen if previous destination target could not be set for some reason
-        // (not found nearby target, or channel target for example
-        // maybe we should abort the spell in such case?
-        CheckDst();
-
-        var dest = Targets.Dst;
-
-        switch (targetType.Target)
-        {
-            case Framework.Constants.Targets.DestDynobjEnemy:
-            case Framework.Constants.Targets.DestDynobjAlly:
-            case Framework.Constants.Targets.DestDynobjNone:
-            case Framework.Constants.Targets.DestDest:
-                break;
-            case Framework.Constants.Targets.DestDestGround:
-                dest.Position.Z = Caster.Location.GetMapHeight(dest.Position.X, dest.Position.Y, dest.Position.Z);
-
-                break;
-            default:
-            {
-                var angle = targetType.CalcDirectionAngle();
-                var dist = spellEffectInfo.CalcRadius(Caster);
-
-                if (targetType.Target == Framework.Constants.Targets.DestRandom)
-                    dist *= (float)RandomHelper.NextDouble();
-
-                Position pos = new(Targets.DstPos);
-                Caster.MovePositionToFirstCollision(pos, dist, angle);
-
-                dest.Relocate(pos);
-            }
-
-                break;
-        }
-
-        if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-            dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-        CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-        Targets.ModDst(dest);
-    }
-
-    private void SelectImplicitCasterObjectTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
-    {
-        WorldObject target = null;
-        var checkIfValid = true;
-
-        switch (targetType.Target)
-        {
-            case Framework.Constants.Targets.UnitCaster:
-                target = Caster;
-                checkIfValid = false;
-
-                break;
-            case Framework.Constants.Targets.UnitMaster:
-                target = Caster.CharmerOrOwner;
-
-                break;
-            case Framework.Constants.Targets.UnitPet:
-            {
-                var unitCaster = Caster.AsUnit;
-
-                if (unitCaster != null)
-                    target = unitCaster.GetGuardianPet();
-
-                break;
-            }
-            case Framework.Constants.Targets.UnitSummoner:
-            {
-                var unitCaster = Caster.AsUnit;
-
-                if (unitCaster is { IsSummon: true })
-                    target = unitCaster.ToTempSummon().GetSummonerUnit();
-
-                break;
-            }
-            case Framework.Constants.Targets.UnitVehicle:
-            {
-                var unitCaster = Caster.AsUnit;
-
-                if (unitCaster != null)
-                    target = unitCaster.VehicleBase;
-
-                break;
-            }
-            case Framework.Constants.Targets.UnitPassenger0:
-            case Framework.Constants.Targets.UnitPassenger1:
-            case Framework.Constants.Targets.UnitPassenger2:
-            case Framework.Constants.Targets.UnitPassenger3:
-            case Framework.Constants.Targets.UnitPassenger4:
-            case Framework.Constants.Targets.UnitPassenger5:
-            case Framework.Constants.Targets.UnitPassenger6:
-            case Framework.Constants.Targets.UnitPassenger7:
-                var vehicleBase = Caster.AsCreature;
-
-                if (vehicleBase is { IsVehicle: true })
-                    target = vehicleBase.VehicleKit1.GetPassenger((sbyte)(targetType.Target - Framework.Constants.Targets.UnitPassenger0));
-
-                break;
-            case Framework.Constants.Targets.UnitTargetTapList:
-                var creatureCaster = Caster.AsCreature;
-
-                if (creatureCaster != null && !creatureCaster.TapList.Empty())
-                    target = Global.ObjAccessor.GetWorldObject(creatureCaster, creatureCaster.TapList.SelectRandom());
-
-                break;
-            case Framework.Constants.Targets.UnitOwnCritter:
-            {
-                var unitCaster = Caster.AsUnit;
-
-                if (unitCaster != null)
-                    target = ObjectAccessor.GetCreatureOrPetOrVehicle(Caster, unitCaster.CritterGUID);
 
                 break;
             }
             default:
                 break;
         }
-
-        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
-
-        if (target)
-        {
-            if (target.IsUnit)
-                AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, checkIfValid);
-            else if (target.IsGameObject)
-                AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
-            else if (target.IsCorpse)
-                AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
-        }
     }
-
-    private void SelectImplicitTargetObjectTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    private static void FillSpellCastFailedArgs<T>(T packet, ObjectGuid castId, SpellInfo spellInfo, SpellCastResult result, SpellCustomErrors customError, int? param1, int? param2, Player caster) where T : CastFailedBase
     {
-        var target = Targets.ObjectTarget;
+        packet.CastID = castId;
+        packet.SpellID = (int)spellInfo.Id;
+        packet.Reason = result;
 
-        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
-
-        var item = Targets.ItemTarget;
-
-        if (target != null)
+        switch (result)
         {
-            if (target.IsUnit)
-                AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, true, false);
-            else if (target.IsGameObject)
-                AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
-            else if (target.IsCorpse)
-                AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
-
-            SelectImplicitChainTargets(spellEffectInfo, targetType, target, spellEffectInfo.EffectIndex);
-        }
-        // Script hook can remove object target and we would wrongly land here
-        else if (item != null)
-        {
-            AddItemTarget(item, spellEffectInfo.EffectIndex);
-        }
-    }
-
-    private void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, int effIndex)
-    {
-        SelectImplicitChainTargets(spellEffectInfo,
-                                   targetType,
-                                   target,
-                                   new HashSet<int>()
-                                   {
-                                       effIndex
-                                   });
-    }
-
-    private void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, HashSet<int> effMask)
-    {
-        var maxTargets = spellEffectInfo.ChainTargets;
-        var modOwner = Caster.SpellModOwner;
-
-        if (modOwner)
-            modOwner.ApplySpellMod(SpellInfo, SpellModOp.ChainTargets, ref maxTargets, this);
-
-        if (maxTargets > 1)
-        {
-            // mark damage multipliers as used
-            foreach (var eff in SpellInfo.Effects)
-                if (effMask.Contains(eff.EffectIndex))
-                    _damageMultipliers[spellEffectInfo.EffectIndex] = 1.0f;
-
-            _applyMultiplierMask.UnionWith(effMask);
-
-            List<WorldObject> targets = new();
-            SearchChainTargets(targets, (uint)maxTargets - 1, target, targetType.ObjectType, targetType.CheckType, spellEffectInfo, targetType.Target == Framework.Constants.Targets.UnitChainhealAlly);
-
-            // Chain primary target is added earlier
-            CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
-
-            Position losPosition = SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster) ? Caster.Location : target.Location;
-
-            foreach (var obj in targets)
-            {
-                var unitTarget = obj.AsUnit;
-
-                if (unitTarget)
-                    AddUnitTarget(unitTarget, effMask, false, true, losPosition);
-
-                if (!SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster) && !spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.ChainFromInitialTarget))
-                    losPosition = obj.Location;
-            }
-        }
-    }
-
-    private float Tangent(float x)
-    {
-        x = (float)Math.Tan(x);
-
-        if (x is < 100000.0f and > -100000.0f) return x;
-        if (x >= 100000.0f) return 100000.0f;
-        if (x <= 100000.0f) return -100000.0f;
-
-        return 0.0f;
-    }
-
-    private void SelectImplicitTrajTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
-    {
-        if (!Targets.HasTraj)
-            return;
-
-        var dist2d = Targets.Dist2d;
-
-        if (dist2d == 0)
-            return;
-
-        var srcPos = Targets.SrcPos;
-        srcPos.Orientation = Caster.Location.Orientation;
-        var srcToDestDelta = Targets.DstPos.Z - srcPos.Z;
-
-        List<WorldObject> targets = new();
-        var spellTraj = new WorldObjectSpellTrajTargetCheck(dist2d, srcPos, Caster, SpellInfo, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions, SpellTargetObjectTypes.None);
-        var searcher = new WorldObjectListSearcher(Caster, targets, spellTraj);
-        SearchTargets(searcher, GridMapTypeMask.All, Caster, srcPos, dist2d);
-
-        if (targets.Empty())
-            return;
-
-        targets.Sort(new ObjectDistanceOrderPred(Caster));
-
-        var b = Tangent(Targets.Pitch);
-        var a = (srcToDestDelta - dist2d * b) / (dist2d * dist2d);
-
-        if (a > -0.0001f)
-            a = 0f;
-
-        // We should check if triggered spell has greater range (which is true in many cases, and initial spell has too short max range)
-        // limit max range to 300 yards, sometimes triggered spells can have 50000yds
-        var bestDist = SpellInfo.GetMaxRange(false);
-        var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, CastDifficulty);
-
-        if (triggerSpellInfo != null)
-            bestDist = Math.Min(Math.Max(bestDist, triggerSpellInfo.GetMaxRange(false)), Math.Min(dist2d, 300.0f));
-
-        // GameObjects don't cast traj
-        var unitCaster = Caster.AsUnit;
-
-        foreach (var obj in targets)
-        {
-            if (SpellInfo.CheckTarget(unitCaster, obj, true) != SpellCastResult.SpellCastOk)
-                continue;
-
-            var unitTarget = obj.AsUnit;
-
-            if (unitTarget)
-            {
-                if (unitCaster == obj || unitCaster.IsOnVehicle(unitTarget) || unitTarget.Vehicle1)
-                    continue;
-
-                var creatureTarget = unitTarget.AsCreature;
-
-                if (creatureTarget)
-                    if (!creatureTarget.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.CollideWithMissiles))
-                        continue;
-            }
-
-            var size = Math.Max(obj.CombatReach, 1.0f);
-            var objDist2d = srcPos.GetExactDist2d(obj.Location);
-            var dz = obj.Location.Z - srcPos.Z;
-
-            var horizontalDistToTraj = (float)Math.Abs(objDist2d * Math.Sin(srcPos.GetRelativeAngle(obj.Location)));
-            var sizeFactor = (float)Math.Cos((horizontalDistToTraj / size) * (Math.PI / 2.0f));
-            var distToHitPoint = (float)Math.Max(objDist2d * Math.Cos(srcPos.GetRelativeAngle(obj.Location)) - size * sizeFactor, 0.0f);
-            var height = distToHitPoint * (a * distToHitPoint + b);
-
-            if (Math.Abs(dz - height) > size + b / 2.0f + SpellConst.TrajectoryMissileSize)
-                continue;
-
-            if (distToHitPoint < bestDist)
-            {
-                bestDist = distToHitPoint;
-
-                break;
-            }
-        }
-
-        if (dist2d > bestDist)
-        {
-            var x = (float)(Targets.SrcPos.X + Math.Cos(unitCaster.Location.Orientation) * bestDist);
-            var y = (float)(Targets.SrcPos.Y + Math.Sin(unitCaster.Location.Orientation) * bestDist);
-            var z = Targets.SrcPos.Z + bestDist * (a * bestDist + b);
-
-            SpellDestination dest = new(x, y, z, unitCaster.Location.Orientation);
-
-            if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                dest.Position.Orientation = spellEffectInfo.PositionFacing;
-
-            CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-            Targets.ModDst(dest);
-        }
-    }
-
-    private void SelectImplicitLineTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
-    {
-        List<WorldObject> targets = new();
-        var objectType = targetType.ObjectType;
-        var selectionType = targetType.CheckType;
-
-        Position dst = Caster.Location;
-
-        switch (targetType.ReferenceType)
-        {
-            case SpellTargetReferenceTypes.Src:
-                dst = Targets.SrcPos;
-
-                break;
-            case SpellTargetReferenceTypes.Dest:
-                dst = Targets.DstPos;
-
-                break;
-            case SpellTargetReferenceTypes.Caster:
-                dst = Caster.Location;
-
-                break;
-            case SpellTargetReferenceTypes.Target:
-                dst = Targets.UnitTarget.Location;
-
-                break;
-        }
-
-        var condList = spellEffectInfo.ImplicitTargetConditions;
-        var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
-
-        var containerTypeMask = GetSearcherTypeMask(objectType, condList);
-
-        if (containerTypeMask != 0)
-        {
-            WorldObjectSpellLineTargetCheck check = new(Caster.Location, dst, SpellInfo.Width != 0 ? SpellInfo.Width : Caster.CombatReach, radius, Caster, SpellInfo, selectionType, condList, objectType);
-            WorldObjectListSearcher searcher = new(Caster, targets, check, containerTypeMask);
-            SearchTargets(searcher, containerTypeMask, Caster, Caster.Location, radius);
-
-            CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
-
-            if (!targets.Empty())
-            {
-                // Other special target selection goes here
-                var maxTargets = SpellValue.MaxAffectedTargets;
-
-                if (maxTargets != 0)
-                    if (maxTargets < targets.Count)
-                    {
-                        targets.Sort(new ObjectDistanceOrderPred(Caster));
-                        targets.Resize(maxTargets);
-                    }
-
-                foreach (var obj in targets)
-                    if (obj.IsUnit)
-                        AddUnitTarget(obj.AsUnit, effMask, false);
-                    else if (obj.IsGameObject)
-                        AddGOTarget(obj.AsGameObject, effMask);
-                    else if (obj.IsCorpse)
-                        AddCorpseTarget(obj.AsCorpse, effMask);
-            }
-        }
-    }
-
-    private void SelectEffectTypeImplicitTargets(SpellEffectInfo spellEffectInfo)
-    {
-        // special case for SPELL_EFFECT_SUMMON_RAF_FRIEND and SPELL_EFFECT_SUMMON_PLAYER, queue them on map for later execution
-        switch (spellEffectInfo.Effect)
-        {
-            case SpellEffectName.SummonRafFriend:
-            case SpellEffectName.SummonPlayer:
-                if (Caster.IsTypeId(TypeId.Player) && !Caster.AsPlayer.Target.IsEmpty)
-                {
-                    WorldObject rafTarget = Global.ObjAccessor.FindPlayer(Caster.AsPlayer.Target);
-
-                    CallScriptObjectTargetSelectHandlers(ref rafTarget, spellEffectInfo.EffectIndex, new SpellImplicitTargetInfo());
-
-                    // scripts may modify the target - recheck
-                    if (rafTarget is { IsPlayer: true })
-                    {
-                        // target is not stored in target map for those spells
-                        // since we're completely skipping AddUnitTarget logic, we need to check immunity manually
-                        // eg. aura 21546 makes target immune to summons
-                        var player = rafTarget.AsPlayer;
-
-                        if (player.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, null))
-                            return;
-
-                        var spell = this;
-                        var targetGuid = rafTarget.GUID;
-
-                        rafTarget.Location.Map.AddFarSpellCallback(map =>
-                        {
-                            var player = Global.ObjAccessor.GetPlayer(map, targetGuid);
-
-                            if (player == null)
-                                return;
-
-                            // check immunity again in case it changed during update
-                            if (player.IsImmunedToSpellEffect(spell.SpellInfo, spellEffectInfo, null))
-                                return;
-
-                            spell.HandleEffects(player, null, null, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
-                        });
-                    }
-                }
-
-                return;
-            default:
-                break;
-        }
-
-        // select spell implicit targets based on effect type
-        if (spellEffectInfo.ImplicitTargetType == 0)
-            return;
-
-        var targetMask = spellEffectInfo.GetMissingTargetMask();
-
-        if (targetMask == 0)
-            return;
-
-        WorldObject target = null;
-
-        switch (spellEffectInfo.ImplicitTargetType)
-        {
-            // add explicit object target or self to the target map
-            case SpellEffectImplicitTargetTypes.Explicit:
-                // player which not released his spirit is Unit, but target flag for it is TARGET_FLAG_CORPSE_MASK
-                if (Convert.ToBoolean(targetMask & (SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask)))
-                {
-                    var unitTarget = Targets.UnitTarget;
-
-                    if (unitTarget != null)
-                    {
-                        target = unitTarget;
-                    }
-                    else if (Convert.ToBoolean(targetMask & SpellCastTargetFlags.CorpseMask))
-                    {
-                        var corpseTarget = Targets.CorpseTarget;
-
-                        if (corpseTarget != null)
-                            target = corpseTarget;
-                    }
-                    else //if (targetMask & TARGET_FLAG_UNIT_MASK)
-                    {
-                        target = Caster;
-                    }
-                }
-
-                if (Convert.ToBoolean(targetMask & SpellCastTargetFlags.ItemMask))
-                {
-                    var itemTarget = Targets.ItemTarget;
-
-                    if (itemTarget != null)
-                        AddItemTarget(itemTarget, spellEffectInfo.EffectIndex);
-
-                    return;
-                }
-
-                if (Convert.ToBoolean(targetMask & SpellCastTargetFlags.GameobjectMask))
-                    target = Targets.GOTarget;
-
-                break;
-            // add self to the target map
-            case SpellEffectImplicitTargetTypes.Caster:
-                if (Convert.ToBoolean(targetMask & SpellCastTargetFlags.UnitMask))
-                    target = Caster;
-
-                break;
-            default:
-                break;
-        }
-
-        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, new SpellImplicitTargetInfo());
-
-        if (target != null)
-        {
-            if (target.IsUnit)
-                AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, false);
-            else if (target.IsGameObject)
-                AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
-            else if (target.IsCorpse)
-                AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
-        }
-    }
-
-    private void SearchTargets(IGridNotifier notifier, GridMapTypeMask containerMask, WorldObject referer, Position pos, float radius)
-    {
-        if (containerMask == 0)
-            return;
-
-        var searchInWorld = containerMask.HasAnyFlag(GridMapTypeMask.Creature | GridMapTypeMask.Player | GridMapTypeMask.Corpse | GridMapTypeMask.GameObject);
-
-        if (searchInWorld)
-        {
-            var x = pos.X;
-            var y = pos.Y;
-
-            var p = GridDefines.ComputeCellCoord(x, y);
-            Cell cell = new(p);
-            cell.SetNoCreate();
-
-            var map = referer.Location.Map;
-
-            if (searchInWorld)
-                Cell.VisitGrid(x, y, map, notifier, radius);
-        }
-    }
-
-    private WorldObject SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, List<Condition> condList)
-    {
-        var containerTypeMask = GetSearcherTypeMask(objectType, condList);
-
-        if (containerTypeMask == 0)
-            return null;
-
-        var check = new WorldObjectSpellNearbyTargetCheck(range, Caster, SpellInfo, selectionType, condList, objectType);
-        var searcher = new WorldObjectLastSearcher(Caster, check, containerTypeMask);
-        SearchTargets(searcher, containerTypeMask, Caster, Caster.Location, range);
-
-        return searcher.GetTarget();
-    }
-
-    private void SearchAreaTargets(List<WorldObject> targets, float range, Position position, WorldObject referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, List<Condition> condList)
-    {
-        var containerTypeMask = GetSearcherTypeMask(objectType, condList);
-
-        if (containerTypeMask == 0)
-            return;
-
-        var extraSearchRadius = range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
-        var check = new WorldObjectSpellAreaTargetCheck(range, position, Caster, referer, SpellInfo, selectionType, condList, objectType);
-        var searcher = new WorldObjectListSearcher(Caster, targets, check, containerTypeMask);
-        SearchTargets(searcher, containerTypeMask, Caster, position, range + extraSearchRadius);
-    }
-
-    private void SearchChainTargets(List<WorldObject> targets, uint chainTargets, WorldObject target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, SpellEffectInfo spellEffectInfo, bool isChainHeal)
-    {
-        // max dist for jump target selection
-        var jumpRadius = 0.0f;
-
-        switch (SpellInfo.DmgClass)
-        {
-            case SpellDmgClass.Ranged:
-                // 7.5y for multi shot
-                jumpRadius = 7.5f;
-
-                break;
-            case SpellDmgClass.Melee:
-                // 5y for swipe, cleave and similar
-                jumpRadius = 5.0f;
-
-                break;
-            case SpellDmgClass.None:
-            case SpellDmgClass.Magic:
-                // 12.5y for chain heal spell since 3.2 patch
-                if (isChainHeal)
-                    jumpRadius = 12.5f;
-                // 10y as default for magic chain spells
+            case SpellCastResult.NotReady:
+                if (param1.HasValue)
+                    packet.FailedArg1 = (int)param1;
                 else
-                    jumpRadius = 10.0f;
+                    packet.FailedArg1 = 0; // unknown (value 1 update cooldowns on client flag)
 
                 break;
-        }
-
-        var modOwner = Caster.SpellModOwner;
-
-        if (modOwner)
-            modOwner.ApplySpellMod(SpellInfo, SpellModOp.ChainJumpDistance, ref jumpRadius, this);
-
-        float searchRadius;
-
-        if (SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster))
-            searchRadius = GetMinMaxRange(false).maxRange;
-        else if (spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.ChainFromInitialTarget))
-            searchRadius = jumpRadius;
-        else
-            searchRadius = jumpRadius * chainTargets;
-
-        var chainSource = SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster) ? Caster : target;
-        List<WorldObject> tempTargets = new();
-        SearchAreaTargets(tempTargets, searchRadius, chainSource.Location, Caster, objectType, selectType, spellEffectInfo.ImplicitTargetConditions);
-        tempTargets.Remove(target);
-
-        // remove targets which are always invalid for chain spells
-        // for some spells allow only chain targets in front of caster (swipe for example)
-        if (SpellInfo.HasAttribute(SpellAttr5.MeleeChainTargeting))
-            tempTargets.RemoveAll(obj => !Caster.Location.HasInArc(MathF.PI, obj.Location));
-
-        while (chainTargets != 0)
-        {
-            // try to get unit for next chain jump
-            WorldObject found = null;
-
-            // get unit with highest hp deficit in dist
-            if (isChainHeal)
-            {
-                uint maxHPDeficit = 0;
-
-                foreach (var obj in tempTargets)
-                {
-                    var unitTarget = obj.AsUnit;
-
-                    if (unitTarget != null)
-                    {
-                        var deficit = (uint)(unitTarget.MaxHealth - unitTarget.Health);
-
-                        if ((deficit > maxHPDeficit || found == null) && chainSource.Location.IsWithinDist(unitTarget, jumpRadius) && chainSource.Location.IsWithinLOSInMap(unitTarget, LineOfSightChecks.All, ModelIgnoreFlags.M2))
-                        {
-                            found = obj;
-                            maxHPDeficit = deficit;
-                        }
-                    }
-                }
-            }
-            // get closest object
-            else
-            {
-                foreach (var obj in tempTargets)
-                    if (found == null)
-                    {
-                        if (chainSource.Location.IsWithinDist(obj, jumpRadius) && chainSource.Location.IsWithinLOSInMap(obj, LineOfSightChecks.All, ModelIgnoreFlags.M2))
-                            found = obj;
-                    }
-                    else if (chainSource.Location.GetDistanceOrder(obj, found) && chainSource.Location.IsWithinLOSInMap(obj, LineOfSightChecks.All, ModelIgnoreFlags.M2))
-                    {
-                        found = obj;
-                    }
-            }
-
-            // not found any valid target - chain ends
-            if (found == null)
-                break;
-
-            if (!SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster) && !spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.ChainFromInitialTarget))
-                chainSource = found;
-
-            targets.Add(found);
-            tempTargets.Remove(found);
-            --chainTargets;
-        }
-    }
-
-    private GameObject SearchSpellFocus()
-    {
-        var check = new GameObjectFocusCheck(Caster, SpellInfo.RequiresSpellFocus);
-        var searcher = new GameObjectSearcher(Caster, check, GridType.All);
-        SearchTargets(searcher, GridMapTypeMask.GameObject, Caster, Caster.Location, Caster.Visibility.VisibilityRange);
-
-        return searcher.GetTarget();
-    }
-
-    private void PrepareDataForTriggerSystem()
-    {
-        //==========================================================================================
-        // Now fill data for trigger system, need know:
-        // Create base triggers flags for Attacker and Victim (m_procAttacker, m_procVictim and m_hitMask)
-        //==========================================================================================
-
-        ProcVictim = ProcAttacker = new ProcFlagsInit();
-
-        // Get data for type of attack and fill base info for trigger
-        switch (SpellInfo.DmgClass)
-        {
-            case SpellDmgClass.Melee:
-                ProcAttacker = new ProcFlagsInit(ProcFlags.DealMeleeAbility);
-
-                if (AttackType == WeaponAttackType.OffAttack)
-                    ProcAttacker.Or(ProcFlags.OffHandWeaponSwing);
+            case SpellCastResult.RequiresSpellFocus:
+                if (param1.HasValue)
+                    packet.FailedArg1 = (int)param1;
                 else
-                    ProcAttacker.Or(ProcFlags.MainHandWeaponSwing);
-
-                ProcVictim = new ProcFlagsInit(ProcFlags.TakeMeleeAbility);
+                    packet.FailedArg1 = (int)spellInfo.RequiresSpellFocus; // SpellFocusObject.dbc id
 
                 break;
-            case SpellDmgClass.Ranged:
-                // Auto attack
-                if (SpellInfo.HasAttribute(SpellAttr2.AutoRepeat))
-                {
-                    ProcAttacker = new ProcFlagsInit(ProcFlags.DealRangedAttack);
-                    ProcVictim = new ProcFlagsInit(ProcFlags.TakeRangedAttack);
-                }
-                else // Ranged spell attack
-                {
-                    ProcAttacker = new ProcFlagsInit(ProcFlags.DealRangedAbility);
-                    ProcVictim = new ProcFlagsInit(ProcFlags.TakeRangedAbility);
-                }
-
-                break;
-            default:
-                if (SpellInfo.EquippedItemClass == ItemClass.Weapon &&
-                    Convert.ToBoolean(SpellInfo.EquippedItemSubClassMask & (1 << (int)ItemSubClassWeapon.Wand)) &&
-                    SpellInfo.HasAttribute(SpellAttr2.AutoRepeat)) // Wands auto attack
-                {
-                    ProcAttacker = new ProcFlagsInit(ProcFlags.DealRangedAttack);
-                    ProcVictim = new ProcFlagsInit(ProcFlags.TakeRangedAttack);
-                }
-
-                break;
-            // For other spells trigger procflags are set in Spell::TargetInfo::DoDamageAndTriggers
-            // Because spell positivity is dependant on target
-        }
-    }
-
-    private void AddUnitTarget(Unit target, int effIndex, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
-    {
-        AddUnitTarget(target,
-                      new HashSet<int>()
-                      {
-                          effIndex
-                      },
-                      checkIfValid,
-                      Implicit,
-                      losPosition);
-    }
-
-    private void AddUnitTarget(Unit target, HashSet<int> efftMask, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
-    {
-        var removeEffect = efftMask.ToHashSet();
-
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(target, spellEffectInfo, losPosition))
-                removeEffect.Remove(spellEffectInfo.EffectIndex);
-
-        if (removeEffect.Count == 0)
-            return;
-
-        if (checkIfValid)
-            if (SpellInfo.CheckTarget(Caster, target, Implicit) != SpellCastResult.SpellCastOk) // skip stealth checks for AOE
-                return;
-
-        // Check for effect immune skip if immuned
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (target.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, Caster))
-                removeEffect.Remove(spellEffectInfo.EffectIndex);
-
-        var targetGUID = target.GUID;
-
-        // Lookup target in already in list
-        var index = UniqueTargetInfo.FindIndex(target => target.TargetGuid == targetGUID);
-
-        if (index != -1) // Found in list
-        {
-            // Immune effects removed from mask
-            UniqueTargetInfo[index].Effects.UnionWith(removeEffect);
-
-            return;
-        }
-
-        // remove immunities
-
-        // This is new target calculate data for him
-
-        // Get spell hit result on target
-        TargetInfo targetInfo = new();
-
-        {
-            TargetGuid = targetGUID, // Store target GUID
-            Effects = removeEffect,  // Store all effects not immune
-            IsAlive = target.IsAlive
-        }
-
-        / Calculate hit result
-        var caster = OriginalCaster ? OriginalCaster : Caster;
-        targetInfo.MissCondition = caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, _canReflect && !(IsPositive && Caster.WorldObjectCombat.IsFriendlyTo(target)));
-
-        // Spell have speed - need calculate incoming time
-        // Incoming time is zero for self casts. At least I think so.
-        if (Caster != target)
-        {
-            var hitDelay = SpellInfo.LaunchDelay;
-            var missileSource = Caster;
-
-            if (SpellInfo.HasAttribute(SpellAttr4.BouncyChainMissiles))
-            {
-                var mask = removeEffect.ToMask();
-                var previousTargetInfo = UniqueTargetInfo.FindLast(target => (target.Effects.ToMask() & mask) != 0);
-
-                if (previousTargetInfo != null)
-                {
-                    hitDelay = 0.0f; // this is not the first target in chain, LaunchDelay was already included
-
-                    var previousTarget = Global.ObjAccessor.GetWorldObject(Caster, previousTargetInfo.TargetGuid);
-
-                    if (previousTarget != null)
-                        missileSource = previousTarget;
-
-                    targetInfo.TimeDelay += previousTargetInfo.TimeDelay;
-                }
-            }
-
-            if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
-            {
-                hitDelay += SpellInfo.Speed;
-            }
-            else if (SpellInfo.Speed > 0.0f)
-            {
-                // calculate spell incoming interval
-                /// @todo this is a hack
-                var dist = Math.Max(missileSource.Location.GetDistance(target.Location.X, target.Location.Y, target.Location.Z), 5.0f);
-                hitDelay += dist / SpellInfo.Speed;
-            }
-
-            targetInfo.TimeDelay += (ulong)Math.Floor(hitDelay * 1000.0f);
-        }
-        else
-        {
-            targetInfo.TimeDelay = 0L;
-        }
-
-        // If target reflect spell back to caster
-        if (targetInfo.MissCondition == SpellMissInfo.Reflect)
-        {
-            // Calculate reflected spell result on caster (shouldn't be able to reflect gameobject spells)
-            var unitCaster = Caster.AsUnit;
-            targetInfo.ReflectResult = unitCaster.WorldObjectCombat.SpellHitResult(unitCaster, SpellInfo, false); // can't reflect twice
-
-            // Proc spell reflect aura when missile hits the original target
-            target.Events.AddEvent(new ProcReflectDelayed(target, _originalCasterGuid), target.Events.CalculateTime(TimeSpan.FromMilliseconds(targetInfo.TimeDelay)));
-
-            // Increase time interval for reflected spells by 1.5
-            targetInfo.TimeDelay += targetInfo.TimeDelay >> 1;
-        }
-        else
-        {
-            targetInfo.ReflectResult = SpellMissInfo.None;
-        }
-
-        // Calculate minimum incoming time
-        if (targetInfo.TimeDelay != 0 && (DelayMoment == 0 || DelayMoment > targetInfo.TimeDelay))
-            DelayMoment = targetInfo.TimeDelay;
-
-        // Add target to list
-        UniqueTargetInfo.Add(targetInfo);
-        UniqueTargetInfoOrgi.Add(targetInfo);
-    }
-
-    private void AddGOTarget(GameObject go, int effIndex)
-    {
-        AddGOTarget(go,
-                    new HashSet<int>()
+            case SpellCastResult.RequiresArea: // AreaTable.dbc id
+                if (param1.HasValue)
+                    packet.FailedArg1 = (int)param1;
+                else
+                    // hardcode areas limitation case
+                    switch (spellInfo.Id)
                     {
-                        effIndex
-                    });
-    }
+                        case 41617: // Cenarion Mana Salve
+                        case 41619: // Cenarion Healing Salve
+                            packet.FailedArg1 = 3905;
 
+                            break;
+                        case 41618: // Bottled Nethergon Energy
+                        case 41620: // Bottled Nethergon Vapor
+                            packet.FailedArg1 = 3842;
 
-    private void AddGOTarget(GameObject go, HashSet<int> effMask)
-    {
-        var effectMask = effMask.ToHashSet();
+                            break;
+                        case 45373: // Bloodberry Elixir
+                            packet.FailedArg1 = 4075;
 
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(go, spellEffectInfo))
-                effectMask.Remove(spellEffectInfo.EffectIndex);
+                            break;
+                        default: // default case (don't must be)
+                            packet.FailedArg1 = 0;
 
-        // no effects left
-        if (effectMask.Count == 0)
-            return;
+                            break;
+                    }
 
-        var targetGUID = go.GUID;
-
-        // Lookup target in already in list
-        var index = _uniqueGoTargetInfo.FindIndex(target => target.TargetGUID == targetGUID);
-
-        if (index != -1) // Found in list
-        {
-            // Add only effect mask
-            _uniqueGoTargetInfo[index].Effects.UnionWith(effectMask);
-
-            return;
-        }
-
-        // This is new target calculate data for him
-        GOTargetInfo target = new();
-
-        {
-            TargetGUID = targetGUID,
-            Effects = effectMask
-        }
-
-        / Spell have speed - need calculate incoming time
-
-        if (Caster != go)
-        {
-            var hitDelay = SpellInfo.LaunchDelay;
-
-            if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
-            {
-                hitDelay += SpellInfo.Speed;
-            }
-            else if (SpellInfo.Speed > 0.0f)
-            {
-                // calculate spell incoming interval
-                var dist = Math.Max(Caster.Location.GetDistance(go.Location.X, go.Location.Y, go.Location.Z), 5.0f);
-                hitDelay += dist / SpellInfo.Speed;
-            }
-
-            target.TimeDelay = (ulong)Math.Floor(hitDelay * 1000.0f);
-        }
-        else
-        {
-            target.TimeDelay = 0UL;
-        }
-
-        // Calculate minimum incoming time
-        if (target.TimeDelay != 0 && (DelayMoment == 0 || DelayMoment > target.TimeDelay))
-            DelayMoment = target.TimeDelay;
-
-        // Add target to list
-        _uniqueGoTargetInfo.Add(target);
-    }
-
-    private void AddItemTarget(Item item, int effectIndex)
-    {
-        AddItemTarget(item,
-                      new HashSet<int>()
-                      {
-                          effectIndex
-                      });
-    }
-
-    private void AddItemTarget(Item item, HashSet<int> effMask)
-    {
-        var effectMask = effMask.ToHashSet();
-
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(item, spellEffectInfo))
-                effectMask.Remove(spellEffectInfo.EffectIndex);
-
-        // no effects left
-        if (effectMask.Count == 0)
-            return;
-
-        // Lookup target in already in list
-        var index = _uniqueItemInfo.FindIndex(target => target.TargetItem == item);
-
-        if (index != -1) // Found in list
-        {
-            // Add only effect mask
-            _uniqueItemInfo[index].Effects.UnionWith(effectMask);
-
-            return;
-        }
-
-        // This is new target add data
-
-        ItemTargetInfo target = new();
-
-        {
-            TargetItem = item,
-            Effects = effectMask
-        }
-
-        _ iqueItemInfo.Add(target);
-    }
-
-    private void AddCorpseTarget(Corpse corpse, int effIndex)
-    {
-        AddCorpseTarget(corpse,
-                        new HashSet<int>()
-                        {
-                            effIndex
-                        });
-    }
-
-
-    private void AddCorpseTarget(Corpse corpse, HashSet<int> effMask)
-    {
-        var effectMask = effMask.ToHashSet();
-
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (!spellEffectInfo.IsEffect())
-                effectMask.Remove(spellEffectInfo.EffectIndex);
-
-        // no effects left
-        if (effectMask.Count == 0)
-            return;
-
-        var targetGUID = corpse.GUID;
-
-        // Lookup target in already in list
-        var corpseTargetInfo = _uniqueCorpseTargetInfo.Find(target => { return target.TargetGuid == targetGUID; });
-
-        if (corpseTargetInfo != null) // Found in list
-        {
-            // Add only effect mask
-            corpseTargetInfo.Effects.UnionWith(effectMask);
-
-            return;
-        }
-
-        // This is new target calculate data for him
-        CorpseTargetInfo target = new();
-
-        {
-            TargetGuid = targetGUID,
-            Effects = effectMask
-        }
-
-        / Spell have speed - need calculate incoming time
-
-        if (Caster != corpse)
-        {
-            var hitDelay = SpellInfo.LaunchDelay;
-
-            if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
-            {
-                hitDelay += SpellInfo.Speed;
-            }
-            else if (SpellInfo.Speed > 0.0f)
-            {
-                // calculate spell incoming interval
-                var dist = Math.Max(Caster.Location.GetDistance(corpse.Location.X, corpse.Location.Y, corpse.Location.Z), 5.0f);
-                hitDelay += dist / SpellInfo.Speed;
-            }
-
-            target.TimeDelay = (ulong)Math.Floor(hitDelay * 1000.0f);
-        }
-        else
-        {
-            target.TimeDelay = 0;
-        }
-
-        // Calculate minimum incoming time
-        if (target.TimeDelay != 0 && (DelayMoment == 0 || DelayMoment > target.TimeDelay))
-            DelayMoment = target.TimeDelay;
-
-        // Add target to list
-        _uniqueCorpseTargetInfo.Add(target);
-    }
-
-    private void AddDestTarget(SpellDestination dest, int effIndex)
-    {
-        _destTargets[effIndex] = dest;
-    }
-
-    private bool UpdateChanneledTargetList()
-    {
-        // Not need check return true
-        if (_channelTargetEffectMask.Count == 0)
-            return true;
-
-        var channelTargetEffectMask = _channelTargetEffectMask;
-        var channelAuraMask = new HashSet<int>();
-
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
-                channelAuraMask.Add(spellEffectInfo.EffectIndex);
-
-        channelAuraMask.IntersectWith(channelTargetEffectMask);
-
-        float range = 0;
-
-        if (channelAuraMask.Count != 0)
-        {
-            range = SpellInfo.GetMaxRange(IsPositive);
-            var modOwner = Caster.SpellModOwner;
-
-            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.Range, ref range, this);
-
-            // add little tolerance level
-            range += Math.Min(3.0f, range * 0.1f); // 10% but no more than 3.0f
-        }
-
-        foreach (var targetInfo in UniqueTargetInfo)
-            if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(channelTargetEffectMask.ToMask() & targetInfo.Effects.ToMask()))
-            {
-                var unit = Caster.GUID == targetInfo.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, targetInfo.TargetGuid);
-
-                if (unit == null)
+                break;
+            case SpellCastResult.Totems:
+                if (param1.HasValue)
                 {
-                    var unitCaster = Caster.AsUnit;
+                    packet.FailedArg1 = (int)param1;
 
-                    unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
+                    if (param2.HasValue)
+                        packet.FailedArg2 = (int)param2;
+                }
+                else
+                {
+                    if (spellInfo.Totem[0] != 0)
+                        packet.FailedArg1 = (int)spellInfo.Totem[0];
 
-                    continue;
+                    if (spellInfo.Totem[1] != 0)
+                        packet.FailedArg2 = (int)spellInfo.Totem[1];
                 }
 
-                if (IsValidDeadOrAliveTarget(unit))
+                break;
+            case SpellCastResult.TotemCategory:
+                if (param1.HasValue)
                 {
-                    if (Convert.ToBoolean(channelAuraMask.ToMask() & targetInfo.Effects.ToMask()))
+                    packet.FailedArg1 = (int)param1;
+
+                    if (param2.HasValue)
+                        packet.FailedArg2 = (int)param2;
+                }
+                else
+                {
+                    if (spellInfo.TotemCategory[0] != 0)
+                        packet.FailedArg1 = (int)spellInfo.TotemCategory[0];
+
+                    if (spellInfo.TotemCategory[1] != 0)
+                        packet.FailedArg2 = (int)spellInfo.TotemCategory[1];
+                }
+
+                break;
+            case SpellCastResult.EquippedItemClass:
+            case SpellCastResult.EquippedItemClassMainhand:
+            case SpellCastResult.EquippedItemClassOffhand:
+                if (param1.HasValue && param2.HasValue)
+                {
+                    packet.FailedArg1 = (int)param1;
+                    packet.FailedArg2 = (int)param2;
+                }
+                else
+                {
+                    packet.FailedArg1 = (int)spellInfo.EquippedItemClass;
+                    packet.FailedArg2 = spellInfo.EquippedItemSubClassMask;
+                }
+
+                break;
+            case SpellCastResult.TooManyOfItem:
+            {
+                if (param1.HasValue)
+                {
+                    packet.FailedArg1 = (int)param1;
+                }
+                else
+                {
+                    uint item = 0;
+
+                    foreach (var spellEffectInfo in spellInfo.Effects)
+                        if (spellEffectInfo.ItemType != 0)
+                            item = spellEffectInfo.ItemType;
+
+                    var proto = Global.ObjectMgr.GetItemTemplate(item);
+
+                    if (proto != null && proto.ItemLimitCategory != 0)
+                        packet.FailedArg1 = (int)proto.ItemLimitCategory;
+                }
+
+                break;
+            }
+            case SpellCastResult.PreventedByMechanic:
+                if (param1.HasValue)
+                    packet.FailedArg1 = (int)param1;
+                else
+                    packet.FailedArg1 = (int)spellInfo.GetAllEffectsMechanicMask(); // SpellMechanic.dbc id
+
+                break;
+            case SpellCastResult.NeedExoticAmmo:
+                if (param1.HasValue)
+                    packet.FailedArg1 = (int)param1;
+                else
+                    packet.FailedArg1 = spellInfo.EquippedItemSubClassMask; // seems correct...
+
+                break;
+            case SpellCastResult.NeedMoreItems:
+                if (param1.HasValue && param2.HasValue)
+                {
+                    packet.FailedArg1 = (int)param1;
+                    packet.FailedArg2 = (int)param2;
+                }
+                else
+                {
+                    packet.FailedArg1 = 0; // Item id
+                    packet.FailedArg2 = 0; // Item count?
+                }
+
+                break;
+            case SpellCastResult.MinSkill:
+                if (param1.HasValue && param2.HasValue)
+                {
+                    packet.FailedArg1 = (int)param1;
+                    packet.FailedArg2 = (int)param2;
+                }
+                else
+                {
+                    packet.FailedArg1 = 0; // SkillLine.dbc id
+                    packet.FailedArg2 = 0; // required skill value
+                }
+
+                break;
+            case SpellCastResult.FishingTooLow:
+                if (param1.HasValue)
+                    packet.FailedArg1 = (int)param1;
+                else
+                    packet.FailedArg1 = 0; // required fishing skill
+
+                break;
+            case SpellCastResult.CustomError:
+                packet.FailedArg1 = (int)customError;
+
+                break;
+            case SpellCastResult.Silenced:
+                if (param1.HasValue)
+                    packet.FailedArg1 = (int)param1;
+                else
+                    packet.FailedArg1 = 0; // Unknown
+
+                break;
+            case SpellCastResult.Reagents:
+            {
+                if (param1.HasValue)
+                    packet.FailedArg1 = (int)param1;
+                else
+                    for (uint i = 0; i < SpellConst.MaxReagents; i++)
                     {
-                        var aurApp = unit.GetAuraApplication(SpellInfo.Id, _originalCasterGuid);
-
-                        if (aurApp != null)
-                        {
-                            if (Caster != unit && !Caster.Location.IsWithinDistInMap(unit, range))
-                            {
-                                targetInfo.Effects.ExceptWith(aurApp.EffectMask);
-                                unit.RemoveAura(aurApp);
-                                var unitCaster = Caster.AsUnit;
-
-                                unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
-
-                                continue;
-                            }
-                        }
-                        else // aura is dispelled
-                        {
-                            var unitCaster = Caster.AsUnit;
-
-                            unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
-
+                        if (spellInfo.Reagent[i] <= 0)
                             continue;
+
+                        var itemid = (uint)spellInfo.Reagent[i];
+                        var itemcount = spellInfo.ReagentCount[i];
+
+                        if (!caster.HasItemCount(itemid, itemcount))
+                        {
+                            packet.FailedArg1 = (int)itemid; // first missing item
+
+                            break;
                         }
                     }
 
-                    channelTargetEffectMask.ExceptWith(targetInfo.Effects); // remove from need alive mask effect that have alive target
-                }
-            }
+                if (param2.HasValue)
+                    packet.FailedArg2 = (int)param2;
+                else if (!param1.HasValue)
+                    foreach (var reagentsCurrency in spellInfo.ReagentsCurrency)
+                        if (!caster.HasCurrency(reagentsCurrency.CurrencyTypesID, reagentsCurrency.CurrencyCount))
+                        {
+                            packet.FailedArg1 = -1;
+                            packet.FailedArg2 = reagentsCurrency.CurrencyTypesID;
 
-        // is all effects from m_needAliveTargetMask have alive targets
-        return channelTargetEffectMask.Count == 0;
+                            break;
+                        }
+
+                break;
+            }
+            case SpellCastResult.CantUntalent:
+            {
+                packet.FailedArg1 = (int)param1;
+
+                break;
+            }
+            // TODO: SPELL_FAILED_NOT_STANDING
+            default:
+                break;
+        }
+    }
+
+    private static bool ProcessScript(int effIndex, bool preventDefault, ISpellScript script, ISpellEffect effect, SpellScriptHookType hookType)
+    {
+        try
+        {
+            script._InitHit();
+
+            script._PrepareScriptCall(hookType);
+
+            if (!script._IsEffectPrevented(effIndex))
+                if (effect is ISpellEffectHandler seh)
+                    seh.CallEffect(effIndex);
+
+            if (!preventDefault)
+                preventDefault = script._IsDefaultEffectPrevented(effIndex);
+
+            script._FinishScriptCall();
+        }
+        catch (Exception ex)
+        {
+            Log.Logger.Error(ex);
+        }
+
+        return preventDefault;
     }
 
     private void _cast(bool skipCheck = false)
@@ -5852,116 +4079,6 @@ public partial class Spell : IDisposable
                 caster.AI.OnSpellCast(SpellInfo);
     }
 
-    private void DoProcessTargetContainer<T>(List<T> targetContainer) where T : TargetInfoBase
-    {
-        foreach (TargetInfoBase target in targetContainer)
-            target.PreprocessTarget(this);
-
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-        {
-            foreach (TargetInfoBase target in targetContainer)
-                if (target.Effects.Contains(spellEffectInfo.EffectIndex))
-                    target.DoTargetSpellHit(this, spellEffectInfo);
-        }
-
-        foreach (TargetInfoBase target in targetContainer)
-            target.DoDamageAndTriggers(this);
-    }
-
-    private void HandleImmediate()
-    {
-        // start channeling if applicable
-        if (SpellInfo.IsChanneled)
-        {
-            if (!TryGetTotalEmpowerDuration(true, out var duration))
-                duration = SpellInfo.Duration;
-
-            if (duration > 0 || SpellValue.Duration.HasValue)
-            {
-                if (!SpellValue.Duration.HasValue)
-                {
-                    // First mod_duration then haste - see Missile Barrage
-                    // Apply duration mod
-                    var modOwner = Caster.SpellModOwner;
-
-                    modOwner?.ApplySpellMod(SpellInfo, SpellModOp.Duration, ref duration);
-
-                    duration = (int)(duration * SpellValue.DurationMul);
-
-                    // Apply haste mods
-                    Caster.WorldObjectCombat.ModSpellDurationTime(SpellInfo, ref duration, this);
-                }
-                else
-                {
-                    duration = SpellValue.Duration.Value;
-                }
-
-                _channeledDuration = duration;
-                SendChannelStart((uint)duration);
-            }
-            else if (duration == -1)
-            {
-                SendChannelStart(unchecked((uint)duration));
-            }
-
-            if (duration != 0)
-            {
-                State = SpellState.Casting;
-
-                // GameObjects shouldn't cast channeled spells
-                Caster. // GameObjects shouldn't cast channeled spells
-                    AsUnit?.AddInterruptMask(SpellInfo.ChannelInterruptFlags, SpellInfo.ChannelInterruptFlags2);
-            }
-        }
-
-        PrepareTargetProcessing();
-
-        // process immediate effects (items, ground, etc.) also initialize some variables
-        _handle_immediate_phase();
-
-        // consider spell hit for some spells without target, so they may proc on finish phase correctly
-        if (UniqueTargetInfo.Empty())
-            HitMask = ProcFlagsHit.Normal;
-        else
-            DoProcessTargetContainer(UniqueTargetInfo);
-
-        DoProcessTargetContainer(_uniqueGoTargetInfo);
-
-        DoProcessTargetContainer(_uniqueCorpseTargetInfo);
-        CallScriptOnHitHandlers();
-
-        FinishTargetProcessing();
-
-        // spell is finished, perform some last features of the spell here
-        _handle_finish_phase();
-
-        // Remove used for cast item if need (it can be already NULL after TakeReagents call
-        TakeCastItem();
-
-        if (State != SpellState.Casting)
-            Finish(); // successfully finish spell cast (not last in case autorepeat or channel spell)
-    }
-
-    private void _handle_immediate_phase()
-    {
-        // handle some immediate features of the spell here
-        HandleThreatSpells();
-
-        // handle effects with SPELL_EFFECT_HANDLE_HIT mode
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-        {
-            // don't do anything for empty effect
-            if (!spellEffectInfo.IsEffect())
-                continue;
-
-            // call effect handlers to handle destination hit
-            HandleEffects(null, null, null, null, spellEffectInfo, SpellEffectHandleMode.Hit);
-        }
-
-        // process items
-        DoProcessTargetContainer(_uniqueItemInfo);
-    }
-
     private void _handle_finish_phase()
     {
         var unitCaster = Caster.AsUnit;
@@ -6015,1274 +4132,766 @@ public partial class Spell : IDisposable
             UnitCombatHelpers.ProcSkillsAndAuras(OriginalCaster, null, procAttacker, new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Finish, HitMask, this, null, null);
     }
 
-    private void SendSpellCooldown()
+    private void _handle_immediate_phase()
     {
-        if (!Caster.IsUnit)
+        // handle some immediate features of the spell here
+        HandleThreatSpells();
+
+        // handle effects with SPELL_EFFECT_HANDLE_HIT mode
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+        {
+            // don't do anything for empty effect
+            if (!spellEffectInfo.IsEffect())
+                continue;
+
+            // call effect handlers to handle destination hit
+            HandleEffects(null, null, null, null, spellEffectInfo, SpellEffectHandleMode.Hit);
+        }
+
+        // process items
+        DoProcessTargetContainer(_uniqueItemInfo);
+    }
+
+    private void AddCorpseTarget(Corpse corpse, int effIndex)
+    {
+        AddCorpseTarget(corpse,
+                        new HashSet<int>()
+                        {
+                            effIndex
+                        });
+    }
+
+    private void AddCorpseTarget(Corpse corpse, HashSet<int> effMask)
+    {
+        var effectMask = effMask.ToHashSet();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+            if (!spellEffectInfo.IsEffect())
+                effectMask.Remove(spellEffectInfo.EffectIndex);
+
+        // no effects left
+        if (effectMask.Count == 0)
             return;
 
-        if (CastItem)
-            Caster.AsUnit.SpellHistory.HandleCooldowns(SpellInfo, CastItem, this);
-        else
-            Caster.AsUnit.SpellHistory.HandleCooldowns(SpellInfo, CastItemEntry, this);
+        var targetGUID = corpse.GUID;
 
-        if (IsAutoRepeat)
-            Caster.AsUnit.ResetAttackTimer(WeaponAttackType.RangedAttack);
-    }
+        // Lookup target in already in list
+        var corpseTargetInfo = _uniqueCorpseTargetInfo.Find(target => { return target.TargetGuid == targetGUID; });
 
-    private void UpdateEmpoweredSpell(uint difftime)
-    {
-        if (GetPlayerIfIsEmpowered(out var p))
+        if (corpseTargetInfo != null) // Found in list
         {
-            if (_empowerState == EmpowerState.None && _empoweredSpellDelta >= 1000)
-            {
-                _empowerState = EmpowerState.Prepared;
-                _empoweredSpellDelta -= 1000;
-            }
+            // Add only effect mask
+            corpseTargetInfo.Effects.UnionWith(effectMask);
 
-            if (_empowerState == EmpowerState.CanceledStartup && _empoweredSpellDelta >= 1000)
-                _empowerState = EmpowerState.Canceled;
-
-            if (_empowerState == EmpowerState.Prepared && _empoweredSpellStage == 0 && _empowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // send stage 0
-            {
-                ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(null, stageinfo));
-                var stageZero = new SpellEmpowerSetStage();
-
-                {
-                    Stage = 0,
-                    Caster = p.GUID,
-                    CastID = CastId
-                }
-
-                endPacket(stageZero);
-                _empowerState = EmpowerState.Empowering;
-            }
-
-            _empoweredSpellDelta += difftime;
-
-            if (_empowerState == EmpowerState.Empowering && _empowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
-            {
-                var nextStageId = _empoweredSpellStage;
-                nextStageId++;
-
-                if (_empowerStages.TryGetValue(nextStageId, out var nextStage))
-                {
-                    _empoweredSpellStage = nextStageId;
-                    _empoweredSpellDelta -= stageinfo.DurationMs;
-                    var stageUpdate = new SpellEmpowerSetStage();
-
-                    {
-                        Stage = 0,
-                        Caster = p.GUID,
-                        CastID = CastId
-                    }
-
-                    endPacket(stageUpdate);
-                    ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(stageinfo, nextStage));
-                }
-                else
-                {
-                    _empowerState = EmpowerState.Finished;
-                }
-            }
-
-            if (_empowerState == EmpowerState.Finished || _empowerState == EmpowerState.Canceled)
-                _timer = 0;
+            return;
         }
+
+        // This is new target calculate data for him
+        CorpseTargetInfo target = new();
+
+        {
+            TargetGuid = targetGUID,
+            Effects = effectMask
+        }
+
+        / Spell have speed -need calculate incoming time
+
+        if (Caster != corpse)
+        {
+            var hitDelay = SpellInfo.LaunchDelay;
+
+            if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
+            {
+                hitDelay += SpellInfo.Speed;
+            }
+            else if (SpellInfo.Speed > 0.0f)
+            {
+                // calculate spell incoming interval
+                var dist = Math.Max(Caster.Location.GetDistance(corpse.Location.X, corpse.Location.Y, corpse.Location.Z), 5.0f);
+                hitDelay += dist / SpellInfo.Speed;
+            }
+
+            target.TimeDelay = (ulong)Math.Floor(hitDelay * 1000.0f);
+        }
+        else
+        {
+            target.TimeDelay = 0;
+        }
+
+        // Calculate minimum incoming time
+        if (target.TimeDelay != 0 && (DelayMoment == 0 || DelayMoment > target.TimeDelay))
+            DelayMoment = target.TimeDelay;
+
+        // Add target to list
+        _uniqueCorpseTargetInfo.Add(target);
     }
 
-    private static void FillSpellCastFailedArgs<T>(T packet, ObjectGuid castId, SpellInfo spellInfo, SpellCastResult result, SpellCustomErrors customError, int? param1, int? param2, Player caster) where T : CastFailedBase
+    private void AddDestTarget(SpellDestination dest, int effIndex)
     {
-        packet.CastID = castId;
-        packet.SpellID = (int)spellInfo.Id;
-        packet.Reason = result;
+        _destTargets[effIndex] = dest;
+    }
 
-        switch (result)
+    private void AddGOTarget(GameObject go, int effIndex)
+    {
+        AddGOTarget(go,
+                    new HashSet<int>()
+                    {
+                        effIndex
+                    });
+    }
+
+    private void AddGOTarget(GameObject go, HashSet<int> effMask)
+    {
+        var effectMask = effMask.ToHashSet();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(go, spellEffectInfo))
+                effectMask.Remove(spellEffectInfo.EffectIndex);
+
+        // no effects left
+        if (effectMask.Count == 0)
+            return;
+
+        var targetGUID = go.GUID;
+
+        // Lookup target in already in list
+        var index = _uniqueGoTargetInfo.FindIndex(target => target.TargetGUID == targetGUID);
+
+        if (index != -1) // Found in list
         {
-            case SpellCastResult.NotReady:
-                if (param1.HasValue)
-                    packet.FailedArg1 = (int)param1;
-                else
-                    packet.FailedArg1 = 0; // unknown (value 1 update cooldowns on client flag)
+            // Add only effect mask
+            _uniqueGoTargetInfo[index].Effects.UnionWith(effectMask);
 
-                break;
-            case SpellCastResult.RequiresSpellFocus:
-                if (param1.HasValue)
-                    packet.FailedArg1 = (int)param1;
-                else
-                    packet.FailedArg1 = (int)spellInfo.RequiresSpellFocus; // SpellFocusObject.dbc id
+            return;
+        }
 
-                break;
-            case SpellCastResult.RequiresArea: // AreaTable.dbc id
-                if (param1.HasValue)
-                    packet.FailedArg1 = (int)param1;
-                else
-                    // hardcode areas limitation case
-                    switch (spellInfo.Id)
-                    {
-                        case 41617: // Cenarion Mana Salve
-                        case 41619: // Cenarion Healing Salve
-                            packet.FailedArg1 = 3905;
+        // This is new target calculate data for him
+        GOTargetInfo target = new();
 
-                            break;
-                        case 41618: // Bottled Nethergon Energy
-                        case 41620: // Bottled Nethergon Vapor
-                            packet.FailedArg1 = 3842;
+        {
+            TargetGUID = targetGUID,
+            Effects = effectMask
+        }
 
-                            break;
-                        case 45373: // Bloodberry Elixir
-                            packet.FailedArg1 = 4075;
+        / Spell have speed -need calculate incoming time
 
-                            break;
-                        default: // default case (don't must be)
-                            packet.FailedArg1 = 0;
+        if (Caster != go)
+        {
+            var hitDelay = SpellInfo.LaunchDelay;
 
-                            break;
-                    }
-
-                break;
-            case SpellCastResult.Totems:
-                if (param1.HasValue)
-                {
-                    packet.FailedArg1 = (int)param1;
-
-                    if (param2.HasValue)
-                        packet.FailedArg2 = (int)param2;
-                }
-                else
-                {
-                    if (spellInfo.Totem[0] != 0)
-                        packet.FailedArg1 = (int)spellInfo.Totem[0];
-
-                    if (spellInfo.Totem[1] != 0)
-                        packet.FailedArg2 = (int)spellInfo.Totem[1];
-                }
-
-                break;
-            case SpellCastResult.TotemCategory:
-                if (param1.HasValue)
-                {
-                    packet.FailedArg1 = (int)param1;
-
-                    if (param2.HasValue)
-                        packet.FailedArg2 = (int)param2;
-                }
-                else
-                {
-                    if (spellInfo.TotemCategory[0] != 0)
-                        packet.FailedArg1 = (int)spellInfo.TotemCategory[0];
-
-                    if (spellInfo.TotemCategory[1] != 0)
-                        packet.FailedArg2 = (int)spellInfo.TotemCategory[1];
-                }
-
-                break;
-            case SpellCastResult.EquippedItemClass:
-            case SpellCastResult.EquippedItemClassMainhand:
-            case SpellCastResult.EquippedItemClassOffhand:
-                if (param1.HasValue && param2.HasValue)
-                {
-                    packet.FailedArg1 = (int)param1;
-                    packet.FailedArg2 = (int)param2;
-                }
-                else
-                {
-                    packet.FailedArg1 = (int)spellInfo.EquippedItemClass;
-                    packet.FailedArg2 = spellInfo.EquippedItemSubClassMask;
-                }
-
-                break;
-            case SpellCastResult.TooManyOfItem:
+            if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
             {
-                if (param1.HasValue)
-                {
-                    packet.FailedArg1 = (int)param1;
-                }
-                else
-                {
-                    uint item = 0;
-
-                    foreach (var spellEffectInfo in spellInfo.Effects)
-                        if (spellEffectInfo.ItemType != 0)
-                            item = spellEffectInfo.ItemType;
-
-                    var proto = Global.ObjectMgr.GetItemTemplate(item);
-
-                    if (proto != null && proto.ItemLimitCategory != 0)
-                        packet.FailedArg1 = (int)proto.ItemLimitCategory;
-                }
-
-                break;
+                hitDelay += SpellInfo.Speed;
             }
-            case SpellCastResult.PreventedByMechanic:
-                if (param1.HasValue)
-                    packet.FailedArg1 = (int)param1;
-                else
-                    packet.FailedArg1 = (int)spellInfo.GetAllEffectsMechanicMask(); // SpellMechanic.dbc id
-
-                break;
-            case SpellCastResult.NeedExoticAmmo:
-                if (param1.HasValue)
-                    packet.FailedArg1 = (int)param1;
-                else
-                    packet.FailedArg1 = spellInfo.EquippedItemSubClassMask; // seems correct...
-
-                break;
-            case SpellCastResult.NeedMoreItems:
-                if (param1.HasValue && param2.HasValue)
-                {
-                    packet.FailedArg1 = (int)param1;
-                    packet.FailedArg2 = (int)param2;
-                }
-                else
-                {
-                    packet.FailedArg1 = 0; // Item id
-                    packet.FailedArg2 = 0; // Item count?
-                }
-
-                break;
-            case SpellCastResult.MinSkill:
-                if (param1.HasValue && param2.HasValue)
-                {
-                    packet.FailedArg1 = (int)param1;
-                    packet.FailedArg2 = (int)param2;
-                }
-                else
-                {
-                    packet.FailedArg1 = 0; // SkillLine.dbc id
-                    packet.FailedArg2 = 0; // required skill value
-                }
-
-                break;
-            case SpellCastResult.FishingTooLow:
-                if (param1.HasValue)
-                    packet.FailedArg1 = (int)param1;
-                else
-                    packet.FailedArg1 = 0; // required fishing skill
-
-                break;
-            case SpellCastResult.CustomError:
-                packet.FailedArg1 = (int)customError;
-
-                break;
-            case SpellCastResult.Silenced:
-                if (param1.HasValue)
-                    packet.FailedArg1 = (int)param1;
-                else
-                    packet.FailedArg1 = 0; // Unknown
-
-                break;
-            case SpellCastResult.Reagents:
+            else if (SpellInfo.Speed > 0.0f)
             {
-                if (param1.HasValue)
-                    packet.FailedArg1 = (int)param1;
-                else
-                    for (uint i = 0; i < SpellConst.MaxReagents; i++)
-                    {
-                        if (spellInfo.Reagent[i] <= 0)
-                            continue;
-
-                        var itemid = (uint)spellInfo.Reagent[i];
-                        var itemcount = spellInfo.ReagentCount[i];
-
-                        if (!caster.HasItemCount(itemid, itemcount))
-                        {
-                            packet.FailedArg1 = (int)itemid; // first missing item
-
-                            break;
-                        }
-                    }
-
-                if (param2.HasValue)
-                    packet.FailedArg2 = (int)param2;
-                else if (!param1.HasValue)
-                    foreach (var reagentsCurrency in spellInfo.ReagentsCurrency)
-                        if (!caster.HasCurrency(reagentsCurrency.CurrencyTypesID, reagentsCurrency.CurrencyCount))
-                        {
-                            packet.FailedArg1 = -1;
-                            packet.FailedArg2 = reagentsCurrency.CurrencyTypesID;
-
-                            break;
-                        }
-
-                break;
+                // calculate spell incoming interval
+                var dist = Math.Max(Caster.Location.GetDistance(go.Location.X, go.Location.Y, go.Location.Z), 5.0f);
+                hitDelay += dist / SpellInfo.Speed;
             }
-            case SpellCastResult.CantUntalent:
+
+            target.TimeDelay = (ulong)Math.Floor(hitDelay * 1000.0f);
+        }
+        else
+        {
+            target.TimeDelay = 0UL;
+        }
+
+        // Calculate minimum incoming time
+        if (target.TimeDelay != 0 && (DelayMoment == 0 || DelayMoment > target.TimeDelay))
+            DelayMoment = target.TimeDelay;
+
+        // Add target to list
+        _uniqueGoTargetInfo.Add(target);
+    }
+
+    private void AddItemTarget(Item item, int effectIndex)
+    {
+        AddItemTarget(item,
+                      new HashSet<int>()
+                      {
+                          effectIndex
+                      });
+    }
+
+    private void AddItemTarget(Item item, HashSet<int> effMask)
+    {
+        var effectMask = effMask.ToHashSet();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(item, spellEffectInfo))
+                effectMask.Remove(spellEffectInfo.EffectIndex);
+
+        // no effects left
+        if (effectMask.Count == 0)
+            return;
+
+        // Lookup target in already in list
+        var index = _uniqueItemInfo.FindIndex(target => target.TargetItem == item);
+
+        if (index != -1) // Found in list
+        {
+            // Add only effect mask
+            _uniqueItemInfo[index].Effects.UnionWith(effectMask);
+
+            return;
+        }
+
+        // This is new target add data
+
+        ItemTargetInfo target = new();
+
+        {
+            TargetItem = item,
+            Effects = effectMask
+        }
+
+        _ iqueItemInfo.Add(target);
+    }
+
+    private void AddSpellEffect(int index, ISpellScript script, ISpellEffect effect)
+    {
+        if (!_effectHandlers.TryGetValue(index, out var effecTypes))
+        {
+            effecTypes = new Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>();
+            _effectHandlers.Add(index, effecTypes);
+        }
+
+        if (!effecTypes.TryGetValue(effect.HookType, out var effects))
+        {
+            effects = new List<(ISpellScript, ISpellEffect)>();
+            effecTypes.Add(effect.HookType, effects);
+        }
+
+        effects.Add((script, effect));
+    }
+
+    private void AddUnitTarget(Unit target, int effIndex, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
+    {
+        AddUnitTarget(target,
+                      new HashSet<int>()
+                      {
+                          effIndex
+                      },
+                      checkIfValid,
+                      Implicit,
+                      losPosition);
+    }
+
+    private void AddUnitTarget(Unit target, HashSet<int> efftMask, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
+    {
+        var removeEffect = efftMask.ToHashSet();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+            if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(target, spellEffectInfo, losPosition))
+                removeEffect.Remove(spellEffectInfo.EffectIndex);
+
+        if (removeEffect.Count == 0)
+            return;
+
+        if (checkIfValid)
+            if (SpellInfo.CheckTarget(Caster, target, Implicit) != SpellCastResult.SpellCastOk) // skip stealth checks for AOE
+                return;
+
+        // Check for effect immune skip if immuned
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+            if (target.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, Caster))
+                removeEffect.Remove(spellEffectInfo.EffectIndex);
+
+        var targetGUID = target.GUID;
+
+        // Lookup target in already in list
+        var index = UniqueTargetInfo.FindIndex(target => target.TargetGuid == targetGUID);
+
+        if (index != -1) // Found in list
+        {
+            // Immune effects removed from mask
+            UniqueTargetInfo[index].Effects.UnionWith(removeEffect);
+
+            return;
+        }
+
+        // remove immunities
+
+        // This is new target calculate data for him
+
+        // Get spell hit result on target
+        TargetInfo targetInfo = new();
+
+        {
+            TargetGuid = targetGUID, // Store target GUID
+            Effects = removeEffect,  // Store all effects not immune
+            IsAlive = target.IsAlive
+        }
+
+        / Calculate hit result
+        var caster = OriginalCaster ? OriginalCaster : Caster;
+        targetInfo.MissCondition = caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, _canReflect && !(IsPositive && Caster.WorldObjectCombat.IsFriendlyTo(target)));
+
+        // Spell have speed - need calculate incoming time
+        // Incoming time is zero for self casts. At least I think so.
+        if (Caster != target)
+        {
+            var hitDelay = SpellInfo.LaunchDelay;
+            var missileSource = Caster;
+
+            if (SpellInfo.HasAttribute(SpellAttr4.BouncyChainMissiles))
             {
-                packet.FailedArg1 = (int)param1;
+                var mask = removeEffect.ToMask();
+                var previousTargetInfo = UniqueTargetInfo.FindLast(target => (target.Effects.ToMask() & mask) != 0);
+
+                if (previousTargetInfo != null)
+                {
+                    hitDelay = 0.0f; // this is not the first target in chain, LaunchDelay was already included
+
+                    var previousTarget = Global.ObjAccessor.GetWorldObject(Caster, previousTargetInfo.TargetGuid);
+
+                    if (previousTarget != null)
+                        missileSource = previousTarget;
+
+                    targetInfo.TimeDelay += previousTargetInfo.TimeDelay;
+                }
+            }
+
+            if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
+            {
+                hitDelay += SpellInfo.Speed;
+            }
+            else if (SpellInfo.Speed > 0.0f)
+            {
+                // calculate spell incoming interval
+                /// @todo this is a hack
+                var dist = Math.Max(missileSource.Location.GetDistance(target.Location.X, target.Location.Y, target.Location.Z), 5.0f);
+                hitDelay += dist / SpellInfo.Speed;
+            }
+
+            targetInfo.TimeDelay += (ulong)Math.Floor(hitDelay * 1000.0f);
+        }
+        else
+        {
+            targetInfo.TimeDelay = 0L;
+        }
+
+        // If target reflect spell back to caster
+        if (targetInfo.MissCondition == SpellMissInfo.Reflect)
+        {
+            // Calculate reflected spell result on caster (shouldn't be able to reflect gameobject spells)
+            var unitCaster = Caster.AsUnit;
+            targetInfo.ReflectResult = unitCaster.WorldObjectCombat.SpellHitResult(unitCaster, SpellInfo, false); // can't reflect twice
+
+            // Proc spell reflect aura when missile hits the original target
+            target.Events.AddEvent(new ProcReflectDelayed(target, _originalCasterGuid), target.Events.CalculateTime(TimeSpan.FromMilliseconds(targetInfo.TimeDelay)));
+
+            // Increase time interval for reflected spells by 1.5
+            targetInfo.TimeDelay += targetInfo.TimeDelay >> 1;
+        }
+        else
+        {
+            targetInfo.ReflectResult = SpellMissInfo.None;
+        }
+
+        // Calculate minimum incoming time
+        if (targetInfo.TimeDelay != 0 && (DelayMoment == 0 || DelayMoment > targetInfo.TimeDelay))
+            DelayMoment = targetInfo.TimeDelay;
+
+        // Add target to list
+        UniqueTargetInfo.Add(targetInfo);
+        UniqueTargetInfoOrgi.Add(targetInfo);
+    }
+
+    private double CalculateDamage(SpellEffectInfo spellEffectInfo, Unit target)
+    {
+        return CalculateDamage(spellEffectInfo, target, out _);
+    }
+
+    private double CalculateDamage(SpellEffectInfo spellEffectInfo, Unit target, out double variance)
+    {
+        var needRecalculateBasePoints = (SpellValue.CustomBasePointsMask & (1 << spellEffectInfo.EffectIndex)) == 0;
+
+        return CalculateSpellDamage(out variance, target, spellEffectInfo, needRecalculateBasePoints ? null : SpellValue.EffectBasePoints[spellEffectInfo.EffectIndex], CastItemEntry, CastItemLevel);
+    }
+
+    private ulong CalculateDelayMomentForDst(float launchDelay)
+    {
+        if (Targets.HasDst)
+        {
+            if (Targets.HasTraj)
+            {
+                var speed = Targets.SpeedXY;
+
+                if (speed > 0.0f)
+                    return (ulong)(Math.Floor((Targets.Dist2d / speed + launchDelay) * 1000.0f));
+            }
+            else if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
+            {
+                return (ulong)(Math.Floor((SpellInfo.Speed + launchDelay) * 1000.0f));
+            }
+            else if (SpellInfo.Speed > 0.0f)
+            {
+                // We should not subtract caster size from dist calculation (fixes execution time desync with animation on client, eg. Malleable Goo cast by PP)
+                var dist = Caster.Location.GetExactDist(Targets.DstPos);
+
+                return (ulong)(Math.Floor((dist / SpellInfo.Speed + launchDelay) * 1000.0f));
+            }
+
+            return (ulong)Math.Floor(launchDelay * 1000.0f);
+        }
+
+        return 0;
+    }
+
+    private void CallScriptAfterCastHandlers()
+    {
+        foreach (var script in GetSpellScripts<ISpellAfterCast>())
+            try
+            {
+                script._PrepareScriptCall(SpellScriptHookType.AfterCast);
+
+                ((ISpellAfterCast)script).AfterCast();
+
+                script._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+    }
+
+    private void CallScriptBeforeCastHandlers()
+    {
+        foreach (var script in GetSpellScripts<ISpellBeforeCast>())
+            try
+            {
+                script._PrepareScriptCall(SpellScriptHookType.BeforeCast);
+
+                ((ISpellBeforeCast)script).BeforeCast();
+
+                script._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+    }
+
+    private int CallScriptCalcCastTimeHandlers(int castTime)
+    {
+        foreach (var script in GetSpellScripts<ISpellCalculateCastTime>())
+            try
+            {
+                script._PrepareScriptCall(SpellScriptHookType.CalcCastTime);
+                castTime = ((ISpellCalculateCastTime)script).CalcCastTime(castTime);
+                script._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+
+        return castTime;
+    }
+
+    private SpellCastResult CallScriptCheckCastHandlers()
+    {
+        var retVal = SpellCastResult.SpellCastOk;
+
+        foreach (var script in GetSpellScripts<ISpellCheckCast>())
+            try
+            {
+                script._PrepareScriptCall(SpellScriptHookType.CheckCast);
+
+                var tempResult = ((ISpellCheckCast)script).CheckCast();
+
+                if (tempResult != SpellCastResult.SpellCastOk)
+                    retVal = tempResult;
+
+                script._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+
+        return retVal;
+    }
+
+    private void CallScriptDestinationTargetSelectHandlers(ref SpellDestination target, int effIndex, SpellImplicitTargetInfo targetType)
+    {
+        foreach (var script in GetEffectScripts(SpellScriptHookType.DestinationTargetSelect, effIndex))
+            try
+            {
+                script.Item1._PrepareScriptCall(SpellScriptHookType.DestinationTargetSelect);
+
+                if (script.Item2 is ISpellDestinationTargetSelectHandler dts)
+                    if (targetType.Target == dts.TargetType)
+                        dts.SetDest(target);
+
+                script.Item1._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+    }
+
+    private bool CallScriptEffectHandlers(int effIndex, SpellEffectHandleMode mode)
+    {
+        // execute script effect handler hooks and check if effects was prevented
+        var preventDefault = false;
+
+        switch (mode)
+        {
+            case SpellEffectHandleMode.Launch:
+
+                foreach (var script in GetEffectScripts(SpellScriptHookType.Launch, effIndex))
+                    preventDefault = ProcessScript(effIndex, preventDefault, script.Item1, script.Item2, SpellScriptHookType.Launch);
 
                 break;
-            }
-            // TODO: SPELL_FAILED_NOT_STANDING
+            case SpellEffectHandleMode.LaunchTarget:
+
+                foreach (var script in GetEffectScripts(SpellScriptHookType.LaunchTarget, effIndex))
+                    preventDefault = ProcessScript(effIndex, preventDefault, script.Item1, script.Item2, SpellScriptHookType.LaunchTarget);
+
+                break;
+            case SpellEffectHandleMode.Hit:
+
+                foreach (var script in GetEffectScripts(SpellScriptHookType.Hit, effIndex))
+                    preventDefault = ProcessScript(effIndex, preventDefault, script.Item1, script.Item2, SpellScriptHookType.Hit);
+
+                break;
+            case SpellEffectHandleMode.HitTarget:
+
+                foreach (var script in GetEffectScripts(SpellScriptHookType.EffectHitTarget, effIndex))
+                    preventDefault = ProcessScript(effIndex, preventDefault, script.Item1, script.Item2, SpellScriptHookType.EffectHitTarget);
+
+                break;
             default:
-                break;
+                return false;
         }
+
+        return preventDefault;
     }
 
-    private void SendMountResult(MountResult result)
+    private void CallScriptObjectAreaTargetSelectHandlers(List<WorldObject> targets, int effIndex, SpellImplicitTargetInfo targetType)
     {
-        if (result == MountResult.Ok)
-            return;
+        foreach (var script in GetEffectScripts(SpellScriptHookType.ObjectAreaTargetSelect, effIndex))
+            try
+            {
+                script.Item1._PrepareScriptCall(SpellScriptHookType.ObjectAreaTargetSelect);
 
-        if (!Caster.IsPlayer)
-            return;
+                if (script.Item2 is ISpellObjectAreaTargetSelect oas)
+                    if (targetType.Target == oas.TargetType)
+                        oas.FilterTargets(targets);
 
-        var caster = Caster.AsPlayer;
-
-        if (caster.IsLoading) // don't send mount results at loading time
-            return;
-
-        MountResultPacket packet = new();
-
-        {
-            Result = (uint)result
-        }
-
-        c
-        ter.SendPacket(packet);
+                script.Item1._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
     }
 
-    private void SendSpellStart()
+    private void CallScriptObjectTargetSelectHandlers(ref WorldObject target, int effIndex, SpellImplicitTargetInfo targetType)
     {
-        if (!IsNeedSendToClient())
-            return;
-
-        var castFlags = SpellCastFlags.HasTrajectory;
-        uint schoolImmunityMask = 0;
-        ulong mechanicImmunityMask = 0;
-        var unitCaster = Caster.AsUnit;
-
-        if (unitCaster != null)
-        {
-            schoolImmunityMask = _timer != 0 ? unitCaster.SchoolImmunityMask : 0;
-            mechanicImmunityMask = _timer != 0 ? SpellInfo.GetMechanicImmunityMask(unitCaster) : 0;
-        }
-
-        if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
-            castFlags |= SpellCastFlags.Immunity;
-
-        if (((IsTriggered && !SpellInfo.IsAutoRepeatRangedSpell) || TriggeredByAuraSpell != null) && !FromClient)
-            castFlags |= SpellCastFlags.Pending;
-
-        if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) || SpellInfo.HasAttribute(SpellAttr10.UsesRangedSlotCosmeticOnly) || SpellInfo.HasAttribute(SpellCustomAttributes.NeedsAmmoData))
-            castFlags |= SpellCastFlags.Projectile;
-
-        if ((Caster.IsTypeId(TypeId.Player) || (Caster.IsTypeId(TypeId.Unit) && Caster.AsCreature.IsPet)) && PowerCost.Any(cost => cost.Power != PowerType.Health))
-            castFlags |= SpellCastFlags.PowerLeftSelf;
-
-        if (HasPowerTypeCost(PowerType.Runes))
-            castFlags |= SpellCastFlags.NoGCD; // not needed, but Blizzard sends it
-
-        SpellStart packet = new();
-        var castData = packet.Cast;
-
-        if (CastItem)
-            castData.CasterGUID = CastItem.GUID;
-        else
-            castData.CasterGUID = Caster.GUID;
-
-        castData.CasterUnit = Caster.GUID;
-        castData.CastID = CastId;
-        castData.OriginalCastID = OriginalCastId;
-        castData.SpellID = (int)SpellInfo.Id;
-        castData.Visual = SpellVisual;
-        castData.CastFlags = castFlags;
-        castData.CastFlagsEx = CastFlagsEx;
-        castData.CastTime = (uint)CastTime;
-
-        Targets.Write(castData.Target);
-
-        if (castFlags.HasAnyFlag(SpellCastFlags.PowerLeftSelf))
-            foreach (var cost in PowerCost)
+        foreach (var script in GetEffectScripts(SpellScriptHookType.ObjectTargetSelect, effIndex))
+            try
             {
-                SpellPowerData powerData;
-                powerData.Type = cost.Power;
-                powerData.Cost = Caster.AsUnit.GetPower(cost.Power);
-                castData.RemainingPower.Add(powerData);
+                script.Item1._PrepareScriptCall(SpellScriptHookType.ObjectTargetSelect);
+
+                if (script.Item2 is ISpellObjectTargetSelectHandler ots)
+                    if (targetType.Target == ots.TargetType)
+                        ots.TargetSelect(target);
+
+                script.Item1._FinishScriptCall();
             }
-
-        if (castFlags.HasAnyFlag(SpellCastFlags.RuneList)) // rune cooldowns list
-        {
-            castData.RemainingRunes = new RuneData();
-
-            var runeData = castData.RemainingRunes;
-            //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
-            //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
-
-            var player = Caster.AsPlayer;
-
-            if (player)
+            catch (Exception ex)
             {
-                runeData.Start = _runesState;            // runes state before
-                runeData.Count = player.GetRunesState(); // runes state after
-
-                for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
-                {
-                    // float casts ensure the division is performed on floats as we need float result
-                    float baseCd = player.GetRuneBaseCooldown();
-                    runeData.Cooldowns.Add((byte)((baseCd - player.GetRuneCooldown(i)) / baseCd * 255)); // rune cooldown passed
-                }
+                Log.Logger.Error(ex);
             }
-            else
-            {
-                runeData.Start = 0;
-                runeData.Count = 0;
-
-                for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
-                    runeData.Cooldowns.Add(0);
-            }
-        }
-
-        UpdateSpellCastDataAmmo(castData.Ammo);
-
-        if (castFlags.HasAnyFlag(SpellCastFlags.Immunity))
-        {
-            castData.Immunities.School = schoolImmunityMask;
-            castData.Immunities.Value = (uint)mechanicImmunityMask;
-        }
-
-        /** @todo implement heal prediction packet data
-        if (castFlags & CAST_FLAG_HEAL_PREDICTION)
-        {
-            castData.Predict.BeconGUID = ??
-            castData.Predict.Points = 0;
-            castData.Predict.Type = 0;
-        }**/
-
-        Caster.SendMessageToSet(packet, true);
     }
 
-    private void SendSpellGo()
+    private void CallScriptOnCastHandlers()
     {
-        // not send invisible spell casting
-        if (!IsNeedSendToClient())
+        foreach (var script in GetSpellScripts<ISpellOnCast>())
+            try
+            {
+                script._PrepareScriptCall(SpellScriptHookType.OnCast);
+
+                ((ISpellOnCast)script).OnCast();
+
+                script._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+    }
+
+    private void CallScriptOnPrecastHandler()
+    {
+        foreach (var script in GetSpellScripts<ISpellOnPrecast>())
+            try
+            {
+                script._PrepareScriptCall(SpellScriptHookType.OnPrecast);
+                ((ISpellOnPrecast)script).OnPrecast();
+                script._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+    }
+
+    private void CallScriptSuccessfulDispel(int effIndex)
+    {
+        foreach (var script in GetEffectScripts(SpellScriptHookType.EffectSuccessfulDispel, effIndex))
+            try
+            {
+                script.Item1._PrepareScriptCall(SpellScriptHookType.EffectSuccessfulDispel);
+
+                if (script.Item2 is ISpellEffectHandler seh)
+                    seh.CallEffect(effIndex);
+
+                script.Item1._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+    }
+
+    private void CancelGlobalCooldown()
+    {
+        if (!CanHaveGlobalCooldown(Caster))
             return;
-
-        Log.Logger.Debug("Sending SMSG_SPELL_GO id={0}", SpellInfo.Id);
-
-        var castFlags = SpellCastFlags.Unk9;
-
-        // triggered spells with spell visual != 0
-        if (((IsTriggered && !SpellInfo.IsAutoRepeatRangedSpell) || TriggeredByAuraSpell != null) && !FromClient)
-            castFlags |= SpellCastFlags.Pending;
-
-        if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) || SpellInfo.HasAttribute(SpellAttr10.UsesRangedSlotCosmeticOnly) || SpellInfo.HasAttribute(SpellCustomAttributes.NeedsAmmoData))
-            castFlags |= SpellCastFlags.Projectile; // arrows/bullets visual
-
-        if ((Caster.IsTypeId(TypeId.Player) || (Caster.IsTypeId(TypeId.Unit) && Caster.AsCreature.IsPet)) && PowerCost.Any(cost => cost.Power != PowerType.Health))
-            castFlags |= SpellCastFlags.PowerLeftSelf;
-
-        if (Caster.IsTypeId(TypeId.Player) &&
-            Caster.AsPlayer.Class == PlayerClass.Deathknight &&
-            HasPowerTypeCost(PowerType.Runes) &&
-            !_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnorePowerAndReagentCost))
-        {
-            castFlags |= SpellCastFlags.NoGCD;    // same as in SMSG_SPELL_START
-            castFlags |= SpellCastFlags.RuneList; // rune cooldowns list
-        }
-
-        if (Targets.HasTraj)
-            castFlags |= SpellCastFlags.AdjustMissile;
 
         if (SpellInfo.StartRecoveryTime == 0)
-            castFlags |= SpellCastFlags.NoGCD;
-
-        SpellGo packet = new();
-        var castData = packet.Cast;
-
-        if (CastItem != null)
-            castData.CasterGUID = CastItem.GUID;
-        else
-            castData.CasterGUID = Caster.GUID;
-
-        castData.CasterUnit = Caster.GUID;
-        castData.CastID = CastId;
-        castData.OriginalCastID = OriginalCastId;
-        castData.SpellID = (int)SpellInfo.Id;
-        castData.Visual = SpellVisual;
-        castData.CastFlags = castFlags;
-        castData.CastFlagsEx = CastFlagsEx;
-        castData.CastTime = Time.MSTime;
-
-        castData.HitTargets = new List<ObjectGuid>();
-        UpdateSpellCastDataTargets(castData);
-
-        Targets.Write(castData.Target);
-
-        if (Convert.ToBoolean(castFlags & SpellCastFlags.PowerLeftSelf))
-        {
-            castData.RemainingPower = new List<SpellPowerData>();
-
-            foreach (var cost in PowerCost)
-            {
-                SpellPowerData powerData;
-                powerData.Type = cost.Power;
-                powerData.Cost = Caster.AsUnit.GetPower(cost.Power);
-                castData.RemainingPower.Add(powerData);
-            }
-        }
-
-        if (Convert.ToBoolean(castFlags & SpellCastFlags.RuneList)) // rune cooldowns list
-        {
-            castData.RemainingRunes = new RuneData();
-            var runeData = castData.RemainingRunes;
-
-            var player = Caster.AsPlayer;
-            runeData.Start = _runesState;            // runes state before
-            runeData.Count = player.GetRunesState(); // runes state after
-
-            for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
-            {
-                // float casts ensure the division is performed on floats as we need float result
-                var baseCd = (float)player.GetRuneBaseCooldown();
-                runeData.Cooldowns.Add((byte)((baseCd - (float)player.GetRuneCooldown(i)) / baseCd * 255)); // rune cooldown passed
-            }
-        }
-
-        if (castFlags.HasFlag(SpellCastFlags.AdjustMissile))
-        {
-            castData.MissileTrajectory.TravelTime = (uint)DelayMoment;
-            castData.MissileTrajectory.Pitch = Targets.Pitch;
-        }
-
-        packet.LogData.Initialize(this);
-
-        Caster.SendCombatLogMessage(packet);
-
-        if (GetPlayerIfIsEmpowered(out var p))
-        {
-            ForEachSpellScript<ISpellOnEpowerSpellStart>(s => s.EmpowerSpellStart());
-            SpellEmpowerStart spellEmpowerSart = new();
-
-            {
-                CastID = packet.Cast.CastID,
-                Caster = packet.Cast.CasterGUID,
-                Targets = UniqueTargetInfo.Select(t => t.TargetGuid).ToList(),
-                SpellID = SpellInfo.Id,
-                Visual = packet.Cast.Visual
-            }
-
-            GetTotalEmpowerDuration(false, out int dur);
-            spellEmpowerSart.Duration = (uint)dur;
-            spellEmpowerSart.FirstStageDuration = _empowerStages.FirstOrDefault().Value.DurationMs;
-            spellEmpowerSart.FinalStageDuration = _empowerStages.LastOrDefault().Value.DurationMs;
-            spellEmpowerSart.StageDurations = _empowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
-
-            var schoolImmunityMask = p.SchoolImmunityMask;
-            var mechanicImmunityMask = p.MechanicImmunityMask;
-
-            if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
-            {
-                SpellChannelStartInterruptImmunities interruptImmunities = new();
-
-                {
-                    SchoolImmunities = (int)schoolImmunityMask,
-                    Immunities = (int)mechanicImmunityMask
-                }
-
-                llEmpowerSart.Immunities = interruptImmunities;
-            }
-
-            p.SendPacket(spellEmpowerSart);
-        }
-    }
-
-    // Writes miss and hit targets for a SMSG_SPELL_GO packet
-    private void UpdateSpellCastDataTargets(SpellCastData data)
-    {
-        // This function also fill data for channeled spells:
-        // m_needAliveTargetMask req for stop channelig if one target die
-        foreach (var targetInfo in UniqueTargetInfo)
-        {
-            if (targetInfo.Effects.Count == 0) // No effect apply - all immuned add state
-                // possibly SPELL_MISS_IMMUNE2 for this??
-                targetInfo.MissCondition = SpellMissInfo.Immune2;
-
-            if (targetInfo.MissCondition == SpellMissInfo.None || (targetInfo.MissCondition == SpellMissInfo.Block && !SpellInfo.HasAttribute(SpellAttr3.CompletelyBlocked))) // Add only hits and partial blocked
-            {
-                data.HitTargets.Add(targetInfo.TargetGuid);
-                data.HitStatus.Add(new SpellHitStatus(SpellMissInfo.None));
-
-                _channelTargetEffectMask.UnionWith(targetInfo.Effects);
-            }
-            else // misses
-            {
-                data.MissTargets.Add(targetInfo.TargetGuid);
-
-                data.MissStatus.Add(new SpellMissStatus(targetInfo.MissCondition, targetInfo.ReflectResult));
-            }
-        }
-
-        foreach (var targetInfo in _uniqueGoTargetInfo)
-            data.HitTargets.Add(targetInfo.TargetGUID); // Always hits
-
-        foreach (var targetInfo in _uniqueCorpseTargetInfo)
-            data.HitTargets.Add(targetInfo.TargetGuid); // Always hits
-
-        // Reset m_needAliveTargetMask for non channeled spell
-        if (!SpellInfo.IsChanneled)
-            _channelTargetEffectMask.Clear();
-    }
-
-    private void UpdateSpellCastDataAmmo(SpellAmmo ammo)
-    {
-        InventoryType ammoInventoryType = 0;
-        uint ammoDisplayID = 0;
-
-        var playerCaster = Caster.AsPlayer;
-
-        if (playerCaster != null)
-        {
-            var pItem = playerCaster.GetWeaponForAttack(WeaponAttackType.RangedAttack);
-
-            if (pItem)
-            {
-                ammoInventoryType = pItem.Template.InventoryType;
-
-                if (ammoInventoryType == InventoryType.Thrown)
-                {
-                    ammoDisplayID = pItem.GetDisplayId(playerCaster);
-                }
-                else if (playerCaster.HasAura(46699)) // Requires No Ammo
-                {
-                    ammoDisplayID = 5996; // normal arrow
-                    ammoInventoryType = InventoryType.Ammo;
-                }
-            }
-        }
-        else
-        {
-            var unitCaster = Caster.AsUnit;
-
-            if (unitCaster != null)
-            {
-                uint nonRangedAmmoDisplayID = 0;
-                InventoryType nonRangedAmmoInventoryType = 0;
-
-                for (byte i = (int)WeaponAttackType.BaseAttack; i < (int)WeaponAttackType.Max; ++i)
-                {
-                    var itemId = unitCaster.GetVirtualItemId(i);
-
-                    if (itemId != 0)
-                    {
-                        var itemEntry = CliDB.ItemStorage.LookupByKey(itemId);
-
-                        if (itemEntry is { ClassID: ItemClass.Weapon })
-                        {
-                            switch ((ItemSubClassWeapon)itemEntry.SubclassID)
-                            {
-                                case ItemSubClassWeapon.Thrown:
-                                    ammoDisplayID = Global.DB2Mgr.GetItemDisplayId(itemId, unitCaster.GetVirtualItemAppearanceMod(i));
-                                    ammoInventoryType = (InventoryType)itemEntry.inventoryType;
-
-                                    break;
-                                case ItemSubClassWeapon.Bow:
-                                case ItemSubClassWeapon.Crossbow:
-                                    ammoDisplayID = 5996; // is this need fixing?
-                                    ammoInventoryType = InventoryType.Ammo;
-
-                                    break;
-                                case ItemSubClassWeapon.Gun:
-                                    ammoDisplayID = 5998; // is this need fixing?
-                                    ammoInventoryType = InventoryType.Ammo;
-
-                                    break;
-                                default:
-                                    nonRangedAmmoDisplayID = Global.DB2Mgr.GetItemDisplayId(itemId, unitCaster.GetVirtualItemAppearanceMod(i));
-                                    nonRangedAmmoInventoryType = itemEntry.inventoryType;
-
-                                    break;
-                            }
-
-                            if (ammoDisplayID != 0)
-                                break;
-                        }
-                    }
-                }
-
-                if (ammoDisplayID == 0 && ammoInventoryType == 0)
-                {
-                    ammoDisplayID = nonRangedAmmoDisplayID;
-                    ammoInventoryType = nonRangedAmmoInventoryType;
-                }
-            }
-        }
-
-        ammo.DisplayID = (int)ammoDisplayID;
-        ammo.InventoryType = (sbyte)ammoInventoryType;
-    }
-
-    private void SendSpellExecuteLog()
-    {
-        if (_executeLogEffects.Empty())
             return;
 
-        SpellExecuteLog spellExecuteLog = new();
+        // Cancel global cooldown when interrupting current cast
+        if (Caster.AsUnit.GetCurrentSpell(CurrentSpellTypes.Generic) != this)
+            return;
 
-        {
-            Caster = Caster.GUID,
-            SpellID = SpellInfo.Id,
-            Effects = _executeLogEffects.Values.ToList()
-        }
-
-        s llExecuteLog.LogData.Initialize(this);
-
-        Caster.SendCombatLogMessage(spellExecuteLog);
+        Caster.AsUnit.SpellHistory.CancelGlobalCooldown(SpellInfo);
     }
 
-    private void ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit target, PowerType powerType, uint points, double amplitude)
+    private bool CanHaveGlobalCooldown(WorldObject caster)
     {
-        SpellLogEffectPowerDrainParams spellLogEffectPowerDrainParams;
+        // Only players or controlled units have global cooldown
+        if (!caster.IsPlayer && (!caster.IsCreature || caster.AsCreature.GetCharmInfo() == null))
+            return false;
 
-        spellLogEffectPowerDrainParams.Victim = target.GUID;
-        spellLogEffectPowerDrainParams.Points = points;
-        spellLogEffectPowerDrainParams.PowerType = (uint)powerType;
-        spellLogEffectPowerDrainParams.Amplitude = (float)amplitude;
-
-        GetExecuteLogEffect(effect).PowerDrainTargets.Add(spellLogEffectPowerDrainParams);
+        return true;
     }
 
-    private void ExecuteLogEffectExtraAttacks(SpellEffectName effect, Unit victim, uint numAttacks)
+    private SpellCastResult CanOpenLock(SpellEffectInfo effect, uint lockId, ref SkillType skillId, ref int reqSkillValue, ref int skillValue)
     {
-        SpellLogEffectExtraAttacksParams spellLogEffectExtraAttacksParams;
-        spellLogEffectExtraAttacksParams.Victim = victim.GUID;
-        spellLogEffectExtraAttacksParams.NumAttacks = numAttacks;
+        if (lockId == 0) // possible case for GO and maybe for items.
+            return SpellCastResult.SpellCastOk;
 
-        GetExecuteLogEffect(effect).ExtraAttacksTargets.Add(spellLogEffectExtraAttacksParams);
-    }
-
-    private void SendSpellInterruptLog(Unit victim, uint spellId)
-    {
-        SpellInterruptLog data = new();
-
-        {
-            Caster = Caster.GUID,
-            Victim = victim.GUID,
-            InterruptedSpellID = SpellInfo.Id,
-            SpellID = spellId
-        }
-
-        _ ster.SendMessageToSet(data, true);
-    }
-
-    private void ExecuteLogEffectDurabilityDamage(SpellEffectName effect, Unit victim, int itemId, int amount)
-    {
-        SpellLogEffectDurabilityDamageParams spellLogEffectDurabilityDamageParams;
-        spellLogEffectDurabilityDamageParams.Victim = victim.GUID;
-        spellLogEffectDurabilityDamageParams.ItemID = itemId;
-        spellLogEffectDurabilityDamageParams.Amount = amount;
-
-        GetExecuteLogEffect(effect).DurabilityDamageTargets.Add(spellLogEffectDurabilityDamageParams);
-    }
-
-    private void ExecuteLogEffectOpenLock(SpellEffectName effect, WorldObject obj)
-    {
-        SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
-        spellLogEffectGenericVictimParams.Victim = obj.GUID;
-
-        GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
-    }
-
-    private void ExecuteLogEffectCreateItem(SpellEffectName effect, uint entry)
-    {
-        SpellLogEffectTradeSkillItemParams spellLogEffectTradeSkillItemParams;
-        spellLogEffectTradeSkillItemParams.ItemID = (int)entry;
-
-        GetExecuteLogEffect(effect).TradeSkillTargets.Add(spellLogEffectTradeSkillItemParams);
-    }
-
-    private void ExecuteLogEffectDestroyItem(SpellEffectName effect, uint entry)
-    {
-        SpellLogEffectFeedPetParams spellLogEffectFeedPetParams;
-        spellLogEffectFeedPetParams.ItemID = (int)entry;
-
-        GetExecuteLogEffect(effect).FeedPetTargets.Add(spellLogEffectFeedPetParams);
-    }
-
-    private void ExecuteLogEffectSummonObject(SpellEffectName effect, WorldObject obj)
-    {
-        SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
-        spellLogEffectGenericVictimParams.Victim = obj.GUID;
-
-        GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
-    }
-
-    private void ExecuteLogEffectUnsummonObject(SpellEffectName effect, WorldObject obj)
-    {
-        SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
-        spellLogEffectGenericVictimParams.Victim = obj.GUID;
-
-        GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
-    }
-
-    private void ExecuteLogEffectResurrect(SpellEffectName effect, Unit target)
-    {
-        SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
-        spellLogEffectGenericVictimParams.Victim = target.GUID;
-
-        GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
-    }
-
-    private void SendInterrupted(byte result)
-    {
-        SpellFailure failurePacket = new();
-
-        {
-            CasterUnit = Caster.GUID,
-            CastID = CastId,
-            SpellID = SpellInfo.Id,
-            Visual = SpellVisual,
-            Reason = result
-        }
-
-        f
-        ster.SendMessageToSet(failurePacket, true);
-
-        SpellFailedOther failedPacket = new();
-
-        {
-            CasterUnit = Caster.GUID,
-            CastID = CastId,
-            SpellID = SpellInfo.Id,
-            Visual = SpellVisual,
-            Reason = result
-        }
-
-        f
-        ster.SendMessageToSet(failedPacket, true);
-    }
-
-    private void SendChannelStart(uint duration)
-    {
-        // GameObjects don't channel
         var unitCaster = Caster.AsUnit;
 
         if (unitCaster == null)
-            return;
+            return SpellCastResult.BadTargets;
 
-        SpellChannelStart spellChannelStart = new();
+        // Get LockInfo
+        var lockInfo = CliDB.LockStorage.LookupByKey(lockId);
 
-        {
-            CasterGUID = unitCaster.GUID,
-            SpellID = (int)SpellInfo.Id,
-            Visual = SpellVisual,
-            ChannelDuration = duration
-        }
+        if (lockInfo == null)
+            return SpellCastResult.BadTargets;
 
-        i(IsEmpowered) // remove the first second of casting time to display correctly
-        spellChannelStart.ChannelDuration -= 1000;
+        var reqKey = false; // some locks not have reqs
 
-        var schoolImmunityMask = unitCaster.SchoolImmunityMask;
-        var mechanicImmunityMask = unitCaster.MechanicImmunityMask;
-
-        if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
-        {
-            SpellChannelStartInterruptImmunities interruptImmunities = new();
-
+        for (var j = 0; j < SharedConst.MaxLockCase; ++j)
+            switch ((LockKeyType)lockInfo.LockType[j])
             {
-                SchoolImmunities = (int)schoolImmunityMask,
-                Immunities = (int)mechanicImmunityMask
-            }
+                // check key item (many fit cases can be)
+                case LockKeyType.Item:
+                    if (lockInfo.Index[j] != 0 && CastItem && CastItem.Entry == lockInfo.Index[j])
+                        return SpellCastResult.SpellCastOk;
 
-            llChannelStart.InterruptImmunities = interruptImmunities;
-        }
+                    reqKey = true;
 
-        unitCaster.SendMessageToSet(spellChannelStart, true);
-
-        _timer = (int)duration;
-
-        if (!Targets.HasDst)
-        {
-            var channelAuraMask = new HashSet<int>();
-            var explicitTargetEffectMask = SpellConst.MaxEffects;
-
-            // if there is an explicit target, only add channel objects from effects that also hit ut
-            if (!Targets.UnitTargetGUID.IsEmpty)
-            {
-                var explicitTarget = UniqueTargetInfo.Find(target => target.TargetGuid == Targets.UnitTargetGUID);
-
-                if (explicitTarget != null)
-                    explicitTargetEffectMask = explicitTarget.Effects;
-            }
-
-            foreach (var spellEffectInfo in SpellInfo.Effects)
-                if (spellEffectInfo.Effect == SpellEffectName.ApplyAura && explicitTargetEffectMask.Contains(spellEffectInfo.EffectIndex))
-                    channelAuraMask.Add(spellEffectInfo.EffectIndex);
-
-            var chanMask = channelAuraMask.ToMask();
-
-            foreach (var target in UniqueTargetInfo)
-            {
-                if ((target.Effects.ToMask() & chanMask) == 0)
-                    continue;
-
-                var requiredAttribute = target.TargetGuid != unitCaster.GUID ? SpellAttr1.IsChannelled : SpellAttr1.IsSelfChannelled;
-
-                if (!SpellInfo.HasAttribute(requiredAttribute))
-                    continue;
-
-                unitCaster.AddChannelObject(target.TargetGuid);
-            }
-
-            foreach (var target in _uniqueGoTargetInfo)
-                if ((target.Effects.ToMask() & chanMask) != 0)
-                    unitCaster.AddChannelObject(target.TargetGUID);
-        }
-        else if (SpellInfo.HasAttribute(SpellAttr1.IsSelfChannelled))
-        {
-            unitCaster.AddChannelObject(unitCaster.GUID);
-        }
-
-        var creatureCaster = unitCaster.AsCreature;
-
-        if (creatureCaster != null)
-            if (unitCaster.UnitData.ChannelObjects.Size() == 1 && unitCaster.UnitData.ChannelObjects[0].IsUnit)
-                if (!creatureCaster.HasSpellFocus(this))
-                    creatureCaster.SetSpellFocus(this, Global.ObjAccessor.GetWorldObject(creatureCaster, unitCaster.UnitData.ChannelObjects[0]));
-
-        unitCaster.ChannelSpellId = SpellInfo.Id;
-        unitCaster.SetChannelVisual(SpellVisual);
-    }
-
-    private void SendResurrectRequest(Player target)
-    {
-        // get resurrector name for creature resurrections, otherwise packet will be not accepted
-        // for player resurrections the name is looked up by guid
-        var sentName = "";
-
-        if (!Caster.IsPlayer)
-            sentName = Caster.GetName(target.Session.SessionDbLocaleIndex);
-
-        ResurrectRequest resurrectRequest = new();
-
-        {
-            ResurrectOffererGUID = Caster.GUID,
-            ResurrectOffererVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-            Name = sentName,
-            Sickness = Caster.IsUnit && !Caster.IsTypeId(TypeId.Player), // "you'll be afflicted with resurrection sickness"
-            UseTimer = !SpellInfo.HasAttribute(SpellAttr3.NoResTimer)
-        }
-
-        v pet = target.CurrentPet;
-
-        if (pet)
-        {
-            var charmInfo = pet.GetCharmInfo();
-
-            if (charmInfo != null)
-                resurrectRequest.PetNumber = charmInfo.GetPetNumber();
-        }
-
-        resurrectRequest.SpellID = SpellInfo.Id;
-
-        target.SendPacket(resurrectRequest);
-    }
-
-    private void TakeCastItem()
-    {
-        if (CastItem == null || !Caster.IsTypeId(TypeId.Player))
-            return;
-
-        // not remove cast item at triggered spell (equipping, weapon damage, etc)
-        if (Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnoreCastItem))
-            return;
-
-        var proto = CastItem.Template;
-
-        if (proto == null)
-        {
-            // This code is to avoid a crash
-            // I'm not sure, if this is really an error, but I guess every item needs a prototype
-            Log.Logger.Error("Cast item has no item prototype {0}", CastItem.GUID.ToString());
-
-            return;
-        }
-
-        var expendable = false;
-        var withoutCharges = false;
-
-        foreach (var itemEffect in CastItem.Effects)
-        {
-            if (itemEffect.LegacySlotIndex >= CastItem.ItemData.SpellCharges.GetSize())
-                continue;
-
-            // item has limited charges
-            if (itemEffect.Charges != 0)
-            {
-                if (itemEffect.Charges < 0)
-                    expendable = true;
-
-                var charges = CastItem.GetSpellCharges(itemEffect.LegacySlotIndex);
-
-                // item has charges left
-                if (charges != 0)
+                    break;
+                // check key skill (only single first fit case can be)
+                case LockKeyType.Skill:
                 {
-                    if (charges > 0)
-                        --charges;
-                    else
-                        ++charges;
+                    reqKey = true;
 
-                    if (proto.MaxStackSize == 1)
-                        CastItem.SetSpellCharges(itemEffect.LegacySlotIndex, charges);
+                    // wrong locktype, skip
+                    if (effect.MiscValue != lockInfo.Index[j])
+                        continue;
 
-                    CastItem.SetState(ItemUpdateState.Changed, Caster.AsPlayer);
-                }
+                    skillId = SharedConst.SkillByLockType((LockType)lockInfo.Index[j]);
 
-                // all charges used
-                withoutCharges = (charges == 0);
-            }
-        }
-
-        if (expendable && withoutCharges)
-        {
-            uint count = 1;
-            Caster.AsPlayer.DestroyItemCount(CastItem, ref count, true);
-
-            // prevent crash at access to deleted m_targets.GetItemTarget
-            if (CastItem == Targets.ItemTarget)
-                Targets.ItemTarget = null;
-
-            CastItem = null;
-            CastItemGuid.Clear();
-            CastItemEntry = 0;
-        }
-    }
-
-    private void TakePower()
-    {
-        // GameObjects don't use power
-        var unitCaster = Caster.AsUnit;
-
-        if (!unitCaster)
-            return;
-
-        if (CastItem != null || TriggeredByAuraSpell != null)
-            return;
-
-        //Don't take power if the spell is cast while .cheat power is enabled.
-        if (unitCaster.IsTypeId(TypeId.Player))
-            if (unitCaster.AsPlayer.GetCommandStatus(PlayerCommandStates.Power))
-                return;
-
-        foreach (var cost in PowerCost)
-        {
-            var hit = true;
-
-            if (unitCaster.IsTypeId(TypeId.Player))
-                if (SpellInfo.HasAttribute(SpellAttr1.DiscountPowerOnMiss))
-                {
-                    var targetGUID = Targets.UnitTargetGUID;
-
-                    if (!targetGUID.IsEmpty)
+                    if (skillId != SkillType.None || lockInfo.Index[j] == (uint)LockType.Lockpicking)
                     {
-                        var ihit = UniqueTargetInfo.FirstOrDefault(targetInfo => targetInfo.TargetGuid == targetGUID && targetInfo.MissCondition != SpellMissInfo.None);
+                        reqSkillValue = lockInfo.Skill[j];
 
-                        if (ihit != null)
-                        {
-                            hit = false;
-                            //lower spell cost on fail (by talent aura)
-                            var modOwner = unitCaster.SpellModOwner;
+                        // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
+                        skillValue = 0;
 
-                            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.PowerCostOnMiss, ref cost.Amount);
-                        }
+                        if (!CastItem && unitCaster.IsTypeId(TypeId.Player))
+                            skillValue = unitCaster.AsPlayer.GetSkillValue(skillId);
+                        else if (lockInfo.Index[j] == (uint)LockType.Lockpicking)
+                            skillValue = (int)unitCaster.Level * 5;
+
+                        // skill bonus provided by casting spell (mostly item spells)
+                        // add the effect base points modifier from the spell cast (cheat lock / skeleton key etc.)
+                        if (effect.TargetA.Target == Framework.Constants.Targets.GameobjectItemTarget || effect.TargetB.Target == Framework.Constants.Targets.GameobjectItemTarget)
+                            skillValue += (int)effect.CalcValue();
+
+                        if (skillValue < reqSkillValue)
+                            return SpellCastResult.LowCastlevel;
                     }
+
+                    return SpellCastResult.SpellCastOk;
                 }
+                case LockKeyType.Spell:
+                    if (SpellInfo.Id == lockInfo.Index[j])
+                        return SpellCastResult.SpellCastOk;
 
-            if (cost.Power == PowerType.Runes)
-            {
-                TakeRunePower(hit);
+                    reqKey = true;
 
-                continue;
+                    break;
             }
 
-            if (cost.Amount == 0)
-                continue;
-
-            // health as power used
-            if (cost.Power == PowerType.Health)
-            {
-                unitCaster.ModifyHealth(-cost.Amount);
-
-                continue;
-            }
-
-            if (cost.Power >= PowerType.Max)
-            {
-                Log.Logger.Error("Spell.TakePower: Unknown power type '{0}'", cost.Power);
-
-                continue;
-            }
-
-            unitCaster.ModifyPower(cost.Power, -cost.Amount);
-            ForEachSpellScript<ISpellOnTakePower>(a => a.TakePower(cost));
-        }
-    }
-
-    private SpellCastResult CheckRuneCost()
-    {
-        var runeCost = PowerCost.Sum(cost => cost.Power == PowerType.Runes ? cost.Amount : 0);
-
-        if (runeCost == 0)
-            return SpellCastResult.SpellCastOk;
-
-        var player = Caster.AsPlayer;
-
-        if (!player)
-            return SpellCastResult.SpellCastOk;
-
-        if (player.Class != PlayerClass.Deathknight)
-            return SpellCastResult.SpellCastOk;
-
-        var readyRunes = 0;
-
-        for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
-            if (player.GetRuneCooldown(i) == 0)
-                ++readyRunes;
-
-        if (readyRunes < runeCost)
-            return SpellCastResult.NoPower; // not sure if result code is correct
+        if (reqKey)
+            return SpellCastResult.BadTargets;
 
         return SpellCastResult.SpellCastOk;
     }
 
-    private void TakeRunePower(bool didHit)
+    private SpellCastResult CheckArenaAndRatedBattlegroundCastRules()
     {
-        if (!Caster.IsTypeId(TypeId.Player) || Caster.AsPlayer.Class != PlayerClass.Deathknight)
-            return;
+        var isRatedBattleground = false; // NYI
+        var isArena = !isRatedBattleground;
 
-        var player = Caster.AsPlayer;
-        _runesState = player.GetRunesState(); // store previous state
+        // check USABLE attributes
+        // USABLE takes precedence over NOT_USABLE
+        if (isRatedBattleground && SpellInfo.HasAttribute(SpellAttr9.UsableInRatedBattlegrounds))
+            return SpellCastResult.SpellCastOk;
 
-        var runeCost = PowerCost.Sum(cost => cost.Power == PowerType.Runes ? cost.Amount : 0);
+        if (isArena && SpellInfo.HasAttribute(SpellAttr4.IgnoreDefaultArenaRestrictions))
+            return SpellCastResult.SpellCastOk;
 
-        for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
-            if (player.GetRuneCooldown(i) == 0 && runeCost > 0)
-            {
-                player.SetRuneCooldown(i, didHit ? player.GetRuneBaseCooldown() : RuneCooldowns.Miss);
-                --runeCost;
-            }
-    }
+        // check NOT_USABLE attributes
+        if (SpellInfo.HasAttribute(SpellAttr4.NotInArenaOrRatedBattleground))
+            return isArena ? SpellCastResult.NotInArena : SpellCastResult.NotInBattleground;
 
-    private void TakeReagents()
-    {
-        if (!Caster.IsTypeId(TypeId.Player))
-            return;
+        if (isArena && SpellInfo.HasAttribute(SpellAttr9.NotUsableInArena))
+            return SpellCastResult.NotInArena;
 
-        // do not take reagents for these item casts
-        if (CastItem != null && CastItem.Template.HasFlag(ItemFlags.NoReagentCost))
-            return;
+        // check cooldowns
+        var spellCooldown = SpellInfo.RecoveryTime1;
 
-        var p_caster = Caster.AsPlayer;
+        if (isArena && spellCooldown > 10 * Time.MINUTE * Time.IN_MILLISECONDS) // not sure if still needed
+            return SpellCastResult.NotInArena;
 
-        if (p_caster.CanNoReagentCast(SpellInfo))
-            return;
+        if (isRatedBattleground && spellCooldown > 15 * Time.MINUTE * Time.IN_MILLISECONDS)
+            return SpellCastResult.NotInBattleground;
 
-        for (var x = 0; x < SpellConst.MaxReagents; ++x)
-        {
-            if (SpellInfo.Reagent[x] <= 0)
-                continue;
-
-            var itemid = (uint)SpellInfo.Reagent[x];
-            var itemcount = SpellInfo.ReagentCount[x];
-
-            // if CastItem is also spell reagent
-            if (CastItem != null && CastItem.Entry == itemid)
-            {
-                foreach (var itemEffect in CastItem.Effects)
-                {
-                    if (itemEffect.LegacySlotIndex >= CastItem.ItemData.SpellCharges.GetSize())
-                        continue;
-
-                    // CastItem will be used up and does not count as reagent
-                    var charges = CastItem.GetSpellCharges(itemEffect.LegacySlotIndex);
-
-                    if (itemEffect.Charges < 0 && Math.Abs(charges) < 2)
-                    {
-                        ++itemcount;
-
-                        break;
-                    }
-                }
-
-                CastItem = null;
-                CastItemGuid.Clear();
-                CastItemEntry = 0;
-            }
-
-            // if GetItemTarget is also spell reagent
-            if (Targets.ItemTargetEntry == itemid)
-                Targets.ItemTarget = null;
-
-            p_caster.DestroyItemCount(itemid, itemcount, true);
-        }
-
-        foreach (var reagentsCurrency in SpellInfo.ReagentsCurrency)
-            p_caster.RemoveCurrency(reagentsCurrency.CurrencyTypesID, -reagentsCurrency.CurrencyCount, CurrencyDestroyReason.Spell);
-    }
-
-    private void HandleThreatSpells()
-    {
-        // wild GameObject spells don't cause threat
-        var unitCaster = (OriginalCaster ? OriginalCaster : Caster.AsUnit);
-
-        if (unitCaster == null)
-            return;
-
-        if (UniqueTargetInfo.Empty())
-            return;
-
-        if (!SpellInfo.HasInitialAggro)
-            return;
-
-        double threat = 0.0f;
-        var threatEntry = Global.SpellMgr.GetSpellThreatEntry(SpellInfo.Id);
-
-        if (threatEntry != null)
-        {
-            if (threatEntry.ApPctMod != 0.0f)
-                threat += threatEntry.ApPctMod * unitCaster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
-
-            threat += threatEntry.FlatMod;
-        }
-        else if (!SpellInfo.HasAttribute(SpellCustomAttributes.NoInitialThreat))
-        {
-            threat += SpellInfo.SpellLevel;
-        }
-
-        // past this point only multiplicative effects occur
-        if (threat == 0.0f)
-            return;
-
-        // since 2.0.1 threat from positive effects also is distributed among all targets, so the overall caused threat is at most the defined bonus
-        threat /= UniqueTargetInfo.Count;
-
-        foreach (var ihit in UniqueTargetInfo)
-        {
-            var threatToAdd = threat;
-
-            if (ihit.MissCondition != SpellMissInfo.None)
-                threatToAdd = 0.0f;
-
-            var target = Global.ObjAccessor.GetUnit(unitCaster, ihit.TargetGuid);
-
-            if (target == null)
-                continue;
-
-            // positive spells distribute threat among all units that are in combat with target, like healing
-            if (IsPositive)
-            {
-                target.GetThreatManager().ForwardThreatForAssistingMe(unitCaster, threatToAdd, SpellInfo);
-            }
-            // for negative spells threat gets distributed among affected targets
-            else
-            {
-                if (!target.CanHaveThreatList)
-                    continue;
-
-                target.GetThreatManager().AddThreat(unitCaster, threatToAdd, SpellInfo, true);
-            }
-        }
-
-        Log.Logger.Debug("Spell {0}, added an additional {1} threat for {2} {3} target(s)", SpellInfo.Id, threat, IsPositive ? "assisting" : "harming", UniqueTargetInfo.Count);
+        return SpellCastResult.SpellCastOk;
     }
 
     private SpellCastResult CheckCasterAuras(ref int paramOne)
@@ -7436,270 +5045,142 @@ public partial class Spell : IDisposable
         return SpellCastResult.SpellCastOk;
     }
 
-    private bool CheckSpellCancelsAuraEffect(AuraType auraType, ref int param1)
+    private void CheckDst()
     {
-        var unitCaster = (OriginalCaster ? OriginalCaster : Caster.AsUnit);
+        if (!Targets.HasDst) Targets.SetDst(Caster);
+    }
 
-        if (unitCaster == null)
+    private bool CheckEffectTarget(Unit target, SpellEffectInfo spellEffectInfo, Position losPosition)
+    {
+        if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
             return false;
 
-        // Checking auras is needed now, because you are prevented by some state but the spell grants immunity.
-        var auraEffects = unitCaster.GetAuraEffectsByType(auraType);
+        switch (spellEffectInfo.ApplyAuraName)
+        {
+            case AuraType.ModPossess:
+            case AuraType.ModCharm:
+            case AuraType.ModPossessPet:
+            case AuraType.AoeCharm:
+                if (target.VehicleKit1 && target.VehicleKit1.IsControllableVehicle())
+                    return false;
 
-        if (auraEffects.Empty())
+                if (target.IsMounted)
+                    return false;
+
+                if (!target.CharmerGUID.IsEmpty)
+                    return false;
+
+                var damage = CalculateDamage(spellEffectInfo, target);
+
+                if (damage != 0)
+                    if (target.GetLevelForTarget(Caster) > damage)
+                        return false;
+
+                break;
+            default:
+                break;
+        }
+
+        // check for ignore LOS on the effect itself
+        if (SpellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) || Global.DisableMgr.IsDisabledFor(DisableType.Spell, SpellInfo.Id, null, (byte)DisableFlags.SpellLOS))
             return true;
 
-        foreach (var aurEff in auraEffects)
+        // check if gameobject ignores LOS
+        var gobCaster = Caster.AsGameObject;
+
+        if (gobCaster != null)
+            if (gobCaster.Template.GetRequireLOS() == 0)
+                return true;
+
+        // if spell is triggered, need to check for LOS disable on the aura triggering it and inherit that behaviour
+        if (!SpellInfo.HasAttribute(SpellAttr5.AlwaysLineOfSight) && IsTriggered && TriggeredByAuraSpell != null && (TriggeredByAuraSpell.HasAttribute(SpellAttr2.IgnoreLineOfSight) || Global.DisableMgr.IsDisabledFor(DisableType.Spell, TriggeredByAuraSpell.Id, null, (byte)DisableFlags.SpellLOS)))
+            return true;
+
+        // @todo shit below shouldn't be here, but it's temporary
+        //Check targets for LOS visibility
+        switch (spellEffectInfo.Effect)
         {
-            if (SpellInfo.SpellCancelsAuraEffect(aurEff))
-                continue;
+            case SpellEffectName.SkinPlayerCorpse:
+            {
+                if (Targets.CorpseTargetGUID.IsEmpty)
+                {
+                    if (target.Location.IsWithinLOSInMap(Caster, LineOfSightChecks.All, ModelIgnoreFlags.M2) && target.HasUnitFlag(UnitFlags.Skinnable))
+                        return true;
 
-            param1 = (int)aurEff.GetSpellEffectInfo().Mechanic;
+                    return false;
+                }
 
-            if (param1 == 0)
-                param1 = (int)aurEff.SpellInfo.Mechanic;
+                var corpse = ObjectAccessor.GetCorpse(Caster, Targets.CorpseTargetGUID);
 
-            return false;
+                if (!corpse)
+                    return false;
+
+                if (target.GUID != corpse.OwnerGUID)
+                    return false;
+
+                if (!corpse.HasCorpseDynamicFlag(CorpseDynFlags.Lootable))
+                    return false;
+
+                if (!corpse.Location.IsWithinLOSInMap(Caster, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                    return false;
+
+                break;
+            }
+            default:
+            {
+                if (losPosition == null || SpellInfo.HasAttribute(SpellAttr5.AlwaysAoeLineOfSight))
+                {
+                    // Get GO cast coordinates if original caster . GO
+                    WorldObject caster = null;
+
+                    if (_originalCasterGuid.IsGameObject)
+                        caster = Caster.Location.Map.GetGameObject(_originalCasterGuid);
+
+                    if (!caster)
+                        caster = Caster;
+
+                    if (target != Caster && !target.Location.IsWithinLOSInMap(caster, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                        return false;
+                }
+
+                if (losPosition != null)
+                    if (!target.Location.IsWithinLOS(losPosition.X, losPosition.Y, losPosition.Z, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                        return false;
+
+                break;
+            }
         }
 
         return true;
     }
 
-    private bool CheckSpellCancelsCharm(ref int param1)
+    private bool CheckEffectTarget(GameObject target, SpellEffectInfo spellEffectInfo)
     {
-        return CheckSpellCancelsAuraEffect(AuraType.ModCharm, ref param1) ||
-               CheckSpellCancelsAuraEffect(AuraType.AoeCharm, ref param1) ||
-               CheckSpellCancelsAuraEffect(AuraType.ModPossess, ref param1);
-    }
+        if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
+            return false;
 
-    private bool CheckSpellCancelsStun(ref int param1)
-    {
-        return CheckSpellCancelsAuraEffect(AuraType.ModStun, ref param1) &&
-               CheckSpellCancelsAuraEffect(AuraType.ModStunDisableGravity, ref param1);
-    }
-
-    private bool CheckSpellCancelsSilence(ref int param1)
-    {
-        return CheckSpellCancelsAuraEffect(AuraType.ModSilence, ref param1) ||
-               CheckSpellCancelsAuraEffect(AuraType.ModPacifySilence, ref param1);
-    }
-
-    private bool CheckSpellCancelsPacify(ref int param1)
-    {
-        return CheckSpellCancelsAuraEffect(AuraType.ModPacify, ref param1) ||
-               CheckSpellCancelsAuraEffect(AuraType.ModPacifySilence, ref param1);
-    }
-
-    private bool CheckSpellCancelsFear(ref int param1)
-    {
-        return CheckSpellCancelsAuraEffect(AuraType.ModFear, ref param1);
-    }
-
-    private bool CheckSpellCancelsConfuse(ref int param1)
-    {
-        return CheckSpellCancelsAuraEffect(AuraType.ModConfuse, ref param1);
-    }
-
-    private bool CheckSpellCancelsNoActions(ref int param1)
-    {
-        return CheckSpellCancelsAuraEffect(AuraType.ModNoActions, ref param1);
-    }
-
-    private SpellCastResult CheckArenaAndRatedBattlegroundCastRules()
-    {
-        var isRatedBattleground = false; // NYI
-        var isArena = !isRatedBattleground;
-
-        // check USABLE attributes
-        // USABLE takes precedence over NOT_USABLE
-        if (isRatedBattleground && SpellInfo.HasAttribute(SpellAttr9.UsableInRatedBattlegrounds))
-            return SpellCastResult.SpellCastOk;
-
-        if (isArena && SpellInfo.HasAttribute(SpellAttr4.IgnoreDefaultArenaRestrictions))
-            return SpellCastResult.SpellCastOk;
-
-        // check NOT_USABLE attributes
-        if (SpellInfo.HasAttribute(SpellAttr4.NotInArenaOrRatedBattleground))
-            return isArena ? SpellCastResult.NotInArena : SpellCastResult.NotInBattleground;
-
-        if (isArena && SpellInfo.HasAttribute(SpellAttr9.NotUsableInArena))
-            return SpellCastResult.NotInArena;
-
-        // check cooldowns
-        var spellCooldown = SpellInfo.RecoveryTime1;
-
-        if (isArena && spellCooldown > 10 * Time.Minute * Time.InMilliseconds) // not sure if still needed
-            return SpellCastResult.NotInArena;
-
-        if (isRatedBattleground && spellCooldown > 15 * Time.Minute * Time.InMilliseconds)
-            return SpellCastResult.NotInBattleground;
-
-        return SpellCastResult.SpellCastOk;
-    }
-
-    private SpellCastResult CheckRange(bool strict)
-    {
-        // Don't check for instant cast spells
-        if (!strict && CastTime == 0)
-            return SpellCastResult.SpellCastOk;
-
-        var (minRange, maxRange) = GetMinMaxRange(strict);
-
-        // dont check max_range to strictly after cast
-        if (SpellInfo.RangeEntry != null && SpellInfo.RangeEntry.Flags != SpellRangeFlag.Melee && !strict)
-            maxRange += Math.Min(3.0f, maxRange * 0.1f); // 10% but no more than 3.0f
-
-        // get square values for sqr distance checks
-        minRange *= minRange;
-        maxRange *= maxRange;
-
-        var target = Targets.UnitTarget;
-
-        if (target && target != Caster)
+        switch (spellEffectInfo.Effect)
         {
-            if (Caster.Location.GetExactDistSq(target.Location) > maxRange)
-                return SpellCastResult.OutOfRange;
+            case SpellEffectName.GameObjectDamage:
+            case SpellEffectName.GameobjectRepair:
+            case SpellEffectName.GameobjectSetDestructionState:
+                if (target.GoType != GameObjectTypes.DestructibleBuilding)
+                    return false;
 
-            if (minRange > 0.0f && Caster.Location.GetExactDistSq(target.Location) < minRange)
-                return SpellCastResult.OutOfRange;
-
-            if (Caster.IsTypeId(TypeId.Player) &&
-                ((SpellInfo.FacingCasterFlags.HasAnyFlag(1u) && !Caster.Location.HasInArc((float)Math.PI, target.Location)) && !Caster.AsPlayer.IsWithinBoundaryRadius(target)))
-                return SpellCastResult.UnitNotInfront;
+                break;
+            default:
+                break;
         }
 
-        var goTarget = Targets.GOTarget;
-
-        if (goTarget != null)
-            if (!goTarget.IsAtInteractDistance(Caster.AsPlayer, SpellInfo))
-                return SpellCastResult.OutOfRange;
-
-        if (Targets.HasDst && !Targets.HasTraj)
-        {
-            if (Caster.Location.GetExactDistSq(Targets.DstPos) > maxRange)
-                return SpellCastResult.OutOfRange;
-
-            if (minRange > 0.0f && Caster.Location.GetExactDistSq(Targets.DstPos) < minRange)
-                return SpellCastResult.OutOfRange;
-        }
-
-        return SpellCastResult.SpellCastOk;
+        return true;
     }
 
-    private (float minRange, float maxRange) GetMinMaxRange(bool strict)
+    private bool CheckEffectTarget(Item target, SpellEffectInfo spellEffectInfo)
     {
-        var rangeMod = 0.0f;
-        var minRange = 0.0f;
-        var maxRange = 0.0f;
+        if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
+            return false;
 
-        if (strict && SpellInfo.IsNextMeleeSwingSpell)
-            return (0.0f, 100.0f);
-
-        var unitCaster = Caster.AsUnit;
-
-        if (SpellInfo.RangeEntry != null)
-        {
-            var target = Targets.UnitTarget;
-
-            if (SpellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Melee))
-            {
-                // when the target is not a unit, take the caster's combat reach as the target's combat reach.
-                if (unitCaster)
-                    rangeMod = unitCaster.GetMeleeRange(target ? target : unitCaster);
-            }
-            else
-            {
-                var meleeRange = 0.0f;
-
-                if (SpellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Ranged))
-                    // when the target is not a unit, take the caster's combat reach as the target's combat reach.
-                    if (unitCaster != null)
-                        meleeRange = unitCaster.GetMeleeRange(target ? target : unitCaster);
-
-                minRange = Caster.WorldObjectCombat.GetSpellMinRangeForTarget(target, SpellInfo) + meleeRange;
-                maxRange = Caster.WorldObjectCombat.GetSpellMaxRangeForTarget(target, SpellInfo);
-
-                if (target || Targets.CorpseTarget)
-                {
-                    rangeMod = Caster.CombatReach + (target ? target.CombatReach : Caster.CombatReach);
-
-                    if (minRange > 0.0f && !SpellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Ranged))
-                        minRange += rangeMod;
-                }
-            }
-
-            if (target != null &&
-                unitCaster is { IsMoving: true } &&
-                target.IsMoving &&
-                !unitCaster.IsWalking &&
-                !target.IsWalking &&
-                (SpellInfo.RangeEntry.Flags.HasFlag(SpellRangeFlag.Melee) || target.IsPlayer))
-                rangeMod += 8.0f / 3.0f;
-        }
-
-        if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && Caster.IsTypeId(TypeId.Player))
-        {
-            var ranged = Caster.AsPlayer.GetWeaponForAttack(WeaponAttackType.RangedAttack, true);
-
-            if (ranged)
-                maxRange *= ranged.Template.RangedModRange * 0.01f;
-        }
-
-        var modOwner = Caster.SpellModOwner;
-
-        if (modOwner)
-            modOwner.ApplySpellMod(SpellInfo, SpellModOp.Range, ref maxRange, this);
-
-        maxRange += rangeMod;
-
-        return (minRange, maxRange);
-    }
-
-    private SpellCastResult CheckPower()
-    {
-        var unitCaster = Caster.AsUnit;
-
-        if (unitCaster == null)
-            return SpellCastResult.SpellCastOk;
-
-        // item cast not used power
-        if (CastItem != null)
-            return SpellCastResult.SpellCastOk;
-
-        foreach (var cost in PowerCost)
-        {
-            // health as power used - need check health amount
-            if (cost.Power == PowerType.Health)
-            {
-                if (unitCaster.Health <= cost.Amount)
-                    return SpellCastResult.CasterAurastate;
-
-                continue;
-            }
-
-            // Check valid power type
-            if (cost.Power >= PowerType.Max)
-            {
-                Log.Logger.Error("Spell.CheckPower: Unknown power type '{0}'", cost.Power);
-
-                return SpellCastResult.Unknown;
-            }
-
-            //check rune cost only if a spell has PowerType == POWER_RUNES
-            if (cost.Power == PowerType.Runes)
-            {
-                var failReason = CheckRuneCost();
-
-                if (failReason != SpellCastResult.SpellCastOk)
-                    return failReason;
-            }
-
-            // Check power amount
-            if (unitCaster.GetPower(cost.Power) < cost.Amount)
-                return SpellCastResult.NoPower;
-        }
-
-        return SpellCastResult.SpellCastOk;
+        return true;
     }
 
     private SpellCastResult CheckItems(ref int param1, ref int param2)
@@ -8336,6 +5817,3313 @@ public partial class Spell : IDisposable
         return SpellCastResult.SpellCastOk;
     }
 
+    private SpellCastResult CheckPower()
+    {
+        var unitCaster = Caster.AsUnit;
+
+        if (unitCaster == null)
+            return SpellCastResult.SpellCastOk;
+
+        // item cast not used power
+        if (CastItem != null)
+            return SpellCastResult.SpellCastOk;
+
+        foreach (var cost in PowerCost)
+        {
+            // health as power used - need check health amount
+            if (cost.Power == PowerType.Health)
+            {
+                if (unitCaster.Health <= cost.Amount)
+                    return SpellCastResult.CasterAurastate;
+
+                continue;
+            }
+
+            // Check valid power type
+            if (cost.Power >= PowerType.Max)
+            {
+                Log.Logger.Error("Spell.CheckPower: Unknown power type '{0}'", cost.Power);
+
+                return SpellCastResult.Unknown;
+            }
+
+            //check rune cost only if a spell has PowerType == POWER_RUNES
+            if (cost.Power == PowerType.Runes)
+            {
+                var failReason = CheckRuneCost();
+
+                if (failReason != SpellCastResult.SpellCastOk)
+                    return failReason;
+            }
+
+            // Check power amount
+            if (unitCaster.GetPower(cost.Power) < cost.Amount)
+                return SpellCastResult.NoPower;
+        }
+
+        return SpellCastResult.SpellCastOk;
+    }
+
+    private SpellCastResult CheckRange(bool strict)
+    {
+        // Don't check for instant cast spells
+        if (!strict && CastTime == 0)
+            return SpellCastResult.SpellCastOk;
+
+        var (minRange, maxRange) = GetMinMaxRange(strict);
+
+        // dont check max_range to strictly after cast
+        if (SpellInfo.RangeEntry != null && SpellInfo.RangeEntry.Flags != SpellRangeFlag.Melee && !strict)
+            maxRange += Math.Min(3.0f, maxRange * 0.1f); // 10% but no more than 3.0f
+
+        // get square values for sqr distance checks
+        minRange *= minRange;
+        maxRange *= maxRange;
+
+        var target = Targets.UnitTarget;
+
+        if (target && target != Caster)
+        {
+            if (Caster.Location.GetExactDistSq(target.Location) > maxRange)
+                return SpellCastResult.OutOfRange;
+
+            if (minRange > 0.0f && Caster.Location.GetExactDistSq(target.Location) < minRange)
+                return SpellCastResult.OutOfRange;
+
+            if (Caster.IsTypeId(TypeId.Player) &&
+                ((SpellInfo.FacingCasterFlags.HasAnyFlag(1u) && !Caster.Location.HasInArc((float)Math.PI, target.Location)) && !Caster.AsPlayer.IsWithinBoundaryRadius(target)))
+                return SpellCastResult.UnitNotInfront;
+        }
+
+        var goTarget = Targets.GOTarget;
+
+        if (goTarget != null)
+            if (!goTarget.IsAtInteractDistance(Caster.AsPlayer, SpellInfo))
+                return SpellCastResult.OutOfRange;
+
+        if (Targets.HasDst && !Targets.HasTraj)
+        {
+            if (Caster.Location.GetExactDistSq(Targets.DstPos) > maxRange)
+                return SpellCastResult.OutOfRange;
+
+            if (minRange > 0.0f && Caster.Location.GetExactDistSq(Targets.DstPos) < minRange)
+                return SpellCastResult.OutOfRange;
+        }
+
+        return SpellCastResult.SpellCastOk;
+    }
+
+    private SpellCastResult CheckRuneCost()
+    {
+        var runeCost = PowerCost.Sum(cost => cost.Power == PowerType.Runes ? cost.Amount : 0);
+
+        if (runeCost == 0)
+            return SpellCastResult.SpellCastOk;
+
+        var player = Caster.AsPlayer;
+
+        if (!player)
+            return SpellCastResult.SpellCastOk;
+
+        if (player.Class != PlayerClass.Deathknight)
+            return SpellCastResult.SpellCastOk;
+
+        var readyRunes = 0;
+
+        for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
+            if (player.GetRuneCooldown(i) == 0)
+                ++readyRunes;
+
+        if (readyRunes < runeCost)
+            return SpellCastResult.NoPower; // not sure if result code is correct
+
+        return SpellCastResult.SpellCastOk;
+    }
+
+    private bool CheckScriptEffectImplicitTargets(int effIndex, int effIndexToCheck)
+    {
+        // Skip if there are not any script
+        if (_loadedScripts.Empty())
+            return true;
+
+        var otsTargetEffIndex = GetEffectScripts(SpellScriptHookType.ObjectTargetSelect, effIndex).Count > 0;
+        var otsEffIndexCheck = GetEffectScripts(SpellScriptHookType.ObjectTargetSelect, effIndexToCheck).Count > 0;
+
+        var oatsTargetEffIndex = GetEffectScripts(SpellScriptHookType.ObjectAreaTargetSelect, effIndex).Count > 0;
+        var oatsEffIndexCheck = GetEffectScripts(SpellScriptHookType.ObjectAreaTargetSelect, effIndexToCheck).Count > 0;
+
+        if ((otsTargetEffIndex && !otsEffIndexCheck) ||
+            (!otsTargetEffIndex && otsEffIndexCheck))
+            return false;
+
+        if ((oatsTargetEffIndex && !oatsEffIndexCheck) ||
+            (!oatsTargetEffIndex && oatsEffIndexCheck))
+            return false;
+
+        return true;
+    }
+
+    private bool CheckSpellCancelsAuraEffect(AuraType auraType, ref int param1)
+    {
+        var unitCaster = (OriginalCaster ? OriginalCaster : Caster.AsUnit);
+
+        if (unitCaster == null)
+            return false;
+
+        // Checking auras is needed now, because you are prevented by some state but the spell grants immunity.
+        var auraEffects = unitCaster.GetAuraEffectsByType(auraType);
+
+        if (auraEffects.Empty())
+            return true;
+
+        foreach (var aurEff in auraEffects)
+        {
+            if (SpellInfo.SpellCancelsAuraEffect(aurEff))
+                continue;
+
+            param1 = (int)aurEff.GetSpellEffectInfo().Mechanic;
+
+            if (param1 == 0)
+                param1 = (int)aurEff.SpellInfo.Mechanic;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool CheckSpellCancelsCharm(ref int param1)
+    {
+        return CheckSpellCancelsAuraEffect(AuraType.ModCharm, ref param1) ||
+               CheckSpellCancelsAuraEffect(AuraType.AoeCharm, ref param1) ||
+               CheckSpellCancelsAuraEffect(AuraType.ModPossess, ref param1);
+    }
+
+    private bool CheckSpellCancelsConfuse(ref int param1)
+    {
+        return CheckSpellCancelsAuraEffect(AuraType.ModConfuse, ref param1);
+    }
+
+    private bool CheckSpellCancelsFear(ref int param1)
+    {
+        return CheckSpellCancelsAuraEffect(AuraType.ModFear, ref param1);
+    }
+
+    private bool CheckSpellCancelsNoActions(ref int param1)
+    {
+        return CheckSpellCancelsAuraEffect(AuraType.ModNoActions, ref param1);
+    }
+
+    private bool CheckSpellCancelsPacify(ref int param1)
+    {
+        return CheckSpellCancelsAuraEffect(AuraType.ModPacify, ref param1) ||
+               CheckSpellCancelsAuraEffect(AuraType.ModPacifySilence, ref param1);
+    }
+
+    private bool CheckSpellCancelsSilence(ref int param1)
+    {
+        return CheckSpellCancelsAuraEffect(AuraType.ModSilence, ref param1) ||
+               CheckSpellCancelsAuraEffect(AuraType.ModPacifySilence, ref param1);
+    }
+
+    private bool CheckSpellCancelsStun(ref int param1)
+    {
+        return CheckSpellCancelsAuraEffect(AuraType.ModStun, ref param1) &&
+               CheckSpellCancelsAuraEffect(AuraType.ModStunDisableGravity, ref param1);
+    }
+
+    private bool CheckSpellEffectHandler(ISpellEffectHandler se, int effIndex)
+    {
+        if (SpellInfo.Effects.Count <= effIndex)
+            return false;
+
+        var spellEffectInfo = SpellInfo.GetEffect(effIndex);
+
+        return CheckSpellEffectHandler(se, spellEffectInfo);
+    }
+
+    private bool CheckSpellEffectHandler(ISpellEffectHandler se, SpellEffectInfo spellEffectInfo)
+    {
+        if (spellEffectInfo.Effect == 0 && se.EffectName == 0)
+            return true;
+
+        if (spellEffectInfo.Effect == 0)
+            return false;
+
+        return se.EffectName == SpellEffectName.Any || spellEffectInfo.Effect == se.EffectName;
+    }
+
+    private void CheckSrc()
+    {
+        if (!Targets.HasSrc) Targets.SetSrc(Caster);
+    }
+
+    private void DoEffectOnLaunchTarget(TargetInfo targetInfo, double multiplier, SpellEffectInfo spellEffectInfo)
+    {
+        Unit unit = null;
+
+        // In case spell hit target, do all effect on that target
+        if (targetInfo.MissCondition == SpellMissInfo.None || (targetInfo.MissCondition == SpellMissInfo.Block && !SpellInfo.HasAttribute(SpellAttr3.CompletelyBlocked)))
+            unit = Caster.GUID == targetInfo.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, targetInfo.TargetGuid);
+        // In case spell reflect from target, do all effect on caster (if hit)
+        else if (targetInfo.MissCondition == SpellMissInfo.Reflect && targetInfo.ReflectResult == SpellMissInfo.None)
+            unit = Caster.AsUnit;
+
+        if (!unit)
+            return;
+
+        DamageInEffects = 0;
+        HealingInEffects = 0;
+
+        HandleEffects(unit, null, null, null, spellEffectInfo, SpellEffectHandleMode.LaunchTarget);
+
+        if (OriginalCaster != null && DamageInEffects > 0)
+            if (spellEffectInfo.IsTargetingArea || spellEffectInfo.IsAreaAuraEffect || spellEffectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
+            {
+                DamageInEffects = unit.CalculateAoeAvoidance(DamageInEffects, (uint)SpellInfo.SchoolMask, OriginalCaster.GUID);
+
+                if (OriginalCaster.IsPlayer)
+                {
+                    // cap damage of player AOE
+                    var targetAmount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
+
+                    if (targetAmount > 20)
+                        DamageInEffects = (int)(DamageInEffects * 20 / targetAmount);
+                }
+            }
+
+        if (_applyMultiplierMask.Contains(spellEffectInfo.EffectIndex))
+        {
+            DamageInEffects = (int)(DamageInEffects * _damageMultipliers[spellEffectInfo.EffectIndex]);
+            HealingInEffects = (int)(HealingInEffects * _damageMultipliers[spellEffectInfo.EffectIndex]);
+
+            _damageMultipliers[spellEffectInfo.EffectIndex] *= multiplier;
+        }
+
+        targetInfo.Damage += DamageInEffects;
+        targetInfo.Healing += HealingInEffects;
+    }
+
+    private void DoProcessTargetContainer<T>(List<T> targetContainer) where T : TargetInfoBase
+    {
+        foreach (TargetInfoBase target in targetContainer)
+            target.PreprocessTarget(this);
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+        {
+            foreach (TargetInfoBase target in targetContainer)
+                if (target.Effects.Contains(spellEffectInfo.EffectIndex))
+                    target.DoTargetSpellHit(this, spellEffectInfo);
+        }
+
+        foreach (TargetInfoBase target in targetContainer)
+            target.DoDamageAndTriggers(this);
+    }
+
+    private void ExecuteLogEffectCreateItem(SpellEffectName effect, uint entry)
+    {
+        SpellLogEffectTradeSkillItemParams spellLogEffectTradeSkillItemParams;
+        spellLogEffectTradeSkillItemParams.ItemID = (int)entry;
+
+        GetExecuteLogEffect(effect).TradeSkillTargets.Add(spellLogEffectTradeSkillItemParams);
+    }
+
+    private void ExecuteLogEffectDestroyItem(SpellEffectName effect, uint entry)
+    {
+        SpellLogEffectFeedPetParams spellLogEffectFeedPetParams;
+        spellLogEffectFeedPetParams.ItemID = (int)entry;
+
+        GetExecuteLogEffect(effect).FeedPetTargets.Add(spellLogEffectFeedPetParams);
+    }
+
+    private void ExecuteLogEffectDurabilityDamage(SpellEffectName effect, Unit victim, int itemId, int amount)
+    {
+        SpellLogEffectDurabilityDamageParams spellLogEffectDurabilityDamageParams;
+        spellLogEffectDurabilityDamageParams.Victim = victim.GUID;
+        spellLogEffectDurabilityDamageParams.ItemID = itemId;
+        spellLogEffectDurabilityDamageParams.Amount = amount;
+
+        GetExecuteLogEffect(effect).DurabilityDamageTargets.Add(spellLogEffectDurabilityDamageParams);
+    }
+
+    private void ExecuteLogEffectExtraAttacks(SpellEffectName effect, Unit victim, uint numAttacks)
+    {
+        SpellLogEffectExtraAttacksParams spellLogEffectExtraAttacksParams;
+        spellLogEffectExtraAttacksParams.Victim = victim.GUID;
+        spellLogEffectExtraAttacksParams.NumAttacks = numAttacks;
+
+        GetExecuteLogEffect(effect).ExtraAttacksTargets.Add(spellLogEffectExtraAttacksParams);
+    }
+
+    private void ExecuteLogEffectOpenLock(SpellEffectName effect, WorldObject obj)
+    {
+        SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
+        spellLogEffectGenericVictimParams.Victim = obj.GUID;
+
+        GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
+    }
+
+    private void ExecuteLogEffectResurrect(SpellEffectName effect, Unit target)
+    {
+        SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
+        spellLogEffectGenericVictimParams.Victim = target.GUID;
+
+        GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
+    }
+
+    private void ExecuteLogEffectSummonObject(SpellEffectName effect, WorldObject obj)
+    {
+        SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
+        spellLogEffectGenericVictimParams.Victim = obj.GUID;
+
+        GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
+    }
+
+    private void ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit target, PowerType powerType, uint points, double amplitude)
+    {
+        SpellLogEffectPowerDrainParams spellLogEffectPowerDrainParams;
+
+        spellLogEffectPowerDrainParams.Victim = target.GUID;
+        spellLogEffectPowerDrainParams.Points = points;
+        spellLogEffectPowerDrainParams.PowerType = (uint)powerType;
+        spellLogEffectPowerDrainParams.Amplitude = (float)amplitude;
+
+        GetExecuteLogEffect(effect).PowerDrainTargets.Add(spellLogEffectPowerDrainParams);
+    }
+
+    private void ExecuteLogEffectUnsummonObject(SpellEffectName effect, WorldObject obj)
+    {
+        SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
+        spellLogEffectGenericVictimParams.Victim = obj.GUID;
+
+        GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
+    }
+
+    private void FinishTargetProcessing()
+    {
+        SendSpellExecuteLog();
+    }
+
+    private string GetDebugInfo()
+    {
+        return $"Id: {SpellInfo.Id} Name: '{SpellInfo.SpellName[Global.WorldMgr.DefaultDbcLocale]}' OriginalCaster: {_originalCasterGuid} State: {State}";
+    }
+
+    private (float minRange, float maxRange) GetMinMaxRange(bool strict)
+    {
+        var rangeMod = 0.0f;
+        var minRange = 0.0f;
+        var maxRange = 0.0f;
+
+        if (strict && SpellInfo.IsNextMeleeSwingSpell)
+            return (0.0f, 100.0f);
+
+        var unitCaster = Caster.AsUnit;
+
+        if (SpellInfo.RangeEntry != null)
+        {
+            var target = Targets.UnitTarget;
+
+            if (SpellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Melee))
+            {
+                // when the target is not a unit, take the caster's combat reach as the target's combat reach.
+                if (unitCaster)
+                    rangeMod = unitCaster.GetMeleeRange(target ? target : unitCaster);
+            }
+            else
+            {
+                var meleeRange = 0.0f;
+
+                if (SpellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Ranged))
+                    // when the target is not a unit, take the caster's combat reach as the target's combat reach.
+                    if (unitCaster != null)
+                        meleeRange = unitCaster.GetMeleeRange(target ? target : unitCaster);
+
+                minRange = Caster.WorldObjectCombat.GetSpellMinRangeForTarget(target, SpellInfo) + meleeRange;
+                maxRange = Caster.WorldObjectCombat.GetSpellMaxRangeForTarget(target, SpellInfo);
+
+                if (target || Targets.CorpseTarget)
+                {
+                    rangeMod = Caster.CombatReach + (target ? target.CombatReach : Caster.CombatReach);
+
+                    if (minRange > 0.0f && !SpellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Ranged))
+                        minRange += rangeMod;
+                }
+            }
+
+            if (target != null &&
+                unitCaster is { IsMoving: true } &&
+                target.IsMoving &&
+                !unitCaster.IsWalking &&
+                !target.IsWalking &&
+                (SpellInfo.RangeEntry.Flags.HasFlag(SpellRangeFlag.Melee) || target.IsPlayer))
+                rangeMod += 8.0f / 3.0f;
+        }
+
+        if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && Caster.IsTypeId(TypeId.Player))
+        {
+            var ranged = Caster.AsPlayer.GetWeaponForAttack(WeaponAttackType.RangedAttack, true);
+
+            if (ranged)
+                maxRange *= ranged.Template.RangedModRange * 0.01f;
+        }
+
+        var modOwner = Caster.SpellModOwner;
+
+        if (modOwner)
+            modOwner.ApplySpellMod(SpellInfo, SpellModOp.Range, ref maxRange, this);
+
+        maxRange += rangeMod;
+
+        return (minRange, maxRange);
+    }
+
+    private void HandleImmediate()
+    {
+        // start channeling if applicable
+        if (SpellInfo.IsChanneled)
+        {
+            if (!TryGetTotalEmpowerDuration(true, out var duration))
+                duration = SpellInfo.Duration;
+
+            if (duration > 0 || SpellValue.Duration.HasValue)
+            {
+                if (!SpellValue.Duration.HasValue)
+                {
+                    // First mod_duration then haste - see Missile Barrage
+                    // Apply duration mod
+                    var modOwner = Caster.SpellModOwner;
+
+                    modOwner?.ApplySpellMod(SpellInfo, SpellModOp.Duration, ref duration);
+
+                    duration = (int)(duration * SpellValue.DurationMul);
+
+                    // Apply haste mods
+                    Caster.WorldObjectCombat.ModSpellDurationTime(SpellInfo, ref duration, this);
+                }
+                else
+                {
+                    duration = SpellValue.Duration.Value;
+                }
+
+                _channeledDuration = duration;
+                SendChannelStart((uint)duration);
+            }
+            else if (duration == -1)
+            {
+                SendChannelStart(unchecked((uint)duration));
+            }
+
+            if (duration != 0)
+            {
+                State = SpellState.Casting;
+
+                // GameObjects shouldn't cast channeled spells
+                Caster. // GameObjects shouldn't cast channeled spells
+                    AsUnit?.AddInterruptMask(SpellInfo.ChannelInterruptFlags, SpellInfo.ChannelInterruptFlags2);
+            }
+        }
+
+        PrepareTargetProcessing();
+
+        // process immediate effects (items, ground, etc.) also initialize some variables
+        _handle_immediate_phase();
+
+        // consider spell hit for some spells without target, so they may proc on finish phase correctly
+        if (UniqueTargetInfo.Empty())
+            HitMask = ProcFlagsHit.Normal;
+        else
+            DoProcessTargetContainer(UniqueTargetInfo);
+
+        DoProcessTargetContainer(_uniqueGoTargetInfo);
+
+        DoProcessTargetContainer(_uniqueCorpseTargetInfo);
+        CallScriptOnHitHandlers();
+
+        FinishTargetProcessing();
+
+        // spell is finished, perform some last features of the spell here
+        _handle_finish_phase();
+
+        // Remove used for cast item if need (it can be already NULL after TakeReagents call
+        TakeCastItem();
+
+        if (State != SpellState.Casting)
+            Finish(); // successfully finish spell cast (not last in case autorepeat or channel spell)
+    }
+
+    private void HandleLaunchPhase()
+    {
+        // handle effects with SPELL_EFFECT_HANDLE_LAUNCH mode
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+        {
+            // don't do anything for empty effect
+            if (!spellEffectInfo.IsEffect())
+                continue;
+
+            HandleEffects(null, null, null, null, spellEffectInfo, SpellEffectHandleMode.Launch);
+        }
+
+        PrepareTargetProcessing();
+
+        foreach (var target in UniqueTargetInfo)
+            PreprocessSpellLaunch(target);
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+        {
+            double multiplier = 1.0f;
+
+            if (_applyMultiplierMask.Contains(spellEffectInfo.EffectIndex))
+                multiplier = spellEffectInfo.CalcDamageMultiplier(OriginalCaster, this);
+
+            foreach (var target in UniqueTargetInfo)
+            {
+                var mask = target.Effects;
+
+                if (!mask.Contains(spellEffectInfo.EffectIndex))
+                    continue;
+
+                DoEffectOnLaunchTarget(target, multiplier, spellEffectInfo);
+            }
+        }
+
+        FinishTargetProcessing();
+    }
+
+    private void HandleThreatSpells()
+    {
+        // wild GameObject spells don't cause threat
+        var unitCaster = (OriginalCaster ? OriginalCaster : Caster.AsUnit);
+
+        if (unitCaster == null)
+            return;
+
+        if (UniqueTargetInfo.Empty())
+            return;
+
+        if (!SpellInfo.HasInitialAggro)
+            return;
+
+        double threat = 0.0f;
+        var threatEntry = Global.SpellMgr.GetSpellThreatEntry(SpellInfo.Id);
+
+        if (threatEntry != null)
+        {
+            if (threatEntry.ApPctMod != 0.0f)
+                threat += threatEntry.ApPctMod * unitCaster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+
+            threat += threatEntry.FlatMod;
+        }
+        else if (!SpellInfo.HasAttribute(SpellCustomAttributes.NoInitialThreat))
+        {
+            threat += SpellInfo.SpellLevel;
+        }
+
+        // past this point only multiplicative effects occur
+        if (threat == 0.0f)
+            return;
+
+        // since 2.0.1 threat from positive effects also is distributed among all targets, so the overall caused threat is at most the defined bonus
+        threat /= UniqueTargetInfo.Count;
+
+        foreach (var ihit in UniqueTargetInfo)
+        {
+            var threatToAdd = threat;
+
+            if (ihit.MissCondition != SpellMissInfo.None)
+                threatToAdd = 0.0f;
+
+            var target = Global.ObjAccessor.GetUnit(unitCaster, ihit.TargetGuid);
+
+            if (target == null)
+                continue;
+
+            // positive spells distribute threat among all units that are in combat with target, like healing
+            if (IsPositive)
+            {
+                target.GetThreatManager().ForwardThreatForAssistingMe(unitCaster, threatToAdd, SpellInfo);
+            }
+            // for negative spells threat gets distributed among affected targets
+            else
+            {
+                if (!target.CanHaveThreatList)
+                    continue;
+
+                target.GetThreatManager().AddThreat(unitCaster, threatToAdd, SpellInfo, true);
+            }
+        }
+
+        Log.Logger.Debug("Spell {0}, added an additional {1} threat for {2} {3} target(s)", SpellInfo.Id, threat, IsPositive ? "assisting" : "harming", UniqueTargetInfo.Count);
+    }
+
+    private bool HasGlobalCooldown()
+    {
+        if (!CanHaveGlobalCooldown(Caster))
+            return false;
+
+        return Caster.AsUnit.SpellHistory.HasGlobalCooldown(SpellInfo);
+    }
+
+    private bool IsAutoActionResetSpell()
+    {
+        if (IsTriggered)
+            return false;
+
+        if (CastTime == 0 && SpellInfo.HasAttribute(SpellAttr6.DoesntResetSwingTimerIfInstant))
+            return false;
+
+        return true;
+    }
+
+    private bool IsDelayableNoMore()
+    {
+        if (_delayAtDamageCount >= 2)
+            return true;
+
+        ++_delayAtDamageCount;
+
+        return false;
+    }
+
+    private bool IsNeedSendToClient()
+    {
+        return SpellVisual.SpellXSpellVisualID != 0 ||
+               SpellVisual.ScriptVisualID != 0 ||
+               SpellInfo.IsChanneled ||
+               SpellInfo.HasAttribute(SpellAttr8.AuraSendAmount) ||
+               SpellInfo.HasHitDelay ||
+               (TriggeredByAuraSpell == null && !IsTriggered);
+    }
+
+    private bool IsValidDeadOrAliveTarget(Unit target)
+    {
+        if (target.IsAlive)
+            return !SpellInfo.IsRequiringDeadTarget;
+
+        if (SpellInfo.IsAllowingDeadTarget)
+            return true;
+
+        return false;
+    }
+
+    private void LoadScripts()
+    {
+        _loadedScripts = Global.ScriptMgr.CreateSpellScripts(SpellInfo.Id, this);
+
+        foreach (var script in _loadedScripts)
+        {
+            Log.Logger.Debug("Spell.LoadScripts: Script `{0}` for spell `{1}` is loaded now", script._GetScriptName(), SpellInfo.Id);
+            script.Register();
+
+            if (script is ISpellScript)
+                foreach (var iFace in script.GetType().GetInterfaces())
+                {
+                    if (iFace.Name == nameof(ISpellScript) || iFace.Name == nameof(IBaseSpellScript))
+                        continue;
+
+                    if (!_spellScriptsByType.TryGetValue(iFace, out var spellScripts))
+                    {
+                        spellScripts = new List<ISpellScript>();
+                        _spellScriptsByType[iFace] = spellScripts;
+                    }
+
+                    spellScripts.Add((ISpellScript)script);
+                    RegisterSpellEffectHandler(script);
+                }
+        }
+    }
+
+    private void PrepareDataForTriggerSystem()
+    {
+        //==========================================================================================
+        // Now fill data for trigger system, need know:
+        // Create base triggers flags for Attacker and Victim (m_procAttacker, m_procVictim and m_hitMask)
+        //==========================================================================================
+
+        ProcVictim = ProcAttacker = new ProcFlagsInit();
+
+        // Get data for type of attack and fill base info for trigger
+        switch (SpellInfo.DmgClass)
+        {
+            case SpellDmgClass.Melee:
+                ProcAttacker = new ProcFlagsInit(ProcFlags.DealMeleeAbility);
+
+                if (AttackType == WeaponAttackType.OffAttack)
+                    ProcAttacker.Or(ProcFlags.OffHandWeaponSwing);
+                else
+                    ProcAttacker.Or(ProcFlags.MainHandWeaponSwing);
+
+                ProcVictim = new ProcFlagsInit(ProcFlags.TakeMeleeAbility);
+
+                break;
+            case SpellDmgClass.Ranged:
+                // Auto attack
+                if (SpellInfo.HasAttribute(SpellAttr2.AutoRepeat))
+                {
+                    ProcAttacker = new ProcFlagsInit(ProcFlags.DealRangedAttack);
+                    ProcVictim = new ProcFlagsInit(ProcFlags.TakeRangedAttack);
+                }
+                else // Ranged spell attack
+                {
+                    ProcAttacker = new ProcFlagsInit(ProcFlags.DealRangedAbility);
+                    ProcVictim = new ProcFlagsInit(ProcFlags.TakeRangedAbility);
+                }
+
+                break;
+            default:
+                if (SpellInfo.EquippedItemClass == ItemClass.Weapon &&
+                    Convert.ToBoolean(SpellInfo.EquippedItemSubClassMask & (1 << (int)ItemSubClassWeapon.Wand)) &&
+                    SpellInfo.HasAttribute(SpellAttr2.AutoRepeat)) // Wands auto attack
+                {
+                    ProcAttacker = new ProcFlagsInit(ProcFlags.DealRangedAttack);
+                    ProcVictim = new ProcFlagsInit(ProcFlags.TakeRangedAttack);
+                }
+
+                break;
+                // For other spells trigger procflags are set in Spell::TargetInfo::DoDamageAndTriggers
+                // Because spell positivity is dependant on target
+        }
+    }
+
+    private void PrepareTargetProcessing() { }
+
+    private void PrepareTriggersExecutedOnHit()
+    {
+        var unitCaster = Caster.AsUnit;
+
+        if (unitCaster == null)
+            return;
+
+        // handle SPELL_AURA_ADD_TARGET_TRIGGER auras:
+        // save auras which were present on spell caster on cast, to prevent triggered auras from affecting caster
+        // and to correctly calculate proc chance when combopoints are present
+        var targetTriggers = unitCaster.GetAuraEffectsByType(AuraType.AddTargetTrigger);
+
+        foreach (var aurEff in targetTriggers)
+        {
+            if (!aurEff.IsAffectingSpell(SpellInfo))
+                continue;
+
+            var spellInfo = Global.SpellMgr.GetSpellInfo(aurEff.GetSpellEffectInfo().TriggerSpell, CastDifficulty);
+
+            if (spellInfo != null)
+            {
+                // calculate the chance using spell base amount, because aura amount is not updated on combo-points change
+                // this possibly needs fixing
+                var auraBaseAmount = aurEff.BaseAmount;
+                // proc chance is stored in effect amount
+                var chance = CalculateSpellDamage(null, aurEff.GetSpellEffectInfo(), auraBaseAmount);
+                chance *= aurEff.Base.StackAmount;
+
+                // build trigger and add to the list
+                _hitTriggerSpells.Add(new HitTriggerSpell(spellInfo, aurEff.SpellInfo, chance));
+            }
+        }
+    }
+
+    private void PreprocessSpellLaunch(TargetInfo targetInfo)
+    {
+        var targetUnit = Caster.GUID == targetInfo.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, targetInfo.TargetGuid);
+
+        if (targetUnit == null)
+            return;
+
+        // This will only cause combat - the target will engage once the projectile hits (in Spell::TargetInfo::PreprocessTarget)
+        if (OriginalCaster && targetInfo.MissCondition != SpellMissInfo.Evade && !OriginalCaster.WorldObjectCombat.IsFriendlyTo(targetUnit) && (!SpellInfo.IsPositive || SpellInfo.HasEffect(SpellEffectName.Dispel)) && (SpellInfo.HasInitialAggro || targetUnit.IsEngaged))
+            OriginalCaster.SetInCombatWith(targetUnit, true);
+
+        Unit unit = null;
+
+        // In case spell hit target, do all effect on that target
+        if (targetInfo.MissCondition == SpellMissInfo.None)
+            unit = targetUnit;
+        // In case spell reflect from target, do all effect on caster (if hit)
+        else if (targetInfo.MissCondition == SpellMissInfo.Reflect && targetInfo.ReflectResult == SpellMissInfo.None)
+            unit = Caster.AsUnit;
+
+        if (unit == null)
+            return;
+
+        double critChance = SpellValue.CriticalChance;
+
+        if (OriginalCaster)
+        {
+            if (critChance == 0)
+                critChance = OriginalCaster.SpellCritChanceDone(this, null, SpellSchoolMask, AttackType);
+
+            critChance = unit.SpellCritChanceTaken(OriginalCaster, this, null, SpellSchoolMask, critChance, AttackType);
+        }
+
+        targetInfo.IsCrit = RandomHelper.randChance(critChance);
+    }
+
+    private void RegisterSpellEffectHandler(SpellScript script)
+    {
+        if (script is IHasSpellEffects hse)
+            foreach (var effect in hse.SpellEffects)
+                if (effect is ISpellEffectHandler se)
+                {
+                    uint mask = 0;
+
+                    if (se.EffectIndex == SpellConst.EffectAll || se.EffectIndex == SpellConst.EffectFirstFound)
+                    {
+                        foreach (var effInfo in SpellInfo.Effects)
+                        {
+                            if (se.EffectIndex == SpellConst.EffectFirstFound && mask != 0)
+                                break;
+
+                            if (CheckSpellEffectHandler(se, effInfo))
+                                AddSpellEffect(effInfo.EffectIndex, script, se);
+                        }
+                    }
+                    else
+                    {
+                        if (CheckSpellEffectHandler(se, se.EffectIndex))
+                            AddSpellEffect(se.EffectIndex, script, se);
+                    }
+                }
+                else if (effect is ITargetHookHandler th)
+                {
+                    uint mask = 0;
+
+                    if (th.EffectIndex == SpellConst.EffectAll || th.EffectIndex == SpellConst.EffectFirstFound)
+                    {
+                        foreach (var effInfo in SpellInfo.Effects)
+                        {
+                            if (th.EffectIndex == SpellConst.EffectFirstFound && mask != 0)
+                                break;
+
+                            if (CheckTargetHookEffect(th, effInfo))
+                                AddSpellEffect(effInfo.EffectIndex, script, th);
+                        }
+                    }
+                    else
+                    {
+                        if (CheckTargetHookEffect(th, th.EffectIndex))
+                            AddSpellEffect(th.EffectIndex, script, th);
+                    }
+                }
+    }
+
+    private void ReSetTimer()
+    {
+        _timer = CastTime > 0 ? CastTime : 0;
+    }
+
+    private void SearchAreaTargets(List<WorldObject> targets, float range, Position position, WorldObject referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, List<Condition> condList)
+    {
+        var containerTypeMask = GetSearcherTypeMask(objectType, condList);
+
+        if (containerTypeMask == 0)
+            return;
+
+        var extraSearchRadius = range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
+        var check = new WorldObjectSpellAreaTargetCheck(range, position, Caster, referer, SpellInfo, selectionType, condList, objectType);
+        var searcher = new WorldObjectListSearcher(Caster, targets, check, containerTypeMask);
+        SearchTargets(searcher, containerTypeMask, Caster, position, range + extraSearchRadius);
+    }
+
+    private void SearchChainTargets(List<WorldObject> targets, uint chainTargets, WorldObject target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, SpellEffectInfo spellEffectInfo, bool isChainHeal)
+    {
+        // max dist for jump target selection
+        var jumpRadius = 0.0f;
+
+        switch (SpellInfo.DmgClass)
+        {
+            case SpellDmgClass.Ranged:
+                // 7.5y for multi shot
+                jumpRadius = 7.5f;
+
+                break;
+            case SpellDmgClass.Melee:
+                // 5y for swipe, cleave and similar
+                jumpRadius = 5.0f;
+
+                break;
+            case SpellDmgClass.None:
+            case SpellDmgClass.Magic:
+                // 12.5y for chain heal spell since 3.2 patch
+                if (isChainHeal)
+                    jumpRadius = 12.5f;
+                // 10y as default for magic chain spells
+                else
+                    jumpRadius = 10.0f;
+
+                break;
+        }
+
+        var modOwner = Caster.SpellModOwner;
+
+        if (modOwner)
+            modOwner.ApplySpellMod(SpellInfo, SpellModOp.ChainJumpDistance, ref jumpRadius, this);
+
+        float searchRadius;
+
+        if (SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster))
+            searchRadius = GetMinMaxRange(false).maxRange;
+        else if (spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.ChainFromInitialTarget))
+            searchRadius = jumpRadius;
+        else
+            searchRadius = jumpRadius * chainTargets;
+
+        var chainSource = SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster) ? Caster : target;
+        List<WorldObject> tempTargets = new();
+        SearchAreaTargets(tempTargets, searchRadius, chainSource.Location, Caster, objectType, selectType, spellEffectInfo.ImplicitTargetConditions);
+        tempTargets.Remove(target);
+
+        // remove targets which are always invalid for chain spells
+        // for some spells allow only chain targets in front of caster (swipe for example)
+        if (SpellInfo.HasAttribute(SpellAttr5.MeleeChainTargeting))
+            tempTargets.RemoveAll(obj => !Caster.Location.HasInArc(MathF.PI, obj.Location));
+
+        while (chainTargets != 0)
+        {
+            // try to get unit for next chain jump
+            WorldObject found = null;
+
+            // get unit with highest hp deficit in dist
+            if (isChainHeal)
+            {
+                uint maxHPDeficit = 0;
+
+                foreach (var obj in tempTargets)
+                {
+                    var unitTarget = obj.AsUnit;
+
+                    if (unitTarget != null)
+                    {
+                        var deficit = (uint)(unitTarget.MaxHealth - unitTarget.Health);
+
+                        if ((deficit > maxHPDeficit || found == null) && chainSource.Location.IsWithinDist(unitTarget, jumpRadius) && chainSource.Location.IsWithinLOSInMap(unitTarget, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                        {
+                            found = obj;
+                            maxHPDeficit = deficit;
+                        }
+                    }
+                }
+            }
+            // get closest object
+            else
+            {
+                foreach (var obj in tempTargets)
+                    if (found == null)
+                    {
+                        if (chainSource.Location.IsWithinDist(obj, jumpRadius) && chainSource.Location.IsWithinLOSInMap(obj, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                            found = obj;
+                    }
+                    else if (chainSource.Location.GetDistanceOrder(obj, found) && chainSource.Location.IsWithinLOSInMap(obj, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                    {
+                        found = obj;
+                    }
+            }
+
+            // not found any valid target - chain ends
+            if (found == null)
+                break;
+
+            if (!SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster) && !spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.ChainFromInitialTarget))
+                chainSource = found;
+
+            targets.Add(found);
+            tempTargets.Remove(found);
+            --chainTargets;
+        }
+    }
+
+    private WorldObject SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, List<Condition> condList)
+    {
+        var containerTypeMask = GetSearcherTypeMask(objectType, condList);
+
+        if (containerTypeMask == 0)
+            return null;
+
+        var check = new WorldObjectSpellNearbyTargetCheck(range, Caster, SpellInfo, selectionType, condList, objectType);
+        var searcher = new WorldObjectLastSearcher(Caster, check, containerTypeMask);
+        SearchTargets(searcher, containerTypeMask, Caster, Caster.Location, range);
+
+        return searcher.GetTarget();
+    }
+
+    private GameObject SearchSpellFocus()
+    {
+        var check = new GameObjectFocusCheck(Caster, SpellInfo.RequiresSpellFocus);
+        var searcher = new GameObjectSearcher(Caster, check, GridType.All);
+        SearchTargets(searcher, GridMapTypeMask.GameObject, Caster, Caster.Location, Caster.Visibility.VisibilityRange);
+
+        return searcher.GetTarget();
+    }
+
+    private void SearchTargets(IGridNotifier notifier, GridMapTypeMask containerMask, WorldObject referer, Position pos, float radius)
+    {
+        if (containerMask == 0)
+            return;
+
+        var searchInWorld = containerMask.HasAnyFlag(GridMapTypeMask.Creature | GridMapTypeMask.Player | GridMapTypeMask.Corpse | GridMapTypeMask.GameObject);
+
+        if (searchInWorld)
+        {
+            var x = pos.X;
+            var y = pos.Y;
+
+            var p = GridDefines.ComputeCellCoord(x, y);
+            Cell cell = new(p);
+            cell.SetNoCreate();
+
+            var map = referer.Location.Map;
+
+            if (searchInWorld)
+                Cell.VisitGrid(x, y, map, notifier, radius);
+        }
+    }
+
+    private void SelectEffectImplicitTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> processedEffectMask)
+    {
+        if (targetType.Target == 0)
+            return;
+
+        // set the same target list for all effects
+        // some spells appear to need this, however this requires more research
+        switch (targetType.SelectionCategory)
+        {
+            case SpellTargetSelectionCategories.Nearby:
+            case SpellTargetSelectionCategories.Cone:
+            case SpellTargetSelectionCategories.Area:
+            case SpellTargetSelectionCategories.Line:
+            {
+                // targets for effect already selected
+                if (processedEffectMask.Contains(spellEffectInfo.EffectIndex))
+                    return;
+
+                var j = 0;
+
+                // choose which targets we can select at once
+                foreach (var effect in SpellInfo.Effects)
+                {
+                    if (effect.IsEffect() &&
+                        spellEffectInfo.TargetA.Target == effect.TargetA.Target &&
+                        spellEffectInfo.TargetB.Target == effect.TargetB.Target &&
+                        spellEffectInfo.ImplicitTargetConditions == effect.ImplicitTargetConditions &&
+                        spellEffectInfo.CalcRadius(Caster) == effect.CalcRadius(Caster) &&
+                        CheckScriptEffectImplicitTargets(spellEffectInfo.EffectIndex, j))
+                        processedEffectMask.Add(j);
+
+                    j++;
+                }
+
+
+                break;
+            }
+            default:
+                break;
+        }
+
+        switch (targetType.SelectionCategory)
+        {
+            case SpellTargetSelectionCategories.Channel:
+                SelectImplicitChannelTargets(spellEffectInfo, targetType);
+
+                break;
+            case SpellTargetSelectionCategories.Nearby:
+                SelectImplicitNearbyTargets(spellEffectInfo, targetType, processedEffectMask);
+
+                break;
+            case SpellTargetSelectionCategories.Cone:
+                SelectImplicitConeTargets(spellEffectInfo, targetType, processedEffectMask);
+
+                break;
+            case SpellTargetSelectionCategories.Area:
+                SelectImplicitAreaTargets(spellEffectInfo, targetType, processedEffectMask);
+
+                break;
+            case SpellTargetSelectionCategories.Traj:
+                // just in case there is no dest, explanation in SelectImplicitDestDestTargets
+                CheckDst();
+
+                SelectImplicitTrajTargets(spellEffectInfo, targetType);
+
+                break;
+            case SpellTargetSelectionCategories.Line:
+                SelectImplicitLineTargets(spellEffectInfo, targetType, processedEffectMask);
+
+                break;
+            case SpellTargetSelectionCategories.Default:
+                switch (targetType.ObjectType)
+                {
+                    case SpellTargetObjectTypes.Src:
+                        switch (targetType.ReferenceType)
+                        {
+                            case SpellTargetReferenceTypes.Caster:
+                                Targets.SetSrc(Caster);
+
+                                break;
+                        }
+
+                        break;
+                    case SpellTargetObjectTypes.Dest:
+                        switch (targetType.ReferenceType)
+                        {
+                            case SpellTargetReferenceTypes.Caster:
+                                SelectImplicitCasterDestTargets(spellEffectInfo, targetType);
+
+                                break;
+                            case SpellTargetReferenceTypes.Target:
+                                SelectImplicitTargetDestTargets(spellEffectInfo, targetType);
+
+                                break;
+                            case SpellTargetReferenceTypes.Dest:
+                                SelectImplicitDestDestTargets(spellEffectInfo, targetType);
+
+                                break;
+                        }
+
+                        break;
+                    default:
+                        switch (targetType.ReferenceType)
+                        {
+                            case SpellTargetReferenceTypes.Caster:
+                                SelectImplicitCasterObjectTargets(spellEffectInfo, targetType);
+
+                                break;
+                            case SpellTargetReferenceTypes.Target:
+                                SelectImplicitTargetObjectTargets(spellEffectInfo, targetType);
+
+                                break;
+                        }
+
+                        break;
+                }
+
+                break;
+            case SpellTargetSelectionCategories.Nyi:
+                Log.Logger.Debug("SPELL: target type {0}, found in spellID {1}, effect {2} is not implemented yet!", SpellInfo.Id, spellEffectInfo.EffectIndex, targetType.Target);
+
+                break;
+        }
+    }
+
+    private void SelectEffectTypeImplicitTargets(SpellEffectInfo spellEffectInfo)
+    {
+        // special case for SPELL_EFFECT_SUMMON_RAF_FRIEND and SPELL_EFFECT_SUMMON_PLAYER, queue them on map for later execution
+        switch (spellEffectInfo.Effect)
+        {
+            case SpellEffectName.SummonRafFriend:
+            case SpellEffectName.SummonPlayer:
+                if (Caster.IsTypeId(TypeId.Player) && !Caster.AsPlayer.Target.IsEmpty)
+                {
+                    WorldObject rafTarget = Global.ObjAccessor.FindPlayer(Caster.AsPlayer.Target);
+
+                    CallScriptObjectTargetSelectHandlers(ref rafTarget, spellEffectInfo.EffectIndex, new SpellImplicitTargetInfo());
+
+                    // scripts may modify the target - recheck
+                    if (rafTarget is { IsPlayer: true })
+                    {
+                        // target is not stored in target map for those spells
+                        // since we're completely skipping AddUnitTarget logic, we need to check immunity manually
+                        // eg. aura 21546 makes target immune to summons
+                        var player = rafTarget.AsPlayer;
+
+                        if (player.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, null))
+                            return;
+
+                        var spell = this;
+                        var targetGuid = rafTarget.GUID;
+
+                        rafTarget.Location.Map.AddFarSpellCallback(map =>
+                        {
+                            var player = Global.ObjAccessor.GetPlayer(map, targetGuid);
+
+                            if (player == null)
+                                return;
+
+                            // check immunity again in case it changed during update
+                            if (player.IsImmunedToSpellEffect(spell.SpellInfo, spellEffectInfo, null))
+                                return;
+
+                            spell.HandleEffects(player, null, null, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
+                        });
+                    }
+                }
+
+                return;
+            default:
+                break;
+        }
+
+        // select spell implicit targets based on effect type
+        if (spellEffectInfo.ImplicitTargetType == 0)
+            return;
+
+        var targetMask = spellEffectInfo.GetMissingTargetMask();
+
+        if (targetMask == 0)
+            return;
+
+        WorldObject target = null;
+
+        switch (spellEffectInfo.ImplicitTargetType)
+        {
+            // add explicit object target or self to the target map
+            case SpellEffectImplicitTargetTypes.Explicit:
+                // player which not released his spirit is Unit, but target flag for it is TARGET_FLAG_CORPSE_MASK
+                if (Convert.ToBoolean(targetMask & (SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask)))
+                {
+                    var unitTarget = Targets.UnitTarget;
+
+                    if (unitTarget != null)
+                    {
+                        target = unitTarget;
+                    }
+                    else if (Convert.ToBoolean(targetMask & SpellCastTargetFlags.CorpseMask))
+                    {
+                        var corpseTarget = Targets.CorpseTarget;
+
+                        if (corpseTarget != null)
+                            target = corpseTarget;
+                    }
+                    else //if (targetMask & TARGET_FLAG_UNIT_MASK)
+                    {
+                        target = Caster;
+                    }
+                }
+
+                if (Convert.ToBoolean(targetMask & SpellCastTargetFlags.ItemMask))
+                {
+                    var itemTarget = Targets.ItemTarget;
+
+                    if (itemTarget != null)
+                        AddItemTarget(itemTarget, spellEffectInfo.EffectIndex);
+
+                    return;
+                }
+
+                if (Convert.ToBoolean(targetMask & SpellCastTargetFlags.GameobjectMask))
+                    target = Targets.GOTarget;
+
+                break;
+            // add self to the target map
+            case SpellEffectImplicitTargetTypes.Caster:
+                if (Convert.ToBoolean(targetMask & SpellCastTargetFlags.UnitMask))
+                    target = Caster;
+
+                break;
+            default:
+                break;
+        }
+
+        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, new SpellImplicitTargetInfo());
+
+        if (target != null)
+        {
+            if (target.IsUnit)
+                AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, false);
+            else if (target.IsGameObject)
+                AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
+            else if (target.IsCorpse)
+                AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
+        }
+    }
+
+    private void SelectExplicitTargets()
+    {
+        // here go all explicit target changes made to explicit targets after spell prepare phase is finished
+        var target = Targets.UnitTarget;
+
+        if (target != null)
+            // check for explicit target redirection, for Grounding Totem for example
+            if (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.UnitEnemy) || (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.Unit) && !Caster.WorldObjectCombat.IsFriendlyTo(target)))
+            {
+                Unit redirect = null;
+
+                switch (SpellInfo.DmgClass)
+                {
+                    case SpellDmgClass.Magic:
+                        redirect = Caster.WorldObjectCombat.GetMagicHitRedirectTarget(target, SpellInfo);
+
+                        break;
+                    case SpellDmgClass.Melee:
+                    case SpellDmgClass.Ranged:
+                        // should gameobjects cast damagetype melee/ranged spells this needs to be changed
+                        redirect = Caster.AsUnit.GetMeleeHitRedirectTarget(target, SpellInfo);
+
+                        break;
+                    default:
+                        break;
+                }
+
+                if (redirect != null && (redirect != target))
+                    Targets.UnitTarget = redirect;
+            }
+    }
+    private void SelectImplicitAreaTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
+    {
+        WorldObject referer = null;
+
+        switch (targetType.ReferenceType)
+        {
+            case SpellTargetReferenceTypes.Src:
+            case SpellTargetReferenceTypes.Dest:
+            case SpellTargetReferenceTypes.Caster:
+                referer = Caster;
+
+                break;
+            case SpellTargetReferenceTypes.Target:
+                referer = Targets.UnitTarget;
+
+                break;
+            case SpellTargetReferenceTypes.Last:
+            {
+                referer = Caster;
+
+                // find last added target for this effect
+                foreach (var target in UniqueTargetInfo)
+                    if (target.Effects.Contains(spellEffectInfo.EffectIndex))
+                    {
+                        referer = Global.ObjAccessor.GetUnit(Caster, target.TargetGuid);
+
+                        break;
+                    }
+
+                break;
+            }
+        }
+
+        if (referer == null)
+            return;
+
+        Position center = Caster.Location;
+
+        switch (targetType.ReferenceType)
+        {
+            case SpellTargetReferenceTypes.Src:
+                center = Targets.SrcPos;
+
+                break;
+            case SpellTargetReferenceTypes.Dest:
+                center = Targets.DstPos;
+
+                break;
+            case SpellTargetReferenceTypes.Caster:
+            case SpellTargetReferenceTypes.Target:
+            case SpellTargetReferenceTypes.Last:
+                center = referer.Location;
+
+                break;
+        }
+
+        var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
+        List<WorldObject> targets = new();
+
+        switch (targetType.Target)
+        {
+            case Framework.Constants.Targets.UnitCasterAndPassengers:
+                targets.Add(Caster);
+                var unit = Caster.AsUnit;
+
+                if (unit != null)
+                {
+                    var vehicleKit = unit.VehicleKit1;
+
+                    if (vehicleKit != null)
+                        for (sbyte seat = 0; seat < SharedConst.MaxVehicleSeats; ++seat)
+                        {
+                            var passenger = vehicleKit.GetPassenger(seat);
+
+                            if (passenger != null)
+                                targets.Add(passenger);
+                        }
+                }
+
+                break;
+            case Framework.Constants.Targets.UnitTargetAllyOrRaid:
+                var targetedUnit = Targets.UnitTarget;
+
+                if (targetedUnit != null)
+                {
+                    if (!Caster.IsUnit || !Caster.AsUnit.IsInRaidWith(targetedUnit))
+                        targets.Add(Targets.UnitTarget);
+                    else
+                        SearchAreaTargets(targets, radius, targetedUnit.Location, referer, targetType.ObjectType, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions);
+                }
+
+                break;
+            case Framework.Constants.Targets.UnitCasterAndSummons:
+                targets.Add(Caster);
+                SearchAreaTargets(targets, radius, center, referer, targetType.ObjectType, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions);
+
+                break;
+            default:
+                SearchAreaTargets(targets, radius, center, referer, targetType.ObjectType, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions);
+
+                break;
+        }
+
+        if (targetType.ObjectType == SpellTargetObjectTypes.UnitAndDest)
+        {
+            SpellDestination dest = new(referer);
+
+            if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+                dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+            CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+
+            Targets.ModDst(dest);
+        }
+
+        CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
+
+        if (targetType.Target == Framework.Constants.Targets.UnitSrcAreaFurthestEnemy)
+            targets.Sort(new ObjectDistanceOrderPred(referer, false));
+
+        if (!targets.Empty())
+        {
+            // Other special target selection goes here
+            var maxTargets = SpellValue.MaxAffectedTargets;
+
+            if (maxTargets != 0)
+            {
+                if (targetType.Target != Framework.Constants.Targets.UnitSrcAreaFurthestEnemy)
+                    targets.RandomResize(maxTargets);
+                else if (targets.Count > maxTargets)
+                    targets.Resize(maxTargets);
+            }
+
+            foreach (var obj in targets)
+                if (obj.IsUnit)
+                    AddUnitTarget(obj.AsUnit, effMask, false, true, center);
+                else if (obj.IsGameObject)
+                    AddGOTarget(obj.AsGameObject, effMask);
+                else if (obj.IsCorpse)
+                    AddCorpseTarget(obj.AsCorpse, effMask);
+        }
+    }
+
+    private void SelectImplicitCasterDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    {
+        SpellDestination dest = new(Caster);
+
+        switch (targetType.Target)
+        {
+            case Framework.Constants.Targets.DestCaster:
+                break;
+            case Framework.Constants.Targets.DestHome:
+                var playerCaster = Caster.AsPlayer;
+
+                if (playerCaster != null)
+                    dest = new SpellDestination(playerCaster.Homebind);
+
+                break;
+            case Framework.Constants.Targets.DestDb:
+                var st = Global.SpellMgr.GetSpellTargetPosition(SpellInfo.Id, spellEffectInfo.EffectIndex);
+
+                if (st != null)
+                {
+                    // @todo fix this check
+                    if (SpellInfo.HasEffect(SpellEffectName.TeleportUnits) || SpellInfo.HasEffect(SpellEffectName.TeleportWithSpellVisualKitLoadingScreen) || SpellInfo.HasEffect(SpellEffectName.Bind))
+                        dest = new SpellDestination(st.X, st.Y, st.Z, st.Orientation, st.TargetMapId);
+                    else if (st.TargetMapId == Caster.Location.MapId)
+                        dest = new SpellDestination(st.X, st.Y, st.Z, st.Orientation);
+                }
+                else
+                {
+                    Log.Logger.Debug("SPELL: unknown target coordinates for spell ID {0}", SpellInfo.Id);
+                    var target = Targets.ObjectTarget;
+
+                    if (target)
+                        dest = new SpellDestination(target);
+                }
+
+                break;
+            case Framework.Constants.Targets.DestCasterFishing:
+            {
+                var minDist = SpellInfo.GetMinRange(true);
+                var maxDist = SpellInfo.GetMaxRange(true);
+                var dis = (float)RandomHelper.NextDouble() * (maxDist - minDist) + minDist;
+                var angle = (float)RandomHelper.NextDouble() * (MathFunctions.PI * 35.0f / 180.0f) - (float)(Math.PI * 17.5f / 180.0f);
+                var pos = new Position();
+                Caster.Location.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis, angle);
+
+                var ground = Caster.Location.GetMapHeight(pos);
+                var liquidLevel = MapConst.VMAPInvalidHeightValue;
+
+                if (Caster.Location.Map.GetLiquidStatus(Caster.Location.PhaseShift, pos, LiquidHeaderTypeFlags.AllLiquids, out var liquidData, Caster.Location.CollisionHeight) != 0)
+                    liquidLevel = liquidData.level;
+
+                if (liquidLevel <= ground) // When there is no liquid Map.GetWaterOrGroundLevel returns ground level
+                {
+                    SendCastResult(SpellCastResult.NotHere);
+                    SendChannelUpdate(0);
+                    Finish(SpellCastResult.NotHere);
+
+                    return;
+                }
+
+                if (ground + 0.75 > liquidLevel)
+                {
+                    SendCastResult(SpellCastResult.TooShallow);
+                    SendChannelUpdate(0);
+                    Finish(SpellCastResult.TooShallow);
+
+                    return;
+                }
+
+                dest = new SpellDestination(pos.X, pos.Y, liquidLevel, Caster.Location.Orientation);
+
+                break;
+            }
+            case Framework.Constants.Targets.DestCasterFrontLeap:
+            case Framework.Constants.Targets.DestCasterMovementDirection:
+            {
+                var unitCaster = Caster.AsUnit;
+
+                if (unitCaster == null)
+                    break;
+
+                var dist = spellEffectInfo.CalcRadius(unitCaster);
+                var angle = targetType.CalcDirectionAngle();
+
+                if (targetType.Target == Framework.Constants.Targets.DestCasterMovementDirection)
+                    switch (Caster.MovementInfo.MovementFlags & (MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight))
+                    {
+                        case MovementFlag.None:
+                        case MovementFlag.Forward:
+                        case MovementFlag.Forward | MovementFlag.Backward:
+                        case MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
+                        case MovementFlag.Forward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
+                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
+                            angle = 0.0f;
+
+                            break;
+                        case MovementFlag.Backward:
+                        case MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
+                            angle = MathF.PI;
+
+                            break;
+                        case MovementFlag.StrafeLeft:
+                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft:
+                            angle = (MathF.PI / 2);
+
+                            break;
+                        case MovementFlag.Forward | MovementFlag.StrafeLeft:
+                            angle = (MathF.PI / 4);
+
+                            break;
+                        case MovementFlag.Backward | MovementFlag.StrafeLeft:
+                            angle = (3 * MathF.PI / 4);
+
+                            break;
+                        case MovementFlag.StrafeRight:
+                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeRight:
+                            angle = (-MathF.PI / 2);
+
+                            break;
+                        case MovementFlag.Forward | MovementFlag.StrafeRight:
+                            angle = (-MathF.PI / 4);
+
+                            break;
+                        case MovementFlag.Backward | MovementFlag.StrafeRight:
+                            angle = (-3 * MathF.PI / 4);
+
+                            break;
+                        default:
+                            angle = 0.0f;
+
+                            break;
+                    }
+
+                Position pos = new(dest.Position);
+
+                unitCaster.MovePositionToFirstCollision(pos, dist, angle);
+                dest.Relocate(pos);
+
+                break;
+            }
+            case Framework.Constants.Targets.DestCasterGround:
+            case Framework.Constants.Targets.DestCasterGround2:
+                dest.Position.Z = Caster.Location.GetMapWaterOrGroundLevel(dest.Position.X, dest.Position.Y, dest.Position.Z);
+
+                break;
+            case Framework.Constants.Targets.DestSummoner:
+            {
+                var unitCaster = Caster.AsUnit;
+
+                var casterSummon = unitCaster?.ToTempSummon();
+
+                var summoner = casterSummon?.GetSummoner();
+
+                if (summoner != null)
+                    dest = new SpellDestination(summoner);
+
+                break;
+            }
+            default:
+            {
+                var dist = spellEffectInfo.CalcRadius(Caster);
+                var angl = targetType.CalcDirectionAngle();
+                var objSize = Caster.CombatReach;
+
+                switch (targetType.Target)
+                {
+                    case Framework.Constants.Targets.DestCasterSummon:
+                        dist = SharedConst.PetFollowDist;
+
+                        break;
+                    case Framework.Constants.Targets.DestCasterRandom:
+                        if (dist > objSize)
+                            dist = objSize + (dist - objSize) * (float)RandomHelper.NextDouble();
+
+                        break;
+                    case Framework.Constants.Targets.DestCasterFrontLeft:
+                    case Framework.Constants.Targets.DestCasterBackLeft:
+                    case Framework.Constants.Targets.DestCasterFrontRight:
+                    case Framework.Constants.Targets.DestCasterBackRight:
+                    {
+                        var DefaultTotemDistance = 3.0f;
+
+                        if (!spellEffectInfo.HasRadius && !spellEffectInfo.HasMaxRadius)
+                            dist = DefaultTotemDistance;
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                if (dist < objSize)
+                    dist = objSize;
+
+                Position pos = new(dest.Position);
+                Caster.MovePositionToFirstCollision(pos, dist, angl);
+
+                dest.Relocate(pos);
+
+                break;
+            }
+        }
+
+        if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+            dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+        CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+        Targets.Dst = dest;
+    }
+
+    private void SelectImplicitCasterObjectTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    {
+        WorldObject target = null;
+        var checkIfValid = true;
+
+        switch (targetType.Target)
+        {
+            case Framework.Constants.Targets.UnitCaster:
+                target = Caster;
+                checkIfValid = false;
+
+                break;
+            case Framework.Constants.Targets.UnitMaster:
+                target = Caster.CharmerOrOwner;
+
+                break;
+            case Framework.Constants.Targets.UnitPet:
+            {
+                var unitCaster = Caster.AsUnit;
+
+                if (unitCaster != null)
+                    target = unitCaster.GetGuardianPet();
+
+                break;
+            }
+            case Framework.Constants.Targets.UnitSummoner:
+            {
+                var unitCaster = Caster.AsUnit;
+
+                if (unitCaster is { IsSummon: true })
+                    target = unitCaster.ToTempSummon().GetSummonerUnit();
+
+                break;
+            }
+            case Framework.Constants.Targets.UnitVehicle:
+            {
+                var unitCaster = Caster.AsUnit;
+
+                if (unitCaster != null)
+                    target = unitCaster.VehicleBase;
+
+                break;
+            }
+            case Framework.Constants.Targets.UnitPassenger0:
+            case Framework.Constants.Targets.UnitPassenger1:
+            case Framework.Constants.Targets.UnitPassenger2:
+            case Framework.Constants.Targets.UnitPassenger3:
+            case Framework.Constants.Targets.UnitPassenger4:
+            case Framework.Constants.Targets.UnitPassenger5:
+            case Framework.Constants.Targets.UnitPassenger6:
+            case Framework.Constants.Targets.UnitPassenger7:
+                var vehicleBase = Caster.AsCreature;
+
+                if (vehicleBase is { IsVehicle: true })
+                    target = vehicleBase.VehicleKit1.GetPassenger((sbyte)(targetType.Target - Framework.Constants.Targets.UnitPassenger0));
+
+                break;
+            case Framework.Constants.Targets.UnitTargetTapList:
+                var creatureCaster = Caster.AsCreature;
+
+                if (creatureCaster != null && !creatureCaster.TapList.Empty())
+                    target = Global.ObjAccessor.GetWorldObject(creatureCaster, creatureCaster.TapList.SelectRandom());
+
+                break;
+            case Framework.Constants.Targets.UnitOwnCritter:
+            {
+                var unitCaster = Caster.AsUnit;
+
+                if (unitCaster != null)
+                    target = ObjectAccessor.GetCreatureOrPetOrVehicle(Caster, unitCaster.CritterGUID);
+
+                break;
+            }
+            default:
+                break;
+        }
+
+        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
+
+        if (target)
+        {
+            if (target.IsUnit)
+                AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, checkIfValid);
+            else if (target.IsGameObject)
+                AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
+            else if (target.IsCorpse)
+                AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
+        }
+    }
+
+    private void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, int effIndex)
+    {
+        SelectImplicitChainTargets(spellEffectInfo,
+                                   targetType,
+                                   target,
+                                   new HashSet<int>()
+                                   {
+                                       effIndex
+                                   });
+    }
+
+    private void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, HashSet<int> effMask)
+    {
+        var maxTargets = spellEffectInfo.ChainTargets;
+        var modOwner = Caster.SpellModOwner;
+
+        if (modOwner)
+            modOwner.ApplySpellMod(SpellInfo, SpellModOp.ChainTargets, ref maxTargets, this);
+
+        if (maxTargets > 1)
+        {
+            // mark damage multipliers as used
+            foreach (var eff in SpellInfo.Effects)
+                if (effMask.Contains(eff.EffectIndex))
+                    _damageMultipliers[spellEffectInfo.EffectIndex] = 1.0f;
+
+            _applyMultiplierMask.UnionWith(effMask);
+
+            List<WorldObject> targets = new();
+            SearchChainTargets(targets, (uint)maxTargets - 1, target, targetType.ObjectType, targetType.CheckType, spellEffectInfo, targetType.Target == Framework.Constants.Targets.UnitChainhealAlly);
+
+            // Chain primary target is added earlier
+            CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
+
+            Position losPosition = SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster) ? Caster.Location : target.Location;
+
+            foreach (var obj in targets)
+            {
+                var unitTarget = obj.AsUnit;
+
+                if (unitTarget)
+                    AddUnitTarget(unitTarget, effMask, false, true, losPosition);
+
+                if (!SpellInfo.HasAttribute(SpellAttr2.ChainFromCaster) && !spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.ChainFromInitialTarget))
+                    losPosition = obj.Location;
+            }
+        }
+    }
+
+    private void SelectImplicitChannelTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    {
+        if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
+            return;
+
+        var channeledSpell = OriginalCaster.GetCurrentSpell(CurrentSpellTypes.Channeled);
+
+        if (channeledSpell == null)
+        {
+            Log.Logger.Debug("Spell.SelectImplicitChannelTargets: cannot find channel spell for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+
+            return;
+        }
+
+        switch (targetType.Target)
+        {
+            case Framework.Constants.Targets.UnitChannelTarget:
+            {
+                foreach (var channelTarget in OriginalCaster.UnitData.ChannelObjects)
+                {
+                    WorldObject target = Global.ObjAccessor.GetUnit(Caster, channelTarget);
+                    CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
+                    // unit target may be no longer avalible - teleported out of map for example
+                    var unitTarget = target ? target.AsUnit : null;
+
+                    if (unitTarget)
+                        AddUnitTarget(unitTarget, spellEffectInfo.EffectIndex);
+                    else
+                        Log.Logger.Debug("SPELL: cannot find channel spell target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+                }
+
+                break;
+            }
+            case Framework.Constants.Targets.DestChannelTarget:
+            {
+                if (channeledSpell.Targets.HasDst)
+                {
+                    Targets.SetDst(channeledSpell.Targets);
+                }
+                else
+                {
+                    List<ObjectGuid> channelObjects = OriginalCaster.UnitData.ChannelObjects;
+                    var target = !channelObjects.Empty() ? Global.ObjAccessor.GetWorldObject(Caster, channelObjects[0]) : null;
+
+                    if (target != null)
+                    {
+                        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
+
+                        if (target)
+                        {
+                            SpellDestination dest = new(target);
+
+                            if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+                                dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+                            CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+                            Targets.Dst = dest;
+                        }
+                    }
+                    else
+                    {
+                        Log.Logger.Debug("SPELL: cannot find channel spell destination for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+                    }
+                }
+
+                break;
+            }
+            case Framework.Constants.Targets.DestChannelCaster:
+            {
+                SpellDestination dest = new(channeledSpell.Caster);
+
+                if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+                    dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+                CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+                Targets.Dst = dest;
+
+                break;
+            }
+        }
+    }
+
+    private void SelectImplicitConeTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
+    {
+        Position coneSrc = new(Caster.Location);
+        var coneAngle = SpellInfo.ConeAngle;
+
+        switch (targetType.ReferenceType)
+        {
+            case SpellTargetReferenceTypes.Caster:
+                break;
+            case SpellTargetReferenceTypes.Dest:
+                if (Caster.Location.GetExactDist2d(Targets.DstPos) > 0.1f)
+                    coneSrc.Orientation = Caster.Location.GetAbsoluteAngle(Targets.DstPos);
+
+                break;
+            default:
+                break;
+        }
+
+        switch (targetType.Target)
+        {
+            case Framework.Constants.Targets.UnitCone180DegEnemy:
+                if (coneAngle == 0.0f)
+                    coneAngle = 180.0f;
+
+                break;
+            default:
+                break;
+        }
+
+        List<WorldObject> targets = new();
+        var objectType = targetType.ObjectType;
+        var selectionType = targetType.CheckType;
+
+        var condList = spellEffectInfo.ImplicitTargetConditions;
+        var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
+
+        var containerTypeMask = GetSearcherTypeMask(objectType, condList);
+
+        if (containerTypeMask != 0)
+        {
+            var extraSearchRadius = radius > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
+            var spellCone = new WorldObjectSpellConeTargetCheck(coneSrc, MathFunctions.DegToRad(coneAngle), SpellInfo.Width != 0 ? SpellInfo.Width : Caster.CombatReach, radius, Caster, SpellInfo, selectionType, condList, objectType);
+            var searcher = new WorldObjectListSearcher(Caster, targets, spellCone, containerTypeMask);
+            SearchTargets(searcher, containerTypeMask, Caster, Caster.Location, radius + extraSearchRadius);
+
+            CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
+
+            if (!targets.Empty())
+            {
+                // Other special target selection goes here
+                var maxTargets = SpellValue.MaxAffectedTargets;
+
+                if (maxTargets != 0)
+                    targets.RandomResize(maxTargets);
+
+                foreach (var obj in targets)
+                    if (obj.IsUnit)
+                        AddUnitTarget(obj.AsUnit, effMask, false);
+                    else if (obj.IsGameObject)
+                        AddGOTarget(obj.AsGameObject, effMask);
+                    else if (obj.IsCorpse)
+                        AddCorpseTarget(obj.AsCorpse, effMask);
+            }
+        }
+    }
+
+    private void SelectImplicitDestDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    {
+        // set destination to caster if no dest provided
+        // can only happen if previous destination target could not be set for some reason
+        // (not found nearby target, or channel target for example
+        // maybe we should abort the spell in such case?
+        CheckDst();
+
+        var dest = Targets.Dst;
+
+        switch (targetType.Target)
+        {
+            case Framework.Constants.Targets.DestDynobjEnemy:
+            case Framework.Constants.Targets.DestDynobjAlly:
+            case Framework.Constants.Targets.DestDynobjNone:
+            case Framework.Constants.Targets.DestDest:
+                break;
+            case Framework.Constants.Targets.DestDestGround:
+                dest.Position.Z = Caster.Location.GetMapHeight(dest.Position.X, dest.Position.Y, dest.Position.Z);
+
+                break;
+            default:
+            {
+                var angle = targetType.CalcDirectionAngle();
+                var dist = spellEffectInfo.CalcRadius(Caster);
+
+                if (targetType.Target == Framework.Constants.Targets.DestRandom)
+                    dist *= (float)RandomHelper.NextDouble();
+
+                Position pos = new(Targets.DstPos);
+                Caster.MovePositionToFirstCollision(pos, dist, angle);
+
+                dest.Relocate(pos);
+            }
+
+            break;
+        }
+
+        if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+            dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+        CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+        Targets.ModDst(dest);
+    }
+
+    private void SelectImplicitLineTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
+    {
+        List<WorldObject> targets = new();
+        var objectType = targetType.ObjectType;
+        var selectionType = targetType.CheckType;
+
+        Position dst = Caster.Location;
+
+        switch (targetType.ReferenceType)
+        {
+            case SpellTargetReferenceTypes.Src:
+                dst = Targets.SrcPos;
+
+                break;
+            case SpellTargetReferenceTypes.Dest:
+                dst = Targets.DstPos;
+
+                break;
+            case SpellTargetReferenceTypes.Caster:
+                dst = Caster.Location;
+
+                break;
+            case SpellTargetReferenceTypes.Target:
+                dst = Targets.UnitTarget.Location;
+
+                break;
+        }
+
+        var condList = spellEffectInfo.ImplicitTargetConditions;
+        var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
+
+        var containerTypeMask = GetSearcherTypeMask(objectType, condList);
+
+        if (containerTypeMask != 0)
+        {
+            WorldObjectSpellLineTargetCheck check = new(Caster.Location, dst, SpellInfo.Width != 0 ? SpellInfo.Width : Caster.CombatReach, radius, Caster, SpellInfo, selectionType, condList, objectType);
+            WorldObjectListSearcher searcher = new(Caster, targets, check, containerTypeMask);
+            SearchTargets(searcher, containerTypeMask, Caster, Caster.Location, radius);
+
+            CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
+
+            if (!targets.Empty())
+            {
+                // Other special target selection goes here
+                var maxTargets = SpellValue.MaxAffectedTargets;
+
+                if (maxTargets != 0)
+                    if (maxTargets < targets.Count)
+                    {
+                        targets.Sort(new ObjectDistanceOrderPred(Caster));
+                        targets.Resize(maxTargets);
+                    }
+
+                foreach (var obj in targets)
+                    if (obj.IsUnit)
+                        AddUnitTarget(obj.AsUnit, effMask, false);
+                    else if (obj.IsGameObject)
+                        AddGOTarget(obj.AsGameObject, effMask);
+                    else if (obj.IsCorpse)
+                        AddCorpseTarget(obj.AsCorpse, effMask);
+            }
+        }
+    }
+
+    private void SelectImplicitNearbyTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
+    {
+        if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
+            return;
+
+        var range = 0.0f;
+
+        switch (targetType.CheckType)
+        {
+            case SpellTargetCheckTypes.Enemy:
+                range = SpellInfo.GetMaxRange(false, Caster, this);
+
+                break;
+            case SpellTargetCheckTypes.Ally:
+            case SpellTargetCheckTypes.Party:
+            case SpellTargetCheckTypes.Raid:
+            case SpellTargetCheckTypes.RaidClass:
+                range = SpellInfo.GetMaxRange(true, Caster, this);
+
+                break;
+            case SpellTargetCheckTypes.Entry:
+            case SpellTargetCheckTypes.Default:
+                range = SpellInfo.GetMaxRange(IsPositive, Caster, this);
+
+                break;
+        }
+
+        var condList = spellEffectInfo.ImplicitTargetConditions;
+
+        // handle emergency case - try to use other provided targets if no conditions provided
+        if (targetType.CheckType == SpellTargetCheckTypes.Entry && (condList == null || condList.Empty()))
+        {
+            Log.Logger.Debug("Spell.SelectImplicitNearbyTargets: no conditions entry for target with TARGET_CHECK_ENTRY of spell ID {0}, effect {1} - selecting default targets", SpellInfo.Id, spellEffectInfo.EffectIndex);
+
+            switch (targetType.ObjectType)
+            {
+                case SpellTargetObjectTypes.Gobj:
+                    if (SpellInfo.RequiresSpellFocus != 0)
+                    {
+                        if (_focusObject != null)
+                        {
+                            AddGOTarget(_focusObject, effMask);
+                        }
+                        else
+                        {
+                            SendCastResult(SpellCastResult.BadImplicitTargets);
+                            Finish(SpellCastResult.BadImplicitTargets);
+                        }
+
+                        return;
+                    }
+
+                    break;
+                case SpellTargetObjectTypes.Dest:
+                    if (SpellInfo.RequiresSpellFocus != 0)
+                    {
+                        if (_focusObject != null)
+                        {
+                            SpellDestination dest = new(_focusObject);
+
+                            if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+                                dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+                            CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+                            Targets.Dst = dest;
+                        }
+                        else
+                        {
+                            SendCastResult(SpellCastResult.BadImplicitTargets);
+                            Finish(SpellCastResult.BadImplicitTargets);
+                        }
+
+                        return;
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        var target = SearchNearbyTarget(range, targetType.ObjectType, targetType.CheckType, condList);
+
+        if (target == null)
+        {
+            Log.Logger.Debug("Spell.SelectImplicitNearbyTargets: cannot find nearby target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+            SendCastResult(SpellCastResult.BadImplicitTargets);
+            Finish(SpellCastResult.BadImplicitTargets);
+
+            return;
+        }
+
+        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
+
+        if (!target)
+        {
+            Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set NULL target, effect {spellEffectInfo.EffectIndex}");
+            SendCastResult(SpellCastResult.BadImplicitTargets);
+            Finish(SpellCastResult.BadImplicitTargets);
+
+            return;
+        }
+
+        switch (targetType.ObjectType)
+        {
+            case SpellTargetObjectTypes.Unit:
+                var unitTarget = target.AsUnit;
+
+                if (unitTarget != null)
+                {
+                    AddUnitTarget(unitTarget, effMask, true, false);
+                }
+                else
+                {
+                    Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected unit, got {target.GUID.High}, effect {effMask}");
+                    SendCastResult(SpellCastResult.BadImplicitTargets);
+                    Finish(SpellCastResult.BadImplicitTargets);
+
+                    return;
+                }
+
+                break;
+            case SpellTargetObjectTypes.Gobj:
+                var gobjTarget = target.AsGameObject;
+
+                if (gobjTarget != null)
+                {
+                    AddGOTarget(gobjTarget, effMask);
+                }
+                else
+                {
+                    Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected gameobject, got {target.GUID.High}, effect {effMask}");
+                    SendCastResult(SpellCastResult.BadImplicitTargets);
+                    Finish(SpellCastResult.BadImplicitTargets);
+
+                    return;
+                }
+
+                break;
+            case SpellTargetObjectTypes.Corpse:
+                var corpseTarget = target.AsCorpse;
+
+                if (corpseTarget != null)
+                {
+                    AddCorpseTarget(corpseTarget, effMask);
+                }
+                else
+                {
+                    Log.Logger.Debug($"Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected corpse, got {target.GUID.TypeId}, effect {effMask}");
+                    SendCastResult(SpellCastResult.BadImplicitTargets);
+                    Finish(SpellCastResult.BadImplicitTargets);
+
+                    return;
+                }
+
+                break;
+            case SpellTargetObjectTypes.Dest:
+                SpellDestination dest = new(target);
+
+                if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+                    dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+                CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+                Targets.Dst = dest;
+
+                break;
+        }
+
+        SelectImplicitChainTargets(spellEffectInfo, targetType, target, effMask);
+    }
+    private void SelectImplicitTargetDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    {
+        var target = Targets.ObjectTarget;
+
+        SpellDestination dest = new(target);
+
+        switch (targetType.Target)
+        {
+            case Framework.Constants.Targets.DestTargetEnemy:
+            case Framework.Constants.Targets.DestAny:
+            case Framework.Constants.Targets.DestTargetAlly:
+                break;
+            default:
+            {
+                var angle = targetType.CalcDirectionAngle();
+                var dist = spellEffectInfo.CalcRadius(null);
+
+                if (targetType.Target == Framework.Constants.Targets.DestRandom)
+                    dist *= (float)RandomHelper.NextDouble();
+
+                Position pos = new(dest.Position);
+                target.MovePositionToFirstCollision(pos, dist, angle);
+
+                dest.Relocate(pos);
+            }
+
+                break;
+        }
+
+        if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+            dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+        CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+        Targets.Dst = dest;
+    }
+    private void SelectImplicitTargetObjectTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    {
+        var target = Targets.ObjectTarget;
+
+        CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
+
+        var item = Targets.ItemTarget;
+
+        if (target != null)
+        {
+            if (target.IsUnit)
+                AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, true, false);
+            else if (target.IsGameObject)
+                AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
+            else if (target.IsCorpse)
+                AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
+
+            SelectImplicitChainTargets(spellEffectInfo, targetType, target, spellEffectInfo.EffectIndex);
+        }
+        // Script hook can remove object target and we would wrongly land here
+        else if (item != null)
+        {
+            AddItemTarget(item, spellEffectInfo.EffectIndex);
+        }
+    }
+    private void SelectImplicitTrajTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    {
+        if (!Targets.HasTraj)
+            return;
+
+        var dist2d = Targets.Dist2d;
+
+        if (dist2d == 0)
+            return;
+
+        var srcPos = Targets.SrcPos;
+        srcPos.Orientation = Caster.Location.Orientation;
+        var srcToDestDelta = Targets.DstPos.Z - srcPos.Z;
+
+        List<WorldObject> targets = new();
+        var spellTraj = new WorldObjectSpellTrajTargetCheck(dist2d, srcPos, Caster, SpellInfo, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions, SpellTargetObjectTypes.None);
+        var searcher = new WorldObjectListSearcher(Caster, targets, spellTraj);
+        SearchTargets(searcher, GridMapTypeMask.All, Caster, srcPos, dist2d);
+
+        if (targets.Empty())
+            return;
+
+        targets.Sort(new ObjectDistanceOrderPred(Caster));
+
+        var b = Tangent(Targets.Pitch);
+        var a = (srcToDestDelta - dist2d * b) / (dist2d * dist2d);
+
+        if (a > -0.0001f)
+            a = 0f;
+
+        // We should check if triggered spell has greater range (which is true in many cases, and initial spell has too short max range)
+        // limit max range to 300 yards, sometimes triggered spells can have 50000yds
+        var bestDist = SpellInfo.GetMaxRange(false);
+        var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, CastDifficulty);
+
+        if (triggerSpellInfo != null)
+            bestDist = Math.Min(Math.Max(bestDist, triggerSpellInfo.GetMaxRange(false)), Math.Min(dist2d, 300.0f));
+
+        // GameObjects don't cast traj
+        var unitCaster = Caster.AsUnit;
+
+        foreach (var obj in targets)
+        {
+            if (SpellInfo.CheckTarget(unitCaster, obj, true) != SpellCastResult.SpellCastOk)
+                continue;
+
+            var unitTarget = obj.AsUnit;
+
+            if (unitTarget)
+            {
+                if (unitCaster == obj || unitCaster.IsOnVehicle(unitTarget) || unitTarget.Vehicle1)
+                    continue;
+
+                var creatureTarget = unitTarget.AsCreature;
+
+                if (creatureTarget)
+                    if (!creatureTarget.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.CollideWithMissiles))
+                        continue;
+            }
+
+            var size = Math.Max(obj.CombatReach, 1.0f);
+            var objDist2d = srcPos.GetExactDist2d(obj.Location);
+            var dz = obj.Location.Z - srcPos.Z;
+
+            var horizontalDistToTraj = (float)Math.Abs(objDist2d * Math.Sin(srcPos.GetRelativeAngle(obj.Location)));
+            var sizeFactor = (float)Math.Cos((horizontalDistToTraj / size) * (Math.PI / 2.0f));
+            var distToHitPoint = (float)Math.Max(objDist2d * Math.Cos(srcPos.GetRelativeAngle(obj.Location)) - size * sizeFactor, 0.0f);
+            var height = distToHitPoint * (a * distToHitPoint + b);
+
+            if (Math.Abs(dz - height) > size + b / 2.0f + SpellConst.TrajectoryMissileSize)
+                continue;
+
+            if (distToHitPoint < bestDist)
+            {
+                bestDist = distToHitPoint;
+
+                break;
+            }
+        }
+
+        if (dist2d > bestDist)
+        {
+            var x = (float)(Targets.SrcPos.X + Math.Cos(unitCaster.Location.Orientation) * bestDist);
+            var y = (float)(Targets.SrcPos.Y + Math.Sin(unitCaster.Location.Orientation) * bestDist);
+            var z = Targets.SrcPos.Z + bestDist * (a * bestDist + b);
+
+            SpellDestination dest = new(x, y, z, unitCaster.Location.Orientation);
+
+            if (SpellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
+                dest.Position.Orientation = spellEffectInfo.PositionFacing;
+
+            CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
+            Targets.ModDst(dest);
+        }
+    }
+
+    private void SendChannelStart(uint duration)
+    {
+        // GameObjects don't channel
+        var unitCaster = Caster.AsUnit;
+
+        if (unitCaster == null)
+            return;
+
+        SpellChannelStart spellChannelStart = new();
+
+        {
+            CasterGUID = unitCaster.GUID,
+            SpellID = (int)SpellInfo.Id,
+            Visual = SpellVisual,
+            ChannelDuration = duration
+        }
+
+        i(IsEmpowered) // remove the first second of casting time to display correctly
+        spellChannelStart.ChannelDuration -= 1000;
+
+        var schoolImmunityMask = unitCaster.SchoolImmunityMask;
+        var mechanicImmunityMask = unitCaster.MechanicImmunityMask;
+
+        if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
+        {
+            SpellChannelStartInterruptImmunities interruptImmunities = new();
+
+            {
+                SchoolImmunities = (int)schoolImmunityMask,
+                Immunities = (int)mechanicImmunityMask
+            }
+
+            llChannelStart.InterruptImmunities = interruptImmunities;
+        }
+
+        unitCaster.SendMessageToSet(spellChannelStart, true);
+
+        _timer = (int)duration;
+
+        if (!Targets.HasDst)
+        {
+            var channelAuraMask = new HashSet<int>();
+            var explicitTargetEffectMask = SpellConst.MaxEffects;
+
+            // if there is an explicit target, only add channel objects from effects that also hit ut
+            if (!Targets.UnitTargetGUID.IsEmpty)
+            {
+                var explicitTarget = UniqueTargetInfo.Find(target => target.TargetGuid == Targets.UnitTargetGUID);
+
+                if (explicitTarget != null)
+                    explicitTargetEffectMask = explicitTarget.Effects;
+            }
+
+            foreach (var spellEffectInfo in SpellInfo.Effects)
+                if (spellEffectInfo.Effect == SpellEffectName.ApplyAura && explicitTargetEffectMask.Contains(spellEffectInfo.EffectIndex))
+                    channelAuraMask.Add(spellEffectInfo.EffectIndex);
+
+            var chanMask = channelAuraMask.ToMask();
+
+            foreach (var target in UniqueTargetInfo)
+            {
+                if ((target.Effects.ToMask() & chanMask) == 0)
+                    continue;
+
+                var requiredAttribute = target.TargetGuid != unitCaster.GUID ? SpellAttr1.IsChannelled : SpellAttr1.IsSelfChannelled;
+
+                if (!SpellInfo.HasAttribute(requiredAttribute))
+                    continue;
+
+                unitCaster.AddChannelObject(target.TargetGuid);
+            }
+
+            foreach (var target in _uniqueGoTargetInfo)
+                if ((target.Effects.ToMask() & chanMask) != 0)
+                    unitCaster.AddChannelObject(target.TargetGUID);
+        }
+        else if (SpellInfo.HasAttribute(SpellAttr1.IsSelfChannelled))
+        {
+            unitCaster.AddChannelObject(unitCaster.GUID);
+        }
+
+        var creatureCaster = unitCaster.AsCreature;
+
+        if (creatureCaster != null)
+            if (unitCaster.UnitData.ChannelObjects.Size() == 1 && unitCaster.UnitData.ChannelObjects[0].IsUnit)
+                if (!creatureCaster.HasSpellFocus(this))
+                    creatureCaster.SetSpellFocus(this, Global.ObjAccessor.GetWorldObject(creatureCaster, unitCaster.UnitData.ChannelObjects[0]));
+
+        unitCaster.ChannelSpellId = SpellInfo.Id;
+        unitCaster.SetChannelVisual(SpellVisual);
+    }
+
+    private void SendInterrupted(byte result)
+    {
+        SpellFailure failurePacket = new();
+
+        {
+            CasterUnit = Caster.GUID,
+            CastID = CastId,
+            SpellID = SpellInfo.Id,
+            Visual = SpellVisual,
+            Reason = result
+        }
+
+        f
+        ster.SendMessageToSet(failurePacket, true);
+
+        SpellFailedOther failedPacket = new();
+
+        {
+            CasterUnit = Caster.GUID,
+            CastID = CastId,
+            SpellID = SpellInfo.Id,
+            Visual = SpellVisual,
+            Reason = result
+        }
+
+        f
+        ster.SendMessageToSet(failedPacket, true);
+    }
+
+    private void SendMountResult(MountResult result)
+    {
+        if (result == MountResult.Ok)
+            return;
+
+        if (!Caster.IsPlayer)
+            return;
+
+        var caster = Caster.AsPlayer;
+
+        if (caster.IsLoading) // don't send mount results at loading time
+            return;
+
+        MountResultPacket packet = new();
+
+        {
+            Result = (uint)result
+        }
+
+        c
+        ter.SendPacket(packet);
+    }
+
+    private void SendResurrectRequest(Player target)
+    {
+        // get resurrector name for creature resurrections, otherwise packet will be not accepted
+        // for player resurrections the name is looked up by guid
+        var sentName = "";
+
+        if (!Caster.IsPlayer)
+            sentName = Caster.GetName(target.Session.SessionDbLocaleIndex);
+
+        ResurrectRequest resurrectRequest = new();
+
+        {
+            ResurrectOffererGUID = Caster.GUID,
+            ResurrectOffererVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+            Name = sentName,
+            Sickness = Caster.IsUnit && !Caster.IsTypeId(TypeId.Player), // "you'll be afflicted with resurrection sickness"
+            UseTimer = !SpellInfo.HasAttribute(SpellAttr3.NoResTimer)
+        }
+
+        v pet = target.CurrentPet;
+
+        if (pet)
+        {
+            var charmInfo = pet.GetCharmInfo();
+
+            if (charmInfo != null)
+                resurrectRequest.PetNumber = charmInfo.GetPetNumber();
+        }
+
+        resurrectRequest.SpellID = SpellInfo.Id;
+
+        target.SendPacket(resurrectRequest);
+    }
+
+    private void SendSpellCooldown()
+    {
+        if (!Caster.IsUnit)
+            return;
+
+        if (CastItem)
+            Caster.AsUnit.SpellHistory.HandleCooldowns(SpellInfo, CastItem, this);
+        else
+            Caster.AsUnit.SpellHistory.HandleCooldowns(SpellInfo, CastItemEntry, this);
+
+        if (IsAutoRepeat)
+            Caster.AsUnit.ResetAttackTimer(WeaponAttackType.RangedAttack);
+    }
+
+    private void SendSpellExecuteLog()
+    {
+        if (_executeLogEffects.Empty())
+            return;
+
+        SpellExecuteLog spellExecuteLog = new();
+
+        {
+            Caster = Caster.GUID,
+            SpellID = SpellInfo.Id,
+            Effects = _executeLogEffects.Values.ToList()
+        }
+
+        s llExecuteLog.LogData.Initialize(this);
+
+        Caster.SendCombatLogMessage(spellExecuteLog);
+    }
+
+    private void SendSpellGo()
+    {
+        // not send invisible spell casting
+        if (!IsNeedSendToClient())
+            return;
+
+        Log.Logger.Debug("Sending SMSG_SPELL_GO id={0}", SpellInfo.Id);
+
+        var castFlags = SpellCastFlags.Unk9;
+
+        // triggered spells with spell visual != 0
+        if (((IsTriggered && !SpellInfo.IsAutoRepeatRangedSpell) || TriggeredByAuraSpell != null) && !FromClient)
+            castFlags |= SpellCastFlags.Pending;
+
+        if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) || SpellInfo.HasAttribute(SpellAttr10.UsesRangedSlotCosmeticOnly) || SpellInfo.HasAttribute(SpellCustomAttributes.NeedsAmmoData))
+            castFlags |= SpellCastFlags.Projectile; // arrows/bullets visual
+
+        if ((Caster.IsTypeId(TypeId.Player) || (Caster.IsTypeId(TypeId.Unit) && Caster.AsCreature.IsPet)) && PowerCost.Any(cost => cost.Power != PowerType.Health))
+            castFlags |= SpellCastFlags.PowerLeftSelf;
+
+        if (Caster.IsTypeId(TypeId.Player) &&
+            Caster.AsPlayer.Class == PlayerClass.Deathknight &&
+            HasPowerTypeCost(PowerType.Runes) &&
+            !_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnorePowerAndReagentCost))
+        {
+            castFlags |= SpellCastFlags.NoGCD;    // same as in SMSG_SPELL_START
+            castFlags |= SpellCastFlags.RuneList; // rune cooldowns list
+        }
+
+        if (Targets.HasTraj)
+            castFlags |= SpellCastFlags.AdjustMissile;
+
+        if (SpellInfo.StartRecoveryTime == 0)
+            castFlags |= SpellCastFlags.NoGCD;
+
+        SpellGo packet = new();
+        var castData = packet.Cast;
+
+        if (CastItem != null)
+            castData.CasterGUID = CastItem.GUID;
+        else
+            castData.CasterGUID = Caster.GUID;
+
+        castData.CasterUnit = Caster.GUID;
+        castData.CastID = CastId;
+        castData.OriginalCastID = OriginalCastId;
+        castData.SpellID = (int)SpellInfo.Id;
+        castData.Visual = SpellVisual;
+        castData.CastFlags = castFlags;
+        castData.CastFlagsEx = CastFlagsEx;
+        castData.CastTime = Time.MSTime;
+
+        castData.HitTargets = new List<ObjectGuid>();
+        UpdateSpellCastDataTargets(castData);
+
+        Targets.Write(castData.Target);
+
+        if (Convert.ToBoolean(castFlags & SpellCastFlags.PowerLeftSelf))
+        {
+            castData.RemainingPower = new List<SpellPowerData>();
+
+            foreach (var cost in PowerCost)
+            {
+                SpellPowerData powerData;
+                powerData.Type = cost.Power;
+                powerData.Cost = Caster.AsUnit.GetPower(cost.Power);
+                castData.RemainingPower.Add(powerData);
+            }
+        }
+
+        if (Convert.ToBoolean(castFlags & SpellCastFlags.RuneList)) // rune cooldowns list
+        {
+            castData.RemainingRunes = new RuneData();
+            var runeData = castData.RemainingRunes;
+
+            var player = Caster.AsPlayer;
+            runeData.Start = _runesState;            // runes state before
+            runeData.Count = player.GetRunesState(); // runes state after
+
+            for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
+            {
+                // float casts ensure the division is performed on floats as we need float result
+                var baseCd = (float)player.GetRuneBaseCooldown();
+                runeData.Cooldowns.Add((byte)((baseCd - (float)player.GetRuneCooldown(i)) / baseCd * 255)); // rune cooldown passed
+            }
+        }
+
+        if (castFlags.HasFlag(SpellCastFlags.AdjustMissile))
+        {
+            castData.MissileTrajectory.TravelTime = (uint)DelayMoment;
+            castData.MissileTrajectory.Pitch = Targets.Pitch;
+        }
+
+        packet.LogData.Initialize(this);
+
+        Caster.SendCombatLogMessage(packet);
+
+        if (GetPlayerIfIsEmpowered(out var p))
+        {
+            ForEachSpellScript<ISpellOnEpowerSpellStart>(s => s.EmpowerSpellStart());
+            SpellEmpowerStart spellEmpowerSart = new();
+
+            {
+                CastID = packet.Cast.CastID,
+                Caster = packet.Cast.CasterGUID,
+                Targets = UniqueTargetInfo.Select(t => t.TargetGuid).ToList(),
+                SpellID = SpellInfo.Id,
+                Visual = packet.Cast.Visual
+            }
+
+            GetTotalEmpowerDuration(false, out int dur);
+            spellEmpowerSart.Duration = (uint)dur;
+            spellEmpowerSart.FirstStageDuration = _empowerStages.FirstOrDefault().Value.DurationMs;
+            spellEmpowerSart.FinalStageDuration = _empowerStages.LastOrDefault().Value.DurationMs;
+            spellEmpowerSart.StageDurations = _empowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
+
+            var schoolImmunityMask = p.SchoolImmunityMask;
+            var mechanicImmunityMask = p.MechanicImmunityMask;
+
+            if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
+            {
+                SpellChannelStartInterruptImmunities interruptImmunities = new();
+
+                {
+                    SchoolImmunities = (int)schoolImmunityMask,
+                    Immunities = (int)mechanicImmunityMask
+                }
+
+                llEmpowerSart.Immunities = interruptImmunities;
+            }
+
+            p.SendPacket(spellEmpowerSart);
+        }
+    }
+
+    private void SendSpellInterruptLog(Unit victim, uint spellId)
+    {
+        SpellInterruptLog data = new();
+
+        {
+            Caster = Caster.GUID,
+            Victim = victim.GUID,
+            InterruptedSpellID = SpellInfo.Id,
+            SpellID = spellId
+        }
+
+        _ ster.SendMessageToSet(data, true);
+    }
+
+    private void SendSpellStart()
+    {
+        if (!IsNeedSendToClient())
+            return;
+
+        var castFlags = SpellCastFlags.HasTrajectory;
+        uint schoolImmunityMask = 0;
+        ulong mechanicImmunityMask = 0;
+        var unitCaster = Caster.AsUnit;
+
+        if (unitCaster != null)
+        {
+            schoolImmunityMask = _timer != 0 ? unitCaster.SchoolImmunityMask : 0;
+            mechanicImmunityMask = _timer != 0 ? SpellInfo.GetMechanicImmunityMask(unitCaster) : 0;
+        }
+
+        if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
+            castFlags |= SpellCastFlags.Immunity;
+
+        if (((IsTriggered && !SpellInfo.IsAutoRepeatRangedSpell) || TriggeredByAuraSpell != null) && !FromClient)
+            castFlags |= SpellCastFlags.Pending;
+
+        if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) || SpellInfo.HasAttribute(SpellAttr10.UsesRangedSlotCosmeticOnly) || SpellInfo.HasAttribute(SpellCustomAttributes.NeedsAmmoData))
+            castFlags |= SpellCastFlags.Projectile;
+
+        if ((Caster.IsTypeId(TypeId.Player) || (Caster.IsTypeId(TypeId.Unit) && Caster.AsCreature.IsPet)) && PowerCost.Any(cost => cost.Power != PowerType.Health))
+            castFlags |= SpellCastFlags.PowerLeftSelf;
+
+        if (HasPowerTypeCost(PowerType.Runes))
+            castFlags |= SpellCastFlags.NoGCD; // not needed, but Blizzard sends it
+
+        SpellStart packet = new();
+        var castData = packet.Cast;
+
+        if (CastItem)
+            castData.CasterGUID = CastItem.GUID;
+        else
+            castData.CasterGUID = Caster.GUID;
+
+        castData.CasterUnit = Caster.GUID;
+        castData.CastID = CastId;
+        castData.OriginalCastID = OriginalCastId;
+        castData.SpellID = (int)SpellInfo.Id;
+        castData.Visual = SpellVisual;
+        castData.CastFlags = castFlags;
+        castData.CastFlagsEx = CastFlagsEx;
+        castData.CastTime = (uint)CastTime;
+
+        Targets.Write(castData.Target);
+
+        if (castFlags.HasAnyFlag(SpellCastFlags.PowerLeftSelf))
+            foreach (var cost in PowerCost)
+            {
+                SpellPowerData powerData;
+                powerData.Type = cost.Power;
+                powerData.Cost = Caster.AsUnit.GetPower(cost.Power);
+                castData.RemainingPower.Add(powerData);
+            }
+
+        if (castFlags.HasAnyFlag(SpellCastFlags.RuneList)) // rune cooldowns list
+        {
+            castData.RemainingRunes = new RuneData();
+
+            var runeData = castData.RemainingRunes;
+            //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
+            //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
+
+            var player = Caster.AsPlayer;
+
+            if (player)
+            {
+                runeData.Start = _runesState;            // runes state before
+                runeData.Count = player.GetRunesState(); // runes state after
+
+                for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
+                {
+                    // float casts ensure the division is performed on floats as we need float result
+                    float baseCd = player.GetRuneBaseCooldown();
+                    runeData.Cooldowns.Add((byte)((baseCd - player.GetRuneCooldown(i)) / baseCd * 255)); // rune cooldown passed
+                }
+            }
+            else
+            {
+                runeData.Start = 0;
+                runeData.Count = 0;
+
+                for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
+                    runeData.Cooldowns.Add(0);
+            }
+        }
+
+        UpdateSpellCastDataAmmo(castData.Ammo);
+
+        if (castFlags.HasAnyFlag(SpellCastFlags.Immunity))
+        {
+            castData.Immunities.School = schoolImmunityMask;
+            castData.Immunities.Value = (uint)mechanicImmunityMask;
+        }
+
+        /** @todo implement heal prediction packet data
+        if (castFlags & CAST_FLAG_HEAL_PREDICTION)
+        {
+            castData.Predict.BeconGUID = ??
+            castData.Predict.Points = 0;
+            castData.Predict.Type = 0;
+        }**/
+
+        Caster.SendMessageToSet(packet, true);
+    }
+
+    private void SetExecutedCurrently(bool yes)
+    {
+        _executedCurrently = yes;
+    }
+
+    private void TakeCastItem()
+    {
+        if (CastItem == null || !Caster.IsTypeId(TypeId.Player))
+            return;
+
+        // not remove cast item at triggered spell (equipping, weapon damage, etc)
+        if (Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnoreCastItem))
+            return;
+
+        var proto = CastItem.Template;
+
+        if (proto == null)
+        {
+            // This code is to avoid a crash
+            // I'm not sure, if this is really an error, but I guess every item needs a prototype
+            Log.Logger.Error("Cast item has no item prototype {0}", CastItem.GUID.ToString());
+
+            return;
+        }
+
+        var expendable = false;
+        var withoutCharges = false;
+
+        foreach (var itemEffect in CastItem.Effects)
+        {
+            if (itemEffect.LegacySlotIndex >= CastItem.ItemData.SpellCharges.GetSize())
+                continue;
+
+            // item has limited charges
+            if (itemEffect.Charges != 0)
+            {
+                if (itemEffect.Charges < 0)
+                    expendable = true;
+
+                var charges = CastItem.GetSpellCharges(itemEffect.LegacySlotIndex);
+
+                // item has charges left
+                if (charges != 0)
+                {
+                    if (charges > 0)
+                        --charges;
+                    else
+                        ++charges;
+
+                    if (proto.MaxStackSize == 1)
+                        CastItem.SetSpellCharges(itemEffect.LegacySlotIndex, charges);
+
+                    CastItem.SetState(ItemUpdateState.Changed, Caster.AsPlayer);
+                }
+
+                // all charges used
+                withoutCharges = (charges == 0);
+            }
+        }
+
+        if (expendable && withoutCharges)
+        {
+            uint count = 1;
+            Caster.AsPlayer.DestroyItemCount(CastItem, ref count, true);
+
+            // prevent crash at access to deleted m_targets.GetItemTarget
+            if (CastItem == Targets.ItemTarget)
+                Targets.ItemTarget = null;
+
+            CastItem = null;
+            CastItemGuid.Clear();
+            CastItemEntry = 0;
+        }
+    }
+
+    private void TakePower()
+    {
+        // GameObjects don't use power
+        var unitCaster = Caster.AsUnit;
+
+        if (!unitCaster)
+            return;
+
+        if (CastItem != null || TriggeredByAuraSpell != null)
+            return;
+
+        //Don't take power if the spell is cast while .cheat power is enabled.
+        if (unitCaster.IsTypeId(TypeId.Player))
+            if (unitCaster.AsPlayer.GetCommandStatus(PlayerCommandStates.Power))
+                return;
+
+        foreach (var cost in PowerCost)
+        {
+            var hit = true;
+
+            if (unitCaster.IsTypeId(TypeId.Player))
+                if (SpellInfo.HasAttribute(SpellAttr1.DiscountPowerOnMiss))
+                {
+                    var targetGUID = Targets.UnitTargetGUID;
+
+                    if (!targetGUID.IsEmpty)
+                    {
+                        var ihit = UniqueTargetInfo.FirstOrDefault(targetInfo => targetInfo.TargetGuid == targetGUID && targetInfo.MissCondition != SpellMissInfo.None);
+
+                        if (ihit != null)
+                        {
+                            hit = false;
+                            //lower spell cost on fail (by talent aura)
+                            var modOwner = unitCaster.SpellModOwner;
+
+                            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.PowerCostOnMiss, ref cost.Amount);
+                        }
+                    }
+                }
+
+            if (cost.Power == PowerType.Runes)
+            {
+                TakeRunePower(hit);
+
+                continue;
+            }
+
+            if (cost.Amount == 0)
+                continue;
+
+            // health as power used
+            if (cost.Power == PowerType.Health)
+            {
+                unitCaster.ModifyHealth(-cost.Amount);
+
+                continue;
+            }
+
+            if (cost.Power >= PowerType.Max)
+            {
+                Log.Logger.Error("Spell.TakePower: Unknown power type '{0}'", cost.Power);
+
+                continue;
+            }
+
+            unitCaster.ModifyPower(cost.Power, -cost.Amount);
+            ForEachSpellScript<ISpellOnTakePower>(a => a.TakePower(cost));
+        }
+    }
+
+    private void TakeReagents()
+    {
+        if (!Caster.IsTypeId(TypeId.Player))
+            return;
+
+        // do not take reagents for these item casts
+        if (CastItem != null && CastItem.Template.HasFlag(ItemFlags.NoReagentCost))
+            return;
+
+        var p_caster = Caster.AsPlayer;
+
+        if (p_caster.CanNoReagentCast(SpellInfo))
+            return;
+
+        for (var x = 0; x < SpellConst.MaxReagents; ++x)
+        {
+            if (SpellInfo.Reagent[x] <= 0)
+                continue;
+
+            var itemid = (uint)SpellInfo.Reagent[x];
+            var itemcount = SpellInfo.ReagentCount[x];
+
+            // if CastItem is also spell reagent
+            if (CastItem != null && CastItem.Entry == itemid)
+            {
+                foreach (var itemEffect in CastItem.Effects)
+                {
+                    if (itemEffect.LegacySlotIndex >= CastItem.ItemData.SpellCharges.GetSize())
+                        continue;
+
+                    // CastItem will be used up and does not count as reagent
+                    var charges = CastItem.GetSpellCharges(itemEffect.LegacySlotIndex);
+
+                    if (itemEffect.Charges < 0 && Math.Abs(charges) < 2)
+                    {
+                        ++itemcount;
+
+                        break;
+                    }
+                }
+
+                CastItem = null;
+                CastItemGuid.Clear();
+                CastItemEntry = 0;
+            }
+
+            // if GetItemTarget is also spell reagent
+            if (Targets.ItemTargetEntry == itemid)
+                Targets.ItemTarget = null;
+
+            p_caster.DestroyItemCount(itemid, itemcount, true);
+        }
+
+        foreach (var reagentsCurrency in SpellInfo.ReagentsCurrency)
+            p_caster.RemoveCurrency(reagentsCurrency.CurrencyTypesID, -reagentsCurrency.CurrencyCount, CurrencyDestroyReason.Spell);
+    }
+
+    private void TakeRunePower(bool didHit)
+    {
+        if (!Caster.IsTypeId(TypeId.Player) || Caster.AsPlayer.Class != PlayerClass.Deathknight)
+            return;
+
+        var player = Caster.AsPlayer;
+        _runesState = player.GetRunesState(); // store previous state
+
+        var runeCost = PowerCost.Sum(cost => cost.Power == PowerType.Runes ? cost.Amount : 0);
+
+        for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)
+            if (player.GetRuneCooldown(i) == 0 && runeCost > 0)
+            {
+                player.SetRuneCooldown(i, didHit ? player.GetRuneBaseCooldown() : RuneCooldowns.Miss);
+                --runeCost;
+            }
+    }
+
+    private float Tangent(float x)
+    {
+        x = (float)Math.Tan(x);
+
+        if (x is < 100000.0f and > -100000.0f) return x;
+        if (x >= 100000.0f) return 100000.0f;
+        if (x <= 100000.0f) return -100000.0f;
+
+        return 0.0f;
+    }
+    private void TriggerGlobalCooldown()
+    {
+        if (!CanHaveGlobalCooldown(Caster))
+            return;
+
+        var gcd = TimeSpan.FromMilliseconds(SpellInfo.StartRecoveryTime);
+
+        if (gcd == TimeSpan.Zero || SpellInfo.StartRecoveryCategory == 0)
+            return;
+
+        if (Caster.IsTypeId(TypeId.Player))
+            if (Caster.AsPlayer.GetCommandStatus(PlayerCommandStates.Cooldown))
+                return;
+
+        var MinGCD = TimeSpan.FromMilliseconds(750);
+        var MaxGCD = TimeSpan.FromMilliseconds(1500);
+
+        // Global cooldown can't leave range 1..1.5 secs
+        // There are some spells (mostly not casted directly by player) that have < 1 sec and > 1.5 sec global cooldowns
+        // but as tests show are not affected by any spell mods.
+        if (gcd >= MinGCD && gcd <= MaxGCD)
+        {
+            // gcd modifier auras are applied only to own spells and only players have such mods
+            var modOwner = Caster.SpellModOwner;
+
+            if (modOwner)
+            {
+                var intGcd = (int)gcd.TotalMilliseconds;
+                modOwner.ApplySpellMod(SpellInfo, SpellModOp.StartCooldown, ref intGcd, this);
+                gcd = TimeSpan.FromMilliseconds(intGcd);
+            }
+
+            var isMeleeOrRangedSpell = SpellInfo.DmgClass == SpellDmgClass.Melee ||
+                                       SpellInfo.DmgClass == SpellDmgClass.Ranged ||
+                                       SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) ||
+                                       SpellInfo.HasAttribute(SpellAttr0.IsAbility);
+
+            // Apply haste rating
+            if (gcd > MinGCD && (SpellInfo.StartRecoveryCategory == 133 && !isMeleeOrRangedSpell))
+            {
+                gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * Caster.AsUnit.UnitData.ModSpellHaste);
+                var intGcd = (int)gcd.TotalMilliseconds;
+                MathFunctions.RoundToInterval(ref intGcd, 750, 1500);
+                gcd = TimeSpan.FromMilliseconds(intGcd);
+            }
+
+            if (gcd > MinGCD && Caster.AsUnit.HasAuraTypeWithAffectMask(AuraType.ModGlobalCooldownByHasteRegen, SpellInfo))
+            {
+                gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * Caster.AsUnit.UnitData.ModHasteRegen);
+                var intGcd = (int)gcd.TotalMilliseconds;
+                MathFunctions.RoundToInterval(ref intGcd, 750, 1500);
+                gcd = TimeSpan.FromMilliseconds(intGcd);
+            }
+        }
+
+        Caster.AsUnit.SpellHistory.AddGlobalCooldown(SpellInfo, gcd);
+    }
+
+    private bool UpdateChanneledTargetList()
+    {
+        // Not need check return true
+        if (_channelTargetEffectMask.Count == 0)
+            return true;
+
+        var channelTargetEffectMask = _channelTargetEffectMask;
+        var channelAuraMask = new HashSet<int>();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+            if (spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
+                channelAuraMask.Add(spellEffectInfo.EffectIndex);
+
+        channelAuraMask.IntersectWith(channelTargetEffectMask);
+
+        float range = 0;
+
+        if (channelAuraMask.Count != 0)
+        {
+            range = SpellInfo.GetMaxRange(IsPositive);
+            var modOwner = Caster.SpellModOwner;
+
+            modOwner?.ApplySpellMod(SpellInfo, SpellModOp.Range, ref range, this);
+
+            // add little tolerance level
+            range += Math.Min(3.0f, range * 0.1f); // 10% but no more than 3.0f
+        }
+
+        foreach (var targetInfo in UniqueTargetInfo)
+            if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(channelTargetEffectMask.ToMask() & targetInfo.Effects.ToMask()))
+            {
+                var unit = Caster.GUID == targetInfo.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, targetInfo.TargetGuid);
+
+                if (unit == null)
+                {
+                    var unitCaster = Caster.AsUnit;
+
+                    unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
+
+                    continue;
+                }
+
+                if (IsValidDeadOrAliveTarget(unit))
+                {
+                    if (Convert.ToBoolean(channelAuraMask.ToMask() & targetInfo.Effects.ToMask()))
+                    {
+                        var aurApp = unit.GetAuraApplication(SpellInfo.Id, _originalCasterGuid);
+
+                        if (aurApp != null)
+                        {
+                            if (Caster != unit && !Caster.Location.IsWithinDistInMap(unit, range))
+                            {
+                                targetInfo.Effects.ExceptWith(aurApp.EffectMask);
+                                unit.RemoveAura(aurApp);
+                                var unitCaster = Caster.AsUnit;
+
+                                unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
+
+                                continue;
+                            }
+                        }
+                        else // aura is dispelled
+                        {
+                            var unitCaster = Caster.AsUnit;
+
+                            unitCaster?.RemoveChannelObject(targetInfo.TargetGuid);
+
+                            continue;
+                        }
+                    }
+
+                    channelTargetEffectMask.ExceptWith(targetInfo.Effects); // remove from need alive mask effect that have alive target
+                }
+            }
+
+        // is all effects from m_needAliveTargetMask have alive targets
+        return channelTargetEffectMask.Count == 0;
+    }
+    private void UpdateEmpoweredSpell(uint difftime)
+    {
+        if (GetPlayerIfIsEmpowered(out var p))
+        {
+            if (_empowerState == EmpowerState.None && _empoweredSpellDelta >= 1000)
+            {
+                _empowerState = EmpowerState.Prepared;
+                _empoweredSpellDelta -= 1000;
+            }
+
+            if (_empowerState == EmpowerState.CanceledStartup && _empoweredSpellDelta >= 1000)
+                _empowerState = EmpowerState.Canceled;
+
+            if (_empowerState == EmpowerState.Prepared && _empoweredSpellStage == 0 && _empowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // send stage 0
+            {
+                ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(null, stageinfo));
+                var stageZero = new SpellEmpowerSetStage();
+
+                {
+                    Stage = 0,
+                    Caster = p.GUID,
+                    CastID = CastId
+                }
+
+                endPacket(stageZero);
+                _empowerState = EmpowerState.Empowering;
+            }
+
+            _empoweredSpellDelta += difftime;
+
+            if (_empowerState == EmpowerState.Empowering && _empowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
+            {
+                var nextStageId = _empoweredSpellStage;
+                nextStageId++;
+
+                if (_empowerStages.TryGetValue(nextStageId, out var nextStage))
+                {
+                    _empoweredSpellStage = nextStageId;
+                    _empoweredSpellDelta -= stageinfo.DurationMs;
+                    var stageUpdate = new SpellEmpowerSetStage();
+
+                    {
+                        Stage = 0,
+                        Caster = p.GUID,
+                        CastID = CastId
+                    }
+
+                    endPacket(stageUpdate);
+                    ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(stageinfo, nextStage));
+                }
+                else
+                {
+                    _empowerState = EmpowerState.Finished;
+                }
+            }
+
+            if (_empowerState == EmpowerState.Finished || _empowerState == EmpowerState.Canceled)
+                _timer = 0;
+        }
+    }
     private bool UpdatePointers()
     {
         if (_originalCasterGuid == Caster.GUID)
@@ -8398,941 +9186,129 @@ public partial class Spell : IDisposable
         return true;
     }
 
-    private bool CheckEffectTarget(Unit target, SpellEffectInfo spellEffectInfo, Position losPosition)
+    private void UpdateSpellCastDataAmmo(SpellAmmo ammo)
     {
-        if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
-            return false;
+        InventoryType ammoInventoryType = 0;
+        uint ammoDisplayID = 0;
 
-        switch (spellEffectInfo.ApplyAuraName)
+        var playerCaster = Caster.AsPlayer;
+
+        if (playerCaster != null)
         {
-            case AuraType.ModPossess:
-            case AuraType.ModCharm:
-            case AuraType.ModPossessPet:
-            case AuraType.AoeCharm:
-                if (target.VehicleKit1 && target.VehicleKit1.IsControllableVehicle())
-                    return false;
+            var pItem = playerCaster.GetWeaponForAttack(WeaponAttackType.RangedAttack);
 
-                if (target.IsMounted)
-                    return false;
-
-                if (!target.CharmerGUID.IsEmpty)
-                    return false;
-
-                var damage = CalculateDamage(spellEffectInfo, target);
-
-                if (damage != 0)
-                    if (target.GetLevelForTarget(Caster) > damage)
-                        return false;
-
-                break;
-            default:
-                break;
-        }
-
-        // check for ignore LOS on the effect itself
-        if (SpellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) || Global.DisableMgr.IsDisabledFor(DisableType.Spell, SpellInfo.Id, null, (byte)DisableFlags.SpellLOS))
-            return true;
-
-        // check if gameobject ignores LOS
-        var gobCaster = Caster.AsGameObject;
-
-        if (gobCaster != null)
-            if (gobCaster.Template.GetRequireLOS() == 0)
-                return true;
-
-        // if spell is triggered, need to check for LOS disable on the aura triggering it and inherit that behaviour
-        if (!SpellInfo.HasAttribute(SpellAttr5.AlwaysLineOfSight) && IsTriggered && TriggeredByAuraSpell != null && (TriggeredByAuraSpell.HasAttribute(SpellAttr2.IgnoreLineOfSight) || Global.DisableMgr.IsDisabledFor(DisableType.Spell, TriggeredByAuraSpell.Id, null, (byte)DisableFlags.SpellLOS)))
-            return true;
-
-        // @todo shit below shouldn't be here, but it's temporary
-        //Check targets for LOS visibility
-        switch (spellEffectInfo.Effect)
-        {
-            case SpellEffectName.SkinPlayerCorpse:
+            if (pItem)
             {
-                if (Targets.CorpseTargetGUID.IsEmpty)
-                {
-                    if (target.Location.IsWithinLOSInMap(Caster, LineOfSightChecks.All, ModelIgnoreFlags.M2) && target.HasUnitFlag(UnitFlags.Skinnable))
-                        return true;
+                ammoInventoryType = pItem.Template.InventoryType;
 
-                    return false;
+                if (ammoInventoryType == InventoryType.Thrown)
+                {
+                    ammoDisplayID = pItem.GetDisplayId(playerCaster);
                 }
-
-                var corpse = ObjectAccessor.GetCorpse(Caster, Targets.CorpseTargetGUID);
-
-                if (!corpse)
-                    return false;
-
-                if (target.GUID != corpse.OwnerGUID)
-                    return false;
-
-                if (!corpse.HasCorpseDynamicFlag(CorpseDynFlags.Lootable))
-                    return false;
-
-                if (!corpse.Location.IsWithinLOSInMap(Caster, LineOfSightChecks.All, ModelIgnoreFlags.M2))
-                    return false;
-
-                break;
-            }
-            default:
-            {
-                if (losPosition == null || SpellInfo.HasAttribute(SpellAttr5.AlwaysAoeLineOfSight))
+                else if (playerCaster.HasAura(46699)) // Requires No Ammo
                 {
-                    // Get GO cast coordinates if original caster . GO
-                    WorldObject caster = null;
-
-                    if (_originalCasterGuid.IsGameObject)
-                        caster = Caster.Location.Map.GetGameObject(_originalCasterGuid);
-
-                    if (!caster)
-                        caster = Caster;
-
-                    if (target != Caster && !target.Location.IsWithinLOSInMap(caster, LineOfSightChecks.All, ModelIgnoreFlags.M2))
-                        return false;
-                }
-
-                if (losPosition != null)
-                    if (!target.Location.IsWithinLOS(losPosition.X, losPosition.Y, losPosition.Z, LineOfSightChecks.All, ModelIgnoreFlags.M2))
-                        return false;
-
-                break;
-            }
-        }
-
-        return true;
-    }
-
-    private bool CheckEffectTarget(GameObject target, SpellEffectInfo spellEffectInfo)
-    {
-        if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
-            return false;
-
-        switch (spellEffectInfo.Effect)
-        {
-            case SpellEffectName.GameObjectDamage:
-            case SpellEffectName.GameobjectRepair:
-            case SpellEffectName.GameobjectSetDestructionState:
-                if (target.GoType != GameObjectTypes.DestructibleBuilding)
-                    return false;
-
-                break;
-            default:
-                break;
-        }
-
-        return true;
-    }
-
-    private bool CheckEffectTarget(Item target, SpellEffectInfo spellEffectInfo)
-    {
-        if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
-            return false;
-
-        return true;
-    }
-
-    private bool IsAutoActionResetSpell()
-    {
-        if (IsTriggered)
-            return false;
-
-        if (CastTime == 0 && SpellInfo.HasAttribute(SpellAttr6.DoesntResetSwingTimerIfInstant))
-            return false;
-
-        return true;
-    }
-
-    private bool IsNeedSendToClient()
-    {
-        return SpellVisual.SpellXSpellVisualID != 0 ||
-               SpellVisual.ScriptVisualID != 0 ||
-               SpellInfo.IsChanneled ||
-               SpellInfo.HasAttribute(SpellAttr8.AuraSendAmount) ||
-               SpellInfo.HasHitDelay ||
-               (TriggeredByAuraSpell == null && !IsTriggered);
-    }
-
-    private bool IsValidDeadOrAliveTarget(Unit target)
-    {
-        if (target.IsAlive)
-            return !SpellInfo.IsRequiringDeadTarget;
-
-        if (SpellInfo.IsAllowingDeadTarget)
-            return true;
-
-        return false;
-    }
-
-    private void HandleLaunchPhase()
-    {
-        // handle effects with SPELL_EFFECT_HANDLE_LAUNCH mode
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-        {
-            // don't do anything for empty effect
-            if (!spellEffectInfo.IsEffect())
-                continue;
-
-            HandleEffects(null, null, null, null, spellEffectInfo, SpellEffectHandleMode.Launch);
-        }
-
-        PrepareTargetProcessing();
-
-        foreach (var target in UniqueTargetInfo)
-            PreprocessSpellLaunch(target);
-
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-        {
-            double multiplier = 1.0f;
-
-            if (_applyMultiplierMask.Contains(spellEffectInfo.EffectIndex))
-                multiplier = spellEffectInfo.CalcDamageMultiplier(OriginalCaster, this);
-
-            foreach (var target in UniqueTargetInfo)
-            {
-                var mask = target.Effects;
-
-                if (!mask.Contains(spellEffectInfo.EffectIndex))
-                    continue;
-
-                DoEffectOnLaunchTarget(target, multiplier, spellEffectInfo);
-            }
-        }
-
-        FinishTargetProcessing();
-    }
-
-    private void PreprocessSpellLaunch(TargetInfo targetInfo)
-    {
-        var targetUnit = Caster.GUID == targetInfo.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, targetInfo.TargetGuid);
-
-        if (targetUnit == null)
-            return;
-
-        // This will only cause combat - the target will engage once the projectile hits (in Spell::TargetInfo::PreprocessTarget)
-        if (OriginalCaster && targetInfo.MissCondition != SpellMissInfo.Evade && !OriginalCaster.WorldObjectCombat.IsFriendlyTo(targetUnit) && (!SpellInfo.IsPositive || SpellInfo.HasEffect(SpellEffectName.Dispel)) && (SpellInfo.HasInitialAggro || targetUnit.IsEngaged))
-            OriginalCaster.SetInCombatWith(targetUnit, true);
-
-        Unit unit = null;
-
-        // In case spell hit target, do all effect on that target
-        if (targetInfo.MissCondition == SpellMissInfo.None)
-            unit = targetUnit;
-        // In case spell reflect from target, do all effect on caster (if hit)
-        else if (targetInfo.MissCondition == SpellMissInfo.Reflect && targetInfo.ReflectResult == SpellMissInfo.None)
-            unit = Caster.AsUnit;
-
-        if (unit == null)
-            return;
-
-        double critChance = SpellValue.CriticalChance;
-
-        if (OriginalCaster)
-        {
-            if (critChance == 0)
-                critChance = OriginalCaster.SpellCritChanceDone(this, null, SpellSchoolMask, AttackType);
-
-            critChance = unit.SpellCritChanceTaken(OriginalCaster, this, null, SpellSchoolMask, critChance, AttackType);
-        }
-
-        targetInfo.IsCrit = RandomHelper.randChance(critChance);
-    }
-
-    private void DoEffectOnLaunchTarget(TargetInfo targetInfo, double multiplier, SpellEffectInfo spellEffectInfo)
-    {
-        Unit unit = null;
-
-        // In case spell hit target, do all effect on that target
-        if (targetInfo.MissCondition == SpellMissInfo.None || (targetInfo.MissCondition == SpellMissInfo.Block && !SpellInfo.HasAttribute(SpellAttr3.CompletelyBlocked)))
-            unit = Caster.GUID == targetInfo.TargetGuid ? Caster.AsUnit : Global.ObjAccessor.GetUnit(Caster, targetInfo.TargetGuid);
-        // In case spell reflect from target, do all effect on caster (if hit)
-        else if (targetInfo.MissCondition == SpellMissInfo.Reflect && targetInfo.ReflectResult == SpellMissInfo.None)
-            unit = Caster.AsUnit;
-
-        if (!unit)
-            return;
-
-        DamageInEffects = 0;
-        HealingInEffects = 0;
-
-        HandleEffects(unit, null, null, null, spellEffectInfo, SpellEffectHandleMode.LaunchTarget);
-
-        if (OriginalCaster != null && DamageInEffects > 0)
-            if (spellEffectInfo.IsTargetingArea || spellEffectInfo.IsAreaAuraEffect || spellEffectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
-            {
-                DamageInEffects = unit.CalculateAoeAvoidance(DamageInEffects, (uint)SpellInfo.SchoolMask, OriginalCaster.GUID);
-
-                if (OriginalCaster.IsPlayer)
-                {
-                    // cap damage of player AOE
-                    var targetAmount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
-
-                    if (targetAmount > 20)
-                        DamageInEffects = (int)(DamageInEffects * 20 / targetAmount);
+                    ammoDisplayID = 5996; // normal arrow
+                    ammoInventoryType = InventoryType.Ammo;
                 }
             }
-
-        if (_applyMultiplierMask.Contains(spellEffectInfo.EffectIndex))
-        {
-            DamageInEffects = (int)(DamageInEffects * _damageMultipliers[spellEffectInfo.EffectIndex]);
-            HealingInEffects = (int)(HealingInEffects * _damageMultipliers[spellEffectInfo.EffectIndex]);
-
-            _damageMultipliers[spellEffectInfo.EffectIndex] *= multiplier;
         }
+        else
+        {
+            var unitCaster = Caster.AsUnit;
 
-        targetInfo.Damage += DamageInEffects;
-        targetInfo.Healing += HealingInEffects;
-    }
-
-    private SpellCastResult CanOpenLock(SpellEffectInfo effect, uint lockId, ref SkillType skillId, ref int reqSkillValue, ref int skillValue)
-    {
-        if (lockId == 0) // possible case for GO and maybe for items.
-            return SpellCastResult.SpellCastOk;
-
-        var unitCaster = Caster.AsUnit;
-
-        if (unitCaster == null)
-            return SpellCastResult.BadTargets;
-
-        // Get LockInfo
-        var lockInfo = CliDB.LockStorage.LookupByKey(lockId);
-
-        if (lockInfo == null)
-            return SpellCastResult.BadTargets;
-
-        var reqKey = false; // some locks not have reqs
-
-        for (var j = 0; j < SharedConst.MaxLockCase; ++j)
-            switch ((LockKeyType)lockInfo.LockType[j])
+            if (unitCaster != null)
             {
-                // check key item (many fit cases can be)
-                case LockKeyType.Item:
-                    if (lockInfo.Index[j] != 0 && CastItem && CastItem.Entry == lockInfo.Index[j])
-                        return SpellCastResult.SpellCastOk;
+                uint nonRangedAmmoDisplayID = 0;
+                InventoryType nonRangedAmmoInventoryType = 0;
 
-                    reqKey = true;
-
-                    break;
-                // check key skill (only single first fit case can be)
-                case LockKeyType.Skill:
+                for (byte i = (int)WeaponAttackType.BaseAttack; i < (int)WeaponAttackType.Max; ++i)
                 {
-                    reqKey = true;
+                    var itemId = unitCaster.GetVirtualItemId(i);
 
-                    // wrong locktype, skip
-                    if (effect.MiscValue != lockInfo.Index[j])
-                        continue;
-
-                    skillId = SharedConst.SkillByLockType((LockType)lockInfo.Index[j]);
-
-                    if (skillId != SkillType.None || lockInfo.Index[j] == (uint)LockType.Lockpicking)
+                    if (itemId != 0)
                     {
-                        reqSkillValue = lockInfo.Skill[j];
+                        var itemEntry = CliDB.ItemStorage.LookupByKey(itemId);
 
-                        // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
-                        skillValue = 0;
-
-                        if (!CastItem && unitCaster.IsTypeId(TypeId.Player))
-                            skillValue = unitCaster.AsPlayer.GetSkillValue(skillId);
-                        else if (lockInfo.Index[j] == (uint)LockType.Lockpicking)
-                            skillValue = (int)unitCaster.Level * 5;
-
-                        // skill bonus provided by casting spell (mostly item spells)
-                        // add the effect base points modifier from the spell cast (cheat lock / skeleton key etc.)
-                        if (effect.TargetA.Target == Framework.Constants.Targets.GameobjectItemTarget || effect.TargetB.Target == Framework.Constants.Targets.GameobjectItemTarget)
-                            skillValue += (int)effect.CalcValue();
-
-                        if (skillValue < reqSkillValue)
-                            return SpellCastResult.LowCastlevel;
-                    }
-
-                    return SpellCastResult.SpellCastOk;
-                }
-                case LockKeyType.Spell:
-                    if (SpellInfo.Id == lockInfo.Index[j])
-                        return SpellCastResult.SpellCastOk;
-
-                    reqKey = true;
-
-                    break;
-            }
-
-        if (reqKey)
-            return SpellCastResult.BadTargets;
-
-        return SpellCastResult.SpellCastOk;
-    }
-
-    private void PrepareTargetProcessing() { }
-
-    private void FinishTargetProcessing()
-    {
-        SendSpellExecuteLog();
-    }
-
-    private void LoadScripts()
-    {
-        _loadedScripts = Global.ScriptMgr.CreateSpellScripts(SpellInfo.Id, this);
-
-        foreach (var script in _loadedScripts)
-        {
-            Log.Logger.Debug("Spell.LoadScripts: Script `{0}` for spell `{1}` is loaded now", script._GetScriptName(), SpellInfo.Id);
-            script.Register();
-
-            if (script is ISpellScript)
-                foreach (var iFace in script.GetType().GetInterfaces())
-                {
-                    if (iFace.Name == nameof(ISpellScript) || iFace.Name == nameof(IBaseSpellScript))
-                        continue;
-
-                    if (!_spellScriptsByType.TryGetValue(iFace, out var spellScripts))
-                    {
-                        spellScripts = new List<ISpellScript>();
-                        _spellScriptsByType[iFace] = spellScripts;
-                    }
-
-                    spellScripts.Add((ISpellScript)script);
-                    RegisterSpellEffectHandler(script);
-                }
-        }
-    }
-
-    private void RegisterSpellEffectHandler(SpellScript script)
-    {
-        if (script is IHasSpellEffects hse)
-            foreach (var effect in hse.SpellEffects)
-                if (effect is ISpellEffectHandler se)
-                {
-                    uint mask = 0;
-
-                    if (se.EffectIndex == SpellConst.EffectAll || se.EffectIndex == SpellConst.EffectFirstFound)
-                    {
-                        foreach (var effInfo in SpellInfo.Effects)
+                        if (itemEntry is { ClassID: ItemClass.Weapon })
                         {
-                            if (se.EffectIndex == SpellConst.EffectFirstFound && mask != 0)
-                                break;
+                            switch ((ItemSubClassWeapon)itemEntry.SubclassID)
+                            {
+                                case ItemSubClassWeapon.Thrown:
+                                    ammoDisplayID = Global.DB2Mgr.GetItemDisplayId(itemId, unitCaster.GetVirtualItemAppearanceMod(i));
+                                    ammoInventoryType = (InventoryType)itemEntry.inventoryType;
 
-                            if (CheckSpellEffectHandler(se, effInfo))
-                                AddSpellEffect(effInfo.EffectIndex, script, se);
+                                    break;
+                                case ItemSubClassWeapon.Bow:
+                                case ItemSubClassWeapon.Crossbow:
+                                    ammoDisplayID = 5996; // is this need fixing?
+                                    ammoInventoryType = InventoryType.Ammo;
+
+                                    break;
+                                case ItemSubClassWeapon.Gun:
+                                    ammoDisplayID = 5998; // is this need fixing?
+                                    ammoInventoryType = InventoryType.Ammo;
+
+                                    break;
+                                default:
+                                    nonRangedAmmoDisplayID = Global.DB2Mgr.GetItemDisplayId(itemId, unitCaster.GetVirtualItemAppearanceMod(i));
+                                    nonRangedAmmoInventoryType = itemEntry.inventoryType;
+
+                                    break;
+                            }
+
+                            if (ammoDisplayID != 0)
+                                break;
                         }
                     }
-                    else
-                    {
-                        if (CheckSpellEffectHandler(se, se.EffectIndex))
-                            AddSpellEffect(se.EffectIndex, script, se);
-                    }
                 }
-                else if (effect is ITargetHookHandler th)
+
+                if (ammoDisplayID == 0 && ammoInventoryType == 0)
                 {
-                    uint mask = 0;
-
-                    if (th.EffectIndex == SpellConst.EffectAll || th.EffectIndex == SpellConst.EffectFirstFound)
-                    {
-                        foreach (var effInfo in SpellInfo.Effects)
-                        {
-                            if (th.EffectIndex == SpellConst.EffectFirstFound && mask != 0)
-                                break;
-
-                            if (CheckTargetHookEffect(th, effInfo))
-                                AddSpellEffect(effInfo.EffectIndex, script, th);
-                        }
-                    }
-                    else
-                    {
-                        if (CheckTargetHookEffect(th, th.EffectIndex))
-                            AddSpellEffect(th.EffectIndex, script, th);
-                    }
+                    ammoDisplayID = nonRangedAmmoDisplayID;
+                    ammoInventoryType = nonRangedAmmoInventoryType;
                 }
-    }
-
-    private bool CheckSpellEffectHandler(ISpellEffectHandler se, int effIndex)
-    {
-        if (SpellInfo.Effects.Count <= effIndex)
-            return false;
-
-        var spellEffectInfo = SpellInfo.GetEffect(effIndex);
-
-        return CheckSpellEffectHandler(se, spellEffectInfo);
-    }
-
-    private bool CheckSpellEffectHandler(ISpellEffectHandler se, SpellEffectInfo spellEffectInfo)
-    {
-        if (spellEffectInfo.Effect == 0 && se.EffectName == 0)
-            return true;
-
-        if (spellEffectInfo.Effect == 0)
-            return false;
-
-        return se.EffectName == SpellEffectName.Any || spellEffectInfo.Effect == se.EffectName;
-    }
-
-
-    private void CallScriptOnPrecastHandler()
-    {
-        foreach (var script in GetSpellScripts<ISpellOnPrecast>())
-            try
-            {
-                script._PrepareScriptCall(SpellScriptHookType.OnPrecast);
-                ((ISpellOnPrecast)script).OnPrecast();
-                script._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
-
-    private void CallScriptBeforeCastHandlers()
-    {
-        foreach (var script in GetSpellScripts<ISpellBeforeCast>())
-            try
-            {
-                script._PrepareScriptCall(SpellScriptHookType.BeforeCast);
-
-                ((ISpellBeforeCast)script).BeforeCast();
-
-                script._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
-
-    private void CallScriptOnCastHandlers()
-    {
-        foreach (var script in GetSpellScripts<ISpellOnCast>())
-            try
-            {
-                script._PrepareScriptCall(SpellScriptHookType.OnCast);
-
-                ((ISpellOnCast)script).OnCast();
-
-                script._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
-
-    private void CallScriptAfterCastHandlers()
-    {
-        foreach (var script in GetSpellScripts<ISpellAfterCast>())
-            try
-            {
-                script._PrepareScriptCall(SpellScriptHookType.AfterCast);
-
-                ((ISpellAfterCast)script).AfterCast();
-
-                script._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
-
-    private SpellCastResult CallScriptCheckCastHandlers()
-    {
-        var retVal = SpellCastResult.SpellCastOk;
-
-        foreach (var script in GetSpellScripts<ISpellCheckCast>())
-            try
-            {
-                script._PrepareScriptCall(SpellScriptHookType.CheckCast);
-
-                var tempResult = ((ISpellCheckCast)script).CheckCast();
-
-                if (tempResult != SpellCastResult.SpellCastOk)
-                    retVal = tempResult;
-
-                script._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-
-        return retVal;
-    }
-
-    private int CallScriptCalcCastTimeHandlers(int castTime)
-    {
-        foreach (var script in GetSpellScripts<ISpellCalculateCastTime>())
-            try
-            {
-                script._PrepareScriptCall(SpellScriptHookType.CalcCastTime);
-                castTime = ((ISpellCalculateCastTime)script).CalcCastTime(castTime);
-                script._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-
-        return castTime;
-    }
-
-    private bool CallScriptEffectHandlers(int effIndex, SpellEffectHandleMode mode)
-    {
-        // execute script effect handler hooks and check if effects was prevented
-        var preventDefault = false;
-
-        switch (mode)
-        {
-            case SpellEffectHandleMode.Launch:
-
-                foreach (var script in GetEffectScripts(SpellScriptHookType.Launch, effIndex))
-                    preventDefault = ProcessScript(effIndex, preventDefault, script.Item1, script.Item2, SpellScriptHookType.Launch);
-
-                break;
-            case SpellEffectHandleMode.LaunchTarget:
-
-                foreach (var script in GetEffectScripts(SpellScriptHookType.LaunchTarget, effIndex))
-                    preventDefault = ProcessScript(effIndex, preventDefault, script.Item1, script.Item2, SpellScriptHookType.LaunchTarget);
-
-                break;
-            case SpellEffectHandleMode.Hit:
-
-                foreach (var script in GetEffectScripts(SpellScriptHookType.Hit, effIndex))
-                    preventDefault = ProcessScript(effIndex, preventDefault, script.Item1, script.Item2, SpellScriptHookType.Hit);
-
-                break;
-            case SpellEffectHandleMode.HitTarget:
-
-                foreach (var script in GetEffectScripts(SpellScriptHookType.EffectHitTarget, effIndex))
-                    preventDefault = ProcessScript(effIndex, preventDefault, script.Item1, script.Item2, SpellScriptHookType.EffectHitTarget);
-
-                break;
-            default:
-                return false;
-        }
-
-        return preventDefault;
-    }
-
-    private static bool ProcessScript(int effIndex, bool preventDefault, ISpellScript script, ISpellEffect effect, SpellScriptHookType hookType)
-    {
-        try
-        {
-            script._InitHit();
-
-            script._PrepareScriptCall(hookType);
-
-            if (!script._IsEffectPrevented(effIndex))
-                if (effect is ISpellEffectHandler seh)
-                    seh.CallEffect(effIndex);
-
-            if (!preventDefault)
-                preventDefault = script._IsDefaultEffectPrevented(effIndex);
-
-            script._FinishScriptCall();
-        }
-        catch (Exception ex)
-        {
-            Log.Logger.Error(ex);
-        }
-
-        return preventDefault;
-    }
-
-    private void CallScriptSuccessfulDispel(int effIndex)
-    {
-        foreach (var script in GetEffectScripts(SpellScriptHookType.EffectSuccessfulDispel, effIndex))
-            try
-            {
-                script.Item1._PrepareScriptCall(SpellScriptHookType.EffectSuccessfulDispel);
-
-                if (script.Item2 is ISpellEffectHandler seh)
-                    seh.CallEffect(effIndex);
-
-                script.Item1._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
-
-    private void CallScriptObjectAreaTargetSelectHandlers(List<WorldObject> targets, int effIndex, SpellImplicitTargetInfo targetType)
-    {
-        foreach (var script in GetEffectScripts(SpellScriptHookType.ObjectAreaTargetSelect, effIndex))
-            try
-            {
-                script.Item1._PrepareScriptCall(SpellScriptHookType.ObjectAreaTargetSelect);
-
-                if (script.Item2 is ISpellObjectAreaTargetSelect oas)
-                    if (targetType.Target == oas.TargetType)
-                        oas.FilterTargets(targets);
-
-                script.Item1._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
-
-    private void CallScriptObjectTargetSelectHandlers(ref WorldObject target, int effIndex, SpellImplicitTargetInfo targetType)
-    {
-        foreach (var script in GetEffectScripts(SpellScriptHookType.ObjectTargetSelect, effIndex))
-            try
-            {
-                script.Item1._PrepareScriptCall(SpellScriptHookType.ObjectTargetSelect);
-
-                if (script.Item2 is ISpellObjectTargetSelectHandler ots)
-                    if (targetType.Target == ots.TargetType)
-                        ots.TargetSelect(target);
-
-                script.Item1._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
-
-    private void CallScriptDestinationTargetSelectHandlers(ref SpellDestination target, int effIndex, SpellImplicitTargetInfo targetType)
-    {
-        foreach (var script in GetEffectScripts(SpellScriptHookType.DestinationTargetSelect, effIndex))
-            try
-            {
-                script.Item1._PrepareScriptCall(SpellScriptHookType.DestinationTargetSelect);
-
-                if (script.Item2 is ISpellDestinationTargetSelectHandler dts)
-                    if (targetType.Target == dts.TargetType)
-                        dts.SetDest(target);
-
-                script.Item1._FinishScriptCall();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
-    }
-
-    private bool CheckScriptEffectImplicitTargets(int effIndex, int effIndexToCheck)
-    {
-        // Skip if there are not any script
-        if (_loadedScripts.Empty())
-            return true;
-
-        var otsTargetEffIndex = GetEffectScripts(SpellScriptHookType.ObjectTargetSelect, effIndex).Count > 0;
-        var otsEffIndexCheck = GetEffectScripts(SpellScriptHookType.ObjectTargetSelect, effIndexToCheck).Count > 0;
-
-        var oatsTargetEffIndex = GetEffectScripts(SpellScriptHookType.ObjectAreaTargetSelect, effIndex).Count > 0;
-        var oatsEffIndexCheck = GetEffectScripts(SpellScriptHookType.ObjectAreaTargetSelect, effIndexToCheck).Count > 0;
-
-        if ((otsTargetEffIndex && !otsEffIndexCheck) ||
-            (!otsTargetEffIndex && otsEffIndexCheck))
-            return false;
-
-        if ((oatsTargetEffIndex && !oatsEffIndexCheck) ||
-            (!oatsTargetEffIndex && oatsEffIndexCheck))
-            return false;
-
-        return true;
-    }
-
-    private void PrepareTriggersExecutedOnHit()
-    {
-        var unitCaster = Caster.AsUnit;
-
-        if (unitCaster == null)
-            return;
-
-        // handle SPELL_AURA_ADD_TARGET_TRIGGER auras:
-        // save auras which were present on spell caster on cast, to prevent triggered auras from affecting caster
-        // and to correctly calculate proc chance when combopoints are present
-        var targetTriggers = unitCaster.GetAuraEffectsByType(AuraType.AddTargetTrigger);
-
-        foreach (var aurEff in targetTriggers)
-        {
-            if (!aurEff.IsAffectingSpell(SpellInfo))
-                continue;
-
-            var spellInfo = Global.SpellMgr.GetSpellInfo(aurEff.GetSpellEffectInfo().TriggerSpell, CastDifficulty);
-
-            if (spellInfo != null)
-            {
-                // calculate the chance using spell base amount, because aura amount is not updated on combo-points change
-                // this possibly needs fixing
-                var auraBaseAmount = aurEff.BaseAmount;
-                // proc chance is stored in effect amount
-                var chance = CalculateSpellDamage(null, aurEff.GetSpellEffectInfo(), auraBaseAmount);
-                chance *= aurEff.Base.StackAmount;
-
-                // build trigger and add to the list
-                _hitTriggerSpells.Add(new HitTriggerSpell(spellInfo, aurEff.SpellInfo, chance));
-            }
-        }
-    }
-
-    public double CalculateSpellDamage(Unit target, SpellEffectInfo spellEffectInfo, double? basePoints = null, uint castItemId = 0, int itemLevel = -1)
-    {
-        return CalculateSpellDamage(out _, target, spellEffectInfo, basePoints, castItemId, itemLevel);
-    }
-
-    // function uses real base points (typically value - 1)
-    public double CalculateSpellDamage(out double variance, Unit target, SpellEffectInfo spellEffectInfo, double? basePoints = null, uint castItemId = 0, int itemLevel = -1)
-    {
-        variance = 0.0f;
-
-        return spellEffectInfo != null ? spellEffectInfo.CalcValue(out variance, this, basePoints, target, castItemId, itemLevel) : 0;
-    }
-
-    private bool CanHaveGlobalCooldown(WorldObject caster)
-    {
-        // Only players or controlled units have global cooldown
-        if (!caster.IsPlayer && (!caster.IsCreature || caster.AsCreature.GetCharmInfo() == null))
-            return false;
-
-        return true;
-    }
-
-    private bool HasGlobalCooldown()
-    {
-        if (!CanHaveGlobalCooldown(Caster))
-            return false;
-
-        return Caster.AsUnit.SpellHistory.HasGlobalCooldown(SpellInfo);
-    }
-
-    private void TriggerGlobalCooldown()
-    {
-        if (!CanHaveGlobalCooldown(Caster))
-            return;
-
-        var gcd = TimeSpan.FromMilliseconds(SpellInfo.StartRecoveryTime);
-
-        if (gcd == TimeSpan.Zero || SpellInfo.StartRecoveryCategory == 0)
-            return;
-
-        if (Caster.IsTypeId(TypeId.Player))
-            if (Caster.AsPlayer.GetCommandStatus(PlayerCommandStates.Cooldown))
-                return;
-
-        var MinGCD = TimeSpan.FromMilliseconds(750);
-        var MaxGCD = TimeSpan.FromMilliseconds(1500);
-
-        // Global cooldown can't leave range 1..1.5 secs
-        // There are some spells (mostly not casted directly by player) that have < 1 sec and > 1.5 sec global cooldowns
-        // but as tests show are not affected by any spell mods.
-        if (gcd >= MinGCD && gcd <= MaxGCD)
-        {
-            // gcd modifier auras are applied only to own spells and only players have such mods
-            var modOwner = Caster.SpellModOwner;
-
-            if (modOwner)
-            {
-                var intGcd = (int)gcd.TotalMilliseconds;
-                modOwner.ApplySpellMod(SpellInfo, SpellModOp.StartCooldown, ref intGcd, this);
-                gcd = TimeSpan.FromMilliseconds(intGcd);
-            }
-
-            var isMeleeOrRangedSpell = SpellInfo.DmgClass == SpellDmgClass.Melee ||
-                                       SpellInfo.DmgClass == SpellDmgClass.Ranged ||
-                                       SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) ||
-                                       SpellInfo.HasAttribute(SpellAttr0.IsAbility);
-
-            // Apply haste rating
-            if (gcd > MinGCD && (SpellInfo.StartRecoveryCategory == 133 && !isMeleeOrRangedSpell))
-            {
-                gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * Caster.AsUnit.UnitData.ModSpellHaste);
-                var intGcd = (int)gcd.TotalMilliseconds;
-                MathFunctions.RoundToInterval(ref intGcd, 750, 1500);
-                gcd = TimeSpan.FromMilliseconds(intGcd);
-            }
-
-            if (gcd > MinGCD && Caster.AsUnit.HasAuraTypeWithAffectMask(AuraType.ModGlobalCooldownByHasteRegen, SpellInfo))
-            {
-                gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * Caster.AsUnit.UnitData.ModHasteRegen);
-                var intGcd = (int)gcd.TotalMilliseconds;
-                MathFunctions.RoundToInterval(ref intGcd, 750, 1500);
-                gcd = TimeSpan.FromMilliseconds(intGcd);
             }
         }
 
-        Caster.AsUnit.SpellHistory.AddGlobalCooldown(SpellInfo, gcd);
+        ammo.DisplayID = (int)ammoDisplayID;
+        ammo.InventoryType = (sbyte)ammoInventoryType;
     }
 
-    private void CancelGlobalCooldown()
+    // Writes miss and hit targets for a SMSG_SPELL_GO packet
+    private void UpdateSpellCastDataTargets(SpellCastData data)
     {
-        if (!CanHaveGlobalCooldown(Caster))
-            return;
-
-        if (SpellInfo.StartRecoveryTime == 0)
-            return;
-
-        // Cancel global cooldown when interrupting current cast
-        if (Caster.AsUnit.GetCurrentSpell(CurrentSpellTypes.Generic) != this)
-            return;
-
-        Caster.AsUnit.SpellHistory.CancelGlobalCooldown(SpellInfo);
-    }
-
-    private string GetDebugInfo()
-    {
-        return $"Id: {SpellInfo.Id} Name: '{SpellInfo.SpellName[Global.WorldMgr.DefaultDbcLocale]}' OriginalCaster: {_originalCasterGuid} State: {State}";
-    }
-
-
-    private void AddSpellEffect(int index, ISpellScript script, ISpellEffect effect)
-    {
-        if (!_effectHandlers.TryGetValue(index, out var effecTypes))
+        // This function also fill data for channeled spells:
+        // m_needAliveTargetMask req for stop channelig if one target die
+        foreach (var targetInfo in UniqueTargetInfo)
         {
-            effecTypes = new Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>();
-            _effectHandlers.Add(index, effecTypes);
+            if (targetInfo.Effects.Count == 0) // No effect apply - all immuned add state
+                // possibly SPELL_MISS_IMMUNE2 for this??
+                targetInfo.MissCondition = SpellMissInfo.Immune2;
+
+            if (targetInfo.MissCondition == SpellMissInfo.None || (targetInfo.MissCondition == SpellMissInfo.Block && !SpellInfo.HasAttribute(SpellAttr3.CompletelyBlocked))) // Add only hits and partial blocked
+            {
+                data.HitTargets.Add(targetInfo.TargetGuid);
+                data.HitStatus.Add(new SpellHitStatus(SpellMissInfo.None));
+
+                _channelTargetEffectMask.UnionWith(targetInfo.Effects);
+            }
+            else // misses
+            {
+                data.MissTargets.Add(targetInfo.TargetGuid);
+
+                data.MissStatus.Add(new SpellMissStatus(targetInfo.MissCondition, targetInfo.ReflectResult));
+            }
         }
 
-        if (!effecTypes.TryGetValue(effect.HookType, out var effects))
-        {
-            effects = new List<(ISpellScript, ISpellEffect)>();
-            effecTypes.Add(effect.HookType, effects);
-        }
+        foreach (var targetInfo in _uniqueGoTargetInfo)
+            data.HitTargets.Add(targetInfo.TargetGUID); // Always hits
 
-        effects.Add((script, effect));
-    }
+        foreach (var targetInfo in _uniqueCorpseTargetInfo)
+            data.HitTargets.Add(targetInfo.TargetGuid); // Always hits
 
-    private double CalculateDamage(SpellEffectInfo spellEffectInfo, Unit target)
-    {
-        return CalculateDamage(spellEffectInfo, target, out _);
-    }
-
-    private double CalculateDamage(SpellEffectInfo spellEffectInfo, Unit target, out double variance)
-    {
-        var needRecalculateBasePoints = (SpellValue.CustomBasePointsMask & (1 << spellEffectInfo.EffectIndex)) == 0;
-
-        return CalculateSpellDamage(out variance, target, spellEffectInfo, needRecalculateBasePoints ? null : SpellValue.EffectBasePoints[spellEffectInfo.EffectIndex], CastItemEntry, CastItemLevel);
-    }
-
-    private void CheckSrc()
-    {
-        if (!Targets.HasSrc) Targets.SetSrc(Caster);
-    }
-
-    private void CheckDst()
-    {
-        if (!Targets.HasDst) Targets.SetDst(Caster);
-    }
-
-    private void ReSetTimer()
-    {
-        _timer = CastTime > 0 ? CastTime : 0;
-    }
-
-    private void SetExecutedCurrently(bool yes)
-    {
-        _executedCurrently = yes;
-    }
-
-    private bool IsDelayableNoMore()
-    {
-        if (_delayAtDamageCount >= 2)
-            return true;
-
-        ++_delayAtDamageCount;
-
-        return false;
+        // Reset m_needAliveTargetMask for non channeled spell
+        if (!SpellInfo.IsChanneled)
+            _channelTargetEffectMask.Clear();
     }
 }
 

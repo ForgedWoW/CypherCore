@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionHelloResponse : ServerPacket
 {
-    public ObjectGuid Guid;
     public uint DeliveryDelay;
+    public ObjectGuid Guid;
     public bool OpenForBusiness = true;
 
     public AuctionHelloResponse() : base(ServerOpcodes.AuctionHelloResponse) { }

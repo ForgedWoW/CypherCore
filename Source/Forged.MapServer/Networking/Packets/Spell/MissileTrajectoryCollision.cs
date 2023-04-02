@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class MissileTrajectoryCollision : ClientPacket
 {
-    public ObjectGuid Target;
-    public uint SpellID;
     public ObjectGuid CastID;
     public Vector3 CollisionPos;
+    public uint SpellID;
+    public ObjectGuid Target;
     public MissileTrajectoryCollision(WorldPacket packet) : base(packet) { }
 
     public override void Read()

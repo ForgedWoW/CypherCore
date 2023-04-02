@@ -14,11 +14,6 @@ namespace Forged.MapServer.Entities.Items;
 
 public class ItemTemplate
 {
-    private static readonly SkillType[] ItemWeaponSkills =
-    {
-        SkillType.Axes, SkillType.TwoHandedAxes, SkillType.Bows, SkillType.Guns, SkillType.Maces, SkillType.TwoHandedMaces, SkillType.Polearms, SkillType.Swords, SkillType.TwoHandedSwords, SkillType.Warglaives, SkillType.Staves, 0, 0, SkillType.FistWeapons, 0, SkillType.Daggers, 0, 0, SkillType.Crossbows, SkillType.Wands, SkillType.ClassicFishing
-    };
-
     private static readonly SkillType[] ItemArmorSkills =
     {
         0, SkillType.Cloth, SkillType.Leather, SkillType.Mail, SkillType.PlateMail, 0, SkillType.Shield, 0, 0, 0, 0, 0
@@ -29,142 +24,14 @@ public class ItemTemplate
         SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy, SkillType.Herbalism, SkillType.Cooking, SkillType.Mining, SkillType.Tailoring, SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing, SkillType.Skinning, SkillType.Jewelcrafting, SkillType.Inscription, SkillType.Archaeology
     };
 
+    private static readonly SkillType[] ItemWeaponSkills =
+            {
+        SkillType.Axes, SkillType.TwoHandedAxes, SkillType.Bows, SkillType.Guns, SkillType.Maces, SkillType.TwoHandedMaces, SkillType.Polearms, SkillType.Swords, SkillType.TwoHandedSwords, SkillType.Warglaives, SkillType.Staves, 0, 0, SkillType.FistWeapons, 0, SkillType.Daggers, 0, 0, SkillType.Crossbows, SkillType.Wands, SkillType.ClassicFishing
+    };
     private readonly SkillType[] _itemProfessionSkills =
     {
         SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy, SkillType.Herbalism, SkillType.Cooking, SkillType.ClassicBlacksmithing, SkillType.ClassicLeatherworking, SkillType.ClassicAlchemy, SkillType.ClassicHerbalism, SkillType.ClassicCooking, SkillType.Mining, SkillType.Tailoring, SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing, SkillType.ClassicMining, SkillType.ClassicTailoring, SkillType.ClassicEngineering, SkillType.ClassicEnchanting, SkillType.ClassicFishing, SkillType.Skinning, SkillType.Jewelcrafting, SkillType.Inscription, SkillType.Archaeology, SkillType.ClassicSkinning, SkillType.ClassicJewelcrafting, SkillType.ClassicInscription
     };
-
-    public uint MaxDurability { get; set; }
-    public List<ItemEffectRecord> Effects { get; set; } = new();
-
-    // extra fields, not part of db2 files
-    public uint ScriptId { get; set; }
-    public uint FoodType { get; set; }
-    public uint MinMoneyLoot { get; set; }
-    public uint MaxMoneyLoot { get; set; }
-    public ItemFlagsCustom FlagsCu { get; set; }
-    public float SpellPPMRate { get; set; }
-    public uint RandomBonusListTemplateId { get; set; }
-    public BitSet[] Specializations { get; set; } = new BitSet[3];
-    public uint ItemSpecClassMask { get; set; }
-
-    protected ItemRecord BasicData { get; set; }
-    protected ItemSparseRecord ExtendedData { get; set; }
-
-    public bool HasSignature => MaxStackSize == 1 &&
-                                Class != ItemClass.Consumable &&
-                                Class != ItemClass.Quest &&
-                                !HasFlag(ItemFlags.NoCreator) &&
-                                Id != 6948; /*Hearthstone*/
-
-    public uint Id => BasicData.Id;
-
-    public ItemClass Class => BasicData.ClassID;
-
-    public uint SubClass => BasicData.SubclassID;
-
-    public ItemQuality Quality => (ItemQuality)ExtendedData.OverallQualityID;
-
-    public uint OtherFactionItemId => ExtendedData.FactionRelated;
-
-    public float PriceRandomValue => ExtendedData.PriceRandomValue;
-
-    public float PriceVariance => ExtendedData.PriceVariance;
-
-    public uint BuyCount => Math.Max(ExtendedData.VendorStackCount, 1u);
-
-    public uint BuyPrice => ExtendedData.BuyPrice;
-
-    public uint SellPrice => ExtendedData.SellPrice;
-
-    public InventoryType InventoryType => ExtendedData.inventoryType;
-
-    public int AllowableClass => ExtendedData.AllowableClass;
-
-    public long AllowableRace => ExtendedData.AllowableRace;
-
-    public uint BaseItemLevel => ExtendedData.ItemLevel;
-
-    public int BaseRequiredLevel => ExtendedData.RequiredLevel;
-
-    public uint RequiredSkill => ExtendedData.RequiredSkill;
-
-    public uint RequiredSkillRank => ExtendedData.RequiredSkillRank;
-
-    public uint RequiredSpell => ExtendedData.RequiredAbility;
-
-    public uint RequiredReputationFaction => ExtendedData.MinFactionID;
-
-    public uint RequiredReputationRank => ExtendedData.MinReputation;
-
-    public uint MaxCount => ExtendedData.MaxCount;
-
-    public uint ContainerSlots => ExtendedData.ContainerSlots;
-
-    public uint ScalingStatContentTuning => ExtendedData.ContentTuningID;
-
-    public uint PlayerLevelToItemLevelCurveId => ExtendedData.PlayerLevelToItemLevelCurveID;
-
-    public uint DamageType => ExtendedData.DamageType;
-
-    public uint Delay => ExtendedData.ItemDelay;
-
-    public float RangedModRange => ExtendedData.ItemRange;
-
-    public ItemBondingType Bonding => (ItemBondingType)ExtendedData.Bonding;
-
-    public uint PageText => ExtendedData.PageID;
-
-    public uint StartQuest => ExtendedData.StartQuestID;
-
-    public uint LockID => ExtendedData.LockID;
-
-    public uint ItemSet => ExtendedData.ItemSet;
-
-    public uint Map => ExtendedData.InstanceBound;
-
-    public BagFamilyMask BagFamily => (BagFamilyMask)ExtendedData.BagFamily;
-
-    public uint TotemCategory => ExtendedData.TotemCategoryID;
-
-    public uint SocketBonus => ExtendedData.SocketMatchEnchantmentId;
-
-    public uint GemProperties => ExtendedData.GemProperties;
-
-    public float QualityModifier => ExtendedData.QualityModifier;
-
-    public uint Duration => ExtendedData.DurationInInventory;
-
-    public uint ItemLimitCategory => ExtendedData.LimitCategory;
-
-    public HolidayIds HolidayID => (HolidayIds)ExtendedData.RequiredHoliday;
-
-    public float DmgVariance => ExtendedData.DmgVariance;
-
-    public byte ArtifactID => ExtendedData.ArtifactID;
-
-    public byte RequiredExpansion => (byte)ExtendedData.ExpansionID;
-
-    public bool IsCurrencyToken => (BagFamily & BagFamilyMask.CurrencyTokens) != 0;
-
-    public uint MaxStackSize => (ExtendedData.Stackable == 2147483647 || ExtendedData.Stackable <= 0) ? (0x7FFFFFFF - 1) : ExtendedData.Stackable;
-
-    public bool IsPotion => Class == ItemClass.Consumable && SubClass == (uint)ItemSubClassConsumable.Potion;
-
-    public bool IsVellum => HasFlag(ItemFlags3.CanStoreEnchants);
-
-    public bool IsConjuredConsumable => Class == ItemClass.Consumable && HasFlag(ItemFlags.Conjured);
-
-    public bool IsCraftingReagent => HasFlag(ItemFlags2.UsedInATradeskill);
-
-    public bool IsWeapon => Class == ItemClass.Weapon;
-
-    public bool IsArmor => Class == ItemClass.Armor;
-
-    public bool IsRangedWeapon => IsWeapon &&
-                                  (SubClass == (uint)ItemSubClassWeapon.Bow ||
-                                   SubClass == (uint)ItemSubClassWeapon.Gun ||
-                                   SubClass == (uint)ItemSubClassWeapon.Crossbow);
 
     public ItemTemplate(ItemRecord item, ItemSparseRecord sparse)
     {
@@ -176,34 +43,107 @@ public class ItemTemplate
         Specializations[2] = new BitSet((int)PlayerClass.Max * PlayerConst.MaxSpecializations);
     }
 
-    public string GetName(Locale locale = SharedConst.DefaultLocale)
-    {
-        return ExtendedData.Display[locale];
-    }
+    public int AllowableClass => ExtendedData.AllowableClass;
+    public long AllowableRace => ExtendedData.AllowableRace;
+    public byte ArtifactID => ExtendedData.ArtifactID;
+    public BagFamilyMask BagFamily => (BagFamilyMask)ExtendedData.BagFamily;
+    public uint BaseItemLevel => ExtendedData.ItemLevel;
+    public int BaseRequiredLevel => ExtendedData.RequiredLevel;
+    public ItemBondingType Bonding => (ItemBondingType)ExtendedData.Bonding;
+    public uint BuyCount => Math.Max(ExtendedData.VendorStackCount, 1u);
+    public uint BuyPrice => ExtendedData.BuyPrice;
+    public ItemClass Class => BasicData.ClassID;
+    public uint ContainerSlots => ExtendedData.ContainerSlots;
+    public uint DamageType => ExtendedData.DamageType;
+    public uint Delay => ExtendedData.ItemDelay;
+    public float DmgVariance => ExtendedData.DmgVariance;
+    public uint Duration => ExtendedData.DurationInInventory;
+    public List<ItemEffectRecord> Effects { get; set; } = new();
+    public ItemFlagsCustom FlagsCu { get; set; }
+    public uint FoodType { get; set; }
+    public uint GemProperties => ExtendedData.GemProperties;
+    public bool HasSignature => MaxStackSize == 1 &&
+                                Class != ItemClass.Consumable &&
+                                Class != ItemClass.Quest &&
+                                !HasFlag(ItemFlags.NoCreator) &&
+                                Id != 6948;
 
-    public bool HasFlag(ItemFlags flag)
-    {
-        return (ExtendedData.Flags[0] & (int)flag) != 0;
-    }
+    public HolidayIds HolidayID => (HolidayIds)ExtendedData.RequiredHoliday;
+    public uint Id => BasicData.Id;
+    public InventoryType InventoryType => ExtendedData.inventoryType;
+    public bool IsArmor => Class == ItemClass.Armor;
+    public bool IsConjuredConsumable => Class == ItemClass.Consumable && HasFlag(ItemFlags.Conjured);
+    public bool IsCraftingReagent => HasFlag(ItemFlags2.UsedInATradeskill);
+    public bool IsCurrencyToken => (BagFamily & BagFamilyMask.CurrencyTokens) != 0;
+    public bool IsPotion => Class == ItemClass.Consumable && SubClass == (uint)ItemSubClassConsumable.Potion;
+    public bool IsRangedWeapon => IsWeapon &&
+                                  (SubClass == (uint)ItemSubClassWeapon.Bow ||
+                                   SubClass == (uint)ItemSubClassWeapon.Gun ||
+                                   SubClass == (uint)ItemSubClassWeapon.Crossbow);
 
-    public bool HasFlag(ItemFlags2 flag)
-    {
-        return (ExtendedData.Flags[1] & (int)flag) != 0;
-    }
+    public bool IsVellum => HasFlag(ItemFlags3.CanStoreEnchants);
+    public bool IsWeapon => Class == ItemClass.Weapon;
+    public uint ItemLimitCategory => ExtendedData.LimitCategory;
+    public uint ItemSet => ExtendedData.ItemSet;
+    public uint ItemSpecClassMask { get; set; }
+    public uint LockID => ExtendedData.LockID;
+    public uint Map => ExtendedData.InstanceBound;
+    public uint MaxCount => ExtendedData.MaxCount;
+    public uint MaxDurability { get; set; }
+    public uint MaxMoneyLoot { get; set; }
 
-    public bool HasFlag(ItemFlags3 flag)
-    {
-        return (ExtendedData.Flags[2] & (int)flag) != 0;
-    }
+    public uint MaxStackSize => (ExtendedData.Stackable == 2147483647 || ExtendedData.Stackable <= 0) ? (0x7FFFFFFF - 1) : ExtendedData.Stackable;
 
-    public bool HasFlag(ItemFlags4 flag)
-    {
-        return (ExtendedData.Flags[3] & (int)flag) != 0;
-    }
+    public uint MinMoneyLoot { get; set; }
 
-    public bool HasFlag(ItemFlagsCustom customFlag)
+    public uint OtherFactionItemId => ExtendedData.FactionRelated;
+
+    public uint PageText => ExtendedData.PageID;
+
+    public uint PlayerLevelToItemLevelCurveId => ExtendedData.PlayerLevelToItemLevelCurveID;
+
+    public float PriceRandomValue => ExtendedData.PriceRandomValue;
+
+    public float PriceVariance => ExtendedData.PriceVariance;
+
+    public ItemQuality Quality => (ItemQuality)ExtendedData.OverallQualityID;
+
+    public float QualityModifier => ExtendedData.QualityModifier;
+
+    public uint RandomBonusListTemplateId { get; set; }
+
+    public float RangedModRange => ExtendedData.ItemRange;
+
+    public byte RequiredExpansion => (byte)ExtendedData.ExpansionID;
+
+    public uint RequiredReputationFaction => ExtendedData.MinFactionID;
+
+    public uint RequiredReputationRank => ExtendedData.MinReputation;
+
+    public uint RequiredSkill => ExtendedData.RequiredSkill;
+
+    public uint RequiredSkillRank => ExtendedData.RequiredSkillRank;
+
+    public uint RequiredSpell => ExtendedData.RequiredAbility;
+
+    public uint ScalingStatContentTuning => ExtendedData.ContentTuningID;
+
+    // extra fields, not part of db2 files
+    public uint ScriptId { get; set; }
+    public uint SellPrice => ExtendedData.SellPrice;
+    public uint SocketBonus => ExtendedData.SocketMatchEnchantmentId;
+    public BitSet[] Specializations { get; set; } = new BitSet[3];
+    public float SpellPPMRate { get; set; }
+    public uint StartQuest => ExtendedData.StartQuestID;
+    public uint SubClass => BasicData.SubclassID;
+    public uint TotemCategory => ExtendedData.TotemCategoryID;
+    protected ItemRecord BasicData { get; set; }
+    protected ItemSparseRecord ExtendedData { get; set; }
+
+    /*Hearthstone*/
+    public static int CalculateItemSpecBit(ChrSpecializationRecord spec)
     {
-        return (FlagsCu & customFlag) != 0;
+        return (int)((spec.ClassID - 1) * PlayerConst.MaxSpecializations + spec.OrderIndex);
     }
 
     public bool CanChangeEquipStateInCombat()
@@ -228,36 +168,9 @@ public class ItemTemplate
         return false;
     }
 
-    public SkillType GetSkill()
+    public uint GetArea(int index)
     {
-        switch (Class)
-        {
-            case ItemClass.Weapon:
-                if (SubClass >= (int)ItemSubClassWeapon.Max)
-                    return 0;
-                else
-                    return ItemWeaponSkills[SubClass];
-            case ItemClass.Armor:
-                if (SubClass >= (int)ItemSubClassArmor.Max)
-                    return 0;
-                else
-                    return ItemArmorSkills[SubClass];
-
-            case ItemClass.Profession:
-
-                if (ConfigMgr.GetDefaultValue("Professions.AllowClassicProfessionSlots", false))
-                    if (SubClass >= (int)ItemSubclassProfession.Max)
-                        return 0;
-                    else
-                        return _itemProfessionSkills[SubClass];
-                else if (SubClass >= (int)ItemSubclassProfession.Max)
-                    return 0;
-                else
-                    return ItemProfessionSkills[SubClass];
-
-            default:
-                return 0;
-        }
+        return ExtendedData.ZoneBound[index];
     }
 
     public uint GetArmor(uint itemLevel)
@@ -330,6 +243,19 @@ public class ItemTemplate
         return (uint)(shield.Quality[(int)quality] + 0.5f);
     }
 
+    public void GetDamage(uint itemLevel, out float minDamage, out float maxDamage)
+    {
+        minDamage = maxDamage = 0.0f;
+        var dps = GetDPS(itemLevel);
+
+        if (dps > 0.0f)
+        {
+            var avgDamage = dps * Delay * 0.001f;
+            minDamage = (DmgVariance * -0.5f + 1.0f) * avgDamage;
+            maxDamage = (float)Math.Floor(avgDamage * (DmgVariance * 0.5f + 1.0f) + 0.5f);
+        }
+    }
+
     public float GetDPS(uint itemLevel)
     {
         var quality = Quality != ItemQuality.Heirloom ? Quality : ItemQuality.Rare;
@@ -391,19 +317,87 @@ public class ItemTemplate
         return dps;
     }
 
-    public void GetDamage(uint itemLevel, out float minDamage, out float maxDamage)
+    public string GetName(Locale locale = SharedConst.DefaultLocale)
     {
-        minDamage = maxDamage = 0.0f;
-        var dps = GetDPS(itemLevel);
+        return ExtendedData.Display[locale];
+    }
 
-        if (dps > 0.0f)
+    public SkillType GetSkill()
+    {
+        switch (Class)
         {
-            var avgDamage = dps * Delay * 0.001f;
-            minDamage = (DmgVariance * -0.5f + 1.0f) * avgDamage;
-            maxDamage = (float)Math.Floor(avgDamage * (DmgVariance * 0.5f + 1.0f) + 0.5f);
+            case ItemClass.Weapon:
+                if (SubClass >= (int)ItemSubClassWeapon.Max)
+                    return 0;
+                else
+                    return ItemWeaponSkills[SubClass];
+            case ItemClass.Armor:
+                if (SubClass >= (int)ItemSubClassArmor.Max)
+                    return 0;
+                else
+                    return ItemArmorSkills[SubClass];
+
+            case ItemClass.Profession:
+
+                if (ConfigMgr.GetDefaultValue("Professions.AllowClassicProfessionSlots", false))
+                    if (SubClass >= (int)ItemSubclassProfession.Max)
+                        return 0;
+                    else
+                        return _itemProfessionSkills[SubClass];
+                else if (SubClass >= (int)ItemSubclassProfession.Max)
+                    return 0;
+                else
+                    return ItemProfessionSkills[SubClass];
+
+            default:
+                return 0;
         }
     }
 
+    public SocketColor GetSocketColor(uint index)
+    {
+        return (SocketColor)ExtendedData.SocketType[index];
+    }
+
+    public int GetStatModifierBonusStat(uint index)
+    {
+        return ExtendedData.StatModifierBonusStat[index];
+    }
+
+    public float GetStatPercentageOfSocket(uint index)
+    {
+        return ExtendedData.StatPercentageOfSocket[index];
+    }
+
+    public int GetStatPercentEditor(uint index)
+    {
+        return ExtendedData.StatPercentEditor[index];
+    }
+
+    public bool HasFlag(ItemFlags flag)
+    {
+        return (ExtendedData.Flags[0] & (int)flag) != 0;
+    }
+
+    public bool HasFlag(ItemFlags2 flag)
+    {
+        return (ExtendedData.Flags[1] & (int)flag) != 0;
+    }
+
+    public bool HasFlag(ItemFlags3 flag)
+    {
+        return (ExtendedData.Flags[2] & (int)flag) != 0;
+    }
+
+    public bool HasFlag(ItemFlags4 flag)
+    {
+        return (ExtendedData.Flags[3] & (int)flag) != 0;
+    }
+
+    public bool HasFlag(ItemFlagsCustom customFlag)
+    {
+        return (FlagsCu & customFlag) != 0;
+    }
     public bool IsUsableByLootSpecialization(Player player, bool alwaysAllowBoundToAccount)
     {
         if (HasFlag(ItemFlags.IsBoundToAccount) && alwaysAllowBoundToAccount)
@@ -430,35 +424,5 @@ public class ItemTemplate
             levelIndex = 1;
 
         return Specializations[levelIndex].Get(CalculateItemSpecBit(chrSpecialization));
-    }
-
-    public static int CalculateItemSpecBit(ChrSpecializationRecord spec)
-    {
-        return (int)((spec.ClassID - 1) * PlayerConst.MaxSpecializations + spec.OrderIndex);
-    }
-
-    public int GetStatModifierBonusStat(uint index)
-    {
-        return ExtendedData.StatModifierBonusStat[index];
-    }
-
-    public int GetStatPercentEditor(uint index)
-    {
-        return ExtendedData.StatPercentEditor[index];
-    }
-
-    public float GetStatPercentageOfSocket(uint index)
-    {
-        return ExtendedData.StatPercentageOfSocket[index];
-    }
-
-    public uint GetArea(int index)
-    {
-        return ExtendedData.ZoneBound[index];
-    }
-
-    public SocketColor GetSocketColor(uint index)
-    {
-        return (SocketColor)ExtendedData.SocketType[index];
     }
 }

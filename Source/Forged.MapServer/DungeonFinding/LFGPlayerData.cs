@@ -10,32 +10,100 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LFGPlayerData
 {
-    // General
-    private RideTicket m_Ticket;
-    private LfgState m_State;
-
-    private LfgState m_OldState;
-
-    // Player
-    private TeamFaction m_Team;
     private ObjectGuid m_Group;
-
-    // Queue
-    private LfgRoles m_Roles;
-    private List<uint> m_SelectedDungeons = new();
 
     // Achievement-related
     private byte m_NumberOfPartyMembersAtJoin;
 
+    private LfgState m_OldState;
+
+    // Queue
+    private LfgRoles m_Roles;
+
+    private List<uint> m_SelectedDungeons = new();
+
+    private LfgState m_State;
+
+    // Player
+    private TeamFaction m_Team;
+
+    // General
+    private RideTicket m_Ticket;
     public LFGPlayerData()
     {
         m_State = LfgState.None;
         m_OldState = LfgState.None;
     }
 
-    public void SetTicket(RideTicket ticket)
+    public ObjectGuid GetGroup()
     {
-        m_Ticket = ticket;
+        return m_Group;
+    }
+
+    public byte GetNumberOfPartyMembersAtJoin()
+    {
+        return m_NumberOfPartyMembersAtJoin;
+    }
+
+    public LfgState GetOldState()
+    {
+        return m_OldState;
+    }
+
+    public LfgRoles GetRoles()
+    {
+        return m_Roles;
+    }
+
+    public List<uint> GetSelectedDungeons()
+    {
+        return m_SelectedDungeons;
+    }
+
+    public LfgState GetState()
+    {
+        return m_State;
+    }
+
+    public TeamFaction GetTeam()
+    {
+        return m_Team;
+    }
+
+    public RideTicket GetTicket()
+    {
+        return m_Ticket;
+    }
+
+    public void RestoreState()
+    {
+        if (m_OldState == LfgState.None)
+        {
+            m_SelectedDungeons.Clear();
+            m_Roles = 0;
+        }
+
+        m_State = m_OldState;
+    }
+
+    public void SetGroup(ObjectGuid group)
+    {
+        m_Group = group;
+    }
+
+    public void SetNumberOfPartyMembersAtJoin(byte count)
+    {
+        m_NumberOfPartyMembersAtJoin = count;
+    }
+
+    public void SetRoles(LfgRoles roles)
+    {
+        m_Roles = roles;
+    }
+
+    public void SetSelectedDungeons(List<uint> dungeons)
+    {
+        m_SelectedDungeons = dungeons;
     }
 
     public void SetState(LfgState state)
@@ -56,79 +124,13 @@ public class LFGPlayerData
         m_State = state;
     }
 
-    public void RestoreState()
-    {
-        if (m_OldState == LfgState.None)
-        {
-            m_SelectedDungeons.Clear();
-            m_Roles = 0;
-        }
-
-        m_State = m_OldState;
-    }
-
     public void SetTeam(TeamFaction team)
     {
         m_Team = team;
     }
 
-    public void SetGroup(ObjectGuid group)
+    public void SetTicket(RideTicket ticket)
     {
-        m_Group = group;
-    }
-
-    public void SetRoles(LfgRoles roles)
-    {
-        m_Roles = roles;
-    }
-
-    public void SetSelectedDungeons(List<uint> dungeons)
-    {
-        m_SelectedDungeons = dungeons;
-    }
-
-    public RideTicket GetTicket()
-    {
-        return m_Ticket;
-    }
-
-    public LfgState GetState()
-    {
-        return m_State;
-    }
-
-    public LfgState GetOldState()
-    {
-        return m_OldState;
-    }
-
-    public TeamFaction GetTeam()
-    {
-        return m_Team;
-    }
-
-    public ObjectGuid GetGroup()
-    {
-        return m_Group;
-    }
-
-    public LfgRoles GetRoles()
-    {
-        return m_Roles;
-    }
-
-    public List<uint> GetSelectedDungeons()
-    {
-        return m_SelectedDungeons;
-    }
-
-    public void SetNumberOfPartyMembersAtJoin(byte count)
-    {
-        m_NumberOfPartyMembersAtJoin = count;
-    }
-
-    public byte GetNumberOfPartyMembersAtJoin()
-    {
-        return m_NumberOfPartyMembersAtJoin;
+        m_Ticket = ticket;
     }
 }

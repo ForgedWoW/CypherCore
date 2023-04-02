@@ -8,21 +8,20 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public class InspectResult : ServerPacket
 {
+    public uint? AzeriteLevel;
+    public Array<PVPBracketData> Bracket = new(7, default);
     public PlayerModelDisplayInfo DisplayInfo;
     public List<ushort> Glyphs = new();
-    public List<ushort> Talents = new();
-    public Array<ushort> PvpTalents = new(PlayerConst.MaxPvpTalentSlots, 0);
     public InspectGuildData? GuildData;
-    public Array<PVPBracketData> Bracket = new(7, default);
-    public uint? AzeriteLevel;
+    public uint HonorLevel;
     public int ItemLevel;
     public uint LifetimeHK;
-    public uint HonorLevel;
+    public byte LifetimeMaxRank;
+    public Array<ushort> PvpTalents = new(PlayerConst.MaxPvpTalentSlots, 0);
+    public List<ushort> Talents = new();
+    public TraitInspectInfo TalentTraits;
     public ushort TodayHK;
     public ushort YesterdayHK;
-    public byte LifetimeMaxRank;
-    public TraitInspectInfo TalentTraits;
-
     public InspectResult() : base(ServerOpcodes.InspectResult)
     {
         DisplayInfo = new PlayerModelDisplayInfo();

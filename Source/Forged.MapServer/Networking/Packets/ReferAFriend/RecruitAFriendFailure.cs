@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.ReferAFriend;
 
 public class RecruitAFriendFailure : ServerPacket
 {
-    public string Str;
     public ReferAFriendError Reason;
+    public string Str;
     public RecruitAFriendFailure() : base(ServerOpcodes.RecruitAFriendFailure) { }
 
     public override void Write()

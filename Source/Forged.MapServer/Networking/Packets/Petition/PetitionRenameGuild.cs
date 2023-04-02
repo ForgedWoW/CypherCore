@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionRenameGuild : ClientPacket
 {
-    public ObjectGuid PetitionGuid;
     public string NewGuildName;
+    public ObjectGuid PetitionGuid;
     public PetitionRenameGuild(WorldPacket packet) : base(packet) { }
 
     public override void Read()

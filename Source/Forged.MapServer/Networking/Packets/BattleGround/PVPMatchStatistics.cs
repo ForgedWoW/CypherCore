@@ -9,10 +9,9 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class PVPMatchStatistics
 {
-    public List<PVPMatchPlayerStatistics> Statistics = new();
-    public RatingData Ratings;
     public sbyte[] PlayerCount = new sbyte[2];
-
+    public RatingData Ratings;
+    public List<PVPMatchPlayerStatistics> Statistics = new();
     public void Write(WorldPacket data)
     {
         data.WriteBit(Ratings != null);
@@ -27,37 +26,20 @@ public class PVPMatchStatistics
             player.Write(data);
     }
 
-    public class RatingData
-    {
-        public uint[] Prematch = new uint[2];
-        public uint[] Postmatch = new uint[2];
-        public uint[] PrematchMMR = new uint[2];
-
-        public void Write(WorldPacket data)
-        {
-            foreach (var id in Prematch)
-                data.WriteUInt32(id);
-
-            foreach (var id in Postmatch)
-                data.WriteUInt32(id);
-
-            foreach (var id in PrematchMMR)
-                data.WriteUInt32(id);
-        }
-    }
-
     public struct HonorData
     {
+        public uint ContributionPoints;
+
+        public uint Deaths;
+
+        public uint HonorKills;
+
         public void Write(WorldPacket data)
         {
             data.WriteUInt32(HonorKills);
             data.WriteUInt32(Deaths);
             data.WriteUInt32(ContributionPoints);
         }
-
-        public uint HonorKills;
-        public uint Deaths;
-        public uint ContributionPoints;
     }
 
     public struct PVPMatchPlayerPVPStat
@@ -80,26 +62,25 @@ public class PVPMatchStatistics
 
     public class PVPMatchPlayerStatistics
     {
-        public ObjectGuid PlayerGUID;
-        public uint Kills;
-        public byte Faction;
-        public bool IsInWorld;
-        public HonorData? Honor;
-        public uint DamageDone;
-        public uint HealingDone;
-        public uint? PreMatchRating;
-        public int? RatingChange;
-        public uint? PreMatchMMR;
-        public int? MmrChange;
-        public List<PVPMatchPlayerPVPStat> Stats = new();
-        public int PrimaryTalentTree;
-        public int Sex;
-        public Race PlayerRace;
-        public int PlayerClass;
         public int CreatureID;
+        public uint DamageDone;
+        public byte Faction;
+        public uint HealingDone;
+        public HonorData? Honor;
         public int HonorLevel;
+        public bool IsInWorld;
+        public uint Kills;
+        public int? MmrChange;
+        public int PlayerClass;
+        public ObjectGuid PlayerGUID;
+        public Race PlayerRace;
+        public uint? PreMatchMMR;
+        public uint? PreMatchRating;
+        public int PrimaryTalentTree;
+        public int? RatingChange;
         public int Role;
-
+        public int Sex;
+        public List<PVPMatchPlayerPVPStat> Stats = new();
         public void Write(WorldPacket data)
         {
             data.WritePackedGuid(PlayerGUID);
@@ -140,6 +121,25 @@ public class PVPMatchStatistics
 
             if (MmrChange.HasValue)
                 data.WriteInt32(MmrChange.Value);
+        }
+    }
+
+    public class RatingData
+    {
+        public uint[] Postmatch = new uint[2];
+        public uint[] Prematch = new uint[2];
+        public uint[] PrematchMMR = new uint[2];
+
+        public void Write(WorldPacket data)
+        {
+            foreach (var id in Prematch)
+                data.WriteUInt32(id);
+
+            foreach (var id in Postmatch)
+                data.WriteUInt32(id);
+
+            foreach (var id in PrematchMMR)
+                data.WriteUInt32(id);
         }
     }
 }

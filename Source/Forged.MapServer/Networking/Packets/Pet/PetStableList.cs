@@ -10,8 +10,8 @@ namespace Forged.MapServer.Networking.Packets.Pet;
 
 internal class PetStableList : ServerPacket
 {
-    public ObjectGuid StableMaster;
     public List<PetStableInfo> Pets = new();
+    public ObjectGuid StableMaster;
     public PetStableList() : base(ServerOpcodes.PetStableList, ConnectionType.Instance) { }
 
     public override void Write()

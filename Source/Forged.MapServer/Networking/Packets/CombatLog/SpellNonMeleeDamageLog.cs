@@ -9,24 +9,23 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellNonMeleeDamageLog : CombatLogServerPacket
 {
-    public ObjectGuid Me;
+    public int Absorbed;
     public ObjectGuid CasterGUID;
     public ObjectGuid CastID;
-    public int SpellID;
-    public SpellCastVisual Visual;
-    public int Damage;
-    public int OriginalDamage;
-    public int Overkill = -1;
-    public byte SchoolMask;
-    public int ShieldBlock;
-    public int Resisted;
-    public bool Periodic;
-    public int Absorbed;
-
-    public int Flags;
-
     // Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
     public ContentTuningParams ContentTuning;
+
+    public int Damage;
+    public int Flags;
+    public ObjectGuid Me;
+    public int OriginalDamage;
+    public int Overkill = -1;
+    public bool Periodic;
+    public int Resisted;
+    public byte SchoolMask;
+    public int ShieldBlock;
+    public int SpellID;
+    public SpellCastVisual Visual;
     public SpellNonMeleeDamageLog() : base(ServerOpcodes.SpellNonMeleeDamageLog, ConnectionType.Instance) { }
 
     public override void Write()

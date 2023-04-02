@@ -524,7 +524,7 @@ internal class boss_aran : ScriptedAI
             Talk(TextIds.SayAtiesh);
             Me.SetFacingTo(Me.Location.GetAbsoluteAngle(player.Location));
             Me.ClearUnitState(UnitState.Moving);
-            Me.MotionMaster.MoveDistract(7 * Time.InMilliseconds, Me.Location.GetAbsoluteAngle(who.Location));
+            Me.MotionMaster.MoveDistract(7 * Time.IN_MILLISECONDS, Me.Location.GetAbsoluteAngle(who.Location));
 
             break;
         }

@@ -10,14 +10,23 @@ namespace Forged.MapServer.DataStorage;
 
 public class CharacterTemplateDataStorage
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly CliDB _cliDB;
     private readonly Dictionary<uint, CharacterTemplate> _characterTemplateStore = new();
-
+    private readonly CliDB _cliDB;
+    private readonly WorldDatabase _worldDatabase;
     public CharacterTemplateDataStorage(WorldDatabase worldDatabase, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;
         _cliDB = cliDB;
+    }
+
+    public CharacterTemplate GetCharacterTemplate(uint templateId)
+    {
+        return _characterTemplateStore.LookupByKey(templateId);
+    }
+
+    public Dictionary<uint, CharacterTemplate> GetCharacterTemplates()
+    {
+        return _characterTemplateStore;
     }
 
     public void LoadCharacterTemplates()
@@ -87,15 +96,5 @@ public class CharacterTemplateDataStorage
         } while (templates.NextRow());
 
         Log.Logger.Information("Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public Dictionary<uint, CharacterTemplate> GetCharacterTemplates()
-    {
-        return _characterTemplateStore;
-    }
-
-    public CharacterTemplate GetCharacterTemplate(uint templateId)
-    {
-        return _characterTemplateStore.LookupByKey(templateId);
     }
 }

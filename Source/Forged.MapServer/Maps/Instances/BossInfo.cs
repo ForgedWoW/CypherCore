@@ -11,12 +11,6 @@ namespace Forged.MapServer.Maps.Instances;
 
 public class BossInfo
 {
-    public EncounterState State { get; set; }
-    public List<ObjectGuid>[] Door { get; set; } = new List<ObjectGuid>[(int)DoorType.Max];
-    public List<ObjectGuid> Minion { get; set; } = new();
-    public List<AreaBoundary> Boundary { get; set; } = new();
-    public DungeonEncounterRecord[] DungeonEncounters { get; set; } = new DungeonEncounterRecord[MapConst.MaxDungeonEncountersPerBoss];
-
     public BossInfo()
     {
         State = EncounterState.ToBeDecided;
@@ -25,6 +19,11 @@ public class BossInfo
             Door[i] = new List<ObjectGuid>();
     }
 
+    public List<AreaBoundary> Boundary { get; set; } = new();
+    public List<ObjectGuid>[] Door { get; set; } = new List<ObjectGuid>[(int)DoorType.Max];
+    public DungeonEncounterRecord[] DungeonEncounters { get; set; } = new DungeonEncounterRecord[MapConst.MaxDungeonEncountersPerBoss];
+    public List<ObjectGuid> Minion { get; set; } = new();
+    public EncounterState State { get; set; }
     public DungeonEncounterRecord GetDungeonEncounterForDifficulty(Difficulty difficulty)
     {
         return DungeonEncounters.FirstOrDefault(dungeonEncounter => dungeonEncounter?.DifficultyID == 0 || (Difficulty)dungeonEncounter?.DifficultyID == difficulty);

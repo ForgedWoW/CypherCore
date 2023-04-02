@@ -22,17 +22,16 @@ namespace Forged.MapServer.World;
 public class WorldStateManager
 {
     private const int AnyMap = -1;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly CliDB _cliDB;
-    private readonly GameObjectManager _objectManager;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly ScriptManager _scriptManager;
-    private readonly WorldManager _worldManager;
+    private readonly CliDB _cliDB;
     private readonly DB2Manager _db2Manager;
-    private readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
+    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<int, int> _realmWorldStateValues = new();
+    private readonly ScriptManager _scriptManager;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly WorldManager _worldManager;
     private readonly Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
-
+    private readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
     public WorldStateManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager,
                              CharacterDatabase characterDatabase, ScriptManager scriptManager, WorldManager worldManager, DB2Manager db2Manager)
     {
@@ -45,6 +44,65 @@ public class WorldStateManager
         _db2Manager = db2Manager;
         SetValue(WorldStates.CurrentPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
         SetValue(WorldStates.PreviousPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) - (configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
+    }
+
+    public void FillInitialWorldStates(InitWorldStates initWorldStates, Map map, uint playerAreaId)
+    {
+        foreach (var (worldStateId, value) in _realmWorldStateValues)
+            initWorldStates.AddState(worldStateId, value);
+
+        foreach (var (worldStateId, value) in map.GetWorldStateValues())
+        {
+            var worldStateTemplate = GetWorldStateTemplate(worldStateId);
+
+            if (worldStateTemplate != null && !worldStateTemplate.AreaIds.Empty())
+            {
+                var isInAllowedArea = worldStateTemplate.AreaIds.Any(requiredAreaId => _db2Manager.IsInArea(playerAreaId, requiredAreaId));
+
+                if (!isInAllowedArea)
+                    continue;
+            }
+
+            initWorldStates.AddState(worldStateId, value);
+        }
+    }
+
+    public Dictionary<int, int> GetInitialWorldStatesForMap(Map map)
+    {
+        Dictionary<int, int> initialValues = new();
+
+        if (_worldStatesByMap.TryGetValue((int)map.Id, out var valuesTemplate))
+            foreach (var (key, value) in valuesTemplate)
+                initialValues.Add(key, value);
+
+        if (_worldStatesByMap.TryGetValue(AnyMap, out valuesTemplate))
+            foreach (var (key, value) in valuesTemplate)
+                initialValues.Add(key, value);
+
+        return initialValues;
+    }
+
+    public int GetValue(WorldStates worldStateId, Map map)
+    {
+        return GetValue((int)worldStateId, map);
+    }
+
+    public int GetValue(int worldStateId, Map map)
+    {
+        var worldStateTemplate = GetWorldStateTemplate(worldStateId);
+
+        if (worldStateTemplate == null || worldStateTemplate.MapIds.Empty())
+            return _realmWorldStateValues.LookupByKey(worldStateId);
+
+        if (map == null || (!worldStateTemplate.MapIds.Contains((int)map.Id) && !worldStateTemplate.MapIds.Contains(AnyMap)))
+            return 0;
+
+        return map.GetWorldStateValue(worldStateId);
+    }
+
+    public WorldStateTemplate GetWorldStateTemplate(int worldStateId)
+    {
+        return _worldStateTemplates.LookupByKey(worldStateId);
     }
 
     public void LoadFromDB()
@@ -194,28 +252,21 @@ public class WorldStateManager
 
         Log.Logger.Information($"Loaded {savedValueCount} saved world state values {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
-
-    public WorldStateTemplate GetWorldStateTemplate(int worldStateId)
+    public void SaveValueInDb(int worldStateId, int value)
     {
-        return _worldStateTemplates.LookupByKey(worldStateId);
+        if (GetWorldStateTemplate(worldStateId) == null)
+            return;
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_STATE);
+        stmt.AddValue(0, worldStateId);
+        stmt.AddValue(1, value);
+        _characterDatabase.Execute(stmt);
     }
 
-    public int GetValue(WorldStates worldStateId, Map map)
+    public void SetForcedWarModeFactionBalanceState(int team, int reward = 0)
     {
-        return GetValue((int)worldStateId, map);
-    }
-
-    public int GetValue(int worldStateId, Map map)
-    {
-        var worldStateTemplate = GetWorldStateTemplate(worldStateId);
-
-        if (worldStateTemplate == null || worldStateTemplate.MapIds.Empty())
-            return _realmWorldStateValues.LookupByKey(worldStateId);
-
-        if (map == null || (!worldStateTemplate.MapIds.Contains((int)map.Id) && !worldStateTemplate.MapIds.Contains(AnyMap)))
-            return 0;
-
-        return map.GetWorldStateValue(worldStateId);
+        SetValueAndSaveInDb(WorldStates.WarModeHordeBuffValue, 10 + (team == TeamIds.Alliance ? reward : 0), false, null);
+        SetValueAndSaveInDb(WorldStates.WarModeAllianceBuffValue, 10 + (team == TeamIds.Horde ? reward : 0), false, null);
     }
 
     public void SetValue(WorldStates worldStateId, int value, bool hidden, Map map)
@@ -267,18 +318,6 @@ public class WorldStateManager
 
         map.SetWorldStateValue(worldStateId, value, hidden);
     }
-
-    public void SaveValueInDb(int worldStateId, int value)
-    {
-        if (GetWorldStateTemplate(worldStateId) == null)
-            return;
-
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_STATE);
-        stmt.AddValue(0, worldStateId);
-        stmt.AddValue(1, value);
-        _characterDatabase.Execute(stmt);
-    }
-
     public void SetValueAndSaveInDb(WorldStates worldStateId, int value, bool hidden, Map map)
     {
         SetValueAndSaveInDb((int)worldStateId, value, hidden, map);
@@ -288,47 +327,5 @@ public class WorldStateManager
     {
         SetValue(worldStateId, value, hidden, map);
         SaveValueInDb(worldStateId, value);
-    }
-
-    public Dictionary<int, int> GetInitialWorldStatesForMap(Map map)
-    {
-        Dictionary<int, int> initialValues = new();
-
-        if (_worldStatesByMap.TryGetValue((int)map.Id, out var valuesTemplate))
-            foreach (var (key, value) in valuesTemplate)
-                initialValues.Add(key, value);
-
-        if (_worldStatesByMap.TryGetValue(AnyMap, out valuesTemplate))
-            foreach (var (key, value) in valuesTemplate)
-                initialValues.Add(key, value);
-
-        return initialValues;
-    }
-
-    public void FillInitialWorldStates(InitWorldStates initWorldStates, Map map, uint playerAreaId)
-    {
-        foreach (var (worldStateId, value) in _realmWorldStateValues)
-            initWorldStates.AddState(worldStateId, value);
-
-        foreach (var (worldStateId, value) in map.GetWorldStateValues())
-        {
-            var worldStateTemplate = GetWorldStateTemplate(worldStateId);
-
-            if (worldStateTemplate != null && !worldStateTemplate.AreaIds.Empty())
-            {
-                var isInAllowedArea = worldStateTemplate.AreaIds.Any(requiredAreaId => _db2Manager.IsInArea(playerAreaId, requiredAreaId));
-
-                if (!isInAllowedArea)
-                    continue;
-            }
-
-            initWorldStates.AddState(worldStateId, value);
-        }
-    }
-
-    public void SetForcedWarModeFactionBalanceState(int team, int reward = 0)
-    {
-        SetValueAndSaveInDb(WorldStates.WarModeHordeBuffValue, 10 + (team == TeamIds.Alliance ? reward : 0), false, null);
-        SetValueAndSaveInDb(WorldStates.WarModeAllianceBuffValue, 10 + (team == TeamIds.Horde ? reward : 0), false, null);
     }
 }

@@ -5,6 +5,26 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal struct PartyLFGInfo
 {
+    public bool Aborted;
+
+    public byte BootCount;
+
+    public bool MyFirstReward;
+
+    public byte MyFlags;
+
+    public float MyGearDiff;
+
+    public byte MyKickVoteCount;
+
+    public byte MyPartialClear;
+
+    public uint MyRandomSlot;
+
+    public byte MyStrangerCount;
+
+    public uint Slot;
+
     public void Write(WorldPacket data)
     {
         data.WriteUInt8(MyFlags);
@@ -19,15 +39,4 @@ internal struct PartyLFGInfo
         data.WriteBit(MyFirstReward);
         data.FlushBits();
     }
-
-    public byte MyFlags;
-    public uint Slot;
-    public byte BootCount;
-    public uint MyRandomSlot;
-    public bool Aborted;
-    public byte MyPartialClear;
-    public float MyGearDiff;
-    public byte MyStrangerCount;
-    public byte MyKickVoteCount;
-    public bool MyFirstReward;
 }

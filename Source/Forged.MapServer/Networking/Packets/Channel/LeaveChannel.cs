@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Channel;
 
 public class LeaveChannel : ClientPacket
 {
-    public int ZoneChannelID;
     public string ChannelName;
+    public int ZoneChannelID;
     public LeaveChannel(WorldPacket packet) : base(packet) { }
 
     public override void Read()

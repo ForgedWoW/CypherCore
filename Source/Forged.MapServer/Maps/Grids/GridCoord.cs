@@ -12,9 +12,6 @@ public class GridCoord : ICoord
     private const int Limit = MapConst.MaxGrids;
 
 
-    public uint X_Coord { get; set; }
-    public uint Y_Coord { get; set; }
-
     public GridCoord(uint x, uint y)
     {
         X_Coord = x;
@@ -27,54 +24,11 @@ public class GridCoord : ICoord
         Y_Coord = obj.Y_Coord;
     }
 
-    public bool IsCoordValid()
+    public uint X_Coord { get; set; }
+    public uint Y_Coord { get; set; }
+    public static bool operator !=(GridCoord first, GridCoord other)
     {
-        return X_Coord < Limit && Y_Coord < Limit;
-    }
-
-    public ICoord Normalize()
-    {
-        X_Coord = Math.Min(X_Coord, Limit - 1);
-        Y_Coord = Math.Min(Y_Coord, Limit - 1);
-
-        return this;
-    }
-
-    public uint GetId()
-    {
-        return Y_Coord * Limit + X_Coord;
-    }
-
-    public void Dec_x(uint val)
-    {
-        if (X_Coord > val)
-            X_Coord -= val;
-        else
-            X_Coord = 0;
-    }
-
-    public void Inc_x(uint val)
-    {
-        if (X_Coord + val < Limit)
-            X_Coord += val;
-        else
-            X_Coord = Limit - 1;
-    }
-
-    public void Dec_y(uint val)
-    {
-        if (Y_Coord > val)
-            Y_Coord -= val;
-        else
-            Y_Coord = 0;
-    }
-
-    public void Inc_y(uint val)
-    {
-        if (Y_Coord + val < Limit)
-            Y_Coord += val;
-        else
-            Y_Coord = Limit - 1;
+        return !(first == other);
     }
 
     public static bool operator ==(GridCoord first, GridCoord other)
@@ -88,9 +42,20 @@ public class GridCoord : ICoord
         return first.Equals(other);
     }
 
-    public static bool operator !=(GridCoord first, GridCoord other)
+    public void Dec_x(uint val)
     {
-        return !(first == other);
+        if (X_Coord > val)
+            X_Coord -= val;
+        else
+            X_Coord = 0;
+    }
+
+    public void Dec_y(uint val)
+    {
+        if (Y_Coord > val)
+            Y_Coord -= val;
+        else
+            Y_Coord = 0;
     }
 
     public override bool Equals(object obj)
@@ -110,5 +75,39 @@ public class GridCoord : ICoord
             X_Coord,
             Y_Coord
         }.GetHashCode();
+    }
+
+    public uint GetId()
+    {
+        return Y_Coord * Limit + X_Coord;
+    }
+
+    public void Inc_x(uint val)
+    {
+        if (X_Coord + val < Limit)
+            X_Coord += val;
+        else
+            X_Coord = Limit - 1;
+    }
+
+    public void Inc_y(uint val)
+    {
+        if (Y_Coord + val < Limit)
+            Y_Coord += val;
+        else
+            Y_Coord = Limit - 1;
+    }
+
+    public bool IsCoordValid()
+    {
+        return X_Coord < Limit && Y_Coord < Limit;
+    }
+
+    public ICoord Normalize()
+    {
+        X_Coord = Math.Min(X_Coord, Limit - 1);
+        Y_Coord = Math.Min(Y_Coord, Limit - 1);
+
+        return this;
     }
 }

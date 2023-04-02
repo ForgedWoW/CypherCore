@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Transmogification;
 
 internal class TransmogrifyItems : ClientPacket
 {
-    public ObjectGuid Npc;
-    public Array<TransmogrifyItem> Items = new(13);
     public bool CurrentSpecOnly;
+    public Array<TransmogrifyItem> Items = new(13);
+    public ObjectGuid Npc;
     public TransmogrifyItems(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -10,18 +10,18 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal class ScenarioState : ServerPacket
 {
-    public int ScenarioID;
+    public List<BonusObjectiveData> BonusObjectives = new();
+    public List<CriteriaProgressPkt> CriteriaProgress = new();
     public int CurrentStep = -1;
     public uint DifficultyID;
-    public uint WaveCurrent;
-    public uint WaveMax;
-    public uint TimerDuration;
-    public List<CriteriaProgressPkt> CriteriaProgress = new();
-    public List<BonusObjectiveData> BonusObjectives = new();
     public List<uint> PickedSteps = new();
-    public List<ScenarioSpellUpdate> Spells = new();
     public ObjectGuid PlayerGUID;
     public bool ScenarioComplete = false;
+    public int ScenarioID;
+    public List<ScenarioSpellUpdate> Spells = new();
+    public uint TimerDuration;
+    public uint WaveCurrent;
+    public uint WaveMax;
     public ScenarioState() : base(ServerOpcodes.ScenarioState, ConnectionType.Instance) { }
 
     public override void Write()

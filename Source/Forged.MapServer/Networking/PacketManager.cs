@@ -13,6 +13,16 @@ public class PacketManager
 {
     private readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
 
+    public bool ContainsHandler(ClientOpcodes opcode)
+    {
+        return _clientPacketTable.ContainsKey(opcode);
+    }
+
+    public PacketHandler GetHandler(ClientOpcodes opcode)
+    {
+        return _clientPacketTable.LookupByKey(opcode);
+    }
+
     public void Initialize()
     {
         var currentAsm = Assembly.GetExecutingAssembly();
@@ -58,17 +68,6 @@ public class PacketManager
             }
         }
     }
-
-    public PacketHandler GetHandler(ClientOpcodes opcode)
-    {
-        return _clientPacketTable.LookupByKey(opcode);
-    }
-
-    public bool ContainsHandler(ClientOpcodes opcode)
-    {
-        return _clientPacketTable.ContainsKey(opcode);
-    }
-
     public bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
     {
         switch (opcode)

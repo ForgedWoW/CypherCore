@@ -13,66 +13,6 @@ namespace Forged.MapServer.Handlers;
 
 public class SkillHandler : IWorldSessionHandler
 {
-    [WorldPacketHandler(ClientOpcodes.LearnTalents, Processing = PacketProcessing.Inplace)]
-    private void HandleLearnTalents(LearnTalents packet)
-    {
-        LearnTalentFailed learnTalentFailed = new();
-        var anythingLearned = false;
-
-        foreach (uint talentId in packet.Talents)
-        {
-            var result = _player.LearnTalent(talentId, ref learnTalentFailed.SpellID);
-
-            if (result != 0)
-            {
-                if (learnTalentFailed.Reason == 0)
-                    learnTalentFailed.Reason = (uint)result;
-
-                learnTalentFailed.Talents.Add((ushort)talentId);
-            }
-            else
-            {
-                anythingLearned = true;
-            }
-        }
-
-        if (learnTalentFailed.Reason != 0)
-            SendPacket(learnTalentFailed);
-
-        if (anythingLearned)
-            Player.SendTalentsInfoData();
-    }
-
-    [WorldPacketHandler(ClientOpcodes.LearnPvpTalents, Processing = PacketProcessing.Inplace)]
-    private void HandleLearnPvpTalents(LearnPvpTalents packet)
-    {
-        LearnPvpTalentFailed learnPvpTalentFailed = new();
-        var anythingLearned = false;
-
-        foreach (var pvpTalent in packet.Talents)
-        {
-            var result = _player.LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, ref learnPvpTalentFailed.SpellID);
-
-            if (result != 0)
-            {
-                if (learnPvpTalentFailed.Reason == 0)
-                    learnPvpTalentFailed.Reason = (uint)result;
-
-                learnPvpTalentFailed.Talents.Add(pvpTalent);
-            }
-            else
-            {
-                anythingLearned = true;
-            }
-        }
-
-        if (learnPvpTalentFailed.Reason != 0)
-            SendPacket(learnPvpTalentFailed);
-
-        if (anythingLearned)
-            _player.SendTalentsInfoData();
-    }
-
     [WorldPacketHandler(ClientOpcodes.ConfirmRespecWipe)]
     private void HandleConfirmRespecWipe(ConfirmRespecWipe confirmRespecWipe)
     {
@@ -106,6 +46,74 @@ public class SkillHandler : IWorldSessionHandler
         unit.CastSpell(Player, 14867, true); //spell: "Untalent Visual Effect"
     }
 
+    [WorldPacketHandler(ClientOpcodes.LearnPvpTalents, Processing = PacketProcessing.Inplace)]
+    private void HandleLearnPvpTalents(LearnPvpTalents packet)
+    {
+        LearnPvpTalentFailed learnPvpTalentFailed = new();
+        var anythingLearned = false;
+
+        foreach (var pvpTalent in packet.Talents)
+        {
+            var result = _player.LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, ref learnPvpTalentFailed.SpellID);
+
+            if (result != 0)
+            {
+                if (learnPvpTalentFailed.Reason == 0)
+                    learnPvpTalentFailed.Reason = (uint)result;
+
+                learnPvpTalentFailed.Talents.Add(pvpTalent);
+            }
+            else
+            {
+                anythingLearned = true;
+            }
+        }
+
+        if (learnPvpTalentFailed.Reason != 0)
+            SendPacket(learnPvpTalentFailed);
+
+        if (anythingLearned)
+            _player.SendTalentsInfoData();
+    }
+
+    [WorldPacketHandler(ClientOpcodes.LearnTalents, Processing = PacketProcessing.Inplace)]
+    private void HandleLearnTalents(LearnTalents packet)
+    {
+        LearnTalentFailed learnTalentFailed = new();
+        var anythingLearned = false;
+
+        foreach (uint talentId in packet.Talents)
+        {
+            var result = _player.LearnTalent(talentId, ref learnTalentFailed.SpellID);
+
+            if (result != 0)
+            {
+                if (learnTalentFailed.Reason == 0)
+                    learnTalentFailed.Reason = (uint)result;
+
+                learnTalentFailed.Talents.Add((ushort)talentId);
+            }
+            else
+            {
+                anythingLearned = true;
+            }
+        }
+
+        if (learnTalentFailed.Reason != 0)
+            SendPacket(learnTalentFailed);
+
+        if (anythingLearned)
+            Player.SendTalentsInfoData();
+    }
+    [WorldPacketHandler(ClientOpcodes.TradeSkillSetFavorite, Processing = PacketProcessing.Inplace)]
+    private void HandleTradeSkillSetFavorite(TradeSkillSetFavorite tradeSkillSetFavorite)
+    {
+        if (!_player.HasSpell(tradeSkillSetFavorite.RecipeID))
+            return;
+
+        _player.SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
+    }
+
     [WorldPacketHandler(ClientOpcodes.UnlearnSkill, Processing = PacketProcessing.Inplace)]
     private void HandleUnlearnSkill(UnlearnSkill packet)
     {
@@ -115,14 +123,5 @@ public class SkillHandler : IWorldSessionHandler
             return;
 
         Player.SetSkill(packet.SkillLine, 0, 0, 0);
-    }
-
-    [WorldPacketHandler(ClientOpcodes.TradeSkillSetFavorite, Processing = PacketProcessing.Inplace)]
-    private void HandleTradeSkillSetFavorite(TradeSkillSetFavorite tradeSkillSetFavorite)
-    {
-        if (!_player.HasSpell(tradeSkillSetFavorite.RecipeID))
-            return;
-
-        _player.SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
     }
 }

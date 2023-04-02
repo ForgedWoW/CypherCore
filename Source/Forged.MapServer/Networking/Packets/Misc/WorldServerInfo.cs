@@ -7,17 +7,17 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class WorldServerInfo : ServerPacket
 {
+    public bool BlockExitingLoadingScreen;
     public uint DifficultyID;
+    public uint? InstanceGroupSize;
     public bool IsTournamentRealm;
-    public bool XRealmPvpAlert;
-
-    public bool BlockExitingLoadingScreen; // when set to true, sending SMSG_UPDATE_OBJECT with CreateObject Self bit = true will not hide loading screen
-
     // instead it will be done after this packet is sent again with false in this bit and SMSG_UPDATE_OBJECT Values for player
     public uint? RestrictedAccountMaxLevel;
-    public ulong? RestrictedAccountMaxMoney;
-    public uint? InstanceGroupSize;
 
+    // when set to true, sending SMSG_UPDATE_OBJECT with CreateObject Self bit = true will not hide loading screen
+    public ulong? RestrictedAccountMaxMoney;
+
+    public bool XRealmPvpAlert;
     public WorldServerInfo() : base(ServerOpcodes.WorldServerInfo, ConnectionType.Instance)
     {
         InstanceGroupSize = new uint?();

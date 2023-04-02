@@ -9,17 +9,30 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class TraitConfig : BaseUpdateData<Player>
 {
-    public DynamicUpdateField<TraitEntry> Entries = new(0, 1);
-    public UpdateField<int> ID = new(0, 2);
-    public UpdateFieldString Name = new(0, 3);
-    public UpdateField<int> Type = new(4, 5);
-    public UpdateField<int> SkillLineID = new(4, 6);
     public UpdateField<int> ChrSpecializationID = new(4, 7);
     public UpdateField<int> CombatConfigFlags = new(8, 9);
+    public DynamicUpdateField<TraitEntry> Entries = new(0, 1);
+    public UpdateField<int> ID = new(0, 2);
     public UpdateField<int> LocalIdentifier = new(8, 10);
+    public UpdateFieldString Name = new(0, 3);
+    public UpdateField<int> SkillLineID = new(4, 6);
     public UpdateField<int> TraitSystemID = new(8, 11);
-
+    public UpdateField<int> Type = new(4, 5);
     public TraitConfig() : base(12) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Entries);
+        ClearChangesMask(ID);
+        ClearChangesMask(Name);
+        ClearChangesMask(Type);
+        ClearChangesMask(SkillLineID);
+        ClearChangesMask(ChrSpecializationID);
+        ClearChangesMask(CombatConfigFlags);
+        ClearChangesMask(LocalIdentifier);
+        ClearChangesMask(TraitSystemID);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
@@ -43,7 +56,7 @@ public class TraitConfig : BaseUpdateData<Player>
         for (var i = 0; i < Entries.Size(); ++i)
             Entries[i].WriteCreate(data, owner, receiver);
 
-        data.WriteBits(Name.GetValue().GetByteCount(), 9);
+        data.WriteBits(Name.Value.GetByteCount(), 9);
         data.WriteString(Name);
         data.FlushBits();
     }
@@ -111,24 +124,10 @@ public class TraitConfig : BaseUpdateData<Player>
         if (changesMask[0])
             if (changesMask[3])
             {
-                data.WriteBits(Name.GetValue().GetByteCount(), 9);
+                data.WriteBits(Name.Value.GetByteCount(), 9);
                 data.WriteString(Name);
             }
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Entries);
-        ClearChangesMask(ID);
-        ClearChangesMask(Name);
-        ClearChangesMask(Type);
-        ClearChangesMask(SkillLineID);
-        ClearChangesMask(ChrSpecializationID);
-        ClearChangesMask(CombatConfigFlags);
-        ClearChangesMask(LocalIdentifier);
-        ClearChangesMask(TraitSystemID);
-        ChangesMask.ResetAll();
     }
 }

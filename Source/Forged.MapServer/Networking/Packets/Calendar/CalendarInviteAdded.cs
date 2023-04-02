@@ -8,14 +8,14 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarInviteAdded : ServerPacket
 {
-    public ulong InviteID;
-    public long ResponseTime;
-    public byte Level = 100;
-    public ObjectGuid InviteGuid;
-    public ulong EventID;
-    public byte Type;
     public bool ClearPending;
+    public ulong EventID;
+    public ObjectGuid InviteGuid;
+    public ulong InviteID;
+    public byte Level = 100;
+    public long ResponseTime;
     public CalendarInviteStatus Status;
+    public byte Type;
     public CalendarInviteAdded() : base(ServerOpcodes.CalendarInviteAdded) { }
 
     public override void Write()

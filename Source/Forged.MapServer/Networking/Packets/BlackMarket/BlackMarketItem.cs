@@ -7,6 +7,26 @@ namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
 public struct BlackMarketItem
 {
+    public ulong CurrentBid;
+
+    public bool HighBid;
+
+    public ItemInstance Item;
+
+    public uint MarketID;
+
+    public ulong MinBid;
+
+    public ulong MinIncrement;
+
+    public uint NumBids;
+
+    public uint Quantity;
+
+    public uint SecondsRemaining;
+
+    public uint SellerNPC;
+
     public void Read(WorldPacket data)
     {
         MarketID = data.ReadUInt32();
@@ -35,15 +55,4 @@ public struct BlackMarketItem
         data.WriteBit(HighBid);
         data.FlushBits();
     }
-
-    public uint MarketID;
-    public uint SellerNPC;
-    public ItemInstance Item;
-    public uint Quantity;
-    public ulong MinBid;
-    public ulong MinIncrement;
-    public ulong CurrentBid;
-    public uint SecondsRemaining;
-    public uint NumBids;
-    public bool HighBid;
 }

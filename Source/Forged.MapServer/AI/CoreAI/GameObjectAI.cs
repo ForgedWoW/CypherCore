@@ -15,9 +15,8 @@ namespace Forged.MapServer.AI.CoreAI;
 public class GameObjectAI
 {
     public readonly GameObject Me;
-    protected TaskScheduler Scheduler;
     protected EventMap Events;
-
+    protected TaskScheduler Scheduler;
     public GameObjectAI(GameObject go)
     {
         Me = go;
@@ -25,22 +24,23 @@ public class GameObjectAI
         Events = new EventMap();
     }
 
-    public virtual void UpdateAI(uint diff) { }
+    public virtual void Damaged(WorldObject attacker, uint eventId) { }
 
-    public virtual void InitializeAI()
-    {
-        Reset();
-    }
-
-    public virtual void Reset() { }
+    public virtual void Destroyed(WorldObject attacker, uint eventId) { }
 
     // Pass parameters between AI
     public virtual void DoAction(int param = 0) { }
-    public virtual void SetGUID(ObjectGuid guid, int id = 0) { }
 
-    public virtual ObjectGuid GetGUID(int id = 0)
+    public virtual void EventInform(uint eventId) { }
+
+    public virtual uint GetData(uint id)
     {
-        return ObjectGuid.Empty;
+        return 0;
+    }
+
+    public virtual ulong GetData64(uint id)
+    {
+        return 0;
     }
 
     /// <summary>
@@ -50,6 +50,33 @@ public class GameObjectAI
     {
         return null;
     }
+
+    public virtual ObjectGuid GetGUID(int id = 0)
+    {
+        return ObjectGuid.Empty;
+    }
+
+    public virtual void InitializeAI()
+    {
+        Reset();
+    }
+
+    // Called when the gameobject summon successfully other creature
+    public virtual void JustSummoned(Creature summon) { }
+
+    // Called when the capture point gets assaulted by a player. Return true to disable default behaviour.
+    public virtual bool OnCapturePointAssaulted(Player player)
+    {
+        return false;
+    }
+
+    // Called when the capture point state gets updated. Return true to disable default behaviour.
+    public virtual bool OnCapturePointUpdated(BattlegroundCapturePointState state)
+    {
+        return false;
+    }
+
+    public virtual void OnGameEvent(bool start, ushort eventId) { }
 
     /// <summary>
     ///     Called when a player opens a gossip dialog with the gameobject.
@@ -75,6 +102,8 @@ public class GameObjectAI
         return false;
     }
 
+    public virtual void OnLootStateChanged(uint state, Unit unit) { }
+
     /// <summary>
     ///     Called when a player accepts a quest from the gameobject.
     /// </summary>
@@ -92,27 +121,15 @@ public class GameObjectAI
         return false;
     }
 
-    public virtual void Destroyed(WorldObject attacker, uint eventId) { }
-    public virtual void Damaged(WorldObject attacker, uint eventId) { }
+    public virtual void OnStateChanged(GameObjectState state) { }
 
-    public virtual void SetData64(uint id, ulong value) { }
-
-    public virtual ulong GetData64(uint id)
-    {
-        return 0;
-    }
-
-    public virtual uint GetData(uint id)
-    {
-        return 0;
-    }
+    public virtual void Reset() { }
 
     public virtual void SetData(uint id, uint value) { }
 
-    public virtual void OnGameEvent(bool start, ushort eventId) { }
-    public virtual void OnLootStateChanged(uint state, Unit unit) { }
-    public virtual void OnStateChanged(GameObjectState state) { }
-    public virtual void EventInform(uint eventId) { }
+    public virtual void SetData64(uint id, ulong value) { }
+
+    public virtual void SetGUID(ObjectGuid guid, int id = 0) { }
 
     // Called when hit by a spell
     public virtual void SpellHit(WorldObject caster, SpellInfo spellInfo) { }
@@ -120,21 +137,9 @@ public class GameObjectAI
     // Called when spell hits a target
     public virtual void SpellHitTarget(WorldObject target, SpellInfo spellInfo) { }
 
-    // Called when the gameobject summon successfully other creature
-    public virtual void JustSummoned(Creature summon) { }
-
     public virtual void SummonedCreatureDespawn(Creature summon) { }
+
     public virtual void SummonedCreatureDies(Creature summon, Unit killer) { }
 
-    // Called when the capture point gets assaulted by a player. Return true to disable default behaviour.
-    public virtual bool OnCapturePointAssaulted(Player player)
-    {
-        return false;
-    }
-
-    // Called when the capture point state gets updated. Return true to disable default behaviour.
-    public virtual bool OnCapturePointUpdated(BattlegroundCapturePointState state)
-    {
-        return false;
-    }
+    public virtual void UpdateAI(uint diff) { }
 }

@@ -10,8 +10,8 @@ namespace Forged.MapServer.Networking.Packets.Hotfix;
 
 internal class HotfixConnect : ServerPacket
 {
-    public List<HotfixData> Hotfixes = new();
     public ByteBuffer HotfixContent = new();
+    public List<HotfixData> Hotfixes = new();
     public HotfixConnect() : base(ServerOpcodes.HotfixConnect) { }
 
     public override void Write()

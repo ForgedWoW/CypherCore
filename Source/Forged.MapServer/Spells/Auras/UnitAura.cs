@@ -43,13 +43,22 @@ public class UnitAura : Aura
             target.ApplyDiminishingAura(_mAuraDrGroup, false);
     }
 
-    public override void Remove(AuraRemoveMode removeMode = AuraRemoveMode.Default)
+    public void AddStaticApplication(Unit target, HashSet<int> effectMask)
     {
-        if (IsRemoved)
+        var effMask = effectMask.ToHashSet();
+
+        // only valid for non-area auras
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+            if (effMask.Contains(spellEffectInfo.EffectIndex) && !spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
+                effMask.Remove(spellEffectInfo.EffectIndex);
+
+        if (effMask.Count == 0)
             return;
 
-        OwnerAsUnit.RemoveOwnedAura(this, removeMode);
-        base.Remove(removeMode);
+        if (!_staticApplications.ContainsKey(target.GUID))
+            _staticApplications[target.GUID] = new HashSet<int>();
+
+        _staticApplications[target.GUID].UnionWith(effMask);
     }
 
     public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
@@ -177,32 +186,22 @@ public class UnitAura : Aura
         return targets;
     }
 
-    public void AddStaticApplication(Unit target, HashSet<int> effectMask)
+    public DiminishingGroup GetDiminishGroup()
     {
-        var effMask = effectMask.ToHashSet();
-
-        // only valid for non-area auras
-        foreach (var spellEffectInfo in SpellInfo.Effects)
-            if (effMask.Contains(spellEffectInfo.EffectIndex) && !spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
-                effMask.Remove(spellEffectInfo.EffectIndex);
-
-        if (effMask.Count == 0)
-            return;
-
-        if (!_staticApplications.ContainsKey(target.GUID))
-            _staticApplications[target.GUID] = new HashSet<int>();
-
-        _staticApplications[target.GUID].UnionWith(effMask);
+        return _mAuraDrGroup;
     }
 
+    public override void Remove(AuraRemoveMode removeMode = AuraRemoveMode.Default)
+    {
+        if (IsRemoved)
+            return;
+
+        OwnerAsUnit.RemoveOwnedAura(this, removeMode);
+        base.Remove(removeMode);
+    }
     // Allow Apply Aura Handler to modify and access m_AuraDRGroup
     public void SetDiminishGroup(DiminishingGroup group)
     {
         _mAuraDrGroup = group;
-    }
-
-    public DiminishingGroup GetDiminishGroup()
-    {
-        return _mAuraDrGroup;
     }
 }

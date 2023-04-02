@@ -9,16 +9,15 @@ internal struct Tail
 {
     private string _str;
 
-    public bool IsEmpty()
-    {
-        return _str.IsEmpty();
-    }
-
     public static implicit operator string(Tail tail)
     {
         return tail._str;
     }
 
+    public bool IsEmpty()
+    {
+        return _str.IsEmpty();
+    }
     public ChatCommandResult TryConsume(CommandHandler handler, string args)
     {
         _str = args;

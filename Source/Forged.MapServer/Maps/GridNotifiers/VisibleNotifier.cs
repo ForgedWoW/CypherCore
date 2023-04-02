@@ -14,12 +14,6 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class VisibleNotifier : IGridNotifierWorldObject
 {
-    public GridType GridType { get; set; }
-    internal Player Player { get; set; }
-    internal UpdateData Data { get; set; }
-    internal List<ObjectGuid> VisGuids { get; set; }
-    internal List<Unit> VisibleNow { get; set; }
-
     public VisibleNotifier(Player pl, GridType gridType)
     {
         Player = pl;
@@ -29,17 +23,11 @@ public class VisibleNotifier : IGridNotifierWorldObject
         GridType = gridType;
     }
 
-    public void Visit(IList<WorldObject> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            var obj = objs[i];
-
-            VisGuids.Remove(obj.GUID);
-            Player.UpdateVisibilityOf(obj, Data, VisibleNow);
-        }
-    }
-
+    public GridType GridType { get; set; }
+    internal UpdateData Data { get; set; }
+    internal Player Player { get; set; }
+    internal List<ObjectGuid> VisGuids { get; set; }
+    internal List<Unit> VisibleNow { get; set; }
     public void SendToSelf()
     {
         // at this moment i_clientGUIDs have guids that not iterate at grid level checks
@@ -104,5 +92,16 @@ public class VisibleNotifier : IGridNotifierWorldObject
 
         foreach (var obj in VisibleNow)
             Player.SendInitialVisiblePackets(obj);
+    }
+
+    public void Visit(IList<WorldObject> objs)
+    {
+        for (var i = 0; i < objs.Count; ++i)
+        {
+            var obj = objs[i];
+
+            VisGuids.Remove(obj.GUID);
+            Player.UpdateVisibilityOf(obj, Data, VisibleNow);
+        }
     }
 }

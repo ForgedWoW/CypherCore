@@ -8,16 +8,16 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarEventUpdatedAlert : ServerPacket
 {
-    public ulong EventID;
+    public bool ClearPending;
     public long Date;
+    public string Description;
+    public ulong EventID;
+    public string EventName;
+    public CalendarEventType EventType;
     public CalendarFlags Flags;
     public long LockDate;
     public long OriginalDate;
     public int TextureID;
-    public CalendarEventType EventType;
-    public bool ClearPending;
-    public string Description;
-    public string EventName;
     public CalendarEventUpdatedAlert() : base(ServerOpcodes.CalendarEventUpdatedAlert) { }
 
     public override void Write()

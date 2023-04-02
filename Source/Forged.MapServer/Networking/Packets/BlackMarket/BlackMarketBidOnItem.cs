@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
 internal class BlackMarketBidOnItem : ClientPacket
 {
-    public ObjectGuid Guid;
-    public uint MarketID;
-    public ItemInstance Item = new();
     public ulong BidAmount;
+    public ObjectGuid Guid;
+    public ItemInstance Item = new();
+    public uint MarketID;
     public BlackMarketBidOnItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

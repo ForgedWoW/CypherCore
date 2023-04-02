@@ -8,6 +8,28 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal struct PartyPlayerInfo
 {
+    public byte Class;
+
+    public bool Connected;
+
+    public byte FactionGroup;
+
+    public byte Flags;
+
+    public bool FromSocialQueue;
+
+    public ObjectGuid GUID;
+
+    public string Name;
+
+    public byte RolesAssigned;
+
+    public byte Subgroup;
+
+    public bool VoiceChatSilenced;
+
+    public string VoiceStateID;
+
     public void Write(WorldPacket data)
     {
         data.WriteBits(Name.GetByteCount(), 6);
@@ -26,16 +48,5 @@ internal struct PartyPlayerInfo
         if (!VoiceStateID.IsEmpty())
             data.WriteString(VoiceStateID);
     }
-
-    public ObjectGuid GUID;
-    public string Name;
-    public string VoiceStateID; // same as bgs.protocol.club.v1.MemberVoiceState.id
-    public byte Class;
-    public byte Subgroup;
-    public byte Flags;
-    public byte RolesAssigned;
-    public byte FactionGroup;
-    public bool FromSocialQueue;
-    public bool VoiceChatSilenced;
-    public bool Connected;
+     // same as bgs.protocol.club.v1.MemberVoiceState.id
 }

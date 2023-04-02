@@ -9,6 +9,12 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct ChannelOwnerAppend : IChannelAppender
 {
+    private readonly Channel _channel;
+
+    private readonly string _ownerName;
+
+    private ObjectGuid _ownerGuid;
+
     public ChannelOwnerAppend(Channel channel, ObjectGuid ownerGuid)
     {
         _channel = channel;
@@ -21,14 +27,10 @@ internal struct ChannelOwnerAppend : IChannelAppender
             _ownerName = characterCacheEntry.Name;
     }
 
-    public ChatNotify GetNotificationType() => ChatNotify.ChannelOwnerNotice;
-
     public void Append(ChannelNotify data)
     {
         data.Sender = ((_channel.IsConstant() || _ownerGuid.IsEmpty) ? "Nobody" : _ownerName);
     }
 
-    private readonly Channel _channel;
-    private ObjectGuid _ownerGuid;
-    private readonly string _ownerName;
+    public ChatNotify GetNotificationType() => ChatNotify.ChannelOwnerNotice;
 }

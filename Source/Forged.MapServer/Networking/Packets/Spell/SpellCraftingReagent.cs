@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellCraftingReagent
 {
-    public int ItemID;
     public int DataSlotIndex;
+    public int ItemID;
     public int Quantity;
     public byte? Unknown_1000;
 

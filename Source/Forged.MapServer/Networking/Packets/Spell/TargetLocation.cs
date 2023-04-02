@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class TargetLocation
 {
-    public ObjectGuid Transport;
     public Position Location;
-
+    public ObjectGuid Transport;
     public void Read(WorldPacket data)
     {
         Transport = data.ReadPackedGuid();

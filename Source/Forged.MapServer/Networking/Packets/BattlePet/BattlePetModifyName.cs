@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 internal class BattlePetModifyName : ClientPacket
 {
-    public ObjectGuid PetGuid;
-    public string Name;
     public DeclinedName DeclinedNames;
+    public string Name;
+    public ObjectGuid PetGuid;
     public BattlePetModifyName(WorldPacket packet) : base(packet) { }
 
     public override void Read()

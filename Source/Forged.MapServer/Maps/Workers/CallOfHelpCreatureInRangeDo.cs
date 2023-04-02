@@ -9,8 +9,8 @@ namespace Forged.MapServer.Maps.Workers;
 
 public class CallOfHelpCreatureInRangeDo : IDoWork<Creature>
 {
-    private readonly Unit _funit;
     private readonly Unit _enemy;
+    private readonly Unit _funit;
     private readonly float _range;
 
     public CallOfHelpCreatureInRangeDo(Unit funit, Unit enemy, float range)

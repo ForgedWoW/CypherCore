@@ -38,7 +38,7 @@ public class spell_druid_lunar_strike : SpellScript, IHasSpellEffects
             if (moonfireDOT != null)
             {
                 var duration = moonfireDOT.Duration;
-                var newDuration = duration + 6 * Time.InMilliseconds;
+                var newDuration = duration + 6 * Time.IN_MILLISECONDS;
 
                 if (newDuration > moonfireDOT.MaxDuration)
                     moonfireDOT.SetMaxDuration(newDuration);

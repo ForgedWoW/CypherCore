@@ -10,6 +10,25 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("rbac")]
 internal class RbacComands
 {
+    private static RBACCommandData GetRBACData(AccountIdentifier account)
+    {
+        if (account.IsConnected())
+            return new RBACCommandData()
+            {
+                rbac = account.GetConnectedSession().RBACData,
+                needDelete = false
+            };
+
+        RBACData rbac = new(account.GetID(), account.GetName(), (int)Global.WorldMgr.RealmId.Index, (byte)Global.AccountMgr.GetSecurity(account.GetID(), (int)Global.WorldMgr.RealmId.Index));
+        rbac.LoadFromDB();
+
+        return new RBACCommandData()
+        {
+            rbac = rbac,
+            needDelete = true
+        };
+    }
+
     [Command("list", RBACPermissions.CommandRbacList, true)]
     private static bool HandleRBACListPermissionsCommand(CommandHandler handler, uint? permId)
     {
@@ -47,26 +66,6 @@ internal class RbacComands
 
         return true;
     }
-
-    private static RBACCommandData GetRBACData(AccountIdentifier account)
-    {
-        if (account.IsConnected())
-            return new RBACCommandData()
-            {
-                rbac = account.GetConnectedSession().RBACData,
-                needDelete = false
-            };
-
-        RBACData rbac = new(account.GetID(), account.GetName(), (int)Global.WorldMgr.RealmId.Index, (byte)Global.AccountMgr.GetSecurity(account.GetID(), (int)Global.WorldMgr.RealmId.Index));
-        rbac.LoadFromDB();
-
-        return new RBACCommandData()
-        {
-            rbac = rbac,
-            needDelete = true
-        };
-    }
-
     [CommandGroup("account")]
     private class RbacAccountCommands
     {
@@ -294,7 +293,7 @@ internal class RbacComands
 
     private class RBACCommandData
     {
-        public RBACData rbac;
         public bool needDelete;
+        public RBACData rbac;
     }
 }

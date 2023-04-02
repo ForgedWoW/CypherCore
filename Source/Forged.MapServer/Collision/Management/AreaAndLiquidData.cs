@@ -7,17 +7,16 @@ namespace Forged.MapServer.Collision.Management;
 
 public class AreaAndLiquidData
 {
-    public float FloorZ = MapConst.VMAPInvalidHeightValue;
     public AreaInfoModel? AreaInfo;
+    public float FloorZ = MapConst.VMAPInvalidHeightValue;
     public LiquidInfoModel? LiquidInfo;
 
     public struct AreaInfoModel
     {
         public int AdtId;
-        public int RootId;
         public int GroupId;
         public uint MogpFlags;
-
+        public int RootId;
         public AreaInfoModel(int adtId, int rootId, int groupId, uint flags)
         {
             AdtId = adtId;
@@ -29,9 +28,8 @@ public class AreaAndLiquidData
 
     public struct LiquidInfoModel
     {
-        public uint LiquidType;
         public float Level;
-
+        public uint LiquidType;
         public LiquidInfoModel(uint type, float level)
         {
             LiquidType = type;

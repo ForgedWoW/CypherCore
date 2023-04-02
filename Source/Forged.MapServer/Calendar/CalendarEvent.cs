@@ -9,21 +9,6 @@ namespace Forged.MapServer.Calendar;
 
 public class CalendarEvent
 {
-    public ulong EventId { get; set; }
-    public ObjectGuid OwnerGuid { get; set; }
-    public ulong GuildId { get; set; }
-    public CalendarEventType EventType { get; set; }
-    public int TextureId { get; set; }
-    public long Date { get; set; }
-    public CalendarFlags Flags { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public long LockDate { get; set; }
-
-    public bool IsGuildEvent => Flags.HasAnyFlag(CalendarFlags.GuildEvent);
-    public bool IsGuildAnnouncement => Flags.HasAnyFlag(CalendarFlags.WithoutInvites);
-    public bool IsLocked => Flags.HasAnyFlag(CalendarFlags.InvitesLocked);
-
     public CalendarEvent(CalendarEvent calendarEvent, ulong eventId)
     {
         EventId = eventId;
@@ -61,9 +46,27 @@ public class CalendarEvent
         Description = "";
     }
 
-    public string BuildCalendarMailSubject(ObjectGuid remover)
+    public long Date { get; set; }
+    public string Description { get; set; }
+    public ulong EventId { get; set; }
+    public CalendarEventType EventType { get; set; }
+    public CalendarFlags Flags { get; set; }
+    public ulong GuildId { get; set; }
+    public bool IsGuildAnnouncement => Flags.HasAnyFlag(CalendarFlags.WithoutInvites);
+    public bool IsGuildEvent => Flags.HasAnyFlag(CalendarFlags.GuildEvent);
+    public bool IsLocked => Flags.HasAnyFlag(CalendarFlags.InvitesLocked);
+    public long LockDate { get; set; }
+    public ObjectGuid OwnerGuid { get; set; }
+    public int TextureId { get; set; }
+    public string Title { get; set; }
+    public static bool ModifyIsGuildAnnouncementFlags(uint flags)
     {
-        return remover + ":" + Title;
+        return (flags & (uint)CalendarFlags.WithoutInvites) != 0;
+    }
+
+    public static bool ModifyIsGuildEventFlags(uint flags)
+    {
+        return (flags & (uint)CalendarFlags.GuildEvent) != 0;
     }
 
     public string BuildCalendarMailBody()
@@ -74,13 +77,8 @@ public class CalendarEvent
         return time.ToString();
     }
 
-    public static bool ModifyIsGuildEventFlags(uint flags)
+    public string BuildCalendarMailSubject(ObjectGuid remover)
     {
-        return (flags & (uint)CalendarFlags.GuildEvent) != 0;
-    }
-
-    public static bool ModifyIsGuildAnnouncementFlags(uint flags)
-    {
-        return (flags & (uint)CalendarFlags.WithoutInvites) != 0;
+        return remover + ":" + Title;
     }
 }

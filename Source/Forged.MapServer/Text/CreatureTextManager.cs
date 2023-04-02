@@ -25,15 +25,14 @@ namespace Forged.MapServer.Text;
 
 public sealed class CreatureTextManager
 {
-    private readonly IConfiguration _configuration;
-    private readonly WorldDatabase _worldDatabase;
     private readonly CliDB _cliDB;
-    private readonly LanguageManager _languageManager;
+    private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
-    private readonly WorldManager _worldManager;
-    private readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
+    private readonly LanguageManager _languageManager;
     private readonly Dictionary<CreatureTextId, CreatureTextLocale> _localeTextMap = new();
-
+    private readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly WorldManager _worldManager;
     public CreatureTextManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, LanguageManager languageManager,
                                DB2Manager db2Manager, WorldManager worldManager)
     {
@@ -43,6 +42,107 @@ public sealed class CreatureTextManager
         _languageManager = languageManager;
         _db2Manager = db2Manager;
         _worldManager = worldManager;
+    }
+
+    public string GetLocalizedChatString(uint entry, Gender gender, byte textGroup, uint id, Locale locale = Locale.enUS)
+    {
+        var multiMap = _textMap.LookupByKey(entry);
+
+        if (multiMap == null)
+            return "";
+
+        var creatureTextEntryList = multiMap.LookupByKey(textGroup);
+
+        if (creatureTextEntryList.Empty())
+            return "";
+
+        CreatureTextEntry creatureTextEntry = null;
+
+        for (var i = 0; i != creatureTextEntryList.Count; ++i)
+        {
+            creatureTextEntry = creatureTextEntryList[i];
+
+            if (creatureTextEntry.id == id)
+                break;
+        }
+
+        if (creatureTextEntry == null)
+            return "";
+
+        if (locale >= Locale.Total)
+            locale = Locale.enUS;
+
+        string baseText;
+        var bct = _cliDB.BroadcastTextStorage.LookupByKey(creatureTextEntry.BroadcastTextId);
+
+        if (bct != null)
+            baseText = _db2Manager.GetBroadcastTextValue(bct, locale, gender);
+        else
+            baseText = creatureTextEntry.text;
+
+        if (locale != Locale.enUS && bct == null)
+        {
+            var creatureTextLocale = _localeTextMap.LookupByKey(new CreatureTextId(entry, textGroup, id));
+
+            if (creatureTextLocale != null)
+                GameObjectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
+        }
+
+        return baseText;
+    }
+
+    public float GetRangeForChatType(ChatMsg msgType)
+    {
+        var dist = _configuration.GetDefaultValue("ListenRange.Say", 25.0f);
+
+        switch (msgType)
+        {
+            case ChatMsg.MonsterYell:
+                dist = _configuration.GetDefaultValue("ListenRange.Yell", 300.0f);
+
+                break;
+            case ChatMsg.MonsterEmote:
+            case ChatMsg.RaidBossEmote:
+                dist = _configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f);
+
+                break;
+        }
+
+        return dist;
+    }
+
+    public void LoadCreatureTextLocales()
+    {
+        var oldMSTime = Time.MSTime;
+
+        _localeTextMap.Clear(); // for reload case
+
+        var result = _worldDatabase.Query("SELECT CreatureId, GroupId, ID, Locale, Text FROM creature_text_locale");
+
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            var creatureId = result.Read<uint>(0);
+            uint groupId = result.Read<byte>(1);
+            uint id = result.Read<byte>(2);
+            var localeName = result.Read<string>(3);
+            var locale = localeName.ToEnum<Locale>();
+
+            if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
+                continue;
+
+            var key = new CreatureTextId(creatureId, groupId, id);
+
+            if (!_localeTextMap.ContainsKey(key))
+                _localeTextMap[key] = new CreatureTextLocale();
+
+            var data = _localeTextMap[key];
+            GameObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
+        } while (result.NextRow());
+
+        Log.Logger.Information("Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadCreatureTexts()
@@ -169,41 +269,6 @@ public sealed class CreatureTextManager
 
         Log.Logger.Information($"Loaded {textCount} creature texts for {creatureCount} creatures in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
-
-    public void LoadCreatureTextLocales()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _localeTextMap.Clear(); // for reload case
-
-        var result = _worldDatabase.Query("SELECT CreatureId, GroupId, ID, Locale, Text FROM creature_text_locale");
-
-        if (result.IsEmpty())
-            return;
-
-        do
-        {
-            var creatureId = result.Read<uint>(0);
-            uint groupId = result.Read<byte>(1);
-            uint id = result.Read<byte>(2);
-            var localeName = result.Read<string>(3);
-            var locale = localeName.ToEnum<Locale>();
-
-            if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
-                continue;
-
-            var key = new CreatureTextId(creatureId, groupId, id);
-
-            if (!_localeTextMap.ContainsKey(key))
-                _localeTextMap[key] = new CreatureTextLocale();
-
-            var data = _localeTextMap[key];
-            GameObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
     public uint SendChat(Creature source, byte textGroup, WorldObject whisperTarget = null, ChatMsg msgType = ChatMsg.Addon, Language language = Language.Addon,
                          CreatureTextRange range = CreatureTextRange.Normal, uint sound = 0, SoundKitPlayType playType = SoundKitPlayType.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false, Player srcPlr = null)
     {
@@ -298,129 +363,6 @@ public sealed class CreatureTextManager
 
         return textEntry.duration;
     }
-
-    public float GetRangeForChatType(ChatMsg msgType)
-    {
-        var dist = _configuration.GetDefaultValue("ListenRange.Say", 25.0f);
-
-        switch (msgType)
-        {
-            case ChatMsg.MonsterYell:
-                dist = _configuration.GetDefaultValue("ListenRange.Yell", 300.0f);
-
-                break;
-            case ChatMsg.MonsterEmote:
-            case ChatMsg.RaidBossEmote:
-                dist = _configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f);
-
-                break;
-        }
-
-        return dist;
-    }
-
-    public void SendSound(Creature source, uint sound, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false, uint keyBroadcastTextId = 0, SoundKitPlayType playType = SoundKitPlayType.Normal)
-    {
-        if (sound == 0 || !source)
-            return;
-
-        switch (playType)
-        {
-            case SoundKitPlayType.ObjectSound:
-            {
-                PlayObjectSound pkt = new()
-                {
-                    TargetObjectGUID = whisperTarget?.GUID ?? ObjectGuid.Empty,
-                    SourceObjectGUID = source.GUID,
-                    SoundKitID = sound,
-                    Position = whisperTarget?.Location,
-                    BroadcastTextID = (int)keyBroadcastTextId
-                };
-
-                SendNonChatPacket(source, pkt, msgType, whisperTarget, range, team, gmOnly);
-
-                break;
-            }
-            case SoundKitPlayType.Normal:
-                SendNonChatPacket(source, new PlaySound(source.GUID, sound, keyBroadcastTextId), msgType, whisperTarget, range, team, gmOnly);
-
-                break;
-        }
-    }
-
-    public bool TextExist(uint sourceEntry, byte textGroup)
-    {
-        if (sourceEntry == 0)
-            return false;
-
-        var textHolder = _textMap.LookupByKey(sourceEntry);
-
-        if (textHolder == null)
-        {
-            Log.Logger.Debug("CreatureTextMgr.TextExist: Could not find Text for Creature (entry {0}) in 'creature_text' table.", sourceEntry);
-
-            return false;
-        }
-
-        var textEntryList = textHolder.LookupByKey(textGroup);
-
-        if (textEntryList.Empty())
-        {
-            Log.Logger.Debug("CreatureTextMgr.TextExist: Could not find TextGroup {0} for Creature (entry {1}).", textGroup, sourceEntry);
-
-            return false;
-        }
-
-        return true;
-    }
-
-    public string GetLocalizedChatString(uint entry, Gender gender, byte textGroup, uint id, Locale locale = Locale.enUS)
-    {
-        var multiMap = _textMap.LookupByKey(entry);
-
-        if (multiMap == null)
-            return "";
-
-        var creatureTextEntryList = multiMap.LookupByKey(textGroup);
-
-        if (creatureTextEntryList.Empty())
-            return "";
-
-        CreatureTextEntry creatureTextEntry = null;
-
-        for (var i = 0; i != creatureTextEntryList.Count; ++i)
-        {
-            creatureTextEntry = creatureTextEntryList[i];
-
-            if (creatureTextEntry.id == id)
-                break;
-        }
-
-        if (creatureTextEntry == null)
-            return "";
-
-        if (locale >= Locale.Total)
-            locale = Locale.enUS;
-
-        string baseText;
-        var bct = _cliDB.BroadcastTextStorage.LookupByKey(creatureTextEntry.BroadcastTextId);
-
-        if (bct != null)
-            baseText = _db2Manager.GetBroadcastTextValue(bct, locale, gender);
-        else
-            baseText = creatureTextEntry.text;
-
-        if (locale != Locale.enUS && bct == null)
-        {
-            var creatureTextLocale = _localeTextMap.LookupByKey(new CreatureTextId(entry, textGroup, id));
-
-            if (creatureTextLocale != null)
-                GameObjectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
-        }
-
-        return baseText;
-    }
-
     public void SendChatPacket(WorldObject source, MessageBuilder builder, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false)
     {
         if (source == null)
@@ -511,6 +453,68 @@ public sealed class CreatureTextManager
         var dist = GetRangeForChatType(msgType);
         var worker = new PlayerDistWorker(source, dist, localizer, GridType.World);
         Cell.VisitGrid(source, worker, dist);
+    }
+
+    public void SendSound(Creature source, uint sound, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false, uint keyBroadcastTextId = 0, SoundKitPlayType playType = SoundKitPlayType.Normal)
+    {
+        if (sound == 0 || !source)
+            return;
+
+        switch (playType)
+        {
+            case SoundKitPlayType.ObjectSound:
+            {
+                PlayObjectSound pkt = new()
+                {
+                    TargetObjectGUID = whisperTarget?.GUID ?? ObjectGuid.Empty,
+                    SourceObjectGUID = source.GUID,
+                    SoundKitID = sound,
+                    Position = whisperTarget?.Location,
+                    BroadcastTextID = (int)keyBroadcastTextId
+                };
+
+                SendNonChatPacket(source, pkt, msgType, whisperTarget, range, team, gmOnly);
+
+                break;
+            }
+            case SoundKitPlayType.Normal:
+                SendNonChatPacket(source, new PlaySound(source.GUID, sound, keyBroadcastTextId), msgType, whisperTarget, range, team, gmOnly);
+
+                break;
+        }
+    }
+
+    public bool TextExist(uint sourceEntry, byte textGroup)
+    {
+        if (sourceEntry == 0)
+            return false;
+
+        var textHolder = _textMap.LookupByKey(sourceEntry);
+
+        if (textHolder == null)
+        {
+            Log.Logger.Debug("CreatureTextMgr.TextExist: Could not find Text for Creature (entry {0}) in 'creature_text' table.", sourceEntry);
+
+            return false;
+        }
+
+        var textEntryList = textHolder.LookupByKey(textGroup);
+
+        if (textEntryList.Empty())
+        {
+            Log.Logger.Debug("CreatureTextMgr.TextExist: Could not find TextGroup {0} for Creature (entry {1}).", textGroup, sourceEntry);
+
+            return false;
+        }
+
+        return true;
+    }
+    private void SendEmote(Unit source, Emote emote)
+    {
+        if (!source)
+            return;
+
+        source.HandleEmoteCommand(emote);
     }
 
     private void SendNonChatPacket(WorldObject source, ServerPacket data, ChatMsg msgType, WorldObject whisperTarget, CreatureTextRange range, TeamFaction team, bool gmOnly)
@@ -613,13 +617,5 @@ public sealed class CreatureTextManager
         }
 
         source.SendMessageToSetInRange(data, dist, true);
-    }
-
-    private void SendEmote(Unit source, Emote emote)
-    {
-        if (!source)
-            return;
-
-        source.HandleEmoteCommand(emote);
     }
 }

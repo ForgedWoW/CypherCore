@@ -8,8 +8,8 @@ namespace Forged.MapServer.Entities.Players;
 
 public class Runes
 {
-    public List<byte> CooldownOrder { get; set; } = new();
     public uint[] Cooldown { get; set; } = new uint[PlayerConst.MaxRunes];
+    public List<byte> CooldownOrder { get; set; } = new();
     public byte RuneState { get; set; } // mask of available runes
 
     public void SetRuneState(byte index, bool set = true)

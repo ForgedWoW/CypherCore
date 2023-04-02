@@ -24,12 +24,17 @@ internal class GarrisonMap : Map
         InitVisibilityDistance();
     }
 
-    public override void LoadGridObjects(Grid grid, Cell cell)
+    public override bool AddPlayerToMap(Player player, bool initPlayer = true)
     {
-        base.LoadGridObjects(grid, cell);
+        if (player.GUID == _owner)
+            _loadingPlayer = player;
 
-        GarrisonGridLoader loader = new(grid, this, cell);
-        loader.LoadN();
+        var result = base.AddPlayerToMap(player, initPlayer);
+
+        if (player.GUID == _owner)
+            _loadingPlayer = null;
+
+        return result;
     }
 
     public Garrison GetGarrison()
@@ -52,30 +57,23 @@ internal class GarrisonMap : Map
         VisibilityNotifyPeriod = Global.WorldMgr.VisibilityNotifyPeriodInInstances;
     }
 
-    public override bool AddPlayerToMap(Player player, bool initPlayer = true)
+    public override void LoadGridObjects(Grid grid, Cell cell)
     {
-        if (player.GUID == _owner)
-            _loadingPlayer = player;
+        base.LoadGridObjects(grid, cell);
 
-        var result = base.AddPlayerToMap(player, initPlayer);
-
-        if (player.GUID == _owner)
-            _loadingPlayer = null;
-
-        return result;
+        GarrisonGridLoader loader = new(grid, this, cell);
+        loader.LoadN();
     }
 }
 
 internal class GarrisonGridLoader : IGridNotifierGameObject
 {
     private readonly Cell i_cell;
+    private readonly uint i_creatures;
+    private readonly Garrison i_garrison;
     private readonly Grid i_grid;
     private readonly GarrisonMap i_map;
-    private readonly Garrison i_garrison;
-    private readonly uint i_creatures;
     private uint i_gameObjects;
-    public GridType GridType { get; set; }
-
     public GarrisonGridLoader(Grid grid, GarrisonMap map, Cell cell, GridType gridType = GridType.Grid)
     {
         i_cell = cell;
@@ -83,6 +81,30 @@ internal class GarrisonGridLoader : IGridNotifierGameObject
         i_map = map;
         i_garrison = map.GetGarrison();
         GridType = gridType;
+    }
+
+    public GridType GridType { get; set; }
+    public void LoadN()
+    {
+        if (i_garrison != null)
+        {
+            i_cell.Data.Celly = 0;
+
+            for (uint x = 0; x < MapConst.MaxCells; ++x)
+            {
+                i_cell.Data.Cellx = x;
+
+                for (uint y = 0; y < MapConst.MaxCells; ++y)
+                {
+                    i_cell.Data.Celly = y;
+
+                    //Load creatures and game objects
+                    i_grid.VisitGrid(x, y, this);
+                }
+            }
+        }
+
+        Log.Logger.Debug("{0} GameObjects and {1} Creatures loaded for grid {2} on map {3}", i_gameObjects, i_creatures, i_grid.GetGridId(), i_map.Id);
     }
 
     public void Visit(IList<GameObject> objs)
@@ -111,28 +133,5 @@ internal class GarrisonGridLoader : IGridNotifierGameObject
                 ++i_gameObjects;
             }
         }
-    }
-
-    public void LoadN()
-    {
-        if (i_garrison != null)
-        {
-            i_cell.Data.Celly = 0;
-
-            for (uint x = 0; x < MapConst.MaxCells; ++x)
-            {
-                i_cell.Data.Cellx = x;
-
-                for (uint y = 0; y < MapConst.MaxCells; ++y)
-                {
-                    i_cell.Data.Celly = y;
-
-                    //Load creatures and game objects
-                    i_grid.VisitGrid(x, y, this);
-                }
-            }
-        }
-
-        Log.Logger.Debug("{0} GameObjects and {1} Creatures loaded for grid {2} on map {3}", i_gameObjects, i_creatures, i_grid.GetGridId(), i_map.Id);
     }
 }

@@ -26,37 +26,30 @@ internal class MoveSetCompoundState : ServerPacket
     public struct CollisionHeightInfo
     {
         public float Height;
-        public float Scale;
         public UpdateCollisionHeightReason Reason;
+        public float Scale;
     }
 
     public struct KnockBackInfo
     {
-        public float HorzSpeed;
         public Vector2 Direction;
+        public float HorzSpeed;
         public float InitVertSpeed;
-    }
-
-    public class SpeedRange
-    {
-        public float Min;
-        public float Max;
     }
 
     public class MoveStateChange
     {
-        public ServerOpcodes MessageID;
-        public uint SequenceIndex;
-        public float? Speed;
-        public SpeedRange SpeedRange;
-        public KnockBackInfo? KnockBack;
-        public int? VehicleRecID;
         public CollisionHeightInfo? CollisionHeight;
+        public KnockBackInfo? KnockBack;
+        public ServerOpcodes MessageID;
         public MovementForce MovementForce;
         public ObjectGuid? MovementForceGUID;
         public int? MovementInertiaID;
         public uint? MovementInertiaLifetimeMs;
-
+        public uint SequenceIndex;
+        public float? Speed;
+        public SpeedRange SpeedRange;
+        public int? VehicleRecID;
         public MoveStateChange(ServerOpcodes messageId, uint sequenceIndex)
         {
             MessageID = messageId;
@@ -116,5 +109,11 @@ internal class MoveSetCompoundState : ServerPacket
             if (MovementInertiaLifetimeMs.HasValue)
                 data.WriteUInt32(MovementInertiaLifetimeMs.Value);
         }
+    }
+
+    public class SpeedRange
+    {
+        public float Max;
+        public float Min;
     }
 }

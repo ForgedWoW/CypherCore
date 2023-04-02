@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class SellResponse : ServerPacket
 {
-    public ObjectGuid VendorGUID;
     public ObjectGuid ItemGUID;
     public SellResult Reason = SellResult.Unk;
+    public ObjectGuid VendorGUID;
     public SellResponse() : base(ServerOpcodes.SellResponse) { }
 
     public override void Write()

@@ -8,17 +8,17 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class AdventureMapPOIRecord
 {
-    public uint Id;
-    public LocalizedString Title;
+    public uint AreaTableID;
     public string Description;
-    public Vector2 WorldPosition;
-    public sbyte Type;
+    public uint Id;
+    public uint LfgDungeonID;
+    public int MapID;
     public uint PlayerConditionID;
     public uint QuestID;
-    public uint LfgDungeonID;
     public int RewardItemID;
+    public LocalizedString Title;
+    public sbyte Type;
     public uint UiTextureAtlasMemberID;
     public uint UiTextureKitID;
-    public int MapID;
-    public uint AreaTableID;
+    public Vector2 WorldPosition;
 }

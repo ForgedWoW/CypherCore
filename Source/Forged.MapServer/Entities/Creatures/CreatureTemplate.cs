@@ -3,183 +3,93 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Query;
 using Framework.Constants;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureTemplate
 {
-    public uint Entry;
-    public uint[] DifficultyEntry = new uint[SharedConst.MaxCreatureDifficulties];
-    public uint[] KillCredit = new uint[SharedConst.MaxCreatureKillCredit];
-    public List<CreatureModel> Models = new();
-    public string Name;
-    public string FemaleName;
-    public string SubName;
-    public string TitleAlt;
-    public string IconName;
-    public uint GossipMenuId;
-    public short Minlevel;
-    public Dictionary<Difficulty, CreatureLevelScaling> scalingStorage = new();
-    public short Maxlevel;
-    public int HealthScalingExpansion;
-    public uint RequiredExpansion;
-    public uint VignetteID; // @todo Read Vignette.db2
-    public uint Faction;
-    public ulong Npcflag;
-    public float SpeedWalk;
-    public float SpeedRun;
-    public float Scale;
-    public CreatureEliteType Rank;
-    public uint DmgSchool;
-    public uint BaseAttackTime;
-    public uint RangeAttackTime;
-    public float BaseVariance;
-    public float RangeVariance;
-    public uint UnitClass;
-    public UnitFlags UnitFlags;
-    public uint UnitFlags2;
-    public uint UnitFlags3;
-    public uint DynamicFlags;
-    public CreatureFamily Family;
-    public PlayerClass TrainerClass;
-    public CreatureType CreatureType;
-    public CreatureTypeFlags TypeFlags;
-    public uint TypeFlags2;
-    public uint LootId;
-    public uint PickPocketId;
-    public uint SkinLootId;
-    public int[] Resistance = new int[7];
-    public uint[] Spells = new uint[8];
-    public uint VehicleId;
-    public uint MinGold;
-    public uint MaxGold;
     public string AIName;
-    public uint MovementType;
-    public CreatureMovementData Movement = new();
+    public uint BaseAttackTime;
+    public float BaseVariance;
+    public int CreatureDifficultyID;
+    public CreatureType CreatureType;
+    public uint[] DifficultyEntry = new uint[SharedConst.MaxCreatureDifficulties];
+    public uint DmgSchool;
+    public uint DynamicFlags;
+    public uint Entry;
+    public uint Faction;
+    public CreatureFamily Family;
+    public string FemaleName;
+    public CreatureFlagsExtra FlagsExtra;
+    public uint GossipMenuId;
+    public int HealthScalingExpansion;
     public float HoverHeight;
+    public string IconName;
+    public uint[] KillCredit = new uint[SharedConst.MaxCreatureKillCredit];
+    public uint LootId;
+    public uint MaxGold;
+    public short Maxlevel;
+    public ulong MechanicImmuneMask;
+    public uint MinGold;
+    public short Minlevel;
+    public float ModArmor;
+    public float ModDamage;
+    public List<CreatureModel> Models = new();
+    public float ModExperience;
     public float ModHealth;
     public float ModHealthExtra;
     public float ModMana;
     public float ModManaExtra;
-    public float ModArmor;
-    public float ModDamage;
-    public float ModExperience;
-    public bool RacialLeader;
+    public CreatureMovementData Movement;
     public uint MovementId;
-    public int CreatureDifficultyID;
+    public uint MovementType;
+    public string Name;
+    public ulong Npcflag;
+    public uint PickPocketId;
+    public QueryCreatureResponse QueryData;
+    public bool RacialLeader;
+    public uint RangeAttackTime;
+    public float RangeVariance;
+    public CreatureEliteType Rank;
+    public bool RegenHealth;
+    public uint RequiredExpansion;
+    public int[] Resistance = new int[7];
+    public float Scale;
+    public Dictionary<Difficulty, CreatureLevelScaling> scalingStorage = new();
+    public uint ScriptID;
+    public uint SkinLootId;
+    public float SpeedRun;
+    public float SpeedWalk;
+    public uint[] Spells = new uint[8];
+    public uint SpellSchoolImmuneMask;
+    public string StringId;
+    public string SubName;
+    public string TitleAlt;
+    public PlayerClass TrainerClass;
+    public CreatureTypeFlags TypeFlags;
+    public uint TypeFlags2;
+    public uint UnitClass;
+    public UnitFlags UnitFlags;
+    public uint UnitFlags2;
+    public uint UnitFlags3;
+    public uint VehicleId;
+    public uint VignetteID; // @todo Read Vignette.db2
     public int WidgetSetID;
     public int WidgetSetUnitConditionID;
-    public bool RegenHealth;
-    public ulong MechanicImmuneMask;
-    public uint SpellSchoolImmuneMask;
-    public CreatureFlagsExtra FlagsExtra;
-    public uint ScriptID;
-    public string StringId;
+    private readonly IConfiguration _configuration;
+    private readonly GameObjectManager _objectManager;
 
-    public QueryCreatureResponse QueryData;
-
-    public CreatureModel GetModelByIdx(int idx)
+    public CreatureTemplate(IConfiguration configuration, GameObjectManager objectManager)
     {
-        return idx < Models.Count ? Models[idx] : null;
-    }
-
-    public CreatureModel GetRandomValidModel()
-    {
-        if (Models.Empty())
-            return null;
-
-        // If only one element, ignore the Probability (even if 0)
-        if (Models.Count == 1)
-            return Models[0];
-
-        var selectedItr = Models.SelectRandomElementByWeight(model => { return model.Probability; });
-
-        return selectedItr;
-    }
-
-    public CreatureModel GetFirstValidModel()
-    {
-        foreach (var model in Models)
-            if (model.CreatureDisplayId != 0)
-                return model;
-
-        return null;
-    }
-
-    public CreatureModel GetModelWithDisplayId(uint displayId)
-    {
-        foreach (var model in Models)
-            if (displayId == model.CreatureDisplayId)
-                return model;
-
-        return null;
-    }
-
-    public CreatureModel GetFirstInvisibleModel()
-    {
-        foreach (var model in Models)
-        {
-            var modelInfo = Global.ObjectMgr.GetCreatureModelInfo(model.CreatureDisplayId);
-
-            if (modelInfo != null && modelInfo.IsTrigger)
-                return model;
-        }
-
-        return CreatureModel.DefaultInvisibleModel;
-    }
-
-    public CreatureModel GetFirstVisibleModel()
-    {
-        foreach (var model in Models)
-        {
-            var modelInfo = Global.ObjectMgr.GetCreatureModelInfo(model.CreatureDisplayId);
-
-            if (modelInfo != null && !modelInfo.IsTrigger)
-                return model;
-        }
-
-        return CreatureModel.DefaultVisibleModel;
-    }
-
-    public int[] GetMinMaxLevel()
-    {
-        return new[]
-        {
-            HealthScalingExpansion != (int)Expansion.LevelCurrent ? Minlevel : Minlevel + SharedConst.MaxLevel, HealthScalingExpansion != (int)Expansion.LevelCurrent ? Maxlevel : Maxlevel + SharedConst.MaxLevel
-        };
-    }
-
-    public int GetHealthScalingExpansion()
-    {
-        return HealthScalingExpansion == (int)Expansion.LevelCurrent ? GetDefaultValue("Expansion", (int)Expansion.Dragonflight) : HealthScalingExpansion;
-    }
-
-    public SkillType GetRequiredLootSkill()
-    {
-        if (TypeFlags.HasAnyFlag(CreatureTypeFlags.SkinWithHerbalism))
-            return SkillType.Herbalism;
-        else if (TypeFlags.HasAnyFlag(CreatureTypeFlags.SkinWithMining))
-            return SkillType.Mining;
-        else if (TypeFlags.HasAnyFlag(CreatureTypeFlags.SkinWithEngineering))
-            return SkillType.Engineering;
-        else
-            return SkillType.Skinning; // normal case
-    }
-
-    public bool IsExotic()
-    {
-        return (TypeFlags & CreatureTypeFlags.TameableExotic) != 0;
-    }
-
-    public bool IsTameable(bool canTameExotic)
-    {
-        if (CreatureType != CreatureType.Beast || Family == CreatureFamily.None || !TypeFlags.HasAnyFlag(CreatureTypeFlags.Tameable))
-            return false;
-
-        // if can tame exotic then can tame any tameable
-        return canTameExotic || !IsExotic();
+        _configuration = configuration;
+        _objectManager = objectManager;
+        Movement = new CreatureMovementData(_configuration);
     }
 
     public static int DifficultyIDToDifficultyEntryIndex(uint difficulty)
@@ -212,6 +122,86 @@ public class CreatureTemplate
             default:
                 return -1;
         }
+    }
+
+    public CreatureModel GetFirstInvisibleModel()
+    {
+        foreach (var model in Models)
+        {
+            var modelInfo = _objectManager.GetCreatureModelInfo(model.CreatureDisplayId);
+
+            if (modelInfo is { IsTrigger: true })
+                return model;
+        }
+
+        return CreatureModel.DefaultInvisibleModel;
+    }
+
+    public CreatureModel GetFirstValidModel()
+    {
+        return Models.FirstOrDefault(model => model.CreatureDisplayId != 0);
+    }
+
+    public CreatureModel GetFirstVisibleModel()
+    {
+        foreach (var model in Models)
+        {
+            var modelInfo = _objectManager.GetCreatureModelInfo(model.CreatureDisplayId);
+
+            if (modelInfo is { IsTrigger: false })
+                return model;
+        }
+
+        return CreatureModel.DefaultVisibleModel;
+    }
+
+    public int GetHealthScalingExpansion()
+    {
+        return HealthScalingExpansion == (int)Expansion.LevelCurrent ? _configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) : HealthScalingExpansion;
+    }
+
+    public CreatureLevelScaling GetLevelScaling(Difficulty difficulty)
+    {
+        var creatureLevelScaling = scalingStorage.LookupByKey(difficulty);
+
+        return creatureLevelScaling ?? new CreatureLevelScaling();
+    }
+
+    public int[] GetMinMaxLevel()
+    {
+        return new[]
+        {
+            HealthScalingExpansion != (int)Expansion.LevelCurrent ? Minlevel : Minlevel + SharedConst.MaxLevel, HealthScalingExpansion != (int)Expansion.LevelCurrent ? Maxlevel : Maxlevel + SharedConst.MaxLevel
+        };
+    }
+
+    public CreatureModel GetModelByIdx(int idx)
+    {
+        return idx < Models.Count ? Models[idx] : null;
+    }
+
+    public CreatureModel GetModelWithDisplayId(uint displayId)
+    {
+        return Models.FirstOrDefault(model => displayId == model.CreatureDisplayId);
+    }
+
+    public CreatureModel GetRandomValidModel()
+    {
+        if (Models.Empty())
+            return null;
+
+        // If only one element, ignore the Probability (even if 0)
+        return Models.Count == 1 ? Models[0] : Models.SelectRandomElementByWeight(model => model.Probability);
+    }
+    public SkillType GetRequiredLootSkill()
+    {
+        if (TypeFlags.HasAnyFlag(CreatureTypeFlags.SkinWithHerbalism))
+            return SkillType.Herbalism;
+
+        if (TypeFlags.HasAnyFlag(CreatureTypeFlags.SkinWithMining))
+            return SkillType.Mining;
+
+        return TypeFlags.HasAnyFlag(CreatureTypeFlags.SkinWithEngineering) ? SkillType.Engineering : SkillType.Skinning; // normal case
     }
 
     public void InitializeQueryData()
@@ -268,7 +258,7 @@ public class CreatureTemplate
         stats.TitleAlt = TitleAlt;
         stats.CursorName = IconName;
 
-        var items = Global.ObjectMgr.GetCreatureQuestItemList(Entry);
+        var items = _objectManager.GetCreatureQuestItemList(Entry);
 
         if (items != null)
             stats.QuestItems.AddRange(items);
@@ -276,13 +266,17 @@ public class CreatureTemplate
         QueryData.Stats = stats;
     }
 
-    public CreatureLevelScaling GetLevelScaling(Difficulty difficulty)
+    public bool IsExotic()
     {
-        var creatureLevelScaling = scalingStorage.LookupByKey(difficulty);
+        return (TypeFlags & CreatureTypeFlags.TameableExotic) != 0;
+    }
 
-        if (creatureLevelScaling != null)
-            return creatureLevelScaling;
+    public bool IsTameable(bool canTameExotic)
+    {
+        if (CreatureType != CreatureType.Beast || Family == CreatureFamily.None || !TypeFlags.HasAnyFlag(CreatureTypeFlags.Tameable))
+            return false;
 
-        return new CreatureLevelScaling();
+        // if can tame exotic then can tame any tameable
+        return canTameExotic || !IsExotic();
     }
 }

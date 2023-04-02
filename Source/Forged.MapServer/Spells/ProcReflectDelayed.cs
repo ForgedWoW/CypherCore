@@ -10,9 +10,8 @@ namespace Forged.MapServer.Spells;
 
 internal class ProcReflectDelayed : BasicEvent
 {
-    private readonly Unit _victim;
     private readonly ObjectGuid _casterGuid;
-
+    private readonly Unit _victim;
     public ProcReflectDelayed(Unit owner, ObjectGuid casterGuid)
     {
         _victim = owner;

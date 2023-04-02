@@ -5,12 +5,13 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal struct SpellLogMissDebug
 {
+    public float HitRoll;
+
+    public float HitRollNeeded;
+
     public void Write(WorldPacket data)
     {
         data.WriteFloat(HitRoll);
         data.WriteFloat(HitRollNeeded);
     }
-
-    public float HitRoll;
-    public float HitRollNeeded;
 }

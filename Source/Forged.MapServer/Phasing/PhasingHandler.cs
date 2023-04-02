@@ -21,29 +21,44 @@ namespace Forged.MapServer.Phasing;
 
 public class PhasingHandler
 {
-    public static PhaseShift EmptyPhaseShift = new();
     public static PhaseShift AlwaysVisible;
-
+    public static PhaseShift EmptyPhaseShift = new();
     static PhasingHandler()
     {
         AlwaysVisible = new PhaseShift();
         InitDbPhaseShift(AlwaysVisible, PhaseUseFlagsValues.AlwaysVisible, 0, 0);
     }
 
-    public static PhaseFlags GetPhaseFlags(uint phaseId)
+    public static void AddPhase(WorldObject obj, uint phaseId, bool updateVisibility)
     {
-        var phase = CliDB.PhaseStorage.LookupByKey(phaseId);
+        ControlledUnitVisitor visitor = new(obj);
+        AddPhase(obj, phaseId, obj.GUID, updateVisibility, visitor);
+    }
 
-        if (phase != null)
-        {
-            if (phase.Flags.HasAnyFlag(PhaseEntryFlags.Cosmetic))
-                return PhaseFlags.Cosmetic;
+    public static void AddPhaseGroup(WorldObject obj, uint phaseGroupId, bool updateVisibility)
+    {
+        var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
 
-            if (phase.Flags.HasAnyFlag(PhaseEntryFlags.Personal))
-                return PhaseFlags.Personal;
-        }
+        if (phasesInGroup.Empty())
+            return;
 
-        return PhaseFlags.None;
+        ControlledUnitVisitor visitor = new(obj);
+        AddPhaseGroup(obj, phasesInGroup, obj.GUID, updateVisibility, visitor);
+    }
+
+    public static void AddVisibleMapId(WorldObject obj, uint visibleMapId)
+    {
+        ControlledUnitVisitor visitor = new(obj);
+        AddVisibleMapId(obj, visibleMapId, visitor);
+    }
+
+    public static void FillPartyMemberPhase(PartyMemberPhaseStates partyMemberPhases, PhaseShift phaseShift)
+    {
+        partyMemberPhases.PhaseShiftFlags = (int)phaseShift.Flags;
+        partyMemberPhases.PersonalGUID = phaseShift.PersonalGuid;
+
+        foreach (var pair in phaseShift.Phases)
+            partyMemberPhases.List.Add(new PartyMemberPhase((uint)pair.Value.Flags, pair.Key));
     }
 
     public static void ForAllControlled(Unit unit, Action<Unit> func)
@@ -77,56 +92,61 @@ public class PhasingHandler
             }
     }
 
-    public static void AddPhase(WorldObject obj, uint phaseId, bool updateVisibility)
+    public static string FormatPhases(PhaseShift phaseShift)
     {
-        ControlledUnitVisitor visitor = new(obj);
-        AddPhase(obj, phaseId, obj.GUID, updateVisibility, visitor);
+        StringBuilder phases = new();
+
+        foreach (var phaseId in phaseShift.Phases.Keys)
+            phases.Append(phaseId + ',');
+
+        return phases.ToString();
     }
 
-    public static void RemovePhase(WorldObject obj, uint phaseId, bool updateVisibility)
+    public static PhaseShift GetAlwaysVisiblePhaseShift()
     {
-        ControlledUnitVisitor visitor = new(obj);
-        RemovePhase(obj, phaseId, updateVisibility, visitor);
+        return AlwaysVisible;
     }
 
-    public static void AddPhaseGroup(WorldObject obj, uint phaseGroupId, bool updateVisibility)
+    public static PhaseFlags GetPhaseFlags(uint phaseId)
     {
-        var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
+        var phase = CliDB.PhaseStorage.LookupByKey(phaseId);
 
-        if (phasesInGroup.Empty())
-            return;
+        if (phase != null)
+        {
+            if (phase.Flags.HasAnyFlag(PhaseEntryFlags.Cosmetic))
+                return PhaseFlags.Cosmetic;
 
-        ControlledUnitVisitor visitor = new(obj);
-        AddPhaseGroup(obj, phasesInGroup, obj.GUID, updateVisibility, visitor);
+            if (phase.Flags.HasAnyFlag(PhaseEntryFlags.Personal))
+                return PhaseFlags.Personal;
+        }
+
+        return PhaseFlags.None;
+    }
+    public static uint GetTerrainMapId(PhaseShift phaseShift, uint mapId, TerrainInfo terrain, float x, float y)
+    {
+        if (phaseShift.VisibleMapIds.Empty())
+            return mapId;
+
+        if (phaseShift.VisibleMapIds.Count == 1)
+            return phaseShift.VisibleMapIds.First().Key;
+
+        var gridCoord = GridDefines.ComputeGridCoord(x, y);
+        var gx = (int)((MapConst.MaxGrids - 1) - gridCoord.X_Coord);
+        var gy = (int)((MapConst.MaxGrids - 1) - gridCoord.Y_Coord);
+
+        foreach (var visibleMap in phaseShift.VisibleMapIds)
+            if (terrain.HasChildTerrainGridFile(visibleMap.Key, gx, gy))
+                return visibleMap.Key;
+
+        return mapId;
     }
 
-    public static void RemovePhaseGroup(WorldObject obj, uint phaseGroupId, bool updateVisibility)
+    public static bool InDbPhaseShift(WorldObject obj, PhaseUseFlagsValues phaseUseFlags, ushort phaseId, uint phaseGroupId)
     {
-        var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
+        PhaseShift phaseShift = new();
+        InitDbPhaseShift(phaseShift, phaseUseFlags, phaseId, phaseGroupId);
 
-        if (phasesInGroup.Empty())
-            return;
-
-        ControlledUnitVisitor visitor = new(obj);
-        RemovePhaseGroup(obj, phasesInGroup, updateVisibility, visitor);
-    }
-
-    public static void AddVisibleMapId(WorldObject obj, uint visibleMapId)
-    {
-        ControlledUnitVisitor visitor = new(obj);
-        AddVisibleMapId(obj, visibleMapId, visitor);
-    }
-
-    public static void RemoveVisibleMapId(WorldObject obj, uint visibleMapId)
-    {
-        ControlledUnitVisitor visitor = new(obj);
-        RemoveVisibleMapId(obj, visibleMapId, visitor);
-    }
-
-    public static void ResetPhaseShift(WorldObject obj)
-    {
-        obj.Location.PhaseShift.Clear();
-        obj.Location.SuppressedPhaseShift.Clear();
+        return obj.Location.PhaseShift.CanSee(phaseShift);
     }
 
     public static void InheritPhaseShift(WorldObject target, WorldObject source)
@@ -135,32 +155,63 @@ public class PhasingHandler
         target.Location.SuppressedPhaseShift = source.Location.SuppressedPhaseShift;
     }
 
-    public static void OnMapChange(WorldObject obj)
+    public static void InitDbPersonalOwnership(PhaseShift phaseShift, ObjectGuid personalGuid)
     {
-        var phaseShift = obj.Location.PhaseShift;
-        var suppressedPhaseShift = obj.Location.SuppressedPhaseShift;
-        ConditionSourceInfo srcInfo = new(obj);
+        phaseShift.PersonalGuid = personalGuid;
+    }
 
-        obj.Location.PhaseShift.VisibleMapIds.Clear();
-        obj.Location.PhaseShift.UiMapPhaseIds.Clear();
-        obj.Location.SuppressedPhaseShift.VisibleMapIds.Clear();
+    public static void InitDbPhaseShift(PhaseShift phaseShift, PhaseUseFlagsValues phaseUseFlags, uint phaseId, uint phaseGroupId)
+    {
+        phaseShift.ClearPhases();
+        phaseShift.IsDbPhaseShift = true;
 
-        foreach (var (mapId, visibleMapInfo) in Global.ObjectMgr.GetTerrainSwaps().KeyValueList)
-            if (Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
-            {
-                if (mapId == obj.Location.MapId)
-                    phaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
+        var flags = PhaseShiftFlags.None;
 
-                // ui map is visible on all maps
-                foreach (var uiMapPhaseId in visibleMapInfo.UiMapPhaseIDs)
-                    phaseShift.AddUiMapPhaseId(uiMapPhaseId);
-            }
-            else if (mapId == obj.Location.MapId)
-            {
-                suppressedPhaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
-            }
+        if (phaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.AlwaysVisible))
+            flags = flags | PhaseShiftFlags.AlwaysVisible | PhaseShiftFlags.Unphased;
 
-        UpdateVisibilityIfNeeded(obj, false, true);
+        if (phaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.Inverse))
+            flags |= PhaseShiftFlags.Inverse;
+
+        if (phaseId != 0)
+        {
+            phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);
+        }
+        else
+        {
+            var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
+
+            foreach (var phaseInGroup in phasesInGroup)
+                phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), null);
+        }
+
+        if (phaseShift.Phases.Empty() || phaseShift.HasPhase(169))
+        {
+            if (flags.HasFlag(PhaseShiftFlags.Inverse))
+                flags |= PhaseShiftFlags.InverseUnphased;
+            else
+                flags |= PhaseShiftFlags.Unphased;
+        }
+
+        phaseShift.Flags = flags;
+    }
+
+    public static void InitDbVisibleMapId(PhaseShift phaseShift, int visibleMapId)
+    {
+        phaseShift.VisibleMapIds.Clear();
+
+        if (visibleMapId != -1)
+            phaseShift.AddVisibleMapId((uint)visibleMapId, Global.ObjectMgr.GetTerrainSwapInfo((uint)visibleMapId));
+    }
+
+    public static bool IsPersonalPhase(uint phaseId)
+    {
+        var phase = CliDB.PhaseStorage.LookupByKey(phaseId);
+
+        if (phase != null)
+            return phase.Flags.HasFlag(PhaseEntryFlags.Personal);
+
+        return false;
     }
 
     public static void OnAreaChange(WorldObject obj)
@@ -340,145 +391,32 @@ public class PhasingHandler
         return changed;
     }
 
-    public static void SendToPlayer(Player player, PhaseShift phaseShift)
+    public static void OnMapChange(WorldObject obj)
     {
-        PhaseShiftChange phaseShiftChange = new()
-        {
-            Client = player.GUID,
-            Phaseshift =
+        var phaseShift = obj.Location.PhaseShift;
+        var suppressedPhaseShift = obj.Location.SuppressedPhaseShift;
+        ConditionSourceInfo srcInfo = new(obj);
+
+        obj.Location.PhaseShift.VisibleMapIds.Clear();
+        obj.Location.PhaseShift.UiMapPhaseIds.Clear();
+        obj.Location.SuppressedPhaseShift.VisibleMapIds.Clear();
+
+        foreach (var (mapId, visibleMapInfo) in Global.ObjectMgr.GetTerrainSwaps().KeyValueList)
+            if (Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
             {
-                PhaseShiftFlags = (uint)phaseShift.Flags,
-                PersonalGUID = phaseShift.PersonalGuid
+                if (mapId == obj.Location.MapId)
+                    phaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
+
+                // ui map is visible on all maps
+                foreach (var uiMapPhaseId in visibleMapInfo.UiMapPhaseIDs)
+                    phaseShift.AddUiMapPhaseId(uiMapPhaseId);
             }
-        };
+            else if (mapId == obj.Location.MapId)
+            {
+                suppressedPhaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
+            }
 
-        foreach (var pair in phaseShift.Phases)
-            phaseShiftChange.Phaseshift.Phases.Add(new PhaseShiftDataPhase((uint)pair.Value.Flags, pair.Key));
-
-        foreach (var visibleMapId in phaseShift.VisibleMapIds)
-            phaseShiftChange.VisibleMapIDs.Add((ushort)visibleMapId.Key);
-
-        foreach (var uiWorldMapAreaIdSwap in phaseShift.UiMapPhaseIds)
-            phaseShiftChange.UiMapPhaseIDs.Add((ushort)uiWorldMapAreaIdSwap.Key);
-
-        player.SendPacket(phaseShiftChange);
-    }
-
-    public static void SendToPlayer(Player player)
-    {
-        SendToPlayer(player, player.Location.PhaseShift);
-    }
-
-    public static void FillPartyMemberPhase(PartyMemberPhaseStates partyMemberPhases, PhaseShift phaseShift)
-    {
-        partyMemberPhases.PhaseShiftFlags = (int)phaseShift.Flags;
-        partyMemberPhases.PersonalGUID = phaseShift.PersonalGuid;
-
-        foreach (var pair in phaseShift.Phases)
-            partyMemberPhases.List.Add(new PartyMemberPhase((uint)pair.Value.Flags, pair.Key));
-    }
-
-    public static PhaseShift GetAlwaysVisiblePhaseShift()
-    {
-        return AlwaysVisible;
-    }
-
-    public static void InitDbPhaseShift(PhaseShift phaseShift, PhaseUseFlagsValues phaseUseFlags, uint phaseId, uint phaseGroupId)
-    {
-        phaseShift.ClearPhases();
-        phaseShift.IsDbPhaseShift = true;
-
-        var flags = PhaseShiftFlags.None;
-
-        if (phaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.AlwaysVisible))
-            flags = flags | PhaseShiftFlags.AlwaysVisible | PhaseShiftFlags.Unphased;
-
-        if (phaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.Inverse))
-            flags |= PhaseShiftFlags.Inverse;
-
-        if (phaseId != 0)
-        {
-            phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);
-        }
-        else
-        {
-            var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
-
-            foreach (var phaseInGroup in phasesInGroup)
-                phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), null);
-        }
-
-        if (phaseShift.Phases.Empty() || phaseShift.HasPhase(169))
-        {
-            if (flags.HasFlag(PhaseShiftFlags.Inverse))
-                flags |= PhaseShiftFlags.InverseUnphased;
-            else
-                flags |= PhaseShiftFlags.Unphased;
-        }
-
-        phaseShift.Flags = flags;
-    }
-
-    public static void InitDbPersonalOwnership(PhaseShift phaseShift, ObjectGuid personalGuid)
-    {
-        phaseShift.PersonalGuid = personalGuid;
-    }
-
-    public static void InitDbVisibleMapId(PhaseShift phaseShift, int visibleMapId)
-    {
-        phaseShift.VisibleMapIds.Clear();
-
-        if (visibleMapId != -1)
-            phaseShift.AddVisibleMapId((uint)visibleMapId, Global.ObjectMgr.GetTerrainSwapInfo((uint)visibleMapId));
-    }
-
-    public static bool InDbPhaseShift(WorldObject obj, PhaseUseFlagsValues phaseUseFlags, ushort phaseId, uint phaseGroupId)
-    {
-        PhaseShift phaseShift = new();
-        InitDbPhaseShift(phaseShift, phaseUseFlags, phaseId, phaseGroupId);
-
-        return obj.Location.PhaseShift.CanSee(phaseShift);
-    }
-
-    public static uint GetTerrainMapId(PhaseShift phaseShift, uint mapId, TerrainInfo terrain, float x, float y)
-    {
-        if (phaseShift.VisibleMapIds.Empty())
-            return mapId;
-
-        if (phaseShift.VisibleMapIds.Count == 1)
-            return phaseShift.VisibleMapIds.First().Key;
-
-        var gridCoord = GridDefines.ComputeGridCoord(x, y);
-        var gx = (int)((MapConst.MaxGrids - 1) - gridCoord.X_Coord);
-        var gy = (int)((MapConst.MaxGrids - 1) - gridCoord.Y_Coord);
-
-        foreach (var visibleMap in phaseShift.VisibleMapIds)
-            if (terrain.HasChildTerrainGridFile(visibleMap.Key, gx, gy))
-                return visibleMap.Key;
-
-        return mapId;
-    }
-
-    public static void SetAlwaysVisible(WorldObject obj, bool apply, bool updateVisibility)
-    {
-        if (apply)
-            obj.Location.PhaseShift.Flags |= PhaseShiftFlags.AlwaysVisible;
-        else
-            obj.Location.PhaseShift.Flags &= ~PhaseShiftFlags.AlwaysVisible;
-
-        UpdateVisibilityIfNeeded(obj, updateVisibility, true);
-    }
-
-    public static void SetInversed(WorldObject obj, bool apply, bool updateVisibility)
-    {
-        if (apply)
-            obj.Location.PhaseShift.Flags |= PhaseShiftFlags.Inverse;
-        else
-            obj.Location.PhaseShift.Flags &= ~PhaseShiftFlags.Inverse;
-
-        obj.Location.PhaseShift.UpdateUnphasedFlag();
-
-        UpdateVisibilityIfNeeded(obj, updateVisibility, true);
+        UpdateVisibilityIfNeeded(obj, false, true);
     }
 
     public static void PrintToChat(CommandHandler chat, WorldObject target)
@@ -540,26 +478,81 @@ public class PhasingHandler
         }
     }
 
-    public static string FormatPhases(PhaseShift phaseShift)
+    public static void RemovePhase(WorldObject obj, uint phaseId, bool updateVisibility)
     {
-        StringBuilder phases = new();
+        ControlledUnitVisitor visitor = new(obj);
+        RemovePhase(obj, phaseId, updateVisibility, visitor);
+    }
+    public static void RemovePhaseGroup(WorldObject obj, uint phaseGroupId, bool updateVisibility)
+    {
+        var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup(phaseGroupId);
 
-        foreach (var phaseId in phaseShift.Phases.Keys)
-            phases.Append(phaseId + ',');
+        if (phasesInGroup.Empty())
+            return;
 
-        return phases.ToString();
+        ControlledUnitVisitor visitor = new(obj);
+        RemovePhaseGroup(obj, phasesInGroup, updateVisibility, visitor);
+    }
+    public static void RemoveVisibleMapId(WorldObject obj, uint visibleMapId)
+    {
+        ControlledUnitVisitor visitor = new(obj);
+        RemoveVisibleMapId(obj, visibleMapId, visitor);
     }
 
-    public static bool IsPersonalPhase(uint phaseId)
+    public static void ResetPhaseShift(WorldObject obj)
     {
-        var phase = CliDB.PhaseStorage.LookupByKey(phaseId);
+        obj.Location.PhaseShift.Clear();
+        obj.Location.SuppressedPhaseShift.Clear();
+    }
+    public static void SendToPlayer(Player player, PhaseShift phaseShift)
+    {
+        PhaseShiftChange phaseShiftChange = new()
+        {
+            Client = player.GUID,
+            Phaseshift =
+            {
+                PhaseShiftFlags = (uint)phaseShift.Flags,
+                PersonalGUID = phaseShift.PersonalGuid
+            }
+        };
 
-        if (phase != null)
-            return phase.Flags.HasFlag(PhaseEntryFlags.Personal);
+        foreach (var pair in phaseShift.Phases)
+            phaseShiftChange.Phaseshift.Phases.Add(new PhaseShiftDataPhase((uint)pair.Value.Flags, pair.Key));
 
-        return false;
+        foreach (var visibleMapId in phaseShift.VisibleMapIds)
+            phaseShiftChange.VisibleMapIDs.Add((ushort)visibleMapId.Key);
+
+        foreach (var uiWorldMapAreaIdSwap in phaseShift.UiMapPhaseIds)
+            phaseShiftChange.UiMapPhaseIDs.Add((ushort)uiWorldMapAreaIdSwap.Key);
+
+        player.SendPacket(phaseShiftChange);
     }
 
+    public static void SendToPlayer(Player player)
+    {
+        SendToPlayer(player, player.Location.PhaseShift);
+    }
+    public static void SetAlwaysVisible(WorldObject obj, bool apply, bool updateVisibility)
+    {
+        if (apply)
+            obj.Location.PhaseShift.Flags |= PhaseShiftFlags.AlwaysVisible;
+        else
+            obj.Location.PhaseShift.Flags &= ~PhaseShiftFlags.AlwaysVisible;
+
+        UpdateVisibilityIfNeeded(obj, updateVisibility, true);
+    }
+
+    public static void SetInversed(WorldObject obj, bool apply, bool updateVisibility)
+    {
+        if (apply)
+            obj.Location.PhaseShift.Flags |= PhaseShiftFlags.Inverse;
+        else
+            obj.Location.PhaseShift.Flags &= ~PhaseShiftFlags.Inverse;
+
+        obj.Location.PhaseShift.UpdateUnphasedFlag();
+
+        UpdateVisibilityIfNeeded(obj, updateVisibility, true);
+    }
     private static void AddPhase(WorldObject obj, uint phaseId, ObjectGuid personalGuid, bool updateVisibility, ControlledUnitVisitor visitor)
     {
         var changed = obj.Location.PhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);
@@ -573,22 +566,6 @@ public class PhasingHandler
         {
             unit.OnPhaseChange();
             visitor.VisitControlledOf(unit, controlled => { AddPhase(controlled, phaseId, personalGuid, updateVisibility, visitor); });
-            unit.RemoveNotOwnSingleTargetAuras(true);
-        }
-
-        UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
-    }
-
-    private static void RemovePhase(WorldObject obj, uint phaseId, bool updateVisibility, ControlledUnitVisitor visitor)
-    {
-        var changed = obj.Location.PhaseShift.RemovePhase(phaseId);
-
-        var unit = obj.AsUnit;
-
-        if (unit)
-        {
-            unit.OnPhaseChange();
-            visitor.VisitControlledOf(unit, controlled => { RemovePhase(controlled, phaseId, updateVisibility, visitor); });
             unit.RemoveNotOwnSingleTargetAuras(true);
         }
 
@@ -617,6 +594,37 @@ public class PhasingHandler
         UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
     }
 
+    private static void AddVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
+    {
+        var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);
+        var changed = obj.Location.PhaseShift.AddVisibleMapId(visibleMapId, terrainSwapInfo);
+
+        foreach (var uiMapPhaseId in terrainSwapInfo.UiMapPhaseIDs)
+            changed = obj.Location.PhaseShift.AddUiMapPhaseId(uiMapPhaseId) || changed;
+
+        var unit = obj.AsUnit;
+
+        if (unit)
+            visitor.VisitControlledOf(unit, controlled => { AddVisibleMapId(controlled, visibleMapId, visitor); });
+
+        UpdateVisibilityIfNeeded(obj, false, changed);
+    }
+
+    private static void RemovePhase(WorldObject obj, uint phaseId, bool updateVisibility, ControlledUnitVisitor visitor)
+    {
+        var changed = obj.Location.PhaseShift.RemovePhase(phaseId);
+
+        var unit = obj.AsUnit;
+
+        if (unit)
+        {
+            unit.OnPhaseChange();
+            visitor.VisitControlledOf(unit, controlled => { RemovePhase(controlled, phaseId, updateVisibility, visitor); });
+            unit.RemoveNotOwnSingleTargetAuras(true);
+        }
+
+        UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
+    }
     private static void RemovePhaseGroup(WorldObject obj, List<uint> phasesInGroup, bool updateVisibility, ControlledUnitVisitor visitor)
     {
         var changed = false;
@@ -635,23 +643,6 @@ public class PhasingHandler
 
         UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
     }
-
-    private static void AddVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
-    {
-        var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);
-        var changed = obj.Location.PhaseShift.AddVisibleMapId(visibleMapId, terrainSwapInfo);
-
-        foreach (var uiMapPhaseId in terrainSwapInfo.UiMapPhaseIDs)
-            changed = obj.Location.PhaseShift.AddUiMapPhaseId(uiMapPhaseId) || changed;
-
-        var unit = obj.AsUnit;
-
-        if (unit)
-            visitor.VisitControlledOf(unit, controlled => { AddVisibleMapId(controlled, visibleMapId, visitor); });
-
-        UpdateVisibilityIfNeeded(obj, false, changed);
-    }
-
     private static void RemoveVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
     {
         var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);

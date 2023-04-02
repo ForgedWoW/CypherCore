@@ -9,14 +9,14 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class UpdateMissileTrajectory : ClientPacket
 {
-    public ObjectGuid Guid;
     public ObjectGuid CastID;
+    public Vector3 FirePos;
+    public ObjectGuid Guid;
+    public Vector3 ImpactPos;
     public ushort MoveMsgID;
-    public uint SpellID;
     public float Pitch;
     public float Speed;
-    public Vector3 FirePos;
-    public Vector3 ImpactPos;
+    public uint SpellID;
     public MovementInfo Status;
     public UpdateMissileTrajectory(WorldPacket packet) : base(packet) { }
 

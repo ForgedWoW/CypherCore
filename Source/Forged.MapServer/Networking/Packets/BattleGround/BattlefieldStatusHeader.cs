@@ -8,13 +8,13 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusHeader
 {
-    public RideTicket Ticket;
-    public List<ulong> QueueID = new();
-    public byte RangeMin;
-    public byte RangeMax;
-    public byte TeamSize;
     public uint InstanceID;
+    public List<ulong> QueueID = new();
+    public byte RangeMax;
+    public byte RangeMin;
     public bool RegisteredMatch;
+    public byte TeamSize;
+    public RideTicket Ticket;
     public bool TournamentRules;
 
     public void Write(WorldPacket data)

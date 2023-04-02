@@ -9,16 +9,15 @@ internal struct QuotedString
 {
     private string _str;
 
-    public bool IsEmpty()
-    {
-        return _str.IsEmpty();
-    }
-
     public static implicit operator string(QuotedString quotedString)
     {
         return quotedString._str;
     }
 
+    public bool IsEmpty()
+    {
+        return _str.IsEmpty();
+    }
     public ChatCommandResult TryConsume(CommandHandler handler, string args)
     {
         _str = "";

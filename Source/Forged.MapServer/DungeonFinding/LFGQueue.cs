@@ -12,17 +12,57 @@ using Serilog;
 
 namespace Forged.MapServer.DungeonFinding;
 
+public class LfgCompatibilityData
+{
+    public LfgCompatibility compatibility;
+    public Dictionary<ObjectGuid, LfgRoles> roles;
+
+    public LfgCompatibilityData()
+    {
+        compatibility = LfgCompatibility.Pending;
+    }
+
+    public LfgCompatibilityData(LfgCompatibility _compatibility)
+    {
+        compatibility = _compatibility;
+    }
+
+    public LfgCompatibilityData(LfgCompatibility _compatibility, Dictionary<ObjectGuid, LfgRoles> _roles)
+    {
+        compatibility = _compatibility;
+        roles = _roles;
+    }
+}
+
 public class LFGQueue
 {
+    private readonly Dictionary<string, LfgCompatibilityData> CompatibleMapStore = new();
+
+    private readonly List<ObjectGuid> currentQueueStore = new();
+
+    private readonly List<ObjectGuid> newToQueueStore = new();
+
     // Queue
     private readonly Dictionary<ObjectGuid, LfgQueueData> QueueDataStore = new();
-    private readonly Dictionary<string, LfgCompatibilityData> CompatibleMapStore = new();
     private readonly Dictionary<uint, LfgWaitTime> waitTimesAvgStore = new();
-    private readonly Dictionary<uint, LfgWaitTime> waitTimesTankStore = new();
-    private readonly Dictionary<uint, LfgWaitTime> waitTimesHealerStore = new();
     private readonly Dictionary<uint, LfgWaitTime> waitTimesDpsStore = new();
-    private readonly List<ObjectGuid> currentQueueStore = new();
-    private readonly List<ObjectGuid> newToQueueStore = new();
+    private readonly Dictionary<uint, LfgWaitTime> waitTimesHealerStore = new();
+    private readonly Dictionary<uint, LfgWaitTime> waitTimesTankStore = new();
+    public static string ConcatenateDungeons(List<uint> dungeons)
+    {
+        var str = "";
+
+        if (!dungeons.Empty())
+            foreach (var it in dungeons)
+            {
+                if (!string.IsNullOrEmpty(str))
+                    str += ", ";
+
+                str += it;
+            }
+
+        return str;
+    }
 
     public static string ConcatenateGuids(List<ObjectGuid> guids)
     {
@@ -82,21 +122,20 @@ public class LFGQueue
 
         return rolesstr.ToString();
     }
-
-    public static string ConcatenateDungeons(List<uint> dungeons)
+    public void AddQueueData(ObjectGuid guid, long joinTime, List<uint> dungeons, Dictionary<ObjectGuid, LfgRoles> rolesMap)
     {
-        var str = "";
+        QueueDataStore[guid] = new LfgQueueData(joinTime, dungeons, rolesMap);
+        AddToQueue(guid);
+    }
 
-        if (!dungeons.Empty())
-            foreach (var it in dungeons)
-            {
-                if (!string.IsNullOrEmpty(str))
-                    str += ", ";
+    public void AddToCurrentQueue(ObjectGuid guid)
+    {
+        currentQueueStore.Add(guid);
+    }
 
-                str += it;
-            }
-
-        return str;
+    public void AddToNewQueue(ObjectGuid guid)
+    {
+        newToQueueStore.Add(guid);
     }
 
     public void AddToQueue(ObjectGuid guid, bool reAdd = false)
@@ -112,6 +151,87 @@ public class LFGQueue
             AddToFrontCurrentQueue(guid);
         else
             AddToNewQueue(guid);
+    }
+
+    public string DumpCompatibleInfo(bool full = false)
+    {
+        var str = "Compatible Map size: " + CompatibleMapStore.Count + "\n";
+
+        if (full)
+            foreach (var pair in CompatibleMapStore)
+                str += "(" + pair.Key + "): " + GetCompatibleString(pair.Value.compatibility) + "\n";
+
+        return str;
+    }
+
+    public string DumpQueueInfo()
+    {
+        uint players = 0;
+        uint groups = 0;
+        uint playersInGroup = 0;
+
+        for (byte i = 0; i < 2; ++i)
+        {
+            var queue = i != 0 ? newToQueueStore : currentQueueStore;
+
+            foreach (var guid in queue)
+                if (guid.IsParty)
+                {
+                    groups++;
+                    playersInGroup += Global.LFGMgr.GetPlayerCount(guid);
+                }
+                else
+                {
+                    players++;
+                }
+        }
+
+        return $"Queued Players: {players} (in group: {playersInGroup}) Groups: {groups}\n";
+    }
+
+    public byte FindGroups()
+    {
+        byte proposals = 0;
+        List<ObjectGuid> firstNew = new();
+
+        while (!newToQueueStore.Empty())
+        {
+            var frontguid = newToQueueStore.First();
+            Log.Logger.Debug("FindGroups: checking [{0}] newToQueue({1}), currentQueue({2})", frontguid, newToQueueStore.Count, currentQueueStore.Count);
+            firstNew.Clear();
+            firstNew.Add(frontguid);
+            RemoveFromNewQueue(frontguid);
+
+            List<ObjectGuid> temporalList = new(currentQueueStore);
+            var compatibles = FindNewGroups(firstNew, temporalList);
+
+            if (compatibles == LfgCompatibility.Match)
+                ++proposals;
+            else
+                AddToCurrentQueue(frontguid); // Lfg group not found, add this group to the queue.
+        }
+
+        return proposals;
+    }
+
+    public long GetJoinTime(ObjectGuid guid)
+    {
+        var queueData = QueueDataStore.LookupByKey(guid);
+
+        if (queueData != null)
+            return queueData.joinTime;
+
+        return 0;
+    }
+
+    public void RemoveFromCurrentQueue(ObjectGuid guid)
+    {
+        currentQueueStore.Remove(guid);
+    }
+
+    public void RemoveFromNewQueue(ObjectGuid guid)
+    {
+        newToQueueStore.Remove(guid);
     }
 
     public void RemoveFromQueue(ObjectGuid guid)
@@ -145,89 +265,41 @@ public class LFGQueue
         if (!itDelete.IsEmpty)
             QueueDataStore.Remove(itDelete);
     }
-
-    public void AddToNewQueue(ObjectGuid guid)
-    {
-        newToQueueStore.Add(guid);
-    }
-
-    public void RemoveFromNewQueue(ObjectGuid guid)
-    {
-        newToQueueStore.Remove(guid);
-    }
-
-    public void AddToCurrentQueue(ObjectGuid guid)
-    {
-        currentQueueStore.Add(guid);
-    }
-
-    public void RemoveFromCurrentQueue(ObjectGuid guid)
-    {
-        currentQueueStore.Remove(guid);
-    }
-
-    public void AddQueueData(ObjectGuid guid, long joinTime, List<uint> dungeons, Dictionary<ObjectGuid, LfgRoles> rolesMap)
-    {
-        QueueDataStore[guid] = new LfgQueueData(joinTime, dungeons, rolesMap);
-        AddToQueue(guid);
-    }
-
     public void RemoveQueueData(ObjectGuid guid)
     {
         QueueDataStore.Remove(guid);
     }
 
-    public void UpdateWaitTimeAvg(int waitTime, uint dungeonId)
+    public void UpdateBestCompatibleInQueue(ObjectGuid guid, LfgQueueData queueData, string key, Dictionary<ObjectGuid, LfgRoles> roles)
     {
-        var wt = waitTimesAvgStore[dungeonId];
-        var old_number = wt.number++;
-        wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
-    }
+        var storedSize = (byte)(string.IsNullOrEmpty(queueData.bestCompatible) ? 0 : queueData.bestCompatible.Count(p => p == '|') + 1);
 
-    public void UpdateWaitTimeTank(int waitTime, uint dungeonId)
-    {
-        var wt = waitTimesTankStore[dungeonId];
-        var old_number = wt.number++;
-        wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
-    }
+        var size = (byte)(key.Count(p => p == '|') + 1);
 
-    public void UpdateWaitTimeHealer(int waitTime, uint dungeonId)
-    {
-        var wt = waitTimesHealerStore[dungeonId];
-        var old_number = wt.number++;
-        wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
-    }
+        if (size <= storedSize)
+            return;
 
-    public void UpdateWaitTimeDps(int waitTime, uint dungeonId)
-    {
-        var wt = waitTimesDpsStore[dungeonId];
-        var old_number = wt.number++;
-        wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
-    }
+        Log.Logger.Debug("UpdateBestCompatibleInQueue: Changed ({0}) to ({1}) as best compatible group for {2}",
+                         queueData.bestCompatible,
+                         key,
+                         guid);
 
-    public byte FindGroups()
-    {
-        byte proposals = 0;
-        List<ObjectGuid> firstNew = new();
+        queueData.bestCompatible = key;
+        queueData.tanks = SharedConst.LFGTanksNeeded;
+        queueData.healers = SharedConst.LFGHealersNeeded;
+        queueData.dps = SharedConst.LFGDPSNeeded;
 
-        while (!newToQueueStore.Empty())
+        foreach (var it in roles)
         {
-            var frontguid = newToQueueStore.First();
-            Log.Logger.Debug("FindGroups: checking [{0}] newToQueue({1}), currentQueue({2})", frontguid, newToQueueStore.Count, currentQueueStore.Count);
-            firstNew.Clear();
-            firstNew.Add(frontguid);
-            RemoveFromNewQueue(frontguid);
+            var role = it.Value;
 
-            List<ObjectGuid> temporalList = new(currentQueueStore);
-            var compatibles = FindNewGroups(firstNew, temporalList);
-
-            if (compatibles == LfgCompatibility.Match)
-                ++proposals;
+            if (role.HasAnyFlag(LfgRoles.Tank))
+                --queueData.tanks;
+            else if (role.HasAnyFlag(LfgRoles.Healer))
+                --queueData.healers;
             else
-                AddToCurrentQueue(frontguid); // Lfg group not found, add this group to the queue.
+                --queueData.dps;
         }
-
-        return proposals;
     }
 
     public void UpdateQueueTimers(byte queueId, long currTime)
@@ -301,194 +373,36 @@ public class LFGQueue
         }
     }
 
-    public long GetJoinTime(ObjectGuid guid)
+    public void UpdateWaitTimeAvg(int waitTime, uint dungeonId)
     {
-        var queueData = QueueDataStore.LookupByKey(guid);
-
-        if (queueData != null)
-            return queueData.joinTime;
-
-        return 0;
+        var wt = waitTimesAvgStore[dungeonId];
+        var old_number = wt.number++;
+        wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
     }
 
-    public string DumpQueueInfo()
+    public void UpdateWaitTimeDps(int waitTime, uint dungeonId)
     {
-        uint players = 0;
-        uint groups = 0;
-        uint playersInGroup = 0;
-
-        for (byte i = 0; i < 2; ++i)
-        {
-            var queue = i != 0 ? newToQueueStore : currentQueueStore;
-
-            foreach (var guid in queue)
-                if (guid.IsParty)
-                {
-                    groups++;
-                    playersInGroup += Global.LFGMgr.GetPlayerCount(guid);
-                }
-                else
-                {
-                    players++;
-                }
-        }
-
-        return $"Queued Players: {players} (in group: {playersInGroup}) Groups: {groups}\n";
+        var wt = waitTimesDpsStore[dungeonId];
+        var old_number = wt.number++;
+        wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
     }
 
-    public string DumpCompatibleInfo(bool full = false)
+    public void UpdateWaitTimeHealer(int waitTime, uint dungeonId)
     {
-        var str = "Compatible Map size: " + CompatibleMapStore.Count + "\n";
-
-        if (full)
-            foreach (var pair in CompatibleMapStore)
-                str += "(" + pair.Key + "): " + GetCompatibleString(pair.Value.compatibility) + "\n";
-
-        return str;
+        var wt = waitTimesHealerStore[dungeonId];
+        var old_number = wt.number++;
+        wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
     }
 
-    public void UpdateBestCompatibleInQueue(ObjectGuid guid, LfgQueueData queueData, string key, Dictionary<ObjectGuid, LfgRoles> roles)
+    public void UpdateWaitTimeTank(int waitTime, uint dungeonId)
     {
-        var storedSize = (byte)(string.IsNullOrEmpty(queueData.bestCompatible) ? 0 : queueData.bestCompatible.Count(p => p == '|') + 1);
-
-        var size = (byte)(key.Count(p => p == '|') + 1);
-
-        if (size <= storedSize)
-            return;
-
-        Log.Logger.Debug("UpdateBestCompatibleInQueue: Changed ({0}) to ({1}) as best compatible group for {2}",
-                         queueData.bestCompatible,
-                         key,
-                         guid);
-
-        queueData.bestCompatible = key;
-        queueData.tanks = SharedConst.LFGTanksNeeded;
-        queueData.healers = SharedConst.LFGHealersNeeded;
-        queueData.dps = SharedConst.LFGDPSNeeded;
-
-        foreach (var it in roles)
-        {
-            var role = it.Value;
-
-            if (role.HasAnyFlag(LfgRoles.Tank))
-                --queueData.tanks;
-            else if (role.HasAnyFlag(LfgRoles.Healer))
-                --queueData.healers;
-            else
-                --queueData.dps;
-        }
+        var wt = waitTimesTankStore[dungeonId];
+        var old_number = wt.number++;
+        wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
     }
-
-    private string GetCompatibleString(LfgCompatibility compatibles)
-    {
-        switch (compatibles)
-        {
-            case LfgCompatibility.Pending:
-                return "Pending";
-            case LfgCompatibility.BadStates:
-                return "Compatibles (Bad States)";
-            case LfgCompatibility.Match:
-                return "Match";
-            case LfgCompatibility.WithLessPlayers:
-                return "Compatibles (Not enough players)";
-            case LfgCompatibility.HasIgnores:
-                return "Has ignores";
-            case LfgCompatibility.MultipleLfgGroups:
-                return "Multiple Lfg Groups";
-            case LfgCompatibility.NoDungeons:
-                return "Incompatible dungeons";
-            case LfgCompatibility.NoRoles:
-                return "Incompatible roles";
-            case LfgCompatibility.TooMuchPlayers:
-                return "Too much players";
-            case LfgCompatibility.WrongGroupSize:
-                return "Wrong group size";
-            default:
-                return "Unknown";
-        }
-    }
-
     private void AddToFrontCurrentQueue(ObjectGuid guid)
     {
         currentQueueStore.Insert(0, guid);
-    }
-
-    private void RemoveFromCompatibles(ObjectGuid guid)
-    {
-        var strGuid = guid.ToString();
-
-        Log.Logger.Debug("RemoveFromCompatibles: Removing [{0}]", guid);
-
-        foreach (var itNext in CompatibleMapStore.ToList())
-            if (itNext.Key.Contains(strGuid))
-                CompatibleMapStore.Remove(itNext.Key);
-    }
-
-    private void SetCompatibles(string key, LfgCompatibility compatibles)
-    {
-        if (!CompatibleMapStore.ContainsKey(key))
-            CompatibleMapStore[key] = new LfgCompatibilityData();
-
-        CompatibleMapStore[key].compatibility = compatibles;
-    }
-
-    private void SetCompatibilityData(string key, LfgCompatibilityData data)
-    {
-        CompatibleMapStore[key] = data;
-    }
-
-    private LfgCompatibility GetCompatibles(string key)
-    {
-        var compatibilityData = CompatibleMapStore.LookupByKey(key);
-
-        if (compatibilityData != null)
-            return compatibilityData.compatibility;
-
-        return LfgCompatibility.Pending;
-    }
-
-    private LfgCompatibilityData GetCompatibilityData(string key)
-    {
-        var compatibilityData = CompatibleMapStore.LookupByKey(key);
-
-        return compatibilityData;
-    }
-
-    private LfgCompatibility FindNewGroups(List<ObjectGuid> check, List<ObjectGuid> all)
-    {
-        var strGuids = ConcatenateGuids(check);
-        var compatibles = GetCompatibles(strGuids);
-
-        Log.Logger.Debug("FindNewGroup: ({0}): {1} - all({2})", strGuids, GetCompatibleString(compatibles), ConcatenateGuids(all));
-
-        if (compatibles == LfgCompatibility.Pending) // Not previously cached, calculate
-            compatibles = CheckCompatibility(check);
-
-        if (compatibles == LfgCompatibility.BadStates && Global.LFGMgr.AllQueued(check))
-        {
-            Log.Logger.Debug("FindNewGroup: ({0}) compatibles (cached) changed from bad states to match", strGuids);
-            SetCompatibles(strGuids, LfgCompatibility.Match);
-
-            return LfgCompatibility.Match;
-        }
-
-        if (compatibles != LfgCompatibility.WithLessPlayers)
-            return compatibles;
-
-        // Try to match with queued groups
-        while (!all.Empty())
-        {
-            check.Add(all.First());
-            all.RemoveAt(0);
-            var subcompatibility = FindNewGroups(check, all);
-
-            if (subcompatibility == LfgCompatibility.Match)
-                return LfgCompatibility.Match;
-
-            check.RemoveAt(check.Count - 1);
-        }
-
-        return compatibles;
     }
 
     private LfgCompatibility CheckCompatibility(List<ObjectGuid> check)
@@ -716,7 +630,7 @@ public class LFGQueue
         }
 
         // Create a new proposal
-        proposal.CancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeProposal;
+        proposal.CancelTime = GameTime.CurrentTime + SharedConst.LFGTimeProposal;
         proposal.State = LfgProposalState.Initiating;
         proposal.Leader = ObjectGuid.Empty;
         proposal.DungeonId = proposalDungeons.SelectRandom();
@@ -774,44 +688,126 @@ public class LFGQueue
             if (pair.Value.compatibility == LfgCompatibility.WithLessPlayers && pair.Key.Contains(guid.ToString()))
                 UpdateBestCompatibleInQueue(guid, data, pair.Key, pair.Value.roles);
     }
+
+    private LfgCompatibility FindNewGroups(List<ObjectGuid> check, List<ObjectGuid> all)
+    {
+        var strGuids = ConcatenateGuids(check);
+        var compatibles = GetCompatibles(strGuids);
+
+        Log.Logger.Debug("FindNewGroup: ({0}): {1} - all({2})", strGuids, GetCompatibleString(compatibles), ConcatenateGuids(all));
+
+        if (compatibles == LfgCompatibility.Pending) // Not previously cached, calculate
+            compatibles = CheckCompatibility(check);
+
+        if (compatibles == LfgCompatibility.BadStates && Global.LFGMgr.AllQueued(check))
+        {
+            Log.Logger.Debug("FindNewGroup: ({0}) compatibles (cached) changed from bad states to match", strGuids);
+            SetCompatibles(strGuids, LfgCompatibility.Match);
+
+            return LfgCompatibility.Match;
+        }
+
+        if (compatibles != LfgCompatibility.WithLessPlayers)
+            return compatibles;
+
+        // Try to match with queued groups
+        while (!all.Empty())
+        {
+            check.Add(all.First());
+            all.RemoveAt(0);
+            var subcompatibility = FindNewGroups(check, all);
+
+            if (subcompatibility == LfgCompatibility.Match)
+                return LfgCompatibility.Match;
+
+            check.RemoveAt(check.Count - 1);
+        }
+
+        return compatibles;
+    }
+
+    private LfgCompatibilityData GetCompatibilityData(string key)
+    {
+        var compatibilityData = CompatibleMapStore.LookupByKey(key);
+
+        return compatibilityData;
+    }
+
+    private LfgCompatibility GetCompatibles(string key)
+    {
+        var compatibilityData = CompatibleMapStore.LookupByKey(key);
+
+        if (compatibilityData != null)
+            return compatibilityData.compatibility;
+
+        return LfgCompatibility.Pending;
+    }
+
+    private string GetCompatibleString(LfgCompatibility compatibles)
+    {
+        switch (compatibles)
+        {
+            case LfgCompatibility.Pending:
+                return "Pending";
+            case LfgCompatibility.BadStates:
+                return "Compatibles (Bad States)";
+            case LfgCompatibility.Match:
+                return "Match";
+            case LfgCompatibility.WithLessPlayers:
+                return "Compatibles (Not enough players)";
+            case LfgCompatibility.HasIgnores:
+                return "Has ignores";
+            case LfgCompatibility.MultipleLfgGroups:
+                return "Multiple Lfg Groups";
+            case LfgCompatibility.NoDungeons:
+                return "Incompatible dungeons";
+            case LfgCompatibility.NoRoles:
+                return "Incompatible roles";
+            case LfgCompatibility.TooMuchPlayers:
+                return "Too much players";
+            case LfgCompatibility.WrongGroupSize:
+                return "Wrong group size";
+            default:
+                return "Unknown";
+        }
+    }
+    private void RemoveFromCompatibles(ObjectGuid guid)
+    {
+        var strGuid = guid.ToString();
+
+        Log.Logger.Debug("RemoveFromCompatibles: Removing [{0}]", guid);
+
+        foreach (var itNext in CompatibleMapStore.ToList())
+            if (itNext.Key.Contains(strGuid))
+                CompatibleMapStore.Remove(itNext.Key);
+    }
+
+    private void SetCompatibilityData(string key, LfgCompatibilityData data)
+    {
+        CompatibleMapStore[key] = data;
+    }
+
+    private void SetCompatibles(string key, LfgCompatibility compatibles)
+    {
+        if (!CompatibleMapStore.ContainsKey(key))
+            CompatibleMapStore[key] = new LfgCompatibilityData();
+
+        CompatibleMapStore[key].compatibility = compatibles;
+    }
 }
-
-public class LfgCompatibilityData
-{
-    public LfgCompatibility compatibility;
-    public Dictionary<ObjectGuid, LfgRoles> roles;
-
-    public LfgCompatibilityData()
-    {
-        compatibility = LfgCompatibility.Pending;
-    }
-
-    public LfgCompatibilityData(LfgCompatibility _compatibility)
-    {
-        compatibility = _compatibility;
-    }
-
-    public LfgCompatibilityData(LfgCompatibility _compatibility, Dictionary<ObjectGuid, LfgRoles> _roles)
-    {
-        compatibility = _compatibility;
-        roles = _roles;
-    }
-}
-
 // Stores player or group queue info
 public class LfgQueueData
 {
-    public long joinTime;
-    public byte tanks;
-    public byte healers;
+    public string bestCompatible = "";
     public byte dps;
     public List<uint> dungeons;
+    public byte healers;
+    public long joinTime;
     public Dictionary<ObjectGuid, LfgRoles> roles;
-    public string bestCompatible = "";
-
+    public byte tanks;
     public LfgQueueData()
     {
-        joinTime = GameTime.GetGameTime();
+        joinTime = GameTime.CurrentTime;
         tanks = SharedConst.LFGTanksNeeded;
         healers = SharedConst.LFGHealersNeeded;
         dps = SharedConst.LFGDPSNeeded;
@@ -830,6 +826,6 @@ public class LfgQueueData
 
 public struct LfgWaitTime
 {
-    public int time;
     public uint number;
+    public int time;
 }

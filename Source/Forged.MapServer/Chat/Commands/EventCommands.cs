@@ -9,6 +9,34 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("event")]
 internal class EventCommands
 {
+    [Command("activelist", RBACPermissions.CommandEventActivelist, true)]
+    private static bool HandleEventActiveListCommand(CommandHandler handler)
+    {
+        uint counter = 0;
+
+        var events = Global.GameEventMgr.GetEventMap();
+        var activeEvents = Global.GameEventMgr.GetActiveEventList();
+
+        var active = Global.ObjectMgr.GetCypherString(CypherStrings.Active);
+
+        foreach (var eventId in activeEvents)
+        {
+            var eventData = events[eventId];
+
+            if (handler.Session != null)
+                handler.SendSysMessage(CypherStrings.EventEntryListChat, eventId, eventId, eventData.description, active);
+            else
+                handler.SendSysMessage(CypherStrings.EventEntryListConsole, eventId, eventData.description, active);
+
+            ++counter;
+        }
+
+        if (counter == 0)
+            handler.SendSysMessage(CypherStrings.Noeventfound);
+
+        return true;
+    }
+
     [Command("info", RBACPermissions.CommandEventInfo, true)]
     private static bool HandleEventInfoCommand(CommandHandler handler, ushort eventId)
     {
@@ -38,11 +66,11 @@ internal class EventCommands
         var endTimeStr = Time.UnixTimeToDateTime(eventData.end).ToLongDateString();
 
         var delay = Global.GameEventMgr.NextCheck(eventId);
-        var nextTime = GameTime.GetGameTime() + delay;
-        var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(GameTime.GetGameTime() + delay).ToShortTimeString() : "-";
+        var nextTime = GameTime.CurrentTime + delay;
+        var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(GameTime.CurrentTime + delay).ToShortTimeString() : "-";
 
-        var occurenceStr = Time.secsToTimeString(eventData.occurence * Time.Minute);
-        var lengthStr = Time.secsToTimeString(eventData.length * Time.Minute);
+        var occurenceStr = Time.SecsToTimeString(eventData.occurence * Time.MINUTE);
+        var lengthStr = Time.SecsToTimeString(eventData.length * Time.MINUTE);
 
         handler.SendSysMessage(CypherStrings.EventInfo,
                                eventId,
@@ -56,35 +84,6 @@ internal class EventCommands
 
         return true;
     }
-
-    [Command("activelist", RBACPermissions.CommandEventActivelist, true)]
-    private static bool HandleEventActiveListCommand(CommandHandler handler)
-    {
-        uint counter = 0;
-
-        var events = Global.GameEventMgr.GetEventMap();
-        var activeEvents = Global.GameEventMgr.GetActiveEventList();
-
-        var active = Global.ObjectMgr.GetCypherString(CypherStrings.Active);
-
-        foreach (var eventId in activeEvents)
-        {
-            var eventData = events[eventId];
-
-            if (handler.Session != null)
-                handler.SendSysMessage(CypherStrings.EventEntryListChat, eventId, eventId, eventData.description, active);
-            else
-                handler.SendSysMessage(CypherStrings.EventEntryListConsole, eventId, eventData.description, active);
-
-            ++counter;
-        }
-
-        if (counter == 0)
-            handler.SendSysMessage(CypherStrings.Noeventfound);
-
-        return true;
-    }
-
     [Command("start", RBACPermissions.CommandEventStart, true)]
     private static bool HandleEventStartCommand(CommandHandler handler, ushort eventId)
     {

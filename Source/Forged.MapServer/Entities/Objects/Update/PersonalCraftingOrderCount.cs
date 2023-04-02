@@ -9,9 +9,8 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class PersonalCraftingOrderCount : IEquatable<PersonalCraftingOrderCount>
 {
-    public int ProfessionID;
     public uint Count;
-
+    public int ProfessionID;
     public bool Equals(PersonalCraftingOrderCount right)
     {
         return ProfessionID == right.ProfessionID && Count == right.Count;

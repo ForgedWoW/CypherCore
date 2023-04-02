@@ -9,40 +9,6 @@ namespace Forged.MapServer.Chat.Commands;
 
 internal class MessageCommands
 {
-    [CommandNonGroup("nameannounce", RBACPermissions.CommandNameannounce, true)]
-    private static bool HandleNameAnnounceCommand(CommandHandler handler, Tail message)
-    {
-        if (message.IsEmpty())
-            return false;
-
-        var name = "Console";
-        var session = handler.Session;
-
-        if (session)
-            name = session.Player.GetName();
-
-        Global.WorldMgr.SendWorldText(CypherStrings.AnnounceColor, name, message);
-
-        return true;
-    }
-
-    [CommandNonGroup("gmnameannounce", RBACPermissions.CommandGmnameannounce, true)]
-    private static bool HandleGMNameAnnounceCommand(CommandHandler handler, Tail message)
-    {
-        if (message.IsEmpty())
-            return false;
-
-        var name = "Console";
-        var session = handler.Session;
-
-        if (session)
-            name = session.Player.GetName();
-
-        Global.WorldMgr.SendGMText(CypherStrings.AnnounceColor, name, message);
-
-        return true;
-    }
-
     [CommandNonGroup("announce", RBACPermissions.CommandAnnounce, true)]
     private static bool HandleAnnounceCommand(CommandHandler handler, Tail message)
     {
@@ -65,16 +31,19 @@ internal class MessageCommands
         return true;
     }
 
-    [CommandNonGroup("notify", RBACPermissions.CommandNotify, true)]
-    private static bool HandleNotifyCommand(CommandHandler handler, Tail message)
+    [CommandNonGroup("gmnameannounce", RBACPermissions.CommandGmnameannounce, true)]
+    private static bool HandleGMNameAnnounceCommand(CommandHandler handler, Tail message)
     {
         if (message.IsEmpty())
             return false;
 
-        var str = handler.GetCypherString(CypherStrings.GlobalNotify);
-        str += message;
+        var name = "Console";
+        var session = handler.Session;
 
-        Global.WorldMgr.SendGlobalMessage(new PrintNotification(str));
+        if (session)
+            name = session.Player.GetName();
+
+        Global.WorldMgr.SendGMText(CypherStrings.AnnounceColor, name, message);
 
         return true;
     }
@@ -93,6 +62,35 @@ internal class MessageCommands
         return true;
     }
 
+    [CommandNonGroup("nameannounce", RBACPermissions.CommandNameannounce, true)]
+    private static bool HandleNameAnnounceCommand(CommandHandler handler, Tail message)
+    {
+        if (message.IsEmpty())
+            return false;
+
+        var name = "Console";
+        var session = handler.Session;
+
+        if (session)
+            name = session.Player.GetName();
+
+        Global.WorldMgr.SendWorldText(CypherStrings.AnnounceColor, name, message);
+
+        return true;
+    }
+    [CommandNonGroup("notify", RBACPermissions.CommandNotify, true)]
+    private static bool HandleNotifyCommand(CommandHandler handler, Tail message)
+    {
+        if (message.IsEmpty())
+            return false;
+
+        var str = handler.GetCypherString(CypherStrings.GlobalNotify);
+        str += message;
+
+        Global.WorldMgr.SendGlobalMessage(new PrintNotification(str));
+
+        return true;
+    }
     [CommandNonGroup("whispers", RBACPermissions.CommandWhispers)]
     private static bool HandleWhispersCommand(CommandHandler handler, bool? operationArg, [OptionalArg] string playerNameArg)
     {

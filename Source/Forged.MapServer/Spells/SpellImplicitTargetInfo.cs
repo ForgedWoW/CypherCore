@@ -164,25 +164,19 @@ public class SpellImplicitTargetInfo
         new(SpellTargetObjectTypes.None, SpellTargetReferenceTypes.None, SpellTargetSelectionCategories.Nyi, SpellTargetCheckTypes.Default, SpellTargetDirectionTypes.None),             // 152
     };
 
-    public bool IsArea => SelectionCategory == SpellTargetSelectionCategories.Area || SelectionCategory == SpellTargetSelectionCategories.Cone;
-
-    public SpellTargetSelectionCategories SelectionCategory => _data[(int)Target].SelectionCategory;
-
-    public SpellTargetReferenceTypes ReferenceType => _data[(int)Target].ReferenceType;
-
-    public SpellTargetObjectTypes ObjectType => _data[(int)Target].ObjectType;
-
-    public SpellTargetCheckTypes CheckType => _data[(int)Target].SelectionCheckType;
-
-    private SpellTargetDirectionTypes DirectionType => _data[(int)Target].DirectionType;
-
-    public Targets Target { get; }
-
     public SpellImplicitTargetInfo(Targets target = 0)
     {
         Target = target;
     }
 
+    public SpellTargetCheckTypes CheckType => _data[(int)Target].SelectionCheckType;
+    public bool IsArea => SelectionCategory == SpellTargetSelectionCategories.Area || SelectionCategory == SpellTargetSelectionCategories.Cone;
+
+    public SpellTargetObjectTypes ObjectType => _data[(int)Target].ObjectType;
+    public SpellTargetReferenceTypes ReferenceType => _data[(int)Target].ReferenceType;
+    public SpellTargetSelectionCategories SelectionCategory => _data[(int)Target].SelectionCategory;
+    public Targets Target { get; }
+    private SpellTargetDirectionTypes DirectionType => _data[(int)Target].DirectionType;
     public float CalcDirectionAngle()
     {
         var pi = MathFunctions.PI;
@@ -310,8 +304,20 @@ public class SpellImplicitTargetInfo
 
     public struct StaticData
     {
+        public SpellTargetDirectionTypes DirectionType;
+
+        public SpellTargetObjectTypes ObjectType;
+
+        // type of object returned by target type
+        public SpellTargetReferenceTypes ReferenceType;
+
+        // defines which object is used as a reference when selecting target
+        public SpellTargetSelectionCategories SelectionCategory;
+
+        public SpellTargetCheckTypes SelectionCheckType;
+
         public StaticData(SpellTargetObjectTypes obj, SpellTargetReferenceTypes reference,
-                          SpellTargetSelectionCategories selection, SpellTargetCheckTypes selectionCheck, SpellTargetDirectionTypes direction)
+                                                                  SpellTargetSelectionCategories selection, SpellTargetCheckTypes selectionCheck, SpellTargetDirectionTypes direction)
         {
             ObjectType = obj;
             ReferenceType = reference;
@@ -319,11 +325,7 @@ public class SpellImplicitTargetInfo
             SelectionCheckType = selectionCheck;
             DirectionType = direction;
         }
-
-        public SpellTargetObjectTypes ObjectType;       // type of object returned by target type
-        public SpellTargetReferenceTypes ReferenceType; // defines which object is used as a reference when selecting target
-        public SpellTargetSelectionCategories SelectionCategory;
-        public SpellTargetCheckTypes SelectionCheckType; // defines selection criteria
-        public SpellTargetDirectionTypes DirectionType;  // direction for cone and dest targets
+         // defines selection criteria
+          // direction for cone and dest targets
     }
 }

@@ -8,18 +8,17 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class DisplayToast : ServerPacket
 {
-    public ulong Quantity;
+    public bool BonusRoll;
+    public uint CurrencyID;
     public DisplayToastMethod DisplayToastMethod;
-    public bool Mailed;
-    public DisplayToastType Type = DisplayToastType.Money;
-    public uint QuestID;
+    public Gender Gender = Gender.None;
     public bool IsSecondaryResult;
     public ItemInstance Item;
-    public bool BonusRoll;
     public int LootSpec;
-    public Gender Gender = Gender.None;
-    public uint CurrencyID;
-
+    public bool Mailed;
+    public ulong Quantity;
+    public uint QuestID;
+    public DisplayToastType Type = DisplayToastType.Money;
     public DisplayToast() : base(ServerOpcodes.DisplayToast, ConnectionType.Instance) { }
 
     public override void Write()

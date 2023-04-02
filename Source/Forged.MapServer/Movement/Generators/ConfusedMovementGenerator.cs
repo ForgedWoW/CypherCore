@@ -26,6 +26,35 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
         BaseUnitState = UnitState.Confused;
     }
 
+    public override void DoDeactivate(T owner)
+    {
+        AddFlag(MovementGeneratorFlags.Deactivated);
+        owner.ClearUnitState(UnitState.ConfusedMove);
+    }
+
+    public override void DoFinalize(T owner, bool active, bool movementInform)
+    {
+        AddFlag(MovementGeneratorFlags.Finalized);
+
+        if (active)
+        {
+            if (owner.IsPlayer)
+            {
+                owner.RemoveUnitFlag(UnitFlags.Confused);
+                owner.StopMoving();
+            }
+
+            else
+            {
+                owner.RemoveUnitFlag(UnitFlags.Confused);
+                owner.ClearUnitState(UnitState.ConfusedMove);
+
+                if (owner.Victim)
+                    owner.SetTarget(owner.Victim.GUID);
+            }
+        }
+    }
+
     public override void DoInitialize(T owner)
     {
         RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
@@ -114,36 +143,6 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
 
         return true;
     }
-
-    public override void DoDeactivate(T owner)
-    {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-        owner.ClearUnitState(UnitState.ConfusedMove);
-    }
-
-    public override void DoFinalize(T owner, bool active, bool movementInform)
-    {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (active)
-        {
-            if (owner.IsPlayer)
-            {
-                owner.RemoveUnitFlag(UnitFlags.Confused);
-                owner.StopMoving();
-            }
-
-            else
-            {
-                owner.RemoveUnitFlag(UnitFlags.Confused);
-                owner.ClearUnitState(UnitState.ConfusedMove);
-
-                if (owner.Victim)
-                    owner.SetTarget(owner.Victim.GUID);
-            }
-        }
-    }
-
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.Confused;

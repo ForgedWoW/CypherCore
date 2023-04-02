@@ -7,19 +7,18 @@ namespace Forged.MapServer.DataStorage.Structs.B;
 
 public sealed class BattlePetSpeciesRecord
 {
-    public string Description;
-    public string SourceText;
-    public uint Id;
-    public uint CreatureID;
-    public uint SummonSpellID;
-    public int IconFileDataID;
-    public sbyte PetTypeEnum;
-    public int Flags;
-    public sbyte SourceTypeEnum;
     public int CardUIModelSceneID;
-    public int LoadoutUIModelSceneID;
     public int CovenantID;
-
+    public uint CreatureID;
+    public string Description;
+    public int Flags;
+    public int IconFileDataID;
+    public uint Id;
+    public int LoadoutUIModelSceneID;
+    public sbyte PetTypeEnum;
+    public string SourceText;
+    public sbyte SourceTypeEnum;
+    public uint SummonSpellID;
     public BattlePetSpeciesFlags GetFlags()
     {
         return (BattlePetSpeciesFlags)Flags;

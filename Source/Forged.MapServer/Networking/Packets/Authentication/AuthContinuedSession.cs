@@ -5,10 +5,10 @@ namespace Forged.MapServer.Networking.Packets.Authentication;
 
 internal class AuthContinuedSession : ClientPacket
 {
+    public byte[] Digest = new byte[24];
     public ulong DosResponse;
     public ulong Key;
     public byte[] LocalChallenge = new byte[16];
-    public byte[] Digest = new byte[24];
     public AuthContinuedSession(WorldPacket packet) : base(packet) { }
 
     public override void Read()

@@ -10,24 +10,25 @@ public class SmoothPhasing
     private readonly Dictionary<ObjectGuid, SmoothPhasingInfo> _smoothPhasingInfoViewerDependent = new();
     private SmoothPhasingInfo _smoothPhasingInfoSingle;
 
-    public void SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo info)
-    {
-        _smoothPhasingInfoViewerDependent[seer] = info;
-    }
-
     public void ClearViewerDependentInfo(ObjectGuid seer)
     {
         _smoothPhasingInfoViewerDependent.Remove(seer);
     }
 
-    public void SetSingleInfo(SmoothPhasingInfo info)
+    public void DisableReplacementForSeer(ObjectGuid seer)
     {
-        _smoothPhasingInfoSingle = info;
+        var smoothPhasingInfo = _smoothPhasingInfoViewerDependent.LookupByKey(seer);
+
+        if (smoothPhasingInfo != null)
+            smoothPhasingInfo.Disabled = true;
     }
 
-    public bool IsReplacing(ObjectGuid guid)
+    public SmoothPhasingInfo GetInfoForSeer(ObjectGuid seer)
     {
-        return _smoothPhasingInfoSingle != null && _smoothPhasingInfoSingle.ReplaceObject == guid;
+        if (_smoothPhasingInfoViewerDependent.TryGetValue(seer, out var value))
+            return value;
+
+        return _smoothPhasingInfoSingle;
     }
 
     public bool IsBeingReplacedForSeer(ObjectGuid seer)
@@ -40,19 +41,18 @@ public class SmoothPhasing
         return false;
     }
 
-    public SmoothPhasingInfo GetInfoForSeer(ObjectGuid seer)
+    public bool IsReplacing(ObjectGuid guid)
     {
-        if (_smoothPhasingInfoViewerDependent.TryGetValue(seer, out var value))
-            return value;
-
-        return _smoothPhasingInfoSingle;
+        return _smoothPhasingInfoSingle != null && _smoothPhasingInfoSingle.ReplaceObject == guid;
     }
 
-    public void DisableReplacementForSeer(ObjectGuid seer)
+    public void SetSingleInfo(SmoothPhasingInfo info)
     {
-        var smoothPhasingInfo = _smoothPhasingInfoViewerDependent.LookupByKey(seer);
+        _smoothPhasingInfoSingle = info;
+    }
 
-        if (smoothPhasingInfo != null)
-            smoothPhasingInfo.Disabled = true;
+    public void SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo info)
+    {
+        _smoothPhasingInfoViewerDependent[seer] = info;
     }
 }

@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class OfferPetition : ClientPacket
 {
-    public ObjectGuid TargetPlayer;
     public ObjectGuid ItemGUID;
+    public ObjectGuid TargetPlayer;
     public OfferPetition(WorldPacket packet) : base(packet) { }
 
     public override void Read()

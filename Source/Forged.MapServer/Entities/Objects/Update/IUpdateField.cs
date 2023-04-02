@@ -5,6 +5,5 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public interface IUpdateField<T>
 {
-    void SetValue(T value);
-    T GetValue();
+    T Value { get; set; }
 }

@@ -9,13 +9,13 @@ namespace Forged.MapServer.Networking.Packets.Loot;
 
 internal class StartLootRoll : ServerPacket
 {
-    public ObjectGuid LootObj;
-    public int MapID;
-    public uint RollTime;
-    public LootMethod Method;
-    public RollMask ValidRolls;
-    public Array<LootRollIneligibilityReason> LootRollIneligibleReason = new(4);
     public LootItemData Item = new();
+    public ObjectGuid LootObj;
+    public Array<LootRollIneligibilityReason> LootRollIneligibleReason = new(4);
+    public int MapID;
+    public LootMethod Method;
+    public uint RollTime;
+    public RollMask ValidRolls;
     public StartLootRoll() : base(ServerOpcodes.StartLootRoll) { }
 
     public override void Write()

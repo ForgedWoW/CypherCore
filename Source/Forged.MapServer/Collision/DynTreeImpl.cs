@@ -16,6 +16,12 @@ public class DynTreeImpl : RegularGrid2D<GameObjectModel, BIHWrap<GameObjectMode
         _unbalancedTimes = 0;
     }
 
+    public override void Balance()
+    {
+        base.Balance();
+        _unbalancedTimes = 0;
+    }
+
     public override void Insert(GameObjectModel mdl)
     {
         base.Insert(mdl);
@@ -27,13 +33,6 @@ public class DynTreeImpl : RegularGrid2D<GameObjectModel, BIHWrap<GameObjectMode
         base.Remove(mdl);
         ++_unbalancedTimes;
     }
-
-    public override void Balance()
-    {
-        base.Balance();
-        _unbalancedTimes = 0;
-    }
-
     public void Update(uint difftime)
     {
         if (Empty())

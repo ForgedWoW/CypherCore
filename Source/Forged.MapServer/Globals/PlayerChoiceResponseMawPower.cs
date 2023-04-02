@@ -5,9 +5,9 @@ namespace Forged.MapServer.Globals;
 
 public struct PlayerChoiceResponseMawPower
 {
-    public int TypeArtFileID;
+    public int MaxStacks;
     public int? Rarity;
     public uint? RarityColor;
     public int SpellID;
-    public int MaxStacks;
+    public int TypeArtFileID;
 }

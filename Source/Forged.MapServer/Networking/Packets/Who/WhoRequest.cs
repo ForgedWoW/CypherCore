@@ -7,20 +7,19 @@ namespace Forged.MapServer.Networking.Packets.Who;
 
 public class WhoRequest
 {
-    public int MinLevel;
-    public int MaxLevel;
-    public string Name;
-    public string VirtualRealmName;
+    public int ClassFilter = -1;
+    public bool ExactName;
     public string Guild;
     public string GuildVirtualRealmName;
+    public int MaxLevel;
+    public int MinLevel;
+    public string Name;
     public long RaceFilter;
-    public int ClassFilter = -1;
-    public List<string> Words = new();
-    public bool ShowEnemies;
-    public bool ShowArenaPlayers;
-    public bool ExactName;
     public WhoRequestServerInfo? ServerInfo;
-
+    public bool ShowArenaPlayers;
+    public bool ShowEnemies;
+    public string VirtualRealmName;
+    public List<string> Words = new();
     public void Read(WorldPacket data)
     {
         MinLevel = data.ReadInt32();

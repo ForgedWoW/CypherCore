@@ -22,21 +22,16 @@ namespace Forged.MapServer.BlackMarket;
 
 public class BlackMarketManager
 {
-    private readonly IConfiguration _configuration;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly CharacterDatabase _characterDatabase;
-    private readonly ObjectAccessor _objectAccessor;
-    private readonly Realm _realm;
-    private readonly GameObjectManager _objectManager;
-    private readonly CharacterCache _characterCache;
     private readonly AccountManager _accountManager;
     private readonly Dictionary<uint, BlackMarketEntry> _auctions = new();
+    private readonly CharacterCache _characterCache;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly IConfiguration _configuration;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GameObjectManager _objectManager;
+    private readonly Realm _realm;
     private readonly Dictionary<uint, BlackMarketTemplate> _templates = new();
-
-
-    public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket.Enabled", true);
-    public long LastUpdate { get; private set; }
-
+    private readonly WorldDatabase _worldDatabase;
     public BlackMarketManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase,
                               ObjectAccessor objectAccessor, Realm realm, GameObjectManager objectManager,
                               CharacterCache characterCache, AccountManager accountManager)
@@ -49,6 +44,112 @@ public class BlackMarketManager
         _objectManager = objectManager;
         _characterCache = characterCache;
         _accountManager = accountManager;
+    }
+
+    public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket.Enabled", true);
+    public long LastUpdate { get; private set; }
+    public void AddAuction(BlackMarketEntry auction)
+    {
+        _auctions[auction.MarketId] = auction;
+    }
+
+    public void AddTemplate(BlackMarketTemplate templ)
+    {
+        _templates[templ.MarketID] = templ;
+    }
+
+    public void BuildItemsResponse(BlackMarketRequestItemsResult packet, Player player)
+    {
+        packet.LastUpdateID = (int)LastUpdate;
+
+        foreach (var pair in _auctions)
+        {
+            var templ = pair.Value.GetTemplate();
+
+            BlackMarketItem item = new()
+            {
+                MarketID = pair.Value.MarketId,
+                SellerNPC = templ.SellerNPC,
+                Item = templ.Item,
+                Quantity = templ.Quantity
+            };
+
+            // No bids yet
+            if (pair.Value.NumBids == 0)
+            {
+                item.MinBid = templ.MinBid;
+                item.MinIncrement = 1;
+            }
+            else
+            {
+                item.MinIncrement = pair.Value.MinIncrement; // 5% increment minimum
+                item.MinBid = pair.Value.CurrentBid + item.MinIncrement;
+            }
+
+            item.CurrentBid = pair.Value.CurrentBid;
+            item.SecondsRemaining = pair.Value.GetSecondsRemaining();
+            item.HighBid = (pair.Value.Bidder == player.GUID.Counter);
+            item.NumBids = pair.Value.NumBids;
+
+            packet.Items.Add(item);
+        }
+    }
+
+    public BlackMarketEntry GetAuctionByID(uint marketId)
+    {
+        return _auctions.LookupByKey(marketId);
+    }
+
+    public BlackMarketTemplate GetTemplateByID(uint marketId)
+    {
+        return _templates.LookupByKey(marketId);
+    }
+
+    public void LoadAuctions()
+    {
+        var oldMSTime = Time.MSTime;
+
+        // Clear in case we are reloading
+        _auctions.Clear();
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_BLACKMARKET_AUCTIONS);
+        var result = _characterDatabase.Query(stmt);
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 black market auctions. DB table `blackmarket_auctions` is empty.");
+
+            return;
+        }
+
+        LastUpdate = GameTime.CurrentTime; //Set update time before loading
+
+        SQLTransaction trans = new();
+
+        do
+        {
+            BlackMarketEntry auction = new();
+
+            if (!auction.LoadFromDB(result.GetFields()))
+            {
+                auction.DeleteFromDB(trans);
+
+                continue;
+            }
+
+            if (auction.IsCompleted())
+            {
+                auction.DeleteFromDB(trans);
+
+                continue;
+            }
+
+            AddAuction(auction);
+        } while (result.NextRow());
+
+        _characterDatabase.CommitTransaction(trans);
+
+        Log.Logger.Information("Loaded {0} black market auctions in {1} ms.", _auctions.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadTemplates()
@@ -79,74 +180,6 @@ public class BlackMarketManager
 
         Log.Logger.Information("Loaded {0} black market templates in {1} ms.", _templates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
-
-    public void LoadAuctions()
-    {
-        var oldMSTime = Time.MSTime;
-
-        // Clear in case we are reloading
-        _auctions.Clear();
-
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_BLACKMARKET_AUCTIONS);
-        var result = _characterDatabase.Query(stmt);
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 black market auctions. DB table `blackmarket_auctions` is empty.");
-
-            return;
-        }
-
-        LastUpdate = GameTime.GetGameTime(); //Set update time before loading
-
-        SQLTransaction trans = new();
-
-        do
-        {
-            BlackMarketEntry auction = new();
-
-            if (!auction.LoadFromDB(result.GetFields()))
-            {
-                auction.DeleteFromDB(trans);
-
-                continue;
-            }
-
-            if (auction.IsCompleted())
-            {
-                auction.DeleteFromDB(trans);
-
-                continue;
-            }
-
-            AddAuction(auction);
-        } while (result.NextRow());
-
-        _characterDatabase.CommitTransaction(trans);
-
-        Log.Logger.Information("Loaded {0} black market auctions in {1} ms.", _auctions.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public void Update(bool updateTime = false)
-    {
-        SQLTransaction trans = new();
-        var now = GameTime.GetGameTime();
-
-        foreach (var entry in _auctions.Values)
-        {
-            if (entry.IsCompleted() && entry.Bidder != 0)
-                SendAuctionWonMail(entry, trans);
-
-            if (updateTime)
-                entry.Update(now);
-        }
-
-        if (updateTime)
-            LastUpdate = now;
-
-        _characterDatabase.CommitTransaction(trans);
-    }
-
     public void RefreshAuctions()
     {
         SQLTransaction trans = new();
@@ -192,52 +225,26 @@ public class BlackMarketManager
         Update(true);
     }
 
-
-    public void BuildItemsResponse(BlackMarketRequestItemsResult packet, Player player)
+    public void SendAuctionOutbidMail(BlackMarketEntry entry, SQLTransaction trans)
     {
-        packet.LastUpdateID = (int)LastUpdate;
+        var oldBidderGuid = ObjectGuid.Create(HighGuid.Player, entry.Bidder);
+        var oldBidder = _objectAccessor.FindConnectedPlayer(oldBidderGuid);
 
-        foreach (var pair in _auctions)
-        {
-            var templ = pair.Value.GetTemplate();
+        uint oldBidderAccId = 0;
 
-            BlackMarketItem item = new()
-            {
-                MarketID = pair.Value.MarketId,
-                SellerNPC = templ.SellerNPC,
-                Item = templ.Item,
-                Quantity = templ.Quantity
-            };
+        if (!oldBidder)
+            oldBidderAccId = _characterCache.GetCharacterAccountIdByGuid(oldBidderGuid);
 
-            // No bids yet
-            if (pair.Value.NumBids == 0)
-            {
-                item.MinBid = templ.MinBid;
-                item.MinIncrement = 1;
-            }
-            else
-            {
-                item.MinIncrement = pair.Value.MinIncrement; // 5% increment minimum
-                item.MinBid = pair.Value.CurrentBid + item.MinIncrement;
-            }
+        // old bidder exist
+        if (!oldBidder && oldBidderAccId == 0)
+            return;
 
-            item.CurrentBid = pair.Value.CurrentBid;
-            item.SecondsRemaining = pair.Value.GetSecondsRemaining();
-            item.HighBid = (pair.Value.Bidder == player.GUID.Counter);
-            item.NumBids = pair.Value.NumBids;
+        if (oldBidder)
+            oldBidder.Session.SendBlackMarketOutbidNotification(entry.GetTemplate());
 
-            packet.Items.Add(item);
-        }
-    }
-
-    public void AddAuction(BlackMarketEntry auction)
-    {
-        _auctions[auction.MarketId] = auction;
-    }
-
-    public void AddTemplate(BlackMarketTemplate templ)
-    {
-        _templates[templ.MarketID] = templ;
+        new MailDraft(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Outbid), entry.BuildAuctionMailBody())
+            .AddMoney(entry.CurrentBid)
+            .SendMailTo(trans, new MailReceiver(oldBidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
     }
 
     public void SendAuctionWonMail(BlackMarketEntry entry, SQLTransaction trans)
@@ -308,35 +315,23 @@ public class BlackMarketManager
         entry.SetMailSent();
     }
 
-    public void SendAuctionOutbidMail(BlackMarketEntry entry, SQLTransaction trans)
+    public void Update(bool updateTime = false)
     {
-        var oldBidderGuid = ObjectGuid.Create(HighGuid.Player, entry.Bidder);
-        var oldBidder = _objectAccessor.FindConnectedPlayer(oldBidderGuid);
+        SQLTransaction trans = new();
+        var now = GameTime.CurrentTime;
 
-        uint oldBidderAccId = 0;
+        foreach (var entry in _auctions.Values)
+        {
+            if (entry.IsCompleted() && entry.Bidder != 0)
+                SendAuctionWonMail(entry, trans);
 
-        if (!oldBidder)
-            oldBidderAccId = _characterCache.GetCharacterAccountIdByGuid(oldBidderGuid);
+            if (updateTime)
+                entry.Update(now);
+        }
 
-        // old bidder exist
-        if (!oldBidder && oldBidderAccId == 0)
-            return;
+        if (updateTime)
+            LastUpdate = now;
 
-        if (oldBidder)
-            oldBidder.Session.SendBlackMarketOutbidNotification(entry.GetTemplate());
-
-        new MailDraft(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Outbid), entry.BuildAuctionMailBody())
-            .AddMoney(entry.CurrentBid)
-            .SendMailTo(trans, new MailReceiver(oldBidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
-    }
-
-    public BlackMarketEntry GetAuctionByID(uint marketId)
-    {
-        return _auctions.LookupByKey(marketId);
-    }
-
-    public BlackMarketTemplate GetTemplateByID(uint marketId)
-    {
-        return _templates.LookupByKey(marketId);
+        _characterDatabase.CommitTransaction(trans);
     }
 }

@@ -5,12 +5,12 @@ namespace Forged.MapServer.Maps.Instances;
 
 public class BossBoundaryEntry
 {
-    public uint BossId { get; set; }
-    public AreaBoundary Boundary { get; set; }
-
     public BossBoundaryEntry(uint bossId, AreaBoundary boundary)
     {
         BossId = bossId;
         Boundary = boundary;
     }
+
+    public uint BossId { get; set; }
+    public AreaBoundary Boundary { get; set; }
 }

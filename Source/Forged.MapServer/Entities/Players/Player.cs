@@ -12,7 +12,6 @@ using Forged.MapServer.Chat;
 using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.F;
@@ -52,7 +51,6 @@ using Forged.MapServer.Networking.Packets.WorldState;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
-using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
@@ -61,6 +59,10 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
 using Serilog;
+using PlayerChoiceResponse = Forged.MapServer.Globals.PlayerChoiceResponse;
+using PlayerChoiceResponseMawPower = Forged.MapServer.Globals.PlayerChoiceResponseMawPower;
+using PlayerChoiceResponseReward = Forged.MapServer.Globals.PlayerChoiceResponseReward;
+using PlayerChoiceResponseRewardEntry = Forged.MapServer.Globals.PlayerChoiceResponseRewardEntry;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -106,7 +108,7 @@ public partial class Player : Unit
 
     public byte CufProfilesCount => (byte)_cufProfiles.Count(p => p != null);
 
-    public bool HasSummonPending => _summonExpire >= GameTime.GetGameTime();
+    public bool HasSummonPending => _summonExpire >= GameTime.CurrentTime;
 
     //GM
     public bool IsDeveloper => HasPlayerFlag(PlayerFlags.Developer);
@@ -457,7 +459,7 @@ public partial class Player : Unit
             SetAcceptWhispers(true);
 
         _zoneUpdateId = 0xffffffff;
-        SaveTimer = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
+        SaveTimer = GetDefaultValue("PlayerSaveInterval", 15u * Time.MINUTE * Time.IN_MILLISECONDS);
         _customizationsChanged = false;
 
         GroupInvite = null;
@@ -469,7 +471,7 @@ public partial class Player : Unit
         for (byte i = 0; i < (int)MirrorTimerType.Max; i++)
             _mirrorTimer[i] = -1;
 
-        _logintime = GameTime.GetGameTime();
+        _logintime = GameTime.CurrentTime;
         _lastTick = _logintime;
 
         DungeonDifficultyId = Difficulty.Normal;
@@ -494,7 +496,7 @@ public partial class Player : Unit
         }
 
         // Honor System
-        _lastHonorUpdateTime = GameTime.GetGameTime();
+        _lastHonorUpdateTime = GameTime.CurrentTime;
 
         UnitMovedByMe = this;
         PlayerMovingMe = this;
@@ -603,7 +605,7 @@ public partial class Player : Unit
 
         var position = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
 
-        _createTime = GameTime.GetGameTime();
+        _createTime = GameTime.CurrentTime;
         CreateMode = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? PlayerCreateMode.NPE : PlayerCreateMode.Normal;
 
         Location.Relocate(position.Loc);
@@ -675,7 +677,7 @@ public partial class Player : Unit
         SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), (ulong)GetDefaultValue("StartPlayerMoney", 0));
 
         // Played time
-        _lastTick = GameTime.GetGameTime();
+        _lastTick = GameTime.CurrentTime;
         TotalPlayedTime = 0;
         LevelPlayedTime = 0;
 
@@ -767,7 +769,7 @@ public partial class Player : Unit
             return;
 
         // undelivered mail
-        if (_nextMailDelivereTime != 0 && _nextMailDelivereTime <= GameTime.GetGameTime())
+        if (_nextMailDelivereTime != 0 && _nextMailDelivereTime <= GameTime.CurrentTime)
         {
             SendNewMail();
             ++UnReadMails;
@@ -781,7 +783,7 @@ public partial class Player : Unit
 
         if (CinematicMgr.CinematicCamera != null && CinematicMgr.ActiveCinematic != null && Time.GetMSTimeDiffToNow(CinematicMgr.LastCinematicCheck) > 500)
         {
-            CinematicMgr.LastCinematicCheck = GameTime.GetGameTimeMS();
+            CinematicMgr.LastCinematicCheck = GameTime.CurrentTimeMS;
             CinematicMgr.UpdateCinematicLocation(diff);
         }
 
@@ -790,7 +792,7 @@ public partial class Player : Unit
         base.Update(diff);
         SetCanDelayTeleport(false);
 
-        var now = GameTime.GetGameTime();
+        var now = GameTime.CurrentTime;
 
         UpdatePvPFlag(now);
 
@@ -944,7 +946,7 @@ public partial class Player : Unit
                     if (atEntry == null || !IsInAreaTriggerRadius(atEntry))
                         RestMgr.RemoveRestFlag(RestFlag.Tavern);
                 }
-                
+
                 if (_zoneUpdateId != Location.Zone)
                 {
                     UpdateZone(Location.Zone, Location.Area); // also update area
@@ -956,7 +958,7 @@ public partial class Player : Unit
                     if (_areaUpdateId != Location.Area)
                         UpdateArea(Location.Area);
 
-                    _zoneUpdateTimer = 1 * Time.InMilliseconds;
+                    _zoneUpdateTimer = 1 * Time.IN_MILLISECONDS;
                 }
             }
             else
@@ -1005,7 +1007,7 @@ public partial class Player : Unit
         {
             _drunkTimer += diff;
 
-            if (_drunkTimer > 9 * Time.InMilliseconds)
+            if (_drunkTimer > 9 * Time.IN_MILLISECONDS)
                 HandleSobering();
         }
 
@@ -1066,7 +1068,7 @@ public partial class Player : Unit
         {
             if (_hostileReferenceCheckTimer <= diff)
             {
-                _hostileReferenceCheckTimer = 15 * Time.InMilliseconds;
+                _hostileReferenceCheckTimer = 15 * Time.IN_MILLISECONDS;
 
                 if (!Location.Map.IsDungeon)
                     GetCombatManager().EndCombatBeyondRange(Visibility.VisibilityRange, true);
@@ -1506,7 +1508,7 @@ public partial class Player : Unit
             PetGUID = vehicle.GUID,
             CreatureFamily = 0, // Pet Family (0 for all vehicles)
             Specialization = 0,
-            TimeLimit = vehicle.IsSummon ? vehicle.ToTempSummon().GetTimer() : 0,
+            TimeLimit = vehicle.IsSummon ? vehicle.ToTempSummon().Timer : 0,
             ReactState = vehicle.ReactState,
             CommandState = CommandStates.Follow,
             Flag = 0x8
@@ -2019,7 +2021,7 @@ public partial class Player : Unit
 
                 if (dungeon != null)
                 {
-                    var dungeonLevels = Global.DB2Mgr.GetContentTuningData(dungeon.ContentTuningID, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                    var dungeonLevels = Global.DB2Mgr.GetContentTuningData(dungeon.ContentTuningID, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                     if (dungeonLevels.HasValue)
                         if (dungeonLevels.Value.TargetLevelMax == Global.ObjectMgr.GetMaxLevelForExpansion(Expansion.WrathOfTheLichKing))
@@ -2549,7 +2551,7 @@ public partial class Player : Unit
         if (HasAura(23445))
             return;
 
-        _summonExpire = GameTime.GetGameTime() + PlayerConst.MaxPlayerSummonDelay;
+        _summonExpire = GameTime.CurrentTime + PlayerConst.MaxPlayerSummonDelay;
         _summonLocation = new WorldLocation(summoner.Location);
         _summonInstanceId = summoner.Location.Map?.InstanceId;
 
@@ -2637,7 +2639,7 @@ public partial class Player : Unit
         }
 
         // expire and auto declined
-        if (_summonExpire < GameTime.GetGameTime())
+        if (_summonExpire < GameTime.CurrentTime)
         {
             BroadcastSummonResponse(false);
 
@@ -2779,7 +2781,7 @@ public partial class Player : Unit
         var menu = PlayerTalkClass;
         menu.ClearMenus();
 
-        menu.GetGossipMenu().SetMenuId(menuId);
+        menu.GetGossipMenu().MenuId = menuId;
 
         var menuItemBounds = Global.ObjectMgr.GetGossipMenuItemsMapBounds(menuId);
 
@@ -2905,7 +2907,7 @@ public partial class Player : Unit
         // (quest entries from quest menu will be included in list)
 
         var textId = GetGossipTextId(source);
-        var menuId = PlayerTalkClass.GetGossipMenu().GetMenuId();
+        var menuId = PlayerTalkClass.GetGossipMenu().MenuId;
 
         if (menuId != 0)
             textId = GetGossipTextId(menuId, source);
@@ -2918,7 +2920,7 @@ public partial class Player : Unit
         var gossipMenu = PlayerTalkClass.GetGossipMenu();
 
         // if not same, then something funky is going on
-        if (menuId != gossipMenu.GetMenuId())
+        if (menuId != gossipMenu.MenuId)
             return;
 
         var item = gossipMenu.GetItem(gossipOptionId);
@@ -3190,7 +3192,7 @@ public partial class Player : Unit
         while (!JoinedChannels.Empty())
         {
             var ch = JoinedChannels.FirstOrDefault();
-            JoinedChannels.RemoveAt(0);        // remove from player's channel list
+            JoinedChannels.RemoveAt(0);   // remove from player's channel list
             ch.LeaveChannel(this, false); // not send to client, not remove from player's channel list
 
             // delete channel if empty
@@ -3251,7 +3253,7 @@ public partial class Player : Unit
     {
         // calculate next delivery time (min. from non-delivered mails
         // and recalculate unReadMail
-        var cTime = GameTime.GetGameTime();
+        var cTime = GameTime.CurrentTime;
         _nextMailDelivereTime = 0;
         UnReadMails = 0;
 
@@ -3269,7 +3271,7 @@ public partial class Player : Unit
 
     public void AddNewMailDeliverTime(long deliverTime)
     {
-        if (deliverTime <= GameTime.GetGameTime()) // ready now
+        if (deliverTime <= GameTime.CurrentTime) // ready now
         {
             ++UnReadMails;
             SendNewMail();
@@ -3897,10 +3899,10 @@ public partial class Player : Unit
             // not full duration
             if (Level < startLevel + 9)
             {
-                var delta = (int)(Level - startLevel + 1) * Time.Minute;
+                var delta = (int)(Level - startLevel + 1) * Time.MINUTE;
                 var aur = GetAura(raceEntry.ResSicknessSpellID, GUID);
 
-                aur?.SetDuration(delta * Time.InMilliseconds);
+                aur?.SetDuration(delta * Time.IN_MILLISECONDS);
             }
         }
     }
@@ -3924,7 +3926,7 @@ public partial class Player : Unit
             RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
 
         // 6 minutes until repop at graveyard
-        DeathTimer = 6 * Time.Minute * Time.InMilliseconds;
+        DeathTimer = 6 * Time.MINUTE * Time.IN_MILLISECONDS;
 
         UpdateCorpseReclaimDelay(); // dependent at use SetDeathPvP() call before kill
 
@@ -4039,7 +4041,7 @@ public partial class Player : Unit
             return 0;
         }
 
-        var now = GameTime.GetGameTime();
+        var now = GameTime.CurrentTime;
         // 0..2 full period
         // should be ceil(x)-1 but not floor(x)
         var count = (ulong)((now < _deathExpireTime - 1) ? (_deathExpireTime - 1 - now) / PlayerConst.DeathExpireStep : 0);
@@ -4123,7 +4125,7 @@ public partial class Player : Unit
         pet.SetPetNextLevelExperience(1000);
         pet.SetFullHealth();
         pet.SetFullPower(PowerType.Mana);
-        pet.SetPetNameTimestamp((uint)GameTime.GetGameTime());
+        pet.SetPetNameTimestamp((uint)GameTime.CurrentTime);
 
         map.AddToMap(pet.AsCreature);
 
@@ -5033,8 +5035,8 @@ public partial class Player : Unit
         LoginSetTimeSpeed loginSetTimeSpeed = new()
         {
             NewSpeed = timeSpeed,
-            GameTime = (uint)GameTime.GetGameTime(),
-            ServerTime = (uint)GameTime.GetGameTime(),
+            GameTime = (uint)GameTime.CurrentTime,
+            ServerTime = (uint)GameTime.CurrentTime,
             GameTimeHolidayOffset = 0,  // @todo
             ServerTimeHolidayOffset = 0 // @todo
         };
@@ -5045,9 +5047,9 @@ public partial class Player : Unit
         WorldServerInfo worldServerInfo = new()
         {
             InstanceGroupSize = Location.Map.MapDifficulty.MaxPlayers, // @todo
-            IsTournamentRealm = false,                        // @todo
-            RestrictedAccountMaxLevel = null,                 // @todo
-            RestrictedAccountMaxMoney = null,                 // @todo
+            IsTournamentRealm = false,                                 // @todo
+            RestrictedAccountMaxLevel = null,                          // @todo
+            RestrictedAccountMaxMoney = null,                          // @todo
             DifficultyID = (uint)Location.Map.DifficultyID
         };
 
@@ -6851,7 +6853,7 @@ public partial class Player : Unit
 
     public void InitGossipMenu(uint menuId)
     {
-        PlayerTalkClass.GetGossipMenu().SetMenuId(menuId);
+        PlayerTalkClass.GetGossipMenu().MenuId = menuId;
     }
 
     //Clears the Menu
@@ -7283,7 +7285,7 @@ public partial class Player : Unit
                 removeChannel = usedChannel;
             }
 
-            joinChannel?.JoinChannel(this);     // Changed Channel: ... or Joined Channel: ...
+            joinChannel?.JoinChannel(this); // Changed Channel: ... or Joined Channel: ...
 
             if (removeChannel != null)
             {
@@ -7505,7 +7507,7 @@ public partial class Player : Unit
         if (power != PowerType.Mana)
         {
             addvalue *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)power);
-            addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * ((power != PowerType.Energy) ? _regenTimerCount : RegenTimer) / (5 * Time.InMilliseconds);
+            addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * ((power != PowerType.Energy) ? _regenTimerCount : RegenTimer) / (5 * Time.IN_MILLISECONDS);
         }
 
         var minPower = powerType.MinPower;
@@ -7621,7 +7623,7 @@ public partial class Player : Unit
                     addValue = 0.015f * (MaxHealth) * healthIncreaseRate;
 
                 addValue *= GetTotalAuraMultiplier(AuraType.ModHealthRegenPercent);
-                addValue += GetTotalAuraModifier(AuraType.ModRegen) * 2 * Time.InMilliseconds / (5 * Time.InMilliseconds);
+                addValue += GetTotalAuraModifier(AuraType.ModRegen) * 2 * Time.IN_MILLISECONDS / (5 * Time.IN_MILLISECONDS);
             }
             else if (HasAuraType(AuraType.ModRegenDuringCombat))
             {
@@ -7698,7 +7700,7 @@ public partial class Player : Unit
                 // Timer limit - need deal damage
                 if (_mirrorTimer[breathTimer] < 0)
                 {
-                    _mirrorTimer[breathTimer] += 1 * Time.InMilliseconds;
+                    _mirrorTimer[breathTimer] += 1 * Time.IN_MILLISECONDS;
                     // Calculate and deal damage
                     // @todo Check this formula
                     var damage = (uint)(MaxHealth / 5 + RandomHelper.URand(0, Level - 1));
@@ -7738,7 +7740,7 @@ public partial class Player : Unit
                 // Timer limit - need deal damage or teleport ghost to graveyard
                 if (_mirrorTimer[fatigueTimer] < 0)
                 {
-                    _mirrorTimer[fatigueTimer] += 1 * Time.InMilliseconds;
+                    _mirrorTimer[fatigueTimer] += 1 * Time.IN_MILLISECONDS;
 
                     if (IsAlive) // Calculate and deal damage
                     {
@@ -7780,7 +7782,7 @@ public partial class Player : Unit
 
                 if (_mirrorTimer[fireTimer] < 0)
                 {
-                    _mirrorTimer[fireTimer] += 1 * Time.InMilliseconds;
+                    _mirrorTimer[fireTimer] += 1 * Time.IN_MILLISECONDS;
                     // Calculate and deal damage
                     // @todo Check this formula
                     var damage = RandomHelper.URand(600, 700);
@@ -7846,13 +7848,13 @@ public partial class Player : Unit
         switch (timer)
         {
             case MirrorTimerType.Fatigue:
-                return Time.Minute * Time.InMilliseconds;
+                return Time.MINUTE * Time.IN_MILLISECONDS;
             case MirrorTimerType.Breath:
             {
                 if (!IsAlive || HasAuraType(AuraType.WaterBreathing) || Session.Security >= (AccountTypes)GetDefaultValue("DisableWaterBreath", (int)AccountTypes.Console))
                     return -1;
 
-                var underWaterTime = 3 * Time.Minute * Time.InMilliseconds;
+                var underWaterTime = 3 * Time.MINUTE * Time.IN_MILLISECONDS;
                 underWaterTime *= (int)GetTotalAuraMultiplier(AuraType.ModWaterBreathing);
 
                 return underWaterTime;
@@ -7862,7 +7864,7 @@ public partial class Player : Unit
                 if (!IsAlive)
                     return -1;
 
-                return 1 * Time.InMilliseconds;
+                return 1 * Time.IN_MILLISECONDS;
             }
             default:
                 return 0;
@@ -7937,7 +7939,7 @@ public partial class Player : Unit
             (!pvp && !GetDefaultValue("Death.CorpseReclaimDelay.PvE", true)))
             return;
 
-        var now = GameTime.GetGameTime();
+        var now = GameTime.CurrentTime;
 
         if (now < _deathExpireTime)
         {
@@ -7983,7 +7985,7 @@ public partial class Player : Unit
             }
 
             var expectedTime = corpse.GetGhostTime() + PlayerConst.copseReclaimDelay[count];
-            var now = GameTime.GetGameTime();
+            var now = GameTime.CurrentTime;
 
             if (now >= expectedTime)
                 return -1;
@@ -7995,7 +7997,7 @@ public partial class Player : Unit
             delay = GetCorpseReclaimDelay(pvp);
         }
 
-        return (int)(delay * Time.InMilliseconds);
+        return (int)(delay * Time.IN_MILLISECONDS);
     }
 
     private void SendCorpseReclaimDelay(int delay)
@@ -8626,7 +8628,7 @@ public partial class Player : Unit
 
             UpdateCriteria(CriteriaType.RevealWorldMapOverlay, Location.Area);
 
-            var areaLevels = Global.DB2Mgr.GetContentTuningData(areaEntry.ContentTuningID, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+            var areaLevels = Global.DB2Mgr.GetContentTuningData(areaEntry.ContentTuningID, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
             if (areaLevels.HasValue)
             {

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class NPCInteractionOpenResult : ServerPacket
 {
-    public ObjectGuid Npc;
     public PlayerInteractionType InteractionType;
+    public ObjectGuid Npc;
     public bool Success = true;
     public NPCInteractionOpenResult() : base(ServerOpcodes.NpcInteractionOpenResult) { }
 

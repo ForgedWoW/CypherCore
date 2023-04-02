@@ -9,13 +9,12 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 internal class AuctionSellItem : ClientPacket
 {
-    public ulong BuyoutPrice;
     public ObjectGuid Auctioneer;
+    public ulong BuyoutPrice;
+    public Array<AuctionItemForSale> Items = new(1);
     public ulong MinBid;
     public uint RunTime;
     public AddOnInfo? TaintedBy;
-    public Array<AuctionItemForSale> Items = new(1);
-
     public AuctionSellItem(WorldPacket packet) : base(packet) { }
 
     public override void Read()

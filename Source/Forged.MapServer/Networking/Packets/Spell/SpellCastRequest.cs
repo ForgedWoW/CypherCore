@@ -10,19 +10,18 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 public class SpellCastRequest
 {
     public ObjectGuid CastID;
-    public uint SpellID;
-    public SpellCastVisual Visual;
-    public uint SendCastFlags;
-    public SpellTargetData Target = new();
+    public ObjectGuid CraftingNPC;
+    public ulong? CraftingOrderID;
+    public uint[] Misc = new uint[2];
     public MissileTrajectoryRequest MissileTrajectory;
     public MovementInfo MoveUpdate;
-    public List<SpellWeight> Weight = new();
-    public Array<SpellCraftingReagent> OptionalReagents = new(3);
     public Array<SpellExtraCurrencyCost> OptionalCurrencies = new(5 /*MAX_ITEM_EXT_COST_CURRENCIES*/);
-    public ulong? CraftingOrderID;
-    public ObjectGuid CraftingNPC;
-    public uint[] Misc = new uint[2];
-
+    public Array<SpellCraftingReagent> OptionalReagents = new(3);
+    public uint SendCastFlags;
+    public uint SpellID;
+    public SpellTargetData Target = new();
+    public SpellCastVisual Visual;
+    public List<SpellWeight> Weight = new();
     public void Read(WorldPacket data)
     {
         CastID = data.ReadPackedGuid();

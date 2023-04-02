@@ -9,9 +9,9 @@ namespace Forged.MapServer.LootManagement;
 
 internal class StoredLootContainer
 {
-    private readonly MultiMap<uint, StoredLootItem> _lootItems = new();
-    private readonly ulong _containerId;
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ulong _containerId;
+    private readonly MultiMap<uint, StoredLootItem> _lootItems = new();
     private uint _money;
 
     public StoredLootContainer(ulong containerId, CharacterDatabase characterDatabase)
@@ -69,13 +69,14 @@ internal class StoredLootContainer
         trans.Append(stmt);
     }
 
-    public void RemoveMoney()
+    public MultiMap<uint, StoredLootItem> GetLootItems()
     {
-        _money = 0;
+        return _lootItems;
+    }
 
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEMCONTAINER_MONEY);
-        stmt.AddValue(0, _containerId);
-        _characterDatabase.Execute(stmt);
+    public uint GetMoney()
+    {
+        return _money;
     }
 
     public void RemoveItem(uint itemId, uint count, uint itemIndex)
@@ -99,13 +100,12 @@ internal class StoredLootContainer
         _characterDatabase.Execute(stmt);
     }
 
-    public uint GetMoney()
+    public void RemoveMoney()
     {
-        return _money;
-    }
+        _money = 0;
 
-    public MultiMap<uint, StoredLootItem> GetLootItems()
-    {
-        return _lootItems;
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEMCONTAINER_MONEY);
+        stmt.AddValue(0, _containerId);
+        _characterDatabase.Execute(stmt);
     }
 }

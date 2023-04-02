@@ -8,17 +8,16 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 public class LfgBootInfo
 {
+    public uint BootVotes;
+    public bool MyVote;
+    public bool MyVoteCompleted;
+    public string Reason = "";
+    public ObjectGuid Target;
+    public uint TimeLeft;
+    public uint TotalVotes;
     public bool VoteInProgress;
     public bool VotePassed;
-    public bool MyVoteCompleted;
-    public bool MyVote;
-    public ObjectGuid Target;
-    public uint TotalVotes;
-    public uint BootVotes;
-    public uint TimeLeft;
     public uint VotesNeeded;
-    public string Reason = "";
-
     public void Write(WorldPacket data)
     {
         data.WriteBit(VoteInProgress);

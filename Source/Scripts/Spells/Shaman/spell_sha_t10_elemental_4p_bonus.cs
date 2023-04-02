@@ -38,7 +38,7 @@ internal class spell_sha_t10_elemental_4p_bonus : AuraScript, IHasAuraEffects
         var flameShockAura = flameShock.Base;
 
         var maxDuration = flameShockAura.MaxDuration;
-        var newDuration = flameShockAura.Duration + aurEff.Amount * Time.InMilliseconds;
+        var newDuration = flameShockAura.Duration + aurEff.Amount * Time.IN_MILLISECONDS;
 
         flameShockAura.SetDuration(newDuration);
 

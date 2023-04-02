@@ -12,16 +12,35 @@ namespace Forged.MapServer.Groups;
 public class GroupManager
 {
     private readonly CharacterDatabase _characterDatabase;
-    private readonly Dictionary<ulong, PlayerGroup> _groupStore = new();
     private readonly Dictionary<uint, PlayerGroup> _groupDbStore = new();
-    private ulong _nextGroupId;
+    private readonly Dictionary<ulong, PlayerGroup> _groupStore = new();
     private uint _nextGroupDbStoreId;
-
+    private ulong _nextGroupId;
     public GroupManager(CharacterDatabase characterDatabase)
     {
         _characterDatabase = characterDatabase;
         _nextGroupDbStoreId = 1;
         _nextGroupId = 1;
+    }
+
+    public void AddGroup(PlayerGroup group)
+    {
+        _groupStore[group.GUID.Counter] = group;
+    }
+
+    public void FreeGroupDbStoreId(PlayerGroup group)
+    {
+        var storageId = group.DbStoreId;
+
+        if (storageId < _nextGroupDbStoreId)
+            _nextGroupDbStoreId = storageId;
+
+        _groupDbStore[storageId - 1] = null;
+    }
+
+    public ulong GenerateGroupId()
+    {
+        return _nextGroupId++;
     }
 
     public uint GenerateNewGroupDbStoreId()
@@ -39,50 +58,14 @@ public class GroupManager
         return newStorageId;
     }
 
-    public void RegisterGroupDbStoreId(uint storageId, PlayerGroup group)
-    {
-        _groupDbStore[storageId] = group;
-    }
-
-    public void FreeGroupDbStoreId(PlayerGroup group)
-    {
-        var storageId = group.DbStoreId;
-
-        if (storageId < _nextGroupDbStoreId)
-            _nextGroupDbStoreId = storageId;
-
-        _groupDbStore[storageId - 1] = null;
-    }
-
     public PlayerGroup GetGroupByDbStoreId(uint storageId)
     {
         return _groupDbStore.LookupByKey(storageId);
     }
 
-    public ulong GenerateGroupId()
-    {
-        return _nextGroupId++;
-    }
-
     public PlayerGroup GetGroupByGuid(ObjectGuid groupId)
     {
         return _groupStore.LookupByKey(groupId.Counter);
-    }
-
-    public void Update(uint diff)
-    {
-        foreach (var group in _groupStore.Values)
-            group.Update(diff);
-    }
-
-    public void AddGroup(PlayerGroup group)
-    {
-        _groupStore[group.GUID.Counter] = group;
-    }
-
-    public void RemoveGroup(PlayerGroup group)
-    {
-        _groupStore.Remove(group.GUID.Counter);
     }
 
     public void LoadGroups()
@@ -165,5 +148,20 @@ public class GroupManager
 
             Log.Logger.Information("Loaded {0} group members in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
         }
+    }
+
+    public void RegisterGroupDbStoreId(uint storageId, PlayerGroup group)
+    {
+        _groupDbStore[storageId] = group;
+    }
+    public void RemoveGroup(PlayerGroup group)
+    {
+        _groupStore.Remove(group.GUID.Counter);
+    }
+
+    public void Update(uint diff)
+    {
+        foreach (var group in _groupStore.Values)
+            group.Update(diff);
     }
 }

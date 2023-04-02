@@ -14,6 +14,11 @@ public class WorldServiceManager
 {
     private readonly ConcurrentDictionary<(uint ServiceHash, uint MethodId), WorldServiceHandler> _serviceHandlers;
 
+    public WorldServiceHandler GetHandler(uint serviceHash, uint methodId)
+    {
+        return _serviceHandlers.LookupByKey((serviceHash, methodId));
+    }
+
     public void LoadHandlers(IContainer container)
     {
         var impl = container.Resolve<IEnumerable<IWorldSessionHandler>>();
@@ -46,10 +51,5 @@ public class WorldServiceManager
                 }
             }
         }
-    }
-
-    public WorldServiceHandler GetHandler(uint serviceHash, uint methodId)
-    {
-        return _serviceHandlers.LookupByKey((serviceHash, methodId));
     }
 }

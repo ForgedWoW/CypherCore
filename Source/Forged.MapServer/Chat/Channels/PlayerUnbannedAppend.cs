@@ -9,13 +9,15 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct PlayerUnbannedAppend : IChannelAppender
 {
+    private readonly ObjectGuid _moderator;
+
+    private readonly ObjectGuid _unbanned;
+
     public PlayerUnbannedAppend(ObjectGuid moderator, ObjectGuid unbanned)
     {
         _moderator = moderator;
         _unbanned = unbanned;
     }
-
-    public ChatNotify GetNotificationType() => ChatNotify.PlayerUnbannedNotice;
 
     public void Append(ChannelNotify data)
     {
@@ -23,6 +25,5 @@ internal struct PlayerUnbannedAppend : IChannelAppender
         data.TargetGuid = _unbanned;
     }
 
-    private readonly ObjectGuid _moderator;
-    private readonly ObjectGuid _unbanned;
+    public ChatNotify GetNotificationType() => ChatNotify.PlayerUnbannedNotice;
 }

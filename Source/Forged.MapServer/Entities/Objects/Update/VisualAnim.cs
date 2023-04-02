@@ -10,12 +10,20 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class VisualAnim : BaseUpdateData<AreaTrigger>
 {
-    public UpdateField<bool> Field_C = new(0, 1);
     public UpdateField<int> AnimationDataID = new(0, 2);
     public UpdateField<uint> AnimKitID = new(0, 3);
     public UpdateField<uint> AnimProgress = new(0, 4);
-
+    public UpdateField<bool> Field_C = new(0, 1);
     public VisualAnim() : base(0, TypeId.AreaTrigger, 5) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Field_C);
+        ClearChangesMask(AnimationDataID);
+        ClearChangesMask(AnimKitID);
+        ClearChangesMask(AnimProgress);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, AreaTrigger owner, Player receiver)
     {
@@ -54,14 +62,5 @@ public class VisualAnim : BaseUpdateData<AreaTrigger>
         }
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Field_C);
-        ClearChangesMask(AnimationDataID);
-        ClearChangesMask(AnimKitID);
-        ClearChangesMask(AnimProgress);
-        ChangesMask.ResetAll();
     }
 }

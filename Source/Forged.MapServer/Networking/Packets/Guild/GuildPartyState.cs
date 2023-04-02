@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 public class GuildPartyState : ServerPacket
 {
     public float GuildXPEarnedMult = 0.0f;
+    public bool InGuildParty;
     public int NumMembers;
     public int NumRequired;
-    public bool InGuildParty;
     public GuildPartyState() : base(ServerOpcodes.GuildPartyState, ConnectionType.Instance) { }
 
     public override void Write()

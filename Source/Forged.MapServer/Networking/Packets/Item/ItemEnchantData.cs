@@ -5,9 +5,9 @@ namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemEnchantData
 {
-    public uint ID;
-    public uint Expiration;
     public int Charges;
+    public uint Expiration;
+    public uint ID;
     public byte Slot;
     public ItemEnchantData() { }
 

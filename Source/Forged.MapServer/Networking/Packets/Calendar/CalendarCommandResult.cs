@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 internal class CalendarCommandResult : ServerPacket
 {
     public byte Command;
-    public CalendarError Result;
     public string Name;
+    public CalendarError Result;
     public CalendarCommandResult() : base(ServerOpcodes.CalendarCommandResult) { }
 
     public CalendarCommandResult(byte command, CalendarError result, string name) : base(ServerOpcodes.CalendarCommandResult)

@@ -70,13 +70,13 @@ internal class InstanceCommands
         if (player == null)
             player = handler.Session.Player;
 
-        var now = GameTime.GetDateAndTime();
+        var now = GameTime.DateAndTime;
         var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(player.GUID);
 
         foreach (var instanceLock in instanceLocks)
         {
             MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-            var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+            var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandListBindInfo,
                                    entries.Map.Id,
@@ -181,12 +181,12 @@ internal class InstanceCommands
 
         Global.InstanceLockMgr.ResetInstanceLocksForPlayer(player.GUID, mapId, difficulty, locksReset, locksNotReset);
 
-        var now = GameTime.GetDateAndTime();
+        var now = GameTime.DateAndTime;
 
         foreach (var instanceLock in locksReset)
         {
             MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-            var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+            var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
                                    entries.Map.Id,
@@ -204,7 +204,7 @@ internal class InstanceCommands
         foreach (var instanceLock in locksNotReset)
         {
             MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-            var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+            var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,
                                    entries.Map.Id,

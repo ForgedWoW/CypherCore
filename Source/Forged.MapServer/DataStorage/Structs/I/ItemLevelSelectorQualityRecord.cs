@@ -6,7 +6,7 @@ namespace Forged.MapServer.DataStorage.Structs.I;
 public sealed class ItemLevelSelectorQualityRecord
 {
     public uint Id;
-    public uint QualityItemBonusListID;
-    public sbyte Quality;
     public uint ParentILSQualitySetID;
+    public sbyte Quality;
+    public uint QualityItemBonusListID;
 }

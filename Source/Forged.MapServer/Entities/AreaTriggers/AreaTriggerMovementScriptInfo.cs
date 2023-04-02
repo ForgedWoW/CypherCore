@@ -8,9 +8,8 @@ namespace Forged.MapServer.Entities.AreaTriggers;
 
 public struct AreaTriggerMovementScriptInfo
 {
-    public uint SpellScriptID;
     public Vector3 Center;
-
+    public uint SpellScriptID;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(SpellScriptID);

@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class RequestCemeteryListResponse : ServerPacket
 {
-    public bool IsGossipTriggered;
     public List<uint> CemeteryID = new();
+    public bool IsGossipTriggered;
     public RequestCemeteryListResponse() : base(ServerOpcodes.RequestCemeteryListResponse, ConnectionType.Instance) { }
 
     public override void Write()

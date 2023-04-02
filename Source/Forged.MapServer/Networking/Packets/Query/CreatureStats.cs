@@ -9,27 +9,27 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class CreatureStats
 {
-    public string Title;
-    public string TitleAlt;
-    public string CursorName;
-    public int CreatureType;
-    public int CreatureFamily;
-    public int Classification;
-    public CreatureDisplayStats Display = new();
-    public float HpMulti;
-    public float EnergyMulti;
-    public bool Leader;
-    public List<uint> QuestItems = new();
-    public uint CreatureMovementInfoID;
-    public int HealthScalingExpansion;
-    public uint RequiredExpansion;
-    public uint VignetteID;
     public int Class;
+    public int Classification;
     public int CreatureDifficultyID;
-    public int WidgetSetID;
-    public int WidgetSetUnitConditionID;
+    public int CreatureFamily;
+    public uint CreatureMovementInfoID;
+    public int CreatureType;
+    public string CursorName;
+    public CreatureDisplayStats Display = new();
+    public float EnergyMulti;
     public uint[] Flags = new uint[2];
-    public uint[] ProxyCreatureID = new uint[SharedConst.MaxCreatureKillCredit];
+    public int HealthScalingExpansion;
+    public float HpMulti;
+    public bool Leader;
     public StringArray Name = new(SharedConst.MaxCreatureNames);
     public StringArray NameAlt = new(SharedConst.MaxCreatureNames);
+    public uint[] ProxyCreatureID = new uint[SharedConst.MaxCreatureKillCredit];
+    public List<uint> QuestItems = new();
+    public uint RequiredExpansion;
+    public string Title;
+    public string TitleAlt;
+    public uint VignetteID;
+    public int WidgetSetID;
+    public int WidgetSetUnitConditionID;
 }

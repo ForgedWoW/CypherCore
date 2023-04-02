@@ -16,12 +16,24 @@ public class UpdaterNotifier : IGridNotifierWorldObject
     private readonly uint _timeDiff;
     private readonly ConcurrentBag<WorldObject> _worldObjects = new();
 
-    public GridType GridType { get; set; }
-
     public UpdaterNotifier(uint diff, GridType gridType)
     {
         _timeDiff = diff;
         GridType = gridType;
+    }
+
+    public GridType GridType { get; set; }
+    public void ExecuteUpdate()
+    {
+        foreach (var obj in _worldObjects)
+            try
+            {
+                obj.Update(_timeDiff);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
     }
 
     public void Visit(IList<WorldObject> objs)
@@ -36,18 +48,5 @@ public class UpdaterNotifier : IGridNotifierWorldObject
             if (obj.Location.IsInWorld)
                 _worldObjects.Add(obj);
         }
-    }
-
-    public void ExecuteUpdate()
-    {
-        foreach (var obj in _worldObjects)
-            try
-            {
-                obj.Update(_timeDiff);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex);
-            }
     }
 }

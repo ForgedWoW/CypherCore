@@ -53,7 +53,7 @@ public class SharedConst
 
     public const uint LFGTimeBoot = 120;
     public const uint LFGTimeProposal = 45;
-    public const uint LFGQueueUpdateInterval = 15 * Time.InMilliseconds;
+    public const uint LFGQueueUpdateInterval = 15 * Time.IN_MILLISECONDS;
     public const uint LFGSpellDungeonCooldown = 71328;
     public const uint LFGSpellDungeonDeserter = 71041;
     public const uint LFGSpellLuckOfTheDraw = 72221;
@@ -144,7 +144,7 @@ public class SharedConst
     public const uint CalendarMaxGuildEvents = 100;
     public const uint CalendarMaxInvites = 100;
     public const uint CalendarCreateEventCooldown = 5;
-    public const uint CalendarOldEventsDeletionTime = 1 * Time.Month;
+    public const uint CalendarOldEventsDeletionTime = 1 * Time.MONTH;
     public const uint CalendarDefaultResponseTime = 946684800; // 01/01/2000 00:00:00
 
 	/// <summary>
@@ -153,7 +153,7 @@ public class SharedConst
 	public const Locale DefaultLocale = Locale.enUS;
 
     public const int MaxAccountTutorialValues = 8;
-    public const int MinAuctionTime = (12 * Time.Hour);
+    public const int MinAuctionTime = (12 * Time.HOUR);
     public const int MaxConditionTargets = 3;
 
 	/// <summary>
@@ -191,9 +191,9 @@ public class SharedConst
     public const int MaxCreatureNames = 4;
     public const int MaxCreatureModelIds = 4;
     public const int MaxTrainerspellAbilityReqs = 3;
-    public const int CreatureRegenInterval = 2 * Time.InMilliseconds;
-    public const int PetFocusRegenInterval = 4 * Time.InMilliseconds;
-    public const int CreatureNoPathEvadeTime = 5 * Time.InMilliseconds;
+    public const int CreatureRegenInterval = 2 * Time.IN_MILLISECONDS;
+    public const int PetFocusRegenInterval = 4 * Time.IN_MILLISECONDS;
+    public const int CreatureNoPathEvadeTime = 5 * Time.IN_MILLISECONDS;
     public const int BoundaryVisualizeCreature = 15425;
     public const float BoundaryVisualizeCreatureScale = 0.25f;
     public const int BoundaryVisualizeStepSize = 1;

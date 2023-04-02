@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarRaidLockoutRemoved : ServerPacket
 {
+    public Difficulty DifficultyID;
     public ulong InstanceID;
     public int MapID;
-    public Difficulty DifficultyID;
     public CalendarRaidLockoutRemoved() : base(ServerOpcodes.CalendarRaidLockoutRemoved) { }
 
     public override void Write()

@@ -52,6 +52,6 @@ public class aura_sha_rainfall_AuraScript : AuraScript, IHasAuraEffects
 
     private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
     {
-        SetDuration(Duration + GetEffect(2).BaseAmount * Time.InMilliseconds, (GetEffect(3).BaseAmount * Time.InMilliseconds) > 0);
+        SetDuration(Duration + GetEffect(2).BaseAmount * Time.IN_MILLISECONDS, (GetEffect(3).BaseAmount * Time.IN_MILLISECONDS) > 0);
     }
 }

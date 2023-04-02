@@ -23,7 +23,7 @@ public class MonsterSplineUnknown901
     public struct Inner
     {
         public int Unknown_1;
-        public SpellCastVisual Visual;
         public uint Unknown_4;
+        public SpellCastVisual Visual;
     }
 }

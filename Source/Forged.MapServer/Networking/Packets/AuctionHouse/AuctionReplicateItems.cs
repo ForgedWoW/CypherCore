@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 internal class AuctionReplicateItems : ClientPacket
 {
     public ObjectGuid Auctioneer;
-    public uint ChangeNumberGlobal;
     public uint ChangeNumberCursor;
+    public uint ChangeNumberGlobal;
     public uint ChangeNumberTombstone;
     public uint Count;
     public AddOnInfo? TaintedBy;

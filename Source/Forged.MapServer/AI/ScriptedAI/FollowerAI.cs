@@ -13,23 +13,19 @@ namespace Forged.MapServer.AI.ScriptedAI;
 
 internal class FollowerAI : ScriptedAI
 {
-    private ObjectGuid _leaderGUID;
-    private uint _updateFollowTimer;
     private FollowState _followState;
+    private ObjectGuid _leaderGUID;
     private uint _questForFollow;
-
+    private uint _updateFollowTimer;
     public FollowerAI(Creature creature) : base(creature)
     {
         _updateFollowTimer = 2500;
         _followState = FollowState.None;
     }
 
-    public override void MoveInLineOfSight(Unit who)
+    public override bool IsEscorted()
     {
-        if (HasFollowState(FollowState.Inprogress) && !ShouldAssistPlayerInCombatAgainst(who))
-            return;
-
-        base.MoveInLineOfSight(who);
+        return HasFollowState(FollowState.Inprogress);
     }
 
     public override void JustDied(Unit killer)
@@ -78,10 +74,101 @@ internal class FollowerAI : ScriptedAI
         }
     }
 
+    public override void MoveInLineOfSight(Unit who)
+    {
+        if (HasFollowState(FollowState.Inprogress) && !ShouldAssistPlayerInCombatAgainst(who))
+            return;
+
+        base.MoveInLineOfSight(who);
+    }
     public override void OwnerAttackedBy(Unit attacker)
     {
         if (!Me.HasReactState(ReactStates.Passive) && ShouldAssistPlayerInCombatAgainst(attacker))
             Me.EngageWithTarget(attacker);
+    }
+
+    public void SetFollowComplete(bool withEndEvent = false)
+    {
+        if (Me.HasUnitState(UnitState.Follow))
+            Me.MotionMaster.Remove(MovementGeneratorType.Follow);
+
+        if (withEndEvent)
+        {
+            AddFollowState(FollowState.PostEvent);
+        }
+        else
+        {
+            if (HasFollowState(FollowState.PostEvent))
+                RemoveFollowState(FollowState.PostEvent);
+        }
+
+        AddFollowState(FollowState.Complete);
+    }
+
+    public void SetFollowPaused(bool paused)
+    {
+        if (!HasFollowState(FollowState.Inprogress) || HasFollowState(FollowState.Complete))
+            return;
+
+        if (paused)
+        {
+            AddFollowState(FollowState.Paused);
+
+            if (Me.HasUnitState(UnitState.Follow))
+                Me.MotionMaster.Remove(MovementGeneratorType.Follow);
+        }
+        else
+        {
+            RemoveFollowState(FollowState.Paused);
+
+            var leader = GetLeaderForFollower();
+
+            if (leader != null)
+                Me.MotionMaster.MoveFollow(leader, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+        }
+    }
+
+    public void StartFollow(Player player, uint factionForFollower = 0, Quest.Quest quest = null)
+    {
+        var cdata = Me.CreatureData;
+
+        if (cdata != null)
+            if (GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
+                Me.SaveRespawnTime(Me.RespawnDelay);
+
+        if (Me.IsEngaged)
+        {
+            Log.Logger.Debug($"FollowerAI::StartFollow: attempt to StartFollow while in combat. ({Me.GUID})");
+
+            return;
+        }
+
+        if (HasFollowState(FollowState.Inprogress))
+        {
+            Log.Logger.Error($"FollowerAI::StartFollow: attempt to StartFollow while already following. ({Me.GUID})");
+
+            return;
+        }
+
+        //set variables
+        _leaderGUID = player.GUID;
+
+        if (factionForFollower != 0)
+            Me.Faction = factionForFollower;
+
+        _questForFollow = quest.Id;
+
+        Me.MotionMaster.Clear(MovementGeneratorPriority.Normal);
+        Me.PauseMovement();
+
+        Me.ReplaceAllNpcFlags(NPCFlags.None);
+        Me.ReplaceAllNpcFlags2(NPCFlags2.None);
+
+        AddFollowState(FollowState.Inprogress);
+
+        Me.MotionMaster.MoveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+
+        Log.Logger.Debug($"FollowerAI::StartFollow: start follow {player.GetName()} - {_leaderGUID} ({Me.GUID})");
     }
 
     public override void UpdateAI(uint uiDiff)
@@ -161,102 +248,9 @@ internal class FollowerAI : ScriptedAI
 
         UpdateFollowerAI(uiDiff);
     }
-
-    public void StartFollow(Player player, uint factionForFollower = 0, Quest.Quest quest = null)
+    private void AddFollowState(FollowState uiFollowState)
     {
-        var cdata = Me.CreatureData;
-
-        if (cdata != null)
-            if (GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
-                Me.SaveRespawnTime(Me.RespawnDelay);
-
-        if (Me.IsEngaged)
-        {
-            Log.Logger.Debug($"FollowerAI::StartFollow: attempt to StartFollow while in combat. ({Me.GUID})");
-
-            return;
-        }
-
-        if (HasFollowState(FollowState.Inprogress))
-        {
-            Log.Logger.Error($"FollowerAI::StartFollow: attempt to StartFollow while already following. ({Me.GUID})");
-
-            return;
-        }
-
-        //set variables
-        _leaderGUID = player.GUID;
-
-        if (factionForFollower != 0)
-            Me.Faction = factionForFollower;
-
-        _questForFollow = quest.Id;
-
-        Me.MotionMaster.Clear(MovementGeneratorPriority.Normal);
-        Me.PauseMovement();
-
-        Me.ReplaceAllNpcFlags(NPCFlags.None);
-        Me.ReplaceAllNpcFlags2(NPCFlags2.None);
-
-        AddFollowState(FollowState.Inprogress);
-
-        Me.MotionMaster.MoveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
-
-        Log.Logger.Debug($"FollowerAI::StartFollow: start follow {player.GetName()} - {_leaderGUID} ({Me.GUID})");
-    }
-
-    public void SetFollowPaused(bool paused)
-    {
-        if (!HasFollowState(FollowState.Inprogress) || HasFollowState(FollowState.Complete))
-            return;
-
-        if (paused)
-        {
-            AddFollowState(FollowState.Paused);
-
-            if (Me.HasUnitState(UnitState.Follow))
-                Me.MotionMaster.Remove(MovementGeneratorType.Follow);
-        }
-        else
-        {
-            RemoveFollowState(FollowState.Paused);
-
-            var leader = GetLeaderForFollower();
-
-            if (leader != null)
-                Me.MotionMaster.MoveFollow(leader, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
-        }
-    }
-
-    public void SetFollowComplete(bool withEndEvent = false)
-    {
-        if (Me.HasUnitState(UnitState.Follow))
-            Me.MotionMaster.Remove(MovementGeneratorType.Follow);
-
-        if (withEndEvent)
-        {
-            AddFollowState(FollowState.PostEvent);
-        }
-        else
-        {
-            if (HasFollowState(FollowState.PostEvent))
-                RemoveFollowState(FollowState.PostEvent);
-        }
-
-        AddFollowState(FollowState.Complete);
-    }
-
-    public override bool IsEscorted()
-    {
-        return HasFollowState(FollowState.Inprogress);
-    }
-
-    private void UpdateFollowerAI(uint diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
+        _followState |= uiFollowState;
     }
 
     private Player GetLeaderForFollower()
@@ -292,6 +286,16 @@ internal class FollowerAI : ScriptedAI
         Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. ({Me.GUID})");
 
         return null;
+    }
+
+    private bool HasFollowState(FollowState uiFollowState)
+    {
+        return (_followState & uiFollowState) != 0;
+    }
+
+    private void RemoveFollowState(FollowState uiFollowState)
+    {
+        _followState &= ~uiFollowState;
     }
 
     //This part provides assistance to a player that are attacked by who, even if out of normal aggro range
@@ -331,18 +335,11 @@ internal class FollowerAI : ScriptedAI
         return true;
     }
 
-    private bool HasFollowState(FollowState uiFollowState)
+    private void UpdateFollowerAI(uint diff)
     {
-        return (_followState & uiFollowState) != 0;
-    }
+        if (!UpdateVictim())
+            return;
 
-    private void AddFollowState(FollowState uiFollowState)
-    {
-        _followState |= uiFollowState;
-    }
-
-    private void RemoveFollowState(FollowState uiFollowState)
-    {
-        _followState &= ~uiFollowState;
+        DoMeleeAttackIfReady();
     }
 }

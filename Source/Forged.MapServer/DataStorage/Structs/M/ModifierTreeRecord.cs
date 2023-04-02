@@ -5,12 +5,12 @@ namespace Forged.MapServer.DataStorage.Structs.M;
 
 public sealed class ModifierTreeRecord
 {
-    public uint Id;
-    public uint Parent;
-    public sbyte Operator;
     public sbyte Amount;
-    public uint Type;
     public uint Asset;
+    public uint Id;
+    public sbyte Operator;
+    public uint Parent;
     public int SecondaryAsset;
     public int TertiaryAsset;
+    public uint Type;
 }

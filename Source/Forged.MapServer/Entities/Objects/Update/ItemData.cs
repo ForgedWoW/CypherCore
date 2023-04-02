@@ -12,29 +12,77 @@ namespace Forged.MapServer.Entities.Objects.Update;
 public class ItemData : BaseUpdateData<Item>
 {
     public DynamicUpdateField<ArtifactPower> ArtifactPowers = new(0, 1);
-    public DynamicUpdateField<SocketedGem> Gems = new(0, 2);
-    public UpdateField<ObjectGuid> Owner = new(0, 3);
-    public UpdateField<ObjectGuid> ContainedIn = new(0, 4);
-    public UpdateField<ObjectGuid> Creator = new(0, 5);
-    public UpdateField<ObjectGuid> GiftCreator = new(0, 6);
-    public UpdateField<uint> StackCount = new(0, 7);
-    public UpdateField<uint> Expiration = new(0, 8);
-    public UpdateField<uint> DynamicFlags = new(0, 9);
-    public UpdateField<uint> Durability = new(0, 10);
-    public UpdateField<uint> MaxDurability = new(0, 11);
-    public UpdateField<uint> CreatePlayedTime = new(0, 12);
-    public UpdateField<int> Context = new(0, 13);
-    public UpdateField<ulong> CreateTime = new(0, 14);
     public UpdateField<ulong> ArtifactXP = new(0, 15);
-    public UpdateField<byte> ItemAppearanceModID = new(0, 16);
-    public UpdateField<ItemModList> Modifiers = new(0, 17);
-    public UpdateField<uint> DynamicFlags2 = new(0, 18);
-    public UpdateField<ItemBonusKey> ItemBonusKey = new(0, 19);
+    public UpdateField<ObjectGuid> ContainedIn = new(0, 4);
+    public UpdateField<int> Context = new(0, 13);
+    public UpdateField<uint> CreatePlayedTime = new(0, 12);
+    public UpdateField<ulong> CreateTime = new(0, 14);
+    public UpdateField<ObjectGuid> Creator = new(0, 5);
     public UpdateField<ushort> DEBUGItemLevel = new(0, 20);
-    public UpdateFieldArray<int> SpellCharges = new(5, 21, 22);
+    public UpdateField<uint> Durability = new(0, 10);
+    public UpdateField<uint> DynamicFlags = new(0, 9);
+    public UpdateField<uint> DynamicFlags2 = new(0, 18);
     public UpdateFieldArray<ItemEnchantment> Enchantment = new(13, 27, 28);
-
+    public UpdateField<uint> Expiration = new(0, 8);
+    public DynamicUpdateField<SocketedGem> Gems = new(0, 2);
+    public UpdateField<ObjectGuid> GiftCreator = new(0, 6);
+    public UpdateField<byte> ItemAppearanceModID = new(0, 16);
+    public UpdateField<ItemBonusKey> ItemBonusKey = new(0, 19);
+    public UpdateField<uint> MaxDurability = new(0, 11);
+    public UpdateField<ItemModList> Modifiers = new(0, 17);
+    public UpdateField<ObjectGuid> Owner = new(0, 3);
+    public UpdateFieldArray<int> SpellCharges = new(5, 21, 22);
+    public UpdateField<uint> StackCount = new(0, 7);
     public ItemData() : base(0, TypeId.Item, 41) { }
+
+    public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
+    {
+        if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
+            allowedMaskForTarget.Or(new UpdateMask(41,
+                                                   new[]
+                                                   {
+                                                       0x07F58D80u, 0x00000000u
+                                                   }));
+    }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(ArtifactPowers);
+        ClearChangesMask(Gems);
+        ClearChangesMask(Owner);
+        ClearChangesMask(ContainedIn);
+        ClearChangesMask(Creator);
+        ClearChangesMask(GiftCreator);
+        ClearChangesMask(StackCount);
+        ClearChangesMask(Expiration);
+        ClearChangesMask(DynamicFlags);
+        ClearChangesMask(Durability);
+        ClearChangesMask(MaxDurability);
+        ClearChangesMask(CreatePlayedTime);
+        ClearChangesMask(Context);
+        ClearChangesMask(CreateTime);
+        ClearChangesMask(ArtifactXP);
+        ClearChangesMask(ItemAppearanceModID);
+        ClearChangesMask(Modifiers);
+        ClearChangesMask(DynamicFlags2);
+        ClearChangesMask(ItemBonusKey);
+        ClearChangesMask(DEBUGItemLevel);
+        ClearChangesMask(SpellCharges);
+        ClearChangesMask(Enchantment);
+        ChangesMask.ResetAll();
+    }
+
+    public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
+    {
+        UpdateMask allowedMaskForTarget = new(41,
+                                              new[]
+                                              {
+                                                  0xF80A727Fu, 0x000001FFu
+                                              });
+
+        AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
+        changesMask.And(allowedMaskForTarget);
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Item owner, Player receiver)
     {
@@ -79,7 +127,7 @@ public class ItemData : BaseUpdateData<Item>
         if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
             data.WriteUInt32(DynamicFlags2);
 
-        ItemBonusKey.GetValue().Write(data);
+        ItemBonusKey.Value.Write(data);
 
         if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
             data.WriteUInt16(DEBUGItemLevel);
@@ -90,32 +138,10 @@ public class ItemData : BaseUpdateData<Item>
         for (var i = 0; i < Gems.Size(); ++i)
             Gems[i].WriteCreate(data, owner, receiver);
 
-        Modifiers.GetValue().WriteCreate(data, owner, receiver);
+        Modifiers.Value.WriteCreate(data, owner, receiver);
     }
 
     public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Item owner, Player receiver)
-    {
-        UpdateMask allowedMaskForTarget = new(41,
-                                              new uint[]
-                                              {
-                                                  0xF80A727Fu, 0x000001FFu
-                                              });
-
-        AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
-        WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
-    }
-
-    public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
-    {
-        if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
-            allowedMaskForTarget.OR(new UpdateMask(41,
-                                                   new uint[]
-                                                   {
-                                                       0x07F58D80u, 0x00000000u
-                                                   }));
-    }
-
-    public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
     {
         UpdateMask allowedMaskForTarget = new(41,
                                               new[]
@@ -124,9 +150,8 @@ public class ItemData : BaseUpdateData<Item>
                                               });
 
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
-        changesMask.AND(allowedMaskForTarget);
+        WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
     }
-
     public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Item owner, Player receiver)
     {
         data.WriteBits(changesMask.GetBlocksMask(0), 2);
@@ -214,13 +239,13 @@ public class ItemData : BaseUpdateData<Item>
                 data.WriteUInt32(DynamicFlags2);
 
             if (changesMask[19])
-                ItemBonusKey.GetValue().Write(data);
+                ItemBonusKey.Value.Write(data);
 
             if (changesMask[20])
                 data.WriteUInt16(DEBUGItemLevel);
 
             if (changesMask[17])
-                Modifiers.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                Modifiers.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
 
         if (changesMask[21])
@@ -232,32 +257,5 @@ public class ItemData : BaseUpdateData<Item>
             for (var i = 0; i < 13; ++i)
                 if (changesMask[28 + i])
                     Enchantment[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(ArtifactPowers);
-        ClearChangesMask(Gems);
-        ClearChangesMask(Owner);
-        ClearChangesMask(ContainedIn);
-        ClearChangesMask(Creator);
-        ClearChangesMask(GiftCreator);
-        ClearChangesMask(StackCount);
-        ClearChangesMask(Expiration);
-        ClearChangesMask(DynamicFlags);
-        ClearChangesMask(Durability);
-        ClearChangesMask(MaxDurability);
-        ClearChangesMask(CreatePlayedTime);
-        ClearChangesMask(Context);
-        ClearChangesMask(CreateTime);
-        ClearChangesMask(ArtifactXP);
-        ClearChangesMask(ItemAppearanceModID);
-        ClearChangesMask(Modifiers);
-        ClearChangesMask(DynamicFlags2);
-        ClearChangesMask(ItemBonusKey);
-        ClearChangesMask(DEBUGItemLevel);
-        ClearChangesMask(SpellCharges);
-        ClearChangesMask(Enchantment);
-        ChangesMask.ResetAll();
     }
 }

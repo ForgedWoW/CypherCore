@@ -11,6 +11,32 @@ namespace Forged.MapServer.Chat.Commands;
 
 internal class SpellCommands
 {
+    [CommandNonGroup("aura", RBACPermissions.CommandAura)]
+    private static bool HandleAuraCommand(CommandHandler handler, uint spellId)
+    {
+        var target = handler.SelectedUnit;
+
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
+
+            return false;
+        }
+
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.Location.Map.DifficultyID);
+
+        if (spellInfo == null)
+            return false;
+
+        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Location.Map.GenerateLowGuid(HighGuid.Cast));
+        AuraCreateInfo createInfo = new(castId, spellInfo, target.Location.Map.DifficultyID, SpellConst.MaxEffects, target);
+        createInfo.SetCaster(target);
+
+        Aura.TryRefreshStackOrCreate(createInfo);
+
+        return true;
+    }
+
     [CommandNonGroup("cooldown", RBACPermissions.CommandCooldown)]
     private static bool HandleCooldownCommand(CommandHandler handler, uint? spellIdArg)
     {
@@ -57,64 +83,6 @@ internal class SpellCommands
 
         return true;
     }
-
-    [CommandNonGroup("aura", RBACPermissions.CommandAura)]
-    private static bool HandleAuraCommand(CommandHandler handler, uint spellId)
-    {
-        var target = handler.SelectedUnit;
-
-        if (!target)
-        {
-            handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
-
-            return false;
-        }
-
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.Location.Map.DifficultyID);
-
-        if (spellInfo == null)
-            return false;
-
-        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Location.Map.GenerateLowGuid(HighGuid.Cast));
-        AuraCreateInfo createInfo = new(castId, spellInfo, target.Location.Map.DifficultyID, SpellConst.MaxEffects, target);
-        createInfo.SetCaster(target);
-
-        Aura.TryRefreshStackOrCreate(createInfo);
-
-        return true;
-    }
-
-    [CommandNonGroup("unaura", RBACPermissions.CommandUnaura)]
-    private static bool HandleUnAuraCommand(CommandHandler handler, uint spellId = 0)
-    {
-        var target = handler.SelectedUnit;
-
-        if (!target)
-        {
-            handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
-
-            return false;
-        }
-
-        if (spellId == 0)
-        {
-            target.RemoveAllAuras();
-
-            return true;
-        }
-
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
-
-        if (spellInfo != null)
-        {
-            target.RemoveAura(spellInfo.Id);
-
-            return true;
-        }
-
-        return true;
-    }
-
     [CommandNonGroup("setskill", RBACPermissions.CommandSetskill)]
     private static bool HandleSetSkillCommand(CommandHandler handler, uint skillId, uint level, uint? maxSkillArg)
     {
@@ -150,6 +118,37 @@ internal class SpellCommands
         // like 'Apprentice <skill>'.
         target.SetSkill((SkillType)skillId, (uint)(targetHasSkill ? target.GetSkillStep((SkillType)skillId) : 1), level, max);
         handler.SendSysMessage(CypherStrings.SetSkill, skillId, skillLine.DisplayName[handler.SessionDbcLocale], handler.GetNameLink(target), level, max);
+
+        return true;
+    }
+
+    [CommandNonGroup("unaura", RBACPermissions.CommandUnaura)]
+    private static bool HandleUnAuraCommand(CommandHandler handler, uint spellId = 0)
+    {
+        var target = handler.SelectedUnit;
+
+        if (!target)
+        {
+            handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
+
+            return false;
+        }
+
+        if (spellId == 0)
+        {
+            target.RemoveAllAuras();
+
+            return true;
+        }
+
+        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+
+        if (spellInfo != null)
+        {
+            target.RemoveAura(spellInfo.Id);
+
+            return true;
+        }
 
         return true;
     }

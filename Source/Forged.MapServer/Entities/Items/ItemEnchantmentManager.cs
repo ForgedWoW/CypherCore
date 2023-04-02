@@ -12,69 +12,17 @@ namespace Forged.MapServer.Entities.Items;
 
 public class ItemEnchantmentManager
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly DB2Manager _db2Manager;
     private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, RandomBonusListIds> _storage = new();
-
+    private readonly WorldDatabase _worldDatabase;
     public ItemEnchantmentManager(WorldDatabase worldDatabase, DB2Manager db2Manager, CliDB cliDB, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;
         _db2Manager = db2Manager;
         _cliDB = cliDB;
         _objectManager = objectManager;
-    }
-
-    public void LoadItemRandomBonusListTemplates()
-    {
-        var oldMsTime = Time.MSTime;
-
-        _storage.Clear();
-
-        //                                         0   1            2
-        var result = _worldDatabase.Query("SELECT Id, BonusListID, Chance FROM item_random_bonus_list_template");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            var id = result.Read<uint>(0);
-            var bonusListId = result.Read<uint>(1);
-            var chance = result.Read<float>(2);
-
-            if (_db2Manager.GetItemBonusList(bonusListId) == null)
-            {
-                Log.Logger.Error($"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} doesn't have exist in ItemBonus.db2");
-
-                continue;
-            }
-
-            if (chance < 0.000001f || chance > 100.0f)
-            {
-                Log.Logger.Error($"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} has invalid chance {chance}");
-
-                continue;
-            }
-
-            if (!_storage.ContainsKey(id))
-                _storage[id] = new RandomBonusListIds();
-
-            var ids = _storage[id];
-            ids.BonusListIDs.Add(bonusListId);
-            ids.Chances.Add(chance);
-
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {count} Random item bonus list definitions in {Time.GetMSTimeDiffToNow(oldMsTime)} ms");
     }
 
     public uint GenerateItemRandomBonusListId(uint itemID)
@@ -175,5 +123,56 @@ public class ItemEnchantmentManager
         }
 
         return 0;
+    }
+
+    public void LoadItemRandomBonusListTemplates()
+    {
+        var oldMsTime = Time.MSTime;
+
+        _storage.Clear();
+
+        //                                         0   1            2
+        var result = _worldDatabase.Query("SELECT Id, BonusListID, Chance FROM item_random_bonus_list_template");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
+
+            return;
+        }
+
+        uint count = 0;
+
+        do
+        {
+            var id = result.Read<uint>(0);
+            var bonusListId = result.Read<uint>(1);
+            var chance = result.Read<float>(2);
+
+            if (_db2Manager.GetItemBonusList(bonusListId) == null)
+            {
+                Log.Logger.Error($"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} doesn't have exist in ItemBonus.db2");
+
+                continue;
+            }
+
+            if (chance < 0.000001f || chance > 100.0f)
+            {
+                Log.Logger.Error($"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} has invalid chance {chance}");
+
+                continue;
+            }
+
+            if (!_storage.ContainsKey(id))
+                _storage[id] = new RandomBonusListIds();
+
+            var ids = _storage[id];
+            ids.BonusListIDs.Add(bonusListId);
+            ids.Chances.Add(chance);
+
+            ++count;
+        } while (result.NextRow());
+
+        Log.Logger.Information($"Loaded {count} Random item bonus list definitions in {Time.GetMSTimeDiffToNow(oldMsTime)} ms");
     }
 }

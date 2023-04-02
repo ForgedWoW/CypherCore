@@ -5,17 +5,16 @@ namespace Forged.MapServer.Networking.Packets.PerksPorgram;
 
 public struct PerksVendorItem
 {
-    public int VendorItemID;
-    public int MountID;
+    public long AvailableUntil;
     public int BattlePetSpeciesID;
-    public int TransmogSetID;
-    public int ItemModifiedAppearanceID;
+    public bool Disabled;
     public int Field_14;
     public int Field_18;
+    public int ItemModifiedAppearanceID;
+    public int MountID;
     public int Price;
-    public long AvailableUntil;
-    public bool Disabled;
-
+    public int TransmogSetID;
+    public int VendorItemID;
     public void Write(WorldPacket data)
     {
         data.WriteInt32(VendorItemID);

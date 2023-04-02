@@ -5,29 +5,31 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class CreatureDisplayInfoRecord
 {
+    public ushort AnimReplacementSetID;
+    public byte BloodID;
+    public byte CreatureModelAlpha;
+    public sbyte CreatureModelMinLod;
+    public float CreatureModelScale;
+    public int DissolveEffectID;
+    public int DissolveOutEffectID;
+    public int ExtendedDisplayInfoID;
+    public byte Flags;
+    public sbyte Gender;
     public uint Id;
     public ushort ModelID;
-    public ushort SoundID;
-    public sbyte SizeClass;
-    public float CreatureModelScale;
-    public byte CreatureModelAlpha;
-    public byte BloodID;
-    public int ExtendedDisplayInfoID;
+    public int MountPoofSpellVisualKitID;
     public ushort NPCSoundID;
+    public ushort ObjectEffectPackageID;
     public ushort ParticleColorID;
+    public float PetInstanceScale;
+    public float PlayerOverrideScale;
     public int PortraitCreatureDisplayInfoID;
     public int PortraitTextureFileDataID;
-    public ushort ObjectEffectPackageID;
-    public ushort AnimReplacementSetID;
-    public byte Flags;
+    public sbyte SizeClass;
+    public ushort SoundID;
     public int StateSpellVisualKitID;
-    public float PlayerOverrideScale;
-    public float PetInstanceScale; // scale of not own player pets inside dungeons/raids/scenarios
-    public sbyte UnarmedWeaponType;
-    public int MountPoofSpellVisualKitID;
-    public int DissolveEffectID;
-    public sbyte Gender;
-    public int DissolveOutEffectID;
-    public sbyte CreatureModelMinLod;
     public int[] TextureVariationFileDataID = new int[4];
+
+    // scale of not own player pets inside dungeons/raids/scenarios
+    public sbyte UnarmedWeaponType;
 }

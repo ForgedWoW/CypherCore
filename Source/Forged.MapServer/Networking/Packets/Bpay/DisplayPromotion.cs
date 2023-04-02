@@ -7,14 +7,12 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class DisplayPromotion : ServerPacket
 {
-    public uint PromotionID { get; set; } = 0;
-
     public DisplayPromotion(uint ID) : base(ServerOpcodes.DisplayPromotion)
     {
         PromotionID = ID;
     }
 
-
+    public uint PromotionID { get; set; } = 0;
     /*void WorldPackets::BattlePay::PurchaseDetailsResponse::Read()
     {
         _worldPacket >> UnkByte;

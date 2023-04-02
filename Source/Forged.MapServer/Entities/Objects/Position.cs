@@ -11,20 +11,6 @@ public class Position
 {
     private float _orientation;
 
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
-
-    public float Orientation
-    {
-        get => _orientation;
-        set => _orientation = NormalizeOrientation(value);
-    }
-
-    public bool IsDefault => X == 0 && Y == 0 && Z == 0 && Orientation == 0;
-
-    public bool IsPositionValid => GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
-
     public Position(float x = 0f, float y = 0f, float z = 0f, float o = 0f)
     {
         X = x;
@@ -56,74 +42,25 @@ public class Position
         _orientation = position.Orientation;
     }
 
-    public void Relocate(float x, float y)
+    public bool IsDefault => X == 0 && Y == 0 && Z == 0 && Orientation == 0;
+    public bool IsPositionValid => GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
+    public float Orientation
     {
-        X = x;
-        Y = y;
+        get => _orientation;
+        set => _orientation = NormalizeOrientation(value);
     }
 
-    public void Relocate(float x, float y, float z)
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+    public static implicit operator Vector2(Position position)
     {
-        X = x;
-        Y = y;
-        Z = z;
+        return new Vector2(position.X, position.Y);
     }
 
-    public void Relocate(float x, float y, float z, float o)
+    public static implicit operator Vector3(Position position)
     {
-        X = x;
-        Y = y;
-        Z = z;
-        Orientation = o;
-    }
-
-    public void Relocate(Position loc)
-    {
-        Relocate(loc.X, loc.Y, loc.Z, loc.Orientation);
-    }
-
-    public void Relocate(Vector3 pos)
-    {
-        Relocate(pos.X, pos.Y, pos.Z);
-    }
-
-    public void RelocateOffset(Position offset)
-    {
-        X = (float)(X + (offset.X * Math.Cos(Orientation) + offset.Y * Math.Sin(Orientation + MathFunctions.PI)));
-        Y = (float)(Y + (offset.Y * Math.Cos(Orientation) + offset.X * Math.Sin(Orientation)));
-        Z += offset.Z;
-        Orientation = Orientation + offset.Orientation;
-    }
-
-    public float GetRelativeAngle(Position pos)
-    {
-        return ToRelativeAngle(GetAbsoluteAngle(pos));
-    }
-
-    public float GetRelativeAngle(float x, float y)
-    {
-        return ToRelativeAngle(GetAbsoluteAngle(x, y));
-    }
-
-    public void GetPositionOffsetTo(Position endPos, out Position retOffset)
-    {
-        retOffset = new Position();
-
-        var dx = endPos.X - X;
-        var dy = endPos.Y - Y;
-
-        retOffset.X = (float)(dx * Math.Cos(Orientation) + dy * Math.Sin(Orientation));
-        retOffset.Y = (float)(dy * Math.Cos(Orientation) - dx * Math.Sin(Orientation));
-        retOffset.Z = endPos.Z - Z;
-        retOffset.Orientation = endPos.Orientation - Orientation;
-    }
-
-    public Position GetPositionWithOffset(Position offset)
-    {
-        var ret = this;
-        ret.RelocateOffset(offset);
-
-        return ret;
+        return new Vector3(position.X, position.Y, position.Z);
     }
 
     public static float NormalizeOrientation(float o)
@@ -142,6 +79,27 @@ public class Position
         return o % (2.0f * MathFunctions.PI);
     }
 
+    public Position Copy()
+    {
+        return new Position(this);
+    }
+
+    public float GetAbsoluteAngle(float x, float y)
+    {
+        var dx = x - X;
+        var dy = y - Y;
+
+        return NormalizeOrientation(MathF.Atan2(dy, dx));
+    }
+
+    public float GetAbsoluteAngle(Position pos)
+    {
+        if (pos == null)
+            return 0;
+
+        return GetAbsoluteAngle(pos.X, pos.Y);
+    }
+
     public float GetExactDist(float x, float y, float z)
     {
         return (float)Math.Sqrt(GetExactDistSq(x, y, z));
@@ -150,22 +108,6 @@ public class Position
     public float GetExactDist(Position pos)
     {
         return (float)Math.Sqrt(GetExactDistSq(pos));
-    }
-
-    public float GetExactDistSq(float x, float y, float z)
-    {
-        var dz = z - Z;
-
-        return GetExactDist2dSq(x, y) + dz * dz;
-    }
-
-    public float GetExactDistSq(Position pos)
-    {
-        var dx = X - pos.X;
-        var dy = Y - pos.Y;
-        var dz = Z - pos.Z;
-
-        return dx * dx + dy * dy + dz * dz;
     }
 
     public float GetExactDist2d(float x, float y)
@@ -194,25 +136,83 @@ public class Position
         return dx * dx + dy * dy;
     }
 
-    public float GetAbsoluteAngle(float x, float y)
+    public float GetExactDistSq(float x, float y, float z)
     {
-        var dx = x - X;
-        var dy = y - Y;
+        var dz = z - Z;
 
-        return NormalizeOrientation(MathF.Atan2(dy, dx));
+        return GetExactDist2dSq(x, y) + dz * dz;
     }
 
-    public float GetAbsoluteAngle(Position pos)
+    public float GetExactDistSq(Position pos)
     {
-        if (pos == null)
-            return 0;
+        var dx = X - pos.X;
+        var dy = Y - pos.Y;
+        var dz = Z - pos.Z;
 
-        return GetAbsoluteAngle(pos.X, pos.Y);
+        return dx * dx + dy * dy + dz * dz;
     }
 
-    public float ToAbsoluteAngle(float relAngle)
+    public void GetPositionOffsetTo(Position endPos, out Position retOffset)
     {
-        return NormalizeOrientation(relAngle + Orientation);
+        retOffset = new Position();
+
+        var dx = endPos.X - X;
+        var dy = endPos.Y - Y;
+
+        retOffset.X = (float)(dx * Math.Cos(Orientation) + dy * Math.Sin(Orientation));
+        retOffset.Y = (float)(dy * Math.Cos(Orientation) - dx * Math.Sin(Orientation));
+        retOffset.Z = endPos.Z - Z;
+        retOffset.Orientation = endPos.Orientation - Orientation;
+    }
+
+    public Position GetPositionWithOffset(Position offset)
+    {
+        var ret = this;
+        ret.RelocateOffset(offset);
+
+        return ret;
+    }
+
+    public float GetRelativeAngle(Position pos)
+    {
+        return ToRelativeAngle(GetAbsoluteAngle(pos));
+    }
+
+    public float GetRelativeAngle(float x, float y)
+    {
+        return ToRelativeAngle(GetAbsoluteAngle(x, y));
+    }
+
+    public bool HasInArc(float arc, Position obj, float border = 2.0f)
+    {
+        // always have self in arc
+        if (obj == this)
+            return true;
+
+        // move arc to range 0.. 2*pi
+        arc = NormalizeOrientation(arc);
+
+        // move angle to range -pi ... +pi
+        var angle = GetRelativeAngle(obj);
+
+        if (angle > MathFunctions.PI)
+            angle -= 2.0f * MathFunctions.PI;
+
+        var lborder = -1 * (arc / border); // in range -pi..0
+        var rborder = (arc / border);      // in range 0..pi
+
+        return ((angle >= lborder) && (angle <= rborder));
+    }
+
+    public bool HasInLine(Position pos, float objSize, float width)
+    {
+        if (!HasInArc(MathFunctions.PI, pos))
+            return false;
+
+        width += objSize;
+        var angle = GetRelativeAngle(pos);
+
+        return Math.Abs(Math.Sin(angle)) * GetExactDist2d(pos.X, pos.Y) < width;
     }
 
     public bool IsInDist(float x, float y, float z, float dist)
@@ -269,48 +269,52 @@ public class Position
         return IsInDist2d(center, radius) && Math.Abs(verticalDelta) <= height;
     }
 
-    public bool HasInArc(float arc, Position obj, float border = 2.0f)
+    public void Relocate(float x, float y)
     {
-        // always have self in arc
-        if (obj == this)
-            return true;
-
-        // move arc to range 0.. 2*pi
-        arc = NormalizeOrientation(arc);
-
-        // move angle to range -pi ... +pi
-        var angle = GetRelativeAngle(obj);
-
-        if (angle > MathFunctions.PI)
-            angle -= 2.0f * MathFunctions.PI;
-
-        var lborder = -1 * (arc / border); // in range -pi..0
-        var rborder = (arc / border);      // in range 0..pi
-
-        return ((angle >= lborder) && (angle <= rborder));
+        X = x;
+        Y = y;
     }
 
-    public bool HasInLine(Position pos, float objSize, float width)
+    public void Relocate(float x, float y, float z)
     {
-        if (!HasInArc(MathFunctions.PI, pos))
-            return false;
-
-        width += objSize;
-        var angle = GetRelativeAngle(pos);
-
-        return Math.Abs(Math.Sin(angle)) * GetExactDist2d(pos.X, pos.Y) < width;
+        X = x;
+        Y = y;
+        Z = z;
     }
 
+    public void Relocate(float x, float y, float z, float o)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+        Orientation = o;
+    }
+
+    public void Relocate(Position loc)
+    {
+        Relocate(loc.X, loc.Y, loc.Z, loc.Orientation);
+    }
+
+    public void Relocate(Vector3 pos)
+    {
+        Relocate(pos.X, pos.Y, pos.Z);
+    }
+
+    public void RelocateOffset(Position offset)
+    {
+        X = (float)(X + (offset.X * Math.Cos(Orientation) + offset.Y * Math.Sin(Orientation + MathFunctions.PI)));
+        Y = (float)(Y + (offset.Y * Math.Cos(Orientation) + offset.X * Math.Sin(Orientation)));
+        Z += offset.Z;
+        Orientation = Orientation + offset.Orientation;
+    }
+    public float ToAbsoluteAngle(float relAngle)
+    {
+        return NormalizeOrientation(relAngle + Orientation);
+    }
     public override string ToString()
     {
         return $"X: {X} Y: {Y} Z: {Z} O: {Orientation}";
     }
-
-    public Position Copy()
-    {
-        return new Position(this);
-    }
-
     public Vector3 ToVector3()
     {
         return new Vector3()
@@ -331,17 +335,6 @@ public class Position
             W = Orientation
         };
     }
-
-    public static implicit operator Vector2(Position position)
-    {
-        return new Vector2(position.X, position.Y);
-    }
-
-    public static implicit operator Vector3(Position position)
-    {
-        return new Vector3(position.X, position.Y, position.Z);
-    }
-
     private float ToRelativeAngle(float absAngle)
     {
         return NormalizeOrientation(absAngle - Orientation);

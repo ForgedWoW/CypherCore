@@ -11,9 +11,8 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal class ChannelUserlistUpdateBuilder : MessageBuilder
 {
-    private readonly Channel _source;
     private readonly ObjectGuid _guid;
-
+    private readonly Channel _source;
     public ChannelUserlistUpdateBuilder(Channel source, ObjectGuid guid)
     {
         _source = source;

@@ -5,25 +5,24 @@ namespace Forged.MapServer.Entities.Objects;
 
 public struct CreateObjectBits
 {
-    public bool NoBirthAnim;
-    public bool EnablePortals;
-    public bool PlayHoverAnim;
-    public bool MovementUpdate;
-    public bool MovementTransport;
-    public bool Stationary;
-    public bool CombatVictim;
-    public bool ServerTime;
-    public bool Vehicle;
-    public bool AnimKit;
-    public bool Rotation;
-    public bool AreaTrigger;
-    public bool GameObject;
-    public bool SmoothPhasing;
-    public bool ThisIsYou;
-    public bool SceneObject;
     public bool ActivePlayer;
+    public bool AnimKit;
+    public bool AreaTrigger;
+    public bool CombatVictim;
     public bool Conversation;
-
+    public bool EnablePortals;
+    public bool GameObject;
+    public bool MovementTransport;
+    public bool MovementUpdate;
+    public bool NoBirthAnim;
+    public bool PlayHoverAnim;
+    public bool Rotation;
+    public bool SceneObject;
+    public bool ServerTime;
+    public bool SmoothPhasing;
+    public bool Stationary;
+    public bool ThisIsYou;
+    public bool Vehicle;
     public void Clear()
     {
         NoBirthAnim = false;

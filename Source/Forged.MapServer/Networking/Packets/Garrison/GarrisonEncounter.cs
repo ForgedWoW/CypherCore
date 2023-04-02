@@ -7,14 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonEncounter
 {
-    public int GarrEncounterID;
-    public List<int> Mechanics = new();
-    public int GarrAutoCombatantID;
-    public int Health;
-    public int MaxHealth;
     public int Attack;
     public sbyte BoardIndex;
-
+    public int GarrAutoCombatantID;
+    public int GarrEncounterID;
+    public int Health;
+    public int MaxHealth;
+    public List<int> Mechanics = new();
     public void Write(WorldPacket data)
     {
         data.WriteInt32(GarrEncounterID);

@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class TransferAborted : ServerPacket
 {
-    public uint MapID;
     public byte Arg;
     public uint MapDifficultyXConditionID;
+    public uint MapID;
     public TransferAbortReason TransfertAbort;
     public TransferAborted() : base(ServerOpcodes.TransferAborted) { }
 

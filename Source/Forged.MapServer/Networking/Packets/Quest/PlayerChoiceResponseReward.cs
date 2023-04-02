@@ -7,19 +7,18 @@ namespace Forged.MapServer.Networking.Packets.Quest;
 
 internal class PlayerChoiceResponseReward
 {
-    public int TitleID;
+    public uint ArenaPointCount;
+    public List<PlayerChoiceResponseRewardEntry> Currencies = new();
+    public List<PlayerChoiceResponseRewardEntry> Factions = new();
+    public uint HonorPointCount;
+    public List<PlayerChoiceResponseRewardEntry> ItemChoices = new();
+    public List<PlayerChoiceResponseRewardEntry> Items = new();
+    public ulong Money;
     public int PackageID;
     public int SkillLineID;
     public uint SkillPointCount;
-    public uint ArenaPointCount;
-    public uint HonorPointCount;
-    public ulong Money;
+    public int TitleID;
     public uint Xp;
-    public List<PlayerChoiceResponseRewardEntry> Items = new();
-    public List<PlayerChoiceResponseRewardEntry> Currencies = new();
-    public List<PlayerChoiceResponseRewardEntry> Factions = new();
-    public List<PlayerChoiceResponseRewardEntry> ItemChoices = new();
-
     public void Write(WorldPacket data)
     {
         data.WriteInt32(TitleID);

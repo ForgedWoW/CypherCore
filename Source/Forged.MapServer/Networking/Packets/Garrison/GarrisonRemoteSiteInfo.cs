@@ -7,9 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal class GarrisonRemoteSiteInfo
 {
-    public uint GarrSiteLevelID;
     public List<GarrisonRemoteBuildingInfo> Buildings = new();
-
+    public uint GarrSiteLevelID;
     public void Write(WorldPacket data)
     {
         data.WriteUInt32(GarrSiteLevelID);

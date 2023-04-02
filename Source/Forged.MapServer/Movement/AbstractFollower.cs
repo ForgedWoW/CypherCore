@@ -14,6 +14,11 @@ public class AbstractFollower
         SetTarget(target);
     }
 
+    public Unit GetTarget()
+    {
+        return _target;
+    }
+
     public void SetTarget(Unit unit)
     {
         if (unit == _target)
@@ -26,10 +31,5 @@ public class AbstractFollower
 
         if (_target)
             _target.FollowerAdded(this);
-    }
-
-    public Unit GetTarget()
-    {
-        return _target;
     }
 }

@@ -5,13 +5,14 @@ namespace Forged.MapServer.Networking.Packets.Scenario;
 
 internal struct BonusObjectiveData
 {
+    public int BonusObjectiveID;
+
+    public bool ObjectiveComplete;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(BonusObjectiveID);
         data.WriteBit(ObjectiveComplete);
         data.FlushBits();
     }
-
-    public int BonusObjectiveID;
-    public bool ObjectiveComplete;
 }

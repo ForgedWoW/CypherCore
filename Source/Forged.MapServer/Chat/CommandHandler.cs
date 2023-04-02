@@ -33,35 +33,27 @@ public class CommandHandler
         "Hglyph",   // glyph
     };
 
-    public Player SelectedPlayer
+    public CommandHandler(WorldSession session = null)
     {
-        get
-        {
-            if (Session == null)
-                return null;
-
-            var selected = Session.Player.Target;
-
-            if (selected.IsEmpty)
-                return Session.Player;
-
-            return Global.ObjAccessor.FindConnectedPlayer(selected);
-        }
+        Session = session;
     }
 
-    public Unit SelectedUnit
+    public bool HasSentErrorMessage { get; private set; }
+
+    public bool IsConsole => Session == null;
+
+    public virtual string NameLink => GetNameLink(Session.Player);
+
+    public Player Player => Session?.Player;
+
+    public Creature SelectedCreature
     {
         get
         {
             if (Session == null)
                 return null;
 
-            var selected = Session.Player.SelectedUnit;
-
-            if (selected)
-                return selected;
-
-            return Session.Player;
+            return ObjectAccessor.GetCreatureOrPetOrVehicle(Session.Player, Session.Player.Target);
         }
     }
 
@@ -81,14 +73,19 @@ public class CommandHandler
         }
     }
 
-    public Creature SelectedCreature
+    public Player SelectedPlayer
     {
         get
         {
             if (Session == null)
                 return null;
 
-            return ObjectAccessor.GetCreatureOrPetOrVehicle(Session.Player, Session.Player.Target);
+            var selected = Session.Player.Target;
+
+            if (selected.IsEmpty)
+                return Session.Player;
+
+            return Global.ObjAccessor.FindConnectedPlayer(selected);
         }
     }
 
@@ -115,6 +112,27 @@ public class CommandHandler
         }
     }
 
+    public Unit SelectedUnit
+    {
+        get
+        {
+            if (Session == null)
+                return null;
+
+            var selected = Session.Player.SelectedUnit;
+
+            if (selected)
+                return selected;
+
+            return Session.Player;
+        }
+    }
+    public WorldSession Session { get; }
+
+    public virtual Locale SessionDbcLocale => Session.SessionDbcLocale;
+
+    public virtual byte SessionDbLocaleIndex => (byte)Session.SessionDbLocaleIndex;
+
     private GameObject NearbyGameObject
     {
         get
@@ -130,49 +148,6 @@ public class CommandHandler
             return searcher.GetTarget();
         }
     }
-
-    public virtual string NameLink => GetNameLink(Session.Player);
-
-    public bool IsConsole => Session == null;
-
-    public WorldSession Session { get; }
-
-    public Player Player => Session?.Player;
-
-    public virtual Locale SessionDbcLocale => Session.SessionDbcLocale;
-
-    public virtual byte SessionDbLocaleIndex => (byte)Session.SessionDbLocaleIndex;
-
-    public bool HasSentErrorMessage { get; private set; }
-
-    public CommandHandler(WorldSession session = null)
-    {
-        Session = session;
-    }
-
-    public virtual bool ParseCommands(string text)
-    {
-        if (text.IsEmpty())
-            return false;
-
-        // chat case (.command or !command format)
-        if (text[0] != '!' && text[0] != '.')
-            return false;
-
-        /// ignore single . and ! in line
-        if (text.Length < 2)
-            return false;
-
-        // ignore messages staring from many dots.
-        if (text[1] == text[0])
-            return false;
-
-        if (text[1] == ' ')
-            return false;
-
-        return _ParseCommands(text.Substring(1));
-    }
-
     public bool _ParseCommands(string text)
     {
         if (ChatCommandNode.TryExecuteCommand(this, text))
@@ -186,21 +161,6 @@ public class CommandHandler
         SendSysMessage(CypherStrings.CmdInvalid, text);
 
         return true;
-    }
-
-    public virtual bool IsAvailable(ChatCommandNode cmd)
-    {
-        return HasPermission(cmd.Permission.RequiredPermission);
-    }
-
-    public virtual bool IsHumanReadable()
-    {
-        return true;
-    }
-
-    public virtual bool HasPermission(RBACPermissions permission)
-    {
-        return Session.HasPermission(permission);
     }
 
     public string ExtractKeyFromLink(StringArguments args, params string[] linkType)
@@ -263,69 +223,6 @@ public class CommandHandler
         return null;
     }
 
-    public string ExtractQuotedArg(string str)
-    {
-        if (string.IsNullOrEmpty(str))
-            return null;
-
-        if (!str.Contains("\""))
-            return str;
-
-        return str.Replace("\"", string.Empty);
-    }
-
-    public bool ExtractPlayerTarget(StringArguments args, out Player player)
-    {
-        return ExtractPlayerTarget(args, out player, out _, out _);
-    }
-
-    public bool ExtractPlayerTarget(StringArguments args, out Player player, out ObjectGuid playerGuid)
-    {
-        return ExtractPlayerTarget(args, out player, out playerGuid, out _);
-    }
-
-    public bool ExtractPlayerTarget(StringArguments args, out Player player, out ObjectGuid playerGuid, out string playerName)
-    {
-        player = null;
-        playerGuid = ObjectGuid.Empty;
-        playerName = "";
-
-        if (args != null && !args.Empty())
-        {
-            var name = ExtractPlayerNameFromLink(args);
-
-            if (string.IsNullOrEmpty(name))
-            {
-                SendSysMessage(CypherStrings.PlayerNotFound);
-                HasSentErrorMessage = true;
-
-                return false;
-            }
-
-            player = Global.ObjAccessor.FindPlayerByName(name);
-            var guid = player == null ? Global.CharacterCacheStorage.GetCharacterGuidByName(name) : ObjectGuid.Empty;
-
-            playerGuid = player?.GUID ?? guid;
-            playerName = player != null || !guid.IsEmpty ? name : "";
-        }
-        else
-        {
-            player = SelectedPlayer;
-            playerGuid = player?.GUID ?? ObjectGuid.Empty;
-            playerName = player != null ? player.GetName() : "";
-        }
-
-        if (player == null && playerGuid.IsEmpty && string.IsNullOrEmpty(playerName))
-        {
-            SendSysMessage(CypherStrings.PlayerNotFound);
-            HasSentErrorMessage = true;
-
-            return false;
-        }
-
-        return true;
-    }
-
     public ulong ExtractLowGuidFromLink(StringArguments args, ref HighGuid guidHigh)
     {
         string[] guidKeys =
@@ -386,6 +283,69 @@ public class CommandHandler
         return 0;
     }
 
+    public bool ExtractPlayerTarget(StringArguments args, out Player player)
+    {
+        return ExtractPlayerTarget(args, out player, out _, out _);
+    }
+
+    public bool ExtractPlayerTarget(StringArguments args, out Player player, out ObjectGuid playerGuid)
+    {
+        return ExtractPlayerTarget(args, out player, out playerGuid, out _);
+    }
+
+    public bool ExtractPlayerTarget(StringArguments args, out Player player, out ObjectGuid playerGuid, out string playerName)
+    {
+        player = null;
+        playerGuid = ObjectGuid.Empty;
+        playerName = "";
+
+        if (args != null && !args.Empty())
+        {
+            var name = ExtractPlayerNameFromLink(args);
+
+            if (string.IsNullOrEmpty(name))
+            {
+                SendSysMessage(CypherStrings.PlayerNotFound);
+                HasSentErrorMessage = true;
+
+                return false;
+            }
+
+            player = Global.ObjAccessor.FindPlayerByName(name);
+            var guid = player == null ? Global.CharacterCacheStorage.GetCharacterGuidByName(name) : ObjectGuid.Empty;
+
+            playerGuid = player?.GUID ?? guid;
+            playerName = player != null || !guid.IsEmpty ? name : "";
+        }
+        else
+        {
+            player = SelectedPlayer;
+            playerGuid = player?.GUID ?? ObjectGuid.Empty;
+            playerName = player != null ? player.GetName() : "";
+        }
+
+        if (player == null && playerGuid.IsEmpty && string.IsNullOrEmpty(playerName))
+        {
+            SendSysMessage(CypherStrings.PlayerNotFound);
+            HasSentErrorMessage = true;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public string ExtractQuotedArg(string str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return null;
+
+        if (!str.Contains("\""))
+            return str;
+
+        return str.Replace("\"", string.Empty);
+    }
+
     public uint ExtractSpellIdFromLink(StringArguments args)
     {
         // number or [name] Shift-click form |color|Henchant:recipe_spell_id|h[prof_name: recipe_name]|h|r
@@ -436,19 +396,6 @@ public class CommandHandler
         return 0;
     }
 
-    public GameObject GetObjectFromPlayerMapByDbGuid(ulong lowguid)
-    {
-        if (Session == null)
-            return null;
-
-        var bounds = Session.Player.Location.Map.GameObjectBySpawnIdStore.LookupByKey(lowguid);
-
-        if (!bounds.Empty())
-            return Enumerable.First<GameObject>(bounds);
-
-        return null;
-    }
-
     public Creature GetCreatureFromPlayerMapByDbGuid(ulong lowguid)
     {
         if (!Session)
@@ -469,9 +416,9 @@ public class CommandHandler
         return creature;
     }
 
-    public string PlayerLink(string name)
+    public string GetCypherString(CypherStrings str)
     {
-        return Session != null ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name;
+        return Global.ObjectMgr.GetCypherString(str);
     }
 
     public string GetNameLink(Player obj)
@@ -479,11 +426,66 @@ public class CommandHandler
         return PlayerLink(obj.GetName());
     }
 
-    public virtual bool NeedReportToTarget(Player chr)
+    public GameObject GetObjectFromPlayerMapByDbGuid(ulong lowguid)
     {
-        var pl = Session.Player;
+        if (Session == null)
+            return null;
 
-        return pl != chr && pl.IsVisibleGloballyFor(chr);
+        var bounds = Session.Player.Location.Map.GameObjectBySpawnIdStore.LookupByKey(lowguid);
+
+        if (!bounds.Empty())
+            return Enumerable.First<GameObject>(bounds);
+
+        return null;
+    }
+
+    public string GetParsedString(CypherStrings cypherString, params object[] args)
+    {
+        return string.Format(Global.ObjectMgr.GetCypherString(cypherString), args);
+    }
+
+    public bool GetPlayerGroupAndGUIDByName(string name, out Player player, out PlayerGroup group, out ObjectGuid guid, bool offline = false)
+    {
+        player = null;
+        guid = ObjectGuid.Empty;
+        group = null;
+
+        if (!name.IsEmpty())
+        {
+            if (!GameObjectManager.NormalizePlayerName(ref name))
+            {
+                SendSysMessage(CypherStrings.PlayerNotFound);
+
+                return false;
+            }
+
+            player = Global.ObjAccessor.FindPlayerByName(name);
+
+            if (offline)
+                guid = Global.CharacterCacheStorage.GetCharacterGuidByName(name);
+        }
+
+        if (player)
+        {
+            group = player.Group;
+
+            if (guid.IsEmpty || !offline)
+                guid = player.GUID;
+        }
+        else
+        {
+            if (SelectedPlayer)
+                player = SelectedPlayer;
+            else
+                player = Session.Player;
+
+            if (guid.IsEmpty || !offline)
+                guid = player.GUID;
+
+            group = player.Group;
+        }
+
+        return true;
     }
 
     public bool HasLowerSecurity(Player target, ObjectGuid guid, bool strong = false)
@@ -537,14 +539,73 @@ public class CommandHandler
         return false;
     }
 
-    public string GetCypherString(CypherStrings str)
+    public virtual bool HasPermission(RBACPermissions permission)
     {
-        return Global.ObjectMgr.GetCypherString(str);
+        return Session.HasPermission(permission);
     }
 
-    public string GetParsedString(CypherStrings cypherString, params object[] args)
+    public virtual bool IsAvailable(ChatCommandNode cmd)
     {
-        return string.Format(Global.ObjectMgr.GetCypherString(cypherString), args);
+        return HasPermission(cmd.Permission.RequiredPermission);
+    }
+
+    public virtual bool IsHumanReadable()
+    {
+        return true;
+    }
+
+    public virtual bool NeedReportToTarget(Player chr)
+    {
+        var pl = Session.Player;
+
+        return pl != chr && pl.IsVisibleGloballyFor(chr);
+    }
+
+    public virtual bool ParseCommands(string text)
+    {
+        if (text.IsEmpty())
+            return false;
+
+        // chat case (.command or !command format)
+        if (text[0] != '!' && text[0] != '.')
+            return false;
+
+        /// ignore single . and ! in line
+        if (text.Length < 2)
+            return false;
+
+        // ignore messages staring from many dots.
+        if (text[1] == text[0])
+            return false;
+
+        if (text[1] == ' ')
+            return false;
+
+        return _ParseCommands(text.Substring(1));
+    }
+    public string PlayerLink(string name)
+    {
+        return Session != null ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name;
+    }
+    public void SendGlobalGMSysMessage(string str)
+    {
+        // Chat output
+        ChatPkt data = new();
+        data.Initialize(ChatMsg.System, Language.Universal, null, null, str);
+        Global.WorldMgr.SendGlobalGMMessage(data);
+    }
+
+    public void SendGlobalSysMessage(string str)
+    {
+        // Chat output
+        ChatPkt data = new();
+        data.Initialize(ChatMsg.System, Language.Universal, null, null, str);
+        Global.WorldMgr.SendGlobalMessage(data);
+    }
+
+    public void SendNotification(CypherStrings str, params object[] args)
+    {
+        Session.SendNotification(str, args);
     }
 
     public void SendSysMessage(string str, params object[] args)
@@ -574,72 +635,6 @@ public class CommandHandler
             Session.SendPacket(messageChat);
         }
     }
-
-    public void SendNotification(CypherStrings str, params object[] args)
-    {
-        Session.SendNotification(str, args);
-    }
-
-    public void SendGlobalSysMessage(string str)
-    {
-        // Chat output
-        ChatPkt data = new();
-        data.Initialize(ChatMsg.System, Language.Universal, null, null, str);
-        Global.WorldMgr.SendGlobalMessage(data);
-    }
-
-    public void SendGlobalGMSysMessage(string str)
-    {
-        // Chat output
-        ChatPkt data = new();
-        data.Initialize(ChatMsg.System, Language.Universal, null, null, str);
-        Global.WorldMgr.SendGlobalGMMessage(data);
-    }
-
-    public bool GetPlayerGroupAndGUIDByName(string name, out Player player, out PlayerGroup group, out ObjectGuid guid, bool offline = false)
-    {
-        player = null;
-        guid = ObjectGuid.Empty;
-        group = null;
-
-        if (!name.IsEmpty())
-        {
-            if (!GameObjectManager.NormalizePlayerName(ref name))
-            {
-                SendSysMessage(CypherStrings.PlayerNotFound);
-
-                return false;
-            }
-
-            player = Global.ObjAccessor.FindPlayerByName(name);
-
-            if (offline)
-                guid = Global.CharacterCacheStorage.GetCharacterGuidByName(name);
-        }
-
-        if (player)
-        {
-            group = player.Group;
-
-            if (guid.IsEmpty || !offline)
-                guid = player.GUID;
-        }
-        else
-        {
-            if (SelectedPlayer)
-                player = SelectedPlayer;
-            else
-                player = Session.Player;
-
-            if (guid.IsEmpty || !offline)
-                guid = player.GUID;
-
-            group = player.Group;
-        }
-
-        return true;
-    }
-
     public void SetSentErrorMessage(bool val)
     {
         HasSentErrorMessage = val;

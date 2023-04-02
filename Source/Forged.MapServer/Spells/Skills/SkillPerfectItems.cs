@@ -11,16 +11,35 @@ namespace Forged.MapServer.Spells.Skills;
 
 public class SkillPerfectItems
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly SpellManager _spellManager;
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, SkillPerfectItemEntry> _skillPerfectItemStorage = new();
-
+    private readonly SpellManager _spellManager;
+    private readonly WorldDatabase _worldDatabase;
     public SkillPerfectItems(WorldDatabase worldDatabase, SpellManager spellManager, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;
         _spellManager = spellManager;
         _objectManager = objectManager;
+    }
+
+    public bool CanCreatePerfectItem(Player player, uint spellId, ref double perfectCreateChance, ref uint perfectItemType)
+    {
+        var entry = _skillPerfectItemStorage.LookupByKey(spellId);
+
+        // no entry in DB means no perfection proc possible
+        if (entry == null)
+            return false;
+
+        // if you don't have the spell needed, then no procs for you
+        if (!player.HasSpell(entry.RequiredSpecialization))
+            return false;
+
+        // set values as appropriate
+        perfectCreateChance = entry.PerfectCreateChance;
+        perfectItemType = entry.PerfectItemType;
+
+        // and tell the caller to start rolling the dice
+        return true;
     }
 
     // loads the perfection proc info from DB
@@ -86,25 +105,5 @@ public class SkillPerfectItems
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} spell perfection definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    public bool CanCreatePerfectItem(Player player, uint spellId, ref double perfectCreateChance, ref uint perfectItemType)
-    {
-        var entry = _skillPerfectItemStorage.LookupByKey(spellId);
-
-        // no entry in DB means no perfection proc possible
-        if (entry == null)
-            return false;
-
-        // if you don't have the spell needed, then no procs for you
-        if (!player.HasSpell(entry.RequiredSpecialization))
-            return false;
-
-        // set values as appropriate
-        perfectCreateChance = entry.PerfectCreateChance;
-        perfectItemType = entry.PerfectItemType;
-
-        // and tell the caller to start rolling the dice
-        return true;
     }
 }

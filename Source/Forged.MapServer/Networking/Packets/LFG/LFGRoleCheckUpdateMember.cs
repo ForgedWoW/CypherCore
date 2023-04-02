@@ -8,10 +8,9 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 public class LFGRoleCheckUpdateMember
 {
     public ObjectGuid Guid;
-    public uint RolesDesired;
     public byte Level;
     public bool RoleCheckComplete;
-
+    public uint RolesDesired;
     public LFGRoleCheckUpdateMember(ObjectGuid guid, uint rolesDesired, byte level, bool roleCheckComplete)
     {
         Guid = guid;

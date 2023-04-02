@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 internal class MergeItemWithGuildBankItem : ClientPacket
 {
     public ObjectGuid Banker;
-    public byte BankTab;
     public byte BankSlot;
-    public byte? ContainerSlot;
+    public byte BankTab;
     public byte ContainerItemSlot;
+    public byte? ContainerSlot;
     public uint StackCount;
     public MergeItemWithGuildBankItem(WorldPacket packet) : base(packet) { }
 

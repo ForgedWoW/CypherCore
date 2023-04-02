@@ -7,16 +7,21 @@ namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 public struct MethodCall
 {
-    public uint GetServiceHash()
-    {
-        return (uint)(Type >> 32);
-    }
+    public ulong ObjectId;
+
+    public uint Token;
+
+    public ulong Type;
 
     public uint GetMethodId()
     {
         return (uint)(Type & 0xFFFFFFFF);
     }
 
+    public uint GetServiceHash()
+    {
+        return (uint)(Type >> 32);
+    }
     public void Read(ByteBuffer data)
     {
         Type = data.ReadUInt64();
@@ -30,8 +35,4 @@ public struct MethodCall
         data.WriteUInt64(ObjectId);
         data.WriteUInt32(Token);
     }
-
-    public ulong Type;
-    public ulong ObjectId;
-    public uint Token;
 }

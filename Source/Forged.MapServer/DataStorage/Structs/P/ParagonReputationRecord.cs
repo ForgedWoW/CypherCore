@@ -5,8 +5,8 @@ namespace Forged.MapServer.DataStorage.Structs.P;
 
 public sealed class ParagonReputationRecord
 {
-    public uint Id;
     public uint FactionID;
+    public uint Id;
     public int LevelThreshold;
     public int QuestID;
 }

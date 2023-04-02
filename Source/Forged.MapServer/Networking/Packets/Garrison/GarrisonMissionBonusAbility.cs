@@ -5,12 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Garrison;
 
 internal struct GarrisonMissionBonusAbility
 {
+    public uint GarrMssnBonusAbilityID;
+
+    public long StartTime;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt64(StartTime);
         data.WriteUInt32(GarrMssnBonusAbilityID);
     }
-
-    public uint GarrMssnBonusAbilityID;
-    public long StartTime;
 }

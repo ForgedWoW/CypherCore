@@ -15,14 +15,13 @@ namespace Forged.MapServer.SupportSystem;
 
 public class ComplaintTicket : Ticket
 {
+    private SupportTicketSubmitComplaint.SupportTicketChatLog _chatLog;
     private float _facing;
-    private ObjectGuid _targetCharacterGuid;
-    private ReportType _reportType;
     private ReportMajorCategory _majorCategory;
     private ReportMinorCategory _minorCategoryFlags = ReportMinorCategory.TextChat;
-    private SupportTicketSubmitComplaint.SupportTicketChatLog _chatLog;
     private string _note;
-
+    private ReportType _reportType;
+    private ObjectGuid _targetCharacterGuid;
     public ComplaintTicket()
     {
         _note = "";
@@ -32,6 +31,45 @@ public class ComplaintTicket : Ticket
     {
         _note = "";
         IdProtected = Global.SupportMgr.GenerateComplaintId();
+    }
+
+    public override void DeleteFromDB()
+    {
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT);
+        stmt.AddValue(0, IdProtected);
+        DB.Characters.Execute(stmt);
+
+        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT_CHATLOG);
+        stmt.AddValue(0, IdProtected);
+        DB.Characters.Execute(stmt);
+    }
+
+    public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
+    {
+        var curTime = (ulong)GameTime.CurrentTime;
+
+        StringBuilder ss = new();
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.SecsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText)));
+
+        if (!AssignedToProtected.IsEmpty)
+            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
+
+        if (detailed)
+        {
+            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
+
+            if (!string.IsNullOrEmpty(CommentProtected))
+                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, CommentProtected));
+        }
+
+        return ss.ToString();
+    }
+
+    public void LoadChatLineFromDB(SQLFields fields)
+    {
+        _chatLog.Lines.Add(new SupportTicketSubmitComplaint.SupportTicketChatLine(fields.Read<long>(0), fields.Read<string>(1)));
     }
 
     public override void LoadFromDB(SQLFields fields)
@@ -71,12 +109,6 @@ public class ComplaintTicket : Ticket
 
         CommentProtected = fields.Read<string>(++idx);
     }
-
-    public void LoadChatLineFromDB(SQLFields fields)
-    {
-        _chatLog.Lines.Add(new SupportTicketSubmitComplaint.SupportTicketChatLine(fields.Read<long>(0), fields.Read<string>(1)));
-    }
-
     public override void SaveToDB()
     {
         var trans = new SQLTransaction();
@@ -124,54 +156,14 @@ public class ComplaintTicket : Ticket
 
         DB.Characters.CommitTransaction(trans);
     }
-
-    public override void DeleteFromDB()
+    public void SetChatLog(SupportTicketSubmitComplaint.SupportTicketChatLog log)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT);
-        stmt.AddValue(0, IdProtected);
-        DB.Characters.Execute(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT_CHATLOG);
-        stmt.AddValue(0, IdProtected);
-        DB.Characters.Execute(stmt);
-    }
-
-    public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
-    {
-        var curTime = (ulong)GameTime.GetGameTime();
-
-        StringBuilder ss = new();
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.secsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText)));
-
-        if (!AssignedToProtected.IsEmpty)
-            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
-
-        if (detailed)
-        {
-            ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
-
-            if (!string.IsNullOrEmpty(CommentProtected))
-                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, CommentProtected));
-        }
-
-        return ss.ToString();
+        _chatLog = log;
     }
 
     public void SetFacing(float facing)
     {
         _facing = facing;
-    }
-
-    public void SetTargetCharacterGuid(ObjectGuid targetCharacterGuid)
-    {
-        _targetCharacterGuid = targetCharacterGuid;
-    }
-
-    public void SetReportType(ReportType reportType)
-    {
-        _reportType = reportType;
     }
 
     public void SetMajorCategory(ReportMajorCategory majorCategory)
@@ -184,26 +176,20 @@ public class ComplaintTicket : Ticket
         _minorCategoryFlags = minorCategoryFlags;
     }
 
-    public void SetChatLog(SupportTicketSubmitComplaint.SupportTicketChatLog log)
-    {
-        _chatLog = log;
-    }
-
     public void SetNote(string note)
     {
         _note = note;
     }
 
-    private ObjectGuid GetTargetCharacterGuid()
+    public void SetReportType(ReportType reportType)
     {
-        return _targetCharacterGuid;
+        _reportType = reportType;
     }
 
-    private ReportType GetReportType()
+    public void SetTargetCharacterGuid(ObjectGuid targetCharacterGuid)
     {
-        return _reportType;
+        _targetCharacterGuid = targetCharacterGuid;
     }
-
     private ReportMajorCategory GetMajorCategory()
     {
         return _majorCategory;
@@ -217,5 +203,15 @@ public class ComplaintTicket : Ticket
     private string GetNote()
     {
         return _note;
+    }
+
+    private ReportType GetReportType()
+    {
+        return _reportType;
+    }
+
+    private ObjectGuid GetTargetCharacterGuid()
+    {
+        return _targetCharacterGuid;
     }
 }

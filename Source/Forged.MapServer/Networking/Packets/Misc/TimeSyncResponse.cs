@@ -11,14 +11,14 @@ public class TimeSyncResponse : ClientPacket
     public uint SequenceIndex; // Same index as in request
     public TimeSyncResponse(WorldPacket packet) : base(packet) { }
 
+    public DateTime GetReceivedTime()
+    {
+        return _worldPacket.GetReceivedTime();
+    }
+
     public override void Read()
     {
         SequenceIndex = _worldPacket.ReadUInt32();
         ClientTime = _worldPacket.ReadUInt32();
-    }
-
-    public DateTime GetReceivedTime()
-    {
-        return _worldPacket.GetReceivedTime();
     }
 }

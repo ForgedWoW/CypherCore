@@ -8,20 +8,19 @@ namespace Forged.MapServer.DataStorage.Structs.U;
 
 public sealed class UiMapRecord
 {
-    public LocalizedString Name;
-    public uint Id;
-    public int ParentUiMapID;
+    public int AlternateUiMapGroup;
+    public int BkgAtlasID;
+    public uint BountyDisplayLocation;
+    public int BountySetID;
+    public int ContentTuningID;
     public int Flags;
+    public sbyte HelpTextPosition;
+    public uint Id;
+    public LocalizedString Name;
+    public int ParentUiMapID;
     public uint System;
     public UiMapType Type;
-    public int BountySetID;
-    public uint BountyDisplayLocation;
     public int VisibilityPlayerConditionID;
-    public sbyte HelpTextPosition;
-    public int BkgAtlasID;
-    public int AlternateUiMapGroup;
-    public int ContentTuningID;
-
     public UiMapFlag GetFlags()
     {
         return (UiMapFlag)Flags;

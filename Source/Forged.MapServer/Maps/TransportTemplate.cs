@@ -10,16 +10,14 @@ namespace Forged.MapServer.Maps;
 
 public class TransportTemplate
 {
-    public uint TotalPathTime { get; set; }
-    public double Speed { get; set; }
+    public double AccelerationDistance { get; set; }
     public double AccelerationRate { get; set; }
     public double AccelerationTime { get; set; }
-    public double AccelerationDistance { get; set; }
-    public List<TransportPathLeg> PathLegs { get; set; } = new();
     public List<TransportPathEvent> Events { get; set; } = new();
-
     public HashSet<uint> MapIds { get; set; } = new();
-
+    public List<TransportPathLeg> PathLegs { get; set; } = new();
+    public double Speed { get; set; }
+    public uint TotalPathTime { get; set; }
     public Position ComputePosition(uint time, out TransportMovementState moveState, out int legIndex)
     {
         moveState = TransportMovementState.Moving;

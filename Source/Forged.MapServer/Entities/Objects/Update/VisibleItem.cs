@@ -9,12 +9,20 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class VisibleItem : BaseUpdateData<Unit>
 {
-    public UpdateField<uint> ItemID = new(0, 1);
-    public UpdateField<uint> SecondaryItemModifiedAppearanceID = new(0, 2);
     public UpdateField<ushort> ItemAppearanceModID = new(0, 3);
+    public UpdateField<uint> ItemID = new(0, 1);
     public UpdateField<ushort> ItemVisual = new(0, 4);
-
+    public UpdateField<uint> SecondaryItemModifiedAppearanceID = new(0, 2);
     public VisibleItem() : base(5) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(ItemID);
+        ClearChangesMask(SecondaryItemModifiedAppearanceID);
+        ClearChangesMask(ItemAppearanceModID);
+        ClearChangesMask(ItemVisual);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Unit owner, Player receiver)
     {
@@ -49,14 +57,5 @@ public class VisibleItem : BaseUpdateData<Unit>
             if (changesMask[4])
                 data.WriteUInt16(ItemVisual);
         }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(ItemID);
-        ClearChangesMask(SecondaryItemModifiedAppearanceID);
-        ClearChangesMask(ItemAppearanceModID);
-        ClearChangesMask(ItemVisual);
-        ChangesMask.ResetAll();
     }
 }

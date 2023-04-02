@@ -8,13 +8,12 @@ namespace Forged.MapServer.Maps;
 public class ParallelogramBoundary : AreaBoundary
 {
     private readonly DoublePosition _a;
-    private readonly DoublePosition _b;
-    private readonly DoublePosition _d;
-    private readonly DoublePosition _c;
     private readonly double _abx;
-    private readonly double _dax;
     private readonly double _aby;
-
+    private readonly DoublePosition _b;
+    private readonly DoublePosition _c;
+    private readonly DoublePosition _d;
+    private readonly double _dax;
     private readonly double _day;
 
     // Note: AB must be orthogonal to AD

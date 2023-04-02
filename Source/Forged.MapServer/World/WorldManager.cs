@@ -40,175 +40,64 @@ namespace Forged.MapServer.World;
 
 public class WorldManager
 {
-    public const string NEXT_CURRENCY_RESET_TIME_VAR_ID = "NextCurrencyResetTime";
-    public const string NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID = "NextWeeklyQuestResetTime";
-    public const string NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID = "NextBGRandomDailyResetTime";
     public const string CHARACTER_DATABASE_CLEANING_FLAGS_VAR_ID = "PersistentCharacterCleanFlags";
-    public const string NEXT_GUILD_DAILY_RESET_TIME_VAR_ID = "NextGuildDailyResetTime";
-    public const string NEXT_MONTHLY_QUEST_RESET_TIME_VAR_ID = "NextMonthlyQuestResetTime";
+    public const string NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID = "NextBGRandomDailyResetTime";
+    public const string NEXT_CURRENCY_RESET_TIME_VAR_ID = "NextCurrencyResetTime";
     public const string NEXT_DAILY_QUEST_RESET_TIME_VAR_ID = "NextDailyQuestResetTime";
-    public const string NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID = "NextOldCalendarEventDeletionTime";
+    public const string NEXT_GUILD_DAILY_RESET_TIME_VAR_ID = "NextGuildDailyResetTime";
     public const string NEXT_GUILD_WEEKLY_RESET_TIME_VAR_ID = "NextGuildWeeklyResetTime";
+    public const string NEXT_MONTHLY_QUEST_RESET_TIME_VAR_ID = "NextMonthlyQuestResetTime";
+    public const string NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID = "NextOldCalendarEventDeletionTime";
+    public const string NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID = "NextWeeklyQuestResetTime";
     public bool IsStopped;
-    private readonly IConfiguration _configuration;
-    private readonly LoginDatabase _loginDatabase;
-    private readonly ScriptManager _scriptManager;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly CharacterDatabase _characterDatabase;
-    private readonly SupportManager _supportManager;
-    private readonly VMapManager _vMapManager;
-    private readonly MapManager _mapManager;
-    private readonly CliDB _cliDB;
+    private readonly ConcurrentQueue<WorldSession> _addSessQueue = new();
     private readonly Dictionary<byte, Autobroadcast> _autobroadcasts = new();
-    private readonly Dictionary<WorldTimers, IntervalTimer> _timers = new();
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly Dictionary<uint, long> _disconnects = new();
+    private readonly object _guidAlertLock = new();
+    private readonly LoginDatabase _loginDatabase;
+    private readonly MapManager _mapManager;
+    private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
+    private readonly List<WorldSession> _queuedPlayer = new();
+    private readonly ScriptManager _scriptManager;
     private readonly ConcurrentDictionary<uint, WorldSession> _sessions = new();
     private readonly MultiMap<ObjectGuid, WorldSession> _sessionsByBnetGuid = new();
-    private readonly Dictionary<uint, long> _disconnects = new();
-    private readonly Dictionary<string, int> _worldVariables = new();
-    private readonly List<WorldSession> _queuedPlayer = new();
-    private readonly ConcurrentQueue<WorldSession> _addSessQueue = new();
-    private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
-    private readonly object _guidAlertLock = new();
+    private readonly SupportManager _supportManager;
     private readonly LimitedThreadTaskManager _taskManager = new(10);
+    private readonly Dictionary<WorldTimers, IntervalTimer> _timers = new();
+    private readonly VMapManager _vMapManager;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly Dictionary<string, int> _worldVariables = new();
     private AccountManager _accountManager;
-    private CharacterCache _characterCache;
-    private ObjectAccessor _objectAccessor;
-    private QuestPoolManager _questPoolManager;
-    private CalendarManager _calendarManager;
-    private GuildManager _guildManager;
-    private WorldStateManager _worldStateManager;
-    private GameEventManager _eventManager;
-
-    private ShutdownMask _shutdownMask;
-    private ShutdownExitCode _exitCode;
-
-    private long _mailTimer;
-    private long _timerExpires;
-    private long _blackmarketTimer;
+    private string _alertRestartReason;
     private AccountTypes _allowedSecurityLevel;
-    private BitSet _availableDbcLocaleMask; // by loaded DBC
-
+    private BitSet _availableDbcLocaleMask;
+    private long _blackmarketTimer;
+    private CalendarManager _calendarManager;
+    private CharacterCache _characterCache;
+    private GameEventManager _eventManager;
+    private ShutdownExitCode _exitCode;
+    private string _guidWarningMsg;
+    private GuildManager _guildManager;
+    private long _mailTimer;
+    private uint _maxSkill;
+    private long _nextCalendarOldEventsDeletionTime;
+    private long _nextCurrencyReset;
+    private long _nextGuildReset;
     // scheduled reset times
     private long _nextRandomBgReset;
-    private long _nextCalendarOldEventsDeletionTime;
-    private long _nextGuildReset;
-    private long _nextCurrencyReset;
 
-    private string _guidWarningMsg;
-    private string _alertRestartReason;
-
+    private ObjectAccessor _objectAccessor;
+    private QuestPoolManager _questPoolManager;
+    private ShutdownMask _shutdownMask;
+    private long _timerExpires;
+    // by loaded DBC
     private uint _warnDiff;
+
     private long _warnShutdownTime;
-
-    private uint _maxSkill;
-
-    public bool IsClosed { get; private set; }
-
-    public List<string> Motd { get; } = new();
-
-    public List<WorldSession> AllSessions => _sessions.Values.ToList();
-
-    public int ActiveAndQueuedSessionCount => _sessions.Count;
-
-    public int ActiveSessionCount => _sessions.Count - _queuedPlayer.Count;
-
-    public int QueuedSessionCount => _queuedPlayer.Count;
-
-    // Get the maximum number of parallel sessions on the server since last reboot
-    public uint MaxQueuedSessionCount { get; private set; }
-
-    public uint MaxActiveSessionCount { get; private set; }
-
-    public uint PlayerCount { get; private set; }
-
-    public uint MaxPlayerCount { get; private set; }
-
-    public AccountTypes PlayerSecurityLimit
-    {
-        get => _allowedSecurityLevel;
-        set
-        {
-            var sec = value < AccountTypes.Console ? value : AccountTypes.Player;
-            var update = sec > _allowedSecurityLevel;
-            _allowedSecurityLevel = sec;
-
-            if (update)
-                KickAllLess(_allowedSecurityLevel);
-        }
-    }
-
-    public uint PlayerAmountLimit { get; set; }
-
-    /// Get the path where data (dbc, maps) are stored on disk
-    public string DataPath { get; set; }
-
-    public long NextDailyQuestsResetTime { get; set; }
-
-    public long NextWeeklyQuestsResetTime { get; set; }
-
-    public long NextMonthlyQuestsResetTime { get; set; }
-
-    public uint ConfigMaxSkillValue
-    {
-        get
-        {
-            if (_maxSkill == 0)
-            {
-                var lvl = _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
-
-                _maxSkill = (uint)(lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5);
-            }
-
-            return _maxSkill;
-        }
-    }
-
-    public bool IsShuttingDown => ShutDownTimeLeft > 0;
-
-    public uint ShutDownTimeLeft { get; private set; }
-
-    public int ExitCode => (int)_exitCode;
-
-    public bool IsPvPRealm
-    {
-        get
-        {
-            var realmtype = (RealmType)_configuration.GetDefaultValue("GameType", 0);
-
-            return realmtype is RealmType.PVP or RealmType.RPPVP or RealmType.FFAPVP;
-        }
-    }
-
-    public bool IsFFAPvPRealm => _configuration.GetDefaultValue("GameType", 0) == (int)RealmType.FFAPVP;
-
-    public Locale DefaultDbcLocale { get; private set; }
-
-    public Realm Realm { get; }
-
-    public float MaxVisibleDistanceOnContinents { get; private set; } = SharedConst.DefaultVisibilityDistance;
-
-    public float MaxVisibleDistanceInInstances { get; private set; } = SharedConst.DefaultVisibilityInstance;
-
-    public float MaxVisibleDistanceInBG { get; private set; } = SharedConst.DefaultVisibilityBGAreans;
-
-    public float MaxVisibleDistanceInArenas { get; private set; } = SharedConst.DefaultVisibilityBGAreans;
-
-    public int VisibilityNotifyPeriodOnContinents { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
-
-    public int VisibilityNotifyPeriodInInstances { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
-
-    public int VisibilityNotifyPeriodInBG { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
-
-    public int VisibilityNotifyPeriodInArenas { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
-
-    public CleaningFlags CleaningFlags { get; set; }
-
-    public bool IsGuidWarning { get; private set; }
-
-    public bool IsGuidAlert { get; private set; }
-
-    public WorldUpdateTime WorldUpdateTime { get; }
-
+    private WorldStateManager _worldStateManager;
     public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager,
                         WorldDatabase worldDatabase, CharacterDatabase characterDatabase, SupportManager supportManager,
                         VMapManager vMapManager, MapManager mapManager, CliDB cliDB, Realm realm)
@@ -231,7 +120,7 @@ public class WorldManager
         _allowedSecurityLevel = AccountTypes.Player;
 
         WorldUpdateTime = new WorldUpdateTime();
-        _warnShutdownTime = GameTime.GetGameTime();
+        _warnShutdownTime = GameTime.CurrentTime;
 
         LoadRealmInfo();
 
@@ -253,8 +142,325 @@ public class WorldManager
         Environment.Exit(1);
     }
 
+    public static Realm Realm { get; private set; }
+    public int ActiveAndQueuedSessionCount => _sessions.Count;
+    public int ActiveSessionCount => _sessions.Count - _queuedPlayer.Count;
+    public List<WorldSession> AllSessions => _sessions.Values.ToList();
+    public CleaningFlags CleaningFlags { get; set; }
+    public uint ConfigMaxSkillValue
+    {
+        get
+        {
+            if (_maxSkill == 0)
+            {
+                var lvl = _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
+
+                _maxSkill = (uint)(lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5);
+            }
+
+            return _maxSkill;
+        }
+    }
+
+    /// Get the path where data (dbc, maps) are stored on disk
+    public string DataPath { get; set; }
+
+    public Locale DefaultDbcLocale { get; private set; }
+    public int ExitCode => (int)_exitCode;
+    public bool IsClosed { get; private set; }
+
+    public bool IsFFAPvPRealm => _configuration.GetDefaultValue("GameType", 0) == (int)RealmType.FFAPVP;
+    public bool IsGuidAlert { get; private set; }
+    public bool IsGuidWarning { get; private set; }
+    public bool IsPvPRealm
+    {
+        get
+        {
+            var realmtype = (RealmType)_configuration.GetDefaultValue("GameType", 0);
+
+            return realmtype is RealmType.PVP or RealmType.RPPVP or RealmType.FFAPVP;
+        }
+    }
+
+    public bool IsShuttingDown => ShutDownTimeLeft > 0;
+    public uint MaxActiveSessionCount { get; private set; }
+    public uint MaxPlayerCount { get; private set; }
+    // Get the maximum number of parallel sessions on the server since last reboot
+    public uint MaxQueuedSessionCount { get; private set; }
+
+    public float MaxVisibleDistanceInArenas { get; private set; } = SharedConst.DefaultVisibilityBGAreans;
+    public float MaxVisibleDistanceInBG { get; private set; } = SharedConst.DefaultVisibilityBGAreans;
+    public float MaxVisibleDistanceInInstances { get; private set; } = SharedConst.DefaultVisibilityInstance;
+    public float MaxVisibleDistanceOnContinents { get; private set; } = SharedConst.DefaultVisibilityDistance;
+    public List<string> Motd { get; } = new();
+    public long NextDailyQuestsResetTime { get; set; }
+    public long NextMonthlyQuestsResetTime { get; set; }
+    public long NextWeeklyQuestsResetTime { get; set; }
+    public uint PlayerAmountLimit { get; set; }
+    public uint PlayerCount { get; private set; }
+    public AccountTypes PlayerSecurityLimit
+    {
+        get => _allowedSecurityLevel;
+        set
+        {
+            var sec = value < AccountTypes.Console ? value : AccountTypes.Player;
+            var update = sec > _allowedSecurityLevel;
+            _allowedSecurityLevel = sec;
+
+            if (update)
+                KickAllLess(_allowedSecurityLevel);
+        }
+    }
+
+    public int QueuedSessionCount => _queuedPlayer.Count;
+    public uint ShutDownTimeLeft { get; private set; }
+    public int VisibilityNotifyPeriodInArenas { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
+    public int VisibilityNotifyPeriodInBG { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
+    public int VisibilityNotifyPeriodInInstances { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
+    public int VisibilityNotifyPeriodOnContinents { get; private set; } = SharedConst.DefaultVisibilityNotifyPeriod;
+    public WorldUpdateTime WorldUpdateTime { get; }
+    public void AddSession(WorldSession s)
+    {
+        _addSessQueue.Enqueue(s);
+    }
+
+    /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
+    public BanReturn BanAccount(BanMode mode, string nameOrIP, string duration, string reason, string author)
+    {
+        var durationSecs = Time.TimeStringToSecs(duration);
+
+        return BanAccount(mode, nameOrIP, durationSecs, reason, author);
+    }
+
+    /// Ban an account or ban an IP address, duration is in seconds if positive, otherwise permban
+    public BanReturn BanAccount(BanMode mode, string nameOrIP, uint durationSecs, string reason, string author)
+    {
+        // Prevent banning an already banned account
+        if (mode == BanMode.Account && _accountManager.IsBannedAccount(nameOrIP))
+            return BanReturn.Exists;
+
+        SQLResult resultAccounts;
+        PreparedStatement stmt;
+
+        // Update the database with ban information
+        switch (mode)
+        {
+            case BanMode.IP:
+                // No SQL injection with prepared statements
+                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
+                stmt.AddValue(0, nameOrIP);
+                resultAccounts = _loginDatabase.Query(stmt);
+                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_IP_BANNED);
+                stmt.AddValue(0, nameOrIP);
+                stmt.AddValue(1, durationSecs);
+                stmt.AddValue(2, author);
+                stmt.AddValue(3, reason);
+                _loginDatabase.Execute(stmt);
+
+                break;
+            case BanMode.Account:
+                // No SQL injection with prepared statements
+                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ID_BY_NAME);
+                stmt.AddValue(0, nameOrIP);
+                resultAccounts = _loginDatabase.Query(stmt);
+
+                break;
+            case BanMode.Character:
+                // No SQL injection with prepared statements
+                stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_ACCOUNT_BY_NAME);
+                stmt.AddValue(0, nameOrIP);
+                resultAccounts = _characterDatabase.Query(stmt);
+
+                break;
+            default:
+                return BanReturn.SyntaxError;
+        }
+
+        if (resultAccounts == null)
+        {
+            if (mode == BanMode.IP)
+                return BanReturn.Success; // ip correctly banned but nobody affected (yet)
+            else
+                return BanReturn.Notfound; // Nobody to ban
+        }
+
+        // Disconnect all affected players (for IP it can be several)
+        SQLTransaction trans = new();
+
+        do
+        {
+            var account = resultAccounts.Read<uint>(0);
+
+            if (mode != BanMode.IP)
+            {
+                // make sure there is only one active ban
+                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_NOT_BANNED);
+                stmt.AddValue(0, account);
+                trans.Append(stmt);
+                // No SQL injection with prepared statements
+                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_ACCOUNT_BANNED);
+                stmt.AddValue(0, account);
+                stmt.AddValue(1, durationSecs);
+                stmt.AddValue(2, author);
+                stmt.AddValue(3, reason);
+                trans.Append(stmt);
+            }
+
+            var sess = FindSession(account);
+
+            if (sess)
+                if (sess.PlayerName != author)
+                    sess.KickPlayer("World::BanAccount Banning account");
+        } while (resultAccounts.NextRow());
+
+        _loginDatabase.CommitTransaction(trans);
+
+        return BanReturn.Success;
+    }
+
+    /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
+    public BanReturn BanCharacter(string name, string duration, string reason, string author)
+    {
+        var durationSecs = Time.TimeStringToSecs(duration);
+
+        return BanAccount(BanMode.Character, name, durationSecs, reason, author);
+    }
+
+    public BanReturn BanCharacter(string name, uint durationSecs, string reason, string author)
+    {
+        var pBanned = _objectAccessor.FindConnectedPlayerByName(name);
+        ObjectGuid guid;
+
+        // Pick a player to ban if not online
+        if (!pBanned)
+        {
+            guid = _characterCache.GetCharacterGuidByName(name);
+
+            if (guid.IsEmpty)
+                return BanReturn.Notfound; // Nobody to ban
+        }
+        else
+        {
+            guid = pBanned.GUID;
+        }
+
+        //Use transaction in order to ensure the order of the queries
+        SQLTransaction trans = new();
+
+        // make sure there is only one active ban
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
+        stmt.AddValue(0, guid.Counter);
+        trans.Append(stmt);
+
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_BAN);
+        stmt.AddValue(0, guid.Counter);
+        stmt.AddValue(1, (long)durationSecs);
+        stmt.AddValue(2, author);
+        stmt.AddValue(3, reason);
+        trans.Append(stmt);
+        _characterDatabase.CommitTransaction(trans);
+
+        if (pBanned)
+            pBanned.Session.KickPlayer("World::BanCharacter Banning character");
+
+        return BanReturn.Success;
+    }
+
+    public void DailyReset()
+    {
+        // reset all saved quest status
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
+        _characterDatabase.Execute(stmt);
+
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_GARRISON_FOLLOWER_ACTIVATIONS);
+        stmt.AddValue(0, 1);
+        _characterDatabase.Execute(stmt);
+
+        // reset all quest status in memory
+        foreach (var itr in _sessions)
+        {
+            var player = itr.Value.Player;
+
+            player?.DailyReset();
+        }
+
+        // reselect pools
+        _questPoolManager.ChangeDailyQuests();
+
+        // Update faction balance
+        UpdateWarModeRewardValues();
+
+        // store next reset time
+        var now = GameTime.CurrentTime;
+        var next = GetNextDailyResetTime(now);
+
+        NextDailyQuestsResetTime = next;
+        SetPersistentWorldVariable(NEXT_DAILY_QUEST_RESET_TIME_VAR_ID, (int)next);
+
+        Log.Logger.Information("Daily quests for all characters have been reset.");
+    }
+
+    public void DecreasePlayerCount()
+    {
+        PlayerCount--;
+    }
+
+    public void DisableForcedWarModeFactionBalanceState()
+    {
+        UpdateWarModeRewardValues();
+    }
+
+    public Player FindPlayerInZone(uint zone)
+    {
+        foreach (var session in _sessions)
+        {
+            var player = session.Value.Player;
+
+            if (player == null)
+                continue;
+
+            if (player.Location.IsInWorld && player.Location.Zone == zone)
+                // Used by the weather system. We return the player to broadcast the change weather message to him and all players in the zone.
+                return player;
+        }
+
+        return null;
+    }
+
+    public WorldSession FindSession(uint id)
+    {
+        return _sessions.LookupByKey(id);
+    }
+
+    public void ForceGameEventUpdate()
+    {
+        _timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
+        var nextGameEvent = _eventManager.Update();
+        _timers[WorldTimers.Events].Interval = nextGameEvent;
+        _timers[WorldTimers.Events].Reset();
+    }
+
+    public Locale GetAvailableDbcLocale(Locale locale)
+    {
+        if (_availableDbcLocaleMask[(int)locale])
+            return locale;
+        else
+            return DefaultDbcLocale;
+    }
+
+    public int GetPersistentWorldVariable(string var)
+    {
+        return _worldVariables.LookupByKey(var);
+    }
+
+    public void IncreasePlayerCount()
+    {
+        PlayerCount++;
+        MaxPlayerCount = Math.Max(MaxPlayerCount, PlayerCount);
+    }
+
     public void Initialize(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor,
-                           QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
+                                                                                   QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
                            WorldStateManager worldStateManager, GameEventManager eventManager)
     {
         _accountManager = accountManager;
@@ -287,52 +493,52 @@ public class WorldManager
 
         _loginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({0}, {1}, 0, '{2}')", Realm.Id.Index, GameTime.GetStartTime(), ""); // One-time query
 
-        _timers[WorldTimers.Auctions].Interval = Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.Auctions].Interval = Time.MINUTE * Time.IN_MILLISECONDS;
         _timers[WorldTimers.AuctionsPending].Interval = 250;
 
         //Update "uptime" table based on configuration entry in minutes.
         _timers[WorldTimers.UpTime]
             .
             //Update "uptime" table based on configuration entry in minutes.
-            Interval = 10 * Time.Minute * Time.InMilliseconds;
+            Interval = 10 * Time.MINUTE * Time.IN_MILLISECONDS;
 
         //erase corpses every 20 minutes
         _timers[WorldTimers.Corpses]
             . //erase corpses every 20 minutes
-            Interval = 20 * Time.Minute * Time.InMilliseconds;
+            Interval = 20 * Time.MINUTE * Time.IN_MILLISECONDS;
 
-        _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
         _timers[WorldTimers.AutoBroadcast].Interval = _configuration.GetDefaultValue("AutoBroadcast.Timer", 60000);
 
         // check for chars to delete every day
         _timers[WorldTimers.DeleteChars]
             . // check for chars to delete every day
-            Interval = Time.Day * Time.InMilliseconds;
+            Interval = Time.DAY * Time.IN_MILLISECONDS;
 
         // for AhBot
         _timers[WorldTimers.AhBot]
             .                                                                                                       // for AhBot
-            Interval = _configuration.GetDefaultValue("AuctionHouseBot.Update.Interval", 20) * Time.InMilliseconds; // every 20 sec
+            Interval = _configuration.GetDefaultValue("AuctionHouseBot.Update.Interval", 20) * Time.IN_MILLISECONDS; // every 20 sec
 
-        _timers[WorldTimers.GuildSave].Interval = _configuration.GetDefaultValue("Guild.SaveInterval", 15) * Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.GuildSave].Interval = _configuration.GetDefaultValue("Guild.SaveInterval", 15) * Time.MINUTE * Time.IN_MILLISECONDS;
 
-        _timers[WorldTimers.Blackmarket].Interval = 10 * Time.InMilliseconds;
+        _timers[WorldTimers.Blackmarket].Interval = 10 * Time.IN_MILLISECONDS;
 
         _blackmarketTimer = 0;
 
-        _timers[WorldTimers.WhoList].Interval = 5 * Time.InMilliseconds; // update who list cache every 5 seconds
+        _timers[WorldTimers.WhoList].Interval = 5 * Time.IN_MILLISECONDS; // update who list cache every 5 seconds
 
-        _timers[WorldTimers.ChannelSave].Interval = _configuration.GetDefaultValue("PreserveCustomChannelInterval", 5) * Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.ChannelSave].Interval = _configuration.GetDefaultValue("PreserveCustomChannelInterval", 5) * Time.MINUTE * Time.IN_MILLISECONDS;
 
         //to set mailtimer to return mails every day between 4 and 5 am
         //mailtimer is increased when updating auctions
         //one second is 1000 -(tested on win system)
         // @todo Get rid of magic numbers
-        var localTime = Time.UnixTimeToDateTime(GameTime.GetGameTime()).ToLocalTime();
+        var localTime = Time.UnixTimeToDateTime(GameTime.CurrentTime).ToLocalTime();
         var cleanOldMailsTime = _configuration.GetDefaultValue("CleanOldMailTime", 4u);
-        _mailTimer = ((((localTime.Hour + (24 - cleanOldMailsTime)) % 24) * Time.Hour * Time.InMilliseconds) / _timers[WorldTimers.Auctions].Interval);
+        _mailTimer = ((((localTime.Hour + (24 - cleanOldMailsTime)) % 24) * Time.HOUR * Time.IN_MILLISECONDS) / _timers[WorldTimers.Auctions].Interval);
         //1440
-        _timerExpires = ((Time.Day * Time.InMilliseconds) / (_timers[(int)WorldTimers.Auctions].Interval));
+        _timerExpires = ((Time.DAY * Time.IN_MILLISECONDS) / (_timers[(int)WorldTimers.Auctions].Interval));
         Log.Logger.Information("Mail timer set to: {0}, mail return is called every {1} minutes", _mailTimer, _timerExpires);
 
         _loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate"); // One-time query
@@ -345,103 +551,50 @@ public class WorldManager
         InitGuildResetTime();
         InitCurrencyResetTime();
     }
-
-    public Player FindPlayerInZone(uint zone)
+    public bool IsBattlePetJournalLockAcquired(ObjectGuid battlenetAccountGuid)
     {
-        foreach (var session in _sessions)
-        {
-            var player = session.Value.Player;
+        foreach (var sessionForBnet in _sessionsByBnetGuid.LookupByKey(battlenetAccountGuid))
+            if (sessionForBnet.BattlePetMgr.HasJournalLock)
+                return true;
 
-            if (player == null)
-                continue;
-
-            if (player.Location.IsInWorld && player.Location.Zone == zone)
-                // Used by the weather system. We return the player to broadcast the change weather message to him and all players in the zone.
-                return player;
-        }
-
-        return null;
+        return false;
     }
 
-    public void SetClosed(bool val)
+    public void KickAll()
     {
-        IsClosed = val;
-        _scriptManager.ForEach<IWorldOnOpenStateChange>(p => p.OnOpenStateChange(!val));
+        _queuedPlayer.Clear(); // prevent send queue update packet and login queued sessions
+
+        // session not removed at kick and will removed in next update tick
+        foreach (var session in _sessions.Values)
+            session.KickPlayer("World::KickAll");
     }
 
-    public void LoadDBAllowedSecurityLevel()
+    public void LoadAutobroadcasts()
     {
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_REALMLIST_SECURITY_LEVEL);
-        stmt.AddValue(0, (int)Realm.Id.Index);
+        var oldMSTime = Time.MSTime;
+
+        _autobroadcasts.Clear();
+
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_AUTOBROADCAST);
+        stmt.AddValue(0, Realm.Id.Index);
+
         var result = _loginDatabase.Query(stmt);
 
-        if (!result.IsEmpty())
-            PlayerSecurityLimit = (AccountTypes)result.Read<byte>(0);
-    }
-
-    public void SetMotd(string motd)
-    {
-        _scriptManager.ForEach<IWorldOnMotdChange>(p => p.OnMotdChange(motd));
-
-        Motd.Clear();
-        Motd.AddRange(motd.Split('@'));
-    }
-
-    public void TriggerGuidWarning()
-    {
-        // Lock this only to prevent multiple maps triggering at the same time
-        lock (_guidAlertLock)
+        if (result.IsEmpty())
         {
-            var gameTime = GameTime.GetGameTime();
-            var today = (gameTime / Time.Day) * Time.Day;
+            Log.Logger.Information("Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
 
-            // Check if our window to restart today has passed. 5 mins until quiet time
-            while (gameTime >= Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn.RestartQuietTime", 3u)) - 1810u)
-                today += Time.Day;
-
-            // Schedule restart for 30 minutes before quiet time, or as long as we have
-            _warnShutdownTime = Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn.RestartQuietTime", 3u)) - 1800u;
-
-            IsGuidWarning = true;
-            SendGuidWarning();
+            return;
         }
-    }
 
-    public void TriggerGuidAlert()
-    {
-        // Lock this only to prevent multiple maps triggering at the same time
-        lock (_guidAlertLock)
+        do
         {
-            DoGuidAlertRestart();
-            IsGuidAlert = true;
-            IsGuidWarning = false;
-        }
-    }
+            var id = result.Read<byte>(0);
 
-    public WorldSession FindSession(uint id)
-    {
-        return _sessions.LookupByKey(id);
-    }
+            _autobroadcasts[id] = new Autobroadcast(result.Read<string>(2), result.Read<byte>(1));
+        } while (result.NextRow());
 
-    public void AddSession(WorldSession s)
-    {
-        _addSessQueue.Enqueue(s);
-    }
-
-    public void SetEventInterval(long nextGameEvent)
-    {
-        _timers[WorldTimers.Events].Interval = nextGameEvent; //depend on next event
-    }
-
-    public void SetDBCMask(BitSet mask)
-    {
-        _availableDbcLocaleMask = mask;
-
-        if (_availableDbcLocaleMask == null || !_availableDbcLocaleMask[(int)DefaultDbcLocale])
-        {
-            Log.Logger.Fatal($"Unable to load db2 files for {DefaultDbcLocale} locale specified in DBC.Locale config!");
-            Environment.Exit(1);
-        }
+        Log.Logger.Information("Loaded {0} autobroadcast definitions in {1} ms", _autobroadcasts.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadConfigSettings(bool reload = false)
@@ -471,12 +624,12 @@ public class WorldManager
             _supportManager.SetSuggestionSystemStatus(_configuration.GetDefaultValue("Support.SuggestionsEnabled", false));
 
             _mapManager.SetMapUpdateInterval(_configuration.GetDefaultValue("MapUpdateInterval", 10));
-            _mapManager.SetGridCleanUpDelay(_configuration.GetDefaultValue("GridCleanUpDelay", 5u * Time.Minute * Time.InMilliseconds));
+            _mapManager.SetGridCleanUpDelay(_configuration.GetDefaultValue("GridCleanUpDelay", 5u * Time.MINUTE * Time.IN_MILLISECONDS));
 
-            _timers[WorldTimers.UpTime].Interval = _configuration.GetDefaultValue("UpdateUptimeInterval", 10) * Time.Minute * Time.InMilliseconds;
+            _timers[WorldTimers.UpTime].Interval = _configuration.GetDefaultValue("UpdateUptimeInterval", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
             _timers[WorldTimers.UpTime].Reset();
 
-            _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.Minute * Time.InMilliseconds;
+            _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
             _timers[WorldTimers.CleanDB].Reset();
 
 
@@ -581,50 +734,457 @@ public class WorldManager
         Log.Logger.Information(@"VMap data directory is: {0}\vmaps", DataPath);
     }
 
-
-    public void DisableForcedWarModeFactionBalanceState()
+    public void LoadDBAllowedSecurityLevel()
     {
-        UpdateWarModeRewardValues();
-    }
-
-    public void LoadAutobroadcasts()
-    {
-        var oldMSTime = Time.MSTime;
-
-        _autobroadcasts.Clear();
-
-        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_AUTOBROADCAST);
-        stmt.AddValue(0, Realm.Id.Index);
-
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_REALMLIST_SECURITY_LEVEL);
+        stmt.AddValue(0, (int)Realm.Id.Index);
         var result = _loginDatabase.Query(stmt);
 
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
-
-            return;
-        }
-
-        do
-        {
-            var id = result.Read<byte>(0);
-
-            _autobroadcasts[id] = new Autobroadcast(result.Read<string>(2), result.Read<byte>(1));
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} autobroadcast definitions in {1} ms", _autobroadcasts.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+        if (!result.IsEmpty())
+            PlayerSecurityLimit = (AccountTypes)result.Read<byte>(0);
     }
 
+    public string LoadDBVersion()
+    {
+        var dbVersion = "Unknown world database.";
+
+        var result = _worldDatabase.Query("SELECT db_version, cache_id FROM version LIMIT 1");
+
+        if (!result.IsEmpty())
+            dbVersion = result.Read<string>(0);
+
+        // will be overwrite by config values if different and non-0 TODO  
+        //WorldConfig.SetValue(WorldCfg.ClientCacheVersion, result.Read<uint>(1));
+        return dbVersion;
+    }
+
+    public bool LoadRealmInfo()
+    {
+        var result = _loginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = {0}", Realm.Id.Index);
+
+        if (result.IsEmpty())
+            return false;
+
+        Realm.SetName(result.Read<string>(1));
+        Realm.ExternalAddress = System.Net.IPAddress.Parse(result.Read<string>(2));
+        Realm.LocalAddress = System.Net.IPAddress.Parse(result.Read<string>(3));
+        Realm.LocalSubnetMask = System.Net.IPAddress.Parse(result.Read<string>(4));
+        Realm.Port = result.Read<ushort>(5);
+        Realm.Type = result.Read<byte>(6);
+        Realm.Flags = (RealmFlags)result.Read<byte>(7);
+        Realm.Timezone = result.Read<byte>(8);
+        Realm.AllowedSecurityLevel = (AccountTypes)result.Read<byte>(9);
+        Realm.PopulationLevel = result.Read<float>(10);
+        Realm.Id.Region = result.Read<byte>(12);
+        Realm.Id.Site = result.Read<byte>(13);
+        Realm.Build = result.Read<uint>(11);
+
+        return true;
+    }
+
+    public void ReloadRBAC()
+    {
+        // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
+        Log.Logger.Information("World.ReloadRBAC()");
+
+        foreach (var session in _sessions.Values)
+            session.InvalidateRBACData();
+    }
+
+    /// Remove a ban from an account or IP address
+    public bool RemoveBanAccount(BanMode mode, string nameOrIP)
+    {
+        PreparedStatement stmt;
+
+        if (mode == BanMode.IP)
+        {
+            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_IP_NOT_BANNED);
+            stmt.AddValue(0, nameOrIP);
+            _loginDatabase.Execute(stmt);
+        }
+        else
+        {
+            uint account = 0;
+
+            if (mode == BanMode.Account)
+                account = _accountManager.GetId(nameOrIP);
+            else if (mode == BanMode.Character)
+                account = _characterCache.GetCharacterAccountIdByName(nameOrIP);
+
+            if (account == 0)
+                return false;
+
+            //NO SQL injection as account is uint32
+            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_NOT_BANNED);
+            stmt.AddValue(0, account);
+            _loginDatabase.Execute(stmt);
+        }
+
+        return true;
+    }
+
+    // Remove a ban from a character
+    public bool RemoveBanCharacter(string name)
+    {
+        var pBanned = _objectAccessor.FindConnectedPlayerByName(name);
+        ObjectGuid guid;
+
+        // Pick a player to ban if not online
+        if (!pBanned)
+        {
+            guid = _characterCache.GetCharacterGuidByName(name);
+
+            if (guid.IsEmpty)
+                return false; // Nobody to ban
+        }
+        else
+        {
+            guid = pBanned.GUID;
+        }
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
+        stmt.AddValue(0, guid.Counter);
+        _characterDatabase.Execute(stmt);
+
+        return true;
+    }
+
+    public void RemoveOldCorpses()
+    {
+        _timers[WorldTimers.Corpses].Current = _timers[WorldTimers.Corpses].Interval;
+    }
+
+    public void ResetEventSeasonalQuests(ushort eventID, long eventStartTime)
+    {
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT);
+        stmt.AddValue(0, eventID);
+        stmt.AddValue(1, eventStartTime);
+        _characterDatabase.Execute(stmt);
+
+        foreach (var session in _sessions.Values)
+            session.Player?.ResetSeasonalQuestStatus(eventID, eventStartTime);
+    }
+
+    public void ResetMonthlyQuests()
+    {
+        // reset all saved quest status
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY);
+        _characterDatabase.Execute(stmt);
+
+        // reset all quest status in memory
+        foreach (var itr in _sessions)
+        {
+            var player = itr.Value.Player;
+
+            player?.ResetMonthlyQuestStatus();
+        }
+
+        // reselect pools
+        _questPoolManager.ChangeMonthlyQuests();
+
+        // store next reset time
+        var now = GameTime.CurrentTime;
+        var next = GetNextMonthlyResetTime(now);
+
+        NextMonthlyQuestsResetTime = next;
+
+        Log.Logger.Information("Monthly quests for all characters have been reset.");
+    }
+
+    public void ResetWeeklyQuests()
+    {
+        // reset all saved quest status
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
+        _characterDatabase.Execute(stmt);
+
+        // reset all quest status in memory
+        foreach (var itr in _sessions)
+        {
+            var player = itr.Value.Player;
+
+            player?.ResetWeeklyQuestStatus();
+        }
+
+        // reselect pools
+        _questPoolManager.ChangeWeeklyQuests();
+
+        // store next reset time
+        var now = GameTime.CurrentTime;
+        var next = GetNextWeeklyResetTime(now);
+
+        NextWeeklyQuestsResetTime = next;
+        SetPersistentWorldVariable(NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID, (int)next);
+
+        Log.Logger.Information("Weekly quests for all characters have been reset.");
+    }
+
+    public void SendGlobalGMMessage(ServerPacket packet, WorldSession self = null, TeamFaction team = 0)
+    {
+        foreach (var session in _sessions.Values)
+        {
+            // check if session and can receive global GM Messages and its not self
+            if (session == null || session == self || !session.HasPermission(RBACPermissions.ReceiveGlobalGmTextmessage))
+                continue;
+
+            // Player should be in world
+            var player = session.Player;
+
+            if (player == null || !player.Location.IsInWorld)
+                continue;
+
+            // Send only to same team, if team is given
+            if (team == 0 || player.Team == team)
+                session.SendPacket(packet);
+        }
+    }
+
+    public void SendGlobalMessage(ServerPacket packet, WorldSession self = null, TeamFaction team = 0)
+    {
+        foreach (var session in _sessions.Values)
+            if (session.Player != null &&
+                session.Player.Location.IsInWorld &&
+                session != self &&
+                (team == 0 || session.Player.Team == team))
+                session.SendPacket(packet);
+    }
+
+    // Send a System Message to all GMs (except self if mentioned)
+    public void SendGMText(CypherStrings stringID, params object[] args)
+    {
+        var wtBuilder = new WorldWorldTextBuilder((uint)stringID, args);
+        var wtDo = new LocalizedDo(wtBuilder);
+
+        foreach (var session in _sessions.Values)
+        {
+            // Session should have permissions to receive global gm messages
+            if (session == null || !session.HasPermission(RBACPermissions.ReceiveGlobalGmTextmessage))
+                continue;
+
+            // Player should be in world
+            var player = session.Player;
+
+            if (!player || !player.Location.IsInWorld)
+                continue;
+
+            wtDo.Invoke(player);
+        }
+    }
+
+    public void SendServerMessage(ServerMessageType messageID, string stringParam = "", Player player = null)
+    {
+        ChatServerMessage packet = new()
+        {
+            MessageID = (int)messageID
+        };
+
+        if (messageID <= ServerMessageType.String)
+            packet.StringParam = stringParam;
+
+        if (player != null)
+            player.SendPacket(packet);
+        else
+            SendGlobalMessage(packet);
+    }
+
+    // Send a System Message to all players (except self if mentioned)
+    public void SendWorldText(CypherStrings stringID, params object[] args)
+    {
+        WorldWorldTextBuilder wtBuilder = new((uint)stringID, args);
+        var wtDo = new LocalizedDo(wtBuilder);
+
+        foreach (var session in _sessions.Values)
+        {
+            if (session == null || !session.Player || !session.Player.Location.IsInWorld)
+                continue;
+
+            wtDo.Invoke(session.Player);
+        }
+    }
+
+    // Send a packet to all players (or players selected team) in the zone (except self if mentioned)
+    public bool SendZoneMessage(uint zone, ServerPacket packet, WorldSession self = null, uint team = 0)
+    {
+        var foundPlayerToSend = false;
+
+        foreach (var session in _sessions.Values)
+            if (session != null &&
+                session.Player &&
+                session.Player.Location.IsInWorld &&
+                session.Player.Location.Zone == zone &&
+                session != self &&
+                (team == 0 || (uint)session.Player.Team == team))
+            {
+                session.SendPacket(packet);
+                foundPlayerToSend = true;
+            }
+
+        return foundPlayerToSend;
+    }
+
+    // Send a System Message to all players in the zone (except self if mentioned)
+    public void SendZoneText(uint zone, string text, WorldSession self = null, uint team = 0)
+    {
+        ChatPkt data = new();
+        data.Initialize(ChatMsg.System, Language.Universal, null, null, text);
+        SendZoneMessage(zone, data, self, team);
+    }
+
+    public void SetClosed(bool val)
+    {
+        IsClosed = val;
+        _scriptManager.ForEach<IWorldOnOpenStateChange>(p => p.OnOpenStateChange(!val));
+    }
+    public void SetDBCMask(BitSet mask)
+    {
+        _availableDbcLocaleMask = mask;
+
+        if (_availableDbcLocaleMask == null || !_availableDbcLocaleMask[(int)DefaultDbcLocale])
+        {
+            Log.Logger.Fatal($"Unable to load db2 files for {DefaultDbcLocale} locale specified in DBC.Locale config!");
+            Environment.Exit(1);
+        }
+    }
+
+    public void SetEventInterval(long nextGameEvent)
+    {
+        _timers[WorldTimers.Events].Interval = nextGameEvent; //depend on next event
+    }
+
+    public void SetMotd(string motd)
+    {
+        _scriptManager.ForEach<IWorldOnMotdChange>(p => p.OnMotdChange(motd));
+
+        Motd.Clear();
+        Motd.AddRange(motd.Split('@'));
+    }
+
+    public void SetPersistentWorldVariable(string var, int value)
+    {
+        _worldVariables[var] = value;
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_VARIABLE);
+        stmt.AddValue(0, var);
+        stmt.AddValue(1, value);
+        _characterDatabase.Execute(stmt);
+    }
+
+    public uint ShutdownCancel()
+    {
+        // nothing cancel or too late
+        if (ShutDownTimeLeft == 0 || IsStopped)
+            return 0;
+
+        var msgid = _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? ServerMessageType.RestartCancelled : ServerMessageType.ShutdownCancelled;
+
+        var oldTimer = ShutDownTimeLeft;
+        _shutdownMask = 0;
+        ShutDownTimeLeft = 0;
+        _exitCode = (byte)ShutdownExitCode.Shutdown; // to default value
+        SendServerMessage(msgid);
+
+        Log.Logger.Debug("Server {0} cancelled.", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shutdown"));
+
+        _scriptManager.ForEach<IWorldOnShutdownCancel>(p => p.OnShutdownCancel());
+
+        return oldTimer;
+    }
+
+    public void ShutdownMsg(bool show = false, Player player = null, string reason = "")
+    {
+        // not show messages for idle shutdown mode
+        if (_shutdownMask.HasAnyFlag(ShutdownMask.Idle))
+            return;
+
+        // Display a message every 12 hours, hours, 5 minutes, minute, 5 seconds and finally seconds
+        if (show ||
+            (ShutDownTimeLeft < 5 * Time.MINUTE && (ShutDownTimeLeft % 15) == 0) ||                 // < 5 min; every 15 sec
+            (ShutDownTimeLeft < 15 * Time.MINUTE && (ShutDownTimeLeft % Time.MINUTE) == 0) ||       // < 15 min ; every 1 min
+            (ShutDownTimeLeft < 30 * Time.MINUTE && (ShutDownTimeLeft % (5 * Time.MINUTE)) == 0) || // < 30 min ; every 5 min
+            (ShutDownTimeLeft < 12 * Time.HOUR && (ShutDownTimeLeft % Time.HOUR) == 0) ||           // < 12 h ; every 1 h
+            (ShutDownTimeLeft > 12 * Time.HOUR && (ShutDownTimeLeft % (12 * Time.HOUR)) == 0))      // > 12 h ; every 12 h
+        {
+            var str = Time.SecsToTimeString(ShutDownTimeLeft, TimeFormat.Numeric);
+
+            if (!reason.IsEmpty())
+                str += " - " + reason;
+
+            var msgid = _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? ServerMessageType.RestartTime : ServerMessageType.ShutdownTime;
+
+            SendServerMessage(msgid, str, player);
+            Log.Logger.Debug("Server is {0} in {1}", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shuttingdown"), str);
+        }
+    }
+
+    public void ShutdownServ(uint time, ShutdownMask options, ShutdownExitCode exitcode, string reason = "")
+    {
+        // ignore if server shutdown at next tick
+        if (IsStopped)
+            return;
+
+        _shutdownMask = options;
+        _exitCode = exitcode;
+
+        // If the shutdown time is 0, evaluate shutdown on next tick (no message)
+        if (time == 0)
+        {
+            ShutDownTimeLeft = 1;
+        }
+        // Else set the shutdown timer and warn users
+        else
+        {
+            ShutDownTimeLeft = time;
+            ShutdownMsg(true, null, reason);
+        }
+
+        _scriptManager.ForEach<IWorldOnShutdownInitiate>(p => p.OnShutdownInitiate(exitcode, options));
+    }
+
+    public void StopNow(ShutdownExitCode exitcode = ShutdownExitCode.Error)
+    {
+        IsStopped = true;
+        _exitCode = exitcode;
+    }
+
+    public void TriggerGuidAlert()
+    {
+        // Lock this only to prevent multiple maps triggering at the same time
+        lock (_guidAlertLock)
+        {
+            DoGuidAlertRestart();
+            IsGuidAlert = true;
+            IsGuidWarning = false;
+        }
+    }
+
+    public void TriggerGuidWarning()
+    {
+        // Lock this only to prevent multiple maps triggering at the same time
+        lock (_guidAlertLock)
+        {
+            var gameTime = GameTime.CurrentTime;
+            var today = (gameTime / Time.DAY) * Time.DAY;
+
+            // Check if our window to restart today has passed. 5 mins until quiet time
+            while (gameTime >= Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn.RestartQuietTime", 3u)) - 1810u)
+                today += Time.DAY;
+
+            // Schedule restart for 30 minutes before quiet time, or as long as we have
+            _warnShutdownTime = Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn.RestartQuietTime", 3u)) - 1800u;
+
+            IsGuidWarning = true;
+            SendGuidWarning();
+        }
+    }
     public void Update(uint diff)
     {
         //- Update the game time and check for shutdown time
         UpdateGameTime();
-        var currentGameTime = GameTime.GetGameTime();
+        var currentGameTime = GameTime.CurrentTime;
 
         WorldUpdateTime.UpdateWithDiff(diff);
 
         // Record update if recording set in log and diff is greater then minimum set in log
-        WorldUpdateTime.RecordUpdateTime(GameTime.GetGameTimeMS(), diff, (uint)ActiveSessionCount);
+        WorldUpdateTime.RecordUpdateTime(GameTime.CurrentTimeMS, diff, (uint)ActiveSessionCount);
         Realm.PopulationLevel = ActiveSessionCount;
 
         // Update the different timers
@@ -701,7 +1261,7 @@ public class WorldManager
             _loginDatabase.DirectExecute("UPDATE realmlist SET population = {0} WHERE id = '{1}'", ActiveSessionCount, Global.WorldMgr.Realm.Id.Index);
 
             //- Update blackmarket, refresh auctions if necessary
-            if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _configuration.GetDefaultValue("BlackMarket.UpdatePeriod", 24) * Time.Hour * Time.InMilliseconds) || _blackmarketTimer == 0)
+            if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _configuration.GetDefaultValue("BlackMarket.UpdatePeriod", 24) * Time.HOUR * Time.IN_MILLISECONDS) || _blackmarketTimer == 0)
             {
                 _taskManager.Schedule(Global.BlackMarketMgr.RefreshAuctions);
                 _blackmarketTimer = 1; // timer is 0 on startup
@@ -721,7 +1281,7 @@ public class WorldManager
         // <li> Update uptime table
         if (_timers[WorldTimers.UpTime].Passed)
         {
-            var tmpDiff = GameTime.GetUptime();
+            var tmpDiff = GameTime.Uptime;
             var maxOnlinePlayers = MaxPlayerCount;
 
             _timers[WorldTimers.UpTime].Reset();
@@ -823,413 +1383,20 @@ public class WorldManager
         {
             _warnDiff += diff;
 
-            if (GameTime.GetGameTime() >= _warnShutdownTime)
+            if (GameTime.CurrentTime >= _warnShutdownTime)
                 DoGuidWarningRestart();
-            else if (_warnDiff > _configuration.GetDefaultValue("Respawn.WarningFrequency", 1800) * Time.InMilliseconds)
+            else if (_warnDiff > _configuration.GetDefaultValue("Respawn.WarningFrequency", 1800) * Time.IN_MILLISECONDS)
                 SendGuidWarning();
         }
 
         _scriptManager.ForEach<IWorldOnUpdate>(p => p.OnUpdate(diff));
         _taskManager.Wait(); // wait for all blocks to complete.
     }
-
-    public void ForceGameEventUpdate()
+    public void UpdateRealmCharCount(uint accountId)
     {
-        _timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
-        var nextGameEvent = _eventManager.Update();
-        _timers[WorldTimers.Events].Interval = nextGameEvent;
-        _timers[WorldTimers.Events].Reset();
-    }
-
-    public void SendGlobalMessage(ServerPacket packet, WorldSession self = null, TeamFaction team = 0)
-    {
-        foreach (var session in _sessions.Values)
-            if (session.Player != null &&
-                session.Player.Location.IsInWorld &&
-                session != self &&
-                (team == 0 || session.Player.Team == team))
-                session.SendPacket(packet);
-    }
-
-    public void SendGlobalGMMessage(ServerPacket packet, WorldSession self = null, TeamFaction team = 0)
-    {
-        foreach (var session in _sessions.Values)
-        {
-            // check if session and can receive global GM Messages and its not self
-            if (session == null || session == self || !session.HasPermission(RBACPermissions.ReceiveGlobalGmTextmessage))
-                continue;
-
-            // Player should be in world
-            var player = session.Player;
-
-            if (player == null || !player.Location.IsInWorld)
-                continue;
-
-            // Send only to same team, if team is given
-            if (team == 0 || player.Team == team)
-                session.SendPacket(packet);
-        }
-    }
-
-    // Send a System Message to all players (except self if mentioned)
-    public void SendWorldText(CypherStrings stringID, params object[] args)
-    {
-        WorldWorldTextBuilder wtBuilder = new((uint)stringID, args);
-        var wtDo = new LocalizedDo(wtBuilder);
-
-        foreach (var session in _sessions.Values)
-        {
-            if (session == null || !session.Player || !session.Player.Location.IsInWorld)
-                continue;
-
-            wtDo.Invoke(session.Player);
-        }
-    }
-
-    // Send a System Message to all GMs (except self if mentioned)
-    public void SendGMText(CypherStrings stringID, params object[] args)
-    {
-        var wtBuilder = new WorldWorldTextBuilder((uint)stringID, args);
-        var wtDo = new LocalizedDo(wtBuilder);
-
-        foreach (var session in _sessions.Values)
-        {
-            // Session should have permissions to receive global gm messages
-            if (session == null || !session.HasPermission(RBACPermissions.ReceiveGlobalGmTextmessage))
-                continue;
-
-            // Player should be in world
-            var player = session.Player;
-
-            if (!player || !player.Location.IsInWorld)
-                continue;
-
-            wtDo.Invoke(player);
-        }
-    }
-
-    // Send a packet to all players (or players selected team) in the zone (except self if mentioned)
-    public bool SendZoneMessage(uint zone, ServerPacket packet, WorldSession self = null, uint team = 0)
-    {
-        var foundPlayerToSend = false;
-
-        foreach (var session in _sessions.Values)
-            if (session != null &&
-                session.Player &&
-                session.Player.Location.IsInWorld &&
-                session.Player.Location.Zone == zone &&
-                session != self &&
-                (team == 0 || (uint)session.Player.Team == team))
-            {
-                session.SendPacket(packet);
-                foundPlayerToSend = true;
-            }
-
-        return foundPlayerToSend;
-    }
-
-    // Send a System Message to all players in the zone (except self if mentioned)
-    public void SendZoneText(uint zone, string text, WorldSession self = null, uint team = 0)
-    {
-        ChatPkt data = new();
-        data.Initialize(ChatMsg.System, Language.Universal, null, null, text);
-        SendZoneMessage(zone, data, self, team);
-    }
-
-    public void KickAll()
-    {
-        _queuedPlayer.Clear(); // prevent send queue update packet and login queued sessions
-
-        // session not removed at kick and will removed in next update tick
-        foreach (var session in _sessions.Values)
-            session.KickPlayer("World::KickAll");
-    }
-
-    /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
-    public BanReturn BanAccount(BanMode mode, string nameOrIP, string duration, string reason, string author)
-    {
-        var durationSecs = Time.TimeStringToSecs(duration);
-
-        return BanAccount(mode, nameOrIP, durationSecs, reason, author);
-    }
-
-    /// Ban an account or ban an IP address, duration is in seconds if positive, otherwise permban
-    public BanReturn BanAccount(BanMode mode, string nameOrIP, uint durationSecs, string reason, string author)
-    {
-        // Prevent banning an already banned account
-        if (mode == BanMode.Account && _accountManager.IsBannedAccount(nameOrIP))
-            return BanReturn.Exists;
-
-        SQLResult resultAccounts;
-        PreparedStatement stmt;
-
-        // Update the database with ban information
-        switch (mode)
-        {
-            case BanMode.IP:
-                // No SQL injection with prepared statements
-                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
-                stmt.AddValue(0, nameOrIP);
-                resultAccounts = _loginDatabase.Query(stmt);
-                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_IP_BANNED);
-                stmt.AddValue(0, nameOrIP);
-                stmt.AddValue(1, durationSecs);
-                stmt.AddValue(2, author);
-                stmt.AddValue(3, reason);
-                _loginDatabase.Execute(stmt);
-
-                break;
-            case BanMode.Account:
-                // No SQL injection with prepared statements
-                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ID_BY_NAME);
-                stmt.AddValue(0, nameOrIP);
-                resultAccounts = _loginDatabase.Query(stmt);
-
-                break;
-            case BanMode.Character:
-                // No SQL injection with prepared statements
-                stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_ACCOUNT_BY_NAME);
-                stmt.AddValue(0, nameOrIP);
-                resultAccounts = _characterDatabase.Query(stmt);
-
-                break;
-            default:
-                return BanReturn.SyntaxError;
-        }
-
-        if (resultAccounts == null)
-        {
-            if (mode == BanMode.IP)
-                return BanReturn.Success; // ip correctly banned but nobody affected (yet)
-            else
-                return BanReturn.Notfound; // Nobody to ban
-        }
-
-        // Disconnect all affected players (for IP it can be several)
-        SQLTransaction trans = new();
-
-        do
-        {
-            var account = resultAccounts.Read<uint>(0);
-
-            if (mode != BanMode.IP)
-            {
-                // make sure there is only one active ban
-                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_NOT_BANNED);
-                stmt.AddValue(0, account);
-                trans.Append(stmt);
-                // No SQL injection with prepared statements
-                stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_ACCOUNT_BANNED);
-                stmt.AddValue(0, account);
-                stmt.AddValue(1, durationSecs);
-                stmt.AddValue(2, author);
-                stmt.AddValue(3, reason);
-                trans.Append(stmt);
-            }
-
-            var sess = FindSession(account);
-
-            if (sess)
-                if (sess.PlayerName != author)
-                    sess.KickPlayer("World::BanAccount Banning account");
-        } while (resultAccounts.NextRow());
-
-        _loginDatabase.CommitTransaction(trans);
-
-        return BanReturn.Success;
-    }
-
-    /// Remove a ban from an account or IP address
-    public bool RemoveBanAccount(BanMode mode, string nameOrIP)
-    {
-        PreparedStatement stmt;
-
-        if (mode == BanMode.IP)
-        {
-            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_IP_NOT_BANNED);
-            stmt.AddValue(0, nameOrIP);
-            _loginDatabase.Execute(stmt);
-        }
-        else
-        {
-            uint account = 0;
-
-            if (mode == BanMode.Account)
-                account = _accountManager.GetId(nameOrIP);
-            else if (mode == BanMode.Character)
-                account = _characterCache.GetCharacterAccountIdByName(nameOrIP);
-
-            if (account == 0)
-                return false;
-
-            //NO SQL injection as account is uint32
-            stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_NOT_BANNED);
-            stmt.AddValue(0, account);
-            _loginDatabase.Execute(stmt);
-        }
-
-        return true;
-    }
-
-    /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
-    public BanReturn BanCharacter(string name, string duration, string reason, string author)
-    {
-        var durationSecs = Time.TimeStringToSecs(duration);
-
-        return BanAccount(BanMode.Character, name, durationSecs, reason, author);
-    }
-
-    public BanReturn BanCharacter(string name, uint durationSecs, string reason, string author)
-    {
-        var pBanned = _objectAccessor.FindConnectedPlayerByName(name);
-        ObjectGuid guid;
-
-        // Pick a player to ban if not online
-        if (!pBanned)
-        {
-            guid = _characterCache.GetCharacterGuidByName(name);
-
-            if (guid.IsEmpty)
-                return BanReturn.Notfound; // Nobody to ban
-        }
-        else
-        {
-            guid = pBanned.GUID;
-        }
-
-        //Use transaction in order to ensure the order of the queries
-        SQLTransaction trans = new();
-
-        // make sure there is only one active ban
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
-        stmt.AddValue(0, guid.Counter);
-        trans.Append(stmt);
-
-        stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_BAN);
-        stmt.AddValue(0, guid.Counter);
-        stmt.AddValue(1, (long)durationSecs);
-        stmt.AddValue(2, author);
-        stmt.AddValue(3, reason);
-        trans.Append(stmt);
-        _characterDatabase.CommitTransaction(trans);
-
-        if (pBanned)
-            pBanned.Session.KickPlayer("World::BanCharacter Banning character");
-
-        return BanReturn.Success;
-    }
-
-    // Remove a ban from a character
-    public bool RemoveBanCharacter(string name)
-    {
-        var pBanned = _objectAccessor.FindConnectedPlayerByName(name);
-        ObjectGuid guid;
-
-        // Pick a player to ban if not online
-        if (!pBanned)
-        {
-            guid = _characterCache.GetCharacterGuidByName(name);
-
-            if (guid.IsEmpty)
-                return false; // Nobody to ban
-        }
-        else
-        {
-            guid = pBanned.GUID;
-        }
-
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
-        stmt.AddValue(0, guid.Counter);
-        _characterDatabase.Execute(stmt);
-
-        return true;
-    }
-
-    public void ShutdownServ(uint time, ShutdownMask options, ShutdownExitCode exitcode, string reason = "")
-    {
-        // ignore if server shutdown at next tick
-        if (IsStopped)
-            return;
-
-        _shutdownMask = options;
-        _exitCode = exitcode;
-
-        // If the shutdown time is 0, evaluate shutdown on next tick (no message)
-        if (time == 0)
-        {
-            ShutDownTimeLeft = 1;
-        }
-        // Else set the shutdown timer and warn users
-        else
-        {
-            ShutDownTimeLeft = time;
-            ShutdownMsg(true, null, reason);
-        }
-
-        _scriptManager.ForEach<IWorldOnShutdownInitiate>(p => p.OnShutdownInitiate(exitcode, options));
-    }
-
-    public void ShutdownMsg(bool show = false, Player player = null, string reason = "")
-    {
-        // not show messages for idle shutdown mode
-        if (_shutdownMask.HasAnyFlag(ShutdownMask.Idle))
-            return;
-
-        // Display a message every 12 hours, hours, 5 minutes, minute, 5 seconds and finally seconds
-        if (show ||
-            (ShutDownTimeLeft < 5 * Time.Minute && (ShutDownTimeLeft % 15) == 0) ||                 // < 5 min; every 15 sec
-            (ShutDownTimeLeft < 15 * Time.Minute && (ShutDownTimeLeft % Time.Minute) == 0) ||       // < 15 min ; every 1 min
-            (ShutDownTimeLeft < 30 * Time.Minute && (ShutDownTimeLeft % (5 * Time.Minute)) == 0) || // < 30 min ; every 5 min
-            (ShutDownTimeLeft < 12 * Time.Hour && (ShutDownTimeLeft % Time.Hour) == 0) ||           // < 12 h ; every 1 h
-            (ShutDownTimeLeft > 12 * Time.Hour && (ShutDownTimeLeft % (12 * Time.Hour)) == 0))      // > 12 h ; every 12 h
-        {
-            var str = Time.secsToTimeString(ShutDownTimeLeft, TimeFormat.Numeric);
-
-            if (!reason.IsEmpty())
-                str += " - " + reason;
-
-            var msgid = _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? ServerMessageType.RestartTime : ServerMessageType.ShutdownTime;
-
-            SendServerMessage(msgid, str, player);
-            Log.Logger.Debug("Server is {0} in {1}", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shuttingdown"), str);
-        }
-    }
-
-    public uint ShutdownCancel()
-    {
-        // nothing cancel or too late
-        if (ShutDownTimeLeft == 0 || IsStopped)
-            return 0;
-
-        var msgid = _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? ServerMessageType.RestartCancelled : ServerMessageType.ShutdownCancelled;
-
-        var oldTimer = ShutDownTimeLeft;
-        _shutdownMask = 0;
-        ShutDownTimeLeft = 0;
-        _exitCode = (byte)ShutdownExitCode.Shutdown; // to default value
-        SendServerMessage(msgid);
-
-        Log.Logger.Debug("Server {0} cancelled.", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shutdown"));
-
-        _scriptManager.ForEach<IWorldOnShutdownCancel>(p => p.OnShutdownCancel());
-
-        return oldTimer;
-    }
-
-    public void SendServerMessage(ServerMessageType messageID, string stringParam = "", Player player = null)
-    {
-        ChatServerMessage packet = new()
-        {
-            MessageID = (int)messageID
-        };
-
-        if (messageID <= ServerMessageType.String)
-            packet.StringParam = stringParam;
-
-        if (player != null)
-            player.SendPacket(packet);
-        else
-            SendGlobalMessage(packet);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_COUNT);
+        stmt.AddValue(0, accountId);
+        _queryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt).WithCallback(UpdateRealmCharCount));
     }
 
     public void UpdateSessions(uint diff)
@@ -1246,7 +1413,7 @@ public class WorldManager
             if (session != null && !session.UpdateWorld(diff)) // As interval = 0
             {
                 if (!RemoveQueuedPlayer(session) && _configuration.GetDefaultValue("DisconnectToleranceInterval", 0) != 0)
-                    _disconnects[session.AccountId] = GameTime.GetGameTime();
+                    _disconnects[session.AccountId] = GameTime.CurrentTime;
 
                 RemoveQueuedPlayer(session);
                 _sessions.TryRemove(pair.Key, out _);
@@ -1255,252 +1422,13 @@ public class WorldManager
             }
         }
     }
-
-    public void UpdateRealmCharCount(uint accountId)
+    private void AddQueuedPlayer(WorldSession sess)
     {
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_COUNT);
-        stmt.AddValue(0, accountId);
-        _queryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt).WithCallback(UpdateRealmCharCount));
-    }
+        sess.SetInQueue(true);
+        _queuedPlayer.Add(sess);
 
-    public void DailyReset()
-    {
-        // reset all saved quest status
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
-        _characterDatabase.Execute(stmt);
-
-        stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_GARRISON_FOLLOWER_ACTIVATIONS);
-        stmt.AddValue(0, 1);
-        _characterDatabase.Execute(stmt);
-
-        // reset all quest status in memory
-        foreach (var itr in _sessions)
-        {
-            var player = itr.Value.Player;
-
-            player?.DailyReset();
-        }
-
-        // reselect pools
-        _questPoolManager.ChangeDailyQuests();
-
-        // Update faction balance
-        UpdateWarModeRewardValues();
-
-        // store next reset time
-        var now = GameTime.GetGameTime();
-        var next = GetNextDailyResetTime(now);
-
-        NextDailyQuestsResetTime = next;
-        SetPersistentWorldVariable(NEXT_DAILY_QUEST_RESET_TIME_VAR_ID, (int)next);
-
-        Log.Logger.Information("Daily quests for all characters have been reset.");
-    }
-
-    public void ResetWeeklyQuests()
-    {
-        // reset all saved quest status
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
-        _characterDatabase.Execute(stmt);
-
-        // reset all quest status in memory
-        foreach (var itr in _sessions)
-        {
-            var player = itr.Value.Player;
-
-            player?.ResetWeeklyQuestStatus();
-        }
-
-        // reselect pools
-        _questPoolManager.ChangeWeeklyQuests();
-
-        // store next reset time
-        var now = GameTime.GetGameTime();
-        var next = GetNextWeeklyResetTime(now);
-
-        NextWeeklyQuestsResetTime = next;
-        SetPersistentWorldVariable(NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID, (int)next);
-
-        Log.Logger.Information("Weekly quests for all characters have been reset.");
-    }
-
-    public void ResetMonthlyQuests()
-    {
-        // reset all saved quest status
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY);
-        _characterDatabase.Execute(stmt);
-
-        // reset all quest status in memory
-        foreach (var itr in _sessions)
-        {
-            var player = itr.Value.Player;
-
-            player?.ResetMonthlyQuestStatus();
-        }
-
-        // reselect pools
-        _questPoolManager.ChangeMonthlyQuests();
-
-        // store next reset time
-        var now = GameTime.GetGameTime();
-        var next = GetNextMonthlyResetTime(now);
-
-        NextMonthlyQuestsResetTime = next;
-
-        Log.Logger.Information("Monthly quests for all characters have been reset.");
-    }
-
-    public void ResetEventSeasonalQuests(ushort eventID, long eventStartTime)
-    {
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT);
-        stmt.AddValue(0, eventID);
-        stmt.AddValue(1, eventStartTime);
-        _characterDatabase.Execute(stmt);
-
-        foreach (var session in _sessions.Values)
-            session.Player?.ResetSeasonalQuestStatus(eventID, eventStartTime);
-    }
-
-    public string LoadDBVersion()
-    {
-        var dbVersion = "Unknown world database.";
-
-        var result = _worldDatabase.Query("SELECT db_version, cache_id FROM version LIMIT 1");
-
-        if (!result.IsEmpty())
-            dbVersion = result.Read<string>(0);
-
-        // will be overwrite by config values if different and non-0 TODO  
-        //WorldConfig.SetValue(WorldCfg.ClientCacheVersion, result.Read<uint>(1));
-        return dbVersion;
-    }
-
-    public bool IsBattlePetJournalLockAcquired(ObjectGuid battlenetAccountGuid)
-    {
-        foreach (var sessionForBnet in _sessionsByBnetGuid.LookupByKey(battlenetAccountGuid))
-            if (sessionForBnet.BattlePetMgr.HasJournalLock)
-                return true;
-
-        return false;
-    }
-
-    public int GetPersistentWorldVariable(string var)
-    {
-        return _worldVariables.LookupByKey(var);
-    }
-
-    public void SetPersistentWorldVariable(string var, int value)
-    {
-        _worldVariables[var] = value;
-
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_VARIABLE);
-        stmt.AddValue(0, var);
-        stmt.AddValue(1, value);
-        _characterDatabase.Execute(stmt);
-    }
-
-    public void ReloadRBAC()
-    {
-        // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
-        Log.Logger.Information("World.ReloadRBAC()");
-
-        foreach (var session in _sessions.Values)
-            session.InvalidateRBACData();
-    }
-
-    public void IncreasePlayerCount()
-    {
-        PlayerCount++;
-        MaxPlayerCount = Math.Max(MaxPlayerCount, PlayerCount);
-    }
-
-    public void DecreasePlayerCount()
-    {
-        PlayerCount--;
-    }
-
-    public void StopNow(ShutdownExitCode exitcode = ShutdownExitCode.Error)
-    {
-        IsStopped = true;
-        _exitCode = exitcode;
-    }
-
-    public bool LoadRealmInfo()
-    {
-        var result = _loginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = {0}", Realm.Id.Index);
-
-        if (result.IsEmpty())
-            return false;
-
-        Realm.SetName(result.Read<string>(1));
-        Realm.ExternalAddress = System.Net.IPAddress.Parse(result.Read<string>(2));
-        Realm.LocalAddress = System.Net.IPAddress.Parse(result.Read<string>(3));
-        Realm.LocalSubnetMask = System.Net.IPAddress.Parse(result.Read<string>(4));
-        Realm.Port = result.Read<ushort>(5);
-        Realm.Type = result.Read<byte>(6);
-        Realm.Flags = (RealmFlags)result.Read<byte>(7);
-        Realm.Timezone = result.Read<byte>(8);
-        Realm.AllowedSecurityLevel = (AccountTypes)result.Read<byte>(9);
-        Realm.PopulationLevel = result.Read<float>(10);
-        Realm.Id.Region = result.Read<byte>(12);
-        Realm.Id.Site = result.Read<byte>(13);
-        Realm.Build = result.Read<uint>(11);
-
-        return true;
-    }
-
-    public void RemoveOldCorpses()
-    {
-        _timers[WorldTimers.Corpses].Current = _timers[WorldTimers.Corpses].Interval;
-    }
-
-    public Locale GetAvailableDbcLocale(Locale locale)
-    {
-        if (_availableDbcLocaleMask[(int)locale])
-            return locale;
-        else
-            return DefaultDbcLocale;
-    }
-
-    private void DoGuidWarningRestart()
-    {
-        if (ShutDownTimeLeft != 0)
-            return;
-
-        ShutdownServ(1800, ShutdownMask.Restart, ShutdownExitCode.Restart);
-        _warnShutdownTime += Time.Hour;
-    }
-
-    private void DoGuidAlertRestart()
-    {
-        if (ShutDownTimeLeft != 0)
-            return;
-
-        ShutdownServ(300, ShutdownMask.Restart, ShutdownExitCode.Restart, _alertRestartReason);
-    }
-
-    private void SendGuidWarning()
-    {
-        if (ShutDownTimeLeft == 0 && IsGuidWarning && _configuration.GetDefaultValue("Respawn.WarningFrequency", 1800) > 0)
-            SendServerMessage(ServerMessageType.String, _guidWarningMsg);
-
-        _warnDiff = 0;
-    }
-
-    private bool RemoveSession(uint id)
-    {
-        // Find the session, kick the user, but we can't delete session at this moment to prevent iterator invalidation
-        var session = _sessions.LookupByKey(id);
-
-        if (session != null)
-        {
-            if (session.PlayerLoading)
-                return false;
-
-            session.KickPlayer("World::RemoveSession");
-        }
-
-        return true;
+        // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
+        sess.SendAuthResponse(BattlenetRpcErrorCode.Ok, true, GetQueuePos(sess));
     }
 
     private void AddSession_(WorldSession s)
@@ -1570,26 +1498,76 @@ public class WorldManager
         }
     }
 
-    private bool HasRecentlyDisconnected(WorldSession session)
+    private void CalendarDeleteOldEvents()
     {
-        if (session == null)
-            return false;
+        Log.Logger.Information("Calendar deletion of old events.");
 
-        uint tolerance = 0; // TODO WHY
+        _nextCalendarOldEventsDeletionTime = _nextCalendarOldEventsDeletionTime + Time.DAY;
+        SetPersistentWorldVariable(NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID, (int)_nextCalendarOldEventsDeletionTime);
+        _calendarManager.DeleteOldEvents();
+    }
 
-        if (tolerance != 0)
-            foreach (var disconnect in _disconnects)
-                if ((disconnect.Value - GameTime.GetGameTime()) < tolerance)
-                {
-                    if (disconnect.Key == session.AccountId)
-                        return true;
-                }
-                else
-                {
-                    _disconnects.Remove(disconnect.Key);
-                }
+    private void CheckScheduledResetTimes()
+    {
+        var now = GameTime.CurrentTime;
 
-        return false;
+        if (NextDailyQuestsResetTime <= now)
+            _taskManager.Schedule(DailyReset);
+
+        if (NextWeeklyQuestsResetTime <= now)
+            _taskManager.Schedule(ResetWeeklyQuests);
+
+        if (NextMonthlyQuestsResetTime <= now)
+            _taskManager.Schedule(ResetMonthlyQuests);
+    }
+
+    private void DoGuidAlertRestart()
+    {
+        if (ShutDownTimeLeft != 0)
+            return;
+
+        ShutdownServ(300, ShutdownMask.Restart, ShutdownExitCode.Restart, _alertRestartReason);
+    }
+
+    private void DoGuidWarningRestart()
+    {
+        if (ShutDownTimeLeft != 0)
+            return;
+
+        ShutdownServ(1800, ShutdownMask.Restart, ShutdownExitCode.Restart);
+        _warnShutdownTime += Time.HOUR;
+    }
+    private long GetNextDailyResetTime(long t)
+    {
+        return Time.GetLocalHourTimestamp(t, _configuration.GetDefaultValue("Quests.DailyResetTime", 3u));
+    }
+
+    private long GetNextMonthlyResetTime(long t)
+    {
+        t = GetNextDailyResetTime(t);
+        var time = Time.UnixTimeToDateTime(t);
+
+        if (time.Day == 1)
+            return t;
+
+        var newDate = new DateTime(time.Year, time.Month + 1, 1, 0, 0, 0, time.Kind);
+
+        return Time.DateTimeToUnixTime(newDate);
+    }
+
+    private long GetNextWeeklyResetTime(long t)
+    {
+        t = GetNextDailyResetTime(t);
+        var time = Time.UnixTimeToDateTime(t);
+        var wday = (int)time.DayOfWeek;
+        var target = _configuration.GetDefaultValue("Quests.WeeklyResetWDay", 3);
+
+        if (target < wday)
+            wday -= 7;
+
+        t += (Time.DAY * (target - wday));
+
+        return t;
     }
 
     private uint GetQueuePos(WorldSession sess)
@@ -1605,13 +1583,145 @@ public class WorldManager
         return 0;
     }
 
-    private void AddQueuedPlayer(WorldSession sess)
+    private bool HasRecentlyDisconnected(WorldSession session)
     {
-        sess.SetInQueue(true);
-        _queuedPlayer.Add(sess);
+        if (session == null)
+            return false;
 
-        // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
-        sess.SendAuthResponse(BattlenetRpcErrorCode.Ok, true, GetQueuePos(sess));
+        uint tolerance = 0; // TODO WHY
+
+        if (tolerance != 0)
+            foreach (var disconnect in _disconnects)
+                if ((disconnect.Value - GameTime.CurrentTime) < tolerance)
+                {
+                    if (disconnect.Key == session.AccountId)
+                        return true;
+                }
+                else
+                {
+                    _disconnects.Remove(disconnect.Key);
+                }
+
+        return false;
+    }
+
+    private void InitCalendarOldEventsDeletionTime()
+    {
+        var now = GameTime.CurrentTime;
+        var nextDeletionTime = Time.GetLocalHourTimestamp(now, _configuration.GetDefaultValue("Calendar.DeleteOldEventsHour", 6u));
+        long currentDeletionTime = GetPersistentWorldVariable(NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID);
+
+        // If the reset time saved in the worldstate is before now it means the server was offline when the reset was supposed to occur.
+        // In this case we set the reset time in the past and next world update will do the reset and schedule next one in the future.
+        if (currentDeletionTime < now)
+            _nextCalendarOldEventsDeletionTime = nextDeletionTime - Time.DAY;
+        else
+            _nextCalendarOldEventsDeletionTime = nextDeletionTime;
+
+        if (currentDeletionTime == 0)
+            SetPersistentWorldVariable(NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID, (int)_nextCalendarOldEventsDeletionTime);
+    }
+
+    private void InitCurrencyResetTime()
+    {
+        long currencytime = GetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID);
+
+        if (currencytime == 0)
+            _nextCurrencyReset = GameTime.CurrentTime; // game time not yet init
+
+        // generate time by config
+        var curTime = GameTime.CurrentTime;
+
+        var nextWeekResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Currency.ResetDay", 3), _configuration.GetDefaultValue("Currency.ResetHour", 3));
+
+        // next reset time before current moment
+        if (curTime >= nextWeekResetTime)
+            nextWeekResetTime += _configuration.GetDefaultValue("Currency.ResetInterval", 7) * Time.DAY;
+
+        // normalize reset time
+        _nextCurrencyReset = currencytime < curTime ? nextWeekResetTime - _configuration.GetDefaultValue("Currency.ResetInterval", 7) * Time.DAY : nextWeekResetTime;
+
+        if (currencytime == 0)
+            SetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID, (int)_nextCurrencyReset);
+    }
+
+    private void InitGuildResetTime()
+    {
+        long gtime = GetPersistentWorldVariable(NEXT_GUILD_DAILY_RESET_TIME_VAR_ID);
+
+        if (gtime == 0)
+            _nextGuildReset = GameTime.CurrentTime; // game time not yet init
+
+        var curTime = GameTime.CurrentTime;
+        var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Guild.ResetHour", 6));
+
+        if (curTime >= nextDayResetTime)
+            nextDayResetTime += Time.DAY;
+
+        // normalize reset time
+        _nextGuildReset = gtime < curTime ? nextDayResetTime - Time.DAY : nextDayResetTime;
+
+        if (gtime == 0)
+            SetPersistentWorldVariable(NEXT_GUILD_DAILY_RESET_TIME_VAR_ID, (int)_nextGuildReset);
+    }
+
+    private void InitQuestResetTimes()
+    {
+        NextDailyQuestsResetTime = GetPersistentWorldVariable(NEXT_DAILY_QUEST_RESET_TIME_VAR_ID);
+        NextWeeklyQuestsResetTime = GetPersistentWorldVariable(NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID);
+        NextMonthlyQuestsResetTime = GetPersistentWorldVariable(NEXT_MONTHLY_QUEST_RESET_TIME_VAR_ID);
+    }
+
+    private void InitRandomBGResetTime()
+    {
+        long bgtime = GetPersistentWorldVariable(NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID);
+
+        if (bgtime == 0)
+            _nextRandomBgReset = GameTime.CurrentTime; // game time not yet init
+
+        // generate time by config
+        var curTime = GameTime.CurrentTime;
+
+        // current day reset time
+        var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Battleground.Random.ResetHour", 6));
+
+        // next reset time before current moment
+        if (curTime >= nextDayResetTime)
+            nextDayResetTime += Time.DAY;
+
+        // normalize reset time
+        _nextRandomBgReset = bgtime < curTime ? nextDayResetTime - Time.DAY : nextDayResetTime;
+
+        if (bgtime == 0)
+            SetPersistentWorldVariable(NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID, (int)_nextRandomBgReset);
+    }
+
+    private void KickAllLess(AccountTypes sec)
+    {
+        // session not removed at kick and will removed in next update tick
+        foreach (var session in _sessions.Values)
+            if (session.Security < sec)
+                session.KickPlayer("World::KickAllLess");
+    }
+
+    private void LoadPersistentWorldVariables()
+    {
+        var oldMSTime = Time.MSTime;
+
+        var result = _characterDatabase.Query("SELECT ID, Value FROM world_variable");
+
+        if (!result.IsEmpty())
+            do
+            {
+                _worldVariables[result.Read<string>(0)] = result.Read<int>(1);
+            } while (result.NextRow());
+
+        Log.Logger.Information($"Loaded {_worldVariables.Count} world variables in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+    }
+
+    private void ProcessQueryCallbacks()
+    {
+        _queryProcessor.ProcessReadyCallbacks();
     }
 
     private bool RemoveQueuedPlayer(WorldSession sess)
@@ -1666,41 +1776,60 @@ public class WorldManager
         return found;
     }
 
-    private void KickAllLess(AccountTypes sec)
+    private bool RemoveSession(uint id)
     {
-        // session not removed at kick and will removed in next update tick
-        foreach (var session in _sessions.Values)
-            if (session.Security < sec)
-                session.KickPlayer("World::KickAllLess");
+        // Find the session, kick the user, but we can't delete session at this moment to prevent iterator invalidation
+        var session = _sessions.LookupByKey(id);
+
+        if (session != null)
+        {
+            if (session.PlayerLoading)
+                return false;
+
+            session.KickPlayer("World::RemoveSession");
+        }
+
+        return true;
     }
 
-    private void UpdateGameTime()
+    private void ResetCurrencyWeekCap()
     {
-        // update the time
-        var lastGameTime = GameTime.GetGameTime();
-        GameTime.UpdateGameTimers();
+        _characterDatabase.Execute("UPDATE `character_currency` SET `WeeklyQuantity` = 0");
 
-        var elapsed = (uint)(GameTime.GetGameTime() - lastGameTime);
-
-        //- if there is a shutdown timer
-        if (!IsStopped && ShutDownTimeLeft > 0 && elapsed > 0)
+        foreach (var session in _sessions.Values)
         {
-            //- ... and it is overdue, stop the world
-            if (ShutDownTimeLeft <= elapsed)
-            {
-                if (!_shutdownMask.HasAnyFlag(ShutdownMask.Idle) || ActiveAndQueuedSessionCount == 0)
-                    IsStopped = true; // exist code already set
-                else
-                    ShutDownTimeLeft = 1; // minimum timer value to wait idle state
-            }
-            //- ... else decrease it and if necessary display a shutdown countdown to the users
-            else
-            {
-                ShutDownTimeLeft -= elapsed;
-
-                ShutdownMsg();
-            }
+            session.Player?.ResetCurrencyWeekCap();
         }
+
+        _nextCurrencyReset += Time.DAY * _configuration.GetDefaultValue("Currency.ResetInterval", 7);
+        SetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID, (int)_nextCurrencyReset);
+    }
+
+    private void ResetGuildCap()
+    {
+        _nextGuildReset += Time.DAY;
+        SetPersistentWorldVariable(NEXT_GUILD_DAILY_RESET_TIME_VAR_ID, (int)_nextGuildReset);
+        var week = GetPersistentWorldVariable(NEXT_GUILD_WEEKLY_RESET_TIME_VAR_ID);
+        week = week < 7 ? week + 1 : 1;
+
+        Log.Logger.Information("Guild Daily Cap reset. Week: {0}", week == 1);
+        SetPersistentWorldVariable(NEXT_GUILD_WEEKLY_RESET_TIME_VAR_ID, week);
+        _guildManager.ResetTimes(week == 1);
+    }
+
+    private void ResetRandomBG()
+    {
+        Log.Logger.Information("Random BG status reset for all characters.");
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM_ALL);
+        _characterDatabase.Execute(stmt);
+
+        foreach (var session in _sessions.Values)
+            if (session.Player)
+                session.Player.SetRandomWinner(false);
+
+        _nextRandomBgReset += Time.DAY;
+        SetPersistentWorldVariable(NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID, (int)_nextRandomBgReset);
     }
 
     private void SendAutoBroadcast()
@@ -1729,6 +1858,47 @@ public class WorldManager
         Log.Logger.Debug("AutoBroadcast: '{0}'", pair.Value.Message);
     }
 
+    private void SendGuidWarning()
+    {
+        if (ShutDownTimeLeft == 0 && IsGuidWarning && _configuration.GetDefaultValue("Respawn.WarningFrequency", 1800) > 0)
+            SendServerMessage(ServerMessageType.String, _guidWarningMsg);
+
+        _warnDiff = 0;
+    }
+    private void UpdateGameTime()
+    {
+        // update the time
+        var lastGameTime = GameTime.CurrentTime;
+        GameTime.UpdateGameTimers();
+
+        var elapsed = (uint)(GameTime.CurrentTime - lastGameTime);
+
+        //- if there is a shutdown timer
+        if (!IsStopped && ShutDownTimeLeft > 0 && elapsed > 0)
+        {
+            //- ... and it is overdue, stop the world
+            if (ShutDownTimeLeft <= elapsed)
+            {
+                if (!_shutdownMask.HasAnyFlag(ShutdownMask.Idle) || ActiveAndQueuedSessionCount == 0)
+                    IsStopped = true; // exist code already set
+                else
+                    ShutDownTimeLeft = 1; // minimum timer value to wait idle state
+            }
+            //- ... else decrease it and if necessary display a shutdown countdown to the users
+            else
+            {
+                ShutDownTimeLeft -= elapsed;
+
+                ShutdownMsg();
+            }
+        }
+    }
+    private void UpdateMaxSessionCounters()
+    {
+        MaxActiveSessionCount = Math.Max(MaxActiveSessionCount, (uint)(_sessions.Count - _queuedPlayer.Count));
+        MaxQueuedSessionCount = Math.Max(MaxQueuedSessionCount, (uint)_queuedPlayer.Count);
+    }
+
     private void UpdateRealmCharCount(SQLResult result)
     {
         if (!result.IsEmpty())
@@ -1743,220 +1913,6 @@ public class WorldManager
             _loginDatabase.DirectExecute(stmt);
         }
     }
-
-    private void InitQuestResetTimes()
-    {
-        NextDailyQuestsResetTime = GetPersistentWorldVariable(NEXT_DAILY_QUEST_RESET_TIME_VAR_ID);
-        NextWeeklyQuestsResetTime = GetPersistentWorldVariable(NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID);
-        NextMonthlyQuestsResetTime = GetPersistentWorldVariable(NEXT_MONTHLY_QUEST_RESET_TIME_VAR_ID);
-    }
-
-    private long GetNextDailyResetTime(long t)
-    {
-        return Time.GetLocalHourTimestamp(t, _configuration.GetDefaultValue("Quests.DailyResetTime", 3u));
-    }
-
-    private long GetNextWeeklyResetTime(long t)
-    {
-        t = GetNextDailyResetTime(t);
-        var time = Time.UnixTimeToDateTime(t);
-        var wday = (int)time.DayOfWeek;
-        var target = _configuration.GetDefaultValue("Quests.WeeklyResetWDay", 3);
-
-        if (target < wday)
-            wday -= 7;
-
-        t += (Time.Day * (target - wday));
-
-        return t;
-    }
-
-    private long GetNextMonthlyResetTime(long t)
-    {
-        t = GetNextDailyResetTime(t);
-        var time = Time.UnixTimeToDateTime(t);
-
-        if (time.Day == 1)
-            return t;
-
-        var newDate = new DateTime(time.Year, time.Month + 1, 1, 0, 0, 0, time.Kind);
-
-        return Time.DateTimeToUnixTime(newDate);
-    }
-
-    private void CheckScheduledResetTimes()
-    {
-        var now = GameTime.GetGameTime();
-
-        if (NextDailyQuestsResetTime <= now)
-            _taskManager.Schedule(DailyReset);
-
-        if (NextWeeklyQuestsResetTime <= now)
-            _taskManager.Schedule(ResetWeeklyQuests);
-
-        if (NextMonthlyQuestsResetTime <= now)
-            _taskManager.Schedule(ResetMonthlyQuests);
-    }
-
-    private void InitRandomBGResetTime()
-    {
-        long bgtime = GetPersistentWorldVariable(NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID);
-
-        if (bgtime == 0)
-            _nextRandomBgReset = GameTime.GetGameTime(); // game time not yet init
-
-        // generate time by config
-        var curTime = GameTime.GetGameTime();
-
-        // current day reset time
-        var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Battleground.Random.ResetHour", 6));
-
-        // next reset time before current moment
-        if (curTime >= nextDayResetTime)
-            nextDayResetTime += Time.Day;
-
-        // normalize reset time
-        _nextRandomBgReset = bgtime < curTime ? nextDayResetTime - Time.Day : nextDayResetTime;
-
-        if (bgtime == 0)
-            SetPersistentWorldVariable(NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID, (int)_nextRandomBgReset);
-    }
-
-    private void InitCalendarOldEventsDeletionTime()
-    {
-        var now = GameTime.GetGameTime();
-        var nextDeletionTime = Time.GetLocalHourTimestamp(now, _configuration.GetDefaultValue("Calendar.DeleteOldEventsHour", 6u));
-        long currentDeletionTime = GetPersistentWorldVariable(NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID);
-
-        // If the reset time saved in the worldstate is before now it means the server was offline when the reset was supposed to occur.
-        // In this case we set the reset time in the past and next world update will do the reset and schedule next one in the future.
-        if (currentDeletionTime < now)
-            _nextCalendarOldEventsDeletionTime = nextDeletionTime - Time.Day;
-        else
-            _nextCalendarOldEventsDeletionTime = nextDeletionTime;
-
-        if (currentDeletionTime == 0)
-            SetPersistentWorldVariable(NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID, (int)_nextCalendarOldEventsDeletionTime);
-    }
-
-    private void InitGuildResetTime()
-    {
-        long gtime = GetPersistentWorldVariable(NEXT_GUILD_DAILY_RESET_TIME_VAR_ID);
-
-        if (gtime == 0)
-            _nextGuildReset = GameTime.GetGameTime(); // game time not yet init
-
-        var curTime = GameTime.GetGameTime();
-        var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Guild.ResetHour", 6));
-
-        if (curTime >= nextDayResetTime)
-            nextDayResetTime += Time.Day;
-
-        // normalize reset time
-        _nextGuildReset = gtime < curTime ? nextDayResetTime - Time.Day : nextDayResetTime;
-
-        if (gtime == 0)
-            SetPersistentWorldVariable(NEXT_GUILD_DAILY_RESET_TIME_VAR_ID, (int)_nextGuildReset);
-    }
-
-    private void InitCurrencyResetTime()
-    {
-        long currencytime = GetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID);
-
-        if (currencytime == 0)
-            _nextCurrencyReset = GameTime.GetGameTime(); // game time not yet init
-
-        // generate time by config
-        var curTime = GameTime.GetGameTime();
-
-        var nextWeekResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Currency.ResetDay", 3), _configuration.GetDefaultValue("Currency.ResetHour", 3));
-
-        // next reset time before current moment
-        if (curTime >= nextWeekResetTime)
-            nextWeekResetTime += _configuration.GetDefaultValue("Currency.ResetInterval", 7) * Time.Day;
-
-        // normalize reset time
-        _nextCurrencyReset = currencytime < curTime ? nextWeekResetTime - _configuration.GetDefaultValue("Currency.ResetInterval", 7) * Time.Day : nextWeekResetTime;
-
-        if (currencytime == 0)
-            SetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID, (int)_nextCurrencyReset);
-    }
-
-    private void ResetCurrencyWeekCap()
-    {
-        _characterDatabase.Execute("UPDATE `character_currency` SET `WeeklyQuantity` = 0");
-
-        foreach (var session in _sessions.Values)
-        {
-            session.Player?.ResetCurrencyWeekCap();
-        }
-
-        _nextCurrencyReset += Time.Day * _configuration.GetDefaultValue("Currency.ResetInterval", 7);
-        SetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID, (int)_nextCurrencyReset);
-    }
-
-    private void ResetRandomBG()
-    {
-        Log.Logger.Information("Random BG status reset for all characters.");
-
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM_ALL);
-        _characterDatabase.Execute(stmt);
-
-        foreach (var session in _sessions.Values)
-            if (session.Player)
-                session.Player.SetRandomWinner(false);
-
-        _nextRandomBgReset += Time.Day;
-        SetPersistentWorldVariable(NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID, (int)_nextRandomBgReset);
-    }
-
-    private void CalendarDeleteOldEvents()
-    {
-        Log.Logger.Information("Calendar deletion of old events.");
-
-        _nextCalendarOldEventsDeletionTime = _nextCalendarOldEventsDeletionTime + Time.Day;
-        SetPersistentWorldVariable(NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID, (int)_nextCalendarOldEventsDeletionTime);
-        _calendarManager.DeleteOldEvents();
-    }
-
-    private void ResetGuildCap()
-    {
-        _nextGuildReset += Time.Day;
-        SetPersistentWorldVariable(NEXT_GUILD_DAILY_RESET_TIME_VAR_ID, (int)_nextGuildReset);
-        var week = GetPersistentWorldVariable(NEXT_GUILD_WEEKLY_RESET_TIME_VAR_ID);
-        week = week < 7 ? week + 1 : 1;
-
-        Log.Logger.Information("Guild Daily Cap reset. Week: {0}", week == 1);
-        SetPersistentWorldVariable(NEXT_GUILD_WEEKLY_RESET_TIME_VAR_ID, week);
-        _guildManager.ResetTimes(week == 1);
-    }
-
-    private void UpdateMaxSessionCounters()
-    {
-        MaxActiveSessionCount = Math.Max(MaxActiveSessionCount, (uint)(_sessions.Count - _queuedPlayer.Count));
-        MaxQueuedSessionCount = Math.Max(MaxQueuedSessionCount, (uint)_queuedPlayer.Count);
-    }
-
-    private void LoadPersistentWorldVariables()
-    {
-        var oldMSTime = Time.MSTime;
-
-        var result = _characterDatabase.Query("SELECT ID, Value FROM world_variable");
-
-        if (!result.IsEmpty())
-            do
-            {
-                _worldVariables[result.Read<string>(0)] = result.Read<int>(1);
-            } while (result.NextRow());
-
-        Log.Logger.Information($"Loaded {_worldVariables.Count} world variables in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-    }
-
-    private void ProcessQueryCallbacks()
-    {
-        _queryProcessor.ProcessReadyCallbacks();
-    }
-
     private void UpdateWarModeRewardValues()
     {
         var warModeEnabledFaction = new long[2];

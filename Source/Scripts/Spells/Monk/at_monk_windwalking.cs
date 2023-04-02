@@ -33,8 +33,8 @@ public class at_monk_windwalking : AreaTriggerScript, IAreaTriggerOnUnitEnter, I
 
                 if (aur != null)
                 {
-                    aur.SetMaxDuration(10 * Time.InMilliseconds);
-                    aur.SetDuration(10 * Time.InMilliseconds);
+                    aur.SetMaxDuration(10 * Time.IN_MILLISECONDS);
+                    aur.SetDuration(10 * Time.IN_MILLISECONDS);
                 }
             }
         }
@@ -75,8 +75,8 @@ public class at_monk_windwalking : AreaTriggerScript, IAreaTriggerOnUnitEnter, I
 
         if (aur != null)
         {
-            aur.SetMaxDuration(10 * Time.InMilliseconds);
-            aur.SetDuration(10 * Time.InMilliseconds);
+            aur.SetMaxDuration(10 * Time.IN_MILLISECONDS);
+            aur.SetDuration(10 * Time.IN_MILLISECONDS);
         }
     }
 }

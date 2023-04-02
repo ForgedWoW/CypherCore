@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class LoginSetTimeSpeed : ServerPacket
 {
-    public float NewSpeed;
-    public int ServerTimeHolidayOffset;
     public uint GameTime;
-    public uint ServerTime;
     public int GameTimeHolidayOffset;
+    public float NewSpeed;
+    public uint ServerTime;
+    public int ServerTimeHolidayOffset;
     public LoginSetTimeSpeed() : base(ServerOpcodes.LoginSetTimeSpeed, ConnectionType.Instance) { }
 
     public override void Write()

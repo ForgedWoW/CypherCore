@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryNPCTextResponse : ServerPacket
 {
-    public uint TextID;
     public bool Allow;
-    public float[] Probabilities = new float[SharedConst.MaxNpcTextOptions];
     public uint[] BroadcastTextID = new uint[SharedConst.MaxNpcTextOptions];
+    public float[] Probabilities = new float[SharedConst.MaxNpcTextOptions];
+    public uint TextID;
     public QueryNPCTextResponse() : base(ServerOpcodes.QueryNpcTextResponse, ConnectionType.Instance) { }
 
     public override void Write()

@@ -7,17 +7,17 @@ namespace Forged.MapServer.DataStorage.Structs.P;
 
 public sealed class PowerTypeRecord
 {
-    public string NameGlobalStringTag;
-    public string CostGlobalStringTag;
-    public uint Id;
-    public PowerType PowerTypeEnum;
-    public int MinPower;
-    public int MaxBasePower;
     public int CenterPower;
+    public string CostGlobalStringTag;
     public int DefaultPower;
     public int DisplayModifier;
+    public short Flags;
+    public uint Id;
+    public int MaxBasePower;
+    public int MinPower;
+    public string NameGlobalStringTag;
+    public PowerType PowerTypeEnum;
+    public float RegenCombat;
     public int RegenInterruptTimeMS;
     public float RegenPeace;
-    public float RegenCombat;
-    public short Flags;
 }

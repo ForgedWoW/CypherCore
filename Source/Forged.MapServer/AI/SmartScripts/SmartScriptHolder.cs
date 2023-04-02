@@ -10,19 +10,18 @@ public class SmartScriptHolder : IComparable<SmartScriptHolder>
 {
     public const uint DefaultPriority = uint.MaxValue;
 
+    public SmartAction Action;
+    public bool Active;
+    public bool EnableTimed;
     public int EntryOrGuid;
-    public SmartScriptType SourceType;
+    public SmartEvent Event;
     public uint EventId;
     public uint Link;
-    public SmartEvent Event;
-    public SmartAction Action;
+    public uint Priority;
+    public bool RunOnce;
+    public SmartScriptType SourceType;
     public SmartTarget Target;
     public uint Timer;
-    public uint Priority;
-    public bool Active;
-    public bool RunOnce;
-    public bool EnableTimed;
-
     public SmartScriptHolder() { }
 
     public SmartScriptHolder(SmartScriptHolder other)
@@ -59,9 +58,9 @@ public class SmartScriptHolder : IComparable<SmartScriptHolder>
         return result;
     }
 
-    public SmartScriptType GetScriptType()
+    public SmartActions GetActionType()
     {
-        return SourceType;
+        return Action.type;
     }
 
     public SmartEvents GetEventType()
@@ -69,11 +68,10 @@ public class SmartScriptHolder : IComparable<SmartScriptHolder>
         return Event.type;
     }
 
-    public SmartActions GetActionType()
+    public SmartScriptType GetScriptType()
     {
-        return Action.type;
+        return SourceType;
     }
-
     public SmartTargets GetTargetType()
     {
         return Target.type;

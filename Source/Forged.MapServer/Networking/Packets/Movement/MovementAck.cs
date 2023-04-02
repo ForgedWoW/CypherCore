@@ -7,12 +7,13 @@ namespace Forged.MapServer.Networking.Packets.Movement;
 
 public struct MovementAck
 {
+    public int AckIndex;
+
+    public MovementInfo Status;
+
     public void Read(WorldPacket data)
     {
         Status = MovementExtensions.ReadMovementInfo(data);
         AckIndex = data.ReadInt32();
     }
-
-    public MovementInfo Status;
-    public int AckIndex;
 }

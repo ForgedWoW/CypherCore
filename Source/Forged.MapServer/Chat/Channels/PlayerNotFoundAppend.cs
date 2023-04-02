@@ -8,17 +8,17 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal struct PlayerNotFoundAppend : IChannelAppender
 {
+    private readonly string _playerName;
+
     public PlayerNotFoundAppend(string playerName)
     {
         _playerName = playerName;
     }
-
-    public ChatNotify GetNotificationType() => ChatNotify.PlayerNotFoundNotice;
 
     public void Append(ChannelNotify data)
     {
         data.Sender = _playerName;
     }
 
-    private readonly string _playerName;
+    public ChatNotify GetNotificationType() => ChatNotify.PlayerNotFoundNotice;
 }

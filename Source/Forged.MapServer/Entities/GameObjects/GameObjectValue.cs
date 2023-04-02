@@ -9,30 +9,10 @@ namespace Forged.MapServer.Entities.GameObjects;
 
 public struct GameObjectValue
 {
-    public transport Transport;
-
-    public fishinghole FishingHole;
-
     public building Building;
-
     public capturePoint CapturePoint;
-
-    //11 GAMEOBJECT_TYPE_TRANSPORT
-    public struct transport
-    {
-        public uint PathProgress;
-        public TransportAnimation AnimationInfo;
-        public uint CurrentSeg;
-        public List<uint> StopFrames;
-        public uint StateUpdateTimer;
-    }
-
-    //25 GAMEOBJECT_TYPE_FISHINGHOLE
-    public struct fishinghole
-    {
-        public uint MaxOpens;
-    }
-
+    public fishinghole FishingHole;
+    public transport Transport;
     //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
     public struct building
     {
@@ -43,8 +23,24 @@ public struct GameObjectValue
     //42 GAMEOBJECT_TYPE_CAPTURE_POINT
     public struct capturePoint
     {
+        public uint AssaultTimer;
         public int LastTeamCapture;
         public BattlegroundCapturePointState State;
-        public uint AssaultTimer;
+    }
+
+    //25 GAMEOBJECT_TYPE_FISHINGHOLE
+    public struct fishinghole
+    {
+        public uint MaxOpens;
+    }
+
+    //11 GAMEOBJECT_TYPE_TRANSPORT
+    public struct transport
+    {
+        public TransportAnimation AnimationInfo;
+        public uint CurrentSeg;
+        public uint PathProgress;
+        public uint StateUpdateTimer;
+        public List<uint> StopFrames;
     }
 }

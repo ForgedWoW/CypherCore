@@ -5,20 +5,20 @@ namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class ArtifactAppearanceRecord
 {
-    public string Name;
-    public uint Id;
     public ushort ArtifactAppearanceSetID;
     public byte DisplayIndex;
-    public uint UnlockPlayerConditionID;
-    public byte ItemAppearanceModifierID;
-    public int UiSwatchColor;
-    public float UiModelSaturation;
-    public float UiModelOpacity;
-    public byte OverrideShapeshiftFormID;
-    public uint OverrideShapeshiftDisplayID;
-    public uint UiItemAppearanceID;
-    public uint UiAltItemAppearanceID;
     public byte Flags;
+    public uint Id;
+    public byte ItemAppearanceModifierID;
+    public string Name;
+    public uint OverrideShapeshiftDisplayID;
+    public byte OverrideShapeshiftFormID;
+    public uint UiAltItemAppearanceID;
     public ushort UiCameraID;
+    public uint UiItemAppearanceID;
+    public float UiModelOpacity;
+    public float UiModelSaturation;
+    public int UiSwatchColor;
+    public uint UnlockPlayerConditionID;
     public uint UsablePlayerConditionID;
 }

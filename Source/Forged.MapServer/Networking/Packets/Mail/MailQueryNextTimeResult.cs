@@ -10,9 +10,8 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailQueryNextTimeResult : ServerPacket
 {
-    public float NextMailTime;
     public List<MailNextTimeEntry> Next;
-
+    public float NextMailTime;
     public MailQueryNextTimeResult() : base(ServerOpcodes.MailQueryNextTimeResult)
     {
         Next = new List<MailNextTimeEntry>();
@@ -35,12 +34,11 @@ public class MailQueryNextTimeResult : ServerPacket
 
     public class MailNextTimeEntry
     {
-        public ObjectGuid SenderGuid;
-        public float TimeLeft;
         public int AltSenderID;
         public sbyte AltSenderType;
+        public ObjectGuid SenderGuid;
         public int StationeryID;
-
+        public float TimeLeft;
         public MailNextTimeEntry(Mails.Mail mail)
         {
             switch (mail.messageType)
@@ -58,7 +56,7 @@ public class MailQueryNextTimeResult : ServerPacket
                     break;
             }
 
-            TimeLeft = mail.deliver_time - GameTime.GetGameTime();
+            TimeLeft = mail.deliver_time - GameTime.CurrentTime;
             AltSenderType = (sbyte)mail.messageType;
             StationeryID = (int)mail.stationery;
         }

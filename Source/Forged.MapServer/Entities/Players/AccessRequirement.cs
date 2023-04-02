@@ -5,12 +5,12 @@ namespace Forged.MapServer.Entities.Players;
 
 public class AccessRequirement
 {
-    public byte LevelMin { get; set; }
-    public byte LevelMax { get; set; }
+    public uint Achievement { get; set; }
     public uint Item { get; set; }
     public uint Item2 { get; set; }
+    public byte LevelMax { get; set; }
+    public byte LevelMin { get; set; }
     public uint QuestA { get; set; }
-    public uint QuestH { get; set; }
-    public uint Achievement { get; set; }
     public string QuestFailedText { get; set; }
+    public uint QuestH { get; set; }
 }

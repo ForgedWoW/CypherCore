@@ -13,19 +13,6 @@ public class PlayerInfo
     public CreatePositionModel CreatePosition;
     public CreatePositionModel? CreatePositionNpe;
 
-    public ItemContext ItemContext { get; set; }
-    public List<PlayerCreateInfoItem> Items { get; set; } = new();
-    public HashSet<uint> CustomSpells { get; set; } = new();
-    public List<uint>[] CastSpells { get; set; } = new List<uint>[(int)PlayerCreateMode.Max];
-    public List<PlayerCreateInfoAction> Actions { get; set; } = new();
-    public List<SkillRaceClassInfoRecord> Skills { get; set; } = new();
-
-    public uint? IntroMovieId { get; set; }
-    public uint? IntroSceneId { get; set; }
-    public uint? IntroSceneIdNpe { get; set; }
-
-    public PlayerLevelInfo[] LevelInfo { get; set; } = new PlayerLevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
-
     public PlayerInfo()
     {
         for (var i = 0; i < CastSpells.Length; ++i)
@@ -35,6 +22,16 @@ public class PlayerInfo
             LevelInfo[i] = new PlayerLevelInfo();
     }
 
+    public List<PlayerCreateInfoAction> Actions { get; set; } = new();
+    public List<uint>[] CastSpells { get; set; } = new List<uint>[(int)PlayerCreateMode.Max];
+    public HashSet<uint> CustomSpells { get; set; } = new();
+    public uint? IntroMovieId { get; set; }
+    public uint? IntroSceneId { get; set; }
+    public uint? IntroSceneIdNpe { get; set; }
+    public ItemContext ItemContext { get; set; }
+    public List<PlayerCreateInfoItem> Items { get; set; } = new();
+    public PlayerLevelInfo[] LevelInfo { get; set; } = new PlayerLevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
+    public List<SkillRaceClassInfoRecord> Skills { get; set; } = new();
     public struct CreatePositionModel
     {
         public WorldLocation Loc;

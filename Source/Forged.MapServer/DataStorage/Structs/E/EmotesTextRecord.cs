@@ -5,7 +5,7 @@ namespace Forged.MapServer.DataStorage.Structs.E;
 
 public sealed class EmotesTextRecord
 {
+    public ushort EmoteId;
     public uint Id;
     public string Name;
-    public ushort EmoteId;
 }

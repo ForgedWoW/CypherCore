@@ -11,6 +11,12 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("unban")]
 internal class UnBanCommands
 {
+    [Command("playeraccount", RBACPermissions.CommandUnbanPlayeraccount, true)]
+    private static bool HandleUnBanAccountByCharCommand(CommandHandler handler, string name)
+    {
+        return HandleUnBanHelper(BanMode.Character, name, handler);
+    }
+
     [Command("account", RBACPermissions.CommandUnbanAccount, true)]
     private static bool HandleUnBanAccountCommand(CommandHandler handler, string name)
     {
@@ -38,19 +44,6 @@ internal class UnBanCommands
 
         return true;
     }
-
-    [Command("playeraccount", RBACPermissions.CommandUnbanPlayeraccount, true)]
-    private static bool HandleUnBanAccountByCharCommand(CommandHandler handler, string name)
-    {
-        return HandleUnBanHelper(BanMode.Character, name, handler);
-    }
-
-    [Command("ip", RBACPermissions.CommandUnbanIp, true)]
-    private static bool HandleUnBanIPCommand(CommandHandler handler, string ip)
-    {
-        return HandleUnBanHelper(BanMode.IP, ip, handler);
-    }
-
     private static bool HandleUnBanHelper(BanMode mode, string nameOrIp, CommandHandler handler)
     {
         if (nameOrIp.IsEmpty())
@@ -80,5 +73,11 @@ internal class UnBanCommands
             handler.SendSysMessage(CypherStrings.UnbanError, nameOrIp);
 
         return true;
+    }
+
+    [Command("ip", RBACPermissions.CommandUnbanIp, true)]
+    private static bool HandleUnBanIPCommand(CommandHandler handler, string ip)
+    {
+        return HandleUnBanHelper(BanMode.IP, ip, handler);
     }
 }

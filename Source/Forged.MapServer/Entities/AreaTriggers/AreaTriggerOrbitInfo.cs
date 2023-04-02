@@ -9,16 +9,16 @@ namespace Forged.MapServer.Entities.AreaTriggers;
 
 public class AreaTriggerOrbitInfo
 {
-    public ObjectGuid? PathTarget;
+    public float BlendFromRadius;
+    public bool CanLoop;
     public Vector3? Center;
     public bool CounterClockwise;
-    public bool CanLoop;
-    public uint TimeToTarget;
     public int ElapsedTimeForMovement;
-    public uint StartDelay;
-    public float Radius;
-    public float BlendFromRadius;
     public float InitialAngle;
+    public ObjectGuid? PathTarget;
+    public float Radius;
+    public uint StartDelay;
+    public uint TimeToTarget;
     public float ZOffset;
 
     public void Write(WorldPacket data)

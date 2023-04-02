@@ -7,20 +7,20 @@ namespace Forged.MapServer.DataStorage.Structs.J;
 
 public sealed class JournalEncounterSectionRecord
 {
-    public uint Id;
-    public LocalizedString Title;
     public LocalizedString BodyText;
+    public sbyte DifficultyMask;
+    public ushort FirstChildSectionID;
+    public int Flags;
+    public uint IconCreatureDisplayInfoID;
+    public int IconFileDataID;
+    public int IconFlags;
+    public uint Id;
     public ushort JournalEncounterID;
+    public ushort NextSiblingSectionID;
     public byte OrderIndex;
     public ushort ParentSectionID;
-    public ushort FirstChildSectionID;
-    public ushort NextSiblingSectionID;
-    public byte Type;
-    public uint IconCreatureDisplayInfoID;
-    public int UiModelSceneID;
     public int SpellID;
-    public int IconFileDataID;
-    public int Flags;
-    public int IconFlags;
-    public sbyte DifficultyMask;
+    public LocalizedString Title;
+    public byte Type;
+    public int UiModelSceneID;
 }

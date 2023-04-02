@@ -9,18 +9,19 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 internal class PlaySpellVisual : ServerPacket
 {
-    public ObjectGuid Source;
-    public ObjectGuid Target;
-    public ObjectGuid Transport;   // Used when Target = Empty && (SpellVisual::Flags & 0x400) == 0
-    public Vector3 TargetPosition; // Overrides missile destination for SpellVisual::SpellVisualMissileSetID
-    public uint SpellVisualID;
-    public float TravelSpeed;
     public ushort HitReason;
-    public ushort MissReason;
-    public ushort ReflectStatus;
     public float LaunchDelay;
     public float MinDuration;
+    public ushort MissReason;
+    public ushort ReflectStatus;
+    public ObjectGuid Source;
     public bool SpeedAsTime;
+    public uint SpellVisualID;
+    public ObjectGuid Target;
+    public Vector3 TargetPosition;
+    public ObjectGuid Transport;   // Used when Target = Empty && (SpellVisual::Flags & 0x400) == 0
+                                   // Overrides missile destination for SpellVisual::SpellVisualMissileSetID
+    public float TravelSpeed;
     public PlaySpellVisual() : base(ServerOpcodes.PlaySpellVisual) { }
 
     public override void Write()

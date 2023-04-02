@@ -28,7 +28,7 @@ internal class DeserterCommands
             return false;
         }
 
-        aura.SetDuration((int)(time * Time.InMilliseconds));
+        aura.SetDuration((int)(time * Time.IN_MILLISECONDS));
 
         return true;
     }
@@ -49,22 +49,6 @@ internal class DeserterCommands
         return true;
     }
 
-    [CommandGroup("instance")]
-    private class DeserterInstanceCommands
-    {
-        [Command("add", RBACPermissions.CommandDeserterInstanceAdd)]
-        private static bool HandleDeserterInstanceAdd(CommandHandler handler, uint time)
-        {
-            return HandleDeserterAdd(handler, time, true);
-        }
-
-        [Command("remove", RBACPermissions.CommandDeserterInstanceRemove)]
-        private static bool HandleDeserterInstanceRemove(CommandHandler handler)
-        {
-            return HandleDeserterRemove(handler, true);
-        }
-    }
-
     [CommandGroup("bg")]
     private class DeserterBGCommands
     {
@@ -78,6 +62,22 @@ internal class DeserterCommands
         private static bool HandleDeserterBGRemove(CommandHandler handler)
         {
             return HandleDeserterRemove(handler, false);
+        }
+    }
+
+    [CommandGroup("instance")]
+    private class DeserterInstanceCommands
+    {
+        [Command("add", RBACPermissions.CommandDeserterInstanceAdd)]
+        private static bool HandleDeserterInstanceAdd(CommandHandler handler, uint time)
+        {
+            return HandleDeserterAdd(handler, time, true);
+        }
+
+        [Command("remove", RBACPermissions.CommandDeserterInstanceRemove)]
+        private static bool HandleDeserterInstanceRemove(CommandHandler handler)
+        {
+            return HandleDeserterRemove(handler, true);
         }
     }
 }

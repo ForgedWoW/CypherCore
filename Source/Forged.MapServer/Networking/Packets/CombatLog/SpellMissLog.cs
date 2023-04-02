@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 
 internal class SpellMissLog : ServerPacket
 {
-    public uint SpellID;
     public ObjectGuid Caster;
     public List<SpellLogMissEntry> Entries = new();
+    public uint SpellID;
     public SpellMissLog() : base(ServerOpcodes.SpellMissLog, ConnectionType.Instance) { }
 
     public override void Write()

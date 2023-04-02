@@ -8,12 +8,11 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class FriendlyBelowHpPctEntryInRange : ICheck<Unit>
 {
-    private readonly Unit _obj;
     private readonly uint _entry;
-    private readonly float _range;
-    private readonly byte _pct;
     private readonly bool _excludeSelf;
-
+    private readonly Unit _obj;
+    private readonly byte _pct;
+    private readonly float _range;
     public FriendlyBelowHpPctEntryInRange(Unit obj, uint entry, float range, byte pct, bool excludeSelf)
     {
         _obj = obj;

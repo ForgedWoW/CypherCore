@@ -7,9 +7,9 @@ namespace Forged.MapServer.DataStorage.Structs.F;
 
 public sealed class FriendshipRepReactionRecord
 {
-    public uint Id;
-    public LocalizedString Reaction;
     public uint FriendshipRepID;
-    public ushort ReactionThreshold;
+    public uint Id;
     public int OverrideColor;
+    public LocalizedString Reaction;
+    public ushort ReactionThreshold;
 }

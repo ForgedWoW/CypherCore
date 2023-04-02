@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyCommandResult : ServerPacket
 {
-    public string Name;
     public byte Command;
+    public string Name;
     public byte Result;
     public uint ResultData;
     public ObjectGuid ResultGUID;

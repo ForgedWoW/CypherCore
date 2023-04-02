@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailListResult : ServerPacket
 {
-    public int TotalNumRecords;
     public List<MailListEntry> Mails = new();
+    public int TotalNumRecords;
     public MailListResult() : base(ServerOpcodes.MailListResult) { }
 
     public override void Write()

@@ -13,6 +13,13 @@ public class ReplayedQuest : BaseUpdateData<Player>
 
     public ReplayedQuest() : base(3) { }
 
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(QuestID);
+        ClearChangesMask(ReplayTime);
+        ChangesMask.ResetAll();
+    }
+
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
         data.WriteInt32(QuestID);
@@ -38,12 +45,5 @@ public class ReplayedQuest : BaseUpdateData<Player>
             if (changesMask[2])
                 data.WriteUInt32(ReplayTime);
         }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(QuestID);
-        ClearChangesMask(ReplayTime);
-        ChangesMask.ResetAll();
     }
 }

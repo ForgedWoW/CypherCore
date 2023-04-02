@@ -12,8 +12,6 @@ namespace Forged.MapServer.Chat;
 
 public class CommandManager
 {
-    public static SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
-
     static CommandManager()
     {
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
@@ -86,6 +84,7 @@ public class CommandManager
             cmd.ResolveNames(name);
     }
 
+    public static SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
     public static void InitConsole()
     {
         if (ConfigMgr.GetDefaultValue("BeepAtStart", true))

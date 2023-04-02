@@ -12,12 +12,12 @@ namespace Forged.MapServer.Handlers;
 
 public class SceneHandler : IWorldSessionHandler
 {
-    [WorldPacketHandler(ClientOpcodes.SceneTriggerEvent)]
-    private void HandleSceneTriggerEvent(SceneTriggerEvent sceneTriggerEvent)
+    [WorldPacketHandler(ClientOpcodes.ScenePlaybackCanceled)]
+    private void HandleScenePlaybackCanceled(ScenePlaybackCanceled scenePlaybackCanceled)
     {
-        Log.Logger.Debug("HandleSceneTriggerEvent: SceneInstanceID: {0} Event: {1}", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
+        Log.Logger.Debug("HandleScenePlaybackCanceled: SceneInstanceID: {0}", scenePlaybackCanceled.SceneInstanceID);
 
-        Player.SceneMgr.OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
+        Player.SceneMgr.OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
     }
 
     [WorldPacketHandler(ClientOpcodes.ScenePlaybackComplete)]
@@ -28,11 +28,11 @@ public class SceneHandler : IWorldSessionHandler
         Player.SceneMgr.OnSceneComplete(scenePlaybackComplete.SceneInstanceID);
     }
 
-    [WorldPacketHandler(ClientOpcodes.ScenePlaybackCanceled)]
-    private void HandleScenePlaybackCanceled(ScenePlaybackCanceled scenePlaybackCanceled)
+    [WorldPacketHandler(ClientOpcodes.SceneTriggerEvent)]
+    private void HandleSceneTriggerEvent(SceneTriggerEvent sceneTriggerEvent)
     {
-        Log.Logger.Debug("HandleScenePlaybackCanceled: SceneInstanceID: {0}", scenePlaybackCanceled.SceneInstanceID);
+        Log.Logger.Debug("HandleSceneTriggerEvent: SceneInstanceID: {0} Event: {1}", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
 
-        Player.SceneMgr.OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
+        Player.SceneMgr.OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
     }
 }

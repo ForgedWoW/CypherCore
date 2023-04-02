@@ -12,14 +12,14 @@ public class AreaTriggerScriptLoader : ScriptObject, IAreaTriggerScriptLoaderGet
         Global.ScriptMgr.AddScript(this);
     }
 
-    public override bool IsDatabaseBound()
-    {
-        return true;
-    }
-
     // Should return a fully valid SpellScript.
     public virtual AreaTriggerScript GetAreaTriggerScript()
     {
         return null;
+    }
+
+    public override bool IsDatabaseBound()
+    {
+        return true;
     }
 }

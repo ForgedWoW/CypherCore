@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellWeight
 {
-    public uint Type;
     public int ID;
     public uint Quantity;
+    public uint Type;
 }

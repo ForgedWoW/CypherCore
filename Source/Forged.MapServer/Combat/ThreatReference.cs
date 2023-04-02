@@ -16,6 +16,30 @@ public class ThreatReference : IComparable<ThreatReference>
     private double _baseAmount;
     private TauntState _taunted;
 
+    public ThreatReference(ThreatManager mgr, Unit victim)
+    {
+        Owner = mgr._owner as Creature;
+        _mgr = mgr;
+        Victim = victim;
+        Online = OnlineState.Offline;
+    }
+
+    public bool IsAvailable => Online > OnlineState.Offline;
+
+    public bool IsDetaunted => _taunted == TauntState.Detaunt;
+
+    public bool IsOffline => Online <= OnlineState.Offline;
+
+    public bool IsOnline => Online >= OnlineState.Online;
+
+    public bool IsSuppressed => Online == OnlineState.Suppressed;
+
+    public bool IsTaunting => _taunted >= TauntState.Taunt;
+
+    public OnlineState OnlineState => Online;
+
+    public Creature Owner { get; }
+
     public bool ShouldBeOffline
     {
         get
@@ -52,40 +76,26 @@ public class ThreatReference : IComparable<ThreatReference>
             return false;
         }
     }
-
-    public Creature Owner { get; }
-
-    public Unit Victim { get; }
-
-    public double Threat => Math.Max(_baseAmount + TempModifier, 0.0f);
-
-    public OnlineState OnlineState => Online;
-
-    public bool IsOnline => Online >= OnlineState.Online;
-
-    public bool IsAvailable => Online > OnlineState.Offline;
-
-    public bool IsSuppressed => Online == OnlineState.Suppressed;
-
-    public bool IsOffline => Online <= OnlineState.Offline;
-
     public TauntState TauntState => IsTaunting ? TauntState.Taunt : _taunted;
-
-    public bool IsTaunting => _taunted >= TauntState.Taunt;
-
-    public bool IsDetaunted => _taunted == TauntState.Detaunt;
-
-    public ThreatReference(ThreatManager mgr, Unit victim)
+    public double Threat => Math.Max(_baseAmount + TempModifier, 0.0f);
+    public Unit Victim { get; }
+    public static bool FlagsAllowFighting(Unit a, Unit b)
     {
-        Owner = mgr._owner as Creature;
-        _mgr = mgr;
-        Victim = victim;
-        Online = OnlineState.Offline;
-    }
+        if (a.IsCreature && a.AsCreature.IsTrigger)
+            return false;
 
-    public int CompareTo(ThreatReference other)
-    {
-        return ThreatManager.CompareReferencesLT(this, other, 1.0f) ? 1 : -1;
+        if (a.HasUnitFlag(UnitFlags.PlayerControlled))
+        {
+            if (b.HasUnitFlag(UnitFlags.ImmuneToPc))
+                return false;
+        }
+        else
+        {
+            if (b.HasUnitFlag(UnitFlags.ImmuneToNpc))
+                return false;
+        }
+
+        return true;
     }
 
     public void AddThreat(double amount)
@@ -98,6 +108,26 @@ public class ThreatReference : IComparable<ThreatReference>
         _mgr.NeedClientUpdate = true;
     }
 
+    public void ClearThreat()
+    {
+        _mgr.ClearThreat(this);
+    }
+
+    public int CompareTo(ThreatReference other)
+    {
+        return ThreatManager.CompareReferencesLT(this, other, 1.0f) ? 1 : -1;
+    }
+    public void ListNotifyChanged()
+    {
+        _mgr.ListNotifyChanged();
+    }
+
+    public void ModifyThreatByPercent(int percent)
+    {
+        if (percent != 0)
+            ScaleThreat(0.01f * (100f + percent));
+    }
+
     public void ScaleThreat(double factor)
     {
         if (factor == 1.0f)
@@ -106,6 +136,18 @@ public class ThreatReference : IComparable<ThreatReference>
         _baseAmount *= factor;
         ListNotifyChanged();
         _mgr.NeedClientUpdate = true;
+    }
+
+    public void SetThreat(float amount)
+    {
+        _baseAmount = amount;
+        ListNotifyChanged();
+    }
+
+    public void UnregisterAndFree()
+    {
+        Owner.GetThreatManager().PurgeThreatListRef(Victim.GUID);
+        Victim.GetThreatManager().PurgeThreatenedByMeRef(Owner.GUID);
     }
 
     public void UpdateOffline()
@@ -128,26 +170,6 @@ public class ThreatReference : IComparable<ThreatReference>
             _mgr.RegisterForAIUpdate(this);
         }
     }
-
-    public static bool FlagsAllowFighting(Unit a, Unit b)
-    {
-        if (a.IsCreature && a.AsCreature.IsTrigger)
-            return false;
-
-        if (a.HasUnitFlag(UnitFlags.PlayerControlled))
-        {
-            if (b.HasUnitFlag(UnitFlags.ImmuneToPc))
-                return false;
-        }
-        else
-        {
-            if (b.HasUnitFlag(UnitFlags.ImmuneToNpc))
-                return false;
-        }
-
-        return true;
-    }
-
     public void UpdateTauntState(TauntState state = TauntState.None)
     {
         // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
@@ -161,33 +183,5 @@ public class ThreatReference : IComparable<ThreatReference>
 
         ListNotifyChanged();
         _mgr.NeedClientUpdate = true;
-    }
-
-    public void ClearThreat()
-    {
-        _mgr.ClearThreat(this);
-    }
-
-    public void UnregisterAndFree()
-    {
-        Owner.GetThreatManager().PurgeThreatListRef(Victim.GUID);
-        Victim.GetThreatManager().PurgeThreatenedByMeRef(Owner.GUID);
-    }
-
-    public void SetThreat(float amount)
-    {
-        _baseAmount = amount;
-        ListNotifyChanged();
-    }
-
-    public void ModifyThreatByPercent(int percent)
-    {
-        if (percent != 0)
-            ScaleThreat(0.01f * (100f + percent));
-    }
-
-    public void ListNotifyChanged()
-    {
-        _mgr.ListNotifyChanged();
     }
 }

@@ -8,30 +8,29 @@ namespace Forged.MapServer.Quest;
 
 public class QuestObjective
 {
-    public uint Id;
-    public uint QuestID;
-    public QuestObjectiveType Type;
-    public sbyte StorageIndex;
-    public int ObjectID;
     public int Amount;
+    public string Description;
     public QuestObjectiveFlags Flags;
     public uint Flags2;
+    public uint Id;
+    public int ObjectID;
     public float ProgressBarWeight;
-    public string Description;
+    public uint QuestID;
+    public sbyte StorageIndex;
+    public QuestObjectiveType Type;
     public int[] VisualEffects = Array.Empty<int>();
 
-    public bool IsStoringValue()
+    public static bool CanAlwaysBeProgressedInRaid(QuestObjectiveType type)
     {
-        switch (Type)
+        switch (type)
         {
-            case QuestObjectiveType.Monster:
             case QuestObjectiveType.Item:
-            case QuestObjectiveType.GameObject:
-            case QuestObjectiveType.TalkTo:
-            case QuestObjectiveType.PlayerKills:
-            case QuestObjectiveType.WinPvpPetBattles:
+            case QuestObjectiveType.Currency:
+            case QuestObjectiveType.LearnSpell:
+            case QuestObjectiveType.MinReputation:
+            case QuestObjectiveType.MaxReputation:
+            case QuestObjectiveType.Money:
             case QuestObjectiveType.HaveCurrency:
-            case QuestObjectiveType.ObtainCurrency:
             case QuestObjectiveType.IncreaseReputation:
                 return true;
             default:
@@ -59,17 +58,18 @@ public class QuestObjective
         return false;
     }
 
-    public static bool CanAlwaysBeProgressedInRaid(QuestObjectiveType type)
+    public bool IsStoringValue()
     {
-        switch (type)
+        switch (Type)
         {
+            case QuestObjectiveType.Monster:
             case QuestObjectiveType.Item:
-            case QuestObjectiveType.Currency:
-            case QuestObjectiveType.LearnSpell:
-            case QuestObjectiveType.MinReputation:
-            case QuestObjectiveType.MaxReputation:
-            case QuestObjectiveType.Money:
+            case QuestObjectiveType.GameObject:
+            case QuestObjectiveType.TalkTo:
+            case QuestObjectiveType.PlayerKills:
+            case QuestObjectiveType.WinPvpPetBattles:
             case QuestObjectiveType.HaveCurrency:
+            case QuestObjectiveType.ObtainCurrency:
             case QuestObjectiveType.IncreaseReputation:
                 return true;
             default:

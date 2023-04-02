@@ -9,27 +9,27 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class ChatPkt : ServerPacket
 {
-    public ChatMsg SlashCmd;
+    public ChatFlags _ChatFlags;
     public Language _Language = Language.Universal;
+    public uint AchievementID;
+    public string Channel = "";
+    public ObjectGuid? ChannelGUID;
+    public string ChatText = "";
+    public float DisplayTime;
+    public bool FakeSenderName;
+    public bool HideChatLog;
+    public ObjectGuid PartyGUID;
+    public string Prefix = "";
+    public ObjectGuid SenderAccountGUID;
     public ObjectGuid SenderGUID;
     public ObjectGuid SenderGuildGUID;
-    public ObjectGuid SenderAccountGUID;
-    public ObjectGuid TargetGUID;
-    public ObjectGuid PartyGUID;
-    public uint SenderVirtualAddress;
-    public uint TargetVirtualAddress;
     public string SenderName = "";
+    public uint SenderVirtualAddress;
+    public ChatMsg SlashCmd;
+    public ObjectGuid TargetGUID;
     public string TargetName = "";
-    public string Prefix = "";
-    public string Channel = "";
-    public string ChatText = "";
-    public uint AchievementID;
-    public ChatFlags _ChatFlags;
-    public float DisplayTime;
+    public uint TargetVirtualAddress;
     public uint? Unused_801;
-    public bool HideChatLog;
-    public bool FakeSenderName;
-    public ObjectGuid? ChannelGUID;
     public ChatPkt() : base(ServerOpcodes.Chat) { }
 
     public void Initialize(ChatMsg chatType, Language language, WorldObject sender, WorldObject receiver, string message, uint achievementId = 0, string channelName = "", Locale locale = Locale.enUS, string addonPrefix = "")

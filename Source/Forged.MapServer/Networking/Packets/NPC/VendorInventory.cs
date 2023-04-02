@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class VendorInventory : ServerPacket
 {
-    public byte Reason = 0;
     public List<VendorItemPkt> Items = new();
+    public byte Reason = 0;
     public ObjectGuid Vendor;
     public VendorInventory() : base(ServerOpcodes.VendorInventory, ConnectionType.Instance) { }
 

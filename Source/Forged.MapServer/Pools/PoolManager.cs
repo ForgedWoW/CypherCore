@@ -14,25 +14,29 @@ namespace Forged.MapServer.Pools;
 
 public class PoolManager
 {
-    public enum QuestTypes
-    {
-        None = 0,
-        Daily = 1,
-        Weekly = 2
-    }
-
     public MultiMap<uint, uint> QuestCreatureRelation = new();
+
     public MultiMap<uint, uint> QuestGORelation = new();
-    private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _objectManager;
-    private readonly Dictionary<uint, PoolTemplateData> _poolTemplate = new();
-    private readonly Dictionary<uint, PoolGroup<Creature>> _poolCreatureGroups = new();
-    private readonly Dictionary<uint, PoolGroup<GameObject>> _poolGameobjectGroups = new();
-    private readonly Dictionary<uint, PoolGroup<Pool>> _poolPoolGroups = new();
-    private readonly Dictionary<ulong, uint> _creatureSearchMap = new();
-    private readonly Dictionary<ulong, uint> _gameobjectSearchMap = new();
-    private readonly Dictionary<ulong, uint> _poolSearchMap = new();
+
     private readonly MultiMap<uint, uint> _autoSpawnPoolsPerMap = new();
+
+    private readonly Dictionary<ulong, uint> _creatureSearchMap = new();
+
+    private readonly Dictionary<ulong, uint> _gameobjectSearchMap = new();
+
+    private readonly GameObjectManager _objectManager;
+
+    private readonly Dictionary<uint, PoolGroup<Creature>> _poolCreatureGroups = new();
+
+    private readonly Dictionary<uint, PoolGroup<GameObject>> _poolGameobjectGroups = new();
+
+    private readonly Dictionary<uint, PoolGroup<Pool>> _poolPoolGroups = new();
+
+    private readonly Dictionary<ulong, uint> _poolSearchMap = new();
+
+    private readonly Dictionary<uint, PoolTemplateData> _poolTemplate = new();
+
+    private readonly WorldDatabase _worldDatabase;
 
     public PoolManager(WorldDatabase worldDatabase, GameObjectManager objectManager)
     {
@@ -40,10 +44,119 @@ public class PoolManager
         _objectManager = objectManager;
     }
 
+    public enum QuestTypes
+    {
+        None = 0,
+        Daily = 1,
+        Weekly = 2
+    }
+    public bool CheckPool(uint poolID)
+    {
+        if (_poolGameobjectGroups.ContainsKey(poolID) && !_poolGameobjectGroups[poolID].CheckPool())
+            return false;
+
+        if (_poolCreatureGroups.ContainsKey(poolID) && !_poolCreatureGroups[poolID].CheckPool())
+            return false;
+
+        if (_poolPoolGroups.ContainsKey(poolID) && !_poolPoolGroups[poolID].CheckPool())
+            return false;
+
+        return true;
+    }
+
+    public void DespawnPool(SpawnedPoolData spawnedPoolData, uint poolID, bool alwaysDeleteRespawnTime = false)
+    {
+        if (_poolCreatureGroups.ContainsKey(poolID) && !_poolCreatureGroups[poolID].IsEmpty())
+            _poolCreatureGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
+
+        if (_poolGameobjectGroups.ContainsKey(poolID) && !_poolGameobjectGroups[poolID].IsEmpty())
+            _poolGameobjectGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
+
+        if (_poolPoolGroups.ContainsKey(poolID) && !_poolPoolGroups[poolID].IsEmpty())
+            _poolPoolGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
+    }
+
+    public PoolTemplateData GetPoolTemplate(uint poolID)
+    {
+        return _poolTemplate.LookupByKey(poolID);
+    }
+
     public void Initialize()
     {
         _gameobjectSearchMap.Clear();
         _creatureSearchMap.Clear();
+    }
+
+    public SpawnedPoolData InitPoolsForMap(Map map)
+    {
+        SpawnedPoolData spawnedPoolData = new(map);
+        var poolIds = _autoSpawnPoolsPerMap.LookupByKey(spawnedPoolData.Map.Id);
+
+        if (poolIds != null)
+            foreach (var poolId in poolIds)
+                SpawnPool(spawnedPoolData, poolId);
+
+        return spawnedPoolData;
+    }
+
+    public bool IsEmpty(uint poolID)
+    {
+        if (_poolGameobjectGroups.TryGetValue(poolID, out var gameobjectPool) && !gameobjectPool.IsEmptyDeepCheck())
+            return false;
+
+        if (_poolCreatureGroups.TryGetValue(poolID, out var creaturePool) && !creaturePool.IsEmptyDeepCheck())
+            return false;
+
+        if (_poolPoolGroups.TryGetValue(poolID, out var pool) && !pool.IsEmptyDeepCheck())
+            return false;
+
+        return true;
+    }
+
+    public uint IsPartOfAPool<T>(ulong dbGuid)
+    {
+        switch (typeof(T).Name)
+        {
+            case "Creature":
+                return _creatureSearchMap.LookupByKey(dbGuid);
+            case "GameObject":
+                return _gameobjectSearchMap.LookupByKey(dbGuid);
+            case "Pool":
+                return _poolSearchMap.LookupByKey(dbGuid);
+        }
+
+        return 0;
+    }
+
+    // Selects proper template overload to call based on passed type
+    public uint IsPartOfAPool(SpawnObjectType type, ulong spawnId)
+    {
+        switch (type)
+        {
+            case SpawnObjectType.Creature:
+                return IsPartOfAPool<Creature>(spawnId);
+            case SpawnObjectType.GameObject:
+                return IsPartOfAPool<GameObject>(spawnId);
+            case SpawnObjectType.AreaTrigger:
+                return 0;
+            default:
+                return 0;
+        }
+    }
+
+    public bool IsSpawnedObject<T>(ulong dbGuidOrPoolID)
+    {
+        switch (typeof(T).Name)
+        {
+            case "Creature":
+                return _creatureSearchMap.ContainsKey(dbGuidOrPoolID);
+            case "GameObject":
+                return _gameobjectSearchMap.ContainsKey(dbGuidOrPoolID);
+            case "Pool":
+                return _poolSearchMap.ContainsKey(dbGuidOrPoolID);
+        }
+
+        return false;
     }
 
     public void LoadFromDB()
@@ -415,47 +528,6 @@ public class PoolManager
         SpawnPool<GameObject>(spawnedPoolData, poolID, 0);
         SpawnPool<Creature>(spawnedPoolData, poolID, 0);
     }
-
-    public void DespawnPool(SpawnedPoolData spawnedPoolData, uint poolID, bool alwaysDeleteRespawnTime = false)
-    {
-        if (_poolCreatureGroups.ContainsKey(poolID) && !_poolCreatureGroups[poolID].IsEmpty())
-            _poolCreatureGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
-
-        if (_poolGameobjectGroups.ContainsKey(poolID) && !_poolGameobjectGroups[poolID].IsEmpty())
-            _poolGameobjectGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
-
-        if (_poolPoolGroups.ContainsKey(poolID) && !_poolPoolGroups[poolID].IsEmpty())
-            _poolPoolGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
-    }
-
-    public bool IsEmpty(uint poolID)
-    {
-        if (_poolGameobjectGroups.TryGetValue(poolID, out var gameobjectPool) && !gameobjectPool.IsEmptyDeepCheck())
-            return false;
-
-        if (_poolCreatureGroups.TryGetValue(poolID, out var creaturePool) && !creaturePool.IsEmptyDeepCheck())
-            return false;
-
-        if (_poolPoolGroups.TryGetValue(poolID, out var pool) && !pool.IsEmptyDeepCheck())
-            return false;
-
-        return true;
-    }
-
-    public bool CheckPool(uint poolID)
-    {
-        if (_poolGameobjectGroups.ContainsKey(poolID) && !_poolGameobjectGroups[poolID].CheckPool())
-            return false;
-
-        if (_poolCreatureGroups.ContainsKey(poolID) && !_poolCreatureGroups[poolID].CheckPool())
-            return false;
-
-        if (_poolPoolGroups.ContainsKey(poolID) && !_poolPoolGroups[poolID].CheckPool())
-            return false;
-
-        return true;
-    }
-
     public void UpdatePool<T>(SpawnedPoolData spawnedPoolData, uint poolID, ulong dbGuidOrPoolID)
     {
         var motherpoolid = IsPartOfAPool<Pool>(poolID);
@@ -480,70 +552,6 @@ public class PoolManager
                 break;
         }
     }
-
-    public SpawnedPoolData InitPoolsForMap(Map map)
-    {
-        SpawnedPoolData spawnedPoolData = new(map);
-        var poolIds = _autoSpawnPoolsPerMap.LookupByKey(spawnedPoolData.Map.Id);
-
-        if (poolIds != null)
-            foreach (var poolId in poolIds)
-                SpawnPool(spawnedPoolData, poolId);
-
-        return spawnedPoolData;
-    }
-
-    public PoolTemplateData GetPoolTemplate(uint poolID)
-    {
-        return _poolTemplate.LookupByKey(poolID);
-    }
-
-    public uint IsPartOfAPool<T>(ulong dbGuid)
-    {
-        switch (typeof(T).Name)
-        {
-            case "Creature":
-                return _creatureSearchMap.LookupByKey(dbGuid);
-            case "GameObject":
-                return _gameobjectSearchMap.LookupByKey(dbGuid);
-            case "Pool":
-                return _poolSearchMap.LookupByKey(dbGuid);
-        }
-
-        return 0;
-    }
-
-    // Selects proper template overload to call based on passed type
-    public uint IsPartOfAPool(SpawnObjectType type, ulong spawnId)
-    {
-        switch (type)
-        {
-            case SpawnObjectType.Creature:
-                return IsPartOfAPool<Creature>(spawnId);
-            case SpawnObjectType.GameObject:
-                return IsPartOfAPool<GameObject>(spawnId);
-            case SpawnObjectType.AreaTrigger:
-                return 0;
-            default:
-                return 0;
-        }
-    }
-
-    public bool IsSpawnedObject<T>(ulong dbGuidOrPoolID)
-    {
-        switch (typeof(T).Name)
-        {
-            case "Creature":
-                return _creatureSearchMap.ContainsKey(dbGuidOrPoolID);
-            case "GameObject":
-                return _gameobjectSearchMap.ContainsKey(dbGuidOrPoolID);
-            case "Pool":
-                return _poolSearchMap.ContainsKey(dbGuidOrPoolID);
-        }
-
-        return false;
-    }
-
     private void SpawnPool<T>(SpawnedPoolData spawnedPoolData, uint poolID, ulong dbGuid)
     {
         switch (typeof(T).Name)

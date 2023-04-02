@@ -9,10 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 public class DuelWinner : ServerPacket
 {
     public string BeatenName;
-    public string WinnerName;
     public uint BeatenVirtualRealmAddress;
-    public uint WinnerVirtualRealmAddress;
     public bool Fled;
+    public string WinnerName;
+    public uint WinnerVirtualRealmAddress;
     public DuelWinner() : base(ServerOpcodes.DuelWinner, ConnectionType.Instance) { }
 
     public override void Write()

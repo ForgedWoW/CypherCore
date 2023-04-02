@@ -5,10 +5,10 @@ namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 public struct AuctionFavoriteInfo
 {
-    public uint Order;
+    public uint BattlePetSpeciesID;
     public uint ItemID;
     public uint ItemLevel;
-    public uint BattlePetSpeciesID;
+    public uint Order;
     public uint SuffixItemNameDescriptionID;
 
     public AuctionFavoriteInfo(WorldPacket data)

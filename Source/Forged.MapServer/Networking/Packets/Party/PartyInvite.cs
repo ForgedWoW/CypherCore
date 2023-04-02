@@ -12,27 +12,26 @@ namespace Forged.MapServer.Networking.Packets.Party;
 
 internal class PartyInvite : ServerPacket
 {
-    public bool MightCRZYou;
-    public bool MustBeBNetFriend;
     public bool AllowMultipleRoles;
-    public bool QuestSessionActive;
-    public ushort Unk1;
-
     public bool CanAccept;
-
+    public ObjectGuid InviterBNetAccountId;
+    public ObjectGuid InviterGUID;
+    public string InviterName;
     // Inviter
     public VirtualRealmInfo InviterRealm;
-    public ObjectGuid InviterGUID;
-    public ObjectGuid InviterBNetAccountId;
-    public string InviterName;
 
     // Realm
     public bool IsXRealm;
 
-    // Lfg
-    public uint ProposedRoles;
     public int LfgCompletedMask;
     public List<int> LfgSlots = new();
+    public bool MightCRZYou;
+    public bool MustBeBNetFriend;
+    // Lfg
+    public uint ProposedRoles;
+
+    public bool QuestSessionActive;
+    public ushort Unk1;
     public PartyInvite() : base(ServerOpcodes.PartyInvite) { }
 
     public void Initialize(Player inviter, uint proposedRoles, bool canAccept)

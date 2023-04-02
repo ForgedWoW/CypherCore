@@ -5,12 +5,13 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellChannelStartInterruptImmunities
 {
+    public int Immunities;
+
+    public int SchoolImmunities;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(SchoolImmunities);
         data.WriteInt32(Immunities);
     }
-
-    public int SchoolImmunities;
-    public int Immunities;
 }

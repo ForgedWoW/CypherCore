@@ -9,9 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 internal class SetPlayerDeclinedNames : ClientPacket
 {
-    public ObjectGuid Player;
     public DeclinedName DeclinedNames;
-
+    public ObjectGuid Player;
     public SetPlayerDeclinedNames(WorldPacket packet) : base(packet)
     {
         DeclinedNames = new DeclinedName();

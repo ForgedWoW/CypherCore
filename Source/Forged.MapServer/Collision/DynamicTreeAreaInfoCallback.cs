@@ -10,22 +10,21 @@ namespace Forged.MapServer.Collision;
 
 public class DynamicTreeAreaInfoCallback : WorkerCallback
 {
-    private readonly PhaseShift _phaseShift;
     private readonly AreaInfo _areaInfo;
-
+    private readonly PhaseShift _phaseShift;
     public DynamicTreeAreaInfoCallback(PhaseShift phaseShift)
     {
         _phaseShift = phaseShift;
         _areaInfo = new AreaInfo();
     }
 
-    public override void Invoke(Vector3 p, GameObjectModel obj)
-    {
-        obj.IntersectPoint(p, _areaInfo, _phaseShift);
-    }
-
     public AreaInfo GetAreaInfo()
     {
         return _areaInfo;
+    }
+
+    public override void Invoke(Vector3 p, GameObjectModel obj)
+    {
+        obj.IntersectPoint(p, _areaInfo, _phaseShift);
     }
 }

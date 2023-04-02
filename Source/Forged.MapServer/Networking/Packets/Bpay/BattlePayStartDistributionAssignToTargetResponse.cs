@@ -7,13 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BattlePayStartDistributionAssignToTargetResponse : ServerPacket
 {
+    public BattlePayStartDistributionAssignToTargetResponse() : base(ServerOpcodes.BattlePayStartDistributionAssignToTargetResponse) { }
+
     public ulong DistributionID { get; set; } = 0;
     public uint unkint1 { get; set; } = 0;
     public uint unkint2 { get; set; } = 0;
-
-    public BattlePayStartDistributionAssignToTargetResponse() : base(ServerOpcodes.BattlePayStartDistributionAssignToTargetResponse) { }
-
-
     /*WorldPacket const* WorldPackets::BattlePay::BattlepayUnk::Write()
     {
         _worldPacket << UnkInt;

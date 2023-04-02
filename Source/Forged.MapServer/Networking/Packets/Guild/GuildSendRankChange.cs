@@ -8,8 +8,8 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildSendRankChange : ServerPacket
 {
-    public ObjectGuid Other;
     public ObjectGuid Officer;
+    public ObjectGuid Other;
     public bool Promote;
     public uint RankID;
     public GuildSendRankChange() : base(ServerOpcodes.GuildSendRankChange) { }

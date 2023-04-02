@@ -9,11 +9,18 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class SelectedAzeriteEssences : BaseUpdateData<AzeriteItem>
 {
+    public UpdateFieldArray<uint> AzeriteEssenceID = new(4, 3, 4);
     public UpdateField<bool> Enabled = new(0, 1);
     public UpdateField<uint> SpecializationID = new(0, 2);
-    public UpdateFieldArray<uint> AzeriteEssenceID = new(4, 3, 4);
-
     public SelectedAzeriteEssences() : base(8) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Enabled);
+        ClearChangesMask(SpecializationID);
+        ClearChangesMask(AzeriteEssenceID);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, AzeriteItem owner, Player receiver)
     {
@@ -53,13 +60,5 @@ public class SelectedAzeriteEssences : BaseUpdateData<AzeriteItem>
                     data.WriteUInt32(AzeriteEssenceID[i]);
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Enabled);
-        ClearChangesMask(SpecializationID);
-        ClearChangesMask(AzeriteEssenceID);
-        ChangesMask.ResetAll();
     }
 }

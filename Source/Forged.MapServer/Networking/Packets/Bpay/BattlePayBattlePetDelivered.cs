@@ -8,12 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BattlePayBattlePetDelivered : ServerPacket
 {
-    public ObjectGuid BattlePetGuid { get; set; } = new();
-    public uint DisplayID { get; set; } = 0;
-
     public BattlePayBattlePetDelivered() : base(ServerOpcodes.BattlePayBattlePetDelivered) { }
 
-
+    public ObjectGuid BattlePetGuid { get; set; } = new();
+    public uint DisplayID { get; set; } = 0;
     /*WorldPacket const* WorldPackets::BattlePay::PurchaseDetails::Write()
     {
         _worldPacket << UnkInt;

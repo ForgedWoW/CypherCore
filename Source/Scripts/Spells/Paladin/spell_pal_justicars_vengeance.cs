@@ -34,6 +34,6 @@ public class spell_pal_justicars_vengeance : SpellScript, ISpellOnHit
 
         if (caster.HasAura(PaladinSpells.FIST_OF_JUSTICE_RETRI))
             if (caster.SpellHistory.HasCooldown(PaladinSpells.HammerOfJustice))
-                caster.SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-10 * Time.InMilliseconds));
+                caster.SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-10 * Time.IN_MILLISECONDS));
     }
 }

@@ -22,6 +22,6 @@ public class aura_warl_mayhem : AuraScript, IAuraCheckProc, IAuraOnProc
 
     public void OnProc(ProcEventInfo info)
     {
-        Caster.CastSpell(info.ProcTarget, WarlockSpells.HAVOC, new CastSpellExtraArgs(SpellValueMod.Duration, GetEffectInfo(2).BasePoints * Time.InMilliseconds).SetIsTriggered(true));
+        Caster.CastSpell(info.ProcTarget, WarlockSpells.HAVOC, new CastSpellExtraArgs(SpellValueMod.Duration, GetEffectInfo(2).BasePoints * Time.IN_MILLISECONDS).SetIsTriggered(true));
     }
 }

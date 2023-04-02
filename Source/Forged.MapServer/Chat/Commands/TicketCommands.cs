@@ -12,80 +12,6 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("ticket")]
 internal class TicketCommands
 {
-    [Command("togglesystem", RBACPermissions.CommandTicketTogglesystem, true)]
-    private static bool HandleToggleGMTicketSystem(CommandHandler handler)
-    {
-        if (!GetDefaultValue("Support.TicketsEnabled", false))
-        {
-            handler.SendSysMessage(CypherStrings.DisallowTicketsConfig);
-
-            return true;
-        }
-
-        var status = !Global.SupportMgr.GetSupportSystemStatus();
-        Global.SupportMgr.SetSupportSystemStatus(status);
-        handler.SendSysMessage(status ? CypherStrings.AllowTickets : CypherStrings.DisallowTickets);
-
-        return true;
-    }
-
-    private static bool HandleTicketAssignToCommand<T>(CommandHandler handler, uint ticketId, string targetName) where T : Ticket
-    {
-        if (targetName.IsEmpty())
-            return false;
-
-        if (!GameObjectManager.NormalizePlayerName(ref targetName))
-            return false;
-
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
-
-        if (ticket == null || ticket.IsClosed)
-        {
-            handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
-
-            return true;
-        }
-
-        var targetGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(targetName);
-        var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(targetGuid);
-
-        // Target must exist and have administrative rights
-        if (!Global.AccountMgr.HasPermission(accountId, RBACPermissions.CommandsBeAssignedTicket, Global.WorldMgr.Realm.Id.Index))
-        {
-            handler.SendSysMessage(CypherStrings.CommandTicketassignerrorA);
-
-            return true;
-        }
-
-        // If already assigned, leave
-        if (ticket.IsAssignedTo(targetGuid))
-        {
-            handler.SendSysMessage(CypherStrings.CommandTicketassignerrorB, ticket.Id);
-
-            return true;
-        }
-
-        // If assigned to different player other than current, leave
-        //! Console can override though
-        var player = handler.Session?.Player;
-
-        if (player && ticket.IsAssignedNotTo(player.GUID))
-        {
-            handler.SendSysMessage(CypherStrings.CommandTicketalreadyassigned, ticket.Id);
-
-            return true;
-        }
-
-        // Assign ticket
-        ticket.SetAssignedTo(targetGuid, Global.AccountMgr.IsAdminAccount(Global.AccountMgr.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index)));
-        ticket.SaveToDB();
-
-        var msg = ticket.FormatViewMessageString(handler, null, targetName, null, null);
-        handler.SendGlobalGMSysMessage(msg);
-
-        return true;
-    }
-
     private static bool HandleCloseByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
     {
         var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
@@ -192,6 +118,22 @@ internal class TicketCommands
         return true;
     }
 
+    private static bool HandleGetByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
+    {
+        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+
+        if (ticket == null || ticket.IsClosed)
+        {
+            handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
+
+            return true;
+        }
+
+        handler.SendSysMessage(ticket.FormatViewMessageString(handler, true));
+
+        return true;
+    }
+
     private static bool HandleListCommand<T>(CommandHandler handler) where T : Ticket
     {
         Global.SupportMgr.ShowList<T>(handler);
@@ -216,6 +158,79 @@ internal class TicketCommands
         return true;
     }
 
+    private static bool HandleTicketAssignToCommand<T>(CommandHandler handler, uint ticketId, string targetName) where T : Ticket
+    {
+        if (targetName.IsEmpty())
+            return false;
+
+        if (!GameObjectManager.NormalizePlayerName(ref targetName))
+            return false;
+
+        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+
+        if (ticket == null || ticket.IsClosed)
+        {
+            handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
+
+            return true;
+        }
+
+        var targetGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(targetName);
+        var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(targetGuid);
+
+        // Target must exist and have administrative rights
+        if (!Global.AccountMgr.HasPermission(accountId, RBACPermissions.CommandsBeAssignedTicket, Global.WorldMgr.Realm.Id.Index))
+        {
+            handler.SendSysMessage(CypherStrings.CommandTicketassignerrorA);
+
+            return true;
+        }
+
+        // If already assigned, leave
+        if (ticket.IsAssignedTo(targetGuid))
+        {
+            handler.SendSysMessage(CypherStrings.CommandTicketassignerrorB, ticket.Id);
+
+            return true;
+        }
+
+        // If assigned to different player other than current, leave
+        //! Console can override though
+        var player = handler.Session?.Player;
+
+        if (player && ticket.IsAssignedNotTo(player.GUID))
+        {
+            handler.SendSysMessage(CypherStrings.CommandTicketalreadyassigned, ticket.Id);
+
+            return true;
+        }
+
+        // Assign ticket
+        ticket.SetAssignedTo(targetGuid, Global.AccountMgr.IsAdminAccount(Global.AccountMgr.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index)));
+        ticket.SaveToDB();
+
+        var msg = ticket.FormatViewMessageString(handler, null, targetName, null, null);
+        handler.SendGlobalGMSysMessage(msg);
+
+        return true;
+    }
+
+    [Command("togglesystem", RBACPermissions.CommandTicketTogglesystem, true)]
+    private static bool HandleToggleGMTicketSystem(CommandHandler handler)
+    {
+        if (!GetDefaultValue("Support.TicketsEnabled", false))
+        {
+            handler.SendSysMessage(CypherStrings.DisallowTicketsConfig);
+
+            return true;
+        }
+
+        var status = !Global.SupportMgr.GetSupportSystemStatus();
+        Global.SupportMgr.SetSupportSystemStatus(status);
+        handler.SendSysMessage(status ? CypherStrings.AllowTickets : CypherStrings.DisallowTickets);
+
+        return true;
+    }
     private static bool HandleUnAssignCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
     {
         var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
@@ -270,23 +285,6 @@ internal class TicketCommands
 
         return true;
     }
-
-    private static bool HandleGetByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
-    {
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
-
-        if (ticket == null || ticket.IsClosed)
-        {
-            handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
-
-            return true;
-        }
-
-        handler.SendSysMessage(ticket.FormatViewMessageString(handler, true));
-
-        return true;
-    }
-
     [CommandGroup("bug")]
     private class TicketBugCommands
     {
@@ -391,6 +389,48 @@ internal class TicketCommands
         }
     }
 
+    [CommandGroup("reset")]
+    private class TicketResetCommands
+    {
+        [Command("all", RBACPermissions.CommandTicketResetAll, true)]
+        private static bool HandleTicketResetAllCommand(CommandHandler handler)
+        {
+            if (Global.SupportMgr.GetOpenTicketCount<BugTicket>() != 0 || Global.SupportMgr.GetOpenTicketCount<ComplaintTicket>() != 0 || Global.SupportMgr.GetOpenTicketCount<SuggestionTicket>() != 0)
+            {
+                handler.SendSysMessage(CypherStrings.CommandTicketpending);
+
+                return true;
+            }
+            else
+            {
+                Global.SupportMgr.ResetTickets<BugTicket>();
+                Global.SupportMgr.ResetTickets<ComplaintTicket>();
+                Global.SupportMgr.ResetTickets<SuggestionTicket>();
+                handler.SendSysMessage(CypherStrings.CommandTicketreset);
+            }
+
+            return true;
+        }
+
+        [Command("bug", RBACPermissions.CommandTicketResetBug, true)]
+        private static bool HandleTicketResetBugCommand(CommandHandler handler)
+        {
+            return HandleResetCommand<BugTicket>(handler);
+        }
+
+        [Command("complaint", RBACPermissions.CommandTicketResetComplaint, true)]
+        private static bool HandleTicketResetComplaintCommand(CommandHandler handler)
+        {
+            return HandleResetCommand<ComplaintTicket>(handler);
+        }
+
+        [Command("suggestion", RBACPermissions.CommandTicketResetSuggestion, true)]
+        private static bool HandleTicketResetSuggestionCommand(CommandHandler handler)
+        {
+            return HandleResetCommand<SuggestionTicket>(handler);
+        }
+    }
+
     [CommandGroup("suggestion")]
     private class TicketSuggestionCommands
     {
@@ -440,48 +480,6 @@ internal class TicketCommands
         private static bool HandleTicketSuggestionViewCommand(CommandHandler handler, uint ticketId)
         {
             return HandleGetByIdCommand<SuggestionTicket>(handler, ticketId);
-        }
-    }
-
-    [CommandGroup("reset")]
-    private class TicketResetCommands
-    {
-        [Command("all", RBACPermissions.CommandTicketResetAll, true)]
-        private static bool HandleTicketResetAllCommand(CommandHandler handler)
-        {
-            if (Global.SupportMgr.GetOpenTicketCount<BugTicket>() != 0 || Global.SupportMgr.GetOpenTicketCount<ComplaintTicket>() != 0 || Global.SupportMgr.GetOpenTicketCount<SuggestionTicket>() != 0)
-            {
-                handler.SendSysMessage(CypherStrings.CommandTicketpending);
-
-                return true;
-            }
-            else
-            {
-                Global.SupportMgr.ResetTickets<BugTicket>();
-                Global.SupportMgr.ResetTickets<ComplaintTicket>();
-                Global.SupportMgr.ResetTickets<SuggestionTicket>();
-                handler.SendSysMessage(CypherStrings.CommandTicketreset);
-            }
-
-            return true;
-        }
-
-        [Command("bug", RBACPermissions.CommandTicketResetBug, true)]
-        private static bool HandleTicketResetBugCommand(CommandHandler handler)
-        {
-            return HandleResetCommand<BugTicket>(handler);
-        }
-
-        [Command("complaint", RBACPermissions.CommandTicketResetComplaint, true)]
-        private static bool HandleTicketResetComplaintCommand(CommandHandler handler)
-        {
-            return HandleResetCommand<ComplaintTicket>(handler);
-        }
-
-        [Command("suggestion", RBACPermissions.CommandTicketResetSuggestion, true)]
-        private static bool HandleTicketResetSuggestionCommand(CommandHandler handler)
-        {
-            return HandleResetCommand<SuggestionTicket>(handler);
         }
     }
 }

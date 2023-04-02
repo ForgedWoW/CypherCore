@@ -12,15 +12,14 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public class PlayerModelDisplayInfo
 {
+    public byte ClassID;
+    public List<ChrCustomizationChoice> Customizations = new();
+    public byte GenderID;
     public ObjectGuid GUID;
     public List<InspectItemData> Items = new();
     public string Name;
-    public uint SpecializationID;
-    public byte GenderID;
     public byte Race;
-    public byte ClassID;
-    public List<ChrCustomizationChoice> Customizations = new();
-
+    public uint SpecializationID;
     public void Initialize(Player player)
     {
         GUID = player.GUID;

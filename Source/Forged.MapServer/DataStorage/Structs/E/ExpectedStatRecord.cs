@@ -5,16 +5,16 @@ namespace Forged.MapServer.DataStorage.Structs.E;
 
 public sealed class ExpectedStatRecord
 {
-    public uint Id;
-    public int ExpansionID;
-    public float CreatureHealth;
-    public float PlayerHealth;
-    public float CreatureAutoAttackDps;
+    public float ArmorConstant;
     public float CreatureArmor;
+    public float CreatureAutoAttackDps;
+    public float CreatureHealth;
+    public float CreatureSpellDamage;
+    public int ExpansionID;
+    public uint Id;
+    public uint Lvl;
+    public float PlayerHealth;
     public float PlayerMana;
     public float PlayerPrimaryStat;
     public float PlayerSecondaryStat;
-    public float ArmorConstant;
-    public float CreatureSpellDamage;
-    public uint Lvl;
 }

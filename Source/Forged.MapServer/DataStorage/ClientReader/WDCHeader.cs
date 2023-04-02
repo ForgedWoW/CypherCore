@@ -8,27 +8,26 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public class WDCHeader
 {
-    public uint Signature;
-    public uint RecordCount;
+    public uint BitpackedDataOffset;
+    public uint ColumnMetaSize;
+    public uint CommonDataSize;
     public uint FieldCount;
+    public HeaderFlags Flags;
+    public int IdIndex;
+    public uint LayoutHash;
+    public int Locale;
+    public uint LookupColumnCount;
+    public int MaxId;
+    public int MinId;
+    public uint PalletDataSize;
+    public uint RecordCount;
     public uint RecordSize;
+    public uint SectionsCount;
+    public uint Signature;
     public uint StringTableSize;
 
     public uint TableHash;
-    public uint LayoutHash;
-    public int MinId;
-    public int MaxId;
-    public int Locale;
-    public HeaderFlags Flags;
-    public int IdIndex;
     public uint TotalFieldCount;
-    public uint BitpackedDataOffset;
-    public uint LookupColumnCount;
-    public uint ColumnMetaSize;
-    public uint CommonDataSize;
-    public uint PalletDataSize;
-    public uint SectionsCount;
-
     public bool HasIndexTable()
     {
         return Convert.ToBoolean(Flags & HeaderFlags.IndexMap);

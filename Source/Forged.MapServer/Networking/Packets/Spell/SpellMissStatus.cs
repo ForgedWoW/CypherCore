@@ -7,6 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellMissStatus
 {
+    public SpellMissInfo Reason;
+
+    public SpellMissInfo ReflectStatus;
+
     public SpellMissStatus(SpellMissInfo reason, SpellMissInfo reflectStatus)
     {
         Reason = reason;
@@ -22,7 +26,4 @@ public struct SpellMissStatus
 
         data.FlushBits();
     }
-
-    public SpellMissInfo Reason;
-    public SpellMissInfo ReflectStatus;
 }

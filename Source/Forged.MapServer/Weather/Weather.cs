@@ -13,46 +13,62 @@ public class Weather
 {
     private readonly IntervalTimer _timer = new();
     private readonly WeatherData _weatherChances;
-    private WeatherType _type;
     private float _intensity;
-
-    public uint Zone { get; }
-
-    public uint ScriptId => _weatherChances.ScriptId;
-
+    private WeatherType _type;
     public Weather(uint zoneId, WeatherData weatherChances)
     {
         Zone = zoneId;
         _weatherChances = weatherChances;
-        _timer.Interval = 10 * Time.Minute * Time.InMilliseconds;
+        _timer.Interval = 10 * Time.MINUTE * Time.IN_MILLISECONDS;
         _type = WeatherType.Fine;
         _intensity = 0;
 
         //Log.Logger.Information("WORLD: Starting weather system for zone {0} (change every {1} minutes).", m_zone, (m_timer.GetInterval() / (Time.Minute * Time.InMilliseconds)));
     }
 
-    public bool Update(uint diff)
+    public uint ScriptId => _weatherChances.ScriptId;
+    public uint Zone { get; }
+    public static void SendFineWeatherUpdateToPlayer(Player player)
     {
-        if (_timer.Current >= 0)
-            _timer.Update(diff);
-        else
-            _timer.Current = 0;
+        player.SendPacket(new WeatherPkt());
+    }
 
-        // If the timer has passed, ReGenerate the weather
-        if (_timer.Passed)
+    public WeatherState GetWeatherState()
+    {
+        if (_intensity < 0.27f)
+            return WeatherState.Fine;
+
+        switch (_type)
         {
-            _timer.Reset();
-
-            // update only if Regenerate has changed the weather
-            if (ReGenerate())
-                // Weather will be removed if not updated (no players in zone anymore)
-                if (!UpdateWeather())
-                    return false;
+            case WeatherType.Rain:
+                if (_intensity < 0.40f)
+                    return WeatherState.LightRain;
+                else if (_intensity < 0.70f)
+                    return WeatherState.MediumRain;
+                else
+                    return WeatherState.HeavyRain;
+            case WeatherType.Snow:
+                if (_intensity < 0.40f)
+                    return WeatherState.LightSnow;
+                else if (_intensity < 0.70f)
+                    return WeatherState.MediumSnow;
+                else
+                    return WeatherState.HeavySnow;
+            case WeatherType.Storm:
+                if (_intensity < 0.40f)
+                    return WeatherState.LightSandstorm;
+                else if (_intensity < 0.70f)
+                    return WeatherState.MediumSandstorm;
+                else
+                    return WeatherState.HeavySandstorm;
+            case WeatherType.BlackRain:
+                return WeatherState.BlackRain;
+            case WeatherType.Thunders:
+                return WeatherState.Thunders;
+            case WeatherType.Fine:
+            default:
+                return WeatherState.Fine;
         }
-
-        Global.ScriptMgr.RunScript<IWeatherOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
-
-        return true;
     }
 
     public bool ReGenerate()
@@ -79,7 +95,7 @@ public class Weather
         var old_type = _type;
         var old_intensity = _intensity;
 
-        var gtime = GameTime.GetGameTime();
+        var gtime = GameTime.CurrentTime;
         var ltime = Time.UnixTimeToDateTime(gtime).ToLocalTime();
         var season = (uint)((ltime.DayOfYear - 78 + 365) / 91) % 4;
 
@@ -193,11 +209,39 @@ public class Weather
         player.SendPacket(weather);
     }
 
-    public static void SendFineWeatherUpdateToPlayer(Player player)
+    public void SetWeather(WeatherType type, float grade)
     {
-        player.SendPacket(new WeatherPkt());
+        if (_type == type && _intensity == grade)
+            return;
+
+        _type = type;
+        _intensity = grade;
+        UpdateWeather();
     }
 
+    public bool Update(uint diff)
+    {
+        if (_timer.Current >= 0)
+            _timer.Update(diff);
+        else
+            _timer.Current = 0;
+
+        // If the timer has passed, ReGenerate the weather
+        if (_timer.Passed)
+        {
+            _timer.Reset();
+
+            // update only if Regenerate has changed the weather
+            if (ReGenerate())
+                // Weather will be removed if not updated (no players in zone anymore)
+                if (!UpdateWeather())
+                    return false;
+        }
+
+        Global.ScriptMgr.RunScript<IWeatherOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
+
+        return true;
+    }
     public bool UpdateWeather()
     {
         var player = Global.WorldMgr.FindPlayerInZone(Zone);
@@ -284,53 +328,5 @@ public class Weather
         Global.ScriptMgr.RunScript<IWeatherOnChange>(p => p.OnChange(this, state, _intensity), ScriptId);
 
         return true;
-    }
-
-    public void SetWeather(WeatherType type, float grade)
-    {
-        if (_type == type && _intensity == grade)
-            return;
-
-        _type = type;
-        _intensity = grade;
-        UpdateWeather();
-    }
-
-    public WeatherState GetWeatherState()
-    {
-        if (_intensity < 0.27f)
-            return WeatherState.Fine;
-
-        switch (_type)
-        {
-            case WeatherType.Rain:
-                if (_intensity < 0.40f)
-                    return WeatherState.LightRain;
-                else if (_intensity < 0.70f)
-                    return WeatherState.MediumRain;
-                else
-                    return WeatherState.HeavyRain;
-            case WeatherType.Snow:
-                if (_intensity < 0.40f)
-                    return WeatherState.LightSnow;
-                else if (_intensity < 0.70f)
-                    return WeatherState.MediumSnow;
-                else
-                    return WeatherState.HeavySnow;
-            case WeatherType.Storm:
-                if (_intensity < 0.40f)
-                    return WeatherState.LightSandstorm;
-                else if (_intensity < 0.70f)
-                    return WeatherState.MediumSandstorm;
-                else
-                    return WeatherState.HeavySandstorm;
-            case WeatherType.BlackRain:
-                return WeatherState.BlackRain;
-            case WeatherType.Thunders:
-                return WeatherState.Thunders;
-            case WeatherType.Fine:
-            default:
-                return WeatherState.Fine;
-        }
     }
 }

@@ -5,11 +5,12 @@ namespace Forged.MapServer.Reputation;
 
 public class RepRewardRate
 {
-    public float QuestRate; // We allow rate = 0.0 in database. For this case, it means that
+    public float CreatureRate;
     public float QuestDailyRate;
-    public float QuestWeeklyRate;
     public float QuestMonthlyRate;
+    public float QuestRate; // We allow rate = 0.0 in database. For this case, it means that
     public float QuestRepeatableRate;
-    public float CreatureRate; // no reputation are given at all for this faction/rate type.
+    public float QuestWeeklyRate;
+    // no reputation are given at all for this faction/rate type.
     public float SpellRate;
 }

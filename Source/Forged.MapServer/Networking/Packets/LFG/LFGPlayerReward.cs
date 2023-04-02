@@ -8,10 +8,10 @@ namespace Forged.MapServer.Networking.Packets.LFG;
 
 internal class LFGPlayerReward : ServerPacket
 {
-    public uint QueuedSlot;
     public uint ActualSlot;
-    public uint RewardMoney;
     public uint AddedXP;
+    public uint QueuedSlot;
+    public uint RewardMoney;
     public List<LFGPlayerRewards> Rewards = new();
     public LFGPlayerReward() : base(ServerOpcodes.LfgPlayerReward) { }
 

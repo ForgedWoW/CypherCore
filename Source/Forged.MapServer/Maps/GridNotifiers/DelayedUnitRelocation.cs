@@ -12,12 +12,10 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
 {
-    private readonly Map _map;
     private readonly Cell _cell;
+    private readonly Map _map;
     private readonly CellCoord _p;
     private readonly float _radius;
-
-    public GridType GridType { get; set; }
 
     public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType)
     {
@@ -28,6 +26,7 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
         GridType = gridType;
     }
 
+    public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
         for (var i = 0; i < objs.Count; ++i)

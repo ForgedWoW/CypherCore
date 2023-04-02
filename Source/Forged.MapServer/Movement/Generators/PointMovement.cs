@@ -10,19 +10,17 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class PointMovementGenerator : MovementGeneratorMedium<Unit>
 {
-    private readonly uint _movementId;
+    private readonly float? _closeEnoughDistance;
     private readonly Position _destination;
-    private readonly float? _speed;
-    private readonly bool _generatePath;
-
+    private readonly Unit _faceTarget;
     //! if set then unit will turn to specified _orient in provided _pos
     private readonly float? _finalOrient;
-    private readonly Unit _faceTarget;
-    private readonly SpellEffectExtraData _spellEffectExtra;
+
+    private readonly bool _generatePath;
+    private readonly uint _movementId;
+    private readonly float? _speed;
     private readonly MovementWalkRunSpeedSelectionMode _speedSelectionMode;
-    private readonly float? _closeEnoughDistance;
-
-
+    private readonly SpellEffectExtraData _spellEffectExtra;
     public PointMovementGenerator(uint id, float x, float y, float z, bool generatePath, float speed = 0.0f, float? finalOrient = null, Unit faceTarget = null, SpellEffectExtraData spellEffectExtraData = null, MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode.Default, float closeEnoughDistance = 0)
     {
         _movementId = id;
@@ -42,9 +40,21 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
     }
 
 
-    public uint GetId()
+    public override void DoDeactivate(Unit owner)
     {
-        return _movementId;
+        AddFlag(MovementGeneratorFlags.Deactivated);
+        owner.ClearUnitState(UnitState.RoamingMove);
+    }
+
+    public override void DoFinalize(Unit owner, bool active, bool movementInform)
+    {
+        AddFlag(MovementGeneratorFlags.Finalized);
+
+        if (active)
+            owner.ClearUnitState(UnitState.RoamingMove);
+
+        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature)
+            MovementInform(owner);
     }
 
     public override void DoInitialize(Unit owner)
@@ -193,21 +203,13 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
         return true;
     }
 
-    public override void DoDeactivate(Unit owner)
+    public uint GetId()
     {
-        AddFlag(MovementGeneratorFlags.Deactivated);
-        owner.ClearUnitState(UnitState.RoamingMove);
+        return _movementId;
     }
-
-    public override void DoFinalize(Unit owner, bool active, bool movementInform)
+    public override MovementGeneratorType GetMovementGeneratorType()
     {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (active)
-            owner.ClearUnitState(UnitState.RoamingMove);
-
-        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature)
-            MovementInform(owner);
+        return MovementGeneratorType.Point;
     }
 
     public void MovementInform(Unit owner)
@@ -217,12 +219,6 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
             owner.AsCreature.AI?.MovementInform(MovementGeneratorType.Point, _movementId);
         }
     }
-
-    public override MovementGeneratorType GetMovementGeneratorType()
-    {
-        return MovementGeneratorType.Point;
-    }
-
     public override void UnitSpeedChanged()
     {
         AddFlag(MovementGeneratorFlags.SpeedUpdatePending);

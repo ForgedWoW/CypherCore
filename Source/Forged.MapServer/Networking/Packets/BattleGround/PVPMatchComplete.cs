@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 internal class PVPMatchComplete : ServerPacket
 {
-    public byte Winner;
     public int Duration;
     public PVPMatchStatistics LogData;
     public uint SoloShuffleStatus;
+    public byte Winner;
     public PVPMatchComplete() : base(ServerOpcodes.PvpMatchComplete, ConnectionType.Instance) { }
 
     public override void Write()

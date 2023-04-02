@@ -7,7 +7,7 @@ namespace Forged.MapServer.Entities.AreaTriggers;
 
 public struct AreaTriggerAction
 {
-    public uint Param;
     public AreaTriggerActionTypes ActionType;
+    public uint Param;
     public AreaTriggerActionUserTypes TargetType;
 }

@@ -6,6 +6,6 @@ namespace Forged.MapServer.DataStorage.Structs.L;
 public sealed class LanguageWordsRecord
 {
     public uint Id;
-    public string Word;
     public uint LanguageID;
+    public string Word;
 }

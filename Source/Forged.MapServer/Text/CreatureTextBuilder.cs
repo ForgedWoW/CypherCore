@@ -8,14 +8,13 @@ namespace Forged.MapServer.Text;
 
 public class CreatureTextBuilder : MessageBuilder
 {
-    private readonly WorldObject _source;
     private readonly Gender _gender;
+    private readonly Language _language;
     private readonly ChatMsg _msgType;
+    private readonly WorldObject _source;
+    private readonly WorldObject _target;
     private readonly byte _textGroup;
     private readonly uint _textId;
-    private readonly Language _language;
-    private readonly WorldObject _target;
-
     public CreatureTextBuilder(WorldObject obj, Gender gender, ChatMsg msgtype, byte textGroup, uint id, Language language, WorldObject target)
     {
         _source = obj;

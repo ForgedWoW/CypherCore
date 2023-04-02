@@ -16,6 +16,16 @@ public class ProcFlagsInit : FlagsArray<int>
 
     public ProcFlagsInit(params int[] flags) : base(flags) { }
 
+    public bool HasFlag(ProcFlags procFlags)
+    {
+        return (_storage[0] & (int)procFlags) != 0;
+    }
+
+    public bool HasFlag(ProcFlags2 procFlags)
+    {
+        return (_storage[1] & (int)procFlags) != 0;
+    }
+
     public ProcFlagsInit Or(ProcFlags procFlags)
     {
         _storage[0] |= (int)procFlags;
@@ -28,15 +38,5 @@ public class ProcFlagsInit : FlagsArray<int>
         _storage[1] |= (int)procFlags2;
 
         return this;
-    }
-
-    public bool HasFlag(ProcFlags procFlags)
-    {
-        return (_storage[0] & (int)procFlags) != 0;
-    }
-
-    public bool HasFlag(ProcFlags2 procFlags)
-    {
-        return (_storage[1] & (int)procFlags) != 0;
     }
 }

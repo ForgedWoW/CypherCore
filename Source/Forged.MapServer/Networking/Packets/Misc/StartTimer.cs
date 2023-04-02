@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class StartTimer : ServerPacket
 {
-    public uint TotalTime;
     public uint TimeLeft;
+    public uint TotalTime;
     public TimerType Type;
     public StartTimer() : base(ServerOpcodes.StartTimer) { }
 

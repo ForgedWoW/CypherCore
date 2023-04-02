@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Transmogification;
 
 internal class AccountTransmogUpdate : ServerPacket
 {
+    public List<uint> FavoriteAppearances = new();
     public bool IsFullUpdate;
     public bool IsSetFavorite;
-    public List<uint> FavoriteAppearances = new();
     public List<uint> NewAppearances = new();
     public AccountTransmogUpdate() : base(ServerOpcodes.AccountTransmogUpdate) { }
 

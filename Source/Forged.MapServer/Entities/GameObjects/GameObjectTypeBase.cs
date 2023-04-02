@@ -14,10 +14,11 @@ internal class GameObjectTypeBase
         Owner = owner;
     }
 
-    public virtual void Update(uint diff) { }
-    public virtual void OnStateChanged(GameObjectState oldState, GameObjectState newState) { }
     public virtual void OnRelocated() { }
 
+    public virtual void OnStateChanged(GameObjectState oldState, GameObjectState newState) { }
+
+    public virtual void Update(uint diff) { }
     public class CustomCommand
     {
         public virtual void Execute(GameObjectTypeBase type) { }

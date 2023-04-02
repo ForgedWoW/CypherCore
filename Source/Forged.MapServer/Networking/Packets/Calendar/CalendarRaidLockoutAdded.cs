@@ -7,11 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarRaidLockoutAdded : ServerPacket
 {
-    public ulong InstanceID;
     public Difficulty DifficultyID;
-    public int TimeRemaining;
-    public uint ServerTime;
+    public ulong InstanceID;
     public int MapID;
+    public uint ServerTime;
+    public int TimeRemaining;
     public CalendarRaidLockoutAdded() : base(ServerOpcodes.CalendarRaidLockoutAdded) { }
 
     public override void Write()

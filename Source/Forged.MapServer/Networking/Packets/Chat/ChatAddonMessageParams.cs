@@ -7,11 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Chat;
 
 public class ChatAddonMessageParams
 {
+    public bool IsLogged;
     public string Prefix;
     public string Text;
     public ChatMsg Type = ChatMsg.Party;
-    public bool IsLogged;
-
     public void Read(WorldPacket data)
     {
         var prefixLen = data.ReadBits<uint>(5);

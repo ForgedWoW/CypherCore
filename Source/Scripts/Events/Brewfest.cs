@@ -310,7 +310,7 @@ internal class spell_brewfest_relay_race_turn_in : SpellScript, IHasSpellEffects
 
         if (aura != null)
         {
-            aura.SetDuration(aura.Duration + 30 * Time.InMilliseconds);
+            aura.SetDuration(aura.Duration + 30 * Time.IN_MILLISECONDS);
             Caster.CastSpell(HitUnit, SpellIds.RelayRaceTurnIn, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
         }
     }

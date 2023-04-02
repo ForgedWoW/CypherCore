@@ -17,26 +17,186 @@ namespace Forged.MapServer.Conditions;
 
 public class Condition
 {
-    public ConditionSourceType SourceType; //SourceTypeOrReferenceId
-    public uint SourceGroup;
-    public int SourceEntry;
-    public uint SourceId; // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
-    public uint ElseGroup;
-    public ConditionTypes ConditionType; //ConditionTypeOrReference
+    public byte ConditionTarget;
+    public ConditionTypes ConditionType;
+    //ConditionTypeOrReference
     public uint ConditionValue1;
+
     public uint ConditionValue2;
     public uint ConditionValue3;
-    public uint ErrorType;
+    public uint ElseGroup;
     public uint ErrorTextId;
+    public uint ErrorType;
+    public bool NegativeCondition;
     public uint ReferenceId;
     public uint ScriptId;
-    public byte ConditionTarget;
-    public bool NegativeCondition;
-
+    public int SourceEntry;
+    public uint SourceGroup;
+    public uint SourceId;
+    public ConditionSourceType SourceType; //SourceTypeOrReferenceId
+                                           // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
     public Condition()
     {
         SourceType = ConditionSourceType.None;
         ConditionType = ConditionTypes.None;
+    }
+
+    public uint GetMaxAvailableConditionTargets()
+    {
+        // returns number of targets which are available for given source type
+        switch (SourceType)
+        {
+            case ConditionSourceType.Spell:
+            case ConditionSourceType.SpellImplicitTarget:
+            case ConditionSourceType.CreatureTemplateVehicle:
+            case ConditionSourceType.VehicleSpell:
+            case ConditionSourceType.SpellClickEvent:
+            case ConditionSourceType.GossipMenu:
+            case ConditionSourceType.GossipMenuOption:
+            case ConditionSourceType.SmartEvent:
+            case ConditionSourceType.NpcVendor:
+            case ConditionSourceType.SpellProc:
+                return 2;
+            default:
+                return 1;
+        }
+    }
+
+    public GridMapTypeMask GetSearcherTypeMaskForCondition()
+    {
+        // build mask of types for which condition can return true
+        // this is used for speeding up gridsearches
+        if (NegativeCondition)
+            return GridMapTypeMask.All;
+
+        GridMapTypeMask mask = 0;
+
+        switch (ConditionType)
+        {
+            case ConditionTypes.ActiveEvent:
+            case ConditionTypes.Areaid:
+            case ConditionTypes.DifficultyId:
+            case ConditionTypes.DistanceTo:
+            case ConditionTypes.InstanceInfo:
+            case ConditionTypes.Mapid:
+            case ConditionTypes.NearCreature:
+            case ConditionTypes.NearGameobject:
+            case ConditionTypes.None:
+            case ConditionTypes.PhaseId:
+            case ConditionTypes.RealmAchievement:
+            case ConditionTypes.TerrainSwap:
+            case ConditionTypes.WorldState:
+            case ConditionTypes.Zoneid:
+                mask |= GridMapTypeMask.All;
+
+                break;
+            case ConditionTypes.Gender:
+            case ConditionTypes.Title:
+            case ConditionTypes.DrunkenState:
+            case ConditionTypes.Spell:
+            case ConditionTypes.QuestTaken:
+            case ConditionTypes.QuestComplete:
+            case ConditionTypes.QuestNone:
+            case ConditionTypes.Skill:
+            case ConditionTypes.QuestRewarded:
+            case ConditionTypes.ReputationRank:
+            case ConditionTypes.Achievement:
+            case ConditionTypes.Team:
+            case ConditionTypes.Item:
+            case ConditionTypes.ItemEquipped:
+            case ConditionTypes.PetType:
+            case ConditionTypes.Taxi:
+            case ConditionTypes.Queststate:
+            case ConditionTypes.Gamemaster:
+                mask |= GridMapTypeMask.Player;
+
+                break;
+            case ConditionTypes.UnitState:
+            case ConditionTypes.Alive:
+            case ConditionTypes.HpVal:
+            case ConditionTypes.HpPct:
+            case ConditionTypes.RelationTo:
+            case ConditionTypes.ReactionTo:
+            case ConditionTypes.Level:
+            case ConditionTypes.Class:
+            case ConditionTypes.Race:
+            case ConditionTypes.Aura:
+            case ConditionTypes.InWater:
+            case ConditionTypes.StandState:
+                mask |= GridMapTypeMask.Creature | GridMapTypeMask.Player;
+
+                break;
+            case ConditionTypes.ObjectEntryGuid:
+                switch ((TypeId)ConditionValue1)
+                {
+                    case TypeId.Unit:
+                        mask |= GridMapTypeMask.Creature;
+
+                        break;
+                    case TypeId.Player:
+                        mask |= GridMapTypeMask.Player;
+
+                        break;
+                    case TypeId.GameObject:
+                        mask |= GridMapTypeMask.GameObject;
+
+                        break;
+                    case TypeId.Corpse:
+                        mask |= GridMapTypeMask.Corpse;
+
+                        break;
+                    case TypeId.AreaTrigger:
+                        mask |= GridMapTypeMask.AreaTrigger;
+
+                        break;
+                    default:
+                        break;
+                }
+
+                break;
+            case ConditionTypes.TypeMask:
+                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.Unit))
+                    mask |= GridMapTypeMask.Creature | GridMapTypeMask.Player;
+
+                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.Player))
+                    mask |= GridMapTypeMask.Player;
+
+                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.GameObject))
+                    mask |= GridMapTypeMask.GameObject;
+
+                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.Corpse))
+                    mask |= GridMapTypeMask.Corpse;
+
+                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.AreaTrigger))
+                    mask |= GridMapTypeMask.AreaTrigger;
+
+                break;
+            case ConditionTypes.DailyQuestDone:
+            case ConditionTypes.ObjectiveProgress:
+            case ConditionTypes.BattlePetCount:
+                mask |= GridMapTypeMask.Player;
+
+                break;
+            case ConditionTypes.ScenarioStep:
+                mask |= GridMapTypeMask.All;
+
+                break;
+            case ConditionTypes.SceneInProgress:
+                mask |= GridMapTypeMask.Player;
+
+                break;
+            case ConditionTypes.PlayerCondition:
+                mask |= GridMapTypeMask.Player;
+
+                break;
+        }
+
+        return mask;
+    }
+
+    public bool IsLoaded()
+    {
+        return ConditionType > ConditionTypes.None || ReferenceId != 0 || ScriptId != 0;
     }
 
     public bool Meets(ConditionSourceInfo sourceInfo)
@@ -528,165 +688,6 @@ public class Condition
 
         return condMeets && Global.ScriptMgr.RunScriptRet<IConditionCheck>(p => p.OnConditionCheck(this, sourceInfo), ScriptId, true); // Returns true by default.;
     }
-
-    public GridMapTypeMask GetSearcherTypeMaskForCondition()
-    {
-        // build mask of types for which condition can return true
-        // this is used for speeding up gridsearches
-        if (NegativeCondition)
-            return GridMapTypeMask.All;
-
-        GridMapTypeMask mask = 0;
-
-        switch (ConditionType)
-        {
-            case ConditionTypes.ActiveEvent:
-            case ConditionTypes.Areaid:
-            case ConditionTypes.DifficultyId:
-            case ConditionTypes.DistanceTo:
-            case ConditionTypes.InstanceInfo:
-            case ConditionTypes.Mapid:
-            case ConditionTypes.NearCreature:
-            case ConditionTypes.NearGameobject:
-            case ConditionTypes.None:
-            case ConditionTypes.PhaseId:
-            case ConditionTypes.RealmAchievement:
-            case ConditionTypes.TerrainSwap:
-            case ConditionTypes.WorldState:
-            case ConditionTypes.Zoneid:
-                mask |= GridMapTypeMask.All;
-
-                break;
-            case ConditionTypes.Gender:
-            case ConditionTypes.Title:
-            case ConditionTypes.DrunkenState:
-            case ConditionTypes.Spell:
-            case ConditionTypes.QuestTaken:
-            case ConditionTypes.QuestComplete:
-            case ConditionTypes.QuestNone:
-            case ConditionTypes.Skill:
-            case ConditionTypes.QuestRewarded:
-            case ConditionTypes.ReputationRank:
-            case ConditionTypes.Achievement:
-            case ConditionTypes.Team:
-            case ConditionTypes.Item:
-            case ConditionTypes.ItemEquipped:
-            case ConditionTypes.PetType:
-            case ConditionTypes.Taxi:
-            case ConditionTypes.Queststate:
-            case ConditionTypes.Gamemaster:
-                mask |= GridMapTypeMask.Player;
-
-                break;
-            case ConditionTypes.UnitState:
-            case ConditionTypes.Alive:
-            case ConditionTypes.HpVal:
-            case ConditionTypes.HpPct:
-            case ConditionTypes.RelationTo:
-            case ConditionTypes.ReactionTo:
-            case ConditionTypes.Level:
-            case ConditionTypes.Class:
-            case ConditionTypes.Race:
-            case ConditionTypes.Aura:
-            case ConditionTypes.InWater:
-            case ConditionTypes.StandState:
-                mask |= GridMapTypeMask.Creature | GridMapTypeMask.Player;
-
-                break;
-            case ConditionTypes.ObjectEntryGuid:
-                switch ((TypeId)ConditionValue1)
-                {
-                    case TypeId.Unit:
-                        mask |= GridMapTypeMask.Creature;
-
-                        break;
-                    case TypeId.Player:
-                        mask |= GridMapTypeMask.Player;
-
-                        break;
-                    case TypeId.GameObject:
-                        mask |= GridMapTypeMask.GameObject;
-
-                        break;
-                    case TypeId.Corpse:
-                        mask |= GridMapTypeMask.Corpse;
-
-                        break;
-                    case TypeId.AreaTrigger:
-                        mask |= GridMapTypeMask.AreaTrigger;
-
-                        break;
-                    default:
-                        break;
-                }
-
-                break;
-            case ConditionTypes.TypeMask:
-                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.Unit))
-                    mask |= GridMapTypeMask.Creature | GridMapTypeMask.Player;
-
-                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.Player))
-                    mask |= GridMapTypeMask.Player;
-
-                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.GameObject))
-                    mask |= GridMapTypeMask.GameObject;
-
-                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.Corpse))
-                    mask |= GridMapTypeMask.Corpse;
-
-                if (Convert.ToBoolean((TypeMask)ConditionValue1 & TypeMask.AreaTrigger))
-                    mask |= GridMapTypeMask.AreaTrigger;
-
-                break;
-            case ConditionTypes.DailyQuestDone:
-            case ConditionTypes.ObjectiveProgress:
-            case ConditionTypes.BattlePetCount:
-                mask |= GridMapTypeMask.Player;
-
-                break;
-            case ConditionTypes.ScenarioStep:
-                mask |= GridMapTypeMask.All;
-
-                break;
-            case ConditionTypes.SceneInProgress:
-                mask |= GridMapTypeMask.Player;
-
-                break;
-            case ConditionTypes.PlayerCondition:
-                mask |= GridMapTypeMask.Player;
-
-                break;
-        }
-
-        return mask;
-    }
-
-    public bool IsLoaded()
-    {
-        return ConditionType > ConditionTypes.None || ReferenceId != 0 || ScriptId != 0;
-    }
-
-    public uint GetMaxAvailableConditionTargets()
-    {
-        // returns number of targets which are available for given source type
-        switch (SourceType)
-        {
-            case ConditionSourceType.Spell:
-            case ConditionSourceType.SpellImplicitTarget:
-            case ConditionSourceType.CreatureTemplateVehicle:
-            case ConditionSourceType.VehicleSpell:
-            case ConditionSourceType.SpellClickEvent:
-            case ConditionSourceType.GossipMenu:
-            case ConditionSourceType.GossipMenuOption:
-            case ConditionSourceType.SmartEvent:
-            case ConditionSourceType.NpcVendor:
-            case ConditionSourceType.SpellProc:
-                return 2;
-            default:
-                return 1;
-        }
-    }
-
     public string ToString(bool ext = false)
     {
         StringBuilder ss = new();
@@ -728,8 +729,8 @@ public class Condition
 
 public class ConditionSourceInfo
 {
-    public WorldObject[] mConditionTargets = new WorldObject[SharedConst.MaxConditionTargets]; // an array of targets available for conditions
     public Map mConditionMap;
+    public WorldObject[] mConditionTargets = new WorldObject[SharedConst.MaxConditionTargets]; // an array of targets available for conditions
     public Condition mLastFailedCondition;
 
     public ConditionSourceInfo(WorldObject target0, WorldObject target1 = null, WorldObject target2 = null)

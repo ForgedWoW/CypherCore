@@ -11,8 +11,8 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 public class QueryGuildInfoResponse : ServerPacket
 {
     public ObjectGuid GuildGUID;
-    public GuildInfo Info = new();
     public bool HasGuildInfo;
+    public GuildInfo Info = new();
     public QueryGuildInfoResponse() : base(ServerOpcodes.QueryGuildInfoResponse) { }
 
     public override void Write()
@@ -49,30 +49,30 @@ public class QueryGuildInfoResponse : ServerPacket
 
     public class GuildInfo
     {
+        public uint BackgroundColor;
+        public uint BorderColor;
+        public uint BorderStyle;
+        public uint EmblemColor;
+        public uint EmblemStyle;
         public ObjectGuid GuildGuid;
 
-        public uint VirtualRealmAddress; // a special identifier made from the Index, BattleGroup and Region.
-
-        public uint EmblemStyle;
-        public uint EmblemColor;
-        public uint BorderStyle;
-        public uint BorderColor;
-        public uint BackgroundColor;
-        public List<RankInfo> Ranks = new();
         public string GuildName = "";
-
+        public List<RankInfo> Ranks = new();
+        public uint VirtualRealmAddress; // a special identifier made from the Index, BattleGroup and Region.
         public struct RankInfo
         {
+            public uint RankID;
+
+            public string RankName;
+
+            public uint RankOrder;
+
             public RankInfo(uint id, uint order, string name)
             {
                 RankID = id;
                 RankOrder = order;
                 RankName = name;
             }
-
-            public uint RankID;
-            public uint RankOrder;
-            public string RankName;
         }
     }
 }

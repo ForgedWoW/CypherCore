@@ -32,6 +32,11 @@ public class MoveSplineInit
         args.flags.SetUnsetFlag(SplineFlag.Steering, unit.HasNpcFlag2(NPCFlags2.Steering));
     }
 
+    public void DisableTransportPathTransformations()
+    {
+        args.TransformForTransport = false;
+    }
+
     public int Launch()
     {
         var move_spline = unit.MoveSpline;
@@ -140,6 +145,179 @@ public class MoveSplineInit
         return move_spline.Duration();
     }
 
+    public void MovebyPath(Vector3[] controls, int path_offset = 0)
+    {
+        args.path_Idx_offset = path_offset;
+        TransportPathTransform transform = new(unit, args.TransformForTransport);
+
+        for (var i = 0; i < controls.Length; i++)
+            args.path.Add(transform.Calc(controls[i]));
+    }
+
+    public void MoveTo(Vector3 dest, bool generatePath = true, bool forceDestination = false)
+    {
+        if (generatePath)
+        {
+            PathGenerator path = new(unit);
+            var result = path.CalculatePath(new Position(dest), forceDestination);
+
+            if (result && !Convert.ToBoolean(path.GetPathType() & PathType.NoPath))
+            {
+                MovebyPath(path.GetPath());
+
+                return;
+            }
+        }
+
+        args.path_Idx_offset = 0;
+        args.path.Add(default);
+        TransportPathTransform transform = new(unit, args.TransformForTransport);
+        args.path.Add(transform.Calc(dest));
+    }
+
+    public void MoveTo(float x, float y, float z, bool generatePath = true, bool forceDest = false)
+    {
+        MoveTo(new Vector3(x, y, z), generatePath, forceDest);
+    }
+
+    public List<Vector3> Path()
+    {
+        return args.path;
+    }
+
+    public void SetAnimation(AnimTier anim)
+    {
+        args.time_perc = 0.0f;
+
+        args.animTier = new AnimTierTransition
+        {
+            AnimTier = (byte)anim
+        };
+
+        args.flags.EnableAnimation();
+    }
+
+    public void SetCyclic()
+    {
+        args.flags.SetUnsetFlag(SplineFlag.Cyclic);
+    }
+
+    public void SetFacing(Unit target)
+    {
+        args.facing.angle = unit.Location.GetAbsoluteAngle(target.Location);
+        args.facing.target = target.GUID;
+        args.facing.type = MonsterMoveType.FacingTarget;
+    }
+
+    public void SetFacing(float angle)
+    {
+        if (args.TransformForTransport)
+        {
+            var vehicle = unit.VehicleBase;
+
+            if (vehicle != null)
+            {
+                angle -= vehicle.Location.Orientation;
+            }
+            else
+            {
+                var transport = unit.Transport;
+
+                if (transport != null)
+                    angle -= transport.GetTransportOrientation();
+            }
+        }
+
+        args.facing.angle = MathFunctions.wrap(angle, 0.0f, MathFunctions.TwoPi);
+        args.facing.type = MonsterMoveType.FacingAngle;
+    }
+
+    public void SetFacing(Vector3 spot)
+    {
+        TransportPathTransform transform = new(unit, args.TransformForTransport);
+        var finalSpot = transform.Calc(spot);
+        args.facing.f = new Vector3(finalSpot.X, finalSpot.Y, finalSpot.Z);
+        args.facing.type = MonsterMoveType.FacingSpot;
+    }
+
+    public void SetFall()
+    {
+        args.flags.EnableFalling();
+        args.flags.SetUnsetFlag(SplineFlag.FallingSlow, unit.HasUnitMovementFlag(MovementFlag.FallingSlow));
+    }
+
+    public void SetFirstPointId(int pointId)
+    {
+        args.path_Idx_offset = pointId;
+    }
+
+    public void SetFly()
+    {
+        args.flags.EnableFlying();
+    }
+
+    public void SetOrientationFixed(bool enable)
+    {
+        args.flags.SetUnsetFlag(SplineFlag.OrientationFixed, enable);
+    }
+
+    public void SetParabolic(float amplitude, float time_shift)
+    {
+        args.time_perc = time_shift;
+        args.parabolic_amplitude = amplitude;
+        args.vertical_acceleration = 0.0f;
+        args.flags.EnableParabolic();
+    }
+
+    public void SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
+    {
+        args.time_perc = time_shift;
+        args.parabolic_amplitude = 0.0f;
+        args.vertical_acceleration = vertical_acceleration;
+        args.flags.EnableParabolic();
+    }
+
+    public void SetSmooth()
+    {
+        args.flags.EnableCatmullRom();
+    }
+
+    public void SetSpellEffectExtraData(SpellEffectExtraData spellEffectExtraData)
+    {
+        args.spellEffectExtra = spellEffectExtraData;
+    }
+
+    public void SetTransportEnter()
+    {
+        args.flags.EnableTransportEnter();
+    }
+
+    public void SetTransportExit()
+    {
+        args.flags.EnableTransportExit();
+    }
+
+    public void SetUncompressed()
+    {
+        args.flags.SetUnsetFlag(SplineFlag.UncompressedPath);
+    }
+
+    public void SetUnlimitedSpeed()
+    {
+        args.flags.SetUnsetFlag(SplineFlag.UnlimitedSpeed);
+    }
+
+    public void SetVelocity(float vel)
+    {
+        args.velocity = vel;
+        args.HasVelocity = true;
+    }
+
+    public void SetWalk(bool enable)
+    {
+        args.walk = enable;
+    }
+
     public void Stop()
     {
         var move_spline = unit.MoveSpline;
@@ -194,185 +372,6 @@ public class MoveSplineInit
 
         unit.SendMessageToSet(packet, true);
     }
-
-    public void SetFacing(Unit target)
-    {
-        args.facing.angle = unit.Location.GetAbsoluteAngle(target.Location);
-        args.facing.target = target.GUID;
-        args.facing.type = MonsterMoveType.FacingTarget;
-    }
-
-    public void SetFacing(float angle)
-    {
-        if (args.TransformForTransport)
-        {
-            var vehicle = unit.VehicleBase;
-
-            if (vehicle != null)
-            {
-                angle -= vehicle.Location.Orientation;
-            }
-            else
-            {
-                var transport = unit.Transport;
-
-                if (transport != null)
-                    angle -= transport.GetTransportOrientation();
-            }
-        }
-
-        args.facing.angle = MathFunctions.wrap(angle, 0.0f, MathFunctions.TwoPi);
-        args.facing.type = MonsterMoveType.FacingAngle;
-    }
-
-    public void MoveTo(Vector3 dest, bool generatePath = true, bool forceDestination = false)
-    {
-        if (generatePath)
-        {
-            PathGenerator path = new(unit);
-            var result = path.CalculatePath(new Position(dest), forceDestination);
-
-            if (result && !Convert.ToBoolean(path.GetPathType() & PathType.NoPath))
-            {
-                MovebyPath(path.GetPath());
-
-                return;
-            }
-        }
-
-        args.path_Idx_offset = 0;
-        args.path.Add(default);
-        TransportPathTransform transform = new(unit, args.TransformForTransport);
-        args.path.Add(transform.Calc(dest));
-    }
-
-    public void SetFall()
-    {
-        args.flags.EnableFalling();
-        args.flags.SetUnsetFlag(SplineFlag.FallingSlow, unit.HasUnitMovementFlag(MovementFlag.FallingSlow));
-    }
-
-    public void SetFirstPointId(int pointId)
-    {
-        args.path_Idx_offset = pointId;
-    }
-
-    public void SetFly()
-    {
-        args.flags.EnableFlying();
-    }
-
-    public void SetWalk(bool enable)
-    {
-        args.walk = enable;
-    }
-
-    public void SetSmooth()
-    {
-        args.flags.EnableCatmullRom();
-    }
-
-    public void SetUncompressed()
-    {
-        args.flags.SetUnsetFlag(SplineFlag.UncompressedPath);
-    }
-
-    public void SetCyclic()
-    {
-        args.flags.SetUnsetFlag(SplineFlag.Cyclic);
-    }
-
-    public void SetVelocity(float vel)
-    {
-        args.velocity = vel;
-        args.HasVelocity = true;
-    }
-
-    public void SetTransportEnter()
-    {
-        args.flags.EnableTransportEnter();
-    }
-
-    public void SetTransportExit()
-    {
-        args.flags.EnableTransportExit();
-    }
-
-    public void SetOrientationFixed(bool enable)
-    {
-        args.flags.SetUnsetFlag(SplineFlag.OrientationFixed, enable);
-    }
-
-    public void SetUnlimitedSpeed()
-    {
-        args.flags.SetUnsetFlag(SplineFlag.UnlimitedSpeed);
-    }
-
-    public void MovebyPath(Vector3[] controls, int path_offset = 0)
-    {
-        args.path_Idx_offset = path_offset;
-        TransportPathTransform transform = new(unit, args.TransformForTransport);
-
-        for (var i = 0; i < controls.Length; i++)
-            args.path.Add(transform.Calc(controls[i]));
-    }
-
-    public void MoveTo(float x, float y, float z, bool generatePath = true, bool forceDest = false)
-    {
-        MoveTo(new Vector3(x, y, z), generatePath, forceDest);
-    }
-
-    public void SetParabolic(float amplitude, float time_shift)
-    {
-        args.time_perc = time_shift;
-        args.parabolic_amplitude = amplitude;
-        args.vertical_acceleration = 0.0f;
-        args.flags.EnableParabolic();
-    }
-
-    public void SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
-    {
-        args.time_perc = time_shift;
-        args.parabolic_amplitude = 0.0f;
-        args.vertical_acceleration = vertical_acceleration;
-        args.flags.EnableParabolic();
-    }
-
-    public void SetAnimation(AnimTier anim)
-    {
-        args.time_perc = 0.0f;
-
-        args.animTier = new AnimTierTransition
-        {
-            AnimTier = (byte)anim
-        };
-
-        args.flags.EnableAnimation();
-    }
-
-    public void SetFacing(Vector3 spot)
-    {
-        TransportPathTransform transform = new(unit, args.TransformForTransport);
-        var finalSpot = transform.Calc(spot);
-        args.facing.f = new Vector3(finalSpot.X, finalSpot.Y, finalSpot.Z);
-        args.facing.type = MonsterMoveType.FacingSpot;
-    }
-
-    public void DisableTransportPathTransformations()
-    {
-        args.TransformForTransport = false;
-    }
-
-    public void SetSpellEffectExtraData(SpellEffectExtraData spellEffectExtraData)
-    {
-        args.spellEffectExtra = spellEffectExtraData;
-    }
-
-    public List<Vector3> Path()
-    {
-        return args.path;
-    }
-
     private UnitMoveType SelectSpeedType(MovementFlag moveFlags)
     {
         if (moveFlags.HasAnyFlag(MovementFlag.Flying))

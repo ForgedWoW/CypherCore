@@ -12,27 +12,15 @@ namespace Forged.MapServer.Spells;
 
 public class SpellFactory
 {
+    private readonly WorldObject _caster;
     private readonly ClassFactory _classFactory;
     private readonly SpellManager _spellManager;
-    private readonly WorldObject _caster;
-
     public SpellFactory(WorldObject caster, ClassFactory classFactory, SpellManager spellManager)
     {
         _classFactory = classFactory;
         _spellManager = spellManager;
         _caster = caster;
     }
-
-    public Spell NewSpell(SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
-    {
-        return _classFactory.Resolve<Spell>(new PositionalParameter(0, _caster),
-                                            new PositionalParameter(1, info),
-                                            new PositionalParameter(2, triggerFlags),
-                                            new NamedParameter(nameof(originalCasterGuid), originalCasterGuid),
-                                            new NamedParameter(nameof(originalCastId), originalCastId),
-                                            new NamedParameter(nameof(empoweredStage), empoweredStage));
-    }
-
 
     public SpellCastResult CastSpell(uint spellId, bool triggered = false, byte? empowerStage = null)
     {
@@ -188,5 +176,15 @@ public class SpellFactory
         spell.CustomArg = args.CustomArg;
 
         return spell.Prepare(targets.Targets, args.TriggeringAura);
+    }
+
+    public Spell NewSpell(SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
+    {
+        return _classFactory.Resolve<Spell>(new PositionalParameter(0, _caster),
+                                            new PositionalParameter(1, info),
+                                            new PositionalParameter(2, triggerFlags),
+                                            new NamedParameter(nameof(originalCasterGuid), originalCasterGuid),
+                                            new NamedParameter(nameof(originalCastId), originalCastId),
+                                            new NamedParameter(nameof(empoweredStage), empoweredStage));
     }
 }

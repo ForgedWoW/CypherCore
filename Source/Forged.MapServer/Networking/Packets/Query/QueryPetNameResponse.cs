@@ -10,13 +10,12 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 internal class QueryPetNameResponse : ServerPacket
 {
-    public ObjectGuid UnitGUID;
     public bool Allow;
-
-    public bool HasDeclined;
     public DeclinedName DeclinedNames = new();
-    public long Timestamp;
+    public bool HasDeclined;
     public string Name = "";
+    public long Timestamp;
+    public ObjectGuid UnitGUID;
     public QueryPetNameResponse() : base(ServerOpcodes.QueryPetNameResponse, ConnectionType.Instance) { }
 
     public override void Write()

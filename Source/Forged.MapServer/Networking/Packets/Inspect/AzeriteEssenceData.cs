@@ -5,8 +5,8 @@ namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public struct AzeriteEssenceData
 {
-    public uint Index;
     public uint AzeriteEssenceID;
+    public uint Index;
     public uint Rank;
     public bool SlotUnlocked;
 

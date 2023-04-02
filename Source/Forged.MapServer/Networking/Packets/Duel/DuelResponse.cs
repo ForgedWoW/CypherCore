@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class DuelResponse : ClientPacket
 {
-    public ObjectGuid ArbiterGUID;
     public bool Accepted;
+    public ObjectGuid ArbiterGUID;
     public bool Forfeited;
     public DuelResponse(WorldPacket packet) : base(packet) { }
 

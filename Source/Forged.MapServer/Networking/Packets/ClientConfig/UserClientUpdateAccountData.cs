@@ -9,11 +9,12 @@ namespace Forged.MapServer.Networking.Packets.ClientConfig;
 
 public class UserClientUpdateAccountData : ClientPacket
 {
-    public ObjectGuid PlayerGuid;
-    public long Time; // UnixTime
-    public uint Size; // decompressed size
-    public AccountDataTypes DataType = 0;
     public ByteBuffer CompressedData;
+    public AccountDataTypes DataType = 0;
+    public ObjectGuid PlayerGuid;
+    public uint Size;
+    public long Time; // UnixTime
+                      // decompressed size
     public UserClientUpdateAccountData(WorldPacket packet) : base(packet) { }
 
     public override void Read()

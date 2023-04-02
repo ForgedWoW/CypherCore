@@ -14,14 +14,14 @@ public class SmartAreaTriggerAI : AreaTriggerAI
 
     public SmartAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
 
+    public SmartScript GetScript()
+    {
+        return _script;
+    }
+
     public override void OnInitialize()
     {
         GetScript().OnInitialize(At);
-    }
-
-    public override void OnUpdate(uint diff)
-    {
-        GetScript().OnUpdate(diff);
     }
 
     public override void OnUnitEnter(Unit unit)
@@ -29,13 +29,12 @@ public class SmartAreaTriggerAI : AreaTriggerAI
         GetScript().ProcessEventsFor(SmartEvents.AreatriggerOntrigger, unit);
     }
 
+    public override void OnUpdate(uint diff)
+    {
+        GetScript().OnUpdate(diff);
+    }
     public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
     {
         GetScript().SetTimedActionList(e, entry, invoker);
-    }
-
-    public SmartScript GetScript()
-    {
-        return _script;
     }
 }

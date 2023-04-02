@@ -8,12 +8,11 @@ namespace Forged.MapServer.Maps;
 
 public class ZoneDynamicInfo
 {
-    public uint MusicId { get; set; }
     public Weather.Weather DefaultWeather { get; set; }
-    public WeatherState WeatherId { get; set; }
     public float Intensity { get; set; }
     public List<LightOverride> LightOverrides { get; set; } = new();
-
+    public uint MusicId { get; set; }
+    public WeatherState WeatherId { get; set; }
     public struct LightOverride
     {
         public uint AreaLightId;

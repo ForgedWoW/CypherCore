@@ -27,15 +27,15 @@ public class spell_rog_slice_and_dice : SpellScript, ISpellAfterHit
                 if (c != null)
                 {
                     if (c.Amount == 1)
-                        sliceAndDice.SetDuration(12 * Time.InMilliseconds);
+                        sliceAndDice.SetDuration(12 * Time.IN_MILLISECONDS);
                     else if (c.Amount == 2)
-                        sliceAndDice.SetDuration(18 * Time.InMilliseconds);
+                        sliceAndDice.SetDuration(18 * Time.IN_MILLISECONDS);
                     else if (c.Amount == 3)
-                        sliceAndDice.SetDuration(24 * Time.InMilliseconds);
+                        sliceAndDice.SetDuration(24 * Time.IN_MILLISECONDS);
                     else if (c.Amount == 4)
-                        sliceAndDice.SetDuration(30 * Time.InMilliseconds);
+                        sliceAndDice.SetDuration(30 * Time.IN_MILLISECONDS);
                     else if (c.Amount == 5)
-                        sliceAndDice.SetDuration(36 * Time.InMilliseconds);
+                        sliceAndDice.SetDuration(36 * Time.IN_MILLISECONDS);
                 }
             }
         }

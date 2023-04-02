@@ -8,8 +8,8 @@ namespace Forged.MapServer.Globals;
 
 public class SpellClickInfo
 {
-    public uint SpellId;
     public byte CastFlags;
+    public uint SpellId;
     public SpellClickUserTypes UserType;
 
     // helpers

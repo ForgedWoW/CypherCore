@@ -10,9 +10,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 internal class DispelFailed : ServerPacket
 {
     public ObjectGuid CasterGUID;
-    public ObjectGuid VictimGUID;
-    public uint SpellID;
     public List<uint> FailedSpells = new();
+    public uint SpellID;
+    public ObjectGuid VictimGUID;
     public DispelFailed() : base(ServerOpcodes.DispelFailed) { }
 
     public override void Write()

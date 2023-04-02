@@ -31,6 +31,47 @@ internal class ResetCommands
         return true;
     }
 
+    [Command("all", RBACPermissions.CommandResetAll, true)]
+    private static bool HandleResetAllCommand(CommandHandler handler, string subCommand)
+    {
+        AtLoginFlags atLogin;
+
+        // Command specially created as single command to prevent using short case names
+        if (subCommand == "spells")
+        {
+            atLogin = AtLoginFlags.ResetSpells;
+            Global.WorldMgr.SendWorldText(CypherStrings.ResetallSpells);
+
+            if (handler.Session == null)
+                handler.SendSysMessage(CypherStrings.ResetallSpells);
+        }
+        else if (subCommand == "talents")
+        {
+            atLogin = AtLoginFlags.ResetTalents | AtLoginFlags.ResetPetTalents;
+            Global.WorldMgr.SendWorldText(CypherStrings.ResetallTalents);
+
+            if (handler.Session == null)
+                handler.SendSysMessage(CypherStrings.ResetallTalents);
+        }
+        else
+        {
+            handler.SendSysMessage(CypherStrings.ResetallUnknownCase, subCommand);
+
+            return false;
+        }
+
+        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ALL_AT_LOGIN_FLAGS);
+        stmt.AddValue(0, (ushort)atLogin);
+        DB.Characters.Execute(stmt);
+
+        var plist = Global.ObjAccessor.GetPlayers();
+
+        foreach (var player in plist)
+            player.SetAtLoginFlag(atLogin);
+
+        return true;
+    }
+
     [Command("honor", RBACPermissions.CommandResetHonor, true)]
     private static bool HandleResetHonorCommand(CommandHandler handler, PlayerIdentifier player)
     {
@@ -42,40 +83,6 @@ internal class ResetCommands
 
         player.GetConnectedPlayer().ResetHonorStats();
         player.GetConnectedPlayer().UpdateCriteria(CriteriaType.HonorableKills);
-
-        return true;
-    }
-
-    private static bool HandleResetStatsOrLevelHelper(Player player)
-    {
-        var classEntry = CliDB.ChrClassesStorage.LookupByKey(player.Class);
-
-        if (classEntry == null)
-        {
-            Log.Logger.Error("Class {0} not found in DBC (Wrong DBC files?)", player.Class);
-
-            return false;
-        }
-
-        var powerType = classEntry.DisplayPower;
-
-        // reset m_form if no aura
-        if (!player.HasAuraType(AuraType.ModShapeshift))
-            player.ShapeshiftForm = ShapeShiftForm.None;
-
-        player.SetFactionForRace(player.Race);
-        player.SetPowerType(powerType);
-
-        // reset only if player not in some form;
-        if (player.ShapeshiftForm == ShapeShiftForm.None)
-            player.InitDisplayIds();
-
-        player.ReplaceAllPvpFlags(UnitPVPStateFlags.PvP);
-
-        player.ReplaceAllUnitFlags(UnitFlags.PlayerControlled);
-
-        //-1 is default value
-        player.SetWatchedFactionIndex(0xFFFFFFFF);
 
         return true;
     }
@@ -174,6 +181,39 @@ internal class ResetCommands
         return true;
     }
 
+    private static bool HandleResetStatsOrLevelHelper(Player player)
+    {
+        var classEntry = CliDB.ChrClassesStorage.LookupByKey(player.Class);
+
+        if (classEntry == null)
+        {
+            Log.Logger.Error("Class {0} not found in DBC (Wrong DBC files?)", player.Class);
+
+            return false;
+        }
+
+        var powerType = classEntry.DisplayPower;
+
+        // reset m_form if no aura
+        if (!player.HasAuraType(AuraType.ModShapeshift))
+            player.ShapeshiftForm = ShapeShiftForm.None;
+
+        player.SetFactionForRace(player.Race);
+        player.SetPowerType(powerType);
+
+        // reset only if player not in some form;
+        if (player.ShapeshiftForm == ShapeShiftForm.None)
+            player.InitDisplayIds();
+
+        player.ReplaceAllPvpFlags(UnitPVPStateFlags.PvP);
+
+        player.ReplaceAllUnitFlags(UnitFlags.PlayerControlled);
+
+        //-1 is default value
+        player.SetWatchedFactionIndex(0xFFFFFFFF);
+
+        return true;
+    }
     [Command("talents", RBACPermissions.CommandResetTalents, true)]
     private static bool HandleResetTalentsCommand(CommandHandler handler, PlayerIdentifier player)
     {
@@ -218,46 +258,5 @@ internal class ResetCommands
         handler.SendSysMessage(CypherStrings.NoCharSelected);
 
         return false;
-    }
-
-    [Command("all", RBACPermissions.CommandResetAll, true)]
-    private static bool HandleResetAllCommand(CommandHandler handler, string subCommand)
-    {
-        AtLoginFlags atLogin;
-
-        // Command specially created as single command to prevent using short case names
-        if (subCommand == "spells")
-        {
-            atLogin = AtLoginFlags.ResetSpells;
-            Global.WorldMgr.SendWorldText(CypherStrings.ResetallSpells);
-
-            if (handler.Session == null)
-                handler.SendSysMessage(CypherStrings.ResetallSpells);
-        }
-        else if (subCommand == "talents")
-        {
-            atLogin = AtLoginFlags.ResetTalents | AtLoginFlags.ResetPetTalents;
-            Global.WorldMgr.SendWorldText(CypherStrings.ResetallTalents);
-
-            if (handler.Session == null)
-                handler.SendSysMessage(CypherStrings.ResetallTalents);
-        }
-        else
-        {
-            handler.SendSysMessage(CypherStrings.ResetallUnknownCase, subCommand);
-
-            return false;
-        }
-
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ALL_AT_LOGIN_FLAGS);
-        stmt.AddValue(0, (ushort)atLogin);
-        DB.Characters.Execute(stmt);
-
-        var plist = Global.ObjAccessor.GetPlayers();
-
-        foreach (var player in plist)
-            player.SetAtLoginFlag(atLogin);
-
-        return true;
     }
 }

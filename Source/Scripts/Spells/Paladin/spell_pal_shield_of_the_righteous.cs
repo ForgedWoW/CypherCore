@@ -63,7 +63,7 @@ public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
 
         if (aura != null) //reduce the CD of Light of the Protector and Avenging Wrath by 3
         {
-            var cooldownReduction = TimeSpan.FromSeconds(aura.GetEffect(0).BaseAmount * Time.InMilliseconds);
+            var cooldownReduction = TimeSpan.FromSeconds(aura.GetEffect(0).BaseAmount * Time.IN_MILLISECONDS);
 
             if (player.HasSpell(PaladinSpells.LIGHT_OF_THE_PROTECTOR))
             {

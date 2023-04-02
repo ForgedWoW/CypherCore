@@ -129,6 +129,21 @@ internal class AhBotCommands
             return true;
         }
 
+        private static bool HandleAHBotItemsAmountQualityCommand(CommandHandler handler, StringArguments args)
+        {
+            /*
+            char* arg = strtok((char*)args, " ");
+            if (!arg)
+                return false;
+            public uint qualityVal = atoi(arg);
+         
+            sAuctionBot->SetItemsAmountForQuality(Q, qualityVal);
+            handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetCypherString(ahbotQualityIds[Q]),
+                sAuctionBotConfig->GetConfigItemQualityAmount(Q));
+            */
+            return true;
+        }
+
         [Command("gray", RBACPermissions.CommandAhbotItemsGray, true)]
         private static bool HandleAHBotItemsAmountQualityGray(CommandHandler handler, StringArguments args)
         {
@@ -164,21 +179,6 @@ internal class AhBotCommands
         {
             return true;
         }
-
-        private static bool HandleAHBotItemsAmountQualityCommand(CommandHandler handler, StringArguments args)
-        {
-            /*
-            char* arg = strtok((char*)args, " ");
-            if (!arg)
-                return false;
-            public uint qualityVal = atoi(arg);
-         
-            sAuctionBot->SetItemsAmountForQuality(Q, qualityVal);
-            handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetCypherString(ahbotQualityIds[Q]),
-                sAuctionBotConfig->GetConfigItemQualityAmount(Q));
-            */
-            return true;
-        }
     }
 
     [CommandGroup("ratio")]
@@ -211,18 +211,6 @@ internal class AhBotCommands
             return true;
         }
 
-        [Command("horde", RBACPermissions.CommandAhbotRatioHorde, true)]
-        private static bool HandleAHBotItemsRatioHouseHorde(CommandHandler handler, StringArguments args)
-        {
-            return true;
-        }
-
-        [Command("neutral", RBACPermissions.CommandAhbotRatioNeutral, true)]
-        private static bool HandleAHBotItemsRatioHouseNeutral(CommandHandler handler, StringArguments args)
-        {
-            return true;
-        }
-
         private static bool HandleAHBotItemsRatioHouseCommand(CommandHandler handler, StringArguments args)
         {
             /*char* arg = strtok((char*)args, " ");
@@ -233,6 +221,18 @@ internal class AhBotCommands
             sAuctionBot->SetItemsRatioForHouse(H, ratioVal);
             handler->PSendSysMessage(LANG_AHBOT_ITEMS_RATIO, AuctionBotConfig::GetHouseTypeName(H), sAuctionBotConfig->GetConfigItemAmountRatio(H));
             */
+            return true;
+        }
+
+        [Command("horde", RBACPermissions.CommandAhbotRatioHorde, true)]
+        private static bool HandleAHBotItemsRatioHouseHorde(CommandHandler handler, StringArguments args)
+        {
+            return true;
+        }
+
+        [Command("neutral", RBACPermissions.CommandAhbotRatioNeutral, true)]
+        private static bool HandleAHBotItemsRatioHouseNeutral(CommandHandler handler, StringArguments args)
+        {
             return true;
         }
     }

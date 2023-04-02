@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Petition;
 
 public class PetitionSignResults : ServerPacket
 {
+    public PetitionSigns Error = 0;
     public ObjectGuid Item;
     public ObjectGuid Player;
-    public PetitionSigns Error = 0;
     public PetitionSignResults() : base(ServerOpcodes.PetitionSignResults) { }
 
     public override void Write()

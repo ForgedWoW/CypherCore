@@ -14,13 +14,12 @@ namespace Forged.MapServer.Guilds;
 
 public sealed class GuildManager
 {
-    private readonly CliDB _cliDB;
-    private readonly GameObjectManager _objectManager;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly Dictionary<ulong, Guild> _guildStore = new();
+    private readonly CliDB _cliDB;
     private readonly List<GuildReward> _guildRewards = new();
-
+    private readonly Dictionary<ulong, Guild> _guildStore = new();
+    private readonly GameObjectManager _objectManager;
+    private readonly WorldDatabase _worldDatabase;
     private uint _nextGuildId;
 
     public GuildManager(CliDB cliDB, GameObjectManager objectManager, CharacterDatabase characterDatabase, WorldDatabase worldDatabase)
@@ -36,25 +35,9 @@ public sealed class GuildManager
         _guildStore[guild.GetId()] = guild;
     }
 
-    public void RemoveGuild(ulong guildId)
-    {
-        _guildStore.Remove(guildId);
-    }
-
-    public void SaveGuilds()
-    {
-        foreach (var guild in _guildStore.Values)
-            guild.SaveToDB();
-    }
-
     public uint GenerateGuildId()
     {
         return _nextGuildId++;
-    }
-
-    public Guild GetGuildById(ulong guildId)
-    {
-        return _guildStore.LookupByKey(guildId);
     }
 
     public Guild GetGuildByGuid(ObjectGuid guid)
@@ -68,6 +51,20 @@ public sealed class GuildManager
             if (guildId != 0)
                 return GetGuildById(guildId);
         }
+
+        return null;
+    }
+
+    public Guild GetGuildById(ulong guildId)
+    {
+        return _guildStore.LookupByKey(guildId);
+    }
+
+    public Guild GetGuildByLeader(ObjectGuid guid)
+    {
+        foreach (var guild in _guildStore.Values)
+            if (guild.GetLeaderGUID() == guid)
+                return guild;
 
         return null;
     }
@@ -91,13 +88,75 @@ public sealed class GuildManager
         return "";
     }
 
-    public Guild GetGuildByLeader(ObjectGuid guid)
+    public List<GuildReward> GetGuildRewards()
     {
-        foreach (var guild in _guildStore.Values)
-            if (guild.GetLeaderGUID() == guid)
-                return guild;
+        return _guildRewards;
+    }
 
-        return null;
+    public void LoadGuildRewards()
+    {
+        var oldMSTime = Time.MSTime;
+
+        //                                            0      1            2         3
+        var result = _worldDatabase.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
+
+        if (result.IsEmpty())
+        {
+            Log.Logger.Information("Loaded 0 guild reward definitions. DB table `guild_rewards` is empty.");
+
+            return;
+        }
+
+        uint count = 0;
+
+        do
+        {
+            GuildReward reward = new()
+            {
+                ItemID = result.Read<uint>(0),
+                MinGuildRep = result.Read<byte>(1),
+                RaceMask = result.Read<ulong>(2),
+                Cost = result.Read<ulong>(3)
+            };
+
+            if (_objectManager.GetItemTemplate(reward.ItemID) == null)
+            {
+                Log.Logger.Error("Guild rewards constains not existing item entry {0}", reward.ItemID);
+
+                continue;
+            }
+
+            if (reward.MinGuildRep >= (int)ReputationRank.Max)
+            {
+                Log.Logger.Error("Guild rewards contains wrong reputation standing {0}, max is {1}", reward.MinGuildRep, (int)ReputationRank.Max - 1);
+
+                continue;
+            }
+
+            var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS);
+            stmt.AddValue(0, reward.ItemID);
+            var reqAchievementResult = _worldDatabase.Query(stmt);
+
+            if (!reqAchievementResult.IsEmpty())
+                do
+                {
+                    var requiredAchievementId = reqAchievementResult.Read<uint>(0);
+
+                    if (!_cliDB.AchievementStorage.ContainsKey(requiredAchievementId))
+                    {
+                        Log.Logger.Error("Guild rewards constains not existing achievement entry {0}", requiredAchievementId);
+
+                        continue;
+                    }
+
+                    reward.AchievementsRequired.Add(requiredAchievementId);
+                } while (reqAchievementResult.NextRow());
+
+            _guildRewards.Add(reward);
+            ++count;
+        } while (result.NextRow());
+
+        Log.Logger.Information("Loaded {0} guild reward definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadGuilds()
@@ -453,70 +512,9 @@ public sealed class GuildManager
         }
     }
 
-    public void LoadGuildRewards()
+    public void RemoveGuild(ulong guildId)
     {
-        var oldMSTime = Time.MSTime;
-
-        //                                            0      1            2         3
-        var result = _worldDatabase.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
-
-        if (result.IsEmpty())
-        {
-            Log.Logger.Information("Loaded 0 guild reward definitions. DB table `guild_rewards` is empty.");
-
-            return;
-        }
-
-        uint count = 0;
-
-        do
-        {
-            GuildReward reward = new()
-            {
-                ItemID = result.Read<uint>(0),
-                MinGuildRep = result.Read<byte>(1),
-                RaceMask = result.Read<ulong>(2),
-                Cost = result.Read<ulong>(3)
-            };
-
-            if (_objectManager.GetItemTemplate(reward.ItemID) == null)
-            {
-                Log.Logger.Error("Guild rewards constains not existing item entry {0}", reward.ItemID);
-
-                continue;
-            }
-
-            if (reward.MinGuildRep >= (int)ReputationRank.Max)
-            {
-                Log.Logger.Error("Guild rewards contains wrong reputation standing {0}, max is {1}", reward.MinGuildRep, (int)ReputationRank.Max - 1);
-
-                continue;
-            }
-
-            var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS);
-            stmt.AddValue(0, reward.ItemID);
-            var reqAchievementResult = _worldDatabase.Query(stmt);
-
-            if (!reqAchievementResult.IsEmpty())
-                do
-                {
-                    var requiredAchievementId = reqAchievementResult.Read<uint>(0);
-
-                    if (!_cliDB.AchievementStorage.ContainsKey(requiredAchievementId))
-                    {
-                        Log.Logger.Error("Guild rewards constains not existing achievement entry {0}", requiredAchievementId);
-
-                        continue;
-                    }
-
-                    reward.AchievementsRequired.Add(requiredAchievementId);
-                } while (reqAchievementResult.NextRow());
-
-            _guildRewards.Add(reward);
-            ++count;
-        } while (result.NextRow());
-
-        Log.Logger.Information("Loaded {0} guild reward definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+        _guildStore.Remove(guildId);
     }
 
     public void ResetTimes(bool week)
@@ -527,22 +525,22 @@ public sealed class GuildManager
             guild.ResetTimes(week);
     }
 
+    public void SaveGuilds()
+    {
+        foreach (var guild in _guildStore.Values)
+            guild.SaveToDB();
+    }
     public void SetNextGuildId(uint id)
     {
         _nextGuildId = id;
-    }
-
-    public List<GuildReward> GetGuildRewards()
-    {
-        return _guildRewards;
     }
 }
 
 public class GuildReward
 {
+    public List<uint> AchievementsRequired = new();
+    public ulong Cost;
     public uint ItemID;
     public byte MinGuildRep;
     public ulong RaceMask;
-    public ulong Cost;
-    public List<uint> AchievementsRequired = new();
 }

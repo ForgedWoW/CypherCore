@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 internal class SpellOrDamageImmune : ServerPacket
 {
     public ObjectGuid CasterGUID;
-    public ObjectGuid VictimGUID;
-    public uint SpellID;
     public bool IsPeriodic;
+    public uint SpellID;
+    public ObjectGuid VictimGUID;
     public SpellOrDamageImmune() : base(ServerOpcodes.SpellOrDamageImmune, ConnectionType.Instance) { }
 
     public override void Write()

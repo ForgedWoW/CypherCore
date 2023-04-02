@@ -8,11 +8,10 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class DistributionListResponse : ServerPacket
 {
-    public uint Result { get; set; } = 0;
-    public List<BpayDistributionObject> DistributionObject { get; set; } = new();
-
     public DistributionListResponse() : base(ServerOpcodes.BattlePayGetDistributionListResponse) { }
 
+    public List<BpayDistributionObject> DistributionObject { get; set; } = new();
+    public uint Result { get; set; } = 0;
     public override void Write()
     {
         _worldPacket.Write(Result);

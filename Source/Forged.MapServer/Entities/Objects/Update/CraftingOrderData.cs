@@ -10,27 +10,50 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class CraftingOrderData : BaseUpdateData<Player>
 {
-    public DynamicUpdateField<CraftingOrderItem> Reagents = new(0, 1);
+    public UpdateField<long> ClaimEndTime = new(10, 11);
+    public UpdateField<long> ConsortiumCut = new(10, 13);
+    public UpdateField<ObjectGuid> CrafterGUID = new(15, 18);
+    public UpdateField<ObjectGuid> CustomerAccountGUID = new(15, 17);
+    public UpdateField<ObjectGuid> CustomerGUID = new(15, 16);
+    public UpdateFieldString CustomerNotes = new(20, 21);
+    public UpdateField<long> ExpirationTime = new(5, 9);
     public UpdateField<int> Field_0 = new(0, 2);
+    public UpdateField<uint> Flags = new(10, 14);
+    public UpdateField<byte> MinQuality = new(5, 8);
     public UpdateField<ulong> OrderID = new(0, 3);
-    public UpdateField<int> SkillLineAbilityID = new(0, 4);
     public UpdateField<byte> OrderState = new(5, 6);
     public UpdateField<byte> OrderType = new(5, 7);
-    public UpdateField<byte> MinQuality = new(5, 8);
-    public UpdateField<long> ExpirationTime = new(5, 9);
-    public UpdateField<long> ClaimEndTime = new(10, 11);
-    public UpdateField<long> TipAmount = new(10, 12);
-    public UpdateField<long> ConsortiumCut = new(10, 13);
-    public UpdateField<uint> Flags = new(10, 14);
-    public UpdateField<ObjectGuid> CustomerGUID = new(15, 16);
-    public UpdateField<ObjectGuid> CustomerAccountGUID = new(15, 17);
-    public UpdateField<ObjectGuid> CrafterGUID = new(15, 18);
-    public UpdateField<ObjectGuid> PersonalCrafterGUID = new(15, 19);
-    public UpdateFieldString CustomerNotes = new(20, 21);
     public OptionalUpdateField<CraftingOrderItem> OutputItem = new(20, 22);
     public OptionalUpdateField<ItemInstance> OutputItemData = new(20, 23);
-
+    public UpdateField<ObjectGuid> PersonalCrafterGUID = new(15, 19);
+    public DynamicUpdateField<CraftingOrderItem> Reagents = new(0, 1);
+    public UpdateField<int> SkillLineAbilityID = new(0, 4);
+    public UpdateField<long> TipAmount = new(10, 12);
     public CraftingOrderData() : base(24) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Reagents);
+        ClearChangesMask(Field_0);
+        ClearChangesMask(OrderID);
+        ClearChangesMask(SkillLineAbilityID);
+        ClearChangesMask(OrderState);
+        ClearChangesMask(OrderType);
+        ClearChangesMask(MinQuality);
+        ClearChangesMask(ExpirationTime);
+        ClearChangesMask(ClaimEndTime);
+        ClearChangesMask(TipAmount);
+        ClearChangesMask(ConsortiumCut);
+        ClearChangesMask(Flags);
+        ClearChangesMask(CustomerGUID);
+        ClearChangesMask(CustomerAccountGUID);
+        ClearChangesMask(CrafterGUID);
+        ClearChangesMask(PersonalCrafterGUID);
+        ClearChangesMask(CustomerNotes);
+        ClearChangesMask(OutputItem);
+        ClearChangesMask(OutputItemData);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, Player owner, Player receiver)
     {
@@ -50,7 +73,7 @@ public class CraftingOrderData : BaseUpdateData<Player>
         data.WritePackedGuid(CrafterGUID);
         data.WritePackedGuid(PersonalCrafterGUID);
         data.WriteInt32(Reagents.Size());
-        data.WriteBits(CustomerNotes.GetValue().GetByteCount(), 10);
+        data.WriteBits(CustomerNotes.Value.GetByteCount(), 10);
         data.WriteBits(OutputItem.HasValue(), 1);
         data.WriteBits(OutputItemData.HasValue(), 1);
 
@@ -60,10 +83,10 @@ public class CraftingOrderData : BaseUpdateData<Player>
         data.WriteString(CustomerNotes);
 
         if (OutputItem.HasValue())
-            OutputItem.GetValue().WriteCreate(data, owner, receiver);
+            OutputItem.Value.WriteCreate(data, owner, receiver);
 
         if (OutputItemData.HasValue())
-            OutputItemData.GetValue().Write(data);
+            OutputItemData.Value.Write(data);
 
         data.FlushBits();
     }
@@ -154,7 +177,7 @@ public class CraftingOrderData : BaseUpdateData<Player>
         {
             if (changesMask[21])
             {
-                data.WriteBits(CustomerNotes.GetValue().GetByteCount(), 10);
+                data.WriteBits(CustomerNotes.Value.GetByteCount(), 10);
                 data.WriteString(CustomerNotes);
             }
 
@@ -163,37 +186,13 @@ public class CraftingOrderData : BaseUpdateData<Player>
 
             if (changesMask[22])
                 if (OutputItem.HasValue())
-                    OutputItem.GetValue().WriteUpdate(data, ignoreChangesMask, owner, receiver);
+                    OutputItem.Value.WriteUpdate(data, ignoreChangesMask, owner, receiver);
 
             if (changesMask[23])
                 if (OutputItemData.HasValue())
-                    OutputItemData.GetValue().Write(data);
+                    OutputItemData.Value.Write(data);
         }
 
         data.FlushBits();
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Reagents);
-        ClearChangesMask(Field_0);
-        ClearChangesMask(OrderID);
-        ClearChangesMask(SkillLineAbilityID);
-        ClearChangesMask(OrderState);
-        ClearChangesMask(OrderType);
-        ClearChangesMask(MinQuality);
-        ClearChangesMask(ExpirationTime);
-        ClearChangesMask(ClaimEndTime);
-        ClearChangesMask(TipAmount);
-        ClearChangesMask(ConsortiumCut);
-        ClearChangesMask(Flags);
-        ClearChangesMask(CustomerGUID);
-        ClearChangesMask(CustomerAccountGUID);
-        ClearChangesMask(CrafterGUID);
-        ClearChangesMask(PersonalCrafterGUID);
-        ClearChangesMask(CustomerNotes);
-        ClearChangesMask(OutputItem);
-        ClearChangesMask(OutputItemData);
-        ChangesMask.ResetAll();
     }
 }

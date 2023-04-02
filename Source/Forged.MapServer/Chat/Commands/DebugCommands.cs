@@ -497,6 +497,25 @@ internal class DebugCommands
         return true;
     }
 
+    [Command("lootrecipient", RBACPermissions.CommandDebug)]
+    private static bool HandleDebugGetLootRecipientCommand(CommandHandler handler)
+    {
+        var target = handler.SelectedCreature;
+
+        if (!target)
+            return false;
+
+        handler.SendSysMessage($"Loot recipients for creature {target.GetName()} ({target.GUID}, SpawnID {target.SpawnId}) are:");
+
+        foreach (var tapperGuid in target.TapList)
+        {
+            var tapper = Global.ObjAccessor.GetPlayer(target, tapperGuid);
+            handler.SendSysMessage($"* {(tapper != null ? tapper.GetName() : "offline")}");
+        }
+
+        return true;
+    }
+
     [Command("guidlimits", RBACPermissions.CommandDebug, true)]
     private static bool HandleDebugGuidLimitsCommand(CommandHandler handler, uint mapId)
     {
@@ -509,6 +528,11 @@ internal class DebugCommands
         handler.SendSysMessage($"Guid Alert Level: {GetDefaultValue("Respawn.GuidAlertLevel", 16000000)}");
 
         return true;
+    }
+
+    private static void HandleDebugGuidLimitsMap(CommandHandler handler, Map map)
+    {
+        handler.SendSysMessage($"Map Id: {map.Id} Name: '{map.MapName}' Instance Id: {map.InstanceId} Highest Guid Creature: {map.GenerateLowGuid(HighGuid.Creature)} GameObject: {map.GetMaxLowGuid(HighGuid.GameObject)}");
     }
 
     [Command("instancespawn", RBACPermissions.CommandDebug)]
@@ -702,26 +726,6 @@ internal class DebugCommands
 
         return true;
     }
-
-    [Command("lootrecipient", RBACPermissions.CommandDebug)]
-    private static bool HandleDebugGetLootRecipientCommand(CommandHandler handler)
-    {
-        var target = handler.SelectedCreature;
-
-        if (!target)
-            return false;
-
-        handler.SendSysMessage($"Loot recipients for creature {target.GetName()} ({target.GUID}, SpawnID {target.SpawnId}) are:");
-
-        foreach (var tapperGuid in target.TapList)
-        {
-            var tapper = Global.ObjAccessor.GetPlayer(target, tapperGuid);
-            handler.SendSysMessage($"* {(tapper != null ? tapper.GetName() : "offline")}");
-        }
-
-        return true;
-    }
-
     [Command("los", RBACPermissions.CommandDebug)]
     private static bool HandleDebugLoSCommand(CommandHandler handler)
     {
@@ -895,41 +899,6 @@ internal class DebugCommands
         return true;
     }
 
-    [Command("pvp warmode", RBACPermissions.CommandDebug, true)]
-    private static bool HandleDebugWarModeBalanceCommand(CommandHandler handler, string command, int? rewardValue)
-    {
-        // USAGE: .debug pvp fb <alliance|horde|neutral|off> [pct]
-        // neutral     Sets faction balance off.
-        // alliance    Set faction balance to alliance.
-        // horde       Set faction balance to horde.
-        // off         Reset the faction balance and use the calculated value of it
-        switch (command)
-        {
-            case "alliance":
-                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue.GetValueOrDefault(0));
-
-                break;
-            case "horde":
-                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue.GetValueOrDefault(0));
-
-                break;
-            case "neutral":
-                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
-
-                break;
-            case "off":
-                Global.WorldMgr.DisableForcedWarModeFactionBalanceState();
-
-                break;
-            default:
-                handler.SendSysMessage(CypherStrings.BadValue);
-
-                return false;
-        }
-
-        return true;
-    }
-
     [Command("questreset", RBACPermissions.CommandDebug)]
     private static bool HandleDebugQuestResetCommand(CommandHandler handler, string arg)
     {
@@ -946,7 +915,7 @@ internal class DebugCommands
         else
             return false;
 
-        var now = GameTime.GetGameTime();
+        var now = GameTime.CurrentTime;
 
         if (daily)
         {
@@ -1056,90 +1025,12 @@ internal class DebugCommands
 
         var map = handler.Player.Location.Map;
 
-        var creature = Creature.CreateCreature(entry, map, pos, id);
+        var creature = CreatureFactory.CreateCreature(entry, map, pos, id);
 
         if (!creature)
             return false;
 
         map.AddToMap(creature);
-
-        return true;
-    }
-
-    [Command("threat", RBACPermissions.CommandDebug)]
-    private static bool HandleDebugThreatListCommand(CommandHandler handler)
-    {
-        var target = handler.SelectedUnit;
-
-        if (target == null)
-            target = handler.Player;
-
-        var mgr = target.GetThreatManager();
-
-        if (!target.IsAlive)
-        {
-            handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is not alive.");
-
-            return true;
-        }
-
-        uint count = 0;
-        var threatenedByMe = target.GetThreatManager().ThreatenedByMeList;
-
-        if (threatenedByMe.Empty())
-        {
-            handler.SendSysMessage($"{target.GetName()} ({target.GUID}) does not threaten any units.");
-        }
-        else
-        {
-            handler.SendSysMessage($"List of units threatened by {target.GetName()} ({target.GUID})");
-
-            foreach (var pair in threatenedByMe)
-            {
-                Unit unit = pair.Value.Owner;
-                handler.SendSysMessage($"   {++count}.   {unit.GetName()}   ({unit.GUID}, SpawnID {(unit.IsCreature ? unit.AsCreature.SpawnId : 0)})  - threat {pair.Value.Threat}");
-            }
-
-            handler.SendSysMessage("End of threatened-by-me list.");
-        }
-
-        if (mgr.CanHaveThreatList)
-        {
-            if (!mgr.IsThreatListEmpty(true))
-            {
-                if (target.IsEngaged)
-                    handler.SendSysMessage($"Threat list of {target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}):");
-                else
-                    handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not engaged, but still has a threat list? Well, here it is:");
-
-                count = 0;
-                var fixateVictim = mgr.GetFixateTarget();
-
-                foreach (var refe in mgr.SortedThreatList)
-                {
-                    var unit = refe.Victim;
-                    handler.SendSysMessage($"   {++count}.   {unit.GetName()}   ({unit.GUID})  - threat {refe.Threat}[{(unit == fixateVictim ? "FIXATE" : refe.TauntState)}][{refe.OnlineState}]");
-                }
-
-                handler.SendSysMessage("End of threat list.");
-            }
-            else if (!target.IsEngaged)
-            {
-                handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not currently engaged.");
-            }
-            else
-            {
-                handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) seems to be engaged, but does not have a threat list??");
-            }
-        }
-        else if (target.IsEngaged)
-        {
-            handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is currently engaged. (This unit cannot have a threat list.)");
-        }
-        else
-        {
-            handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is not currently engaged. (This unit cannot have a threat list.)");
-        }
 
         return true;
     }
@@ -1231,6 +1122,84 @@ internal class DebugCommands
         return true;
     }
 
+    [Command("threat", RBACPermissions.CommandDebug)]
+    private static bool HandleDebugThreatListCommand(CommandHandler handler)
+    {
+        var target = handler.SelectedUnit;
+
+        if (target == null)
+            target = handler.Player;
+
+        var mgr = target.GetThreatManager();
+
+        if (!target.IsAlive)
+        {
+            handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is not alive.");
+
+            return true;
+        }
+
+        uint count = 0;
+        var threatenedByMe = target.GetThreatManager().ThreatenedByMeList;
+
+        if (threatenedByMe.Empty())
+        {
+            handler.SendSysMessage($"{target.GetName()} ({target.GUID}) does not threaten any units.");
+        }
+        else
+        {
+            handler.SendSysMessage($"List of units threatened by {target.GetName()} ({target.GUID})");
+
+            foreach (var pair in threatenedByMe)
+            {
+                Unit unit = pair.Value.Owner;
+                handler.SendSysMessage($"   {++count}.   {unit.GetName()}   ({unit.GUID}, SpawnID {(unit.IsCreature ? unit.AsCreature.SpawnId : 0)})  - threat {pair.Value.Threat}");
+            }
+
+            handler.SendSysMessage("End of threatened-by-me list.");
+        }
+
+        if (mgr.CanHaveThreatList)
+        {
+            if (!mgr.IsThreatListEmpty(true))
+            {
+                if (target.IsEngaged)
+                    handler.SendSysMessage($"Threat list of {target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}):");
+                else
+                    handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not engaged, but still has a threat list? Well, here it is:");
+
+                count = 0;
+                var fixateVictim = mgr.GetFixateTarget();
+
+                foreach (var refe in mgr.SortedThreatList)
+                {
+                    var unit = refe.Victim;
+                    handler.SendSysMessage($"   {++count}.   {unit.GetName()}   ({unit.GUID})  - threat {refe.Threat}[{(unit == fixateVictim ? "FIXATE" : refe.TauntState)}][{refe.OnlineState}]");
+                }
+
+                handler.SendSysMessage("End of threat list.");
+            }
+            else if (!target.IsEngaged)
+            {
+                handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not currently engaged.");
+            }
+            else
+            {
+                handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) seems to be engaged, but does not have a threat list??");
+            }
+        }
+        else if (target.IsEngaged)
+        {
+            handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is currently engaged. (This unit cannot have a threat list.)");
+        }
+        else
+        {
+            handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is not currently engaged. (This unit cannot have a threat list.)");
+        }
+
+        return true;
+    }
+
     [Command("transport", RBACPermissions.CommandDebug)]
     private static bool HandleDebugTransportCommand(CommandHandler handler, string operation)
     {
@@ -1264,6 +1233,14 @@ internal class DebugCommands
         return true;
     }
 
+    [Command("worldstate", RBACPermissions.CommandDebug)]
+    private static bool HandleDebugUpdateWorldStateCommand(CommandHandler handler, uint variable, uint value)
+    {
+        handler.Player.SendUpdateWorldState(variable, value);
+
+        return true;
+    }
+
     [Command("warden force", RBACPermissions.CommandDebug, true)]
     private static bool HandleDebugWardenForce(CommandHandler handler, ushort[] checkIds)
     {
@@ -1282,26 +1259,40 @@ internal class DebugCommands
         return true;
     }
 
-    [Command("worldstate", RBACPermissions.CommandDebug)]
-    private static bool HandleDebugUpdateWorldStateCommand(CommandHandler handler, uint variable, uint value)
+    [Command("pvp warmode", RBACPermissions.CommandDebug, true)]
+    private static bool HandleDebugWarModeBalanceCommand(CommandHandler handler, string command, int? rewardValue)
     {
-        handler.Player.SendUpdateWorldState(variable, value);
+        // USAGE: .debug pvp fb <alliance|horde|neutral|off> [pct]
+        // neutral     Sets faction balance off.
+        // alliance    Set faction balance to alliance.
+        // horde       Set faction balance to horde.
+        // off         Reset the faction balance and use the calculated value of it
+        switch (command)
+        {
+            case "alliance":
+                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue.GetValueOrDefault(0));
+
+                break;
+            case "horde":
+                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue.GetValueOrDefault(0));
+
+                break;
+            case "neutral":
+                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
+
+                break;
+            case "off":
+                Global.WorldMgr.DisableForcedWarModeFactionBalanceState();
+
+                break;
+            default:
+                handler.SendSysMessage(CypherStrings.BadValue);
+
+                return false;
+        }
 
         return true;
     }
-
-    [CommandNonGroup("wpgps", RBACPermissions.CommandDebug)]
-    private static bool HandleWPGPSCommand(CommandHandler handler)
-    {
-        var player = handler.Player;
-
-        Log.Logger.Information($"(@PATH, XX, {player.Location.X:3F}, {player.Location.Y:3F}, {player.Location.Z:5F}, {player.Location.Orientation:5F}, 0, 0, 0, 100, 0)");
-
-        handler.SendSysMessage("Waypoint SQL written to SQL Developer log");
-
-        return true;
-    }
-
     [Command("wsexpression", RBACPermissions.CommandDebug)]
     private static bool HandleDebugWSExpressionCommand(CommandHandler handler, uint expressionId)
     {
@@ -1327,11 +1318,17 @@ internal class DebugCommands
         return true;
     }
 
-    private static void HandleDebugGuidLimitsMap(CommandHandler handler, Map map)
+    [CommandNonGroup("wpgps", RBACPermissions.CommandDebug)]
+    private static bool HandleWPGPSCommand(CommandHandler handler)
     {
-        handler.SendSysMessage($"Map Id: {map.Id} Name: '{map.MapName}' Instance Id: {map.InstanceId} Highest Guid Creature: {map.GenerateLowGuid(HighGuid.Creature)} GameObject: {map.GetMaxLowGuid(HighGuid.GameObject)}");
-    }
+        var player = handler.Player;
 
+        Log.Logger.Information($"(@PATH, XX, {player.Location.X:3F}, {player.Location.Y:3F}, {player.Location.Z:5F}, {player.Location.Orientation:5F}, 0, 0, 0, 100, 0)");
+
+        handler.SendSysMessage("Waypoint SQL written to SQL Developer log");
+
+        return true;
+    }
     [CommandGroup("asan")]
     private class DebugAsanCommands
     {
@@ -1563,14 +1560,6 @@ internal class DebugCommands
             return true;
         }
 
-        [Command("qpartymsg", RBACPermissions.CommandDebug)]
-        private static bool HandleDebugSendQuestPartyMsgCommand(CommandHandler handler, QuestPushReason msg)
-        {
-            handler.Player.SendPushToPartyResponse(handler.Player, msg);
-
-            return true;
-        }
-
         [Command("qinvalidmsg", RBACPermissions.CommandDebug)]
         private static bool HandleDebugSendQuestInvalidMsgCommand(CommandHandler handler, QuestFailedReasons msg)
         {
@@ -1579,6 +1568,13 @@ internal class DebugCommands
             return true;
         }
 
+        [Command("qpartymsg", RBACPermissions.CommandDebug)]
+        private static bool HandleDebugSendQuestPartyMsgCommand(CommandHandler handler, QuestPushReason msg)
+        {
+            handler.Player.SendPushToPartyResponse(handler.Player, msg);
+
+            return true;
+        }
         [Command("sellerror", RBACPermissions.CommandDebug)]
         private static bool HandleDebugSendSellErrorCommand(CommandHandler handler, SellResult error)
         {

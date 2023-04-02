@@ -18,10 +18,10 @@ namespace Forged.MapServer.Tools;
 
 internal class CharacterDatabaseCleaner
 {
-    private readonly IConfiguration _configuration;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly CriteriaManager _criteriaManager;
     private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly CriteriaManager _criteriaManager;
     private readonly SpellManager _spellManager;
     private readonly WorldManager _worldManager;
 
@@ -34,6 +34,8 @@ internal class CharacterDatabaseCleaner
         _spellManager = spellManager;
         _worldManager = worldManager;
     }
+
+    private delegate bool CheckFor(uint id);
 
     public void CleanDatabase()
     {
@@ -71,6 +73,11 @@ internal class CharacterDatabaseCleaner
         _worldManager.CleaningFlags = flags;
 
         Log.Logger.Information("Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    private bool AchievementProgressCheck(uint criteria)
+    {
+        return _criteriaManager.GetCriteria(criteria) != null;
     }
 
     private void CheckUnique(string column, string table, CheckFor check)
@@ -113,20 +120,14 @@ internal class CharacterDatabaseCleaner
             _characterDatabase.Execute(ss.ToString());
         }
     }
-
-    private bool AchievementProgressCheck(uint criteria)
-    {
-        return _criteriaManager.GetCriteria(criteria) != null;
-    }
-
     private void CleanCharacterAchievementProgress()
     {
         CheckUnique("criteria", "character_achievement_progress", AchievementProgressCheck);
     }
 
-    private bool SkillCheck(uint skill)
+    private void CleanCharacterQuestStatus()
     {
-        return _cliDB.SkillLineStorage.ContainsKey(skill);
+        _characterDatabase.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
     }
 
     private void CleanCharacterSkills()
@@ -134,18 +135,27 @@ internal class CharacterDatabaseCleaner
         CheckUnique("skill", "character_skills", SkillCheck);
     }
 
+    private void CleanCharacterSpell()
+    {
+        CheckUnique("spell", "character_spell", SpellCheck);
+    }
+
+    private void CleanCharacterTalent()
+    {
+        _characterDatabase.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
+        CheckUnique("talentId", "character_talent", TalentCheck);
+    }
+
+    private bool SkillCheck(uint skill)
+    {
+        return _cliDB.SkillLineStorage.ContainsKey(skill);
+    }
     private bool SpellCheck(uint spellID)
     {
         var spellInfo = _spellManager.GetSpellInfo(spellID);
 
         return spellInfo != null && !spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
     }
-
-    private void CleanCharacterSpell()
-    {
-        CheckUnique("spell", "character_spell", SpellCheck);
-    }
-
     private bool TalentCheck(uint talentID)
     {
         var talentInfo = _cliDB.TalentStorage.LookupByKey(talentID);
@@ -155,19 +165,6 @@ internal class CharacterDatabaseCleaner
 
         return _cliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
     }
-
-    private void CleanCharacterTalent()
-    {
-        _characterDatabase.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
-        CheckUnique("talentId", "character_talent", TalentCheck);
-    }
-
-    private void CleanCharacterQuestStatus()
-    {
-        _characterDatabase.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
-    }
-
-    private delegate bool CheckFor(uint id);
 }
 
 [Flags]

@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Query;
 
 public class QueryPageTextResponse : ServerPacket
 {
-    public uint PageTextID;
     public bool Allow;
     public List<PageTextInfo> Pages = new();
+    public uint PageTextID;
     public QueryPageTextResponse() : base(ServerOpcodes.QueryPageTextResponse) { }
 
     public override void Write()
@@ -31,6 +31,16 @@ public class QueryPageTextResponse : ServerPacket
 
     public struct PageTextInfo
     {
+        public byte Flags;
+
+        public uint Id;
+
+        public uint NextPageID;
+
+        public int PlayerConditionID;
+
+        public string Text;
+
         public void Write(WorldPacket data)
         {
             data.WriteUInt32(Id);
@@ -42,11 +52,5 @@ public class QueryPageTextResponse : ServerPacket
 
             data.WriteString(Text);
         }
-
-        public uint Id;
-        public uint NextPageID;
-        public int PlayerConditionID;
-        public byte Flags;
-        public string Text;
     }
 }

@@ -9,8 +9,8 @@ namespace Forged.MapServer.Maps.Checks;
 
 internal class AnyAssistCreatureInRangeCheck : ICheck<Creature>
 {
-    private readonly Unit _funit;
     private readonly Unit _enemy;
+    private readonly Unit _funit;
     private readonly float _range;
 
     public AnyAssistCreatureInRangeCheck(Unit funit, Unit enemy, float range)

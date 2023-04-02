@@ -10,11 +10,10 @@ public class AuctionReplicateResponse : ServerPacket
 {
     public uint ChangeNumberCursor;
     public uint ChangeNumberGlobal;
-    public uint DesiredDelay;
     public uint ChangeNumberTombstone;
-    public uint Result;
+    public uint DesiredDelay;
     public List<AuctionItem> Items = new();
-
+    public uint Result;
     public AuctionReplicateResponse() : base(ServerOpcodes.AuctionReplicateResponse) { }
 
     public override void Write()

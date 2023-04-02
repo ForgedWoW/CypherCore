@@ -5,10 +5,10 @@ namespace Forged.MapServer.Globals;
 
 public class ProductAddon
 {
-    public uint DisplayInfoEntry { get; set; }
-    public byte DisableListing { get; set; }
+    public string Comment { get; set; } = "";
     public byte DisableBuy { get; set; }
+    public byte DisableListing { get; set; }
+    public uint DisplayInfoEntry { get; set; }
     public byte NameColorIndex { get; set; }
     public string ScriptName { get; set; } = "";
-    public string Comment { get; set; } = "";
 }

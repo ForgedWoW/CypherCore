@@ -10,13 +10,23 @@ namespace Forged.MapServer.Entities.Objects.Update;
 public class DynamicObjectData : BaseUpdateData<DynamicObject>
 {
     public UpdateField<ObjectGuid> Caster = new(0, 1);
-    public UpdateField<byte> Type = new(0, 2);
-    public UpdateField<SpellCastVisualField> SpellVisual = new(0, 3);
-    public UpdateField<uint> SpellID = new(0, 4);
-    public UpdateField<float> Radius = new(0, 5);
     public UpdateField<uint> CastTime = new(0, 6);
-
+    public UpdateField<float> Radius = new(0, 5);
+    public UpdateField<uint> SpellID = new(0, 4);
+    public UpdateField<SpellCastVisualField> SpellVisual = new(0, 3);
+    public UpdateField<byte> Type = new(0, 2);
     public DynamicObjectData() : base(0, TypeId.DynamicObject, 7) { }
+
+    public override void ClearChangesMask()
+    {
+        ClearChangesMask(Caster);
+        ClearChangesMask(Type);
+        ClearChangesMask(SpellVisual);
+        ClearChangesMask(SpellID);
+        ClearChangesMask(Radius);
+        ClearChangesMask(CastTime);
+        ChangesMask.ResetAll();
+    }
 
     public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, DynamicObject owner, Player receiver)
     {
@@ -59,16 +69,5 @@ public class DynamicObjectData : BaseUpdateData<DynamicObject>
             if (ChangesMask[6])
                 data.WriteUInt32(CastTime);
         }
-    }
-
-    public override void ClearChangesMask()
-    {
-        ClearChangesMask(Caster);
-        ClearChangesMask(Type);
-        ClearChangesMask(SpellVisual);
-        ClearChangesMask(SpellID);
-        ClearChangesMask(Radius);
-        ClearChangesMask(CastTime);
-        ChangesMask.ResetAll();
     }
 }

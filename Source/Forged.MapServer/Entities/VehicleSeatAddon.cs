@@ -7,13 +7,12 @@ namespace Forged.MapServer.Entities;
 
 public class VehicleSeatAddon
 {
-    public float SeatOrientationOffset;
+    public VehicleExitParameters ExitParameter;
+    public float ExitParameterO;
     public float ExitParameterX;
     public float ExitParameterY;
     public float ExitParameterZ;
-    public float ExitParameterO;
-    public VehicleExitParameters ExitParameter;
-
+    public float SeatOrientationOffset;
     public VehicleSeatAddon(float orientatonOffset, float exitX, float exitY, float exitZ, float exitO, byte param)
     {
         SeatOrientationOffset = orientatonOffset;

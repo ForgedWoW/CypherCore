@@ -8,10 +8,10 @@ namespace Forged.MapServer.DataStorage.Structs.C;
 
 public sealed class ChatChannelsRecord
 {
+    public sbyte FactionGroup;
+    public ChannelDBCFlags Flags;
     public uint Id;
     public LocalizedString Name;
-    public string Shortcut;
-    public ChannelDBCFlags Flags;
-    public sbyte FactionGroup;
     public int Ruleset;
+    public string Shortcut;
 }

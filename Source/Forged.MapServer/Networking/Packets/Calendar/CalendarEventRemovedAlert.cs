@@ -7,9 +7,9 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarEventRemovedAlert : ServerPacket
 {
-    public ulong EventID;
-    public long Date;
     public bool ClearPending;
+    public long Date;
+    public ulong EventID;
     public CalendarEventRemovedAlert() : base(ServerOpcodes.CalendarEventRemovedAlert) { }
 
     public override void Write()

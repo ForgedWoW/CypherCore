@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.ClientConfig;
 
 public class AccountDataTimes : ServerPacket
 {
+    public long[] AccountTimes = new long[(int)AccountDataTypes.Max];
     public ObjectGuid PlayerGuid;
     public long ServerTime;
-    public long[] AccountTimes = new long[(int)AccountDataTypes.Max];
     public AccountDataTimes() : base(ServerOpcodes.AccountDataTimes) { }
 
     public override void Write()

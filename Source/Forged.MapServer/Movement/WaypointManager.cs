@@ -10,12 +10,16 @@ namespace Forged.MapServer.Movement;
 
 public sealed class WaypointManager
 {
-    private readonly WorldDatabase _worldDatabase;
     private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
-
+    private readonly WorldDatabase _worldDatabase;
     public WaypointManager(WorldDatabase worldDatabase)
     {
         _worldDatabase = worldDatabase;
+    }
+
+    public WaypointPath GetPath(uint id)
+    {
+        return _waypointStore.LookupByKey(id);
     }
 
     public void Load()
@@ -135,23 +139,17 @@ public sealed class WaypointManager
 
         _waypointStore[id] = new WaypointPath(id, values);
     }
-
-    public WaypointPath GetPath(uint id)
-    {
-        return _waypointStore.LookupByKey(id);
-    }
 }
 
 public class WaypointNode
 {
-    public uint ID;
-    public float X, Y, Z;
-    public float? Orientation;
     public uint Delay;
-    public uint EventId;
-    public WaypointMoveType MoveType;
     public byte EventChance;
-
+    public uint EventId;
+    public uint ID;
+    public WaypointMoveType MoveType;
+    public float? Orientation;
+    public float X, Y, Z;
     public WaypointNode()
     {
         MoveType = WaypointMoveType.Run;
@@ -173,8 +171,8 @@ public class WaypointNode
 
 public class WaypointPath
 {
-    public List<WaypointNode> Nodes = new();
     public uint ID;
+    public List<WaypointNode> Nodes = new();
     public WaypointPath() { }
 
     public WaypointPath(uint id, List<WaypointNode> nodes)

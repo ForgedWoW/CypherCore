@@ -9,9 +9,10 @@ namespace Forged.MapServer.Networking.Packets.Equipment;
 
 internal class UseEquipmentSet : ClientPacket
 {
+    public ulong GUID;
     public InvUpdate Inv;
     public EquipmentSetItem[] Items = new EquipmentSetItem[EquipmentSlot.End];
-    public ulong GUID; //Set Identifier
+     //Set Identifier
     public UseEquipmentSet(WorldPacket packet) : base(packet) { }
 
     public override void Read()
@@ -30,8 +31,8 @@ internal class UseEquipmentSet : ClientPacket
 
     public struct EquipmentSetItem
     {
-        public ObjectGuid Item;
         public byte ContainerSlot;
+        public ObjectGuid Item;
         public byte Slot;
     }
 }

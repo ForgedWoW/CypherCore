@@ -5,14 +5,16 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public struct GuildRosterProfessionData
 {
+    public int DbID;
+
+    public int Rank;
+
+    public int Step;
+
     public void Write(WorldPacket data)
     {
         data.WriteInt32(DbID);
         data.WriteInt32(Rank);
         data.WriteInt32(Step);
     }
-
-    public int DbID;
-    public int Rank;
-    public int Step;
 }

@@ -9,13 +9,11 @@ namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class SyncWowEntitlements : ServerPacket
 {
-    public List<uint> PurchaseCount { get; set; } = new();
-    public List<uint> ProductCount { get; set; } = new();
-    public List<BpayProduct> Product { get; set; } = new();
-
     public SyncWowEntitlements() : base(ServerOpcodes.SyncWowEntitlements) { }
 
-
+    public List<BpayProduct> Product { get; set; } = new();
+    public List<uint> ProductCount { get; set; } = new();
+    public List<uint> PurchaseCount { get; set; } = new();
     /*void WorldPackets::BattlePay::PurchaseProduct::Read()
     {
         _worldPacket >> ClientToken;

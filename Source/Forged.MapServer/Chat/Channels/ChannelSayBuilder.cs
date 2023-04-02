@@ -11,12 +11,11 @@ namespace Forged.MapServer.Chat.Channels;
 
 internal class ChannelSayBuilder : MessageBuilder
 {
-    private readonly Channel _source;
-    private readonly Language _lang;
-    private readonly string _what;
-    private readonly ObjectGuid _guid;
     private readonly ObjectGuid _channelGuid;
-
+    private readonly ObjectGuid _guid;
+    private readonly Language _lang;
+    private readonly Channel _source;
+    private readonly string _what;
     public ChannelSayBuilder(Channel source, Language lang, string what, ObjectGuid guid, ObjectGuid channelGuid)
     {
         _source = source;

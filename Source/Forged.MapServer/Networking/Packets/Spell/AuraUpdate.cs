@@ -9,9 +9,9 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class AuraUpdate : ServerPacket
 {
-    public bool UpdateAll;
-    public ObjectGuid UnitGUID;
     public List<AuraInfo> Auras = new();
+    public ObjectGuid UnitGUID;
+    public bool UpdateAll;
     public AuraUpdate() : base(ServerOpcodes.AuraUpdate, ConnectionType.Instance) { }
 
     public override void Write()

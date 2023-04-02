@@ -5,10 +5,10 @@ namespace Forged.MapServer.DataStorage.Structs.E;
 
 public sealed class EmotesTextSoundRecord
 {
+    public byte ClassId;
+    public uint EmotesTextId;
     public uint Id;
     public byte RaceId;
-    public byte ClassId;
     public byte SexId;
     public uint SoundId;
-    public uint EmotesTextId;
 }

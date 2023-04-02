@@ -7,10 +7,10 @@ namespace Forged.MapServer.Networking.Packets.Calendar;
 
 internal class CalendarRemoveInvite : ClientPacket
 {
-    public ObjectGuid Guid;
     public ulong EventID;
-    public ulong ModeratorID;
+    public ObjectGuid Guid;
     public ulong InviteID;
+    public ulong ModeratorID;
     public CalendarRemoveInvite(WorldPacket packet) : base(packet) { }
 
     public override void Read()

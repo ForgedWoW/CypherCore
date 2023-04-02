@@ -7,9 +7,11 @@ namespace Forged.MapServer.Networking.Packets.Guild;
 
 public class GuildSetMemberNote : ClientPacket
 {
-    public ObjectGuid NoteeGUID;
-    public bool IsPublic; // 0 == Officer, 1 == Public
+    public bool IsPublic;
+    // 0 == Officer, 1 == Public
     public string Note;
+
+    public ObjectGuid NoteeGUID;
     public GuildSetMemberNote(WorldPacket packet) : base(packet) { }
 
     public override void Read()

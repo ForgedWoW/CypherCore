@@ -14,21 +14,28 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class EnumCharactersResult : ServerPacket
 {
-    public bool Success;
-    public bool IsDeletedCharacters;           // used for character undelete list
-    public bool IsNewPlayerRestrictionSkipped; // allows client to skip new player restrictions
-    public bool IsNewPlayerRestricted;         // forbids using level boost and class trials
-    public bool IsNewPlayer;                   // forbids hero classes and allied races
-    public bool IsTrialAccountRestricted;
+    public List<CharacterInfo> Characters = new();
+    public uint? DisabledClassesMask = new();
     public bool IsAlliedRacesCreationAllowed;
+    public bool IsDeletedCharacters;
+    public bool IsNewPlayer;
+    public bool IsNewPlayerRestricted;
+    // used for character undelete list
+    public bool IsNewPlayerRestrictionSkipped;
+
+    // allows client to skip new player restrictions
+    // forbids using level boost and class trials
+    // forbids hero classes and allied races
+    public bool IsTrialAccountRestricted;
 
     public int MaxCharacterLevel = 1;
-    public uint? DisabledClassesMask = new();
-
-    public List<CharacterInfo> Characters = new();  // all characters on the list
-    public List<RaceUnlock> RaceUnlockData = new(); //
-    public List<UnlockedConditionalAppearance> UnlockedConditionalAppearances = new();
     public List<RaceLimitDisableInfo> RaceLimitDisables = new();
+    // all characters on the list
+    public List<RaceUnlock> RaceUnlockData = new();
+
+    public bool Success;
+    //
+    public List<UnlockedConditionalAppearance> UnlockedConditionalAppearances = new();
     public EnumCharactersResult() : base(ServerOpcodes.EnumCharactersResult) { }
 
     public override void Write()
@@ -63,41 +70,107 @@ public class EnumCharactersResult : ServerPacket
             raceUnlock.Write(_worldPacket);
     }
 
+    public struct RaceLimitDisableInfo
+    {
+        public int BlockReason;
+
+        public int RaceID;
+
+        private enum blah
+        {
+            Server,
+            Level
+        }
+        public void Write(WorldPacket data)
+        {
+            data.WriteInt32(RaceID);
+            data.WriteInt32(BlockReason);
+        }
+    }
+
+    public struct RaceUnlock
+    {
+        public bool HasAchievement;
+
+        public bool HasExpansion;
+
+        public bool HasHeritageArmor;
+
+        public int RaceID;
+
+        public void Write(WorldPacket data)
+        {
+            data.WriteInt32(RaceID);
+            data.WriteBit(HasExpansion);
+            data.WriteBit(HasAchievement);
+            data.WriteBit(HasHeritageArmor);
+            data.FlushBits();
+        }
+    }
+
+    public struct UnlockedConditionalAppearance
+    {
+        public int AchievementID;
+
+        public int Unused;
+
+        public void Write(WorldPacket data)
+        {
+            data.WriteInt32(AchievementID);
+            data.WriteInt32(Unused);
+        }
+    }
+
     public class CharacterInfo
     {
-        public ObjectGuid Guid;
-        public ulong GuildClubMemberID; // same as bgs.protocol.club.v1.MemberId.unique_id, guessed basing on SMSG_QUERY_PLAYER_NAME_RESPONSE (that one is known)
-        public string Name;
-        public byte ListPosition; // Order of the characters in list
-        public byte RaceId;
+        public bool BoostInProgress;
         public PlayerClass ClassId;
-        public byte SexId;
         public Array<ChrCustomizationChoice> Customizations = new(72);
         public byte ExperienceLevel;
-        public uint ZoneId;
-        public uint MapId;
-        public Vector3 PreloadPos;
-        public ObjectGuid GuildGuid;
-        public CharacterFlags Flags;           // Character flag @see enum CharacterFlags
-        public CharacterCustomizeFlags Flags2; // Character customization flags @see enum CharacterCustomizeFlags
-        public uint Flags3;                    // Character flags 3 @todo research
-        public uint Flags4;
         public bool FirstLogin;
-        public byte unkWod61x;
-        public long LastPlayedTime;
-        public short SpecID;
-        public int Unknown703;
+        public CharacterFlags Flags;
+        // Character flag @see enum CharacterFlags
+        public CharacterCustomizeFlags Flags2;
+
+        // Character customization flags @see enum CharacterCustomizeFlags
+        public uint Flags3;
+
+        // Character flags 3 @todo research
+        public uint Flags4;
+
+        public ObjectGuid Guid;
+        public ulong GuildClubMemberID; // same as bgs.protocol.club.v1.MemberId.unique_id, guessed basing on SMSG_QUERY_PLAYER_NAME_RESPONSE (that one is known)
+        public ObjectGuid GuildGuid;
         public int LastLoginVersion;
-        public uint OverrideSelectScreenFileDataID;
-        public uint PetCreatureDisplayId;
-        public uint PetExperienceLevel;
-        public uint PetCreatureFamilyId;
-        public bool BoostInProgress;               // @todo
-        public uint[] ProfessionIds = new uint[2]; // @todo
-        public VisualItemInfo[] VisualItems = new VisualItemInfo[InventorySlots.ReagentBagEnd];
+        public long LastPlayedTime;
+        public byte ListPosition;
         public List<string> MailSenders = new();
         public List<uint> MailSenderTypes = new();
+        public uint MapId;
+        public string Name;
+        public uint OverrideSelectScreenFileDataID;
 
+        public uint PetCreatureDisplayId;
+
+        public uint PetCreatureFamilyId;
+
+        public uint PetExperienceLevel;
+
+        public Vector3 PreloadPos;
+
+        // @todo
+        public uint[] ProfessionIds = new uint[2];
+
+        // Order of the characters in list
+        public byte RaceId;
+        public byte SexId;
+        public short SpecID;
+        public int Unknown703;
+        public byte unkWod61x;
+        // @todo
+        public VisualItemInfo[] VisualItems = new VisualItemInfo[InventorySlots.ReagentBagEnd];
+
+        public uint ZoneId;
         public CharacterInfo(SQLFields fields)
         {
             Guid = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(0));
@@ -245,8 +318,27 @@ public class EnumCharactersResult : ServerPacket
             data.WriteString(Name);
         }
 
+        public struct PetInfo
+        {
+            public uint CreatureDisplayId; // PetCreatureDisplayID
+            public uint CreatureFamily;
+            public uint Level;             // PetExperienceLevel
+                                           // PetCreatureFamilyID
+        }
+
         public struct VisualItemInfo
         {
+            public uint DisplayEnchantId;
+
+            public uint DisplayId;
+
+            public byte InvType;
+
+            public uint SecondaryItemModifiedAppearanceID;
+
+            // also -1 is some special value
+            public byte Subclass;
+
             public void Write(WorldPacket data)
             {
                 data.WriteUInt32(DisplayId);
@@ -255,66 +347,6 @@ public class EnumCharactersResult : ServerPacket
                 data.WriteUInt8(InvType);
                 data.WriteUInt8(Subclass);
             }
-
-            public uint DisplayId;
-            public uint DisplayEnchantId;
-            public uint SecondaryItemModifiedAppearanceID; // also -1 is some special value
-            public byte InvType;
-            public byte Subclass;
-        }
-
-        public struct PetInfo
-        {
-            public uint CreatureDisplayId; // PetCreatureDisplayID
-            public uint Level;             // PetExperienceLevel
-            public uint CreatureFamily;    // PetCreatureFamilyID
-        }
-    }
-
-    public struct RaceUnlock
-    {
-        public void Write(WorldPacket data)
-        {
-            data.WriteInt32(RaceID);
-            data.WriteBit(HasExpansion);
-            data.WriteBit(HasAchievement);
-            data.WriteBit(HasHeritageArmor);
-            data.FlushBits();
-        }
-
-        public int RaceID;
-        public bool HasExpansion;
-        public bool HasAchievement;
-        public bool HasHeritageArmor;
-    }
-
-    public struct UnlockedConditionalAppearance
-    {
-        public void Write(WorldPacket data)
-        {
-            data.WriteInt32(AchievementID);
-            data.WriteInt32(Unused);
-        }
-
-        public int AchievementID;
-        public int Unused;
-    }
-
-    public struct RaceLimitDisableInfo
-    {
-        private enum blah
-        {
-            Server,
-            Level
-        }
-
-        public int RaceID;
-        public int BlockReason;
-
-        public void Write(WorldPacket data)
-        {
-            data.WriteInt32(RaceID);
-            data.WriteInt32(BlockReason);
         }
     }
 }

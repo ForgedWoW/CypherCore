@@ -9,9 +9,8 @@ namespace Forged.MapServer.Warden;
 internal class WardenModuleTransfer
 {
     public WardenOpcodes Command;
-    public ushort DataSize;
     public byte[] Data = new byte[500];
-
+    public ushort DataSize;
     public static implicit operator byte[](WardenModuleTransfer transfer)
     {
         var buffer = new ByteBuffer();

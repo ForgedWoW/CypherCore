@@ -9,8 +9,8 @@ public class GuildBankUpdateTab : ClientPacket
 {
     public ObjectGuid Banker;
     public byte BankTab;
-    public string Name;
     public string Icon;
+    public string Name;
     public GuildBankUpdateTab(WorldPacket packet) : base(packet) { }
 
     public override void Read()

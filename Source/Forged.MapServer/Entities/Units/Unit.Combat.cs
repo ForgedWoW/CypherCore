@@ -19,41 +19,56 @@ namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
-    // This value can be different from IsInCombat, for example:
-    // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
-    // - when the creature has no targets left, but the AI has not yet ceased engaged logic
-    public virtual bool IsEngaged => IsInCombat;
-
-    public override float CombatReach => (float)UnitData.CombatReach;
-
-    public bool IsInCombat => HasUnitFlag(UnitFlags.InCombat);
-
-    public bool IsPetInCombat => HasUnitFlag(UnitFlags.PetInCombat);
-
-    public bool CanHaveThreatList => _threatManager.CanHaveThreatList;
-
-    public ObjectGuid Target => UnitData.Target;
-
-    public Unit Victim => Attacking;
-
-    public List<Unit> Attackers => AttackerList;
-
-    public float BoundingRadius
+    public void AddExtraAttacks(uint count)
     {
-        get => UnitData.BoundingRadius;
-        set => SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.BoundingRadius), value);
+        var targetGUID = LastDamagedTargetGuid;
+
+        if (!targetGUID.IsEmpty)
+        {
+            var selection = Target;
+
+            if (!selection.IsEmpty)
+                targetGUID = selection; // Spell was cast directly (not triggered by aura)
+            else
+                return;
+        }
+
+        if (!_extraAttacksTargets.ContainsKey(targetGUID))
+            _extraAttacksTargets[targetGUID] = 0;
+
+        _extraAttacksTargets[targetGUID] += count;
     }
 
-    /// <summary>
-    ///     returns if the unit can't enter combat
-    /// </summary>
-    public bool IsCombatDisallowed { get; private set; }
+    public void ApplyAttackTimePercentMod(WeaponAttackType att, double val, bool apply)
+    {
+        var remainingTimePct = AttackTimer[(int)att] / (_baseAttackSpeed[(int)att] * ModAttackSpeedPct[(int)att]);
 
-    public ObjectGuid LastDamagedTargetGuid { get; set; }
+        if (val > 0.0f)
+        {
+            MathFunctions.ApplyPercentModFloatVar(ref ModAttackSpeedPct[(int)att], val, !apply);
 
-    public bool IsThreatened => !_threatManager.IsThreatListEmpty();
+            if (att == WeaponAttackType.BaseAttack)
+                ApplyPercentModUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ModHaste), (float)val, !apply);
+            else if (att == WeaponAttackType.RangedAttack)
+                ApplyPercentModUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ModRangedHaste), (float)val, !apply);
+        }
+        else
+        {
+            MathFunctions.ApplyPercentModFloatVar(ref ModAttackSpeedPct[(int)att], -val, apply);
 
-    public UnitCombatHelpers UnitCombatHelpers { get; }
+            if (att == WeaponAttackType.BaseAttack)
+                ApplyPercentModUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ModHaste), -(float)val, apply);
+            else if (att == WeaponAttackType.RangedAttack)
+                ApplyPercentModUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ModRangedHaste), -(float)val, apply);
+        }
+
+        UpdateAttackTimeField(att);
+        AttackTimer[(int)att] = (uint)(_baseAttackSpeed[(int)att] * ModAttackSpeedPct[(int)att] * remainingTimePct);
+    }
+
+    public virtual void AtDisengage() { }
+
+    public virtual void AtEngage(Unit target) { }
 
     public virtual void AtEnterCombat()
     {
@@ -77,279 +92,6 @@ public partial class Unit
 
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LeavingCombat);
     }
-
-    public virtual void AtEngage(Unit target) { }
-
-    public virtual void AtDisengage() { }
-
-    public void CombatStop(bool includingCast = false, bool mutualPvP = true)
-    {
-        if (includingCast && IsNonMeleeSpellCast(false))
-            InterruptNonMeleeSpells(false);
-
-        AttackStop();
-        RemoveAllAttackers();
-
-        if (IsTypeId(TypeId.Player))
-            AsPlayer.SendAttackSwingCancelAttack(); // melee and ranged forced attack cancel
-
-        if (mutualPvP)
-        {
-            ClearInCombat();
-        }
-        else
-        {
-            // vanish and brethren are weird
-            _combatManager.EndAllPvECombat();
-            _combatManager.SuppressPvPCombat();
-        }
-    }
-
-    public void CombatStopWithPets(bool includingCast = false)
-    {
-        CombatStop(includingCast);
-
-        foreach (var minion in Controlled)
-            minion.CombatStop(includingCast);
-    }
-
-    public bool IsInCombatWith(Unit who)
-    {
-        return who != null && _combatManager.IsInCombatWith(who);
-    }
-
-    public void SetInCombatWith(Unit enemy, bool addSecondUnitSuppressed = false)
-    {
-        if (enemy != null)
-            _combatManager.SetInCombatWith(enemy, addSecondUnitSuppressed);
-    }
-
-    public void SetInCombatWithZone()
-    {
-        if (!CanHaveThreatList)
-            return;
-
-        var map = Location.Map;
-
-        if (!map.IsDungeon)
-        {
-            Log.Logger.Error($"Creature entry {Entry} call SetInCombatWithZone for map (id: {map.Entry}) that isn't an instance.");
-
-            return;
-        }
-
-        var players = map.Players;
-
-        foreach (var player in players)
-        {
-            if (player.IsGameMaster)
-                continue;
-
-            if (player.IsAlive)
-            {
-                SetInCombatWith(player);
-                player.SetInCombatWith(this);
-                GetThreatManager().AddThreat(player, 0);
-            }
-        }
-    }
-
-    public void EngageWithTarget(Unit enemy)
-    {
-        if (enemy == null)
-            return;
-
-        if (CanHaveThreatList)
-            _threatManager.AddThreat(enemy, 0.0f, null, true, true);
-        else
-            SetInCombatWith(enemy);
-    }
-
-    public void ClearInCombat()
-    {
-        _combatManager.EndAllCombat();
-    }
-
-    public void ClearInPetCombat()
-    {
-        RemoveUnitFlag(UnitFlags.PetInCombat);
-        var owner = OwnerUnit;
-
-        owner?.RemoveUnitFlag(UnitFlags.PetInCombat);
-    }
-
-    public void RemoveAllAttackers()
-    {
-        while (!AttackerList.Empty())
-        {
-            var iter = AttackerList.First();
-
-            if (!iter.AttackStop())
-            {
-                Log.Logger.Error("WORLD: Unit has an attacker that isn't attacking it!");
-                AttackerList.Remove(iter);
-            }
-        }
-    }
-
-    public virtual void OnCombatExit()
-    {
-        foreach (var aurApp in AppliedAuras)
-            aurApp.Base.CallScriptEnterLeaveCombatHandlers(aurApp, false);
-    }
-
-    public bool IsEngagedBy(Unit who)
-    {
-        return CanHaveThreatList ? IsThreatenedBy(who) : IsInCombatWith(who);
-    }
-
-    public bool IsThreatenedBy(Unit who)
-    {
-        return who != null && _threatManager.IsThreatenedBy(who, true);
-    }
-
-    public bool IsSilenced(uint schoolMask)
-    {
-        return (UnitData.SilencedSchoolMask.GetValue() & schoolMask) != 0;
-    }
-
-    public bool IsSilenced(SpellSchoolMask schoolMask)
-    {
-        return IsSilenced((uint)schoolMask);
-    }
-
-    public void SetSilencedSchoolMask(uint schoolMask)
-    {
-        SetUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.SilencedSchoolMask), schoolMask);
-    }
-
-    public void SetSilencedSchoolMask(SpellSchoolMask schoolMask)
-    {
-        SetSilencedSchoolMask((uint)schoolMask);
-    }
-
-    public void ReplaceAllSilencedSchoolMask(uint schoolMask)
-    {
-        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.SilencedSchoolMask), schoolMask);
-    }
-
-
-    public void ReplaceAllSilencedSchoolMask(SpellSchoolMask schoolMask)
-    {
-        ReplaceAllSilencedSchoolMask((uint)schoolMask);
-    }
-
-
-    public bool IsTargetableForAttack(bool checkFakeDeath = true)
-    {
-        if (!IsAlive)
-            return false;
-
-        if (HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible))
-            return false;
-
-        if (IsTypeId(TypeId.Player) && AsPlayer.IsGameMaster)
-            return false;
-
-        return !HasUnitState(UnitState.Unattackable) && (!checkFakeDeath || !HasUnitState(UnitState.Died));
-    }
-
-    public void ValidateAttackersAndOwnTarget()
-    {
-        // iterate attackers
-        List<Unit> toRemove = new();
-
-        foreach (var attacker in Attackers)
-            if (!attacker.WorldObjectCombat.IsValidAttackTarget(this))
-                toRemove.Add(attacker);
-
-        foreach (var attacker in toRemove)
-            attacker.AttackStop();
-
-        // remove our own victim
-        var victim = Victim;
-
-        if (victim != null)
-            if (!WorldObjectCombat.IsValidAttackTarget(victim))
-                AttackStop();
-    }
-
-    public void StopAttackFaction(uint factionId)
-    {
-        var victim = Victim;
-
-        if (victim != null)
-            if (victim.WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
-            {
-                AttackStop();
-
-                if (IsNonMeleeSpellCast(false))
-                    InterruptNonMeleeSpells(false);
-
-                // melee and ranged forced attack cancel
-                if (IsTypeId(TypeId.Player))
-                    AsPlayer.SendAttackSwingCancelAttack();
-            }
-
-        var attackers = Attackers;
-
-        for (var i = 0; i < attackers.Count;)
-        {
-            var unit = attackers[i];
-
-            if (unit.WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
-            {
-                unit.AttackStop();
-                i = 0;
-            }
-            else
-            {
-                ++i;
-            }
-        }
-
-        List<CombatReference> refsToEnd = new();
-
-        foreach (var pair in _combatManager.PvECombatRefs)
-            if (pair.Value.GetOther(this).WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
-                refsToEnd.Add(pair.Value);
-
-        foreach (var refe in refsToEnd)
-            refe.EndCombat();
-
-        foreach (var minion in Controlled)
-            minion.StopAttackFaction(factionId);
-    }
-
-    public void HandleProcExtraAttackFor(Unit victim, uint count)
-    {
-        while (count != 0)
-        {
-            --count;
-            AttackerStateUpdate(victim, WeaponAttackType.BaseAttack, true);
-        }
-    }
-
-    public void AddExtraAttacks(uint count)
-    {
-        var targetGUID = LastDamagedTargetGuid;
-
-        if (!targetGUID.IsEmpty)
-        {
-            var selection = Target;
-
-            if (!selection.IsEmpty)
-                targetGUID = selection; // Spell was cast directly (not triggered by aura)
-            else
-                return;
-        }
-
-        if (!_extraAttacksTargets.ContainsKey(targetGUID))
-            _extraAttacksTargets[targetGUID] = 0;
-
-        _extraAttacksTargets[targetGUID] += count;
-    }
-
     public bool Attack(Unit victim, bool meleeAttack)
     {
         if (victim == null || victim.GUID == GUID)
@@ -468,133 +210,6 @@ public partial class Unit
         return true;
     }
 
-    public void SendMeleeAttackStart(Unit victim)
-    {
-        AttackStart packet = new()
-        {
-            Attacker = GUID,
-            Victim = victim.GUID
-        };
-
-        SendMessageToSet(packet, true);
-    }
-
-    public void SendMeleeAttackStop(Unit victim = null)
-    {
-        SendMessageToSet(new SAttackStop(this, victim), true);
-
-        if (victim != null)
-            Log.Logger.Information("{0} {1} stopped attacking {2} {3}",
-                                   (IsTypeId(TypeId.Player) ? "Player" : "Creature"),
-                                   GUID.ToString(),
-                                   (victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
-                                   victim.GUID.ToString());
-        else
-            Log.Logger.Information("{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GUID.ToString());
-    }
-
-    public virtual void SetTarget(ObjectGuid guid) { }
-
-    public bool AttackStop()
-    {
-        if (Attacking == null)
-            return false;
-
-        var victim = Attacking;
-
-        Attacking._removeAttacker(this);
-        Attacking = null;
-
-        // Clear our target
-        SetTarget(ObjectGuid.Empty);
-
-        ClearUnitState(UnitState.MeleeAttacking);
-
-        InterruptSpell(CurrentSpellTypes.Melee);
-
-        // reset only at real combat stop
-        var creature = AsCreature;
-
-        creature?.SetNoCallAssistance(false);
-
-        SendMeleeAttackStop(victim);
-
-        return true;
-    }
-
-    public void SetLastExtraAttackSpell(uint spellId)
-    {
-        _lastExtraAttackSpell = spellId;
-    }
-
-    public uint GetLastExtraAttackSpell()
-    {
-        return _lastExtraAttackSpell;
-    }
-
-    public Unit GetAttackerForHelper()
-    {
-        if (!IsEngaged)
-            return null;
-
-        var victim = Victim;
-
-        if (victim != null)
-            if ((!IsPet && PlayerMovingMe1 == null) || IsInCombatWith(victim))
-                return victim;
-
-        var mgr = GetCombatManager();
-        // pick arbitrary targets; our pvp combat > owner's pvp combat > our pve combat > owner's pve combat
-        var owner = CharmerOrOwner;
-
-        if (mgr.HasPvPCombat())
-            return mgr.PvPCombatRefs.First().Value.GetOther(this);
-
-        if (owner && (owner.GetCombatManager().HasPvPCombat()))
-            return owner.GetCombatManager().PvPCombatRefs.First().Value.GetOther(owner);
-
-        if (mgr.HasPvECombat())
-            return mgr.PvECombatRefs.First().Value.GetOther(this);
-
-        if (owner && (owner.GetCombatManager().HasPvECombat()))
-            return owner.GetCombatManager().PvECombatRefs.First().Value.GetOther(owner);
-
-        return null;
-    }
-
-    public void SetCombatReach(float combatReach)
-    {
-        if (combatReach > 0.1f)
-            combatReach = SharedConst.DefaultPlayerCombatReach;
-
-        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CombatReach), combatReach);
-    }
-
-    public void ResetAttackTimer(WeaponAttackType type = WeaponAttackType.BaseAttack)
-    {
-        AttackTimer[(int)type] = (uint)(GetBaseAttackTime(type) * ModAttackSpeedPct[(int)type]);
-    }
-
-    public void SetAttackTimer(WeaponAttackType type, uint time)
-    {
-        AttackTimer[(int)type] = time;
-    }
-
-    public uint GetAttackTimer(WeaponAttackType type)
-    {
-        return AttackTimer[(int)type];
-    }
-
-    public bool IsAttackReady(WeaponAttackType type = WeaponAttackType.BaseAttack)
-    {
-        return AttackTimer[(int)type] == 0;
-    }
-
-    public uint GetBaseAttackTime(WeaponAttackType att)
-    {
-        return _baseAttackSpeed[(int)att];
-    }
-
     public void AttackerStateUpdate(Unit victim, WeaponAttackType attType = WeaponAttackType.BaseAttack, bool extra = false)
     {
         if (HasUnitFlag(UnitFlags.Pacified))
@@ -697,85 +312,31 @@ public partial class Unit
         }
     }
 
-    public void SetBaseWeaponDamage(WeaponAttackType attType, WeaponDamageRange damageRange, double value)
+    public bool AttackStop()
     {
-        WeaponDamage[(int)attType][(int)damageRange] = value;
-    }
+        if (Attacking == null)
+            return false;
 
-    public Unit GetMeleeHitRedirectTarget(Unit victim, SpellInfo spellInfo = null)
-    {
-        var interceptAuras = victim.GetAuraEffectsByType(AuraType.InterceptMeleeRangedAttacks);
+        var victim = Attacking;
 
-        foreach (var i in interceptAuras)
-        {
-            var magnet = i.Caster;
+        Attacking._removeAttacker(this);
+        Attacking = null;
 
-            if (magnet != null)
-                if (WorldObjectCombat.IsValidAttackTarget(magnet, spellInfo) && magnet.Location.IsWithinLOSInMap(this) && (spellInfo == null || (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && spellInfo.CheckTarget(this, magnet, false) == SpellCastResult.SpellCastOk)))
-                {
-                    i.Base.DropCharge(AuraRemoveMode.Expire);
+        // Clear our target
+        SetTarget(ObjectGuid.Empty);
 
-                    return magnet;
-                }
-        }
+        ClearUnitState(UnitState.MeleeAttacking);
 
-        return victim;
-    }
+        InterruptSpell(CurrentSpellTypes.Melee);
 
-    public void SendAttackStateUpdate(HitInfo hitInfo, Unit target, SpellSchoolMask damageSchoolMask, double damage, double absorbDamage, double resist, VictimState targetState, uint blockedAmount)
-    {
-        CalcDamageInfo dmgInfo = new()
-        {
-            HitInfo = hitInfo,
-            Attacker = this,
-            Target = target,
-            Damage = damage - absorbDamage - resist - blockedAmount,
-            OriginalDamage = damage,
-            DamageSchoolMask = (uint)damageSchoolMask,
-            Absorb = absorbDamage,
-            Resist = resist,
-            TargetState = targetState,
-            Blocked = blockedAmount
-        };
+        // reset only at real combat stop
+        var creature = AsCreature;
 
-        SendAttackStateUpdate(dmgInfo);
-    }
+        creature?.SetNoCallAssistance(false);
 
-    public void SendAttackStateUpdate(CalcDamageInfo damageInfo)
-    {
-        AttackerStateUpdate packet = new()
-        {
-            hitInfo = damageInfo.HitInfo,
-            AttackerGUID = damageInfo.Attacker.GUID,
-            VictimGUID = damageInfo.Target.GUID,
-            Damage = (int)damageInfo.Damage,
-            OriginalDamage = (int)damageInfo.OriginalDamage
-        };
+        SendMeleeAttackStop(victim);
 
-        var overkill = (int)(damageInfo.Damage - damageInfo.Target.Health);
-        packet.OverDamage = (overkill < 0 ? -1 : overkill);
-
-        SubDamage subDmg = new()
-        {
-            SchoolMask = (int)damageInfo.DamageSchoolMask, // School of sub damage
-            FDamage = (float)damageInfo.Damage,            // sub damage
-            Damage = (int)damageInfo.Damage,               // Sub Damage
-            Absorbed = (int)damageInfo.Absorb,
-            Resisted = (int)damageInfo.Resist
-        };
-
-        packet.SubDmg = subDmg;
-
-        packet.VictimState = (byte)damageInfo.TargetState;
-        packet.BlockAmount = (int)damageInfo.Blocked;
-        packet.LogData.Initialize(damageInfo.Attacker);
-
-        ContentTuningParams contentTuningParams = new();
-
-        if (contentTuningParams.GenerateDataForUnits(damageInfo.Attacker, damageInfo.Target))
-            packet.ContentTuning = contentTuningParams;
-
-        SendCombatLogMessage(packet);
+        return true;
     }
 
     public void AtTargetAttacked(Unit target, bool canInitialAggro = true)
@@ -798,26 +359,6 @@ public partial class Unit
         myPlayerOwner.UpdatePvP(true);
         myPlayerOwner.SetContestedPvP(targetPlayerOwner);
         myPlayerOwner.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
-    }
-
-    public void KillSelf(bool durabilityLoss = true, bool skipSettingDeathState = false)
-    {
-        UnitCombatHelpers.Kill(this, this, durabilityLoss, skipSettingDeathState);
-    }
-
-    public virtual bool CanUseAttackType(WeaponAttackType attacktype)
-    {
-        switch (attacktype)
-        {
-            case WeaponAttackType.BaseAttack:
-                return !HasUnitFlag(UnitFlags.Disarmed);
-            case WeaponAttackType.OffAttack:
-                return !HasUnitFlag2(UnitFlags2.DisarmOffhand);
-            case WeaponAttackType.RangedAttack:
-                return !HasUnitFlag2(UnitFlags2.DisarmRanged);
-            default:
-                return true;
-        }
     }
 
     public double CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct)
@@ -879,12 +420,79 @@ public partial class Unit
         return RandomHelper.URand(minDamage, maxDamage);
     }
 
-    public double GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type)
+    public virtual bool CanUseAttackType(WeaponAttackType attacktype)
     {
-        if (attType == WeaponAttackType.OffAttack && !HaveOffhandWeapon())
-            return 0.0f;
+        switch (attacktype)
+        {
+            case WeaponAttackType.BaseAttack:
+                return !HasUnitFlag(UnitFlags.Disarmed);
+            case WeaponAttackType.OffAttack:
+                return !HasUnitFlag2(UnitFlags2.DisarmOffhand);
+            case WeaponAttackType.RangedAttack:
+                return !HasUnitFlag2(UnitFlags2.DisarmRanged);
+            default:
+                return true;
+        }
+    }
 
-        return WeaponDamage[(int)attType][(int)type];
+    public virtual bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect aurEff)
+    {
+        return true;
+    }
+
+    public void ClearInCombat()
+    {
+        _combatManager.EndAllCombat();
+    }
+
+    public void ClearInPetCombat()
+    {
+        RemoveUnitFlag(UnitFlags.PetInCombat);
+        var owner = OwnerUnit;
+
+        owner?.RemoveUnitFlag(UnitFlags.PetInCombat);
+    }
+
+    public void CombatStop(bool includingCast = false, bool mutualPvP = true)
+    {
+        if (includingCast && IsNonMeleeSpellCast(false))
+            InterruptNonMeleeSpells(false);
+
+        AttackStop();
+        RemoveAllAttackers();
+
+        if (IsTypeId(TypeId.Player))
+            AsPlayer.SendAttackSwingCancelAttack(); // melee and ranged forced attack cancel
+
+        if (mutualPvP)
+        {
+            ClearInCombat();
+        }
+        else
+        {
+            // vanish and brethren are weird
+            _combatManager.EndAllPvECombat();
+            _combatManager.SuppressPvPCombat();
+        }
+    }
+
+    public void CombatStopWithPets(bool includingCast = false)
+    {
+        CombatStop(includingCast);
+
+        foreach (var minion in Controlled)
+            minion.CombatStop(includingCast);
+    }
+
+    public void EngageWithTarget(Unit enemy)
+    {
+        if (enemy == null)
+            return;
+
+        if (CanHaveThreatList)
+            _threatManager.AddThreat(enemy, 0.0f, null, true, true);
+        else
+            SetInCombatWith(enemy);
     }
 
     public double GetApMultiplier(WeaponAttackType attType, bool normalized)
@@ -926,6 +534,78 @@ public partial class Unit
         }
     }
 
+    public Unit GetAttackerForHelper()
+    {
+        if (!IsEngaged)
+            return null;
+
+        var victim = Victim;
+
+        if (victim != null)
+            if ((!IsPet && PlayerMovingMe1 == null) || IsInCombatWith(victim))
+                return victim;
+
+        var mgr = GetCombatManager();
+        // pick arbitrary targets; our pvp combat > owner's pvp combat > our pve combat > owner's pve combat
+        var owner = CharmerOrOwner;
+
+        if (mgr.HasPvPCombat())
+            return mgr.PvPCombatRefs.First().Value.GetOther(this);
+
+        if (owner && (owner.GetCombatManager().HasPvPCombat()))
+            return owner.GetCombatManager().PvPCombatRefs.First().Value.GetOther(owner);
+
+        if (mgr.HasPvECombat())
+            return mgr.PvECombatRefs.First().Value.GetOther(this);
+
+        if (owner && (owner.GetCombatManager().HasPvECombat()))
+            return owner.GetCombatManager().PvECombatRefs.First().Value.GetOther(owner);
+
+        return null;
+    }
+
+    public uint GetAttackTimer(WeaponAttackType type)
+    {
+        return AttackTimer[(int)type];
+    }
+
+    public uint GetBaseAttackTime(WeaponAttackType att)
+    {
+        return _baseAttackSpeed[(int)att];
+    }
+
+    public uint GetLastExtraAttackSpell()
+    {
+        return _lastExtraAttackSpell;
+    }
+
+    public Unit GetMeleeHitRedirectTarget(Unit victim, SpellInfo spellInfo = null)
+    {
+        var interceptAuras = victim.GetAuraEffectsByType(AuraType.InterceptMeleeRangedAttacks);
+
+        foreach (var i in interceptAuras)
+        {
+            var magnet = i.Caster;
+
+            if (magnet != null)
+                if (WorldObjectCombat.IsValidAttackTarget(magnet, spellInfo) && magnet.Location.IsWithinLOSInMap(this) && (spellInfo == null || (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && spellInfo.CheckTarget(this, magnet, false) == SpellCastResult.SpellCastOk)))
+                {
+                    i.Base.DropCharge(AuraRemoveMode.Expire);
+
+                    return magnet;
+                }
+        }
+
+        return victim;
+    }
+
+    public float GetMeleeRange(Unit target)
+    {
+        var range = CombatReach + target.CombatReach + 4.0f / 3.0f;
+
+        return Math.Max(range, SharedConst.NominalMeleeRange);
+    }
+
     public double GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapon = true)
     {
         if (attType == WeaponAttackType.RangedAttack)
@@ -964,6 +644,67 @@ public partial class Unit
         }
     }
 
+    public double GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type)
+    {
+        if (attType == WeaponAttackType.OffAttack && !HaveOffhandWeapon())
+            return 0.0f;
+
+        return WeaponDamage[(int)attType][(int)type];
+    }
+
+    public void HandleProcExtraAttackFor(Unit victim, uint count)
+    {
+        while (count != 0)
+        {
+            --count;
+            AttackerStateUpdate(victim, WeaponAttackType.BaseAttack, true);
+        }
+    }
+
+    public bool IsAttackReady(WeaponAttackType type = WeaponAttackType.BaseAttack)
+    {
+        return AttackTimer[(int)type] == 0;
+    }
+
+    public bool IsEngagedBy(Unit who)
+    {
+        return CanHaveThreatList ? IsThreatenedBy(who) : IsInCombatWith(who);
+    }
+
+    public bool IsInCombatWith(Unit who)
+    {
+        return who != null && _combatManager.IsInCombatWith(who);
+    }
+
+    public bool IsSilenced(uint schoolMask)
+    {
+        return (UnitData.SilencedSchoolMask.Value & schoolMask) != 0;
+    }
+
+    public bool IsSilenced(SpellSchoolMask schoolMask)
+    {
+        return IsSilenced((uint)schoolMask);
+    }
+
+    public bool IsTargetableForAttack(bool checkFakeDeath = true)
+    {
+        if (!IsAlive)
+            return false;
+
+        if (HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible))
+            return false;
+
+        if (IsTypeId(TypeId.Player) && AsPlayer.IsGameMaster)
+            return false;
+
+        return !HasUnitState(UnitState.Unattackable) && (!checkFakeDeath || !HasUnitState(UnitState.Died));
+    }
+
+    public bool IsThreatenedBy(Unit who)
+    {
+        return who != null && _threatManager.IsThreatenedBy(who, true);
+    }
+
     public bool IsWithinMeleeRange(Unit obj)
     {
         return IsWithinMeleeRangeAt(Location, obj);
@@ -984,11 +725,130 @@ public partial class Unit
         return distsq <= maxdist * maxdist;
     }
 
-    public float GetMeleeRange(Unit target)
+    public void KillSelf(bool durabilityLoss = true, bool skipSettingDeathState = false)
     {
-        var range = CombatReach + target.CombatReach + 4.0f / 3.0f;
+        UnitCombatHelpers.Kill(this, this, durabilityLoss, skipSettingDeathState);
+    }
 
-        return Math.Max(range, SharedConst.NominalMeleeRange);
+    public virtual void OnCombatExit()
+    {
+        foreach (var aurApp in AppliedAuras)
+            aurApp.Base.CallScriptEnterLeaveCombatHandlers(aurApp, false);
+    }
+
+    public void RemoveAllAttackers()
+    {
+        while (!AttackerList.Empty())
+        {
+            var iter = AttackerList.First();
+
+            if (!iter.AttackStop())
+            {
+                Log.Logger.Error("WORLD: Unit has an attacker that isn't attacking it!");
+                AttackerList.Remove(iter);
+            }
+        }
+    }
+
+    public void ReplaceAllSilencedSchoolMask(uint schoolMask)
+    {
+        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.SilencedSchoolMask), schoolMask);
+    }
+
+    public void ReplaceAllSilencedSchoolMask(SpellSchoolMask schoolMask)
+    {
+        ReplaceAllSilencedSchoolMask((uint)schoolMask);
+    }
+
+    public void ResetAttackTimer(WeaponAttackType type = WeaponAttackType.BaseAttack)
+    {
+        AttackTimer[(int)type] = (uint)(GetBaseAttackTime(type) * ModAttackSpeedPct[(int)type]);
+    }
+
+    public void SendAttackStateUpdate(HitInfo hitInfo, Unit target, SpellSchoolMask damageSchoolMask, double damage, double absorbDamage, double resist, VictimState targetState, uint blockedAmount)
+    {
+        CalcDamageInfo dmgInfo = new()
+        {
+            HitInfo = hitInfo,
+            Attacker = this,
+            Target = target,
+            Damage = damage - absorbDamage - resist - blockedAmount,
+            OriginalDamage = damage,
+            DamageSchoolMask = (uint)damageSchoolMask,
+            Absorb = absorbDamage,
+            Resist = resist,
+            TargetState = targetState,
+            Blocked = blockedAmount
+        };
+
+        SendAttackStateUpdate(dmgInfo);
+    }
+
+    public void SendAttackStateUpdate(CalcDamageInfo damageInfo)
+    {
+        AttackerStateUpdate packet = new()
+        {
+            hitInfo = damageInfo.HitInfo,
+            AttackerGUID = damageInfo.Attacker.GUID,
+            VictimGUID = damageInfo.Target.GUID,
+            Damage = (int)damageInfo.Damage,
+            OriginalDamage = (int)damageInfo.OriginalDamage
+        };
+
+        var overkill = (int)(damageInfo.Damage - damageInfo.Target.Health);
+        packet.OverDamage = (overkill < 0 ? -1 : overkill);
+
+        SubDamage subDmg = new()
+        {
+            SchoolMask = (int)damageInfo.DamageSchoolMask, // School of sub damage
+            FDamage = (float)damageInfo.Damage,            // sub damage
+            Damage = (int)damageInfo.Damage,               // Sub Damage
+            Absorbed = (int)damageInfo.Absorb,
+            Resisted = (int)damageInfo.Resist
+        };
+
+        packet.SubDmg = subDmg;
+
+        packet.VictimState = (byte)damageInfo.TargetState;
+        packet.BlockAmount = (int)damageInfo.Blocked;
+        packet.LogData.Initialize(damageInfo.Attacker);
+
+        ContentTuningParams contentTuningParams = new();
+
+        if (contentTuningParams.GenerateDataForUnits(damageInfo.Attacker, damageInfo.Target))
+            packet.ContentTuning = contentTuningParams;
+
+        SendCombatLogMessage(packet);
+    }
+
+    public void SendMeleeAttackStart(Unit victim)
+    {
+        AttackStart packet = new()
+        {
+            Attacker = GUID,
+            Victim = victim.GUID
+        };
+
+        SendMessageToSet(packet, true);
+    }
+
+    public void SendMeleeAttackStop(Unit victim = null)
+    {
+        SendMessageToSet(new SAttackStop(this, victim), true);
+
+        if (victim != null)
+            Log.Logger.Information("{0} {1} stopped attacking {2} {3}",
+                                   (IsTypeId(TypeId.Player) ? "Player" : "Creature"),
+                                   GUID.ToString(),
+                                   (victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
+                                   victim.GUID.ToString());
+        else
+            Log.Logger.Information("{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GUID.ToString());
+    }
+
+    public void SetAttackTimer(WeaponAttackType type, uint time)
+    {
+        AttackTimer[(int)type] = time;
     }
 
     public void SetBaseAttackTime(WeaponAttackType att, uint val)
@@ -997,38 +857,54 @@ public partial class Unit
         UpdateAttackTimeField(att);
     }
 
-    public virtual bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect aurEff)
+    public void SetBaseWeaponDamage(WeaponAttackType attType, WeaponDamageRange damageRange, double value)
     {
-        return true;
+        WeaponDamage[(int)attType][(int)damageRange] = value;
     }
 
-    public void ApplyAttackTimePercentMod(WeaponAttackType att, double val, bool apply)
+    public void SetCombatReach(float combatReach)
     {
-        var remainingTimePct = AttackTimer[(int)att] / (_baseAttackSpeed[(int)att] * ModAttackSpeedPct[(int)att]);
+        if (combatReach > 0.1f)
+            combatReach = SharedConst.DefaultPlayerCombatReach;
 
-        if (val > 0.0f)
-        {
-            MathFunctions.ApplyPercentModFloatVar(ref ModAttackSpeedPct[(int)att], val, !apply);
-
-            if (att == WeaponAttackType.BaseAttack)
-                ApplyPercentModUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ModHaste), (float)val, !apply);
-            else if (att == WeaponAttackType.RangedAttack)
-                ApplyPercentModUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ModRangedHaste), (float)val, !apply);
-        }
-        else
-        {
-            MathFunctions.ApplyPercentModFloatVar(ref ModAttackSpeedPct[(int)att], -val, apply);
-
-            if (att == WeaponAttackType.BaseAttack)
-                ApplyPercentModUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ModHaste), -(float)val, apply);
-            else if (att == WeaponAttackType.RangedAttack)
-                ApplyPercentModUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ModRangedHaste), -(float)val, apply);
-        }
-
-        UpdateAttackTimeField(att);
-        AttackTimer[(int)att] = (uint)(_baseAttackSpeed[(int)att] * ModAttackSpeedPct[(int)att] * remainingTimePct);
+        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CombatReach), combatReach);
     }
 
+    public void SetInCombatWith(Unit enemy, bool addSecondUnitSuppressed = false)
+    {
+        if (enemy != null)
+            _combatManager.SetInCombatWith(enemy, addSecondUnitSuppressed);
+    }
+
+    public void SetInCombatWithZone()
+    {
+        if (!CanHaveThreatList)
+            return;
+
+        var map = Location.Map;
+
+        if (!map.IsDungeon)
+        {
+            Log.Logger.Error($"Creature entry {Entry} call SetInCombatWithZone for map (id: {map.Entry}) that isn't an instance.");
+
+            return;
+        }
+
+        var players = map.Players;
+
+        foreach (var player in players)
+        {
+            if (player.IsGameMaster)
+                continue;
+
+            if (player.IsAlive)
+            {
+                SetInCombatWith(player);
+                player.SetInCombatWith(this);
+                GetThreatManager().AddThreat(player, 0);
+            }
+        }
+    }
     /// <summary>
     ///     enables / disables combat interaction of this unit
     /// </summary>
@@ -1037,6 +913,88 @@ public partial class Unit
         IsCombatDisallowed = apply;
     }
 
+    public void SetLastExtraAttackSpell(uint spellId)
+    {
+        _lastExtraAttackSpell = spellId;
+    }
+
+    public void SetSilencedSchoolMask(uint schoolMask)
+    {
+        SetUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.SilencedSchoolMask), schoolMask);
+    }
+
+    public void SetSilencedSchoolMask(SpellSchoolMask schoolMask)
+    {
+        SetSilencedSchoolMask((uint)schoolMask);
+    }
+    public virtual void SetTarget(ObjectGuid guid) { }
+
+    public void StopAttackFaction(uint factionId)
+    {
+        var victim = Victim;
+
+        if (victim != null)
+            if (victim.WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
+            {
+                AttackStop();
+
+                if (IsNonMeleeSpellCast(false))
+                    InterruptNonMeleeSpells(false);
+
+                // melee and ranged forced attack cancel
+                if (IsTypeId(TypeId.Player))
+                    AsPlayer.SendAttackSwingCancelAttack();
+            }
+
+        var attackers = Attackers;
+
+        for (var i = 0; i < attackers.Count;)
+        {
+            var unit = attackers[i];
+
+            if (unit.WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
+            {
+                unit.AttackStop();
+                i = 0;
+            }
+            else
+            {
+                ++i;
+            }
+        }
+
+        List<CombatReference> refsToEnd = new();
+
+        foreach (var pair in _combatManager.PvECombatRefs)
+            if (pair.Value.GetOther(this).WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
+                refsToEnd.Add(pair.Value);
+
+        foreach (var refe in refsToEnd)
+            refe.EndCombat();
+
+        foreach (var minion in Controlled)
+            minion.StopAttackFaction(factionId);
+    }
+
+    public void ValidateAttackersAndOwnTarget()
+    {
+        // iterate attackers
+        List<Unit> toRemove = new();
+
+        foreach (var attacker in Attackers)
+            if (!attacker.WorldObjectCombat.IsValidAttackTarget(this))
+                toRemove.Add(attacker);
+
+        foreach (var attacker in toRemove)
+            attacker.AttackStop();
+
+        // remove our own victim
+        var victim = Victim;
+
+        if (victim != null)
+            if (!WorldObjectCombat.IsValidAttackTarget(victim))
+                AttackStop();
+    }
     private void _addAttacker(Unit pAttacker)
     {
         AttackerList.Add(pAttacker);

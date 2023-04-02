@@ -8,30 +8,13 @@ namespace Forged.MapServer.Globals;
 
 internal class ScriptNameContainer
 {
-    private readonly Dictionary<string, Entry> _nameToIndex = new();
     private readonly List<Entry> _indexToName = new();
-
+    private readonly Dictionary<string, Entry> _nameToIndex = new();
     public ScriptNameContainer()
     {
         // We insert an empty placeholder here so we can use the
         // script id 0 as dummy for "no script found".
         var id = Insert("", false);
-    }
-
-    public uint Insert(string scriptName, bool isScriptNameBound)
-    {
-        Entry entry = new((uint)_nameToIndex.Count, isScriptNameBound, scriptName);
-        var result = _nameToIndex.TryAdd(scriptName, entry);
-
-        if (result)
-            _indexToName.Add(entry);
-
-        return _nameToIndex[scriptName].Id;
-    }
-
-    public int GetSize()
-    {
-        return _indexToName.Count;
     }
 
     public Entry Find(uint index)
@@ -59,6 +42,21 @@ internal class ScriptNameContainer
         return scriptNames;
     }
 
+    public int GetSize()
+    {
+        return _indexToName.Count;
+    }
+
+    public uint Insert(string scriptName, bool isScriptNameBound)
+    {
+        Entry entry = new((uint)_nameToIndex.Count, isScriptNameBound, scriptName);
+        var result = _nameToIndex.TryAdd(scriptName, entry);
+
+        if (result)
+            _indexToName.Add(entry);
+
+        return _nameToIndex[scriptName].Id;
+    }
     public class Entry
     {
         public uint Id;

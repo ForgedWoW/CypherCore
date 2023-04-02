@@ -8,6 +8,36 @@ namespace Forged.MapServer.Networking.Packets.BattlePet;
 
 public struct BattlePetStruct
 {
+    public ushort Breed;
+
+    public uint CreatureID;
+
+    public uint DisplayID;
+
+    public ushort Exp;
+
+    public ushort Flags;
+
+    public ObjectGuid Guid;
+
+    public uint Health;
+
+    public ushort Level;
+
+    public uint MaxHealth;
+
+    public string Name;
+
+    public BattlePetOwnerInfo? OwnerInfo;
+
+    public uint Power;
+
+    public byte Quality;
+
+    public uint Species;
+
+    public uint Speed;
+
     public void Write(WorldPacket data)
     {
         data.WritePackedGuid(Guid);
@@ -41,23 +71,7 @@ public struct BattlePetStruct
     public struct BattlePetOwnerInfo
     {
         public ObjectGuid Guid;
-        public uint PlayerVirtualRealm;
         public uint PlayerNativeRealm;
+        public uint PlayerVirtualRealm;
     }
-
-    public ObjectGuid Guid;
-    public uint Species;
-    public uint CreatureID;
-    public uint DisplayID;
-    public ushort Breed;
-    public ushort Level;
-    public ushort Exp;
-    public ushort Flags;
-    public uint Power;
-    public uint Health;
-    public uint MaxHealth;
-    public uint Speed;
-    public byte Quality;
-    public BattlePetOwnerInfo? OwnerInfo;
-    public string Name;
 }

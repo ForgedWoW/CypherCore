@@ -9,8 +9,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 internal class AccountHeirloomUpdate : ServerPacket
 {
-    public bool IsFullUpdate;
     public Dictionary<uint, HeirloomData> Heirlooms = new();
+    public bool IsFullUpdate;
     public int Unk;
     public AccountHeirloomUpdate() : base(ServerOpcodes.AccountHeirloomUpdate, ConnectionType.Instance) { }
 
