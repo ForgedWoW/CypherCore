@@ -22,11 +22,11 @@ namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
-    public void _AddAura(UnitAura aura, Unit caster)
+    public void AddAura(UnitAura aura, Unit caster)
     {
         _ownedAuras.Add(aura);
 
-        _RemoveNoStackAurasDueToAura(aura);
+        RemoveNoStackAurasDueToAura(aura);
 
         if (aura.IsRemoved)
             return;
@@ -57,28 +57,28 @@ public partial class Unit
         }
     }
 
-    public void _ApplyAllAuraStatMods()
+    public void ApplyAllAuraStatMods()
     {
         foreach (var i in AppliedAuras)
             i.Base.HandleAllEffects(i, AuraEffectHandleModes.Stat, true);
     }
 
-    public void _ApplyAura(AuraApplication aurApp, int effIndex)
+    public void ApplyAura(AuraApplication aurApp, int effIndex)
     {
-        _ApplyAura(aurApp,
-                   new HashSet<int>()
-                   {
-                       effIndex
-                   });
+        ApplyAura(aurApp,
+                  new HashSet<int>()
+                  {
+                      effIndex
+                  });
     }
 
     // handles effects of aura application
     // should be done after registering aura in lists
-    public void _ApplyAura(AuraApplication aurApp, HashSet<int> effMask)
+    public void ApplyAura(AuraApplication aurApp, HashSet<int> effMask)
     {
         var aura = aurApp.Base;
 
-        _RemoveNoStackAurasDueToAura(aura);
+        RemoveNoStackAurasDueToAura(aura);
 
         if (aurApp.HasRemoveMode)
             return;
@@ -130,31 +130,22 @@ public partial class Unit
             player.UpdateVisibleGameobjectsOrSpellClicks();
     }
 
-    public void _ApplyAuraEffect(Aura aura, int effIndex)
+    public void ApplyAuraEffect(Aura aura, int effIndex)
     {
         var aurApp = aura.GetApplicationOfTarget(GUID);
 
         if (aurApp.EffectMask.Count == 0)
-            _ApplyAura(aurApp, effIndex);
+            ApplyAura(aurApp, effIndex);
         else
             aurApp._HandleEffect(effIndex, true);
     }
 
-    public void _DeleteRemovedAuras()
+    public void DeleteRemovedAuras()
     {
-        lock (_removedAuras)
-        {
-            while (!_removedAuras.Empty())
-            {
-                _removedAuras.First().Dispose();
-                _removedAuras.RemoveAt(0);
-            }
-        }
-
         RemovedAurasCount = 0;
     }
 
-    public void _RegisterAuraEffect(AuraEffect aurEff, bool apply)
+    public void RegisterAuraEffect(AuraEffect aurEff, bool apply)
     {
         if (apply)
             _modAuras.Add(aurEff.AuraType, aurEff);
@@ -162,13 +153,13 @@ public partial class Unit
             _modAuras.Remove(aurEff.AuraType, aurEff);
     }
 
-    public void _RemoveAllAuraStatMods()
+    public void RemoveAllAuraStatMods()
     {
         foreach (var i in AppliedAuras)
             i.Base.HandleAllEffects(i, AuraEffectHandleModes.Stat, false);
     }
 
-    public Aura _TryStackingOrRefreshingExistingAura(AuraCreateInfo createInfo)
+    public Aura TryStackingOrRefreshingExistingAura(AuraCreateInfo createInfo)
     {
         // Check if these can stack anyway
         if (createInfo.CasterGuid.IsEmpty && !createInfo.SpellInfo.IsStackableOnOneSlotWithDifferentCasters)
@@ -218,13 +209,8 @@ public partial class Unit
         return foundAura;
     }
 
-    public void _UnapplyAura(KeyValuePair<uint, AuraApplication> pair, AuraRemoveMode removeMode)
-    {
-        _UnapplyAura(pair.Value, removeMode);
-    }
-
     // removes aura application from lists and unapplies effects
-    public void _UnapplyAura(AuraApplication aurApp, AuraRemoveMode removeMode)
+    public void UnapplyAura(AuraApplication aurApp, AuraRemoveMode removeMode)
     {
         var check = aurApp.Base.GetApplicationOfTarget(GUID);
 
@@ -282,8 +268,8 @@ public partial class Unit
             }
         }
 
-        aurApp._Remove();
-        aura._UnapplyForTarget(this, caster, aurApp);
+        aurApp.Remove();
+        aura.UnapplyForTarget(this, caster, aurApp);
 
         // remove effects of the spell - needs to be done after removing aura from lists
         foreach (var effect in aurApp.Base.AuraEffects)
@@ -467,18 +453,22 @@ public partial class Unit
                     {
                         case DiminishingLevels.Level1:
                             break;
+
                         case DiminishingLevels.Level2:
                             mod = 0.65f;
 
                             break;
+
                         case DiminishingLevels.Level3:
                             mod = 0.4225f;
 
                             break;
+
                         case DiminishingLevels.Level4:
                             mod = 0.274625f;
 
                             break;
+
                         case DiminishingLevels.TauntImmune:
                             mod = 0.0f;
 
@@ -487,6 +477,7 @@ public partial class Unit
                 }
 
                 break;
+
             case DiminishingGroup.AOEKnockback:
                 if (auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.All ||
                     (auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.Player &&
@@ -498,6 +489,7 @@ public partial class Unit
                     {
                         case DiminishingLevels.Level1:
                             break;
+
                         case DiminishingLevels.Level2:
                             mod = 0.5f;
 
@@ -506,6 +498,7 @@ public partial class Unit
                 }
 
                 break;
+
             default:
                 if (auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.All ||
                     (auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.Player &&
@@ -517,14 +510,17 @@ public partial class Unit
                     {
                         case DiminishingLevels.Level1:
                             break;
+
                         case DiminishingLevels.Level2:
                             mod = 0.5f;
 
                             break;
+
                         case DiminishingLevels.Level3:
                             mod = 0.25f;
 
                             break;
+
                         case DiminishingLevels.Immune:
                             mod = 0.0f;
 
@@ -2131,14 +2127,17 @@ public partial class Unit
                     canDodge = false;
 
                     break;
+
                 case MeleeHitOutcome.Block:
                     canBlock = false;
 
                     break;
+
                 case MeleeHitOutcome.Parry:
                     canParry = false;
 
                     break;
+
                 default:
                     Log.Logger.Debug("Spell {0} SPELL_AURA_IGNORE_COMBAT_RESULT has unhandled state {1}", aurEff.Id, aurEff.MiscValue);
 
@@ -2293,7 +2292,7 @@ public partial class Unit
         for (var counter = 0; !_appliedAuras.Empty() || !_ownedAuras.Empty(); counter++)
         {
             foreach (var aurAppIter in _appliedAuras.AuraApplications)
-                _UnapplyAura(aurAppIter, AuraRemoveMode.Default);
+                UnapplyAura(aurAppIter, AuraRemoveMode.Default);
 
             foreach (var aurIter in _ownedAuras.Auras)
                 RemoveOwnedAura(aurIter);
@@ -2334,13 +2333,13 @@ public partial class Unit
     {
         // used just after dieing to remove all visible auras
         // and disable the mods for the passive ones
-        _appliedAuras.Query().IsDeathPersistant(false).IsPassive(false).Execute(_UnapplyAura, AuraRemoveMode.Death);
+        _appliedAuras.Query().IsDeathPersistant(false).IsPassive(false).Execute(UnapplyAura, AuraRemoveMode.Death);
         _ownedAuras.Query().IsDeathPersistant(false).IsPassive(false).Execute(RemoveOwnedAura, AuraRemoveMode.Death);
     }
 
     public void RemoveAllAurasRequiringDeadTarget()
     {
-        _appliedAuras.Query().IsPassive(false).IsRequiringDeadTarget().Execute(_UnapplyAura);
+        _appliedAuras.Query().IsPassive(false).IsRequiringDeadTarget().Execute(UnapplyAura);
         _ownedAuras.Query().IsPassive(false).IsRequiringDeadTarget().Execute(RemoveOwnedAura);
     }
 
@@ -2445,7 +2444,7 @@ public partial class Unit
             return;
 
         var aura = aurApp.Base;
-        _UnapplyAura(aurApp, mode);
+        UnapplyAura(aurApp, mode);
 
         // Remove aura - for Area and Target auras
         if (aura.Owner == this)
@@ -2666,6 +2665,7 @@ public partial class Unit
                 _appliedAuras.Query().OnlyOutdoors().Execute(RemoveAura);
 
                 break;
+
             default:
                 foreach (var app in _appliedAuras.AuraApplications)
                     if (app.Base.SpellInfo.HasAttribute(flags))
@@ -3653,6 +3653,7 @@ public partial class Unit
 
         return doneTotalMod;
     }
+
     public double SpellHealingBonusDone(Unit victim, SpellInfo spellProto, double healamount, DamageEffectType damagetype, SpellEffectInfo spellEffectInfo, uint stack = 1, Spell spell = null)
     {
         // For totems get healing bonus from owner (statue isn't totem in fact)
@@ -3860,6 +3861,7 @@ public partial class Unit
 
         return doneTotalMod;
     }
+
     public void TriggerAurasProcOnEvent(List<AuraApplication> myProcAuras, List<AuraApplication> targetProcAuras, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
     {
         // prepare data for self trigger
@@ -3933,6 +3935,7 @@ public partial class Unit
             if (CurrentSpells.TryGetValue(i, out var spell) && spell != null && spell.SpellInfo.Id == exceptSpellid)
                 spell.SetEmpowerState(state);
     }
+
     public void UpdateInterruptMask()
     {
         _interruptMask = SpellAuraInterruptFlags.None;
@@ -3952,7 +3955,8 @@ public partial class Unit
             _interruptMask2 |= spell.SpellInfo.ChannelInterruptFlags2;
         }
     }
-    private void _RemoveNoStackAurasDueToAura(Aura aura)
+
+    private void RemoveNoStackAurasDueToAura(Aura aura)
     {
         var spellProto = aura.SpellInfo;
 
@@ -4078,6 +4082,7 @@ public partial class Unit
         {
             case SpellAuraInterruptFlags.Moving:
                 return unit.CanCastSpellWhileMoving(auraSpellInfo);
+
             case SpellAuraInterruptFlags.Action:
             case SpellAuraInterruptFlags.ActionDelayed:
                 if (interruptSource != null)
@@ -4168,6 +4173,7 @@ public partial class Unit
         if (disableProcs)
             SetCantProc(false);
     }
+
     private void UpdateAuraForGroup()
     {
         var player = AsPlayer;

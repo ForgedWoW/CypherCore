@@ -22,7 +22,7 @@ public class UnitAura : Aura
         _mAuraDrGroup = DiminishingGroup.None;
         LoadScripts();
         _InitEffects(createInfo.AuraEffectMask, createInfo.Caster, createInfo.BaseAmount);
-        OwnerAsUnit._AddAura(this, createInfo.Caster);
+        OwnerAsUnit.AddAura(this, createInfo.Caster);
     }
 
     public override void _ApplyForTarget(Unit target, Unit caster, AuraApplication aurApp)
@@ -34,9 +34,9 @@ public class UnitAura : Aura
             target.ApplyDiminishingAura(_mAuraDrGroup, true);
     }
 
-    public override void _UnapplyForTarget(Unit target, Unit caster, AuraApplication aurApp)
+    public override void UnapplyForTarget(Unit target, Unit caster, AuraApplication aurApp)
     {
-        base._UnapplyForTarget(target, caster, aurApp);
+        base.UnapplyForTarget(target, caster, aurApp);
 
         // unregister aura diminishing (and store last time)
         if (_mAuraDrGroup != DiminishingGroup.None)

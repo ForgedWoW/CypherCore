@@ -543,7 +543,7 @@ public partial class Unit : WorldObject
 
         Events.KillAllEvents(true);
 
-        _DeleteRemovedAuras();
+        DeleteRemovedAuras();
 
         //i_motionMaster = null;
         _charmInfo = null;
@@ -815,8 +815,10 @@ public partial class Unit : WorldObject
         {
             case 7090: // Bear Form
                 return 29414;
+
             case 35200: // Roc Form
                 return 4877;
+
             case 24858: // Moonkin Form
             {
                 if (HasAura(114301)) // Glyph of Stars
@@ -1302,6 +1304,7 @@ public partial class Unit : WorldObject
             case Race.MagharOrc:
             case Race.MechaGnome:
                 return true;
+
             default:
                 return false;
         }
@@ -1716,7 +1719,8 @@ public partial class Unit : WorldObject
         return gain;
     }
 
-    public virtual void OnPhaseChange() { }
+    public virtual void OnPhaseChange()
+    { }
 
     public void PlayOneShotAnimKitId(ushort animKitId)
     {
@@ -2873,6 +2877,7 @@ public partial class Unit : WorldObject
 
         RefreshAI();
     }
+
     public void UpdateAllDamageDoneMods()
     {
         for (var attackType = WeaponAttackType.BaseAttack; attackType < WeaponAttackType.Max; ++attackType)
@@ -2931,15 +2936,18 @@ public partial class Unit : WorldObject
                 displayPower = PowerType.Energy;
 
                 break;
+
             case ShapeShiftForm.BearForm:
                 displayPower = PowerType.Rage;
 
                 break;
+
             case ShapeShiftForm.TravelForm:
             case ShapeShiftForm.GhostWolf:
                 displayPower = PowerType.Mana;
 
                 break;
+
             default:
             {
                 var powerTypeAuras = GetAuraEffectsByType(AuraType.ModPowerDisplay);
@@ -3056,10 +3064,12 @@ public partial class Unit : WorldObject
     {
         Talk(text, ChatMsg.MonsterYell, language, Configuration.GetDefaultValue("ListenRange.Yell", 300.0f), target);
     }
+
     public virtual void Yell(uint textId, WorldObject target = null)
     {
         Talk(textId, ChatMsg.MonsterYell, Configuration.GetDefaultValue("ListenRange.Yell", 300.0f), target);
     }
+
     private void _UpdateAutoRepeatSpell()
     {
         var autoRepeatSpellInfo = CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo;
@@ -3146,7 +3156,7 @@ public partial class Unit : WorldObject
             _visibleAurasToUpdate.Clear();
         }
 
-        _DeleteRemovedAuras();
+        DeleteRemovedAuras();
 
         if (!GameObjects.Empty())
             for (var i = 0; i < GameObjects.Count; ++i)
@@ -3162,7 +3172,6 @@ public partial class Unit : WorldObject
                 }
             }
     }
-
 
     private void DealMeleeDamage(CalcDamageInfo damageInfo, bool durabilityLoss)
     {
@@ -3382,10 +3391,12 @@ public partial class Unit : WorldObject
             if (GetTopAI() != null && GetTopAI() is not ScheduledChangeAI)
                 return;
     }
+
     private void StartReactiveTimer(ReactiveType reactive)
     {
         _reactiveTimer[reactive] = 4000;
     }
+
     private void TriggerOnHealthChangeAuras(long oldVal, long newVal)
     {
         foreach (var effect in GetAuraEffectsByType(AuraType.TriggerSpellOnHealthPct))
@@ -3401,6 +3412,7 @@ public partial class Unit : WorldObject
                         continue;
 
                     break;
+
                 case AuraTriggerOnHealthChangeDirection.Below:
                     if (newVal > threshold || oldVal < threshold)
                         continue;
@@ -3430,6 +3442,7 @@ public partial class Unit : WorldObject
                             ModifyAuraState(AuraStateType.Defensive, false);
 
                         break;
+
                     case ReactiveType.Defense2:
                         if (HasAuraState(AuraStateType.Defensive2))
                             ModifyAuraState(AuraStateType.Defensive2, false);

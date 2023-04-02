@@ -101,7 +101,7 @@ public class AuraApplication
         SetNeedClientUpdate();
     }
 
-    public void _Remove()
+    public void Remove()
     {
         // update for out of range group members
         if (Slot < SpellConst.MaxAuras)
@@ -227,7 +227,7 @@ public class AuraApplication
         // quick check, removes application completely
         if (toAdd.SetEquals(toRemove) && toAdd.Count == 0)
         {
-            Target._UnapplyAura(this, AuraRemoveMode.Default);
+            Target.UnapplyAura(this, AuraRemoveMode.Default);
 
             return;
         }

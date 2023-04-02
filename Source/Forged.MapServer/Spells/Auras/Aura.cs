@@ -243,7 +243,7 @@ public class Aura
             case TypeId.Player:
                 aura = new UnitAura(createInfo);
 
-                // aura can be removed in Unit::_AddAura call
+                // aura can be removed in Unit::AddAura call
                 if (aura.IsRemoved)
                     return null;
 
@@ -324,7 +324,7 @@ public class Aura
         if (effMask.Count == 0)
             return null;
 
-        var foundAura = createInfo.Owner.AsUnit._TryStackingOrRefreshingExistingAura(createInfo);
+        var foundAura = createInfo.Owner.AsUnit.TryStackingOrRefreshingExistingAura(createInfo);
 
         if (foundAura != null)
         {
@@ -368,7 +368,7 @@ public class Aura
         foreach (var unit in targetList)
             if (GetApplicationOfTarget(unit.GUID) != null)
                 // owner has to be in world, or effect has to be applied to self
-                unit._ApplyAuraEffect(this, effIndex);
+                unit.ApplyAuraEffect(this, effIndex);
     }
 
     public virtual void _ApplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
@@ -416,7 +416,7 @@ public class Aura
         {
             var aurApp = pair.Value;
             var target = aurApp.Target;
-            target._UnapplyAura(aurApp, removeMode);
+            target.UnapplyAura(aurApp, removeMode);
         }
 
         if (_chargeDropEvent != null)
@@ -428,7 +428,7 @@ public class Aura
         ForEachAuraScript<IAuraOnRemove>(a => a.AuraRemoved(removeMode));
     }
 
-    public virtual void _UnapplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
+    public virtual void UnapplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
     {
         if (target == null || !auraApp.HasRemoveMode || auraApp == null)
             return;
@@ -438,7 +438,7 @@ public class Aura
         // @todo Figure out why this happens
         if (app == null)
         {
-            Log.Logger.Error("Aura._UnapplyForTarget, target: {0}, caster: {1}, spell: {2} was not found in owners application map!",
+            Log.Logger.Error("Aura.UnapplyForTarget, target: {0}, caster: {1}, spell: {2} was not found in owners application map!",
                              target.GUID.ToString(),
                              caster ? caster.GUID.ToString() : "",
                              auraApp.Base.SpellInfo.Id);
@@ -1872,7 +1872,7 @@ public class Aura
             var aurApp = GetApplicationOfTarget(unit.GUID);
 
             if (aurApp != null)
-                unit._UnapplyAura(aurApp, AuraRemoveMode.Default);
+                unit.UnapplyAura(aurApp, AuraRemoveMode.Default);
         }
 
         if (!apply)
@@ -1885,7 +1885,7 @@ public class Aura
 
             if (aurApp != null && ((!Owner.Location.IsInWorld && Owner == pair.Key) || Owner.Location.IsInMap(pair.Key)))
                 // owner has to be in world, or effect has to be applied to self
-                pair.Key._ApplyAura(aurApp, pair.Value);
+                pair.Key.ApplyAura(aurApp, pair.Value);
         }
     }
     public bool UsesScriptType<T>()

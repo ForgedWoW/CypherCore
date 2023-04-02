@@ -18,7 +18,7 @@ public class ChargeDropEvent : BasicEvent
 
     public override bool Execute(ulong etime, uint pTime)
     {
-        // _base is always valid (look in Aura._Remove())
+        // _base is always valid (look in Aura.Remove())
         _base.ModChargesDelayed(-1, _mode);
 
         return true;

@@ -30,12 +30,13 @@ public partial class Unit
     public static TimeSpan MaxDamageHistoryDuration = TimeSpan.FromSeconds(20);
     public bool CanDualWield;
     public object SendLock = new();
-    protected float[] CreateStats = new float[(int)Stats.Max];
     private static readonly TimeSpan DespawnTime = TimeSpan.FromSeconds(2);
+    protected float[] CreateStats = new float[(int)Stats.Max];
     private readonly AuraApplicationCollection _appliedAuras = new();
     private readonly List<AreaTrigger> _areaTrigger = new();
     private readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new();
     private readonly uint[] _baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
+
     // Threat+combat management
     private readonly CombatManager _combatManager;
 
@@ -47,19 +48,21 @@ public partial class Unit
 
     private readonly object _healthLock = new();
     private readonly List<AuraApplication> _interruptableAuras = new();
+
     //Auras
     private readonly ConcurrentMultiMap<AuraType, AuraEffect> _modAuras = new();
 
     private readonly AuraCollection _ownedAuras = new();
     private readonly Dictionary<ReactiveType, uint> _reactiveTimer = new();
-    private readonly List<Aura> _removedAuras = new();
     private readonly List<Player> _sharedVision = new();
     private readonly Dictionary<SpellImmunity, MultiMap<uint, uint>> _spellImmune = new();
     private readonly TimeTracker _splineSyncTimer;
     private readonly ThreatManager _threatManager;
-                    // auras which have interrupt mask applied on unit
-     // Used for improve performance of aura state checks on aura apply/remove
+
+    // auras which have interrupt mask applied on unit
+    // Used for improve performance of aura state checks on aura apply/remove
     private readonly SortedSet<AuraApplication> _visibleAuras = new(new VisibleAuraSlotCompare());
+
     private readonly SortedSet<AuraApplication> _visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
     private ushort _aiAnimKitId;
     private bool _canModifyStats;
@@ -72,9 +75,11 @@ public partial class Unit
     private ushort _movementAnimKitId;
     private uint _oldFactionId;
     private PositionUpdateInfo _positionUpdateInfo;
+
     // faction before charm
     // Are we walking before we were charmed?
     private UnitState _state;
+
     public virtual IUnitAI AI
     {
         get => Ai;
@@ -93,6 +98,7 @@ public partial class Unit
     public List<Unit> Attackers => AttackerList;
     public IUnitAI BaseAI => Ai;
     public double BaseSpellCritChance { get; set; }
+
     public uint BattlePetCompanionExperience
     {
         get => UnitData.BattlePetCompanionExperience;
@@ -122,6 +128,7 @@ public partial class Unit
     public bool CanHaveThreatList => _threatManager.CanHaveThreatList;
     public bool CanInstantCast { get; private set; }
     public bool CanProc => ProcDeep == 0;
+
     public virtual bool CanSwim
     {
         get
@@ -141,6 +148,7 @@ public partial class Unit
     }
 
     public uint ChannelScriptVisualId => UnitData.ChannelData.Value.SpellVisual.ScriptVisualID;
+
     public uint ChannelSpellId
     {
         get => ((UnitChannel)UnitData.ChannelData).SpellID;
@@ -155,6 +163,7 @@ public partial class Unit
     public ObjectGuid CharmerGUID => UnitData.CharmedBy;
     public override Unit CharmerOrOwner => IsCharmed ? Charmer : OwnerUnit;
     public override ObjectGuid CharmerOrOwnerGUID => IsCharmed ? CharmerGUID : OwnerGUID;
+
     public PlayerClass Class
     {
         get => (PlayerClass)(byte)UnitData.ClassId;
@@ -162,6 +171,7 @@ public partial class Unit
     }
 
     public uint ClassMask => (uint)(1 << ((int)Class - 1));
+
     public float CollisionHeight
     {
         get
@@ -198,11 +208,13 @@ public partial class Unit
     }
 
     public override float CombatReach => (float)UnitData.CombatReach;
+
     //Charm
     public List<Unit> Controlled { get; set; } = new();
 
     public bool ControlledByPlayer { get; protected set; }
     public ObjectGuid CreatorGUID => UnitData.CreatedBy;
+
     public CreatureType CreatureType
     {
         get
@@ -248,6 +260,7 @@ public partial class Unit
     public LoopSafeSortedDictionary<DateTime, double> DamageTakenHistory { get; set; } = new();
     public DB2Manager DB2Manager { get; }
     public DeathState DeathState { get; protected set; }
+
     public ObjectGuid DemonCreatorGUID
     {
         get => UnitData.DemonCreator;
@@ -257,6 +270,7 @@ public partial class Unit
     public ITransport DirectTransport => Vehicle ?? Transport;
     public uint DisplayId => UnitData.DisplayID;
     public UnitDynFlags DynamicFlags => (UnitDynFlags)(uint)ObjectData.DynamicFlags;
+
     public Emote EmoteState
     {
         get => (Emote)(int)UnitData.EmoteState;
@@ -270,6 +284,7 @@ public partial class Unit
     }
 
     public virtual float FollowAngle => MathFunctions.PI_OVER2;
+
     public Gender Gender
     {
         get => (Gender)(byte)UnitData.Sex;
@@ -278,6 +293,7 @@ public partial class Unit
 
     public bool HasInvisibilityAura => HasAuraType(AuraType.ModInvisibility);
     public bool HasRootAura => HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity);
+
     //SharedVision
     public bool HasSharedVision => !_sharedVision.Empty();
 
@@ -292,6 +308,7 @@ public partial class Unit
     public bool IsBattleMaster => HasNpcFlag(NPCFlags.BattleMaster);
     public bool IsCharmed => !CharmerGUID.IsEmpty;
     public bool IsCharmedOwnedByPlayerOrPlayer => CharmerOrOwnerOrOwnGUID.IsPlayer;
+
     /// <summary>
     ///     returns if the unit can't enter combat
     /// </summary>
@@ -301,6 +318,7 @@ public partial class Unit
     public bool IsDead => DeathState is DeathState.Dead or DeathState.Corpse;
     public bool IsDuringRemoveFromWorld { get; private set; }
     public bool IsDying => DeathState == DeathState.JustDied;
+
     // This value can be different from IsInCombat, for example:
     // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
     // - when the creature has no targets left, but the AI has not yet ceased engaged logic
@@ -319,6 +337,7 @@ public partial class Unit
     public bool IsHunterPet => UnitTypeMask.HasAnyFlag(UnitTypeMask.HunterPet);
     public bool IsInCombat => HasUnitFlag(UnitFlags.InCombat);
     public bool IsInDisallowedMountForm => IsDisallowedMountForm(TransformSpell, ShapeshiftForm, DisplayId);
+
     public bool IsInFeralForm
     {
         get
@@ -336,6 +355,7 @@ public partial class Unit
     public bool IsInnkeeper => HasNpcFlag(NPCFlags.Innkeeper);
     public bool IsInSanctuary => HasPvpFlag(UnitPVPStateFlags.Sanctuary);
     public virtual bool IsLoading => false;
+
     public bool IsMagnet
     {
         get
@@ -353,6 +373,7 @@ public partial class Unit
     public bool IsPet => UnitTypeMask.HasAnyFlag(UnitTypeMask.Pet);
     public bool IsPetInCombat => HasUnitFlag(UnitFlags.PetInCombat);
     public bool IsPlayingHoverAnim { get; set; }
+
     public bool IsPolymorphed
     {
         get
@@ -373,6 +394,7 @@ public partial class Unit
 
     public bool IsPossessed => HasUnitState(UnitState.Possessed);
     public bool IsPossessedByPlayer => HasUnitState(UnitState.Possessed) && CharmerGUID.IsPlayer;
+
     public bool IsPossessing
     {
         get
@@ -388,6 +410,7 @@ public partial class Unit
 
     public bool IsPvP => HasPvpFlag(UnitPVPStateFlags.PvP);
     public bool IsQuestGiver => HasNpcFlag(NPCFlags.QuestGiver);
+
     public bool IsServiceProvider => HasNpcFlag(NPCFlags.Vendor |
                                                 NPCFlags.Trainer |
                                                 NPCFlags.FlightMaster |
@@ -418,6 +441,7 @@ public partial class Unit
     public bool IsSpiritGuide => HasNpcFlag(NPCFlags.SpiritGuide);
     public bool IsSpiritHealer => HasNpcFlag(NPCFlags.SpiritHealer);
     public bool IsSpiritService => HasNpcFlag(NPCFlags.SpiritHealer | NPCFlags.SpiritGuide);
+
     //Spline
     public bool IsSplineEnabled => MoveSpline.Initialized() && !MoveSpline.Finalized();
 
@@ -440,6 +464,7 @@ public partial class Unit
     public uint Level => UnitData.Level;
     public LootManager LootManager { get; }
     public LootStoreBox LootStorage { get; }
+
     public ulong MechanicImmunityMask
     {
         get
@@ -455,6 +480,7 @@ public partial class Unit
     }
 
     public override ushort MeleeAnimKitId => _meleeAnimKitId;
+
     public ObjectGuid MinionGUID
     {
         get => UnitData.Summon;
@@ -465,6 +491,7 @@ public partial class Unit
     public double ModRangedHitChance { get; set; }
     public double ModSpellHitChance { get; set; }
     public MotionMaster MotionMaster { get; }
+
     public uint MountDisplayId
     {
         get => UnitData.MountDisplayID;
@@ -477,6 +504,7 @@ public partial class Unit
     public MoveSpline MoveSpline { get; set; }
     public uint NativeDisplayId => UnitData.NativeDisplayID;
     public float NativeDisplayScale => UnitData.NativeXDisplayScale;
+
     public virtual Gender NativeGender
     {
         get => Gender;
@@ -486,6 +514,7 @@ public partial class Unit
     public virtual float NativeObjectScale => 1.0f;
     public NPCFlags NpcFlags => (NPCFlags)UnitData.NpcFlags[0];
     public NPCFlags2 NpcFlags2 => (NPCFlags2)UnitData.NpcFlags[1];
+
     public override float ObjectScale
     {
         get => base.ObjectScale;
@@ -507,6 +536,7 @@ public partial class Unit
     public List<Aura> OwnedAurasList => _ownedAuras.Auras;
     public override ObjectGuid OwnerGUID => UnitData.SummonedBy;
     public UnitPetFlags PetFlags => (UnitPetFlags)(byte)UnitData.PetFlags;
+
     public ObjectGuid PetGUID
     {
         get => SummonSlot[0];
@@ -515,6 +545,7 @@ public partial class Unit
 
     public Player PlayerMovingMe1 => PlayerMovingMe;
     public UnitPVPStateFlags PvpFlags => (UnitPVPStateFlags)(byte)UnitData.PvpFlags;
+
     public Race Race
     {
         get => (Race)(byte)UnitData.Race;
@@ -522,6 +553,7 @@ public partial class Unit
     }
 
     public uint RegenTimer { get; set; }
+
     public uint SchoolImmunityMask
     {
         get
@@ -537,6 +569,7 @@ public partial class Unit
     }
 
     public ScriptManager ScriptManager { get; }
+
     public ShapeShiftForm ShapeshiftForm
     {
         get => (ShapeShiftForm)(byte)UnitData.ShapeshiftForm;
@@ -565,7 +598,8 @@ public partial class Unit
     public uint TransformSpell { get; set; }
     public Unit UnitBeingMoved => UnitMovedByMe;
     public UnitCombatHelpers UnitCombatHelpers { get; }
-    //General  
+
+    //General
     public UnitData UnitData { get; set; }
 
     public UnitTypeMask UnitTypeMask { get; set; }
@@ -574,6 +608,7 @@ public partial class Unit
     public Creature VehicleCreatureBase => VehicleBase?.AsCreature;
     public Vehicle VehicleKit { get; set; }
     public Unit Victim => Attacking;
+
     public List<AuraApplication> VisibleAuras
     {
         get
@@ -607,7 +642,7 @@ public partial class Unit
 
     protected double[][] AuraPctModifiersGroup { get; set; } = new double[(int)UnitMods.End][];
 
-    //Spells 
+    //Spells
     protected Dictionary<CurrentSpellTypes, Spell> CurrentSpells { get; set; } = new((int)CurrentSpellTypes.Max);
 
     protected List<DynamicObject> DynamicObjects { get; set; } = new();
@@ -625,8 +660,10 @@ public partial class Unit
 
     //AI
     protected Stack<IUnitAI> UnitAis { get; set; } = new();
-         //< Incrementing counter used in movement packets
-    protected Unit UnitMovedByMe { get; set; }    // only ever set for players, and only for direct client control
-     // only set for direct client control (possess effects, vehicles and similar)
+
+    //< Incrementing counter used in movement packets
+    protected Unit UnitMovedByMe { get; set; } // only ever set for players, and only for direct client control
+
+    // only set for direct client control (possess effects, vehicles and similar)
     protected double[][] WeaponDamage { get; set; } = new double[(int)WeaponAttackType.Max][];
 }

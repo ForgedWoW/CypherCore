@@ -348,7 +348,7 @@ public class AuraEffect
 
         foreach (var aurApp in effectApplications)
         {
-            aurApp.Target._RegisterAuraEffect(this, false);
+            aurApp.Target.RegisterAuraEffect(this, false);
             HandleEffect(aurApp, handleMask, false, triggeredBy);
         }
 
@@ -367,7 +367,7 @@ public class AuraEffect
             if (aurApp.RemoveMode != AuraRemoveMode.None)
                 continue;
 
-            aurApp.Target._RegisterAuraEffect(this, true);
+            aurApp.Target.RegisterAuraEffect(this, true);
             HandleEffect(aurApp, handleMask, true, triggeredBy);
         }
 
@@ -567,7 +567,7 @@ public class AuraEffect
         // register/unregister effect in lists in case of real AuraEffect apply/remove
         // registration/unregistration is done always before real effect handling (some effect handlers code is depending on this)
         if (mode.HasAnyFlag(AuraEffectHandleModes.Real))
-            aurApp.Target._RegisterAuraEffect(this, apply);
+            aurApp.Target.RegisterAuraEffect(this, apply);
 
         // real aura apply/remove, handle modifier
         if (mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
