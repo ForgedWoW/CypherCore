@@ -2724,14 +2724,14 @@ public partial class Unit
         {
             var aura = _interruptableAuras[i].Base;
 
-            if (aura.SpellInfo.HasAuraInterruptFlag(flag) && (source == null || aura.Id != source.Id) && !IsInterruptFlagIgnoredForSpell(flag, this, aura.SpellInfo, source))
-            {
-                var removedAuras = RemovedAurasCount;
-                RemoveAura(aura, AuraRemoveMode.Interrupt);
+            if (!aura.SpellInfo.HasAuraInterruptFlag(flag) || (source != null && aura.Id == source.Id) || IsInterruptFlagIgnoredForSpell(flag, this, aura.SpellInfo, source))
+                continue;
 
-                if (RemovedAurasCount > removedAuras + 1)
-                    i = 0;
-            }
+            var removedAuras = RemovedAurasCount;
+            RemoveAura(aura, AuraRemoveMode.Interrupt);
+
+            if (RemovedAurasCount > removedAuras + 1)
+                i = 0;
         }
 
         // interrupt channeled spell
@@ -2839,11 +2839,6 @@ public partial class Unit
         }
 
         _ownedAuras.Remove(aura);
-
-        lock (_removedAuras)
-        {
-            _removedAuras.Add(aura);
-        }
 
         // Unregister single target aura
         if (aura.IsSingleTarget)
