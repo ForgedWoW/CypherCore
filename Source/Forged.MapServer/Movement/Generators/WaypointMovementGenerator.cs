@@ -19,6 +19,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
     private int _currentNode;
     private WaypointPath _path;
     private uint _pathId;
+
     public WaypointMovementGenerator(uint pathId = 0, bool repeating = true)
     {
         _nextMoveTime = new TimeTracker();
@@ -240,6 +241,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
         RemoveFlag(MovementGeneratorFlags.Paused);
     }
+
     public override void UnitSpeedChanged()
     {
         AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
@@ -387,14 +389,17 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
                 init.SetAnimation(AnimTier.Ground);
 
                 break;
+
             case WaypointMoveType.Takeoff:
                 init.SetAnimation(AnimTier.Hover);
 
                 break;
+
             case WaypointMoveType.Run:
                 init.SetWalk(false);
 
                 break;
+
             case WaypointMoveType.Walk:
                 init.SetWalk(true);
 
@@ -406,6 +411,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         // inform formation
         owner.SignalFormationMovement();
     }
+
     private bool UpdateTimer(uint diff)
     {
         _nextMoveTime.Update(diff);

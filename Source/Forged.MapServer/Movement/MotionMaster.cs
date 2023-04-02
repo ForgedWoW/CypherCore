@@ -18,100 +18,31 @@ using Serilog;
 
 namespace Forged.MapServer.Movement;
 
-public struct ChaseRange
-{
-    public float MaxRange;
-
-    // we have to move if we are outside this range...   (max. attack range)
-    public float MaxTolerance;
-
-    // this contains info that informs how we should path!
-    public float MinRange;     // we have to move if we are within this range...    (min. attack range)
-    public float MinTolerance; // ...and if we are, we will move this far away
-                               // ...and if we are, we will move into this range
-
-    public ChaseRange(float range)
-    {
-        MinRange = range > SharedConst.ContactDistance ? 0 : range - SharedConst.ContactDistance;
-        MinTolerance = range;
-        MaxRange = range + SharedConst.ContactDistance;
-        MaxTolerance = range;
-    }
-
-    public ChaseRange(float min, float max)
-    {
-        MinRange = min;
-        MinTolerance = Math.Min(min + SharedConst.ContactDistance, (min + max) / 2);
-        MaxRange = max;
-        MaxTolerance = Math.Max(max - SharedConst.ContactDistance, MinTolerance);
-    }
-
-    public ChaseRange(float min, float tMin, float tMax, float max)
-    {
-        MinRange = min;
-        MinTolerance = tMin;
-        MaxRange = max;
-        MaxTolerance = tMax;
-    }
-}
-
-public struct MovementGeneratorInformation
-{
-    public ObjectGuid TargetGUID;
-    public string TargetName;
-    public MovementGeneratorType Type;
-    public MovementGeneratorInformation(MovementGeneratorType type, ObjectGuid targetGUID, string targetName = "")
-    {
-        Type = type;
-        TargetGUID = targetGUID;
-        TargetName = targetName;
-    }
-}
-
-public class JumpArrivalCastArgs
-{
-    public uint SpellId;
-    public ObjectGuid Target;
-}
-
-public class JumpChargeParams
-{
-    public float JumpGravity;
-    public uint? ParabolicCurveId;
-    public uint? ProgressCurveId;
-    public float Speed;
-
-    public uint? SpellVisualId;
-    public bool TreatSpeedAsMoveTimeSeconds;
-}
-
 public class MotionMaster
 {
-    public const double gravity = 19.29110527038574;
+    public const double GRAVITY = 19.29110527038574;
     public const float SPEED_CHARGE = 42.0f;
-    private static readonly IdleMovementGenerator staticIdleMovement = new();
-    private static uint splineId;
+    private static readonly IdleMovementGenerator StaticIdleMovement = new();
+    private static uint _splineId;
+
+    public static uint SplineId => _splineId++;
+
+    private MultiMap<uint, MovementGenerator> BaseUnitStatesMap { get; } = new();
+    private MovementGenerator DefaultGenerator { get; set; }
+    private ConcurrentQueue<DelayedAction> DelayedActions { get; } = new();
+    private MotionMasterFlags Flags { get; set; }
+    private SortedSet<MovementGenerator> Generators { get; } = new(new MovementGeneratorComparator());
+    private Unit Owner { get; }
 
     public MotionMaster(Unit unit)
     {
-        _owner = unit;
-        _flags = MotionMasterFlags.InitializationPending;
+        Owner = unit;
+        Flags = MotionMasterFlags.InitializationPending;
     }
 
-    public static uint SplineId
-    {
-        get { return splineId++; }
-    }
-
-    private MultiMap<uint, MovementGenerator> _baseUnitStatesMap { get; } = new();
-    private MovementGenerator _defaultGenerator { get; set; }
-    private ConcurrentQueue<DelayedAction> _delayedActions { get; } = new();
-    private MotionMasterFlags _flags { get; set; }
-    private SortedSet<MovementGenerator> _generators { get; } = new(new MovementGeneratorComparator());
-    private Unit _owner { get; }
     public static MovementGenerator GetIdleMovementGenerator()
     {
-        return staticIdleMovement;
+        return StaticIdleMovement;
     }
 
     public static bool IsInvalidMovementGeneratorType(MovementGeneratorType type)
@@ -147,7 +78,7 @@ public class MotionMaster
     {
         if (HasFlag(MotionMasterFlags.Delayed))
         {
-            _delayedActions.Enqueue(new DelayedAction(Clear, MotionMasterDelayedActionType.Clear));
+            DelayedActions.Enqueue(new DelayedAction(Clear, MotionMasterDelayedActionType.Clear));
 
             return;
         }
@@ -163,7 +94,7 @@ public class MotionMaster
 
         if (HasFlag(MotionMasterFlags.Delayed))
         {
-            _delayedActions.Enqueue(new DelayedAction(() => Clear(slot), MotionMasterDelayedActionType.ClearSlot));
+            DelayedActions.Enqueue(new DelayedAction(() => Clear(slot), MotionMasterDelayedActionType.ClearSlot));
 
             return;
         }
@@ -177,10 +108,12 @@ public class MotionMaster
                 DirectClearDefault();
 
                 break;
+
             case MovementSlot.Active:
                 DirectClear();
 
                 break;
+
             default:
                 break;
         }
@@ -190,7 +123,7 @@ public class MotionMaster
     {
         if (HasFlag(MotionMasterFlags.Delayed))
         {
-            _delayedActions.Enqueue(new DelayedAction(() => Clear(mode), MotionMasterDelayedActionType.ClearMode));
+            DelayedActions.Enqueue(new DelayedAction(() => Clear(mode), MotionMasterDelayedActionType.ClearMode));
 
             return;
         }
@@ -205,7 +138,7 @@ public class MotionMaster
     {
         if (HasFlag(MotionMasterFlags.Delayed))
         {
-            _delayedActions.Enqueue(new DelayedAction(() => Clear(priority), MotionMasterDelayedActionType.ClearPriority));
+            DelayedActions.Enqueue(new DelayedAction(() => Clear(priority), MotionMasterDelayedActionType.ClearPriority));
 
             return;
         }
@@ -218,21 +151,21 @@ public class MotionMaster
 
     public bool Empty()
     {
-        lock (_generators)
+        lock (Generators)
         {
-            return _defaultGenerator == null && _generators.Empty();
+            return DefaultGenerator == null && Generators.Empty();
         }
     }
 
     public MovementGenerator GetCurrentMovementGenerator()
     {
-        lock (_generators)
+        lock (Generators)
         {
-            if (!_generators.Empty())
-                return _generators.FirstOrDefault();
+            if (!Generators.Empty())
+                return Generators.FirstOrDefault();
         }
 
-        return _defaultGenerator;
+        return DefaultGenerator;
     }
 
     public MovementGenerator GetCurrentMovementGenerator(MovementSlot slot)
@@ -240,14 +173,14 @@ public class MotionMaster
         if (Empty() || IsInvalidMovementSlot(slot))
             return null;
 
-        lock (_generators)
+        lock (Generators)
         {
-            if (slot == MovementSlot.Active && !_generators.Empty())
-                return _generators.FirstOrDefault();
+            if (slot == MovementSlot.Active && !Generators.Empty())
+                return Generators.FirstOrDefault();
         }
 
-        if (slot == MovementSlot.Default && _defaultGenerator != null)
-            return _defaultGenerator;
+        if (slot == MovementSlot.Default && DefaultGenerator != null)
+            return DefaultGenerator;
 
         return null;
     }
@@ -270,27 +203,27 @@ public class MotionMaster
         if (Empty() || IsInvalidMovementSlot(slot))
             return MovementGeneratorType.Max;
 
-        lock (_generators)
+        lock (Generators)
         {
-            if (slot == MovementSlot.Active && !_generators.Empty())
-                return _generators.FirstOrDefault().GetMovementGeneratorType();
+            if (slot == MovementSlot.Active && !Generators.Empty())
+                return Generators.FirstOrDefault().GetMovementGeneratorType();
         }
 
-        if (slot == MovementSlot.Default && _defaultGenerator != null)
-            return _defaultGenerator.GetMovementGeneratorType();
+        if (slot == MovementSlot.Default && DefaultGenerator != null)
+            return DefaultGenerator.GetMovementGeneratorType();
 
         return MovementGeneratorType.Max;
     }
 
     public MovementSlot GetCurrentSlot()
     {
-        lock (_generators)
+        lock (Generators)
         {
-            if (!_generators.Empty())
+            if (!Generators.Empty())
                 return MovementSlot.Active;
         }
 
-        if (_defaultGenerator != null)
+        if (DefaultGenerator != null)
             return MovementSlot.Default;
 
         return MovementSlot.Max;
@@ -302,10 +235,10 @@ public class MotionMaster
         y = 0f;
         z = 0f;
 
-        if (_owner.MoveSpline.Finalized())
+        if (Owner.MoveSpline.Finalized())
             return false;
 
-        var dest = _owner.MoveSpline.FinalDestination();
+        var dest = Owner.MoveSpline.FinalDestination();
         x = dest.X;
         y = dest.Y;
         z = dest.Z;
@@ -323,16 +256,17 @@ public class MotionMaster
         switch (slot)
         {
             case MovementSlot.Default:
-                if (_defaultGenerator != null && filter(_defaultGenerator))
-                    movement = _defaultGenerator;
+                if (DefaultGenerator != null && filter(DefaultGenerator))
+                    movement = DefaultGenerator;
 
                 break;
+
             case MovementSlot.Active:
-                lock (_generators)
+                lock (Generators)
                 {
-                    if (!_generators.Empty())
+                    if (!Generators.Empty())
                     {
-                        var itr = _generators.FirstOrDefault(filter);
+                        var itr = Generators.FirstOrDefault(filter);
 
                         if (itr != null)
                             movement = itr;
@@ -340,6 +274,7 @@ public class MotionMaster
                 }
 
                 break;
+
             default:
                 break;
         }
@@ -351,12 +286,12 @@ public class MotionMaster
     {
         List<MovementGeneratorInformation> list = new();
 
-        if (_defaultGenerator != null)
-            list.Add(new MovementGeneratorInformation(_defaultGenerator.GetMovementGeneratorType(), ObjectGuid.Empty));
+        if (DefaultGenerator != null)
+            list.Add(new MovementGeneratorInformation(DefaultGenerator.GetMovementGeneratorType(), ObjectGuid.Empty));
 
-        lock (_generators)
+        lock (Generators)
         {
-            foreach (var movement in _generators)
+            foreach (var movement in Generators)
             {
                 var type = movement.GetMovementGeneratorType();
 
@@ -381,6 +316,7 @@ public class MotionMaster
                         }
 
                         break;
+
                     default:
                         list.Add(new MovementGeneratorInformation(type, ObjectGuid.Empty));
 
@@ -402,21 +338,23 @@ public class MotionMaster
         switch (slot)
         {
             case MovementSlot.Default:
-                if (_defaultGenerator != null && filter(_defaultGenerator))
+                if (DefaultGenerator != null && filter(DefaultGenerator))
                     value = true;
 
                 break;
+
             case MovementSlot.Active:
-                lock (_generators)
+                lock (Generators)
                 {
-                    if (!_generators.Empty())
+                    if (!Generators.Empty())
                     {
-                        var itr = _generators.FirstOrDefault(filter);
+                        var itr = Generators.FirstOrDefault(filter);
                         value = itr != null;
                     }
                 }
 
                 break;
+
             default:
                 break;
         }
@@ -431,7 +369,7 @@ public class MotionMaster
 
         if (HasFlag(MotionMasterFlags.Update))
         {
-            _delayedActions.Enqueue(new DelayedAction(Initialize, MotionMasterDelayedActionType.Initialize));
+            DelayedActions.Enqueue(new DelayedAction(Initialize, MotionMasterDelayedActionType.Initialize));
 
             return;
         }
@@ -441,13 +379,14 @@ public class MotionMaster
 
     public void InitializeDefault()
     {
-        Add(AISelector.SelectMovementGenerator(_owner), MovementSlot.Default);
+        Add(AISelector.SelectMovementGenerator(Owner), MovementSlot.Default);
     }
+
     public void LaunchMoveSpline(Action<MoveSplineInit> initializer, uint id = 0, MovementGeneratorPriority priority = MovementGeneratorPriority.Normal, MovementGeneratorType type = MovementGeneratorType.Effect)
     {
         if (IsInvalidMovementGeneratorType(type))
         {
-            Log.Logger.Debug($"MotionMaster::LaunchMoveSpline: '{_owner.GUID}', tried to launch a spline with an invalid MovementGeneratorType: {type} (Id: {id}, Priority: {priority})");
+            Log.Logger.Debug($"MotionMaster::LaunchMoveSpline: '{Owner.GUID}', tried to launch a spline with an invalid MovementGeneratorType: {type} (Id: {id}, Priority: {priority})");
 
             return;
         }
@@ -462,11 +401,11 @@ public class MotionMaster
 
     public void MoveAlongSplineChain(uint pointId, uint dbChainId, bool walk)
     {
-        var owner = _owner.AsCreature;
+        var owner = Owner.AsCreature;
 
         if (!owner)
         {
-            Log.Logger.Error("MotionMaster.MoveAlongSplineChain: non-creature {0} tried to walk along DB spline chain. Ignoring.", _owner.GUID.ToString());
+            Log.Logger.Error("MotionMaster.MoveAlongSplineChain: non-creature {0} tried to walk along DB spline chain. Ignoring.", Owner.GUID.ToString());
 
             return;
         }
@@ -506,7 +445,7 @@ public class MotionMaster
         MoveCharge(dest.X, dest.Y, dest.Z, SPEED_CHARGE, EventId.ChargePrepath);
 
         // Charge movement is not started when using EVENT_CHARGE_PREPATH
-        MoveSplineInit init = new(_owner);
+        MoveSplineInit init = new(Owner);
         init.MovebyPath(path.GetPath());
         init.SetVelocity(speed);
 
@@ -532,7 +471,7 @@ public class MotionMaster
     public void MoveChase(Unit target, ChaseRange? dist = null, ChaseAngle? angle = null)
     {
         // Ignore movement request if target not exist
-        if (!target || target == _owner)
+        if (!target || target == Owner)
             return;
 
         Add(new ChaseMovementGenerator(target, dist, angle));
@@ -544,10 +483,10 @@ public class MotionMaster
         {
             var step = 2 * MathFunctions.PI / stepCount * (clockwise ? -1.0f : 1.0f);
             Position pos = new(x, y, z);
-            var angle = pos.GetAbsoluteAngle(_owner.Location.X, _owner.Location.Y);
+            var angle = pos.GetAbsoluteAngle(Owner.Location.X, Owner.Location.Y);
 
             // add the owner's current position as starting point as it gets removed after entering the cycle
-            init.Path().Add(new Vector3(_owner.Location.X, _owner.Location.Y, _owner.Location.Z));
+            init.Path().Add(new Vector3(Owner.Location.X, Owner.Location.Y, Owner.Location.Z));
 
             for (byte i = 0; i < stepCount; angle += step, ++i)
             {
@@ -557,15 +496,15 @@ public class MotionMaster
                     Y = (float)(y + radius * Math.Sin(angle))
                 };
 
-                if (_owner.IsFlying)
+                if (Owner.IsFlying)
                     point.Z = z;
                 else
-                    point.Z = _owner.Location.GetMapHeight(point.X, point.Y, z) + _owner.HoverOffset;
+                    point.Z = Owner.Location.GetMapHeight(point.X, point.Y, z) + Owner.HoverOffset;
 
                 init.Path().Add(point);
             }
 
-            if (_owner.IsFlying)
+            if (Owner.IsFlying)
             {
                 init.SetFly();
                 init.SetCyclic();
@@ -583,13 +522,13 @@ public class MotionMaster
 
     public void MoveCloserAndStop(uint id, Unit target, float distance)
     {
-        var distanceToTravel = _owner.Location.GetExactDist2d(target.Location) - distance;
+        var distanceToTravel = Owner.Location.GetExactDist2d(target.Location) - distance;
 
         if (distanceToTravel > 0.0f)
         {
-            var angle = _owner.Location.GetAbsoluteAngle(target.Location);
-            var destx = _owner.Location.X + distanceToTravel * (float)Math.Cos(angle);
-            var desty = _owner.Location.Y + distanceToTravel * (float)Math.Sin(angle);
+            var angle = Owner.Location.GetAbsoluteAngle(target.Location);
+            var destx = Owner.Location.X + distanceToTravel * (float)Math.Cos(angle);
+            var desty = Owner.Location.Y + distanceToTravel * (float)Math.Sin(angle);
             MovePoint(id, destx, desty, target.Location.Z);
         }
         else
@@ -597,8 +536,8 @@ public class MotionMaster
             // We are already close enough. We just need to turn toward the target without changing position.
             var initializer = (MoveSplineInit init) =>
             {
-                init.MoveTo(_owner.Location.X, _owner.Location.Y, _owner.Location.Z);
-                var refreshedTarget = Global.ObjAccessor.GetUnit(_owner, target.GUID);
+                init.MoveTo(Owner.Location.X, Owner.Location.Y, Owner.Location.Z);
+                var refreshedTarget = Global.ObjAccessor.GetUnit(Owner, target.GUID);
 
                 if (refreshedTarget != null)
                     init.SetFacing(refreshedTarget);
@@ -610,7 +549,7 @@ public class MotionMaster
 
     public void MoveConfused()
     {
-        if (_owner.IsTypeId(TypeId.Player))
+        if (Owner.IsTypeId(TypeId.Player))
             Add(new ConfusedMovementGenerator<Player>());
         else
             Add(new ConfusedMovementGenerator<Creature>());
@@ -629,32 +568,32 @@ public class MotionMaster
     public void MoveFall(uint id = 0)
     {
         // Use larger distance for vmap height search than in most other cases
-        var tz = _owner.Location.GetMapHeight(_owner.Location.X, _owner.Location.Y, _owner.Location.Z, true, MapConst.MaxFallDistance);
+        var tz = Owner.Location.GetMapHeight(Owner.Location.X, Owner.Location.Y, Owner.Location.Z, true, MapConst.MaxFallDistance);
 
         if (tz <= MapConst.InvalidHeight)
             return;
 
         // Abort too if the ground is very near
-        if (Math.Abs(_owner.Location.Z - tz) < 0.1f)
+        if (Math.Abs(Owner.Location.Z - tz) < 0.1f)
             return;
 
         // rooted units don't move (also setting falling+root flag causes client freezes)
-        if (_owner.HasUnitState(UnitState.Root | UnitState.Stunned))
+        if (Owner.HasUnitState(UnitState.Root | UnitState.Stunned))
             return;
 
-        _owner.SetFall(true);
+        Owner.SetFall(true);
 
         // Don't run spline movement for players
-        if (_owner.IsTypeId(TypeId.Player))
+        if (Owner.IsTypeId(TypeId.Player))
         {
-            _owner.AsPlayer.SetFallInformation(0, _owner.Location.Z);
+            Owner.AsPlayer.SetFallInformation(0, Owner.Location.Z);
 
             return;
         }
 
         var initializer = (MoveSplineInit init) =>
         {
-            init.MoveTo(_owner.Location.X, _owner.Location.Y, tz + _owner.HoverOffset, false);
+            init.MoveTo(Owner.Location.X, Owner.Location.Y, tz + Owner.HoverOffset, false);
             init.SetFall();
         };
 
@@ -671,7 +610,7 @@ public class MotionMaster
         if (!enemy)
             return;
 
-        if (_owner.IsCreature)
+        if (Owner.IsCreature)
         {
             if (time != 0)
                 Add(new TimedFleeingMovementGenerator(enemy.GUID, time));
@@ -692,7 +631,7 @@ public class MotionMaster
     public void MoveFollow(Unit target, float dist, ChaseAngle angle, MovementSlot slot = MovementSlot.Active)
     {
         // Ignore movement request if target not exist
-        if (!target || target == _owner)
+        if (!target || target == Owner)
             return;
 
         Add(new FollowMovementGenerator(target, dist, angle), slot);
@@ -700,7 +639,7 @@ public class MotionMaster
 
     public void MoveFormation(Unit leader, float range, float angle, uint point1, uint point2)
     {
-        if (_owner.TypeId == TypeId.Unit && leader != null)
+        if (Owner.TypeId == TypeId.Unit && leader != null)
             Add(new FormationMovementGenerator(leader, range, angle, point1, point2), MovementSlot.Default);
     }
 
@@ -709,31 +648,31 @@ public class MotionMaster
         Add(GetIdleMovementGenerator(), MovementSlot.Default);
     }
 
-    public void MoveJump(Position pos, float speedXY, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
+    public void MoveJump(Position pos, float speedXy, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
     {
-        MoveJump(pos.X, pos.Y, pos.Z, pos.Orientation, speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
+        MoveJump(pos.X, pos.Y, pos.Z, pos.Orientation, speedXy, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
     }
 
-    public void MoveJump(float x, float y, float z, float speedXY, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
+    public void MoveJump(float x, float y, float z, float speedXy, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
     {
-        MoveJump(x, y, z, 0, speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
+        MoveJump(x, y, z, 0, speedXy, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
     }
 
-    public void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
+    public void MoveJump(float x, float y, float z, float o, float speedXy, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
     {
-        Log.Logger.Debug("Unit ({0}) jump to point (X: {1} Y: {2} Z: {3})", _owner.GUID.ToString(), x, y, z);
+        Log.Logger.Debug("Unit ({0}) jump to point (X: {1} Y: {2} Z: {3})", Owner.GUID.ToString(), x, y, z);
 
-        if (speedXY < 0.01f)
+        if (speedXy < 0.01f)
             return;
 
-        var moveTimeHalf = (float)(speedZ / gravity);
-        var max_height = -MoveSpline.ComputeFallElevation(moveTimeHalf, false, -speedZ);
+        var moveTimeHalf = (float)(speedZ / GRAVITY);
+        var maxHeight = -MoveSpline.ComputeFallElevation(moveTimeHalf, false, -speedZ);
 
         var initializer = (MoveSplineInit init) =>
         {
             init.MoveTo(x, y, z, false);
-            init.SetParabolic(max_height, 0);
-            init.SetVelocity(speedXY);
+            init.SetParabolic(maxHeight, 0);
+            init.SetVelocity(speedXy);
 
             if (hasOrientation)
                 init.SetFacing(o);
@@ -760,25 +699,25 @@ public class MotionMaster
         Add(movement);
     }
 
-    public void MoveJumpTo(float angle, float speedXY, float speedZ)
+    public void MoveJumpTo(float angle, float speedXy, float speedZ)
     {
         //This function may make players fall below map
-        if (_owner.IsTypeId(TypeId.Player))
+        if (Owner.IsTypeId(TypeId.Player))
             return;
 
-        var moveTimeHalf = (float)(speedZ / gravity);
-        var dist = 2 * moveTimeHalf * speedXY;
-        _owner.Location.GetNearPoint2D(null, out var x, out var y, dist, _owner.Location.Orientation + angle);
-        var z = _owner.Location.Z;
-        z = _owner.Location.UpdateAllowedPositionZ(x, y, z);
-        MoveJump(x, y, z, 0.0f, speedXY, speedZ);
+        var moveTimeHalf = (float)(speedZ / GRAVITY);
+        var dist = 2 * moveTimeHalf * speedXy;
+        Owner.Location.GetNearPoint2D(null, out var x, out var y, dist, Owner.Location.Orientation + angle);
+        var z = Owner.Location.Z;
+        z = Owner.Location.UpdateAllowedPositionZ(x, y, z);
+        MoveJump(x, y, z, 0.0f, speedXy, speedZ);
     }
 
-    public void MoveJumpWithGravity(Position pos, float speedXY, float gravity, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
+    public void MoveJumpWithGravity(Position pos, float speedXy, float gravity, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
     {
-        Log.Logger.Debug($"MotionMaster.MoveJumpWithGravity: '{_owner.GUID}', jumps to point Id: {id} ({pos})");
+        Log.Logger.Debug($"MotionMaster.MoveJumpWithGravity: '{Owner.GUID}', jumps to point Id: {id} ({pos})");
 
-        if (speedXY < 0.01f)
+        if (speedXy < 0.01f)
             return;
 
         var initializer = (MoveSplineInit init) =>
@@ -786,7 +725,7 @@ public class MotionMaster
             init.MoveTo(pos.X, pos.Y, pos.Z, false);
             init.SetParabolicVerticalAcceleration(gravity, 0);
             init.SetUncompressed();
-            init.SetVelocity(speedXY);
+            init.SetVelocity(speedXy);
             init.SetUnlimitedSpeed();
 
             if (hasOrientation)
@@ -815,29 +754,29 @@ public class MotionMaster
         Add(movement);
     }
 
-    public void MoveKnockbackFrom(Position origin, float speedXY, float speedZ, SpellEffectExtraData spellEffectExtraData = null)
+    public void MoveKnockbackFrom(Position origin, float speedXy, float speedZ, SpellEffectExtraData spellEffectExtraData = null)
     {
         //This function may make players fall below map
-        if (_owner.IsTypeId(TypeId.Player))
+        if (Owner.IsTypeId(TypeId.Player))
             return;
 
-        if (speedXY < 0.01f)
+        if (speedXy < 0.01f)
             return;
 
-        Position dest = _owner.Location;
-        var moveTimeHalf = (float)(speedZ / gravity);
-        var dist = 2 * moveTimeHalf * speedXY;
-        var max_height = -MoveSpline.ComputeFallElevation(moveTimeHalf, false, -speedZ);
+        Position dest = Owner.Location;
+        var moveTimeHalf = (float)(speedZ / GRAVITY);
+        var dist = 2 * moveTimeHalf * speedXy;
+        var maxHeight = -MoveSpline.ComputeFallElevation(moveTimeHalf, false, -speedZ);
 
         // Use a mmap raycast to get a valid destination.
-        _owner.MovePositionToFirstCollision(dest, dist, _owner.Location.GetRelativeAngle(origin) + MathF.PI);
+        Owner.MovePositionToFirstCollision(dest, dist, Owner.Location.GetRelativeAngle(origin) + MathF.PI);
 
         var initializer = (MoveSplineInit init) =>
         {
             init.MoveTo(dest.X, dest.Y, dest.Z, false);
-            init.SetParabolic(max_height, 0);
+            init.SetParabolic(maxHeight, 0);
             init.SetOrientationFixed(true);
-            init.SetVelocity(speedXY);
+            init.SetVelocity(speedXy);
 
             if (spellEffectExtraData != null)
                 init.SetSpellEffectExtraData(spellEffectExtraData);
@@ -891,7 +830,7 @@ public class MotionMaster
 
     public void MoveRandom(float wanderDistance, TimeSpan duration = default)
     {
-        if (_owner.IsTypeId(TypeId.Unit))
+        if (Owner.IsTypeId(TypeId.Unit))
             Add(new RandomMovementGenerator(wanderDistance, duration), MovementSlot.Default);
     }
 
@@ -905,7 +844,7 @@ public class MotionMaster
 
     public void MoveSeekAssistance(float x, float y, float z)
     {
-        var creature = _owner.AsCreature;
+        var creature = Owner.AsCreature;
 
         if (creature != null)
         {
@@ -918,16 +857,16 @@ public class MotionMaster
         }
         else
         {
-            Log.Logger.Error($"MotionMaster::MoveSeekAssistance: {_owner.GUID}, attempted to seek assistance");
+            Log.Logger.Error($"MotionMaster::MoveSeekAssistance: {Owner.GUID}, attempted to seek assistance");
         }
     }
 
     public void MoveSeekAssistanceDistract(uint time)
     {
-        if (_owner.IsCreature)
-            Add(new AssistanceDistractMovementGenerator(time, _owner.Location.Orientation));
+        if (Owner.IsCreature)
+            Add(new AssistanceDistractMovementGenerator(time, Owner.Location.Orientation));
         else
-            Log.Logger.Error($"MotionMaster::MoveSeekAssistanceDistract: {_owner.GUID} attempted to call distract after assistance");
+            Log.Logger.Error($"MotionMaster::MoveSeekAssistanceDistract: {Owner.GUID} attempted to call distract after assistance");
     }
 
     public void MoveSmoothPath(uint pointId, Vector3[] pathPoints, int pathSize, bool walk = false, bool fly = false)
@@ -967,11 +906,11 @@ public class MotionMaster
 
     public void MoveTargetedHome()
     {
-        var owner = _owner.AsCreature;
+        var owner = Owner.AsCreature;
 
         if (owner == null)
         {
-            Log.Logger.Error($"MotionMaster::MoveTargetedHome: '{_owner.GUID}', attempted to move towards target home.");
+            Log.Logger.Error($"MotionMaster::MoveTargetedHome: '{Owner.GUID}', attempted to move towards target home.");
 
             return;
         }
@@ -988,27 +927,27 @@ public class MotionMaster
 
     public void MoveTaxiFlight(uint path, uint pathnode)
     {
-        if (_owner.IsTypeId(TypeId.Player))
+        if (Owner.IsTypeId(TypeId.Player))
         {
             if (path < CliDB.TaxiPathNodesByPath.Count)
             {
-                Log.Logger.Debug($"MotionMaster::MoveTaxiFlight: {_owner.GUID} taxi to Path Id: {path} (node {pathnode})");
+                Log.Logger.Debug($"MotionMaster::MoveTaxiFlight: {Owner.GUID} taxi to Path Id: {path} (node {pathnode})");
 
                 // Only one FLIGHT_MOTION_TYPE is allowed
                 var hasExisting = HasMovementGenerator(gen => gen.GetMovementGeneratorType() == MovementGeneratorType.Flight);
 
                 FlightPathMovementGenerator movement = new();
-                movement.LoadPath(_owner.AsPlayer);
+                movement.LoadPath(Owner.AsPlayer);
                 Add(movement);
             }
             else
             {
-                Log.Logger.Error($"MotionMaster::MoveTaxiFlight: '{_owner.GUID}', attempted taxi to non-existing path Id: {path} (node: {pathnode})");
+                Log.Logger.Error($"MotionMaster::MoveTaxiFlight: '{Owner.GUID}', attempted taxi to non-existing path Id: {path} (node: {pathnode})");
             }
         }
         else
         {
-            Log.Logger.Error($"MotionMaster::MoveTaxiFlight: '{_owner.GUID}', attempted taxi to path Id: {path} (node: {pathnode})");
+            Log.Logger.Error($"MotionMaster::MoveTaxiFlight: '{Owner.GUID}', attempted taxi to path Id: {path} (node: {pathnode})");
         }
     }
 
@@ -1029,7 +968,7 @@ public class MotionMaster
 
         if (HasFlag(MotionMasterFlags.Delayed))
         {
-            _delayedActions.Enqueue(new DelayedAction(() => Remove(movement, slot), MotionMasterDelayedActionType.Remove));
+            DelayedActions.Enqueue(new DelayedAction(() => Remove(movement, slot), MotionMasterDelayedActionType.Remove));
 
             return;
         }
@@ -1040,19 +979,21 @@ public class MotionMaster
         switch (slot)
         {
             case MovementSlot.Default:
-                if (_defaultGenerator != null && _defaultGenerator == movement)
+                if (DefaultGenerator != null && DefaultGenerator == movement)
                     DirectClearDefault();
 
                 break;
+
             case MovementSlot.Active:
-                lock (_generators)
+                lock (Generators)
                 {
-                    if (!_generators.Empty())
-                        if (_generators.Contains(movement))
+                    if (!Generators.Empty())
+                        if (Generators.Contains(movement))
                             Remove(movement, GetCurrentMovementGenerator() == movement, false);
                 }
 
                 break;
+
             default:
                 break;
         }
@@ -1065,7 +1006,7 @@ public class MotionMaster
 
         if (HasFlag(MotionMasterFlags.Delayed))
         {
-            _delayedActions.Enqueue(new DelayedAction(() => Remove(type, slot), MotionMasterDelayedActionType.RemoveType));
+            DelayedActions.Enqueue(new DelayedAction(() => Remove(type, slot), MotionMasterDelayedActionType.RemoveType));
 
             return;
         }
@@ -1076,16 +1017,17 @@ public class MotionMaster
         switch (slot)
         {
             case MovementSlot.Default:
-                if (_defaultGenerator != null && _defaultGenerator.GetMovementGeneratorType() == type)
+                if (DefaultGenerator != null && DefaultGenerator.GetMovementGeneratorType() == type)
                     DirectClearDefault();
 
                 break;
+
             case MovementSlot.Active:
-                lock (_generators)
+                lock (Generators)
                 {
-                    if (!_generators.Empty())
+                    if (!Generators.Empty())
                     {
-                        var itr = _generators.FirstOrDefault(a => a.GetMovementGeneratorType() == type);
+                        var itr = Generators.FirstOrDefault(a => a.GetMovementGeneratorType() == type);
 
                         if (itr != null)
                             Remove(itr, GetCurrentMovementGenerator() == itr, false);
@@ -1093,6 +1035,7 @@ public class MotionMaster
                 }
 
                 break;
+
             default:
                 break;
         }
@@ -1100,11 +1043,12 @@ public class MotionMaster
 
     public int Size()
     {
-        lock (_generators)
+        lock (Generators)
         {
-            return (_defaultGenerator != null ? 1 : 0) + _generators.Count;
+            return (DefaultGenerator != null ? 1 : 0) + Generators.Count;
         }
     }
+
     public bool StopOnDeath()
     {
         var movementGenerator = GetCurrentMovementGenerator();
@@ -1113,7 +1057,7 @@ public class MotionMaster
             if (movementGenerator.HasFlag(MovementGeneratorFlags.PersistOnDeath))
                 return false;
 
-        if (_owner.Location.IsInWorld)
+        if (Owner.Location.IsInWorld)
         {
             // Only clear MotionMaster for entities that exists in world
             // Avoids crashes in the following conditions :
@@ -1124,7 +1068,7 @@ public class MotionMaster
             MoveIdle();
         }
 
-        _owner.StopMoving();
+        Owner.StopMoving();
 
         return true;
     }
@@ -1133,7 +1077,7 @@ public class MotionMaster
     {
         try
         {
-            if (!_owner)
+            if (!Owner)
                 return;
 
             if (HasFlag(MotionMasterFlags.InitializationPending | MotionMasterFlags.Initializing))
@@ -1146,18 +1090,18 @@ public class MotionMaster
             if (HasFlag(MotionMasterFlags.StaticInitializationPending) && IsStatic(top))
             {
                 RemoveFlag(MotionMasterFlags.StaticInitializationPending);
-                top.Initialize(_owner);
+                top.Initialize(Owner);
             }
 
             if (top.HasFlag(MovementGeneratorFlags.InitializationPending))
-                top.Initialize(_owner);
+                top.Initialize(Owner);
 
             if (top.HasFlag(MovementGeneratorFlags.Deactivated))
-                top.Reset(_owner);
+                top.Reset(Owner);
 
-            if (!top.Update(_owner, diff))
+            if (!top.Update(Owner, diff))
                 // Since all the actions that modify any slot are delayed, this movement is guaranteed to be top
-                lock (_generators)
+                lock (Generators)
                 {
                     Pop(true, true); // Natural, and only, call to MovementInform
                 }
@@ -1173,6 +1117,7 @@ public class MotionMaster
             RemoveFlag(MotionMasterFlags.Update);
         }
     }
+
     private void Add(MovementGenerator movement, MovementSlot slot = MovementSlot.Active)
     {
         if (movement == null)
@@ -1183,7 +1128,7 @@ public class MotionMaster
 
         if (HasFlag(MotionMasterFlags.Delayed))
 
-            _delayedActions.Enqueue(new DelayedAction(() => Add(movement, slot), MotionMasterDelayedActionType.Add));
+            DelayedActions.Enqueue(new DelayedAction(() => Add(movement, slot), MotionMasterDelayedActionType.Add));
         else
             DirectAdd(movement, slot);
     }
@@ -1193,17 +1138,17 @@ public class MotionMaster
         if (movement == null || movement.BaseUnitState == 0)
             return;
 
-        lock (_baseUnitStatesMap)
+        lock (BaseUnitStatesMap)
         {
-            _baseUnitStatesMap.Add((uint)movement.BaseUnitState, movement);
+            BaseUnitStatesMap.Add((uint)movement.BaseUnitState, movement);
         }
 
-        _owner.AddUnitState(movement.BaseUnitState);
+        Owner.AddUnitState(movement.BaseUnitState);
     }
 
     private void AddFlag(MotionMasterFlags flag)
     {
-        _flags |= flag;
+        Flags |= flag;
     }
 
     private void ClearBaseUnitState(MovementGenerator movement)
@@ -1211,39 +1156,39 @@ public class MotionMaster
         if (movement == null || movement.BaseUnitState == 0)
             return;
 
-        lock (_baseUnitStatesMap)
+        lock (BaseUnitStatesMap)
         {
-            _baseUnitStatesMap.Remove((uint)movement.BaseUnitState, movement);
+            BaseUnitStatesMap.Remove((uint)movement.BaseUnitState, movement);
         }
 
-        if (!_baseUnitStatesMap.ContainsKey((uint)movement.BaseUnitState))
-            _owner.ClearUnitState(movement.BaseUnitState);
+        if (!BaseUnitStatesMap.ContainsKey((uint)movement.BaseUnitState))
+            Owner.ClearUnitState(movement.BaseUnitState);
     }
 
     private void ClearBaseUnitStates()
     {
         uint unitState = 0;
 
-        lock (_baseUnitStatesMap)
+        lock (BaseUnitStatesMap)
         {
-            foreach (var itr in _baseUnitStatesMap.KeyValueList)
+            foreach (var itr in BaseUnitStatesMap.KeyValueList)
                 unitState |= itr.Key;
 
-            _owner.ClearUnitState((UnitState)unitState);
-            _baseUnitStatesMap.Clear();
+            Owner.ClearUnitState((UnitState)unitState);
+            BaseUnitStatesMap.Clear();
         }
     }
 
     private void Delete(MovementGenerator movement, bool active, bool movementInform)
     {
-        movement.Finalize(_owner, active, movementInform);
+        movement.Finalize(Owner, active, movementInform);
         ClearBaseUnitState(movement);
     }
 
     private void DeleteDefault(bool active, bool movementInform)
     {
-        _defaultGenerator.Finalize(_owner, active, movementInform);
-        _defaultGenerator = GetIdleMovementGenerator();
+        DefaultGenerator.Finalize(Owner, active, movementInform);
+        DefaultGenerator = GetIdleMovementGenerator();
         AddFlag(MotionMasterFlags.StaticInitializationPending);
     }
 
@@ -1263,7 +1208,7 @@ public class MotionMaster
         {
             _top = (int)slot;
         }
-      
+
         _slot[(int)slot] = m;
         if (_top > (int)slot)
             _initialize[(int)slot] = true;
@@ -1281,35 +1226,36 @@ public class MotionMaster
         switch (slot)
         {
             case MovementSlot.Default:
-                if (_defaultGenerator != null)
-                    lock (_generators)
+                if (DefaultGenerator != null)
+                    lock (Generators)
                     {
-                        _defaultGenerator.Finalize(_owner, _generators.Empty(), false);
+                        DefaultGenerator.Finalize(Owner, Generators.Empty(), false);
                     }
 
-                _defaultGenerator = movement;
+                DefaultGenerator = movement;
 
                 if (IsStatic(movement))
                     AddFlag(MotionMasterFlags.StaticInitializationPending);
 
                 break;
+
             case MovementSlot.Active:
-                lock (_generators)
+                lock (Generators)
                 {
-                    if (!_generators.Empty())
+                    if (!Generators.Empty())
                     {
-                        if (movement.Priority >= _generators.FirstOrDefault().Priority)
+                        if (movement.Priority >= Generators.FirstOrDefault().Priority)
                         {
-                            var itr = _generators.FirstOrDefault();
+                            var itr = Generators.FirstOrDefault();
 
                             if (movement.Priority == itr.Priority)
                                 Remove(itr, true, false);
                             else
-                                itr.Deactivate(_owner);
+                                itr.Deactivate(Owner);
                         }
                         else
                         {
-                            var pointer = _generators.FirstOrDefault(a => a.Priority == movement.Priority);
+                            var pointer = Generators.FirstOrDefault(a => a.Priority == movement.Priority);
 
                             if (pointer != null)
                                 Remove(pointer, false, false);
@@ -1317,10 +1263,10 @@ public class MotionMaster
                     }
                     else
                     {
-                        _defaultGenerator.Deactivate(_owner);
+                        DefaultGenerator.Deactivate(Owner);
                     }
 
-                    _generators.Add(movement);
+                    Generators.Add(movement);
                 }
 
                 AddBaseUnitState(movement);
@@ -1331,14 +1277,14 @@ public class MotionMaster
 
     private void DirectClear()
     {
-        lock (_generators)
+        lock (Generators)
         {
             // First delete Top
-            if (!_generators.Empty())
+            if (!Generators.Empty())
                 Pop(true, false);
 
             // Then the rest
-            while (!_generators.Empty())
+            while (!Generators.Empty())
                 Pop(false, false);
         }
 
@@ -1348,23 +1294,23 @@ public class MotionMaster
 
     private void DirectClear(Func<MovementGenerator, bool> filter)
     {
-        if (_generators.Empty())
+        if (Generators.Empty())
             return;
 
         var top = GetCurrentMovementGenerator();
 
-        foreach (var movement in _generators.ToList())
+        foreach (var movement in Generators.ToList())
             if (filter(movement))
             {
-                _generators.Remove(movement);
+                Generators.Remove(movement);
                 Delete(movement, movement == top, false);
             }
     }
 
     private void DirectClearDefault()
     {
-        if (_defaultGenerator != null)
-            DeleteDefault(_generators.Empty(), false);
+        if (DefaultGenerator != null)
+            DeleteDefault(Generators.Empty(), false);
     }
 
     private void DirectInitialize()
@@ -1377,7 +1323,7 @@ public class MotionMaster
 
     private bool HasFlag(MotionMasterFlags flag)
     {
-        return (_flags & flag) != 0;
+        return (Flags & flag) != 0;
     }
 
     private void MoveAlongSplineChain(uint pointId, List<SplineChainLink> chain, bool walk)
@@ -1387,25 +1333,25 @@ public class MotionMaster
 
     private void Pop(bool active, bool movementInform)
     {
-        if (!_generators.Empty())
-            Remove(_generators.FirstOrDefault(), active, movementInform);
+        if (!Generators.Empty())
+            Remove(Generators.FirstOrDefault(), active, movementInform);
     }
 
     private void Remove(MovementGenerator movement, bool active, bool movementInform)
     {
-        _generators.Remove(movement);
+        Generators.Remove(movement);
         Delete(movement, active, movementInform);
     }
 
     private void RemoveFlag(MotionMasterFlags flag)
     {
-        _flags &= ~flag;
+        Flags &= ~flag;
     }
 
     private void ResolveDelayedActions()
     {
-        while (_delayedActions.Count != 0)
-            if (_delayedActions.TryDequeue(out var action) && action != null)
+        while (DelayedActions.Count != 0)
+            if (DelayedActions.TryDequeue(out var action) && action != null)
                 action.Resolve();
     }
 
@@ -1413,88 +1359,11 @@ public class MotionMaster
     {
         if (info.Empty())
         {
-            Log.Logger.Error("MotionMaster.ResumeSplineChain: unit with entry {0} tried to resume a spline chain from empty info.", _owner.Entry);
+            Log.Logger.Error("MotionMaster.ResumeSplineChain: unit with entry {0} tried to resume a spline chain from empty info.", Owner.Entry);
 
             return;
         }
 
         Add(new SplineChainMovementGenerator(info));
-    }
-}
-
-internal class DelayedAction
-{
-    private readonly Action Action;
-    private readonly MotionMasterDelayedActionType Type;
-    private readonly Func<bool> Validator;
-    public DelayedAction(Action action, Func<bool> validator, MotionMasterDelayedActionType type)
-    {
-        Action = action;
-        Validator = validator;
-        Type = type;
-    }
-
-    public DelayedAction(Action action, MotionMasterDelayedActionType type)
-    {
-        Action = action;
-        Validator = () => true;
-        Type = type;
-    }
-
-    public void Resolve()
-    {
-        if (Validator())
-            Action();
-    }
-}
-
-internal class MovementGeneratorComparator : IComparer<MovementGenerator>
-{
-    public int Compare(MovementGenerator a, MovementGenerator b)
-    {
-        if (a.Equals(b))
-            return 0;
-
-        if (a.Mode < b.Mode)
-        {
-            return 1;
-        }
-        else if (a.Mode == b.Mode)
-        {
-            if ((int)a.Priority < (int)b.Priority)
-                return 1;
-            else if (a.Priority == b.Priority)
-                return 0;
-        }
-
-        return -1;
-    }
-}
-public struct ChaseAngle
-{
-    public float RelativeAngle; // we want to be at this angle relative to the target (0 = front, M_PI = back)
-    public float Tolerance;     // but we'll tolerate anything within +- this much
-
-    public ChaseAngle(float angle, float tol = MathFunctions.PiOver4)
-    {
-        RelativeAngle = Position.NormalizeOrientation(angle);
-        Tolerance = tol;
-    }
-
-    public bool IsAngleOkay(float relAngle)
-    {
-        var diff = Math.Abs(relAngle - RelativeAngle);
-
-        return (Math.Min(diff, (2 * MathF.PI) - diff) <= Tolerance);
-    }
-
-    public float LowerBound()
-    {
-        return Position.NormalizeOrientation(RelativeAngle - Tolerance);
-    }
-
-    public float UpperBound()
-    {
-        return Position.NormalizeOrientation(RelativeAngle + Tolerance);
     }
 }

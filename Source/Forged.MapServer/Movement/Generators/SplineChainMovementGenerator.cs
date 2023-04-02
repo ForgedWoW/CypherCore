@@ -17,8 +17,10 @@ public class SplineChainMovementGenerator : MovementGenerator
     private readonly uint _id;
     private readonly bool _walk;
     private uint _msToNext;
-    private byte _nextFirstWP;
+    private byte _nextFirstWp;
+
     private byte _nextIndex;
+
     // only used for resuming
     public SplineChainMovementGenerator(uint id, List<SplineChainLink> chain, bool walk = false)
     {
@@ -40,7 +42,7 @@ public class SplineChainMovementGenerator : MovementGenerator
         _chainSize = (byte)info.Chain.Count;
         _walk = info.IsWalkMode;
         _nextIndex = info.SplineIndex;
-        _nextFirstWP = info.PointIndex;
+        _nextFirstWp = info.PointIndex;
         _msToNext = info.TimeToNext;
 
         Mode = MovementGeneratorMode.Default;
@@ -104,22 +106,22 @@ public class SplineChainMovementGenerator : MovementGenerator
             return;
         }
 
-        if (_nextFirstWP != 0) // this is a resumed movegen that has to start with a partial spline
+        if (_nextFirstWp != 0) // this is a resumed movegen that has to start with a partial spline
         {
             if (HasFlag(MovementGeneratorFlags.Finalized))
                 return;
 
             var thisLink = _chain[_nextIndex];
 
-            if (_nextFirstWP >= thisLink.Points.Count)
+            if (_nextFirstWp >= thisLink.Points.Count)
             {
-                Log.Logger.Error($"SplineChainMovementGenerator::Initialize: attempted to resume spline chain from invalid resume state, _nextFirstWP >= path size (_nextIndex: {_nextIndex}, _nextFirstWP: {_nextFirstWP}). ({owner.GUID})");
-                _nextFirstWP = (byte)(thisLink.Points.Count - 1);
+                Log.Logger.Error($"SplineChainMovementGenerator::Initialize: attempted to resume spline chain from invalid resume state, _nextFirstWP >= path size (_nextIndex: {_nextIndex}, _nextFirstWP: {_nextFirstWp}). ({owner.GUID})");
+                _nextFirstWp = (byte)(thisLink.Points.Count - 1);
             }
 
             owner.AddUnitState(UnitState.RoamingMove);
             Span<Vector3> partial = thisLink.Points.ToArray();
-            SendPathSpline(owner, thisLink.Velocity, partial[(_nextFirstWP - 1)..]);
+            SendPathSpline(owner, thisLink.Velocity, partial[(_nextFirstWp - 1)..]);
 
             Log.Logger.Debug($"SplineChainMovementGenerator::Initialize: resumed spline chain generator from resume state. ({owner.GUID})");
 
@@ -130,7 +132,7 @@ public class SplineChainMovementGenerator : MovementGenerator
             else if (_msToNext == 0)
                 _msToNext = 1;
 
-            _nextFirstWP = 0;
+            _nextFirstWp = 0;
         }
         else
         {
@@ -193,6 +195,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 
         return true;
     }
+
     private SplineChainResumeInfo GetResumeInfo(Unit owner)
     {
         if (_nextIndex == 0)

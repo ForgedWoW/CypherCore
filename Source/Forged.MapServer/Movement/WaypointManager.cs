@@ -12,6 +12,7 @@ public sealed class WaypointManager
 {
     private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
     private readonly WorldDatabase _worldDatabase;
+
     public WaypointManager(WorldDatabase worldDatabase)
     {
         _worldDatabase = worldDatabase;
@@ -139,55 +140,4 @@ public sealed class WaypointManager
 
         _waypointStore[id] = new WaypointPath(id, values);
     }
-}
-
-public class WaypointNode
-{
-    public uint Delay;
-    public byte EventChance;
-    public uint EventId;
-    public uint ID;
-    public WaypointMoveType MoveType;
-    public float? Orientation;
-    public float X, Y, Z;
-    public WaypointNode()
-    {
-        MoveType = WaypointMoveType.Run;
-    }
-
-    public WaypointNode(uint id, float x, float y, float z, float? orientation = null, uint delay = 0)
-    {
-        ID = id;
-        X = x;
-        Y = y;
-        Z = z;
-        Orientation = orientation;
-        Delay = delay;
-        EventId = 0;
-        MoveType = WaypointMoveType.Walk;
-        EventChance = 100;
-    }
-}
-
-public class WaypointPath
-{
-    public uint ID;
-    public List<WaypointNode> Nodes = new();
-    public WaypointPath() { }
-
-    public WaypointPath(uint id, List<WaypointNode> nodes)
-    {
-        ID = id;
-        Nodes = nodes;
-    }
-}
-
-public enum WaypointMoveType
-{
-    Walk,
-    Run,
-    Land,
-    Takeoff,
-
-    Max
 }

@@ -11,7 +11,7 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 {
-    private static readonly uint FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
+    private const uint FormationMovementInterval = 1200; // sniffed (3 batch update cycles)
     private readonly AbstractFollower _abstractFollower;
     private readonly TimeTracker _nextMoveTimer = new();
     private readonly uint _point1;
@@ -21,6 +21,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
     private bool _hasPredictedDestination;
     private Position _lastLeaderPosition;
     private uint _lastLeaderSplineID;
+
     public FormationMovementGenerator(Unit leader, float range, float angle, uint point1, uint point2)
     {
         _abstractFollower = new AbstractFollower(leader);
@@ -138,7 +139,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 
         if (_nextMoveTimer.Passed)
         {
-            _nextMoveTimer.Reset(FORMATION_MOVEMENT_INTERVAL);
+            _nextMoveTimer.Reset(FormationMovementInterval);
 
             // Our leader has a different position than on our last check, launch movement.
             if (_lastLeaderPosition != target.Location)
@@ -159,6 +160,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 
         return true;
     }
+
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.Formation;
@@ -168,6 +170,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
     {
         AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
     }
+
     private void LaunchMovement(Creature owner, Unit target)
     {
         var relativeAngle = 0.0f;

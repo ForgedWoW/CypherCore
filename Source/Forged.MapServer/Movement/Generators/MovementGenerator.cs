@@ -9,10 +9,16 @@ namespace Forged.MapServer.Movement.Generators;
 
 public abstract class MovementGenerator : IEquatable<MovementGenerator>
 {
-    public UnitState BaseUnitState;
-    public MovementGeneratorFlags Flags;
-    public MovementGeneratorMode Mode;
-    public MovementGeneratorPriority Priority;
+    public UnitState BaseUnitState { get; set; }
+    public MovementGeneratorFlags Flags { get; set; }
+    public MovementGeneratorMode Mode { get; set; }
+    public MovementGeneratorPriority Priority { get; set; }
+
+    public bool Equals(MovementGenerator other)
+    {
+        return other != null && Mode == other.Mode && Priority == other.Priority;
+    }
+
     public void AddFlag(MovementGeneratorFlags flag)
     {
         Flags |= flag;
@@ -20,14 +26,6 @@ public abstract class MovementGenerator : IEquatable<MovementGenerator>
 
     // on current top if another movement replaces
     public virtual void Deactivate(Unit owner) { }
-
-    public bool Equals(MovementGenerator other)
-    {
-        if (Mode == other.Mode && Priority == other.Priority)
-            return true;
-
-        return false;
-    }
 
     // on movement delete
     public virtual void Finalize(Unit owner, bool active, bool movementInform) { }
@@ -78,50 +76,4 @@ public abstract class MovementGenerator : IEquatable<MovementGenerator>
 
     // on top on MotionMaster::Update
     public abstract bool Update(Unit owner, uint diff);
-}
-
-public abstract class MovementGeneratorMedium<T> : MovementGenerator where T : Unit
-{
-    public bool IsActive { get; set; }
-
-    public override void Deactivate(Unit owner)
-    {
-        DoDeactivate((T)owner);
-    }
-
-    public abstract void DoDeactivate(T owner);
-
-    public abstract void DoFinalize(T owner, bool active, bool movementInform);
-
-    public abstract void DoInitialize(T owner);
-
-    public abstract void DoReset(T owner);
-
-    public abstract bool DoUpdate(T owner, uint diff);
-
-    public override void Finalize(Unit owner, bool active, bool movementInform)
-    {
-        DoFinalize((T)owner, active, movementInform);
-    }
-
-    public override MovementGeneratorType GetMovementGeneratorType()
-    {
-        return MovementGeneratorType.Max;
-    }
-
-    public override void Initialize(Unit owner)
-    {
-        DoInitialize((T)owner);
-        IsActive = true;
-    }
-
-    public override void Reset(Unit owner)
-    {
-        DoReset((T)owner);
-    }
-
-    public override bool Update(Unit owner, uint diff)
-    {
-        return DoUpdate((T)owner, diff);
-    }
 }

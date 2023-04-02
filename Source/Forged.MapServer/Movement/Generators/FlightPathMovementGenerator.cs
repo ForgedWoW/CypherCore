@@ -25,6 +25,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
     private float _endGridY;         //! Y coord of last node location
     private uint _endMapId;          //! map Id of last node location
     private uint _preloadTargetNode; //! node index where preloading starts
+
     public FlightPathMovementGenerator()
     {
         Mode = MovementGeneratorMode.Default;
@@ -162,6 +163,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
         return true;
     }
+
     public uint GetCurrentNode()
     {
         return (uint)_currentNode;
@@ -252,10 +254,12 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
                 return;
             }
     }
+
     public void SkipCurrentNode()
     {
         ++_currentNode;
     }
+
     private void DoEventIfAny(Player owner, TaxiPathNodeRecord node, bool departure)
     {
         var eventid = departure ? node.DepartureEventID : node.ArrivalEventID;
@@ -315,6 +319,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
     {
         return p1.ContinentID != p2.ContinentID || Math.Pow(p1.Loc.X - p2.Loc.X, 2) + Math.Pow(p1.Loc.Y - p2.Loc.Y, 2) > (40.0f * 40.0f);
     }
+
     private void PreloadEndGrid(Player owner)
     {
         // Used to preload the final grid where the flightmaster is
@@ -331,6 +336,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
             Log.Logger.Debug("FlightPathMovementGenerator::PreloadEndGrid: Unable to determine map to preload flightmaster grid");
         }
     }
+
     private class TaxiNodeChangeInfo
     {
         public readonly long Cost;

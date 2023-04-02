@@ -296,14 +296,14 @@ public partial class Spell
         var maxHeight = effInfo.MiscValueB != 0 ? effInfo.MiscValueB / 10.0f : 1000.0f; // Upper bound is unknown
         float height;
 
-        if (durationSqr < minHeight * 8 / MotionMaster.gravity)
+        if (durationSqr < minHeight * 8 / MotionMaster.GRAVITY)
             height = minHeight;
-        else if (durationSqr > maxHeight * 8 / MotionMaster.gravity)
+        else if (durationSqr > maxHeight * 8 / MotionMaster.GRAVITY)
             height = maxHeight;
         else
-            height = (float)(MotionMaster.gravity * durationSqr / 8);
+            height = (float)(MotionMaster.GRAVITY * durationSqr / 8);
 
-        speedZ = MathF.Sqrt((float)(2 * MotionMaster.gravity * height));
+        speedZ = MathF.Sqrt((float)(2 * MotionMaster.GRAVITY * height));
     }
 
     [SpellEffectHandler(SpellEffectName.ActivateGarrisonBuilding)]
@@ -3518,7 +3518,7 @@ public partial class Spell
 
         var distZ = pos.Z - UnitTarget.Location.Z;
         var speedXY = EffectInfo.MiscValue != 0 ? EffectInfo.MiscValue / 10.0f : 30.0f;
-        var speedZ = (float)((2 * speedXY * speedXY * distZ + MotionMaster.gravity * distXY * distXY) / (2 * speedXY * distXY));
+        var speedZ = (float)((2 * speedXY * speedXY * distZ + MotionMaster.GRAVITY * distXY * distXY) / (2 * speedXY * distXY));
 
         if (!float.IsFinite(speedZ))
         {
@@ -3557,7 +3557,7 @@ public partial class Spell
         var distZ = pos.Z - UnitTarget.Location.Z;
 
         var speedXY = EffectInfo.MiscValue != 0 ? EffectInfo.MiscValue / 10.0f : 30.0f;
-        var speedZ = (float)((2 * speedXY * speedXY * distZ + MotionMaster.gravity * distXY * distXY) / (2 * speedXY * distXY));
+        var speedZ = (float)((2 * speedXY * speedXY * distZ + MotionMaster.GRAVITY * distXY * distXY) / (2 * speedXY * distXY));
 
         if (!float.IsFinite(speedZ))
         {

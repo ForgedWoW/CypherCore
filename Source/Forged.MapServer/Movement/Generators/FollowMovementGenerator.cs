@@ -9,14 +9,15 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class FollowMovementGenerator : MovementGenerator
 {
-    private static readonly uint CHECK_INTERVAL = 100;
-    private static readonly float FOLLOW_RANGE_TOLERANCE = 1.0f;
+    private const uint CheckInterval = 100;
+    private const float FollowRangeTolerance = 1.0f;
     private readonly AbstractFollower _abstractFollower;
     private readonly TimeTracker _checkTimer;
     private readonly float _range;
     private ChaseAngle _angle;
     private Position _lastTargetPosition;
     private PathGenerator _path;
+
     public FollowMovementGenerator(Unit target, float range, ChaseAngle angle)
     {
         _abstractFollower = new AbstractFollower(target);
@@ -28,7 +29,7 @@ public class FollowMovementGenerator : MovementGenerator
         Flags = MovementGeneratorFlags.InitializationPending;
         BaseUnitState = UnitState.Follow;
 
-        _checkTimer = new TimeTracker(CHECK_INTERVAL);
+        _checkTimer = new TimeTracker(CheckInterval);
     }
 
     public override void Deactivate(Unit owner)
@@ -106,7 +107,7 @@ public class FollowMovementGenerator : MovementGenerator
 
         if (_checkTimer.Passed)
         {
-            _checkTimer.Reset(CHECK_INTERVAL);
+            _checkTimer.Reset(CheckInterval);
 
             if (HasFlag(MovementGeneratorFlags.InformEnabled) && PositionOkay(owner, target, _range, _angle))
             {
@@ -132,11 +133,10 @@ public class FollowMovementGenerator : MovementGenerator
         {
             _lastTargetPosition = new Position(target.Location);
 
-            if (owner.HasUnitState(UnitState.FollowMove) || !PositionOkay(owner, target, _range + FOLLOW_RANGE_TOLERANCE))
+            if (owner.HasUnitState(UnitState.FollowMove) || !PositionOkay(owner, target, _range + FollowRangeTolerance))
             {
                 if (_path == null)
                     _path = new PathGenerator(owner);
-
 
                 // select angle
                 float tAngle;
@@ -193,6 +193,7 @@ public class FollowMovementGenerator : MovementGenerator
 
         return true;
     }
+
     private static void DoMovementInform(Unit owner, Unit target)
     {
         if (!owner.IsCreature)

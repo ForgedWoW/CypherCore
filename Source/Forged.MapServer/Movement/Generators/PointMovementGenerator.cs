@@ -12,7 +12,9 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
 {
     private readonly float? _closeEnoughDistance;
     private readonly Position _destination;
+
     private readonly Unit _faceTarget;
+
     //! if set then unit will turn to specified _orient in provided _pos
     private readonly float? _finalOrient;
 
@@ -21,6 +23,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
     private readonly float? _speed;
     private readonly MovementWalkRunSpeedSelectionMode _speedSelectionMode;
     private readonly SpellEffectExtraData _spellEffectExtra;
+
     public PointMovementGenerator(uint id, float x, float y, float z, bool generatePath, float speed = 0.0f, float? finalOrient = null, Unit faceTarget = null, SpellEffectExtraData spellEffectExtraData = null, MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode.Default, float closeEnoughDistance = 0)
     {
         _movementId = id;
@@ -207,6 +210,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
     {
         return _movementId;
     }
+
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.Point;
@@ -215,40 +219,11 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
     public void MovementInform(Unit owner)
     {
         if (owner.IsTypeId(TypeId.Unit))
-        {
             owner.AsCreature.AI?.MovementInform(MovementGeneratorType.Point, _movementId);
-        }
     }
+
     public override void UnitSpeedChanged()
     {
         AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
-    }
-}
-
-public class AssistanceMovementGenerator : PointMovementGenerator
-{
-    public AssistanceMovementGenerator(uint id, float x, float y, float z) : base(id, x, y, z, true) { }
-
-    public override void Finalize(Unit owner, bool active, bool movementInform)
-    {
-        AddFlag(MovementGeneratorFlags.Finalized);
-
-        if (active)
-            owner.ClearUnitState(UnitState.RoamingMove);
-
-        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
-        {
-            var ownerCreature = owner.AsCreature;
-            ownerCreature.SetNoCallAssistance(false);
-            ownerCreature.CallAssistance();
-
-            if (ownerCreature.IsAlive)
-                ownerCreature.MotionMaster.MoveSeekAssistanceDistract(GetDefaultValue("CreatureFamilyAssistanceDelay", 1500));
-        }
-    }
-
-    public override MovementGeneratorType GetMovementGeneratorType()
-    {
-        return MovementGeneratorType.Assistance;
     }
 }

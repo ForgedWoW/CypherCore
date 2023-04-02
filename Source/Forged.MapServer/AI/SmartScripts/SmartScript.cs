@@ -3281,7 +3281,7 @@ public class SmartScript
 
                 if (e.Action.jump.Gravity != 0 || e.Action.jump.UseDefaultGravity != 0)
                 {
-                    var gravity = e.Action.jump.UseDefaultGravity != 0 ? (float)MotionMaster.gravity : e.Action.jump.Gravity;
+                    var gravity = e.Action.jump.UseDefaultGravity != 0 ? (float)MotionMaster.GRAVITY : e.Action.jump.Gravity;
                     _me.MotionMaster.MoveJumpWithGravity(pos, e.Action.jump.SpeedXY, gravity, e.Action.jump.PointId);
                 }
                 else

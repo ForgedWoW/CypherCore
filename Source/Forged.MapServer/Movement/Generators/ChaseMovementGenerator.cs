@@ -10,7 +10,7 @@ namespace Forged.MapServer.Movement.Generators;
 
 internal class ChaseMovementGenerator : MovementGenerator
 {
-    private static readonly uint RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
+    private const uint RangeCheckInterval = 100; // time (ms) until we attempt to recalculate
     private readonly AbstractFollower _abstractFollower;
     private readonly ChaseAngle? _angle;
     private readonly bool _movingTowards = true;
@@ -19,6 +19,7 @@ internal class ChaseMovementGenerator : MovementGenerator
     private Position _lastTargetPosition;
     private bool _mutualChase = true;
     private PathGenerator _path;
+
     public ChaseMovementGenerator(Unit target, ChaseRange? range, ChaseAngle? angle)
     {
         _abstractFollower = new AbstractFollower(target);
@@ -30,7 +31,7 @@ internal class ChaseMovementGenerator : MovementGenerator
         Flags = MovementGeneratorFlags.InitializationPending;
         BaseUnitState = UnitState.Chase;
 
-        _rangeCheckTimer = new TimeTracker(RANGE_CHECK_INTERVAL);
+        _rangeCheckTimer = new TimeTracker(RangeCheckInterval);
     }
 
     public override void Deactivate(Unit owner)
@@ -127,7 +128,7 @@ internal class ChaseMovementGenerator : MovementGenerator
 
         if (_rangeCheckTimer.Passed)
         {
-            _rangeCheckTimer.Reset(RANGE_CHECK_INTERVAL);
+            _rangeCheckTimer.Reset(RangeCheckInterval);
 
             if (HasFlag(MovementGeneratorFlags.InformEnabled) && PositionOkay(owner, target, _movingTowards ? null : minTarget, _movingTowards ? maxTarget : null, angle))
             {
@@ -238,10 +239,12 @@ internal class ChaseMovementGenerator : MovementGenerator
                             walk = owner.IsWalking;
 
                             break;
+
                         case CreatureChaseMovementType.AlwaysWalk:
                             walk = true;
 
                             break;
+
                         default:
                             break;
                     }
@@ -260,6 +263,7 @@ internal class ChaseMovementGenerator : MovementGenerator
         // and then, finally, we're done for the tick
         return true;
     }
+
     private static void DoMovementInform(Unit owner, Unit target)
     {
         if (!owner.IsCreature)

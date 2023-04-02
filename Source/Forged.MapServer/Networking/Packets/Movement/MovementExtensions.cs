@@ -142,7 +142,7 @@ public static class MovementExtensions
             data.WriteInt32(moveSpline.Duration());               // Duration
             data.WriteFloat(1.0f);                                // DurationModifier
             data.WriteFloat(1.0f);                                // NextDurationModifier
-            data.WriteBits((byte)moveSpline.Facing.type, 2);      // Face
+            data.WriteBits((byte)moveSpline.Facing.Type, 2);      // Face
             var hasFadeObjectTime = data.WriteBit(moveSpline.Splineflags.HasFlag(SplineFlag.FadeObject) && moveSpline.EffectStartTime < moveSpline.Duration());
             data.WriteBits(moveSpline.GetPath().Length, 16);
             data.WriteBit(false);                                 // HasSplineFilter
@@ -165,18 +165,18 @@ public static class MovementExtensions
             //    data.FlushBits();
             //}
 
-            switch (moveSpline.Facing.type)
+            switch (moveSpline.Facing.Type)
             {
                 case MonsterMoveType.FacingSpot:
-                    data.WriteVector3(moveSpline.Facing.f); // FaceSpot
+                    data.WriteVector3(moveSpline.Facing.F); // FaceSpot
 
                     break;
                 case MonsterMoveType.FacingTarget:
-                    data.WritePackedGuid(moveSpline.Facing.target); // FaceGUID
+                    data.WritePackedGuid(moveSpline.Facing.Target); // FaceGUID
 
                     break;
                 case MonsterMoveType.FacingAngle:
-                    data.WriteFloat(moveSpline.Facing.angle); // FaceDirection
+                    data.WriteFloat(moveSpline.Facing.Angle); // FaceDirection
 
                     break;
             }

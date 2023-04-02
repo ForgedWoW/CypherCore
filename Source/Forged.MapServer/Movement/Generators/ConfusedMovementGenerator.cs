@@ -43,7 +43,6 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
                 owner.RemoveUnitFlag(UnitFlags.Confused);
                 owner.StopMoving();
             }
-
             else
             {
                 owner.RemoveUnitFlag(UnitFlags.Confused);
@@ -143,6 +142,7 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
 
         return true;
     }
+
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.Confused;

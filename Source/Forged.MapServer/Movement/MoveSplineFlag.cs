@@ -8,8 +8,9 @@ namespace Forged.MapServer.Movement;
 
 public class MoveSplineFlag
 {
-    public byte animTier;
-    public SplineFlag Flags;
+    public byte AnimTier { get; set; }
+    public SplineFlag Flags { get; set; }
+
     public MoveSplineFlag() { }
 
     public MoveSplineFlag(SplineFlag f)
@@ -76,9 +77,10 @@ public class MoveSplineFlag
     {
         return Flags.HasAnyFlag(SplineFlag.Catmullrom);
     }
-    public void SetUnsetFlag(SplineFlag f, bool Set = true)
+
+    public void SetUnsetFlag(SplineFlag f, bool set = true)
     {
-        if (Set)
+        if (set)
             Flags |= f;
         else
             Flags &= ~f;

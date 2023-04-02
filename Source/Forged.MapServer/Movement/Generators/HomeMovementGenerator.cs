@@ -76,6 +76,7 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
 
         return true;
     }
+
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.Home;

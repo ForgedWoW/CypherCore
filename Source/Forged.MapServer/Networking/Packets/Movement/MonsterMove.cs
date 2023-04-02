@@ -27,10 +27,10 @@ public class MonsterMove : ServerPacket
         var splineFlags = moveSpline.Splineflags;
         splineFlags.SetUnsetFlag(SplineFlag.Cyclic, moveSpline.IsCyclic());
         movementSpline.Flags = (uint)(splineFlags.Flags & ~SplineFlag.MaskNoMonsterMove);
-        movementSpline.Face = moveSpline.Facing.type;
-        movementSpline.FaceDirection = moveSpline.Facing.angle;
-        movementSpline.FaceGUID = moveSpline.Facing.target;
-        movementSpline.FaceSpot = moveSpline.Facing.f;
+        movementSpline.Face = moveSpline.Facing.Type;
+        movementSpline.FaceDirection = moveSpline.Facing.Angle;
+        movementSpline.FaceGUID = moveSpline.Facing.Target;
+        movementSpline.FaceSpot = moveSpline.Facing.F;
 
         if (splineFlags.HasFlag(SplineFlag.Animation))
         {

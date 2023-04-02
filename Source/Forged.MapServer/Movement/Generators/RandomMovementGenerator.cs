@@ -118,6 +118,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 
         return true;
     }
+
     public override MovementGeneratorType GetMovementGeneratorType()
     {
         return MovementGeneratorType.Random;
@@ -150,6 +151,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
     {
         AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
     }
+
     private void SetRandomLocation(Creature owner)
     {
         if (owner == null)
@@ -206,10 +208,12 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
                 walk = owner.IsWalking;
 
                 break;
+
             case CreatureRandomMovementType.AlwaysRun:
                 walk = false;
 
                 break;
+
             default:
                 break;
         }

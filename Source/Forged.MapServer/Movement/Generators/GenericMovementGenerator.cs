@@ -16,6 +16,7 @@ internal class GenericMovementGenerator : MovementGenerator
     private readonly uint _pointId;
     private readonly Action<MoveSplineInit> _splineInit;
     private readonly MovementGeneratorType _type;
+
     public GenericMovementGenerator(Action<MoveSplineInit> initializer, MovementGeneratorType type, uint id, uint arrivalSpellId = 0, ObjectGuid arrivalSpellTargetGuid = default)
     {
         _splineInit = initializer;
@@ -90,10 +91,11 @@ internal class GenericMovementGenerator : MovementGenerator
 
         return true;
     }
+
     private void MovementInform(Unit owner)
     {
         if (_arrivalSpellId != 0)
-            owner.CastSpell(Global.ObjAccessor.GetUnit(owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+            owner.SpellFactory.CastSpell(Global.ObjAccessor.GetUnit(owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
 
         var creature = owner.AsCreature;
 
