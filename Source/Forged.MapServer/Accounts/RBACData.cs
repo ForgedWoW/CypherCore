@@ -36,6 +36,7 @@ public class RBACData
     // Returns all the granted permissions (after computation)
 
     public List<uint> Permissions { get; private set; } = new();
+
     public void AddPermissions(List<uint> permsFrom, List<uint> permsTo)
     {
         permsTo.AddRange(permsFrom);
@@ -104,7 +105,7 @@ public class RBACData
                              realmId);
         }
 
-        return RBACCommandResult.OK;
+        return RBACCommandResult.Ok;
     }
 
     public byte GetSecurityLevel()
@@ -177,8 +178,9 @@ public class RBACData
                              realmId);
         }
 
-        return RBACCommandResult.OK;
+        return RBACCommandResult.Ok;
     }
+
     public bool HasPermission(RBACPermissions permission)
     {
         return Permissions.Contains((uint)permission);
@@ -274,13 +276,15 @@ public class RBACData
                              realmId);
         }
 
-        return RBACCommandResult.OK;
+        return RBACCommandResult.Ok;
     }
+
     public void SetSecurityLevel(byte id)
     {
         _secLevel = id;
         LoadFromDB();
     }
+
     // Adds a new denied permission
     private void AddDeniedPermission(uint permissionId)
     {

@@ -66,6 +66,7 @@ internal class RbacComands
 
         return true;
     }
+
     [CommandGroup("account")]
     private class RbacAccountCommands
     {
@@ -100,6 +101,7 @@ internal class RbacComands
                                            data.rbac.Name);
 
                     break;
+
                 case RBACCommandResult.InGrantedList:
                     handler.SendSysMessage(CypherStrings.RbacPermDeniedInGrantedList,
                                            permId,
@@ -109,7 +111,8 @@ internal class RbacComands
                                            data.rbac.Name);
 
                     break;
-                case RBACCommandResult.OK:
+
+                case RBACCommandResult.Ok:
                     handler.SendSysMessage(CypherStrings.RbacPermDenied,
                                            permId,
                                            permission.Name,
@@ -118,10 +121,12 @@ internal class RbacComands
                                            data.rbac.Name);
 
                     break;
+
                 case RBACCommandResult.IdDoesNotExists:
                     handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
                     break;
+
                 default:
                     break;
             }
@@ -160,6 +165,7 @@ internal class RbacComands
                                            data.rbac.Name);
 
                     break;
+
                 case RBACCommandResult.InDeniedList:
                     handler.SendSysMessage(CypherStrings.RbacPermGrantedInDeniedList,
                                            permId,
@@ -169,7 +175,8 @@ internal class RbacComands
                                            data.rbac.Name);
 
                     break;
-                case RBACCommandResult.OK:
+
+                case RBACCommandResult.Ok:
                     handler.SendSysMessage(CypherStrings.RbacPermGranted,
                                            permId,
                                            permission.Name,
@@ -178,10 +185,12 @@ internal class RbacComands
                                            data.rbac.Name);
 
                     break;
+
                 case RBACCommandResult.IdDoesNotExists:
                     handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
                     break;
+
                 default:
                     break;
             }
@@ -270,7 +279,8 @@ internal class RbacComands
                                            data.rbac.Name);
 
                     break;
-                case RBACCommandResult.OK:
+
+                case RBACCommandResult.Ok:
                     handler.SendSysMessage(CypherStrings.RbacPermRevoked,
                                            permId,
                                            permission.Name,
@@ -279,10 +289,12 @@ internal class RbacComands
                                            data.rbac.Name);
 
                     break;
+
                 case RBACCommandResult.IdDoesNotExists:
                     handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
                     break;
+
                 default:
                     break;
             }

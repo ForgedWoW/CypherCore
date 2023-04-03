@@ -21,6 +21,7 @@ public sealed class AccountManager
     private readonly MultiMap<byte, uint> _defaultPermissions = new();
     private readonly LoginDatabase _loginDatabase;
     private readonly ObjectAccessor _objectAccessor;
+
     public AccountManager(LoginDatabase loginDatabase, CharacterDatabase characterDatabase, ObjectAccessor objectAccessor)
     {
         _loginDatabase = loginDatabase;
@@ -29,6 +30,7 @@ public sealed class AccountManager
     }
 
     public Dictionary<uint, RBACPermission> RBACPermissionList { get; } = new();
+
     public AccountOpResult ChangeEmail(uint accountId, string newEmail)
     {
         if (!GetName(accountId, out _))
@@ -255,6 +257,7 @@ public sealed class AccountManager
 
         return AccountOpResult.Ok;
     }
+
     public uint GetCharactersCount(uint accountId)
     {
         // check character count
@@ -338,6 +341,7 @@ public sealed class AccountManager
 
         return _loginDatabase.AsyncQuery(stmt).WithCallback(result => { callback(!result.IsEmpty() ? result.Read<byte>(0) : (uint)AccountTypes.Player); });
     }
+
     public bool HasPermission(uint accountId, RBACPermissions permissionId, uint realmId)
     {
         if (accountId == 0)
@@ -347,7 +351,7 @@ public sealed class AccountManager
             return false;
         }
 
-        RBACData rbac = new(accountId, "", (int)realmId, (byte)GetSecurity(accountId, (int)realmId));
+        RBACData rbac = new(accountId, "", (int)realmId, this, _loginDatabase, (byte)GetSecurity(accountId, (int)realmId));
         rbac.LoadFromDB();
         var hasPermission = rbac.HasPermission(permissionId);
 
@@ -383,6 +387,7 @@ public sealed class AccountManager
     {
         return gmlevel == AccountTypes.Player;
     }
+
     public void LoadRBAC()
     {
         RBACPermissionList.Clear();
