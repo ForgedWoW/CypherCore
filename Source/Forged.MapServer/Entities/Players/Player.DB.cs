@@ -1005,8 +1005,8 @@ public partial class Player
 
         InitDisplayIds();
 
-        //Need to call it to initialize m_team (m_team can be calculated from race)
-        //Other way is to saves m_team into characters table.
+        //Need to call it to initialize Team (Team can be calculated from race)
+        //Other way is to saves Team into characters table.
         SetFactionForRace(Race);
 
         // load home bind and check in same time class/race pair, it used later for restore broken positions

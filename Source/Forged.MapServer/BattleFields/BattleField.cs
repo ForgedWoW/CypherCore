@@ -14,7 +14,7 @@ using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.BattleGround;
-using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Text;
 using Framework.Constants;
 using Serilog;
 
@@ -22,128 +22,146 @@ namespace Forged.MapServer.BattleFields;
 
 public class BattleField : ZoneScript
 {
-    public ObjectGuid StalkerGuid;
-    protected WorldLocation KickPosition;
-    protected uint m_BattleId;
-    protected uint m_BattleTime;
-    protected Dictionary<int, uint> m_Data32 = new();
-
-    protected uint m_DefenderTeam;
+    public uint BattleTime;
+    public Dictionary<int, uint> Data32 = new();
+    public uint DefenderTeam;
 
     // Graveyard variables
-    protected List<BfGraveyard> m_GraveyardList = new();
+    public List<BfGraveyard> GraveyardList = new();
 
-    protected Dictionary<ObjectGuid, long>[] m_InvitedPlayers = new Dictionary<ObjectGuid, long>[2];
-    protected bool m_isActive;
-    protected bool m_IsEnabled;
-    protected Map m_Map;
-
-    protected uint m_MapId;
+    public Dictionary<ObjectGuid, long>[] InvitedPlayers = new Dictionary<ObjectGuid, long>[2];
+    public bool IsActive;
+    public WorldLocation KickPosition;
+    public Map Map;
+    public uint MapId;
 
     // MapId where is Battlefield
-    protected uint m_MaxPlayer;
+    public uint MaxPlayer;
 
-    protected uint m_MinLevel;
+    public uint MinLevel;
 
     // Maximum number of player that participated to Battlefield
-    protected uint m_MinPlayer;
+    public uint MinPlayer;
 
     // Minimum number of player for Battlefield start
     // Required level to participate at Battlefield
     // Length of a battle
-    protected uint m_NoWarBattleTime;
+    public uint NoWarBattleTime;
 
     // Players info maps
-    protected List<ObjectGuid>[] m_players = new List<ObjectGuid>[2];
+    public List<ObjectGuid>[] Players = new List<ObjectGuid>[2];
 
     // Players in zone
-    protected List<ObjectGuid>[] m_PlayersInQueue = new List<ObjectGuid>[2];
+    public List<ObjectGuid>[] PlayersInQueue = new List<ObjectGuid>[2];
 
     // Players in the queue
-    protected List<ObjectGuid>[] m_PlayersInWar = new List<ObjectGuid>[2];
+    public List<ObjectGuid>[] PlayersInWar = new List<ObjectGuid>[2];
 
     // Players in WG combat
-    protected Dictionary<ObjectGuid, long>[] m_PlayersWillBeKick = new Dictionary<ObjectGuid, long>[2];
+    public Dictionary<ObjectGuid, long>[] PlayersWillBeKick = new Dictionary<ObjectGuid, long>[2];
 
     // Time between two battles
-    protected uint m_RestartAfterCrash;
+    public uint RestartAfterCrash;
 
-    protected bool m_StartGrouping;
-
-    protected uint m_StartGroupingTimer;
+    public ObjectGuid StalkerGuid;
+    public bool StartGrouping;
+    public uint StartGroupingTimer;
 
     // Delay to restart Wintergrasp if the server crashed during a running battle.
-    protected uint m_TimeForAcceptInvite;
+    public uint TimeForAcceptInvite;
 
-    protected uint m_Timer; // Global timer for event
+    public uint Timer;
 
     // Variables that must exist for each battlefield
-    protected uint m_TypeId; // See enum BattlefieldTypes
+    public uint TypeId;
 
-    protected uint m_uiKickDontAcceptTimer;
+    public uint UiKickDontAcceptTimer;
 
+    // See enum BattlefieldTypes
     // BattleID (for packet)
-    protected uint m_ZoneId; // ZoneID of Wintergrasp = 4197
-
-    // Position where players are teleported if they switch to afk during the battle or if they don't accept invitation
-
-    // Vector witch contain the different GY of the battle
+    public uint ZoneId;
 
     // Timer for invite players in area 15 minute before start battle
     // bool for know if all players in area has been invited
     // Map of the objectives belonging to this OutdoorPvP
-    private readonly Dictionary<uint, BfCapturePoint> m_capturePoints = new();
+    private readonly Dictionary<uint, BfCapturePoint> _capturePoints = new();
 
-    private readonly Dictionary<int, ulong> m_Data64 = new();
-    private readonly List<ObjectGuid>[] m_Groups = new List<ObjectGuid>[2]; // Contain different raid group
-    private uint m_LastResurectTimer;
+    // Vector witch contain the different GY of the battle
+    private readonly Dictionary<int, ulong> _data64 = new();
 
-    private uint m_uiKickAfkPlayersTimer; // Timer for check Afk in war
-    // Timer for resurect player every 30 sec
+    // Position where players are teleported if they switch to afk during the battle or if they don't accept invitation
+    private readonly List<ObjectGuid>[] _groups = new List<ObjectGuid>[2];
 
-    public BattleField(Map map)
+    // Contain different raid group
+    private uint _lastResurectTimer;
+
+    // ZoneID of Wintergrasp = 4197
+    private uint _uiKickAfkPlayersTimer;
+
+    public BattleField(Map map, ObjectAccessor objectAccessor, GameObjectManager objectManager, BattleFieldManager battleFieldManager, CreatureTextManager creatureTextManager,
+                       CreatureFactory creatureFactory, GroupManager groupManager)
     {
-        m_IsEnabled = true;
-        m_DefenderTeam = TeamIds.Neutral;
+        CreatureFactory = creatureFactory;
+        GroupManager = groupManager;
+        IsEnabled = true;
+        DefenderTeam = TeamIds.Neutral;
 
-        m_TimeForAcceptInvite = 20;
-        m_uiKickDontAcceptTimer = 1000;
-        m_uiKickAfkPlayersTimer = 1000;
+        TimeForAcceptInvite = 20;
+        UiKickDontAcceptTimer = 1000;
+        _uiKickAfkPlayersTimer = 1000;
 
-        m_LastResurectTimer = 30 * Time.IN_MILLISECONDS;
+        _lastResurectTimer = 30 * Time.IN_MILLISECONDS;
 
-        m_Map = map;
-        m_MapId = map.Id;
+        Map = map;
+        ObjectAccessor = objectAccessor;
+        ObjectManager = objectManager;
+        BattlefieldManager = battleFieldManager;
+        CreatureTextManager = creatureTextManager;
+        MapId = map.Id;
 
         for (byte i = 0; i < 2; ++i)
         {
-            m_players[i] = new List<ObjectGuid>();
-            m_PlayersInQueue[i] = new List<ObjectGuid>();
-            m_PlayersInWar[i] = new List<ObjectGuid>();
-            m_InvitedPlayers[i] = new Dictionary<ObjectGuid, long>();
-            m_PlayersWillBeKick[i] = new Dictionary<ObjectGuid, long>();
-            m_Groups[i] = new List<ObjectGuid>();
+            Players[i] = new List<ObjectGuid>();
+            PlayersInQueue[i] = new List<ObjectGuid>();
+            PlayersInWar[i] = new List<ObjectGuid>();
+            InvitedPlayers[i] = new Dictionary<ObjectGuid, long>();
+            PlayersWillBeKick[i] = new Dictionary<ObjectGuid, long>();
+            _groups[i] = new List<ObjectGuid>();
         }
     }
 
+    public uint AttackerTeam => 1 - DefenderTeam;
+    public BattleFieldManager BattlefieldManager { get; }
+    public uint BattleId { get; set; }
+    public bool CanFlyIn => !IsActive;
+    public CreatureFactory CreatureFactory { get; }
+    public CreatureTextManager CreatureTextManager { get; }
+    public GroupManager GroupManager { get; }
+    public bool IsEnabled { get; set; }
+    public ObjectAccessor ObjectAccessor { get; }
+    public GameObjectManager ObjectManager { get; }
+    // Global timer for event
+
+    // Timer for check Afk in war
+    // Timer for resurect player every 30 sec
     public void AddCapturePoint(BfCapturePoint cp)
     {
-        if (m_capturePoints.ContainsKey(cp.GetCapturePointEntry()))
+        if (_capturePoints.ContainsKey(cp.GetCapturePointEntry()))
             Log.Logger.Error("Battlefield.AddCapturePoint: CapturePoint {0} already exists!", cp.GetCapturePointEntry());
 
-        m_capturePoints[cp.GetCapturePointEntry()] = cp;
+        _capturePoints[cp.GetCapturePointEntry()] = cp;
     }
 
     public virtual void AddPlayerToResurrectQueue(ObjectGuid npcGuid, ObjectGuid playerGuid)
     {
-        for (byte i = 0; i < m_GraveyardList.Count; i++)
+        for (byte i = 0; i < GraveyardList.Count; i++)
         {
-            if (m_GraveyardList[i] == null)
+            if (GraveyardList[i] == null)
                 continue;
 
-            if (m_GraveyardList[i].HasNpc(npcGuid))
+            if (GraveyardList[i].HasNpc(npcGuid))
             {
-                m_GraveyardList[i].AddPlayer(playerGuid);
+                GraveyardList[i].AddPlayer(playerGuid);
 
                 break;
             }
@@ -154,15 +172,15 @@ public class BattleField : ZoneScript
     public void AskToLeaveQueue(Player player)
     {
         // Remove player from queue
-        m_PlayersInQueue[player.TeamId].Remove(player.GUID);
+        PlayersInQueue[player.TeamId].Remove(player.GUID);
     }
 
     public void BroadcastPacketToQueue(ServerPacket data)
     {
         for (byte team = 0; team < 2; ++team)
-            foreach (var guid in m_PlayersInQueue[team])
+            foreach (var guid in PlayersInQueue[team])
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = ObjectAccessor.FindPlayer(guid);
 
                 if (player)
                     player.SendPacket(data);
@@ -172,9 +190,9 @@ public class BattleField : ZoneScript
     public void BroadcastPacketToWar(ServerPacket data)
     {
         for (byte team = 0; team < 2; ++team)
-            foreach (var guid in m_PlayersInWar[team])
+            foreach (var guid in PlayersInWar[team])
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = ObjectAccessor.FindPlayer(guid);
 
                 if (player)
                     player.SendPacket(data);
@@ -184,9 +202,9 @@ public class BattleField : ZoneScript
     public void BroadcastPacketToZone(ServerPacket data)
     {
         for (byte team = 0; team < 2; ++team)
-            foreach (var guid in m_players[team])
+            foreach (var guid in Players[team])
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = ObjectAccessor.FindPlayer(guid);
 
                 if (player)
                     player.SendPacket(data);
@@ -194,40 +212,25 @@ public class BattleField : ZoneScript
     }
 
     // Return if we can use mount in battlefield
-    public bool CanFlyIn()
-    {
-        return !m_isActive;
-    }
-
     public virtual void DoCompleteOrIncrementAchievement(uint achievement, Player player, byte incrementNumber = 1)
     { }
 
     public void EndBattle(bool endByTimer)
     {
-        if (!m_isActive)
+        if (!IsActive)
             return;
 
-        m_isActive = false;
+        IsActive = false;
 
-        m_StartGrouping = false;
+        StartGrouping = false;
 
         if (!endByTimer)
-            SetDefenderTeam(GetAttackerTeam());
+            SetDefenderTeam(AttackerTeam);
 
         // Reset battlefield timer
-        m_Timer = m_NoWarBattleTime;
+        Timer = NoWarBattleTime;
 
         OnBattleEnd(endByTimer);
-    }
-
-    public uint GetAttackerTeam()
-    {
-        return 1 - m_DefenderTeam;
-    }
-
-    public uint GetBattleId()
-    {
-        return m_BattleId;
     }
 
     public WorldSafeLocsEntry GetClosestGraveYard(Player player)
@@ -235,66 +238,60 @@ public class BattleField : ZoneScript
         BfGraveyard closestGY = null;
         float maxdist = -1;
 
-        for (byte i = 0; i < m_GraveyardList.Count; i++)
-            if (m_GraveyardList[i] != null)
+        for (byte i = 0; i < GraveyardList.Count; i++)
+            if (GraveyardList[i] != null)
             {
-                if (m_GraveyardList[i].GetControlTeamId() != player.TeamId)
+                if (GraveyardList[i].ControlTeamId != player.TeamId)
                     continue;
 
-                var dist = m_GraveyardList[i].GetDistance(player);
+                var dist = GraveyardList[i].GetDistance(player);
 
                 if (dist < maxdist || maxdist < 0)
                 {
-                    closestGY = m_GraveyardList[i];
+                    closestGY = GraveyardList[i];
                     maxdist = dist;
                 }
             }
 
         if (closestGY != null)
-            return Global.ObjectMgr.GetWorldSafeLoc(closestGY.GetGraveyardId());
+            return ObjectManager.GetWorldSafeLoc(closestGY.GraveyardId);
 
         return null;
     }
 
     public Creature GetCreature(ObjectGuid guid)
     {
-        if (!m_Map)
+        if (!Map)
             return null;
 
-        return m_Map.GetCreature(guid);
+        return Map.GetCreature(guid);
     }
 
     // All-purpose data storage 32 bit
     public virtual uint GetData(int dataId)
     {
-        return m_Data32[dataId];
+        return Data32[dataId];
     }
 
     // All-purpose data storage 64 bit
     public virtual ulong GetData64(int dataId)
     {
-        return m_Data64[dataId];
-    }
-
-    // Battlefield - generic methods
-    public uint GetDefenderTeam()
-    {
-        return m_DefenderTeam;
+        return _data64[dataId];
     }
 
     public GameObject GetGameObject(ObjectGuid guid)
     {
-        if (!m_Map)
+        if (!Map)
             return null;
 
-        return m_Map.GetGameObject(guid);
+        return Map.GetGameObject(guid);
     }
 
     public BfGraveyard GetGraveyardById(int id)
     {
-        if (id < m_GraveyardList.Count)
+        if (id < GraveyardList.Count)
         {
-            var graveyard = m_GraveyardList[id];
+            var graveyard = GraveyardList[id];
 
             if (graveyard != null)
                 return graveyard;
@@ -309,39 +306,9 @@ public class BattleField : ZoneScript
         return null;
     }
 
-    public Map GetMap()
-    {
-        return m_Map;
-    }
-
-    public uint GetMapId()
-    {
-        return m_MapId;
-    }
-
     public int GetOtherTeam(int teamIndex)
     {
         return (teamIndex == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde);
-    }
-
-    public ulong GetQueueId()
-    {
-        return MathFunctions.MakePair64(m_BattleId | 0x20000, 0x1F100000);
-    }
-
-    public uint GetTimer()
-    {
-        return m_Timer;
-    }
-
-    public uint GetTypeId()
-    {
-        return m_TypeId;
-    }
-
-    public uint GetZoneId()
-    {
-        return m_ZoneId;
     }
 
     // Called when a Unit is kill in battlefield zone
@@ -353,39 +320,39 @@ public class BattleField : ZoneScript
         // If battle is started,
         // If not full of players > invite player to join the war
         // If full of players > announce to player that BF is full and kick him after a few second if he desn't leave
-        if (IsWarTime())
+        if (IsActive)
         {
-            if (m_PlayersInWar[player.TeamId].Count + m_InvitedPlayers[player.TeamId].Count < m_MaxPlayer) // Vacant spaces
+            if (PlayersInWar[player.TeamId].Count + InvitedPlayers[player.TeamId].Count < MaxPlayer) // Vacant spaces
             {
                 InvitePlayerToWar(player);
             }
             else // No more vacant places
             {
                 // todo Send a packet to announce it to player
-                m_PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.CurrentTime + 10;
+                PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.CurrentTime + 10;
                 InvitePlayerToQueue(player);
             }
         }
         else
         {
             // If time left is < 15 minutes invite player to join queue
-            if (m_Timer <= m_StartGroupingTimer)
+            if (Timer <= StartGroupingTimer)
                 InvitePlayerToQueue(player);
         }
 
         // Add player in the list of player in zone
-        m_players[player.TeamId].Add(player.GUID);
+        Players[player.TeamId].Add(player.GUID);
         OnPlayerEnterZone(player);
     }
 
     // Called when a player leave the zone
     public void HandlePlayerLeaveZone(Player player, uint zone)
     {
-        if (IsWarTime())
+        if (IsActive)
             // If the player is participating to the battle
-            if (m_PlayersInWar[player.TeamId].Contains(player.GUID))
+            if (PlayersInWar[player.TeamId].Contains(player.GUID))
             {
-                m_PlayersInWar[player.TeamId].Remove(player.GUID);
+                PlayersInWar[player.TeamId].Remove(player.GUID);
                 var group = player.Group;
 
                 if (group) // Remove the player from the raid group
@@ -394,12 +361,12 @@ public class BattleField : ZoneScript
                 OnPlayerLeaveWar(player);
             }
 
-        foreach (var capturePoint in m_capturePoints.Values)
+        foreach (var capturePoint in _capturePoints.Values)
             capturePoint.HandlePlayerLeave(player);
 
-        m_InvitedPlayers[player.TeamId].Remove(player.GUID);
-        m_PlayersWillBeKick[player.TeamId].Remove(player.GUID);
-        m_players[player.TeamId].Remove(player.GUID);
+        InvitedPlayers[player.TeamId].Remove(player.GUID);
+        PlayersWillBeKick[player.TeamId].Remove(player.GUID);
+        Players[player.TeamId].Remove(player.GUID);
         SendRemoveWorldStates(player);
         RemovePlayerFromResurrectQueue(player.GUID);
         OnPlayerLeaveZone(player);
@@ -407,7 +374,7 @@ public class BattleField : ZoneScript
 
     public bool HasPlayer(Player player)
     {
-        return m_players[player.TeamId].Contains(player.GUID);
+        return Players[player.TeamId].Contains(player.GUID);
     }
 
     public void HideNpc(Creature creature)
@@ -429,24 +396,12 @@ public class BattleField : ZoneScript
             Log.Logger.Error("Battlefield.InitStalker: could not spawn Stalker (Creature entry {0}), zone messeges will be un-available", entry);
     }
 
-    // Return if battlefield is enable
-    public bool IsEnabled()
-    {
-        return m_IsEnabled;
-    }
-
-    // Return true if battle is start, false if battle is not started
-    public bool IsWarTime()
-    {
-        return m_isActive;
-    }
-
     public void KickPlayerFromBattlefield(ObjectGuid guid)
     {
-        var player = Global.ObjAccessor.FindPlayer(guid);
+        var player = ObjectAccessor.FindPlayer(guid);
 
         if (player)
-            if (player.Zone == GetZoneId())
+            if (player.Location.Zone == ZoneId)
                 player.TeleportTo(KickPosition);
     }
 
@@ -482,25 +437,25 @@ public class BattleField : ZoneScript
     public void PlayerAcceptInviteToQueue(Player player)
     {
         // Add player in queue
-        m_PlayersInQueue[player.TeamId].Add(player.GUID);
+        PlayersInQueue[player.TeamId].Add(player.GUID);
     }
 
     // Called in WorldSession:HandleBfEntryInviteResponse
     public void PlayerAcceptInviteToWar(Player player)
     {
-        if (!IsWarTime())
+        if (!IsActive)
             return;
 
-        if (AddOrSetPlayerToCorrectBfGroup(player))
-        {
-            m_PlayersInWar[player.TeamId].Add(player.GUID);
-            m_InvitedPlayers[player.TeamId].Remove(player.GUID);
+        if (!AddOrSetPlayerToCorrectBfGroup(player))
+            return;
 
-            if (player.IsAfk)
-                player.ToggleAfk();
+        PlayersInWar[player.TeamId].Add(player.GUID);
+        InvitedPlayers[player.TeamId].Remove(player.GUID);
 
-            OnPlayerJoinWar(player); //for scripting
-        }
+        if (player.IsAfk)
+            player.ToggleAfk();
+
+        OnPlayerJoinWar(player); //for scripting
     }
 
     // Called in WorldSession::HandleHearthAndResurrect
@@ -513,20 +468,20 @@ public class BattleField : ZoneScript
 
     public void RegisterZone(uint zoneId)
     {
-        Global.BattleFieldMgr.AddZone(zoneId, this);
+        BattlefieldManager.AddZone(zoneId, this);
     }
 
     //***************End of Group System*******************
     public void RemovePlayerFromResurrectQueue(ObjectGuid playerGuid)
     {
-        for (byte i = 0; i < m_GraveyardList.Count; i++)
+        for (byte i = 0; i < GraveyardList.Count; i++)
         {
-            if (m_GraveyardList[i] == null)
+            if (GraveyardList[i] == null)
                 continue;
 
-            if (m_GraveyardList[i].HasPlayer(playerGuid))
+            if (GraveyardList[i].HasPlayer(playerGuid))
             {
-                m_GraveyardList[i].RemovePlayer(playerGuid);
+                GraveyardList[i].RemovePlayer(playerGuid);
 
                 break;
             }
@@ -538,7 +493,7 @@ public class BattleField : ZoneScript
         AreaSpiritHealerTime areaSpiritHealerTime = new()
         {
             HealerGuid = guid,
-            TimeLeft = m_LastResurectTimer // resurrect every 30 seconds
+            TimeLeft = _lastResurectTimer // resurrect every 30 seconds
         };
 
         player.SendPacket(areaSpiritHealerTime);
@@ -553,22 +508,7 @@ public class BattleField : ZoneScript
         var stalker = GetCreature(StalkerGuid);
 
         if (stalker)
-            Global.CreatureTextMgr.SendChat(stalker, (byte)id, target);
-    }
-
-    public virtual void SetData(int dataId, uint value)
-    {
-        m_Data32[dataId] = value;
-    }
-
-    public virtual void SetData64(int dataId, ulong value)
-    {
-        m_Data64[dataId] = value;
-    }
-
-    public void SetTimer(uint timer)
-    {
-        m_Timer = timer;
+            CreatureTextManager.SendChat(stalker, (byte)id, target);
     }
 
     // Call this to init the Battlefield
@@ -598,14 +538,14 @@ public class BattleField : ZoneScript
 
     public Creature SpawnCreature(uint entry, Position pos)
     {
-        if (Global.ObjectMgr.GetCreatureTemplate(entry) == null)
+        if (ObjectManager.GetCreatureTemplate(entry) == null)
         {
             Log.Logger.Error("Battlefield:SpawnCreature: entry {0} does not exist.", entry);
 
             return null;
         }
 
-        var creature = CreatureFactory.CreateCreature(entry, m_Map, pos);
+        var creature = CreatureFactory.CreateCreature(entry, Map, pos);
 
         if (!creature)
         {
@@ -617,7 +557,7 @@ public class BattleField : ZoneScript
         creature.HomePosition = pos;
 
         // Set creature in world
-        m_Map.AddToMap(creature);
+        Map.AddToMap(creature);
         creature.SetActive(true);
         creature.Visibility.SetFarVisible(true);
 
@@ -627,7 +567,7 @@ public class BattleField : ZoneScript
     // Method for spawning gameobject on map
     public GameObject SpawnGameObject(uint entry, Position pos, Quaternion rotation)
     {
-        if (Global.ObjectMgr.GetGameObjectTemplate(entry) == null)
+        if (ObjectManager.GetGameObjectTemplate(entry) == null)
         {
             Log.Logger.Error("Battlefield.SpawnGameObject: GameObject template {0} not found in database! Battlefield not created!", entry);
 
@@ -635,17 +575,17 @@ public class BattleField : ZoneScript
         }
 
         // Create gameobject
-        var go = GameObject.CreateGameObject(entry, m_Map, pos, rotation, 255, GameObjectState.Ready);
+        var go = GameObject.CreateGameObject(entry, Map, pos, rotation, 255, GameObjectState.Ready);
 
         if (!go)
         {
-            Log.Logger.Error("Battlefield:SpawnGameObject: Cannot create gameobject template {1}! Battlefield not created!", entry);
+            Log.Logger.Error("Battlefield:SpawnGameObject: Cannot create gameobject template {0}! Battlefield not created!", entry);
 
             return null;
         }
 
         // Add to world
-        m_Map.AddToMap(go);
+        Map.AddToMap(go);
         go.SetActive(true);
         go.Visibility.SetFarVisible(true);
 
@@ -654,17 +594,17 @@ public class BattleField : ZoneScript
 
     public void StartBattle()
     {
-        if (m_isActive)
+        if (IsActive)
             return;
 
         for (var team = 0; team < 2; team++)
         {
-            m_PlayersInWar[team].Clear();
-            m_Groups[team].Clear();
+            PlayersInWar[team].Clear();
+            _groups[team].Clear();
         }
 
-        m_Timer = m_BattleTime;
-        m_isActive = true;
+        Timer = BattleTime;
+        IsActive = true;
 
         InvitePlayersInZoneToWar();
         InvitePlayersInQueueToWar();
@@ -674,14 +614,14 @@ public class BattleField : ZoneScript
 
     public void TeamCastSpell(uint teamIndex, int spellId)
     {
-        foreach (var guid in m_PlayersInWar[teamIndex])
+        foreach (var guid in PlayersInWar[teamIndex])
         {
-            var player = Global.ObjAccessor.FindPlayer(guid);
+            var player = ObjectAccessor.FindPlayer(guid);
 
             if (player)
             {
                 if (spellId > 0)
-                    player.CastSpell(player, (uint)spellId, true);
+                    player.SpellFactory.CastSpell(player, (uint)spellId, true);
                 else
                     player.RemoveAuraFromStack((uint)-spellId);
             }
@@ -691,97 +631,97 @@ public class BattleField : ZoneScript
     // Enable or Disable battlefield
     public void ToggleBattlefield(bool enable)
     {
-        m_IsEnabled = enable;
+        IsEnabled = enable;
     }
 
     public virtual bool Update(uint diff)
     {
-        if (m_Timer <= diff)
+        if (Timer <= diff)
         {
             // Battlefield ends on time
-            if (IsWarTime())
+            if (IsActive)
                 EndBattle(true);
             else // Time to start a new battle!
                 StartBattle();
         }
         else
         {
-            m_Timer -= diff;
+            Timer -= diff;
         }
 
         // Invite players a few minutes before the battle's beginning
-        if (!IsWarTime() && !m_StartGrouping && m_Timer <= m_StartGroupingTimer)
+        if (!IsActive && !StartGrouping && Timer <= StartGroupingTimer)
         {
-            m_StartGrouping = true;
+            StartGrouping = true;
             InvitePlayersInZoneToQueue();
             OnStartGrouping();
         }
 
-        var objective_changed = false;
+        var objectiveChanged = false;
 
-        if (IsWarTime())
+        if (IsActive)
         {
-            if (m_uiKickAfkPlayersTimer <= diff)
+            if (_uiKickAfkPlayersTimer <= diff)
             {
-                m_uiKickAfkPlayersTimer = 1000;
+                _uiKickAfkPlayersTimer = 1000;
                 KickAfkPlayers();
             }
             else
             {
-                m_uiKickAfkPlayersTimer -= diff;
+                _uiKickAfkPlayersTimer -= diff;
             }
 
             // Kick players who chose not to accept invitation to the battle
-            if (m_uiKickDontAcceptTimer <= diff)
+            if (UiKickDontAcceptTimer <= diff)
             {
                 var now = GameTime.CurrentTime;
 
                 for (var team = 0; team < SharedConst.PvpTeamsCount; team++)
-                    foreach (var pair in m_InvitedPlayers[team])
+                    foreach (var pair in InvitedPlayers[team])
                         if (pair.Value <= now)
                             KickPlayerFromBattlefield(pair.Key);
 
                 InvitePlayersInZoneToWar();
 
                 for (var team = 0; team < SharedConst.PvpTeamsCount; team++)
-                    foreach (var pair in m_PlayersWillBeKick[team])
+                    foreach (var pair in PlayersWillBeKick[team])
                         if (pair.Value <= now)
                             KickPlayerFromBattlefield(pair.Key);
 
-                m_uiKickDontAcceptTimer = 1000;
+                UiKickDontAcceptTimer = 1000;
             }
             else
             {
-                m_uiKickDontAcceptTimer -= diff;
+                UiKickDontAcceptTimer -= diff;
             }
 
-            foreach (var pair in m_capturePoints)
+            foreach (var pair in _capturePoints)
                 if (pair.Value.Update(diff))
-                    objective_changed = true;
+                    objectiveChanged = true;
         }
 
-        if (m_LastResurectTimer <= diff)
+        if (_lastResurectTimer <= diff)
         {
-            for (byte i = 0; i < m_GraveyardList.Count; i++)
+            for (byte i = 0; i < GraveyardList.Count; i++)
                 if (GetGraveyardById(i) != null)
-                    m_GraveyardList[i].Resurrect();
+                    GraveyardList[i].Resurrect();
 
-            m_LastResurectTimer = BattlegroundConst.ResurrectionInterval;
+            _lastResurectTimer = BattlegroundConst.ResurrectionInterval;
         }
         else
         {
-            m_LastResurectTimer -= diff;
+            _lastResurectTimer -= diff;
         }
 
-        return objective_changed;
+        return objectiveChanged;
     }
 
     public virtual void UpdateData(int index, int pad)
     {
         if (pad < 0)
-            m_Data32[index] -= (uint)-pad;
+            Data32[index] -= (uint)-pad;
         else
-            m_Data32[index] += (uint)pad;
+            Data32[index] += (uint)pad;
     }
 
     private bool AddOrSetPlayerToCorrectBfGroup(Player player)
@@ -801,8 +741,8 @@ public class BattleField : ZoneScript
             group = new PlayerGroup();
             group.SetBattlefieldGroup(this);
             group.Create(player);
-            Global.GroupMgr.AddGroup(group);
-            m_Groups[player.TeamId].Add(group.GUID);
+            GroupManager.AddGroup(group);
+            _groups[player.TeamId].Add(group.GUID);
         }
         else if (group.IsMember(player.GUID))
         {
@@ -817,24 +757,14 @@ public class BattleField : ZoneScript
         return true;
     }
 
-    private void DoPlaySoundToAll(uint soundID)
-    {
-        BroadcastPacketToWar(new PlaySound(ObjectGuid.Empty, soundID, 0));
-    }
-
-    private BfCapturePoint GetCapturePoint(uint entry)
-    {
-        return m_capturePoints.LookupByKey(entry);
-    }
-
     // ****************************************************
     // ******************* Group System *******************
     // ****************************************************
     private PlayerGroup GetFreeBfRaid(int teamIndex)
     {
-        foreach (var guid in m_Groups[teamIndex])
+        foreach (var guid in _groups[teamIndex])
         {
-            var group = Global.GroupMgr.GetGroupByGUID(guid);
+            var group = GroupManager.GetGroupByGUID(guid);
 
             if (group)
                 if (!group.IsFull)
@@ -844,41 +774,17 @@ public class BattleField : ZoneScript
         return null;
     }
 
-    private List<BfGraveyard> GetGraveyardVector()
-    {
-        return m_GraveyardList;
-    }
-
-    private PlayerGroup GetGroupPlayer(ObjectGuid plguid, int teamIndex)
-    {
-        foreach (var guid in m_Groups[teamIndex])
-        {
-            var group = Global.GroupMgr.GetGroupByGUID(guid);
-
-            if (group)
-                if (group.IsMember(plguid))
-                    return group;
-        }
-
-        return null;
-    }
-
-    private BattlefieldState GetState()
-    {
-        return m_isActive ? BattlefieldState.InProgress : (m_Timer <= m_StartGroupingTimer ? BattlefieldState.Warnup : BattlefieldState.Inactive);
-    }
-
     private void InvitePlayersInQueueToWar()
     {
         for (byte team = 0; team < 2; ++team)
         {
-            foreach (var guid in m_PlayersInQueue[team])
+            foreach (var guid in PlayersInQueue[team])
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = ObjectAccessor.FindPlayer(guid);
 
                 if (player)
                 {
-                    if (m_PlayersInWar[player.TeamId].Count + m_InvitedPlayers[player.TeamId].Count < m_MaxPlayer)
+                    if (PlayersInWar[player.TeamId].Count + InvitedPlayers[player.TeamId].Count < MaxPlayer)
                     {
                         InvitePlayerToWar(player);
                     }
@@ -889,16 +795,16 @@ public class BattleField : ZoneScript
                 }
             }
 
-            m_PlayersInQueue[team].Clear();
+            PlayersInQueue[team].Clear();
         }
     }
 
     private void InvitePlayersInZoneToQueue()
     {
         for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
-            foreach (var guid in m_players[team])
+            foreach (var guid in Players[team])
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = ObjectAccessor.FindPlayer(guid);
 
                 if (player)
                     InvitePlayerToQueue(player);
@@ -908,29 +814,29 @@ public class BattleField : ZoneScript
     private void InvitePlayersInZoneToWar()
     {
         for (byte team = 0; team < 2; ++team)
-            foreach (var guid in m_players[team])
+            foreach (var guid in Players[team])
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = ObjectAccessor.FindPlayer(guid);
 
                 if (player)
                 {
-                    if (m_PlayersInWar[player.TeamId].Contains(player.GUID) || m_InvitedPlayers[player.TeamId].ContainsKey(player.GUID))
+                    if (PlayersInWar[player.TeamId].Contains(player.GUID) || InvitedPlayers[player.TeamId].ContainsKey(player.GUID))
                         continue;
 
-                    if (m_PlayersInWar[player.TeamId].Count + m_InvitedPlayers[player.TeamId].Count < m_MaxPlayer)
+                    if (PlayersInWar[player.TeamId].Count + InvitedPlayers[player.TeamId].Count < MaxPlayer)
                         InvitePlayerToWar(player);
                     else // Battlefield is full of players
-                        m_PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.CurrentTime + 10;
+                        PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.CurrentTime + 10;
                 }
             }
     }
 
     private void InvitePlayerToQueue(Player player)
     {
-        if (m_PlayersInQueue[player.TeamId].Contains(player.GUID))
+        if (PlayersInQueue[player.TeamId].Contains(player.GUID))
             return;
 
-        if (m_PlayersInQueue[player.TeamId].Count <= m_MinPlayer || m_PlayersInQueue[GetOtherTeam(player.TeamId)].Count >= m_MinPlayer)
+        if (PlayersInQueue[player.TeamId].Count <= MinPlayer || PlayersInQueue[GetOtherTeam(player.TeamId)].Count >= MinPlayer)
             PlayerAcceptInviteToQueue(player);
     }
 
@@ -945,37 +851,37 @@ public class BattleField : ZoneScript
 
         if (player.InArena || player.Battleground)
         {
-            m_PlayersInQueue[player.TeamId].Remove(player.GUID);
+            PlayersInQueue[player.TeamId].Remove(player.GUID);
 
             return;
         }
 
         // If the player does not match minimal level requirements for the battlefield, kick him
-        if (player.Level < m_MinLevel)
+        if (player.Level < MinLevel)
         {
-            if (!m_PlayersWillBeKick[player.TeamId].ContainsKey(player.GUID))
-                m_PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.CurrentTime + 10;
+            if (!PlayersWillBeKick[player.TeamId].ContainsKey(player.GUID))
+                PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.CurrentTime + 10;
 
             return;
         }
 
         // Check if player is not already in war
-        if (m_PlayersInWar[player.TeamId].Contains(player.GUID) || m_InvitedPlayers[player.TeamId].ContainsKey(player.GUID))
+        if (PlayersInWar[player.TeamId].Contains(player.GUID) || InvitedPlayers[player.TeamId].ContainsKey(player.GUID))
             return;
 
-        m_PlayersWillBeKick[player.TeamId].Remove(player.GUID);
-        m_InvitedPlayers[player.TeamId][player.GUID] = GameTime.CurrentTime + m_TimeForAcceptInvite;
+        PlayersWillBeKick[player.TeamId].Remove(player.GUID);
+        InvitedPlayers[player.TeamId][player.GUID] = GameTime.CurrentTime + TimeForAcceptInvite;
         PlayerAcceptInviteToWar(player);
     }
 
     private void KickAfkPlayers()
     {
         for (byte team = 0; team < 2; ++team)
-            foreach (var guid in m_PlayersInWar[team])
+            foreach (var guid in PlayersInWar[team])
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = ObjectAccessor.FindPlayer(guid);
 
-                if (player)
+                if (player != null)
                     if (player.IsAFK)
                         KickPlayerFromBattlefield(guid);
             }
@@ -983,6 +889,6 @@ public class BattleField : ZoneScript
 
     private void SetDefenderTeam(uint team)
     {
-        m_DefenderTeam = team;
+        DefenderTeam = team;
     }
 }

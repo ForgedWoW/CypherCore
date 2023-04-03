@@ -41,7 +41,6 @@ public class BattleFieldManager
     // used in player event handling
     private readonly Dictionary<(Map map, uint zoneId), BattleField> _battlefieldsByZone = new();
 
-    private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
     private readonly ScriptManager _scriptManager;
     private readonly LimitedThreadTaskManager _threadTaskManager;
@@ -53,16 +52,15 @@ public class BattleFieldManager
 
     public BattleFieldManager(IConfiguration configuration, WorldDatabase worldDatabase, GameObjectManager objectManager, ScriptManager scriptManager)
     {
-        _configuration = configuration;
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _scriptManager = scriptManager;
-        _threadTaskManager = new LimitedThreadTaskManager(_configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+        _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
     }
 
     public void AddZone(uint zoneId, BattleField bf)
     {
-        _battlefieldsByZone[(bf.GetMap(), zoneId)] = bf;
+        _battlefieldsByZone[(bf.Map, zoneId)] = bf;
     }
 
     public void CreateBattlefieldsForMap(Map map)
@@ -102,7 +100,7 @@ public class BattleFieldManager
         var battlefields = _battlefieldsByMap.LookupByKey(map);
 
         foreach (var battlefield in battlefields)
-            if (battlefield.GetBattleId() == battleId)
+            if (battlefield.BattleId == battleId)
                 return battlefield;
 
         return null;
@@ -116,7 +114,7 @@ public class BattleFieldManager
             // no handle for this zone, return
             return null;
 
-        if (!bf.IsEnabled())
+        if (!bf.IsEnabled)
             return null;
 
         return bf;
@@ -129,11 +127,11 @@ public class BattleFieldManager
         if (bf == null)
             return;
 
-        if (!bf.IsEnabled() || bf.HasPlayer(player))
+        if (!bf.IsEnabled || bf.HasPlayer(player))
             return;
 
         bf.HandlePlayerEnterZone(player, zoneId);
-        Log.Logger.Debug("Player {0} entered battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
+        Log.Logger.Debug("Player {0} entered battlefield id {1}", player.GUID.ToString(), bf.TypeId);
     }
 
     public void HandlePlayerLeaveZone(Player player, uint zoneId)
@@ -148,7 +146,7 @@ public class BattleFieldManager
             return;
 
         bf.HandlePlayerLeaveZone(player, zoneId);
-        Log.Logger.Debug("Player {0} left battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
+        Log.Logger.Debug("Player {0} left battlefield id {1}", player.GUID.ToString(), bf.TypeId);
     }
 
     public void InitBattlefield()
@@ -189,7 +187,7 @@ public class BattleFieldManager
         if (_updateTimer > 1000)
         {
             foreach (var (map, battlefield) in _battlefieldsByMap.KeyValueList)
-                if (battlefield.IsEnabled())
+                if (battlefield.IsEnabled)
                     _threadTaskManager.Schedule(() => battlefield.Update(_updateTimer));
 
             _threadTaskManager.Wait();
