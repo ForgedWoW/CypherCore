@@ -5,7 +5,7 @@ namespace Forged.MapServer.Arenas.Zones;
 
 internal struct RingofValorEvents
 {
-    public const int CloseFire = 2;
-    public const int OpenFences = 0;
-    public const int SwitchPillars = 1;
+    public const int CLOSE_FIRE = 2;
+    public const int OPEN_FENCES = 0;
+    public const int SWITCH_PILLARS = 1;
 }

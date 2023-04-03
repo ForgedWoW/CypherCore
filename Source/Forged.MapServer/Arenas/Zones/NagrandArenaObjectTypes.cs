@@ -5,11 +5,11 @@ namespace Forged.MapServer.Arenas.Zones;
 
 internal struct NagrandArenaObjectTypes
 {
-    public const int Buff1 = 4;
-    public const int Buff2 = 5;
-    public const int Door1 = 0;
-    public const int Door2 = 1;
-    public const int Door3 = 2;
-    public const int Door4 = 3;
-    public const int Max = 6;
+    public const int BUFF1 = 4;
+    public const int BUFF2 = 5;
+    public const int DOOR1 = 0;
+    public const int DOOR2 = 1;
+    public const int DOOR3 = 2;
+    public const int DOOR4 = 3;
+    public const int MAX = 6;
 }

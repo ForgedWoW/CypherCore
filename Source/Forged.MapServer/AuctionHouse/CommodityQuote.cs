@@ -7,7 +7,7 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class CommodityQuote
 {
-    public uint Quantity;
-    public ulong TotalPrice;
-    public DateTime ValidTo = DateTime.MinValue;
+    public uint Quantity { get; set; }
+    public ulong TotalPrice { get; set; }
+    public DateTime ValidTo { get; set; } = DateTime.MinValue;
 }

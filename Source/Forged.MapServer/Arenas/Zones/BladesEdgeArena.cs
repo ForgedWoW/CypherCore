@@ -38,16 +38,16 @@ public class BladesEdgeArena : Arena
         if (GetStatus() != BattlegroundStatus.InProgress)
             return;
 
-        taskScheduler.Update(diff);
+        TaskScheduler.Update(diff);
     }
 
     public override bool SetupBattleground()
     {
         var result = true;
-        result &= AddObject(BladeEdgeObjectTypes.Door1, BladeEfgeGameObjects.Door1, 6287.277f, 282.1877f, 3.810925f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f);
-        result &= AddObject(BladeEdgeObjectTypes.Door2, BladeEfgeGameObjects.Door2, 6189.546f, 241.7099f, 3.101481f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f);
-        result &= AddObject(BladeEdgeObjectTypes.Door3, BladeEfgeGameObjects.Door3, 6299.116f, 296.5494f, 3.308032f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f);
-        result &= AddObject(BladeEdgeObjectTypes.Door4, BladeEfgeGameObjects.Door4, 6177.708f, 227.3481f, 3.604374f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f);
+        result &= AddObject(BladeEdgeObjectTypes.DOOR1, BladeEfgeGameObjects.DOOR1, 6287.277f, 282.1877f, 3.810925f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f);
+        result &= AddObject(BladeEdgeObjectTypes.DOOR2, BladeEfgeGameObjects.DOOR2, 6189.546f, 241.7099f, 3.101481f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f);
+        result &= AddObject(BladeEdgeObjectTypes.DOOR3, BladeEfgeGameObjects.DOOR3, 6299.116f, 296.5494f, 3.308032f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f);
+        result &= AddObject(BladeEdgeObjectTypes.DOOR4, BladeEfgeGameObjects.DOOR4, 6177.708f, 227.3481f, 3.604374f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f);
 
         if (!result)
         {
@@ -56,8 +56,8 @@ public class BladesEdgeArena : Arena
             return false;
         }
 
-        result &= AddObject(BladeEdgeObjectTypes.Buff1, BladeEfgeGameObjects.Buff1, 6249.042f, 275.3239f, 11.22033f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120);
-        result &= AddObject(BladeEdgeObjectTypes.Buff2, BladeEfgeGameObjects.Buff2, 6228.26f, 249.566f, 11.21812f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120);
+        result &= AddObject(BladeEdgeObjectTypes.BUFF1, BladeEfgeGameObjects.BUFF1, 6249.042f, 275.3239f, 11.22033f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120);
+        result &= AddObject(BladeEdgeObjectTypes.BUFF2, BladeEfgeGameObjects.BUFF2, 6228.26f, 249.566f, 11.21812f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120);
 
         if (!result)
         {
@@ -71,26 +71,26 @@ public class BladesEdgeArena : Arena
 
     public override void StartingEventCloseDoors()
     {
-        for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door4; ++i)
+        for (var i = BladeEdgeObjectTypes.DOOR1; i <= BladeEdgeObjectTypes.DOOR4; ++i)
             SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
 
-        for (var i = BladeEdgeObjectTypes.Buff1; i <= BladeEdgeObjectTypes.Buff2; ++i)
+        for (var i = BladeEdgeObjectTypes.BUFF1; i <= BladeEdgeObjectTypes.BUFF2; ++i)
             SpawnBGObject(i, BattlegroundConst.RespawnOneDay);
     }
 
     public override void StartingEventOpenDoors()
     {
-        for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door4; ++i)
+        for (var i = BladeEdgeObjectTypes.DOOR1; i <= BladeEdgeObjectTypes.DOOR4; ++i)
             DoorOpen(i);
 
-        taskScheduler.Schedule(TimeSpan.FromSeconds(5),
+        TaskScheduler.Schedule(TimeSpan.FromSeconds(5),
                                task =>
                                {
-                                   for (var i = BladeEdgeObjectTypes.Door1; i <= BladeEdgeObjectTypes.Door2; ++i)
+                                   for (var i = BladeEdgeObjectTypes.DOOR1; i <= BladeEdgeObjectTypes.DOOR2; ++i)
                                        DelObject(i);
                                });
 
-        for (var i = BladeEdgeObjectTypes.Buff1; i <= BladeEdgeObjectTypes.Buff2; ++i)
+        for (var i = BladeEdgeObjectTypes.BUFF1; i <= BladeEdgeObjectTypes.BUFF2; ++i)
             SpawnBGObject(i, 60);
     }
 }

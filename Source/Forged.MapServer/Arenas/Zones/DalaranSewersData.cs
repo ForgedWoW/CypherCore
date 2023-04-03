@@ -7,9 +7,9 @@ namespace Forged.MapServer.Arenas.Zones;
 
 internal struct DalaranSewersData
 {
-    public const uint NpcWaterSpout = 28567;
+    public const uint NPC_WATER_SPOUT = 28567;
 
-    public const uint PipeKnockbackTotalCount = 2;
+    public const uint PIPE_KNOCKBACK_TOTAL_COUNT = 2;
 
     public static TimeSpan PipeKnockbackDelay = TimeSpan.FromSeconds(3);
 

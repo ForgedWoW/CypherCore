@@ -9,15 +9,15 @@ namespace Forged.MapServer.Arenas;
 
 public class ArenaTeamMember
 {
-    public byte Class;
     public ObjectGuid Guid;
-    public ushort MatchMakerRating;
-    public string Name;
-    public ushort PersonalRating;
-    public ushort SeasonGames;
-    public ushort SeasonWins;
-    public ushort WeekGames;
-    public ushort WeekWins;
+    public byte Class { get; set; }
+    public ushort MatchMakerRating { get; set; }
+    public string Name { get; set; }
+    public ushort PersonalRating { get; set; }
+    public ushort SeasonGames { get; set; }
+    public ushort SeasonWins { get; set; }
+    public ushort WeekGames { get; set; }
+    public ushort WeekWins { get; set; }
 
     public void ModifyMatchmakerRating(int mod, uint slot)
     {

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Arenas.Zones;
 
 internal struct DalaranSewersCreatureTypes
 {
-    public const int Max = 3;
-    public const int PipeKnockback1 = 1;
-    public const int PipeKnockback2 = 2;
-    public const int WaterfallKnockback = 0;
+    public const int MAX = 3;
+    public const int PIPE_KNOCKBACK1 = 1;
+    public const int PIPE_KNOCKBACK2 = 2;
+    public const int WATERFALL_KNOCKBACK = 0;
 }

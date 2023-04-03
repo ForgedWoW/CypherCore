@@ -5,8 +5,8 @@ namespace Forged.MapServer.Arenas.Zones;
 
 internal struct RuinsofLordaeronGameObjects
 {
-    public const uint Buff1 = 184663;
-    public const uint Buff2 = 184664;
-    public const uint Door1 = 185918;
-    public const uint Door2 = 185917;
+    public const uint BUFF1 = 184663;
+    public const uint BUFF2 = 184664;
+    public const uint DOOR1 = 185918;
+    public const uint DOOR2 = 185917;
 }

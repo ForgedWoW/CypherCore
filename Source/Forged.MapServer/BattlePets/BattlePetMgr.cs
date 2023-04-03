@@ -28,6 +28,7 @@ public class BattlePetMgr
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<ulong, BattlePet> _pets = new();
     private readonly WorldManager _worldManager;
+
     public BattlePetMgr(WorldSession owner, CliDB cliDB, WorldManager worldManager, LoginDatabase loginDatabase, GameObjectManager objectManager)
     {
         Owner = owner;
@@ -55,6 +56,7 @@ public class BattlePetMgr
 
     public List<BattlePetSlot> Slots { get; } = new();
     public ushort TrapLevel { get; }
+
     public void AddPet(uint species, uint display, ushort breed, BattlePetBreedQuality quality, ushort level = 1)
     {
         var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(species);
@@ -86,8 +88,8 @@ public class BattlePetMgr
             BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
             {
                 Guid = player.GUID,
-                PlayerVirtualRealm = _worldManager.Realm.Id.GetAddress(),
-                PlayerNativeRealm = _worldManager.Realm.Id.GetAddress()
+                PlayerVirtualRealm = WorldManager.Realm.Id.GetAddress(),
+                PlayerNativeRealm = WorldManager.Realm.Id.GetAddress()
             };
 
             pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
@@ -489,8 +491,8 @@ public class BattlePetMgr
                         BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
                         {
                             Guid = ownerGuid,
-                            PlayerVirtualRealm = _worldManager.Realm.Id.GetAddress(),
-                            PlayerNativeRealm = _worldManager.Realm.Id.GetAddress()
+                            PlayerVirtualRealm = WorldManager.Realm.Id.GetAddress(),
+                            PlayerNativeRealm = WorldManager.Realm.Id.GetAddress()
                         };
 
                         pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
@@ -588,7 +590,7 @@ public class BattlePetMgr
                         if (pair.Value.PacketInfo.OwnerInfo.HasValue)
                         {
                             stmt.AddValue(12, pair.Value.PacketInfo.OwnerInfo.Value.Guid.Counter);
-                            stmt.AddValue(13, _worldManager.Realm.Id.Index);
+                            stmt.AddValue(13, WorldManager.Realm.Id.Index);
                         }
                         else
                         {
@@ -609,10 +611,10 @@ public class BattlePetMgr
                             trans.Append(stmt);
                         }
 
-
                         pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
 
                         break;
+
                     case BattlePetSaveInfo.Changed:
                         stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
                         stmt.AddValue(0, pair.Value.PacketInfo.Level);
@@ -644,6 +646,7 @@ public class BattlePetMgr
                         pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
 
                         break;
+
                     case BattlePetSaveInfo.Removed:
                         stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
                         stmt.AddValue(0, pair.Key);
@@ -672,6 +675,7 @@ public class BattlePetMgr
             trans.Append(stmt);
         }
     }
+
     public void SendError(BattlePetError error, uint creatureId)
     {
         BattlePetErrorPacket battlePetError = new()
@@ -764,6 +768,7 @@ public class BattlePetMgr
         updates.NewSlot = true;      // causes the "new slot unlocked" bubble to appear
         Owner.SendPacket(updates);
     }
+
     public void UpdateBattlePetData(ObjectGuid guid)
     {
         var pet = GetPet(guid);
@@ -783,6 +788,7 @@ public class BattlePetMgr
                 player.SetBattlePetData(pet);
             }
     }
+
     private bool IsPetInSlot(ObjectGuid guid)
     {
         foreach (var slot in Slots)

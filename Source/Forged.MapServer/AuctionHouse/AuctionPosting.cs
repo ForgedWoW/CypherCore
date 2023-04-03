@@ -15,21 +15,21 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionPosting
 {
-    public ulong BidAmount;
     public ObjectGuid Bidder;
-    public List<ObjectGuid> BidderHistory = new();
-    public AuctionsBucketData Bucket;
-    public ulong BuyoutOrUnitPrice;
-    public ulong Deposit;
-    public DateTime EndTime = DateTime.MinValue;
-    public uint Id;
-    public List<Item> Items = new();
-    public ulong MinBid;
     public ObjectGuid Owner;
     public ObjectGuid OwnerAccount;
-    public AuctionPostingServerFlag ServerFlags;
-    public DateTime StartTime = DateTime.MinValue;
+    public ulong BidAmount { get; set; }
+    public List<ObjectGuid> BidderHistory { get; set; } = new();
+    public AuctionsBucketData Bucket { get; set; }
+    public ulong BuyoutOrUnitPrice { get; set; }
+    public ulong Deposit { get; set; }
+    public DateTime EndTime { get; set; } = DateTime.MinValue;
+    public uint Id { get; set; }
     public bool IsCommodity => Items.Count > 1 || Items[0].Template.MaxStackSize > 1;
+    public List<Item> Items { get; set; } = new();
+    public ulong MinBid { get; set; }
+    public AuctionPostingServerFlag ServerFlags { get; set; }
+    public DateTime StartTime { get; set; } = DateTime.MinValue;
 
     public uint TotalItemCount
     {
@@ -134,6 +134,7 @@ public class AuctionPosting
         if (!Items[0].ItemData.Creator.Value.IsEmpty)
             auctionItem.Creator = Items[0].ItemData.Creator;
     }
+
     public ulong CalculateMinIncrement()
     {
         return CalculateMinIncrement(BidAmount);
@@ -144,6 +145,7 @@ public class AuctionPosting
         private readonly Locale _locale;
         private readonly int _sortCount;
         private readonly AuctionSortDef[] _sorts;
+
         public Sorter(Locale locale, AuctionSortDef[] sorts, int sortCount)
         {
             _locale = locale;
@@ -161,11 +163,11 @@ public class AuctionPosting
                     return (ordering < 0).CompareTo(!_sorts[i].ReverseSort);
             }
 
-            // Auctions are processed in LIFO order
-            if (left.StartTime != right.StartTime)
-                return left.StartTime.CompareTo(right.StartTime);
+            if (left == null || right == null)
+                return -1;
 
-            return left.Id.CompareTo(right.Id);
+            // Auctions are processed in LIFO order
+            return left.StartTime != right.StartTime ? left.StartTime.CompareTo(right.StartTime) : left.Id.CompareTo(right.Id);
         }
 
         private long CompareColumns(AuctionHouseSortOrder column, AuctionPosting left, AuctionPosting right)
@@ -180,7 +182,8 @@ public class AuctionPosting
                     return (long)(leftPrice - rightPrice);
                 }
                 case AuctionHouseSortOrder.Name:
-                    return left.Bucket.FullName[(int)_locale].CompareTo(right.Bucket.FullName[(int)_locale]);
+                    return String.Compare(left.Bucket.FullName[(int)_locale], right.Bucket.FullName[(int)_locale], StringComparison.Ordinal);
+
                 case AuctionHouseSortOrder.Level:
                 {
                     var leftLevel = left.Items[0].GetModifier(ItemModifier.BattlePetSpeciesId) == 0 ? left.Bucket.SortLevel : (int)left.Items[0].GetModifier(ItemModifier.BattlePetLevel);
@@ -190,10 +193,9 @@ public class AuctionPosting
                 }
                 case AuctionHouseSortOrder.Bid:
                     return (long)(left.BidAmount - right.BidAmount);
+
                 case AuctionHouseSortOrder.Buyout:
                     return (long)(left.BuyoutOrUnitPrice - right.BuyoutOrUnitPrice);
-                default:
-                    break;
             }
 
             return 0;

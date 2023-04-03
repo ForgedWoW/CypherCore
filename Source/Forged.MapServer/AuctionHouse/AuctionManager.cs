@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
@@ -14,42 +15,51 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionManager
 {
-    private const int MIN_AUCTION_TIME = 12 * Time.HOUR;
+    private const int MinAuctionTime = 12 * Time.HOUR;
     private readonly AuctionHouseObject _allianceAuctions;
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
     private readonly AuctionHouseObject _goblinAuctions;
     private readonly AuctionHouseObject _hordeAuctions;
     private readonly Dictionary<ObjectGuid, Item> _itemsByGuid = new();
     private readonly AuctionHouseObject _neutralAuctions;
+    private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
     private readonly Dictionary<ObjectGuid, PlayerPendingAuctions> _pendingAuctionsByPlayer = new();
     private readonly Dictionary<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects = new();
 
     private DateTime _playerThrottleObjectsCleanupTime;
     private uint _replicateIdGenerator;
-    public AuctionManager(CharacterDatabase characterDatabase, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache)
+
+    public AuctionManager(CharacterDatabase characterDatabase, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache, IConfiguration configuration,
+                          ObjectAccessor objectAccessor, ClassFactory classFactory)
     {
         _characterDatabase = characterDatabase;
         _cliDB = cliDB;
         _objectManager = objectManager;
         _characterCache = characterCache;
-        _hordeAuctions = new AuctionHouseObject(6);
-        _allianceAuctions = new AuctionHouseObject(2);
-        _neutralAuctions = new AuctionHouseObject(1);
-        _goblinAuctions = new AuctionHouseObject(7);
+        _configuration = configuration;
+        _objectAccessor = objectAccessor;
+        _hordeAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 6));
+        _allianceAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 2));
+        _neutralAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 1));
+        _goblinAuctions = classFactory.Resolve<AuctionHouseObject>(new PositionalParameter(0, 7));
         _replicateIdGenerator = 0;
         _playerThrottleObjectsCleanupTime = GameTime.Now + TimeSpan.FromHours(1);
     }
 
     public uint GenerateReplicationId => ++_replicateIdGenerator;
+
     public void AddAItem(Item item)
     {
         if (item == null || _itemsByGuid.ContainsKey(item.GUID)) return;
@@ -120,7 +130,7 @@ public class AuctionManager
         if ((--throttleObject.QueriesRemaining) == 0)
             return new AuctionThrottleResult(throttleObject.PeriodEnd - now, false);
         else
-            return new AuctionThrottleResult(TimeSpan.FromMilliseconds(GetDefaultValue(addonTainted ? "Auction.TaintedSearchDelay" : "Auction.SearchDelay")), false);
+            return new AuctionThrottleResult(TimeSpan.FromMilliseconds(_configuration.GetDefaultValue(addonTainted ? "Auction.TaintedSearchDelay" : "Auction.SearchDelay", 300)), false);
     }
 
     public Item GetAItem(ObjectGuid itemGuid)
@@ -139,7 +149,7 @@ public class AuctionManager
     {
         uint houseid = 1; // Auction House
 
-        if (!GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
+        if (!_configuration.GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
             // FIXME: found way for proper auctionhouse selection by another way
             // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
             // but no easy way convert creature faction to player race faction for specific city
@@ -159,13 +169,13 @@ public class AuctionManager
                     break; // everlook, Blackwater Auction House
                 default:   // default
                 {
-                    var u_entry = CliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
+                    var uEntry = _cliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
 
-                    if (u_entry == null)
+                    if (uEntry == null)
                         houseid = 1; // Auction House
-                    else if ((u_entry.FactionGroup & (int)FactionMasks.Alliance) != 0)
+                    else if ((uEntry.FactionGroup & (int)FactionMasks.Alliance) != 0)
                         houseid = 2; // Alliance Auction House
-                    else if ((u_entry.FactionGroup & (int)FactionMasks.Horde) != 0)
+                    else if ((uEntry.FactionGroup & (int)FactionMasks.Horde) != 0)
                         houseid = 6; // Horde Auction House
                     else
                         houseid = 1; // Auction House
@@ -185,12 +195,16 @@ public class AuctionManager
         {
             case 1:
                 return _neutralAuctions;
+
             case 2:
                 return _allianceAuctions;
+
             case 6:
                 return _hordeAuctions;
+
             case 7:
                 return _goblinAuctions;
+
             default:
                 break;
         }
@@ -200,7 +214,7 @@ public class AuctionManager
 
     public AuctionHouseObject GetAuctionsMap(uint factionTemplateId)
     {
-        if (GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
+        if (_configuration.GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
             return _neutralAuctions;
 
         // teams have linked auction houses
@@ -215,19 +229,21 @@ public class AuctionManager
         else
             return _neutralAuctions;
     }
+
     public ulong GetCommodityAuctionDeposit(ItemTemplate item, TimeSpan time, uint quantity)
     {
         var sellPrice = item.SellPrice;
 
-        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.MINUTE)));
+        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MinAuctionTime / Time.MINUTE)));
     }
 
     public ulong GetItemAuctionDeposit(Player player, Item item, TimeSpan time)
     {
         var sellPrice = item.GetSellPrice(player);
 
-        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(sellPrice * 0.15, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.MINUTE)));
+        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(sellPrice * 0.15, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MinAuctionTime / Time.MINUTE)));
     }
+
     public void LoadAuctions()
     {
         var oldMSTime = Time.MSTime;
@@ -362,6 +378,7 @@ public class AuctionManager
 
         Log.Logger.Information($"Loaded {count} auctions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
+
     public bool PendingAuctionAdd(Player player, uint auctionHouseId, uint auctionId, ulong deposit)
     {
         var pendingAuction = _pendingAuctionsByPlayer.GetOrAdd(player.GUID, () => new PlayerPendingAuctions());
@@ -456,6 +473,7 @@ public class AuctionManager
 
         return true;
     }
+
     public void Update()
     {
         _hordeAuctions.Update();
@@ -480,7 +498,7 @@ public class AuctionManager
         foreach (var pair in _pendingAuctionsByPlayer)
         {
             var playerGUID = pair.Key;
-            var player = Global.ObjAccessor.FindConnectedPlayer(playerGUID);
+            var player = _objectAccessor.FindConnectedPlayer(playerGUID);
 
             if (player != null)
             {
@@ -515,6 +533,7 @@ public class AuctionManager
             }
         }
     }
+
     private class PendingAuctionInfo
     {
         public readonly uint AuctionHouseId;

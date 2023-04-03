@@ -38,14 +38,14 @@ internal class RuinsofLordaeronArena : Arena
         if (GetStatus() != BattlegroundStatus.InProgress)
             return;
 
-        taskScheduler.Update(diff);
+        TaskScheduler.Update(diff);
     }
 
     public override bool SetupBattleground()
     {
         var result = true;
-        result &= AddObject(RuinsofLordaeronObjectTypes.Door1, RuinsofLordaeronObjectTypes.Door1, 1293.561f, 1601.938f, 31.60557f, -1.457349f, 0, 0, -0.6658813f, 0.7460576f);
-        result &= AddObject(RuinsofLordaeronObjectTypes.Door2, RuinsofLordaeronObjectTypes.Door2, 1278.648f, 1730.557f, 31.60557f, 1.684245f, 0, 0, 0.7460582f, 0.6658807f);
+        result &= AddObject(RuinsofLordaeronObjectTypes.DOOR1, RuinsofLordaeronObjectTypes.DOOR1, 1293.561f, 1601.938f, 31.60557f, -1.457349f, 0, 0, -0.6658813f, 0.7460576f);
+        result &= AddObject(RuinsofLordaeronObjectTypes.DOOR2, RuinsofLordaeronObjectTypes.DOOR2, 1278.648f, 1730.557f, 31.60557f, 1.684245f, 0, 0, 0.7460582f, 0.6658807f);
 
         if (!result)
         {
@@ -54,8 +54,8 @@ internal class RuinsofLordaeronArena : Arena
             return false;
         }
 
-        result &= AddObject(RuinsofLordaeronObjectTypes.Buff1, RuinsofLordaeronObjectTypes.Buff1, 1328.719971f, 1632.719971f, 36.730400f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120);
-        result &= AddObject(RuinsofLordaeronObjectTypes.Buff2, RuinsofLordaeronObjectTypes.Buff2, 1243.300049f, 1699.170044f, 34.872601f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120);
+        result &= AddObject(RuinsofLordaeronObjectTypes.BUFF1, RuinsofLordaeronObjectTypes.BUFF1, 1328.719971f, 1632.719971f, 36.730400f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120);
+        result &= AddObject(RuinsofLordaeronObjectTypes.BUFF2, RuinsofLordaeronObjectTypes.BUFF2, 1243.300049f, 1699.170044f, 34.872601f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120);
 
         if (!result)
         {
@@ -69,23 +69,23 @@ internal class RuinsofLordaeronArena : Arena
 
     public override void StartingEventCloseDoors()
     {
-        for (var i = RuinsofLordaeronObjectTypes.Door1; i <= RuinsofLordaeronObjectTypes.Door2; ++i)
+        for (var i = RuinsofLordaeronObjectTypes.DOOR1; i <= RuinsofLordaeronObjectTypes.DOOR2; ++i)
             SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
     }
 
     public override void StartingEventOpenDoors()
     {
-        for (var i = RuinsofLordaeronObjectTypes.Door1; i <= RuinsofLordaeronObjectTypes.Door2; ++i)
+        for (var i = RuinsofLordaeronObjectTypes.DOOR1; i <= RuinsofLordaeronObjectTypes.DOOR2; ++i)
             DoorOpen(i);
 
-        taskScheduler.Schedule(TimeSpan.FromSeconds(5),
+        TaskScheduler.Schedule(TimeSpan.FromSeconds(5),
                                task =>
                                {
-                                   for (var i = RuinsofLordaeronObjectTypes.Door1; i <= RuinsofLordaeronObjectTypes.Door2; ++i)
+                                   for (var i = RuinsofLordaeronObjectTypes.DOOR1; i <= RuinsofLordaeronObjectTypes.DOOR2; ++i)
                                        DelObject(i);
                                });
 
-        for (var i = RuinsofLordaeronObjectTypes.Buff1; i <= RuinsofLordaeronObjectTypes.Buff2; ++i)
+        for (var i = RuinsofLordaeronObjectTypes.BUFF1; i <= RuinsofLordaeronObjectTypes.BUFF2; ++i)
             SpawnBGObject(i, 60);
     }
 }

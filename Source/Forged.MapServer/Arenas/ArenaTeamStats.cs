@@ -5,10 +5,10 @@ namespace Forged.MapServer.Arenas;
 
 public struct ArenaTeamStats
 {
-    public uint Rank;
-    public ushort Rating;
-    public ushort SeasonGames;
-    public ushort SeasonWins;
-    public ushort WeekGames;
-    public ushort WeekWins;
+    public uint Rank { get; set; }
+    public ushort Rating { get; set; }
+    public ushort SeasonGames { get; set; }
+    public ushort SeasonWins { get; set; }
+    public ushort WeekGames { get; set; }
+    public ushort WeekWins { get; set; }
 }

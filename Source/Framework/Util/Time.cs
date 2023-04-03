@@ -14,10 +14,12 @@ public enum TimeFormat
 public static class Time
 {
     public const int DAY = HOUR * 24;
+    public const float FHOUR = MINUTE * 60;
     public const int HOUR = MINUTE * 60;
     public const int IN_MILLISECONDS = 1000;
     public const int MINUTE = 60;
     public const int MONTH = DAY * 30;
+    public const uint UHOUR = MINUTE * 60;
     public const int WEEK = DAY * 7;
     public const int YEAR = MONTH * 12;
     public static readonly DateTime ApplicationStartTime = DateTime.Now;
@@ -392,9 +394,6 @@ public class TimeTracker
 {
     private TimeSpan _expiryTime;
 
-    public TimeSpan Expiry => _expiryTime;
-    public bool Passed => _expiryTime <= TimeSpan.Zero;
-
     public TimeTracker(uint expiry = 0)
     {
         _expiryTime = TimeSpan.FromMilliseconds(expiry);
@@ -404,6 +403,9 @@ public class TimeTracker
     {
         _expiryTime = expiry;
     }
+
+    public TimeSpan Expiry => _expiryTime;
+    public bool Passed => _expiryTime <= TimeSpan.Zero;
 
     public void Reset(uint expiry)
     {

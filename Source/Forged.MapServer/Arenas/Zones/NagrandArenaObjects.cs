@@ -5,10 +5,10 @@ namespace Forged.MapServer.Arenas.Zones;
 
 internal struct NagrandArenaObjects
 {
-    public const uint Buff1 = 184663;
-    public const uint Buff2 = 184664;
-    public const uint Door1 = 183978;
-    public const uint Door2 = 183980;
-    public const uint Door3 = 183977;
-    public const uint Door4 = 183979;
+    public const uint BUFF1 = 184663;
+    public const uint BUFF2 = 184664;
+    public const uint DOOR1 = 183978;
+    public const uint DOOR2 = 183980;
+    public const uint DOOR3 = 183977;
+    public const uint DOOR4 = 183979;
 }

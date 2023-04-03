@@ -22,14 +22,15 @@ public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
     {
         ItemId = key.ItemID;
         ItemLevel = key.ItemLevel;
-        BattlePetSpeciesId = (ushort)(key.BattlePetSpeciesID ?? 0);
-        SuffixItemNameDescriptionId = (ushort)(key.SuffixItemNameDescriptionID ?? 0);
+        BattlePetSpeciesId = key.BattlePetSpeciesID ?? 0;
+        SuffixItemNameDescriptionId = key.SuffixItemNameDescriptionID ?? 0;
     }
 
-    public ushort BattlePetSpeciesId { get; set; }
-    public uint ItemId { get; set; }
-    public ushort ItemLevel { get; set; }
-    public ushort SuffixItemNameDescriptionId { get; set; }
+    public ushort BattlePetSpeciesId { get; }
+    public uint ItemId { get; }
+    public ushort ItemLevel { get; }
+    public ushort SuffixItemNameDescriptionId { get; }
+
     public static AuctionsBucketKey ForCommodity(ItemTemplate itemTemplate)
     {
         return new AuctionsBucketKey(itemTemplate.Id, (ushort)itemTemplate.BaseItemLevel, 0, 0);
@@ -55,13 +56,14 @@ public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
 
     public static bool operator ==(AuctionsBucketKey right, AuctionsBucketKey left)
     {
-        return right.ItemId == left.ItemId && right.ItemLevel == left.ItemLevel && right.BattlePetSpeciesId == left.BattlePetSpeciesId && right.SuffixItemNameDescriptionId == left.SuffixItemNameDescriptionId;
+        return left != null && right != null && right.ItemId == left.ItemId && right.ItemLevel == left.ItemLevel && right.BattlePetSpeciesId == left.BattlePetSpeciesId && right.SuffixItemNameDescriptionId == left.SuffixItemNameDescriptionId;
     }
 
     public int CompareTo(AuctionsBucketKey other)
     {
         return ItemId.CompareTo(other.ItemId);
     }
+
     public override bool Equals(object obj)
     {
         return base.Equals(obj);

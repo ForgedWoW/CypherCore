@@ -3343,7 +3343,7 @@ public sealed class ConditionManager
 
                 return localTime.Hour * Time.MINUTE + localTime.Minute;
             case WorldStateExpressionFunctions.Region:
-                return _worldManager.Realm.Id.Region;
+                return WorldManager.Realm.Id.Region;
             case WorldStateExpressionFunctions.ClockHour:
                 var currentHour = GameTime.DateAndTime.Hour + 1;
 
@@ -3362,7 +3362,7 @@ public sealed class ConditionManager
             case WorldStateExpressionFunctions.WeekNumber:
                 var now = GameTime.CurrentTime;
                 uint raidOrigin = 1135695600;
-                var region = _cliDB.CfgRegionsStorage.LookupByKey(_worldManager.Realm.Id.Region);
+                var region = _cliDB.CfgRegionsStorage.LookupByKey(WorldManager.Realm.Id.Region);
 
                 if (region != null)
                     raidOrigin = region.Raidorigin;

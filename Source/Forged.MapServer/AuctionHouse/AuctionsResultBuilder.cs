@@ -32,11 +32,11 @@ internal class AuctionsResultBuilder<T>
 
         _items.Insert(index, item);
 
-        if (_items.Count > (int)_maxResults + _offset)
-        {
-            _items.RemoveAt(_items.Count - 1);
-            _hasMoreResults = true;
-        }
+        if (_items.Count <= (int)_maxResults + _offset)
+            return;
+
+        _items.RemoveAt(_items.Count - 1);
+        _hasMoreResults = true;
     }
 
     public Span<T> GetResultRange()

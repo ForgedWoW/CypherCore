@@ -60,7 +60,6 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 
-
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", false, true);
@@ -80,7 +79,6 @@ RegisterServerTypes();
 container = builder.Build();
 
 InitializeServer();
-
 
 void InitializeServer()
 {
@@ -372,7 +370,7 @@ void RegisterManagers()
         g.Instance.LoadGuilds();
     });
 
-    builder.RegisterType<LootItemStorage>().SingleInstance().OnActivated(l => l.Instance.LoadStorageFromDB()); 
+    builder.RegisterType<LootItemStorage>().SingleInstance().OnActivated(l => l.Instance.LoadStorageFromDB());
     builder.RegisterType<LootStoreBox>().SingleInstance();
     builder.RegisterType<LootManager>().SingleInstance().OnActivated(l => l.Instance.LoadLootTables());
     builder.RegisterType<TraitMgr>().SingleInstance().OnActivated(t => t.Instance.Load());
@@ -387,7 +385,6 @@ void RegisterManagers()
     {
         a.Instance.LoadAreaTriggerTemplates();
         a.Instance.LoadAreaTriggerSpawns();
-
     });
     builder.RegisterType<ConversationDataStorage>().SingleInstance().OnActivated(a => a.Instance.LoadConversationTemplates());
     builder.RegisterType<CharacterTemplateDataStorage>().SingleInstance().OnActivated(a => a.Instance.LoadCharacterTemplates());
@@ -440,4 +437,5 @@ void RegisterInstanced()
     builder.RegisterType<UnitData>();
     builder.RegisterType<GossipMenu>();
     builder.RegisterType<PlayerMenu>();
+    builder.RegisterType<AuctionHouseObject>();
 }

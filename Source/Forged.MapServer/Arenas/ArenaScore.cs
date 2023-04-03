@@ -10,10 +10,10 @@ namespace Forged.MapServer.Arenas;
 
 internal class ArenaScore : BattlegroundScore
 {
-    private readonly uint PostMatchMMR;
-    private readonly uint PostMatchRating;
-    private readonly uint PreMatchMMR;
-    private readonly uint PreMatchRating;
+    private readonly uint _postMatchMmr;
+    private readonly uint _postMatchRating;
+    private readonly uint _preMatchMmr;
+    private readonly uint _preMatchRating;
 
     public ArenaScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team)
     {
@@ -24,23 +24,23 @@ internal class ArenaScore : BattlegroundScore
     {
         base.BuildPvPLogPlayerDataPacket(out playerData);
 
-        if (PreMatchRating != 0)
-            playerData.PreMatchRating = PreMatchRating;
+        if (_preMatchRating != 0)
+            playerData.PreMatchRating = _preMatchRating;
 
-        if (PostMatchRating != PreMatchRating)
-            playerData.RatingChange = (int)(PostMatchRating - PreMatchRating);
+        if (_postMatchRating != _preMatchRating)
+            playerData.RatingChange = (int)(_postMatchRating - _preMatchRating);
 
-        if (PreMatchMMR != 0)
-            playerData.PreMatchMMR = PreMatchMMR;
+        if (_preMatchMmr != 0)
+            playerData.PreMatchMMR = _preMatchMmr;
 
-        if (PostMatchMMR != PreMatchMMR)
-            playerData.MmrChange = (int)(PostMatchMMR - PreMatchMMR);
+        if (_postMatchMmr != _preMatchMmr)
+            playerData.MmrChange = (int)(_postMatchMmr - _preMatchMmr);
     }
 
     // For Logging purpose
     public override string ToString()
     {
-        return $"Damage done: {DamageDone} Healing done: {HealingDone} Killing blows: {KillingBlows} PreMatchRating: {PreMatchRating} " +
-               $"PreMatchMMR: {PreMatchMMR} PostMatchRating: {PostMatchRating} PostMatchMMR: {PostMatchMMR}";
+        return $"Damage done: {DamageDone} Healing done: {HealingDone} Killing blows: {KillingBlows} PreMatchRating: {_preMatchRating} " +
+               $"PreMatchMMR: {_preMatchMmr} PostMatchRating: {_postMatchRating} PostMatchMMR: {_postMatchMmr}";
     }
 }

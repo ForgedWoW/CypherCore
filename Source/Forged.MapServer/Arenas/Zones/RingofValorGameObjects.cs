@@ -5,43 +5,43 @@ namespace Forged.MapServer.Arenas.Zones;
 
 internal struct RingofValorGameObjects
 {
-    public const uint Buff1 = 184663;
-    public const uint Buff2 = 184664;
-    public const uint Elevator1 = 194582;
-    public const uint Elevator2 = 194586;
-    public const uint Fire1 = 192704;
-    public const uint Fire2 = 192705;
+    public const uint BUFF1 = 184663;
+    public const uint BUFF2 = 184664;
+    public const uint ELEVATOR1 = 194582;
+    public const uint ELEVATOR2 = 194586;
+    public const uint FIRE1 = 192704;
+    public const uint FIRE2 = 192705;
 
-    public const uint Firedoor1 = 192388;
-    public const uint Firedoor2 = 192387;
-    public const uint Gear1 = 192393;
-    public const uint Gear2 = 192394;
+    public const uint FIREDOOR1 = 192388;
+    public const uint FIREDOOR2 = 192387;
+    public const uint GEAR1 = 192393;
+    public const uint GEAR2 = 192394;
 
-    public const uint Pilar1 = 194583;
-
-    // Axe
-    public const uint Pilar2 = 194584;
-
-    // Arena
-    public const uint Pilar3 = 194585;
-
-    // Lightning
-    public const uint Pilar4 = 194587;
-
-    public const uint PilarCollision1 = 194580;
+    public const uint PILAR1 = 194583;
 
     // Axe
-    public const uint PilarCollision2 = 194579;
+    public const uint PILAR2 = 194584;
 
     // Arena
-    public const uint PilarCollision3 = 194581;
+    public const uint PILAR3 = 194585;
 
     // Lightning
-    public const uint PilarCollision4 = 194578;
+    public const uint PILAR4 = 194587;
 
-    public const uint Pulley1 = 192389;
+    public const uint PILAR_COLLISION1 = 194580;
 
-    public const uint Pulley2 = 192390;
+    // Axe
+    public const uint PILAR_COLLISION2 = 194579;
+
+    // Arena
+    public const uint PILAR_COLLISION3 = 194581;
+
+    // Lightning
+    public const uint PILAR_COLLISION4 = 194578;
+
+    public const uint PULLEY1 = 192389;
+
+    public const uint PULLEY2 = 192390;
     // Ivory
 
     // Ivory
