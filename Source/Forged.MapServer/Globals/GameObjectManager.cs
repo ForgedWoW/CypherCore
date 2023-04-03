@@ -215,7 +215,7 @@ public sealed class GameObjectManager
     private readonly Dictionary<uint, QuestPOIData> _questPOIStorage = new();
     private readonly Dictionary<uint, QuestRequestItemsLocale> _questRequestItemsLocaleStorage = new();
     private readonly Dictionary<uint, QuestTemplateLocale> _questTemplateLocaleStorage = new();
-    //Quest
+    //QuestId
     private readonly Dictionary<uint, Quest.Quest> _questTemplates = new();
 
     private readonly List<Quest.Quest> _questTemplatesAutoPush = new();
@@ -842,7 +842,7 @@ public sealed class GameObjectManager
 
         if (badFlags != 0)
         {
-            Log.Logger.Verbose("Table `creature_template` lists creature (Entry: {0}) with disallowed `flags_extra` {1}, removing incorrect flag.", cInfo.Entry, badFlags);
+            Log.Logger.Verbose("Table `creature_template` lists creature (Entry: {0}) with disallowed `flags_extra` {1}, removing incorrect Id.", cInfo.Entry, badFlags);
             cInfo.FlagsExtra &= CreatureFlagsExtra.DBAllowed;
         }
 
@@ -850,7 +850,7 @@ public sealed class GameObjectManager
 
         if (disallowedUnitFlags != 0)
         {
-            Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags` {disallowedUnitFlags}, removing incorrect flag.");
+            Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags` {disallowedUnitFlags}, removing incorrect Id.");
             cInfo.UnitFlags &= UnitFlags.Allowed;
         }
 
@@ -858,7 +858,7 @@ public sealed class GameObjectManager
 
         if (disallowedUnitFlags2 != 0)
         {
-            Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags2}, removing incorrect flag.");
+            Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags2}, removing incorrect Id.");
             cInfo.UnitFlags2 &= (uint)UnitFlags2.Allowed;
         }
 
@@ -866,7 +866,7 @@ public sealed class GameObjectManager
 
         if (disallowedUnitFlags3 != 0)
         {
-            Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags3}, removing incorrect flag.");
+            Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags3}, removing incorrect Id.");
             cInfo.UnitFlags3 &= (uint)UnitFlags3.Allowed;
         }
 
@@ -2303,7 +2303,7 @@ public sealed class GameObjectManager
             foreach (var questPair in _questTemplates)
                 questPair.Value.InitializeQueryData();
 
-        // Initialize Quest POI data
+        // Initialize QuestId POI data
         if (mask.HasAnyFlag(QueryDataGroup.POIs))
             foreach (var poiPair in _questPOIStorage)
                 poiPair.Value.InitializeQueryData();
@@ -2356,7 +2356,7 @@ public sealed class GameObjectManager
                 else if (_configuration.GetDefaultValue("load.autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
                 else
-                    Log.Logger.Error("Table `(gameevent)npcvendor` have data for not creature template (Entry: {0}) without vendor flag, ignore", vendorentry);
+                    Log.Logger.Error("Table `(gameevent)npcvendor` have data for not creature template (Entry: {0}) without vendor Id, ignore", vendorentry);
 
                 skipvendors?.Add(vendorentry);
             }
@@ -2524,14 +2524,14 @@ public sealed class GameObjectManager
             if (ar.QuestA != 0)
                 if (GetQuestTemplate(ar.QuestA) == null)
                 {
-                    Log.Logger.Error("Required Alliance Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestA, mapid, difficulty);
+                    Log.Logger.Error("Required Alliance QuestId {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestA, mapid, difficulty);
                     ar.QuestA = 0;
                 }
 
             if (ar.QuestH != 0)
                 if (GetQuestTemplate(ar.QuestH) == null)
                 {
-                    Log.Logger.Error("Required Horde Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestH, mapid, difficulty);
+                    Log.Logger.Error("Required Horde QuestId {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestH, mapid, difficulty);
                     ar.QuestH = 0;
                 }
 
@@ -3344,7 +3344,7 @@ public sealed class GameObjectManager
 
             if (disallowedUnitFlags != 0)
             {
-                Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags` {disallowedUnitFlags}, removing incorrect flag.");
+                Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags` {disallowedUnitFlags}, removing incorrect Id.");
                 cInfo.UnitFlags &= UnitFlags.Allowed;
             }
 
@@ -3352,7 +3352,7 @@ public sealed class GameObjectManager
 
             if (disallowedUnitFlags2 != 0)
             {
-                Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags2}, removing incorrect flag.");
+                Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags2}, removing incorrect Id.");
                 cInfo.UnitFlags2 &= (uint)UnitFlags2.Allowed;
             }
 
@@ -3360,7 +3360,7 @@ public sealed class GameObjectManager
 
             if (disallowedUnitFlags3 != 0)
             {
-                Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags3}, removing incorrect flag.");
+                Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags3}, removing incorrect Id.");
                 cInfo.UnitFlags3 &= (uint)UnitFlags3.Allowed;
             }
 
@@ -4096,9 +4096,9 @@ public sealed class GameObjectManager
             var horde = result.Read<uint>(1);
 
             if (GetQuestTemplate(alliance) == null)
-                Log.Logger.Error("Quest {0} (alliance_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", alliance);
+                Log.Logger.Error("QuestId {0} (alliance_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", alliance);
             else if (GetQuestTemplate(horde) == null)
-                Log.Logger.Error("Quest {0} (horde_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", horde);
+                Log.Logger.Error("QuestId {0} (horde_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", horde);
             else
                 FactionChangeQuests[alliance] = horde;
 
@@ -6413,13 +6413,13 @@ public sealed class GameObjectManager
         } while (result.NextRow());
 
         // all spellclick data loaded, now we check if there are creatures with NPC_FLAG_SPELLCLICK but with no data
-        // NOTE: It *CAN* be the other way around: no spellclick flag but with spellclick data, in case of creature-only vehicle accessories
+        // NOTE: It *CAN* be the other way around: no spellclick Id but with spellclick data, in case of creature-only vehicle accessories
         var ctc = GetCreatureTemplates();
 
         foreach (var creature in ctc.Values)
             if (creature.Npcflag.HasAnyFlag((uint)NPCFlags.SpellClick) && !_spellClickInfoStorage.ContainsKey(creature.Entry))
             {
-                Log.Logger.Warning("npc_spellclick_spells: Creature template {0} has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing flag", creature.Entry);
+                Log.Logger.Warning("npc_spellclick_spells: Creature template {0} has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing Id", creature.Entry);
                 creature.Npcflag &= ~(uint)NPCFlags.SpellClick;
             }
 
@@ -8025,7 +8025,7 @@ public sealed class GameObjectManager
 
             if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
             {
-                Log.Logger.Error("Table `areatrigger_involvedrelation` has record (id: {0}) for not quest {1}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. Trigger or quest flags must be fixed, quest modified to require objective.", trigger_ID, quest_ID);
+                Log.Logger.Error("Table `areatrigger_involvedrelation` has record (id: {0}) for not quest {1}, but quest not have Id QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. Trigger or quest flags must be fixed, quest modified to require objective.", trigger_ID, quest_ID);
 
                 // this will prevent quest completing without objective
                 quest.SetSpecialFlag(QuestSpecialFlags.ExplorationOrEvent);
@@ -8106,7 +8106,7 @@ public sealed class GameObjectManager
             ++count;
         } while (result.NextRow());
 
-        Log.Logger.Information($"Loaded {count} Quest Greeting locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+        Log.Logger.Information($"Loaded {count} QuestId Greeting locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
     public void LoadQuestGreetings()
@@ -8195,7 +8195,7 @@ public sealed class GameObjectManager
             AddLocaleString(result.Read<string>(2), locale, data.Description);
         } while (result.NextRow());
 
-        Log.Logger.Information("Loaded {0} Quest Objectives locale strings in {1} ms", _questObjectivesLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} QuestId Objectives locale strings in {1} ms", _questObjectivesLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadQuestOfferRewardLocale()
@@ -8225,7 +8225,7 @@ public sealed class GameObjectManager
             AddLocaleString(result.Read<string>(2), locale, data.RewardText);
         } while (result.NextRow());
 
-        Log.Logger.Information("Loaded {0} Quest Offer Reward locale strings in {1} ms", _questOfferRewardLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} QuestId Offer Reward locale strings in {1} ms", _questOfferRewardLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadQuestPOI()
@@ -8354,7 +8354,7 @@ public sealed class GameObjectManager
             AddLocaleString(result.Read<string>(2), locale, data.CompletionText);
         } while (result.NextRow());
 
-        Log.Logger.Information("Loaded {0} Quest Request Items locale strings in {1} ms", _questRequestItemsLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} QuestId Request Items locale strings in {1} ms", _questRequestItemsLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     //Quests
@@ -8627,11 +8627,11 @@ public sealed class GameObjectManager
             // additional quest integrity checks (GO, creaturetemplate and itemtemplate must be loaded already)
 
             if (qinfo.Type >= QuestType.Max)
-                Log.Logger.Error("Quest {0} has `Method` = {1}, expected values are 0, 1 or 2.", qinfo.Id, qinfo.Type);
+                Log.Logger.Error("QuestId {0} has `Method` = {1}, expected values are 0, 1 or 2.", qinfo.Id, qinfo.Type);
 
             if (Convert.ToBoolean(qinfo.SpecialFlags & ~QuestSpecialFlags.DbAllowed))
             {
-                Log.Logger.Error("Quest {0} has `SpecialFlags` = {1} > max allowed value. Correct `SpecialFlags` to value <= {2}",
+                Log.Logger.Error("QuestId {0} has `SpecialFlags` = {1} > max allowed value. Correct `SpecialFlags` to value <= {2}",
                                  qinfo.Id,
                                  qinfo.SpecialFlags,
                                  QuestSpecialFlags.DbAllowed);
@@ -8641,21 +8641,21 @@ public sealed class GameObjectManager
 
             if (qinfo.Flags.HasAnyFlag(QuestFlags.Daily) && qinfo.Flags.HasAnyFlag(QuestFlags.Weekly))
             {
-                Log.Logger.Error("Weekly Quest {0} is marked as daily quest in `Flags`, removed daily flag.", qinfo.Id);
+                Log.Logger.Error("Weekly QuestId {0} is marked as daily quest in `Flags`, removed daily Id.", qinfo.Id);
                 qinfo.Flags &= ~QuestFlags.Daily;
             }
 
             if (qinfo.Flags.HasAnyFlag(QuestFlags.Daily))
                 if (!qinfo.SpecialFlags.HasAnyFlag(QuestSpecialFlags.Repeatable))
                 {
-                    Log.Logger.Error("Daily Quest {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
+                    Log.Logger.Error("Daily QuestId {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
                     qinfo.SpecialFlags |= QuestSpecialFlags.Repeatable;
                 }
 
             if (qinfo.Flags.HasAnyFlag(QuestFlags.Weekly))
                 if (!qinfo.SpecialFlags.HasAnyFlag(QuestSpecialFlags.Repeatable))
                 {
-                    Log.Logger.Error("Weekly Quest {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
+                    Log.Logger.Error("Weekly QuestId {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
                     qinfo.SpecialFlags |= QuestSpecialFlags.Repeatable;
                 }
 
@@ -8673,7 +8673,7 @@ public sealed class GameObjectManager
                     var id = qinfo.RewardChoiceItemId[j];
 
                     if (id != 0)
-                        Log.Logger.Error("Quest {0} has `RewardChoiceItemId{1}` = {2} but item from `RewardChoiceItemId{3}` can't be rewarded with quest flag QUESTFLAGSTRACKING.",
+                        Log.Logger.Error("QuestId {0} has `RewardChoiceItemId{1}` = {2} but item from `RewardChoiceItemId{3}` can't be rewarded with quest Id QUESTFLAGSTRACKING.",
                                          qinfo.Id,
                                          j + 1,
                                          id,
@@ -8682,12 +8682,12 @@ public sealed class GameObjectManager
                 }
 
             if (qinfo.ContentTuningId != 0 && !_cliDB.ContentTuningStorage.ContainsKey(qinfo.ContentTuningId))
-                Log.Logger.Error($"Quest {qinfo.Id} has `ContentTuningID` = {qinfo.ContentTuningId} but content tuning with this id does not exist.");
+                Log.Logger.Error($"QuestId {qinfo.Id} has `ContentTuningID` = {qinfo.ContentTuningId} but content tuning with this id does not exist.");
 
             // client quest log visual (area case)
             if (qinfo.QuestSortID > 0)
                 if (!_cliDB.AreaTableStorage.ContainsKey(qinfo.QuestSortID))
-                    Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} (zone case) but zone with this id does not exist.",
+                    Log.Logger.Error("QuestId {0} has `ZoneOrSort` = {1} (zone case) but zone with this id does not exist.",
                                      qinfo.Id,
                                      qinfo.QuestSortID);
 
@@ -8698,7 +8698,7 @@ public sealed class GameObjectManager
                 var qSort = _cliDB.QuestSortStorage.LookupByKey((uint)-qinfo.QuestSortID);
 
                 if (qSort == null)
-                    Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} (sort case) but quest sort with this id does not exist.",
+                    Log.Logger.Error("QuestId {0} has `ZoneOrSort` = {1} (sort case) but quest sort with this id does not exist.",
                                      qinfo.Id,
                                      qinfo.QuestSortID);
 
@@ -8708,7 +8708,7 @@ public sealed class GameObjectManager
 
                 if (skillid != SkillType.None)
                     if (qinfo.RequiredSkillId != (uint)skillid)
-                        Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} but `RequiredSkillId` does not have a corresponding value ({2}).",
+                        Log.Logger.Error("QuestId {0} has `ZoneOrSort` = {1} but `RequiredSkillId` does not have a corresponding value ({2}).",
                                          qinfo.Id,
                                          qinfo.QuestSortID,
                                          skillid);
@@ -8719,7 +8719,7 @@ public sealed class GameObjectManager
             if (qinfo.AllowableClasses != 0)
                 if (!Convert.ToBoolean(qinfo.AllowableClasses & (uint)PlayerClass.ClassMaskAllPlayable))
                 {
-                    Log.Logger.Error("Quest {0} does not contain any playable classes in `RequiredClasses` ({1}), value set to 0 (all classes).", qinfo.Id, qinfo.AllowableClasses);
+                    Log.Logger.Error("QuestId {0} does not contain any playable classes in `RequiredClasses` ({1}), value set to 0 (all classes).", qinfo.Id, qinfo.AllowableClasses);
                     qinfo.AllowableClasses = 0;
                 }
 
@@ -8727,20 +8727,20 @@ public sealed class GameObjectManager
             if (qinfo.AllowableRaces != -1)
                 if (qinfo.AllowableRaces > 0 && !Convert.ToBoolean(qinfo.AllowableRaces & (long)SharedConst.RaceMaskAllPlayable))
                 {
-                    Log.Logger.Error("Quest {0} does not contain any playable races in `RequiredRaces` ({1}), value set to 0 (all races).", qinfo.Id, qinfo.AllowableRaces);
+                    Log.Logger.Error("QuestId {0} does not contain any playable races in `RequiredRaces` ({1}), value set to 0 (all races).", qinfo.Id, qinfo.AllowableRaces);
                     qinfo.AllowableRaces = -1;
                 }
 
             // RequiredSkillId, can be 0
             if (qinfo.RequiredSkillId != 0)
                 if (!_cliDB.SkillLineStorage.ContainsKey(qinfo.RequiredSkillId))
-                    Log.Logger.Error("Quest {0} has `RequiredSkillId` = {1} but this skill does not exist",
+                    Log.Logger.Error("QuestId {0} has `RequiredSkillId` = {1} but this skill does not exist",
                                      qinfo.Id,
                                      qinfo.RequiredSkillId);
 
             if (qinfo.RequiredSkillPoints != 0)
                 if (qinfo.RequiredSkillPoints > Global.WorldMgr.ConfigMaxSkillValue)
-                    Log.Logger.Error("Quest {0} has `RequiredSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
+                    Log.Logger.Error("QuestId {0} has `RequiredSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
                                      qinfo.Id,
                                      qinfo.RequiredSkillPoints,
                                      Global.WorldMgr.ConfigMaxSkillValue);
@@ -8748,48 +8748,48 @@ public sealed class GameObjectManager
             // else Skill quests can have 0 skill level, this is ok
 
             if (qinfo.RequiredMinRepFaction != 0 && !_cliDB.FactionStorage.ContainsKey(qinfo.RequiredMinRepFaction))
-                Log.Logger.Error("Quest {0} has `RequiredMinRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
+                Log.Logger.Error("QuestId {0} has `RequiredMinRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
                                  qinfo.Id,
                                  qinfo.RequiredMinRepFaction,
                                  qinfo.RequiredMinRepFaction);
 
             // no changes, quest can't be done for this requirement
             if (qinfo.RequiredMaxRepFaction != 0 && !_cliDB.FactionStorage.ContainsKey(qinfo.RequiredMaxRepFaction))
-                Log.Logger.Error("Quest {0} has `RequiredMaxRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
+                Log.Logger.Error("QuestId {0} has `RequiredMaxRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
                                  qinfo.Id,
                                  qinfo.RequiredMaxRepFaction,
                                  qinfo.RequiredMaxRepFaction);
 
             // no changes, quest can't be done for this requirement
             if (qinfo.RequiredMinRepValue != 0 && qinfo.RequiredMinRepValue > SharedConst.ReputationCap)
-                Log.Logger.Error("Quest {0} has `RequiredMinRepValue` = {1} but max reputation is {2}, quest can't be done.",
+                Log.Logger.Error("QuestId {0} has `RequiredMinRepValue` = {1} but max reputation is {2}, quest can't be done.",
                                  qinfo.Id,
                                  qinfo.RequiredMinRepValue,
                                  SharedConst.ReputationCap);
 
             // no changes, quest can't be done for this requirement
             if (qinfo.RequiredMinRepValue != 0 && qinfo.RequiredMaxRepValue != 0 && qinfo.RequiredMaxRepValue <= qinfo.RequiredMinRepValue)
-                Log.Logger.Error("Quest {0} has `RequiredMaxRepValue` = {1} and `RequiredMinRepValue` = {2}, quest can't be done.",
+                Log.Logger.Error("QuestId {0} has `RequiredMaxRepValue` = {1} and `RequiredMinRepValue` = {2}, quest can't be done.",
                                  qinfo.Id,
                                  qinfo.RequiredMaxRepValue,
                                  qinfo.RequiredMinRepValue);
 
             // no changes, quest can't be done for this requirement
             if (qinfo.RequiredMinRepFaction == 0 && qinfo.RequiredMinRepValue != 0)
-                Log.Logger.Error("Quest {0} has `RequiredMinRepValue` = {1} but `RequiredMinRepFaction` is 0, value has no effect",
+                Log.Logger.Error("QuestId {0} has `RequiredMinRepValue` = {1} but `RequiredMinRepFaction` is 0, value has no effect",
                                  qinfo.Id,
                                  qinfo.RequiredMinRepValue);
 
             // warning
             if (qinfo.RequiredMaxRepFaction == 0 && qinfo.RequiredMaxRepValue != 0)
-                Log.Logger.Error("Quest {0} has `RequiredMaxRepValue` = {1} but `RequiredMaxRepFaction` is 0, value has no effect",
+                Log.Logger.Error("QuestId {0} has `RequiredMaxRepValue` = {1} but `RequiredMaxRepFaction` is 0, value has no effect",
                                  qinfo.Id,
                                  qinfo.RequiredMaxRepValue);
 
             // warning
             if (qinfo.RewardTitleId != 0 && !_cliDB.CharTitlesStorage.ContainsKey(qinfo.RewardTitleId))
             {
-                Log.Logger.Error("Quest {0} has `RewardTitleId` = {1} but CharTitle Id {1} does not exist, quest can't be rewarded with title.",
+                Log.Logger.Error("QuestId {0} has `RewardTitleId` = {1} but CharTitle Id {1} does not exist, quest can't be rewarded with title.",
                                  qinfo.Id,
                                  qinfo.RewardTitleId);
 
@@ -8801,7 +8801,7 @@ public sealed class GameObjectManager
             {
                 if (GetItemTemplate(qinfo.SourceItemId) == null)
                 {
-                    Log.Logger.Error("Quest {0} has `SourceItemId` = {1} but item with entry {2} does not exist, quest can't be done.",
+                    Log.Logger.Error("QuestId {0} has `SourceItemId` = {1} but item with entry {2} does not exist, quest can't be done.",
                                      qinfo.Id,
                                      qinfo.SourceItemId,
                                      qinfo.SourceItemId);
@@ -8813,7 +8813,7 @@ public sealed class GameObjectManager
                     if (_configuration.GetDefaultValue("load.autoclean", false))
                         _worldDatabase.Execute($"UPDATE quest_template_addon SET ProvidedItemCount = 1 WHERE ID = {qinfo.Id}");
                     else
-                        Log.Logger.Error("Quest {0} has `StartItem` = {1} but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
+                        Log.Logger.Error("QuestId {0} has `StartItem` = {1} but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
                                          qinfo.Id,
                                          qinfo.SourceItemId);
 
@@ -8822,7 +8822,7 @@ public sealed class GameObjectManager
             }
             else if (qinfo.SourceItemIdCount > 0)
             {
-                Log.Logger.Error("Quest {0} has `SourceItemId` = 0 but `SourceItemIdCount` = {1}, useless value.",
+                Log.Logger.Error("QuestId {0} has `SourceItemId` = 0 but `SourceItemIdCount` = {1}, useless value.",
                                  qinfo.Id,
                                  qinfo.SourceItemIdCount);
 
@@ -8835,7 +8835,7 @@ public sealed class GameObjectManager
 
                 if (spellInfo == null)
                 {
-                    Log.Logger.Error("Quest {0} has `SourceSpellid` = {1} but spell {1} doesn't exist, quest can't be done.",
+                    Log.Logger.Error("QuestId {0} has `SourceSpellid` = {1} but spell {1} doesn't exist, quest can't be done.",
                                      qinfo.Id,
                                      qinfo.SourceSpellID);
 
@@ -8843,7 +8843,7 @@ public sealed class GameObjectManager
                 }
                 else if (!Global.SpellMgr.IsSpellValid(spellInfo))
                 {
-                    Log.Logger.Error("Quest {0} has `SourceSpellid` = {1} but spell {1} is broken, quest can't be done.",
+                    Log.Logger.Error("QuestId {0} has `SourceSpellid` = {1} but spell {1} is broken, quest can't be done.",
                                      qinfo.Id,
                                      qinfo.SourceSpellID);
 
@@ -8868,7 +8868,7 @@ public sealed class GameObjectManager
                         case QuestObjectiveType.AreaTrigger:
                         case QuestObjectiveType.WinPetBattleAgainstNpc:
                         case QuestObjectiveType.ObtainCurrency:
-                            Log.Logger.Error("Quest {0} objective {1} has invalid StorageIndex = {2} for objective type {3}", qinfo.Id, obj.Id, obj.StorageIndex, obj.Type);
+                            Log.Logger.Error("QuestId {0} objective {1} has invalid StorageIndex = {2} for objective type {3}", qinfo.Id, obj.Id, obj.StorageIndex, obj.Type);
 
                             break;
                         default:
@@ -8882,7 +8882,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing item entry {obj.ObjectID}, quest can't be done.");
+                                Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing item entry {obj.ObjectID}, quest can't be done.");
 
                         break;
                     case QuestObjectiveType.Monster:
@@ -8890,7 +8890,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
+                                Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
                         break;
                     case QuestObjectiveType.GameObject:
@@ -8898,7 +8898,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing gameobject entry {obj.ObjectID}, quest can't be done.");
+                                Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing gameobject entry {obj.ObjectID}, quest can't be done.");
 
                         break;
                     case QuestObjectiveType.TalkTo:
@@ -8906,7 +8906,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
+                                Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
                         break;
                     case QuestObjectiveType.MinReputation:
@@ -8916,7 +8916,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has non existing faction id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+                                Log.Logger.Error("QuestId {0} objective {1} has non existing faction id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
                     case QuestObjectiveType.PlayerKills:
@@ -8924,7 +8924,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has invalid player kills count {2}", qinfo.Id, obj.Id, obj.Amount);
+                                Log.Logger.Error("QuestId {0} objective {1} has invalid player kills count {2}", qinfo.Id, obj.Id, obj.Amount);
 
                         break;
                     case QuestObjectiveType.Currency:
@@ -8934,13 +8934,13 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has non existing currency {2}", qinfo.Id, obj.Id, obj.ObjectID);
+                                Log.Logger.Error("QuestId {0} objective {1} has non existing currency {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         if (obj.Amount <= 0)
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has invalid currency amount {2}", qinfo.Id, obj.Id, obj.Amount);
+                                Log.Logger.Error("QuestId {0} objective {1} has invalid currency amount {2}", qinfo.Id, obj.Id, obj.Amount);
 
                         break;
                     case QuestObjectiveType.LearnSpell:
@@ -8948,7 +8948,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has non existing spell id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+                                Log.Logger.Error("QuestId {0} objective {1} has non existing spell id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
                     case QuestObjectiveType.WinPetBattleAgainstNpc:
@@ -8956,7 +8956,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has non existing creature entry {2}, quest can't be done.", qinfo.Id, obj.Id, obj.ObjectID);
+                                Log.Logger.Error("QuestId {0} objective {1} has non existing creature entry {2}, quest can't be done.", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
                     case QuestObjectiveType.DefeatBattlePet:
@@ -8964,7 +8964,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has non existing battlepet species id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+                                Log.Logger.Error("QuestId {0} objective {1} has non existing battlepet species id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
                     case QuestObjectiveType.CriteriaTree:
@@ -8972,7 +8972,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has non existing criteria tree id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+                                Log.Logger.Error("QuestId {0} objective {1} has non existing criteria tree id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
                     case QuestObjectiveType.AreaTrigger:
@@ -8980,7 +8980,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has non existing AreaTrigger.db2 id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+                                Log.Logger.Error("QuestId {0} objective {1} has non existing AreaTrigger.db2 id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
                     case QuestObjectiveType.AreaTriggerEnter:
@@ -8989,7 +8989,7 @@ public sealed class GameObjectManager
                             if (_configuration.GetDefaultValue("load.autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
-                                Log.Logger.Error("Quest {0} objective {1} has non existing areatrigger id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+                                Log.Logger.Error("QuestId {0} objective {1} has non existing areatrigger id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         break;
                     case QuestObjectiveType.Money:
@@ -9000,7 +9000,7 @@ public sealed class GameObjectManager
                         if (_configuration.GetDefaultValue("load.autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                         else
-                            Log.Logger.Error("Quest {0} objective {1} has unhandled type {2}", qinfo.Id, obj.Id, obj.Type);
+                            Log.Logger.Error("QuestId {0} objective {1} has unhandled type {2}", qinfo.Id, obj.Id, obj.Type);
 
                         break;
                 }
@@ -9016,7 +9016,7 @@ public sealed class GameObjectManager
                 if (id != 0)
                 {
                     if (GetItemTemplate(id) == null)
-                        Log.Logger.Error("Quest {0} has `RequiredSourceItemId{1}` = {2} but item with entry {2} does not exist, quest can't be done.",
+                        Log.Logger.Error("QuestId {0} has `RequiredSourceItemId{1}` = {2} but item with entry {2} does not exist, quest can't be done.",
                                          qinfo.Id,
                                          j + 1,
                                          id);
@@ -9025,7 +9025,7 @@ public sealed class GameObjectManager
                 else
                 {
                     if (qinfo.ItemDropQuantity[j] > 0)
-                        Log.Logger.Error("Quest {0} has `RequiredSourceItemId{1}` = 0 but `RequiredSourceItemCount{1}` = {2}.",
+                        Log.Logger.Error("QuestId {0} has `RequiredSourceItemId{1}` = 0 but `RequiredSourceItemCount{1}` = {2}.",
                                          qinfo.Id,
                                          j + 1,
                                          qinfo.ItemDropQuantity[j]);
@@ -9044,7 +9044,7 @@ public sealed class GameObjectManager
                         case LootItemType.Item:
                             if (GetItemTemplate(id) == null)
                             {
-                                Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but item with entry {id} does not exist, quest will not reward this item.");
+                                Log.Logger.Error($"QuestId {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but item with entry {id} does not exist, quest will not reward this item.");
                                 qinfo.RewardChoiceItemId[j] = 0; // no changes, quest will not reward this
                             }
 
@@ -9052,24 +9052,24 @@ public sealed class GameObjectManager
                         case LootItemType.Currency:
                             if (!_cliDB.CurrencyTypesStorage.HasRecord(id))
                             {
-                                Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but currency with id {id} does not exist, quest will not reward this currency.");
+                                Log.Logger.Error($"QuestId {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but currency with id {id} does not exist, quest will not reward this currency.");
                                 qinfo.RewardChoiceItemId[j] = 0; // no changes, quest will not reward this
                             }
 
                             break;
                         default:
-                            Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemType{j + 1}` = {qinfo.RewardChoiceItemType[j]} but it is not a valid item type, reward removed.");
+                            Log.Logger.Error($"QuestId {qinfo.Id} has `RewardChoiceItemType{j + 1}` = {qinfo.RewardChoiceItemType[j]} but it is not a valid item type, reward removed.");
                             qinfo.RewardChoiceItemId[j] = 0;
 
                             break;
                     }
 
                     if (qinfo.RewardChoiceItemCount[j] == 0)
-                        Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but `RewardChoiceItemCount{j + 1}` = 0, quest can't be done.");
+                        Log.Logger.Error($"QuestId {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but `RewardChoiceItemCount{j + 1}` = 0, quest can't be done.");
                 }
                 else if (qinfo.RewardChoiceItemCount[j] > 0)
                 {
-                    Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = 0 but `RewardChoiceItemCount{j + 1}` = {qinfo.RewardChoiceItemCount[j]}.");
+                    Log.Logger.Error($"QuestId {qinfo.Id} has `RewardChoiceItemId{j + 1}` = 0 but `RewardChoiceItemCount{j + 1}` = {qinfo.RewardChoiceItemCount[j]}.");
                     // no changes, quest ignore this data
                 }
             }
@@ -9082,7 +9082,7 @@ public sealed class GameObjectManager
                 {
                     if (GetItemTemplate(id) == null)
                     {
-                        Log.Logger.Error("Quest {0} has `RewardItemId{1}` = {2} but item with entry {3} does not exist, quest will not reward this item.",
+                        Log.Logger.Error("QuestId {0} has `RewardItemId{1}` = {2} but item with entry {3} does not exist, quest will not reward this item.",
                                          qinfo.Id,
                                          j + 1,
                                          id,
@@ -9092,7 +9092,7 @@ public sealed class GameObjectManager
                     }
 
                     if (qinfo.RewardItemCount[j] == 0)
-                        Log.Logger.Error("Quest {0} has `RewardItemId{1}` = {2} but `RewardItemIdCount{3}` = 0, quest will not reward this item.",
+                        Log.Logger.Error("QuestId {0} has `RewardItemId{1}` = {2} but `RewardItemIdCount{3}` = 0, quest will not reward this item.",
                                          qinfo.Id,
                                          j + 1,
                                          id,
@@ -9101,7 +9101,7 @@ public sealed class GameObjectManager
                 }
                 else if (qinfo.RewardItemCount[j] > 0)
                 {
-                    Log.Logger.Error("Quest {0} has `RewardItemId{1}` = 0 but `RewardItemIdCount{2}` = {3}.",
+                    Log.Logger.Error("QuestId {0} has `RewardItemId{1}` = 0 but `RewardItemIdCount{2}` = {3}.",
                                      qinfo.Id,
                                      j + 1,
                                      j + 1,
@@ -9114,11 +9114,11 @@ public sealed class GameObjectManager
                 if (qinfo.RewardFactionId[j] != 0)
                 {
                     if (Math.Abs(qinfo.RewardFactionValue[j]) > 9)
-                        Log.Logger.Error("Quest {0} has RewardFactionValueId{1} = {2}. That is outside the range of valid values (-9 to 9).", qinfo.Id, j + 1, qinfo.RewardFactionValue[j]);
+                        Log.Logger.Error("QuestId {0} has RewardFactionValueId{1} = {2}. That is outside the range of valid values (-9 to 9).", qinfo.Id, j + 1, qinfo.RewardFactionValue[j]);
 
                     if (!_cliDB.FactionStorage.ContainsKey(qinfo.RewardFactionId[j]))
                     {
-                        Log.Logger.Error("Quest {0} has `RewardFactionId{1}` = {2} but raw faction (faction.dbc) {3} does not exist, quest will not reward reputation for this faction.",
+                        Log.Logger.Error("QuestId {0} has `RewardFactionId{1}` = {2} but raw faction (faction.dbc) {3} does not exist, quest will not reward reputation for this faction.",
                                          qinfo.Id,
                                          j + 1,
                                          qinfo.RewardFactionId[j],
@@ -9130,7 +9130,7 @@ public sealed class GameObjectManager
 
                 else if (qinfo.RewardFactionOverride[j] != 0)
                 {
-                    Log.Logger.Error("Quest {0} has `RewardFactionId{1}` = 0 but `RewardFactionValueIdOverride{2}` = {3}.",
+                    Log.Logger.Error("QuestId {0} has `RewardFactionId{1}` = 0 but `RewardFactionValueIdOverride{2}` = {3}.",
                                      qinfo.Id,
                                      j + 1,
                                      j + 1,
@@ -9144,7 +9144,7 @@ public sealed class GameObjectManager
 
                 if (spellInfo == null)
                 {
-                    Log.Logger.Error("Quest {0} has `RewardSpellCast` = {1} but spell {2} does not exist, quest will not have a spell reward.",
+                    Log.Logger.Error("QuestId {0} has `RewardSpellCast` = {1} but spell {2} does not exist, quest will not have a spell reward.",
                                      qinfo.Id,
                                      qinfo.RewardSpell,
                                      qinfo.RewardSpell);
@@ -9154,7 +9154,7 @@ public sealed class GameObjectManager
 
                 else if (!Global.SpellMgr.IsSpellValid(spellInfo))
                 {
-                    Log.Logger.Error("Quest {0} has `RewardSpellCast` = {1} but spell {2} is broken, quest will not have a spell reward.",
+                    Log.Logger.Error("QuestId {0} has `RewardSpellCast` = {1} but spell {2} is broken, quest will not have a spell reward.",
                                      qinfo.Id,
                                      qinfo.RewardSpell,
                                      qinfo.RewardSpell);
@@ -9167,7 +9167,7 @@ public sealed class GameObjectManager
             {
                 if (!_cliDB.MailTemplateStorage.ContainsKey(qinfo.RewardMailTemplateId))
                 {
-                    Log.Logger.Error("Quest {0} has `RewardMailTemplateId` = {1} but mail template {2} does not exist, quest will not have a mail reward.",
+                    Log.Logger.Error("QuestId {0} has `RewardMailTemplateId` = {1} but mail template {2} does not exist, quest will not have a mail reward.",
                                      qinfo.Id,
                                      qinfo.RewardMailTemplateId,
                                      qinfo.RewardMailTemplateId);
@@ -9180,7 +9180,7 @@ public sealed class GameObjectManager
                 {
                     var usedId = usedMailTemplates.LookupByKey(qinfo.RewardMailTemplateId);
 
-                    Log.Logger.Error("Quest {0} has `RewardMailTemplateId` = {1} but mail template  {2} already used for quest {3}, quest will not have a mail reward.",
+                    Log.Logger.Error("QuestId {0} has `RewardMailTemplateId` = {1} but mail template  {2} already used for quest {3}, quest will not have a mail reward.",
                                      qinfo.Id,
                                      qinfo.RewardMailTemplateId,
                                      qinfo.RewardMailTemplateId,
@@ -9199,7 +9199,7 @@ public sealed class GameObjectManager
             if (qinfo.NextQuestInChain != 0)
                 if (!_questTemplates.ContainsKey(qinfo.NextQuestInChain))
                 {
-                    Log.Logger.Error("Quest {0} has `NextQuestIdChain` = {1} but quest {2} does not exist, quest chain will not work.",
+                    Log.Logger.Error("QuestId {0} has `NextQuestIdChain` = {1} but quest {2} does not exist, quest chain will not work.",
                                      qinfo.Id,
                                      qinfo.NextQuestInChain,
                                      qinfo.NextQuestInChain);
@@ -9211,7 +9211,7 @@ public sealed class GameObjectManager
                 if (qinfo.RewardCurrencyId[j] != 0)
                 {
                     if (qinfo.RewardCurrencyCount[j] == 0)
-                        Log.Logger.Error("Quest {0} has `RewardCurrencyId{1}` = {2} but `RewardCurrencyCount{3}` = 0, quest can't be done.",
+                        Log.Logger.Error("QuestId {0} has `RewardCurrencyId{1}` = {2} but `RewardCurrencyCount{3}` = 0, quest can't be done.",
                                          qinfo.Id,
                                          j + 1,
                                          qinfo.RewardCurrencyId[j],
@@ -9220,7 +9220,7 @@ public sealed class GameObjectManager
                     // no changes, quest can't be done for this requirement
                     if (!_cliDB.CurrencyTypesStorage.ContainsKey(qinfo.RewardCurrencyId[j]))
                     {
-                        Log.Logger.Error("Quest {0} has `RewardCurrencyId{1}` = {2} but currency with entry {3} does not exist, quest can't be done.",
+                        Log.Logger.Error("QuestId {0} has `RewardCurrencyId{1}` = {2} but currency with entry {3} does not exist, quest can't be done.",
                                          qinfo.Id,
                                          j + 1,
                                          qinfo.RewardCurrencyId[j],
@@ -9231,7 +9231,7 @@ public sealed class GameObjectManager
                 }
                 else if (qinfo.RewardCurrencyCount[j] > 0)
                 {
-                    Log.Logger.Error("Quest {0} has `RewardCurrencyId{1}` = 0 but `RewardCurrencyCount{2}` = {3}, quest can't be done.",
+                    Log.Logger.Error("QuestId {0} has `RewardCurrencyId{1}` = 0 but `RewardCurrencyCount{2}` = {3}, quest can't be done.",
                                      qinfo.Id,
                                      j + 1,
                                      j + 1,
@@ -9243,7 +9243,7 @@ public sealed class GameObjectManager
             if (qinfo.SoundAccept != 0)
                 if (!_cliDB.SoundKitStorage.ContainsKey(qinfo.SoundAccept))
                 {
-                    Log.Logger.Error("Quest {0} has `SoundAccept` = {1} but sound {2} does not exist, set to 0.",
+                    Log.Logger.Error("QuestId {0} has `SoundAccept` = {1} but sound {2} does not exist, set to 0.",
                                      qinfo.Id,
                                      qinfo.SoundAccept,
                                      qinfo.SoundAccept);
@@ -9254,7 +9254,7 @@ public sealed class GameObjectManager
             if (qinfo.SoundTurnIn != 0)
                 if (!_cliDB.SoundKitStorage.ContainsKey(qinfo.SoundTurnIn))
                 {
-                    Log.Logger.Error("Quest {0} has `SoundTurnIn` = {1} but sound {2} does not exist, set to 0.",
+                    Log.Logger.Error("QuestId {0} has `SoundTurnIn` = {1} but sound {2} does not exist, set to 0.",
                                      qinfo.Id,
                                      qinfo.SoundTurnIn,
                                      qinfo.SoundTurnIn);
@@ -9265,12 +9265,12 @@ public sealed class GameObjectManager
             if (qinfo.RewardSkillId > 0)
             {
                 if (!_cliDB.SkillLineStorage.ContainsKey(qinfo.RewardSkillId))
-                    Log.Logger.Error("Quest {0} has `RewardSkillId` = {1} but this skill does not exist",
+                    Log.Logger.Error("QuestId {0} has `RewardSkillId` = {1} but this skill does not exist",
                                      qinfo.Id,
                                      qinfo.RewardSkillId);
 
                 if (qinfo.RewardSkillPoints == 0)
-                    Log.Logger.Error("Quest {0} has `RewardSkillId` = {1} but `RewardSkillPoints` is 0",
+                    Log.Logger.Error("QuestId {0} has `RewardSkillId` = {1} but `RewardSkillPoints` is 0",
                                      qinfo.Id,
                                      qinfo.RewardSkillId);
             }
@@ -9278,14 +9278,14 @@ public sealed class GameObjectManager
             if (qinfo.RewardSkillPoints != 0)
             {
                 if (qinfo.RewardSkillPoints > Global.WorldMgr.ConfigMaxSkillValue)
-                    Log.Logger.Error("Quest {0} has `RewardSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
+                    Log.Logger.Error("QuestId {0} has `RewardSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
                                      qinfo.Id,
                                      qinfo.RewardSkillPoints,
                                      Global.WorldMgr.ConfigMaxSkillValue);
 
                 // no changes, quest can't be done for this requirement
                 if (qinfo.RewardSkillId == 0)
-                    Log.Logger.Error("Quest {0} has `RewardSkillPoints` = {1} but `RewardSkillId` is 0",
+                    Log.Logger.Error("QuestId {0} has `RewardSkillPoints` = {1} but `RewardSkillId` is 0",
                                      qinfo.Id,
                                      qinfo.RewardSkillPoints);
             }
@@ -9298,9 +9298,9 @@ public sealed class GameObjectManager
                 var prevQuestItr = _questTemplates.LookupByKey(prevQuestId);
 
                 if (prevQuestItr == null)
-                    Log.Logger.Error($"Quest {qinfo.Id} has PrevQuestId {prevQuestId}, but no such quest");
+                    Log.Logger.Error($"QuestId {qinfo.Id} has PrevQuestId {prevQuestId}, but no such quest");
                 else if (prevQuestItr.BreadcrumbForQuestId != 0)
-                    Log.Logger.Error($"Quest {qinfo.Id} should not be unlocked by breadcrumb quest {prevQuestId}");
+                    Log.Logger.Error($"QuestId {qinfo.Id} should not be unlocked by breadcrumb quest {prevQuestId}");
                 else if (qinfo.PrevQuestId > 0)
                     qinfo.DependentPreviousQuests.Add(prevQuestId);
             }
@@ -9310,7 +9310,7 @@ public sealed class GameObjectManager
                 var nextquest = _questTemplates.LookupByKey(qinfo.NextQuestId);
 
                 if (nextquest == null)
-                    Log.Logger.Error("Quest {0} has NextQuestId {1}, but no such quest", qinfo.Id, qinfo.NextQuestId);
+                    Log.Logger.Error("QuestId {0} has NextQuestId {1}, but no such quest", qinfo.Id, qinfo.NextQuestId);
                 else
                     nextquest.DependentPreviousQuests.Add(qinfo.Id);
             }
@@ -9321,12 +9321,12 @@ public sealed class GameObjectManager
             {
                 if (!_questTemplates.ContainsKey(breadcrumbForQuestId))
                 {
-                    Log.Logger.Error($"Quest {qinfo.Id} is a breadcrumb for quest {breadcrumbForQuestId}, but no such quest exists");
+                    Log.Logger.Error($"QuestId {qinfo.Id} is a breadcrumb for quest {breadcrumbForQuestId}, but no such quest exists");
                     qinfo.BreadcrumbForQuestId = 0;
                 }
 
                 if (qinfo.NextQuestId != 0)
-                    Log.Logger.Error($"Quest {qinfo.Id} is a breadcrumb, should not unlock quest {qinfo.NextQuestId}");
+                    Log.Logger.Error($"QuestId {qinfo.Id} is a breadcrumb, should not unlock quest {qinfo.NextQuestId}");
             }
 
             if (qinfo.ExclusiveGroup != 0)
@@ -9389,8 +9389,8 @@ public sealed class GameObjectManager
 
                 if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
                 {
-                    Log.Logger.Error("Spell (id: {0}) have SPELL_EFFECT_QUEST_COMPLETE for quest {1}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. " +
-                                     "Quest flags must be fixed, quest modified to enable objective.",
+                    Log.Logger.Error("Spell (id: {0}) have SPELL_EFFECT_QUEST_COMPLETE for quest {1}, but quest not have Id QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. " +
+                                     "QuestId flags must be fixed, quest modified to enable objective.",
                                      spellInfo.Id,
                                      questId);
 
@@ -9413,13 +9413,13 @@ public sealed class GameObjectManager
 
     public void LoadQuestStartersAndEnders()
     {
-        Log.Logger.Information("Loading GO Start Quest Data...");
+        Log.Logger.Information("Loading GO Start QuestId Data...");
         LoadGameobjectQuestStarters();
-        Log.Logger.Information("Loading GO End Quest Data...");
+        Log.Logger.Information("Loading GO End QuestId Data...");
         LoadGameobjectQuestEnders();
-        Log.Logger.Information("Loading Creature Start Quest Data...");
+        Log.Logger.Information("Loading Creature Start QuestId Data...");
         LoadCreatureQuestStarters();
-        Log.Logger.Information("Loading Creature End Quest Data...");
+        Log.Logger.Information("Loading Creature End QuestId Data...");
         LoadCreatureQuestEnders();
     }
 
@@ -9460,7 +9460,7 @@ public sealed class GameObjectManager
             AddLocaleString(result.Read<string>(10), locale, data.QuestCompletionLog);
         } while (result.NextRow());
 
-        Log.Logger.Information("Loaded {0} Quest Tempalate locale strings in {1} ms", _questTemplateLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} QuestId Tempalate locale strings in {1} ms", _questTemplateLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadRaceAndClassExpansionRequirements()
@@ -10140,13 +10140,13 @@ public sealed class GameObjectManager
                 if (flags.HasAnyFlag(~SpawnGroupFlags.All))
                 {
                     flags &= SpawnGroupFlags.All;
-                    Log.Logger.Error($"Invalid spawn group flag {flags} on group ID {groupId} ({group.Name}), reduced to valid flag {group.Flags}.");
+                    Log.Logger.Error($"Invalid spawn group Id {flags} on group ID {groupId} ({group.Name}), reduced to valid Id {group.Flags}.");
                 }
 
                 if (flags.HasAnyFlag(SpawnGroupFlags.System) && flags.HasAnyFlag(SpawnGroupFlags.ManualSpawn))
                 {
                     flags &= ~SpawnGroupFlags.ManualSpawn;
-                    Log.Logger.Error($"System spawn group {groupId} ({group.Name}) has invalid manual spawn flag. Ignored.");
+                    Log.Logger.Error($"System spawn group {groupId} ({group.Name}) has invalid manual spawn Id. Ignored.");
                 }
 
                 group.Flags = flags;
@@ -12052,7 +12052,7 @@ public sealed class GameObjectManager
 
             if (!_questTemplates.ContainsKey(quest))
             {
-                Log.Logger.Error("Table `{0}`: Quest {1} listed for entry {2} does not exist.", table, quest, id);
+                Log.Logger.Error("Table `{0}`: QuestId {1} listed for entry {2} does not exist.", table, quest, id);
 
                 continue;
             }
@@ -12288,7 +12288,7 @@ public sealed class GameObjectManager
 
                     if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
                     {
-                        Log.Logger.Error("Table `{0}` has quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT in quest flags. Script command or quest flags wrong. Quest modified to require objective.",
+                        Log.Logger.Error("Table `{0}` has quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, but quest not have Id QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT in quest flags. Script command or quest flags wrong. QuestId modified to require objective.",
                                          tableName,
                                          tmp.QuestExplored.QuestID,
                                          tmp.id);

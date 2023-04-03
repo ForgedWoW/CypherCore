@@ -760,7 +760,7 @@ public class BattlegroundManager
         foreach (var creature in templates)
             if (creature.Value.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster) && !_battleMastersMap.ContainsKey(creature.Value.Entry))
             {
-                Log.Logger.Error("CreatureTemplate (Entry: {0}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing flag!", creature.Value.Entry);
+                Log.Logger.Error("CreatureTemplate (Entry: {0}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing Id!", creature.Value.Entry);
                 templates[creature.Key].Npcflag &= ~(uint)NPCFlags.BattleMaster;
             }
     }

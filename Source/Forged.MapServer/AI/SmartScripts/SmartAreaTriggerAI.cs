@@ -3,6 +3,7 @@
 
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
 
@@ -10,9 +11,12 @@ namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartAreaTriggerAI : AreaTriggerAI
 {
-    private readonly SmartScript _script = new();
+    private readonly SmartScript _script;
 
-    public SmartAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
+    public SmartAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger)
+    {
+        _script = areaTrigger.ClassFactory.Resolve<SmartScript>();
+    }
 
     public SmartScript GetScript()
     {
@@ -33,6 +37,7 @@ public class SmartAreaTriggerAI : AreaTriggerAI
     {
         GetScript().OnUpdate(diff);
     }
+
     public void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
     {
         GetScript().SetTimedActionList(e, entry, invoker);

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.AI.CoreAI;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
@@ -13,7 +12,6 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Serilog;
@@ -39,7 +37,7 @@ public class ScriptedAI : CreatureAI
         if (source == null)
             return;
 
-        if (!CliDB.SoundKitStorage.ContainsKey(soundId))
+        if (!source.CliDB.SoundKitStorage.ContainsKey(soundId))
         {
             Log.Logger.Error($"ScriptedAI::DoPlaySoundToSet: Invalid soundId {soundId} used in DoPlaySoundToSet (Source: {source.GUID})");
 
@@ -75,8 +73,7 @@ public class ScriptedAI : CreatureAI
         if (!victim)
             return;
 
-        if (!who)
-            who = Me;
+        who ??= Me;
 
         who.GetThreatManager().AddThreat(victim, amount, null, true, true);
     }
@@ -98,6 +95,7 @@ public class ScriptedAI : CreatureAI
         if (Me.Attack(target, true))
             DoStartNoMovement(target);
     }
+
     //Cast spell by spell info
     public void DoCastSpell(Unit target, SpellInfo spellInfo, bool triggered = false)
     {
@@ -105,15 +103,15 @@ public class ScriptedAI : CreatureAI
             return;
 
         Me.StopMoving();
-        Me.CastSpell(target, spellInfo.Id, triggered);
+        Me.SpellFactory.CastSpell(target, spellInfo.Id, triggered);
     }
 
     //Returns a list of friendly CC'd units within range
-    public List<Creature> DoFindFriendlyCC(float range)
+    public List<Creature> DoFindFriendlyCc(float range)
     {
         List<Creature> list = new();
-        var u_check = new FriendlyCCedInRange(Me, range);
-        var searcher = new CreatureListSearcher(Me, list, u_check, GridType.All);
+        var uCheck = new FriendlyCCedInRange(Me, range);
+        var searcher = new CreatureListSearcher(Me, list, uCheck, GridType.All);
         Cell.VisitGrid(Me, searcher, range);
 
         return list;
@@ -123,18 +121,18 @@ public class ScriptedAI : CreatureAI
     public List<Creature> DoFindFriendlyMissingBuff(float range, uint spellId)
     {
         List<Creature> list = new();
-        var u_check = new FriendlyMissingBuffInRange(Me, range, spellId);
-        var searcher = new CreatureListSearcher(Me, list, u_check, GridType.All);
+        var uCheck = new FriendlyMissingBuffInRange(Me, range, spellId);
+        var searcher = new CreatureListSearcher(Me, list, uCheck, GridType.All);
         Cell.VisitGrid(Me, searcher, range);
 
         return list;
     }
 
     //Returns friendly unit with the most amount of hp missing from max hp
-    public Unit DoSelectLowestHpFriendly(float range, uint minHPDiff = 1)
+    public Unit DoSelectLowestHpFriendly(float range, uint minHpDiff = 1)
     {
-        var u_check = new MostHPMissingInRange<Unit>(Me, range, minHPDiff);
-        var searcher = new UnitLastSearcher(Me, u_check, GridType.All);
+        var uCheck = new MostHPMissingInRange<Unit>(Me, range, minHpDiff);
+        var searcher = new UnitLastSearcher(Me, uCheck, GridType.All);
         Cell.VisitGrid(Me, searcher, range);
 
         return searcher.GetTarget();
@@ -176,9 +174,9 @@ public class ScriptedAI : CreatureAI
         if (!map.IsDungeon)
             return;
 
-        var PlayerList = map.Players;
+        var playerList = map.Players;
 
-        foreach (var player in PlayerList)
+        foreach (var player in playerList)
             if (player.IsAlive)
                 player.TeleportTo(Me.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
     }
@@ -245,8 +243,7 @@ public class ScriptedAI : CreatureAI
         if (!victim)
             return 0.0f;
 
-        if (!who)
-            who = Me;
+        who ??= Me;
 
         return who.GetThreatManager().GetThreat(victim);
     }
@@ -293,8 +290,7 @@ public class ScriptedAI : CreatureAI
         if (!victim)
             return;
 
-        if (!who)
-            who = Me;
+        who ??= Me;
 
         who.GetThreatManager().ModifyThreatByPercent(victim, pct);
     }
@@ -341,9 +337,7 @@ public class ScriptedAI : CreatureAI
     /// <param name="who"> </param>
     public void ResetThreatList(Unit who = null)
     {
-        if (!who)
-            who = Me;
-
+        who ??= Me;
         who.GetThreatManager().ResetAllThreat();
     }
 
@@ -366,7 +360,7 @@ public class ScriptedAI : CreatureAI
         //Check if each spell is viable(set it to null if not)
         for (uint i = 0; i < SharedConst.MaxCreatureSpells; i++)
         {
-            var tempSpell = Global.SpellMgr.GetSpellInfo(Me.Spells[i], Me.Location.Map.DifficultyID);
+            var tempSpell = Me.SpellManager.GetSpellInfo(Me.Spells[i], Me.Location.Map.DifficultyID);
             var aiSpell = GetAISpellInfo(Me.Spells[i], Me.Location.Map.DifficultyID);
 
             //This spell doesn't exist
@@ -464,68 +458,5 @@ public class ScriptedAI : CreatureAI
             return;
 
         DoMeleeAttackIfReady();
-    }
-    /// <summary>
-    ///     Stops combat, ignoring restrictions, for the given creature
-    /// </summary>
-    /// <param name="who"> </param>
-    /// <param name="reset"> </param>
-    private void ForceCombatStop(Creature who, bool reset = true)
-    {
-        if (who == null || !who.IsInCombat)
-            return;
-
-        who.CombatStop(true);
-        who.DoNotReacquireSpellFocusTarget();
-        who.MotionMaster.Clear(MovementGeneratorPriority.Normal);
-
-        if (reset)
-        {
-            who.LoadCreaturesAddon();
-            who.SetTappedBy(null);
-            who.ResetPlayerDamageReq();
-            who.LastDamagedTime = 0;
-            who.SetCannotReachTarget(false);
-        }
-    }
-
-    /// <summary>
-    ///     Stops combat, ignoring restrictions, for the found creatures
-    /// </summary>
-    /// <param name="entry"> </param>
-    /// <param name="maxSearchRange"> </param>
-    /// <param name="samePhase"> </param>
-    /// <param name="reset"> </param>
-    private void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
-    {
-        Log.Logger.Debug($"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
-
-        List<Creature> creatures = new();
-        AllCreaturesOfEntryInRange check = new(Me, entry, maxSearchRange);
-        CreatureListSearcher searcher = new(Me, creatures, check, GridType.Grid);
-
-        if (!samePhase)
-            PhasingHandler.SetAlwaysVisible(Me, true, false);
-
-        Cell.VisitGrid(Me, searcher, maxSearchRange);
-
-        if (!samePhase)
-            PhasingHandler.SetAlwaysVisible(Me, false, false);
-
-        foreach (var creature in creatures)
-            ForceCombatStop(creature, reset);
-    }
-
-    /// <summary>
-    ///     Stops combat, ignoring restrictions, for the found creatures
-    /// </summary>
-    /// <param name="creatureEntries"> </param>
-    /// <param name="maxSearchRange"> </param>
-    /// <param name="samePhase"> </param>
-    /// <param name="reset"> </param>
-    private void ForceCombatStopForCreatureEntry(List<uint> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
-    {
-        foreach (var entry in creatureEntries)
-            ForceCombatStopForCreatureEntry(entry, maxSearchRange, samePhase, reset);
     }
 }

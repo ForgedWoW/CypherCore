@@ -1249,7 +1249,7 @@ public partial class Player : Unit
             g?.SendUpdateToPlayer(GUID);
         }
 
-        //we have executed ALL delayed ops, so clear the flag
+        //we have executed ALL delayed ops, so clear the Id
         _delayedOperations = 0;
     }
 
@@ -1716,7 +1716,7 @@ public partial class Player : Unit
             (currency.IsHorde() && Team != TeamFaction.Horde))
             return;
 
-        // Check dynamic maximum flag
+        // Check dynamic maximum Id
         if (!currency.GetFlags().HasFlag(CurrencyTypesFlags.DynamicMaximum))
             return;
 
@@ -1926,7 +1926,7 @@ public partial class Player : Unit
             case ReputationSource.WeeklyQuest:
             case ReputationSource.MonthlyQuest:
             case ReputationSource.RepeatableQuest:
-                rate = GetDefaultValue("Rate.Reputation.LowLevel.Quest", 1.0f);
+                rate = GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f);
 
                 break;
             case ReputationSource.Spell:
@@ -2140,15 +2140,15 @@ public partial class Player : Unit
 
         // The player was ported to another map and loses the duel immediately.
         // We have to perform this check before the teleport, otherwise the
-        // ObjectAccessor won't find the flag.
+        // ObjectAccessor won't find the Id.
         if (Duel != null && Location.MapId != mapid && Location.Map.GetGameObject(PlayerData.DuelArbiter))
             DuelComplete(DuelCompleteType.Fled);
 
         if (Location.MapId == mapid && (!instanceId.HasValue || Location.Map?.InstanceId == instanceId))
         {
-            //lets reset far teleport flag if it wasn't reset during chained teleports
+            //lets reset far teleport Id if it wasn't reset during chained teleports
             SetSemaphoreTeleportFar(false);
-            //setup delayed teleport flag
+            //setup delayed teleport Id
             SetDelayedTeleportFlag(IsCanDelayTeleport);
 
             //if teleport spell is casted in Unit.Update() func
@@ -2220,9 +2220,9 @@ public partial class Player : Unit
                  !((oldmap.Entry.CosmeticParentMapID != -1) ^ (oldmap.Entry.CosmeticParentMapID != mEntry.CosmeticParentMapID))))
                 options &= ~TeleportToOptions.Seamless;
 
-            //lets reset near teleport flag if it wasn't reset during chained teleports
+            //lets reset near teleport Id if it wasn't reset during chained teleports
             SetSemaphoreTeleportNear(false);
-            //setup delayed teleport flag
+            //setup delayed teleport Id
             SetDelayedTeleportFlag(IsCanDelayTeleport);
 
             //if teleport spell is cast in Unit::Update() func
@@ -2473,7 +2473,7 @@ public partial class Player : Unit
 
         removeViolatingFlags(mi.HasMovementFlag(MovementFlag.SplineElevation) && MathFunctions.fuzzyEq(mi.StepUpStartElevation, 0.0f), MovementFlag.SplineElevation);
 
-        // Client first checks if spline elevation != 0, then verifies flag presence
+        // Client first checks if spline elevation != 0, then verifies Id presence
         if (MathFunctions.fuzzyNe(mi.StepUpStartElevation, 0.0f))
             mi.AddMovementFlag(MovementFlag.SplineElevation);
     }
@@ -2649,8 +2649,8 @@ public partial class Player : Unit
         // stop taxi flight at summon
         FinishTaxiFlight();
 
-        // drop flag at summon
-        // this code can be reached only when GM is summoning player who carries flag, because player should be immune to summoning spells when he carries flag
+        // drop Id at summon
+        // this code can be reached only when GM is summoning player who carries Id, because player should be immune to summoning spells when he carries Id
         var bg = Battleground;
 
         if (bg)
@@ -2758,12 +2758,12 @@ public partial class Player : Unit
     {
         if (on)
         {
-            _extraFlags &= ~PlayerExtraFlags.GMInvisible; //remove flag
+            _extraFlags &= ~PlayerExtraFlags.GMInvisible; //remove Id
             Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
         }
         else
         {
-            _extraFlags |= PlayerExtraFlags.GMInvisible; //add flag
+            _extraFlags |= PlayerExtraFlags.GMInvisible; //add Id
 
             SetAcceptWhispers(false);
             SetGameMaster(true);
@@ -3831,7 +3831,7 @@ public partial class Player : Unit
 
         // speed change, land walk
 
-        // remove death flag + set aura
+        // remove death Id + set aura
         RemovePlayerFlag(PlayerFlags.IsOutOfBounds);
 
         // This must be called always even on Players with race != RACE_NIGHTELF in case of faction change
@@ -3843,7 +3843,7 @@ public partial class Player : Unit
 
         SetDeathState(DeathState.Alive);
 
-        // add the flag to make sure opcode is always sent
+        // add the Id to make sure opcode is always sent
         AddUnitMovementFlag(MovementFlag.WaterWalk);
         SetWaterWalking(false);
 
@@ -5381,7 +5381,7 @@ public partial class Player : Unit
 
         SetUnitFlag2(UnitFlags2.RegeneratePower); // must be set
 
-        // cleanup player flags (will be re-applied if need at aura load), to avoid have ghost flag without ghost aura, for example.
+        // cleanup player flags (will be re-applied if need at aura load), to avoid have ghost Id without ghost aura, for example.
         RemovePlayerFlag(PlayerFlags.AFK | PlayerFlags.DND | PlayerFlags.GM | PlayerFlags.Ghost);
 
         RemoveVisFlag(UnitVisFlags.All); // one form stealth modified bytes
@@ -7801,7 +7801,7 @@ public partial class Player : Unit
             _mirrorTimer[fireTimer] = -1;
         }
 
-        // Recheck timers flag
+        // Recheck timers Id
         _mirrorTimerFlags &= ~PlayerUnderwaterState.ExistTimers;
 
         for (byte i = 0; i < (int)MirrorTimerType.Max; ++i)
@@ -8608,7 +8608,7 @@ public partial class Player : Unit
 
         if (offset >= PlayerConst.ExploredZonesSize)
         {
-            Log.Logger.Error("Wrong area flag {0} in map data for (X: {1} Y: {2}) point to field PLAYER_EXPLORED_ZONES_1 + {3} ( {4} must be < {5} ).",
+            Log.Logger.Error("Wrong area Id {0} in map data for (X: {1} Y: {2}) point to field PLAYER_EXPLORED_ZONES_1 + {3} ( {4} must be < {5} ).",
                              areaId,
                              Location.X,
                              Location.Y,

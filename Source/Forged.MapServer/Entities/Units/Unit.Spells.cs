@@ -83,7 +83,7 @@ public partial class Unit
         if (aurApp.HasRemoveMode)
             return;
 
-        // Update target aura state flag
+        // Update target aura state Id
         var aState = aura.SpellInfo.GetAuraState();
 
         if (aState != 0)

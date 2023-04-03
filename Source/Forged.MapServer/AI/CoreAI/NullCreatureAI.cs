@@ -14,18 +14,27 @@ public class NullCreatureAI : CreatureAI
         creature.ReactState = ReactStates.Passive;
     }
 
-    public override void AttackStart(Unit unit) { }
+    public override void AttackStart(Unit unit)
+    { }
 
-    public override void EnterEvadeMode(EvadeReason why) { }
+    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
+    { }
 
-    public override void JustAppeared() { }
+    public override void JustAppeared()
+    { }
 
-    public override void JustEnteredCombat(Unit who) { }
+    public override void JustEnteredCombat(Unit who)
+    { }
 
-    public override void JustStartedThreateningMe(Unit unit) { }
+    public override void JustStartedThreateningMe(Unit unit)
+    { }
 
-    public override void MoveInLineOfSight(Unit unit) { }
-    public override void OnCharmed(bool isNew) { }
+    public override void MoveInLineOfSight(Unit unit)
+    { }
 
-    public override void UpdateAI(uint diff) { }
+    public override void OnCharmed(bool isNew)
+    { }
+
+    public override void UpdateAI(uint diff)
+    { }
 }

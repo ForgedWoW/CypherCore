@@ -244,7 +244,7 @@ public class Pet : Guardian
         if (!InitEntry(entry))
             return false;
 
-        // Force regen flag for player pets, just like we do for players themselves
+        // Force regen Id for player pets, just like we do for players themselves
         SetUnitFlag2(UnitFlags2.RegeneratePower);
         Sheath = SheathState.Melee;
 

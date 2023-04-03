@@ -9,24 +9,27 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class VehicleAI : CreatureAI
 {
-    private const int VEHICLE_CONDITION_CHECK_TIME = 1000;
-    private const int VEHICLE_DISMISS_TIME = 5000;
+    private const int VehicleConditionCheckTime = 1000;
+    private const int VehicleDismissTime = 5000;
 
     private uint _conditionsTimer;
     private uint _dismissTimer;
     private bool _doDismiss;
     private bool _hasConditions;
+
     public VehicleAI(Creature creature) : base(creature)
     {
-        _conditionsTimer = VEHICLE_CONDITION_CHECK_TIME;
+        _conditionsTimer = VehicleConditionCheckTime;
         LoadConditions();
         _doDismiss = false;
-        _dismissTimer = VEHICLE_DISMISS_TIME;
+        _dismissTimer = VehicleDismissTime;
     }
 
-    public override void AttackStart(Unit victim) { }
+    public override void AttackStart(Unit victim)
+    { }
 
-    public override void MoveInLineOfSight(Unit who) { }
+    public override void MoveInLineOfSight(Unit who)
+    { }
 
     public override void OnCharmed(bool isNew)
     {
@@ -37,7 +40,7 @@ public class VehicleAI : CreatureAI
         else if (charmed)
             _doDismiss = false; //in use again
 
-        _dismissTimer = VEHICLE_DISMISS_TIME; //reset timer
+        _dismissTimer = VehicleDismissTime; //reset timer
     }
 
     public override void UpdateAI(uint diff)
@@ -57,6 +60,7 @@ public class VehicleAI : CreatureAI
             }
         }
     }
+
     private void CheckConditions(uint diff)
     {
         if (!_hasConditions)
@@ -69,23 +73,25 @@ public class VehicleAI : CreatureAI
             if (vehicleKit)
                 foreach (var pair in vehicleKit.Seats)
                 {
-                    var passenger = Global.ObjAccessor.GetUnit(Me, pair.Value.Passenger.Guid);
+                    var passenger = Me.ObjectAccessor.GetUnit(Me, pair.Value.Passenger.Guid);
 
-                    if (passenger)
-                    {
-                        var player = passenger.AsPlayer;
+                    if (!passenger)
+                        continue;
 
-                        if (player)
-                            if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, Me.Entry, player, Me))
-                            {
-                                player.ExitVehicle();
+                    var player = passenger.AsPlayer;
 
-                                return; //check other pessanger in next tick
-                            }
-                    }
+                    if (!player)
+                        continue;
+
+                    if (Me.ConditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, Me.Entry, player, Me))
+                        continue;
+
+                    player.ExitVehicle();
+
+                    return; //check other pessanger in next tick
                 }
 
-            _conditionsTimer = VEHICLE_CONDITION_CHECK_TIME;
+            _conditionsTimer = VehicleConditionCheckTime;
         }
         else
         {
@@ -95,6 +101,6 @@ public class VehicleAI : CreatureAI
 
     private void LoadConditions()
     {
-        _hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, Me.Entry);
+        _hasConditions = Me.ConditionManager.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, Me.Entry);
     }
 }

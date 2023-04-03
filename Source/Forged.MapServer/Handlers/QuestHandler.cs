@@ -873,7 +873,7 @@ public class QuestHandler : IWorldSessionHandler
         WorldQuestUpdateResponse response = new();
 
         // @todo: 7.x Has to be implemented
-        //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(lastUpdate, questID, timer, variableID, value));
+        //response.WorldQuestUpdates.push_back(WorldPackets::QuestId::WorldQuestUpdateInfo(lastUpdate, questID, timer, variableID, value));
 
         SendPacket(response);
     }

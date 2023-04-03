@@ -60,7 +60,7 @@ public class EventMap
     /// <param name="group"> Group to cancel. </param>
     public void CancelEventGroup(uint group)
     {
-        if (group == 0 || group > 8 || Empty())
+        if (group is 0 or > 8 || Empty())
             return;
 
         _eventMap.RemoveIfMatching((pair) => Convert.ToBoolean(pair.Value & (uint)(1 << ((int)group + 15))));
@@ -94,7 +94,7 @@ public class EventMap
         if (group == 0 || group > 8 || Empty())
             return;
 
-        var delayed = _eventMap.RemoveIfMatchingMulti((pair) => { return Convert.ToBoolean(pair.Value & (1 << (int)(group + 15))); });
+        var delayed = _eventMap.RemoveIfMatchingMulti((pair) => Convert.ToBoolean(pair.Value & (1 << (int)(group + 15))));
 
         foreach (var pair in delayed.KeyValueList)
             _eventMap.Add(pair.Key + delay, pair.Value);

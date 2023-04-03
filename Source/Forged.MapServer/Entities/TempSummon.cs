@@ -129,7 +129,7 @@ public class TempSummon : Creature
 
         var faction = SummonPropertiesRecord.Faction;
 
-        if (owner && SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.UseSummonerFaction)) // TODO: Determine priority between faction and flag
+        if (owner && SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.UseSummonerFaction)) // TODO: Determine priority between faction and Id
             faction = owner.Faction;
 
         if (faction != 0)

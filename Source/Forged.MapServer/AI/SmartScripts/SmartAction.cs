@@ -37,7 +37,7 @@ public struct SmartAction
 
     [FieldOffset(4)] public SummonCreature summonCreature;
 
-    [FieldOffset(4)] public ThreatPCT threatPCT;
+    [FieldOffset(4)] public ThreatPct threatPCT;
 
     [FieldOffset(4)] public Threat threat;
 
@@ -75,7 +75,7 @@ public struct SmartAction
 
     [FieldOffset(4)] public ForceDespawn forceDespawn;
 
-    [FieldOffset(4)] public InvincHP invincHP;
+    [FieldOffset(4)] public InvincHp invincHP;
 
     [FieldOffset(4)] public IngamePhaseId ingamePhaseId;
 
@@ -205,7 +205,7 @@ public struct SmartAction
 
     [FieldOffset(4)] public Conversation conversation;
 
-    [FieldOffset(4)] public SetImmunePC setImmunePC;
+    [FieldOffset(4)] public SetImmunePc setImmunePC;
 
     [FieldOffset(4)] public SetImmuneNPC setImmuneNPC;
 
@@ -227,394 +227,394 @@ public struct SmartAction
 
     public struct Talk
     {
-        public uint textGroupId;
-        public uint duration;
-        public uint useTalkTarget;
+        public uint TextGroupId;
+        public uint Duration;
+        public uint UseTalkTarget;
     }
 
     public struct SimpleTalk
     {
-        public uint textGroupId;
-        public uint duration;
+        public uint TextGroupId;
+        public uint Duration;
     }
 
     public struct Faction
     {
-        public uint factionId;
+        public uint FactionId;
     }
 
     public struct MorphOrMount
     {
-        public uint creature;
-        public uint model;
+        public uint Creature;
+        public uint Model;
     }
 
     public struct Sound
     {
-        public uint soundId;
-        public uint onlySelf;
-        public uint distance;
-        public uint keyBroadcastTextId;
+        public uint SoundId;
+        public uint OnlySelf;
+        public uint Distance;
+        public uint KeyBroadcastTextId;
     }
 
     public struct Emote
     {
-        public uint emoteId;
+        public uint EmoteId;
     }
 
     public struct Quest
     {
-        public uint questId;
+        public uint QuestId;
     }
 
     public struct QuestOffer
     {
-        public uint questId;
-        public uint directAdd;
+        public uint QuestId;
+        public uint DirectAdd;
     }
 
     public struct React
     {
-        public uint state;
+        public uint State;
     }
 
     public struct RandomEmote
     {
-        public uint emote1;
-        public uint emote2;
-        public uint emote3;
-        public uint emote4;
-        public uint emote5;
-        public uint emote6;
+        public uint Emote1;
+        public uint Emote2;
+        public uint Emote3;
+        public uint Emote4;
+        public uint Emote5;
+        public uint Emote6;
     }
 
     public struct Cast
     {
-        public uint spell;
-        public uint castFlags;
-        public uint triggerFlags;
-        public uint targetsLimit;
+        public uint Spell;
+        public uint CastFlags;
+        public uint TriggerFlags;
+        public uint TargetsLimit;
     }
 
     public struct CrossCast
     {
-        public uint spell;
-        public uint castFlags;
-        public uint targetType;
-        public uint targetParam1;
-        public uint targetParam2;
-        public uint targetParam3;
+        public uint Spell;
+        public uint CastFlags;
+        public uint TargetType;
+        public uint TargetParam1;
+        public uint TargetParam2;
+        public uint TargetParam3;
     }
 
     public struct SummonCreature
     {
-        public uint creature;
-        public uint type;
-        public uint duration;
-        public uint storageID;
-        public uint attackInvoker;
-        public uint flags; // SmartActionSummonCreatureFlags
-        public uint count;
+        public uint Creature;
+        public uint Type;
+        public uint Duration;
+        public uint StorageID;
+        public uint AttackInvoker;
+        public uint Flags; // SmartActionSummonCreatureFlags
+        public uint Count;
     }
 
-    public struct ThreatPCT
+    public struct ThreatPct
     {
-        public uint threatINC;
-        public uint threatDEC;
+        public uint ThreatInc;
+        public uint ThreatDec;
     }
 
     public struct CastCreatureOrGO
     {
-        public uint quest;
-        public uint spell;
+        public uint QuestId;
+        public uint Spell;
     }
 
     public struct Threat
     {
-        public uint threatINC;
-        public uint threatDEC;
+        public uint ThreatInc;
+        public uint ThreatDec;
     }
 
     public struct AutoAttack
     {
-        public uint attack;
+        public uint Attack;
     }
 
     public struct CombatMove
     {
-        public uint move;
+        public uint Move;
     }
 
     public struct SetEventPhase
     {
-        public uint phase;
+        public uint Phase;
     }
 
     public struct IncEventPhase
     {
-        public uint inc;
-        public uint dec;
+        public uint Inc;
+        public uint Dec;
     }
 
     public struct CastedCreatureOrGO
     {
-        public uint creature;
-        public uint spell;
+        public uint Creature;
+        public uint Spell;
     }
 
     public struct RemoveAura
     {
-        public uint spell;
-        public uint charges;
-        public uint onlyOwnedAuras;
+        public uint Spell;
+        public uint Charges;
+        public uint OnlyOwnedAuras;
     }
 
     public struct Follow
     {
-        public uint dist;
-        public uint angle;
-        public uint entry;
-        public uint credit;
-        public uint creditType;
+        public uint Dist;
+        public uint Angle;
+        public uint Entry;
+        public uint Credit;
+        public uint CreditType;
     }
 
     public struct RandomPhase
     {
-        public uint phase1;
-        public uint phase2;
-        public uint phase3;
-        public uint phase4;
-        public uint phase5;
-        public uint phase6;
+        public uint Phase1;
+        public uint Phase2;
+        public uint Phase3;
+        public uint Phase4;
+        public uint Phase5;
+        public uint Phase6;
     }
 
     public struct RandomPhaseRange
     {
-        public uint phaseMin;
-        public uint phaseMax;
+        public uint PhaseMin;
+        public uint PhaseMax;
     }
 
     public struct KilledMonster
     {
-        public uint creature;
+        public uint Creature;
     }
 
     public struct SetInstanceData
     {
-        public uint field;
-        public uint data;
-        public uint type;
+        public uint Field;
+        public uint Data;
+        public uint Type;
     }
 
     public struct SetInstanceData64
     {
-        public uint field;
+        public uint Field;
     }
 
     public struct UpdateTemplate
     {
-        public uint creature;
-        public uint updateLevel;
+        public uint Creature;
+        public uint UpdateLevel;
     }
 
     public struct CallHelp
     {
-        public uint range;
-        public uint withEmote;
+        public uint Range;
+        public uint WithEmote;
     }
 
     public struct SetSheath
     {
-        public uint sheath;
+        public uint Sheath;
     }
 
     public struct ForceDespawn
     {
-        public uint delay;
-        public uint forceRespawnTimer;
+        public uint Delay;
+        public uint ForceRespawnTimer;
     }
 
-    public struct InvincHP
+    public struct InvincHp
     {
-        public uint minHP;
-        public uint percent;
+        public uint MinHp;
+        public uint Percent;
     }
 
     public struct IngamePhaseId
     {
-        public uint id;
-        public uint apply;
+        public uint ID;
+        public uint Apply;
     }
 
     public struct IngamePhaseGroup
     {
-        public uint groupId;
-        public uint apply;
+        public uint GroupId;
+        public uint Apply;
     }
 
     public struct SetData
     {
-        public uint field;
-        public uint data;
+        public uint Field;
+        public uint Data;
     }
 
     public struct MoveRandom
     {
-        public uint distance;
+        public uint Distance;
     }
 
     public struct Visibility
     {
-        public uint state;
+        public uint State;
     }
 
     public struct SummonGO
     {
-        public uint entry;
-        public uint despawnTime;
-        public uint summonType;
+        public uint Entry;
+        public uint DespawnTime;
+        public uint SummonType;
     }
 
     public struct Active
     {
-        public uint state;
+        public uint State;
     }
 
     public struct Taxi
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct WpStart
     {
-        public uint run;
-        public uint pathID;
-        public uint repeat;
-        public uint quest;
+        public uint Run;
+        public uint PathID;
+        public uint Repeat;
+        public uint QuestId;
 
-        public uint despawnTime;
+        public uint DespawnTime;
         //public uint reactState; DO NOT REUSE
     }
 
     public struct WpPause
     {
-        public uint delay;
+        public uint Delay;
     }
 
     public struct WpStop
     {
-        public uint despawnTime;
-        public uint quest;
-        public uint fail;
+        public uint DespawnTime;
+        public uint QuestId;
+        public uint Fail;
     }
 
     public struct Item
     {
-        public uint entry;
-        public uint count;
+        public uint Entry;
+        public uint Count;
     }
 
     public struct SetRun
     {
-        public uint run;
+        public uint Run;
     }
 
     public struct SetDisableGravity
     {
-        public uint disable;
+        public uint Disable;
     }
 
     public struct Teleport
     {
-        public uint mapID;
+        public uint MapID;
     }
 
     public struct SetCounter
     {
-        public uint counterId;
-        public uint value;
-        public uint reset;
+        public uint CounterId;
+        public uint Value;
+        public uint Reset;
     }
 
     public struct StoreTargets
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct TimeEvent
     {
-        public uint id;
-        public uint min;
-        public uint max;
-        public uint repeatMin;
-        public uint repeatMax;
-        public uint chance;
+        public uint ID;
+        public uint Min;
+        public uint Max;
+        public uint RepeatMin;
+        public uint RepeatMax;
+        public uint Chance;
     }
 
     public struct Movie
     {
-        public uint entry;
+        public uint Entry;
     }
 
     public struct Equip
     {
-        public uint entry;
-        public uint mask;
-        public uint slot1;
-        public uint slot2;
-        public uint slot3;
+        public uint Entry;
+        public uint Mask;
+        public uint Slot1;
+        public uint Slot2;
+        public uint Slot3;
     }
 
     public struct Flag
     {
-        public uint flag;
+        public uint Id;
     }
 
     public struct SetunitByte
     {
-        public uint byte1;
-        public uint type;
+        public uint Byte1;
+        public uint Type;
     }
 
     public struct DelunitByte
     {
-        public uint byte1;
-        public uint type;
+        public uint Byte1;
+        public uint Type;
     }
 
     public struct TimedActionList
     {
-        public uint id;
-        public uint timerType;
-        public uint allowOverride;
+        public uint ID;
+        public uint TimerType;
+        public uint AllowOverride;
     }
 
     public struct RandTimedActionList
     {
-        public uint actionList1;
-        public uint actionList2;
-        public uint actionList3;
-        public uint actionList4;
-        public uint actionList5;
-        public uint actionList6;
+        public uint ActionList1;
+        public uint ActionList2;
+        public uint ActionList3;
+        public uint ActionList4;
+        public uint ActionList5;
+        public uint ActionList6;
     }
 
     public struct RandRangeTimedActionList
     {
-        public uint idMin;
-        public uint idMax;
+        public uint IDMin;
+        public uint IDMax;
     }
 
     public struct InterruptSpellCasting
     {
-        public uint withDelayed;
-        public uint spell_id;
-        public uint withInstant;
+        public uint WithDelayed;
+        public uint SpellID;
+        public uint WithInstant;
     }
 
     public struct Jump
     {
-        public uint SpeedXY;
+        public uint SpeedXy;
         public uint SpeedZ;
         public uint Gravity;
         public uint UseDefaultGravity;
@@ -624,89 +624,89 @@ public struct SmartAction
 
     public struct FleeAssist
     {
-        public uint withEmote;
+        public uint WithEmote;
     }
 
     public struct EnableTempGO
     {
-        public uint duration;
+        public uint Duration;
     }
 
     public struct MoveToPos
     {
-        public uint pointId;
-        public uint transport;
-        public uint disablePathfinding;
-        public uint contactDistance;
+        public uint PointId;
+        public uint Transport;
+        public uint DisablePathfinding;
+        public uint ContactDistance;
     }
 
     public struct SendGossipMenu
     {
-        public uint gossipMenuId;
-        public uint gossipNpcTextId;
+        public uint GossipMenuId;
+        public uint GossipNpcTextId;
     }
 
     public struct SetGoLootState
     {
-        public uint state;
+        public uint State;
     }
 
     public struct SendTargetToTarget
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct SetRangedMovement
     {
-        public uint distance;
-        public uint angle;
+        public uint Distance;
+        public uint Angle;
     }
 
     public struct SetHealthRegen
     {
-        public uint regenHealth;
+        public uint RegenHealth;
     }
 
     public struct SetRoot
     {
-        public uint root;
+        public uint Root;
     }
 
     public struct GoState
     {
-        public uint state;
+        public uint State;
     }
 
     public struct CreatureGroup
     {
-        public uint group;
-        public uint attackInvoker;
+        public uint Group;
+        public uint AttackInvoker;
     }
 
     public struct Power
     {
-        public uint powerType;
-        public uint newPower;
+        public uint PowerType;
+        public uint NewPower;
     }
 
     public struct GameEventStop
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct GameEventStart
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct ClosestWaypointFromList
     {
-        public uint wp1;
-        public uint wp2;
-        public uint wp3;
-        public uint wp4;
-        public uint wp5;
-        public uint wp6;
+        public uint Wp1;
+        public uint Wp2;
+        public uint Wp3;
+        public uint Wp4;
+        public uint Wp5;
+        public uint Wp6;
     }
 
     public struct MoveOffset
@@ -716,176 +716,176 @@ public struct SmartAction
 
     public struct RandomSound
     {
-        public uint sound1;
-        public uint sound2;
-        public uint sound3;
-        public uint sound4;
-        public uint onlySelf;
-        public uint distance;
+        public uint Sound1;
+        public uint Sound2;
+        public uint Sound3;
+        public uint Sound4;
+        public uint OnlySelf;
+        public uint Distance;
     }
 
     public struct CorpseDelay
     {
-        public uint timer;
-        public uint includeDecayRatio;
+        public uint Timer;
+        public uint IncludeDecayRatio;
     }
 
     public struct DisableEvade
     {
-        public uint disable;
+        public uint Disable;
     }
 
     public struct GroupSpawn
     {
-        public uint groupId;
-        public uint minDelay;
-        public uint maxDelay;
-        public uint spawnflags;
+        public uint GroupId;
+        public uint MinDelay;
+        public uint MaxDelay;
+        public uint Spawnflags;
     }
 
     public struct LoadEquipment
     {
-        public uint id;
-        public uint force;
+        public uint ID;
+        public uint Force;
     }
 
     public struct RandomTimedEvent
     {
-        public uint minId;
-        public uint maxId;
+        public uint MinId;
+        public uint MaxId;
     }
 
     public struct PauseMovement
     {
-        public uint movementSlot;
-        public uint pauseTimer;
-        public uint force;
+        public uint MovementSlot;
+        public uint PauseTimer;
+        public uint Force;
     }
 
     public struct RespawnData
     {
-        public uint spawnType;
-        public uint spawnId;
+        public uint SpawnType;
+        public uint SpawnId;
     }
 
     public struct AnimKit
     {
-        public uint animKit;
-        public uint type;
+        public uint Kit;
+        public uint Type;
     }
 
     public struct Scene
     {
-        public uint sceneId;
+        public uint SceneId;
     }
 
     public struct Cinematic
     {
-        public uint entry;
+        public uint Entry;
     }
 
     public struct MovementSpeed
     {
-        public uint movementType;
-        public uint speedInteger;
-        public uint speedFraction;
+        public uint MovementType;
+        public uint SpeedInteger;
+        public uint SpeedFraction;
     }
 
     public struct SpellVisualKit
     {
-        public uint spellVisualKitId;
-        public uint kitType;
-        public uint duration;
+        public uint SpellVisualKitId;
+        public uint KitType;
+        public uint Duration;
     }
 
     public struct OverrideLight
     {
-        public uint zoneId;
-        public uint areaLightId;
-        public uint overrideLightId;
-        public uint transitionMilliseconds;
+        public uint ZoneId;
+        public uint AreaLightId;
+        public uint OverrideLightId;
+        public uint TransitionMilliseconds;
     }
 
     public struct OverrideWeather
     {
-        public uint zoneId;
-        public uint weatherId;
-        public uint intensity;
+        public uint ZoneId;
+        public uint WeatherId;
+        public uint Intensity;
     }
 
     public struct SetHover
     {
-        public uint enable;
+        public uint Enable;
     }
 
     public struct Evade
     {
-        public uint toRespawnPosition;
+        public uint ToRespawnPosition;
     }
 
     public struct SetHealthPct
     {
-        public uint percent;
+        public uint Percent;
     }
 
     public struct Conversation
     {
-        public uint id;
+        public uint ID;
     }
 
-    public struct SetImmunePC
+    public struct SetImmunePc
     {
-        public uint immunePC;
+        public uint ImmunePc;
     }
 
     public struct SetImmuneNPC
     {
-        public uint immuneNPC;
+        public uint ImmuneNPC;
     }
 
     public struct SetUninteractible
     {
-        public uint uninteractible;
+        public uint Uninteractible;
     }
 
     public struct ActivateGameObject
     {
-        public uint gameObjectAction;
-        public uint param;
+        public uint GameObjectAction;
+        public uint Param;
     }
 
     public struct AddToStoredTargets
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct BecomePersonalClone
     {
-        public uint type;
-        public uint duration;
+        public uint Type;
+        public uint Duration;
     }
 
     public struct TriggerGameEvent
     {
-        public uint eventId;
-        public uint useSaiTargetAsGameEventSource;
+        public uint EventId;
+        public uint UseSaiTargetAsGameEventSource;
     }
 
     public struct DoAction
     {
-        public uint actionId;
+        public uint ActionId;
     }
 
     public struct Raw
     {
-        public uint param1;
-        public uint param2;
-        public uint param3;
-        public uint param4;
-        public uint param5;
-        public uint param6;
-        public uint param7;
+        public uint Param1;
+        public uint Param2;
+        public uint Param3;
+        public uint Param4;
+        public uint Param5;
+        public uint Param6;
+        public uint Param7;
     }
 
-    #endregion
+    #endregion Stucts
 }

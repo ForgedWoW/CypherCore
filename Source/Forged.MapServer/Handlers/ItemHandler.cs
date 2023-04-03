@@ -906,7 +906,7 @@ public class ItemHandler : IWorldSessionHandler
         Player.ToggleMetaGemsActive(slot, true); //turn on all metagems (except for target item)
 
         Player.RemoveTradeableItem(itemTarget);
-        itemTarget.ClearSoulboundTradeable(Player); // clear tradeable flag
+        itemTarget.ClearSoulboundTradeable(Player); // clear tradeable Id
 
         itemTarget.SendUpdateSockets();
     }

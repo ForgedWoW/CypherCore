@@ -11,42 +11,52 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class CombatAI : CreatureAI
 {
-    protected List<uint> _spells = new();
+    protected List<uint> Spells = new();
 
-    public CombatAI(Creature c) : base(c) { }
+    public CombatAI(Creature c) : base(c)
+    {
+    }
 
     public override void InitializeAI()
     {
         for (var i = 0; i < SharedConst.MaxCreatureSpells; ++i)
-            if (Me.Spells[i] != 0 && Global.SpellMgr.HasSpellInfo(Me.Spells[i], Me.Location.Map.DifficultyID))
-                _spells.Add(Me.Spells[i]);
+            if (Me.Spells[i] != 0 && Me.SpellManager.HasSpellInfo(Me.Spells[i], Me.Location.Map.DifficultyID))
+                Spells.Add(Me.Spells[i]);
 
         base.InitializeAI();
     }
 
     public override void JustDied(Unit killer)
     {
-        foreach (var id in _spells)
+        foreach (var id in Spells)
         {
             var info = GetAISpellInfo(id, Me.Location.Map.DifficultyID);
 
             if (info is { Condition: AICondition.Die })
-                Me.CastSpell(killer, id, true);
+                Me.SpellFactory.CastSpell(killer, id, true);
         }
     }
 
     public override void JustEngagedWith(Unit victim)
     {
-        foreach (var id in _spells)
+        foreach (var id in Spells)
         {
             var info = GetAISpellInfo(id, Me.Location.Map.DifficultyID);
 
-            if (info != null)
+            if (info == null)
+                continue;
+
+            switch (info.Condition)
             {
-                if (info.Condition == AICondition.Aggro)
-                    Me.CastSpell(victim, id, false);
-                else if (info.Condition == AICondition.Combat)
+                case AICondition.Aggro:
+                    Me.SpellFactory.CastSpell(victim, id);
+
+                    break;
+
+                case AICondition.Combat:
                     Events.ScheduleEvent(id, info.Cooldown, info.Cooldown * 2);
+
+                    break;
             }
         }
     }
@@ -55,6 +65,7 @@ public class CombatAI : CreatureAI
     {
         Events.Reset();
     }
+
     public override void SpellInterrupted(uint spellId, uint unTimeMs)
     {
         Events.RescheduleEvent(spellId, TimeSpan.FromMilliseconds(unTimeMs));

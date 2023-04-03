@@ -1332,7 +1332,7 @@ public class UnitCombatHelpers
                 }
             }
 
-            // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
+            // Call KilledUnit for creatures, this needs to be called after the lootable Id is set
             if (attacker is { IsCreature: true, IsAIEnabled: true })
                 attacker.AsCreature.AI.KilledUnit(victim);
 
@@ -1367,7 +1367,7 @@ public class UnitCombatHelpers
             bf?.HandleKill(player, victim);
         }
 
-        // Battlegroundthings (do this at the end, so the death state flag will be properly set to handle in the bg.handlekill)
+        // Battlegroundthings (do this at the end, so the death state Id will be properly set to handle in the bg.handlekill)
         if (player is { InBattleground: true })
         {
             var bg = player.Battleground;

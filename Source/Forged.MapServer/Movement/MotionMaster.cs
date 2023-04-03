@@ -567,7 +567,7 @@ public class MotionMaster
         if (Math.Abs(Owner.Location.Z - tz) < 0.1f)
             return;
 
-        // rooted units don't move (also setting falling+root flag causes client freezes)
+        // rooted units don't move (also setting falling+root Id causes client freezes)
         if (Owner.HasUnitState(UnitState.Root | UnitState.Stunned))
             return;
 

@@ -17,13 +17,13 @@ public class ArcherAI : CreatureAI
         if (creature.Spells[0] == 0)
             Log.Logger.Error($"ArcherAI set for creature with spell1=0. AI will do nothing ({Me.GUID})");
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.Location.Map.DifficultyID);
-        _minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;
+        var spellInfo = creature.SpellManager.GetSpellInfo(creature.Spells[0], creature.Location.Map.DifficultyID);
+        _minRange = spellInfo?.GetMinRange(false) ?? 0;
 
         if (_minRange == 0)
             _minRange = SharedConst.MeleeRange;
 
-        creature.CombatDistance = spellInfo != null ? spellInfo.GetMaxRange(false) : 0;
+        creature.CombatDistance = spellInfo?.GetMaxRange(false) ?? 0;
         creature.SightDistance = creature.CombatDistance;
     }
 

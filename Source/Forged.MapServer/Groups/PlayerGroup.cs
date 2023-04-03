@@ -1422,15 +1422,15 @@ public class PlayerGroup
         if (slot == null)
             return;
 
-        // Do flag specific actions, e.g ensure uniqueness
+        // Do Id specific actions, e.g ensure uniqueness
         switch (flag)
         {
             case GroupMemberFlags.MainAssist:
-                RemoveUniqueGroupMemberFlag(GroupMemberFlags.MainAssist); // Remove main assist flag from current if any.
+                RemoveUniqueGroupMemberFlag(GroupMemberFlags.MainAssist); // Remove main assist Id from current if any.
 
                 break;
             case GroupMemberFlags.MainTank:
-                RemoveUniqueGroupMemberFlag(GroupMemberFlags.MainTank); // Remove main tank flag from current if any.
+                RemoveUniqueGroupMemberFlag(GroupMemberFlags.MainTank); // Remove main tank Id from current if any.
 
                 break;
             case GroupMemberFlags.Assistant:
@@ -1439,7 +1439,7 @@ public class PlayerGroup
                 return; // This should never happen
         }
 
-        // Switch the actual flag
+        // Switch the actual Id
         ToggleGroupMemberFlag(slot, flag, apply);
 
         // Preserve the new setting in the db

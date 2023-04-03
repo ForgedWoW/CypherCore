@@ -20,7 +20,8 @@ public class WorldBossAI : ScriptedAI
     // to override UpdateAI
     // note: You must re-schedule the event within this method if the event
     // is supposed to run more than once
-    public virtual void ExecuteEvent(uint eventId) { }
+    public virtual void ExecuteEvent(uint eventId)
+    { }
 
     public override void JustDied(Unit killer)
     {
@@ -61,16 +62,19 @@ public class WorldBossAI : ScriptedAI
         if (Me.HasUnitState(UnitState.Casting))
             return;
 
+        var hasSpell = false;
         Events.ExecuteEvents(eventId =>
         {
             ExecuteEvent(eventId);
 
             if (Me.HasUnitState(UnitState.Casting))
-                return;
+                hasSpell = true;
         });
 
-        DoMeleeAttackIfReady();
+        if (!hasSpell)
+            DoMeleeAttackIfReady();
     }
+
     private void _JustDied()
     {
         Events.Reset();

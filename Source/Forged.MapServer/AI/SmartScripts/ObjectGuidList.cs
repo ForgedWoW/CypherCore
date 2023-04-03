@@ -9,7 +9,7 @@ namespace Forged.MapServer.AI.SmartScripts;
 internal class ObjectGuidList
 {
     private readonly List<ObjectGuid> _guidList = new();
-    private readonly List<WorldObject> _objectList = new();
+    private readonly List<WorldObject> _objectList;
 
     public ObjectGuidList(List<WorldObject> objectList)
     {
@@ -30,6 +30,7 @@ internal class ObjectGuidList
 
         return _objectList;
     }
+
     //sanitize vector using _guidVector
     private void UpdateObjects(WorldObject obj)
     {
@@ -37,7 +38,7 @@ internal class ObjectGuidList
 
         foreach (var guid in _guidList)
         {
-            var newObj = Global.ObjAccessor.GetWorldObject(obj, guid);
+            var newObj = obj.ObjectAccessor.GetWorldObject(obj, guid);
 
             if (newObj != null)
                 _objectList.Add(newObj);

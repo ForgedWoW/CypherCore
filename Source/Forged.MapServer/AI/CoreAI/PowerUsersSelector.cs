@@ -13,6 +13,7 @@ internal class PowerUsersSelector : ICheck<Unit>
     private readonly Unit _me;
     private readonly bool _playerOnly;
     private readonly PowerType _power;
+
     public PowerUsersSelector(Unit unit, PowerType power, float dist, bool playerOnly)
     {
         _me = unit;
@@ -32,12 +33,14 @@ internal class PowerUsersSelector : ICheck<Unit>
         if (_playerOnly && target.TypeId != TypeId.Player)
             return false;
 
-        if (_dist > 0.0f && !_me.IsWithinCombatRange(target, _dist))
-            return false;
+        switch (_dist)
+        {
+            case > 0.0f when !_me.IsWithinCombatRange(target, _dist):
+            case < 0.0f when _me.IsWithinCombatRange(target, -_dist):
+                return false;
 
-        if (_dist < 0.0f && _me.IsWithinCombatRange(target, -_dist))
-            return false;
-
-        return true;
+            default:
+                return true;
+        }
     }
 }

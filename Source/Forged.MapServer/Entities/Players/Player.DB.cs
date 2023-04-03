@@ -1391,7 +1391,7 @@ public partial class Player
         _LoadAuras(holder.GetResult(PlayerLoginQueryLoad.Auras), holder.GetResult(PlayerLoginQueryLoad.AuraEffects), timeDiff);
         _LoadGlyphAuras();
 
-        // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
+        // add ghost Id (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
         if (HasPlayerFlag(PlayerFlags.Ghost))
             DeathState = DeathState.Dead;
 
@@ -2906,7 +2906,7 @@ public partial class Player
                     if (item.PlayedTime > (2 * Time.HOUR))
                     {
                         Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
-                                         "efundable flag.",
+                                         "efundable Id.",
                                          GUID.ToString(),
                                          GetName(),
                                          item.GUID.ToString(),
@@ -2935,7 +2935,7 @@ public partial class Player
                         }
                         else
                         {
-                            Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with refundable flags, but without data in item_refund_instance. Removing flag.",
+                            Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with refundable flags, but without data in item_refund_instance. Removing Id.",
                                              GUID.ToString(),
                                              GetName(),
                                              item.GUID.ToString(),
@@ -2973,8 +2973,8 @@ public partial class Player
                     }
                     else
                     {
-                        Log.Logger.Debug("LoadInventory: player ({0}, name: {1}) has item ({2}, entry: {3}) with ITEM_FLAG_BOP_TRADEABLE flag, " +
-                                         "but without data in item_soulbound_trade_data. Removing flag.",
+                        Log.Logger.Debug("LoadInventory: player ({0}, name: {1}) has item ({2}, entry: {3}) with ITEM_FLAG_BOP_TRADEABLE Id, " +
+                                         "but without data in item_soulbound_trade_data. Removing Id.",
                                          GUID.ToString(),
                                          GetName(),
                                          item.GUID.ToString(),
@@ -3202,7 +3202,7 @@ public partial class Player
                     }
 
                     _mQuestStatus[questId] = questStatusData;
-                    Log.Logger.Debug("Quest status is {0} for quest {1} for player (GUID: {2})", questStatusData.Status, questId, GUID.ToString());
+                    Log.Logger.Debug("QuestId status is {0} for quest {1} for player (GUID: {2})", questStatusData.Status, questId, GUID.ToString());
                 }
             } while (result.NextRow());
 

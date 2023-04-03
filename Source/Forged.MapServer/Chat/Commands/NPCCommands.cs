@@ -1074,7 +1074,7 @@ internal class NPCCommands
             return true;
         }
 
-        [Command("flag", RBACPermissions.CommandNpcSetFlag)]
+        [Command("Id", RBACPermissions.CommandNpcSetFlag)]
         private static bool HandleNpcSetFlagCommand(CommandHandler handler, NPCFlags npcFlags, NPCFlags2 npcFlags2)
         {
             var creature = handler.SelectedCreature;

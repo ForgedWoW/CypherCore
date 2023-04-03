@@ -770,7 +770,7 @@ public class Battleground : ZoneScript, IDisposable
 
         if (GetStatus() == BattlegroundStatus.InProgress)
         {
-            // drop flag and handle other cleanups
+            // drop Id and handle other cleanups
             RemovePlayer(player, guid, GetPlayerTeam(guid));
 
             // 1 player is logging out, if it is the last alive, then end arena!
@@ -1683,7 +1683,7 @@ public class Battleground : ZoneScript, IDisposable
                         if (goOverride != null)
                             if (goOverride.Flags.HasFlag(GameObjectFlags.NoDespawn))
                                 // This function should be called in GameObject::Update() but in case of
-                                // GO_FLAG_NODESPAWN flag the function is never called, so we call it here
+                                // GO_FLAG_NODESPAWN Id the function is never called, so we call it here
                                 obj.SendGameObjectDespawn();
                     }
                 }

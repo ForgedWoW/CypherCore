@@ -116,9 +116,11 @@ public class PetAI : CreatureAI
         AttackStart(attacker);
     }
 
-    public override void EnterEvadeMode(EvadeReason why) { }
+    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
+    { }
 
-    public override void JustAppeared() { }
+    public override void JustAppeared()
+    { }
 
     public override void JustEnteredCombat(Unit who)
     {
@@ -155,9 +157,11 @@ public class PetAI : CreatureAI
 
     // The following aren't used by the PetAI but need to be defined to override
     //  default CreatureAI functions which interfere with the PetAI
-    public override void MoveInLineOfSight(Unit who) { }
+    public override void MoveInLineOfSight(Unit who)
+    { }
 
-    public override void MoveInLineOfSight_Safe(Unit who) { }
+    public override void MoveInLineOfSight_Safe(Unit who)
+    { }
 
     public override void MovementInform(MovementGeneratorType type, uint id)
     {
@@ -189,8 +193,6 @@ public class PetAI : CreatureAI
 
                 break;
             }
-            default:
-                break;
         }
     }
 
@@ -255,16 +257,19 @@ public class PetAI : CreatureAI
                     Me.HandleEmoteCommand(Emote.OneshotOmnicastGhoul);
 
                 break;
+
             case TextEmotes.Angry:
                 if (Me.IsPet && Me.AsPet.IsPetGhoul())
                     Me.HandleEmoteCommand(Emote.StateStun);
 
                 break;
+
             case TextEmotes.Glare:
                 if (Me.IsPet && Me.AsPet.IsPetGhoul())
                     Me.HandleEmoteCommand(Emote.StateStun);
 
                 break;
+
             case TextEmotes.Soothe:
                 if (Me.IsPet && Me.AsPet.IsPetGhoul())
                     Me.HandleEmoteCommand(Emote.OneshotOmnicastGhoul);
@@ -369,7 +374,7 @@ public class PetAI : CreatureAI
                 if (spellID == 0)
                     continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, Me.Location.Map.DifficultyID);
+                var spellInfo = Me.SpellManager.GetSpellInfo(spellID, Me.Location.Map.DifficultyID);
 
                 if (spellInfo == null)
                     continue;
@@ -388,7 +393,7 @@ public class PetAI : CreatureAI
                         if (!Me.IsInCombat && !Me.GetCharmInfo().IsCommandAttack())
                             continue;
 
-                    Spell spell = new(Me, spellInfo, TriggerCastFlags.None);
+                    var spell = Me.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.None);
                     var spellUsed = false;
 
                     // Some spells can target enemy or friendly (DK Ghoul's Leap)
@@ -417,7 +422,7 @@ public class PetAI : CreatureAI
                     if (!spellUsed)
                         foreach (var tar in _allySet)
                         {
-                            var ally = Global.ObjAccessor.GetUnit(Me, tar);
+                            var ally = Me.ObjectAccessor.GetUnit(Me, tar);
 
                             //only buff targets that are in combat, unless the spell can only be cast while out of combat
                             if (!ally)
@@ -438,7 +443,7 @@ public class PetAI : CreatureAI
                 }
                 else if (Me.Victim && CanAttack(Me.Victim) && spellInfo.CanBeUsedInCombat)
                 {
-                    Spell spell = new(Me, spellInfo, TriggerCastFlags.None);
+                    var spell = Me.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.None);
 
                     if (spell.CanAutoCast(Me.Victim))
                         targetSpellStore.Add(Tuple.Create(Me.Victim, spell));
@@ -475,6 +480,7 @@ public class PetAI : CreatureAI
         Me.UpdateSpeed(UnitMoveType.Walk);
         Me.UpdateSpeed(UnitMoveType.Flight);
     }
+
     /// <summary>
     ///     Quick access to set all flags to FALSE
     /// </summary>
@@ -499,7 +505,7 @@ public class PetAI : CreatureAI
 
         if (Me.Attack(target, true))
         {
-            Me.SetUnitFlag(UnitFlags.PetInCombat); // on player pets, this flag indicates we're actively going after a target - that's what we're doing, so set it
+            Me.SetUnitFlag(UnitFlags.PetInCombat); // on player pets, this Id indicates we're actively going after a target - that's what we're doing, so set it
 
             // Play sound to let the player know the pet is attacking something it picked on its own
             if (Me.HasReactState(ReactStates.Aggressive) && !Me.GetCharmInfo().IsCommandAttack())
@@ -517,7 +523,7 @@ public class PetAI : CreatureAI
                 // Pets with ranged attacks should not care about the chase angle at all.
                 var chaseDistance = Me.GetPetChaseDistance();
                 var angle = chaseDistance == 0.0f ? MathF.PI : 0.0f;
-                var tolerance = chaseDistance == 0.0f ? MathFunctions.PiOver4 : (MathF.PI * 2);
+                var tolerance = chaseDistance == 0.0f ? MathFunctions.PI_OVER4 : (MathF.PI * 2);
                 Me.MotionMaster.MoveChase(target, new ChaseRange(0.0f, chaseDistance), new ChaseAngle(angle, tolerance));
             }
             else
@@ -579,7 +585,7 @@ public class PetAI : CreatureAI
             }
         }
 
-        Me.RemoveUnitFlag(UnitFlags.PetInCombat); // on player pets, this flag indicates that we're actively going after a target - we're returning, so remove it
+        Me.RemoveUnitFlag(UnitFlags.PetInCombat); // on player pets, this Id indicates that we're actively going after a target - we're returning, so remove it
     }
 
     private bool NeedToStop()
@@ -650,6 +656,7 @@ public class PetAI : CreatureAI
         // Default - no valid targets
         return null;
     }
+
     private void StopAttack()
     {
         if (!Me.IsAlive)
@@ -688,13 +695,13 @@ public class PetAI : CreatureAI
             return;
 
         // owner is in group; group members filled in already (no raid . subgroupcount = whole count)
-        if (group && !group.IsRaidGroup && _allySet.Count == (group.MembersCount + 2))
+        if (group is { IsRaidGroup: false } && _allySet.Count == group.MembersCount + 2)
             return;
 
         _allySet.Clear();
         _allySet.Add(Me.GUID);
 
-        if (group) // add group
+        if (group != null) // add group
             for (var refe = group.FirstMember; refe != null; refe = refe.Next())
             {
                 var target = refe.Source;

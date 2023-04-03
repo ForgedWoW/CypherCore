@@ -17,7 +17,7 @@ public class SpellTargetSelector : ICheck<Unit>
     public SpellTargetSelector(Unit caster, uint spellId)
     {
         _caster = caster;
-        _spellInfo = Global.SpellMgr.GetSpellInfo(spellId, caster.Location.Map.DifficultyID);
+        _spellInfo = caster.SpellManager.GetSpellInfo(spellId, caster.Location.Map.DifficultyID);
     }
 
     public bool Invoke(Unit target)
@@ -77,15 +77,12 @@ public class SpellTargetSelector : ICheck<Unit>
         minRange *= minRange;
         maxRange *= maxRange;
 
-        if (target != _caster)
-        {
-            if (_caster.Location.GetExactDistSq(target.Location) > maxRange)
-                return false;
+        if (target == _caster)
+            return true;
 
-            if (minRange > 0.0f && _caster.Location.GetExactDistSq(target.Location) < minRange)
-                return false;
-        }
+        if (_caster.Location.GetExactDistSq(target.Location) > maxRange)
+            return false;
 
-        return true;
+        return !(minRange > 0.0f) || !(_caster.Location.GetExactDistSq(target.Location) < minRange);
     }
 }

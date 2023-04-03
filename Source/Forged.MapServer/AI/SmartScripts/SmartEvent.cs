@@ -31,7 +31,7 @@ public struct SmartEvent
 
     [FieldOffset(16)] public TargetCasting targetCasting;
 
-    [FieldOffset(16)] public FriendlyCC friendlyCC;
+    [FieldOffset(16)] public FriendlyCc friendlyCC;
 
     [FieldOffset(16)] public MissingBuff missingBuff;
 
@@ -95,239 +95,239 @@ public struct SmartEvent
 
     public struct MinMaxRepeat
     {
-        public uint min;
-        public uint max;
-        public uint repeatMin;
-        public uint repeatMax;
+        public uint Min;
+        public uint Max;
+        public uint RepeatMin;
+        public uint RepeatMax;
     }
 
     public struct Kill
     {
-        public uint cooldownMin;
-        public uint cooldownMax;
-        public uint playerOnly;
-        public uint creature;
+        public uint CooldownMin;
+        public uint CooldownMax;
+        public uint PlayerOnly;
+        public uint Creature;
     }
 
     public struct SpellHit
     {
-        public uint spell;
-        public uint school;
-        public uint cooldownMin;
-        public uint cooldownMax;
+        public uint Spell;
+        public uint School;
+        public uint CooldownMin;
+        public uint CooldownMax;
     }
 
     public struct Los
     {
-        public uint hostilityMode;
-        public uint maxDist;
-        public uint cooldownMin;
-        public uint cooldownMax;
-        public uint playerOnly;
+        public uint HostilityMode;
+        public uint MaxDist;
+        public uint CooldownMin;
+        public uint CooldownMax;
+        public uint PlayerOnly;
     }
 
     public struct Respawn
     {
-        public uint type;
-        public uint map;
-        public uint area;
+        public uint Type;
+        public uint Map;
+        public uint Area;
     }
 
     public struct MinMax
     {
-        public uint repeatMin;
-        public uint repeatMax;
+        public uint RepeatMin;
+        public uint RepeatMax;
     }
 
     public struct TargetCasting
     {
-        public uint repeatMin;
-        public uint repeatMax;
-        public uint spellId;
+        public uint RepeatMin;
+        public uint RepeatMax;
+        public uint SpellId;
     }
 
-    public struct FriendlyCC
+    public struct FriendlyCc
     {
-        public uint radius;
-        public uint repeatMin;
-        public uint repeatMax;
+        public uint Radius;
+        public uint RepeatMin;
+        public uint RepeatMax;
     }
 
     public struct MissingBuff
     {
-        public uint spell;
-        public uint radius;
-        public uint repeatMin;
-        public uint repeatMax;
+        public uint Spell;
+        public uint Radius;
+        public uint RepeatMin;
+        public uint RepeatMax;
     }
 
     public struct Summoned
     {
-        public uint creature;
-        public uint cooldownMin;
-        public uint cooldownMax;
+        public uint Creature;
+        public uint CooldownMin;
+        public uint CooldownMax;
     }
 
     public struct Quest
     {
-        public uint questId;
-        public uint cooldownMin;
-        public uint cooldownMax;
+        public uint QuestId;
+        public uint CooldownMin;
+        public uint CooldownMax;
     }
 
     public struct QuestObjective
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct Emote
     {
-        public uint emoteId;
-        public uint cooldownMin;
-        public uint cooldownMax;
+        public uint EmoteId;
+        public uint CooldownMin;
+        public uint CooldownMax;
     }
 
     public struct Aura
     {
-        public uint spell;
-        public uint count;
-        public uint repeatMin;
-        public uint repeatMax;
+        public uint Spell;
+        public uint Count;
+        public uint RepeatMin;
+        public uint RepeatMax;
     }
 
     public struct Charm
     {
-        public uint onRemove;
+        public uint OnRemove;
     }
 
     public struct MovementInform
     {
-        public uint type;
-        public uint id;
+        public uint Type;
+        public uint ID;
     }
 
     public struct DataSet
     {
-        public uint id;
-        public uint value;
-        public uint cooldownMin;
-        public uint cooldownMax;
+        public uint ID;
+        public uint Value;
+        public uint CooldownMin;
+        public uint CooldownMax;
     }
 
     public struct Waypoint
     {
-        public uint pointID;
-        public uint pathID;
+        public uint PointID;
+        public uint PathID;
     }
 
     public struct TransportAddCreature
     {
-        public uint creature;
+        public uint Creature;
     }
 
     public struct TransportRelocate
     {
-        public uint pointID;
+        public uint PointID;
     }
 
     public struct InstancePlayerEnter
     {
-        public uint team;
-        public uint cooldownMin;
-        public uint cooldownMax;
+        public uint Team;
+        public uint CooldownMin;
+        public uint CooldownMax;
     }
 
     public struct Areatrigger
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct TextOver
     {
-        public uint textGroupID;
-        public uint creatureEntry;
+        public uint TextGroupID;
+        public uint CreatureEntry;
     }
 
     public struct TimedEvent
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct GossipHello
     {
-        public uint filter;
+        public uint Filter;
     }
 
     public struct Gossip
     {
-        public uint sender;
-        public uint action;
+        public uint Sender;
+        public uint Action;
     }
 
     public struct GameEvent
     {
-        public uint gameEventId;
+        public uint GameEventId;
     }
 
     public struct GoLootStateChanged
     {
-        public uint lootState;
+        public uint LootState;
     }
 
     public struct EventInform
     {
-        public uint eventId;
+        public uint EventId;
     }
 
     public struct DoAction
     {
-        public uint eventId;
+        public uint EventId;
     }
 
     public struct FriendlyHealthPct
     {
-        public uint minHpPct;
-        public uint maxHpPct;
-        public uint repeatMin;
-        public uint repeatMax;
-        public uint radius;
+        public uint MinHpPct;
+        public uint MaxHpPct;
+        public uint RepeatMin;
+        public uint RepeatMax;
+        public uint Radius;
     }
 
     public struct Distance
     {
-        public uint guid;
-        public uint entry;
-        public uint dist;
-        public uint repeat;
+        public uint GUID;
+        public uint Entry;
+        public uint Dist;
+        public uint Repeat;
     }
 
     public struct Counter
     {
-        public uint id;
-        public uint value;
-        public uint cooldownMin;
-        public uint cooldownMax;
+        public uint ID;
+        public uint Value;
+        public uint CooldownMin;
+        public uint CooldownMax;
     }
 
     public struct SpellCast
     {
-        public uint spell;
-        public uint cooldownMin;
-        public uint cooldownMax;
+        public uint Spell;
+        public uint CooldownMin;
+        public uint CooldownMax;
     }
 
     public struct Spell
     {
-        public uint effIndex;
+        public uint EffIndex;
     }
 
     public struct Raw
     {
-        public uint param1;
-        public uint param2;
-        public uint param3;
-        public uint param4;
-        public uint param5;
+        public uint Param1;
+        public uint Param2;
+        public uint Param3;
+        public uint Param4;
+        public uint Param5;
     }
 
     #endregion

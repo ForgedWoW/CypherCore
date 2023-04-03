@@ -5,16 +5,6 @@ namespace Forged.MapServer.Movement;
 
 public class WaypointNode
 {
-    public uint Delay { get; set; }
-    public byte EventChance { get; set; }
-    public uint EventId { get; set; }
-    public uint ID { get; set; }
-    public WaypointMoveType MoveType { get; set; }
-    public float? Orientation { get; set; }
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
-
     public WaypointNode()
     {
         MoveType = WaypointMoveType.Run;
@@ -31,5 +21,20 @@ public class WaypointNode
         EventId = 0;
         MoveType = WaypointMoveType.Walk;
         EventChance = 100;
+    }
+
+    public uint Delay { get; set; }
+    public byte EventChance { get; set; }
+    public uint EventId { get; set; }
+    public uint ID { get; set; }
+    public WaypointMoveType MoveType { get; set; }
+    public float? Orientation { get; set; }
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+
+    public WaypointNode Copy()
+    {
+        return MemberwiseClone() as WaypointNode;
     }
 }

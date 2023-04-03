@@ -12,7 +12,7 @@ namespace Forged.MapServer.AI.PlayerAI;
 
 internal class SimpleCharmedPlayerAI : PlayerAI
 {
-    private const float CASTER_CHASE_DISTANCE = 28.0f;
+    private const float CasterChaseDistance = 28.0f;
 
     private uint _castCheckTimer;
     private bool _chaseCloser;
@@ -133,7 +133,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                     if (_chaseCloser)
                         AttackStart(target);
                     else
-                        AttackStartCaster(target, CASTER_CHASE_DISTANCE);
+                        AttackStartCaster(target, CasterChaseDistance);
                 }
                 else
                 {
@@ -173,7 +173,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             if (_chaseCloser)
                                 AttackStart(target);
                             else
-                                AttackStartCaster(target, CASTER_CHASE_DISTANCE);
+                                AttackStartCaster(target, CasterChaseDistance);
                         }
                     }
 
@@ -204,10 +204,11 @@ internal class SimpleCharmedPlayerAI : PlayerAI
             Me.MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
         }
     }
+
     private Tuple<Spell, Unit> SelectAppropriateCastForSpec()
     {
         List<Tuple<Tuple<Spell, Unit>, uint>> spells = new();
-
+        // TODO Fix this, AI needs spells.
         /*
             switch (me.getClass())
             {
@@ -241,6 +242,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_THUNDER_CLAP, TARGET_VICTIM, 2);
                             VerifyAndPushSpellCast(spells, SPELL_DEMO_SHOUT, TARGET_VICTIM, 1);
                             break;
+
                         case TALENT_SPEC_WARRIOR_ARMS:
                             VerifyAndPushSpellCast(spells, SPELL_SWEEPING_STRIKES, TARGET_NONE, 2);
                             VerifyAndPushSpellCast(spells, SPELL_MORTAL_STRIKE, TARGET_VICTIM, 5);
@@ -252,6 +254,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_THUNDER_CLAP, TARGET_VICTIM, 1);
                             VerifyAndPushSpellCast(spells, SPELL_EXECUTE, TARGET_VICTIM, 15);
                             break;
+
                         case TALENT_SPEC_WARRIOR_FURY:
                             VerifyAndPushSpellCast(spells, SPELL_DEATH_WISH, TARGET_NONE, 10);
                             VerifyAndPushSpellCast(spells, SPELL_BLOODTHIRST, TARGET_VICTIM, 4);
@@ -263,6 +266,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_PALADIN:
                     VerifyAndPushSpellCast(spells, SPELL_AURA_MASTERY, TARGET_NONE, 3);
                     VerifyAndPushSpellCast(spells, SPELL_LAY_ON_HANDS, TARGET_CHARMER, 8);
@@ -280,7 +284,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                         else
                             VerifyAndPushSpellCast(spells, SPELL_HAND_OF_PROTECTION, creatureCharmer, 3);
                     }
-      
+
                     switch (GetSpec())
                     {
                         case TALENT_SPEC_PALADIN_PROTECTION:
@@ -291,6 +295,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_CONSECRATION, TARGET_VICTIM, 2);
                             VerifyAndPushSpellCast(spells, SPELL_HOLY_SHIELD, TARGET_NONE, 1);
                             break;
+
                         case TALENT_SPEC_PALADIN_HOLY:
                             VerifyAndPushSpellCast(spells, SPELL_HOLY_SHOCK, TARGET_CHARMER, 3);
                             VerifyAndPushSpellCast(spells, SPELL_HOLY_SHOCK, TARGET_VICTIM, 1);
@@ -299,6 +304,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_DIVINE_FAVOR, TARGET_NONE, 5);
                             VerifyAndPushSpellCast(spells, SPELL_DIVINE_ILLUMINATION, TARGET_NONE, 3);
                             break;
+
                         case TALENT_SPEC_PALADIN_RETRIBUTION:
                             VerifyAndPushSpellCast(spells, SPELL_CRUSADER_STRIKE, TARGET_VICTIM, 4);
                             VerifyAndPushSpellCast(spells, SPELL_DIVINE_STORM, TARGET_VICTIM, 5);
@@ -308,6 +314,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_HUNTER:
                     VerifyAndPushSpellCast(spells, SPELL_DETERRENCE, TARGET_NONE, 3);
                     VerifyAndPushSpellCast(spells, SPELL_EXPLOSIVE_TRAP, TARGET_NONE, 1);
@@ -316,7 +323,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                     VerifyAndPushSpellCast(spells, SPELL_KILL_SHOT, TARGET_VICTIM, 10);
                     if (me.Victim && me.Victim.getPowerType() == POWER_MANA && !me.Victim.GetAuraApplicationOfRankedSpell(SPELL_VIPER_STING, me.GetGUID()))
                         VerifyAndPushSpellCast(spells, SPELL_VIPER_STING, TARGET_VICTIM, 5);
-      
+
                     switch (GetSpec())
                     {
                         case TALENT_SPEC_HUNTER_BEASTMASTER:
@@ -325,6 +332,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_STEADY_SHOT, TARGET_VICTIM, 2);
                             VerifyAndPushSpellCast(spells, SPELL_MULTI_SHOT, TARGET_VICTIM, 2);
                             break;
+
                         case TALENT_SPEC_HUNTER_MARKSMAN:
                             VerifyAndPushSpellCast(spells, SPELL_AIMED_SHOT, TARGET_VICTIM, 2);
                             VerifyAndPushSpellCast(spells, SPELL_CHIMERA_SHOT, TARGET_VICTIM, 5);
@@ -333,6 +341,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_READINESS, TARGET_NONE, 10);
                             VerifyAndPushSpellCast(spells, SPELL_SILENCING_SHOT, TARGET_VICTIM, 5);
                             break;
+
                         case TALENT_SPEC_HUNTER_SURVIVAL:
                             VerifyAndPushSpellCast(spells, SPELL_EXPLOSIVE_SHOT, TARGET_VICTIM, 8);
                             VerifyAndPushSpellCast(spells, SPELL_BLACK_ARROW, TARGET_VICTIM, 5);
@@ -341,6 +350,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_ROGUE:
                 {
                     VerifyAndPushSpellCast(spells, SPELL_DISMANTLE, TARGET_VICTIM, 8);
@@ -348,7 +358,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                     VerifyAndPushSpellCast(spells, SPELL_VANISH, TARGET_NONE, 4);
                     VerifyAndPushSpellCast(spells, SPELL_BLIND, TARGET_VICTIM, 2);
                     VerifyAndPushSpellCast(spells, SPELL_CLOAK_OF_SHADOWS, TARGET_NONE, 2);
-      
+
                     uint32 builder, finisher;
                     switch (GetSpec())
                     {
@@ -356,12 +366,14 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             builder = SPELL_MUTILATE, finisher = SPELL_ENVENOM;
                             VerifyAndPushSpellCast(spells, SPELL_COLD_BLOOD, TARGET_NONE, 20);
                             break;
+
                         case TALENT_SPEC_ROGUE_COMBAT:
                             builder = SPELL_SINISTER_STRIKE, finisher = SPELL_EVISCERATE;
                             VerifyAndPushSpellCast(spells, SPELL_ADRENALINE_RUSH, TARGET_NONE, 6);
                             VerifyAndPushSpellCast(spells, SPELL_BLADE_FLURRY, TARGET_NONE, 5);
                             VerifyAndPushSpellCast(spells, SPELL_KILLING_SPREE, TARGET_NONE, 25);
                             break;
+
                         case TALENT_SPEC_ROGUE_SUBTLETY:
                             builder = SPELL_HEMORRHAGE, finisher = SPELL_EVISCERATE;
                             VerifyAndPushSpellCast(spells, SPELL_PREPARATION, TARGET_NONE, 10);
@@ -370,12 +382,12 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_SHADOW_DANCE, TARGET_NONE, 10);
                             break;
                     }
-      
+
                     if (Unit* victim = me.Victim)
                     {
                         if (victim.HasUnitState(UNIT_STATE_CASTING))
                             VerifyAndPushSpellCast(spells, SPELL_KICK, TARGET_VICTIM, 25);
-      
+
                         uint8 const cp = me.GetPower(POWER_COMBO_POINTS);
                         if (cp >= 4)
                             VerifyAndPushSpellCast(spells, finisher, TARGET_VICTIM, 10);
@@ -403,12 +415,14 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_PENANCE, TARGET_CHARMER, 3);
                             VerifyAndPushSpellCast(spells, SPELL_FLASH_HEAL, TARGET_CHARMER, 1);
                             break;
+
                         case TALENT_SPEC_PRIEST_HOLY:
                             VerifyAndPushSpellCast(spells, SPELL_DESPERATE_PRAYER, TARGET_NONE, 3);
                             VerifyAndPushSpellCast(spells, SPELL_GUARDIAN_SPIRIT, TARGET_CHARMER, 5);
                             VerifyAndPushSpellCast(spells, SPELL_FLASH_HEAL, TARGET_CHARMER, 1);
                             VerifyAndPushSpellCast(spells, SPELL_RENEW, TARGET_CHARMER, 3);
                             break;
+
                         case TALENT_SPEC_PRIEST_SHADOW:
                             if (!me.HasAura(SPELL_SHADOWFORM))
                             {
@@ -430,6 +444,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_DEATH_KNIGHT:
                 {
                     if (!me.IsWithinMeleeRange(me.Victim))
@@ -438,13 +453,13 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                     VerifyAndPushSpellCast(spells, SPELL_EMPOWER_RUNE_WEAP, TARGET_NONE, 5);
                     VerifyAndPushSpellCast(spells, SPELL_ICEBORN_FORTITUDE, TARGET_NONE, 15);
                     VerifyAndPushSpellCast(spells, SPELL_ANTI_MAGIC_SHELL, TARGET_NONE, 10);
-      
+
                     bool hasFF = false, hasBP = false;
                     if (Unit* victim = me.Victim)
                     {
                         if (victim.HasUnitState(UNIT_STATE_CASTING))
                             VerifyAndPushSpellCast(spells, SPELL_MIND_FREEZE, TARGET_VICTIM, 25);
-      
+
                         hasFF = !!victim.GetAuraApplicationOfRankedSpell(AURA_FROST_FEVER, me.GetGUID()), hasBP = !!victim.GetAuraApplicationOfRankedSpell(AURA_BLOOD_PLAGUE, me.GetGUID());
                         if (hasFF && hasBP)
                             VerifyAndPushSpellCast(spells, SPELL_PESTILENCE, TARGET_VICTIM, 3);
@@ -468,6 +483,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_MARK_OF_BLOOD, TARGET_VICTIM, 20);
                             VerifyAndPushSpellCast(spells, SPELL_VAMPIRIC_BLOOD, TARGET_NONE, 10);
                             break;
+
                         case TALENT_SPEC_DEATHKNIGHT_FROST:
                             if (hasFF && hasBP)
                                 VerifyAndPushSpellCast(spells, SPELL_OBLITERATE, TARGET_VICTIM, 5);
@@ -477,6 +493,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_FROST_STRIKE, TARGET_VICTIM, 3);
                             VerifyAndPushSpellCast(spells, SPELL_BLOOD_STRIKE, TARGET_VICTIM, 1);
                             break;
+
                         case TALENT_SPEC_DEATHKNIGHT_UNHOLY:
                             if (hasFF && hasBP)
                                 VerifyAndPushSpellCast(spells, SPELL_SCOURGE_STRIKE, TARGET_VICTIM, 5);
@@ -507,6 +524,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_SHA_NATURE_SWIFT, TARGET_NONE, 4);
                             VerifyAndPushSpellCast(spells, SPELL_MANA_TIDE_TOTEM, TARGET_NONE, 3);
                             break;
+
                         case TALENT_SPEC_SHAMAN_ELEMENTAL:
                             if (Unit* victim = me.Victim)
                             {
@@ -520,6 +538,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_ELEMENTAL_MASTERY, TARGET_VICTIM, 5);
                             VerifyAndPushSpellCast(spells, SPELL_THUNDERSTORM, TARGET_NONE, 3);
                             break;
+
                         case TALENT_SPEC_SHAMAN_ENHANCEMENT:
                             if (Aura const* maelstrom = me.GetAura(AURA_MAELSTROM_WEAPON))
                                 if (maelstrom.GetStackAmount() == 5)
@@ -531,6 +550,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_MAGE:
                     if (me.Victim && me.Victim.HasUnitState(UNIT_STATE_CASTING))
                         VerifyAndPushSpellCast(spells, SPELL_COUNTERSPELL, TARGET_VICTIM, 25);
@@ -552,6 +572,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_ARCANE_POWER, TARGET_NONE, 8);
                             VerifyAndPushSpellCast(spells, SPELL_PRESENCE_OF_MIND, TARGET_NONE, 7);
                             break;
+
                         case TALENT_SPEC_MAGE_FIRE:
                             if (me.Victim && !me.Victim.GetAuraApplicationOfRankedSpell(SPELL_LIVING_BOMB))
                                 VerifyAndPushSpellCast(spells, SPELL_LIVING_BOMB, TARGET_VICTIM, 3);
@@ -561,6 +582,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             VerifyAndPushSpellCast(spells, SPELL_DRAGONS_BREATH, TARGET_VICTIM, 2);
                             VerifyAndPushSpellCast(spells, SPELL_BLAST_WAVE, TARGET_VICTIM, 1);
                             break;
+
                         case TALENT_SPEC_MAGE_FROST:
                             VerifyAndPushSpellCast(spells, SPELL_DEEP_FREEZE, TARGET_VICTIM, 10);
                             VerifyAndPushSpellCast(spells, SPELL_FROST_NOVA, TARGET_VICTIM, 3);
@@ -571,6 +593,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_WARLOCK:
                     VerifyAndPushSpellCast(spells, SPELL_DEATH_COIL_W, TARGET_VICTIM, 2);
                     VerifyAndPushSpellCast(spells, SPELL_FEAR, TARGET_VICTIM, 2);
@@ -594,6 +617,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                                     VerifyAndPushSpellCast(spells, SPELL_DRAIN_SOUL, TARGET_VICTIM, 100);
                             }
                             break;
+
                         case TALENT_SPEC_WARLOCK_DEMONOLOGY:
                             VerifyAndPushSpellCast(spells, SPELL_METAMORPHOSIS, TARGET_NONE, 15);
                             VerifyAndPushSpellCast(spells, SPELL_SHADOW_BOLT, TARGET_VICTIM, 7);
@@ -610,6 +634,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             if (me.HasAura(AURA_MOLTEN_CORE))
                                 VerifyAndPushSpellCast(spells, SPELL_INCINERATE, TARGET_VICTIM, 10);
                             break;
+
                         case TALENT_SPEC_WARLOCK_DESTRUCTION:
                             if (me.Victim && !me.Victim.GetAuraApplicationOfRankedSpell(SPELL_IMMOLATE, me.GetGUID()))
                                 VerifyAndPushSpellCast(spells, SPELL_IMMOLATE, TARGET_VICTIM, 8);
@@ -622,6 +647,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_MONK:
                     switch (GetSpec())
                     {
@@ -631,6 +657,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_DRUID:
                     VerifyAndPushSpellCast(spells, SPELL_INNERVATE, TARGET_CHARMER, 5);
                     VerifyAndPushSpellCast(spells, SPELL_BARKSKIN, TARGET_NONE, 5);
@@ -665,6 +692,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                                     VerifyAndPushSpellCast(spells, SPELL_HEALING_TOUCH, creatureCharmer, 100);
                             }
                             break;
+
                         case TALENT_SPEC_DRUID_BALANCE:
                         {
                             if (!me.HasAura(SPELL_MOONKIN_FORM))
@@ -718,6 +746,7 @@ internal class SimpleCharmedPlayerAI : PlayerAI
                             break;
                     }
                     break;
+
                 case CLASS_DEMON_HUNTER:
                     switch (GetSpec())
                     {

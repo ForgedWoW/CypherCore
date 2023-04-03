@@ -107,7 +107,7 @@ public class VehicleJoinEvent : BasicEvent
 
         if (player != null)
         {
-            // drop flag
+            // drop Id
             var bg = player.Battleground;
 
             if (bg)

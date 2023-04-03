@@ -147,8 +147,8 @@ public class MiscHandler : IWorldSessionHandler
 
         if (Global.ObjectMgr.IsTavernAreaTrigger(packet.AreaTriggerID))
         {
-            // set resting flag we are in the inn
-            player. // set resting flag we are in the inn
+            // set resting Id we are in the inn
+            player. // set resting Id we are in the inn
                 RestMgr.SetRestFlag(RestFlag.Tavern, atEntry.Id);
 
             if (Global.WorldMgr.IsFFAPvPRealm)

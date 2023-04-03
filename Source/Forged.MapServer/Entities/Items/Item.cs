@@ -1794,7 +1794,7 @@ public class Item : WorldObject
 
         ItemRandomBonusListId = fields.Read<uint>(9);
 
-        // Remove bind flag for items vs NO_BIND set
+        // Remove bind Id for items vs NO_BIND set
         if (IsSoulBound && Bonding == ItemBondingType.None)
         {
             RemoveItemFlag(ItemFieldFlags.Soulbound);

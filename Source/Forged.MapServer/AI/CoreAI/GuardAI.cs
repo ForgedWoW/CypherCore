@@ -11,20 +11,21 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class GuardAI : ScriptedAI.ScriptedAI
 {
-    public GuardAI(Creature creature) : base(creature) { }
+    public GuardAI(Creature creature) : base(creature)
+    {
+    }
 
     public override bool CanSeeAlways(WorldObject obj)
     {
         var unit = obj.AsUnit;
 
-        if (unit != null)
-            if (unit.ControlledByPlayer && Me.IsEngagedBy(unit))
-                return true;
+        if (unit == null)
+            return false;
 
-        return false;
+        return unit.ControlledByPlayer && Me.IsEngagedBy(unit);
     }
 
-    public override void EnterEvadeMode(EvadeReason why)
+    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     {
         if (!Me.IsAlive)
         {

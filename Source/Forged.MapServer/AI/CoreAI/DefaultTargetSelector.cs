@@ -15,6 +15,7 @@ public class DefaultTargetSelector : ICheck<Unit>
     private readonly Unit _exception;
     private readonly Unit _me;
     private readonly bool _playerOnly;
+
     /// <param name="unit"> the reference unit </param>
     /// <param name="dist"> if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit </param>
     /// <param name="playerOnly"> self explaining </param>
@@ -43,35 +44,34 @@ public class DefaultTargetSelector : ICheck<Unit>
         if (_playerOnly && !target.IsTypeId(TypeId.Player))
             return false;
 
-        if (_dist > 0.0f && !_me.IsWithinCombatRange(target, _dist))
-            return false;
-
-        if (_dist < 0.0f && _me.IsWithinCombatRange(target, -_dist))
-            return false;
-
-        if (_aura != 0)
+        switch (_dist)
         {
-            if (_aura > 0)
+            case > 0.0f when !_me.IsWithinCombatRange(target, _dist):
+            case < 0.0f when _me.IsWithinCombatRange(target, -_dist):
+                return false;
+        }
+
+        switch (_aura)
+        {
+            case 0:
+                return false;
+
+            case > 0:
             {
                 if (!target.HasAura((uint)_aura))
                     return false;
+
+                break;
             }
-            else
+            default:
             {
                 if (target.HasAura((uint)-_aura))
                     return false;
+
+                break;
             }
         }
 
         return false;
     }
 }
-
-// Target selector for spell casts checking range, auras and attributes
-// todo Add more checks from Spell.CheckCast
-
-// Very simple target selector, will just skip main target
-// NOTE: When passing to UnitAI.SelectTarget remember to use 0 as position for random selection
-//       because tank will not be in the temporary list
-
-// Simple selector for units using mana

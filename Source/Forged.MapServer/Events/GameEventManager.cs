@@ -560,7 +560,7 @@ public class GameEventManager
             }
         }
 
-        Log.Logger.Information("Loading Game Event Quest Data...");
+        Log.Logger.Information("Loading Game Event QuestId Data...");
 
         {
             var oldMSTime = Time.MSTime;
@@ -598,7 +598,7 @@ public class GameEventManager
             }
         }
 
-        Log.Logger.Information("Loading Game Event GO Quest Data...");
+        Log.Logger.Information("Loading Game Event GO QuestId Data...");
 
         {
             var oldMSTime = Time.MSTime;
@@ -636,7 +636,7 @@ public class GameEventManager
             }
         }
 
-        Log.Logger.Information("Loading Game Event Quest Condition Data...");
+        Log.Logger.Information("Loading Game Event QuestId Condition Data...");
 
         {
             var oldMSTime = Time.MSTime;
@@ -804,7 +804,7 @@ public class GameEventManager
             }
         }
 
-        Log.Logger.Information("Loading Game Event Seasonal Quest Relations...");
+        Log.Logger.Information("Loading Game Event Seasonal QuestId Relations...");
 
         {
             var oldMSTime = Time.MSTime;
@@ -877,7 +877,7 @@ public class GameEventManager
                         continue;
                     }
 
-                    // get the event npc flag for checking if the npc will be vendor during the event or not
+                    // get the event npc Id for checking if the npc will be vendor during the event or not
                     ulong eventNpcFlag = 0;
                     var flist = _gameEventNpcFlags[eventID];
 
@@ -1847,7 +1847,7 @@ public class GameEventManager
 
                                                           creature.ReplaceAllNpcFlags((NPCFlags)(npcflag & 0xFFFFFFFF));
                                                           creature.ReplaceAllNpcFlags2((NPCFlags2)(npcflag >> 32));
-                                                          // reset gossip options, since the flag change might have added / removed some
+                                                          // reset gossip options, since the Id change might have added / removed some
                                                           //cr.ResetGossipOptions();
                                                       }
                                                   }

@@ -14,6 +14,6 @@ public enum NavArea
     MinValue = MagmaSlime,
 
     AllMask = 0x3F // max allowed value
-    // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
+    // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with Id 1)
     // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable)
 }

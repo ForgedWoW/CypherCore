@@ -743,7 +743,7 @@ public class SpellHandler : IWorldSessionHandler
             return;
         }
 
-        // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
+        // only allow conjured consumable, bandage, poisons (all should have the 2^21 item Id set in DB)
         if (proto.Class == ItemClass.Consumable && !proto.HasFlag(ItemFlags.IgnoreDefaultArenaRestrictions) && user.InArena)
         {
             user.SendEquipError(InventoryResult.NotDuringArenaMatch, item);

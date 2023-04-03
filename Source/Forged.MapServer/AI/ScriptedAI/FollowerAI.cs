@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.AI.ScriptedAI;
@@ -17,6 +18,7 @@ internal class FollowerAI : ScriptedAI
     private ObjectGuid _leaderGUID;
     private uint _questForFollow;
     private uint _updateFollowTimer;
+
     public FollowerAI(Creature creature) : base(creature)
     {
         _updateFollowTimer = 2500;
@@ -81,6 +83,7 @@ internal class FollowerAI : ScriptedAI
 
         base.MoveInLineOfSight(who);
     }
+
     public override void OwnerAttackedBy(Unit attacker)
     {
         if (!Me.HasReactState(ReactStates.Passive) && ShouldAssistPlayerInCombatAgainst(attacker))
@@ -133,7 +136,7 @@ internal class FollowerAI : ScriptedAI
         var cdata = Me.CreatureData;
 
         if (cdata != null)
-            if (GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
+            if (player.Configuration.GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
                 Me.SaveRespawnTime(Me.RespawnDelay);
 
         if (Me.IsEngaged)
@@ -156,7 +159,8 @@ internal class FollowerAI : ScriptedAI
         if (factionForFollower != 0)
             Me.Faction = factionForFollower;
 
-        _questForFollow = quest.Id;
+        if (quest != null)
+            _questForFollow = quest.Id;
 
         Me.MotionMaster.Clear(MovementGeneratorPriority.Normal);
         Me.PauseMovement();
@@ -246,8 +250,9 @@ internal class FollowerAI : ScriptedAI
             }
         }
 
-        UpdateFollowerAI(uiDiff);
+        UpdateFollowerAI();
     }
+
     private void AddFollowState(FollowState uiFollowState)
     {
         _followState |= uiFollowState;
@@ -255,7 +260,7 @@ internal class FollowerAI : ScriptedAI
 
     private Player GetLeaderForFollower()
     {
-        var player = Global.ObjAccessor.GetPlayer(Me, _leaderGUID);
+        var player = Me.ObjectAccessor.GetPlayer(Me, _leaderGUID);
 
         if (player)
         {
@@ -300,13 +305,13 @@ internal class FollowerAI : ScriptedAI
 
     //This part provides assistance to a player that are attacked by who, even if out of normal aggro range
     //It will cause me to attack who that are attacking _any_ player (which has been confirmed may happen also on offi)
-    //The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
+    //The Id (type_flag) is unconfirmed, but used here for further research and is a good candidate.
     private bool ShouldAssistPlayerInCombatAgainst(Unit who)
     {
         if (!who || !who.Victim)
             return false;
 
-        //experimental (unknown) flag not present
+        //experimental (unknown) Id not present
         if (!Me.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
             return false;
 
@@ -329,13 +334,10 @@ internal class FollowerAI : ScriptedAI
             return false;
 
         //too far away and no free sight?
-        if (!Me.Location.IsWithinDistInMap(who, 100.0f) || !Me.Location.IsWithinLOSInMap(who))
-            return false;
-
-        return true;
+        return Me.Location.IsWithinDistInMap(who, 100.0f) && Me.Location.IsWithinLOSInMap(who);
     }
 
-    private void UpdateFollowerAI(uint diff)
+    private void UpdateFollowerAI()
     {
         if (!UpdateVictim())
             return;

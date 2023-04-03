@@ -113,7 +113,7 @@ public class TradeHandler : IWorldSessionHandler
 
     private static void ClearAcceptTradeMode(Item[] myItems, Item[] hisItems)
     {
-        // clear 'in-trade' flag
+        // clear 'in-trade' Id
         for (byte i = 0; i < (int)TradeSlots.Count; ++i)
         {
             if (myItems[i])
@@ -129,7 +129,7 @@ public class TradeHandler : IWorldSessionHandler
         myTrade.SetInAcceptProcess(true);
         hisTrade.SetInAcceptProcess(true);
 
-        // store items in local list and set 'in-trade' flag
+        // store items in local list and set 'in-trade' Id
         for (byte i = 0; i < (int)TradeSlots.Count; ++i)
         {
             var item = myTrade.GetItem((TradeSlots)i);

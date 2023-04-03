@@ -8,21 +8,14 @@ namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartScriptHolder : IComparable<SmartScriptHolder>
 {
-    public const uint DefaultPriority = uint.MaxValue;
+    public const uint DEFAULT_PRIORITY = uint.MaxValue;
 
     public SmartAction Action;
-    public bool Active;
-    public bool EnableTimed;
-    public int EntryOrGuid;
     public SmartEvent Event;
-    public uint EventId;
-    public uint Link;
-    public uint Priority;
-    public bool RunOnce;
-    public SmartScriptType SourceType;
     public SmartTarget Target;
-    public uint Timer;
-    public SmartScriptHolder() { }
+
+    public SmartScriptHolder()
+    { }
 
     public SmartScriptHolder(SmartScriptHolder other)
     {
@@ -38,6 +31,16 @@ public class SmartScriptHolder : IComparable<SmartScriptHolder>
         RunOnce = other.RunOnce;
         EnableTimed = other.EnableTimed;
     }
+
+    public bool Active { get; set; }
+    public bool EnableTimed { get; set; }
+    public int EntryOrGuid { get; set; }
+    public uint EventId { get; set; }
+    public uint Link { get; set; }
+    public uint Priority { get; set; }
+    public bool RunOnce { get; set; }
+    public SmartScriptType SourceType { get; set; }
+    public uint Timer { get; set; }
 
     public int CompareTo(SmartScriptHolder other)
     {
@@ -72,6 +75,7 @@ public class SmartScriptHolder : IComparable<SmartScriptHolder>
     {
         return SourceType;
     }
+
     public SmartTargets GetTargetType()
     {
         return Target.type;

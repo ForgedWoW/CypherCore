@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.AI;
 using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.SmartScripts;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
@@ -24,6 +25,7 @@ using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Spells;
+using Forged.MapServer.Text;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
@@ -48,6 +50,7 @@ public partial class Creature : Unit
         CreatureFactory = classFactory.Resolve<CreatureFactory>();
         GameEventManager = classFactory.Resolve<GameEventManager>();
         FormationManager = classFactory.Resolve<FormationMgr>();
+        CreatureTextManager = classFactory.Resolve<CreatureTextManager>();
         RespawnDelay = 300;
         CorpseDelay = 60;
         _boundaryCheckTime = 2500;
@@ -128,7 +131,7 @@ public partial class Creature : Unit
         // Scripts can choose to ignore RATE_CORPSE_DECAY_LOOTED by calling SetCorpseDelay(timer, true)
         var decayRate = _ignoreCorpseDecayRatio ? 1.0f : Configuration.GetDefaultValue("Rate.Corpse.Decay.Looted", 0.5f);
 
-        // corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
+        // corpse skinnable, but without skinning Id, and then skinned, corpse will despawn next update
         bool IsFullySkinned()
         {
             if (Loot is { LootType: LootType.Skinning } && Loot.IsLooted())
@@ -1369,7 +1372,7 @@ public partial class Creature : Unit
         SetAnimTier((AnimTier)creatureAddon.AnimTier, false);
 
         //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
-        //! If no inhabittype_fly (if no MovementFlag_DisableGravity or MovementFlag_CanFly flag found in sniffs)
+        //! If no inhabittype_fly (if no MovementFlag_DisableGravity or MovementFlag_CanFly Id found in sniffs)
         //! Check using InhabitType as movement flags are assigned dynamically
         //! basing on whether the creature is in air or not
         //! Set MovementFlag_Hover. Otherwise do nothing.
@@ -2842,7 +2845,7 @@ public partial class Creature : Unit
         ReplaceAllNpcFlags((NPCFlags)(npcFlags & 0xFFFFFFFF));
         ReplaceAllNpcFlags2((NPCFlags2)(npcFlags >> 32));
 
-        // if unit is in combat, keep this flag
+        // if unit is in combat, keep this Id
         unitFlags &= ~(uint)UnitFlags.InCombat;
 
         if (IsInCombat)

@@ -5,6 +5,6 @@ namespace Forged.MapServer.AI.ScriptedAI;
 
 internal struct EscortPointIds
 {
-    public const uint Home = 0xFFFFFE;
-    public const uint LastPoint = 0xFFFFFF;
+    public const uint HOME = 0xFFFFFE;
+    public const uint LAST_POINT = 0xFFFFFF;
 }

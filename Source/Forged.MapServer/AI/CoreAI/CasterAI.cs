@@ -29,7 +29,7 @@ public class CasterAI : CombatAI
 
         _attackDistance = 30.0f;
 
-        foreach (var id in _spells)
+        foreach (var id in Spells)
         {
             var info = GetAISpellInfo(id, Me.Location.Map.DifficultyID);
 
@@ -40,35 +40,42 @@ public class CasterAI : CombatAI
         if (_attackDistance == 30.0f)
             _attackDistance = SharedConst.MeleeRange;
     }
+
     public override void JustEngagedWith(Unit victim)
     {
-        if (_spells.Empty())
+        if (Spells.Empty())
             return;
 
-        var spell = (int)(RandomHelper.Rand32() % _spells.Count);
+        var spell = (int)(RandomHelper.Rand32() % Spells.Count);
         uint count = 0;
 
-        foreach (var id in _spells)
+        foreach (var id in Spells)
         {
             var info = GetAISpellInfo(id, Me.Location.Map.DifficultyID);
 
-            if (info != null)
+            if (info == null)
+                continue;
+
+            switch (info.Condition)
             {
-                if (info.Condition == AICondition.Aggro)
-                {
-                    Me.CastSpell(victim, id, false);
-                }
-                else if (info.Condition == AICondition.Combat)
+                case AICondition.Aggro:
+                    Me.SpellFactory.CastSpell(victim, id);
+
+                    break;
+
+                case AICondition.Combat:
                 {
                     var cooldown = info.RealCooldown;
 
                     if (count == spell)
                     {
-                        DoCast(_spells[spell]);
+                        DoCast(Spells[spell]);
                         cooldown += TimeSpan.FromMilliseconds(Me.GetCurrentSpellCastTime(id));
                     }
 
                     Events.ScheduleEvent(id, cooldown);
+
+                    break;
                 }
             }
         }

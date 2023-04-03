@@ -1331,7 +1331,7 @@ public partial class Spell
         if (caster.Duel != null || target.Duel != null || target.Social == null || target.Social.HasIgnore(caster.GUID, caster.Session.AccountGUID))
             return;
 
-        // Players can only fight a duel in zones with this flag
+        // Players can only fight a duel in zones with this Id
         var casterAreaEntry = CliDB.AreaTableStorage.LookupByKey(caster.Location.Area);
 
         if (casterAreaEntry != null && !casterAreaEntry.HasFlag(AreaFlags.AllowDuels))
@@ -3644,7 +3644,7 @@ public partial class Spell
 
             if (logSlot < SharedConst.MaxQuestLogSize)
                 player.AreaExploredOrEventHappens(questId);
-            else if (quest.HasFlag(QuestFlags.Tracking)) // Check if the quest is used as a serverside flag.
+            else if (quest.HasFlag(QuestFlags.Tracking)) // Check if the quest is used as a serverside Id.
                 player.SetRewardedQuest(questId);        // If so, set status to rewarded without broadcasting it to client.
         }
     }
@@ -4293,7 +4293,7 @@ public partial class Spell
     [SpellEffectHandler(SpellEffectName.SendEvent)]
     private void EffectSendEvent()
     {
-        // we do not handle a flag dropping or clicking on flag in Battlegroundby sendevent system
+        // we do not handle a Id dropping or clicking on Id in Battlegroundby sendevent system
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget && _effectHandleMode != SpellEffectHandleMode.Hit)
             return;
 

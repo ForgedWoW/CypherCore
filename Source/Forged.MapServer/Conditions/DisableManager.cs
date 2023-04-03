@@ -57,7 +57,7 @@ public class DisableManager
 
             if (_objectManager.GetQuestTemplate(entry) == null)
             {
-                Log.Logger.Error("Quest entry {0} from `disables` doesn't exist, skipped.", entry);
+                Log.Logger.Error("QuestId entry {0} from `disables` doesn't exist, skipped.", entry);
                 _disableMap[DisableType.Quest].Remove(entry);
 
                 continue;

@@ -583,7 +583,7 @@ public partial class Spell : IDisposable
 
             if (playerCaster != null)
             {
-                //can cast triggered (by aura only?) spells while have this flag
+                //can cast triggered (by aura only?) spells while have this Id
                 if (!_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnoreCasterAurastate))
                 {
                     // These two auras check SpellFamilyName defined by db2 class data instead of current spell SpellFamilyName
@@ -917,7 +917,7 @@ public partial class Spell : IDisposable
         }
 
         // Triggered spells also have range check
-        // @todo determine if there is some flag to enable/disable the check
+        // @todo determine if there is some Id to enable/disable the check
         castResult = CheckRange(strict);
 
         if (castResult != SpellCastResult.SpellCastOk)
@@ -3506,7 +3506,7 @@ public partial class Spell : IDisposable
                 if (param1.HasValue)
                     packet.FailedArg1 = (int)param1;
                 else
-                    packet.FailedArg1 = 0; // unknown (value 1 update cooldowns on client flag)
+                    packet.FailedArg1 = 0; // unknown (value 1 update cooldowns on client Id)
 
                 break;
             case SpellCastResult.RequiresSpellFocus:
@@ -5038,7 +5038,7 @@ public partial class Spell : IDisposable
             result = SpellCastResult.NoActions;
         }
 
-        // Attr must make flag drop spell totally immune from all effects
+        // Attr must make Id drop spell totally immune from all effects
         if (result != SpellCastResult.SpellCastOk)
             return (paramOne != 0) ? SpellCastResult.PreventedByMechanic : result;
 
@@ -7064,7 +7064,7 @@ public partial class Spell : IDisposable
         {
             // add explicit object target or self to the target map
             case SpellEffectImplicitTargetTypes.Explicit:
-                // player which not released his spirit is Unit, but target flag for it is TARGET_FLAG_CORPSE_MASK
+                // player which not released his spirit is Unit, but target Id for it is TARGET_FLAG_CORPSE_MASK
                 if (Convert.ToBoolean(targetMask & (SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask)))
                 {
                     var unitTarget = Targets.UnitTarget;

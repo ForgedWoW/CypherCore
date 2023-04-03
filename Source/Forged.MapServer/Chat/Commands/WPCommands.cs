@@ -676,7 +676,7 @@ internal class WPCommands
 
                 handler.SendSysMessage("|cff00ff00Show info: for current point: |r|cff00ffff{0}|r|cff00ff00, Path ID: |r|cff00ffff{1}|r", point, pathId);
                 handler.SendSysMessage("|cff00ff00Show info: delay: |r|cff00ffff{0}|r", delay);
-                handler.SendSysMessage("|cff00ff00Show info: Move flag: |r|cff00ffff{0}|r", flag);
+                handler.SendSysMessage("|cff00ff00Show info: Move Id: |r|cff00ffff{0}|r", flag);
                 handler.SendSysMessage("|cff00ff00Show info: Waypoint event: |r|cff00ffff{0}|r", ev_id);
                 handler.SendSysMessage("|cff00ff00Show info: Event chance: |r|cff00ffff{0}|r", ev_chance);
             } while (result.NextRow());

@@ -670,7 +670,7 @@ public partial class Player
 
     private void InitPvP()
     {
-        // pvp flag should stay after relog
+        // pvp Id should stay after relog
         if (HasPlayerFlag(PlayerFlags.InPVP))
             UpdatePvP(true, true);
     }

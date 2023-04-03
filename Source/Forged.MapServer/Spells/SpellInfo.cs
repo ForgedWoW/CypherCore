@@ -989,7 +989,7 @@ public class SpellInfo
                         if (miscVal.HasAnyFlag(1 << 1))
                             immuneInfo.AuraTypeImmune.Add(AuraType.Transform);
 
-                        // These flag can be recognized wrong:
+                        // These Id can be recognized wrong:
                         if (miscVal.HasAnyFlag(1 << 6))
                             immuneInfo.AuraTypeImmune.Add(AuraType.ModDecreaseSpeed);
 
@@ -2285,7 +2285,7 @@ public class SpellInfo
         if (!IsAllowingDeadTarget && !unitTarget.IsAlive)
             return SpellCastResult.TargetsDead;
 
-        // check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
+        // check this Id only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
         if (Implicit && HasAttribute(SpellAttr6.DoNotChainToCrowdControlledTargets) && !unitTarget.CanFreeMove())
             return SpellCastResult.BadTargets;
 

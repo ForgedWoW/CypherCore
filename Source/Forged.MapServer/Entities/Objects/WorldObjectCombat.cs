@@ -578,7 +578,7 @@ public class WorldObjectCombat
                 return true;
 
         // PvP case - can't attack when attacker or target are in sanctuary
-        // however, 13850 client doesn't allow to attack when one of the unit's has sanctuary flag and is pvp
+        // however, 13850 client doesn't allow to attack when one of the unit's has sanctuary Id and is pvp
         if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner != null && unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && (unitTarget.IsInSanctuary || unitOrOwner.IsInSanctuary))
             return false;
 

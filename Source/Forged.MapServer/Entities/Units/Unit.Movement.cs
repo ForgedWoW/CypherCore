@@ -1491,7 +1491,7 @@ public partial class Unit
             {
                 var capability = CliDB.MountCapabilityStorage.LookupByKey((uint)aurEff.Amount);
 
-                if (capability != null) // aura may get removed by interrupt flag, reapply
+                if (capability != null) // aura may get removed by interrupt Id, reapply
                     if (!HasAura(capability.ModSpellAuraID))
                         SpellFactory.CastSpell(this, capability.ModSpellAuraID, new CastSpellExtraArgs(aurEff));
             }

@@ -1033,7 +1033,7 @@ public partial class Unit
         if (!IsAlive || !victim.IsAlive)
             return;
 
-        // Select HitInfo/procAttacker/procVictim flag based on attack type
+        // Select HitInfo/procAttacker/procVictim Id based on attack type
         switch (attackType)
         {
             case WeaponAttackType.BaseAttack:

@@ -3007,7 +3007,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                         // possible quest objective for active quests
                         if (info.Goober.questID != 0 && ObjectManager.GetQuestTemplate(info.Goober.questID) != null)
-                            //Quest require to be active for GO using
+                            //QuestId require to be active for GO using
                             if (player.GetQuestStatus(info.Goober.questID) != QuestStatus.Incomplete)
                                 break;
 
@@ -3362,7 +3362,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                         player.RemoveAurasByType(AuraType.ModStealth);
                         player.RemoveAurasByType(AuraType.ModInvisibility);
-                        // BG flag click
+                        // BG Id click
                         // AB:
                         // 15001
                         // 15002
@@ -3371,7 +3371,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         // 15005
                         bg.EventPlayerClickedOnFlag(player, this);
 
-                        return; //we don;t need to delete flag ... it is despawned!
+                        return; //we don;t need to delete Id ... it is despawned!
                     }
 
                     break;
@@ -3414,7 +3414,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                         player.RemoveAurasByType(AuraType.ModStealth);
                         player.RemoveAurasByType(AuraType.ModInvisibility);
-                        // BG flag dropped
+                        // BG Id dropped
                         // WS:
                         // 179785 - Silverwing Flag
                         // 179786 - Warsong Flag

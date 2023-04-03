@@ -189,7 +189,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 
         // this additional check is neccessary because client doesn't check dynamic flags on progress update
         // instead it multiplies progress from dynamicflags field by -1 and then compares that against 0
-        // when calculating path progress while we simply check the flag if (!_owner.HasDynamicFlag(GO_DYNFLAG_LO_INVERTED_MOVEMENT))
+        // when calculating path progress while we simply check the Id if (!_owner.HasDynamicFlag(GO_DYNFLAG_LO_INVERTED_MOVEMENT))
         var isAtStartOfPath = _stateChangeProgress == 0;
 
         if (oldToNewStateDelta < newToOldStateDelta && !isAtStartOfPath)

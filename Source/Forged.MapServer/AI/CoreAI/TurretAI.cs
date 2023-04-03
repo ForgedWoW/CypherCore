@@ -16,9 +16,9 @@ public class TurretAI : CreatureAI
         if (creature.Spells[0] == 0)
             Log.Logger.Error($"TurretAI set for creature with spell1=0. AI will do nothing ({creature.GUID})");
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.Location.Map.DifficultyID);
-        _minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;
-        creature.CombatDistance = spellInfo != null ? spellInfo.GetMaxRange(false) : 0;
+        var spellInfo = creature.SpellManager.GetSpellInfo(creature.Spells[0], creature.Location.Map.DifficultyID);
+        _minRange = spellInfo?.GetMinRange() ?? 0;
+        creature.CombatDistance = spellInfo?.GetMaxRange() ?? 0;
         creature.SightDistance = creature.CombatDistance;
     }
 
@@ -30,12 +30,9 @@ public class TurretAI : CreatureAI
 
     public override bool CanAIAttack(Unit victim)
     {
-        // todo use one function to replace it
-        if (!Me.IsWithinCombatRange(victim, Me.CombatDistance) || (_minRange != 0 && Me.IsWithinCombatRange(victim, _minRange)))
-            return false;
-
-        return true;
+        return Me.IsWithinCombatRange(victim, Me.CombatDistance) && (_minRange == 0 || !Me.IsWithinCombatRange(victim, _minRange));
     }
+
     public override void UpdateAI(uint diff)
     {
         if (!UpdateVictim())

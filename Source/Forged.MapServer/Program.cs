@@ -438,4 +438,5 @@ void RegisterInstanced()
     builder.RegisterType<GossipMenu>();
     builder.RegisterType<PlayerMenu>();
     builder.RegisterType<AuctionHouseObject>();
+    builder.RegisterType<SmartScript>();
 }

@@ -441,7 +441,7 @@ public class Channel
 
                 SetOwner(newowner);
 
-                // if the new owner is invisible gm, set flag to automatically choose a new owner
+                // if the new owner is invisible gm, set Id to automatically choose a new owner
                 if (_playersStore[newowner].IsInvisible())
                     _isOwnerInvisible = true;
             }
@@ -584,7 +584,7 @@ public class Channel
 
         playerInfo.SetInvisible(on);
 
-        // we happen to be owner too, update flag
+        // we happen to be owner too, update Id
         if (_ownerGuid == player.GUID)
             _isOwnerInvisible = on;
     }

@@ -33,7 +33,9 @@ using Forged.MapServer.Networking.Packets.Movement;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Scenarios;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Spells;
+using Forged.MapServer.Text;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
@@ -67,6 +69,7 @@ public abstract class WorldObject : IDisposable
         ConditionManager = classFactory.Resolve<ConditionManager>();
         ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
         Configuration = classFactory.Resolve<IConfiguration>();
+        ScriptManager = classFactory.Resolve<ScriptManager>();
         CliDB = classFactory.Resolve<CliDB>();
         OutdoorPvPManager = classFactory.Resolve<OutdoorPvPManager>();
         BattleFieldManager = classFactory.Resolve<BattleFieldManager>();
@@ -218,6 +221,7 @@ public abstract class WorldObject : IDisposable
     }
 
     public Scenario Scenario => !Location.IsInWorld ? null : Location.Map.ToInstanceMap?.InstanceScenario;
+    public ScriptManager ScriptManager { get; }
     public SpellFactory SpellFactory { get; }
     public SpellManager SpellManager { get; }
 

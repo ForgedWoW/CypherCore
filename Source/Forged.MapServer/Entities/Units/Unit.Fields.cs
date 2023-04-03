@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.SmartScripts;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Combat;
 using Forged.MapServer.DataStorage;
@@ -30,8 +31,8 @@ public partial class Unit
     public static TimeSpan MaxDamageHistoryDuration = TimeSpan.FromSeconds(20);
     public bool CanDualWield;
     public object SendLock = new();
-    private static readonly TimeSpan DespawnTime = TimeSpan.FromSeconds(2);
     protected float[] CreateStats = new float[(int)Stats.Max];
+    private static readonly TimeSpan DespawnTime = TimeSpan.FromSeconds(2);
     private readonly AuraApplicationCollection _appliedAuras = new();
     private readonly List<AreaTrigger> _areaTrigger = new();
     private readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new();
@@ -568,8 +569,6 @@ public partial class Unit
         }
     }
 
-    public ScriptManager ScriptManager { get; }
-
     public ShapeShiftForm ShapeshiftForm
     {
         get => (ShapeShiftForm)(byte)UnitData.ShapeshiftForm;
@@ -591,6 +590,7 @@ public partial class Unit
     // Auras
     public List<Aura> SingleCastAuras { get; } = new();
 
+    public SmartAIManager SmartAIManager { get; }
     public SpellHistory SpellHistory { get; private set; }
     public UnitStandStateType StandState => (UnitStandStateType)(byte)UnitData.StandState;
     public ObjectGuid[] SummonSlot { get; set; } = new ObjectGuid[7];

@@ -199,7 +199,7 @@ internal class GroupCommands
         // While rather dirty codestyle-wise, it saves space (if only a little). For each member, we look several informations up.
         foreach (var slot in members)
         {
-            // Check for given flag and assign it to that iterator
+            // Check for given Id and assign it to that iterator
             var flags = "";
 
             if (slot.Flags.HasAnyFlag(GroupMemberFlags.Assistant))

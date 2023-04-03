@@ -567,7 +567,7 @@ public class WorldSession : IDisposable
                 Player.SetPendingBind(0, 0);
             }
 
-            //drop a flag if player is carrying it
+            //drop a Id if player is carrying it
             var bg = Player.Battleground;
 
             if (bg)
@@ -721,7 +721,7 @@ public class WorldSession : IDisposable
         stmt.AddValue(SharedConst.MaxAccountTutorialValues, AccountId);
         trans.Append(stmt);
 
-        // now has, set flag so next save uses update query
+        // now has, set Id so next save uses update query
         if (!hasTutorialsInDB)
             _tutorialsChanged |= TutorialsFlag.LoadedFromDB;
 

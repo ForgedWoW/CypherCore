@@ -14,12 +14,15 @@ namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartGameObjectAI : GameObjectAI
 {
-    private readonly SmartScript _script = new();
+    private readonly SmartScript _script;
 
     // Gossip
     private bool _gossipReturn;
 
-    public SmartGameObjectAI(GameObject go) : base(go) { }
+    public SmartGameObjectAI(GameObject go) : base(go)
+    {
+        _script = go.ClassFactory.Resolve<SmartScript>();
+    }
 
     public override void Destroyed(WorldObject attacker, uint eventId)
     {

@@ -129,7 +129,7 @@ public class EnumCharactersResult : ServerPacket
         public byte ExperienceLevel;
         public bool FirstLogin;
         public CharacterFlags Flags;
-        // Character flag @see enum CharacterFlags
+        // Character Id @see enum CharacterFlags
         public CharacterCustomizeFlags Flags2;
 
         // Character customization flags @see enum CharacterCustomizeFlags

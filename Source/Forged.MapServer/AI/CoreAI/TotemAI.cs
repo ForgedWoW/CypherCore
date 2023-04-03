@@ -21,7 +21,8 @@ public class TotemAI : NullCreatureAI
         _victimGuid = ObjectGuid.Empty;
     }
 
-    public override void AttackStart(Unit victim) { }
+    public override void AttackStart(Unit victim)
+    { }
 
     public override void UpdateAI(uint diff)
     {
@@ -32,25 +33,25 @@ public class TotemAI : NullCreatureAI
             return;
 
         // Search spell
-        var spellInfo = Global.SpellMgr.GetSpellInfo(Me.ToTotem().GetSpell(), Me.Location.Map.DifficultyID);
+        var spellInfo = Me.SpellManager.GetSpellInfo(Me.ToTotem().GetSpell(), Me.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return;
 
         // Get spell range
-        var max_range = spellInfo.GetMaxRange(false);
+        var maxRange = spellInfo.GetMaxRange();
 
         // SpellModOp.Range not applied in this place just because not existence range mods for attacking totems
 
-        var victim = !_victimGuid.IsEmpty ? Global.ObjAccessor.GetUnit(Me, _victimGuid) : null;
+        var victim = !_victimGuid.IsEmpty ? Me.ObjectAccessor.GetUnit(Me, _victimGuid) : null;
 
         // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-        if (victim == null || !victim.IsTargetableForAttack() || !Me.Location.IsWithinDistInMap(victim, max_range) || Me.WorldObjectCombat.IsFriendlyTo(victim) || !Me.Visibility.CanSeeOrDetect(victim))
+        if (victim == null || !victim.IsTargetableForAttack() || !Me.Location.IsWithinDistInMap(victim, maxRange) || Me.WorldObjectCombat.IsFriendlyTo(victim) || !Me.Visibility.CanSeeOrDetect(victim))
         {
-            var extraSearchRadius = max_range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
-            var u_check = new NearestAttackableUnitInObjectRangeCheck(Me, Me.CharmerOrOwnerOrSelf, max_range);
-            var checker = new UnitLastSearcher(Me, u_check, GridType.All);
-            Cell.VisitGrid(Me, checker, max_range + extraSearchRadius);
+            var extraSearchRadius = maxRange > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
+            var uCheck = new NearestAttackableUnitInObjectRangeCheck(Me, Me.CharmerOrOwnerOrSelf, maxRange);
+            var checker = new UnitLastSearcher(Me, uCheck, GridType.All);
+            Cell.VisitGrid(Me, checker, maxRange + extraSearchRadius);
             victim = checker.GetTarget();
         }
 
@@ -61,7 +62,7 @@ public class TotemAI : NullCreatureAI
             _victimGuid = victim.GUID;
 
             // attack
-            Me.CastSpell(victim, Me.ToTotem().GetSpell());
+            Me.SpellFactory.CastSpell(victim, Me.ToTotem().GetSpell());
         }
         else
         {

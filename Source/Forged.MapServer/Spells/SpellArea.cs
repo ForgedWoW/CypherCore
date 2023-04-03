@@ -31,7 +31,7 @@ public class SpellArea
     // can be applied only to races
     // QuestStatus that quest_start must have in order to keep the spell
     // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
-    // if SPELL_AREA_FLAG_AUTOCAST then auto applied at area enter, in other case just allowed to cast || if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaved even without flag)
+    // if SPELL_AREA_FLAG_AUTOCAST then auto applied at area enter, in other case just allowed to cast || if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaved even without Id)
 
     // helpers
     public bool IsFitToRequirements(Player player, uint newZone, uint newArea)

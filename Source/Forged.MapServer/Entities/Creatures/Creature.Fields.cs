@@ -4,12 +4,14 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.SmartScripts;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Events;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Pools;
+using Forged.MapServer.Text;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
@@ -99,6 +101,7 @@ public partial class Creature
     public long CorpseRemoveTime { get; set; }
     public CreatureData CreatureData { get; private set; }
     public CreatureFactory CreatureFactory { get; }
+    public CreatureTextManager CreatureTextManager { get; }
     public byte CurrentEquipmentId { get; set; }
     public (uint nodeId, uint pathId) CurrentWaypointInfo { get; private set; }
     public MovementGeneratorType DefaultMovementType { get; set; }

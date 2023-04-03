@@ -90,7 +90,7 @@ public class MoveSplineInit
         if (!Args.HasVelocity)
         {
             // If spline is initialized with SetWalk method it only means we need to select
-            // walk move speed for it but not add walk flag to unit
+            // walk move speed for it but not add walk Id to unit
             var moveFlagsForSpeed = moveFlags;
 
             if (Args.Walk)

@@ -73,7 +73,7 @@ public partial class Player
     private readonly Dictionary<uint, PlayerSpell> _spells = new();
 
     private readonly Dictionary<uint, StoredAuraTeleportLocation> _storedAuraTeleportLocations = new();
-    //Quest
+    //QuestId
     private readonly List<uint> _timedquests = new();
 
     private readonly Dictionary<int, PlayerSpellState> _traitConfigStates = new();

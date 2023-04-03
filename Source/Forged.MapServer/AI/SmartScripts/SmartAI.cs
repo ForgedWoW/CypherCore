@@ -20,13 +20,14 @@ namespace Forged.MapServer.AI.SmartScripts;
 public class SmartAI : CreatureAI
 {
     public uint EscortQuestID;
-    private const int SMART_ESCORT_MAX_PLAYER_DIST = 60;
-    private const int SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2;
+    private const int SmartEscortMaxPlayerDist = 60;
+    private const int SmartMaxAidDist = SmartEscortMaxPlayerDist / 2;
+
     // Vehicle conditions
     private readonly bool _hasConditions;
 
     private readonly WaypointPath _path = new();
-    private readonly SmartScript _script = new();
+    private readonly SmartScript _script;
     private bool _canCombatMove;
     private uint _conditionsTimer;
     private uint _currentWaypointNode;
@@ -43,25 +44,27 @@ public class SmartAI : CreatureAI
     private uint _followCreditType;
     private float _followDist;
     private ObjectGuid _followGuid;
+
     // Gossip
     private bool _gossipReturn;
 
     private uint _invincibilityHpLevel;
     private bool _isCharmed;
-    private bool _OOCReached;
+    private bool _oocReached;
     private bool _repeatWaypointPath;
     private bool _run;
     private bool _waypointPathEnded;
     private bool _waypointPauseForced;
     private uint _waypointPauseTimer;
     private bool _waypointReached;
+
     public SmartAI(Creature creature) : base(creature)
     {
         _escortInvokerCheckTimer = 1000;
         _run = true;
         _canCombatMove = true;
-
-        _hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, creature.Entry);
+        _script = creature.ClassFactory.Resolve<SmartScript>();
+        _hasConditions = creature.ConditionManager.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, creature.Entry);
     }
 
     public void AddEscortState(SmartEscortState escortState)
@@ -246,11 +249,11 @@ public class SmartAI : CreatureAI
         else if (HasEscortState(SmartEscortState.Escorting))
         {
             AddEscortState(SmartEscortState.Returning);
-            ReturnToLastOOCPos();
+            ReturnToLastOocPos();
         }
         else
         {
-            var target = !_followGuid.IsEmpty ? Global.ObjAccessor.GetUnit(Me, _followGuid) : null;
+            var target = !_followGuid.IsEmpty ? Me.ObjectAccessor.GetUnit(Me, _followGuid) : null;
 
             if (target)
             {
@@ -400,7 +403,7 @@ public class SmartAI : CreatureAI
             return;
 
         if (movementType != MovementGeneratorType.Point && id == EventId.SmartEscortLastOCCPoint)
-            _OOCReached = true;
+            _oocReached = true;
     }
 
     public override void OnCharmed(bool isNew)
@@ -427,7 +430,7 @@ public class SmartAI : CreatureAI
             {
                 if (!Me.HasReactState(ReactStates.Passive))
                 {
-                    var lastCharmer = Global.ObjAccessor.GetUnit(Me, Me.LastCharmerGuid);
+                    var lastCharmer = Me.ObjectAccessor.GetUnit(Me, Me.LastCharmerGuid);
 
                     if (lastCharmer != null)
                         Me.EngageWithTarget(lastCharmer);
@@ -442,7 +445,7 @@ public class SmartAI : CreatureAI
 
         GetScript().ProcessEventsFor(SmartEvents.Charmed, null, 0, 0, charmed);
 
-        if (!GetScript().HasAnyEventWithFlag(SmartEventFlags.WhileCharmed)) // we can change AI if there are no events with this flag
+        if (!GetScript().HasAnyEventWithFlag(SmartEventFlags.WhileCharmed)) // we can change AI if there are no events with this Id
             base.OnCharmed(isNew);
     }
 
@@ -541,7 +544,7 @@ public class SmartAI : CreatureAI
 
         if (forced)
         {
-            _waypointPauseForced = forced;
+            _waypointPauseForced = true;
             SetRun(_run);
             Me.PauseMovement();
             Me.HomePosition = Me.Location;
@@ -673,7 +676,8 @@ public class SmartAI : CreatureAI
         _gossipReturn = val;
     }
 
-    public override void SetGUID(ObjectGuid guid, int id) { }
+    public override void SetGUID(ObjectGuid guid, int id)
+    { }
 
     public void SetInvincibilityHpLevel(uint level)
     {
@@ -694,7 +698,7 @@ public class SmartAI : CreatureAI
         GetScript().SetTimedActionList(e, entry, invoker, startFromEventId);
     }
 
-    public void SetWPPauseTimer(uint time)
+    public void SetWpPauseTimer(uint time)
     {
         _waypointPauseTimer = time;
     }
@@ -755,7 +759,7 @@ public class SmartAI : CreatureAI
         // Do not use AddEscortState, removing everything from previous
         _escortState = SmartEscortState.Escorting;
 
-        if (invoker && invoker.IsPlayer)
+        if (invoker is { IsPlayer: true })
         {
             _escortNPCFlags = (uint)Me.NpcFlags;
             Me.ReplaceAllNpcFlags(NPCFlags.None);
@@ -763,6 +767,7 @@ public class SmartAI : CreatureAI
 
         Me.MotionMaster.MovePath(_path, _repeatWaypointPath);
     }
+
     public void StopFollow(bool complete)
     {
         _followGuid.Clear();
@@ -779,7 +784,7 @@ public class SmartAI : CreatureAI
         if (!complete)
             return;
 
-        var player = Global.ObjAccessor.GetPlayer(Me, _followGuid);
+        var player = Me.ObjectAccessor.GetPlayer(Me, _followGuid);
 
         if (player != null)
         {
@@ -835,6 +840,7 @@ public class SmartAI : CreatureAI
 
         EndPath(fail);
     }
+
     public override void SummonedCreatureDespawn(Creature summon)
     {
         GetScript().ProcessEventsFor(SmartEvents.SummonDespawned, summon, summon.Entry);
@@ -877,11 +883,7 @@ public class SmartAI : CreatureAI
     public override void WaypointPathEnded(uint nodeId, uint pathId)
     {
         if (!HasEscortState(SmartEscortState.Escorting))
-        {
             GetScript().ProcessEventsFor(SmartEvents.WaypointEnded, null, nodeId, pathId);
-
-            return;
-        }
     }
 
     public override void WaypointReached(uint nodeId, uint pathId)
@@ -911,6 +913,7 @@ public class SmartAI : CreatureAI
                 SetRun(_run);
         }
     }
+
     private bool AssistPlayerInCombatAgainst(Unit who)
     {
         if (Me.HasReactState(ReactStates.Passive) || !IsAIControlled())
@@ -919,7 +922,7 @@ public class SmartAI : CreatureAI
         if (who == null || who.Victim == null)
             return false;
 
-        //experimental (unknown) flag not present
+        //experimental (unknown) Id not present
         if (!Me.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
             return false;
 
@@ -945,7 +948,7 @@ public class SmartAI : CreatureAI
             return false;
 
         //too far away and no free sight
-        if (Me.Location.IsWithinDistInMap(who, SMART_MAX_AID_DIST) && Me.Location.IsWithinLOSInMap(who))
+        if (Me.Location.IsWithinDistInMap(who, SmartMaxAidDist) && Me.Location.IsWithinLOSInMap(who))
         {
             Me.EngageWithTarget(who);
 
@@ -967,20 +970,19 @@ public class SmartAI : CreatureAI
             if (vehicleKit != null)
                 foreach (var pair in vehicleKit.Seats)
                 {
-                    var passenger = Global.ObjAccessor.GetUnit(Me, pair.Value.Passenger.Guid);
+                    var passenger = Me.ObjectAccessor.GetUnit(Me, pair.Value.Passenger.Guid);
 
-                    if (passenger != null)
-                    {
-                        var player = passenger.AsPlayer;
+                    var player = passenger?.AsPlayer;
 
-                        if (player != null)
-                            if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, Me.Entry, player, Me))
-                            {
-                                player.ExitVehicle();
+                    if (player == null)
+                        continue;
 
-                                return; // check other pessanger in next tick
-                            }
-                    }
+                    if (Me.ConditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, Me.Entry, player, Me))
+                        continue;
+
+                    player.ExitVehicle();
+
+                    return; // check other pessanger in next tick
                 }
 
             _conditionsTimer = 1000;
@@ -1002,7 +1004,7 @@ public class SmartAI : CreatureAI
 
         if (targets != null)
         {
-            float checkDist = Me.Location.InstanceScript != null ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
+            float checkDist = Me.Location.InstanceScript != null ? SmartEscortMaxPlayerDist * 2 : SmartEscortMaxPlayerDist;
 
             if (targets.Count == 1 && GetScript().IsPlayer(targets.First()))
             {
@@ -1043,17 +1045,17 @@ public class SmartAI : CreatureAI
         if (HasEscortState(SmartEscortState.Escorting))
             return false;
 
-        var path = Global.SmartAIMgr.GetPath(entry);
+        var path = Me.SmartAIManager.GetPath(entry);
 
-        if (path == null || path.nodes.Empty())
+        if (path == null || path.Nodes.Empty())
         {
             GetScript().SetPathId(0);
 
             return false;
         }
 
-        _path.ID = path.id;
-        _path.Nodes.AddRange(path.nodes);
+        _path.ID = path.ID;
+        _path.Nodes.AddRange(path.Nodes.Select(n => n.Copy()));
 
         foreach (var waypoint in _path.Nodes)
         {
@@ -1067,7 +1069,7 @@ public class SmartAI : CreatureAI
         return true;
     }
 
-    private void ReturnToLastOOCPos()
+    private void ReturnToLastOocPos()
     {
         if (!IsAIControlled())
             return;
@@ -1075,6 +1077,7 @@ public class SmartAI : CreatureAI
         Me.SetWalk(false);
         Me.MotionMaster.MovePoint(EventId.SmartEscortLastOCCPoint, Me.HomePosition);
     }
+
     private void UpdateDespawn(uint diff)
     {
         if (_despawnState <= 1 || _despawnState > 3)
@@ -1166,14 +1169,16 @@ public class SmartAI : CreatureAI
             return;
         }
 
-        if (HasEscortState(SmartEscortState.Returning))
-            if (_OOCReached) //reached OOC WP
-            {
-                _OOCReached = false;
-                RemoveEscortState(SmartEscortState.Returning);
+        if (!HasEscortState(SmartEscortState.Returning))
+            return;
 
-                if (!HasEscortState(SmartEscortState.Paused))
-                    ResumePath();
-            }
+        if (!_oocReached) //reached OOC WP
+            return;
+
+        _oocReached = false;
+        RemoveEscortState(SmartEscortState.Returning);
+
+        if (!HasEscortState(SmartEscortState.Paused))
+            ResumePath();
     }
 }

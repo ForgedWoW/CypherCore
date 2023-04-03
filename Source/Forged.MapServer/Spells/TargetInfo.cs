@@ -63,7 +63,7 @@ public class TargetInfo : TargetInfoBase
             var procSpellType = ProcFlagsSpellType.None;
             var hitMask = ProcFlagsHit.None;
 
-            // Spells with this flag cannot trigger if effect is cast on self
+            // Spells with this Id cannot trigger if effect is cast on self
             var canEffectTrigger = (!spell.SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs) || !spell.SpellInfo.HasAttribute(SpellAttr3.SuppressTargetProcs)) && spell.UnitTarget.CanProc;
 
             // Trigger info was not filled in Spell::prepareDataForTriggerSystem - we do it now
@@ -387,7 +387,7 @@ public class TargetInfo : TargetInfoBase
         if (spell.OriginalCaster && MissCondition != SpellMissInfo.Evade && !spell.OriginalCaster.WorldObjectCombat.IsFriendlyTo(unit) && (!spell.SpellInfo.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)) && (spell.SpellInfo.HasInitialAggro || unit.IsEngaged))
             unit.SetInCombatWith(spell.OriginalCaster);
 
-        // if target is flagged for pvp also flag caster if a player
+        // if target is flagged for pvp also Id caster if a player
         // but respect current pvp rules (buffing/healing npcs flagged for pvp only flags you if they are in combat)
         _enablePVP = (MissCondition == SpellMissInfo.None || spell.SpellInfo.HasAttribute(SpellAttr3.PvpEnabling)) && unit.IsPvP && (unit.IsInCombat || unit.IsCharmedOwnedByPlayerOrPlayer) && spell.Caster.IsPlayer; // need to check PvP state before spell effects, but act on it afterwards
 

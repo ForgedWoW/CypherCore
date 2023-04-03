@@ -154,7 +154,7 @@ public class PetHandler : IWorldSessionHandler
 
         if (charmInfo == null)
         {
-            Log.Logger.Error("WorldSession.HandlePetAction(petGuid: {0}, tagGuid: {1}, spellId: {2}, flag: {3}): object (GUID: {4} Entry: {5} TypeId: {6}) is considered pet-like but doesn't have a charminfo!",
+            Log.Logger.Error("WorldSession.HandlePetAction(petGuid: {0}, tagGuid: {1}, spellId: {2}, Id: {3}): object (GUID: {4} Entry: {5} TypeId: {6}) is considered pet-like but doesn't have a charminfo!",
                              guid1,
                              guid2,
                              spellid,
@@ -294,7 +294,7 @@ public class PetHandler : IWorldSessionHandler
 
                         break;
                     default:
-                        Log.Logger.Error("WORLD: unknown PET flag Action {0} and spellid {1}.", flag, spellid);
+                        Log.Logger.Error("WORLD: unknown PET Id Action {0} and spellid {1}.", flag, spellid);
 
                         break;
                 }
@@ -446,7 +446,7 @@ public class PetHandler : IWorldSessionHandler
                 break;
             }
             default:
-                Log.Logger.Error("WORLD: unknown PET flag Action {0} and spellid {1}.", flag, spellid);
+                Log.Logger.Error("WORLD: unknown PET Id Action {0} and spellid {1}.", flag, spellid);
 
                 break;
         }

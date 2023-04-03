@@ -27,8 +27,8 @@ internal class BgEyeofStorm : Battleground
 
     private ObjectGuid m_FlagKeeper; // keepers guid
 
-    // type that should be despawned when flag is captured
-    private EotSFlagState m_FlagState; // for checking flag state
+    // type that should be despawned when Id is captured
+    private EotSFlagState m_FlagState; // for checking Id state
     private int m_FlagsTimer;
     private uint m_HonorTics;
     private int m_PointAddingTimer;
@@ -121,7 +121,7 @@ internal class BgEyeofStorm : Battleground
 
         SpawnBGObject(EotSObjectTypes.FlagNetherstorm, BattlegroundConst.RespawnOneDay);
         SetFlagPicker(player.GUID);
-        //get flag aura on player
+        //get Id aura on player
         player.CastSpell(player, EotSMisc.SpellNetherstormFlag, true);
         player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
 
@@ -158,7 +158,7 @@ internal class BgEyeofStorm : Battleground
         m_FlagsTimer = EotSMisc.FlagRespawnTime;
         player.CastSpell(player, BattlegroundConst.SpellRecentlyDroppedFlag, true);
         player.CastSpell(player, EotSMisc.SpellPlayerDroppedFlag, true);
-        //this does not work correctly :((it should remove flag carrier name)
+        //this does not work correctly :((it should remove Id carrier name)
         UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateHorde, (int)EotSFlagState.WaitRespawn);
         UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateAlliance, (int)EotSFlagState.WaitRespawn);
 
@@ -361,7 +361,7 @@ internal class BgEyeofStorm : Battleground
 
     public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
     {
-        // sometimes flag aura not removed :(
+        // sometimes Id aura not removed :(
         for (var j = EotSPoints.PointsMax; j >= 0; --j)
         {
             for (var i = 0; i < m_PlayersNearPoint[j].Count; ++i)
@@ -667,7 +667,7 @@ internal class BgEyeofStorm : Battleground
                     }
                     else
                     {
-                        //player is neat flag, so update count:
+                        //player is neat Id, so update count:
                         m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(GetPlayerTeam(player.GUID))]++;
                         ++j;
                     }
@@ -887,7 +887,7 @@ internal class BgEyeofStorm : Battleground
         if (obj)
             obj.Delete();
         else
-            Log.Logger.Error("BattlegroundEY: Unknown dropped flag ({0}).", GetDroppedFlagGUID().ToString());
+            Log.Logger.Error("BattlegroundEY: Unknown dropped Id ({0}).", GetDroppedFlagGUID().ToString());
 
         SetDroppedFlagGUID(ObjectGuid.Empty);
     }

@@ -1223,7 +1223,7 @@ public class AuraEffect
         }
         else
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -1242,7 +1242,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         if (!apply)
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType) || target.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed))
                 return;
 
@@ -1279,7 +1279,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         if (!apply)
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -1332,7 +1332,7 @@ public class AuraEffect
         if (apply)
         {
             // Currently spells that have base points  0 and DieSides 0 = "0/0" exception are pushed to -1,
-            // however the idea of 0/0 is to ingore flag VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT and -1 checks for it,
+            // however the idea of 0/0 is to ingore Id VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT and -1 checks for it,
             // so this break such spells or most of them.
             // Current formula about m_amount: effect base points + dieside - 1
             // TO DO: Reasearch more about 0/0 and fix it.
@@ -1695,7 +1695,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         if (!apply)
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -1717,7 +1717,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         if (!apply)
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -1782,7 +1782,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         if (!apply)
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -2032,7 +2032,7 @@ public class AuraEffect
                 return;
         }
 
-        // set/remove flag before weapon bonuses so it's properly reflected in CanUseAttackType
+        // set/remove Id before weapon bonuses so it's properly reflected in CanUseAttackType
         flagChangeFunc?.Invoke(target);
 
         // Handle damage modification, shapeshifted druids are not affected
@@ -2088,7 +2088,7 @@ public class AuraEffect
         }
         else
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit
             if (target.HasAuraType(AuraType) || target.HasAuraType(AuraType.SchoolImmunity))
                 return;
 
@@ -2119,8 +2119,8 @@ public class AuraEffect
         var target = aurApp.Target;
         SpellInfo.ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
 
-        // when removing flag aura, handle flag drop
-        // TODO: this should be handled in aura script for flag spells using AfterEffectRemove hook
+        // when removing Id aura, handle Id drop
+        // TODO: this should be handled in aura script for Id spells using AfterEffectRemove hook
         var player = target.AsPlayer;
 
         if (!apply && player != null && SpellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.StealthOrInvis))
@@ -2320,7 +2320,7 @@ public class AuraEffect
         //! Update ability to fly
         if (AuraType == AuraType.ModIncreaseMountedFlightSpeed)
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask) && (apply || (!target.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed) && !target.HasAuraType(AuraType.Fly))))
             {
                 target.SetCanTransitionBetweenSwimAndFly(apply);
@@ -2548,7 +2548,7 @@ public class AuraEffect
         }
         else
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType.ModNoActions))
                 return;
 
@@ -2597,7 +2597,7 @@ public class AuraEffect
         }
         else
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType.ModPacify) || target.HasAuraType(AuraType.ModPacifySilence))
                 return;
 
@@ -2624,7 +2624,7 @@ public class AuraEffect
         }
 
         if (!(apply))
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType.ModPacifySilence))
                 return;
 
@@ -2811,12 +2811,12 @@ public class AuraEffect
             }
         }
 
-        // TODO: should be changed to a proc script on flag spell (they have "Taken positive" proc flags in db2)
+        // TODO: should be changed to a proc script on Id spell (they have "Taken positive" proc flags in db2)
         {
             if (apply && MiscValue == (int)SpellSchoolMask.Normal)
                 target.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
 
-            // remove all flag auras (they are positive, but they must be removed when you are immune)
+            // remove all Id auras (they are positive, but they must be removed when you are immune)
             if (SpellInfo.HasAttribute(SpellAttr1.ImmunityPurgesEffect) && SpellInfo.HasAttribute(SpellAttr2.FailOnAllTargetsImmune))
                 target.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
         }
@@ -2828,7 +2828,7 @@ public class AuraEffect
         }
         else
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit
             if (target.HasAuraType(AuraType) || target.HasAuraType(AuraType.DamageImmunity))
                 return;
 
@@ -3067,7 +3067,7 @@ public class AuraEffect
         }
         else
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (!target.HasAuraType(AuraType))
                 target.RemoveDynamicFlag(UnitDynFlags.TrackUnit);
         }
@@ -3449,7 +3449,7 @@ public class AuraEffect
             return;
 
         if (!(apply))
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -3724,7 +3724,7 @@ public class AuraEffect
         }
         else
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -3741,7 +3741,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         if (!apply)
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -3989,7 +3989,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         if (!apply)
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -4108,7 +4108,7 @@ public class AuraEffect
         }
         else
         {
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -4149,7 +4149,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         if (!apply)
-            // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+            // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
             if (target.HasAuraType(AuraType))
                 return;
 
@@ -4622,7 +4622,7 @@ public class AuraEffect
 
         // call functions which may have additional effects after changing state of unit
         if (apply && mode.HasAnyFlag(AuraEffectHandleModes.Real))
-            // drop flag at invisibiliy in bg
+            // drop Id at invisibiliy in bg
             target.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
 
         if (target.Location.IsInWorld)
@@ -5129,7 +5129,7 @@ public class AuraEffect
 
         // call functions which may have additional effects after changing state of unit
         if (apply && mode.HasAnyFlag(AuraEffectHandleModes.Real))
-            // drop flag at stealth in bg
+            // drop Id at stealth in bg
             target.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.StealthOrInvis);
 
         if (target.Location.IsInWorld)
@@ -5266,7 +5266,7 @@ public class AuraEffect
                     target.UpdateStatBuffMod((Stats)i);
             }
 
-        // recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR0_ABILITY 0x00000010 flag)
+        // recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR0_ABILITY 0x00000010 Id)
         // this check is total bullshit i think
         if ((Convert.ToBoolean(MiscValueB & 1 << (int)Stats.Stamina) || MiscValueB == 0) && SpellInfo.HasAttribute(SpellAttr0.IsAbility))
             target.SetHealth(Math.Max(MathFunctions.CalculatePct(target.MaxHealth, healthPct), (zeroHealth ? 0 : 1L)));
@@ -5280,7 +5280,7 @@ public class AuraEffect
 
         var target = aurApp.Target;
 
-        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+        // do not remove unit Id if there are more than this auraEffect of that kind on unit on unit
         if (!apply && target.HasAuraType(AuraType.ModUnattackable))
             return;
 
@@ -5567,7 +5567,7 @@ public class AuraEffect
         var resist = damageInfo.Resist;
         UnitCombatHelpers.DealDamageMods(caster, target, ref damage, ref absorb);
 
-        // Set trigger flag
+        // Set trigger Id
         var procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
         var procVictim = new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic);
         var hitMask = damageInfo.HitMask;
@@ -5792,7 +5792,7 @@ public class AuraEffect
         if (crit)
             log.HitInfo |= (int)SpellHitType.Crit;
 
-        // Set trigger flag
+        // Set trigger Id
         var procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
         var procVictim = new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic);
         var hitMask = damageInfo.HitMask;
@@ -5918,7 +5918,7 @@ public class AuraEffect
 
         UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 
-        // Set trigger flag
+        // Set trigger Id
         var procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
         var procVictim = new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic);
         var hitMask = UnitCombatHelpers.CreateProcHitMask(damageInfo, SpellMissInfo.None);

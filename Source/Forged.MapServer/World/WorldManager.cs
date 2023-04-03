@@ -760,7 +760,7 @@ public class WorldManager
 
     public bool LoadRealmInfo()
     {
-        var result = _loginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = {0}", Realm.Id.Index);
+        var result = _loginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, Id, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = {0}", Realm.Id.Index);
 
         if (result.IsEmpty())
             return false;

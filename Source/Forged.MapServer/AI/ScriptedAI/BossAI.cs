@@ -41,8 +41,7 @@ public class BossAI : ScriptedAI
             delayToRespawn = TimeSpan.FromSeconds(2);
         }
 
-        if (!who)
-            who = Me;
+        who ??= Me;
 
         var whoSummon = who.ToTempSummon();
 
@@ -109,12 +108,14 @@ public class BossAI : ScriptedAI
         if (Instance != null && Instance.GetBossState(_bossId) != EncounterState.Done)
             Instance.SetBossState(_bossId, EncounterState.NotStarted);
     }
+
     public override bool CanAIAttack(Unit victim)
     {
         return IsInBoundary(victim.Location);
     }
 
-    public virtual void ExecuteEvent(uint eventId) { }
+    public virtual void ExecuteEvent(uint eventId)
+    { }
 
     public uint GetBossId()
     {
@@ -149,7 +150,8 @@ public class BossAI : ScriptedAI
         _Reset();
     }
 
-    public virtual void ScheduleTasks() { }
+    public virtual void ScheduleTasks()
+    { }
 
     public override void SummonedCreatureDespawn(Creature summon)
     {
@@ -166,6 +168,7 @@ public class BossAI : ScriptedAI
                 target.NearTeleportTo(Me.Location);
         }
     }
+
     public override void UpdateAI(uint diff)
     {
         if (!UpdateVictim())
@@ -175,7 +178,6 @@ public class BossAI : ScriptedAI
 
         if (Me.HasUnitState(UnitState.Casting))
             return;
-
 
         Events.ExecuteEvents(eventId =>
         {
@@ -187,6 +189,7 @@ public class BossAI : ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
     private void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool reset = true)
     {
         Log.Logger.Debug($"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");

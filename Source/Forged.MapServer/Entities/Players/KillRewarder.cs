@@ -142,7 +142,7 @@ public class KillRewarder
                     }
             }
 
-            // 2.5. _isFullXP - flag identifying that for all group members victim is not gray,
+            // 2.5. _isFullXP - Id identifying that for all group members victim is not gray,
             //      so 100% XP will be rewarded (50% otherwise).
             _isFullXp = _maxNotGrayMember && (_maxLevel == _maxNotGrayMember.Level);
         }

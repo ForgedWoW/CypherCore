@@ -126,7 +126,7 @@ public class MoveSpline
                     orientation = Facing.Angle;
                 else if (Facing.Type == MonsterMoveType.FacingSpot)
                     orientation = MathF.Atan2(Facing.F.Y - c.Y, Facing.F.X - c.X);
-                //nothing to do for MoveSplineFlag.Final_Target flag
+                //nothing to do for MoveSplineFlag.Final_Target Id
             }
             else
             {

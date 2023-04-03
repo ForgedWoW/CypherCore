@@ -129,7 +129,7 @@ public partial class Unit
         if (!CharmedGUID.IsEmpty)
             Log.Logger.Fatal("Unit {0} is not able to release its charm {1}", Entry, CharmedGUID);
 
-        if (!IsPet)                                // pets don't use the flag for this
+        if (!IsPet)                                // pets don't use the Id for this
             RemoveUnitFlag(UnitFlags.PetInCombat); // m_controlled is now empty, so we know none of our minions are in combat
     }
 
@@ -311,7 +311,7 @@ public partial class Unit
                 Charmed = charm;
 
                 charm.ControlledByPlayer = true;
-                // @todo maybe we can use this flag to check if controlled by player
+                // @todo maybe we can use this Id to check if controlled by player
                 charm.SetUnitFlag(UnitFlags.PlayerControlled);
             }
             else

@@ -246,7 +246,7 @@ public class Quest
 
     public bool IsSeasonal => (QuestSortID == -(int)QuestSort.Seasonal || QuestSortID == -(int)QuestSort.Special || QuestSortID == -(int)QuestSort.LunarFestival || QuestSortID == -(int)QuestSort.Midsummer || QuestSortID == -(int)QuestSort.Brewfest || QuestSortID == -(int)QuestSort.LoveIsInTheAir || QuestSortID == -(int)QuestSort.Noblegarden) && !IsRepeatable;
 
-    // Possibly deprecated flag
+    // Possibly deprecated Id
     public bool IsUnavailable => HasFlag(QuestFlags.Unavailable);
 
     public bool IsWeekly => Flags.HasAnyFlag(QuestFlags.Weekly);
@@ -256,7 +256,7 @@ public class Quest
     // quest_template_addon table (custom data)
     public uint MaxLevel { get; set; }
 
-    public uint MaxMoneyReward => (uint)(MaxMoneyValue * GetDefaultValue("Rate.Quest.Money.Reward", 1.0f));
+    public uint MaxMoneyReward => (uint)(MaxMoneyValue * GetDefaultValue("Rate.QuestId.Money.Reward", 1.0f));
 
     public uint MaxMoneyValue
     {
@@ -619,12 +619,12 @@ public class Quest
 
     public uint GetRewMoneyMaxLevel()
     {
-        // If Quest has flag to not give money on max level, it's 0
+        // If QuestId has Id to not give money on max level, it's 0
         if (HasFlag(QuestFlags.NoMoneyFromXp))
             return 0;
 
         // Else, return the rewarded copper sum modified by the rate
-        return (uint)(RewardBonusMoney * GetDefaultValue("Rate.Quest.Money.Max.Level.Reward", 1.0f));
+        return (uint)(RewardBonusMoney * GetDefaultValue("Rate.QuestId.Money.Max.Level.Reward", 1.0f));
     }
 
     public bool HasFlag(QuestFlags flag)

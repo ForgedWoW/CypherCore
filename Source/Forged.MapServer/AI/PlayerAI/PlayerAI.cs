@@ -39,6 +39,7 @@ public class PlayerAI : UnitAI
         Charmer,
         Self
     }
+
     public void CancelAllShapeshifts()
     {
         var shapeshiftAuras = Me.GetAuraEffectsByType(AuraType.ModShapeshift);
@@ -165,6 +166,7 @@ public class PlayerAI : UnitAI
         {
             case SpellTarget.None:
                 break;
+
             case SpellTarget.Victim:
                 pTarget = Me.Victim;
 
@@ -172,6 +174,7 @@ public class PlayerAI : UnitAI
                     return null;
 
                 break;
+
             case SpellTarget.Charmer:
                 pTarget = Me.Charmer;
 
@@ -179,6 +182,7 @@ public class PlayerAI : UnitAI
                     return null;
 
                 break;
+
             case SpellTarget.Self:
                 pTarget = Me;
 
@@ -187,6 +191,7 @@ public class PlayerAI : UnitAI
 
         return VerifySpellCast(spellId, pTarget);
     }
+
     private void DoRangedAttackIfReady()
     {
         if (Me.HasUnitState(UnitState.Casting))
@@ -211,15 +216,17 @@ public class PlayerAI : UnitAI
                 case ItemSubClassWeapon.Bow:
                 case ItemSubClassWeapon.Gun:
                 case ItemSubClassWeapon.Crossbow:
-                    rangedAttackSpell = Spells.Shoot;
+                    rangedAttackSpell = Spells.SHOOT;
 
                     break;
+
                 case ItemSubClassWeapon.Thrown:
-                    rangedAttackSpell = Spells.Throw;
+                    rangedAttackSpell = Spells.THROW;
 
                     break;
+
                 case ItemSubClassWeapon.Wand:
-                    rangedAttackSpell = Spells.Wand;
+                    rangedAttackSpell = Spells.WAND;
 
                     break;
             }
@@ -227,12 +234,12 @@ public class PlayerAI : UnitAI
         if (rangedAttackSpell == 0)
             return;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, Me.Location.Map.DifficultyID);
+        var spellInfo = Me.SpellManager.GetSpellInfo(rangedAttackSpell, Me.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return;
 
-        Spell spell = new(Me, spellInfo, TriggerCastFlags.CastDirectly);
+        var spell = Me.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.CastDirectly);
 
         if (spell.CheckPetCast(victim) != SpellCastResult.SpellCastOk)
             return;
@@ -256,11 +263,11 @@ public class PlayerAI : UnitAI
         return who.Class switch
         {
             PlayerClass.Paladin => who.GetPrimarySpecialization() == TalentSpecialization.PaladinHoly,
-            PlayerClass.Priest  => who.GetPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.GetPrimarySpecialization() == TalentSpecialization.PriestHoly,
-            PlayerClass.Shaman  => who.GetPrimarySpecialization() == TalentSpecialization.ShamanRestoration,
-            PlayerClass.Monk    => who.GetPrimarySpecialization() == TalentSpecialization.MonkMistweaver,
-            PlayerClass.Druid   => who.GetPrimarySpecialization() == TalentSpecialization.DruidRestoration,
-            _                   => false,
+            PlayerClass.Priest => who.GetPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.GetPrimarySpecialization() == TalentSpecialization.PriestHoly,
+            PlayerClass.Shaman => who.GetPrimarySpecialization() == TalentSpecialization.ShamanRestoration,
+            PlayerClass.Monk => who.GetPrimarySpecialization() == TalentSpecialization.MonkMistweaver,
+            PlayerClass.Druid => who.GetPrimarySpecialization() == TalentSpecialization.DruidRestoration,
+            _ => false,
         };
     }
 
@@ -277,9 +284,11 @@ public class PlayerAI : UnitAI
             case PlayerClass.Deathknight:
             default:
                 return false;
+
             case PlayerClass.Mage:
             case PlayerClass.Warlock:
                 return true;
+
             case PlayerClass.Hunter:
             {
                 // check if we have a ranged weapon equipped
@@ -287,16 +296,20 @@ public class PlayerAI : UnitAI
 
                 var rangedTemplate = rangedSlot ? rangedSlot.Template : null;
 
-                if (rangedTemplate != null)
-                    if (Convert.ToBoolean((1 << (int)rangedTemplate.SubClass) & (int)ItemSubClassWeapon.MaskRanged))
-                        return true;
+                if (rangedTemplate == null)
+                    return false;
+
+                if (Convert.ToBoolean((1 << (int)rangedTemplate.SubClass) & (int)ItemSubClassWeapon.MaskRanged))
+                    return true;
 
                 return false;
             }
             case PlayerClass.Priest:
                 return who.GetPrimarySpecialization() == TalentSpecialization.PriestShadow;
+
             case PlayerClass.Shaman:
                 return who.GetPrimarySpecialization() == TalentSpecialization.ShamanElemental;
+
             case PlayerClass.Druid:
                 return who.GetPrimarySpecialization() == TalentSpecialization.DruidBalance;
         }
@@ -311,24 +324,24 @@ public class PlayerAI : UnitAI
         {
             // this will save us some lookups if the player has the highest rank (expected case)
             knownRank = spellId;
-            nextRank = Global.SpellMgr.GetNextSpellInChain(spellId);
+            nextRank = Me.SpellManager.GetNextSpellInChain(spellId);
         }
         else
         {
             knownRank = 0;
-            nextRank = Global.SpellMgr.GetFirstSpellInChain(spellId);
+            nextRank = Me.SpellManager.GetFirstSpellInChain(spellId);
         }
 
         while (nextRank != 0 && Me.HasSpell(nextRank))
         {
             knownRank = nextRank;
-            nextRank = Global.SpellMgr.GetNextSpellInChain(knownRank);
+            nextRank = Me.SpellManager.GetNextSpellInChain(knownRank);
         }
 
         if (knownRank == 0)
             return null;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(knownRank, Me.Location.Map.DifficultyID);
+        var spellInfo = Me.SpellManager.GetSpellInfo(knownRank, Me.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return null;
@@ -336,11 +349,8 @@ public class PlayerAI : UnitAI
         if (Me.SpellHistory.HasGlobalCooldown(spellInfo))
             return null;
 
-        Spell spell = new(Me, spellInfo, TriggerCastFlags.None);
+        var spell = Me.SpellFactory.NewSpell(spellInfo, TriggerCastFlags.None);
 
-        if (spell.CanAutoCast(target))
-            return Tuple.Create(spell, target);
-
-        return null;
+        return spell.CanAutoCast(target) ? Tuple.Create(spell, target) : null;
     }
 }

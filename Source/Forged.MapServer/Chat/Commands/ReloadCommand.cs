@@ -644,7 +644,7 @@ internal class ReloadCommand
     [Command("areatrigger_involvedrelation", RBACPermissions.CommandReloadAreatriggerInvolvedrelation, true)]
     private static bool HandleReloadQuestAreaTriggersCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Quest Area Triggers...");
+        Log.Logger.Information("Re-Loading QuestId Area Triggers...");
         Global.ObjectMgr.LoadQuestAreaTriggers();
         handler.SendGlobalGMSysMessage("DB table `areatrigger_involvedrelation` (quest area triggers) reloaded.");
 
@@ -653,7 +653,7 @@ internal class ReloadCommand
     [Command("quest_greeting", RBACPermissions.CommandReloadQuestGreeting, true)]
     private static bool HandleReloadQuestGreetingCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Quest Greeting ... ");
+        Log.Logger.Information("Re-Loading QuestId Greeting ... ");
         Global.ObjectMgr.LoadQuestGreetings();
         handler.SendGlobalGMSysMessage("DB table `quest_greeting` reloaded.");
 
@@ -663,7 +663,7 @@ internal class ReloadCommand
     [Command("quest_poi", RBACPermissions.CommandReloadQuestPoi, true)]
     private static bool HandleReloadQuestPOICommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Quest POI ...");
+        Log.Logger.Information("Re-Loading QuestId POI ...");
         Global.ObjectMgr.LoadQuestPOI();
         Global.ObjectMgr.InitializeQueriesData(QueryDataGroup.POIs);
         handler.SendGlobalGMSysMessage("DB Table `quest_poi` and `quest_poi_points` reloaded.");
@@ -674,7 +674,7 @@ internal class ReloadCommand
     [Command("quest_template", RBACPermissions.CommandReloadQuestTemplate, true)]
     private static bool HandleReloadQuestTemplateCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Quest Templates...");
+        Log.Logger.Information("Re-Loading QuestId Templates...");
         Global.ObjectMgr.LoadQuests();
         Global.ObjectMgr.InitializeQueriesData(QueryDataGroup.Quests);
         handler.SendGlobalGMSysMessage("DB table `quest_template` (quest definitions) reloaded.");
@@ -690,7 +690,7 @@ internal class ReloadCommand
     [Command("quest_locale", RBACPermissions.CommandReloadQuestTemplateLocale, true)]
     private static bool HandleReloadQuestTemplateLocaleCommand(CommandHandler handler)
     {
-        Log.Logger.Information("Re-Loading Quest Locale... ");
+        Log.Logger.Information("Re-Loading QuestId Locale... ");
         Global.ObjectMgr.LoadQuestTemplateLocale();
         Global.ObjectMgr.LoadQuestObjectivesLocale();
         Global.ObjectMgr.LoadQuestGreetingLocales();

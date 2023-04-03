@@ -61,122 +61,122 @@ public struct SmartTarget
 
     public struct HostilRandom
     {
-        public uint maxDist;
-        public uint playerOnly;
-        public uint powerType;
+        public uint MaxDist;
+        public uint PlayerOnly;
+        public uint PowerType;
     }
 
     public struct Farthest
     {
-        public uint maxDist;
-        public uint playerOnly;
-        public uint isInLos;
+        public uint MaxDist;
+        public uint PlayerOnly;
+        public uint IsInLos;
     }
 
     public struct UnitRange
     {
-        public uint creature;
-        public uint minDist;
-        public uint maxDist;
-        public uint maxSize;
+        public uint Creature;
+        public uint MinDist;
+        public uint MaxDist;
+        public uint MaxSize;
     }
 
     public struct UnitGUID
     {
-        public uint dbGuid;
-        public uint entry;
+        public uint DBGuid;
+        public uint Entry;
     }
 
     public struct UnitDistance
     {
-        public uint creature;
-        public uint dist;
-        public uint maxSize;
+        public uint Creature;
+        public uint Dist;
+        public uint MaxSize;
     }
 
     public struct PlayerDistance
     {
-        public uint dist;
+        public uint Dist;
     }
 
     public struct PlayerRange
     {
-        public uint minDist;
-        public uint maxDist;
+        public uint MinDist;
+        public uint MaxDist;
     }
 
     public struct Stored
     {
-        public uint id;
+        public uint ID;
     }
 
     public struct GoRange
     {
-        public uint entry;
-        public uint minDist;
-        public uint maxDist;
-        public uint maxSize;
+        public uint Entry;
+        public uint MinDist;
+        public uint MaxDist;
+        public uint MaxSize;
     }
 
     public struct GoGUID
     {
-        public uint dbGuid;
-        public uint entry;
+        public uint DBGuid;
+        public uint Entry;
     }
 
     public struct GoDistance
     {
-        public uint entry;
-        public uint dist;
-        public uint maxSize;
+        public uint Entry;
+        public uint Dist;
+        public uint MaxSize;
     }
 
     public struct UnitClosest
     {
-        public uint entry;
-        public uint dist;
-        public uint dead;
+        public uint Entry;
+        public uint Dist;
+        public uint Dead;
     }
 
     public struct GoClosest
     {
-        public uint entry;
-        public uint dist;
+        public uint Entry;
+        public uint Dist;
     }
 
     public struct ClosestAttackable
     {
-        public uint maxDist;
-        public uint playerOnly;
+        public uint MaxDist;
+        public uint PlayerOnly;
     }
 
     public struct ClosestFriendly
     {
-        public uint maxDist;
-        public uint playerOnly;
+        public uint MaxDist;
+        public uint PlayerOnly;
     }
 
     public struct Owner
     {
-        public uint useCharmerOrOwner;
+        public uint UseCharmerOrOwner;
     }
 
     public struct Vehicle
     {
-        public uint seatMask;
+        public uint SeatMask;
     }
 
     public struct ThreatList
     {
-        public uint maxDist;
+        public uint MaxDist;
     }
 
     public struct Raw
     {
-        public uint param1;
-        public uint param2;
-        public uint param3;
-        public uint param4;
+        public uint Param1;
+        public uint Param2;
+        public uint Param3;
+        public uint Param4;
     }
 
     #endregion

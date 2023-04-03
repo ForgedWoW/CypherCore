@@ -234,7 +234,7 @@ public class ReputationMgr
                     if (GetRank(factionEntry) <= ReputationRank.Hostile)
                         SetAtWar(faction, true);
 
-                    // reset changed flag if values similar to saved in DB
+                    // reset changed Id if values similar to saved in DB
                     if (faction.Flags == dbFactionFlags)
                     {
                         faction.needSend = false;

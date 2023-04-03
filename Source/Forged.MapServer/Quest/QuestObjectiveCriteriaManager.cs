@@ -58,14 +58,14 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
         if (HasCompletedObjective(objective))
         {
-            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Objective already completed");
+            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} QuestId Objective {objective.Id}) Objective already completed");
 
             return false;
         }
 
         if (_owner.GetQuestStatus(objective.QuestID) != QuestStatus.Incomplete)
         {
-            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Not on quest");
+            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} QuestId Objective {objective.Id}) Not on quest");
 
             return false;
         }
@@ -74,7 +74,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
         if (_owner.Group && _owner.Group.IsRaidGroup && !quest.IsAllowedInRaid(referencePlayer.Location.Map.DifficultyID))
         {
-            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Quest cannot be completed in raid group");
+            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} QuestId Objective {objective.Id}) QuestId cannot be completed in raid group");
 
             return false;
         }
@@ -83,7 +83,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
         if (slot >= SharedConst.MaxQuestLogSize || !_owner.IsQuestObjectiveCompletable(slot, quest, objective))
         {
-            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Objective not completable");
+            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} QuestId Objective {objective.Id}) Objective not completable");
 
             return false;
         }

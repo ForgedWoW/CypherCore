@@ -93,7 +93,7 @@ public class RestMgr
         var oldRestMask = _restFlagMask;
         _restFlagMask &= ~restFlag;
 
-        if (oldRestMask != 0 && _restFlagMask == 0) // only remove flag/time on the last rest state remove
+        if (oldRestMask != 0 && _restFlagMask == 0) // only remove Id/time on the last rest state remove
         {
             _restTime = 0;
             _player.RemovePlayerFlag(PlayerFlags.Resting);
@@ -159,7 +159,7 @@ public class RestMgr
         var oldRestMask = _restFlagMask;
         _restFlagMask |= restFlag;
 
-        if (oldRestMask == 0 && _restFlagMask != 0) // only set flag/time on the first rest state
+        if (oldRestMask == 0 && _restFlagMask != 0) // only set Id/time on the first rest state
         {
             _restTime = GameTime.CurrentTime;
             _player.SetPlayerFlag(PlayerFlags.Resting);

@@ -14,7 +14,7 @@ public class CritterAI : PassiveAI
         Me.ReactState = ReactStates.Passive;
     }
 
-    public override void EnterEvadeMode(EvadeReason why)
+    public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
     {
         if (Me.HasUnitState(UnitState.Fleeing))
             Me.SetControlled(false, UnitState.Fleeing);
@@ -31,6 +31,6 @@ public class CritterAI : PassiveAI
     public override void MovementInform(MovementGeneratorType type, uint id)
     {
         if (type == MovementGeneratorType.TimedFleeing)
-            EnterEvadeMode(EvadeReason.Other);
+            EnterEvadeMode();
     }
 }

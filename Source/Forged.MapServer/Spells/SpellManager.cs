@@ -2150,8 +2150,8 @@ public sealed class SpellManager
 
         ApplySpellFix(new[]
                       {
-                          51798, // Brewfest - Relay Race - Intro - Quest Complete
-                          47134  // Quest Complete
+                          51798, // Brewfest - Relay Race - Intro - QuestId Complete
+                          47134  // QuestId Complete
                       },
                       spellInfo =>
                       {
@@ -3486,7 +3486,7 @@ public sealed class SpellManager
                                 }
                                 default:
                                 {
-                                    // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
+                                    // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY Id
                                     if (spellEffectInfo.CalcValue() == 0 && !((spellEffectInfo.Effect == SpellEffectName.InterruptCast || spellInfo.HasAttribute(SpellCustomAttributes.AuraCC)) && !spellInfo.HasAttribute(SpellAttr0.NoImmunities)))
                                         break;
 

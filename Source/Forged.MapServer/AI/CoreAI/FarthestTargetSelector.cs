@@ -13,6 +13,7 @@ internal class FarthestTargetSelector : ICheck<Unit>
     private readonly bool _inLos;
     private readonly Unit _me;
     private readonly bool _playerOnly;
+
     public FarthestTargetSelector(Unit unit, float dist, bool playerOnly, bool inLos)
     {
         _me = unit;
@@ -32,9 +33,6 @@ internal class FarthestTargetSelector : ICheck<Unit>
         if (_dist > 0.0f && !_me.IsWithinCombatRange(target, _dist))
             return false;
 
-        if (_inLos && !_me.Location.IsWithinLOSInMap(target))
-            return false;
-
-        return true;
+        return !_inLos || _me.Location.IsWithinLOSInMap(target);
     }
 }

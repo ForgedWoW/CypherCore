@@ -151,10 +151,10 @@ public partial class Player
                 return false;
         }
 
-        // BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
+        // BUG: sometimes when player clicks on Id in AB - client won't send gameobject_use, only gameobject_report_use packet
         // Note: Mount, stealth and invisibility will be removed when used
         return (!IsTotalImmune &&                                       // Damage immune
-                !HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held flag debuff
+                !HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held Id debuff
                 IsAlive);                                               // Alive
     }
 
