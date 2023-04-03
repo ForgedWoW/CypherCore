@@ -1,0 +1,15 @@
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+namespace Forged.MapServer.BattleGrounds.Zones;
+
+internal struct WSGSound
+{
+    public const uint AllianceFlagPickedUp = 8174;
+    public const uint FlagCapturedAlliance = 8173;
+    public const uint FlagCapturedHorde = 8213;
+    public const uint FlagPlaced = 8232;
+    public const uint FlagReturned = 8192;
+    public const uint FlagsRespawned = 8232;
+    public const uint HordeFlagPickedUp = 8212;
+}

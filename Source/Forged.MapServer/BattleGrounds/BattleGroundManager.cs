@@ -8,7 +8,6 @@ using Forged.MapServer.Arenas.Zones;
 using Forged.MapServer.BattleGrounds.Zones;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
-using Forged.MapServer.DataStorage.Structs.B;
 using Forged.MapServer.DataStorage.Structs.P;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
@@ -26,19 +25,6 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.BattleGrounds;
-
-public class BattlegroundData
-{
-    public Dictionary<uint, Battleground> MBattlegrounds = new();
-    public List<uint>[] MClientBattlegroundIds = new List<uint>[(int)BattlegroundBracketId.Max];
-    public Battleground Template;
-
-    public BattlegroundData()
-    {
-        for (var i = 0; i < (int)BattlegroundBracketId.Max; ++i)
-            MClientBattlegroundIds[i] = new List<uint>();
-    }
-}
 
 public class BattlegroundManager
 {
@@ -62,6 +48,7 @@ public class BattlegroundManager
     private List<ScheduledQueueUpdate> _queueUpdateScheduler = new();
     private bool _testing;
     private uint _updateTimer;
+
     public BattlegroundManager(IConfiguration configuration, MapManager mapManager, WorldDatabase worldDatabase, DisableManager disableManager, CliDB cliDB,
                                GameObjectManager objectManager, WorldManager worldManager, GameEventManager gameEventManager)
     {
@@ -696,6 +683,7 @@ public class BattlegroundManager
             }
         }
     }
+
     public BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday)
     {
         switch (holiday)
@@ -720,6 +708,7 @@ public class BattlegroundManager
                 return BattlegroundTypeId.None;
         }
     }
+
     private HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId)
     {
         switch (bgTypeId)
@@ -889,6 +878,7 @@ public class BattlegroundManager
 
         return lastId;
     }
+
     private BattlegroundTemplate GetBattlegroundTemplateByMapId(uint mapId)
     {
         return _battlegroundMapTemplates.LookupByKey(mapId);
@@ -928,6 +918,7 @@ public class BattlegroundManager
     {
         return bgTypeId == BattlegroundTypeId.AA || bgTypeId == BattlegroundTypeId.BE || bgTypeId == BattlegroundTypeId.NA || bgTypeId == BattlegroundTypeId.DS || bgTypeId == BattlegroundTypeId.RV || bgTypeId == BattlegroundTypeId.RL;
     }
+
     private struct ScheduledQueueUpdate
     {
         public readonly uint ArenaMatchmakerRating;
@@ -942,6 +933,7 @@ public class BattlegroundManager
             QueueId = queueId;
             BracketId = bracketId;
         }
+
         public static bool operator !=(ScheduledQueueUpdate right, ScheduledQueueUpdate left)
         {
             return !(right == left);
@@ -951,6 +943,7 @@ public class BattlegroundManager
         {
             return left.ArenaMatchmakerRating == right.ArenaMatchmakerRating && left.QueueId == right.QueueId && left.BracketId == right.BracketId;
         }
+
         public override bool Equals(object obj)
         {
             return base.Equals(obj);
@@ -960,38 +953,5 @@ public class BattlegroundManager
         {
             return ArenaMatchmakerRating.GetHashCode() ^ QueueId.GetHashCode() ^ BracketId.GetHashCode();
         }
-    }
-}
-public class BattlegroundTemplate
-{
-    public BattlemasterListRecord BattlemasterEntry;
-    public BattlegroundTypeId Id;
-    public float MaxStartDistSq;
-    public uint ScriptId;
-    public WorldSafeLocsEntry[] StartLocation = new WorldSafeLocsEntry[SharedConst.PvpTeamsCount];
-    public byte Weight;
-    public byte GetMaxLevel()
-    {
-        return BattlemasterEntry.MaxLevel;
-    }
-
-    public ushort GetMaxPlayersPerTeam()
-    {
-        return (ushort)BattlemasterEntry.MaxPlayers;
-    }
-
-    public byte GetMinLevel()
-    {
-        return BattlemasterEntry.MinLevel;
-    }
-
-    public ushort GetMinPlayersPerTeam()
-    {
-        return (ushort)BattlemasterEntry.MinPlayers;
-    }
-
-    public bool IsArena()
-    {
-        return BattlemasterEntry.InstanceType == (uint)MapTypes.Arena;
     }
 }

@@ -11,16 +11,3 @@ public interface ISpellEffect
 
     SpellScriptHookType HookType { get; }
 }
-
-public class SpellEffect : ISpellEffect
-{
-    public SpellEffect(int effectIndex, SpellScriptHookType hookType)
-    {
-        EffectIndex = effectIndex;
-        HookType = hookType;
-    }
-
-    public int EffectIndex { get; private set; }
-
-    public SpellScriptHookType HookType { get; private set; }
-}

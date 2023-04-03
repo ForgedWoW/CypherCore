@@ -165,6 +165,7 @@ public class GarrisonManager
         LoadPlotFinalizeGOInfo();
         LoadFollowerClassSpecAbilities();
     }
+
     public bool IsPlotMatchingBuilding(uint garrPlotId, uint garrBuildingId)
     {
         var plotList = _garrisonBuildingsByPlot.LookupByKey(garrPlotId);
@@ -174,6 +175,7 @@ public class GarrisonManager
 
         return false;
     }
+
     //todo check this method, might be slow.....
     public List<GarrAbilityRecord> RollFollowerAbilities(uint garrFollowerId, GarrFollowerRecord follower, uint quality, uint faction, bool initial)
     {
@@ -505,23 +507,5 @@ public class GarrisonManager
         } while (result.NextRow());
 
         Log.Logger.Information("Loaded {0} garrison plot finalize entries in {1}.", _finalizePlotGOInfo.Count, Time.GetMSTimeDiffToNow(msTime));
-    }
-}
-
-internal class GarrAbilities
-{
-    public List<GarrAbilityRecord> Counters = new();
-    public List<GarrAbilityRecord> Traits = new();
-}
-
-public class FinalizeGarrisonPlotGOInfo
-{
-    public FactionInfoModel[] FactionInfo = new FactionInfoModel[2];
-
-    public struct FactionInfoModel
-    {
-        public ushort AnimKitId;
-        public uint GameObjectId;
-        public Position Pos;
     }
 }

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Scripting.Interfaces;
 using Serilog;
 
@@ -11,25 +12,37 @@ namespace Forged.MapServer.Scripting;
 
 public class ScriptRegistry
 {
+    private readonly ScriptManager _scriptManager;
+    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, IScriptObject> _scriptMap = new();
 
     // Counter used for code-only scripts.
     private uint _scriptIdCounter;
+
+    public ScriptRegistry(ScriptManager scriptManager, GameObjectManager objectManager)
+    {
+        _scriptManager = scriptManager;
+        _objectManager = objectManager;
+    }
 
     public void AddScript(IScriptObject script)
     {
         if (!script.IsDatabaseBound())
         {
             // We're dealing with a code-only script; just add it.
-            _scriptMap[Interlocked.Increment(ref _scriptIdCounter)] = script;
-            Global.ScriptMgr.IncrementScriptCount();
+            lock (_scriptMap)
+            {
+                _scriptMap[Interlocked.Increment(ref _scriptIdCounter)] = script;
+            }
+
+            _scriptManager.IncrementScriptCount();
 
             return;
         }
 
         // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
         // through a script Name (or similar).
-        var id = Global.ObjectMgr.GetScriptId(script.GetName());
+        var id = _objectManager.GetScriptId(script.GetName());
 
         if (id != 0)
         {
@@ -58,7 +71,7 @@ public class ScriptRegistry
                     _scriptMap[id] = script;
                 }
 
-                Global.ScriptMgr.IncrementScriptCount();
+                _scriptManager.IncrementScriptCount();
             }
         }
         else
@@ -84,6 +97,7 @@ public class ScriptRegistry
             return (T)_scriptMap.LookupByKey(id);
         }
     }
+
     public void Unload()
     {
         lock (_scriptMap)

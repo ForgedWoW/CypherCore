@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Forged.MapServer.Chrono;
@@ -13,8 +12,6 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
-using Forged.MapServer.Maps.Checks;
-using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.Misc;
@@ -23,13 +20,6 @@ using Serilog;
 
 namespace Forged.MapServer.BattleFields;
 
-public enum BattleFieldTypes
-{
-    WinterGrasp = 1,
-    TolBarad = 2,
-    Max
-}
-
 public class BattleField : ZoneScript
 {
     public ObjectGuid StalkerGuid;
@@ -37,7 +27,9 @@ public class BattleField : ZoneScript
     protected uint m_BattleId;
     protected uint m_BattleTime;
     protected Dictionary<int, uint> m_Data32 = new();
+
     protected uint m_DefenderTeam;
+
     // Graveyard variables
     protected List<BfGraveyard> m_GraveyardList = new();
 
@@ -45,11 +37,14 @@ public class BattleField : ZoneScript
     protected bool m_isActive;
     protected bool m_IsEnabled;
     protected Map m_Map;
+
     protected uint m_MapId;
+
     // MapId where is Battlefield
     protected uint m_MaxPlayer;
 
     protected uint m_MinLevel;
+
     // Maximum number of player that participated to Battlefield
     protected uint m_MinPlayer;
 
@@ -74,31 +69,37 @@ public class BattleField : ZoneScript
     protected uint m_RestartAfterCrash;
 
     protected bool m_StartGrouping;
+
     protected uint m_StartGroupingTimer;
+
     // Delay to restart Wintergrasp if the server crashed during a running battle.
     protected uint m_TimeForAcceptInvite;
 
     protected uint m_Timer; // Global timer for event
+
     // Variables that must exist for each battlefield
-    protected uint m_TypeId;   // See enum BattlefieldTypes
+    protected uint m_TypeId; // See enum BattlefieldTypes
+
     protected uint m_uiKickDontAcceptTimer;
 
     // BattleID (for packet)
-    protected uint m_ZoneId;   // ZoneID of Wintergrasp = 4197
-     // Position where players are teleported if they switch to afk during the battle or if they don't accept invitation
+    protected uint m_ZoneId; // ZoneID of Wintergrasp = 4197
 
- // Vector witch contain the different GY of the battle
+    // Position where players are teleported if they switch to afk during the battle or if they don't accept invitation
 
-     // Timer for invite players in area 15 minute before start battle
-          // bool for know if all players in area has been invited
+    // Vector witch contain the different GY of the battle
+
+    // Timer for invite players in area 15 minute before start battle
+    // bool for know if all players in area has been invited
     // Map of the objectives belonging to this OutdoorPvP
     private readonly Dictionary<uint, BfCapturePoint> m_capturePoints = new();
 
     private readonly Dictionary<int, ulong> m_Data64 = new();
     private readonly List<ObjectGuid>[] m_Groups = new List<ObjectGuid>[2]; // Contain different raid group
     private uint m_LastResurectTimer;
+
     private uint m_uiKickAfkPlayersTimer; // Timer for check Afk in war
-                                          // Timer for resurect player every 30 sec
+    // Timer for resurect player every 30 sec
 
     public BattleField(Map map)
     {
@@ -198,7 +199,8 @@ public class BattleField : ZoneScript
         return !m_isActive;
     }
 
-    public virtual void DoCompleteOrIncrementAchievement(uint achievement, Player player, byte incrementNumber = 1) { }
+    public virtual void DoCompleteOrIncrementAchievement(uint achievement, Player player, byte incrementNumber = 1)
+    { }
 
     public void EndBattle(bool endByTimer)
     {
@@ -343,7 +345,8 @@ public class BattleField : ZoneScript
     }
 
     // Called when a Unit is kill in battlefield zone
-    public virtual void HandleKill(Player killer, Unit killed) { }
+    public virtual void HandleKill(Player killer, Unit killed)
+    { }
 
     public void HandlePlayerEnterZone(Player player, uint zone)
     {
@@ -448,25 +451,32 @@ public class BattleField : ZoneScript
     }
 
     // Called at the end of battle
-    public virtual void OnBattleEnd(bool endByTimer) { }
+    public virtual void OnBattleEnd(bool endByTimer)
+    { }
 
     // Called on start
-    public virtual void OnBattleStart() { }
+    public virtual void OnBattleStart()
+    { }
 
     // Called when a player enter in battlefield zone
-    public virtual void OnPlayerEnterZone(Player player) { }
+    public virtual void OnPlayerEnterZone(Player player)
+    { }
 
     // Called when a player accept to join the battle
-    public virtual void OnPlayerJoinWar(Player player) { }
+    public virtual void OnPlayerJoinWar(Player player)
+    { }
 
     // Called when a player leave the battle
-    public virtual void OnPlayerLeaveWar(Player player) { }
+    public virtual void OnPlayerLeaveWar(Player player)
+    { }
 
     // Called when a player leave battlefield zone
-    public virtual void OnPlayerLeaveZone(Player player) { }
+    public virtual void OnPlayerLeaveZone(Player player)
+    { }
 
     // Called x minutes before battle start when player in zone are invite to join queue
-    public virtual void OnStartGrouping() { }
+    public virtual void OnStartGrouping()
+    { }
 
     // Called in WorldSession:HandleBfQueueInviteResponse
     public void PlayerAcceptInviteToQueue(Player player)
@@ -535,7 +545,8 @@ public class BattleField : ZoneScript
     }
 
     // use for switch off all worldstate for client
-    public virtual void SendRemoveWorldStates(Player player) { }
+    public virtual void SendRemoveWorldStates(Player player)
+    { }
 
     public void SendWarning(uint id, WorldObject target = null)
     {
@@ -749,7 +760,6 @@ public class BattleField : ZoneScript
                     objective_changed = true;
         }
 
-
         if (m_LastResurectTimer <= diff)
         {
             for (byte i = 0; i < m_GraveyardList.Count; i++)
@@ -765,6 +775,7 @@ public class BattleField : ZoneScript
 
         return objective_changed;
     }
+
     public virtual void UpdateData(int index, int pad)
     {
         if (pad < 0)
@@ -772,6 +783,7 @@ public class BattleField : ZoneScript
         else
             m_Data32[index] += (uint)pad;
     }
+
     private bool AddOrSetPlayerToCorrectBfGroup(Player player)
     {
         if (!player.Location.IsInWorld)
@@ -921,6 +933,7 @@ public class BattleField : ZoneScript
         if (m_PlayersInQueue[player.TeamId].Count <= m_MinPlayer || m_PlayersInQueue[GetOtherTeam(player.TeamId)].Count >= m_MinPlayer)
             PlayerAcceptInviteToQueue(player);
     }
+
     private void InvitePlayerToWar(Player player)
     {
         if (!player)
@@ -967,513 +980,9 @@ public class BattleField : ZoneScript
                         KickPlayerFromBattlefield(guid);
             }
     }
+
     private void SetDefenderTeam(uint team)
     {
         m_DefenderTeam = team;
-    }
-}
-
-public class BfGraveyard
-{
-    protected BattleField m_Bf;
-    private readonly List<ObjectGuid> m_ResurrectQueue = new();
-    private readonly ObjectGuid[] m_SpiritGuide = new ObjectGuid[SharedConst.PvpTeamsCount];
-    private uint m_ControlTeam;
-    private uint m_GraveyardId;
-
-    public BfGraveyard(BattleField battlefield)
-    {
-        m_Bf = battlefield;
-        m_GraveyardId = 0;
-        m_ControlTeam = TeamIds.Neutral;
-        m_SpiritGuide[0] = ObjectGuid.Empty;
-        m_SpiritGuide[1] = ObjectGuid.Empty;
-    }
-
-    public void AddPlayer(ObjectGuid playerGuid)
-    {
-        if (!m_ResurrectQueue.Contains(playerGuid))
-        {
-            m_ResurrectQueue.Add(playerGuid);
-            var player = Global.ObjAccessor.FindPlayer(playerGuid);
-
-            if (player)
-                player.CastSpell(player, BattlegroundConst.SpellWaitingForResurrect, true);
-        }
-    }
-
-    public uint GetControlTeamId()
-    {
-        return m_ControlTeam;
-    }
-
-    public float GetDistance(Player player)
-    {
-        var safeLoc = Global.ObjectMgr.GetWorldSafeLoc(m_GraveyardId);
-
-        return player.Location.GetDistance2d(safeLoc.Loc.X, safeLoc.Loc.Y);
-    }
-
-    // Get the graveyard's ID.
-    public uint GetGraveyardId()
-    {
-        return m_GraveyardId;
-    }
-
-    // For changing graveyard control
-    public void GiveControlTo(uint team)
-    {
-        // Guide switching
-        // Note: Visiblity changes are made by phasing
-        /*if (m_SpiritGuide[1 - team])
-            m_SpiritGuide[1 - team].SetVisible(false);
-        if (m_SpiritGuide[team])
-            m_SpiritGuide[team].SetVisible(true);*/
-
-        m_ControlTeam = team;
-        // Teleport to other graveyard, player witch were on this graveyard
-        RelocateDeadPlayers();
-    }
-
-    public bool HasNpc(ObjectGuid guid)
-    {
-        if (m_SpiritGuide[TeamIds.Alliance].IsEmpty || m_SpiritGuide[TeamIds.Horde].IsEmpty)
-            return false;
-
-        if (!m_Bf.GetCreature(m_SpiritGuide[TeamIds.Alliance]) ||
-            !m_Bf.GetCreature(m_SpiritGuide[TeamIds.Horde]))
-            return false;
-
-        return (m_SpiritGuide[TeamIds.Alliance] == guid || m_SpiritGuide[TeamIds.Horde] == guid);
-    }
-
-    // Check if a player is in this graveyard's ressurect queue
-    public bool HasPlayer(ObjectGuid guid)
-    {
-        return m_ResurrectQueue.Contains(guid);
-    }
-
-    public void Initialize(uint startControl, uint graveyardId)
-    {
-        m_ControlTeam = startControl;
-        m_GraveyardId = graveyardId;
-    }
-
-    public void RemovePlayer(ObjectGuid playerGuid)
-    {
-        m_ResurrectQueue.Remove(playerGuid);
-
-        var player = Global.ObjAccessor.FindPlayer(playerGuid);
-
-        if (player)
-            player.RemoveAura(BattlegroundConst.SpellWaitingForResurrect);
-    }
-
-    public void Resurrect()
-    {
-        if (m_ResurrectQueue.Empty())
-            return;
-
-        foreach (var guid in m_ResurrectQueue)
-        {
-            // Get player object from his guid
-            var player = Global.ObjAccessor.FindPlayer(guid);
-
-            if (!player)
-                continue;
-
-            // Check  if the player is in world and on the good graveyard
-            if (player.IsInWorld)
-            {
-                var spirit = m_Bf.GetCreature(m_SpiritGuide[m_ControlTeam]);
-
-                if (spirit)
-                    spirit.CastSpell(spirit, BattlegroundConst.SpellSpiritHeal, true);
-            }
-
-            // Resurect player
-            player.CastSpell(player, BattlegroundConst.SpellResurrectionVisual, true);
-            player.ResurrectPlayer(1.0f);
-            player.CastSpell(player, 6962, true);
-            player.CastSpell(player, BattlegroundConst.SpellSpiritHealMana, true);
-
-            player.SpawnCorpseBones(false);
-        }
-
-        m_ResurrectQueue.Clear();
-    }
-
-    public void SetSpirit(Creature spirit, int teamIndex)
-    {
-        if (!spirit)
-        {
-            Log.Logger.Error("BfGraveyard:SetSpirit: Invalid Spirit.");
-
-            return;
-        }
-
-        m_SpiritGuide[teamIndex] = spirit.GUID;
-        spirit.ReactState = ReactStates.Passive;
-    }
-    private void RelocateDeadPlayers()
-    {
-        WorldSafeLocsEntry closestGrave = null;
-
-        foreach (var guid in m_ResurrectQueue)
-        {
-            var player = Global.ObjAccessor.FindPlayer(guid);
-
-            if (!player)
-                continue;
-
-            if (closestGrave != null)
-            {
-                player.TeleportTo(closestGrave.Loc);
-            }
-            else
-            {
-                closestGrave = m_Bf.GetClosestGraveYard(player);
-
-                if (closestGrave != null)
-                    player.TeleportTo(closestGrave.Loc);
-            }
-        }
-    }
-}
-
-public class BfCapturePoint
-{
-    // Battlefield this objective belongs to
-    protected BattleField m_Bf;
-
-    protected uint m_team;
-    // active Players in the area of the objective, 0 - alliance, 1 - horde
-    private readonly HashSet<ObjectGuid>[] m_activePlayers = new HashSet<ObjectGuid>[SharedConst.PvpTeamsCount];
-
-    // Capture point entry
-    private uint m_capturePointEntry;
-
-    // Gameobject related to that capture point
-    private ObjectGuid m_capturePointGUID;
-
-    // Maximum speed of capture
-    private float m_maxSpeed;
-
-    // Total shift needed to capture the objective
-    private float m_maxValue;
-    private float m_minValue;
-    // Neutral value on capture bar
-    private uint m_neutralValuePct;
-
-    // Objective states
-    private BattleFieldObjectiveStates m_OldState;
-
-    private BattleFieldObjectiveStates m_State;
-
-    // The status of the objective
-    private float m_value;
-    public BfCapturePoint(BattleField battlefield)
-    {
-        m_Bf = battlefield;
-        m_capturePointGUID = ObjectGuid.Empty;
-        m_team = TeamIds.Neutral;
-        m_value = 0;
-        m_minValue = 0.0f;
-        m_maxValue = 0.0f;
-        m_State = BattleFieldObjectiveStates.Neutral;
-        m_OldState = BattleFieldObjectiveStates.Neutral;
-        m_capturePointEntry = 0;
-        m_neutralValuePct = 0;
-        m_maxSpeed = 0;
-
-        m_activePlayers[0] = new HashSet<ObjectGuid>();
-        m_activePlayers[1] = new HashSet<ObjectGuid>();
-    }
-
-    public virtual void ChangeTeam(uint oldTeam) { }
-
-    public uint GetCapturePointEntry()
-    {
-        return m_capturePointEntry;
-    }
-
-    public virtual bool HandlePlayerEnter(Player player)
-    {
-        if (!m_capturePointGUID.IsEmpty)
-        {
-            var capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
-
-            if (capturePoint)
-            {
-                player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldState1, 1);
-                player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate2, (uint)(Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f)));
-                player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate3, m_neutralValuePct);
-            }
-        }
-
-        return m_activePlayers[player.TeamId].Add(player.GUID);
-    }
-
-    public virtual void HandlePlayerLeave(Player player)
-    {
-        if (!m_capturePointGUID.IsEmpty)
-        {
-            var capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
-
-            if (capturePoint)
-                player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldState1, 0);
-        }
-
-        m_activePlayers[player.TeamId].Remove(player.GUID);
-    }
-
-    public virtual void SendChangePhase()
-    {
-        if (m_capturePointGUID.IsEmpty)
-            return;
-
-        var capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
-
-        if (capturePoint)
-        {
-            // send this too, sometimes the slider disappears, dunno why :(
-            SendUpdateWorldState(capturePoint.Template.ControlZone.worldState1, 1);
-            // send these updates to only the ones in this objective
-            SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate2, (uint)Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
-            // send this too, sometimes it resets :S
-            SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate3, m_neutralValuePct);
-        }
-    }
-
-    public bool SetCapturePointData(GameObject capturePoint)
-    {
-        Log.Logger.Error("Creating capture point {0}", capturePoint.Entry);
-
-        m_capturePointGUID = capturePoint.GUID;
-        m_capturePointEntry = capturePoint.Entry;
-
-        // check info existence
-        var goinfo = capturePoint.Template;
-
-        if (goinfo.type != GameObjectTypes.ControlZone)
-        {
-            Log.Logger.Error("OutdoorPvP: GO {0} is not capture point!", capturePoint.Entry);
-
-            return false;
-        }
-
-        // get the needed values from goinfo
-        m_maxValue = goinfo.ControlZone.maxTime;
-        m_maxSpeed = m_maxValue / (goinfo.ControlZone.minTime != 0 ? goinfo.ControlZone.minTime : 60);
-        m_neutralValuePct = goinfo.ControlZone.neutralPercent;
-        m_minValue = m_maxValue * goinfo.ControlZone.neutralPercent / 100;
-
-        if (m_team == TeamIds.Alliance)
-        {
-            m_value = m_maxValue;
-            m_State = BattleFieldObjectiveStates.Alliance;
-        }
-        else
-        {
-            m_value = -m_maxValue;
-            m_State = BattleFieldObjectiveStates.Horde;
-        }
-
-        return true;
-    }
-
-    public virtual bool Update(uint diff)
-    {
-        if (m_capturePointGUID.IsEmpty)
-            return false;
-
-        var capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
-
-        if (capturePoint)
-        {
-            float radius = capturePoint.Template.ControlZone.radius;
-
-            for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
-                foreach (var guid in m_activePlayers[team])
-                {
-                    var player = Global.ObjAccessor.FindPlayer(guid);
-
-                    if (player)
-                        if (!capturePoint.Location.IsWithinDistInMap(player, radius) || !player.IsOutdoorPvPActive())
-                            HandlePlayerLeave(player);
-                }
-
-            List<Unit> players = new();
-            var checker = new AnyPlayerInObjectRangeCheck(capturePoint, radius);
-            var searcher = new PlayerListSearcher(capturePoint, players, checker);
-            Cell.VisitGrid(capturePoint, searcher, radius);
-
-            foreach (Player player in players)
-                if (player.IsOutdoorPvPActive())
-                    if (m_activePlayers[player.TeamId].Add(player.GUID))
-                        HandlePlayerEnter(player);
-        }
-
-        // get the difference of numbers
-        var fact_diff = ((float)m_activePlayers[TeamIds.Alliance].Count - m_activePlayers[TeamIds.Horde].Count) * diff / 1000;
-
-        if (MathFunctions.fuzzyEq(fact_diff, 0.0f))
-            return false;
-
-        TeamFaction Challenger;
-        var maxDiff = m_maxSpeed * diff;
-
-        if (fact_diff < 0)
-        {
-            // horde is in majority, but it's already horde-controlled . no change
-            if (m_State == BattleFieldObjectiveStates.Horde && m_value <= -m_maxValue)
-                return false;
-
-            if (fact_diff < -maxDiff)
-                fact_diff = -maxDiff;
-
-            Challenger = TeamFaction.Horde;
-        }
-        else
-        {
-            // ally is in majority, but it's already ally-controlled . no change
-            if (m_State == BattleFieldObjectiveStates.Alliance && m_value >= m_maxValue)
-                return false;
-
-            if (fact_diff > maxDiff)
-                fact_diff = maxDiff;
-
-            Challenger = TeamFaction.Alliance;
-        }
-
-        var oldValue = m_value;
-        var oldTeam = m_team;
-
-        m_OldState = m_State;
-
-        m_value += fact_diff;
-
-        if (m_value < -m_minValue) // red
-        {
-            if (m_value < -m_maxValue)
-                m_value = -m_maxValue;
-
-            m_State = BattleFieldObjectiveStates.Horde;
-            m_team = TeamIds.Horde;
-        }
-        else if (m_value > m_minValue) // blue
-        {
-            if (m_value > m_maxValue)
-                m_value = m_maxValue;
-
-            m_State = BattleFieldObjectiveStates.Alliance;
-            m_team = TeamIds.Alliance;
-        }
-        else if (oldValue * m_value <= 0) // grey, go through mid point
-        {
-            // if challenger is ally, then n.a challenge
-            if (Challenger == TeamFaction.Alliance)
-                m_State = BattleFieldObjectiveStates.NeutralAllianceChallenge;
-            // if challenger is horde, then n.h challenge
-            else if (Challenger == TeamFaction.Horde)
-                m_State = BattleFieldObjectiveStates.NeutralHordeChallenge;
-
-            m_team = TeamIds.Neutral;
-        }
-        else // grey, did not go through mid point
-        {
-            // old phase and current are on the same side, so one team challenges the other
-            if (Challenger == TeamFaction.Alliance && (m_OldState == BattleFieldObjectiveStates.Horde || m_OldState == BattleFieldObjectiveStates.NeutralHordeChallenge))
-                m_State = BattleFieldObjectiveStates.HordeAllianceChallenge;
-            else if (Challenger == TeamFaction.Horde && (m_OldState == BattleFieldObjectiveStates.Alliance || m_OldState == BattleFieldObjectiveStates.NeutralAllianceChallenge))
-                m_State = BattleFieldObjectiveStates.AllianceHordeChallenge;
-
-            m_team = TeamIds.Neutral;
-        }
-
-        if (MathFunctions.fuzzyNe(m_value, oldValue))
-            SendChangePhase();
-
-        if (m_OldState != m_State)
-        {
-            if (oldTeam != m_team)
-                ChangeTeam(oldTeam);
-
-            return true;
-        }
-
-        return false;
-    }
-    private bool DelCapturePoint()
-    {
-        if (!m_capturePointGUID.IsEmpty)
-        {
-            var capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
-
-            if (capturePoint)
-            {
-                capturePoint.SetRespawnTime(0); // not save respawn time
-                capturePoint.Delete();
-                capturePoint.Dispose();
-            }
-
-            m_capturePointGUID.Clear();
-        }
-
-        return true;
-    }
-
-    private GameObject GetCapturePointGo()
-    {
-        return m_Bf.GetGameObject(m_capturePointGUID);
-    }
-    private uint GetTeamId()
-    {
-        return m_team;
-    }
-
-    private bool IsInsideObjective(Player player)
-    {
-        return m_activePlayers[player.TeamId].Contains(player.GUID);
-    }
-
-    private void SendObjectiveComplete(uint id, ObjectGuid guid)
-    {
-        uint team;
-
-        switch (m_State)
-        {
-            case BattleFieldObjectiveStates.Alliance:
-                team = TeamIds.Alliance;
-
-                break;
-            case BattleFieldObjectiveStates.Horde:
-                team = TeamIds.Horde;
-
-                break;
-            default:
-                return;
-        }
-
-        // send to all players present in the area
-        foreach (var _guid in m_activePlayers[team])
-        {
-            var player = Global.ObjAccessor.FindPlayer(_guid);
-
-            if (player)
-                player.KilledMonsterCredit(id, guid);
-        }
-    }
-
-    private void SendUpdateWorldState(uint field, uint value)
-    {
-        for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
-            foreach (var guid in m_activePlayers[team]) // send to all players present in the area
-            {
-                var player = Global.ObjAccessor.FindPlayer(guid);
-
-                if (player)
-                    player.SendUpdateWorldState(field, value);
-            }
     }
 }

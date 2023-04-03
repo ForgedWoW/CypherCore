@@ -17,20 +17,6 @@ using Serilog;
 
 namespace Forged.MapServer.Conditions;
 
-public enum DisableType
-{
-    Spell = 0,
-    Quest = 1,
-    Map = 2,
-    Battleground = 3,
-    Criteria = 4,
-    OutdoorPVP = 5,
-    VMAP = 6,
-    MMAP = 7,
-    LFGMap = 8,
-    Max = 9
-}
-
 public class DisableManager
 {
     private readonly CliDB _cliDB;
@@ -487,34 +473,4 @@ public class DisableManager
         public List<uint> Param0 = new();
         public List<uint> Param1 = new();
     }
-}
-[Flags]
-public enum DisableFlags
-{
-    SpellPlayer = 0x01,
-    SpellCreature = 0x02,
-    SpellPet = 0x04,
-    SpellDeprecatedSpell = 0x08,
-    SpellMap = 0x10,
-    SpellArea = 0x20,
-    SpellLOS = 0x40,
-    SpellGameobject = 0x80,
-    SpellArenas = 0x100,
-    SpellBattleGrounds = 0x200,
-    MaxSpell = SpellPlayer | SpellCreature | SpellPet | SpellDeprecatedSpell | SpellMap | SpellArea | SpellLOS | SpellGameobject | SpellArenas | SpellBattleGrounds,
-
-    VmapAreaFlag = 0x01,
-    VmapHeight = 0x02,
-    VmapLOS = 0x04,
-    VmapLiquidStatus = 0x08,
-
-    MMapPathFinding = 0x00,
-
-    DungeonStatusNormal = 0x01,
-    DungeonStatusHeroic = 0x02,
-
-    DungeonStatusNormal10Man = 0x01,
-    DungeonStatusNormal25Man = 0x02,
-    DungeonStatusHeroic10Man = 0x04,
-    DungeonStatusHeroic25Man = 0x08
 }

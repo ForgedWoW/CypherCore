@@ -22,6 +22,7 @@ public class MailDraft
     private bool m_mailTemplateItemsNeed;
 
     private ulong m_money;
+
     public MailDraft(uint mailTemplateId, bool need_items = true)
     {
         m_mailTemplateId = mailTemplateId;
@@ -203,6 +204,7 @@ public class MailDraft
         // will delete item or place to receiver mail list
         SendMailTo(trans, new MailReceiver(receiver, receiver_guid), new MailSender(MailMessageType.Normal, senderGuid), MailCheckMask.Returned, deliver_delay);
     }
+
     private void DeleteIncludedItems(SQLTransaction trans, bool inDB = false)
     {
         foreach (var item in m_items.Values)

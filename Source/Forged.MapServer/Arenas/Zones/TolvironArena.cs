@@ -3,4 +3,5 @@
 
 namespace Forged.MapServer.Arenas.Zones;
 
-internal class TolvironArena { }
+internal class TolvironArena
+{ }

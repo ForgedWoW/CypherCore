@@ -13,12 +13,15 @@ public class BattlegroundScore
     public uint DamageDone;
     public uint Deaths;
     public uint HealingDone;
+
     public uint HonorableKills;
+
     // Default score, present in every type
     public uint KillingBlows;
 
     public ObjectGuid PlayerGuid;
     public int TeamId;
+
     public BattlegroundScore(ObjectGuid playerGuid, TeamFaction team)
     {
         PlayerGuid = playerGuid;

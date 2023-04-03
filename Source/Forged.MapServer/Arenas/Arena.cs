@@ -274,6 +274,7 @@ public class Arena : Battleground
         UpdateArenaWorldState();
         CheckWinConditions();
     }
+
     public override void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket)
     {
         if (IsRated() && GetStatus() == BattlegroundStatus.InProgress)
@@ -303,23 +304,10 @@ public class Arena : Battleground
         // remove player
         base.RemovePlayerAtLeave(guid, Transport, SendPacket);
     }
+
     private void UpdateArenaWorldState()
     {
         UpdateWorldState(ArenaWorldStates.AlivePlayersGreen, (int)GetAlivePlayersCountByTeam(TeamFaction.Horde));
         UpdateWorldState(ArenaWorldStates.AlivePlayersGold, (int)GetAlivePlayersCountByTeam(TeamFaction.Alliance));
     }
-}
-
-internal struct ArenaWorldStates
-{
-    public const int AlivePlayersGold = 3601;
-    public const int AlivePlayersGreen = 3600;
-    public const int GoldTeamExtraLives = 15481;
-    public const int GreenTeamExtraLives = 15480;
-    public const int ShowAlivePlayers = 3610;
-    public const int ShowExtraLives = 13401;
-    public const int ShowSoloShuffleRound = 21322;
-    public const int ShowTimeRemaining = 8524;
-    public const int SoloShuffleRound = 21427;
-    public const int TimeRemaining = 8529;
 }

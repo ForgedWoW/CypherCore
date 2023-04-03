@@ -10,10 +10,22 @@ namespace Forged.MapServer.Scripting;
 public abstract class ScriptObject : IScriptObject
 {
     private readonly string _name;
+    public ClassFactory ClassFactory { get; set; }
 
     public ScriptObject(string name)
     {
         _name = name;
+    }
+
+    public string GetName()
+    {
+        return _name;
+    }
+
+    // It indicates whether or not this script Type must be assigned in the database.
+    public virtual bool IsDatabaseBound()
+    {
+        return false;
     }
 
     public static T GetInstanceAI<T>(WorldObject obj) where T : class
@@ -28,37 +40,5 @@ public abstract class ScriptObject : IScriptObject
                                                });
 
         return null;
-    }
-
-    public string GetName()
-    {
-        return _name;
-    }
-
-    // It indicates whether or not this script Type must be assigned in the database.
-    public virtual bool IsDatabaseBound()
-    {
-        return false;
-    }
-}
-
-public abstract class ScriptObjectAutoAdd : ScriptObject
-{
-    protected ScriptObjectAutoAdd(string name) : base(name)
-    {
-        Global.ScriptMgr.AddScript(this);
-    }
-}
-
-public abstract class ScriptObjectAutoAddDBBound : ScriptObject
-{
-    protected ScriptObjectAutoAddDBBound(string name) : base(name)
-    {
-        Global.ScriptMgr.AddScript(this);
-    }
-
-    public override bool IsDatabaseBound()
-    {
-        return true;
     }
 }

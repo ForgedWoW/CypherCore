@@ -14,6 +14,7 @@ internal class ArenaScore : BattlegroundScore
     private readonly uint PostMatchRating;
     private readonly uint PreMatchMMR;
     private readonly uint PreMatchRating;
+
     public ArenaScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team)
     {
         TeamId = (int)(team == TeamFaction.Alliance ? PvPTeamId.Alliance : PvPTeamId.Horde);
@@ -41,20 +42,5 @@ internal class ArenaScore : BattlegroundScore
     {
         return $"Damage done: {DamageDone} Healing done: {HealingDone} Killing blows: {KillingBlows} PreMatchRating: {PreMatchRating} " +
                $"PreMatchMMR: {PreMatchMMR} PostMatchRating: {PostMatchRating} PostMatchMMR: {PostMatchMMR}";
-    }
-}
-
-public class ArenaTeamScore
-{
-    public uint PostMatchMMR;
-    public uint PostMatchRating;
-    public uint PreMatchMMR;
-    public uint PreMatchRating;
-    public void Assign(uint preMatchRating, uint postMatchRating, uint preMatchMMR, uint postMatchMMR)
-    {
-        PreMatchRating = preMatchRating;
-        PostMatchRating = postMatchRating;
-        PreMatchMMR = preMatchMMR;
-        PostMatchMMR = postMatchMMR;
     }
 }

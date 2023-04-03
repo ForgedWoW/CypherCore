@@ -5,6 +5,8 @@ namespace Forged.MapServer.Scripting.Interfaces;
 
 public interface IScriptObject
 {
+    ClassFactory ClassFactory { get; set; }
+
     string GetName();
 
     bool IsDatabaseBound()

@@ -29,6 +29,7 @@ public class LFGPlayerData
 
     // General
     private RideTicket m_Ticket;
+
     public LFGPlayerData()
     {
         m_State = LfgState.None;

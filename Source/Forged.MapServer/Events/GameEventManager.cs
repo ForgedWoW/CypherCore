@@ -9,10 +9,8 @@ using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
-using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
-using Forged.MapServer.Maps.Interfaces;
 using Forged.MapServer.Pools;
 using Forged.MapServer.World;
 using Framework.Collections;
@@ -23,54 +21,6 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Events;
-
-public class GameEventData
-{
-    public byte Announce;
-    public Dictionary<uint, GameEventFinishCondition> Conditions = new();
-    public string Description;
-    public long End;
-    public HolidayIds HolidayID;
-    public byte HolidayStage;
-    public uint Length;
-    // occurs before this time
-    public long Nextstart;
-
-    // after this time the follow-up events count this phase completed
-    public uint Occurence;
-
-    // conditions to finish
-    public List<ushort> PrerequisiteEvents = new();
-
-    public long Start;     // occurs after this time
-                           // time between end and start
-                           // length of the event (Time.Minutes) after finishing all conditions
-    public GameEventState State;                                          // state of the GameInfo event, these are saved into the game_event table on change!
-                                                                          // events that must be completed before starting this event
-                                                                          // if 0 dont announce, if 1 announce, if 2 take config value
-
-    public GameEventData()
-    {
-        Start = 1;
-    }
-
-    public bool IsValid()
-    {
-        return Length > 0 || State > GameEventState.Normal;
-    }
-}
-
-public class GameEventFinishCondition
-{
-    public float Done;
-    public uint DoneWorldState;
-    // done number
-    public uint MaxWorldState;
-
-    public float ReqNum;        // required number // use float, since some events use percent
-                                // max resource count world state update id
-                                // done resource count world state update id
-}
 
 public class GameEventManager
 {
@@ -1964,85 +1914,4 @@ public class GameEventManager
             }
         }
     }
-}
-public class GameEventQuestToEventConditionNum
-{
-    public uint Condition;
-    public ushort EventID;
-    public float Num;
-}
-public class ModelEquip
-{
-    public byte EquipementIDPrev;
-    public byte EquipmentID;
-    public uint Modelid;
-    public uint ModelidPrev;
-}
-
-internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierWorldObject
-{
-    private readonly bool _activate;
-    private readonly ushort _eventId;
-    public GameEventAIHookWorker(ushort eventId, bool activate, GridType gridType = GridType.All)
-    {
-        _eventId = eventId;
-        _activate = activate;
-        GridType = gridType;
-    }
-
-    public GridType GridType { get; set; }
-    public void Visit(IList<Creature> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            var creature = objs[i];
-
-            if (creature.Location.IsInWorld && creature.IsAIEnabled)
-            {
-                var ai = creature.AI;
-
-                ai?.OnGameEvent(_activate, _eventId);
-            }
-        }
-    }
-
-    public void Visit(IList<GameObject> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            var gameObject = objs[i];
-
-            if (gameObject.Location.IsInWorld)
-            {
-                var ai = gameObject.AI;
-
-                ai?.OnGameEvent(_activate, _eventId);
-            }
-        }
-    }
-
-    public void Visit(IList<WorldObject> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            var gameObject = objs[i] as GameObject;
-
-            if (gameObject is { Location.IsInWorld: true })
-            {
-                var ai = gameObject.AI;
-
-                ai?.OnGameEvent(_activate, _eventId);
-            }
-        }
-    }
-}
-
-public enum GameEventState
-{
-    Normal = 0,          // standard GameInfo events
-    WorldInactive = 1,   // not yet started
-    WorldConditions = 2, // condition matching phase
-    WorldNextPhase = 3,  // conditions are met, now 'length' timer to start next event
-    WorldFinished = 4,   // next events are started, unapply this one
-    Internal = 5         // never handled in update
 }

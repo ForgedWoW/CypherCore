@@ -21,22 +21,8 @@ public class AuraScript : BaseSpellScript, IAuraScript
     private readonly Stack<ScriptStateStore> _scriptStates = new();
     private bool _defaultActionPrevented;
 
-    // AuraScript interface - functions which are redirecting to Aura class
-
-    public AuraScript()
-    {
-        Aura = null;
-        TargetApplication = null;
-        _defaultActionPrevented = false;
-    }
-
-    public long ApplyTime => Aura.ApplyTime;
-
     // returns aura object of script
     public Aura Aura { get; private set; }
-
-    // returns Type of the aura, may be dynobj owned aura or unit owned aura
-    public AuraObjectType AuraObjType => Aura.AuraObjType;
 
     public Difficulty CastDifficulty => Aura.CastDifficulty;
 
@@ -46,18 +32,8 @@ public class AuraScript : BaseSpellScript, IAuraScript
     // returns Guid of object which casted the aura (_originalCaster of the Spell class)
     public ObjectGuid CasterGUID => Aura.CasterGuid;
 
-    // charges manipulation - 0 - not charged aura
-    public byte Charges
-    {
-        get => Aura.Charges;
-        set => Aura.SetCharges(value);
-    }
-
     // aura duration manipulation - when duration goes to 0 aura is removed
     public int Duration => Aura.Duration;
-
-    // returns owner if it's dynobj, null otherwise
-    public DynamicObject DynobjOwner => Aura.DynobjOwner;
 
     // returns gameobject which cast the aura or NULL if not available
     public GameObject GObjCaster
@@ -73,17 +49,8 @@ public class AuraScript : BaseSpellScript, IAuraScript
     // returns spellid of the spell
     public uint Id => Aura.Id;
 
-    // death persistent - not removed on death
-    public bool IsDeathPersistent => Aura.IsDeathPersistent;
-
     // expired - duration just went to 0
     public bool IsExpired => Aura.IsExpired;
-
-    // passive - "working in background", not saved, not removed by immunities, not seen by player
-    public bool IsPassive => Aura.IsPassive;
-
-    // permament - has infinite duration
-    public bool IsPermanent => Aura.IsPermanent;
 
     public int MaxDuration
     {
@@ -99,6 +66,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
 
     // returns proto of the spell
     public SpellInfo SpellInfo => Aura.SpellInfo;
+
     // stack amount manipulation
     public byte StackAmount
     {
@@ -149,6 +117,40 @@ public class AuraScript : BaseSpellScript, IAuraScript
 
     // returns AuraApplication object of currently processed Target
     public AuraApplication TargetApplication { get; private set; }
+
+    public long ApplyTime => Aura.ApplyTime;
+
+    // returns Type of the aura, may be dynobj owned aura or unit owned aura
+    public AuraObjectType AuraObjType => Aura.AuraObjType;
+
+    // charges manipulation - 0 - not charged aura
+    public byte Charges
+    {
+        get => Aura.Charges;
+        set => Aura.SetCharges(value);
+    }
+
+    // returns owner if it's dynobj, null otherwise
+    public DynamicObject DynobjOwner => Aura.DynobjOwner;
+
+    // death persistent - not removed on death
+    public bool IsDeathPersistent => Aura.IsDeathPersistent;
+
+    // passive - "working in background", not saved, not removed by immunities, not seen by player
+    public bool IsPassive => Aura.IsPassive;
+
+    // permament - has infinite duration
+    public bool IsPermanent => Aura.IsPermanent;
+
+    // AuraScript interface - functions which are redirecting to Aura class
+
+    public AuraScript()
+    {
+        Aura = null;
+        TargetApplication = null;
+        _defaultActionPrevented = false;
+    }
+
     public void _FinishScriptCall()
     {
         var stateStore = _scriptStates.Peek();
@@ -193,21 +195,6 @@ public class AuraScript : BaseSpellScript, IAuraScript
         _defaultActionPrevented = false;
         TargetApplication = aurApp;
     }
-    public byte CalcMaxCharges()
-    {
-        return Aura.CalcMaxCharges();
-    }
-
-    public int CalcMaxDuration()
-    {
-        return Aura.CalcMaxDuration();
-    }
-
-    // returns true if last charge dropped
-    public bool DropCharge(AuraRemoveMode removeMode = AuraRemoveMode.Default)
-    {
-        return Aura.DropCharge(removeMode);
-    }
 
     // returns aura effect of given effect index or null
     public AuraEffect GetEffect(byte effIndex)
@@ -224,17 +211,6 @@ public class AuraScript : BaseSpellScript, IAuraScript
     public bool HasEffect(byte effIndex)
     {
         return Aura.HasEffect(effIndex);
-    }
-
-    // check if aura has effect of given aura Type
-    public bool HasEffectType(AuraType type)
-    {
-        return Aura.HasEffectType(type);
-    }
-
-    public bool ModCharges(sbyte num, AuraRemoveMode removeMode = AuraRemoveMode.Default)
-    {
-        return Aura.ModCharges(num, removeMode);
     }
 
     public bool ModStackAmount(int num, AuraRemoveMode removeMode = AuraRemoveMode.Default)
@@ -263,11 +239,6 @@ public class AuraScript : BaseSpellScript, IAuraScript
                 break;
         }
     }
-    // sets duration to maxduration
-    public void RefreshDuration()
-    {
-        Aura.RefreshDuration();
-    }
 
     // removes aura with remove mode (see AuraRemoveMode enum)
     public void Remove(AuraRemoveMode removeMode = 0)
@@ -279,6 +250,40 @@ public class AuraScript : BaseSpellScript, IAuraScript
     {
         Aura.SetDuration(duration, withMods);
     }
+
+    public byte CalcMaxCharges()
+    {
+        return Aura.CalcMaxCharges();
+    }
+
+    public int CalcMaxDuration()
+    {
+        return Aura.CalcMaxDuration();
+    }
+
+    // returns true if last charge dropped
+    public bool DropCharge(AuraRemoveMode removeMode = AuraRemoveMode.Default)
+    {
+        return Aura.DropCharge(removeMode);
+    }
+
+    // check if aura has effect of given aura Type
+    public bool HasEffectType(AuraType type)
+    {
+        return Aura.HasEffectType(type);
+    }
+
+    public bool ModCharges(sbyte num, AuraRemoveMode removeMode = AuraRemoveMode.Default)
+    {
+        return Aura.ModCharges(num, removeMode);
+    }
+
+    // sets duration to maxduration
+    public void RefreshDuration()
+    {
+        Aura.RefreshDuration();
+    }
+
     public void SetDuration(double duration, bool withMods = false)
     {
         Aura.SetDuration(duration, withMods);
@@ -300,6 +305,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
 
         return false;
     }
+
     private class ScriptStateStore
     {
         public readonly AuraApplication _auraApplication;

@@ -52,6 +52,33 @@ public class Battleground : ZoneScript, IDisposable
         StartMessageIds[BattlegroundConst.EventIdFourth] = BattlegroundBroadcastTexts.HasBegun;
     }
 
+    public virtual void Dispose()
+    {
+        // remove objects and creatures
+        // (this is done automatically in mapmanager update, when the instance is reset after the reset time)
+        for (var i = 0; i < BgCreatures.Length; ++i)
+            DelCreature(i);
+
+        for (var i = 0; i < BgObjects.Length; ++i)
+            DelObject(i);
+
+        Global.BattlegroundMgr.RemoveBattleground(GetTypeID(), GetInstanceID());
+
+        // unload map
+        if (m_Map)
+        {
+            m_Map.UnloadAll(); // unload all objects (they may hold a reference to bg in their ZoneScript pointer)
+            m_Map.SetUnload(); // mark for deletion by MMapManager
+
+            //unlink to prevent crash, always unlink all pointer reference before destruction
+            m_Map.SetBG(null);
+            m_Map = null;
+        }
+
+        // remove from bg free slot queue
+        RemoveFromBGFreeSlotQueue();
+    }
+
     public static int GetTeamIndexByTeamId(TeamFaction team)
     {
         return team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
@@ -383,9 +410,9 @@ public class Battleground : ZoneScript, IDisposable
             // creature.SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
             // casting visual effect
             creature. // aura
-                      //todo Fix display here
-                      // creature.SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
-                      // casting visual effect
+                //todo Fix display here
+                // creature.SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
+                // casting visual effect
                 ChannelSpellId = BattlegroundConst.SpellSpiritHealChannel;
 
             creature.SetChannelVisual(new SpellCastVisual(BattlegroundConst.SpellSpiritHealChannelVisual, 0));
@@ -502,33 +529,6 @@ public class Battleground : ZoneScript, IDisposable
     }
 
     public virtual void DestroyGate(Player player, GameObject go) { }
-
-    public virtual void Dispose()
-    {
-        // remove objects and creatures
-        // (this is done automatically in mapmanager update, when the instance is reset after the reset time)
-        for (var i = 0; i < BgCreatures.Length; ++i)
-            DelCreature(i);
-
-        for (var i = 0; i < BgObjects.Length; ++i)
-            DelObject(i);
-
-        Global.BattlegroundMgr.RemoveBattleground(GetTypeID(), GetInstanceID());
-
-        // unload map
-        if (m_Map)
-        {
-            m_Map.UnloadAll(); // unload all objects (they may hold a reference to bg in their ZoneScript pointer)
-            m_Map.SetUnload(); // mark for deletion by MMapManager
-
-            //unlink to prevent crash, always unlink all pointer reference before destruction
-            m_Map.SetBG(null);
-            m_Map = null;
-        }
-
-        // remove from bg free slot queue
-        RemoveFromBGFreeSlotQueue();
-    }
 
     // this function can be used by spell to interact with the BG map
     public virtual void DoAction(uint action, ulong arg) { }
@@ -1823,6 +1823,7 @@ public class Battleground : ZoneScript, IDisposable
 
         PostUpdateImpl(diff);
     }
+
     public virtual bool UpdatePlayerScore(Player player, ScoreType type, uint value, bool doAddHonor = true)
     {
         var bgScore = PlayerScores.LookupByKey(player.GUID);
@@ -1847,6 +1848,7 @@ public class Battleground : ZoneScript, IDisposable
     {
         Global.WorldStateMgr.SetValue((int)worldStateId, value, hidden, GetBgMap());
     }
+
     private void _CheckSafePositions(uint diff)
     {
         var maxDist = GetStartMaxDist();
@@ -2122,6 +2124,7 @@ public class Battleground : ZoneScript, IDisposable
             SendPacketToAll(playerPositions);
         }
     }
+
     private void _ProcessProgress(uint diff)
     {
         // *********************************************************
@@ -2223,6 +2226,7 @@ public class Battleground : ZoneScript, IDisposable
             m_ResurrectQueue.Clear();
         }
     }
+
     // This method should be called only once ... it adds pointer to queue
     private void AddToBGFreeSlotQueue()
     {
@@ -2413,6 +2417,7 @@ public class Battleground : ZoneScript, IDisposable
                     player.SendPacket(packet);
         }
     }
+
     private void SetBgRaid(TeamFaction team, PlayerGroup bg_raid)
     {
         var old_raid = m_BgRaids[GetTeamIndexByTeamId(team)];
@@ -2425,6 +2430,7 @@ public class Battleground : ZoneScript, IDisposable
 
         m_BgRaids[GetTeamIndexByTeamId(team)] = bg_raid;
     }
+
     private void SetDeleteThis()
     {
         m_SetDeleteThis = true;
@@ -2434,6 +2440,7 @@ public class Battleground : ZoneScript, IDisposable
     {
         m_StartDelayTime = (int)Time;
     }
+
     private void UpdatePlayersCountByTeam(TeamFaction team, bool remove)
     {
         if (remove)
@@ -2441,6 +2448,7 @@ public class Battleground : ZoneScript, IDisposable
         else
             ++m_PlayersCount[GetTeamIndexByTeamId(team)];
     }
+
     #region Fields
 
     public uint[] Buff_Entries =
@@ -2451,21 +2459,27 @@ public class Battleground : ZoneScript, IDisposable
     public bool m_BuffChange;
     public BGHonorMode m_HonorMode;
     public uint[] m_TeamScores = new uint[SharedConst.PvpTeamsCount];
+
     public BattlegroundStartTimeIntervals[] StartDelayTimes = new BattlegroundStartTimeIntervals[4];
+
     // this must be filled inructors!
     public uint[] StartMessageIds = new uint[4];
 
     protected ObjectGuid[] BgCreatures;
     protected ObjectGuid[] BgObjects;
+
     protected Dictionary<ObjectGuid, BattlegroundScore> PlayerScores = new(); // Player scores
     // Player lists, those need to be accessible by inherited classes
 
     private readonly BattlegroundTemplate _battlegroundTemplate;
+
     private readonly List<BattlegroundPlayerPosition> _playerPositions = new();
+
     // Arena team ids by team
     private readonly uint[] m_ArenaTeamIds = new uint[SharedConst.PvpTeamsCount];
 
     private readonly uint[] m_ArenaTeamMMR = new uint[SharedConst.PvpTeamsCount];
+
     // Raid Group
     private readonly PlayerGroup[] m_BgRaids = new PlayerGroup[SharedConst.PvpTeamsCount];
 
@@ -2495,10 +2509,12 @@ public class Battleground : ZoneScript, IDisposable
 
     // these are important variables used for starting messages
     private BattlegroundEventFlags m_Events;
+
     // 2=2v2, 3=3v3, 5=5v5
     private bool m_InBGFreeSlotQueue;
 
     private uint m_InstanceID;
+
     // Invited counters are useful for player invitation to BG - do not allow, if BG is started to one faction to have 2 more players than another faction
     // Invited counters will be changed only when removing already invited player from queue, removing player from Battleground and inviting player to BG
     // Invited players counters
@@ -2544,15 +2560,6 @@ public class Battleground : ZoneScript, IDisposable
     // Battleground Instance's GUID!
     private BattlegroundStatus m_Status;
     private uint m_ValidStartPositionTimer;
+
     #endregion
-}
-
-public class BattlegroundPlayer
-{
-    public int ActiveSpec;
-    // Player's active spec
-    public bool Mercenary;
-
-    public long OfflineRemoveTime; // for tracking and removing offline players from queue after 5 Time.Minutes
-    public TeamFaction Team;       // Player's team
 }

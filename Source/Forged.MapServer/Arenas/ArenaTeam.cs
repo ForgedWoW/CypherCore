@@ -25,7 +25,9 @@ public class ArenaTeam
     private uint BorderColor;
     private byte BorderStyle;
     private ObjectGuid CaptainGuid;
+
     private uint EmblemColor;
+
     // ARGB format
     private byte EmblemStyle;
 
@@ -38,6 +40,7 @@ public class ArenaTeam
     private uint teamId;
     private string TeamName;
     private byte type;
+
     public ArenaTeam()
     {
         stats.Rating = GetDefaultValue<ushort>("Arena.ArenaStartRating", 0);
@@ -221,6 +224,7 @@ public class ArenaTeam
 
         return true;
     }
+
     public void DelMember(ObjectGuid guid, bool cleanDb)
     {
         // Remove member from team
@@ -767,6 +771,7 @@ public class ArenaTeam
 
         return true;
     }
+
     public int WonAgainst(uint ownMMRating, uint opponentMMRating, ref int ratingChange)
     {
         // Called when the team has won
@@ -786,6 +791,7 @@ public class ArenaTeam
         // Return the rating change, used to display it on the results screen
         return mod;
     }
+
     private void BroadcastPacket(ServerPacket packet)
     {
         foreach (var member in Members)
@@ -821,10 +827,10 @@ public class ArenaTeam
         /*
         // This is a simulation, as there is not much info on how it really works
         float confidence_mod = min(1.0f - fabs(mod), 0.5f);
-      
+
         // Apply confidence factor to the mod:
         mod *= confidence_factor
-      
+
         // And only after that update the new confidence factor
         confidence_factor -= ((confidence_factor - 1.0f) * confidence_mod) / confidence_factor;
         */
@@ -868,48 +874,4 @@ public class ArenaTeam
 
         return (int)Math.Ceiling(mod);
     }
-}
-
-public class ArenaTeamMember
-{
-    public byte Class;
-    public ObjectGuid Guid;
-    public ushort MatchMakerRating;
-    public string Name;
-    public ushort PersonalRating;
-    public ushort SeasonGames;
-    public ushort SeasonWins;
-    public ushort WeekGames;
-    public ushort WeekWins;
-    public void ModifyMatchmakerRating(int mod, uint slot)
-    {
-        if (MatchMakerRating + mod < 0)
-            MatchMakerRating = 0;
-        else
-            MatchMakerRating += (ushort)mod;
-    }
-
-    public void ModifyPersonalRating(Player player, int mod, uint type)
-    {
-        if (PersonalRating + mod < 0)
-            PersonalRating = 0;
-        else
-            PersonalRating += (ushort)mod;
-
-        if (player)
-        {
-            player.SetArenaTeamInfoField(ArenaTeam.GetSlotByType(type), ArenaTeamInfoType.PersonalRating, PersonalRating);
-            player.UpdateCriteria(CriteriaType.EarnPersonalArenaRating, PersonalRating, type);
-        }
-    }
-}
-
-public struct ArenaTeamStats
-{
-    public uint Rank;
-    public ushort Rating;
-    public ushort SeasonGames;
-    public ushort SeasonWins;
-    public ushort WeekGames;
-    public ushort WeekWins;
 }

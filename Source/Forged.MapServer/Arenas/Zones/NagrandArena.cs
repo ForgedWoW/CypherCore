@@ -9,20 +9,11 @@ using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 
-internal struct NagrandArenaObjectTypes
-{
-    public const int Buff1 = 4;
-    public const int Buff2 = 5;
-    public const int Door1 = 0;
-    public const int Door2 = 1;
-    public const int Door3 = 2;
-    public const int Door4 = 3;
-    public const int Max = 6;
-}
-
 public class NagrandArena : Arena
 {
-    public NagrandArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate) { }
+    public NagrandArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
+    {
+    }
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
     {
@@ -34,6 +25,7 @@ public class NagrandArena : Arena
             case 4536: // buff trigger?
             case 4537: // buff trigger?
                 break;
+
             default:
                 base.HandleAreaTrigger(player, trigger, entered);
 
@@ -98,13 +90,4 @@ public class NagrandArena : Arena
         for (var i = NagrandArenaObjectTypes.Buff1; i <= NagrandArenaObjectTypes.Buff2; ++i)
             SpawnBGObject(i, 60);
     }
-}
-internal struct NagrandArenaObjects
-{
-    public const uint Buff1 = 184663;
-    public const uint Buff2 = 184664;
-    public const uint Door1 = 183978;
-    public const uint Door2 = 183980;
-    public const uint Door3 = 183977;
-    public const uint Door4 = 183979;
 }

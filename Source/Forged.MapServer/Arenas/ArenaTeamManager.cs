@@ -54,6 +54,7 @@ public class ArenaTeamManager
 
         return null;
     }
+
     public Dictionary<uint, ArenaTeam> GetArenaTeamMap()
     {
         return _arenaTeamStorage;
@@ -110,6 +111,7 @@ public class ArenaTeamManager
     {
         _arenaTeamStorage.Remove(arenaTeamId);
     }
+
     public void SetNextArenaTeamId(uint id)
     {
         _nextArenaTeamId = id;

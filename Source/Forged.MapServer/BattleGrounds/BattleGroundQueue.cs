@@ -15,84 +15,6 @@ using Serilog;
 
 namespace Forged.MapServer.BattleGrounds;
 
-public struct BattlegroundQueueTypeId
-{
-    public ushort BattlemasterListId;
-    public byte BgType;
-    public bool Rated;
-    public byte TeamSize;
-
-    public BattlegroundQueueTypeId(ushort battlemasterListId, byte bgType, bool rated, byte teamSize)
-    {
-        BattlemasterListId = battlemasterListId;
-        BgType = bgType;
-        Rated = rated;
-        TeamSize = teamSize;
-    }
-
-    public static BattlegroundQueueTypeId FromPacked(ulong packedQueueId)
-    {
-        return new BattlegroundQueueTypeId((ushort)(packedQueueId & 0xFFFF), (byte)((packedQueueId >> 16) & 0xF), ((packedQueueId >> 20) & 1) != 0, (byte)((packedQueueId >> 24) & 0x3F));
-    }
-
-    public static bool operator !=(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
-    {
-        return !(left == right);
-    }
-
-    public static bool operator <(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
-    {
-        if (left.BattlemasterListId != right.BattlemasterListId)
-            return left.BattlemasterListId < right.BattlemasterListId;
-
-        if (left.BgType != right.BgType)
-            return left.BgType < right.BgType;
-
-        if (left.Rated != right.Rated)
-            return (left.Rated ? 1 : 0) < (right.Rated ? 1 : 0);
-
-        return left.TeamSize < right.TeamSize;
-    }
-
-    public static bool operator ==(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
-    {
-        return left.BattlemasterListId == right.BattlemasterListId && left.BgType == right.BgType && left.Rated == right.Rated && left.TeamSize == right.TeamSize;
-    }
-
-    public static bool operator >(BattlegroundQueueTypeId left, BattlegroundQueueTypeId right)
-    {
-        if (left.BattlemasterListId != right.BattlemasterListId)
-            return left.BattlemasterListId > right.BattlemasterListId;
-
-        if (left.BgType != right.BgType)
-            return left.BgType > right.BgType;
-
-        if (left.Rated != right.Rated)
-            return (left.Rated ? 1 : 0) > (right.Rated ? 1 : 0);
-
-        return left.TeamSize > right.TeamSize;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return base.Equals(obj);
-    }
-
-    public override int GetHashCode()
-    {
-        return BattlemasterListId.GetHashCode() ^ BgType.GetHashCode() ^ Rated.GetHashCode() ^ TeamSize.GetHashCode();
-    }
-
-    public ulong GetPacked()
-    {
-        return (ulong)BattlemasterListId | ((ulong)(BgType & 0xF) << 16) | ((ulong)(Rated ? 1 : 0) << 20) | ((ulong)(TeamSize & 0x3F) << 24) | 0x1F10000000000000;
-    }
-    public override string ToString()
-    {
-        return $"{{ BattlemasterListId: {BattlemasterListId}, Type: {BgType}, Rated: {Rated}, TeamSize: {TeamSize} }}";
-    }
-}
-
 public class BattlegroundQueue
 {
     // Event handler
@@ -115,6 +37,7 @@ public class BattlegroundQueue
     private readonly uint[][] m_SumOfWaitTimes = new uint[SharedConst.PvpTeamsCount][];
     private readonly uint[][] m_WaitTimeLastPlayer = new uint[SharedConst.PvpTeamsCount][];
     private readonly uint[][][] m_WaitTimes = new uint[SharedConst.PvpTeamsCount][][];
+
     public BattlegroundQueue(BattlegroundQueueTypeId queueId)
     {
         m_queueId = queueId;
@@ -709,10 +632,12 @@ public class BattlegroundQueue
             RemovePlayer(group.Players.First().Key, decreaseInvitedCount);
         }
     }
+
     public void UpdateEvents(uint diff)
     {
         m_events.Update(diff);
     }
+
     // this method tries to create Battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
     private bool CheckNormalMatch(Battleground bg_template, BattlegroundBracketId bracket_id, uint minPlayers, uint maxPlayers)
     {
@@ -1119,6 +1044,7 @@ public class BattlegroundQueue
         lastPlayerAddedPointer++;
         m_WaitTimeLastPlayer[team_index][(int)bracket_id] = lastPlayerAddedPointer % SharedConst.CountOfPlayersToAverageWaitTime;
     }
+
     /*
     This function is inviting players to already running Battlegrounds
     Invitation type is based on config file
@@ -1159,6 +1085,7 @@ public class BattlegroundQueue
             SelectedGroups.Clear();
             PlayerCount = 0;
         }
+
         public bool KickGroup(uint size)
         {
             //find maxgroup or LAST group with size == size and kick it
@@ -1191,157 +1118,5 @@ public class BattlegroundQueue
 
             return true;
         }
-    }
-}
-/// <summary>
-///     stores information about the group in queue (also used when joined as solo!)
-/// </summary>
-public class GroupQueueInfo
-{
-    public uint ArenaMatchmakerRating;
-    public uint ArenaTeamId;
-    public uint ArenaTeamRating;
-    public uint IsInvitedToBGInstanceGUID;
-    // team id if rated match
-    public uint JoinTime;
-
-    public uint OpponentsMatchmakerRating;
-    // was invited to certain BG
-    // if rated match, inited to the rating of the team
-    // if rated match, inited to the rating of the team
-    public uint OpponentsTeamRating;
-
-    public Dictionary<ObjectGuid, PlayerQueueInfo> Players = new(); // player queue info map
-                                                                    // time when group was added
-    public uint RemoveInviteTime;
-
-    public TeamFaction Team;                                        // Player team (ALLIANCE/HORDE)
-                                                                    // time when we will remove invite for players in group
-                                                                    // for rated arena matches
-                                                                    // for rated arena matches
-}
-
-/// <summary>
-///     stores information for players in queue
-/// </summary>
-public class PlayerQueueInfo
-{
-    public GroupQueueInfo GroupInfo;
-    public uint LastOnlineTime;      // for tracking and removing offline players from queue after 5 minutes
-                                     // pointer to the associated groupqueueinfo
-}
-/// <summary>
-///     This class is used to invite player to BG again, when minute lasts from his first invitation
-///     it is capable to solve all possibilities
-/// </summary>
-internal class BGQueueInviteEvent : BasicEvent
-{
-    private readonly ArenaTypes m_ArenaType;
-    private readonly uint m_BgInstanceGUID;
-    private readonly BattlegroundTypeId m_BgTypeId;
-    private readonly ObjectGuid m_PlayerGuid;
-    private readonly uint m_RemoveTime;
-    public BGQueueInviteEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundTypeId bgTypeId, ArenaTypes arenaType, uint removeTime)
-    {
-        m_PlayerGuid = plGuid;
-        m_BgInstanceGUID = bgInstanceGUID;
-        m_BgTypeId = bgTypeId;
-        m_ArenaType = arenaType;
-        m_RemoveTime = removeTime;
-    }
-
-    public override void Abort(ulong e_time) { }
-
-    public override bool Execute(ulong etime, uint pTime)
-    {
-        var player = Global.ObjAccessor.FindPlayer(m_PlayerGuid);
-
-        // player logged off (we should do nothing, he is correctly removed from queue in another procedure)
-        if (!player)
-            return true;
-
-        var bg = Global.BattlegroundMgr.GetBattleground(m_BgInstanceGUID, m_BgTypeId);
-
-        //if Battleground ended and its instance deleted - do nothing
-        if (bg == null)
-            return true;
-
-        var bgQueueTypeId = bg.GetQueueId();
-        var queueSlot = player.GetBattlegroundQueueIndex(bgQueueTypeId);
-
-        if (queueSlot < SharedConst.PvpTeamsCount) // player is in queue or in Battleground
-        {
-            // check if player is invited to this bg
-            var bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
-
-            if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
-            {
-                Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime - BattlegroundConst.InvitationRemindTime, m_ArenaType);
-                player.SendPacket(battlefieldStatus);
-            }
-        }
-
-        return true; //event will be deleted
-    }
-}
-
-/// <summary>
-///     This class is used to remove player from BG queue after 1 minute 20 seconds from first invitation
-///     We must store removeInvite time in case player left queue and joined and is invited again
-///     We must store bgQueueTypeId, because Battleground can be deleted already, when player entered it
-/// </summary>
-internal class BGQueueRemoveEvent : BasicEvent
-{
-    private readonly uint m_BgInstanceGUID;
-    private readonly BattlegroundQueueTypeId m_BgQueueTypeId;
-    private readonly ObjectGuid m_PlayerGuid;
-    private readonly uint m_RemoveTime;
-    public BGQueueRemoveEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundQueueTypeId bgQueueTypeId, uint removeTime)
-    {
-        m_PlayerGuid = plGuid;
-        m_BgInstanceGUID = bgInstanceGUID;
-        m_RemoveTime = removeTime;
-        m_BgQueueTypeId = bgQueueTypeId;
-    }
-
-    public override void Abort(ulong e_time) { }
-
-    public override bool Execute(ulong etime, uint pTime)
-    {
-        var player = Global.ObjAccessor.FindPlayer(m_PlayerGuid);
-
-        if (!player)
-            // player logged off (we should do nothing, he is correctly removed from queue in another procedure)
-            return true;
-
-        var bg = Global.BattlegroundMgr.GetBattleground(m_BgInstanceGUID, (BattlegroundTypeId)m_BgQueueTypeId.BattlemasterListId);
-        //Battleground can be deleted already when we are removing queue info
-        //bg pointer can be NULL! so use it carefully!
-
-        var queueSlot = player.GetBattlegroundQueueIndex(m_BgQueueTypeId);
-
-        if (queueSlot < SharedConst.PvpTeamsCount) // player is in queue, or in Battleground
-        {
-            // check if player is in queue for this BG and if we are removing his invite event
-            var bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(m_BgQueueTypeId);
-
-            if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
-            {
-                Log.Logger.Debug("Battleground: removing player {0} from bg queue for instance {1} because of not pressing enter battle in time.", player.GUID.ToString(), m_BgInstanceGUID);
-
-                player.RemoveBattlegroundQueueId(m_BgQueueTypeId);
-                bgQueue.RemovePlayer(m_PlayerGuid, true);
-
-                //update queues if Battleground isn't ended
-                if (bg && bg.IsBattleground() && bg.GetStatus() != BattlegroundStatus.WaitLeave)
-                    Global.BattlegroundMgr.ScheduleQueueUpdate(0, m_BgQueueTypeId, bg.GetBracketId());
-
-                Global.BattlegroundMgr.BuildBattlegroundStatusNone(out var battlefieldStatus, player, queueSlot, player.GetBattlegroundQueueJoinTime(m_BgQueueTypeId));
-                player.SendPacket(battlefieldStatus);
-            }
-        }
-
-        //event will be deleted
-        return true;
     }
 }

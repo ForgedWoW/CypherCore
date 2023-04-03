@@ -3,4 +3,5 @@
 
 namespace Forged.MapServer.Arenas.Zones;
 
-internal class TigersPeak { }
+internal class TigersPeak
+{ }

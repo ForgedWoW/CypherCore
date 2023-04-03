@@ -9,20 +9,11 @@ using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 
-internal struct BladeEdgeObjectTypes
-{
-    public const int Buff1 = 4;
-    public const int Buff2 = 5;
-    public const int Door1 = 0;
-    public const int Door2 = 1;
-    public const int Door3 = 2;
-    public const int Door4 = 3;
-    public const int Max = 6;
-}
-
 public class BladesEdgeArena : Arena
 {
-    public BladesEdgeArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate) { }
+    public BladesEdgeArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
+    {
+    }
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
     {
@@ -34,6 +25,7 @@ public class BladesEdgeArena : Arena
             case 4538: // buff trigger?
             case 4539: // buff trigger?
                 break;
+
             default:
                 base.HandleAreaTrigger(player, trigger, entered);
 
@@ -101,13 +93,4 @@ public class BladesEdgeArena : Arena
         for (var i = BladeEdgeObjectTypes.Buff1; i <= BladeEdgeObjectTypes.Buff2; ++i)
             SpawnBGObject(i, 60);
     }
-}
-internal struct BladeEfgeGameObjects
-{
-    public const uint Buff1 = 184663;
-    public const uint Buff2 = 184664;
-    public const uint Door1 = 183971;
-    public const uint Door2 = 183973;
-    public const uint Door3 = 183970;
-    public const uint Door4 = 183972;
 }

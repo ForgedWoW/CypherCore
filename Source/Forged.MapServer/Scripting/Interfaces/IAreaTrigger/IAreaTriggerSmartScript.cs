@@ -25,6 +25,7 @@ public interface IAreaTriggerSmartScript : IAreaTriggerScript
     {
         _script.OnUpdate(diff);
     }
+
     public virtual void SetTimedActionList(SmartScriptHolder e, uint entry, Unit invoker)
     {
         _script.SetTimedActionList(e, entry, invoker);

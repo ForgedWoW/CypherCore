@@ -12,28 +12,6 @@ using Serilog;
 
 namespace Forged.MapServer.DungeonFinding;
 
-public class LfgCompatibilityData
-{
-    public LfgCompatibility compatibility;
-    public Dictionary<ObjectGuid, LfgRoles> roles;
-
-    public LfgCompatibilityData()
-    {
-        compatibility = LfgCompatibility.Pending;
-    }
-
-    public LfgCompatibilityData(LfgCompatibility _compatibility)
-    {
-        compatibility = _compatibility;
-    }
-
-    public LfgCompatibilityData(LfgCompatibility _compatibility, Dictionary<ObjectGuid, LfgRoles> _roles)
-    {
-        compatibility = _compatibility;
-        roles = _roles;
-    }
-}
-
 public class LFGQueue
 {
     private readonly Dictionary<string, LfgCompatibilityData> CompatibleMapStore = new();
@@ -48,6 +26,7 @@ public class LFGQueue
     private readonly Dictionary<uint, LfgWaitTime> waitTimesDpsStore = new();
     private readonly Dictionary<uint, LfgWaitTime> waitTimesHealerStore = new();
     private readonly Dictionary<uint, LfgWaitTime> waitTimesTankStore = new();
+
     public static string ConcatenateDungeons(List<uint> dungeons)
     {
         var str = "";
@@ -122,6 +101,7 @@ public class LFGQueue
 
         return rolesstr.ToString();
     }
+
     public void AddQueueData(ObjectGuid guid, long joinTime, List<uint> dungeons, Dictionary<ObjectGuid, LfgRoles> rolesMap)
     {
         QueueDataStore[guid] = new LfgQueueData(joinTime, dungeons, rolesMap);
@@ -265,6 +245,7 @@ public class LFGQueue
         if (!itDelete.IsEmpty)
             QueueDataStore.Remove(itDelete);
     }
+
     public void RemoveQueueData(ObjectGuid guid)
     {
         QueueDataStore.Remove(guid);
@@ -400,6 +381,7 @@ public class LFGQueue
         var old_number = wt.number++;
         wt.time = (int)((wt.time * old_number + waitTime) / wt.number);
     }
+
     private void AddToFrontCurrentQueue(ObjectGuid guid)
     {
         currentQueueStore.Insert(0, guid);
@@ -771,6 +753,7 @@ public class LFGQueue
                 return "Unknown";
         }
     }
+
     private void RemoveFromCompatibles(ObjectGuid guid)
     {
         var strGuid = guid.ToString();
@@ -796,36 +779,3 @@ public class LFGQueue
     }
 }
 // Stores player or group queue info
-public class LfgQueueData
-{
-    public string bestCompatible = "";
-    public byte dps;
-    public List<uint> dungeons;
-    public byte healers;
-    public long joinTime;
-    public Dictionary<ObjectGuid, LfgRoles> roles;
-    public byte tanks;
-    public LfgQueueData()
-    {
-        joinTime = GameTime.CurrentTime;
-        tanks = SharedConst.LFGTanksNeeded;
-        healers = SharedConst.LFGHealersNeeded;
-        dps = SharedConst.LFGDPSNeeded;
-    }
-
-    public LfgQueueData(long _joinTime, List<uint> _dungeons, Dictionary<ObjectGuid, LfgRoles> _roles)
-    {
-        joinTime = _joinTime;
-        tanks = SharedConst.LFGTanksNeeded;
-        healers = SharedConst.LFGHealersNeeded;
-        dps = SharedConst.LFGDPSNeeded;
-        dungeons = _dungeons;
-        roles = _roles;
-    }
-}
-
-public struct LfgWaitTime
-{
-    public uint number;
-    public int time;
-}

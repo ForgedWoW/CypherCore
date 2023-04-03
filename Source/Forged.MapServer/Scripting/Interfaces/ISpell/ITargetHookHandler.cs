@@ -19,17 +19,3 @@ public interface ITargetHookHandler : ISpellEffect
 
     Targets TargetType { get; }
 }
-
-public class TargetHookHandler : SpellEffect, ITargetHookHandler
-{
-    public TargetHookHandler(int effectIndex, Targets targetType, bool area, SpellScriptHookType hookType, bool dest = false) : base(effectIndex, hookType)
-    {
-        TargetType = targetType;
-        Area = area;
-        Dest = dest;
-    }
-
-    public bool Area { get; }
-    public bool Dest { get; }
-    public Targets TargetType { get; }
-}

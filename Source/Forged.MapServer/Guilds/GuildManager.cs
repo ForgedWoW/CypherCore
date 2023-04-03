@@ -535,12 +535,3 @@ public sealed class GuildManager
         _nextGuildId = id;
     }
 }
-
-public class GuildReward
-{
-    public List<uint> AchievementsRequired = new();
-    public ulong Cost;
-    public uint ItemID;
-    public byte MinGuildRep;
-    public ulong RaceMask;
-}

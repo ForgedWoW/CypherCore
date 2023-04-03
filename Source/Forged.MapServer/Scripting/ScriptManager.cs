@@ -37,22 +37,26 @@ namespace Forged.MapServer.Scripting;
 public class ScriptManager
 {
     private readonly GameObjectManager _gameObjectManager;
+
     // creature entry + chain ID
     private readonly MultiMap<Tuple<uint, ushort>, SplineChainLink> _mSplineChainsMap = new();
 
     private readonly Dictionary<Type, List<IScriptObject>> _scriptByType = new();
     private readonly Dictionary<Type, Dictionary<PlayerClass, List<IScriptObject>>> _scriptClassByType = new();
+
     // spline chains
     private readonly Dictionary<Type, ScriptRegistry> _scriptStorage = new();
 
     private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
     private readonly WorldDatabase _worldDatabase;
+    private readonly ClassFactory _classFactory;
     private uint _scriptCount;
 
-    public ScriptManager(GameObjectManager gameObjectManager, WorldDatabase worldDatabase)
+    public ScriptManager(GameObjectManager gameObjectManager, WorldDatabase worldDatabase, ClassFactory classFactory)
     {
         _gameObjectManager = gameObjectManager;
         _worldDatabase = worldDatabase;
+        _classFactory = classFactory;
     }
 
     public void Initialize()
@@ -93,7 +97,7 @@ public class ScriptManager
 
         if (!_scriptStorage.TryGetValue(script.GetType(), out var scriptReg))
         {
-            scriptReg = new ScriptRegistry();
+            scriptReg = new ScriptRegistry(this, _classFactory.Resolve<GameObjectManager>());
             _scriptStorage[script.GetType()] = scriptReg;
         }
 
@@ -197,6 +201,7 @@ public class ScriptManager
 
         return ret;
     }
+
     private void AddInterface<T>(Type iface, T script, bool hasClass) where T : IScriptObject
     {
         if (iface.Name == nameof(IScriptObject))
@@ -204,7 +209,7 @@ public class ScriptManager
 
         if (!_scriptStorage.TryGetValue(iface, out var scriptReg))
         {
-            scriptReg = new ScriptRegistry();
+            scriptReg = new ScriptRegistry(this, _classFactory.Resolve<GameObjectManager>());
             _scriptStorage[iface] = scriptReg;
         }
 
@@ -228,7 +233,8 @@ public class ScriptManager
         foreach (var f in iface.GetInterfaces())
             AddInterface(f, script, hasClass);
     }
-    #endregion
+
+    #endregion Main Script API
 
     #region Loading and Unloading
 
@@ -346,7 +352,6 @@ public class ScriptManager
                             baseType = baseType.BaseType;
                         }
 
-
                         foreach (var baseT in basetypes)
                             if (!string.IsNullOrEmpty(baseT.Name) && activators.TryGetValue(baseT.Name, out var scriptActivator))
                             {
@@ -369,12 +374,12 @@ public class ScriptManager
                         if (activatedObj == null)
                             if (attribute.Args.Empty())
                             {
-                                if (numArgsMin == 0 || numArgsMin == 99)
-                                    activatedObj = Activator.CreateInstance(type) as IScriptObject;
-                                else if (numArgsMin == 1 &&
-                                         paramType != null &&
-                                         paramType == typeof(string))
-                                    activatedObj = Activator.CreateInstance(type, name) as IScriptObject;
+                                activatedObj = numArgsMin switch
+                                {
+                                    0 or 99 => Activator.CreateInstance(type) as IScriptObject,
+                                    1 when paramType != null && paramType == typeof(string) => Activator.CreateInstance(type, name) as IScriptObject,
+                                    _ => activatedObj
+                                };
                             }
                             else
                             {
@@ -389,6 +394,9 @@ public class ScriptManager
                                                                                 name
                                                                             }.Combine(attribute.Args)) as IScriptObject;
                             }
+
+                        if (activatedObj != null)
+                            activatedObj.ClassFactory = _classFactory;
 
                         if (activatedObj != null && IOHelpers.DoesTypeSupportInterface(activatedObj.GetType(), typeof(IScriptAutoAdd)))
                             AddScript(activatedObj);
@@ -445,6 +453,7 @@ public class ScriptManager
         if (newReg != null)
             registers[newReg.AttributeType] = newReg;
     }
+
     private List<SplineChainLink> GetSplineChain(uint entry, ushort chainId)
     {
         return _mSplineChainsMap.LookupByKey(Tuple.Create(entry, chainId));
@@ -605,7 +614,8 @@ public class ScriptManager
 
         Log.Logger.Information("Loaded {0} Script Waypoint nodes in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
-    #endregion
+
+    #endregion Loading and Unloading
 
     #region Spells and Auras
 
@@ -715,7 +725,8 @@ public class ScriptManager
 
         return scriptList;
     }
-    #endregion
+
+    #endregion Spells and Auras
 
     #region AreaTriggers
 
@@ -771,7 +782,8 @@ public class ScriptManager
 
         return scriptList;
     }
-    #endregion
+
+    #endregion AreaTriggers
 
     #region Player Chat
 
@@ -800,5 +812,5 @@ public class ScriptManager
         ForEach<IPlayerOnChatChannel>(p => p.OnChat(player, type, lang, msg, channel));
     }
 
-    #endregion
+    #endregion Player Chat
 }

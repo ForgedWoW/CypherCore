@@ -20,95 +20,14 @@ using Serilog;
 namespace Forged.MapServer.Scripting;
 
 // helper class from which SpellScript and SpellAura derive, use these classes instead
-public class BaseSpellScript : IBaseSpellScript
-{
-    // internal use classes & functions
-    // DO NOT OVERRIDE THESE IN SCRIPTS
-    public BaseSpellScript()
-    {
-        CurrentScriptState = (byte)SpellScriptState.None;
-    }
-
-    public byte CurrentScriptState { get; set; }
-    public string ScriptName { get; set; }
-
-    public uint ScriptSpellId { get; set; }
-    public string _GetScriptName()
-    {
-        return ScriptName;
-    }
-
-    public void _Init(string scriptname, uint spellId)
-    {
-        CurrentScriptState = (byte)SpellScriptState.None;
-        ScriptName = scriptname;
-        ScriptSpellId = spellId;
-    }
-
-    public void _Register()
-    {
-        CurrentScriptState = (byte)SpellScriptState.Registration;
-        Register();
-        CurrentScriptState = (byte)SpellScriptState.None;
-    }
-
-    public void _Unload()
-    {
-        CurrentScriptState = (byte)SpellScriptState.Unloading;
-        Unload();
-        CurrentScriptState = (byte)SpellScriptState.None;
-    }
-
-    public virtual bool _Validate(SpellInfo entry)
-    {
-        if (!ValidateSpellInfo(entry.Id))
-        {
-            Log.Logger.Error("Spell `{0}` did not pass Validate() function of script `{1}` - script will be not added to the spell", entry.Id, ScriptName);
-
-            return false;
-        }
-
-        return true;
-    }
-
-    // Function called when script is created, if returns false script will be unloaded afterwards
-    // use for: initializing local script variables (DO NOT USE CONSTRUCTOR FOR THIS PURPOSE!)
-    public virtual bool Load()
-    {
-        return true;
-    }
-
-    //
-    // SpellScript/AuraScript interface base
-    // these functions are safe to override, see notes below for usage instructions
-    //
-    // Function in which handler functions are registered, must be implemented in script
-    public virtual void Register() { }
-
-    // Function called when script is destroyed
-    // use for: deallocating memory allocated by script
-    public virtual void Unload() { }
-
-    public bool ValidateSpellInfo(params uint[] spellIds)
-    {
-        var allValid = true;
-
-        foreach (var spellId in spellIds)
-            if (!Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
-            {
-                Log.Logger.Error("BaseSpellScript::ValidateSpellInfo: Spell {0} does not exist.", spellId);
-                allValid = false;
-            }
-
-        return allValid;
-    }
-}
 
 public class SpellScript : BaseSpellScript, ISpellScript
 {
     private uint _hitPreventDefaultEffectMask;
     private uint _hitPreventEffectMask;
+
     public Difficulty CastDifficulty => Spell.CastDifficulty;
+
     //
     // methods allowing interaction with Spell object
     //
@@ -466,10 +385,15 @@ public class SpellScript : BaseSpellScript, ISpellScript
             return false;
         }
     }
+
     public Unit OriginalCaster => Spell.OriginalCaster;
     public Spell Spell { get; private set; }
     public SpellInfo SpellInfo => Spell.SpellInfo;
     public SpellValue SpellValue => Spell.SpellValue;
+
+    // Returns SpellInfo from the spell that triggered the current one
+    public SpellInfo TriggeringSpell => Spell.TriggeredByAuraSpell;
+
     public Position TargetPosition
     {
         get
@@ -483,8 +407,6 @@ public class SpellScript : BaseSpellScript, ISpellScript
         }
     }
 
-    // Returns SpellInfo from the spell that triggered the current one
-    public SpellInfo TriggeringSpell => Spell.TriggeredByAuraSpell;
     private bool IsAfterTargetSelectionPhase => IsInHitPhase || IsInEffectHook || CurrentScriptState == (byte)SpellScriptHookType.OnCast || CurrentScriptState == (byte)SpellScriptHookType.AfterCast || CurrentScriptState == (byte)SpellScriptHookType.CalcCritChance;
 
     private bool IsInModifiableHook
@@ -536,10 +458,12 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
         return load;
     }
+
     public void _PrepareScriptCall(SpellScriptHookType hookType)
     {
         CurrentScriptState = (byte)hookType;
     }
+
     // Creates Item. Calls Spell.DoCreateItem method.
     public void CreateItem(uint itemId, ItemContext context)
     {
@@ -626,6 +550,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
         return Spell.GetUnitTargetCountForEffect(effect);
     }
+
     // prevents applying aura on current spell hit Target
     public void PreventHitAura()
     {
@@ -647,6 +572,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         HitDamage = 0;
     }
+
     // prevents default effect execution on current spell hit Target
     // will not work on aura/Damage/heal effects
     // will not work if effects were already handled
@@ -677,10 +603,6 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
         _hitPreventEffectMask |= 1u << effIndex;
         PreventHitDefaultEffect(effIndex);
-    }
-    public void PreventHitHeal()
-    {
-        HitHeal = 0;
     }
 
     public void SelectRandomInjuredTargets(List<WorldObject> targets, uint maxTargets, bool prioritizePlayers)
@@ -754,6 +676,12 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
         Spell.CustomErrors = result;
     }
+
+    public void PreventHitHeal()
+    {
+        HitHeal = 0;
+    }
+
     public bool TryGetCaster(out Unit result)
     {
         result = Spell.Caster?.AsUnit;

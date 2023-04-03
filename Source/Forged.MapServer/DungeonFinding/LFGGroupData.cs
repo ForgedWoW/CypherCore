@@ -137,6 +137,7 @@ public class LFGGroupData
 
         m_State = state;
     }
+
     public void SetVoteKick(bool active)
     {
         m_VoteKickActive = active;

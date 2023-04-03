@@ -8,12 +8,12 @@ namespace Forged.MapServer.Scripting;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ScriptAttribute : Attribute
 {
+    public object[] Args { get; private set; }
+    public string Name { get; private set; }
+
     public ScriptAttribute(string name = "", params object[] args)
     {
         Name = name;
         Args = args;
     }
-
-    public object[] Args { get; private set; }
-    public string Name { get; private set; }
 }

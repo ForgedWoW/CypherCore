@@ -24,7 +24,9 @@ public class OutdoorPvPManager
     private readonly CliDB _cliDB;
     private readonly DB2Manager _db2Manager;
     private readonly DisableManager _disableManager;
+
     private readonly GameObjectManager _objectManager;
+
     // Holds the outdoor PvP templates
     private readonly uint[] _outdoorMapIds =
     {
@@ -36,13 +38,16 @@ public class OutdoorPvPManager
     private readonly MultiMap<Map, OutdoorPvP> _outdoorPvPByMap = new();
 
     private readonly Dictionary<OutdoorPvPTypes, uint> _outdoorPvPDatas = new();
+
     // maps the zone ids to an outdoor pvp event
     // used in player event handling
     private readonly Dictionary<(Map map, uint zoneId), OutdoorPvP> _outdoorPvPMap = new();
 
     private readonly ScriptManager _scriptManager;
     private readonly LimitedThreadTaskManager _threadTaskManager;
+
     private readonly WorldDatabase _worldDatabase;
+
     // update interval
     private uint _updateTimer;
 
@@ -221,6 +226,7 @@ public class OutdoorPvPManager
 
         Log.Logger.Information($"Loaded {count} outdoor PvP definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
+
     public void Update(uint diff)
     {
         _updateTimer += diff;

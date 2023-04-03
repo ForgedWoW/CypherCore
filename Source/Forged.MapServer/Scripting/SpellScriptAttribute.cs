@@ -8,6 +8,9 @@ namespace Forged.MapServer.Scripting;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class SpellScriptAttribute : ScriptAttribute
 {
+    public bool AllRanks { get; private set; }
+    public uint[] SpellIds { get; private set; }
+
     public SpellScriptAttribute(params uint[] spellId) : base("", new object[0])
     {
         SpellIds = spellId;
@@ -30,7 +33,4 @@ public class SpellScriptAttribute : ScriptAttribute
         SpellIds = spellId;
         AllRanks = allRanks;
     }
-
-    public bool AllRanks { get; private set; }
-    public uint[] SpellIds { get; private set; }
 }

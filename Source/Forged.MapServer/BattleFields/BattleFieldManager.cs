@@ -29,11 +29,12 @@ public class BattleFieldManager
     };
 
     private static readonly uint[] BattlefieldIdToZoneId =
-        {
+    {
         0, 4197, 5095
     }; // imitate World_PVP_Area.db2
-       // contains all initiated battlefield events
-       // used when initing / cleaning up
+
+    // contains all initiated battlefield events
+    // used when initing / cleaning up
     private readonly MultiMap<Map, BattleField> _battlefieldsByMap = new();
 
     // maps the zone ids to an battlefield event
@@ -44,7 +45,9 @@ public class BattleFieldManager
     private readonly GameObjectManager _objectManager;
     private readonly ScriptManager _scriptManager;
     private readonly LimitedThreadTaskManager _threadTaskManager;
+
     private readonly WorldDatabase _worldDatabase;
+
     // update interval
     private uint _updateTimer;
 
@@ -173,10 +176,12 @@ public class BattleFieldManager
 
         Log.Logger.Information($"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
+
     public bool IsWorldPvpArea(uint zoneId)
     {
         return BattlefieldIdToZoneId.Contains(zoneId);
     }
+
     public void Update(uint diff)
     {
         _updateTimer += diff;
