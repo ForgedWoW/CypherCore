@@ -439,4 +439,5 @@ void RegisterInstanced()
     builder.RegisterType<PlayerMenu>();
     builder.RegisterType<AuctionHouseObject>();
     builder.RegisterType<SmartScript>();
+    builder.RegisterType<CriteriaData>();
 }

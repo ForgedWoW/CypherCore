@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Autofac;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
@@ -17,6 +18,7 @@ namespace Forged.MapServer.Achievements;
 
 public class CriteriaManager
 {
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly Dictionary<uint, Criteria> _criteria = new();
     private readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
@@ -24,6 +26,7 @@ public class CriteriaManager
     private readonly MultiMap<uint, Criteria>[] _criteriasByAsset = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
     private readonly MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
     private readonly MultiMap<CriteriaStartEvent, Criteria> _criteriasByTimedType = new();
+
     // store criterias by type to speed up lookup
     private readonly MultiMap<CriteriaType, Criteria> _criteriasByType = new();
 
@@ -34,11 +37,13 @@ public class CriteriaManager
     private readonly MultiMap<CriteriaType, Criteria> _questObjectiveCriteriasByType = new();
     private readonly MultiMap<uint, Criteria>[] _scenarioCriteriasByTypeAndScenarioId = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
     private readonly WorldDatabase _worldDatabase;
-    public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
+
+    public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager, ClassFactory classFactory)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
         _gameObjectManager = gameObjectManager;
+        _classFactory = classFactory;
 
         for (var i = 0; i < (int)CriteriaType.Count; ++i)
         {
@@ -58,8 +63,6 @@ public class CriteriaManager
             case CriteriaType.GainAura:           // NYI
             case CriteriaType.WinAnyBattleground: // NYI
                 return true;
-            default:
-                break;
         }
 
         return false;
@@ -155,13 +158,13 @@ public class CriteriaManager
 
         do
         {
-            var criteria_id = result.Read<uint>(0);
+            var criteriaID = result.Read<uint>(0);
 
-            var criteria = GetCriteria(criteria_id);
+            var criteria = GetCriteria(criteriaID);
 
             if (criteria == null)
             {
-                Log.Logger.Error("Table `criteria_data` contains data for non-existing criteria (Entry: {0}). Ignored.", criteria_id);
+                Log.Logger.Error("Table `criteria_data` contains data for non-existing criteria (Entry: {0}). Ignored.", criteriaID);
 
                 continue;
             }
@@ -173,25 +176,28 @@ public class CriteriaManager
             if (!scriptName.IsEmpty())
             {
                 if (dataType != CriteriaDataType.Script)
-                    Log.Logger.Error("Table `criteria_data` contains a ScriptName for non-scripted data type (Entry: {0}, type {1}), useless data.", criteria_id, dataType);
+                    Log.Logger.Error("Table `criteria_data` contains a ScriptName for non-scripted data type (Entry: {0}, type {1}), useless data.", criteriaID, dataType);
                 else
                     scriptId = _gameObjectManager.GetScriptId(scriptName);
             }
 
-            CriteriaData data = new(dataType, result.Read<uint>(2), result.Read<uint>(3), scriptId);
+            var data = _classFactory.Resolve<CriteriaData>(new PositionalParameter(0, dataType),
+                                                                    new PositionalParameter(1, result.Read<uint>(2)),
+                                                                    new PositionalParameter(2, result.Read<uint>(3)),
+                                                                    new PositionalParameter(3, scriptId));
 
             if (!data.IsValid(criteria))
                 continue;
 
             // this will allocate empty data set storage
             CriteriaDataSet dataSet = new();
-            dataSet.SetCriteriaId(criteria_id);
+            dataSet.SetCriteriaId(criteriaID);
 
             // add real data only for not NONE data types
             if (data.DataType != CriteriaDataType.None)
                 dataSet.Add(data);
 
-            _criteriaDataMap[criteria_id] = dataSet;
+            _criteriaDataMap[criteriaID] = dataSet;
             // counting data by and data types
             ++count;
         } while (result.NextRow());
@@ -412,6 +418,7 @@ public class CriteriaManager
 
         Log.Logger.Information("Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
+
     private T GetEntry<T>(Dictionary<uint, T> map, CriteriaTreeRecord tree) where T : new()
     {
         var cur = tree;
@@ -472,6 +479,7 @@ public class CriteriaManager
             case CriteriaType.LandTargetedSpellOnTarget:
             case CriteriaType.LearnTradeskillSkillLine:
                 return true;
+
             default:
                 return false;
         }

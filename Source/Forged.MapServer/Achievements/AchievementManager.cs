@@ -3,27 +3,34 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Spells;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Achievements;
 
 public class AchievementManager : CriteriaHandler
 {
-    public Func<KeyValuePair<uint, CompletedAchievementData>, AchievementRecord> VisibleAchievementCheck = value =>
-    {
-        var achievement = CliDB.AchievementStorage.LookupByKey(value.Key);
-
-        if (achievement != null && !achievement.Flags.HasAnyFlag(AchievementFlags.Hidden))
-            return achievement;
-
-        return null;
-    };
+    public Func<KeyValuePair<uint, CompletedAchievementData>, AchievementRecord> VisibleAchievementCheck;
 
     protected Dictionary<uint, CompletedAchievementData> CompletedAchievements = new();
+
+    public AchievementManager(CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager objectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
+                              DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
+                              LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
+        base(criteriaManager, worldManager, objectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
+    {
+    }
 
     public uint AchievementPoints { get; protected set; }
 
@@ -42,7 +49,7 @@ public class AchievementManager : CriteriaHandler
             if (IsCompletedAchievement(achievement))
                 CompletedAchievement(achievement, referencePlayer);
 
-        var achRefList = Global.AchievementMgr.GetAchievementByReferencedId(achievement.Id);
+        var achRefList = AchievementManager.GetAchievementByReferencedId(achievement.Id);
 
         foreach (var refAchievement in achRefList)
             if (IsCompletedAchievement(refAchievement))
@@ -62,7 +69,7 @@ public class AchievementManager : CriteriaHandler
 
         if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
             // someone on this realm has already completed that achievement
-            if (Global.AchievementMgr.IsRealmCompleted(achievement))
+            if (AchievementManager.IsRealmCompleted(achievement))
                 return false;
 
         return true;
@@ -132,7 +139,8 @@ public class AchievementManager : CriteriaHandler
             UpdateCriteria(i, 0, 0, 0, null, referencePlayer);
     }
 
-    public virtual void CompletedAchievement(AchievementRecord entry, Player referencePlayer) { }
+    public virtual void CompletedAchievement(AchievementRecord entry, Player referencePlayer)
+    { }
 
     public override void CompletedCriteriaTree(CriteriaTree tree, Player referencePlayer)
     {
@@ -157,10 +165,12 @@ public class AchievementManager : CriteriaHandler
     {
         return CompletedAchievements.ContainsKey(achievementId);
     }
+
     public override bool RequiredAchievementSatisfied(uint achievementId)
     {
         return HasAchieved(achievementId);
     }
+
     private bool IsCompletedAchievement(AchievementRecord entry)
     {
         // counter can never complete

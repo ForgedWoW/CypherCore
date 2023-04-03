@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 
@@ -19,11 +20,7 @@ public class CriteriaDataSet
 
     public bool Meets(Player source, WorldObject target, uint miscValue = 0, uint miscValue2 = 0)
     {
-        foreach (var data in _storage)
-            if (!data.Meets(_criteriaId, source, target, miscValue, miscValue2))
-                return false;
-
-        return true;
+        return _storage.All(data => data.Meets(_criteriaId, source, target, miscValue, miscValue2));
     }
 
     public void SetCriteriaId(uint id)

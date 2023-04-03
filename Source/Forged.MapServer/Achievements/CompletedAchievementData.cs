@@ -8,7 +8,7 @@ namespace Forged.MapServer.Achievements;
 
 public class CompletedAchievementData
 {
-    public bool Changed;
-    public List<ObjectGuid> CompletingPlayers = new();
-    public long Date;
+    public bool Changed { get; set; }
+    public List<ObjectGuid> CompletingPlayers { get; set; } = new();
+    public long Date { get; set; }
 }

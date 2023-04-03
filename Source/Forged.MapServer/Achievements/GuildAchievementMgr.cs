@@ -4,44 +4,45 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Guilds;
+using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Achievements;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IAchievement;
+using Forged.MapServer.Spells;
+using Forged.MapServer.World;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Achievements;
 
 public class GuildAchievementMgr : AchievementManager
 {
+    private readonly CharacterDatabase _characterDatabase;
     private readonly Guild _owner;
+    private readonly ScriptManager _scriptManager;
 
-    public GuildAchievementMgr(Guild owner)
+    public GuildAchievementMgr(Guild owner, ScriptManager scriptManager, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager objectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
+                               DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
+                               LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
+        base(criteriaManager, worldManager, objectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
     {
         _owner = owner;
-    }
-
-    public static void DeleteFromDB(ObjectGuid guid)
-    {
-        SQLTransaction trans = new();
-
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENTS);
-        stmt.AddValue(0, guid.Counter);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENT_CRITERIA);
-        stmt.AddValue(0, guid.Counter);
-        trans.Append(stmt);
-
-        DB.Characters.CommitTransaction(trans);
+        _scriptManager = scriptManager;
+        _characterDatabase = characterDatabase;
     }
 
     public override void CompletedAchievement(AchievementRecord achievement, Player referencePlayer)
@@ -88,7 +89,7 @@ public class GuildAchievementMgr : AchievementManager
         CompletedAchievements[achievement.Id] = ca;
 
         if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
-            Global.AchievementMgr.SetRealmCompleted(achievement);
+            AchievementManager.SetRealmCompleted(achievement);
 
         if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
             AchievementPoints += achievement.Points;
@@ -96,12 +97,27 @@ public class GuildAchievementMgr : AchievementManager
         UpdateCriteria(CriteriaType.EarnAchievement, achievement.Id, 0, 0, null, referencePlayer);
         UpdateCriteria(CriteriaType.EarnAchievementPoints, achievement.Points, 0, 0, null, referencePlayer);
 
-        Global.ScriptMgr.RunScript<IAchievementOnCompleted>(p => p.OnCompleted(referencePlayer, achievement), Global.AchievementMgr.GetAchievementScriptId(achievement.Id));
+        _scriptManager.RunScript<IAchievementOnCompleted>(p => p.OnCompleted(referencePlayer, achievement), AchievementManager.GetAchievementScriptId(achievement.Id));
+    }
+
+    public void DeleteFromDB(ObjectGuid guid)
+    {
+        SQLTransaction trans = new();
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENTS);
+        stmt.AddValue(0, guid.Counter);
+        trans.Append(stmt);
+
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENT_CRITERIA);
+        stmt.AddValue(0, guid.Counter);
+        trans.Append(stmt);
+
+        _characterDatabase.CommitTransaction(trans);
     }
 
     public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
     {
-        return Global.CriteriaMgr.GetGuildCriteriaByType(type);
+        return CriteriaManager.GetGuildCriteriaByType(type);
     }
 
     public override string GetOwnerInfo()
@@ -149,16 +165,16 @@ public class GuildAchievementMgr : AchievementManager
                 var date = criteriaResult.Read<long>(2);
                 var guidLow = criteriaResult.Read<ulong>(3);
 
-                var criteria = Global.CriteriaMgr.GetCriteria(id);
+                var criteria = CriteriaManager.GetCriteria(id);
 
                 if (criteria == null)
                 {
                     // we will remove not existed criteria for all guilds
                     Log.Logger.Error("Non-existing achievement criteria {0} data removed from table `guild_achievement_progress`.", id);
 
-                    var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
+                    var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
                     stmt.AddValue(0, id);
-                    DB.Characters.Execute(stmt);
+                    _characterDatabase.Execute(stmt);
 
                     continue;
                 }
@@ -212,12 +228,12 @@ public class GuildAchievementMgr : AchievementManager
             if (!pair.Value.Changed)
                 continue;
 
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_ACHIEVEMENT);
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GUILD_ACHIEVEMENT);
             stmt.AddValue(0, _owner.GetId());
             stmt.AddValue(1, pair.Key);
             trans.Append(stmt);
 
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GUILD_ACHIEVEMENT);
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GUILD_ACHIEVEMENT);
             stmt.AddValue(0, _owner.GetId());
             stmt.AddValue(1, pair.Key);
             stmt.AddValue(2, pair.Value.Date);
@@ -236,12 +252,12 @@ public class GuildAchievementMgr : AchievementManager
             if (!pair.Value.Changed)
                 continue;
 
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_ACHIEVEMENT_CRITERIA);
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GUILD_ACHIEVEMENT_CRITERIA);
             stmt.AddValue(0, _owner.GetId());
             stmt.AddValue(1, pair.Key);
             trans.Append(stmt);
 
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GUILD_ACHIEVEMENT_CRITERIA);
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GUILD_ACHIEVEMENT_CRITERIA);
             stmt.AddValue(0, _owner.GetId());
             stmt.AddValue(1, pair.Key);
             stmt.AddValue(2, pair.Value.Counter);
@@ -258,32 +274,32 @@ public class GuildAchievementMgr : AchievementManager
 
         if (achievement != null)
         {
-            var tree = Global.CriteriaMgr.GetCriteriaTree(achievement.CriteriaTree);
+            var tree = CriteriaManager.GetCriteriaTree(achievement.CriteriaTree);
 
             if (tree != null)
                 CriteriaManager.WalkCriteriaTree(tree,
                                                  node =>
                                                  {
-                                                     if (node.Criteria != null)
+                                                     if (node.Criteria == null)
+                                                         return;
+
+                                                     var progress = CriteriaProgress.LookupByKey(node.Criteria.Id);
+
+                                                     if (progress == null)
+                                                         return;
+
+                                                     GuildCriteriaProgress guildCriteriaProgress = new()
                                                      {
-                                                         var progress = CriteriaProgress.LookupByKey(node.Criteria.Id);
+                                                         CriteriaID = node.Criteria.Id,
+                                                         DateCreated = 0,
+                                                         DateStarted = 0,
+                                                         DateUpdated = progress.Date,
+                                                         Quantity = progress.Counter,
+                                                         PlayerGUID = progress.PlayerGUID,
+                                                         Flags = 0
+                                                     };
 
-                                                         if (progress != null)
-                                                         {
-                                                             GuildCriteriaProgress guildCriteriaProgress = new()
-                                                             {
-                                                                 CriteriaID = node.Criteria.Id,
-                                                                 DateCreated = 0,
-                                                                 DateStarted = 0,
-                                                                 DateUpdated = progress.Date,
-                                                                 Quantity = progress.Counter,
-                                                                 PlayerGUID = progress.PlayerGUID,
-                                                                 Flags = 0
-                                                             };
-
-                                                             guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
-                                                         }
-                                                     }
+                                                     guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
                                                  });
         }
 
@@ -409,7 +425,7 @@ public class GuildAchievementMgr : AchievementManager
                 GuildAchievement = true
             };
 
-            Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
+            WorldManager.SendGlobalMessage(serverFirstAchievement);
         }
 
         GuildAchievementEarned guildAchievementEarned = new()

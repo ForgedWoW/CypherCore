@@ -11,11 +11,11 @@ namespace Forged.MapServer.Achievements;
 
 public class CriteriaTree
 {
-    public AchievementRecord Achievement;
-    public List<CriteriaTree> Children = new();
-    public Criteria Criteria;
-    public CriteriaTreeRecord Entry;
-    public uint Id;
-    public QuestObjective QuestObjective;
-    public ScenarioStepRecord ScenarioStep;
+    public AchievementRecord Achievement { get; set; }
+    public List<CriteriaTree> Children { get; set; } = new();
+    public Criteria Criteria { get; set; }
+    public CriteriaTreeRecord Entry { get; set; }
+    public uint Id { get; set; }
+    public QuestObjective QuestObjective { get; set; }
+    public ScenarioStepRecord ScenarioStep { get; set; }
 }

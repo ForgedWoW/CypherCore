@@ -47,7 +47,7 @@ public class InstanceScenario : Scenario
 
         List<CriteriaTree> criteriaTrees = new();
 
-        var killCreatureCriteria = Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(CriteriaType.KillCreature, _data.Entry.Id);
+        var killCreatureCriteria = Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(CriteriaType.KillCreature, Data.Entry.Id);
 
         if (!killCreatureCriteria.Empty())
         {
@@ -92,7 +92,7 @@ public class InstanceScenario : Scenario
             }
         }
 
-        foreach (var criteria in Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(CriteriaType.DefeatDungeonEncounter, _data.Entry.Id))
+        foreach (var criteria in Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(CriteriaType.DefeatDungeonEncounter, Data.Entry.Id))
         {
             if (!instanceScript.IsEncounterCompleted(criteria.Entry.Asset))
                 continue;
@@ -111,7 +111,6 @@ public class InstanceScenario : Scenario
 
             if (step == null)
                 continue;
-
 
             if (IsCompletedCriteriaTree(tree))
                 SetStepState(step, ScenarioStepState.Done);

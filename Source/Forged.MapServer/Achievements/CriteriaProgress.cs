@@ -7,8 +7,9 @@ namespace Forged.MapServer.Achievements;
 
 public class CriteriaProgress
 {
-    public bool Changed;
-    public ulong Counter;
-    public long Date;             // latest update time.
-    public ObjectGuid PlayerGUID; // GUID of the player that completed this criteria (guild achievements)
+    public ObjectGuid PlayerGUID;
+    public bool Changed { get; set; }
+    public ulong Counter { get; set; }
+    public long Date { get; set; } // latest update time.
+                                   // GUID of the player that completed this criteria (guild achievements)
 }

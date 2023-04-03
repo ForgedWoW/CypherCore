@@ -27,7 +27,7 @@ public struct RealmId : IEquatable<RealmId>
 
     public override bool Equals(object obj)
     {
-        return obj != null && obj is RealmId && Equals((RealmId)obj);
+        return obj is RealmId id && Equals(id);
     }
 
     public bool Equals(RealmId other)

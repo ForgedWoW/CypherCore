@@ -5,10 +5,10 @@ namespace Forged.MapServer.Achievements;
 
 public class AchievementReward
 {
-    public string Body;
-    public uint ItemId;
-    public uint MailTemplateId;
-    public uint SenderCreatureId;
-    public string Subject;
-    public uint[] TitleId = new uint[2];
+    public string Body { get; set; }
+    public uint ItemId { get; set; }
+    public uint MailTemplateId { get; set; }
+    public uint SenderCreatureId { get; set; }
+    public string Subject { get; set; }
+    public uint[] TitleId { get; set; } = new uint[2];
 }

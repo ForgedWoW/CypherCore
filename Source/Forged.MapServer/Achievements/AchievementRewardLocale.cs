@@ -8,6 +8,6 @@ namespace Forged.MapServer.Achievements;
 
 public class AchievementRewardLocale
 {
-    public StringArray Body = new((int)Locale.Total);
-    public StringArray Subject = new((int)Locale.Total);
+    public StringArray Body { get; set; } = new((int)Locale.Total);
+    public StringArray Subject { get; set; } = new((int)Locale.Total);
 }

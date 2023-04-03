@@ -3,34 +3,49 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Achievements;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Achievements;
 using Forged.MapServer.Networking.Packets.Scenario;
+using Forged.MapServer.Spells;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Scenarios;
 
 public class Scenario : CriteriaHandler
 {
-    protected ScenarioData _data;
+    protected ScenarioData Data;
+    private readonly ObjectAccessor _objectAccessor;
 
     private readonly List<ObjectGuid> _players = new();
     private readonly Dictionary<ScenarioStepRecord, ScenarioStepState> _stepStates = new();
     private ScenarioStepRecord _currentstep;
 
-    public Scenario(ScenarioData scenarioData)
+    public Scenario(ScenarioData scenarioData, ObjectAccessor objectAccessor, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager objectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
+                    DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
+                    LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
+        base(criteriaManager, worldManager, objectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
     {
-        _data = scenarioData;
+        Data = scenarioData;
+        _objectAccessor = objectAccessor;
         _currentstep = null;
 
         //ASSERT(_data);
 
-        foreach (var scenarioStep in _data.Steps.Values)
+        foreach (var scenarioStep in Data.Steps.Values)
             SetStepState(scenarioStep, ScenarioStepState.NotStarted);
 
         var firstStep = GetFirstStep();
@@ -38,14 +53,14 @@ public class Scenario : CriteriaHandler
         if (firstStep != null)
             SetStep(firstStep);
         else
-            Log.Logger.Error("Scenario.Scenario: Could not launch Scenario (id: {0}), found no valid scenario step", _data.Entry.Id);
+            Log.Logger.Error("Scenario.Scenario: Could not launch Scenario (id: {0}), found no valid scenario step", Data.Entry.Id);
     }
 
     ~Scenario()
     {
         foreach (var guid in _players)
         {
-            var player = Global.ObjAccessor.FindPlayer(guid);
+            var player = _objectAccessor.FindPlayer(guid);
 
             if (player)
                 SendBootPlayer(player);
@@ -88,7 +103,7 @@ public class Scenario : CriteriaHandler
         if (step == null)
             return false;
 
-        if (step.ScenarioID != _data.Entry.Id)
+        if (step.ScenarioID != Data.Entry.Id)
             return false;
 
         var currentStep = GetStep();
@@ -115,17 +130,17 @@ public class Scenario : CriteriaHandler
 
     public virtual void CompleteScenario()
     {
-        SendPacket(new ScenarioCompleted(_data.Entry.Id));
+        SendPacket(new ScenarioCompleted(Data.Entry.Id));
     }
 
     public virtual void CompleteStep(ScenarioStepRecord step)
     {
-        var quest = Global.ObjectMgr.GetQuestTemplate(step.RewardQuestID);
+        var quest = ObjectManager.GetQuestTemplate(step.RewardQuestID);
 
         if (quest != null)
             foreach (var guid in _players)
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = _objectAccessor.FindPlayer(guid);
 
                 if (player)
                     player.RewardQuest(quest, LootItemType.Item, 0, null, false);
@@ -136,7 +151,7 @@ public class Scenario : CriteriaHandler
 
         ScenarioStepRecord newStep = null;
 
-        foreach (var scenarioStep in _data.Steps.Values)
+        foreach (var scenarioStep in Data.Steps.Values)
         {
             if (scenarioStep.IsBonusObjective())
                 continue;
@@ -158,12 +173,12 @@ public class Scenario : CriteriaHandler
 
     public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
     {
-        return Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(type, _data.Entry.Id);
+        return CriteriaManager.GetScenarioCriteriaByTypeAndScenario(type, Data.Entry.Id);
     }
 
     public ScenarioRecord GetEntry()
     {
-        return _data.Entry;
+        return Data.Entry;
     }
 
     public ScenarioStepRecord GetLastStep()
@@ -171,7 +186,7 @@ public class Scenario : CriteriaHandler
         // Do it like this because we don't know what order they're in inside the container.
         ScenarioStepRecord lastStep = null;
 
-        foreach (var scenarioStep in _data.Steps.Values)
+        foreach (var scenarioStep in Data.Steps.Values)
         {
             if (scenarioStep.IsBonusObjective())
                 continue;
@@ -233,7 +248,7 @@ public class Scenario : CriteriaHandler
     {
         foreach (var guid in _players)
         {
-            var player = Global.ObjAccessor.FindPlayer(guid);
+            var player = _objectAccessor.FindPlayer(guid);
 
             if (player)
                 player.SendPacket(data);
@@ -257,7 +272,7 @@ public class Scenario : CriteriaHandler
 
     private void BuildScenarioState(ScenarioState scenarioState)
     {
-        scenarioState.ScenarioID = (int)_data.Entry.Id;
+        scenarioState.ScenarioID = (int)Data.Entry.Id;
         var step = GetStep();
 
         if (step != null)
@@ -293,18 +308,18 @@ public class Scenario : CriteriaHandler
     {
         List<BonusObjectiveData> bonusObjectivesData = new();
 
-        foreach (var scenarioStep in _data.Steps.Values)
+        foreach (var scenarioStep in Data.Steps.Values)
         {
             if (!scenarioStep.IsBonusObjective())
                 continue;
 
-            if (Global.CriteriaMgr.GetCriteriaTree(scenarioStep.CriteriaTreeId) != null)
-            {
-                BonusObjectiveData bonusObjectiveData;
-                bonusObjectiveData.BonusObjectiveID = (int)scenarioStep.Id;
-                bonusObjectiveData.ObjectiveComplete = GetStepState(scenarioStep) == ScenarioStepState.Done;
-                bonusObjectivesData.Add(bonusObjectiveData);
-            }
+            if (CriteriaManager.GetCriteriaTree(scenarioStep.CriteriaTreeId) == null)
+                continue;
+
+            BonusObjectiveData bonusObjectiveData;
+            bonusObjectiveData.BonusObjectiveID = (int)scenarioStep.Id;
+            bonusObjectiveData.ObjectiveComplete = GetStepState(scenarioStep) == ScenarioStepState.Done;
+            bonusObjectivesData.Add(bonusObjectiveData);
         }
 
         return bonusObjectivesData;
@@ -314,19 +329,16 @@ public class Scenario : CriteriaHandler
     {
         List<CriteriaProgressPkt> criteriasProgress = new();
 
-        if (!CriteriaProgress.Empty())
-            foreach (var pair in CriteriaProgress)
-            {
-                CriteriaProgressPkt criteriaProgress = new()
-                {
-                    Id = pair.Key,
-                    Quantity = pair.Value.Counter,
-                    Date = pair.Value.Date,
-                    Player = pair.Value.PlayerGUID
-                };
+        if (CriteriaProgress.Empty())
+            return criteriasProgress;
 
-                criteriasProgress.Add(criteriaProgress);
-            }
+        criteriasProgress.AddRange(CriteriaProgress.Select(pair => new CriteriaProgressPkt()
+        {
+            Id = pair.Key,
+            Quantity = pair.Value.Counter,
+            Date = pair.Value.Date,
+            Player = pair.Value.PlayerGUID
+        }));
 
         return criteriasProgress;
     }
@@ -336,7 +348,7 @@ public class Scenario : CriteriaHandler
         // Do it like this because we don't know what order they're in inside the container.
         ScenarioStepRecord firstStep = null;
 
-        foreach (var scenarioStep in _data.Steps.Values)
+        foreach (var scenarioStep in Data.Steps.Values)
         {
             if (scenarioStep.IsBonusObjective())
                 continue;
@@ -358,7 +370,7 @@ public class Scenario : CriteriaHandler
 
     private bool IsComplete()
     {
-        foreach (var scenarioStep in _data.Steps.Values)
+        foreach (var scenarioStep in Data.Steps.Values)
         {
             if (scenarioStep.IsBonusObjective())
                 continue;
@@ -372,19 +384,16 @@ public class Scenario : CriteriaHandler
 
     private bool IsCompletedStep(ScenarioStepRecord step)
     {
-        var tree = Global.CriteriaMgr.GetCriteriaTree(step.CriteriaTreeId);
+        var tree = CriteriaManager.GetCriteriaTree(step.CriteriaTreeId);
 
-        if (tree == null)
-            return false;
-
-        return IsCompletedCriteriaTree(tree);
+        return tree != null && IsCompletedCriteriaTree(tree);
     }
 
     private void SendBootPlayer(Player player)
     {
         ScenarioVacate scenarioBoot = new()
         {
-            ScenarioID = (int)_data.Entry.Id
+            ScenarioID = (int)Data.Entry.Id
         };
 
         player.SendPacket(scenarioBoot);

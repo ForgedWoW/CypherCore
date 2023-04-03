@@ -4,40 +4,39 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.Achievements;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Achievements;
+using Forged.MapServer.Spells;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Quest;
 
 internal class QuestObjectiveCriteriaManager : CriteriaHandler
 {
+    private readonly CharacterDatabase _characterDatabase;
     private readonly List<uint> _completedObjectives = new();
     private readonly Player _owner;
 
-    public QuestObjectiveCriteriaManager(Player owner)
+    public QuestObjectiveCriteriaManager(Player owner, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager objectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
+                                         DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
+                                         LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
+        base(criteriaManager, worldManager, objectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
     {
         _owner = owner;
-    }
-
-    public static void DeleteFromDB(ObjectGuid guid)
-    {
-        SQLTransaction trans = new();
-
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
-        stmt.AddValue(0, guid.Counter);
-        trans.Append(stmt);
-
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
-        stmt.AddValue(0, guid.Counter);
-        trans.Append(stmt);
-
-        DB.Characters.CommitTransaction(trans);
+        _characterDatabase = characterDatabase;
     }
 
     public override bool CanCompleteCriteriaTree(CriteriaTree tree)
@@ -71,7 +70,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
             return false;
         }
 
-        var quest = Global.ObjectMgr.GetQuestTemplate(objective.QuestID);
+        var quest = ObjectManager.GetQuestTemplate(objective.QuestID);
 
         if (_owner.Group && _owner.Group.IsRaidGroup && !quest.IsAllowedInRaid(referencePlayer.Location.Map.DifficultyID))
         {
@@ -109,9 +108,24 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
         CompletedObjective(objective, referencePlayer);
     }
 
+    public void DeleteFromDB(ObjectGuid guid)
+    {
+        SQLTransaction trans = new();
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
+        stmt.AddValue(0, guid.Counter);
+        trans.Append(stmt);
+
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
+        stmt.AddValue(0, guid.Counter);
+        trans.Append(stmt);
+
+        _characterDatabase.CommitTransaction(trans);
+    }
+
     public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
     {
-        return Global.CriteriaMgr.GetQuestObjectiveCriteriaByType(type);
+        return CriteriaManager.GetQuestObjectiveCriteriaByType(type);
     }
 
     public override string GetOwnerInfo()
@@ -131,7 +145,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
             {
                 var objectiveId = objectiveResult.Read<uint>(0);
 
-                var objective = Global.ObjectMgr.GetQuestObjective(objectiveId);
+                var objective = ObjectManager.GetQuestObjective(objectiveId);
 
                 if (objective == null)
                     continue;
@@ -149,16 +163,16 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
                 var counter = criteriaResult.Read<ulong>(1);
                 var date = criteriaResult.Read<long>(2);
 
-                var criteria = Global.CriteriaMgr.GetCriteria(criteriaId);
+                var criteria = CriteriaManager.GetCriteria(criteriaId);
 
                 if (criteria == null)
                 {
                     // Removing non-existing criteria data for all characters
                     Log.Logger.Error($"Non-existing quest objective criteria {criteriaId} data has been removed from the table `character_queststatus_objectives_criteria_progress`.");
 
-                    var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_QUEST_PROGRESS_CRITERIA);
+                    var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_QUEST_PROGRESS_CRITERIA);
                     stmt.AddValue(0, criteriaId);
-                    DB.Characters.Execute(stmt);
+                    _characterDatabase.Execute(stmt);
 
                     continue;
                 }
@@ -199,11 +213,11 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
         if (_owner.IsGameMaster)
             return;
 
-        var playerCriteriaList = Global.CriteriaMgr.GetCriteriaByFailEvent(failEvent, (int)failAsset);
+        var playerCriteriaList = CriteriaManager.GetCriteriaByFailEvent(failEvent, (int)failAsset);
 
         foreach (var playerCriteria in playerCriteriaList)
         {
-            var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(playerCriteria.Id);
+            var trees = CriteriaManager.GetCriteriaTreesByCriteria(playerCriteria.Id);
             var allComplete = true;
 
             foreach (var tree in trees)
@@ -224,7 +238,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
     public void ResetCriteriaTree(uint criteriaTreeId)
     {
-        var tree = Global.CriteriaMgr.GetCriteriaTree(criteriaTreeId);
+        var tree = CriteriaManager.GetCriteriaTree(criteriaTreeId);
 
         if (tree == null)
             return;
@@ -234,14 +248,14 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
     public void SaveToDB(SQLTransaction trans)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
         stmt.AddValue(0, _owner.GUID.Counter);
         trans.Append(stmt);
 
         if (!_completedObjectives.Empty())
             foreach (var completedObjectiveId in _completedObjectives)
             {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
+                stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
                 stmt.AddValue(0, _owner.GUID.Counter);
                 stmt.AddValue(1, completedObjectiveId);
                 trans.Append(stmt);
@@ -253,14 +267,14 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
                 if (!pair.Value.Changed)
                     continue;
 
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS_BY_CRITERIA);
+                stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS_BY_CRITERIA);
                 stmt.AddValue(0, _owner.GUID.Counter);
                 stmt.AddValue(1, pair.Key);
                 trans.Append(stmt);
 
                 if (pair.Value.Counter != 0)
                 {
-                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
+                    stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
                     stmt.AddValue(0, _owner.GUID.Counter);
                     stmt.AddValue(1, pair.Key);
                     stmt.AddValue(2, pair.Value.Counter);
