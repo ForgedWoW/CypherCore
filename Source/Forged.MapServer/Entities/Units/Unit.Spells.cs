@@ -604,7 +604,7 @@ public partial class Unit
         if (!spellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
         {
             if (UnitCombatHelpers.IsDamageReducedByArmor(damageSchoolMask, spellInfo))
-                damage = (int)UnitCombatHelpers.CalcArmorReducedDamage(damageInfo.Attacker, victim, (uint)damage, spellInfo, attackType);
+                damage = (int)UnitCombatHelpers.CalcArmorReducedDamage(damageInfo.Attacker, victim, damage, spellInfo, attackType);
 
             // Per-school calc
             switch (spellInfo.DmgClass)
@@ -618,19 +618,19 @@ public partial class Unit
                         damageInfo.HitInfo |= (int)SpellHitType.Crit;
 
                         // Calculate crit bonus
-                        var critBonus = (uint)damage;
+                        var critBonus = damage;
                         // Apply crit_damage bonus for melee spells
                         var modOwner = SpellModOwner;
 
                         modOwner?.ApplySpellMod(spellInfo, SpellModOp.CritDamageAndHealing, ref critBonus);
 
-                        damage += (int)critBonus;
+                        damage += critBonus;
 
                         // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
                         var critPctDamageMod = (GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellInfo.GetSchoolMask()) - 1.0f) * 100;
 
                         if (critPctDamageMod != 0)
-                            MathFunctions.AddPct(ref damage, (int)critPctDamageMod);
+                            MathFunctions.AddPct(ref damage, critPctDamageMod);
                     }
 
                     // Spell weapon based damage CAN BE crit & blocked at same time
@@ -642,15 +642,15 @@ public partial class Unit
                         if (victim.IsBlockCritical())
                             value *= 2; // double blocked percent
 
-                        damageInfo.Blocked = (uint)MathFunctions.CalculatePct(damage, value);
+                        damageInfo.Blocked = MathFunctions.CalculatePct(damage, value);
 
                         if (damage <= damageInfo.Blocked)
                         {
-                            damageInfo.Blocked = (uint)damage;
+                            damageInfo.Blocked = damage;
                             damageInfo.FullBlock = true;
                         }
 
-                        damage -= (int)damageInfo.Blocked;
+                        damage -= damageInfo.Blocked;
                     }
 
                     if (CanApplyResilience())
@@ -666,7 +666,7 @@ public partial class Unit
                     if (crit)
                     {
                         damageInfo.HitInfo |= (int)SpellHitType.Crit;
-                        damage = (int)UnitCombatHelpers.SpellCriticalDamageBonus(this, spellInfo, (uint)damage, victim);
+                        damage = UnitCombatHelpers.SpellCriticalDamageBonus(this, spellInfo, damage, victim);
                     }
 
                     if (CanApplyResilience())
@@ -684,8 +684,8 @@ public partial class Unit
         if (damage < 0)
             damage = 0;
 
-        damageInfo.Damage = (uint)damage;
-        damageInfo.OriginalDamage = (uint)damage;
+        damageInfo.Damage = damage;
+        damageInfo.OriginalDamage = damage;
         DamageInfo dmgInfo = new(damageInfo, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack, ProcFlagsHit.None);
         UnitCombatHelpers.CalcAbsorbResist(dmgInfo, spell);
         damageInfo.Absorb = dmgInfo.Absorb;
