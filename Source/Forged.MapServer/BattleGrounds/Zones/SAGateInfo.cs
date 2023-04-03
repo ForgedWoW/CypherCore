@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal class SAGateInfo
+internal class SaGateInfo
 {
     public uint DamagedText;
     public uint DestroyedText;
@@ -11,7 +11,7 @@ internal class SAGateInfo
     public uint GateId;
     public uint WorldState;
 
-    public SAGateInfo(uint gateId, uint gameObjectId, uint worldState, uint damagedText, uint destroyedText)
+    public SaGateInfo(uint gateId, uint gameObjectId, uint worldState, uint damagedText, uint destroyedText)
     {
         GateId = gateId;
         GameObjectId = gameObjectId;

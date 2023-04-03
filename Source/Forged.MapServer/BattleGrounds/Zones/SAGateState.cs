@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal enum SAGateState
+internal enum SaGateState
 {
     // alliance is defender
     AllianceGateOk = 1,

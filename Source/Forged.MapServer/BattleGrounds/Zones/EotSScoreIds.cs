@@ -5,6 +5,6 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal struct EotSScoreIds
 {
-    public const uint MaxTeamScore = 1500;
-    public const uint WarningNearVictoryScore = 1400;
+    public const uint MAX_TEAM_SCORE = 1500;
+    public const uint WARNING_NEAR_VICTORY_SCORE = 1400;
 }

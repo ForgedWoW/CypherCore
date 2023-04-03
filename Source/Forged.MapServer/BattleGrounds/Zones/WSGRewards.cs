@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal enum WSGRewards
+internal enum WsgRewards
 {
     Win = 0,
     FlapCap,

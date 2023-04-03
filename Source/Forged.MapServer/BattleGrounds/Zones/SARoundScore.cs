@@ -3,10 +3,10 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SARoundScore
+internal struct SaRoundScore
 {
-    public uint time;
-    public uint winner;
+    public uint Time;
+    public uint Winner;
 }
 
 #region Consts

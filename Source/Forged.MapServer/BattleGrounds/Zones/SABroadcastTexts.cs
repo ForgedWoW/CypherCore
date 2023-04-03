@@ -3,11 +3,11 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SABroadcastTexts
+internal struct SaBroadcastTexts
 {
-    public const uint AllianceCapturedTitanPortal = 28944;
-    public const uint HordeCapturedTitanPortal = 28945;
+    public const uint ALLIANCE_CAPTURED_TITAN_PORTAL = 28944;
+    public const uint HORDE_CAPTURED_TITAN_PORTAL = 28945;
 
-    public const uint RoundTwoStartHalfMinute = 29449;
-    public const uint RoundTwoStartOneMinute = 29448;
+    public const uint ROUND_TWO_START_HALF_MINUTE = 29449;
+    public const uint ROUND_TWO_START_ONE_MINUTE = 29448;
 }

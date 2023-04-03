@@ -3,18 +3,18 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct WSGBroadcastTexts
+internal struct WsgBroadcastTexts
 {
-    public const uint AllianceFlagDropped = 9805;
-    public const uint AllianceFlagPickedUp = 9804;
-    public const uint AllianceFlagReturned = 9808;
-    public const uint BattleHasBegun = 10014;
-    public const uint CapturedAllianceFlag = 9802;
-    public const uint CapturedHordeFlag = 9801;
-    public const uint FlagsPlaced = 9803;
-    public const uint HordeFlagDropped = 9806;
-    public const uint HordeFlagPickedUp = 9807;
-    public const uint HordeFlagReturned = 9809;
-    public const uint StartHalfMinute = 10016;
-    public const uint StartOneMinute = 10015;
+    public const uint ALLIANCE_FLAG_DROPPED = 9805;
+    public const uint ALLIANCE_FLAG_PICKED_UP = 9804;
+    public const uint ALLIANCE_FLAG_RETURNED = 9808;
+    public const uint BATTLE_HAS_BEGUN = 10014;
+    public const uint CAPTURED_ALLIANCE_FLAG = 9802;
+    public const uint CAPTURED_HORDE_FLAG = 9801;
+    public const uint FLAGS_PLACED = 9803;
+    public const uint HORDE_FLAG_DROPPED = 9806;
+    public const uint HORDE_FLAG_PICKED_UP = 9807;
+    public const uint HORDE_FLAG_RETURNED = 9809;
+    public const uint START_HALF_MINUTE = 10016;
+    public const uint START_ONE_MINUTE = 10015;
 }

@@ -3,8 +3,8 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct WSObjectives
+internal struct WsObjectives
 {
-    public const int CaptureFlag = 42;
-    public const int ReturnFlag = 44;
+    public const int CAPTURE_FLAG = 42;
+    public const int RETURN_FLAG = 44;
 }

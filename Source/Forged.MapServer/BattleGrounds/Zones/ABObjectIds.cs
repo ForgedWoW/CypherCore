@@ -5,13 +5,13 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal struct ABObjectIds
 {
-    public const uint AuraA = 180100;
-    public const uint AuraC = 180102;
-    public const uint AuraH = 180101;
-    public const uint BannerA = 180058;
-    public const uint BannerContA = 180059;
-    public const uint BannerContH = 180061;
-    public const uint BannerH = 180060;
-    public const uint GateA = 180255;
-    public const uint GateH = 180256;
+    public const uint AURA_A = 180100;
+    public const uint AURA_C = 180102;
+    public const uint AURA_H = 180101;
+    public const uint BANNER_A = 180058;
+    public const uint BANNER_CONT_A = 180059;
+    public const uint BANNER_CONT_H = 180061;
+    public const uint BANNER_H = 180060;
+    public const uint GATE_A = 180255;
+    public const uint GATE_H = 180256;
 }

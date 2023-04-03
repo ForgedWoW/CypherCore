@@ -7,28 +7,28 @@ using Framework.Constants;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal class BattlegroundSAScore : BattlegroundScore
+internal class BattlegroundSaScore : BattlegroundScore
 {
-    private uint DemolishersDestroyed;
-    private uint GatesDestroyed;
-    public BattlegroundSAScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
+    private uint _demolishersDestroyed;
+    private uint _gatesDestroyed;
+    public BattlegroundSaScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
     public override void BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData)
     {
         base.BuildPvPLogPlayerDataPacket(out playerData);
 
-        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)SAObjectives.DemolishersDestroyed, DemolishersDestroyed));
-        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)SAObjectives.GatesDestroyed, GatesDestroyed));
+        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)SaObjectives.DemolishersDestroyed, _demolishersDestroyed));
+        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)SaObjectives.GatesDestroyed, _gatesDestroyed));
     }
 
     public override uint GetAttr1()
     {
-        return DemolishersDestroyed;
+        return _demolishersDestroyed;
     }
 
     public override uint GetAttr2()
     {
-        return GatesDestroyed;
+        return _gatesDestroyed;
     }
 
     public override void UpdateScore(ScoreType type, uint value)
@@ -36,11 +36,11 @@ internal class BattlegroundSAScore : BattlegroundScore
         switch (type)
         {
             case ScoreType.DestroyedDemolisher:
-                DemolishersDestroyed += value;
+                _demolishersDestroyed += value;
 
                 break;
             case ScoreType.DestroyedWall:
-                GatesDestroyed += value;
+                _gatesDestroyed += value;
 
                 break;
             default:

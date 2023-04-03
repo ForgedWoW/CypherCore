@@ -3,12 +3,12 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SASpellIds
+internal struct SaSpellIds
 {
-    public const uint AllianceControlPhaseShift = 60027;
-    public const uint EndOfRound = 52459;
-    public const uint HordeControlPhaseShift = 60028;
-    public const uint RemoveSeaforium = 59077;
-    public const uint TeleportAttackers = 60178;
-    public const uint TeleportDefender = 52364;
+    public const uint ALLIANCE_CONTROL_PHASE_SHIFT = 60027;
+    public const uint END_OF_ROUND = 52459;
+    public const uint HORDE_CONTROL_PHASE_SHIFT = 60028;
+    public const uint REMOVE_SEAFORIUM = 59077;
+    public const uint TELEPORT_ATTACKERS = 60178;
+    public const uint TELEPORT_DEFENDER = 52364;
 }

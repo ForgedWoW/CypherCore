@@ -3,9 +3,9 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SATimers
+internal struct SaTimers
 {
-    public const uint BoatStart = 60 * Time.IN_MILLISECONDS;
-    public const uint RoundLength = 600 * Time.IN_MILLISECONDS;
-    public const uint WarmupLength = 120 * Time.IN_MILLISECONDS;
+    public const uint BOAT_START = 60 * Time.IN_MILLISECONDS;
+    public const uint ROUND_LENGTH = 600 * Time.IN_MILLISECONDS;
+    public const uint WARMUP_LENGTH = 120 * Time.IN_MILLISECONDS;
 }

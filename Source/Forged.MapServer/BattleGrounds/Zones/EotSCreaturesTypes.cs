@@ -5,16 +5,16 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal struct EotSCreaturesTypes
 {
-    public const uint Max = 10;
-    public const uint SpiritBloodElf = 1;
-    public const uint SpiritDraeneiRuins = 2;
-    public const uint SpiritFelReaver = 0;
-    public const uint SpiritMageTower = 3;
-    public const int SpiritMainAlliance = 4;
-    public const int SpiritMainHorde = 5;
+    public const uint MAX = 10;
+    public const uint SPIRIT_BLOOD_ELF = 1;
+    public const uint SPIRIT_DRAENEI_RUINS = 2;
+    public const uint SPIRIT_FEL_REAVER = 0;
+    public const uint SPIRIT_MAGE_TOWER = 3;
+    public const int SPIRIT_MAIN_ALLIANCE = 4;
+    public const int SPIRIT_MAIN_HORDE = 5;
 
-    public const uint TriggerBloodElf = 7;
-    public const uint TriggerDraeneiRuins = 8;
-    public const uint TriggerFelReaver = 6;
-    public const uint TriggerMageTower = 9;
+    public const uint TRIGGER_BLOOD_ELF = 7;
+    public const uint TRIGGER_DRAENEI_RUINS = 8;
+    public const uint TRIGGER_FEL_REAVER = 6;
+    public const uint TRIGGER_MAGE_TOWER = 9;
 }

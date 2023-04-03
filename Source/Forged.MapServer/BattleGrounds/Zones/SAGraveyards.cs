@@ -3,12 +3,12 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SAGraveyards
+internal struct SaGraveyards
 {
-    public const int BeachGy = 0;
-    public const int CentralCapturableGy = 4;
-    public const int DefenderLastGy = 1;
-    public const int LeftCapturableGy = 3;
-    public const int Max = 5;
-    public const int RightCapturableGy = 2;
+    public const int BEACH_GY = 0;
+    public const int CENTRAL_CAPTURABLE_GY = 4;
+    public const int DEFENDER_LAST_GY = 1;
+    public const int LEFT_CAPTURABLE_GY = 3;
+    public const int MAX = 5;
+    public const int RIGHT_CAPTURABLE_GY = 2;
 }

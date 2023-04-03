@@ -3,28 +3,28 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SACreatureTypes
+internal struct SaCreatureTypes
 {
-    public const int Demolisher1 = 10;
-    public const int Demolisher2 = 11;
-    public const int Demolisher3 = 12;
-    public const int Demolisher4 = 13;
-    public const int Demolisher5 = 14;
-    public const int Demolisher6 = 15;
-    public const int Demolisher7 = 16;
-    public const int Demolisher8 = 17;
-    public const int Gun1 = 0;
-    public const int Gun10 = 9;
-    public const int Gun2 = 1;
-    public const int Gun3 = 2;
-    public const int Gun4 = 3;
-    public const int Gun5 = 4;
-    public const int Gun6 = 5;
-    public const int Gun7 = 6;
-    public const int Gun8 = 7;
-    public const int Gun9 = 8;
-    public const int Kanrethad = 20;
-    public const int Max = 21;
-    public const int Rigspark = 19;
-    public const int Sparklight = 18;
+    public const int DEMOLISHER1 = 10;
+    public const int DEMOLISHER2 = 11;
+    public const int DEMOLISHER3 = 12;
+    public const int DEMOLISHER4 = 13;
+    public const int DEMOLISHER5 = 14;
+    public const int DEMOLISHER6 = 15;
+    public const int DEMOLISHER7 = 16;
+    public const int DEMOLISHER8 = 17;
+    public const int GUN1 = 0;
+    public const int GUN10 = 9;
+    public const int GUN2 = 1;
+    public const int GUN3 = 2;
+    public const int GUN4 = 3;
+    public const int GUN5 = 4;
+    public const int GUN6 = 5;
+    public const int GUN7 = 6;
+    public const int GUN8 = 7;
+    public const int GUN9 = 8;
+    public const int KANRETHAD = 20;
+    public const int MAX = 21;
+    public const int RIGSPARK = 19;
+    public const int SPARKLIGHT = 18;
 }

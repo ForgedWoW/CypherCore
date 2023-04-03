@@ -3,9 +3,9 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct WSGCreatureTypes
+internal struct WsgCreatureTypes
 {
-    public const int Max = 2;
-    public const int SpiritMainAlliance = 0;
-    public const int SpiritMainHorde = 1;
+    public const int MAX = 2;
+    public const int SPIRIT_MAIN_ALLIANCE = 0;
+    public const int SPIRIT_MAIN_HORDE = 1;
 }

@@ -3,10 +3,10 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct WSGGraveyards
+internal struct WsgGraveyards
 {
-    public const uint FlagRoomAlliance = 769;
-    public const uint FlagRoomHorde = 770;
-    public const uint MainAlliance = 771;
-    public const uint MainHorde = 772;
+    public const uint FLAG_ROOM_ALLIANCE = 769;
+    public const uint FLAG_ROOM_HORDE = 770;
+    public const uint MAIN_ALLIANCE = 771;
+    public const uint MAIN_HORDE = 772;
 }

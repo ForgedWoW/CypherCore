@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal enum WSGFlagState
+internal enum WsgFlagState
 {
     OnBase = 1,
     OnPlayer = 2,

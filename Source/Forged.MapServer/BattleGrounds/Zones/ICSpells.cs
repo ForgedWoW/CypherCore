@@ -3,20 +3,20 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-public struct ICSpells
+public struct IcSpells
 {
-    public const uint BackDoorJobAchievement = 68502;
-    public const uint DestroyedVehicleAchievement = 68357;
-    public const uint DrivingCreditCatapult = 68362;
-    public const uint DrivingCreditDemolisher = 68365;
-    public const uint DrivingCreditGlaive = 68363;
-    public const uint DrivingCreditSiege = 68364;
-    public const uint LaunchNoFallingDamage = 66251;
-    public const uint OilRefinery = 68719;
-    public const uint Parachute = 66656;
-    public const uint ParachuteIc = 66657;
-    public const uint Quarry = 68720;
-    public const uint SimpleTeleport = 12980;
-    public const uint SlowFall = 12438;
-    public const uint TeleportVisualOnly = 51347;
+    public const uint BACK_DOOR_JOB_ACHIEVEMENT = 68502;
+    public const uint DESTROYED_VEHICLE_ACHIEVEMENT = 68357;
+    public const uint DRIVING_CREDIT_CATAPULT = 68362;
+    public const uint DRIVING_CREDIT_DEMOLISHER = 68365;
+    public const uint DRIVING_CREDIT_GLAIVE = 68363;
+    public const uint DRIVING_CREDIT_SIEGE = 68364;
+    public const uint LAUNCH_NO_FALLING_DAMAGE = 66251;
+    public const uint OIL_REFINERY = 68719;
+    public const uint PARACHUTE = 66656;
+    public const uint PARACHUTE_IC = 66657;
+    public const uint QUARRY = 68720;
+    public const uint SIMPLE_TELEPORT = 12980;
+    public const uint SLOW_FALL = 12438;
+    public const uint TELEPORT_VISUAL_ONLY = 51347;
 }

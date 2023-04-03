@@ -3,14 +3,14 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SACreatureIds
+internal struct SaCreatureIds
 {
-    public const uint AntiPersonnalCannon = 27894;
-    public const uint Demolisher = 28781;
-    public const uint GorgrilRigspark = 29262;
-    public const uint InvisibleStalker = 15214;
-    public const uint Kanrethad = 29;
-    public const uint RiggerSparklight = 29260;
-    public const uint WorldTrigger = 22515;
-    public const uint WorldTriggerLargeAoiNotImmunePcNpc = 23472;
+    public const uint ANTI_PERSONNAL_CANNON = 27894;
+    public const uint DEMOLISHER = 28781;
+    public const uint GORGRIL_RIGSPARK = 29262;
+    public const uint INVISIBLE_STALKER = 15214;
+    public const uint KANRETHAD = 29;
+    public const uint RIGGER_SPARKLIGHT = 29260;
+    public const uint WORLD_TRIGGER = 22515;
+    public const uint WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC = 23472;
 }

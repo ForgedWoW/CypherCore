@@ -3,45 +3,45 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SATextIds
+internal struct SaTextIds
 {
-    public const byte AncientGateDestroyed = 18;
+    public const byte ANCIENT_GATE_DESTROYED = 18;
 
-    public const byte AncientGateUnderAttack = 17;
+    public const byte ANCIENT_GATE_UNDER_ATTACK = 17;
 
-    public const byte BlueGateDestroyed = 10;
+    public const byte BLUE_GATE_DESTROYED = 10;
 
     // World Trigger
-    public const byte BlueGateUnderAttack = 1;
+    public const byte BLUE_GATE_UNDER_ATTACK = 1;
 
-    public const byte EastGraveyardCapturedA = 11;
+    public const byte EAST_GRAVEYARD_CAPTURED_A = 11;
 
-    public const byte EastGraveyardCapturedH = 14;
+    public const byte EAST_GRAVEYARD_CAPTURED_H = 14;
 
-    public const byte GreenGateDestroyed = 9;
+    public const byte GREEN_GATE_DESTROYED = 9;
 
-    public const byte GreenGateUnderAttack = 2;
+    public const byte GREEN_GATE_UNDER_ATTACK = 2;
 
-    public const byte PurpleGateDestroyed = 7;
+    public const byte PURPLE_GATE_DESTROYED = 7;
 
-    public const byte PurpleGateUnderAttack = 4;
+    public const byte PURPLE_GATE_UNDER_ATTACK = 4;
 
-    public const byte RedGateDestroyed = 8;
+    public const byte RED_GATE_DESTROYED = 8;
 
-    public const byte RedGateUnderAttack = 3;
+    public const byte RED_GATE_UNDER_ATTACK = 3;
 
-    public const byte Round1Finished = 2;
+    public const byte ROUND1_FINISHED = 2;
 
     // Kanrethad
-    public const byte RoundStarted = 1;
-    public const byte SouthGraveyardCapturedA = 13;
+    public const byte ROUND_STARTED = 1;
+    public const byte SOUTH_GRAVEYARD_CAPTURED_A = 13;
 
-    public const byte SouthGraveyardCapturedH = 16;
+    public const byte SOUTH_GRAVEYARD_CAPTURED_H = 16;
 
     // Rigger Sparklight / Gorgril Rigspark
-    public const byte SparklightRigsparkSpawn = 1;
-    public const byte WestGraveyardCapturedA = 12;
-    public const byte WestGraveyardCapturedH = 15;
-    public const byte YellowGateDestroyed = 6;
-    public const byte YellowGateUnderAttack = 5;
+    public const byte SPARKLIGHT_RIGSPARK_SPAWN = 1;
+    public const byte WEST_GRAVEYARD_CAPTURED_A = 12;
+    public const byte WEST_GRAVEYARD_CAPTURED_H = 15;
+    public const byte YELLOW_GATE_DESTROYED = 6;
+    public const byte YELLOW_GATE_UNDER_ATTACK = 5;
 }

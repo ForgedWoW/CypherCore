@@ -5,18 +5,18 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal struct ABBattlegroundNodes
 {
-    public const int AllCount = 7;
-    public const int DynamicNodesCount = 5;
-    public const int NodeBlacksmith = 1;
-    public const int NodeFarm = 2;
-    public const int NodeGoldMine = 4;
-    public const int NodeLumberMill = 3;
+    public const int ALL_COUNT = 7;
+    public const int DYNAMIC_NODES_COUNT = 5;
+    public const int NODE_BLACKSMITH = 1;
+    public const int NODE_FARM = 2;
+    public const int NODE_GOLD_MINE = 4;
+    public const int NODE_LUMBER_MILL = 3;
 
-    public const int NodeStables = 0;
+    public const int NODE_STABLES = 0;
     // Dynamic Nodes That Can Be Captured
 
-    public const int SpiritAliance = 5;
-    public const int SpiritHorde = 6;
+    public const int SPIRIT_ALIANCE = 5;
+    public const int SPIRIT_HORDE = 6;
 
     // All Nodes (Dynamic And Static)
 }

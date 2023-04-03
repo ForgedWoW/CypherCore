@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal enum SAStatus
+internal enum SaStatus
 {
     NotStarted = 0,
     Warmup,

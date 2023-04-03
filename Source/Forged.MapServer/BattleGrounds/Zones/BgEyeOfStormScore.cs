@@ -9,19 +9,19 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal class BgEyeOfStormScore : BattlegroundScore
 {
-    private uint FlagCaptures;
+    private uint _flagCaptures;
     public BgEyeOfStormScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
     public override void BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData)
     {
         base.BuildPvPLogPlayerDataPacket(out playerData);
 
-        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)EotSMisc.ObjectiveCaptureFlag, FlagCaptures));
+        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)EotSMisc.OBJECTIVE_CAPTURE_FLAG, _flagCaptures));
     }
 
     public override uint GetAttr1()
     {
-        return FlagCaptures;
+        return _flagCaptures;
     }
 
     public override void UpdateScore(ScoreType type, uint value)
@@ -29,7 +29,7 @@ internal class BgEyeOfStormScore : BattlegroundScore
         switch (type)
         {
             case ScoreType.FlagCaptures: // Flags captured
-                FlagCaptures += value;
+                _flagCaptures += value;
 
                 break;
             default:

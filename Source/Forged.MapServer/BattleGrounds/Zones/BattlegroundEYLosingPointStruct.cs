@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct BattlegroundEYLosingPointStruct
+internal struct BattlegroundEyLosingPointStruct
 {
     public int DespawnObjectTypeAlliance;
 
@@ -15,12 +15,12 @@ internal struct BattlegroundEYLosingPointStruct
 
     public int SpawnNeutralObjectType;
 
-    public BattlegroundEYLosingPointStruct(int _SpawnNeutralObjectType, int _DespawnObjectTypeAlliance, uint _MessageIdAlliance, int _DespawnObjectTypeHorde, uint _MessageIdHorde)
+    public BattlegroundEyLosingPointStruct(int spawnNeutralObjectType, int despawnObjectTypeAlliance, uint messageIdAlliance, int despawnObjectTypeHorde, uint messageIdHorde)
     {
-        SpawnNeutralObjectType = _SpawnNeutralObjectType;
-        DespawnObjectTypeAlliance = _DespawnObjectTypeAlliance;
-        MessageIdAlliance = _MessageIdAlliance;
-        DespawnObjectTypeHorde = _DespawnObjectTypeHorde;
-        MessageIdHorde = _MessageIdHorde;
+        SpawnNeutralObjectType = spawnNeutralObjectType;
+        DespawnObjectTypeAlliance = despawnObjectTypeAlliance;
+        MessageIdAlliance = messageIdAlliance;
+        DespawnObjectTypeHorde = despawnObjectTypeHorde;
+        MessageIdHorde = messageIdHorde;
     }
 }

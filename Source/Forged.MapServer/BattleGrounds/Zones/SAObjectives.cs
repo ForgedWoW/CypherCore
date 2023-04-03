@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal enum SAObjectives
+internal enum SaObjectives
 {
     GatesDestroyed = 231,
     DemolishersDestroyed = 232

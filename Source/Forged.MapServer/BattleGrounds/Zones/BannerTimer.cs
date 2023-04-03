@@ -5,9 +5,9 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal struct BannerTimer
 {
-    public byte teamIndex;
-    public uint timer;
-    public byte type;
+    public byte TeamIndex;
+    public uint Timer;
+    public byte Type;
 }
 
 #region Consts

@@ -7,28 +7,28 @@ using Framework.Constants;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal class BattlegroundWGScore : BattlegroundScore
+internal class BattlegroundWgScore : BattlegroundScore
 {
-    private uint FlagCaptures;
-    private uint FlagReturns;
-    public BattlegroundWGScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
+    private uint _flagCaptures;
+    private uint _flagReturns;
+    public BattlegroundWgScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
     public override void BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData)
     {
         base.BuildPvPLogPlayerDataPacket(out playerData);
 
-        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat(WSObjectives.CaptureFlag, FlagCaptures));
-        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat(WSObjectives.ReturnFlag, FlagReturns));
+        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat(WsObjectives.CAPTURE_FLAG, _flagCaptures));
+        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat(WsObjectives.RETURN_FLAG, _flagReturns));
     }
 
     public override uint GetAttr1()
     {
-        return FlagCaptures;
+        return _flagCaptures;
     }
 
     public override uint GetAttr2()
     {
-        return FlagReturns;
+        return _flagReturns;
     }
 
     public override void UpdateScore(ScoreType type, uint value)
@@ -36,11 +36,11 @@ internal class BattlegroundWGScore : BattlegroundScore
         switch (type)
         {
             case ScoreType.FlagCaptures: // Flags captured
-                FlagCaptures += value;
+                _flagCaptures += value;
 
                 break;
             case ScoreType.FlagReturns: // Flags returned
-                FlagReturns += value;
+                _flagReturns += value;
 
                 break;
             default:

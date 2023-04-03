@@ -9,31 +9,31 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal class BattlegroundABScore : BattlegroundScore
 {
-    private uint BasesAssaulted;
-    private uint BasesDefended;
+    private uint _basesAssaulted;
+    private uint _basesDefended;
 
     public BattlegroundABScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team)
     {
-        BasesAssaulted = 0;
-        BasesDefended = 0;
+        _basesAssaulted = 0;
+        _basesDefended = 0;
     }
 
     public override void BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData)
     {
         base.BuildPvPLogPlayerDataPacket(out playerData);
 
-        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)ABObjectives.AssaultBase, BasesAssaulted));
-        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)ABObjectives.DefendBase, BasesDefended));
+        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)ABObjectives.AssaultBase, _basesAssaulted));
+        playerData.Stats.Add(new PVPMatchStatistics.PVPMatchPlayerPVPStat((int)ABObjectives.DefendBase, _basesDefended));
     }
 
     public override uint GetAttr1()
     {
-        return BasesAssaulted;
+        return _basesAssaulted;
     }
 
     public override uint GetAttr2()
     {
-        return BasesDefended;
+        return _basesDefended;
     }
 
     public override void UpdateScore(ScoreType type, uint value)
@@ -41,11 +41,11 @@ internal class BattlegroundABScore : BattlegroundScore
         switch (type)
         {
             case ScoreType.BasesAssaulted:
-                BasesAssaulted += value;
+                _basesAssaulted += value;
 
                 break;
             case ScoreType.BasesDefended:
-                BasesDefended += value;
+                _basesDefended += value;
 
                 break;
             default:

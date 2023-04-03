@@ -13,62 +13,62 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal class BgEyeofStorm : Battleground
 {
-    private readonly byte[] m_CurrentPointPlayersCount = new byte[2 * EotSPoints.PointsMax];
-    private readonly uint[] m_HonorScoreTics = new uint[2];
-    private readonly BattlegroundPointCaptureStatus[] m_LastPointCaptureStatus = new BattlegroundPointCaptureStatus[EotSPoints.PointsMax];
-    private readonly List<ObjectGuid>[] m_PlayersNearPoint = new List<ObjectGuid>[EotSPoints.PointsMax + 1];
-    private readonly EotSProgressBarConsts[] m_PointBarStatus = new EotSProgressBarConsts[EotSPoints.PointsMax];
-    private readonly TeamFaction[] m_PointOwnedByTeam = new TeamFaction[EotSPoints.PointsMax];
-    private readonly uint[] m_Points_Trigger = new uint[EotSPoints.PointsMax];
-    private readonly EotSPointState[] m_PointState = new EotSPointState[EotSPoints.PointsMax];
-    private readonly uint[] m_TeamPointsCount = new uint[2];
-    private ObjectGuid m_DroppedFlagGUID;
-    private uint m_FlagCapturedBgObjectType;
+    private readonly byte[] _mCurrentPointPlayersCount = new byte[2 * EotSPoints.POINTS_MAX];
+    private readonly uint[] _mHonorScoreTics = new uint[2];
+    private readonly BattlegroundPointCaptureStatus[] _mLastPointCaptureStatus = new BattlegroundPointCaptureStatus[EotSPoints.POINTS_MAX];
+    private readonly List<ObjectGuid>[] _mPlayersNearPoint = new List<ObjectGuid>[EotSPoints.POINTS_MAX + 1];
+    private readonly EotSProgressBarConsts[] _mPointBarStatus = new EotSProgressBarConsts[EotSPoints.POINTS_MAX];
+    private readonly TeamFaction[] _mPointOwnedByTeam = new TeamFaction[EotSPoints.POINTS_MAX];
+    private readonly uint[] _mPointsTrigger = new uint[EotSPoints.POINTS_MAX];
+    private readonly EotSPointState[] _mPointState = new EotSPointState[EotSPoints.POINTS_MAX];
+    private readonly uint[] _mTeamPointsCount = new uint[2];
+    private ObjectGuid _mDroppedFlagGUID;
+    private uint _mFlagCapturedBgObjectType;
 
-    private ObjectGuid m_FlagKeeper; // keepers guid
+    private ObjectGuid _mFlagKeeper; // keepers guid
 
     // type that should be despawned when Id is captured
-    private EotSFlagState m_FlagState; // for checking Id state
-    private int m_FlagsTimer;
-    private uint m_HonorTics;
-    private int m_PointAddingTimer;
-    private int m_TowerCapCheckTimer;
+    private EotSFlagState _mFlagState; // for checking Id state
+    private int _mFlagsTimer;
+    private uint _mHonorTics;
+    private int _mPointAddingTimer;
+    private int _mTowerCapCheckTimer;
 
     public BgEyeofStorm(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
     {
         m_BuffChange = true;
-        BgObjects = new ObjectGuid[EotSObjectTypes.Max];
-        BgCreatures = new ObjectGuid[EotSCreaturesTypes.Max];
-        m_Points_Trigger[EotSPoints.FelReaver] = EotSPointsTrigger.FelReaverBuff;
-        m_Points_Trigger[EotSPoints.BloodElf] = EotSPointsTrigger.BloodElfBuff;
-        m_Points_Trigger[EotSPoints.DraeneiRuins] = EotSPointsTrigger.DraeneiRuinsBuff;
-        m_Points_Trigger[EotSPoints.MageTower] = EotSPointsTrigger.MageTowerBuff;
-        m_HonorScoreTics[TeamIds.Alliance] = 0;
-        m_HonorScoreTics[TeamIds.Horde] = 0;
-        m_TeamPointsCount[TeamIds.Alliance] = 0;
-        m_TeamPointsCount[TeamIds.Horde] = 0;
-        m_FlagKeeper.Clear();
-        m_DroppedFlagGUID.Clear();
-        m_FlagCapturedBgObjectType = 0;
-        m_FlagState = EotSFlagState.OnBase;
-        m_FlagsTimer = 0;
-        m_TowerCapCheckTimer = 0;
-        m_PointAddingTimer = 0;
-        m_HonorTics = 0;
+        BgObjects = new ObjectGuid[EotSObjectTypes.MAX];
+        BgCreatures = new ObjectGuid[EotSCreaturesTypes.MAX];
+        _mPointsTrigger[EotSPoints.FEL_REAVER] = EotSPointsTrigger.FEL_REAVER_BUFF;
+        _mPointsTrigger[EotSPoints.BLOOD_ELF] = EotSPointsTrigger.BLOOD_ELF_BUFF;
+        _mPointsTrigger[EotSPoints.DRAENEI_RUINS] = EotSPointsTrigger.DRAENEI_RUINS_BUFF;
+        _mPointsTrigger[EotSPoints.MAGE_TOWER] = EotSPointsTrigger.MAGE_TOWER_BUFF;
+        _mHonorScoreTics[TeamIds.Alliance] = 0;
+        _mHonorScoreTics[TeamIds.Horde] = 0;
+        _mTeamPointsCount[TeamIds.Alliance] = 0;
+        _mTeamPointsCount[TeamIds.Horde] = 0;
+        _mFlagKeeper.Clear();
+        _mDroppedFlagGUID.Clear();
+        _mFlagCapturedBgObjectType = 0;
+        _mFlagState = EotSFlagState.OnBase;
+        _mFlagsTimer = 0;
+        _mTowerCapCheckTimer = 0;
+        _mPointAddingTimer = 0;
+        _mHonorTics = 0;
 
-        for (byte i = 0; i < EotSPoints.PointsMax; ++i)
+        for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
-            m_PointOwnedByTeam[i] = TeamFaction.Other;
-            m_PointState[i] = EotSPointState.Uncontrolled;
-            m_PointBarStatus[i] = EotSProgressBarConsts.ProgressBarStateMiddle;
-            m_LastPointCaptureStatus[i] = BattlegroundPointCaptureStatus.Neutral;
+            _mPointOwnedByTeam[i] = TeamFaction.Other;
+            _mPointState[i] = EotSPointState.Uncontrolled;
+            _mPointBarStatus[i] = EotSProgressBarConsts.ProgressBarStateMiddle;
+            _mLastPointCaptureStatus[i] = BattlegroundPointCaptureStatus.Neutral;
         }
 
-        for (byte i = 0; i < EotSPoints.PointsMax + 1; ++i)
-            m_PlayersNearPoint[i] = new List<ObjectGuid>();
+        for (byte i = 0; i < EotSPoints.POINTS_MAX + 1; ++i)
+            _mPlayersNearPoint[i] = new List<ObjectGuid>();
 
-        for (byte i = 0; i < 2 * EotSPoints.PointsMax; ++i)
-            m_CurrentPointPlayersCount[i] = 0;
+        for (byte i = 0; i < 2 * EotSPoints.POINTS_MAX; ++i)
+            _mCurrentPointPlayersCount[i] = 0;
     }
 
     public override void AddPlayer(Player player)
@@ -79,7 +79,7 @@ internal class BgEyeofStorm : Battleground
         if (!isInBattleground)
             PlayerScores[player.GUID] = new BgEyeOfStormScore(player.GUID, player.GetBgTeam());
 
-        m_PlayersNearPoint[EotSPoints.PointsMax].Add(player.GUID);
+        _mPlayersNearPoint[EotSPoints.POINTS_MAX].Add(player.GUID);
     }
 
     public override void EndBattleground(TeamFaction winner)
@@ -98,37 +98,37 @@ internal class BgEyeofStorm : Battleground
         base.EndBattleground(winner);
     }
 
-    public override void EventPlayerClickedOnFlag(Player player, GameObject target_obj)
+    public override void EventPlayerClickedOnFlag(Player player, GameObject targetObj)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress || IsFlagPickedup() || !player.Location.IsWithinDistInMap(target_obj, 10))
+        if (GetStatus() != BattlegroundStatus.InProgress || IsFlagPickedup() || !player.Location.IsWithinDistInMap(targetObj, 10))
             return;
 
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
         {
-            UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateAlliance, (int)EotSFlagState.OnPlayer);
-            PlaySoundToAll(EotSSoundIds.FlagPickedUpAlliance);
+            UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG_STATE_ALLIANCE, (int)EotSFlagState.OnPlayer);
+            PlaySoundToAll(EotSSoundIds.FLAG_PICKED_UP_ALLIANCE);
         }
         else
         {
-            UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateHorde, (int)EotSFlagState.OnPlayer);
-            PlaySoundToAll(EotSSoundIds.FlagPickedUpHorde);
+            UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG_STATE_HORDE, (int)EotSFlagState.OnPlayer);
+            PlaySoundToAll(EotSSoundIds.FLAG_PICKED_UP_HORDE);
         }
 
-        if (m_FlagState == EotSFlagState.OnBase)
-            UpdateWorldState(EotSWorldStateIds.NetherstormFlag, 0);
+        if (_mFlagState == EotSFlagState.OnBase)
+            UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG, 0);
 
-        m_FlagState = EotSFlagState.OnPlayer;
+        _mFlagState = EotSFlagState.OnPlayer;
 
-        SpawnBGObject(EotSObjectTypes.FlagNetherstorm, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(EotSObjectTypes.FLAG_NETHERSTORM, BattlegroundConst.RespawnOneDay);
         SetFlagPicker(player.GUID);
         //get Id aura on player
-        player.CastSpell(player, EotSMisc.SpellNetherstormFlag, true);
+        player.CastSpell(player, EotSMisc.SPELL_NETHERSTORM_FLAG, true);
         player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
 
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
-            SendBroadcastText(EotSBroadcastTexts.TakenFlag, ChatMsg.BgSystemAlliance, player);
+            SendBroadcastText(EotSBroadcastTexts.TAKEN_FLAG, ChatMsg.BgSystemAlliance, player);
         else
-            SendBroadcastText(EotSBroadcastTexts.TakenFlag, ChatMsg.BgSystemHorde, player);
+            SendBroadcastText(EotSBroadcastTexts.TAKEN_FLAG, ChatMsg.BgSystemHorde, player);
     }
 
     public override void EventPlayerDroppedFlag(Player player)
@@ -140,7 +140,7 @@ internal class BgEyeofStorm : Battleground
             if (IsFlagPickedup() && GetFlagPickerGUID() == player.GUID)
             {
                 SetFlagPicker(ObjectGuid.Empty);
-                player.RemoveAura(EotSMisc.SpellNetherstormFlag);
+                player.RemoveAura(EotSMisc.SPELL_NETHERSTORM_FLAG);
             }
 
             return;
@@ -153,40 +153,40 @@ internal class BgEyeofStorm : Battleground
             return;
 
         SetFlagPicker(ObjectGuid.Empty);
-        player.RemoveAura(EotSMisc.SpellNetherstormFlag);
-        m_FlagState = EotSFlagState.OnGround;
-        m_FlagsTimer = EotSMisc.FlagRespawnTime;
+        player.RemoveAura(EotSMisc.SPELL_NETHERSTORM_FLAG);
+        _mFlagState = EotSFlagState.OnGround;
+        _mFlagsTimer = EotSMisc.FLAG_RESPAWN_TIME;
         player.CastSpell(player, BattlegroundConst.SpellRecentlyDroppedFlag, true);
-        player.CastSpell(player, EotSMisc.SpellPlayerDroppedFlag, true);
+        player.CastSpell(player, EotSMisc.SPELL_PLAYER_DROPPED_FLAG, true);
         //this does not work correctly :((it should remove Id carrier name)
-        UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateHorde, (int)EotSFlagState.WaitRespawn);
-        UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateAlliance, (int)EotSFlagState.WaitRespawn);
+        UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG_STATE_HORDE, (int)EotSFlagState.WaitRespawn);
+        UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG_STATE_ALLIANCE, (int)EotSFlagState.WaitRespawn);
 
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
-            SendBroadcastText(EotSBroadcastTexts.FlagDropped, ChatMsg.BgSystemAlliance);
+            SendBroadcastText(EotSBroadcastTexts.FLAG_DROPPED, ChatMsg.BgSystemAlliance);
         else
-            SendBroadcastText(EotSBroadcastTexts.FlagDropped, ChatMsg.BgSystemHorde);
+            SendBroadcastText(EotSBroadcastTexts.FLAG_DROPPED, ChatMsg.BgSystemHorde);
     }
 
     public override WorldSafeLocsEntry GetClosestGraveYard(Player player)
     {
-        uint g_id;
+        uint gID;
         var team = GetPlayerTeam(player.GUID);
 
         switch (team)
         {
             case TeamFaction.Alliance:
-                g_id = EotSGaveyardIds.MainAlliance;
+                gID = EotSGaveyardIds.MAIN_ALLIANCE;
 
                 break;
             case TeamFaction.Horde:
-                g_id = EotSGaveyardIds.MainHorde;
+                gID = EotSGaveyardIds.MAIN_HORDE;
 
                 break;
             default: return null;
         }
 
-        var entry = Global.ObjectMgr.GetWorldSafeLoc(g_id);
+        var entry = Global.ObjectMgr.GetWorldSafeLoc(gID);
         var nearestEntry = entry;
 
         if (entry == null)
@@ -196,25 +196,25 @@ internal class BgEyeofStorm : Battleground
             return null;
         }
 
-        var plr_x = player.Location.X;
-        var plr_y = player.Location.Y;
-        var plr_z = player.Location.Z;
+        var plrX = player.Location.X;
+        var plrY = player.Location.Y;
+        var plrZ = player.Location.Z;
 
-        var distance = (entry.Loc.X - plr_x) * (entry.Loc.X - plr_x) + (entry.Loc.Y - plr_y) * (entry.Loc.Y - plr_y) + (entry.Loc.Z - plr_z) * (entry.Loc.Z - plr_z);
+        var distance = (entry.Loc.X - plrX) * (entry.Loc.X - plrX) + (entry.Loc.Y - plrY) * (entry.Loc.Y - plrY) + (entry.Loc.Z - plrZ) * (entry.Loc.Z - plrZ);
         var nearestDistance = distance;
 
-        for (byte i = 0; i < EotSPoints.PointsMax; ++i)
-            if (m_PointOwnedByTeam[i] == team && m_PointState[i] == EotSPointState.UnderControl)
+        for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
+            if (_mPointOwnedByTeam[i] == team && _mPointState[i] == EotSPointState.UnderControl)
             {
-                entry = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[i].GraveYardId);
+                entry = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[i].GraveYardId);
 
                 if (entry == null)
                 {
-                    Log.Logger.Error("BattlegroundEY: Graveyard {0} could not be found.", EotSMisc.m_CapturingPointTypes[i].GraveYardId);
+                    Log.Logger.Error("BattlegroundEY: Graveyard {0} could not be found.", EotSMisc.MCapturingPointTypes[i].GraveYardId);
                 }
                 else
                 {
-                    distance = (entry.Loc.X - plr_x) * (entry.Loc.X - plr_x) + (entry.Loc.Y - plr_y) * (entry.Loc.Y - plr_y) + (entry.Loc.Z - plr_z) * (entry.Loc.Z - plr_z);
+                    distance = (entry.Loc.X - plrX) * (entry.Loc.X - plrX) + (entry.Loc.Y - plrY) * (entry.Loc.Y - plrY) + (entry.Loc.Z - plrZ) * (entry.Loc.Z - plrZ);
 
                     if (distance < nearestDistance)
                     {
@@ -229,12 +229,12 @@ internal class BgEyeofStorm : Battleground
 
     public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
     {
-        return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.ExploitTeleportLocationAlliance : EotSMisc.ExploitTeleportLocationHorde);
+        return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EotSMisc.EXPLOIT_TELEPORT_LOCATION_HORDE);
     }
 
     public override ObjectGuid GetFlagPickerGUID(int team = -1)
     {
-        return m_FlagKeeper;
+        return _mFlagKeeper;
     }
 
     public override TeamFaction GetPrematureWinner()
@@ -260,28 +260,28 @@ internal class BgEyeofStorm : Battleground
                     TeleportPlayerToExploitLocation(player);
 
                 break;
-            case EotSPointsTrigger.BloodElfPoint:
-                if (m_PointState[EotSPoints.BloodElf] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.BloodElf] == GetPlayerTeam(player.GUID))
-                    if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
-                        EventPlayerCapturedFlag(player, EotSObjectTypes.FlagBloodElf);
+            case EotSPointsTrigger.BLOOD_ELF_POINT:
+                if (_mPointState[EotSPoints.BLOOD_ELF] == EotSPointState.UnderControl && _mPointOwnedByTeam[EotSPoints.BLOOD_ELF] == GetPlayerTeam(player.GUID))
+                    if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
+                        EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_BLOOD_ELF);
 
                 break;
-            case EotSPointsTrigger.FelReaverPoint:
-                if (m_PointState[EotSPoints.FelReaver] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.FelReaver] == GetPlayerTeam(player.GUID))
-                    if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
-                        EventPlayerCapturedFlag(player, EotSObjectTypes.FlagFelReaver);
+            case EotSPointsTrigger.FEL_REAVER_POINT:
+                if (_mPointState[EotSPoints.FEL_REAVER] == EotSPointState.UnderControl && _mPointOwnedByTeam[EotSPoints.FEL_REAVER] == GetPlayerTeam(player.GUID))
+                    if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
+                        EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_FEL_REAVER);
 
                 break;
-            case EotSPointsTrigger.MageTowerPoint:
-                if (m_PointState[EotSPoints.MageTower] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.MageTower] == GetPlayerTeam(player.GUID))
-                    if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
-                        EventPlayerCapturedFlag(player, EotSObjectTypes.FlagMageTower);
+            case EotSPointsTrigger.MAGE_TOWER_POINT:
+                if (_mPointState[EotSPoints.MAGE_TOWER] == EotSPointState.UnderControl && _mPointOwnedByTeam[EotSPoints.MAGE_TOWER] == GetPlayerTeam(player.GUID))
+                    if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
+                        EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_MAGE_TOWER);
 
                 break;
-            case EotSPointsTrigger.DraeneiRuinsPoint:
-                if (m_PointState[EotSPoints.DraeneiRuins] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.DraeneiRuins] == GetPlayerTeam(player.GUID))
-                    if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
-                        EventPlayerCapturedFlag(player, EotSObjectTypes.FlagDraeneiRuins);
+            case EotSPointsTrigger.DRAENEI_RUINS_POINT:
+                if (_mPointState[EotSPoints.DRAENEI_RUINS] == EotSPointState.UnderControl && _mPointOwnedByTeam[EotSPoints.DRAENEI_RUINS] == GetPlayerTeam(player.GUID))
+                    if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
+                        EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_DRAENEI_RUINS);
 
                 break;
             case 4512:
@@ -314,37 +314,37 @@ internal class BgEyeofStorm : Battleground
     {
         if (GetStatus() == BattlegroundStatus.InProgress)
         {
-            m_PointAddingTimer -= (int)diff;
+            _mPointAddingTimer -= (int)diff;
 
-            if (m_PointAddingTimer <= 0)
+            if (_mPointAddingTimer <= 0)
             {
-                m_PointAddingTimer = EotSMisc.FPointsTickTime;
+                _mPointAddingTimer = EotSMisc.F_POINTS_TICK_TIME;
 
-                if (m_TeamPointsCount[TeamIds.Alliance] > 0)
-                    AddPoints(TeamFaction.Alliance, EotSMisc.TickPoints[m_TeamPointsCount[TeamIds.Alliance] - 1]);
+                if (_mTeamPointsCount[TeamIds.Alliance] > 0)
+                    AddPoints(TeamFaction.Alliance, EotSMisc.TickPoints[_mTeamPointsCount[TeamIds.Alliance] - 1]);
 
-                if (m_TeamPointsCount[TeamIds.Horde] > 0)
-                    AddPoints(TeamFaction.Horde, EotSMisc.TickPoints[m_TeamPointsCount[TeamIds.Horde] - 1]);
+                if (_mTeamPointsCount[TeamIds.Horde] > 0)
+                    AddPoints(TeamFaction.Horde, EotSMisc.TickPoints[_mTeamPointsCount[TeamIds.Horde] - 1]);
             }
 
-            if (m_FlagState == EotSFlagState.WaitRespawn || m_FlagState == EotSFlagState.OnGround)
+            if (_mFlagState == EotSFlagState.WaitRespawn || _mFlagState == EotSFlagState.OnGround)
             {
-                m_FlagsTimer -= (int)diff;
+                _mFlagsTimer -= (int)diff;
 
-                if (m_FlagsTimer < 0)
+                if (_mFlagsTimer < 0)
                 {
-                    m_FlagsTimer = 0;
+                    _mFlagsTimer = 0;
 
-                    if (m_FlagState == EotSFlagState.WaitRespawn)
+                    if (_mFlagState == EotSFlagState.WaitRespawn)
                         RespawnFlag(true);
                     else
                         RespawnFlagAfterDrop();
                 }
             }
 
-            m_TowerCapCheckTimer -= (int)diff;
+            _mTowerCapCheckTimer -= (int)diff;
 
-            if (m_TowerCapCheckTimer <= 0)
+            if (_mTowerCapCheckTimer <= 0)
             {
                 //check if player joined point
                 /*I used this order of calls, because although we will check if one player is in gameobject's distance 2 times
@@ -354,7 +354,7 @@ internal class BgEyeofStorm : Battleground
                 //check if player left point
                 CheckSomeoneLeftPo();
                 UpdatePointStatuses();
-                m_TowerCapCheckTimer = EotSMisc.FPointsTickTime;
+                _mTowerCapCheckTimer = EotSMisc.F_POINTS_TICK_TIME;
             }
         }
     }
@@ -362,15 +362,15 @@ internal class BgEyeofStorm : Battleground
     public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
     {
         // sometimes Id aura not removed :(
-        for (var j = EotSPoints.PointsMax; j >= 0; --j)
+        for (var j = EotSPoints.POINTS_MAX; j >= 0; --j)
         {
-            for (var i = 0; i < m_PlayersNearPoint[j].Count; ++i)
-                if (m_PlayersNearPoint[j][i] == guid)
-                    m_PlayersNearPoint[j].RemoveAt(i);
+            for (var i = 0; i < _mPlayersNearPoint[j].Count; ++i)
+                if (_mPlayersNearPoint[j][i] == guid)
+                    _mPlayersNearPoint[j].RemoveAt(i);
         }
 
         if (IsFlagPickedup())
-            if (m_FlagKeeper == guid)
+            if (_mFlagKeeper == guid)
             {
                 if (player)
                 {
@@ -391,109 +391,109 @@ internal class BgEyeofStorm : Battleground
 
         m_TeamScores[TeamIds.Alliance] = 0;
         m_TeamScores[TeamIds.Horde] = 0;
-        m_TeamPointsCount[TeamIds.Alliance] = 0;
-        m_TeamPointsCount[TeamIds.Horde] = 0;
-        m_HonorScoreTics[TeamIds.Alliance] = 0;
-        m_HonorScoreTics[TeamIds.Horde] = 0;
-        m_FlagState = EotSFlagState.OnBase;
-        m_FlagCapturedBgObjectType = 0;
-        m_FlagKeeper.Clear();
-        m_DroppedFlagGUID.Clear();
-        m_PointAddingTimer = 0;
-        m_TowerCapCheckTimer = 0;
+        _mTeamPointsCount[TeamIds.Alliance] = 0;
+        _mTeamPointsCount[TeamIds.Horde] = 0;
+        _mHonorScoreTics[TeamIds.Alliance] = 0;
+        _mHonorScoreTics[TeamIds.Horde] = 0;
+        _mFlagState = EotSFlagState.OnBase;
+        _mFlagCapturedBgObjectType = 0;
+        _mFlagKeeper.Clear();
+        _mDroppedFlagGUID.Clear();
+        _mPointAddingTimer = 0;
+        _mTowerCapCheckTimer = 0;
         var isBGWeekend = Global.BattlegroundMgr.IsBGWeekend(GetTypeID());
-        m_HonorTics = (isBGWeekend) ? EotSMisc.EYWeekendHonorTicks : EotSMisc.NotEYWeekendHonorTicks;
+        _mHonorTics = (isBGWeekend) ? EotSMisc.EY_WEEKEND_HONOR_TICKS : EotSMisc.NOT_EY_WEEKEND_HONOR_TICKS;
 
-        for (byte i = 0; i < EotSPoints.PointsMax; ++i)
+        for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
-            m_PointOwnedByTeam[i] = TeamFaction.Other;
-            m_PointState[i] = EotSPointState.Uncontrolled;
-            m_PointBarStatus[i] = EotSProgressBarConsts.ProgressBarStateMiddle;
-            m_PlayersNearPoint[i].Clear();
+            _mPointOwnedByTeam[i] = TeamFaction.Other;
+            _mPointState[i] = EotSPointState.Uncontrolled;
+            _mPointBarStatus[i] = EotSProgressBarConsts.ProgressBarStateMiddle;
+            _mPlayersNearPoint[i].Clear();
         }
 
-        m_PlayersNearPoint[EotSPoints.PlayersOutOfPoints].Clear();
+        _mPlayersNearPoint[EotSPoints.PLAYERS_OUT_OF_POINTS].Clear();
     }
 
-    public override void SetDroppedFlagGUID(ObjectGuid guid, int TeamID = -1)
+    public override void SetDroppedFlagGUID(ObjectGuid guid, int teamID = -1)
     {
-        m_DroppedFlagGUID = guid;
+        _mDroppedFlagGUID = guid;
     }
 
     public override bool SetupBattleground()
     {
         // doors
-        if (!AddObject(EotSObjectTypes.DoorA, EotSObjectIds.ADoorEyEntry, 2527.59716796875f, 1596.90625f, 1238.4544677734375f, 3.159139871597290039f, 0.173641681671142578f, 0.001514434814453125f, -0.98476982116699218f, 0.008638577535748481f) ||
-            !AddObject(EotSObjectTypes.DoorH, EotSObjectIds.HDoorEyEntry, 1803.2066650390625f, 1539.486083984375f, 1238.4544677734375f, 3.13898324966430664f, 0.173647880554199218f, 0.0f, 0.984807014465332031f, 0.001244877814315259f)
+        if (!AddObject(EotSObjectTypes.DOOR_A, EotSObjectIds.A_DOOR_EY_ENTRY, 2527.59716796875f, 1596.90625f, 1238.4544677734375f, 3.159139871597290039f, 0.173641681671142578f, 0.001514434814453125f, -0.98476982116699218f, 0.008638577535748481f) ||
+            !AddObject(EotSObjectTypes.DOOR_H, EotSObjectIds.H_DOOR_EY_ENTRY, 1803.2066650390625f, 1539.486083984375f, 1238.4544677734375f, 3.13898324966430664f, 0.173647880554199218f, 0.0f, 0.984807014465332031f, 0.001244877814315259f)
             // banners (alliance)
             ||
-            !AddObject(EotSObjectTypes.ABannerFelReaverCenter, EotSObjectIds.ABannerEyEntry, 2057.47265625f, 1735.109130859375f, 1188.065673828125f, 5.305802345275878906f, 0.0f, 0.0f, -0.46947097778320312f, 0.882947921752929687f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerFelReaverLeft, EotSObjectIds.ABannerEyEntry, 2032.248291015625f, 1729.546875f, 1191.2296142578125f, 1.797688722610473632f, 0.0f, 0.0f, 0.7826080322265625f, 0.622514784336090087f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerFelReaverRight, EotSObjectIds.ABannerEyEntry, 2092.338623046875f, 1775.4739990234375f, 1187.504150390625f, 5.811946868896484375f, 0.0f, 0.0f, -0.2334451675415039f, 0.972369968891143798f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerBloodElfCenter, EotSObjectIds.ABannerEyEntry, 2047.1910400390625f, 1349.1927490234375f, 1189.0032958984375f, 4.660029888153076171f, 0.0f, 0.0f, -0.72537422180175781f, 0.688354730606079101f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerBloodElfLeft, EotSObjectIds.ABannerEyEntry, 2074.319580078125f, 1385.779541015625f, 1194.7203369140625f, 0.488691210746765136f, 0.0f, 0.0f, 0.241921424865722656f, 0.970295846462249755f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerBloodElfRight, EotSObjectIds.ABannerEyEntry, 2025.125f, 1386.123291015625f, 1192.7354736328125f, 2.391098499298095703f, 0.0f, 0.0f, 0.930417060852050781f, 0.366502493619918823f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerDraeneiRuinsCenter, EotSObjectIds.ABannerEyEntry, 2276.796875f, 1400.407958984375f, 1196.333740234375f, 2.44346022605895996f, 0.0f, 0.0f, 0.939692497253417968f, 0.34202045202255249f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerDraeneiRuinsLeft, EotSObjectIds.ABannerEyEntry, 2305.776123046875f, 1404.5572509765625f, 1199.384765625f, 1.745326757431030273f, 0.0f, 0.0f, 0.766043663024902343f, 0.642788589000701904f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerDraeneiRuinsRight, EotSObjectIds.ABannerEyEntry, 2245.395751953125f, 1366.4132080078125f, 1195.27880859375f, 2.216565132141113281f, 0.0f, 0.0f, 0.894933700561523437f, 0.44619917869567871f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerMageTowerCenter, EotSObjectIds.ABannerEyEntry, 2270.8359375f, 1784.080322265625f, 1186.757080078125f, 2.426007747650146484f, 0.0f, 0.0f, 0.936672210693359375f, 0.350207358598709106f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerMageTowerLeft, EotSObjectIds.ABannerEyEntry, 2269.126708984375f, 1737.703125f, 1186.8145751953125f, 0.994837164878845214f, 0.0f, 0.0f, 0.477158546447753906f, 0.878817260265350341f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.ABannerMageTowerRight, EotSObjectIds.ABannerEyEntry, 2300.85595703125f, 1741.24658203125f, 1187.793212890625f, 5.497788906097412109f, 0.0f, 0.0f, -0.38268280029296875f, 0.923879802227020263f, BattlegroundConst.RespawnOneDay)
+            !AddObject(EotSObjectTypes.A_BANNER_FEL_REAVER_CENTER, EotSObjectIds.A_BANNER_EY_ENTRY, 2057.47265625f, 1735.109130859375f, 1188.065673828125f, 5.305802345275878906f, 0.0f, 0.0f, -0.46947097778320312f, 0.882947921752929687f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_FEL_REAVER_LEFT, EotSObjectIds.A_BANNER_EY_ENTRY, 2032.248291015625f, 1729.546875f, 1191.2296142578125f, 1.797688722610473632f, 0.0f, 0.0f, 0.7826080322265625f, 0.622514784336090087f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_FEL_REAVER_RIGHT, EotSObjectIds.A_BANNER_EY_ENTRY, 2092.338623046875f, 1775.4739990234375f, 1187.504150390625f, 5.811946868896484375f, 0.0f, 0.0f, -0.2334451675415039f, 0.972369968891143798f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_BLOOD_ELF_CENTER, EotSObjectIds.A_BANNER_EY_ENTRY, 2047.1910400390625f, 1349.1927490234375f, 1189.0032958984375f, 4.660029888153076171f, 0.0f, 0.0f, -0.72537422180175781f, 0.688354730606079101f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_BLOOD_ELF_LEFT, EotSObjectIds.A_BANNER_EY_ENTRY, 2074.319580078125f, 1385.779541015625f, 1194.7203369140625f, 0.488691210746765136f, 0.0f, 0.0f, 0.241921424865722656f, 0.970295846462249755f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_BLOOD_ELF_RIGHT, EotSObjectIds.A_BANNER_EY_ENTRY, 2025.125f, 1386.123291015625f, 1192.7354736328125f, 2.391098499298095703f, 0.0f, 0.0f, 0.930417060852050781f, 0.366502493619918823f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_DRAENEI_RUINS_CENTER, EotSObjectIds.A_BANNER_EY_ENTRY, 2276.796875f, 1400.407958984375f, 1196.333740234375f, 2.44346022605895996f, 0.0f, 0.0f, 0.939692497253417968f, 0.34202045202255249f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_DRAENEI_RUINS_LEFT, EotSObjectIds.A_BANNER_EY_ENTRY, 2305.776123046875f, 1404.5572509765625f, 1199.384765625f, 1.745326757431030273f, 0.0f, 0.0f, 0.766043663024902343f, 0.642788589000701904f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_DRAENEI_RUINS_RIGHT, EotSObjectIds.A_BANNER_EY_ENTRY, 2245.395751953125f, 1366.4132080078125f, 1195.27880859375f, 2.216565132141113281f, 0.0f, 0.0f, 0.894933700561523437f, 0.44619917869567871f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_MAGE_TOWER_CENTER, EotSObjectIds.A_BANNER_EY_ENTRY, 2270.8359375f, 1784.080322265625f, 1186.757080078125f, 2.426007747650146484f, 0.0f, 0.0f, 0.936672210693359375f, 0.350207358598709106f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_MAGE_TOWER_LEFT, EotSObjectIds.A_BANNER_EY_ENTRY, 2269.126708984375f, 1737.703125f, 1186.8145751953125f, 0.994837164878845214f, 0.0f, 0.0f, 0.477158546447753906f, 0.878817260265350341f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.A_BANNER_MAGE_TOWER_RIGHT, EotSObjectIds.A_BANNER_EY_ENTRY, 2300.85595703125f, 1741.24658203125f, 1187.793212890625f, 5.497788906097412109f, 0.0f, 0.0f, -0.38268280029296875f, 0.923879802227020263f, BattlegroundConst.RespawnOneDay)
             // banners (horde)
             ||
-            !AddObject(EotSObjectTypes.HBannerFelReaverCenter, EotSObjectIds.HBannerEyEntry, 2057.45654296875f, 1735.07470703125f, 1187.9063720703125f, 5.35816192626953125f, 0.0f, 0.0f, -0.446197509765625f, 0.894934535026550292f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerFelReaverLeft, EotSObjectIds.HBannerEyEntry, 2032.251708984375f, 1729.532958984375f, 1190.3251953125f, 1.867502212524414062f, 0.0f, 0.0f, 0.803856849670410156f, 0.594822824001312255f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerFelReaverRight, EotSObjectIds.HBannerEyEntry, 2092.354248046875f, 1775.4583740234375f, 1187.079345703125f, 5.881760597229003906f, 0.0f, 0.0f, -0.19936752319335937f, 0.979924798011779785f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerBloodElfCenter, EotSObjectIds.HBannerEyEntry, 2047.1978759765625f, 1349.1875f, 1188.5650634765625f, 4.625123500823974609f, 0.0f, 0.0f, -0.73727703094482421f, 0.67559051513671875f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerBloodElfLeft, EotSObjectIds.HBannerEyEntry, 2074.3056640625f, 1385.7725830078125f, 1194.4686279296875f, 0.471238493919372558f, 0.0f, 0.0f, 0.233445167541503906f, 0.972369968891143798f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerBloodElfRight, EotSObjectIds.HBannerEyEntry, 2025.09375f, 1386.12158203125f, 1192.6536865234375f, 2.373644113540649414f, 0.0f, 0.0f, 0.927183151245117187f, 0.37460830807685852f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerDraeneiRuinsCenter, EotSObjectIds.HBannerEyEntry, 2276.798583984375f, 1400.4410400390625f, 1196.2200927734375f, 2.495818138122558593f, 0.0f, 0.0f, 0.948323249816894531f, 0.317305892705917358f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerDraeneiRuinsLeft, EotSObjectIds.HBannerEyEntry, 2305.763916015625f, 1404.5972900390625f, 1199.3333740234375f, 1.640606880187988281f, 0.0f, 0.0f, 0.731352806091308593f, 0.6819993257522583f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerDraeneiRuinsRight, EotSObjectIds.HBannerEyEntry, 2245.382080078125f, 1366.454833984375f, 1195.1815185546875f, 2.373644113540649414f, 0.0f, 0.0f, 0.927183151245117187f, 0.37460830807685852f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerMageTowerCenter, EotSObjectIds.HBannerEyEntry, 2270.869873046875f, 1784.0989990234375f, 1186.4384765625f, 2.356194972991943359f, 0.0f, 0.0f, 0.923879623413085937f, 0.382683247327804565f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerMageTowerLeft, EotSObjectIds.HBannerEyEntry, 2268.59716796875f, 1737.0191650390625f, 1186.75390625f, 0.942476630210876464f, 0.0f, 0.0f, 0.453989982604980468f, 0.891006767749786376f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.HBannerMageTowerRight, EotSObjectIds.HBannerEyEntry, 2301.01904296875f, 1741.4930419921875f, 1187.48974609375f, 5.375615119934082031f, 0.0f, 0.0f, -0.4383707046508789f, 0.898794233798980712f, BattlegroundConst.RespawnOneDay)
+            !AddObject(EotSObjectTypes.H_BANNER_FEL_REAVER_CENTER, EotSObjectIds.H_BANNER_EY_ENTRY, 2057.45654296875f, 1735.07470703125f, 1187.9063720703125f, 5.35816192626953125f, 0.0f, 0.0f, -0.446197509765625f, 0.894934535026550292f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_FEL_REAVER_LEFT, EotSObjectIds.H_BANNER_EY_ENTRY, 2032.251708984375f, 1729.532958984375f, 1190.3251953125f, 1.867502212524414062f, 0.0f, 0.0f, 0.803856849670410156f, 0.594822824001312255f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_FEL_REAVER_RIGHT, EotSObjectIds.H_BANNER_EY_ENTRY, 2092.354248046875f, 1775.4583740234375f, 1187.079345703125f, 5.881760597229003906f, 0.0f, 0.0f, -0.19936752319335937f, 0.979924798011779785f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_BLOOD_ELF_CENTER, EotSObjectIds.H_BANNER_EY_ENTRY, 2047.1978759765625f, 1349.1875f, 1188.5650634765625f, 4.625123500823974609f, 0.0f, 0.0f, -0.73727703094482421f, 0.67559051513671875f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_BLOOD_ELF_LEFT, EotSObjectIds.H_BANNER_EY_ENTRY, 2074.3056640625f, 1385.7725830078125f, 1194.4686279296875f, 0.471238493919372558f, 0.0f, 0.0f, 0.233445167541503906f, 0.972369968891143798f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_BLOOD_ELF_RIGHT, EotSObjectIds.H_BANNER_EY_ENTRY, 2025.09375f, 1386.12158203125f, 1192.6536865234375f, 2.373644113540649414f, 0.0f, 0.0f, 0.927183151245117187f, 0.37460830807685852f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_DRAENEI_RUINS_CENTER, EotSObjectIds.H_BANNER_EY_ENTRY, 2276.798583984375f, 1400.4410400390625f, 1196.2200927734375f, 2.495818138122558593f, 0.0f, 0.0f, 0.948323249816894531f, 0.317305892705917358f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_DRAENEI_RUINS_LEFT, EotSObjectIds.H_BANNER_EY_ENTRY, 2305.763916015625f, 1404.5972900390625f, 1199.3333740234375f, 1.640606880187988281f, 0.0f, 0.0f, 0.731352806091308593f, 0.6819993257522583f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_DRAENEI_RUINS_RIGHT, EotSObjectIds.H_BANNER_EY_ENTRY, 2245.382080078125f, 1366.454833984375f, 1195.1815185546875f, 2.373644113540649414f, 0.0f, 0.0f, 0.927183151245117187f, 0.37460830807685852f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_MAGE_TOWER_CENTER, EotSObjectIds.H_BANNER_EY_ENTRY, 2270.869873046875f, 1784.0989990234375f, 1186.4384765625f, 2.356194972991943359f, 0.0f, 0.0f, 0.923879623413085937f, 0.382683247327804565f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_MAGE_TOWER_LEFT, EotSObjectIds.H_BANNER_EY_ENTRY, 2268.59716796875f, 1737.0191650390625f, 1186.75390625f, 0.942476630210876464f, 0.0f, 0.0f, 0.453989982604980468f, 0.891006767749786376f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.H_BANNER_MAGE_TOWER_RIGHT, EotSObjectIds.H_BANNER_EY_ENTRY, 2301.01904296875f, 1741.4930419921875f, 1187.48974609375f, 5.375615119934082031f, 0.0f, 0.0f, -0.4383707046508789f, 0.898794233798980712f, BattlegroundConst.RespawnOneDay)
             // banners (natural)
             ||
-            !AddObject(EotSObjectTypes.NBannerFelReaverCenter, EotSObjectIds.NBannerEyEntry, 2057.4931640625f, 1735.111083984375f, 1187.675537109375f, 5.340708732604980468f, 0.0f, 0.0f, -0.45398998260498046f, 0.891006767749786376f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerFelReaverLeft, EotSObjectIds.NBannerEyEntry, 2032.2569580078125f, 1729.5572509765625f, 1191.0802001953125f, 1.797688722610473632f, 0.0f, 0.0f, 0.7826080322265625f, 0.622514784336090087f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerFelReaverRight, EotSObjectIds.NBannerEyEntry, 2092.395751953125f, 1775.451416015625f, 1186.965576171875f, 5.89921426773071289f, 0.0f, 0.0f, -0.19080829620361328f, 0.981627285480499267f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerBloodElfCenter, EotSObjectIds.NBannerEyEntry, 2047.1875f, 1349.1944580078125f, 1188.5731201171875f, 4.642575740814208984f, 0.0f, 0.0f, -0.731353759765625f, 0.681998312473297119f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerBloodElfLeft, EotSObjectIds.NBannerEyEntry, 2074.3212890625f, 1385.76220703125f, 1194.362060546875f, 0.488691210746765136f, 0.0f, 0.0f, 0.241921424865722656f, 0.970295846462249755f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerBloodElfRight, EotSObjectIds.NBannerEyEntry, 2025.13720703125f, 1386.1336669921875f, 1192.5482177734375f, 2.391098499298095703f, 0.0f, 0.0f, 0.930417060852050781f, 0.366502493619918823f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerDraeneiRuinsCenter, EotSObjectIds.NBannerEyEntry, 2276.833251953125f, 1400.4375f, 1196.146728515625f, 2.478367090225219726f, 0.0f, 0.0f, 0.94551849365234375f, 0.325568377971649169f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerDraeneiRuinsLeft, EotSObjectIds.NBannerEyEntry, 2305.77783203125f, 1404.5364990234375f, 1199.246337890625f, 1.570795774459838867f, 0.0f, 0.0f, 0.707106590270996093f, 0.707106947898864746f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerDraeneiRuinsRight, EotSObjectIds.NBannerEyEntry, 2245.40966796875f, 1366.4410400390625f, 1195.1107177734375f, 2.356194972991943359f, 0.0f, 0.0f, 0.923879623413085937f, 0.382683247327804565f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerMageTowerCenter, EotSObjectIds.NBannerEyEntry, 2270.84033203125f, 1784.1197509765625f, 1186.1473388671875f, 2.303830623626708984f, 0.0f, 0.0f, 0.913544654846191406f, 0.406738430261611938f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerMageTowerLeft, EotSObjectIds.NBannerEyEntry, 2268.46533203125f, 1736.8385009765625f, 1186.742919921875f, 0.942476630210876464f, 0.0f, 0.0f, 0.453989982604980468f, 0.891006767749786376f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.NBannerMageTowerRight, EotSObjectIds.NBannerEyEntry, 2300.9931640625f, 1741.5504150390625f, 1187.10693359375f, 5.375615119934082031f, 0.0f, 0.0f, -0.4383707046508789f, 0.898794233798980712f, BattlegroundConst.RespawnOneDay)
+            !AddObject(EotSObjectTypes.N_BANNER_FEL_REAVER_CENTER, EotSObjectIds.N_BANNER_EY_ENTRY, 2057.4931640625f, 1735.111083984375f, 1187.675537109375f, 5.340708732604980468f, 0.0f, 0.0f, -0.45398998260498046f, 0.891006767749786376f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_FEL_REAVER_LEFT, EotSObjectIds.N_BANNER_EY_ENTRY, 2032.2569580078125f, 1729.5572509765625f, 1191.0802001953125f, 1.797688722610473632f, 0.0f, 0.0f, 0.7826080322265625f, 0.622514784336090087f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_FEL_REAVER_RIGHT, EotSObjectIds.N_BANNER_EY_ENTRY, 2092.395751953125f, 1775.451416015625f, 1186.965576171875f, 5.89921426773071289f, 0.0f, 0.0f, -0.19080829620361328f, 0.981627285480499267f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_BLOOD_ELF_CENTER, EotSObjectIds.N_BANNER_EY_ENTRY, 2047.1875f, 1349.1944580078125f, 1188.5731201171875f, 4.642575740814208984f, 0.0f, 0.0f, -0.731353759765625f, 0.681998312473297119f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_BLOOD_ELF_LEFT, EotSObjectIds.N_BANNER_EY_ENTRY, 2074.3212890625f, 1385.76220703125f, 1194.362060546875f, 0.488691210746765136f, 0.0f, 0.0f, 0.241921424865722656f, 0.970295846462249755f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_BLOOD_ELF_RIGHT, EotSObjectIds.N_BANNER_EY_ENTRY, 2025.13720703125f, 1386.1336669921875f, 1192.5482177734375f, 2.391098499298095703f, 0.0f, 0.0f, 0.930417060852050781f, 0.366502493619918823f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_DRAENEI_RUINS_CENTER, EotSObjectIds.N_BANNER_EY_ENTRY, 2276.833251953125f, 1400.4375f, 1196.146728515625f, 2.478367090225219726f, 0.0f, 0.0f, 0.94551849365234375f, 0.325568377971649169f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_DRAENEI_RUINS_LEFT, EotSObjectIds.N_BANNER_EY_ENTRY, 2305.77783203125f, 1404.5364990234375f, 1199.246337890625f, 1.570795774459838867f, 0.0f, 0.0f, 0.707106590270996093f, 0.707106947898864746f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_DRAENEI_RUINS_RIGHT, EotSObjectIds.N_BANNER_EY_ENTRY, 2245.40966796875f, 1366.4410400390625f, 1195.1107177734375f, 2.356194972991943359f, 0.0f, 0.0f, 0.923879623413085937f, 0.382683247327804565f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_MAGE_TOWER_CENTER, EotSObjectIds.N_BANNER_EY_ENTRY, 2270.84033203125f, 1784.1197509765625f, 1186.1473388671875f, 2.303830623626708984f, 0.0f, 0.0f, 0.913544654846191406f, 0.406738430261611938f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_MAGE_TOWER_LEFT, EotSObjectIds.N_BANNER_EY_ENTRY, 2268.46533203125f, 1736.8385009765625f, 1186.742919921875f, 0.942476630210876464f, 0.0f, 0.0f, 0.453989982604980468f, 0.891006767749786376f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.N_BANNER_MAGE_TOWER_RIGHT, EotSObjectIds.N_BANNER_EY_ENTRY, 2300.9931640625f, 1741.5504150390625f, 1187.10693359375f, 5.375615119934082031f, 0.0f, 0.0f, -0.4383707046508789f, 0.898794233798980712f, BattlegroundConst.RespawnOneDay)
             // flags
             ||
-            !AddObject(EotSObjectTypes.FlagNetherstorm, EotSObjectIds.Flag2EyEntry, 2174.444580078125f, 1569.421875f, 1159.852783203125f, 4.625123500823974609f, 0.0f, 0.0f, -0.73727703094482421f, 0.67559051513671875f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.FlagFelReaver, EotSObjectIds.Flag1EyEntry, 2044.28f, 1729.68f, 1189.96f, -0.017453f, 0, 0, 0.008727f, -0.999962f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.FlagBloodElf, EotSObjectIds.Flag1EyEntry, 2048.83f, 1393.65f, 1194.49f, 0.20944f, 0, 0, 0.104528f, 0.994522f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.FlagDraeneiRuins, EotSObjectIds.Flag1EyEntry, 2286.56f, 1402.36f, 1197.11f, 3.72381f, 0, 0, 0.957926f, -0.287016f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.FlagMageTower, EotSObjectIds.Flag1EyEntry, 2284.48f, 1731.23f, 1189.99f, 2.89725f, 0, 0, 0.992546f, 0.121869f, BattlegroundConst.RespawnOneDay)
+            !AddObject(EotSObjectTypes.FLAG_NETHERSTORM, EotSObjectIds.FLAG2_EY_ENTRY, 2174.444580078125f, 1569.421875f, 1159.852783203125f, 4.625123500823974609f, 0.0f, 0.0f, -0.73727703094482421f, 0.67559051513671875f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.FLAG_FEL_REAVER, EotSObjectIds.FLAG1_EY_ENTRY, 2044.28f, 1729.68f, 1189.96f, -0.017453f, 0, 0, 0.008727f, -0.999962f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.FLAG_BLOOD_ELF, EotSObjectIds.FLAG1_EY_ENTRY, 2048.83f, 1393.65f, 1194.49f, 0.20944f, 0, 0, 0.104528f, 0.994522f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.FLAG_DRAENEI_RUINS, EotSObjectIds.FLAG1_EY_ENTRY, 2286.56f, 1402.36f, 1197.11f, 3.72381f, 0, 0, 0.957926f, -0.287016f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.FLAG_MAGE_TOWER, EotSObjectIds.FLAG1_EY_ENTRY, 2284.48f, 1731.23f, 1189.99f, 2.89725f, 0, 0, 0.992546f, 0.121869f, BattlegroundConst.RespawnOneDay)
             // tower cap
             ||
-            !AddObject(EotSObjectTypes.TowerCapFelReaver, EotSObjectIds.FrTowerCapEyEntry, 2024.600708f, 1742.819580f, 1195.157715f, 2.443461f, 0, 0, 0.939693f, 0.342020f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.TowerCapBloodElf, EotSObjectIds.BeTowerCapEyEntry, 2050.493164f, 1372.235962f, 1194.563477f, 1.710423f, 0, 0, 0.754710f, 0.656059f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.TowerCapDraeneiRuins, EotSObjectIds.DrTowerCapEyEntry, 2301.010498f, 1386.931641f, 1197.183472f, 1.570796f, 0, 0, 0.707107f, 0.707107f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.TowerCapMageTower, EotSObjectIds.HuTowerCapEyEntry, 2282.121582f, 1760.006958f, 1189.707153f, 1.919862f, 0, 0, 0.819152f, 0.573576f, BattlegroundConst.RespawnOneDay)
+            !AddObject(EotSObjectTypes.TOWER_CAP_FEL_REAVER, EotSObjectIds.FR_TOWER_CAP_EY_ENTRY, 2024.600708f, 1742.819580f, 1195.157715f, 2.443461f, 0, 0, 0.939693f, 0.342020f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.TOWER_CAP_BLOOD_ELF, EotSObjectIds.BE_TOWER_CAP_EY_ENTRY, 2050.493164f, 1372.235962f, 1194.563477f, 1.710423f, 0, 0, 0.754710f, 0.656059f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.TOWER_CAP_DRAENEI_RUINS, EotSObjectIds.DR_TOWER_CAP_EY_ENTRY, 2301.010498f, 1386.931641f, 1197.183472f, 1.570796f, 0, 0, 0.707107f, 0.707107f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.TOWER_CAP_MAGE_TOWER, EotSObjectIds.HU_TOWER_CAP_EY_ENTRY, 2282.121582f, 1760.006958f, 1189.707153f, 1.919862f, 0, 0, 0.819152f, 0.573576f, BattlegroundConst.RespawnOneDay)
             // buffs
             ||
-            !AddObject(EotSObjectTypes.SpeedbuffFelReaver, EotSObjectIds.SpeedBuffFelReaverEyEntry, 2046.462646484375f, 1749.1666259765625f, 1190.010498046875f, 5.410521507263183593f, 0.0f, 0.0f, -0.42261791229248046f, 0.906307935714721679f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.RegenbuffFelReaver, EotSObjectIds.RestorationBuffFelReaverEyEntry, 2046.462646484375f, 1749.1666259765625f, 1190.010498046875f, 5.410521507263183593f, 0.0f, 0.0f, -0.42261791229248046f, 0.906307935714721679f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.BerserkbuffFelReaver, EotSObjectIds.BerserkBuffFelReaverEyEntry, 2046.462646484375f, 1749.1666259765625f, 1190.010498046875f, 5.410521507263183593f, 0.0f, 0.0f, -0.42261791229248046f, 0.906307935714721679f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.SpeedbuffBloodElf, EotSObjectIds.SpeedBuffBloodElfEyEntry, 2050.46826171875f, 1372.2020263671875f, 1194.5634765625f, 1.675513744354248046f, 0.0f, 0.0f, 0.743144035339355468f, 0.669131457805633544f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.RegenbuffBloodElf, EotSObjectIds.RestorationBuffBloodElfEyEntry, 2050.46826171875f, 1372.2020263671875f, 1194.5634765625f, 1.675513744354248046f, 0.0f, 0.0f, 0.743144035339355468f, 0.669131457805633544f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.BerserkbuffBloodElf, EotSObjectIds.BerserkBuffBloodElfEyEntry, 2050.46826171875f, 1372.2020263671875f, 1194.5634765625f, 1.675513744354248046f, 0.0f, 0.0f, 0.743144035339355468f, 0.669131457805633544f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.SpeedbuffDraeneiRuins, EotSObjectIds.SpeedBuffDraeneiRuinsEyEntry, 2302.4765625f, 1391.244873046875f, 1197.7364501953125f, 1.762782454490661621f, 0.0f, 0.0f, 0.771624565124511718f, 0.636078238487243652f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.RegenbuffDraeneiRuins, EotSObjectIds.RestorationBuffDraeneiRuinsEyEntry, 2302.4765625f, 1391.244873046875f, 1197.7364501953125f, 1.762782454490661621f, 0.0f, 0.0f, 0.771624565124511718f, 0.636078238487243652f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.BerserkbuffDraeneiRuins, EotSObjectIds.BerserkBuffDraeneiRuinsEyEntry, 2302.4765625f, 1391.244873046875f, 1197.7364501953125f, 1.762782454490661621f, 0.0f, 0.0f, 0.771624565124511718f, 0.636078238487243652f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.SpeedbuffMageTower, EotSObjectIds.SpeedBuffMageTowerEyEntry, 2283.7099609375f, 1748.8699951171875f, 1189.7071533203125f, 4.782202720642089843f, 0.0f, 0.0f, -0.68199825286865234f, 0.731353819370269775f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.RegenbuffMageTower, EotSObjectIds.RestorationBuffMageTowerEyEntry, 2283.7099609375f, 1748.8699951171875f, 1189.7071533203125f, 4.782202720642089843f, 0.0f, 0.0f, -0.68199825286865234f, 0.731353819370269775f, BattlegroundConst.RespawnOneDay) ||
-            !AddObject(EotSObjectTypes.BerserkbuffMageTower, EotSObjectIds.BerserkBuffMageTowerEyEntry, 2283.7099609375f, 1748.8699951171875f, 1189.7071533203125f, 4.782202720642089843f, 0.0f, 0.0f, -0.68199825286865234f, 0.731353819370269775f, BattlegroundConst.RespawnOneDay)
+            !AddObject(EotSObjectTypes.SPEEDBUFF_FEL_REAVER, EotSObjectIds.SPEED_BUFF_FEL_REAVER_EY_ENTRY, 2046.462646484375f, 1749.1666259765625f, 1190.010498046875f, 5.410521507263183593f, 0.0f, 0.0f, -0.42261791229248046f, 0.906307935714721679f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.REGENBUFF_FEL_REAVER, EotSObjectIds.RESTORATION_BUFF_FEL_REAVER_EY_ENTRY, 2046.462646484375f, 1749.1666259765625f, 1190.010498046875f, 5.410521507263183593f, 0.0f, 0.0f, -0.42261791229248046f, 0.906307935714721679f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.BERSERKBUFF_FEL_REAVER, EotSObjectIds.BERSERK_BUFF_FEL_REAVER_EY_ENTRY, 2046.462646484375f, 1749.1666259765625f, 1190.010498046875f, 5.410521507263183593f, 0.0f, 0.0f, -0.42261791229248046f, 0.906307935714721679f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.SPEEDBUFF_BLOOD_ELF, EotSObjectIds.SPEED_BUFF_BLOOD_ELF_EY_ENTRY, 2050.46826171875f, 1372.2020263671875f, 1194.5634765625f, 1.675513744354248046f, 0.0f, 0.0f, 0.743144035339355468f, 0.669131457805633544f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.REGENBUFF_BLOOD_ELF, EotSObjectIds.RESTORATION_BUFF_BLOOD_ELF_EY_ENTRY, 2050.46826171875f, 1372.2020263671875f, 1194.5634765625f, 1.675513744354248046f, 0.0f, 0.0f, 0.743144035339355468f, 0.669131457805633544f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.BERSERKBUFF_BLOOD_ELF, EotSObjectIds.BERSERK_BUFF_BLOOD_ELF_EY_ENTRY, 2050.46826171875f, 1372.2020263671875f, 1194.5634765625f, 1.675513744354248046f, 0.0f, 0.0f, 0.743144035339355468f, 0.669131457805633544f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.SPEEDBUFF_DRAENEI_RUINS, EotSObjectIds.SPEED_BUFF_DRAENEI_RUINS_EY_ENTRY, 2302.4765625f, 1391.244873046875f, 1197.7364501953125f, 1.762782454490661621f, 0.0f, 0.0f, 0.771624565124511718f, 0.636078238487243652f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.REGENBUFF_DRAENEI_RUINS, EotSObjectIds.RESTORATION_BUFF_DRAENEI_RUINS_EY_ENTRY, 2302.4765625f, 1391.244873046875f, 1197.7364501953125f, 1.762782454490661621f, 0.0f, 0.0f, 0.771624565124511718f, 0.636078238487243652f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.BERSERKBUFF_DRAENEI_RUINS, EotSObjectIds.BERSERK_BUFF_DRAENEI_RUINS_EY_ENTRY, 2302.4765625f, 1391.244873046875f, 1197.7364501953125f, 1.762782454490661621f, 0.0f, 0.0f, 0.771624565124511718f, 0.636078238487243652f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.SPEEDBUFF_MAGE_TOWER, EotSObjectIds.SPEED_BUFF_MAGE_TOWER_EY_ENTRY, 2283.7099609375f, 1748.8699951171875f, 1189.7071533203125f, 4.782202720642089843f, 0.0f, 0.0f, -0.68199825286865234f, 0.731353819370269775f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.REGENBUFF_MAGE_TOWER, EotSObjectIds.RESTORATION_BUFF_MAGE_TOWER_EY_ENTRY, 2283.7099609375f, 1748.8699951171875f, 1189.7071533203125f, 4.782202720642089843f, 0.0f, 0.0f, -0.68199825286865234f, 0.731353819370269775f, BattlegroundConst.RespawnOneDay) ||
+            !AddObject(EotSObjectTypes.BERSERKBUFF_MAGE_TOWER, EotSObjectIds.BERSERK_BUFF_MAGE_TOWER_EY_ENTRY, 2283.7099609375f, 1748.8699951171875f, 1189.7071533203125f, 4.782202720642089843f, 0.0f, 0.0f, -0.68199825286865234f, 0.731353819370269775f, BattlegroundConst.RespawnOneDay)
            )
         {
             Log.Logger.Error("BatteGroundEY: Failed to spawn some objects. The battleground was not created.");
@@ -501,18 +501,18 @@ internal class BgEyeofStorm : Battleground
             return false;
         }
 
-        var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MainAlliance);
+        var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MAIN_ALLIANCE);
 
-        if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
+        if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SPIRIT_MAIN_ALLIANCE, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
         {
             Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
 
             return false;
         }
 
-        sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MainHorde);
+        sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MAIN_HORDE);
 
-        if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
+        if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SPIRIT_MAIN_HORDE, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
         {
             Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
 
@@ -524,30 +524,30 @@ internal class BgEyeofStorm : Battleground
 
     public override void StartingEventCloseDoors()
     {
-        SpawnBGObject(EotSObjectTypes.DoorA, BattlegroundConst.RespawnImmediately);
-        SpawnBGObject(EotSObjectTypes.DoorH, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(EotSObjectTypes.DOOR_A, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(EotSObjectTypes.DOOR_H, BattlegroundConst.RespawnImmediately);
 
-        for (var i = EotSObjectTypes.ABannerFelReaverCenter; i < EotSObjectTypes.Max; ++i)
+        for (var i = EotSObjectTypes.A_BANNER_FEL_REAVER_CENTER; i < EotSObjectTypes.MAX; ++i)
             SpawnBGObject(i, BattlegroundConst.RespawnOneDay);
     }
 
     public override void StartingEventOpenDoors()
     {
-        SpawnBGObject(EotSObjectTypes.DoorA, BattlegroundConst.RespawnOneDay);
-        SpawnBGObject(EotSObjectTypes.DoorH, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(EotSObjectTypes.DOOR_A, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(EotSObjectTypes.DOOR_H, BattlegroundConst.RespawnOneDay);
 
-        for (var i = EotSObjectTypes.NBannerFelReaverLeft; i <= EotSObjectTypes.FlagNetherstorm; ++i)
+        for (var i = EotSObjectTypes.N_BANNER_FEL_REAVER_LEFT; i <= EotSObjectTypes.FLAG_NETHERSTORM; ++i)
             SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
 
-        for (var i = 0; i < EotSPoints.PointsMax; ++i)
+        for (var i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
             //randomly spawn buff
             var buff = (byte)RandomHelper.URand(0, 2);
-            SpawnBGObject(EotSObjectTypes.SpeedbuffFelReaver + buff + i * 3, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(EotSObjectTypes.SPEEDBUFF_FEL_REAVER + buff + i * 3, BattlegroundConst.RespawnImmediately);
         }
 
         // Achievement: Flurry
-        TriggerGameEvent(EotSMisc.EventStartBattle);
+        TriggerGameEvent(EotSMisc.EVENT_START_BATTLE);
     }
 
     public override bool UpdatePlayerScore(Player player, ScoreType type, uint value, bool doAddHonor = true)
@@ -558,7 +558,7 @@ internal class BgEyeofStorm : Battleground
         switch (type)
         {
             case ScoreType.FlagCaptures:
-                player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, EotSMisc.ObjectiveCaptureFlag);
+                player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, EotSMisc.OBJECTIVE_CAPTURE_FLAG);
 
                 break;
             default:
@@ -568,40 +568,40 @@ internal class BgEyeofStorm : Battleground
         return true;
     }
 
-    private void AddPoints(TeamFaction Team, uint Points)
+    private void AddPoints(TeamFaction team, uint points)
     {
-        var team_index = GetTeamIndexByTeamId(Team);
-        m_TeamScores[team_index] += Points;
-        m_HonorScoreTics[team_index] += Points;
+        var teamIndex = GetTeamIndexByTeamId(team);
+        m_TeamScores[teamIndex] += points;
+        _mHonorScoreTics[teamIndex] += points;
 
-        if (m_HonorScoreTics[team_index] >= m_HonorTics)
+        if (_mHonorScoreTics[teamIndex] >= _mHonorTics)
         {
-            RewardHonorToTeam(GetBonusHonorFromKill(1), Team);
-            m_HonorScoreTics[team_index] -= m_HonorTics;
+            RewardHonorToTeam(GetBonusHonorFromKill(1), team);
+            _mHonorScoreTics[teamIndex] -= _mHonorTics;
         }
 
-        UpdateTeamScore(team_index);
+        UpdateTeamScore(teamIndex);
     }
 
     private void CheckSomeoneJoinedPoint()
     {
         GameObject obj;
 
-        for (byte i = 0; i < EotSPoints.PointsMax; ++i)
+        for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
-            obj = GetBgMap().GetGameObject(BgObjects[EotSObjectTypes.TowerCapFelReaver + i]);
+            obj = GetBgMap().GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
 
             if (obj)
             {
                 byte j = 0;
 
-                while (j < m_PlayersNearPoint[EotSPoints.PointsMax].Count)
+                while (j < _mPlayersNearPoint[EotSPoints.POINTS_MAX].Count)
                 {
-                    var player = Global.ObjAccessor.FindPlayer(m_PlayersNearPoint[EotSPoints.PointsMax][j]);
+                    var player = Global.ObjAccessor.FindPlayer(_mPlayersNearPoint[EotSPoints.POINTS_MAX][j]);
 
                     if (!player)
                     {
-                        Log.Logger.Error("BattlegroundEY:CheckSomeoneJoinedPoint: Player ({0}) could not be found!", m_PlayersNearPoint[EotSPoints.PointsMax][j].ToString());
+                        Log.Logger.Error("BattlegroundEY:CheckSomeoneJoinedPoint: Player ({0}) could not be found!", _mPlayersNearPoint[EotSPoints.POINTS_MAX][j].ToString());
                         ++j;
 
                         continue;
@@ -611,13 +611,13 @@ internal class BgEyeofStorm : Battleground
                     {
                         //player joined point!
                         //show progress bar
-                        player.SendUpdateWorldState(EotSWorldStateIds.ProgressBarPercentGrey, (uint)EotSProgressBarConsts.ProgressBarPercentGrey);
-                        player.SendUpdateWorldState(EotSWorldStateIds.ProgressBarStatus, (uint)m_PointBarStatus[i]);
-                        player.SendUpdateWorldState(EotSWorldStateIds.ProgressBarShow, (uint)EotSProgressBarConsts.ProgressBarShow);
+                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_PERCENT_GREY, (uint)EotSProgressBarConsts.ProgressBarPercentGrey);
+                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_STATUS, (uint)_mPointBarStatus[i]);
+                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_SHOW, (uint)EotSProgressBarConsts.ProgressBarShow);
                         //add player to point
-                        m_PlayersNearPoint[i].Add(m_PlayersNearPoint[EotSPoints.PointsMax][j]);
+                        _mPlayersNearPoint[i].Add(_mPlayersNearPoint[EotSPoints.POINTS_MAX][j]);
                         //remove player from "free space"
-                        m_PlayersNearPoint[EotSPoints.PointsMax].RemoveAt(j);
+                        _mPlayersNearPoint[EotSPoints.POINTS_MAX].RemoveAt(j);
                     }
                     else
                     {
@@ -631,29 +631,29 @@ internal class BgEyeofStorm : Battleground
     private void CheckSomeoneLeftPo()
     {
         //reset current point counts
-        for (byte i = 0; i < 2 * EotSPoints.PointsMax; ++i)
-            m_CurrentPointPlayersCount[i] = 0;
+        for (byte i = 0; i < 2 * EotSPoints.POINTS_MAX; ++i)
+            _mCurrentPointPlayersCount[i] = 0;
 
         GameObject obj;
 
-        for (byte i = 0; i < EotSPoints.PointsMax; ++i)
+        for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
-            obj = GetBgMap().GetGameObject(BgObjects[EotSObjectTypes.TowerCapFelReaver + i]);
+            obj = GetBgMap().GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
 
             if (obj)
             {
                 byte j = 0;
 
-                while (j < m_PlayersNearPoint[i].Count)
+                while (j < _mPlayersNearPoint[i].Count)
                 {
-                    var player = Global.ObjAccessor.FindPlayer(m_PlayersNearPoint[i][j]);
+                    var player = Global.ObjAccessor.FindPlayer(_mPlayersNearPoint[i][j]);
 
                     if (!player)
                     {
-                        Log.Logger.Error("BattlegroundEY:CheckSomeoneLeftPoint Player ({0}) could not be found!", m_PlayersNearPoint[i][j].ToString());
+                        Log.Logger.Error("BattlegroundEY:CheckSomeoneLeftPoint Player ({0}) could not be found!", _mPlayersNearPoint[i][j].ToString());
                         //move non-existing players to "free space" - this will cause many errors showing in log, but it is a very important bug
-                        m_PlayersNearPoint[EotSPoints.PointsMax].Add(m_PlayersNearPoint[i][j]);
-                        m_PlayersNearPoint[i].RemoveAt(j);
+                        _mPlayersNearPoint[EotSPoints.POINTS_MAX].Add(_mPlayersNearPoint[i][j]);
+                        _mPlayersNearPoint[i].RemoveAt(j);
 
                         continue;
                     }
@@ -661,14 +661,14 @@ internal class BgEyeofStorm : Battleground
                     if (!player.CanCaptureTowerPoint || !player.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
                         //move player out of point (add him to players that are out of points
                     {
-                        m_PlayersNearPoint[EotSPoints.PointsMax].Add(m_PlayersNearPoint[i][j]);
-                        m_PlayersNearPoint[i].RemoveAt(j);
-                        player.SendUpdateWorldState(EotSWorldStateIds.ProgressBarShow, (uint)EotSProgressBarConsts.ProgressBarDontShow);
+                        _mPlayersNearPoint[EotSPoints.POINTS_MAX].Add(_mPlayersNearPoint[i][j]);
+                        _mPlayersNearPoint[i].RemoveAt(j);
+                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_SHOW, (uint)EotSProgressBarConsts.ProgressBarDontShow);
                     }
                     else
                     {
                         //player is neat Id, so update count:
-                        m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(GetPlayerTeam(player.GUID))]++;
+                        _mCurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(GetPlayerTeam(player.GUID))]++;
                         ++j;
                     }
                 }
@@ -676,14 +676,14 @@ internal class BgEyeofStorm : Battleground
         }
     }
 
-    private void EventPlayerCapturedFlag(Player player, uint BgObjectType)
+    private void EventPlayerCapturedFlag(Player player, uint bgObjectType)
     {
         if (GetStatus() != BattlegroundStatus.InProgress || GetFlagPickerGUID() != player.GUID)
             return;
 
         SetFlagPicker(ObjectGuid.Empty);
-        m_FlagState = EotSFlagState.WaitRespawn;
-        player.RemoveAura(EotSMisc.SpellNetherstormFlag);
+        _mFlagState = EotSFlagState.WaitRespawn;
+        player.RemoveAura(EotSMisc.SPELL_NETHERSTORM_FLAG);
 
         player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
 
@@ -691,191 +691,191 @@ internal class BgEyeofStorm : Battleground
 
         if (team == TeamFaction.Alliance)
         {
-            SendBroadcastText(EotSBroadcastTexts.AllianceCapturedFlag, ChatMsg.BgSystemAlliance, player);
-            PlaySoundToAll(EotSSoundIds.FlagCapturedAlliance);
+            SendBroadcastText(EotSBroadcastTexts.ALLIANCE_CAPTURED_FLAG, ChatMsg.BgSystemAlliance, player);
+            PlaySoundToAll(EotSSoundIds.FLAG_CAPTURED_ALLIANCE);
         }
         else
         {
-            SendBroadcastText(EotSBroadcastTexts.HordeCapturedFlag, ChatMsg.BgSystemHorde, player);
-            PlaySoundToAll(EotSSoundIds.FlagCapturedHorde);
+            SendBroadcastText(EotSBroadcastTexts.HORDE_CAPTURED_FLAG, ChatMsg.BgSystemHorde, player);
+            PlaySoundToAll(EotSSoundIds.FLAG_CAPTURED_HORDE);
         }
 
-        SpawnBGObject((int)BgObjectType, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject((int)bgObjectType, BattlegroundConst.RespawnImmediately);
 
-        m_FlagsTimer = EotSMisc.FlagRespawnTime;
-        m_FlagCapturedBgObjectType = BgObjectType;
+        _mFlagsTimer = EotSMisc.FLAG_RESPAWN_TIME;
+        _mFlagCapturedBgObjectType = bgObjectType;
 
-        var team_id = GetTeamIndexByTeamId(team);
+        var teamID = GetTeamIndexByTeamId(team);
 
-        if (m_TeamPointsCount[team_id] > 0)
-            AddPoints(team, EotSMisc.FlagPoints[m_TeamPointsCount[team_id] - 1]);
+        if (_mTeamPointsCount[teamID] > 0)
+            AddPoints(team, EotSMisc.FlagPoints[_mTeamPointsCount[teamID] - 1]);
 
-        UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateHorde, (int)EotSFlagState.OnBase);
-        UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateAlliance, (int)EotSFlagState.OnBase);
+        UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG_STATE_HORDE, (int)EotSFlagState.OnBase);
+        UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG_STATE_ALLIANCE, (int)EotSFlagState.OnBase);
 
         UpdatePlayerScore(player, ScoreType.FlagCaptures, 1);
     }
 
-    private void EventTeamCapturedPoint(Player player, int Point)
+    private void EventTeamCapturedPoint(Player player, int point)
     {
         if (GetStatus() != BattlegroundStatus.InProgress)
             return;
 
-        var Team = GetPlayerTeam(player.GUID);
+        var team = GetPlayerTeam(player.GUID);
 
-        SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].DespawnNeutralObjectType, BattlegroundConst.RespawnOneDay);
-        SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].DespawnNeutralObjectType + 1, BattlegroundConst.RespawnOneDay);
-        SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].DespawnNeutralObjectType + 2, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(EotSMisc.MCapturingPointTypes[point].DespawnNeutralObjectType, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(EotSMisc.MCapturingPointTypes[point].DespawnNeutralObjectType + 1, BattlegroundConst.RespawnOneDay);
+        SpawnBGObject(EotSMisc.MCapturingPointTypes[point].DespawnNeutralObjectType + 2, BattlegroundConst.RespawnOneDay);
 
-        if (Team == TeamFaction.Alliance)
+        if (team == TeamFaction.Alliance)
         {
-            m_TeamPointsCount[TeamIds.Alliance]++;
-            SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeAlliance, BattlegroundConst.RespawnImmediately);
-            SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeAlliance + 1, BattlegroundConst.RespawnImmediately);
-            SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeAlliance + 2, BattlegroundConst.RespawnImmediately);
+            _mTeamPointsCount[TeamIds.Alliance]++;
+            SpawnBGObject(EotSMisc.MCapturingPointTypes[point].SpawnObjectTypeAlliance, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(EotSMisc.MCapturingPointTypes[point].SpawnObjectTypeAlliance + 1, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(EotSMisc.MCapturingPointTypes[point].SpawnObjectTypeAlliance + 2, BattlegroundConst.RespawnImmediately);
         }
         else
         {
-            m_TeamPointsCount[TeamIds.Horde]++;
-            SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeHorde, BattlegroundConst.RespawnImmediately);
-            SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeHorde + 1, BattlegroundConst.RespawnImmediately);
-            SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeHorde + 2, BattlegroundConst.RespawnImmediately);
+            _mTeamPointsCount[TeamIds.Horde]++;
+            SpawnBGObject(EotSMisc.MCapturingPointTypes[point].SpawnObjectTypeHorde, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(EotSMisc.MCapturingPointTypes[point].SpawnObjectTypeHorde + 1, BattlegroundConst.RespawnImmediately);
+            SpawnBGObject(EotSMisc.MCapturingPointTypes[point].SpawnObjectTypeHorde + 2, BattlegroundConst.RespawnImmediately);
         }
 
         //buff isn't respawned
 
-        m_PointOwnedByTeam[Point] = Team;
-        m_PointState[Point] = EotSPointState.UnderControl;
+        _mPointOwnedByTeam[point] = team;
+        _mPointState[point] = EotSPointState.UnderControl;
 
-        if (Team == TeamFaction.Alliance)
-            SendBroadcastText(EotSMisc.m_CapturingPointTypes[Point].MessageIdAlliance, ChatMsg.BgSystemAlliance, player);
+        if (team == TeamFaction.Alliance)
+            SendBroadcastText(EotSMisc.MCapturingPointTypes[point].MessageIdAlliance, ChatMsg.BgSystemAlliance, player);
         else
-            SendBroadcastText(EotSMisc.m_CapturingPointTypes[Point].MessageIdHorde, ChatMsg.BgSystemHorde, player);
+            SendBroadcastText(EotSMisc.MCapturingPointTypes[point].MessageIdHorde, ChatMsg.BgSystemHorde, player);
 
-        if (!BgCreatures[Point].IsEmpty)
-            DelCreature(Point);
+        if (!BgCreatures[point].IsEmpty)
+            DelCreature(point);
 
-        var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
+        var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.MCapturingPointTypes[point].GraveYardId);
 
-        if (sg == null || !AddSpiritGuide(Point, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, GetTeamIndexByTeamId(Team)))
+        if (sg == null || !AddSpiritGuide(point, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, GetTeamIndexByTeamId(team)))
             Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. point: {0}, team: {1}, graveyard_id: {2}",
-                             Point,
-                             Team,
-                             EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
+                             point,
+                             team,
+                             EotSMisc.MCapturingPointTypes[point].GraveYardId);
 
         //    SpawnBGCreature(Point, RESPAWN_IMMEDIATELY);
 
-        UpdatePointsIcons(Team, Point);
-        UpdatePointsCount(Team);
+        UpdatePointsIcons(team, point);
+        UpdatePointsCount(team);
 
-        if (Point >= EotSPoints.PointsMax)
+        if (point >= EotSPoints.POINTS_MAX)
             return;
 
-        var trigger = GetBGCreature(Point + 6); //0-5 spirit guides
+        var trigger = GetBGCreature(point + 6); //0-5 spirit guides
 
         if (!trigger)
-            trigger = AddCreature(SharedConst.WorldTrigger, Point + 6, EotSMisc.TriggerPositions[Point], GetTeamIndexByTeamId(Team));
+            trigger = AddCreature(SharedConst.WorldTrigger, point + 6, EotSMisc.TriggerPositions[point], GetTeamIndexByTeamId(team));
 
         //add bonus honor aura trigger creature when node is accupied
         //cast bonus aura (+50% honor in 25yards)
         //aura should only apply to players who have accupied the node, set correct faction for trigger
         if (trigger)
         {
-            trigger.Faction = Team == TeamFaction.Alliance ? 84u : 83;
+            trigger.Faction = team == TeamFaction.Alliance ? 84u : 83;
             trigger.CastSpell(trigger, BattlegroundConst.SpellHonorableDefender25y, false);
         }
     }
 
-    private void EventTeamLostPoint(Player player, int Point)
+    private void EventTeamLostPoint(Player player, int point)
     {
         if (GetStatus() != BattlegroundStatus.InProgress)
             return;
 
         //Natural point
-        var Team = m_PointOwnedByTeam[Point];
+        var team = _mPointOwnedByTeam[point];
 
-        if (Team == 0)
+        if (team == 0)
             return;
 
-        if (Team == TeamFaction.Alliance)
+        if (team == TeamFaction.Alliance)
         {
-            m_TeamPointsCount[TeamIds.Alliance]--;
-            SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeAlliance, BattlegroundConst.RespawnOneDay);
-            SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeAlliance + 1, BattlegroundConst.RespawnOneDay);
-            SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeAlliance + 2, BattlegroundConst.RespawnOneDay);
+            _mTeamPointsCount[TeamIds.Alliance]--;
+            SpawnBGObject(EotSMisc.MLosingPointTypes[point].DespawnObjectTypeAlliance, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(EotSMisc.MLosingPointTypes[point].DespawnObjectTypeAlliance + 1, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(EotSMisc.MLosingPointTypes[point].DespawnObjectTypeAlliance + 2, BattlegroundConst.RespawnOneDay);
         }
         else
         {
-            m_TeamPointsCount[TeamIds.Horde]--;
-            SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeHorde, BattlegroundConst.RespawnOneDay);
-            SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeHorde + 1, BattlegroundConst.RespawnOneDay);
-            SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeHorde + 2, BattlegroundConst.RespawnOneDay);
+            _mTeamPointsCount[TeamIds.Horde]--;
+            SpawnBGObject(EotSMisc.MLosingPointTypes[point].DespawnObjectTypeHorde, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(EotSMisc.MLosingPointTypes[point].DespawnObjectTypeHorde + 1, BattlegroundConst.RespawnOneDay);
+            SpawnBGObject(EotSMisc.MLosingPointTypes[point].DespawnObjectTypeHorde + 2, BattlegroundConst.RespawnOneDay);
         }
 
-        SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].SpawnNeutralObjectType, BattlegroundConst.RespawnImmediately);
-        SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].SpawnNeutralObjectType + 1, BattlegroundConst.RespawnImmediately);
-        SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].SpawnNeutralObjectType + 2, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(EotSMisc.MLosingPointTypes[point].SpawnNeutralObjectType, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(EotSMisc.MLosingPointTypes[point].SpawnNeutralObjectType + 1, BattlegroundConst.RespawnImmediately);
+        SpawnBGObject(EotSMisc.MLosingPointTypes[point].SpawnNeutralObjectType + 2, BattlegroundConst.RespawnImmediately);
 
         //buff isn't despawned
 
-        m_PointOwnedByTeam[Point] = TeamFaction.Other;
-        m_PointState[Point] = EotSPointState.NoOwner;
+        _mPointOwnedByTeam[point] = TeamFaction.Other;
+        _mPointState[point] = EotSPointState.NoOwner;
 
-        if (Team == TeamFaction.Alliance)
-            SendBroadcastText(EotSMisc.m_LosingPointTypes[Point].MessageIdAlliance, ChatMsg.BgSystemAlliance, player);
+        if (team == TeamFaction.Alliance)
+            SendBroadcastText(EotSMisc.MLosingPointTypes[point].MessageIdAlliance, ChatMsg.BgSystemAlliance, player);
         else
-            SendBroadcastText(EotSMisc.m_LosingPointTypes[Point].MessageIdHorde, ChatMsg.BgSystemHorde, player);
+            SendBroadcastText(EotSMisc.MLosingPointTypes[point].MessageIdHorde, ChatMsg.BgSystemHorde, player);
 
-        UpdatePointsIcons(Team, Point);
-        UpdatePointsCount(Team);
+        UpdatePointsIcons(team, point);
+        UpdatePointsCount(team);
 
         //remove bonus honor aura trigger creature when node is lost
-        if (Point < EotSPoints.PointsMax)
-            DelCreature(Point + 6); //null checks are in DelCreature! 0-5 spirit guides
+        if (point < EotSPoints.POINTS_MAX)
+            DelCreature(point + 6); //null checks are in DelCreature! 0-5 spirit guides
     }
 
     private ObjectGuid GetDroppedFlagGUID()
     {
-        return m_DroppedFlagGUID;
+        return _mDroppedFlagGUID;
     }
 
     private BattlegroundPointCaptureStatus GetPointCaptureStatus(uint point)
     {
-        if (m_PointBarStatus[point] >= EotSProgressBarConsts.ProgressBarAliControlled)
+        if (_mPointBarStatus[point] >= EotSProgressBarConsts.ProgressBarAliControlled)
             return BattlegroundPointCaptureStatus.AllianceControlled;
 
-        if (m_PointBarStatus[point] <= EotSProgressBarConsts.ProgressBarHordeControlled)
+        if (_mPointBarStatus[point] <= EotSProgressBarConsts.ProgressBarHordeControlled)
             return BattlegroundPointCaptureStatus.HordeControlled;
 
-        if (m_CurrentPointPlayersCount[2 * point] == m_CurrentPointPlayersCount[2 * point + 1])
+        if (_mCurrentPointPlayersCount[2 * point] == _mCurrentPointPlayersCount[2 * point + 1])
             return BattlegroundPointCaptureStatus.Neutral;
 
-        return m_CurrentPointPlayersCount[2 * point] > m_CurrentPointPlayersCount[2 * point + 1]
+        return _mCurrentPointPlayersCount[2 * point] > _mCurrentPointPlayersCount[2 * point + 1]
                    ? BattlegroundPointCaptureStatus.AllianceCapturing
                    : BattlegroundPointCaptureStatus.HordeCapturing;
     }
 
     private bool IsFlagPickedup()
     {
-        return !m_FlagKeeper.IsEmpty;
+        return !_mFlagKeeper.IsEmpty;
     }
 
-    private void RespawnFlag(bool send_message)
+    private void RespawnFlag(bool sendMessage)
     {
-        if (m_FlagCapturedBgObjectType > 0)
-            SpawnBGObject((int)m_FlagCapturedBgObjectType, BattlegroundConst.RespawnOneDay);
+        if (_mFlagCapturedBgObjectType > 0)
+            SpawnBGObject((int)_mFlagCapturedBgObjectType, BattlegroundConst.RespawnOneDay);
 
-        m_FlagCapturedBgObjectType = 0;
-        m_FlagState = EotSFlagState.OnBase;
-        SpawnBGObject(EotSObjectTypes.FlagNetherstorm, BattlegroundConst.RespawnImmediately);
+        _mFlagCapturedBgObjectType = 0;
+        _mFlagState = EotSFlagState.OnBase;
+        SpawnBGObject(EotSObjectTypes.FLAG_NETHERSTORM, BattlegroundConst.RespawnImmediately);
 
-        if (send_message)
+        if (sendMessage)
         {
-            SendBroadcastText(EotSBroadcastTexts.FlagReset, ChatMsg.BgSystemNeutral);
-            PlaySoundToAll(EotSSoundIds.FlagReset); // flags respawned sound...
+            SendBroadcastText(EotSBroadcastTexts.FLAG_RESET, ChatMsg.BgSystemNeutral);
+            PlaySoundToAll(EotSSoundIds.FLAG_RESET); // flags respawned sound...
         }
 
-        UpdateWorldState(EotSWorldStateIds.NetherstormFlag, 1);
+        UpdateWorldState(EotSWorldStateIds.NETHERSTORM_FLAG, 1);
     }
 
     private void RespawnFlagAfterDrop()
@@ -894,106 +894,106 @@ internal class BgEyeofStorm : Battleground
 
     private void SetFlagPicker(ObjectGuid guid)
     {
-        m_FlagKeeper = guid;
+        _mFlagKeeper = guid;
     }
 
     private void UpdatePointsCount(TeamFaction team)
     {
         if (team == TeamFaction.Alliance)
-            UpdateWorldState(EotSWorldStateIds.AllianceBase, (int)m_TeamPointsCount[TeamIds.Alliance]);
+            UpdateWorldState(EotSWorldStateIds.ALLIANCE_BASE, (int)_mTeamPointsCount[TeamIds.Alliance]);
         else
-            UpdateWorldState(EotSWorldStateIds.HordeBase, (int)m_TeamPointsCount[TeamIds.Horde]);
+            UpdateWorldState(EotSWorldStateIds.HORDE_BASE, (int)_mTeamPointsCount[TeamIds.Horde]);
     }
 
-    private void UpdatePointsIcons(TeamFaction team, int Point)
+    private void UpdatePointsIcons(TeamFaction team, int point)
     {
         //we MUST firstly send 0, after that we can send 1!!!
-        if (m_PointState[Point] == EotSPointState.UnderControl)
+        if (_mPointState[point] == EotSPointState.UnderControl)
         {
-            UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateControlIndex, 0);
+            UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateControlIndex, 0);
 
             if (team == TeamFaction.Alliance)
-                UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateAllianceControlledIndex, 1);
+                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateAllianceControlledIndex, 1);
             else
-                UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateHordeControlledIndex, 1);
+                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateHordeControlledIndex, 1);
         }
         else
         {
             if (team == TeamFaction.Alliance)
-                UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateAllianceControlledIndex, 0);
+                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateAllianceControlledIndex, 0);
             else
-                UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateHordeControlledIndex, 0);
+                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateHordeControlledIndex, 0);
 
-            UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateControlIndex, 1);
+            UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateControlIndex, 1);
         }
     }
 
     private void UpdatePointStatuses()
     {
-        for (byte point = 0; point < EotSPoints.PointsMax; ++point)
+        for (byte point = 0; point < EotSPoints.POINTS_MAX; ++point)
         {
-            if (!m_PlayersNearPoint[point].Empty())
+            if (!_mPlayersNearPoint[point].Empty())
             {
                 //count new point bar status:
-                var pointDelta = m_CurrentPointPlayersCount[2 * point] - m_CurrentPointPlayersCount[2 * point + 1];
+                var pointDelta = _mCurrentPointPlayersCount[2 * point] - _mCurrentPointPlayersCount[2 * point + 1];
                 MathFunctions.RoundToInterval(ref pointDelta, -(int)EotSProgressBarConsts.PointMaxCapturersCount, EotSProgressBarConsts.PointMaxCapturersCount);
-                m_PointBarStatus[point] += pointDelta;
+                _mPointBarStatus[point] += pointDelta;
 
-                if (m_PointBarStatus[point] > EotSProgressBarConsts.ProgressBarAliControlled)
+                if (_mPointBarStatus[point] > EotSProgressBarConsts.ProgressBarAliControlled)
                     //point is fully alliance's
-                    m_PointBarStatus[point] = EotSProgressBarConsts.ProgressBarAliControlled;
+                    _mPointBarStatus[point] = EotSProgressBarConsts.ProgressBarAliControlled;
 
-                if (m_PointBarStatus[point] < EotSProgressBarConsts.ProgressBarHordeControlled)
+                if (_mPointBarStatus[point] < EotSProgressBarConsts.ProgressBarHordeControlled)
                     //point is fully horde's
-                    m_PointBarStatus[point] = EotSProgressBarConsts.ProgressBarHordeControlled;
+                    _mPointBarStatus[point] = EotSProgressBarConsts.ProgressBarHordeControlled;
 
                 uint pointOwnerTeamId;
 
                 //find which team should own this point
-                if (m_PointBarStatus[point] <= EotSProgressBarConsts.ProgressBarNeutralLow)
+                if (_mPointBarStatus[point] <= EotSProgressBarConsts.ProgressBarNeutralLow)
                     pointOwnerTeamId = (uint)TeamFaction.Horde;
-                else if (m_PointBarStatus[point] >= EotSProgressBarConsts.ProgressBarNeutralHigh)
+                else if (_mPointBarStatus[point] >= EotSProgressBarConsts.ProgressBarNeutralHigh)
                     pointOwnerTeamId = (uint)TeamFaction.Alliance;
                 else
                     pointOwnerTeamId = (uint)EotSPointState.NoOwner;
 
-                for (byte i = 0; i < m_PlayersNearPoint[point].Count; ++i)
+                for (byte i = 0; i < _mPlayersNearPoint[point].Count; ++i)
                 {
-                    var player = Global.ObjAccessor.FindPlayer(m_PlayersNearPoint[point][i]);
+                    var player = Global.ObjAccessor.FindPlayer(_mPlayersNearPoint[point][i]);
 
                     if (player)
                     {
-                        player.SendUpdateWorldState(EotSWorldStateIds.ProgressBarStatus, (uint)m_PointBarStatus[point]);
+                        player.SendUpdateWorldState(EotSWorldStateIds.PROGRESS_BAR_STATUS, (uint)_mPointBarStatus[point]);
                         var team = GetPlayerTeam(player.GUID);
 
                         //if point owner changed we must evoke event!
-                        if (pointOwnerTeamId != (uint)m_PointOwnedByTeam[point])
+                        if (pointOwnerTeamId != (uint)_mPointOwnedByTeam[point])
                         {
                             //point was uncontrolled and player is from team which captured point
-                            if (m_PointState[point] == EotSPointState.Uncontrolled && (uint)team == pointOwnerTeamId)
+                            if (_mPointState[point] == EotSPointState.Uncontrolled && (uint)team == pointOwnerTeamId)
                                 EventTeamCapturedPoint(player, point);
 
                             //point was under control and player isn't from team which controlled it
-                            if (m_PointState[point] == EotSPointState.UnderControl && team != m_PointOwnedByTeam[point])
+                            if (_mPointState[point] == EotSPointState.UnderControl && team != _mPointOwnedByTeam[point])
                                 EventTeamLostPoint(player, point);
                         }
 
                         // @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
-                        if (point == EotSPoints.FelReaver && m_PointOwnedByTeam[point] == team)
-                            if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
+                        if (point == EotSPoints.FEL_REAVER && _mPointOwnedByTeam[point] == team)
+                            if (_mFlagState != 0 && GetFlagPickerGUID() == player.GUID)
                                 if (player.GetDistance(2044.0f, 1729.729f, 1190.03f) < 3.0f)
-                                    EventPlayerCapturedFlag(player, EotSObjectTypes.FlagFelReaver);
+                                    EventPlayerCapturedFlag(player, EotSObjectTypes.FLAG_FEL_REAVER);
                     }
                 }
             }
 
             var captureStatus = GetPointCaptureStatus(point);
 
-            if (m_LastPointCaptureStatus[point] != captureStatus)
+            if (_mLastPointCaptureStatus[point] != captureStatus)
             {
-                UpdateWorldState(EotSMisc.m_PointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.AllianceControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.AllianceCapturing ? 1 : 0));
-                UpdateWorldState(EotSMisc.m_PointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.HordeControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.HordeCapturing ? 1 : 0));
-                m_LastPointCaptureStatus[point] = captureStatus;
+                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.AllianceControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.AllianceCapturing ? 1 : 0));
+                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.HordeControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.HordeCapturing ? 1 : 0));
+                _mLastPointCaptureStatus[point] = captureStatus;
             }
         }
     }
@@ -1002,9 +1002,9 @@ internal class BgEyeofStorm : Battleground
     {
         var score = GetTeamScore(team);
 
-        if (score >= EotSScoreIds.MaxTeamScore)
+        if (score >= EotSScoreIds.MAX_TEAM_SCORE)
         {
-            score = EotSScoreIds.MaxTeamScore;
+            score = EotSScoreIds.MAX_TEAM_SCORE;
 
             if (team == TeamIds.Alliance)
                 EndBattleground(TeamFaction.Alliance);
@@ -1013,8 +1013,8 @@ internal class BgEyeofStorm : Battleground
         }
 
         if (team == TeamIds.Alliance)
-            UpdateWorldState(EotSWorldStateIds.AllianceResources, (int)score);
+            UpdateWorldState(EotSWorldStateIds.ALLIANCE_RESOURCES, (int)score);
         else
-            UpdateWorldState(EotSWorldStateIds.HordeResources, (int)score);
+            UpdateWorldState(EotSWorldStateIds.HORDE_RESOURCES, (int)score);
     }
 }

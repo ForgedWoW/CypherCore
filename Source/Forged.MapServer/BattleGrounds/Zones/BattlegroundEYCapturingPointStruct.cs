@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct BattlegroundEYCapturingPointStruct
+internal struct BattlegroundEyCapturingPointStruct
 {
     public int DespawnNeutralObjectType;
 
@@ -17,13 +17,13 @@ internal struct BattlegroundEYCapturingPointStruct
 
     public int SpawnObjectTypeHorde;
 
-    public BattlegroundEYCapturingPointStruct(int _DespawnNeutralObjectType, int _SpawnObjectTypeAlliance, uint _MessageIdAlliance, int _SpawnObjectTypeHorde, uint _MessageIdHorde, uint _GraveYardId)
+    public BattlegroundEyCapturingPointStruct(int despawnNeutralObjectType, int spawnObjectTypeAlliance, uint messageIdAlliance, int spawnObjectTypeHorde, uint messageIdHorde, uint graveYardId)
     {
-        DespawnNeutralObjectType = _DespawnNeutralObjectType;
-        SpawnObjectTypeAlliance = _SpawnObjectTypeAlliance;
-        MessageIdAlliance = _MessageIdAlliance;
-        SpawnObjectTypeHorde = _SpawnObjectTypeHorde;
-        MessageIdHorde = _MessageIdHorde;
-        GraveYardId = _GraveYardId;
+        DespawnNeutralObjectType = despawnNeutralObjectType;
+        SpawnObjectTypeAlliance = spawnObjectTypeAlliance;
+        MessageIdAlliance = messageIdAlliance;
+        SpawnObjectTypeHorde = spawnObjectTypeHorde;
+        MessageIdHorde = messageIdHorde;
+        GraveYardId = graveYardId;
     }
 }

@@ -5,12 +5,12 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 
 internal struct EotSSoundIds
 {
-    public const uint FlagCapturedAlliance = 8173;
+    public const uint FLAG_CAPTURED_ALLIANCE = 8173;
 
-    public const uint FlagCapturedHorde = 8213;
+    public const uint FLAG_CAPTURED_HORDE = 8213;
 
     //strange ids, but sure about them
-    public const uint FlagPickedUpAlliance = 8212;
-    public const uint FlagPickedUpHorde = 8174;
-    public const uint FlagReset = 8192;
+    public const uint FLAG_PICKED_UP_ALLIANCE = 8212;
+    public const uint FLAG_PICKED_UP_HORDE = 8174;
+    public const uint FLAG_RESET = 8192;
 }

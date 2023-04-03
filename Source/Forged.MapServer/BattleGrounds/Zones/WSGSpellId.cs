@@ -3,16 +3,16 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct WSGSpellId
+internal struct WsgSpellId
 {
-    public const uint BrutalAssault = 46393;
-    public const uint FocusedAssault = 46392;
-    public const uint SilverwingFlag = 23335;
-    public const uint SilverwingFlagDropped = 23336;
-    public const uint SilverwingFlagPicked = 61265;
-    public const uint WarsongFlag = 23333;
-    public const uint WarsongFlagDropped = 23334;
+    public const uint BRUTAL_ASSAULT = 46393;
+    public const uint FOCUSED_ASSAULT = 46392;
+    public const uint SILVERWING_FLAG = 23335;
+    public const uint SILVERWING_FLAG_DROPPED = 23336;
+    public const uint SILVERWING_FLAG_PICKED = 61265;
+    public const uint WARSONG_FLAG = 23333;
+    public const uint WARSONG_FLAG_DROPPED = 23334;
 
-    public const uint WarsongFlagPicked = 61266; // Fake Spell; Does Not Exist But Used As Timer Start Event
+    public const uint WARSONG_FLAG_PICKED = 61266; // Fake Spell; Does Not Exist But Used As Timer Start Event
     // Fake Spell; Does Not Exist But Used As Timer Start Event
 }

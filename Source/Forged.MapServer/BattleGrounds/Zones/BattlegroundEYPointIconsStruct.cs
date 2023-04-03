@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct BattlegroundEYPointIconsStruct
+internal struct BattlegroundEyPointIconsStruct
 {
     public uint WorldStateAllianceControlledIndex;
 
@@ -15,7 +15,7 @@ internal struct BattlegroundEYPointIconsStruct
 
     public uint WorldStateHordeStatusBarIcon;
 
-    public BattlegroundEYPointIconsStruct(uint worldStateControlIndex, uint worldStateAllianceControlledIndex, uint worldStateHordeControlledIndex, uint worldStateAllianceStatusBarIcon, uint worldStateHordeStatusBarIcon)
+    public BattlegroundEyPointIconsStruct(uint worldStateControlIndex, uint worldStateAllianceControlledIndex, uint worldStateHordeControlledIndex, uint worldStateAllianceStatusBarIcon, uint worldStateHordeStatusBarIcon)
     {
         WorldStateControlIndex = worldStateControlIndex;
         WorldStateAllianceControlledIndex = worldStateAllianceControlledIndex;

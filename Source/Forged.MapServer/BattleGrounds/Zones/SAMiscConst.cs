@@ -5,16 +5,16 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-internal struct SAMiscConst
+internal struct SaMiscConst
 {
     public static uint[] Factions =
     {
         1732, 1735,
     };
 
-    public static SAGateInfo[] Gates =
+    public static SaGateInfo[] Gates =
     {
-        new(SAObjectTypes.GreenGate, SAGameObjectIds.GateOfTheGreenEmerald, SAWorldStateIds.GreenGate, SATextIds.GreenGateUnderAttack, SATextIds.GreenGateDestroyed), new(SAObjectTypes.YellowGate, SAGameObjectIds.GateOfTheYellowMoon, SAWorldStateIds.YellowGate, SATextIds.YellowGateUnderAttack, SATextIds.YellowGateDestroyed), new(SAObjectTypes.BlueGate, SAGameObjectIds.GateOfTheBlueSapphire, SAWorldStateIds.BlueGate, SATextIds.BlueGateUnderAttack, SATextIds.BlueGateDestroyed), new(SAObjectTypes.RedGate, SAGameObjectIds.GateOfTheRedSun, SAWorldStateIds.RedGate, SATextIds.RedGateUnderAttack, SATextIds.RedGateDestroyed), new(SAObjectTypes.PurpleGate, SAGameObjectIds.GateOfThePurpleAmethyst, SAWorldStateIds.PurpleGate, SATextIds.PurpleGateUnderAttack, SATextIds.PurpleGateDestroyed), new(SAObjectTypes.AncientGate, SAGameObjectIds.ChamberOfAncientRelics, SAWorldStateIds.AncientGate, SATextIds.AncientGateUnderAttack, SATextIds.AncientGateDestroyed)
+        new(SaObjectTypes.GREEN_GATE, SaGameObjectIds.GATE_OF_THE_GREEN_EMERALD, SaWorldStateIds.GREEN_GATE, SaTextIds.GREEN_GATE_UNDER_ATTACK, SaTextIds.GREEN_GATE_DESTROYED), new(SaObjectTypes.YELLOW_GATE, SaGameObjectIds.GATE_OF_THE_YELLOW_MOON, SaWorldStateIds.YELLOW_GATE, SaTextIds.YELLOW_GATE_UNDER_ATTACK, SaTextIds.YELLOW_GATE_DESTROYED), new(SaObjectTypes.BLUE_GATE, SaGameObjectIds.GATE_OF_THE_BLUE_SAPPHIRE, SaWorldStateIds.BLUE_GATE, SaTextIds.BLUE_GATE_UNDER_ATTACK, SaTextIds.BLUE_GATE_DESTROYED), new(SaObjectTypes.RED_GATE, SaGameObjectIds.GATE_OF_THE_RED_SUN, SaWorldStateIds.RED_GATE, SaTextIds.RED_GATE_UNDER_ATTACK, SaTextIds.RED_GATE_DESTROYED), new(SaObjectTypes.PURPLE_GATE, SaGameObjectIds.GATE_OF_THE_PURPLE_AMETHYST, SaWorldStateIds.PURPLE_GATE, SaTextIds.PURPLE_GATE_UNDER_ATTACK, SaTextIds.PURPLE_GATE_DESTROYED), new(SaObjectTypes.ANCIENT_GATE, SaGameObjectIds.CHAMBER_OF_ANCIENT_RELICS, SaWorldStateIds.ANCIENT_GATE, SaTextIds.ANCIENT_GATE_UNDER_ATTACK, SaTextIds.ANCIENT_GATE_DESTROYED)
     };
 
     public static uint[] GYEntries =
@@ -32,15 +32,15 @@ internal struct SAMiscConst
 
     public static uint[] NpcEntries =
     {
-        SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon, SACreatureIds.AntiPersonnalCannon,
+        SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON, SaCreatureIds.ANTI_PERSONNAL_CANNON,
         // 4 beach demolishers
-        SACreatureIds.Demolisher, SACreatureIds.Demolisher, SACreatureIds.Demolisher, SACreatureIds.Demolisher,
+        SaCreatureIds.DEMOLISHER, SaCreatureIds.DEMOLISHER, SaCreatureIds.DEMOLISHER, SaCreatureIds.DEMOLISHER,
         // 4 factory demolishers
-        SACreatureIds.Demolisher, SACreatureIds.Demolisher, SACreatureIds.Demolisher, SACreatureIds.Demolisher,
+        SaCreatureIds.DEMOLISHER, SaCreatureIds.DEMOLISHER, SaCreatureIds.DEMOLISHER, SaCreatureIds.DEMOLISHER,
         // Used Demolisher Salesman
-        SACreatureIds.RiggerSparklight, SACreatureIds.GorgrilRigspark,
+        SaCreatureIds.RIGGER_SPARKLIGHT, SaCreatureIds.GORGRIL_RIGSPARK,
         // Kanrethad
-        SACreatureIds.Kanrethad
+        SaCreatureIds.KANRETHAD
     };
 
     public static Position[] NpcSpawnlocs =
