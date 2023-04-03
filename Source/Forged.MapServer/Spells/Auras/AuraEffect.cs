@@ -2454,7 +2454,7 @@ public class AuraEffect
         var target = aurApp.Target;
 
         var power = (PowerType)MiscValue;
-        var unitMod = (UnitMods)(UnitMods.PowerStart + (int)power);
+        var unitMod = UnitMods.PowerStart + (int)power;
 
         target.HandleStatFlatModifier(unitMod, UnitModifierFlatType.Total, Amount, apply);
     }

@@ -59,8 +59,8 @@ public class TransportTemplate
         var pathSegment = leg.Segments[segmentIndex];
 
         if (!isOnPause)
-            distanceMoved += CalculateDistanceMoved((double)(time - prevSegmentTime) * 0.001,
-                                                    (double)(pathSegment.SegmentEndArrivalTimestamp - prevSegmentTime) * 0.001,
+            distanceMoved += CalculateDistanceMoved((time - prevSegmentTime) * 0.001,
+                                                    (pathSegment.SegmentEndArrivalTimestamp - prevSegmentTime) * 0.001,
                                                     segmentIndex == 0,
                                                     segmentIndex == leg.Segments.Count - 1);
 

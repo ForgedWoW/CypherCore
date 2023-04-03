@@ -54,7 +54,8 @@ public class Scenario : CriteriaHandler
         _players.Clear();
     }
 
-    public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer) { }
+    public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer)
+    { }
 
     public override bool CanCompleteCriteriaTree(CriteriaTree tree)
     {
@@ -204,9 +205,12 @@ public class Scenario : CriteriaHandler
         base.Reset();
         SetStep(GetFirstStep());
     }
-    public override void SendAllData(Player receiver) { }
 
-    public override void SendCriteriaProgressRemoved(uint criteriaId) { }
+    public override void SendAllData(Player receiver)
+    { }
+
+    public override void SendCriteriaProgressRemoved(uint criteriaId)
+    { }
 
     public override void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted)
     {
@@ -224,6 +228,7 @@ public class Scenario : CriteriaHandler
 
         SendPacket(progressUpdate);
     }
+
     public override void SendPacket(ServerPacket data)
     {
         foreach (var guid in _players)
@@ -234,18 +239,22 @@ public class Scenario : CriteriaHandler
                 player.SendPacket(data);
         }
     }
+
     public void SendScenarioState(Player player)
     {
         ScenarioState scenarioState = new();
         BuildScenarioState(scenarioState);
         player.SendPacket(scenarioState);
     }
+
     public void SetStepState(ScenarioStepRecord step, ScenarioStepState state)
     {
         _stepStates[step] = state;
     }
 
-    public virtual void Update(uint diff) { }
+    public virtual void Update(uint diff)
+    { }
+
     private void BuildScenarioState(ScenarioState scenarioState)
     {
         scenarioState.ScenarioID = (int)_data.Entry.Id;
@@ -268,6 +277,7 @@ public class Scenario : CriteriaHandler
                 case ScenarioStepState.InProgress:
                 case ScenarioStepState.Done:
                     break;
+
                 case ScenarioStepState.NotStarted:
                 default:
                     continue;
@@ -304,8 +314,8 @@ public class Scenario : CriteriaHandler
     {
         List<CriteriaProgressPkt> criteriasProgress = new();
 
-        if (!_criteriaProgress.Empty())
-            foreach (var pair in _criteriaProgress)
+        if (!CriteriaProgress.Empty())
+            foreach (var pair in CriteriaProgress)
             {
                 CriteriaProgressPkt criteriaProgress = new()
                 {

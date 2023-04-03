@@ -926,7 +926,7 @@ public partial class Player
 
     public uint GetQuestMoneyReward(Quest.Quest quest)
     {
-        return (uint)(quest.MoneyValue(this) * GetDefaultValue("Rate.QuestId.Money.Reward", 1.0f));
+        return quest.MoneyValue(this) * GetDefaultValue("Rate.QuestId.Money.Reward", 1.0f);
     }
 
     public int GetQuestObjectiveData(QuestObjective objective)
@@ -1032,7 +1032,7 @@ public partial class Player
         if (rewarded)
             return 0;
 
-        var xp = (uint)(quest.XPValue(this) * GetDefaultValue("Rate.XP.QuestId", 1.0f));
+        var xp = quest.XPValue(this) * GetDefaultValue("Rate.XP.QuestId", 1.0f);
 
         // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
         var modXPPctAuras = GetAuraEffectsByType(AuraType.ModXpQuestPct);
@@ -2331,7 +2331,7 @@ public partial class Player
         if (reqraces == -1)
             return true;
 
-        if ((reqraces & (long)SharedConst.GetMaskForRace(Race)) == 0)
+        if ((reqraces & SharedConst.GetMaskForRace(Race)) == 0)
         {
             if (msg)
             {

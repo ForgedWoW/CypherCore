@@ -256,7 +256,7 @@ public class Quest
     // quest_template_addon table (custom data)
     public uint MaxLevel { get; set; }
 
-    public uint MaxMoneyReward => (uint)(MaxMoneyValue * GetDefaultValue("Rate.QuestId.Money.Reward", 1.0f));
+    public uint MaxMoneyReward => MaxMoneyValue * GetDefaultValue("Rate.QuestId.Money.Reward", 1.0f);
 
     public uint MaxMoneyValue
     {
@@ -624,7 +624,7 @@ public class Quest
             return 0;
 
         // Else, return the rewarded copper sum modified by the rate
-        return (uint)(RewardBonusMoney * GetDefaultValue("Rate.QuestId.Money.Max.Level.Reward", 1.0f));
+        return RewardBonusMoney * GetDefaultValue("Rate.QuestId.Money.Max.Level.Reward", 1.0f);
     }
 
     public bool HasFlag(QuestFlags flag)

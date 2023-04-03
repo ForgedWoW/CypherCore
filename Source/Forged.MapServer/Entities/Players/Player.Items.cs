@@ -190,25 +190,25 @@ public partial class Player
             switch ((ItemModType)statType)
             {
                 case ItemModType.Mana:
-                    HandleStatFlatModifier(UnitMods.Mana, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.Mana, UnitModifierFlatType.Base, val, apply);
 
                     break;
                 case ItemModType.Health: // modify HP
-                    HandleStatFlatModifier(UnitMods.Health, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.Health, UnitModifierFlatType.Base, val, apply);
 
                     break;
                 case ItemModType.Agility: // modify agility
-                    HandleStatFlatModifier(UnitMods.StatAgility, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.StatAgility, UnitModifierFlatType.Base, val, apply);
                     UpdateStatBuffMod(Stats.Agility);
 
                     break;
                 case ItemModType.Strength: //modify strength
-                    HandleStatFlatModifier(UnitMods.StatStrength, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.StatStrength, UnitModifierFlatType.Base, val, apply);
                     UpdateStatBuffMod(Stats.Strength);
 
                     break;
                 case ItemModType.Intellect: //modify intellect
-                    HandleStatFlatModifier(UnitMods.StatIntellect, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.StatIntellect, UnitModifierFlatType.Base, val, apply);
                     UpdateStatBuffMod(Stats.Intellect);
 
                     break;
@@ -222,7 +222,7 @@ public partial class Player
                     if (staminaMult != null)
                         val = (int)(val * CliDB.GetIlvlStatMultiplier(staminaMult, proto.InventoryType));
 
-                    HandleStatFlatModifier(UnitMods.StatStamina, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.StatStamina, UnitModifierFlatType.Base, val, apply);
                     UpdateStatBuffMod(Stats.Stamina);
 
                     break;
@@ -309,12 +309,12 @@ public partial class Player
 
                     break;
                 case ItemModType.AttackPower:
-                    HandleStatFlatModifier(UnitMods.AttackPower, UnitModifierFlatType.Total, (float)val, apply);
-                    HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.AttackPower, UnitModifierFlatType.Total, val, apply);
+                    HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, val, apply);
 
                     break;
                 case ItemModType.RangedAttackPower:
-                    HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, val, apply);
 
                     break;
                 case ItemModType.Versatility:
@@ -348,31 +348,31 @@ public partial class Player
 
                     break;
                 case ItemModType.ExtraArmor:
-                    HandleStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Total, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Total, val, apply);
 
                     break;
                 case ItemModType.FireResistance:
-                    HandleStatFlatModifier(UnitMods.ResistanceFire, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.ResistanceFire, UnitModifierFlatType.Base, val, apply);
 
                     break;
                 case ItemModType.FrostResistance:
-                    HandleStatFlatModifier(UnitMods.ResistanceFrost, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.ResistanceFrost, UnitModifierFlatType.Base, val, apply);
 
                     break;
                 case ItemModType.HolyResistance:
-                    HandleStatFlatModifier(UnitMods.ResistanceHoly, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.ResistanceHoly, UnitModifierFlatType.Base, val, apply);
 
                     break;
                 case ItemModType.ShadowResistance:
-                    HandleStatFlatModifier(UnitMods.ResistanceShadow, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.ResistanceShadow, UnitModifierFlatType.Base, val, apply);
 
                     break;
                 case ItemModType.NatureResistance:
-                    HandleStatFlatModifier(UnitMods.ResistanceNature, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.ResistanceNature, UnitModifierFlatType.Base, val, apply);
 
                     break;
                 case ItemModType.ArcaneResistance:
-                    HandleStatFlatModifier(UnitMods.ResistanceArcane, UnitModifierFlatType.Base, (float)val, apply);
+                    HandleStatFlatModifier(UnitMods.ResistanceArcane, UnitModifierFlatType.Base, val, apply);
 
                     break;
                 case ItemModType.PvpPower:
@@ -1204,7 +1204,7 @@ public partial class Player
             var priceMod = GetTotalAuraModifier(AuraType.ModVendorItemsPrices);
 
             if (priceMod != 0)
-                price -= (ulong)MathFunctions.CalculatePct(price, priceMod);
+                price -= MathFunctions.CalculatePct(price, priceMod);
 
             if (!HasEnoughMoney(price))
             {
@@ -1735,7 +1735,7 @@ public partial class Player
 
                         if (offItem != null &&
                             (!notLoading ||
-                             CanUnequipItem(((int)InventorySlots.Bag0 << 8) | (int)EquipmentSlot.OffHand, false) != InventoryResult.Ok ||
+                             CanUnequipItem((InventorySlots.Bag0 << 8) | EquipmentSlot.OffHand, false) != InventoryResult.Ok ||
                              CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, offDest, offItem) != InventoryResult.Ok))
                             return swap ? InventoryResult.CantSwap : InventoryResult.InvFull;
                     }
@@ -1828,7 +1828,7 @@ public partial class Player
             return InventoryResult.ItemNotFound;
 
         // Used by group, function GroupLoot, to know if a prototype can be used by a player
-        if ((proto.AllowableClass & ClassMask) == 0 || (proto.AllowableRace & (long)SharedConst.GetMaskForRace(Race)) == 0)
+        if ((proto.AllowableClass & ClassMask) == 0 || (proto.AllowableRace & SharedConst.GetMaskForRace(Race)) == 0)
             return InventoryResult.CantEquipEver;
 
         if (proto.RequiredSpell != 0 && !HasSpell(proto.RequiredSpell))
@@ -2233,7 +2233,7 @@ public partial class Player
         if (proto.HasFlag(ItemFlags2.FactionAlliance) && Team != TeamFaction.Alliance)
             return InventoryResult.CantEquipEver;
 
-        if ((proto.AllowableClass & ClassMask) == 0 || (proto.AllowableRace & (long)SharedConst.GetMaskForRace(Race)) == 0)
+        if ((proto.AllowableClass & ClassMask) == 0 || (proto.AllowableRace & SharedConst.GetMaskForRace(Race)) == 0)
             return InventoryResult.CantEquipEver;
 
         if (proto.RequiredSkill != 0)
@@ -4278,7 +4278,7 @@ public partial class Player
 
         // It may need a better formula
         // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-        bones.Loot.Gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow((float)Level / 5.76f, 2.5f) * GetDefaultValue("Rate.Drop.Money", 1.0f));
+        bones.Loot.Gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow(Level / 5.76f, 2.5f) * GetDefaultValue("Rate.Drop.Money", 1.0f));
         bones.LootRecipient = looterPlr;
         looterPlr.SendLoot(bones.Loot);
     }
@@ -6856,7 +6856,7 @@ public partial class Player
 
         if (pSrcItem)
         {
-            if (pSrcItem.IsNotEmptyBag && !IsBagPos((ushort)((ushort)bag << 8 | slot)))
+            if (pSrcItem.IsNotEmptyBag && !IsBagPos((ushort)(bag << 8 | slot)))
                 return InventoryResult.DestroyNonemptyBag;
 
             if (pSrcItem.HasItemFlag(ItemFieldFlags.Child) && !IsEquipmentPos(bag, slot) && !IsChildEquipmentPos(bag, slot))

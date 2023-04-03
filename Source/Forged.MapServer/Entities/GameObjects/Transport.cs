@@ -155,7 +155,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 
         if (newState != GameObjectState.TransportActive)
         {
-            var stopFrame = (int)(newState - GameObjectState.TransportStopped);
+            var stopFrame = newState - GameObjectState.TransportStopped;
             stopPathProgress = _stopFrames[stopFrame];
         }
 
@@ -163,7 +163,7 @@ internal class Transport : GameObjectTypeBase, ITransport
         _stateChangeProgress = _pathProgress;
         var timeToStop = (uint)Math.Abs(_pathProgress - stopPathProgress);
         Owner.SetLevel(GameTime.CurrentTimeMS + timeToStop);
-        Owner.SetPathProgressForClient((float)_pathProgress / (float)GetTransportPeriod());
+        Owner.SetPathProgressForClient(_pathProgress / (float)GetTransportPeriod());
 
         if (oldState == GameObjectState.Active || oldState == newState)
         {
@@ -250,9 +250,9 @@ internal class Transport : GameObjectTypeBase, ITransport
             if (now < Owner.GameObjectFieldData.Level)
             {
                 var timeToStop = (int)(Owner.GameObjectFieldData.Level - _stateChangeTime);
-                var stopSourcePathPct = (float)_stateChangeProgress / (float)period;
-                var stopTargetPathPct = (float)stopTargetTime / (float)period;
-                var timeSinceStopProgressPct = (float)(now - _stateChangeTime) / (float)timeToStop;
+                var stopSourcePathPct = _stateChangeProgress / (float)period;
+                var stopTargetPathPct = stopTargetTime / (float)period;
+                var timeSinceStopProgressPct = (now - _stateChangeTime) / (float)timeToStop;
 
                 float progressPct;
 
@@ -284,7 +284,7 @@ internal class Transport : GameObjectTypeBase, ITransport
                         progressPct += 1.0f;
                 }
 
-                newProgress = (uint)((float)period * progressPct) % period;
+                newProgress = (uint)(period * progressPct) % period;
             }
             else
             {
@@ -387,7 +387,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 
             if (prev != next)
             {
-                var animProgress = (float)(newProgress - oldAnimation.TimeIndex) / (float)(newAnimation.TimeIndex - oldAnimation.TimeIndex);
+                var animProgress = (newProgress - oldAnimation.TimeIndex) / (float)(newAnimation.TimeIndex - oldAnimation.TimeIndex);
 
                 dst = pathRotation.Multiply(Vector3.Lerp(prev, next, animProgress));
             }
@@ -410,7 +410,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 
             if (prev != next)
             {
-                var animProgress = (float)(newProgress - oldRotation.TimeIndex) / (float)(newRotation.TimeIndex - oldRotation.TimeIndex);
+                var animProgress = (newProgress - oldRotation.TimeIndex) / (float)(newRotation.TimeIndex - oldRotation.TimeIndex);
 
                 rotation = Quaternion.Lerp(prev, next, animProgress);
             }
@@ -420,7 +420,7 @@ internal class Transport : GameObjectTypeBase, ITransport
         }
 
         // update progress marker for client
-        Owner.SetPathProgressForClient((float)_pathProgress / (float)period);
+        Owner.SetPathProgressForClient(_pathProgress / (float)period);
     }
     public void UpdatePassengerPositions()
     {

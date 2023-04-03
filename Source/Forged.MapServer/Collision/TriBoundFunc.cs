@@ -19,11 +19,11 @@ public class TriBoundFunc
 
     public void Invoke(MeshTriangle tri, out AxisAlignedBox value)
     {
-        var lo = _vertices[(int)tri.Idx0];
+        var lo = _vertices[tri.Idx0];
         var hi = lo;
 
-        lo = Vector3.Min(Vector3.Min(lo, _vertices[(int)tri.Idx1]), _vertices[(int)tri.Idx2]);
-        hi = Vector3.Max(Vector3.Max(hi, _vertices[(int)tri.Idx1]), _vertices[(int)tri.Idx2]);
+        lo = Vector3.Min(Vector3.Min(lo, _vertices[tri.Idx1]), _vertices[tri.Idx2]);
+        hi = Vector3.Max(Vector3.Max(hi, _vertices[tri.Idx1]), _vertices[tri.Idx2]);
 
         value = new AxisAlignedBox(lo, hi);
     }

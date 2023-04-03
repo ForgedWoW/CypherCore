@@ -116,7 +116,7 @@ public class CriteriaData
             default:
                 if (DataType != CriteriaDataType.Script)
                 {
-                    Log.Logger.Error("Table `criteria_data` has data for non-supported criteria type (Entry: {0} Type: {1}), ignored.", criteria.Id, (CriteriaType)criteria.Entry.Type);
+                    Log.Logger.Error("Table `criteria_data` has data for non-supported criteria type (Entry: {0} Type: {1}), ignored.", criteria.Id, criteria.Entry.Type);
 
                     return false;
                 }

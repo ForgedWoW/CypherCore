@@ -39,7 +39,7 @@ public class SpellCastLogData
 
             foreach (var cost in spell.PowerCost)
             {
-                PowerData.Add(new SpellLogPowerData((int)cost.Power, unitCaster.GetPower(cost.Power), (int)cost.Amount));
+                PowerData.Add(new SpellLogPowerData((int)cost.Power, unitCaster.GetPower(cost.Power), cost.Amount));
 
                 if (cost.Power == primaryPowerType)
                     primaryPowerAdded = true;

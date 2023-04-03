@@ -60,7 +60,7 @@ public class CufProfile
         var array = new uint[1];
         BoolOptions.CopyTo(array, 0);
 
-        return (ulong)array[0];
+        return array[0];
     }
 
     public void SetOption(CUFBoolOptions opt, byte arg)

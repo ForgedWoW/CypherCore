@@ -1440,20 +1440,20 @@ public class Battleground : ZoneScript, IDisposable
 
     public void RemovePlayerFromResurrectQueue(ObjectGuid player_guid)
     {
-        m_ReviveQueue.RemoveIfMatching((Func<KeyValuePair<ObjectGuid, ObjectGuid>, bool>)((pair) =>
-                                                                                             {
-                                                                                                 if (pair.Value == player_guid)
-                                                                                                 {
-                                                                                                     var player = Global.ObjAccessor.FindPlayer(player_guid);
+        m_ReviveQueue.RemoveIfMatching((pair) =>
+        {
+            if (pair.Value == player_guid)
+            {
+                var player = Global.ObjAccessor.FindPlayer(player_guid);
 
-                                                                                                     if (player)
-                                                                                                         player.RemoveAura(BattlegroundConst.SpellWaitingForResurrect);
+                if (player)
+                    player.RemoveAura(BattlegroundConst.SpellWaitingForResurrect);
 
-                                                                                                     return true;
-                                                                                                 }
+                return true;
+            }
 
-                                                                                                 return false;
-                                                                                             }));
+            return false;
+        });
     }
 
     public void RemovePlayerPosition(ObjectGuid guid)

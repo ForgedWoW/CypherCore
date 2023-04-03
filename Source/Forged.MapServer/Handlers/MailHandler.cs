@@ -392,7 +392,7 @@ public class MailHandler : IWorldSessionHandler
         var m = player.GetMail(takeMoney.MailID);
 
         if ((m == null || m.state == MailState.Deleted || m.deliver_time > GameTime.CurrentTime) ||
-            (takeMoney.Money > 0 && m.money != (ulong)takeMoney.Money))
+            (takeMoney.Money > 0 && m.money != takeMoney.Money))
         {
             player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.InternalError);
 

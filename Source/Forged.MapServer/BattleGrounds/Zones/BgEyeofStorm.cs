@@ -935,7 +935,7 @@ internal class BgEyeofStorm : Battleground
             if (!m_PlayersNearPoint[point].Empty())
             {
                 //count new point bar status:
-                var pointDelta = (int)(m_CurrentPointPlayersCount[2 * point]) - (int)(m_CurrentPointPlayersCount[2 * point + 1]);
+                var pointDelta = m_CurrentPointPlayersCount[2 * point] - m_CurrentPointPlayersCount[2 * point + 1];
                 MathFunctions.RoundToInterval(ref pointDelta, -(int)EotSProgressBarConsts.PointMaxCapturersCount, EotSProgressBarConsts.PointMaxCapturersCount);
                 m_PointBarStatus[point] += pointDelta;
 
@@ -991,8 +991,8 @@ internal class BgEyeofStorm : Battleground
 
             if (m_LastPointCaptureStatus[point] != captureStatus)
             {
-                UpdateWorldState(EotSMisc.m_PointsIconStruct[point].WorldStateAllianceStatusBarIcon, (int)(captureStatus == BattlegroundPointCaptureStatus.AllianceControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.AllianceCapturing ? 1 : 0)));
-                UpdateWorldState(EotSMisc.m_PointsIconStruct[point].WorldStateHordeStatusBarIcon, (int)(captureStatus == BattlegroundPointCaptureStatus.HordeControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.HordeCapturing ? 1 : 0)));
+                UpdateWorldState(EotSMisc.m_PointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.AllianceControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.AllianceCapturing ? 1 : 0));
+                UpdateWorldState(EotSMisc.m_PointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.HordeControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.HordeCapturing ? 1 : 0));
                 m_LastPointCaptureStatus[point] = captureStatus;
             }
         }

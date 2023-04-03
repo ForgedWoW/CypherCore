@@ -214,7 +214,7 @@ public partial class Player
         if (!item.IsBroken)
             for (var s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
             {
-                var enchantDisplayType = (ItemEnchantmentType)pEnchant.Effect[s];
+                var enchantDisplayType = pEnchant.Effect[s];
                 uint enchantAmount = pEnchant.EffectPointsMin[s];
                 var enchantSpellID = pEnchant.EffectArg[s];
 
@@ -2998,7 +2998,7 @@ public partial class Player
                     var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(playerSpell.TraitDefinitionId.Value);
 
                     if (traitDefinition != null)
-                        RemoveOverrideSpell((uint)traitDefinition.OverridesSpellID, spellId);
+                        RemoveOverrideSpell(traitDefinition.OverridesSpellID, spellId);
                 }
 
                 playerSpell.TraitDefinitionId = traitDefinitionId;

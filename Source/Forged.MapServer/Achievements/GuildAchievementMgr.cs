@@ -174,7 +174,7 @@ public class GuildAchievementMgr : AchievementManager
                     Changed = false
                 };
 
-                _criteriaProgress[id] = progress;
+                CriteriaProgress[id] = progress;
             } while (criteriaResult.NextRow());
         }
     }
@@ -201,6 +201,7 @@ public class GuildAchievementMgr : AchievementManager
         CompletedAchievements.Clear();
         DeleteFromDB(guid);
     }
+
     public void SaveToDB(SQLTransaction trans)
     {
         PreparedStatement stmt;
@@ -230,7 +231,7 @@ public class GuildAchievementMgr : AchievementManager
             guidstr.Clear();
         }
 
-        foreach (var pair in _criteriaProgress)
+        foreach (var pair in CriteriaProgress)
         {
             if (!pair.Value.Changed)
                 continue;
@@ -265,7 +266,7 @@ public class GuildAchievementMgr : AchievementManager
                                                  {
                                                      if (node.Criteria != null)
                                                      {
-                                                         var progress = _criteriaProgress.LookupByKey(node.Criteria.Id);
+                                                         var progress = CriteriaProgress.LookupByKey(node.Criteria.Id);
 
                                                          if (progress != null)
                                                          {
@@ -330,13 +331,14 @@ public class GuildAchievementMgr : AchievementManager
 
         receiver.SendPacket(allGuildAchievements);
     }
+
     public void SendAllTrackedCriterias(Player receiver, List<uint> trackedCriterias)
     {
         GuildCriteriaUpdate guildCriteriaUpdate = new();
 
         foreach (var criteriaId in trackedCriterias)
         {
-            var progress = _criteriaProgress.LookupByKey(criteriaId);
+            var progress = CriteriaProgress.LookupByKey(criteriaId);
 
             if (progress == null)
                 continue;
@@ -357,6 +359,7 @@ public class GuildAchievementMgr : AchievementManager
 
         receiver.SendPacket(guildCriteriaUpdate);
     }
+
     public override void SendCriteriaProgressRemoved(uint criteriaId)
     {
         GuildCriteriaDeleted guildCriteriaDeleted = new()
@@ -387,10 +390,12 @@ public class GuildAchievementMgr : AchievementManager
 
         _owner.BroadcastPacketIfTrackingAchievement(guildCriteriaUpdate, entry.Id);
     }
+
     public override void SendPacket(ServerPacket data)
     {
         _owner.BroadcastPacket(data);
     }
+
     private void SendAchievementEarned(AchievementRecord achievement)
     {
         if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))

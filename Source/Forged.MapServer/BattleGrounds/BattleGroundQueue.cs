@@ -745,7 +745,7 @@ public class BattlegroundQueue
         // this could be 2 cycles but i'm checking only first team in queue - it can cause problem -
         // if first is invited to BG and seconds timer expired, but we can ignore it, because players have only 80 seconds to click to enter bg
         // and when they click or after 80 seconds the queue info is removed from queue
-        var timeBefore = (uint)(GameTime.CurrentTimeMS - GetDefaultValue("Battleground.PremadeGroupWaitForMatch", 30 * Time.MINUTE * Time.IN_MILLISECONDS));
+        var timeBefore = GameTime.CurrentTimeMS - GetDefaultValue("Battleground.PremadeGroupWaitForMatch", 30 * Time.MINUTE * Time.IN_MILLISECONDS);
 
         for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
             if (!m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance + i].Empty())

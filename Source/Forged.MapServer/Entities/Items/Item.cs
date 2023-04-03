@@ -440,7 +440,7 @@ public class Item : WorldObject
                 var levels = Global.DB2Mgr.GetContentTuningData(bonusData.ContentTuningId, 0, true);
 
                 if (levels.HasValue)
-                    level = (uint)Math.Min(Math.Max((ushort)level, levels.Value.MinLevel), levels.Value.MaxLevel);
+                    level = Math.Min(Math.Max((ushort)level, levels.Value.MinLevel), levels.Value.MaxLevel);
             }
 
             itemLevel = (uint)Global.DB2Mgr.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level);
@@ -483,7 +483,7 @@ public class Item : WorldObject
             {
                 var buyCount = Math.Max(proto.BuyCount, 1u);
 
-                return (uint)(cost * classEntry.PriceModifier / buyCount);
+                return cost * classEntry.PriceModifier / buyCount;
             }
 
             return 0;

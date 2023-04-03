@@ -1607,7 +1607,7 @@ public class SpellInfo
 
                         if (powerTypeEntry != null)
                         {
-                            powerCost += (int)MathFunctions.CalculatePct(powerTypeEntry.MaxBasePower, power.OptionalCostPct);
+                            powerCost += MathFunctions.CalculatePct(powerTypeEntry.MaxBasePower, power.OptionalCostPct);
 
                             break;
                         }
@@ -1727,7 +1727,7 @@ public class SpellInfo
             }
 
         if (power.PowerType == PowerType.Mana)
-            powerCost = (int)((double)powerCost * (1.0f + unitCaster.UnitData.ManaCostMultiplier));
+            powerCost = (int)(powerCost * (1.0f + unitCaster.UnitData.ManaCostMultiplier));
 
         // power cost cannot become negative if initially positive
         if (initiallyNegative != (powerCost < 0))
@@ -1813,7 +1813,7 @@ public class SpellInfo
                 }
                 case SpellProcsPerMinuteModType.Class:
                 {
-                    if (caster.ClassMask.HasAnyFlag((uint)mod.Param))
+                    if (caster.ClassMask.HasAnyFlag(mod.Param))
                         ppm *= 1.0f + mod.Coeff;
 
                     break;

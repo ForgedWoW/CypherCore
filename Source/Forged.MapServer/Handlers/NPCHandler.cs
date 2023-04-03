@@ -83,7 +83,7 @@ public class NPCHandler : IWorldSessionHandler
 
                 if (!Player.IsGameMaster)
                 {
-                    if (!Convert.ToBoolean((uint)(itemTemplate.AllowableClass & Player.ClassMask)) && itemTemplate.Bonding == ItemBondingType.OnAcquire)
+                    if (!Convert.ToBoolean(itemTemplate.AllowableClass & Player.ClassMask) && itemTemplate.Bonding == ItemBondingType.OnAcquire)
                         continue;
 
                     if ((itemTemplate.HasFlag(ItemFlags2.FactionHorde) && Player.Team == TeamFaction.Alliance) ||
@@ -101,13 +101,13 @@ public class NPCHandler : IWorldSessionHandler
                     continue;
                 }
 
-                var price = (ulong)Math.Floor((double)(itemTemplate.BuyPrice * discountMod));
+                var price = (ulong)Math.Floor(itemTemplate.BuyPrice * discountMod);
                 price = itemTemplate.BuyPrice > 0 ? Math.Max(1ul, price) : price;
 
                 var priceMod = Player.GetTotalAuraModifier(AuraType.ModVendorItemsPrices);
 
                 if (priceMod != 0)
-                    price -= MathFunctions.CalculatePct(price, (double)priceMod);
+                    price -= MathFunctions.CalculatePct(price, priceMod);
 
                 item.MuID = (int)slot + 1;
                 item.Durability = (int)itemTemplate.MaxDurability;
@@ -115,7 +115,7 @@ public class NPCHandler : IWorldSessionHandler
                 item.Type = (int)vendorItem.Type;
                 item.Quantity = leftInStock;
                 item.StackCount = (int)itemTemplate.BuyCount;
-                item.Price = (ulong)price;
+                item.Price = price;
                 item.DoNotFilterOnVendor = vendorItem.IgnoreFiltering;
                 item.Refundable = itemTemplate.HasFlag(ItemFlags.ItemPurchaseRecord) && vendorItem.ExtendedCost != 0 && itemTemplate.MaxStackSize == 1;
 

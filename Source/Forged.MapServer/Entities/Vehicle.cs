@@ -629,7 +629,7 @@ public class Vehicle : ITransport
 
     private void InitMovementInfoForBase()
     {
-        var vehicleFlags = (VehicleFlags)GetVehicleInfo().Flags;
+        var vehicleFlags = GetVehicleInfo().Flags;
 
         if (vehicleFlags.HasAnyFlag(VehicleFlags.NoStrafe))
             _me.AddUnitMovementFlag2(MovementFlag2.NoStrafe);

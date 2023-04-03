@@ -2099,7 +2099,7 @@ public class Aura
                             if (power.RequiredAuraSpellID != 0 && !caster.HasAura(power.RequiredAuraSpellID))
                                 continue;
 
-                            var manaPerSecond = (int)power.ManaPerSecond;
+                            var manaPerSecond = power.ManaPerSecond;
 
                             if (power.PowerType != PowerType.Health)
                                 manaPerSecond += MathFunctions.CalculatePct(caster.GetMaxPower(power.PowerType), power.PowerPctPerSecond);

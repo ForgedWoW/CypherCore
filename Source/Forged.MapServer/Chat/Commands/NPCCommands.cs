@@ -164,19 +164,19 @@ internal class NPCCommands
 
         foreach (UnitFlags value in Enum.GetValues(typeof(UnitFlags)))
             if (target.HasUnitFlag(value))
-                handler.SendSysMessage("{0} (0x{1:X})", (UnitFlags)value, value);
+                handler.SendSysMessage("{0} (0x{1:X})", value, value);
 
         handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags2, (uint)target.UnitData.Flags2);
 
         foreach (UnitFlags2 value in Enum.GetValues(typeof(UnitFlags2)))
             if (target.HasUnitFlag2(value))
-                handler.SendSysMessage("{0} (0x{1:X})", (UnitFlags2)value, value);
+                handler.SendSysMessage("{0} (0x{1:X})", value, value);
 
         handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags3, (uint)target.UnitData.Flags3);
 
         foreach (UnitFlags3 value in Enum.GetValues(typeof(UnitFlags3)))
             if (target.HasUnitFlag3(value))
-                handler.SendSysMessage("{0} (0x{1:X})", (UnitFlags3)value, value);
+                handler.SendSysMessage("{0} (0x{1:X})", value, value);
 
         handler.SendSysMessage(CypherStrings.NpcinfoDynamicFlags, target.DynamicFlags);
         handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);

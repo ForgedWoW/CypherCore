@@ -142,7 +142,7 @@ public class MovementHandler : IWorldSessionHandler
                 return;
         }
 
-        if (Player.Transport == null && Math.Abs((float)(Player.GetSpeed(move_type) - packet.Speed)) > 0.01f)
+        if (Player.Transport == null && Math.Abs(Player.GetSpeed(move_type) - packet.Speed) > 0.01f)
         {
             if (Player.GetSpeed(move_type) > packet.Speed) // must be greater - just correct
             {
@@ -885,7 +885,7 @@ public class MovementHandler : IWorldSessionHandler
         using the following relation:
         serverTime = clockDelta + clientTime
         */
-        var clockDelta = (long)(serverTimeAtSent + lagDelay) - (long)timeSyncResponse.ClientTime;
+        var clockDelta = serverTimeAtSent + lagDelay - (long)timeSyncResponse.ClientTime;
         _timeSyncClockDeltaQueue.PushFront(Tuple.Create(clockDelta, roundTripDuration));
         ComputeNewClockDelta();
     }

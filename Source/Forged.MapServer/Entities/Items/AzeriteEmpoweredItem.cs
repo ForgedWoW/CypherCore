@@ -103,7 +103,7 @@ public class AzeriteEmpoweredItem : Item
         var owner = OwnerUnit;
 
         if (owner != null)
-            return (long)(MoneyConstants.Gold * Global.DB2Mgr.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.NumRespecs));
+            return MoneyConstants.Gold * Global.DB2Mgr.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.NumRespecs);
 
         return (long)PlayerConst.MaxMoneyAmount + 1;
     }

@@ -914,7 +914,7 @@ public class AreaTrigger : WorldObject
                         _scriptsByType[iFace] = scripts;
                     }
 
-                    scripts.Add((IAreaTriggerScript)script);
+                    scripts.Add(script);
                 }
         }
     }

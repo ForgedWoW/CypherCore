@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Globals;
@@ -20,6 +21,7 @@ public class AchievementGlobalMgr
     private readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
     private readonly Dictionary<uint, AchievementReward> _achievementRewards = new();
     private readonly Dictionary<uint, uint> _achievementScripts = new();
+
     // store realm first achievements
     private readonly Dictionary<uint /*achievementId*/, DateTime /*completionTime*/> _allCompletedAchievements = new();
 
@@ -27,6 +29,7 @@ public class AchievementGlobalMgr
     private readonly CliDB _cliDB;
     private readonly GameObjectManager _gameObjectManager;
     private readonly WorldDatabase _worldDatabase;
+
     public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;
@@ -151,9 +154,8 @@ public class AchievementGlobalMgr
         // Populate _allCompletedAchievements with all realm first achievement ids to make multithreaded access safer
         // while it will not prevent races, it will prevent crashes that happen because std::unordered_map key was added
         // instead the only potential race will happen on value associated with the key
-        foreach (var achievement in _cliDB.AchievementStorage.Values)
-            if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
-                _allCompletedAchievements[achievement.Id] = DateTime.MinValue;
+        foreach (var achievement in _cliDB.AchievementStorage.Values.Where(achievement => achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill)))
+            _allCompletedAchievements[achievement.Id] = DateTime.MinValue;
 
         var result = _characterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
@@ -177,8 +179,6 @@ public class AchievementGlobalMgr
                 var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
                 stmt.AddValue(0, achievementId);
                 _characterDatabase.Execute(stmt);
-
-                continue;
             }
             else if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
             {

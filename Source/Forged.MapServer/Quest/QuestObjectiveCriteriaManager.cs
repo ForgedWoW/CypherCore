@@ -19,6 +19,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 {
     private readonly List<uint> _completedObjectives = new();
     private readonly Player _owner;
+
     public QuestObjectiveCriteriaManager(Player owner)
     {
         _owner = owner;
@@ -172,23 +173,24 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
                     Changed = false
                 };
 
-                _criteriaProgress[criteriaId] = progress;
+                CriteriaProgress[criteriaId] = progress;
             } while (criteriaResult.NextRow());
         }
     }
 
     public override void Reset()
     {
-        foreach (var pair in _criteriaProgress)
+        foreach (var pair in CriteriaProgress)
             SendCriteriaProgressRemoved(pair.Key);
 
-        _criteriaProgress.Clear();
+        CriteriaProgress.Clear();
 
         DeleteFromDB(_owner.GUID);
 
         // re-fill data
         CheckAllQuestObjectiveCriteria(_owner);
     }
+
     public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete)
     {
         Log.Logger.Debug($"QuestObjectiveCriteriaMgr.ResetCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
@@ -245,8 +247,8 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
                 trans.Append(stmt);
             }
 
-        if (!_criteriaProgress.Empty())
-            foreach (var pair in _criteriaProgress)
+        if (!CriteriaProgress.Empty())
+            foreach (var pair in CriteriaProgress)
             {
                 if (!pair.Value.Changed)
                     continue;
@@ -269,9 +271,10 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
                 pair.Value.Changed = false;
             }
     }
+
     public override void SendAllData(Player receiver)
     {
-        foreach (var pair in _criteriaProgress)
+        foreach (var pair in CriteriaProgress)
         {
             CriteriaUpdate criteriaUpdate = new()
             {
@@ -286,6 +289,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
             SendPacket(criteriaUpdate);
         }
     }
+
     public override void SendCriteriaProgressRemoved(uint criteriaId)
     {
         CriteriaDeleted criteriaDeleted = new()
@@ -315,10 +319,12 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
         SendPacket(criteriaUpdate);
     }
+
     public override void SendPacket(ServerPacket data)
     {
         _owner.SendPacket(data);
     }
+
     private void CompletedObjective(QuestObjective questObjective, Player referencePlayer)
     {
         if (HasCompletedObjective(questObjective))

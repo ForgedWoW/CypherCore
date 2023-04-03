@@ -1039,7 +1039,7 @@ namespace Forged.MapServer.Entities.GameObjects
         public float GetInteractionDistance()
         {
             if (Template.GetInteractRadiusOverride() != 0)
-                return (float)Template.GetInteractRadiusOverride() / 100.0f;
+                return Template.GetInteractRadiusOverride() / 100.0f;
 
             switch (GoType)
             {

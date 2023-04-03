@@ -1428,7 +1428,7 @@ public partial class Spell
 
         // normal DB scripted effect
         Log.Logger.Debug("Spell ScriptStart spellid {0} in EffectDummy({1})", SpellInfo.Id, EffectInfo.EffectIndex);
-        Caster.Location.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), Caster, UnitTarget);
+        Caster.Location.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | EffectInfo.EffectIndex << 24), Caster, UnitTarget);
     }
 
     [SpellEffectHandler(SpellEffectName.DurabilityDamage)]
@@ -3265,7 +3265,7 @@ public partial class Spell
             // Generate extra money for pick pocket loot
             var a = RandomHelper.URand(0, creature.Level / 2);
             var b = RandomHelper.URand(0, player.Level / 2);
-            creature.Loot.Gold = (uint)(10 * (a + b) * GetDefaultValue("Rate.Drop.Money", 1.0f));
+            creature.Loot.Gold = 10 * (a + b) * GetDefaultValue("Rate.Drop.Money", 1.0f);
         }
         else if (creature.Loot != null)
         {
@@ -4227,7 +4227,7 @@ public partial class Spell
 
         // normal DB scripted effect
         Log.Logger.Debug("Spell ScriptStart spellid {0} in EffectScriptEffect({1})", SpellInfo.Id, EffectInfo.EffectIndex);
-        Caster.Location.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), Caster, UnitTarget);
+        Caster.Location.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | EffectInfo.EffectIndex << 24), Caster, UnitTarget);
     }
 
     [SpellEffectHandler(SpellEffectName.SelfResurrect)]

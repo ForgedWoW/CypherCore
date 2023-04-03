@@ -249,7 +249,7 @@ public partial class Player
                                  var miscValue = aurEff.MiscValue;
                                  var stat = (miscValue != -2) ? (Stats)miscValue : GetPrimaryStat();
 
-                                 value += MathFunctions.CalculatePct((float)GetStat(stat), aurEff.Amount);
+                                 value += MathFunctions.CalculatePct(GetStat(stat), aurEff.Amount);
 
                                  return true;
                              });

@@ -3078,8 +3078,8 @@ public class Map : IDisposable
     private void GridMarkNoUnload(uint x, uint y)
     {
         // First make sure this grid is loaded
-        var gX = (((float)x - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids) + (MapConst.CenterGridOffset * 2);
-        var gY = (((float)y - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids) + (MapConst.CenterGridOffset * 2);
+        var gX = ((x - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids) + (MapConst.CenterGridOffset * 2);
+        var gY = ((y - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids) + (MapConst.CenterGridOffset * 2);
         Cell cell = new(gX, gY);
         EnsureGridLoaded(cell);
 

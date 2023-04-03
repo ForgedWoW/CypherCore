@@ -143,7 +143,7 @@ public class ItemTemplate
     /*Hearthstone*/
     public static int CalculateItemSpecBit(ChrSpecializationRecord spec)
     {
-        return (int)((spec.ClassID - 1) * PlayerConst.MaxSpecializations + spec.OrderIndex);
+        return (spec.ClassID - 1) * PlayerConst.MaxSpecializations + spec.OrderIndex;
     }
 
     public bool CanChangeEquipStateInCombat()

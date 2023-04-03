@@ -244,7 +244,7 @@ public class PlayerAchievementMgr : AchievementManager
                     Changed = false
                 };
 
-                _criteriaProgress[id] = progress;
+                CriteriaProgress[id] = progress;
             } while (criteriaResult.NextRow());
         }
     }
@@ -280,6 +280,7 @@ public class PlayerAchievementMgr : AchievementManager
         // re-fill data
         CheckAllAchievementCriteria(_owner);
     }
+
     public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete)
     {
         Log.Logger.Debug($"ResetAchievementCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
@@ -334,8 +335,8 @@ public class PlayerAchievementMgr : AchievementManager
                 pair.Value.Changed = false;
             }
 
-        if (!_criteriaProgress.Empty())
-            foreach (var pair in _criteriaProgress)
+        if (!CriteriaProgress.Empty())
+            foreach (var pair in CriteriaProgress)
             {
                 if (!pair.Value.Changed)
                     continue;
@@ -358,6 +359,7 @@ public class PlayerAchievementMgr : AchievementManager
                 pair.Value.Changed = false;
             }
     }
+
     public void SendAchievementInfo(Player receiver)
     {
         RespondInspectAchievements inspectedAchievements = new()
@@ -387,7 +389,7 @@ public class PlayerAchievementMgr : AchievementManager
             inspectedAchievements.Data.Earned.Add(earned);
         }
 
-        foreach (var pair in _criteriaProgress)
+        foreach (var pair in CriteriaProgress)
         {
             CriteriaProgressPkt progress = new()
             {
@@ -433,7 +435,7 @@ public class PlayerAchievementMgr : AchievementManager
             achievementData.Data.Earned.Add(earned);
         }
 
-        foreach (var pair in _criteriaProgress)
+        foreach (var pair in CriteriaProgress)
         {
             var criteria = Global.CriteriaMgr.GetCriteria(pair.Key);
 
@@ -472,6 +474,7 @@ public class PlayerAchievementMgr : AchievementManager
 
         SendPacket(achievementData);
     }
+
     public override void SendCriteriaProgressRemoved(uint criteriaId)
     {
         CriteriaDeleted criteriaDeleted = new()
@@ -520,10 +523,12 @@ public class PlayerAchievementMgr : AchievementManager
             SendPacket(criteriaUpdate);
         }
     }
+
     public override void SendPacket(ServerPacket data)
     {
         _owner.SendPacket(data);
     }
+
     private void SendAchievementEarned(AchievementRecord achievement)
     {
         // Don't send for achievements with ACHIEVEMENT_FLAG_HIDDEN

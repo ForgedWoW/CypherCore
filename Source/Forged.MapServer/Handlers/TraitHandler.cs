@@ -222,7 +222,7 @@ public class TraitHandler : IWorldSessionHandler
                         return;
                     }
 
-                    if (traitDefinition.VisibleSpellID != 0 && _player.SpellHistory.HasCooldown((uint)traitDefinition.VisibleSpellID))
+                    if (traitDefinition.VisibleSpellID != 0 && _player.SpellHistory.HasCooldown(traitDefinition.VisibleSpellID))
                     {
                         SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.VisibleSpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
 

@@ -652,7 +652,7 @@ public class Condition
             case ConditionTypes.BattlePetCount:
             {
                 if (player != null)
-                    condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, (uint)player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
+                    condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
 
                 break;
             }

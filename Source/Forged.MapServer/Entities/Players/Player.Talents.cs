@@ -300,7 +300,7 @@ public partial class Player
             }
         }
 
-        _traitConfigStates[(int)configId] = PlayerSpellState.Changed;
+        _traitConfigStates[configId] = PlayerSpellState.Changed;
     }
 
     public void DeleteTraitConfig(int deletedConfigId)
@@ -893,7 +893,7 @@ public partial class Player
             RemoveUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.StarterBuild);
         }
 
-        _traitConfigStates[(int)traitConfigId] = PlayerSpellState.Changed;
+        _traitConfigStates[traitConfigId] = PlayerSpellState.Changed;
     }
 
     public void TogglePvpTalents(bool enable)
@@ -1186,7 +1186,7 @@ public partial class Player
             }
         }
 
-        _traitConfigStates[(int)editedConfigId] = PlayerSpellState.Changed;
+        _traitConfigStates[editedConfigId] = PlayerSpellState.Changed;
     }
 
     private uint GetTalentResetCost()

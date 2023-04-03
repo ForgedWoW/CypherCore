@@ -565,7 +565,7 @@ public class Guild
         if (player == null)
             return;
 
-        var member = GetMember((ObjectGuid)player.GUID);
+        var member = GetMember(player.GUID);
 
         if (member == null)
             return;
@@ -808,7 +808,7 @@ public class Guild
     public void HandleMemberLogout(WorldSession session)
     {
         var player = session.Player;
-        var member = GetMember((ObjectGuid)player.GUID);
+        var member = GetMember(player.GUID);
 
         if (member != null)
         {
@@ -831,7 +831,7 @@ public class Guild
 
         var player = session.Player;
 
-        var member = GetMember((ObjectGuid)player.GUID);
+        var member = GetMember(player.GUID);
 
         if (member == null)
             return false;
@@ -910,7 +910,7 @@ public class Guild
             // Do not allow to remove player with the same rank or higher
             else
             {
-                var memberMe = GetMember((ObjectGuid)player.GUID);
+                var memberMe = GetMember(player.GUID);
                 var myRank = GetRankInfo(memberMe.GetRankId());
                 var targetRank = GetRankInfo(member.GetRankId());
 
@@ -1029,7 +1029,7 @@ public class Guild
     {
         var player = session.Player;
 
-        var member = GetMember((ObjectGuid)player.GUID);
+        var member = GetMember(player.GUID);
 
         if (member != null)
         {
@@ -1225,7 +1225,7 @@ public class Guild
 
         if (isSelfPromote)
         {
-            newGuildMaster = GetMember((ObjectGuid)player.GUID);
+            newGuildMaster = GetMember(player.GUID);
 
             if (newGuildMaster == null)
                 return;
@@ -1297,7 +1297,7 @@ public class Guild
         if (!_IsLeader(session.Player))
             return;
 
-        var otherRankOrder = (GuildRankOrder)(rankOrder + (shiftUp ? -1 : 1));
+        var otherRankOrder = rankOrder + (shiftUp ? -1 : 1);
 
         var rankInfo = GetRankInfo(rankOrder);
         var otherRankInfo = GetRankInfo(otherRankOrder);
@@ -1356,7 +1356,7 @@ public class Guild
                 return;
             }
 
-            var memberMe = GetMember((ObjectGuid)player.GUID);
+            var memberMe = GetMember(player.GUID);
             var myRank = GetRankInfo(memberMe.GetRankId());
             var oldRank = GetRankInfo(member.GetRankId());
             GuildRankId newRankId;
@@ -1652,7 +1652,7 @@ public class Guild
 
     public void SendBankList(WorldSession session, byte tabId, bool fullUpdate)
     {
-        var member = GetMember((ObjectGuid)session.Player.GUID);
+        var member = GetMember(session.Player.GUID);
 
         if (member == null) // Shouldn't happen, just in case
             return;
@@ -1827,7 +1827,7 @@ public class Guild
     public void SendLoginInfo(WorldSession session)
     {
         var player = session.Player;
-        var member = GetMember((ObjectGuid)player.GUID);
+        var member = GetMember(player.GUID);
 
         if (member == null)
             return;
@@ -1863,7 +1863,7 @@ public class Guild
 
     public void SendMoneyInfo(WorldSession session)
     {
-        var member = GetMember((ObjectGuid)session.Player.GUID);
+        var member = GetMember(session.Player.GUID);
 
         if (member == null)
             return;
@@ -1892,7 +1892,7 @@ public class Guild
 
     public void SendPermissions(WorldSession session)
     {
-        var member = GetMember((ObjectGuid)session.Player.GUID);
+        var member = GetMember(session.Player.GUID);
 
         if (member == null)
             return;
@@ -3828,7 +3828,7 @@ public class Guild
             if (IsOnline())
                 return 0.0f;
 
-            return (float)((GameTime.CurrentTime - (long)GetLogoutTime()) / (float)Time.DAY);
+            return (GameTime.CurrentTime - (long)GetLogoutTime()) / (float)Time.DAY;
         }
 
         public byte GetLevel()

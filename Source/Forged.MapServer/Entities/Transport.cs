@@ -146,7 +146,7 @@ public class Transport : GameObject, ITransport
         }
 
         _pathProgress = goinfo.MoTransport.allowstopping == 0 ? Time.MSTime /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
-        SetPathProgressForClient((float)_pathProgress / (float)tInfo.TotalPathTime);
+        SetPathProgressForClient(_pathProgress / (float)tInfo.TotalPathTime);
         ObjectScale = goinfo.size;
         SetPeriod(tInfo.TotalPathTime);
         Entry = goinfo.entry;
@@ -470,7 +470,7 @@ public class Transport : GameObject, ITransport
             // reset cycle
             _eventsToTrigger.SetAll(true);
 
-        SetPathProgressForClient((float)_pathProgress / (float)GetTransportPeriod());
+        SetPathProgressForClient(_pathProgress / (float)GetTransportPeriod());
 
         var timer = _pathProgress % GetTransportPeriod();
 

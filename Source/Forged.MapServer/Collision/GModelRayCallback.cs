@@ -35,8 +35,8 @@ public class GModelRayCallback : WorkerCallback
 
         // See RTR2 ch. 13.7 for the algorithm.
 
-        var e1 = points[(int)tri.Idx1] - points[(int)tri.Idx0];
-        var e2 = points[(int)tri.Idx2] - points[(int)tri.Idx0];
+        var e1 = points[tri.Idx1] - points[tri.Idx0];
+        var e2 = points[tri.Idx2] - points[tri.Idx0];
         var p = Vector3.Cross(ray.Direction, e2);
         var a = Vector3.Dot(e1, p);
 
@@ -45,7 +45,7 @@ public class GModelRayCallback : WorkerCallback
             return false;
 
         var f = 1.0f / a;
-        var s = ray.Origin - points[(int)tri.Idx0];
+        var s = ray.Origin - points[tri.Idx0];
         var u = f * Vector3.Dot(s, p);
 
         if ((u < 0.0f) || (u > 1.0f))

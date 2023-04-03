@@ -73,7 +73,7 @@ public struct BattlegroundQueueTypeId
 
     public ulong GetPacked()
     {
-        return (ulong)BattlemasterListId | ((ulong)(BgType & 0xF) << 16) | ((ulong)(Rated ? 1 : 0) << 20) | ((ulong)(TeamSize & 0x3F) << 24) | 0x1F10000000000000;
+        return BattlemasterListId | ((ulong)(BgType & 0xF) << 16) | ((ulong)(Rated ? 1 : 0) << 20) | ((ulong)(TeamSize & 0x3F) << 24) | 0x1F10000000000000;
     }
 
     public override string ToString()

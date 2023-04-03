@@ -853,7 +853,7 @@ internal class AccountCommands
                 return false;
             }
 
-            Global.AccountMgr.UpdateAccountAccess(null, accountId, (byte)securityLevel, realmID);
+            Global.AccountMgr.UpdateAccountAccess(null, accountId, securityLevel, realmID);
 
             handler.SendSysMessage(CypherStrings.YouChangeSecurity, accountName, securityLevel);
 

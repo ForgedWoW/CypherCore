@@ -515,7 +515,7 @@ public class ReputationMgr
                         if (_player.GetReputationRank(repTemplate.Faction[i]) <= (ReputationRank)repTemplate.FactionRank[i])
                         {
                             // bonuses are already given, so just modify standing by rate
-                            var spilloverRep = (int)(standing * repTemplate.FactionRate[i]);
+                            var spilloverRep = standing * repTemplate.FactionRate[i];
                             SetOneFactionReputation(CliDB.FactionStorage.LookupByKey(repTemplate.Faction[i]), spilloverRep, incremental);
                         }
             }

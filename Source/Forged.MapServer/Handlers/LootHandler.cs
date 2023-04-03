@@ -274,7 +274,7 @@ public class LootHandler : IWorldSessionHandler
 
                     LootMoneyNotify packet = new();
                     packet.Money = goldPerPlayer;
-                    packet.MoneyMod = (ulong)goldMod;
+                    packet.MoneyMod = goldMod;
                     packet.SoleLooter = playersNear.Count <= 1 ? true : false;
                     pl.SendPacket(packet);
                 }
@@ -288,7 +288,7 @@ public class LootHandler : IWorldSessionHandler
 
                 LootMoneyNotify packet = new();
                 packet.Money = loot.gold;
-                packet.MoneyMod = (ulong)goldMod;
+                packet.MoneyMod = goldMod;
                 packet.SoleLooter = true; // "You loot..."
                 SendPacket(packet);
             }

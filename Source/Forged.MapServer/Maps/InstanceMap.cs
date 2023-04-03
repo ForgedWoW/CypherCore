@@ -29,7 +29,7 @@ public class InstanceMap : Map
 
         // the timer is started by default, and stopped when the first player joins
         // this make sure it gets unloaded if for some reason no player joins
-        UnloadTimer = (uint)Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.MINUTE * Time.IN_MILLISECONDS), 1);
+        UnloadTimer = Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.MINUTE * Time.IN_MILLISECONDS), 1);
 
         Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, instanceTeam == TeamIds.Alliance ? 1 : 0, false, this);
         Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, instanceTeam == TeamIds.Horde ? 1 : 0, false, this);
@@ -272,7 +272,7 @@ public class InstanceMap : Map
 
         // if last player set unload timer
         if (UnloadTimer == 0 && Players.Count == 1)
-            UnloadTimer = (InstanceLock != null && InstanceLock.IsExpired()) ? 1 : (uint)Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.MINUTE * Time.IN_MILLISECONDS), 1);
+            UnloadTimer = (InstanceLock != null && InstanceLock.IsExpired()) ? 1 : Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.MINUTE * Time.IN_MILLISECONDS), 1);
 
         InstanceScenario?.OnPlayerExit(player);
 

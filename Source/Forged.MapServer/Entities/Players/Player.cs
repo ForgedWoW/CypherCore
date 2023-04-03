@@ -4620,7 +4620,7 @@ public partial class Player : Unit
                 {
                     if (Money <= (PlayerConst.MaxMoneyAmount - (ulong)amount))
                     {
-                        Money = (ulong)(Money + (ulong)amount);
+                        Money = Money + (ulong)amount;
                     }
                     else
                     {
@@ -8624,7 +8624,7 @@ public partial class Player : Unit
 
         if (!Convert.ToBoolean(currFields & val))
         {
-            SetUpdateFieldFlagValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ExploredZones, (int)offset), val);
+            SetUpdateFieldFlagValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ExploredZones, offset), val);
 
             UpdateCriteria(CriteriaType.RevealWorldMapOverlay, Location.Area);
 

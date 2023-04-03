@@ -418,7 +418,7 @@ public class BIH
                     Log.Logger.Error("Reached tree area in error - discarding node with: {0} objects", right - left + 1);
 
             // find longest axis
-            axis = (int)d.primaryAxis();
+            axis = d.primaryAxis();
             split = 0.5f * (gridBox.Lo.GetAt(axis) + gridBox.Hi.GetAt(axis));
             // partition L/R subsets
             clipL = float.NegativeInfinity;
@@ -429,7 +429,7 @@ public class BIH
 
             for (var i = left; i <= right;)
             {
-                var obj = (int)dat.indices[i];
+                var obj = dat.indices[i];
                 var minb = dat.primBound[obj].Lo.GetAt(axis);
                 var maxb = dat.primBound[obj].Hi.GetAt(axis);
                 var center = (minb + maxb) * 0.5f;

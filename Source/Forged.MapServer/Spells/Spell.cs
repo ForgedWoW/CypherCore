@@ -6527,7 +6527,7 @@ public partial class Spell : IDisposable
                         _spellScriptsByType[iFace] = spellScripts;
                     }
 
-                    spellScripts.Add((ISpellScript)script);
+                    spellScripts.Add(script);
                     RegisterSpellEffectHandler(script);
                 }
         }

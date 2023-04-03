@@ -34,9 +34,9 @@ internal class ScenarioPOIs : ServerPacket
 
                 foreach (var scenarioPOIBlobPoint in scenarioPOI.Points)
                 {
-                    WorldPacket.WriteInt32((int)scenarioPOIBlobPoint.X);
-                    WorldPacket.WriteInt32((int)scenarioPOIBlobPoint.Y);
-                    WorldPacket.WriteInt32((int)scenarioPOIBlobPoint.Z);
+                    WorldPacket.WriteInt32(scenarioPOIBlobPoint.X);
+                    WorldPacket.WriteInt32(scenarioPOIBlobPoint.Y);
+                    WorldPacket.WriteInt32(scenarioPOIBlobPoint.Z);
                 }
             }
         }
