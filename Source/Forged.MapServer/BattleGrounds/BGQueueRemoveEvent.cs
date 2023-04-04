@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Dynamic;
 using Serilog;
@@ -15,55 +16,60 @@ namespace Forged.MapServer.BattleGrounds;
 /// </summary>
 internal class BGQueueRemoveEvent : BasicEvent
 {
-    private readonly uint m_BgInstanceGUID;
-    private readonly BattlegroundQueueTypeId m_BgQueueTypeId;
-    private readonly ObjectGuid m_PlayerGuid;
-    private readonly uint m_RemoveTime;
+    private readonly BattlegroundManager _battlegroundManager;
+    private readonly uint _bgInstanceGUID;
+    private readonly BattlegroundQueueTypeId _bgQueueTypeId;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly ObjectGuid _playerGuid;
+    private readonly uint _removeTime;
 
-    public BGQueueRemoveEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundQueueTypeId bgQueueTypeId, uint removeTime)
+    public BGQueueRemoveEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundQueueTypeId bgQueueTypeId, uint removeTime, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor)
     {
-        m_PlayerGuid = plGuid;
-        m_BgInstanceGUID = bgInstanceGUID;
-        m_RemoveTime = removeTime;
-        m_BgQueueTypeId = bgQueueTypeId;
+        _playerGuid = plGuid;
+        _bgInstanceGUID = bgInstanceGUID;
+        _removeTime = removeTime;
+        _battlegroundManager = battlegroundManager;
+        _objectAccessor = objectAccessor;
+        _bgQueueTypeId = bgQueueTypeId;
     }
 
-    public override void Abort(ulong e_time) { }
+    public override void Abort(ulong eTime)
+    { }
 
     public override bool Execute(ulong etime, uint pTime)
     {
-        var player = Global.ObjAccessor.FindPlayer(m_PlayerGuid);
+        var player = _objectAccessor.FindPlayer(_playerGuid);
 
         if (!player)
             // player logged off (we should do nothing, he is correctly removed from queue in another procedure)
             return true;
 
-        var bg = Global.BattlegroundMgr.GetBattleground(m_BgInstanceGUID, (BattlegroundTypeId)m_BgQueueTypeId.BattlemasterListId);
+        var bg = _battlegroundManager.GetBattleground(_bgInstanceGUID, (BattlegroundTypeId)_bgQueueTypeId.BattlemasterListId);
         //Battleground can be deleted already when we are removing queue info
         //bg pointer can be NULL! so use it carefully!
 
-        var queueSlot = player.GetBattlegroundQueueIndex(m_BgQueueTypeId);
+        var queueSlot = player.GetBattlegroundQueueIndex(_bgQueueTypeId);
 
-        if (queueSlot < SharedConst.PvpTeamsCount) // player is in queue, or in Battleground
-        {
-            // check if player is in queue for this BG and if we are removing his invite event
-            var bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(m_BgQueueTypeId);
+        if (queueSlot >= SharedConst.PvpTeamsCount) // player is in queue, or in Battleground
+            return true;
 
-            if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
-            {
-                Log.Logger.Debug("Battleground: removing player {0} from bg queue for instance {1} because of not pressing enter battle in time.", player.GUID.ToString(), m_BgInstanceGUID);
+        // check if player is in queue for this BG and if we are removing his invite event
+        var bgQueue = _battlegroundManager.GetBattlegroundQueue(_bgQueueTypeId);
 
-                player.RemoveBattlegroundQueueId(m_BgQueueTypeId);
-                bgQueue.RemovePlayer(m_PlayerGuid, true);
+        if (!bgQueue.IsPlayerInvited(_playerGuid, _bgInstanceGUID, _removeTime))
+            return true;
 
-                //update queues if Battleground isn't ended
-                if (bg && bg.IsBattleground() && bg.GetStatus() != BattlegroundStatus.WaitLeave)
-                    Global.BattlegroundMgr.ScheduleQueueUpdate(0, m_BgQueueTypeId, bg.GetBracketId());
+        Log.Logger.Debug("Battleground: removing player {0} from bg queue for instance {1} because of not pressing enter battle in time.", player.GUID.ToString(), _bgInstanceGUID);
 
-                Global.BattlegroundMgr.BuildBattlegroundStatusNone(out var battlefieldStatus, player, queueSlot, player.GetBattlegroundQueueJoinTime(m_BgQueueTypeId));
-                player.SendPacket(battlefieldStatus);
-            }
-        }
+        player.RemoveBattlegroundQueueId(_bgQueueTypeId);
+        bgQueue.RemovePlayer(_playerGuid, true);
+
+        //update queues if Battleground isn't ended
+        if (bg && bg.IsBattleground() && bg.GetStatus() != BattlegroundStatus.WaitLeave)
+            _battlegroundManager.ScheduleQueueUpdate(0, _bgQueueTypeId, bg.GetBracketId());
+
+        _battlegroundManager.BuildBattlegroundStatusNone(out var battlefieldStatus, player, queueSlot, player.GetBattlegroundQueueJoinTime(_bgQueueTypeId));
+        player.SendPacket(battlefieldStatus);
 
         //event will be deleted
         return true;

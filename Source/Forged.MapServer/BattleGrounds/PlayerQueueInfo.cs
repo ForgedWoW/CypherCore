@@ -8,8 +8,8 @@ namespace Forged.MapServer.BattleGrounds;
 /// </summary>
 public class PlayerQueueInfo
 {
-    public GroupQueueInfo GroupInfo;
+    public GroupQueueInfo GroupInfo { get; set; }
 
-    public uint LastOnlineTime; // for tracking and removing offline players from queue after 5 minutes
+    public uint LastOnlineTime { get; set; } // for tracking and removing offline players from queue after 5 minutes
     // pointer to the associated groupqueueinfo
 }

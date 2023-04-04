@@ -12,28 +12,28 @@ namespace Forged.MapServer.BattleGrounds;
 /// </summary>
 public class GroupQueueInfo
 {
-    public uint ArenaMatchmakerRating;
-    public uint ArenaTeamId;
-    public uint ArenaTeamRating;
+    public uint ArenaMatchmakerRating { get; set; }
+    public uint ArenaTeamId { get; set; }
+    public uint ArenaTeamRating { get; set; }
 
-    public uint IsInvitedToBGInstanceGUID;
+    public uint IsInvitedToBGInstanceGUID { get; set; }
 
     // team id if rated match
-    public uint JoinTime;
+    public uint JoinTime { get; set; }
 
-    public uint OpponentsMatchmakerRating;
+    public uint OpponentsMatchmakerRating { get; set; }
 
     // was invited to certain BG
     // if rated match, inited to the rating of the team
     // if rated match, inited to the rating of the team
-    public uint OpponentsTeamRating;
+    public uint OpponentsTeamRating { get; set; }
 
-    public Dictionary<ObjectGuid, PlayerQueueInfo> Players = new(); // player queue info map
+    public Dictionary<ObjectGuid, PlayerQueueInfo> Players { get; set; } = new(); // player queue info map
 
     // time when group was added
-    public uint RemoveInviteTime;
+    public uint RemoveInviteTime { get; set; }
 
-    public TeamFaction Team; // Player team (ALLIANCE/HORDE)
+    public TeamFaction Team { get; set; } // Player team (ALLIANCE/HORDE)
     // time when we will remove invite for players in group
     // for rated arena matches
     // for rated arena matches

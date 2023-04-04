@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Dynamic;
 
@@ -13,32 +14,37 @@ namespace Forged.MapServer.BattleGrounds;
 /// </summary>
 internal class BGQueueInviteEvent : BasicEvent
 {
-    private readonly ArenaTypes m_ArenaType;
-    private readonly uint m_BgInstanceGUID;
-    private readonly BattlegroundTypeId m_BgTypeId;
-    private readonly ObjectGuid m_PlayerGuid;
-    private readonly uint m_RemoveTime;
+    private readonly ArenaTypes _arenaType;
+    private readonly BattlegroundManager _battlegroundManager;
+    private readonly uint _bgInstanceGUID;
+    private readonly BattlegroundTypeId _bgTypeId;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly ObjectGuid _playerGuid;
+    private readonly uint _removeTime;
 
-    public BGQueueInviteEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundTypeId bgTypeId, ArenaTypes arenaType, uint removeTime)
+    public BGQueueInviteEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundTypeId bgTypeId, ArenaTypes arenaType, uint removeTime, BattlegroundManager battlegroundManager, ObjectAccessor objectAccessor)
     {
-        m_PlayerGuid = plGuid;
-        m_BgInstanceGUID = bgInstanceGUID;
-        m_BgTypeId = bgTypeId;
-        m_ArenaType = arenaType;
-        m_RemoveTime = removeTime;
+        _playerGuid = plGuid;
+        _bgInstanceGUID = bgInstanceGUID;
+        _bgTypeId = bgTypeId;
+        _arenaType = arenaType;
+        _removeTime = removeTime;
+        _battlegroundManager = battlegroundManager;
+        _objectAccessor = objectAccessor;
     }
 
-    public override void Abort(ulong e_time) { }
+    public override void Abort(ulong eTime)
+    { }
 
     public override bool Execute(ulong etime, uint pTime)
     {
-        var player = Global.ObjAccessor.FindPlayer(m_PlayerGuid);
+        var player = _objectAccessor.FindPlayer(_playerGuid);
 
         // player logged off (we should do nothing, he is correctly removed from queue in another procedure)
         if (!player)
             return true;
 
-        var bg = Global.BattlegroundMgr.GetBattleground(m_BgInstanceGUID, m_BgTypeId);
+        var bg = _battlegroundManager.GetBattleground(_bgInstanceGUID, _bgTypeId);
 
         //if Battleground ended and its instance deleted - do nothing
         if (bg == null)
@@ -47,17 +53,17 @@ internal class BGQueueInviteEvent : BasicEvent
         var bgQueueTypeId = bg.GetQueueId();
         var queueSlot = player.GetBattlegroundQueueIndex(bgQueueTypeId);
 
-        if (queueSlot < SharedConst.PvpTeamsCount) // player is in queue or in Battleground
-        {
-            // check if player is invited to this bg
-            var bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
+        if (queueSlot >= SharedConst.PvpTeamsCount) // player is in queue or in Battleground
+            return true;                            //event will be deleted
 
-            if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
-            {
-                Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime - BattlegroundConst.InvitationRemindTime, m_ArenaType);
-                player.SendPacket(battlefieldStatus);
-            }
-        }
+        // check if player is invited to this bg
+        var bgQueue = _battlegroundManager.GetBattlegroundQueue(bgQueueTypeId);
+
+        if (!bgQueue.IsPlayerInvited(_playerGuid, _bgInstanceGUID, _removeTime))
+            return true; //event will be deleted
+
+        _battlegroundManager.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime - BattlegroundConst.InvitationRemindTime, _arenaType);
+        player.SendPacket(battlefieldStatus);
 
         return true; //event will be deleted
     }

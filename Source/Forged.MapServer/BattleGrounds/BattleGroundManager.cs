@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Forged.MapServer.Arenas.Zones;
 using Forged.MapServer.BattleGrounds.Zones;
 using Forged.MapServer.Conditions;
@@ -34,6 +35,7 @@ public class BattlegroundManager
     private readonly Dictionary<uint, BattlegroundTypeId> _battleMastersMap = new();
     private readonly Dictionary<BattlegroundTypeId, BattlegroundData> _bgDataStore = new();
     private readonly MultiMap<BattlegroundQueueTypeId, Battleground> _bgFreeSlotQueue = new();
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DisableManager _disableManager;
@@ -50,7 +52,7 @@ public class BattlegroundManager
     private uint _updateTimer;
 
     public BattlegroundManager(IConfiguration configuration, MapManager mapManager, WorldDatabase worldDatabase, DisableManager disableManager, CliDB cliDB,
-                               GameObjectManager objectManager, WorldManager worldManager, GameEventManager gameEventManager)
+                               GameObjectManager objectManager, WorldManager worldManager, GameEventManager gameEventManager, ClassFactory classFactory)
     {
         _configuration = configuration;
         _mapManager = mapManager;
@@ -60,6 +62,7 @@ public class BattlegroundManager
         _objectManager = objectManager;
         _worldManager = worldManager;
         _gameEventManager = gameEventManager;
+        _classFactory = classFactory;
         _nextRatedArenaUpdate = _configuration.GetDefaultValue("Arena.RatedUpdateTimer", 5u * Time.IN_MILLISECONDS);
         _threadTaskManager = new LimitedThreadTaskManager(_configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
     }
@@ -222,7 +225,7 @@ public class BattlegroundManager
     public BattlegroundQueue GetBattlegroundQueue(BattlegroundQueueTypeId bgQueueTypeId)
     {
         if (!_battlegroundQueues.ContainsKey(bgQueueTypeId))
-            _battlegroundQueues[bgQueueTypeId] = new BattlegroundQueue(bgQueueTypeId);
+            _battlegroundQueues[bgQueueTypeId] = _classFactory.Resolve<BattlegroundQueue>(new PositionalParameter(0, bgQueueTypeId));
 
         return _battlegroundQueues[bgQueueTypeId];
     }
@@ -298,6 +301,7 @@ public class BattlegroundManager
                     return false;
 
                 break;
+
             case BattlegroundQueueIdType.Arena:
                 if (battlemasterList.InstanceType != (int)MapTypes.Arena)
                     return false;
@@ -309,11 +313,13 @@ public class BattlegroundManager
                     return false;
 
                 break;
+
             case BattlegroundQueueIdType.Wargame:
                 if (bgQueueTypeId.Rated)
                     return false;
 
                 break;
+
             case BattlegroundQueueIdType.ArenaSkirmish:
                 if (battlemasterList.InstanceType != (int)MapTypes.Arena)
                     return false;
@@ -325,6 +331,7 @@ public class BattlegroundManager
                     return false;
 
                 break;
+
             default:
                 return false;
         }
@@ -690,20 +697,28 @@ public class BattlegroundManager
         {
             case HolidayIds.CallToArmsAv:
                 return BattlegroundTypeId.AV;
+
             case HolidayIds.CallToArmsEs:
                 return BattlegroundTypeId.EY;
+
             case HolidayIds.CallToArmsWg:
                 return BattlegroundTypeId.WS;
+
             case HolidayIds.CallToArmsSa:
                 return BattlegroundTypeId.SA;
+
             case HolidayIds.CallToArmsAb:
                 return BattlegroundTypeId.AB;
+
             case HolidayIds.CallToArmsIc:
                 return BattlegroundTypeId.IC;
+
             case HolidayIds.CallToArmsTp:
                 return BattlegroundTypeId.TP;
+
             case HolidayIds.CallToArmsBg:
                 return BattlegroundTypeId.BFG;
+
             default:
                 return BattlegroundTypeId.None;
         }
@@ -715,20 +730,28 @@ public class BattlegroundManager
         {
             case BattlegroundTypeId.AV:
                 return HolidayIds.CallToArmsAv;
+
             case BattlegroundTypeId.EY:
                 return HolidayIds.CallToArmsEs;
+
             case BattlegroundTypeId.WS:
                 return HolidayIds.CallToArmsWg;
+
             case BattlegroundTypeId.SA:
                 return HolidayIds.CallToArmsSa;
+
             case BattlegroundTypeId.AB:
                 return HolidayIds.CallToArmsAb;
+
             case BattlegroundTypeId.IC:
                 return HolidayIds.CallToArmsIc;
+
             case BattlegroundTypeId.TP:
                 return HolidayIds.CallToArmsTp;
+
             case BattlegroundTypeId.BFG:
                 return HolidayIds.CallToArmsBg;
+
             default:
                 return HolidayIds.None;
         }
@@ -781,35 +804,43 @@ public class BattlegroundManager
                     bg = new BgWarsongGluch(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.AB:
                 case BattlegroundTypeId.DomAb:
                     bg = new BgArathiBasin(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.NA:
                     bg = new NagrandArena(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.BE:
                     bg = new BladesEdgeArena(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.EY:
                     bg = new BgEyeofStorm(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.RL:
                     bg = new RuinsofLordaeronArena(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.SA:
                     bg = new BgStrandOfAncients(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.DS:
                     bg = new DalaranSewersArena(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.RV:
                     bg = new RingofValorArena(bgTemplate);
 
@@ -821,6 +852,7 @@ public class BattlegroundManager
                     bg = new Battleground(bgTemplate);
 
                     break;
+
                 case BattlegroundTypeId.RB:
                     bg = new Battleground(bgTemplate);
                     bg.SetRandom(true);
@@ -830,6 +862,7 @@ public class BattlegroundManager
             case BattlegroundTypeId.TP:
                 bg = new BattlegroundTP(bgTemplate);
                 break;
+
             case BattlegroundTypeId.BFG:
                 bg = new BattlegroundBFG(bgTemplate);
                 break;
@@ -839,6 +872,7 @@ public class BattlegroundManager
                     bg.SetRandom(true);
 
                     break;
+
                 default:
                     return false;
             }

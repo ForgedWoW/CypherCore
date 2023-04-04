@@ -86,27 +86,29 @@ public class BattlegroundScore
                 KillingBlows += value;
 
                 break;
+
             case ScoreType.Deaths:
                 Deaths += value;
 
                 break;
+
             case ScoreType.HonorableKills:
                 HonorableKills += value;
 
                 break;
+
             case ScoreType.BonusHonor:
                 BonusHonor += value;
 
                 break;
+
             case ScoreType.DamageDone:
                 DamageDone += value;
 
                 break;
+
             case ScoreType.HealingDone:
                 HealingDone += value;
-
-                break;
-            default:
 
                 break;
         }

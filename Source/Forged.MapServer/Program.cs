@@ -440,4 +440,5 @@ void RegisterInstanced()
     builder.RegisterType<AuctionHouseObject>();
     builder.RegisterType<SmartScript>();
     builder.RegisterType<CriteriaData>();
+    builder.RegisterType<BattlegroundQueue>();
 }
