@@ -116,7 +116,7 @@ void InitializeServer()
     container.Resolve<MapManager>().Initialize();
     var eventManager = container.Resolve<GameEventManager>();
     worldManager.SetEventInterval(eventManager.StartSystem());
-    Player.DeleteOldCharacters();
+    container.Resolve<PlayerComputators>().DeleteOldCharacters();
     eventManager.StartArenaSeason();
     worldManager.Initialize(container.Resolve<AccountManager>(), container.Resolve<CharacterCache>(), container.Resolve<ObjectAccessor>(),
                             container.Resolve<QuestPoolManager>(), container.Resolve<CalendarManager>(), container.Resolve<GuildManager>(),
@@ -417,6 +417,7 @@ void RegisterManagers()
     builder.RegisterType<BattlePetMgr>().SingleInstance();
     builder.RegisterType<BattlePetMgrData>().SingleInstance();
     builder.RegisterType<UnitCombatHelpers>().SingleInstance();
+    builder.RegisterType<PlayerComputators>().SingleInstance();
 }
 
 void RegisterFactories()

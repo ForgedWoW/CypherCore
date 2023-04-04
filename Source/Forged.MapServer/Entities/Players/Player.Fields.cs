@@ -23,6 +23,7 @@ using Forged.MapServer.Reputation;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Framework.Database;
 using Framework.Util;
 
 namespace Forged.MapServer.Entities.Players;
@@ -213,6 +214,7 @@ public partial class Player
     public List<ObjectGuid> ClientGuiDs { get; set; } = new();
     public WorldLocation CorpseLocation { get; private set; }
     public PlayerCreateMode CreateMode { get; private set; }
+    public CharacterDatabase CharacterDatabase { get; }
     public byte CufProfilesCount => (byte)_cufProfiles.Count(p => p != null);
 
     public Pet CurrentPet

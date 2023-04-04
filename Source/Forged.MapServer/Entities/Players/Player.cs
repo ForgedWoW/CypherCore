@@ -12,6 +12,7 @@ using Forged.MapServer.Chat;
 using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.F;
@@ -62,7 +63,6 @@ using Framework.Dynamic;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -76,6 +76,8 @@ public partial class Player : Unit
         PlayerData = new PlayerData();
         ActivePlayerData = new ActivePlayerData();
         GuildMgr = classFactory.Resolve<GuildManager>();
+        CharacterDatabase = classFactory.Resolve<CharacterDatabase>();
+        PlayerComputators = classFactory.Resolve<PlayerComputators>();
         Session = session;
 
         // players always accept
@@ -150,13 +152,12 @@ public partial class Player : Unit
         ApplyCustomConfigs();
 
         ObjectScale = 1;
-        PlayerComputators = new PlayerComputators(this);
     }
 
     //Team
-    public static TeamFaction TeamForRace(Race race)
+    public static TeamFaction TeamForRace(Race race, CliDB cliDB)
     {
-        switch (TeamIdForRace(race))
+        switch (TeamIdForRace(race, cliDB))
         {
             case 0:
                 return TeamFaction.Alliance;
@@ -168,9 +169,9 @@ public partial class Player : Unit
         return TeamFaction.Alliance;
     }
 
-    public static uint TeamIdForRace(Race race)
+    public static uint TeamIdForRace(Race race, CliDB cliDB)
     {
-        var rEntry = CliDB.ChrRacesStorage.LookupByKey((byte)race);
+        var rEntry = cliDB.ChrRacesStorage.LookupByKey((byte)race);
 
         if (rEntry != null)
             return (uint)rEntry.Alliance;
@@ -283,12 +284,11 @@ public partial class Player : Unit
         uint firstcost = 0;
 
         var prevnode = sourcenode;
-        uint lastnode = 0;
 
         for (var i = 1; i < nodes.Count; ++i)
         {
-            lastnode = nodes[i];
-            Global.ObjectMgr.GetTaxiPath(prevnode, lastnode, out var path, out var cost);
+            var lastnode = nodes[i];
+            ObjectManager.GetTaxiPath(prevnode, lastnode, out var path, out var cost);
 
             if (path == 0)
             {
@@ -321,7 +321,7 @@ public partial class Player : Unit
         if (node.Flags.HasAnyFlag(TaxiNodeFlags.UseFavoriteMount) && preferredMountDisplay != 0)
             mountDisplayID = preferredMountDisplay;
         else
-            mountDisplayID = Global.ObjectMgr.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == PlayerClass.Deathknight));
+            mountDisplayID = ObjectManager.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == PlayerClass.Deathknight));
 
         // in spell case allow 0 model
         if ((mountDisplayID == 0 && spellid == 0) || sourcepath == 0)
@@ -357,7 +357,7 @@ public partial class Player : Unit
         //Checks and preparations done, DO FLIGHT
         UpdateCriteria(CriteriaType.BuyTaxi, 1);
 
-        if (GetDefaultValue("InstantFlightPaths", false))
+        if (Configuration.GetDefaultValue("InstantFlightPaths", false))
         {
             var lastPathNode = CliDB.TaxiNodesStorage.LookupByKey(nodes[^1]);
             Taxi.ClearTaxiDestinations();
@@ -385,10 +385,11 @@ public partial class Player : Unit
         if (entry == null)
             return false;
 
-        List<uint> nodes = new();
-
-        nodes.Add(entry.FromTaxiNode);
-        nodes.Add(entry.ToTaxiNode);
+        List<uint> nodes = new()
+        {
+            entry.FromTaxiNode,
+            entry.ToTaxiNode
+        };
 
         return ActivateTaxiPathTo(nodes, null, spellid);
     }
@@ -591,10 +592,10 @@ public partial class Player : Unit
             offItem.DeleteFromInventoryDB(trans); // deletes item from character's inventory
             offItem.SaveToDB(trans);              // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
-            var subject = Global.ObjectMgr.GetCypherString(CypherStrings.NotEquippedItem);
+            var subject = ObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
             new MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
 
-            DB.Characters.CommitTransaction(trans);
+            CharacterDatabase.CommitTransaction(trans);
         }
     }
 
@@ -813,7 +814,7 @@ public partial class Player : Unit
             return 0;
 
         // Multiply result with the faction specific rate
-        var repData = Global.ObjectMgr.GetRepRewardRate((uint)faction);
+        var repData = ObjectManager.GetRepRewardRate((uint)faction);
 
         if (repData != null)
         {
@@ -1054,7 +1055,7 @@ public partial class Player : Unit
 
         Log.Logger.Debug("WORLD: Restart character {0} taxi flight", GUID.ToString());
 
-        var mountDisplayId = Global.ObjectMgr.GetTaxiMountDisplayId(sourceNode, Team, true);
+        var mountDisplayId = ObjectManager.GetTaxiMountDisplayId(sourceNode, Team, true);
 
         if (mountDisplayId == 0)
             return;
@@ -1066,7 +1067,6 @@ public partial class Player : Unit
 
         var nodeList = CliDB.TaxiPathNodesByPath[path];
 
-        float distPrev;
         var distNext = Location.GetExactDistSq(nodeList[0].Loc.X, nodeList[0].Loc.Y, nodeList[0].Loc.Z);
 
         for (var i = 1; i < nodeList.Length; ++i)
@@ -1078,7 +1078,7 @@ public partial class Player : Unit
             if (node.ContinentID != Location.MapId)
                 continue;
 
-            distPrev = distNext;
+            var distPrev = distNext;
 
             distNext = Location.GetExactDistSq(node.Loc.X, node.Loc.Y, node.Loc.Z);
 
@@ -1105,7 +1105,7 @@ public partial class Player : Unit
 
         SetName(createInfo.Name);
 
-        var info = Global.ObjectMgr.GetPlayerInfo(createInfo.RaceId, createInfo.ClassId);
+        var info = ObjectManager.GetPlayerInfo(createInfo.RaceId, createInfo.ClassId);
 
         if (info == null)
         {
@@ -1284,7 +1284,7 @@ public partial class Player : Unit
         }
         // all item positions resolved
 
-        var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class);
+        var defaultSpec = DB2Manager.GetDefaultChrSpecializationForClass(Class);
 
         if (defaultSpec != null)
         {
@@ -1643,7 +1643,7 @@ public partial class Player : Unit
         if (menuId == 0)
             return textId;
 
-        var menuBounds = Global.ObjectMgr.GetGossipMenusMapBounds(menuId);
+        var menuBounds = ObjectManager.GetGossipMenusMapBounds(menuId);
 
         foreach (var menu in menuBounds)
             if (Global.ConditionMgr.IsObjectMeetToConditions(this, source, menu.Conditions))
@@ -1923,9 +1923,9 @@ public partial class Player : Unit
 
         guild?.UpdateMemberData(this, GuildMemberData.Level, level);
 
-        var info = Global.ObjectMgr.GetPlayerLevelInfo(Race, Class, level);
+        var info = ObjectManager.GetPlayerLevelInfo(Race, Class, level);
 
-        Global.ObjectMgr.GetPlayerClassLevelInfo(Class, level, out var basemana);
+        ObjectManager.GetPlayerClassLevelInfo(Class, level, out var basemana);
 
         LevelUpInfo packet = new();
 
@@ -1971,12 +1971,12 @@ public partial class Player : Unit
         ++i)
         packet.StatDelta[(int)i] = info.Stats[(int)i] - (int)GetCreateStat(i);
 
-        packet.NumNewTalents = (int)(Global.DB2Mgr.GetNumTalentsAtLevel(level, Class) - Global.DB2Mgr.GetNumTalentsAtLevel(oldLevel, Class));
-        packet.NumNewPvpTalentSlots = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, Class) - Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(oldLevel, Class);
+        packet.NumNewTalents = (int)(DB2Manager.GetNumTalentsAtLevel(level, Class) - DB2Manager.GetNumTalentsAtLevel(oldLevel, Class));
+        packet.NumNewPvpTalentSlots = DB2Manager.GetPvpTalentNumSlotsAtLevel(level, Class) - DB2Manager.GetPvpTalentNumSlotsAtLevel(oldLevel, Class);
 
         SendPacket(packet);
 
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), Global.ObjectMgr.GetXPForLevel(level));
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), ObjectManager.GetXPForLevel(level));
 
         //update level, max level of skills
         LevelPlayedTime = 0; // Level Played Time reset
@@ -2022,14 +2022,14 @@ public partial class Player : Unit
         if (pet)
             pet.SynchronizeLevelWithOwner();
 
-        var mailReward = Global.ObjectMgr.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(Race));
+        var mailReward = ObjectManager.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(Race));
 
         if (mailReward != null)
         {
             //- TODO: Poor design of mail system
             SQLTransaction trans = new();
             new MailDraft(mailReward.mailTemplateId).SendMailTo(trans, this, new MailSender(MailMessageType.Creature, mailReward.senderEntry));
-            DB.Characters.CommitTransaction(trans);
+            CharacterDatabase.CommitTransaction(trans);
         }
 
         UpdateCriteria(CriteriaType.ReachLevel);
@@ -2347,7 +2347,7 @@ public partial class Player : Unit
 
     public void InitDisplayIds()
     {
-        var model = Global.DB2Mgr.GetChrModel(Race, NativeGender);
+        var model = DB2Manager.GetChrModel(Race, NativeGender);
 
         if (model == null)
         {
@@ -2358,7 +2358,7 @@ public partial class Player : Unit
 
         SetDisplayId(model.DisplayID);
         SetNativeDisplayId(model.DisplayID);
-        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.StateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.StateAnimID), DB2Manager.GetEmptyAnimStateID());
     }
 
     public void InitGossipMenu(uint menuId)
@@ -2371,11 +2371,11 @@ public partial class Player : Unit
         if (reapplyMods) //reapply stats values only on .reset stats (level) command
             _RemoveAllStatBonuses();
 
-        Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
+        ObjectManager.GetPlayerClassLevelInfo(Class, Level, out var basemana);
 
-        var info = Global.ObjectMgr.GetPlayerLevelInfo(Race, Class, Level);
+        var info = ObjectManager.GetPlayerLevelInfo(Race, Class, Level);
 
-        var expMaxLvl = (int)Global.ObjectMgr.GetMaxLevelForExpansion(Session.Expansion);
+        var expMaxLvl = (int)ObjectManager.GetMaxLevelForExpansion(Session.Expansion);
         var confMaxLvl = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
         if (expMaxLvl == SharedConst.DefaultMaxLevel || expMaxLvl >= confMaxLvl)
@@ -2383,7 +2383,7 @@ public partial class Player : Unit
         else
             SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), expMaxLvl);
 
-        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), Global.ObjectMgr.GetXPForLevel(Level));
+        SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), ObjectManager.GetXPForLevel(Level));
 
         if (ActivePlayerData.XP >= ActivePlayerData.NextLevelXP)
             SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.XP), ActivePlayerData.NextLevelXP - 1);
@@ -2750,7 +2750,7 @@ public partial class Player : Unit
                 continue;
 
             // skip wrong class and race skill saved in SkillRaceClassInfo.dbc
-            if (Global.DB2Mgr.GetSkillRaceClassInfo(spellIdx.SkillLine, Race, Class) == null)
+            if (DB2Manager.GetSkillRaceClassInfo(spellIdx.SkillLine, Race, Class) == null)
                 continue;
 
             return true;
@@ -2861,7 +2861,7 @@ public partial class Player : Unit
 
         if (checkRequiredDependentChoices)
         {
-            var requiredChoices = Global.DB2Mgr.GetRequiredCustomizationChoices(req.Id);
+            var requiredChoices = DB2Manager.GetRequiredCustomizationChoices(req.Id);
 
             if (requiredChoices != null)
                 foreach (var key in requiredChoices.Keys)
@@ -3115,7 +3115,7 @@ public partial class Player : Unit
                 break;
 
             case GossipOptionNpc.Trainer:
-                Session.SendTrainerList(source.AsCreature, Global.ObjectMgr.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
+                Session.SendTrainerList(source.AsCreature, ObjectManager.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
 
                 break;
 
@@ -3243,7 +3243,7 @@ public partial class Player : Unit
         {
             if (item.GossipNpcOptionId.HasValue)
             {
-                var addon = Global.ObjectMgr.GetGossipMenuAddon(menuId);
+                var addon = ObjectManager.GetGossipMenuAddon(menuId);
 
                 GossipOptionNPCInteraction npcInteraction = new();
 
@@ -3334,7 +3334,7 @@ public partial class Player : Unit
 
         menu.GetGossipMenu().MenuId = menuId;
 
-        var menuItemBounds = Global.ObjectMgr.GetGossipMenuItemsMapBounds(menuId);
+        var menuItemBounds = ObjectManager.GetGossipMenuItemsMapBounds(menuId);
 
         if (source.IsTypeId(TypeId.Unit))
         {
@@ -3518,11 +3518,11 @@ public partial class Player : Unit
 
         if (persist)
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_REM_AT_LOGIN_FLAG);
+            var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_REM_AT_LOGIN_FLAG);
             stmt.AddValue(0, (ushort)flags);
             stmt.AddValue(1, GUID.Counter);
 
-            DB.Characters.Execute(stmt);
+            CharacterDatabase.Execute(stmt);
         }
     }
 
@@ -3771,7 +3771,7 @@ public partial class Player : Unit
             if (bf != null)
                 closestGrave = bf.GetClosestGraveYard(this);
             else
-                closestGrave = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
+                closestGrave = ObjectManager.GetClosestGraveYard(Location, Team, this);
         }
 
         // stop countdown until repop
@@ -3785,14 +3785,13 @@ public partial class Player : Unit
 
             if (IsDead) // not send if alive, because it used in TeleportTo()
             {
-                DeathReleaseLoc packet = new();
-
+                DeathReleaseLoc packet = new()
                 {
                     MapID = (int)closestGrave.Loc.MapId,
                     Loc = closestGrave.Loc
-                }
+                };
 
-                dPacket(packet);
+                SendPacket(packet);
             }
         }
         else if (Location.Z < Location.Map.GetMinHeight(Location.PhaseShift, Location.X, Location.Y))
@@ -3833,9 +3832,6 @@ public partial class Player : Unit
                 SetPower(PowerType.LunarPower, 0);
 
                 break;
-
-            default:
-                break;
         }
     }
 
@@ -3859,14 +3855,12 @@ public partial class Player : Unit
 
     public void ResurrectPlayer(float restorePercent, bool applySickness = false)
     {
-        DeathReleaseLoc packet = new();
-
+        DeathReleaseLoc packet = new()
         {
             MapID = -1
-        }
+        };
 
-        S
-        dPacket(packet);
+        SendPacket(packet);
 
         // speed change, land walk
 
@@ -3927,23 +3921,23 @@ public partial class Player : Unit
         //Characters from level 11-19 will suffer from one minute of sickness
         //for each level they are above 10.
         //Characters level 20 and up suffer from ten minutes of sickness.
-        var startLevel = GetDefaultValue("Death.SicknessLevel", 11);
+        var startLevel = Configuration.GetDefaultValue("Death.SicknessLevel", 11);
         var raceEntry = CliDB.ChrRacesStorage.LookupByKey(Race);
 
-        if (Level >= startLevel)
-        {
-            // set resurrection sickness
-            CastSpell(this, raceEntry.ResSicknessSpellID, true);
+        if (Level < startLevel)
+            return;
 
-            // not full duration
-            if (Level < startLevel + 9)
-            {
-                var delta = (int)(Level - startLevel + 1) * Time.MINUTE;
-                var aur = GetAura(raceEntry.ResSicknessSpellID, GUID);
+        // set resurrection sickness
+        SpellFactory.CastSpell(this, raceEntry.ResSicknessSpellID, true);
 
-                aur?.SetDuration(delta * Time.IN_MILLISECONDS);
-            }
-        }
+        // not full duration
+        if (Level >= startLevel + 9)
+            return;
+
+        var delta = (int)(Level - startLevel + 1) * Time.MINUTE;
+        var aur = GetAura(raceEntry.ResSicknessSpellID, GUID);
+
+        aur?.SetDuration(delta * Time.IN_MILLISECONDS);
     }
 
     public void ResurrectUsingRequestData()
@@ -3970,7 +3964,7 @@ public partial class Player : Unit
         if (victim.AsCreature.IsReputationGainDisabled)
             return;
 
-        var rep = Global.ObjectMgr.GetReputationOnKilEntry(victim.AsCreature.Template.Entry);
+        var rep = ObjectManager.GetReputationOnKilEntry(victim.AsCreature.Template.Entry);
 
         if (rep == null)
             return;
@@ -3984,14 +3978,14 @@ public partial class Player : Unit
 
             if (map.IsNonRaidDungeon)
             {
-                var dungeon = Global.DB2Mgr.GetLfgDungeon(map.Id, map.DifficultyID);
+                var dungeon = DB2Manager.GetLfgDungeon(map.Id, map.DifficultyID);
 
                 if (dungeon != null)
                 {
-                    var dungeonLevels = Global.DB2Mgr.GetContentTuningData(dungeon.ContentTuningID, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+                    var dungeonLevels = DB2Manager.GetContentTuningData(dungeon.ContentTuningID, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                     if (dungeonLevels.HasValue)
-                        if (dungeonLevels.Value.TargetLevelMax == Global.ObjectMgr.GetMaxLevelForExpansion(Expansion.WrathOfTheLichKing))
+                        if (dungeonLevels.Value.TargetLevelMax == ObjectManager.GetMaxLevelForExpansion(Expansion.WrathOfTheLichKing))
                             championingFaction = GetChampioningFaction();
                 }
             }
@@ -4048,39 +4042,34 @@ public partial class Player : Unit
 
     public void SendAutoRepeatCancel(Unit target)
     {
-        CancelAutoRepeat cancelAutoRepeat = new();
-
+        CancelAutoRepeat cancelAutoRepeat = new()
         {
             Guid = target.GUID // may be it's target guid
-        }
+        };
 
-        dMessageToSet(cancelAutoRepeat, true);
+        SendMessageToSet(cancelAutoRepeat, true);
     }
 
     public void SendBindPointUpdate()
     {
-        BindPointUpdate packet = new();
-
+        BindPointUpdate packet = new()
         {
             BindPosition = new Vector3(Homebind.X, Homebind.Y, Homebind.Z),
             BindMapID = Homebind.MapId,
             BindAreaID = _homebindAreaId
-        }
+        };
 
-        p
-        dPacket(packet);
+        SendPacket(packet);
     }
 
     public void SendCinematicStart(uint cinematicSequenceId)
     {
-        TriggerCinematic packet = new();
-
+        TriggerCinematic packet = new()
         {
             CinematicID = cinematicSequenceId
-        }
+        };
 
-        S
-        dPacket(packet);
+        SendPacket(packet);
 
         var sequence = CliDB.CinematicSequencesStorage.LookupByKey(cinematicSequenceId);
 
@@ -4103,7 +4092,7 @@ public partial class Player : Unit
 
         Session.SendLoadCUFProfiles();
 
-        CastSpell(this, 836, true); // LOGINEFFECT
+        SpellFactory.CastSpell(this, 836, true); // LOGINEFFECT
 
         // set some aura effects that send packet to player client after add player to map
         // SendMessageToSet not send it to player not it map, only for aura that not changed anything at re-apply
@@ -4184,7 +4173,7 @@ public partial class Player : Unit
 
         if (!GetPlayerSharingQuest().IsEmpty)
         {
-            var quest = Global.ObjectMgr.GetQuestTemplate(GetSharedQuestID());
+            var quest = ObjectManager.GetQuestTemplate(GetSharedQuestID());
 
             if (quest != null)
                 PlayerTalkClass.SendQuestGiverQuestDetails(quest, GUID, true, false);
@@ -4237,7 +4226,7 @@ public partial class Player : Unit
 
         foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
         {
-            var bindableSpells = Global.DB2Mgr.GetGlyphBindableSpells(glyphId);
+            var bindableSpells = DB2Manager.GetGlyphBindableSpells(glyphId);
 
             foreach (var bindableSpell in bindableSpells)
                 if (HasSpell(bindableSpell) && !_overrideSpells.ContainsKey(bindableSpell))
@@ -4409,13 +4398,13 @@ public partial class Player : Unit
 
     public void SendPlayerChoice(ObjectGuid sender, int choiceId)
     {
-        var playerChoice = Global.ObjectMgr.GetPlayerChoice(choiceId);
+        var playerChoice = ObjectManager.GetPlayerChoice(choiceId);
 
         if (playerChoice == null)
             return;
 
         var locale = Session.SessionDbLocaleIndex;
-        var playerChoiceLocale = locale != Locale.enUS ? Global.ObjectMgr.GetPlayerChoiceLocale(choiceId) : null;
+        var playerChoiceLocale = locale != Locale.enUS ? ObjectManager.GetPlayerChoiceLocale(choiceId) : null;
 
         PlayerTalkClass.GetInteractionData().Reset();
         PlayerTalkClass.GetInteractionData().SourceGuid = sender;
@@ -4636,26 +4625,23 @@ public partial class Player : Unit
         _summonLocation = new WorldLocation(summoner.Location);
         _summonInstanceId = summoner.Location.Map?.InstanceId;
 
-        SummonRequest summonRequest = new();
-
+        SummonRequest summonRequest = new()
         {
             SummonerGUID = summoner.GUID,
             SummonerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
             AreaID = (int)summoner.Location.Zone
-                }
+        };
 
-        s
-                    dPacket(summonRequest);
+        SendPacket(summonRequest);
 
         var group = Group;
 
         if (group != null)
         {
-            BroadcastSummonCast summonCast = new();
-
+            BroadcastSummonCast summonCast = new()
             {
                 Target = GUID
-                    }
+            };
 
             up.BroadcastPacket(summonCast, false);
         }
@@ -4663,14 +4649,12 @@ public partial class Player : Unit
 
     public void SendTameFailure(PetTameResult result)
     {
-        PetTameFailure petTameFailure = new();
-
+        PetTameFailure petTameFailure = new()
         {
             Result = (byte)result
-                }
+        };
 
-        S
-                    dPacket(petTameFailure);
+        SendPacket(petTameFailure);
     }
 
     public void SendUpdateWorldState(WorldStates variable, uint value, bool hidden = false)
@@ -4680,16 +4664,14 @@ public partial class Player : Unit
 
     public void SendUpdateWorldState(uint variable, uint value, bool hidden = false)
     {
-        UpdateWorldState worldstate = new();
-
+        UpdateWorldState worldstate = new()
         {
             VariableID = variable,
             Value = (int)value,
             Hidden = hidden
-                }
+        };
 
-        w
-                    dPacket(worldstate);
+        SendPacket(worldstate);
     }
 
     public void SetAcceptWhispers(bool on)
@@ -4768,16 +4750,14 @@ public partial class Player : Unit
 
     public void SetBindPoint(ObjectGuid guid)
     {
-        NPCInteractionOpenResult npcInteraction = new();
-
+        NPCInteractionOpenResult npcInteraction = new()
         {
             Npc = guid,
             InteractionType = PlayerInteractionType.Binder,
             Success = true
-        }
+        };
 
-        n
-        dPacket(npcInteraction);
+        SendPacket(npcInteraction);
     }
 
     public void SetChampioningFaction(uint faction)
@@ -4805,15 +4785,13 @@ public partial class Player : Unit
         if (target.HasUnitState(UnitState.Fleeing | UnitState.Confused))
             allowMove = false;
 
-        ControlUpdate packet = new();
-
+        ControlUpdate packet = new()
         {
             Guid = target.GUID,
             On = allowMove
-        }
+        };
 
-        p
-        dPacket(packet);
+        SendPacket(packet);
 
         var viewpoint = Viewpoint;
 
@@ -4851,38 +4829,38 @@ public partial class Player : Unit
         if (GetQuestStatus(CovenantQuests.ChoosingYourPurpose_fromNathria) == QuestStatus.Incomplete)
             CompleteQuest(CovenantQuests.ChoosingYourPurpose_fromNathria);
 
-        CastSpell(this, CovenantSpells.Remove_TBYB_Auras, true);
-        CastSpell(this, CovenantSpells.Create_Covenant_Garrison, true);
-        CastSpell(this, CovenantSpells.Start_Oribos_Intro_Quests, true);
-        CastSpell(this, CovenantSpells.Create_Garrison_Artifact_296, true);
-        CastSpell(this, CovenantSpells.Create_Garrison_Artifact_299, true);
+        SpellFactory.CastSpell(this, CovenantSpells.Remove_TBYB_Auras, true);
+        SpellFactory.CastSpell(this, CovenantSpells.Create_Covenant_Garrison, true);
+        SpellFactory.CastSpell(this, CovenantSpells.Start_Oribos_Intro_Quests, true);
+        SpellFactory.CastSpell(this, CovenantSpells.Create_Garrison_Artifact_296, true);
+        SpellFactory.CastSpell(this, CovenantSpells.Create_Garrison_Artifact_299, true);
 
         // Specific Additions
         switch (covenantId)
         {
             case Covenant.Kyrian:
-                CastSpell(this, CovenantSpells.Become_A_Kyrian, true);
+                SpellFactory.CastSpell(this, CovenantSpells.Become_A_Kyrian, true);
                 LearnSpell(CovenantSpells.CA_Opening_Kyrian, true);
                 LearnSpell(CovenantSpells.CA_Kyrian, true);
 
                 break;
 
             case Covenant.Venthyr:
-                CastSpell(this, CovenantSpells.Become_A_Venthyr, true);
+                SpellFactory.CastSpell(this, CovenantSpells.Become_A_Venthyr, true);
                 LearnSpell(CovenantSpells.CA_Opening_Venthyr, true);
                 LearnSpell(CovenantSpells.CA_Venthyr, true);
 
                 break;
 
             case Covenant.NightFae:
-                CastSpell(this, CovenantSpells.Become_A_NightFae, true);
+                SpellFactory.CastSpell(this, CovenantSpells.Become_A_NightFae, true);
                 LearnSpell(CovenantSpells.CA_Opening_NightFae, true);
                 LearnSpell(CovenantSpells.CA_NightFae, true);
 
                 break;
 
             case Covenant.Necrolord:
-                CastSpell(this, CovenantSpells.Become_A_Necrolord, true);
+                SpellFactory.CastSpell(this, CovenantSpells.Become_A_Necrolord, true);
                 LearnSpell(CovenantSpells.CA_Opening_Necrolord, true);
                 LearnSpell(CovenantSpells.CA_Necrolord, true);
 
@@ -4892,7 +4870,7 @@ public partial class Player : Unit
         // TODO
         // Save to DB
         //ObjectGuid guid = GetGUID();
-        //var stmt = DB.Characters.GetPreparedStatement(CHAR_UPD_COVENANT);
+        //var stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_COVENANT);
         //stmt.AddValue(0, covenantId);
         //stmt.AddValue(1, guid.GetCounter());
         //CharacterDatabase.Execute(stmt);
@@ -4915,12 +4893,11 @@ public partial class Player : Unit
 
         foreach (var customization in customizations)
         {
-            ChrCustomizationChoice newChoice = new();
-
+            ChrCustomizationChoice newChoice = new()
             {
                 ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
                 ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
-            }
+            };
 
             DynamicUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.Customizations), newChoice);
         }
@@ -5005,22 +4982,21 @@ public partial class Player : Unit
         if (newDrunkenState == oldDrunkenState)
             return;
 
-        CrossedInebriationThreshold data = new();
-
+        CrossedInebriationThreshold data = new()
         {
             Guid = GUID,
             Threshold = (uint)newDrunkenState,
             ItemID = itemId
-        }
+        };
 
-        S dMessageToSet(data, true);
+        SendMessageToSet(data, true);
     }
 
     public void SetFactionForRace(Race race)
     {
-        Team = TeamForRace(race);
+        Team = TeamForRace(race, CliDB);
 
-        var rEntry = CliDB.ChrRacesStorage.LookupByKey(race);
+        var rEntry = CliDB.ChrRacesStorage.LookupByKey((uint)race);
         Faction = rEntry != null ? (uint)rEntry.FactionID : 0;
     }
 
@@ -5144,7 +5120,7 @@ public partial class Player : Unit
         _homebindAreaId = areaId;
 
         // update sql homebind
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PLAYER_HOMEBIND);
+        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_PLAYER_HOMEBIND);
         stmt.AddValue(0, Homebind.MapId);
         stmt.AddValue(1, _homebindAreaId);
         stmt.AddValue(2, Homebind.X);
@@ -5152,7 +5128,7 @@ public partial class Player : Unit
         stmt.AddValue(4, Homebind.Z);
         stmt.AddValue(5, Homebind.Orientation);
         stmt.AddValue(6, GUID.Counter);
-        DB.Characters.Execute(stmt);
+        CharacterDatabase.Execute(stmt);
     }
 
     //Guild
@@ -5564,7 +5540,7 @@ public partial class Player : Unit
         }
 
         var map = Location.Map;
-        var petNumber = Global.ObjectMgr.GeneratePetNumber();
+        var petNumber = ObjectManager.GeneratePetNumber();
 
         if (!pet.Create(map.GenerateLowGuid(HighGuid.Pet), map, entry, petNumber))
         {
@@ -7019,7 +6995,7 @@ public partial class Player : Unit
                 break;
 
             case ActionButtonType.Item:
-                if (Global.ObjectMgr.GetItemTemplate((uint)action) == null)
+                if (ObjectManager.GetItemTemplate((uint)action) == null)
                 {
                     Log.Logger.Error($"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GUID}): item not exist");
 
@@ -7131,7 +7107,7 @@ public partial class Player : Unit
         var curValue = GetPower(power);
 
         // TODO: updating haste should update UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER for certain power types
-        var powerType = Global.DB2Mgr.GetPowerTypeEntry(power);
+        var powerType = DB2Manager.GetPowerTypeEntry(power);
 
         if (powerType == null)
             return;
@@ -7928,7 +7904,7 @@ public partial class Player : Unit
 
     public void SendSysMessage(uint str, params object[] args)
     {
-        var input = Global.ObjectMgr.GetCypherString(str);
+        var input = ObjectManager.GetCypherString(str);
         var pattern = @"%(\d+(\.\d+)?)?(d|f|s|u)";
 
         var count = 0;
@@ -8193,7 +8169,7 @@ public partial class Player : Unit
 
             UpdateCriteria(CriteriaType.RevealWorldMapOverlay, Location.Area);
 
-            var areaLevels = Global.DB2Mgr.GetContentTuningData(areaEntry.ContentTuningID, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+            var areaLevels = DB2Manager.GetContentTuningData(areaEntry.ContentTuningID, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
             if (areaLevels.HasValue)
             {
@@ -8209,7 +8185,7 @@ public partial class Player : Unit
 
                     if (diff < -5)
                     {
-                        xp = (uint)(Global.ObjectMgr.GetBaseXP(Level + 5) * GetDefaultValue("Rate.XP.Explore", 1.0f));
+                        xp = (uint)(ObjectManager.GetBaseXP(Level + 5) * GetDefaultValue("Rate.XP.Explore", 1.0f));
                     }
                     else if (diff > 5)
                     {
@@ -8218,16 +8194,16 @@ public partial class Player : Unit
                         if (explorationPercent < 0)
                             explorationPercent = 0;
 
-                        xp = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * explorationPercent / 100 * GetDefaultValue("Rate.XP.Explore", 1.0f));
+                        xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * explorationPercent / 100 * GetDefaultValue("Rate.XP.Explore", 1.0f));
                     }
                     else
                     {
-                        xp = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f));
+                        xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f));
                     }
 
                     if (GetDefaultValue("MinDiscoveredScaledXPRatio", 0) != 0)
                     {
-                        var minScaledXP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f)) * GetDefaultValue("MinDiscoveredScaledXPRatio", 0) / 100;
+                        var minScaledXP = (uint)(ObjectManager.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f)) * GetDefaultValue("MinDiscoveredScaledXPRatio", 0) / 100;
                         xp = Math.Max(minScaledXP, xp);
                     }
 
@@ -8425,7 +8401,7 @@ public partial class Player : Unit
 
         var locale = target.Session.SessionDbLocaleIndex;
         ChatPkt packet = new();
-        packet.Initialize(ChatMsg.Whisper, Language.Universal, this, target, Global.DB2Mgr.GetBroadcastTextValue(bct, locale, Gender));
+        packet.Initialize(ChatMsg.Whisper, Language.Universal, this, target, DB2Manager.GetBroadcastTextValue(bct, locale, Gender));
         target.SendPacket(packet);
     }
 
@@ -8474,7 +8450,7 @@ public partial class Player : Unit
     //{
     //    ObjectGuid guid = GetGUID();
 
-    //    var stmt = DB.Characters.GetPreparedStatement(CHAR_SEL_COVENANT);
+    //    var stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_COVENANT);
     //    stmt.AddValue(0, guid.GetCounter());
     //    var covenant = CharacterDatabase.Query(stmt);
 

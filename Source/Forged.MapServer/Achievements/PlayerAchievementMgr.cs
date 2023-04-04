@@ -213,7 +213,7 @@ public class PlayerAchievementMgr : AchievementManager
 
                 if (reward != null)
                 {
-                    var titleId = reward.TitleId[Player.TeamForRace(_owner.Race) == TeamFaction.Alliance ? 0 : 1];
+                    var titleId = reward.TitleId[Player.TeamForRace(_owner.Race, CliDB) == TeamFaction.Alliance ? 0 : 1];
 
                     if (titleId != 0)
                     {

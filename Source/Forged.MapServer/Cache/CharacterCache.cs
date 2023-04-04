@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.Arenas;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.Misc;
@@ -20,10 +21,13 @@ public class CharacterCache
     private readonly Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
     private readonly CharacterDatabase _characterDatabase;
     private readonly WorldManager _worldManager;
-    public CharacterCache(CharacterDatabase characterDatabase, WorldManager worldManager)
+    private readonly CliDB _cliDB;
+
+    public CharacterCache(CharacterDatabase characterDatabase, WorldManager worldManager, CliDB cliDB)
     {
         _characterDatabase = characterDatabase;
         _worldManager = worldManager;
+        _cliDB = cliDB;
     }
 
     public void AddCharacterCacheEntry(ObjectGuid guid, uint accountId, string name, byte gender, byte race, byte playerClass, byte level, bool isDeleted)
@@ -162,7 +166,7 @@ public class CharacterCache
         if (characterCacheEntry == null)
             return 0;
 
-        return Player.TeamForRace(characterCacheEntry.RaceId);
+        return Player.TeamForRace(characterCacheEntry.RaceId, _cliDB);
     }
 
     public bool HasCharacterCacheEntry(ObjectGuid guid)

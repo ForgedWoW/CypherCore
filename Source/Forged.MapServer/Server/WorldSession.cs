@@ -134,7 +134,7 @@ public class WorldSession : IDisposable
         _expireTime = 60000; // 1 min after socket loss, session is deleted
         BattlePetMgr = _classFactory.Resolve<BattlePetMgr>(new PositionalParameter(0, this));
         CollectionMgr = _classFactory.Resolve<CollectionMgr>(new PositionalParameter(0, this));
-        BattlePayMgr = new BattlepayManager(this);
+        BattlePayMgr = _classFactory.Resolve<BattlepayManager>(new PositionalParameter(0, this));
         CommandHandler = new CommandHandler(this);
 
         _recvQueue = new ActionBlock<WorldPacket>(ProcessQueue,
