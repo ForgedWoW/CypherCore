@@ -40,7 +40,7 @@ public class WorldServiceHandler
     public void Invoke(WorldSession session, MethodCall methodCall, CodedInputStream stream)
     {
         var request = (IMessage)Activator.CreateInstance(_requestType);
-        request.MergeFrom(stream);
+        request?.MergeFrom(stream);
 
         BattlenetRpcErrorCode status;
 
@@ -51,9 +51,9 @@ public class WorldServiceHandler
             Log.Logger.Debug("{0} Client called server Method: {1}) Returned: {2} Status: {3}.", session.RemoteAddress, request, response, status);
 
             if (status == 0)
-                session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, response);
+                SendBattlenetResponseMessage(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, response);
             else
-                session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
+                SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
         }
         else
         {
@@ -61,7 +61,38 @@ public class WorldServiceHandler
             Log.Logger.Debug("{0} Client called server Method: {1}) Status: {2}.", session.RemoteAddress, request, status);
 
             if (status != 0)
-                session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
+                SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
+        }
+
+        void SendBattlenetResponseMessage(uint serviceHash, uint methodId, uint token, IMessage response)
+        {
+            Response bnetResponse = new()
+            {
+                BnetStatus = BattlenetRpcErrorCode.Ok
+            };
+
+            bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
+            bnetResponse.Method.ObjectId = 1;
+            bnetResponse.Method.Token = token;
+
+            if (response.CalculateSize() != 0)
+                bnetResponse.Data.WriteBytes(response.ToByteArray());
+
+            session.SendPacket(bnetResponse);
+        }
+
+        void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, BattlenetRpcErrorCode rpcStatus)
+        {
+            Response bnetResponse = new()
+            {
+                BnetStatus = rpcStatus
+            };
+
+            bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
+            bnetResponse.Method.ObjectId = 1;
+            bnetResponse.Method.Token = token;
+
+            session.SendPacket(bnetResponse);
         }
     }
 }

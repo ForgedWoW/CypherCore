@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using Autofac;
+using Forged.MapServer.Server;
 using Game.Common.Handlers;
 using Serilog;
 
@@ -19,13 +20,13 @@ public class WorldServiceManager
         return _serviceHandlers.LookupByKey((serviceHash, methodId));
     }
 
-    public void LoadHandlers(IContainer container)
+    public void LoadHandlers(IContainer container, WorldSession session)
     {
-        var impl = container.Resolve<IEnumerable<IWorldSessionHandler>>();
+        var impl = container.Resolve<IEnumerable<IWorldSessionHandler>>(new PositionalParameter(0, session));
 
         foreach (var handler in impl)
         {
-            foreach (var methodInfo in handler.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var methodInfo in handler.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 foreach (var serviceAttr in methodInfo.GetCustomAttributes<ServiceAttribute>())
                 {

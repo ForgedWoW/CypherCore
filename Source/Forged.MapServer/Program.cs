@@ -88,7 +88,6 @@ void InitializeServer()
     container.Resolve<ClassFactory>();
     var cliDB = container.Resolve<CliDB>();
     var sm = container.Resolve<ScriptManager>();
-    container.Resolve<WorldServiceManager>().LoadHandlers(container);
     var gom = container.Resolve<GameObjectManager>();
     var worldManager = container.Resolve<WorldManager>();
     worldManager.SetDBCMask(localeMask);
@@ -317,7 +316,6 @@ void RegisterManagers()
     });
     builder.RegisterType<WaypointManager>().SingleInstance().OnActivated(w => w.Instance.Load());
     builder.RegisterType<OutdoorPvPManager>().SingleInstance().OnActivated(o => o.Instance.InitOutdoorPvP());
-    builder.RegisterType<WorldServiceManager>().SingleInstance();
     builder.RegisterType<SpellManager>().SingleInstance().OnActivated(s =>
     {
         s.Instance.LoadSpellInfoStore();
@@ -449,4 +447,5 @@ void RegisterInstanced()
     builder.RegisterType<CinematicManager>();
     builder.RegisterType<ReputationMgr>();
     builder.RegisterType<SceneMgr>();
+    builder.RegisterType<WorldServiceManager>();
 }

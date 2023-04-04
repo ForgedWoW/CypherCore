@@ -187,7 +187,7 @@ public class WorldSession : IDisposable
     public RBACData RBACData { get; private set; }
     public Dictionary<uint, byte> RealmCharacterCounts { get; } = new();
     // Battlenet
-    public Array<byte> RealmListSecret { get; private set; } = new(32);
+    public Array<byte> RealmListSecret { get; set; } = new(32);
 
     public uint RecruiterId { get; }
     public string RemoteAddress { get; }
