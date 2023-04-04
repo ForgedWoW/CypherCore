@@ -4678,7 +4678,7 @@ public partial class Spell
                 return;
             }
         }
-        else if (Player.IsBankPos(pos))
+        else if (PlayerComputators.IsBankPos(pos))
         {
             List<ItemPosCount> dest = new();
             var msg = player.CanBankItem(CastItem.BagSlot, CastItem.Slot, dest, pNewItem, true);
@@ -4701,7 +4701,7 @@ public partial class Spell
                 return;
             }
         }
-        else if (Player.IsEquipmentPos(pos))
+        else if (PlayerComputators.IsEquipmentPos(pos))
         {
             player.DestroyItem(CastItem.BagSlot, CastItem.Slot, true);
 

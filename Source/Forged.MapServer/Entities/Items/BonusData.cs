@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Networking.Packets.Item;
@@ -115,6 +116,7 @@ public class BonusData
                 ItemLevelBonus += values[0];
 
                 break;
+
             case ItemBonusType.Stat:
             {
                 uint statIndex;
@@ -143,6 +145,7 @@ public class BonusData
                 }
 
                 break;
+
             case ItemBonusType.Suffix:
                 if (values[1] < _state.SuffixPriority)
                 {
@@ -151,6 +154,7 @@ public class BonusData
                 }
 
                 break;
+
             case ItemBonusType.Socket:
             {
                 var socketCount = (uint)values[0];
@@ -172,14 +176,17 @@ public class BonusData
                 }
 
                 break;
+
             case ItemBonusType.RequiredLevel:
                 RequiredLevel += values[0];
 
                 break;
+
             case ItemBonusType.RepairCostMuliplier:
                 RepairCostMultiplier *= Convert.ToSingle(values[0]) * 0.01f;
 
                 break;
+
             case ItemBonusType.ScalingStatDistribution:
             case ItemBonusType.ScalingStatDistributionFixed:
                 if (values[1] < _state.ScalingStatDistributionPriority)
@@ -191,18 +198,22 @@ public class BonusData
                 }
 
                 break;
+
             case ItemBonusType.Bounding:
                 Bonding = (ItemBondingType)values[0];
 
                 break;
+
             case ItemBonusType.RelicType:
                 RelicType = values[0];
 
                 break;
+
             case ItemBonusType.OverrideRequiredLevel:
                 RequiredLevelOverride = values[0];
 
                 break;
+
             case ItemBonusType.AzeriteTierUnlockSet:
                 if (values[1] < _state.AzeriteTierUnlockSetPriority)
                 {
@@ -211,14 +222,17 @@ public class BonusData
                 }
 
                 break;
+
             case ItemBonusType.OverrideCanDisenchant:
                 CanDisenchant = values[0] != 0;
 
                 break;
+
             case ItemBonusType.OverrideCanScrap:
                 CanScrap = values[0] != 0;
 
                 break;
+
             case ItemBonusType.ItemEffectId:
                 var itemEffect = CliDB.ItemEffectStorage.LookupByKey(values[0]);
 
@@ -226,6 +240,7 @@ public class BonusData
                     Effects[EffectCount++] = itemEffect;
 
                 break;
+
             case ItemBonusType.RequiredLevelCurve:
                 if (values[2] < _state.RequiredLevelCurvePriority)
                 {
@@ -248,6 +263,7 @@ public class BonusData
             foreach (var bonus in bonuses)
                 AddBonus(bonus.BonusType, bonus.Value);
     }
+
     private struct State
     {
         public int AppearanceModPriority;

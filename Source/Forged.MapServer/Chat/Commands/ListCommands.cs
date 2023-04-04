@@ -142,13 +142,13 @@ internal class ListCommands
 
                 string itemPos;
 
-                if (Player.IsEquipmentPos((byte)itemBag, itemSlot))
+                if (PlayerComputators.IsEquipmentPos((byte)itemBag, itemSlot))
                     itemPos = "[equipped]";
-                else if (Player.IsInventoryPos((byte)itemBag, itemSlot))
+                else if (PlayerComputators.IsInventoryPos((byte)itemBag, itemSlot))
                     itemPos = "[in inventory]";
-                else if (Player.IsReagentBankPos((byte)itemBag, itemSlot))
+                else if (PlayerComputators.IsReagentBankPos((byte)itemBag, itemSlot))
                     itemPos = "[in reagent bank]";
-                else if (Player.IsBankPos((byte)itemBag, itemSlot))
+                else if (PlayerComputators.IsBankPos((byte)itemBag, itemSlot))
                     itemPos = "[in bank]";
                 else
                     itemPos = "";

@@ -1343,7 +1343,7 @@ public class WorldManager
         if (_timers[WorldTimers.DeleteChars].Passed)
         {
             _timers[WorldTimers.DeleteChars].Reset();
-            _taskManager.Schedule(Player.DeleteOldCharacters);
+            _taskManager.Schedule(PlayerComputators.DeleteOldCharacters);
         }
 
         _taskManager.Schedule(() => Global.LFGMgr.Update(diff));

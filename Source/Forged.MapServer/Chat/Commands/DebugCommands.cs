@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
@@ -265,14 +266,17 @@ internal class DebugCommands
                         st = "unchanged";
 
                         break;
+
                     case ItemUpdateState.Changed:
                         st = "changed";
 
                         break;
+
                     case ItemUpdateState.New:
                         st = "new";
 
                         break;
+
                     case ItemUpdateState.Removed:
                         st = "removed";
 
@@ -726,6 +730,7 @@ internal class DebugCommands
 
         return true;
     }
+
     [Command("los", RBACPermissions.CommandDebug)]
     private static bool HandleDebugLoSCommand(CommandHandler handler)
     {
@@ -1246,14 +1251,14 @@ internal class DebugCommands
     {
         /*if (checkIds.Empty())
             return false;
-      
+
         Warden  warden = handler.GetSession().GetWarden();
         if (warden == null)
         {
             handler.SendSysMessage("Warden system is not enabled");
             return true;
         }
-      
+
         size_t const nQueued = warden->DEBUG_ForceSpecificChecks(checkIds);
         handler->PSendSysMessage("%zu/%zu checks queued for your Warden, they should be sent over the next few minutes (depending on settings)", nQueued, checkIds.size());*/
         return true;
@@ -1273,18 +1278,22 @@ internal class DebugCommands
                 Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue.GetValueOrDefault(0));
 
                 break;
+
             case "horde":
                 Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue.GetValueOrDefault(0));
 
                 break;
+
             case "neutral":
                 Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
 
                 break;
+
             case "off":
                 Global.WorldMgr.DisableForcedWarModeFactionBalanceState();
 
                 break;
+
             default:
                 handler.SendSysMessage(CypherStrings.BadValue);
 
@@ -1293,6 +1302,7 @@ internal class DebugCommands
 
         return true;
     }
+
     [Command("wsexpression", RBACPermissions.CommandDebug)]
     private static bool HandleDebugWSExpressionCommand(CommandHandler handler, uint expressionId)
     {
@@ -1329,6 +1339,7 @@ internal class DebugCommands
 
         return true;
     }
+
     [CommandGroup("asan")]
     private class DebugAsanCommands
     {
@@ -1465,18 +1476,22 @@ internal class DebugCommands
                     handler.SendSysMessage(CypherStrings.BadValue);
 
                     return false;
+
                 case "alliance":
                     Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue);
 
                     break;
+
                 case "horde":
                     Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue);
 
                     break;
+
                 case "neutral":
                     Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
 
                     break;
+
                 case "off":
                     Global.WorldMgr.DisableForcedWarModeFactionBalanceState();
 
@@ -1575,6 +1590,7 @@ internal class DebugCommands
 
             return true;
         }
+
         [Command("sellerror", RBACPermissions.CommandDebug)]
         private static bool HandleDebugSendSellErrorCommand(CommandHandler handler, SellResult error)
         {
@@ -1628,14 +1644,14 @@ internal class DebugCommands
         {
             /*if (checkIds.Empty())
                 return false;
-         
+
             Warden  warden = handler.GetSession().GetWarden();
             if (warden == null)
             {
                 handler.SendSysMessage("Warden system is not enabled");
                 return true;
             }
-         
+
             size_t const nQueued = warden->DEBUG_ForceSpecificChecks(checkIds);
             handler->PSendSysMessage("%zu/%zu checks queued for your Warden, they should be sent over the next few minutes (depending on settings)", nQueued, checkIds.size());*/
             return true;

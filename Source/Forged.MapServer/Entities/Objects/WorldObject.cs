@@ -161,13 +161,13 @@ public abstract class WorldObject : IDisposable
         }
     }
 
-    public ObjectGuid GUID { get; private set; }
+    public ObjectGuid GUID { get; protected set; }
     public uint InstanceId { get; set; }
-    public bool IsActive { get; private set; }
+    public bool IsActive { get; protected set; }
     public bool IsAreaTrigger => ObjectTypeId == TypeId.AreaTrigger;
     public bool IsCorpse => ObjectTypeId == TypeId.Corpse;
     public bool IsCreature => ObjectTypeId == TypeId.Unit;
-    public bool IsDestroyedObject { get; private set; }
+    public bool IsDestroyedObject { get; protected set; }
     public bool IsDynObject => ObjectTypeId == TypeId.DynamicObject;
     public bool IsGameObject => ObjectTypeId == TypeId.GameObject;
 

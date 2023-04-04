@@ -152,7 +152,7 @@ public class ItemHandler : IWorldSessionHandler
                     if (msg != InventoryResult.Ok)
                         msg = pl.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, sSrc, dstItem, true);
                 }
-                else if (Player.IsBankPos(src))
+                else if (PlayerComputators.IsBankPos(src))
                 {
                     msg = pl.CanBankItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
 
@@ -162,7 +162,7 @@ public class ItemHandler : IWorldSessionHandler
                     if (msg != InventoryResult.Ok)
                         msg = pl.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, sSrc, dstItem, true);
                 }
-                else if (Player.IsEquipmentPos(src))
+                else if (PlayerComputators.IsEquipmentPos(src))
                 {
                     msg = pl.CanEquipItem(autoEquipItem.Slot, out eSrc, dstItem, true);
 
@@ -170,7 +170,7 @@ public class ItemHandler : IWorldSessionHandler
                         msg = pl.CanUnequipItem(eSrc, true);
                 }
 
-                if (msg == InventoryResult.Ok && Player.IsEquipmentPos(dest) && !srcItem.ChildItem.IsEmpty)
+                if (msg == InventoryResult.Ok && PlayerComputators.IsEquipmentPos(dest) && !srcItem.ChildItem.IsEmpty)
                     msg = _player.CanEquipChildItem(srcItem);
 
                 if (msg != InventoryResult.Ok)
@@ -190,12 +190,12 @@ public class ItemHandler : IWorldSessionHandler
                 // add to src
                 if (pl.IsInventoryPos(src))
                     pl.StoreItem(sSrc, dstItem, true);
-                else if (Player.IsBankPos(src))
+                else if (PlayerComputators.IsBankPos(src))
                     pl.BankItem(sSrc, dstItem, true);
-                else if (Player.IsEquipmentPos(src))
+                else if (PlayerComputators.IsEquipmentPos(src))
                     pl.EquipItem(eSrc, dstItem, true);
 
-                if (Player.IsEquipmentPos(dest) && !srcItem.ChildItem.IsEmpty)
+                if (PlayerComputators.IsEquipmentPos(dest) && !srcItem.ChildItem.IsEmpty)
                     _player.EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
             }
             else
@@ -203,7 +203,7 @@ public class ItemHandler : IWorldSessionHandler
                 var parentItem = _player.GetItemByGuid(dstItem.Creator);
 
                 if (parentItem)
-                    if (Player.IsEquipmentPos(dest))
+                    if (PlayerComputators.IsEquipmentPos(dest))
                     {
                         _player.AutoUnequipChildItem(parentItem);
                         // dest is now empty
@@ -226,7 +226,7 @@ public class ItemHandler : IWorldSessionHandler
     private void HandleAutoEquipItemSlot(AutoEquipItemSlot packet)
     {
         // cheating attempt, client should never send opcode in that case
-        if (packet.Inv.Items.Count != 1 || !Player.IsEquipmentPos(InventorySlots.Bag0, packet.ItemDstSlot))
+        if (packet.Inv.Items.Count != 1 || !PlayerComputators.IsEquipmentPos(InventorySlots.Bag0, packet.ItemDstSlot))
             return;
 
         var item = Player.GetItemByGuid(packet.Item);
@@ -265,9 +265,9 @@ public class ItemHandler : IWorldSessionHandler
         InventoryResult msg;
 
         // check unequip potability for equipped items and bank bags
-        if (Player.IsEquipmentPos(src) || Player.IsBagPos(src))
+        if (PlayerComputators.IsEquipmentPos(src) || PlayerComputators.IsBagPos(src))
         {
-            msg = Player.CanUnequipItem(src, !Player.IsBagPos(src));
+            msg = Player.CanUnequipItem(src, !PlayerComputators.IsBagPos(src));
 
             if (msg != InventoryResult.Ok)
             {
@@ -392,7 +392,7 @@ public class ItemHandler : IWorldSessionHandler
     private void HandleCancelTempEnchantment(CancelTempEnchantment packet)
     {
         // apply only to equipped item
-        if (!Player.IsEquipmentPos(InventorySlots.Bag0, (byte)packet.Slot))
+        if (!PlayerComputators.IsEquipmentPos(InventorySlots.Bag0, (byte)packet.Slot))
             return;
 
         var item = Player.GetItemByPos(InventorySlots.Bag0, (byte)packet.Slot);
@@ -413,7 +413,7 @@ public class ItemHandler : IWorldSessionHandler
         var pos = (ushort)((destroyItem.ContainerId << 8) | destroyItem.SlotNum);
 
         // prevent drop unequipable items (in combat, for example) and non-empty bags
-        if (Player.IsEquipmentPos(pos) || Player.IsBagPos(pos))
+        if (PlayerComputators.IsEquipmentPos(pos) || PlayerComputators.IsBagPos(pos))
         {
             var msg = _player.CanUnequipItem(pos, false);
 
@@ -999,14 +999,14 @@ public class ItemHandler : IWorldSessionHandler
             return;
         }
 
-        if (Player.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot1) && !CanUseBank())
+        if (PlayerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot1) && !CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
             return;
         }
 
-        if (Player.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot2) && !CanUseBank())
+        if (PlayerComputators.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot2) && !CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
@@ -1052,14 +1052,14 @@ public class ItemHandler : IWorldSessionHandler
         }
 
 
-        if (Player.IsBankPos(swapItem.ContainerSlotA, swapItem.SlotA) && !CanUseBank())
+        if (PlayerComputators.IsBankPos(swapItem.ContainerSlotA, swapItem.SlotA) && !CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
             return;
         }
 
-        if (Player.IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && !CanUseBank())
+        if (PlayerComputators.IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && !CanUseBank())
         {
             Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 

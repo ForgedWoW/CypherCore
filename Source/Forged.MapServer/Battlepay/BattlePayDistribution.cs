@@ -6,12 +6,13 @@ namespace Forged.MapServer.Battlepay;
 public enum BattlePayDistribution
 {
     // character boost
-    CHARACTER_BOOST = 2,
-    CHARACTER_BOOST_ALLOW = 1,
-    CHARACTER_BOOST_CHOOSED = 2,
-    CHARACTER_BOOST_ITEMS = 3,
-    CHARACTER_BOOST_APPLIED = 4,
-    CHARACTER_BOOST_TEXT_ID = 88,
-    CHARACTER_BOOST_SPEC_MASK = 0xFFF,
-    CHARACTER_BOOST_FACTION_ALLIANCE = 0x1000000
+    CharacterBoost = 2,
+
+    CharacterBoostAllow = 1,
+    CharacterBoostChoosed = 2,
+    CharacterBoostItems = 3,
+    CharacterBoostApplied = 4,
+    CharacterBoostTextID = 88,
+    CharacterBoostSpecMask = 0xFFF,
+    CharacterBoostFactionAlliance = 0x1000000
 }

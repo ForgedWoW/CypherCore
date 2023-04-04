@@ -22,8 +22,8 @@ public class PlayerData : BaseUpdateData<Player>
     public UpdateField<uint> DuelTeam = new(0, 20);
     public UpdateField<DungeonScoreSummary> DungeonScore = new(32, 36);
     public UpdateField<int> FakeInebriation = new(0, 23);
-    public UpdateField<int> Field_B0 = new(0, 30);
-    public UpdateField<int> Field_B4 = new(0, 31);
+    public UpdateField<int> FieldB0 = new(0, 30);
+    public UpdateField<int> FieldB4 = new(0, 31);
     public UpdateField<uint> GuildDeleteDate = new(0, 13);
     public UpdateField<uint> GuildLevel = new(0, 14);
     public UpdateField<uint> GuildRankID = new(0, 12);
@@ -48,7 +48,10 @@ public class PlayerData : BaseUpdateData<Player>
     public UpdateFieldArray<VisibleItem> VisibleItems = new(19, 163, 164);
     public DynamicUpdateField<int> VisualItemReplacements = new(0, 6);
     public UpdateField<ObjectGuid> WowAccount = new(0, 8);
-    public PlayerData() : base(0, TypeId.Player, 190) { }
+
+    public PlayerData() : base(0, TypeId.Player, 190)
+    {
+    }
 
     public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
     {
@@ -91,8 +94,8 @@ public class PlayerData : BaseUpdateData<Player>
         ClearChangesMask(CurrentBattlePetBreedQuality);
         ClearChangesMask(HonorLevel);
         ClearChangesMask(LogoutTime);
-        ClearChangesMask(Field_B0);
-        ClearChangesMask(Field_B4);
+        ClearChangesMask(FieldB0);
+        ClearChangesMask(FieldB4);
         ClearChangesMask(CtrOptions);
         ClearChangesMask(CovenantID);
         ClearChangesMask(SoulbindID);
@@ -158,8 +161,8 @@ public class PlayerData : BaseUpdateData<Player>
         data.WriteUInt32(HonorLevel);
         data.WriteInt64(LogoutTime);
         data.WriteInt32(ArenaCooldowns.Size());
-        data.WriteInt32(Field_B0);
-        data.WriteInt32(Field_B4);
+        data.WriteInt32(FieldB0);
+        data.WriteInt32(FieldB4);
         ((CTROptions)CtrOptions).WriteCreate(data, owner, receiver);
         data.WriteInt32(CovenantID);
         data.WriteInt32(SoulbindID);
@@ -197,6 +200,7 @@ public class PlayerData : BaseUpdateData<Player>
         AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
         WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
     }
+
     public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Player owner, Player receiver)
     {
         data.WriteBits(changesMask.GetBlocksMask(0), 6);
@@ -347,10 +351,10 @@ public class PlayerData : BaseUpdateData<Player>
                 data.WriteInt64(LogoutTime);
 
             if (changesMask[30])
-                data.WriteInt32(Field_B0);
+                data.WriteInt32(FieldB0);
 
             if (changesMask[31])
-                data.WriteInt32(Field_B4);
+                data.WriteInt32(FieldB4);
         }
 
         if (changesMask[32])
@@ -390,6 +394,7 @@ public class PlayerData : BaseUpdateData<Player>
 
         data.FlushBits();
     }
+
     private bool IsQuestLogChangesMaskSkipped()
     {
         return false;

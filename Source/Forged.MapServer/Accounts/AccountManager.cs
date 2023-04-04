@@ -215,7 +215,7 @@ public sealed class AccountManager
                     s.LogoutPlayer(false);                                          // logout player without waiting next session list update
                 }
 
-                Player.DeleteFromDB(guid, accountId, false); // no need to update realm characters
+                PlayerComputators.DeleteFromDB(guid, accountId, false); // no need to update realm characters
             } while (result.NextRow());
 
         // table realm specific but common for all characters of account for realm

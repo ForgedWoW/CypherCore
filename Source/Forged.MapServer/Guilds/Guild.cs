@@ -89,7 +89,7 @@ public class Guild
 
         // Remove all player signs from another petitions
         // This will be prevent attempt to join many guilds and corrupt guild data integrity
-        Player.RemovePetitionsAndSigns(guid);
+        PlayerComputators.RemovePetitionsAndSigns(guid);
 
         var lowguid = guid.Counter;
 
@@ -3946,7 +3946,7 @@ public class Guild
             if (m_zoneId == 0)
             {
                 Log.Logger.Error("Player ({0}) has broken zone-data", m_guid.ToString());
-                m_zoneId = Player.GetZoneIdFromDB(m_guid);
+                m_zoneId = PlayerComputators.GetZoneIdFromDB(m_guid);
             }
 
             ResetFlags();

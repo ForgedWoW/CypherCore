@@ -2044,7 +2044,7 @@ public class AuraEffect
 
             if (item != null)
             {
-                var attackType = Player.GetAttackBySlot(slot, item.Template.InventoryType);
+                var attackType = PlayerComputators.GetAttackBySlot(slot, item.Template.InventoryType);
 
                 player.ApplyItemDependentAuras(item, !apply);
 

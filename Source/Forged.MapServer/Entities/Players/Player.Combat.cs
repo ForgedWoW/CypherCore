@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -21,7 +22,7 @@ public partial class Player
     public void _ApplyWeaponDamage(byte slot, Item item, bool apply)
     {
         var proto = item.Template;
-        var attType = GetAttackBySlot(slot, proto.InventoryType);
+        var attType = Players.PlayerComputators.GetAttackBySlot(slot, proto.InventoryType);
 
         if (!IsInFeralForm && apply && !CanUseAttackType(attType))
             return;
@@ -42,7 +43,7 @@ public partial class Player
             SetBaseWeaponDamage(attType, WeaponDamageRange.MaxDamage, damage);
         }
 
-        var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
+        var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)ShapeshiftForm);
 
         if (proto.Delay != 0 && !(shapeshift != null && shapeshift.CombatRoundTime != 0))
             SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
@@ -55,10 +56,12 @@ public partial class Player
                 SetMainHandWeaponAttackPower(weaponBasedAttackPower);
 
                 break;
+
             case WeaponAttackType.OffAttack:
                 SetOffHandWeaponAttackPower(weaponBasedAttackPower);
 
                 break;
+
             case WeaponAttackType.RangedAttack:
                 SetRangedWeaponAttackPower(weaponBasedAttackPower);
 
@@ -161,6 +164,7 @@ public partial class Player
                 }
 
                 break;
+
             case DuelCompleteType.Won:
                 UpdateCriteria(CriteriaType.LoseDuel, 1);
                 opponent.UpdateCriteria(CriteriaType.WinDuel, 1);
@@ -230,8 +234,10 @@ public partial class Player
         {
             case WeaponAttackType.BaseAttack:
                 return baseExpertise + ActivePlayerData.MainhandExpertise / 4.0f;
+
             case WeaponAttackType.OffAttack:
                 return baseExpertise + ActivePlayerData.OffhandExpertise / 4.0f;
+
             default:
                 break;
         }
@@ -305,6 +311,7 @@ public partial class Player
         else
             KilledMonsterCredit(creatureID, creatureGUID);
     }
+
     // duel health and mana reset methods
     public void SaveHealthBeforeDuel()
     {
@@ -326,6 +333,7 @@ public partial class Player
 
         SendPacket(packet);
     }
+
     public void SetCanBlock(bool value)
     {
         if (CanBlock == value)
@@ -352,6 +360,7 @@ public partial class Player
         _canTitanGrip = value;
         _titanGripPenaltySpellId = penaltySpellId;
     }
+
     public void SetContestedPvP(Player attackedPlayer = null)
     {
         if (attackedPlayer != null && (attackedPlayer == this || (Duel != null && Duel.Opponent == attackedPlayer)))
@@ -403,6 +412,7 @@ public partial class Player
         else
             _extraFlags &= ~PlayerExtraFlags.PVPDeath;
     }
+
     public void UpdateContestedPvP(uint diff)
     {
         if (_contestedPvPTimer == 0 || IsInCombat)
@@ -444,6 +454,7 @@ public partial class Player
 
         UpdatePvP(false);
     }
+
     public void UpdatePvPState(bool onlyFfa = false)
     {
         // @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
@@ -480,6 +491,7 @@ public partial class Player
                 PvpInfo.EndTimer = GameTime.CurrentTime; // start toggle-off
         }
     }
+
     private double ApplyRatingDiminishing(CombatRating cr, double bonusValue)
     {
         uint diminishingCurveId = 0;
@@ -490,47 +502,57 @@ public partial class Player
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.DodgeDiminishing);
 
                 break;
+
             case CombatRating.Parry:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.ParryDiminishing);
 
                 break;
+
             case CombatRating.Block:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.BlockDiminishing);
 
                 break;
+
             case CombatRating.CritMelee:
             case CombatRating.CritRanged:
             case CombatRating.CritSpell:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.CritDiminishing);
 
                 break;
+
             case CombatRating.Speed:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.SpeedDiminishing);
 
                 break;
+
             case CombatRating.Lifesteal:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.LifestealDiminishing);
 
                 break;
+
             case CombatRating.HasteMelee:
             case CombatRating.HasteRanged:
             case CombatRating.HasteSpell:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.HasteDiminishing);
 
                 break;
+
             case CombatRating.Avoidance:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.AvoidanceDiminishing);
 
                 break;
+
             case CombatRating.Mastery:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.MasteryDiminishing);
 
                 break;
+
             case CombatRating.VersatilityDamageDone:
             case CombatRating.VersatilityHealingDone:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.VersatilityDoneDiminishing);
 
                 break;
+
             case CombatRating.VersatilityDamageTaken:
                 diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.VersatilityTakenDiminishing);
 
@@ -631,22 +653,22 @@ public partial class Player
             0.0f,           // ??
             2.00f/1.15f     // Druid
         };
-      
+
         uint level = getLevel();
         uint pclass = (uint)GetClass();
-      
+
         if (level > CliDB.GtChanceToMeleeCritStorage.GetTableRowCount())
             level = CliDB.GtChanceToMeleeCritStorage.GetTableRowCount() - 1;
-      
+
         // Dodge per agility is proportional to crit per agility, which is available from DBC files
         var dodgeRatio = CliDB.GtChanceToMeleeCritStorage.EvaluateTable(level - 1, pclass - 1);
         if (dodgeRatio == null || pclass > (int)Class.Max)
             return;
-      
+
         // @todo research if talents/effects that increase total agility by x% should increase non-diminishing part
         float base_agility = GetCreateStat(Stats.Agility) * GetPctModifierValue(UnitMods(UNIT_MOD_STAT_START + STAT_AGILITY), BASE_PCT);
         float bonus_agility = GetStat(Stats.Agility) - base_agility;
-      
+
         // calculate diminishing (green in char screen) and non-diminishing (white) contribution
         diminishing = 100.0f * bonus_agility * dodgeRatio.Value * crit_to_dodge[(int)pclass - 1];
         nondiminishing = 100.0f * (dodge_base[(int)pclass - 1] + base_agility * dodgeRatio.Value * crit_to_dodge[pclass - 1]);
@@ -731,6 +753,7 @@ public partial class Player
             }
         }
     }
+
     private void UpdateAfkReport(long currTime)
     {
         if (_bgData.BgAfkReportedTimer <= currTime)

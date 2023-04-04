@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities;
@@ -141,7 +142,7 @@ internal class MiscCommands
             handler.SendSysMessage(CypherStrings.AppearingAt, nameLink);
 
             // to point where player stay (if loaded)
-            if (!Player.LoadPositionFromDB(out var loc, out _, targetGuid))
+            if (!PlayerComputators.LoadPositionFromDB(out var loc, out _, targetGuid))
                 return false;
 
             // stop flight if need
@@ -656,6 +657,7 @@ internal class MiscCommands
 
         return true;
     }
+
     [CommandNonGroup("gps", RBACPermissions.CommandGps)]
     private static bool HandleGPSCommand(CommandHandler handler, StringArguments args)
     {
@@ -719,7 +721,7 @@ internal class MiscCommands
 
         var cellCoord = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
         Cell cell = new(cellCoord);
-        
+
         var mapId = obj.Location.MapId;
 
         var mapEntry = CliDB.MapStorage.LookupByKey(mapId);
@@ -1062,18 +1064,22 @@ internal class MiscCommands
                     handler.SendSysMessage(CypherStrings.MovegensIdle);
 
                     break;
+
                 case MovementGeneratorType.Random:
                     handler.SendSysMessage(CypherStrings.MovegensRandom);
 
                     break;
+
                 case MovementGeneratorType.Waypoint:
                     handler.SendSysMessage(CypherStrings.MovegensWaypoint);
 
                     break;
+
                 case MovementGeneratorType.Confused:
                     handler.SendSysMessage(CypherStrings.MovegensConfused);
 
                     break;
+
                 case MovementGeneratorType.Chase:
                     if (info.TargetGUID.IsEmpty)
                         handler.SendSysMessage(CypherStrings.MovegensChaseNull);
@@ -1083,6 +1089,7 @@ internal class MiscCommands
                         handler.SendSysMessage(CypherStrings.MovegensChaseCreature, info.TargetName, info.TargetGUID.ToString());
 
                     break;
+
                 case MovementGeneratorType.Follow:
                     if (info.TargetGUID.IsEmpty)
                         handler.SendSysMessage(CypherStrings.MovegensFollowNull);
@@ -1092,6 +1099,7 @@ internal class MiscCommands
                         handler.SendSysMessage(CypherStrings.MovegensFollowCreature, info.TargetName, info.TargetGUID.ToString());
 
                     break;
+
                 case MovementGeneratorType.Home:
                     if (unit.IsTypeId(TypeId.Unit))
                         handler.SendSysMessage(CypherStrings.MovegensHomeCreature, x, y, z);
@@ -1099,26 +1107,32 @@ internal class MiscCommands
                         handler.SendSysMessage(CypherStrings.MovegensHomePlayer);
 
                     break;
+
                 case MovementGeneratorType.Flight:
                     handler.SendSysMessage(CypherStrings.MovegensFlight);
 
                     break;
+
                 case MovementGeneratorType.Point:
                     handler.SendSysMessage(CypherStrings.MovegensPoint, x, y, z);
 
                     break;
+
                 case MovementGeneratorType.Fleeing:
                     handler.SendSysMessage(CypherStrings.MovegensFear);
 
                     break;
+
                 case MovementGeneratorType.Distract:
                     handler.SendSysMessage(CypherStrings.MovegensDistract);
 
                     break;
+
                 case MovementGeneratorType.Effect:
                     handler.SendSysMessage(CypherStrings.MovegensEffect);
 
                     break;
+
                 default:
                     handler.SendSysMessage(CypherStrings.MovegensUnknown, info.Type);
 
@@ -1854,7 +1868,7 @@ internal class MiscCommands
         }
         else
         {
-            Player.OfflineResurrect(targetGuid, null);
+            PlayerComputators.OfflineResurrect(targetGuid, null);
         }
 
         return true;
@@ -2058,7 +2072,7 @@ internal class MiscCommands
             handler.SendSysMessage(CypherStrings.Summoning, nameLink, handler.GetCypherString(CypherStrings.Offline));
 
             // in point where GM stay
-            Player.SavePositionInDB(new WorldLocation(_player.Location.MapId, _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.Location.Zone, targetGuid);
+            PlayerComputators.SavePositionInDB(new WorldLocation(_player.Location.MapId, _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.Location.Zone, targetGuid);
         }
 
         return true;
@@ -2120,7 +2134,7 @@ internal class MiscCommands
                     return true;
                 }
 
-                // If player found: delete his freeze aura    
+                // If player found: delete his freeze aura
                 var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_FROZEN);
                 stmt.AddValue(0, guid.Counter);
                 DB.Characters.Execute(stmt);
@@ -2242,7 +2256,7 @@ internal class MiscCommands
 
             if (!result.IsEmpty())
             {
-                Player.SavePositionInDB(new WorldLocation(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4)), result.Read<ushort>(1), targetGUID);
+                PlayerComputators.SavePositionInDB(new WorldLocation(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4)), result.Read<ushort>(1), targetGUID);
 
                 return true;
             }

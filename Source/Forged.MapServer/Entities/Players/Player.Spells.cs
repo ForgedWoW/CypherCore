@@ -97,6 +97,7 @@ public partial class Player
                 }
 
                 break;
+
             case SpellModType.LabelFlat:
                 if (apply)
                 {
@@ -111,6 +112,7 @@ public partial class Player
                 }
 
                 break;
+
             case SpellModType.LabelPct:
                 if (apply)
                 {
@@ -222,18 +224,21 @@ public partial class Player
                 {
                     case ItemEnchantmentType.None:
                         break;
+
                     case ItemEnchantmentType.CombatSpell:
                         // processed in Player.CastItemCombatSpell
                         break;
+
                     case ItemEnchantmentType.Damage:
                     {
-                        var attackType = GetAttackBySlot(item.Slot, item.Template.InventoryType);
+                        var attackType = Players.PlayerComputators.GetAttackBySlot(item.Slot, item.Template.InventoryType);
 
                         if (attackType != WeaponAttackType.Max)
                             UpdateDamageDoneMods(attackType, apply ? -1 : (int)slot);
                     }
 
                     break;
+
                     case ItemEnchantmentType.EquipSpell:
                         if (enchantSpellID != 0)
                         {
@@ -244,6 +249,7 @@ public partial class Player
                         }
 
                         break;
+
                     case ItemEnchantmentType.Resistance:
                         if (pEnchant.ScalingClass != 0)
                         {
@@ -271,6 +277,7 @@ public partial class Player
                         HandleStatFlatModifier((UnitMods)((uint)UnitMods.ResistanceStart + enchantSpellID), UnitModifierFlatType.Total, enchantAmount, apply);
 
                         break;
+
                     case ItemEnchantmentType.Stat:
                     {
                         if (pEnchant.ScalingClass != 0)
@@ -306,23 +313,27 @@ public partial class Player
                                 HandleStatFlatModifier(UnitMods.Mana, UnitModifierFlatType.Base, enchantAmount, apply);
 
                                 break;
+
                             case ItemModType.Health:
                                 Log.Logger.Debug("+ {0} HEALTH", enchantAmount);
                                 HandleStatFlatModifier(UnitMods.Health, UnitModifierFlatType.Base, enchantAmount, apply);
 
                                 break;
+
                             case ItemModType.Agility:
                                 Log.Logger.Debug("+ {0} AGILITY", enchantAmount);
                                 HandleStatFlatModifier(UnitMods.StatAgility, UnitModifierFlatType.Total, enchantAmount, apply);
                                 UpdateStatBuffMod(Stats.Agility);
 
                                 break;
+
                             case ItemModType.Strength:
                                 Log.Logger.Debug("+ {0} STRENGTH", enchantAmount);
                                 HandleStatFlatModifier(UnitMods.StatStrength, UnitModifierFlatType.Total, enchantAmount, apply);
                                 UpdateStatBuffMod(Stats.Strength);
 
                                 break;
+
                             case ItemModType.Intellect:
                                 Log.Logger.Debug("+ {0} INTELLECT", enchantAmount);
                                 HandleStatFlatModifier(UnitMods.StatIntellect, UnitModifierFlatType.Total, enchantAmount, apply);
@@ -340,60 +351,72 @@ public partial class Player
                                 UpdateStatBuffMod(Stats.Stamina);
 
                                 break;
+
                             case ItemModType.DefenseSkillRating:
                                 ApplyRatingMod(CombatRating.DefenseSkill, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} DEFENSE", enchantAmount);
 
                                 break;
+
                             case ItemModType.DodgeRating:
                                 ApplyRatingMod(CombatRating.Dodge, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} DODGE", enchantAmount);
 
                                 break;
+
                             case ItemModType.ParryRating:
                                 ApplyRatingMod(CombatRating.Parry, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} PARRY", enchantAmount);
 
                                 break;
+
                             case ItemModType.BlockRating:
                                 ApplyRatingMod(CombatRating.Block, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} SHIELD_BLOCK", enchantAmount);
 
                                 break;
+
                             case ItemModType.HitMeleeRating:
                                 ApplyRatingMod(CombatRating.HitMelee, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} MELEE_HIT", enchantAmount);
 
                                 break;
+
                             case ItemModType.HitRangedRating:
                                 ApplyRatingMod(CombatRating.HitRanged, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} RANGED_HIT", enchantAmount);
 
                                 break;
+
                             case ItemModType.HitSpellRating:
                                 ApplyRatingMod(CombatRating.HitSpell, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} SPELL_HIT", enchantAmount);
 
                                 break;
+
                             case ItemModType.CritMeleeRating:
                                 ApplyRatingMod(CombatRating.CritMelee, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} MELEE_CRIT", enchantAmount);
 
                                 break;
+
                             case ItemModType.CritRangedRating:
                                 ApplyRatingMod(CombatRating.CritRanged, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} RANGED_CRIT", enchantAmount);
 
                                 break;
+
                             case ItemModType.CritSpellRating:
                                 ApplyRatingMod(CombatRating.CritSpell, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} SPELL_CRIT", enchantAmount);
 
                                 break;
+
                             case ItemModType.HasteSpellRating:
                                 ApplyRatingMod(CombatRating.HasteSpell, (int)enchantAmount, apply);
 
                                 break;
+
                             case ItemModType.HitRating:
                                 ApplyRatingMod(CombatRating.HitMelee, (int)enchantAmount, apply);
                                 ApplyRatingMod(CombatRating.HitRanged, (int)enchantAmount, apply);
@@ -401,6 +424,7 @@ public partial class Player
                                 Log.Logger.Debug("+ {0} HIT", enchantAmount);
 
                                 break;
+
                             case ItemModType.CritRating:
                                 ApplyRatingMod(CombatRating.CritMelee, (int)enchantAmount, apply);
                                 ApplyRatingMod(CombatRating.CritRanged, (int)enchantAmount, apply);
@@ -408,11 +432,13 @@ public partial class Player
                                 Log.Logger.Debug("+ {0} CRITICAL", enchantAmount);
 
                                 break;
+
                             case ItemModType.ResilienceRating:
                                 ApplyRatingMod(CombatRating.ResiliencePlayerDamage, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} RESILIENCE", enchantAmount);
 
                                 break;
+
                             case ItemModType.HasteRating:
                                 ApplyRatingMod(CombatRating.HasteMelee, (int)enchantAmount, apply);
                                 ApplyRatingMod(CombatRating.HasteRanged, (int)enchantAmount, apply);
@@ -420,57 +446,68 @@ public partial class Player
                                 Log.Logger.Debug("+ {0} HASTE", enchantAmount);
 
                                 break;
+
                             case ItemModType.ExpertiseRating:
                                 ApplyRatingMod(CombatRating.Expertise, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} EXPERTISE", enchantAmount);
 
                                 break;
+
                             case ItemModType.AttackPower:
                                 HandleStatFlatModifier(UnitMods.AttackPower, UnitModifierFlatType.Total, enchantAmount, apply);
                                 HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} ATTACK_POWER", enchantAmount);
 
                                 break;
+
                             case ItemModType.RangedAttackPower:
                                 HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} RANGED_ATTACK_POWER", enchantAmount);
 
                                 break;
+
                             case ItemModType.ManaRegeneration:
                                 ApplyManaRegenBonus((int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} MANA_REGENERATION", enchantAmount);
 
                                 break;
+
                             case ItemModType.ArmorPenetrationRating:
                                 ApplyRatingMod(CombatRating.ArmorPenetration, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} ARMOR PENETRATION", enchantAmount);
 
                                 break;
+
                             case ItemModType.SpellPower:
                                 ApplySpellPowerBonus((int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} SPELL_POWER", enchantAmount);
 
                                 break;
+
                             case ItemModType.HealthRegen:
                                 ApplyHealthRegenBonus((int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} HEALTH_REGENERATION", enchantAmount);
 
                                 break;
+
                             case ItemModType.SpellPenetration:
                                 ApplySpellPenetrationBonus((int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} SPELL_PENETRATION", enchantAmount);
 
                                 break;
+
                             case ItemModType.BlockValue:
                                 HandleBaseModFlatValue(BaseModGroup.ShieldBlockValue, enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} BLOCK_VALUE", enchantAmount);
 
                                 break;
+
                             case ItemModType.MasteryRating:
                                 ApplyRatingMod(CombatRating.Mastery, (int)enchantAmount, apply);
                                 Log.Logger.Debug("+ {0} MASTERY", enchantAmount);
 
                                 break;
+
                             case ItemModType.Versatility:
                                 ApplyRatingMod(CombatRating.VersatilityDamageDone, (int)enchantAmount, apply);
                                 ApplyRatingMod(CombatRating.VersatilityHealingDone, (int)enchantAmount, apply);
@@ -478,6 +515,7 @@ public partial class Player
                                 Log.Logger.Debug("+ {0} VERSATILITY", enchantAmount);
 
                                 break;
+
                             default:
                                 break;
                         }
@@ -486,7 +524,7 @@ public partial class Player
                     }
                     case ItemEnchantmentType.Totem: // Shaman Rockbiter Weapon
                     {
-                        var attackType = GetAttackBySlot(item.Slot, item.Template.InventoryType);
+                        var attackType = Players.PlayerComputators.GetAttackBySlot(item.Slot, item.Template.InventoryType);
 
                         if (attackType != WeaponAttackType.Max)
                             UpdateDamageDoneMods(attackType, apply ? -1 : (int)slot);
@@ -496,6 +534,7 @@ public partial class Player
                     case ItemEnchantmentType.UseSpell:
                         // processed in Player.CastItemUseSpell
                         break;
+
                     case ItemEnchantmentType.PrismaticSocket:
                     case ItemEnchantmentType.ArtifactPowerBonusRankByType:
                     case ItemEnchantmentType.ArtifactPowerBonusRankByID:
@@ -504,6 +543,7 @@ public partial class Player
                     case ItemEnchantmentType.ArtifactPowerBonusRankPicker:
                         // nothing do..
                         break;
+
                     default:
                         Log.Logger.Error("Unknown item enchantment (id = {0}) display type: {1}", enchantID, enchantDisplayType);
 
@@ -692,10 +732,12 @@ public partial class Player
                                     slot = EquipmentSlot.MainHand;
 
                                     break;
+
                                 case WeaponAttackType.OffAttack:
                                     slot = EquipmentSlot.OffHand;
 
                                     break;
+
                                 default:
                                     slot = EquipmentSlot.End;
 
@@ -1511,6 +1553,7 @@ public partial class Player
                 SetSkill(skillId, 0, 300, 300);
 
                 break;
+
             case SkillRangeType.Level:
             {
                 ushort skillValue = 1;
@@ -1529,6 +1572,7 @@ public partial class Player
                 SetSkill(skillId, 0, 1, 1);
 
                 break;
+
             case SkillRangeType.Rank:
             {
                 var tier = Global.ObjectMgr.GetSkillTier(rcInfo.SkillTierID);
@@ -1588,12 +1632,14 @@ public partial class Player
                 case AbilityLearnType.OnSkillValue:
                 case AbilityLearnType.OnSkillLearn:
                     break;
+
                 case AbilityLearnType.RewardedFromQuest:
                     if (!ability.Flags.HasAnyFlag(SkillLineAbilityFlags.CanFallbackToLearnedOnSkillLearn) ||
                         !spellInfo.MeetsFutureSpellPlayerCondition(this))
                         continue;
 
                     break;
+
                 default:
                     continue;
             }
@@ -2334,7 +2380,6 @@ public partial class Player
                 // mark as deleted so the next save will delete the data from the database
                 skillStatusData.State = SkillState.Deleted;
 
-
                 // remove all spells that related to this skill
                 var skillLineAbilities = DB2Manager.GetSkillLineAbilitiesBySkill(id);
 
@@ -2590,7 +2635,7 @@ public partial class Player
     public void UpdateEquipSpellsAtFormChange()
     {
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
-            if (_items[i] && !_items[i].IsBroken && CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+            if (_items[i] && !_items[i].IsBroken && CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
             {
                 ApplyItemEquipSpell(_items[i], false, true); // remove spells that not fit to form
                 ApplyItemEquipSpell(_items[i], true, true);  // add spells that fit form but not active
@@ -2669,6 +2714,7 @@ public partial class Player
             case SkillType.DragonIslesInscription:
             case SkillType.DragonIslesJewelcrafting:
                 return UpdateSkillPro(skillId, SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * (int)multiplicator, gatheringSkillGain);
+
             case SkillType.Skinning:
             case SkillType.ClassicSkinning:
             case SkillType.OutlandSkinning:
@@ -2683,6 +2729,7 @@ public partial class Player
                     return UpdateSkillPro(skillId, SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * (int)multiplicator, gatheringSkillGain);
                 else
                     return UpdateSkillPro(skillId, (int)(SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * multiplicator) >> (int)(skillValue / GetDefaultValue("SkillChance.SkinningSteps", 75)), gatheringSkillGain);
+
             case SkillType.Mining:
             case SkillType.ClassicMining:
             case SkillType.OutlandMining:
@@ -2840,12 +2887,14 @@ public partial class Player
             LearnSkillRewardedSpells(rcEntry.SkillID, skillInfoField.SkillRank[pair.Value.Pos], race);
         }
     }
+
     public void UpdateWeaponDependentAuras(WeaponAttackType attackType)
     {
         UpdateWeaponDependentCritAuras(attackType);
         UpdateDamageDoneMods(attackType);
         UpdateDamagePctDoneMods(attackType);
     }
+
     public void UpdateZoneDependentAuras(uint newZone)
     {
         // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone.area update
@@ -2856,9 +2905,11 @@ public partial class Player
                 if (!HasAura(spell.SpellId))
                     CastSpell(this, spell.SpellId, true);
     }
+
     /**********************************/
     /*************Runes****************/
     /**********************************/
+
     private void AddEnchantmentDuration(Item item, EnchantmentSlot slot, uint duration)
     {
         if (item == null)
@@ -3056,6 +3107,7 @@ public partial class Player
                 {
                     case PlayerSpellState.Unchanged:
                         return false;
+
                     case PlayerSpellState.Removed:
                     {
                         _spells.Remove(spellId);
@@ -3270,7 +3322,6 @@ public partial class Player
             }
         }
 
-
         // learn dependent spells
         var spellBounds = Global.SpellMgr.GetSpellLearnSpellMapBounds(spellId);
 
@@ -3475,10 +3526,12 @@ public partial class Player
                     activate &= (curGem < cmpGem);
 
                     break;
+
                 case 3: // requires more <color> than (<value> || <comparecolor>) gems
                     activate &= (curGem > cmpGem);
 
                     break;
+
                 case 5: // requires at least <color> than (<value> || <comparecolor>) gems
                     activate &= (curGem >= cmpGem);
 
@@ -3645,37 +3698,44 @@ public partial class Player
                     return false;
 
                 break;
+
             case SpellModOp.CritChance: // mod crit to spells that can't crit
                 if (!spellInfo.HasAttribute(SpellCustomAttributes.CanCrit))
                     return false;
 
                 break;
+
             case SpellModOp.PointsIndex0: // check if spell has any effect at that index
             case SpellModOp.Points:
                 if (spellInfo.Effects.Count <= 0)
                     return false;
 
                 break;
+
             case SpellModOp.PointsIndex1: // check if spell has any effect at that index
                 if (spellInfo.Effects.Count <= 1)
                     return false;
 
                 break;
+
             case SpellModOp.PointsIndex2: // check if spell has any effect at that index
                 if (spellInfo.Effects.Count <= 2)
                     return false;
 
                 break;
+
             case SpellModOp.PointsIndex3: // check if spell has any effect at that index
                 if (spellInfo.Effects.Count <= 3)
                     return false;
 
                 break;
+
             case SpellModOp.PointsIndex4: // check if spell has any effect at that index
                 if (spellInfo.Effects.Count <= 4)
                     return false;
 
                 break;
+
             default:
                 break;
         }
@@ -3770,6 +3830,7 @@ public partial class Player
             }
         }
     }
+
     private void SendKnownSpells()
     {
         SendKnownSpells knownSpells = new()
@@ -3971,6 +4032,7 @@ public partial class Player
                     }
                 }
     }
+
     // this one rechecks weapon auras and stores them in BaseModGroup container
     // needed for things like axe specialization applying only to axe weapons in case of dual-wield
     private void UpdateWeaponDependentCritAuras(WeaponAttackType attackType)
@@ -3983,14 +4045,17 @@ public partial class Player
                 modGroup = BaseModGroup.CritPercentage;
 
                 break;
+
             case WeaponAttackType.OffAttack:
                 modGroup = BaseModGroup.OffhandCritPercentage;
 
                 break;
+
             case WeaponAttackType.RangedAttack:
                 modGroup = BaseModGroup.RangedCritPercentage;
 
                 break;
+
             default:
                 return;
         }

@@ -13,13 +13,18 @@ namespace Forged.MapServer.Entities.Players;
 
 public class CinematicManager : IDisposable
 {
+    private readonly M2Storage _m2Storage;
+
     // Remote location information
     private readonly Player _player;
+
     private readonly Position _remoteSightPosition;
     private TempSummon _cinematicObject;
-    public CinematicManager(Player playerref)
+
+    public CinematicManager(Player playerref, M2Storage m2Storage)
     {
         _player = playerref;
+        _m2Storage = m2Storage;
         ActiveCinematicCameraIndex = -1;
         _remoteSightPosition = new Position();
     }
@@ -30,6 +35,7 @@ public class CinematicManager : IDisposable
     public uint CinematicDiff { get; set; }
     public uint CinematicLength { get; set; }
     public uint LastCinematicCheck { get; set; }
+
     public void BeginCinematic(CinematicSequencesRecord cinematic)
     {
         ActiveCinematic = cinematic;
@@ -41,6 +47,7 @@ public class CinematicManager : IDisposable
         if (CinematicCamera != null && ActiveCinematic != null)
             EndCinematic();
     }
+
     public void EndCinematic()
     {
         if (ActiveCinematic == null)
@@ -51,16 +58,16 @@ public class CinematicManager : IDisposable
         ActiveCinematic = null;
         ActiveCinematicCameraIndex = -1;
 
-        if (_cinematicObject)
-        {
-            var vpObject = _player.Viewpoint;
+        if (!_cinematicObject)
+            return;
 
-            if (vpObject)
-                if (vpObject == _cinematicObject)
-                    _player.SetViewpoint(_cinematicObject, false);
+        var vpObject = _player.Viewpoint;
 
-            _cinematicObject.Location.AddObjectToRemoveList();
-        }
+        if (vpObject)
+            if (vpObject == _cinematicObject)
+                _player.SetViewpoint(_cinematicObject, false);
+
+        _cinematicObject.Location.AddObjectToRemoveList();
     }
 
     public bool IsOnCinematic()
@@ -79,36 +86,44 @@ public class CinematicManager : IDisposable
         if (cinematicCameraId == 0)
             return;
 
-        var flyByCameras = M2Storage.GetFlyByCameras(cinematicCameraId);
+        var flyByCameras = _m2Storage.GetFlyByCameras(cinematicCameraId);
 
-        if (!flyByCameras.Empty())
+        if (flyByCameras.Empty())
+            return;
+
+        // Initialize diff, and set camera
+        CinematicDiff = 0;
+        CinematicCamera = flyByCameras;
+
+        if (CinematicCamera.Empty())
+            return;
+
+        var firstCamera = CinematicCamera.FirstOrDefault();
+
+        if (firstCamera == null)
+            return;
+
+        Position pos = new(firstCamera.Locations.X, firstCamera.Locations.Y, firstCamera.Locations.Z, firstCamera.Locations.W);
+
+        if (!pos.IsPositionValid)
+            return;
+
+        _player.Location.Map.LoadGridForActiveObject(pos.X, pos.Y, _player);
+        _cinematicObject = _player.SummonCreature(1, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
+
+        if (_cinematicObject)
         {
-            // Initialize diff, and set camera
-            CinematicDiff = 0;
-            CinematicCamera = flyByCameras;
-
-            if (!CinematicCamera.Empty())
-            {
-                var firstCamera = CinematicCamera.FirstOrDefault();
-                Position pos = new(firstCamera.Locations.X, firstCamera.Locations.Y, firstCamera.Locations.Z, firstCamera.Locations.W);
-
-                if (!pos.IsPositionValid)
-                    return;
-
-                _player.Location.Map.LoadGridForActiveObject(pos.X, pos.Y, _player);
-                _cinematicObject = _player.SummonCreature(1, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
-
-                if (_cinematicObject)
-                {
-                    _cinematicObject.SetActive(true);
-                    _player.SetViewpoint(_cinematicObject, true);
-                }
-
-                // Get cinematic length
-                CinematicLength = CinematicCamera.LastOrDefault().TimeStamp;
-            }
+            _cinematicObject.SetActive(true);
+            _player.SetViewpoint(_cinematicObject, true);
         }
+
+        // Get cinematic length
+        var lastCam = CinematicCamera.LastOrDefault();
+
+        if (lastCam != null)
+            CinematicLength = lastCam.TimeStamp;
     }
+
     public void UpdateCinematicLocation(uint diff)
     {
         if (ActiveCinematic == null || ActiveCinematicCameraIndex == -1 || CinematicCamera == null || CinematicCamera.Count == 0)

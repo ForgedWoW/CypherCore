@@ -189,7 +189,7 @@ internal class CharacterCommands
 
         Global.AccountMgr.GetName(accountId, out var accountName);
 
-        Player.DeleteFromDB(player.GetGUID(), accountId, true, true);
+        PlayerComputators.DeleteFromDB(player.GetGUID(), accountId, true, true);
         handler.SendSysMessage(CypherStrings.CharacterDeleted, player.GetName(), player.GetGUID().ToString(), accountName, accountId);
 
         return true;
@@ -595,7 +595,7 @@ internal class CharacterCommands
 
             // Call the appropriate function to delete them (current account for deleted characters is 0)
             foreach (var info in foundList)
-                Player.DeleteFromDB(info.guid, 0, false, true);
+                PlayerComputators.DeleteFromDB(info.guid, 0, false, true);
 
             return true;
         }
@@ -664,7 +664,7 @@ internal class CharacterCommands
             else if (keepDays <= 0) // config option value 0 -> disabled and can't be used
                 return false;
 
-            Player.DeleteOldCharacters(keepDays);
+            PlayerComputators.DeleteOldCharacters(keepDays);
 
             return true;
         }

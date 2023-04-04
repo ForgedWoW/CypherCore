@@ -32,120 +32,20 @@ public partial class Player
 {
     private delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
 
-    public static bool IsBagPos(ushort pos)
-    {
-        var bag = (byte)(pos >> 8);
-        var slot = (byte)(pos & 255);
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.BagStart && slot < InventorySlots.BagEnd))
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.BankBagStart && slot < InventorySlots.BankBagEnd))
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.ReagentBagStart && slot < InventorySlots.ReagentBagEnd))
-            return true;
-
-        return false;
-    }
-
     //Bank
-    public static bool IsBankPos(ushort pos)
-    {
-        return IsBankPos((byte)(pos >> 8), (byte)(pos & 255));
-    }
-
-    public static bool IsBankPos(byte bag, byte slot)
-    {
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.BankItemStart && slot < InventorySlots.BankItemEnd))
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.BankBagStart && slot < InventorySlots.BankBagEnd))
-            return true;
-
-        if (bag >= InventorySlots.BankBagStart && bag < InventorySlots.BankBagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.ReagentStart && slot < InventorySlots.ReagentEnd))
-            return true;
-
-        return false;
-    }
-
-    public static bool IsChildEquipmentPos(byte bag, byte slot)
-    {
-        return bag == InventorySlots.Bag0 && (slot >= InventorySlots.ChildEquipmentStart && slot < InventorySlots.ChildEquipmentEnd);
-    }
 
     //Child
-    public static bool IsChildEquipmentPos(ushort pos)
-    {
-        return IsChildEquipmentPos((byte)(pos >> 8), (byte)(pos & 255));
-    }
 
     //Equipment
-    public static bool IsEquipmentPos(ushort pos)
-    {
-        return IsEquipmentPos((byte)(pos >> 8), (byte)(pos & 255));
-    }
-
-    public static bool IsEquipmentPos(byte bag, byte slot)
-    {
-        if (bag == InventorySlots.Bag0 && (slot < EquipmentSlot.End))
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= ProfessionSlots.Start && slot < ProfessionSlots.End))
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.BagStart && slot < InventorySlots.BagEnd))
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.ReagentBagStart && slot < InventorySlots.ReagentBagEnd))
-            return true;
-
-        return false;
-    }
-
-    public static bool IsInventoryPos(byte bag, byte slot)
-    {
-        if (bag == InventorySlots.Bag0 && slot == ItemConst.NullSlot)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.ItemStart && slot < InventorySlots.ItemEnd))
-            return true;
-
-        if (bag >= InventorySlots.BagStart && bag < InventorySlots.BagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.ReagentStart && slot < InventorySlots.ReagentEnd))
-            return true;
-
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.ChildEquipmentStart && slot < InventorySlots.ChildEquipmentEnd))
-            return true;
-
-        return false;
-    }
 
     //Reagent
-    public static bool IsReagentBankPos(ushort pos)
-    {
-        return IsReagentBankPos((byte)(pos >> 8), (byte)(pos & 255));
-    }
-
-    public static bool IsReagentBankPos(byte bag, byte slot)
-    {
-        if (bag == InventorySlots.Bag0 && (slot >= InventorySlots.ReagentStart && slot < InventorySlots.ReagentEnd))
-            return true;
-
-        return false;
-    }
 
     public void _ApplyAllLevelScaleItemMods(bool apply)
     {
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
             if (_items[i] != null)
             {
-                if (!CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+                if (!CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
 
                 _ApplyItemMods(_items[i], i, apply);
@@ -193,20 +93,24 @@ public partial class Player
                     HandleStatFlatModifier(UnitMods.Mana, UnitModifierFlatType.Base, val, apply);
 
                     break;
+
                 case ItemModType.Health: // modify HP
                     HandleStatFlatModifier(UnitMods.Health, UnitModifierFlatType.Base, val, apply);
 
                     break;
+
                 case ItemModType.Agility: // modify agility
                     HandleStatFlatModifier(UnitMods.StatAgility, UnitModifierFlatType.Base, val, apply);
                     UpdateStatBuffMod(Stats.Agility);
 
                     break;
+
                 case ItemModType.Strength: //modify strength
                     HandleStatFlatModifier(UnitMods.StatStrength, UnitModifierFlatType.Base, val, apply);
                     UpdateStatBuffMod(Stats.Strength);
 
                     break;
+
                 case ItemModType.Intellect: //modify intellect
                     HandleStatFlatModifier(UnitMods.StatIntellect, UnitModifierFlatType.Base, val, apply);
                     UpdateStatBuffMod(Stats.Intellect);
@@ -226,183 +130,226 @@ public partial class Player
                     UpdateStatBuffMod(Stats.Stamina);
 
                     break;
+
                 case ItemModType.DefenseSkillRating:
                     ApplyRatingMod(CombatRating.DefenseSkill, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.DodgeRating:
                     ApplyRatingMod(CombatRating.Dodge, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.ParryRating:
                     ApplyRatingMod(CombatRating.Parry, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.BlockRating:
                     ApplyRatingMod(CombatRating.Block, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.HitMeleeRating:
                     ApplyRatingMod(CombatRating.HitMelee, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.HitRangedRating:
                     ApplyRatingMod(CombatRating.HitRanged, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.HitSpellRating:
                     ApplyRatingMod(CombatRating.HitSpell, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.CritMeleeRating:
                     ApplyRatingMod(CombatRating.CritMelee, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.CritRangedRating:
                     ApplyRatingMod(CombatRating.CritRanged, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.CritSpellRating:
                     ApplyRatingMod(CombatRating.CritSpell, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.CritTakenRangedRating:
                     ApplyRatingMod(CombatRating.CritRanged, (int)val, apply);
 
                     break;
+
                 case ItemModType.HasteMeleeRating:
                     ApplyRatingMod(CombatRating.HasteMelee, (int)val, apply);
 
                     break;
+
                 case ItemModType.HasteRangedRating:
                     ApplyRatingMod(CombatRating.HasteRanged, (int)val, apply);
 
                     break;
+
                 case ItemModType.HasteSpellRating:
                     ApplyRatingMod(CombatRating.HasteSpell, (int)val, apply);
 
                     break;
+
                 case ItemModType.HitRating:
                     ApplyRatingMod(CombatRating.HitMelee, (int)(val * combatRatingMultiplier), apply);
                     ApplyRatingMod(CombatRating.HitRanged, (int)(val * combatRatingMultiplier), apply);
                     ApplyRatingMod(CombatRating.HitSpell, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.CritRating:
                     ApplyRatingMod(CombatRating.CritMelee, (int)(val * combatRatingMultiplier), apply);
                     ApplyRatingMod(CombatRating.CritRanged, (int)(val * combatRatingMultiplier), apply);
                     ApplyRatingMod(CombatRating.CritSpell, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.ResilienceRating:
                     ApplyRatingMod(CombatRating.ResiliencePlayerDamage, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.HasteRating:
                     ApplyRatingMod(CombatRating.HasteMelee, (int)(val * combatRatingMultiplier), apply);
                     ApplyRatingMod(CombatRating.HasteRanged, (int)(val * combatRatingMultiplier), apply);
                     ApplyRatingMod(CombatRating.HasteSpell, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.ExpertiseRating:
                     ApplyRatingMod(CombatRating.Expertise, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.AttackPower:
                     HandleStatFlatModifier(UnitMods.AttackPower, UnitModifierFlatType.Total, val, apply);
                     HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, val, apply);
 
                     break;
+
                 case ItemModType.RangedAttackPower:
                     HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, val, apply);
 
                     break;
+
                 case ItemModType.Versatility:
                     ApplyRatingMod(CombatRating.VersatilityDamageDone, (int)(val * combatRatingMultiplier), apply);
                     ApplyRatingMod(CombatRating.VersatilityDamageTaken, (int)(val * combatRatingMultiplier), apply);
                     ApplyRatingMod(CombatRating.VersatilityHealingDone, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.ManaRegeneration:
                     ApplyManaRegenBonus((int)val, apply);
 
                     break;
+
                 case ItemModType.ArmorPenetrationRating:
                     ApplyRatingMod(CombatRating.ArmorPenetration, (int)val, apply);
 
                     break;
+
                 case ItemModType.SpellPower:
                     ApplySpellPowerBonus((int)val, apply);
 
                     break;
+
                 case ItemModType.HealthRegen:
                     ApplyHealthRegenBonus((int)val, apply);
 
                     break;
+
                 case ItemModType.SpellPenetration:
                     ApplySpellPenetrationBonus((int)val, apply);
 
                     break;
+
                 case ItemModType.MasteryRating:
                     ApplyRatingMod(CombatRating.Mastery, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.ExtraArmor:
                     HandleStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Total, val, apply);
 
                     break;
+
                 case ItemModType.FireResistance:
                     HandleStatFlatModifier(UnitMods.ResistanceFire, UnitModifierFlatType.Base, val, apply);
 
                     break;
+
                 case ItemModType.FrostResistance:
                     HandleStatFlatModifier(UnitMods.ResistanceFrost, UnitModifierFlatType.Base, val, apply);
 
                     break;
+
                 case ItemModType.HolyResistance:
                     HandleStatFlatModifier(UnitMods.ResistanceHoly, UnitModifierFlatType.Base, val, apply);
 
                     break;
+
                 case ItemModType.ShadowResistance:
                     HandleStatFlatModifier(UnitMods.ResistanceShadow, UnitModifierFlatType.Base, val, apply);
 
                     break;
+
                 case ItemModType.NatureResistance:
                     HandleStatFlatModifier(UnitMods.ResistanceNature, UnitModifierFlatType.Base, val, apply);
 
                     break;
+
                 case ItemModType.ArcaneResistance:
                     HandleStatFlatModifier(UnitMods.ResistanceArcane, UnitModifierFlatType.Base, val, apply);
 
                     break;
+
                 case ItemModType.PvpPower:
                     ApplyRatingMod(CombatRating.PvpPower, (int)val, apply);
 
                     break;
+
                 case ItemModType.Corruption:
                     ApplyRatingMod(CombatRating.Corruption, (int)val, apply);
 
                     break;
+
                 case ItemModType.CorruptionResistance:
                     ApplyRatingMod(CombatRating.CorruptionResistance, (int)val, apply);
 
                     break;
+
                 case ItemModType.CrSpeed:
                     ApplyRatingMod(CombatRating.Speed, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.CrLifesteal:
                     ApplyRatingMod(CombatRating.Lifesteal, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.CrAvoidance:
                     ApplyRatingMod(CombatRating.Avoidance, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.CrSturdiness:
                     ApplyRatingMod(CombatRating.Studiness, (int)(val * combatRatingMultiplier), apply);
 
                     break;
+
                 case ItemModType.AgiStrInt:
                     HandleStatFlatModifier(UnitMods.StatAgility, UnitModifierFlatType.Base, val, apply);
                     HandleStatFlatModifier(UnitMods.StatStrength, UnitModifierFlatType.Base, val, apply);
@@ -412,6 +359,7 @@ public partial class Player
                     UpdateStatBuffMod(Stats.Intellect);
 
                     break;
+
                 case ItemModType.AgiStr:
                     HandleStatFlatModifier(UnitMods.StatAgility, UnitModifierFlatType.Base, val, apply);
                     HandleStatFlatModifier(UnitMods.StatStrength, UnitModifierFlatType.Base, val, apply);
@@ -419,6 +367,7 @@ public partial class Player
                     UpdateStatBuffMod(Stats.Strength);
 
                     break;
+
                 case ItemModType.AgiInt:
                     HandleStatFlatModifier(UnitMods.StatAgility, UnitModifierFlatType.Base, val, apply);
                     HandleStatFlatModifier(UnitMods.StatIntellect, UnitModifierFlatType.Base, val, apply);
@@ -426,6 +375,7 @@ public partial class Player
                     UpdateStatBuffMod(Stats.Intellect);
 
                     break;
+
                 case ItemModType.StrInt:
                     HandleStatFlatModifier(UnitMods.StatStrength, UnitModifierFlatType.Base, val, apply);
                     HandleStatFlatModifier(UnitMods.StatIntellect, UnitModifierFlatType.Base, val, apply);
@@ -446,7 +396,7 @@ public partial class Player
                 SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ShieldBlock), apply ? (uint)(armor * 2.5f) : 0);
         }
 
-        var attType = GetAttackBySlot(slot, proto.InventoryType);
+        var attType = Players.PlayerComputators.GetAttackBySlot(slot, proto.InventoryType);
 
         if (attType != WeaponAttackType.Max)
             _ApplyWeaponDamage(slot, item, apply);
@@ -477,7 +427,7 @@ public partial class Player
         if (updateItemAuras)
         {
             ApplyItemDependentAuras(item, apply);
-            var attackType = GetAttackBySlot(slot, item.Template.InventoryType);
+            var attackType = Players.PlayerComputators.GetAttackBySlot(slot, item.Template.InventoryType);
 
             if (attackType != WeaponAttackType.Max)
                 UpdateWeaponDependentAuras(attackType);
@@ -490,7 +440,7 @@ public partial class Player
         Log.Logger.Debug("_ApplyItemMods complete.");
     }
 
-    //Add/Remove/Misc Item 
+    //Add/Remove/Misc Item
     public bool AddItem(uint itemId, uint count)
     {
         List<ItemPosCount> dest = new();
@@ -796,7 +746,7 @@ public partial class Player
 
             if (childItem)
             {
-                if (IsChildEquipmentPos(childItem.Pos))
+                if (Players.PlayerComputators.IsChildEquipmentPos(childItem.Pos))
                     return;
 
                 List<ItemPosCount> dest = new();
@@ -1214,12 +1164,12 @@ public partial class Player
             }
         }
 
-        if ((bag == ItemConst.NullBag && slot == ItemConst.NullSlot) || IsInventoryPos(bag, slot))
+        if ((bag == ItemConst.NullBag && slot == ItemConst.NullSlot) || Players.PlayerComputators.IsInventoryPos(bag, slot))
         {
             if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, (int)price, pProto, creature, crItem, true))
                 return false;
         }
-        else if (IsEquipmentPos(bag, slot))
+        else if (Players.PlayerComputators.IsEquipmentPos(bag, slot))
         {
             if (count != 1)
             {
@@ -1261,7 +1211,7 @@ public partial class Player
             return swap ? InventoryResult.CantSwap : InventoryResult.ItemNotFound;
 
         // different slots range if we're trying to store item in Reagent Bank
-        if ((IsReagentBankPos(bag, slot) || reagentBankOnly) && !IsReagentBankUnlocked)
+        if ((Players.PlayerComputators.IsReagentBankPos(bag, slot) || reagentBankOnly) && !IsReagentBankUnlocked)
             return InventoryResult.ReagentBankLocked;
 
         var slotStart = reagentBankOnly ? InventorySlots.ReagentStart : InventorySlots.BankItemStart;
@@ -1504,14 +1454,14 @@ public partial class Player
             if (msg != InventoryResult.Ok)
                 msg = CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, dstItem, true);
         }
-        else if (IsBankPos(src))
+        else if (Players.PlayerComputators.IsBankPos(src))
         {
             msg = CanBankItem(parentItem.BagSlot, ItemConst.NullSlot, dest, dstItem, true);
 
             if (msg != InventoryResult.Ok)
                 msg = CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, dstItem, true);
         }
-        else if (IsEquipmentPos(src))
+        else if (Players.PlayerComputators.IsEquipmentPos(src))
         {
             return InventoryResult.CantSwap;
         }
@@ -1619,38 +1569,47 @@ public partial class Player
                         ignore = EquipmentSlot.OffHand;
 
                         break;
+
                     case EquipmentSlot.OffHand:
                         ignore = EquipmentSlot.MainHand;
 
                         break;
+
                     case EquipmentSlot.Finger1:
                         ignore = EquipmentSlot.Finger2;
 
                         break;
+
                     case EquipmentSlot.Finger2:
                         ignore = EquipmentSlot.Finger1;
 
                         break;
+
                     case EquipmentSlot.Trinket1:
                         ignore = EquipmentSlot.Trinket2;
 
                         break;
+
                     case EquipmentSlot.Trinket2:
                         ignore = EquipmentSlot.Trinket1;
 
                         break;
+
                     case ProfessionSlots.Profession1Gear1:
                         ignore = ProfessionSlots.Profession1Gear2;
 
                         break;
+
                     case ProfessionSlots.Profession1Gear2:
                         ignore = ProfessionSlots.Profession1Gear1;
 
                         break;
+
                     case ProfessionSlots.Profession2Gear1:
                         ignore = ProfessionSlots.Profession2Gear2;
 
                         break;
+
                     case ProfessionSlots.Profession2Gear2:
                         ignore = ProfessionSlots.Profession2Gear1;
 
@@ -2113,7 +2072,7 @@ public partial class Player
     public InventoryResult CanUnequipItem(ushort pos, bool swap)
     {
         // Applied only to equipped items and bank bags
-        if (!IsEquipmentPos(pos) && !IsBagPos(pos))
+        if (!Players.PlayerComputators.IsEquipmentPos(pos) && !Players.PlayerComputators.IsBagPos(pos))
             return InventoryResult.Ok;
 
         var pItem = GetItemByPos(pos);
@@ -2199,6 +2158,7 @@ public partial class Player
                                 allowEquip = (itemSkill == SkillType.Mail);
 
                                 break;
+
                             case PlayerClass.Paladin:
                             case PlayerClass.Warrior:
                                 allowEquip = (itemSkill == SkillType.PlateMail);
@@ -2407,6 +2367,7 @@ public partial class Player
                             RecalculateRating(CombatRating.ArmorPenetration);
 
                             break;
+
                         default:
                             break;
                     }
@@ -2903,7 +2864,6 @@ public partial class Player
         if (item == null)
             return;
 
-
         if (takeCost)
         {
             var cost = item.CalculateDurabilityRepairCost(discountMod);
@@ -2924,7 +2884,7 @@ public partial class Player
         item.SetState(ItemUpdateState.Changed, this);
 
         // reapply mods for total broken and repaired item if equipped
-        if (IsEquipmentPos(pos) && isBroken)
+        if (Players.PlayerComputators.IsEquipmentPos(pos) && isBroken)
             _ApplyItemMods(item, (byte)(pos & 255), true);
     }
 
@@ -3072,21 +3032,21 @@ public partial class Player
                         List<ItemPosCount> sSrc = new();
                         ushort eSrc = 0;
 
-                        if (IsInventoryPos(parentBag, parentSlot))
+                        if (Players.PlayerComputators.IsInventoryPos(parentBag, parentSlot))
                         {
                             msg = CanStoreItem(parentBag, ItemConst.NullSlot, sSrc, dstItem, true);
 
                             if (msg != InventoryResult.Ok)
                                 msg = CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, sSrc, dstItem, true);
                         }
-                        else if (IsBankPos(parentBag, parentSlot))
+                        else if (Players.PlayerComputators.IsBankPos(parentBag, parentSlot))
                         {
                             msg = CanBankItem(parentBag, ItemConst.NullSlot, sSrc, dstItem, true);
 
                             if (msg != InventoryResult.Ok)
                                 msg = CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, sSrc, dstItem, true);
                         }
-                        else if (IsEquipmentPos(parentBag, parentSlot))
+                        else if (Players.PlayerComputators.IsEquipmentPos(parentBag, parentSlot))
                         {
                             msg = CanEquipItem(parentSlot, out eSrc, dstItem, true);
 
@@ -3109,11 +3069,11 @@ public partial class Player
                         EquipItem(childDest, childItem, true);
 
                         // add to src
-                        if (IsInventoryPos(parentBag, parentSlot))
+                        if (Players.PlayerComputators.IsInventoryPos(parentBag, parentSlot))
                             StoreItem(sSrc, dstItem, true);
-                        else if (IsBankPos(parentBag, parentSlot))
+                        else if (Players.PlayerComputators.IsBankPos(parentBag, parentSlot))
                             BankItem(sSrc, dstItem, true);
-                        else if (IsEquipmentPos(parentBag, parentSlot))
+                        else if (Players.PlayerComputators.IsEquipmentPos(parentBag, parentSlot))
                             EquipItem(eSrc, dstItem, true);
 
                         AutoUnequipOffhandIfNeed();
@@ -3863,7 +3823,7 @@ public partial class Player
         if (!item)
             return null;
 
-        if (!CanUseAttackType(GetAttackBySlot(slot, item.Template.InventoryType)))
+        if (!CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(slot, item.Template.InventoryType)))
             return null;
 
         return item;
@@ -3990,7 +3950,7 @@ public partial class Player
     //Inventory
     public bool IsInventoryPos(ushort pos)
     {
-        return IsInventoryPos((byte)(pos >> 8), (byte)(pos & 255));
+        return Players.PlayerComputators.IsInventoryPos((byte)(pos >> 8), (byte)(pos & 255));
     }
 
     public bool IsValidPos(byte bag, byte slot, bool explicitPos)
@@ -4747,6 +4707,7 @@ public partial class Player
 
         SendPacket(setItemPurchaseData);
     }
+
     public void SetBankBagSlotCount(byte count)
     {
         SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NumBankSlots), count);
@@ -4859,6 +4820,7 @@ public partial class Player
     {
         _trade = data;
     }
+
     //Visual
     public void SetVisibleItemSlot(uint slot, Item pItem)
     {
@@ -4961,7 +4923,7 @@ public partial class Player
             pSrcItem.SetState(ItemUpdateState.Changed, this);
             StoreItem(dest, pNewItem, true);
         }
-        else if (IsBankPos(dst))
+        else if (Players.PlayerComputators.IsBankPos(dst))
         {
             // change item amount before check (for unique max count check)
             pSrcItem.SetCount(pSrcItem.Count - count);
@@ -4983,7 +4945,7 @@ public partial class Player
             pSrcItem.SetState(ItemUpdateState.Changed, this);
             BankItem(dest, pNewItem, true);
         }
-        else if (IsEquipmentPos(dst))
+        else if (Players.PlayerComputators.IsEquipmentPos(dst))
         {
             // change item amount before check (for unique max count check), provide space for splitted items
             pSrcItem.SetCount(pSrcItem.Count - count);
@@ -5218,7 +5180,7 @@ public partial class Player
             var parentItem = GetItemByGuid(pSrcItem.ItemData.Creator);
 
             if (parentItem)
-                if (IsEquipmentPos(src))
+                if (Players.PlayerComputators.IsEquipmentPos(src))
                 {
                     AutoUnequipChildItem(parentItem); // we need to unequip child first since it cannot go into whatever is going to happen next
                     SwapItem(dst, src);               // src is now empty
@@ -5232,7 +5194,7 @@ public partial class Player
             var parentItem = GetItemByGuid(pDstItem.ItemData.Creator);
 
             if (parentItem)
-                if (IsEquipmentPos(dst))
+                if (Players.PlayerComputators.IsEquipmentPos(dst))
                 {
                     AutoUnequipChildItem(parentItem); // we need to unequip child first since it cannot go into whatever is going to happen next
                     SwapItem(src, dst);               // dst is now empty
@@ -5254,10 +5216,10 @@ public partial class Player
         // SRC checks
 
         // check unequip potability for equipped items and bank bags
-        if (IsEquipmentPos(src) || IsBagPos(src))
+        if (Players.PlayerComputators.IsEquipmentPos(src) || Players.PlayerComputators.IsBagPos(src))
         {
             // bags can be swapped with empty bag slots, or with empty bag (items move possibility checked later)
-            var inventoryResult = CanUnequipItem(src, !IsBagPos(src) || IsBagPos(dst) || (pDstItem != null && pDstItem.AsBag != null && pDstItem.AsBag.IsEmpty()));
+            var inventoryResult = CanUnequipItem(src, !Players.PlayerComputators.IsBagPos(src) || Players.PlayerComputators.IsBagPos(dst) || (pDstItem != null && pDstItem.AsBag != null && pDstItem.AsBag.IsEmpty()));
 
             if (inventoryResult != InventoryResult.Ok)
             {
@@ -5268,7 +5230,7 @@ public partial class Player
         }
 
         // prevent put equipped/bank bag in self
-        if (IsBagPos(src) && srcslot == dstbag)
+        if (Players.PlayerComputators.IsBagPos(src) && srcslot == dstbag)
         {
             SendEquipError(InventoryResult.BagInBag, pSrcItem, pDstItem);
 
@@ -5276,7 +5238,7 @@ public partial class Player
         }
 
         // prevent equipping bag in the same slot from its inside
-        if (IsBagPos(dst) && srcbag == dstslot)
+        if (Players.PlayerComputators.IsBagPos(dst) && srcbag == dstslot)
         {
             SendEquipError(InventoryResult.CantSwap, pSrcItem, pDstItem);
 
@@ -5286,10 +5248,10 @@ public partial class Player
         // DST checks
         if (pDstItem != null)
             // check unequip potability for equipped items and bank bags
-            if (IsEquipmentPos(dst) || IsBagPos(dst))
+            if (Players.PlayerComputators.IsEquipmentPos(dst) || Players.PlayerComputators.IsBagPos(dst))
             {
                 // bags can be swapped with empty bag slots, or with empty bag (items move possibility checked later)
-                var inventoryResult = CanUnequipItem(dst, !IsBagPos(dst) || IsBagPos(src) || (pSrcItem.AsBag != null && pSrcItem.AsBag.IsEmpty()));
+                var inventoryResult = CanUnequipItem(dst, !Players.PlayerComputators.IsBagPos(dst) || Players.PlayerComputators.IsBagPos(src) || (pSrcItem.AsBag != null && pSrcItem.AsBag.IsEmpty()));
 
                 if (inventoryResult != InventoryResult.Ok)
                 {
@@ -5299,7 +5261,7 @@ public partial class Player
                 }
             }
 
-        if (IsReagentBankPos(dst) && !IsReagentBankUnlocked)
+        if (Players.PlayerComputators.IsReagentBankPos(dst) && !IsReagentBankUnlocked)
         {
             SendEquipError(InventoryResult.ReagentBankLocked, pSrcItem, pDstItem);
 
@@ -5327,10 +5289,10 @@ public partial class Player
                 RemoveItem(srcbag, srcslot, true);
                 StoreItem(dest, pSrcItem, true);
 
-                if (IsBankPos(src))
+                if (Players.PlayerComputators.IsBankPos(src))
                     ItemAddedQuestCheck(pSrcItem.Entry, pSrcItem.Count);
             }
-            else if (IsBankPos(dst))
+            else if (Players.PlayerComputators.IsBankPos(dst))
             {
                 List<ItemPosCount> dest = new();
                 var inventoryResult = CanBankItem(dstbag, dstslot, dest, pSrcItem, false);
@@ -5345,10 +5307,10 @@ public partial class Player
                 RemoveItem(srcbag, srcslot, true);
                 BankItem(dest, pSrcItem, true);
 
-                if (!IsReagentBankPos(dst))
+                if (!Players.PlayerComputators.IsReagentBankPos(dst))
                     ItemRemovedQuestCheck(pSrcItem.Entry, pSrcItem.Count);
             }
-            else if (IsEquipmentPos(dst))
+            else if (Players.PlayerComputators.IsEquipmentPos(dst))
             {
                 var inventoryResult = CanEquipItem(dstslot, out var dest, pSrcItem, false);
 
@@ -5376,14 +5338,14 @@ public partial class Player
 
             if (IsInventoryPos(dst))
                 canEquipItem = CanStoreItem(dstbag, dstslot, posCounts, pSrcItem);
-            else if (IsBankPos(dst))
+            else if (Players.PlayerComputators.IsBankPos(dst))
                 canEquipItem = CanBankItem(dstbag, dstslot, posCounts, pSrcItem, false);
-            else if (IsEquipmentPos(dst))
+            else if (Players.PlayerComputators.IsEquipmentPos(dst))
                 canEquipItem = CanEquipItem(dstslot, out pos, pSrcItem, false);
             else
                 return;
 
-            if (canEquipItem == InventoryResult.Ok && IsEquipmentPos(dst) && !pSrcItem.ChildItem.IsEmpty)
+            if (canEquipItem == InventoryResult.Ok && Players.PlayerComputators.IsEquipmentPos(dst) && !pSrcItem.ChildItem.IsEmpty)
                 canEquipItem = CanEquipChildItem(pSrcItem);
 
             // can be merge/fill
@@ -5397,11 +5359,11 @@ public partial class Player
                     {
                         StoreItem(posCounts, pSrcItem, true);
                     }
-                    else if (IsBankPos(dst))
+                    else if (Players.PlayerComputators.IsBankPos(dst))
                     {
                         BankItem(posCounts, pSrcItem, true);
                     }
-                    else if (IsEquipmentPos(dst))
+                    else if (Players.PlayerComputators.IsEquipmentPos(dst))
                     {
                         EquipItem(pos, pSrcItem, true);
 
@@ -5442,11 +5404,11 @@ public partial class Player
         {
             msg = CanStoreItem(dstbag, dstslot, sDest, pSrcItem, true);
         }
-        else if (IsBankPos(dst))
+        else if (Players.PlayerComputators.IsBankPos(dst))
         {
             msg = CanBankItem(dstbag, dstslot, sDest, pSrcItem, true);
         }
-        else if (IsEquipmentPos(dst))
+        else if (Players.PlayerComputators.IsEquipmentPos(dst))
         {
             msg = CanEquipItem(dstslot, out eDest, pSrcItem, true);
 
@@ -5469,11 +5431,11 @@ public partial class Player
         {
             msg = CanStoreItem(srcbag, srcslot, sDest2, pDstItem, true);
         }
-        else if (IsBankPos(src))
+        else if (Players.PlayerComputators.IsBankPos(src))
         {
             msg = CanBankItem(srcbag, srcslot, sDest2, pDstItem, true);
         }
-        else if (IsEquipmentPos(src))
+        else if (Players.PlayerComputators.IsEquipmentPos(src))
         {
             msg = CanEquipItem(srcslot, out eDest2, pDstItem, true);
 
@@ -5481,7 +5443,7 @@ public partial class Player
                 msg = CanUnequipItem(eDest2, true);
         }
 
-        if (msg == InventoryResult.Ok && IsEquipmentPos(dst) && !pSrcItem.ChildItem.IsEmpty)
+        if (msg == InventoryResult.Ok && Players.PlayerComputators.IsEquipmentPos(dst) && !pSrcItem.ChildItem.IsEmpty)
             msg = CanEquipChildItem(pSrcItem);
 
         if (msg != InventoryResult.Ok)
@@ -5503,12 +5465,12 @@ public partial class Player
                 Bag emptyBag = null;
                 Bag fullBag = null;
 
-                if (srcBag.IsEmpty() && !IsBagPos(src))
+                if (srcBag.IsEmpty() && !Players.PlayerComputators.IsBagPos(src))
                 {
                     emptyBag = srcBag;
                     fullBag = dstBag;
                 }
-                else if (dstBag.IsEmpty() && !IsBagPos(dst))
+                else if (dstBag.IsEmpty() && !Players.PlayerComputators.IsBagPos(dst))
                 {
                     emptyBag = dstBag;
                     fullBag = srcBag;
@@ -5577,11 +5539,11 @@ public partial class Player
         {
             StoreItem(sDest, pSrcItem, true);
         }
-        else if (IsBankPos(dst))
+        else if (Players.PlayerComputators.IsBankPos(dst))
         {
             BankItem(sDest, pSrcItem, true);
         }
-        else if (IsEquipmentPos(dst))
+        else if (Players.PlayerComputators.IsEquipmentPos(dst))
         {
             EquipItem(eDest, pSrcItem, true);
 
@@ -5592,9 +5554,9 @@ public partial class Player
         // add to src
         if (IsInventoryPos(src))
             StoreItem(sDest2, pDstItem, true);
-        else if (IsBankPos(src))
+        else if (Players.PlayerComputators.IsBankPos(src))
             BankItem(sDest2, pDstItem, true);
-        else if (IsEquipmentPos(src))
+        else if (Players.PlayerComputators.IsEquipmentPos(src))
             EquipItem(eDest2, pDstItem, true);
 
         // if inventory item was moved, check if we can remove dependent auras, because they were not removed in Player::RemoveItem (update was set to false)
@@ -5608,7 +5570,7 @@ public partial class Player
         {
             var released = false;
 
-            if (IsBagPos(src))
+            if (Players.PlayerComputators.IsBagPos(src))
             {
                 var bag = pSrcItem.AsBag;
 
@@ -5627,7 +5589,7 @@ public partial class Player
                 }
             }
 
-            if (!released && IsBagPos(dst))
+            if (!released && Players.PlayerComputators.IsBagPos(dst))
             {
                 var bag = pDstItem.AsBag;
 
@@ -5712,10 +5674,12 @@ public partial class Player
             trader._trade = null;
         }
     }
+
     public void UnlockVoidStorage()
     {
         SetPlayerFlag(PlayerFlags.VoidUnlocked);
     }
+
     public void UpdateAverageItemLevelEquipped()
     {
         float totalItemLevel = 0;
@@ -5800,6 +5764,7 @@ public partial class Player
         sum /= 16.0f;
         SetAverageItemLevelTotal(sum);
     }
+
     private void _ApplyAllItemMods()
     {
         Log.Logger.Debug("_ApplyAllItemMods start.");
@@ -5807,13 +5772,13 @@ public partial class Player
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
             if (_items[i] != null)
             {
-                if (_items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+                if (_items[i].IsBroken || !CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
 
                 ApplyItemDependentAuras(_items[i], true);
                 _ApplyItemBonuses(_items[i], i, true);
 
-                var attackType = GetAttackBySlot(i, _items[i].Template.InventoryType);
+                var attackType = Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType);
 
                 if (attackType != WeaponAttackType.Max)
                     UpdateWeaponDependentAuras(attackType);
@@ -5831,7 +5796,7 @@ public partial class Player
                 if (proto.ItemSet != 0)
                     Item.AddItemsSetItem(this, _items[i]);
 
-                if (_items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+                if (_items[i].IsBroken || !CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
 
                 ApplyItemEquipSpell(_items[i], true);
@@ -5858,7 +5823,7 @@ public partial class Player
                 if (proto.ItemSet != 0)
                     Item.RemoveItemsSetItem(this, _items[i]);
 
-                if (_items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+                if (_items[i].IsBroken || !CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
 
                 ApplyItemEquipSpell(_items[i], false);
@@ -5869,7 +5834,7 @@ public partial class Player
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
             if (_items[i] != null)
             {
-                if (_items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+                if (_items[i].IsBroken || !CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
 
                 ApplyItemDependentAuras(_items[i], false);
@@ -5903,7 +5868,7 @@ public partial class Player
 
             if (pItem.Bonding == ItemBondingType.OnAcquire ||
                 pItem.Bonding == ItemBondingType.Quest ||
-                (pItem.Bonding == ItemBondingType.OnEquip && IsBagPos(pos)))
+                (pItem.Bonding == ItemBondingType.OnEquip && Players.PlayerComputators.IsBagPos(pos)))
                 pItem.SetBinding(true);
 
             var pBag = bag == InventorySlots.Bag0 ? null : GetBagByPos(bag);
@@ -5945,7 +5910,7 @@ public partial class Player
         {
             if (pItem2.Bonding == ItemBondingType.OnAcquire ||
                 pItem2.Bonding == ItemBondingType.Quest ||
-                (pItem2.Bonding == ItemBondingType.OnEquip && IsBagPos(pos)))
+                (pItem2.Bonding == ItemBondingType.OnEquip && Players.PlayerComputators.IsBagPos(pos)))
                 pItem2.SetBinding(true);
 
             pItem2.SetCount(pItem2.Count + count);
@@ -6070,7 +6035,7 @@ public partial class Player
         _refundableItems.Add(it);
     }
 
-    //Trade 
+    //Trade
     private void AddTradeableItem(Item item)
     {
         _itemSoulboundTradeable.Add(item.GUID);
@@ -6081,7 +6046,7 @@ public partial class Player
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
             if (_items[i])
             {
-                if (!_items[i].IsAzeriteEmpoweredItem || _items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+                if (!_items[i].IsAzeriteEmpoweredItem || _items[i].IsBroken || !CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
 
                 ApplyAzeritePowers(_items[i], apply);
@@ -6093,7 +6058,7 @@ public partial class Player
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
             if (_items[i])
             {
-                if (!_items[i].IsAzeriteItem || _items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
+                if (!_items[i].IsAzeriteItem || _items[i].IsBroken || !CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
                     continue;
 
                 ApplyAzeritePowers(_items[i], apply);
@@ -6427,7 +6392,6 @@ public partial class Player
                     {
                         if (noSimilarCount == 0)
                             return InventoryResult.Ok;
-
 
                         noSpaceCount = count + noSimilarCount;
 
@@ -6856,13 +6820,13 @@ public partial class Player
 
         if (pSrcItem)
         {
-            if (pSrcItem.IsNotEmptyBag && !IsBagPos((ushort)(bag << 8 | slot)))
+            if (pSrcItem.IsNotEmptyBag && !Players.PlayerComputators.IsBagPos((ushort)(bag << 8 | slot)))
                 return InventoryResult.DestroyNonemptyBag;
 
-            if (pSrcItem.HasItemFlag(ItemFieldFlags.Child) && !IsEquipmentPos(bag, slot) && !IsChildEquipmentPos(bag, slot))
+            if (pSrcItem.HasItemFlag(ItemFieldFlags.Child) && !Players.PlayerComputators.IsEquipmentPos(bag, slot) && !Players.PlayerComputators.IsChildEquipmentPos(bag, slot))
                 return InventoryResult.WrongBagType3;
 
-            if (!pSrcItem.HasItemFlag(ItemFieldFlags.Child) && IsChildEquipmentPos(bag, slot))
+            if (!pSrcItem.HasItemFlag(ItemFieldFlags.Child) && Players.PlayerComputators.IsChildEquipmentPos(bag, slot))
                 return InventoryResult.WrongBagType3;
         }
 
@@ -6876,7 +6840,7 @@ public partial class Player
                     return InventoryResult.WrongBagType;
 
                 // can't store anything else than crafting reagents in Reagent Bank
-                if (IsReagentBankPos(bag, slot) && (!IsReagentBankUnlocked || !pProto.IsCraftingReagent))
+                if (Players.PlayerComputators.IsReagentBankPos(bag, slot) && (!IsReagentBankUnlocked || !pProto.IsCraftingReagent))
                     return InventoryResult.WrongBagType;
             }
             else
@@ -7100,60 +7064,74 @@ public partial class Player
                 slots[0] = EquipmentSlot.Head;
 
                 break;
+
             case InventoryType.Neck:
                 slots[0] = EquipmentSlot.Neck;
 
                 break;
+
             case InventoryType.Shoulders:
                 slots[0] = EquipmentSlot.Shoulders;
 
                 break;
+
             case InventoryType.Body:
                 slots[0] = EquipmentSlot.Shirt;
 
                 break;
+
             case InventoryType.Chest:
                 slots[0] = EquipmentSlot.Chest;
 
                 break;
+
             case InventoryType.Robe:
                 slots[0] = EquipmentSlot.Chest;
 
                 break;
+
             case InventoryType.Waist:
                 slots[0] = EquipmentSlot.Waist;
 
                 break;
+
             case InventoryType.Legs:
                 slots[0] = EquipmentSlot.Legs;
 
                 break;
+
             case InventoryType.Feet:
                 slots[0] = EquipmentSlot.Feet;
 
                 break;
+
             case InventoryType.Wrists:
                 slots[0] = EquipmentSlot.Wrist;
 
                 break;
+
             case InventoryType.Hands:
                 slots[0] = EquipmentSlot.Hands;
 
                 break;
+
             case InventoryType.Finger:
                 slots[0] = EquipmentSlot.Finger1;
                 slots[1] = EquipmentSlot.Finger2;
 
                 break;
+
             case InventoryType.Trinket:
                 slots[0] = EquipmentSlot.Trinket1;
                 slots[1] = EquipmentSlot.Trinket2;
 
                 break;
+
             case InventoryType.Cloak:
                 slots[0] = EquipmentSlot.Cloak;
 
                 break;
+
             case InventoryType.Weapon:
             {
                 slots[0] = EquipmentSlot.MainHand;
@@ -7169,10 +7147,12 @@ public partial class Player
                 slots[0] = EquipmentSlot.OffHand;
 
                 break;
+
             case InventoryType.Ranged:
                 slots[0] = EquipmentSlot.MainHand;
 
                 break;
+
             case InventoryType.Weapon2Hand:
                 slots[0] = EquipmentSlot.MainHand;
 
@@ -7180,26 +7160,32 @@ public partial class Player
                     slots[1] = EquipmentSlot.OffHand;
 
                 break;
+
             case InventoryType.Tabard:
                 slots[0] = EquipmentSlot.Tabard;
 
                 break;
+
             case InventoryType.WeaponMainhand:
                 slots[0] = EquipmentSlot.MainHand;
 
                 break;
+
             case InventoryType.WeaponOffhand:
                 slots[0] = EquipmentSlot.OffHand;
 
                 break;
+
             case InventoryType.Holdable:
                 slots[0] = EquipmentSlot.OffHand;
 
                 break;
+
             case InventoryType.RangedRight:
                 slots[0] = EquipmentSlot.MainHand;
 
                 break;
+
             case InventoryType.Bag:
                 slots[0] = InventorySlots.BagStart + 0;
                 slots[1] = InventorySlots.BagStart + 1;
@@ -7207,6 +7193,7 @@ public partial class Player
                 slots[3] = InventorySlots.BagStart + 3;
 
                 break;
+
             case InventoryType.ProfessionTool:
             case InventoryType.ProfessionGear:
             {
@@ -7228,6 +7215,7 @@ public partial class Player
                         slots[0] = isProfessionTool ? ProfessionSlots.CookingTool : ProfessionSlots.CookingGear1;
 
                         break;
+
                     case ItemSubclassProfession.Fishing:
                     {
                         // Fishing doesn't make use of gear slots (clientside)
@@ -7276,7 +7264,6 @@ public partial class Player
             default:
                 return ItemConst.NullSlot;
         }
-
 
         if (slot != ItemConst.NullSlot)
         {
@@ -7333,57 +7320,70 @@ public partial class Player
                 callback(EquipmentSlot.Head);
 
                 return true;
+
             case InventoryType.Neck:
                 callback(EquipmentSlot.Neck);
 
                 return true;
+
             case InventoryType.Shoulders:
                 callback(EquipmentSlot.Shoulders);
 
                 return true;
+
             case InventoryType.Body:
                 callback(EquipmentSlot.Shirt);
 
                 return true;
+
             case InventoryType.Robe:
             case InventoryType.Chest:
                 callback(EquipmentSlot.Chest);
 
                 return true;
+
             case InventoryType.Waist:
                 callback(EquipmentSlot.Waist);
 
                 return true;
+
             case InventoryType.Legs:
                 callback(EquipmentSlot.Legs);
 
                 return true;
+
             case InventoryType.Feet:
                 callback(EquipmentSlot.Feet);
 
                 return true;
+
             case InventoryType.Wrists:
                 callback(EquipmentSlot.Wrist);
 
                 return true;
+
             case InventoryType.Hands:
                 callback(EquipmentSlot.Hands);
 
                 return true;
+
             case InventoryType.Cloak:
                 callback(EquipmentSlot.Cloak);
 
                 return true;
+
             case InventoryType.Finger:
                 callback(EquipmentSlot.Finger1);
                 callback(EquipmentSlot.Finger2, true);
 
                 return true;
+
             case InventoryType.Trinket:
                 callback(EquipmentSlot.Trinket1);
                 callback(EquipmentSlot.Trinket2, true);
 
                 return true;
+
             case InventoryType.Weapon:
                 callback(EquipmentSlot.MainHand);
 
@@ -7391,6 +7391,7 @@ public partial class Player
                     callback(EquipmentSlot.OffHand, true);
 
                 return true;
+
             case InventoryType.Weapon2Hand:
                 callback(EquipmentSlot.MainHand);
 
@@ -7398,18 +7399,21 @@ public partial class Player
                     callback(EquipmentSlot.OffHand, true);
 
                 return true;
+
             case InventoryType.Ranged:
             case InventoryType.RangedRight:
             case InventoryType.WeaponMainhand:
                 callback(EquipmentSlot.MainHand);
 
                 return true;
+
             case InventoryType.Shield:
             case InventoryType.Holdable:
             case InventoryType.WeaponOffhand:
                 callback(EquipmentSlot.OffHand);
 
                 return true;
+
             default:
                 return false;
         }
@@ -7626,6 +7630,7 @@ public partial class Player
                 _itemSoulboundTradeable.Remove(guid);
         }
     }
+
     private void VisualizeItem(uint slot, Item pItem)
     {
         if (pItem == null)

@@ -36,14 +36,14 @@ public class ActivePlayerData : BaseUpdateData<Player>
     public DynamicUpdateField<CraftingOrder> CraftingOrders = new(0, 30);
     public UpdateField<float> CritPercentage = new(34, 54);
     public DynamicUpdateField<uint> DailyQuestsCompleted = new(0, 10);
-    public UpdateField<short> DEBUGSoulbindConduitRank = new(98, 117);
+    public UpdateField<short> DebugSoulbindConduitRank = new(98, 117);
     public DynamicUpdateField<int> DisabledSpells = new(0, 28);
     public UpdateField<float> DodgePercentage = new(34, 50);
     public UpdateField<float> DodgePercentageFromAttribute = new(34, 51);
     public UpdateField<DungeonScoreData> DungeonScore = new(98, 118);
     public UpdateFieldArray<ulong> ExploredZones = new(240, 339, 340);
     public UpdateField<ObjectGuid> FarsightObject = new(34, 35);
-    public UpdateField<ActivePlayerUnk901> Field_1410 = new(98, 113);
+    public UpdateField<ActivePlayerUnk901> Field1410 = new(98, 113);
     public UpdateField<PerksVendorItem> FrozenPerksVendorItem = new(98, 111);
     public UpdateField<byte> GrantableLevels = new(66, 79);
     public UpdateField<ulong> GuildClubMemberID = new(98, 106);
@@ -147,7 +147,8 @@ public class ActivePlayerData : BaseUpdateData<Player>
     public UpdateField<uint> WeeklyRewardsPeriodSinceOrigin = new(98, 116);
     public UpdateField<uint> XP = new(34, 38);
     public UpdateField<ushort> YesterdayHonorableKills = new(66, 85);
-     // week count since Cfg_RegionsEntry::ChallengeOrigin
+
+    // week count since Cfg_RegionsEntry::ChallengeOrigin
     public ActivePlayerData() : base(0, TypeId.ActivePlayer, 1575)
     {
         ExploredZonesSize = ExploredZones.GetSize();
@@ -266,12 +267,12 @@ public class ActivePlayerData : BaseUpdateData<Player>
         ClearChangesMask(PerksProgramCurrency);
         ClearChangesMask(NumBankSlots);
         ClearChangesMask(FrozenPerksVendorItem);
-        ClearChangesMask(Field_1410);
+        ClearChangesMask(Field1410);
         ClearChangesMask(QuestSession);
         ClearChangesMask(UiChromieTimeExpansionID);
         ClearChangesMask(TransportServerTime);
         ClearChangesMask(WeeklyRewardsPeriodSinceOrigin);
-        ClearChangesMask(DEBUGSoulbindConduitRank);
+        ClearChangesMask(DebugSoulbindConduitRank);
         ClearChangesMask(DungeonScore);
         ClearChangesMask(ActiveCombatTraitConfigID);
         ClearChangesMask(InvSlots);
@@ -459,7 +460,7 @@ public class ActivePlayerData : BaseUpdateData<Player>
         data.WriteInt32(UiChromieTimeExpansionID);
         data.WriteInt32(TransportServerTime);
         data.WriteUInt32(WeeklyRewardsPeriodSinceOrigin);
-        data.WriteInt16(DEBUGSoulbindConduitRank);
+        data.WriteInt16(DebugSoulbindConduitRank);
         data.WriteInt32(TraitConfigs.Size());
         data.WriteUInt32(ActiveCombatTraitConfigID);
         data.WriteInt32(CraftingOrders.Size());
@@ -543,7 +544,7 @@ public class ActivePlayerData : BaseUpdateData<Player>
         if (QuestSession.HasValue())
             QuestSession.Value.WriteCreate(data, owner, receiver);
 
-        ((ActivePlayerUnk901)Field_1410).WriteCreate(data, owner, receiver);
+        ((ActivePlayerUnk901)Field1410).WriteCreate(data, owner, receiver);
         DungeonScore.Value.Write(data);
 
         for (var i = 0; i < PvpInfo.Size(); ++i)
@@ -1197,7 +1198,7 @@ public class ActivePlayerData : BaseUpdateData<Player>
                 data.WriteUInt32(WeeklyRewardsPeriodSinceOrigin);
 
             if (changesMask[117])
-                data.WriteInt16(DEBUGSoulbindConduitRank);
+                data.WriteInt16(DebugSoulbindConduitRank);
 
             if (changesMask[119])
                 data.WriteUInt32(ActiveCombatTraitConfigID);
@@ -1215,7 +1216,7 @@ public class ActivePlayerData : BaseUpdateData<Player>
                     QuestSession.Value.WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
 
             if (changesMask[113])
-                ((ActivePlayerUnk901)Field_1410).WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                ((ActivePlayerUnk901)Field1410).WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
 
             if (changesMask[118])
                 DungeonScore.Value.Write(data);

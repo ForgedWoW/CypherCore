@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.BattlePets;
+using Forged.MapServer.Chat;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
@@ -16,16 +18,19 @@ namespace Forged.MapServer.Battlepay;
 
 public class BattlepayManager
 {
+    private readonly BattlePetMgrData _battlePetMgr;
     private readonly SortedDictionary<uint, BpayProduct> _existProducts = new();
 
     private readonly WorldSession _session;
-    private readonly string _walletName = "";
+    private readonly string _walletName;
     private Purchase _actualTransaction = new();
     private ulong _distributionIDCount;
     private ulong _purchaseIDCount;
-    public BattlepayManager(WorldSession session)
+
+    public BattlepayManager(WorldSession session, BattlePetMgrData battlePetMgr)
     {
         _session = session;
+        _battlePetMgr = battlePetMgr;
         _purchaseIDCount = 0;
         _distributionIDCount = 0;
         _walletName = "Credits";
@@ -35,14 +40,14 @@ public class BattlepayManager
     //ORIGINAL LINE: void AddBattlePetFromBpayShop(uint battlePetCreatureID) const
     public void AddBattlePetFromBpayShop(uint battlePetCreatureID)
     {
-        var speciesEntry = BattlePets.BattlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID);
+        var speciesEntry = _battlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID);
 
-        if (BattlePets.BattlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID) != null)
+        if (_battlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID) != null)
         {
-            _session.BattlePetMgr.AddPet(speciesEntry.Id, BattlePets.BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePets.BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePets.BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+            _session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePetMgr.SelectPetDisplay(speciesEntry), _battlePetMgr.RollPetBreed(speciesEntry.Id), _battlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
 
             //it gives back false information need to get the pet guid from the add pet method somehow
-            SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
+            SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _session.Player.ObjectManager.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
         }
     }
 
@@ -52,7 +57,7 @@ public class BattlepayManager
 
         if (player)
         {
-            var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+            var itemTemplate = _session.Player.ObjectManager.GetItemTemplate(itemId);
 
             if (itemTemplate == null)
                 return true;
@@ -68,7 +73,7 @@ public class BattlepayManager
         return false;
     }
 
-    public void AssignDistributionToCharacter(in ObjectGuid targetCharGuid, ulong distributionId, uint productId, ushort specialization_id, ushort choice_id)
+    public void AssignDistributionToCharacter(in ObjectGuid targetCharGuid, ulong distributionId, uint productId, ushort specializationID, ushort choiceID)
     {
         var upgrade = new UpgradeStarted
         {
@@ -87,7 +92,7 @@ public class BattlepayManager
         _session.SendPacket(upgrade);
 
         var purchase = GetPurchase();
-        purchase.Status = (ushort)BpayDistributionStatus.ADD_TO_PROCESS; // DistributionStatus.Globals.BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS;
+        purchase.Status = (ushort)BpayDistributionStatus.AddToProcess; // DistributionStatus.Globals.BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS;
 
         SendBattlePayDistribution(productId, purchase.Status, distributionId, targetCharGuid);
     }
@@ -108,15 +113,15 @@ public class BattlepayManager
 
         stmt.AddValue(0, _session.BattlenetAccountId);
 
-        var result_don = DB.Login.Query(stmt);
+        var resultDon = DB.Login.Query(stmt);
 
-        if (result_don == null)
+        if (resultDon == null)
             return 0;
 
-        var fields = result_don.GetFields();
+        var fields = resultDon.GetFields();
         var credits = fields.Read<uint>(0);
 
-        return credits * 10000; // currency precision .. in retail it like gold and copper .. 10 usd is 100000 battlepay credit
+        return credits * 10000u; // currency precision .. in retail it like gold and copper .. 10 usd is 100000 battlepay credit
     }
 
     //C++ TO C# CONVERTER WARNING: 'const' methods are not available in C#:
@@ -175,15 +180,15 @@ public class BattlepayManager
         foreach (var productId in productInfo.ProductIds)
         {
             var product = BattlePayDataStoreMgr.Instance.GetProduct(productId);
-            var item = Global.ObjectMgr.GetItemTemplate(product.Flags);
+            var itemTemplate = _session.Player.ObjectManager.GetItemTemplate(product.Flags);
             var itemsToSendIfInventoryFull = new List<uint>();
 
             switch ((ProductType)product.Type)
             {
-                case ProductType.Item_: // 0
+                case ProductType.Item: // 0
                     itemsToSendIfInventoryFull.Clear();
 
-                    if (item != null && player)
+                    if (itemTemplate != null && player)
                     {
                         if (player.GetFreeInventorySpace() > product.Unk1)
                             player.AddItemWithToast(product.Flags, (ushort)product.Unk1, 0);
@@ -199,13 +204,13 @@ public class BattlepayManager
                         _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
                     }
 
-                    foreach (var _item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
-                        if (Global.ObjectMgr.GetItemTemplate(_item.ItemID) != null)
+                    foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
+                        if (_session.Player.ObjectManager.GetItemTemplate(item.ItemID) != null)
                         {
-                            if (player.GetFreeInventorySpace() > _item.Quantity)
-                                player.AddItemWithToast(_item.ItemID, (ushort)_item.Quantity, 0);
+                            if (player.GetFreeInventorySpace() > item.Quantity)
+                                player.AddItemWithToast(item.ItemID, (ushort)item.Quantity, 0);
                             else
-                                itemsToSendIfInventoryFull.Add(_item.ItemID); // problem if the quantity > 0
+                                itemsToSendIfInventoryFull.Add(item.ItemID); // problem if the quantity > 0
                         }
 
                     if (itemsToSendIfInventoryFull.Count > 0)
@@ -270,7 +275,7 @@ public class BattlepayManager
                     break;
 
                 case ProductType.WoWToken: // 4
-                    if (item != null && player)
+                    if (itemTemplate != null && player)
                     {
                         if (player.GetFreeInventorySpace() > product.Unk1)
                             player.AddItemWithToast(product.Flags, (ushort)product.Unk1, 0);
@@ -332,7 +337,7 @@ public class BattlepayManager
                     break;
 
                 case ProductType.GameTime: // 20
-                    if (item != null && player)
+                    if (itemTemplate != null && player)
                     {
                         if (player.GetFreeInventorySpace() > product.Unk1)
                             player.AddItemWithToast(product.Flags, (ushort)product.Unk1, 0);
@@ -367,7 +372,7 @@ public class BattlepayManager
                 /// Customs:
                 case ProductType.ItemSet:
                 {
-                    var its = Global.ObjectMgr.GetItemTemplates();
+                    var its = _session.Player.ObjectManager.GetItemTemplates();
 
                     //C++ TO C# CONVERTER NOTE: 'auto' variable declarations are not supported in C#:
                     //ORIGINAL LINE: for (auto const& itemTemplatePair : its)
@@ -413,83 +418,92 @@ public class BattlepayManager
                                     if (player)
                                         player->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
                                     break;
-            
+
                                 // Script by Legolast++
                                 case Battlepay::ProfPriAlchemy:
-            
+
                                     player->HasSkill(SKILL_ALCHEMY);
                                     player->HasSkill(SKILL_SHADOWLANDS_ALCHEMY);
                                     LearnAllRecipesInProfession(player, SKILL_ALCHEMY);
                                     break;
-            
+
                                 case Battlepay::ProfPriSastre:
-            
+
                                     player->HasSkill(SKILL_TAILORING);
                                     player->HasSkill(SKILL_SHADOWLANDS_TAILORING);
                                     LearnAllRecipesInProfession(player, SKILL_TAILORING);
                                     break;
+
                                 case Battlepay::ProfPriJoye:
-            
+
                                     player->HasSkill(SKILL_JEWELCRAFTING);
                                     player->HasSkill(SKILL_SHADOWLANDS_JEWELCRAFTING);
                                     LearnAllRecipesInProfession(player, SKILL_JEWELCRAFTING);
                                     break;
+
                                 case Battlepay::ProfPriHerre:
-            
+
                                     player->HasSkill(SKILL_BLACKSMITHING);
                                     player->HasSkill(SKILL_SHADOWLANDS_BLACKSMITHING);
                                     LearnAllRecipesInProfession(player, SKILL_BLACKSMITHING);
                                     break;
+
                                 case Battlepay::ProfPriPele:
-            
+
                                     player->HasSkill(SKILL_LEATHERWORKING);
                                     player->HasSkill(SKILL_SHADOWLANDS_LEATHERWORKING);
                                     LearnAllRecipesInProfession(player, SKILL_LEATHERWORKING);
                                     break;
+
                                 case Battlepay::ProfPriInge:
-            
+
                                     player->HasSkill(SKILL_ENGINEERING);
                                     player->HasSkill(SKILL_SHADOWLANDS_ENGINEERING);
                                     LearnAllRecipesInProfession(player, SKILL_ENGINEERING);
                                     break;
+
                                 case Battlepay::ProfPriInsc:
-            
+
                                     player->HasSkill(SKILL_INSCRIPTION);
                                     player->HasSkill(SKILL_SHADOWLANDS_INSCRIPTION);
                                     LearnAllRecipesInProfession(player, SKILL_INSCRIPTION);
                                     break;
+
                                 case Battlepay::ProfPriEncha:
-            
+
                                     player->HasSkill(SKILL_ENCHANTING);
                                     player->HasSkill(SKILL_SHADOWLANDS_ENCHANTING);
                                     LearnAllRecipesInProfession(player, SKILL_ENCHANTING);
                                     break;
+
                                 case Battlepay::ProfPriDesu:
-            
+
                                     player->HasSkill(SKILL_SKINNING);
                                     player->HasSkill(SKILL_SHADOWLANDS_SKINNING);
                                     LearnAllRecipesInProfession(player, SKILL_SKINNING);
                                     break;
+
                                 case Battlepay::ProfPriMing:
-            
+
                                     player->HasSkill(SKILL_MINING);
                                     player->HasSkill(SKILL_SHADOWLANDS_MINING);
                                     LearnAllRecipesInProfession(player, SKILL_MINING);
                                     break;
+
                                 case Battlepay::ProfPriHerb:
-            
+
                                     player->HasSkill(SKILL_HERBALISM);
                                     player->HasSkill(SKILL_SHADOWLANDS_HERBALISM);
                                     LearnAllRecipesInProfession(player, SKILL_HERBALISM);
                                     break;
-            
+
                                 case Battlepay::ProfSecCoci:
-            
+
                                     player->HasSkill(SKILL_COOKING);
                                     player->HasSkill(SKILL_SHADOWLANDS_COOKING);
                                     LearnAllRecipesInProfession(player, SKILL_COOKING);
                                     break;
-            
+
                                 case Battlepay::Promo:
                                     if (!player)
                                         // Ridding
@@ -502,8 +516,9 @@ public class BattlepayManager
                                     player->LearnSpell(90267, true);
                                     // Mounts
                                     player->LearnSpell(63956, true);
-            
+
                                     break;
+
                                 case Battlepay::RepClassic:
                                     if (!player)
                                         player->SetReputation(21, 42000);
@@ -526,7 +541,7 @@ public class BattlepayManager
                                     player->SetReputation(70, 42000);
                                     player->SetReputation(1357, 42000);
                                     player->SetReputation(1975, 42000);
-            
+
                                     if (player->GetTeam() == ALLIANCE)
                                     {
                                         player->SetReputation(890, 42000);
@@ -561,6 +576,7 @@ public class BattlepayManager
                                     player->GetSession()->SendNotification("|cff00FF00Se ha aumentado todas las Reputaciones Clasicas!");
                                     return;
                                     break;
+
                                 case Battlepay::RepBurnig:
                                     if (!player)
                                         player->SetReputation(1015, 42000);
@@ -578,7 +594,7 @@ public class BattlepayManager
                                     player->SetReputation(1077, 42000);
                                     player->SetReputation(1038, 42000);
                                     player->SetReputation(989, 42000);
-            
+
                                     if (player->GetTeam() == ALLIANCE)
                                     {
                                         player->SetReputation(946, 42000);
@@ -593,6 +609,7 @@ public class BattlepayManager
                                     player->GetSession()->SendNotification("|cff00FF00Se ha aumentado todas las Reputaciones Burning Crusade!");
                                     return;
                                     break;
+
                                 case Battlepay::RepTLK:
                                     if (!player)
                                         player->SetReputation(1242, 42000);
@@ -617,6 +634,7 @@ public class BattlepayManager
                                     player->GetSession()->SendNotification("|cff00FF00Se ha aumentado todas las Reputaciones The Lich King!");
                                     return;
                                     break;
+
                                 case Battlepay::RepCata:
                                     if (!player)
                                         player->SetReputation(1091, 42000);
@@ -628,7 +646,7 @@ public class BattlepayManager
                                     player->SetReputation(1073, 42000);
                                     player->SetReputation(1105, 42000);
                                     player->SetReputation(1104, 42000);
-            
+
                                     if (player->GetTeam() == ALLIANCE)
                                     {
                                         player->SetReputation(1094, 42000);
@@ -648,6 +666,7 @@ public class BattlepayManager
                                     player->GetSession()->SendNotification("|cff00FF00Se ha aumentado todas las Reputaciones Cataclismo!");
                                     return;
                                     break;
+
                                 case Battlepay::RepPanda:
                                     if (!player)
                                         player->SetReputation(1216, 42000);
@@ -675,13 +694,12 @@ public class BattlepayManager
                                     player->SetReputation(1278, 42000);
                                     player->SetReputation(1280, 42000);
                                     player->SetReputation(1276, 42000);
-            
+
                                     if (player->GetTeam() == ALLIANCE)
                                     {
                                         player->SetReputation(1242, 42000);
                                         player->SetReputation(1376, 42000);
                                         player->SetReputation(1387, 42000);
-            
                                     }
                                     else // Repu Horda
                                     {
@@ -692,6 +710,7 @@ public class BattlepayManager
                                     player->GetSession()->SendNotification("|cff00FF00Se ha aumentado todas las Reputaciones de Pandaria!");
                                     return;
                                     break;
+
                                 case Battlepay::RepDraenor:
                                     if (!player)
                                         player->SetReputation(1850, 42000);
@@ -726,6 +745,7 @@ public class BattlepayManager
                                     player->GetSession()->SendNotification("|cff00FF00Se ha aumentado todas las Reputaciones de Draenor!");
                                     return;
                                     break;
+
                                 case Battlepay::RepLegion:
                                     if (!player)
                                         player->SetReputation(1919, 42000);
@@ -905,9 +925,9 @@ public class BattlepayManager
 
                     if (player.Class == PlayerClass.Deathknight)
                     {
-                        var quest = Global.ObjectMgr.GetQuestTemplate(12801);
+                        var quest = _session.Player.ObjectManager.GetQuestTemplate(12801);
 
-                        if (Global.ObjectMgr.GetQuestTemplate(12801) != null)
+                        if (_session.Player.ObjectManager.GetQuestTemplate(12801) != null)
                         {
                             player.AddQuest(quest, null);
                             player.CompleteQuest(quest.Id);
@@ -1318,12 +1338,11 @@ public class BattlepayManager
         /*
         auto& data = _actualTransaction;
         auto product = sBattlePayDataStore->GetProduct(data.ProductID);
-      
+
         switch (data.Status)
         {
         case Battlepay::Properties::DistributionStatus::BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS:
         {
-      
             switch (product->Type)
             {
             case CharacterBoost:
@@ -1331,12 +1350,12 @@ public class BattlepayManager
                 auto const& player = data.TargetCharacter;
                 if (!player)
                     break;
-      
+
                 WorldPackets::BattlePay::BattlePayCharacterUpgradeQueued responseQueued;
                 responseQueued.EquipmentItems = sDB2Manager.GetItemLoadOutItemsByClassID(player->getClass(), 3)[0];
                 responseQueued.Character = data.TargetCharacter;
                 _session->SendPacket(responseQueued.Write());
-      
+
                 data.Status = DistributionStatus::BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE;
                 SendBattlePayDistribution(data.ProductID, data.Status, data.DistributionId, data.TargetCharacter);
                 break;
@@ -1345,7 +1364,6 @@ public class BattlepayManager
                 break;
             }
             break;
-      
         }
         case Battlepay::Properties::DistributionStatus::BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE: //send SMSG_BATTLE_PAY_VAS_PURCHASE_STARTED
         {
@@ -1369,6 +1387,7 @@ public class BattlepayManager
             case CharacterBoost:
                 SendBattlePayDistribution(data.ProductID, data.Status, data.DistributionId, data.TargetCharacter);
                 break;
+
             default:
                 break;
             }
@@ -1393,6 +1412,7 @@ public class BattlepayManager
 
         return true;
     }
+
     public Tuple<bool, BpayDisplayInfo> WriteDisplayInfo(uint displayInfoEntry, uint productId = 0)
     {
         //C++ TO C# CONVERTER TASK: Lambda expressions cannot be assigned to 'var':
@@ -1407,18 +1427,25 @@ public class BattlepayManager
             {
                 case 0:
                     return "|cffffffff";
+
                 case 1:
                     return "|cff1eff00";
+
                 case 2:
                     return "|cff0070dd";
+
                 case 3:
                     return "|cffa335ee";
+
                 case 4:
                     return "|cffff8000";
+
                 case 5:
                     return "|cffe5cc80";
+
                 case 6:
                     return "|cffe5cc80";
+
                 default:
                     return "|cffffffff";
             }
@@ -1450,17 +1477,17 @@ public class BattlepayManager
 
         for (var v = 0; v < displayInfo.Visuals.Count; v++)
         {
-            var visual = displayInfo.Visuals[v];
+            var displayVisual = displayInfo.Visuals[v];
 
-            var _Visual = new BpayVisual
+            var visual = new BpayVisual
             {
-                Name = visual.Name,
-                DisplayId = visual.DisplayId,
-                VisualId = visual.VisualId,
-                Unk = visual.Unk
+                Name = displayVisual.Name,
+                DisplayId = displayVisual.DisplayId,
+                VisualId = displayVisual.VisualId,
+                Unk = displayVisual.Unk
             };
 
-            info.Visuals.Add(_Visual);
+            info.Visuals.Add(visual);
         }
 
         if (displayInfo.Flags != 0)

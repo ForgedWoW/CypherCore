@@ -6,7 +6,7 @@ namespace Forged.MapServer.Battlepay;
 public enum ProductType
 {
     // retail values:
-    Item_ = 0,
+    Item = 0,
     LevelBoost = 1,
     Pet = 2,
     Mount = 3,
@@ -44,11 +44,11 @@ public enum ProductType
     Promo = 140,
     RepClassic = 141,
     RepBurnig = 142,
-    RepTLK = 143,
+    RepTlk = 143,
     RepCata = 144,
     RepPanda = 145,
     RepDraenor = 146,
     RepLegion = 147,
     PremadePve = 149,
-    VueloDL = 150,
+    VueloDl = 150,
 }

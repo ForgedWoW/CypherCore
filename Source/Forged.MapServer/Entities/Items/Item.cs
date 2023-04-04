@@ -842,7 +842,7 @@ public class Item : WorldObject
         if ((!mail || !IsBoundAccountWide) && (IsSoulBound && (!IsBOPTradeable || !trade)))
             return false;
 
-        if (IsBag && (Player.IsBagPos(Pos) || !AsBag.IsEmpty()))
+        if (IsBag && (PlayerComputators.IsBagPos(Pos) || !AsBag.IsEmpty()))
             return false;
 
         var owner = OwnerUnit;

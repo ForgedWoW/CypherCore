@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
 using Framework.Constants;
@@ -273,6 +274,7 @@ internal class LearnCommands
 
             return true;
         }
+
         private static void HandleLearnSkillRecipesHelper(Player player, uint skillId)
         {
             var classmask = player.ClassMask;

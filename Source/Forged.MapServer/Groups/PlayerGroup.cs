@@ -137,7 +137,7 @@ public class PlayerGroup
             return false;
 
         _leaderGuid = player.GUID;
-        _leaderFactionGroup = Player.GetFactionGroupForRace(player.Race);
+        _leaderFactionGroup = PlayerComputators.GetFactionGroupForRace(player.Race);
         LeaderName = player.GetName();
 
         return true;
@@ -506,7 +506,7 @@ public class PlayerGroup
 
         newLeader.SetPlayerFlag(PlayerFlags.GroupLeader);
         _leaderGuid = newLeader.GUID;
-        _leaderFactionGroup = Player.GetFactionGroupForRace(newLeader.Race);
+        _leaderFactionGroup = PlayerComputators.GetFactionGroupForRace(newLeader.Race);
         LeaderName = newLeader.GetName();
         ToggleGroupMemberFlag(slot, GroupMemberFlags.Assistant, false);
 
@@ -659,7 +659,7 @@ public class PlayerGroup
 
         _guid = ObjectGuid.Create(HighGuid.Party, Global.GroupMgr.GenerateGroupId());
         _leaderGuid = leaderGuid;
-        _leaderFactionGroup = Player.GetFactionGroupForRace(leader.Race);
+        _leaderFactionGroup = PlayerComputators.GetFactionGroupForRace(leader.Race);
         LeaderName = leader.GetName();
         leader.SetPlayerFlag(PlayerFlags.GroupLeader);
 
@@ -947,7 +947,7 @@ public class PlayerGroup
         if (leader == null)
             return;
 
-        _leaderFactionGroup = Player.GetFactionGroupForRace(leader.RaceId);
+        _leaderFactionGroup = PlayerComputators.GetFactionGroupForRace(leader.RaceId);
         LeaderName = leader.Name;
         LootMethod = (LootMethod)field.Read<byte>(1);
         _looterGuid = ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(2));
@@ -1294,7 +1294,7 @@ public class PlayerGroup
                 GUID = member.Guid,
                 Name = member.Name,
                 Class = member.Class,
-                FactionGroup = Player.GetFactionGroupForRace(member.Race),
+                FactionGroup = PlayerComputators.GetFactionGroupForRace(member.Race),
                 Connected = memberPlayer?.Session != null && !memberPlayer.Session.PlayerLogout,
                 Subgroup = member.Group,           // groupid
                 Flags = (byte)member.Flags,        // See enum GroupMemberFlags

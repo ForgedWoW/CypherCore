@@ -528,7 +528,7 @@ public class CriteriaData
                 return (uint)target.AsPlayer.Team == TeamId.Team;
 
             case CriteriaDataType.SDrunk:
-                return Player.GetDrunkenstateByValue(source.DrunkValue) >= (DrunkenState)Drunk.State;
+                return PlayerComputators.GetDrunkenstateByValue(source.DrunkValue) >= (DrunkenState)Drunk.State;
 
             case CriteriaDataType.Holiday:
                 return _gameEventManager.IsHolidayActive((HolidayIds)Holiday.Id);

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities;
@@ -359,10 +360,12 @@ internal class NPCCommands
                 creature.HandleEmoteCommand(Emote.OneshotQuestion);
 
                 break;
+
             case '!':
                 creature.HandleEmoteCommand(Emote.OneshotExclamation);
 
                 break;
+
             default:
                 creature.HandleEmoteCommand(Emote.OneshotTalk);
 
@@ -440,10 +443,12 @@ internal class NPCCommands
                     force = true;
 
                     break;
+
                 case "ignorerespawn":
                     ignoreRespawn = true;
 
                     break;
+
                 default:
                     uint.TryParse(variant, out groupId);
 
@@ -609,6 +614,7 @@ internal class NPCCommands
 
         return true;
     }
+
     [CommandGroup("add")]
     private class AddCommands
     {
@@ -1244,14 +1250,17 @@ internal class NPCCommands
                     move_type = MovementGeneratorType.Idle;
 
                     break;
+
                 case "random":
                     move_type = MovementGeneratorType.Random;
 
                     break;
+
                 case "way":
                     move_type = MovementGeneratorType.Waypoint;
 
                     break;
+
                 default:
                     return false;
             }

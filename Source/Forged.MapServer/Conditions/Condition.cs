@@ -413,7 +413,7 @@ public class Condition
                 break;
             case ConditionTypes.DrunkenState:
                 if (player != null)
-                    condMeets = (uint)Player.GetDrunkenstateByValue(player.DrunkValue) >= ConditionValue1;
+                    condMeets = (uint)PlayerComputators.GetDrunkenstateByValue(player.DrunkValue) >= ConditionValue1;
 
                 break;
             case ConditionTypes.NearCreature:

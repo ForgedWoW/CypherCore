@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using System.Text.Json;
 using Forged.MapServer.DataStorage;
 using Framework.Constants;
@@ -35,11 +36,12 @@ internal class InstanceScriptDataReader
         AdditionalDataIsNotAnObject,
         AdditionalDataUnexpectedValueType
     }
+
     public Result Load(string data)
     {
         /*
            Expected JSON
-      
+
             {
                 "Header": "HEADER_STRING_SET_BY_SCRIPT",
                 "BossStates": [0,2,0,...] // indexes are boss ids, values are EncounterState

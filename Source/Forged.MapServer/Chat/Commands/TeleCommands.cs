@@ -66,7 +66,7 @@ internal class TeleCommands
 
             handler.SendSysMessage(CypherStrings.TeleportingTo, nameLink, handler.GetCypherString(CypherStrings.Offline), locationName);
 
-            Player.SavePositionInDB(new WorldLocation(mapId, pos), Global.TerrainMgr.GetZoneId(PhasingHandler.EmptyPhaseShift, new WorldLocation(mapId, pos)), player.GetGUID());
+            PlayerComputators.SavePositionInDB(new WorldLocation(mapId, pos), Global.TerrainMgr.GetZoneId(PhasingHandler.EmptyPhaseShift, new WorldLocation(mapId, pos)), player.GetGUID());
         }
 
         return true;
@@ -276,7 +276,7 @@ internal class TeleCommands
                         WorldLocation loc = new(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
                         uint zoneId = result.Read<ushort>(1);
 
-                        Player.SavePositionInDB(loc, zoneId, player.GetGUID());
+                        PlayerComputators.SavePositionInDB(loc, zoneId, player.GetGUID());
                     }
                 }
 

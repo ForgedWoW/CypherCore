@@ -42,6 +42,8 @@ using Forged.MapServer.Movement;
 using Forged.MapServer.Networking;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Pools;
+using Forged.MapServer.Quest;
+using Forged.MapServer.Reputation;
 using Forged.MapServer.Scenarios;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IServer;
@@ -441,4 +443,9 @@ void RegisterInstanced()
     builder.RegisterType<SmartScript>();
     builder.RegisterType<CriteriaData>();
     builder.RegisterType<BattlegroundQueue>();
+    builder.RegisterType<PlayerAchievementMgr>();
+    builder.RegisterType<QuestObjectiveCriteriaManager>();
+    builder.RegisterType<CinematicManager>();
+    builder.RegisterType<ReputationMgr>();
+    builder.RegisterType<SceneMgr>();
 }

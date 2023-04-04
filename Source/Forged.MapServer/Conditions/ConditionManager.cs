@@ -2210,7 +2210,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.Gender:
             {
-                if (!Player.IsValidGender((Gender)cond.ConditionValue1))
+                if (!PlayerComputators.IsValidGender((Gender)cond.ConditionValue1))
                 {
                     Log.Logger.Debug("{0} has invalid gender ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 

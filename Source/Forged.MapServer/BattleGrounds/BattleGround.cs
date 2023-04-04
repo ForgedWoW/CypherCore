@@ -1362,7 +1362,7 @@ public class Battleground : ZoneScript, IDisposable
         }
         else
         {
-            Player.OfflineResurrect(guid, null);
+            PlayerComputators.OfflineResurrect(guid, null);
         }
 
         RemovePlayer(player, guid, team); // BG subclass specific code
