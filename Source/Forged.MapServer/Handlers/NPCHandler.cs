@@ -41,7 +41,7 @@ public class NPCHandler : IWorldSessionHandler
             Player.RemoveAurasByType(AuraType.FeignDeath);
 
         // Stop the npc if moving
-        var pause = vendor.MovementTemplate.GetInteractionPauseTimer();
+        var pause = vendor.MovementTemplate.InteractionPauseTimer;
 
         if (pause != 0)
             vendor.PauseMovement(pause);
@@ -49,7 +49,7 @@ public class NPCHandler : IWorldSessionHandler
         vendor.HomePosition = vendor.Location;
 
         var vendorItems = vendor.VendorItems;
-        var rawItemCount = vendorItems?.GetItemCount() ?? 0;
+        var rawItemCount = vendorItems?.ItemCount ?? 0;
 
         VendorInventory packet = new();
         packet.Vendor = vendor.GUID;
@@ -287,7 +287,7 @@ public class NPCHandler : IWorldSessionHandler
         Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
 
         // Stop the npc if moving
-        var pause = unit.MovementTemplate.GetInteractionPauseTimer();
+        var pause = unit.MovementTemplate.InteractionPauseTimer;
 
         if (pause != 0)
             unit.PauseMovement(pause);
@@ -326,7 +326,7 @@ public class NPCHandler : IWorldSessionHandler
             return;
 
         // Prevent cheating on C# scripted menus
-        if (Player.PlayerTalkClass.GetInteractionData().SourceGuid != packet.GossipUnit)
+        if (Player.PlayerTalkClass.InteractionData.SourceGuid != packet.GossipUnit)
             return;
 
         Creature unit = null;

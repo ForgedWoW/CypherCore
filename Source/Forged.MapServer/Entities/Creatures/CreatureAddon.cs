@@ -8,17 +8,17 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureAddon
 {
-    public ushort AiAnimKit;
-    public byte AnimTier;
-    public List<uint> Auras = new();
-    public uint Emote;
-    public ushort MeleeAnimKit;
-    public uint Mount;
-    public ushort MovementAnimKit;
-    public uint PathId;
-    public byte PvpFlags;
-    public byte SheathState;
-    public byte StandState;
-    public byte VisFlags;
-    public VisibilityDistanceType VisibilityDistanceType;
+    public ushort AiAnimKit { get; set; }
+    public byte AnimTier { get; set; }
+    public List<uint> Auras { get; set; } = new();
+    public uint Emote { get; set; }
+    public ushort MeleeAnimKit { get; set; }
+    public uint Mount { get; set; }
+    public ushort MovementAnimKit { get; set; }
+    public uint PathId { get; set; }
+    public byte PvpFlags { get; set; }
+    public byte SheathState { get; set; }
+    public byte StandState { get; set; }
+    public byte VisFlags { get; set; }
+    public VisibilityDistanceType VisibilityDistanceType { get; set; }
 }

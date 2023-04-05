@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.AI;
 using Forged.MapServer.AI.CoreAI;
-using Forged.MapServer.AI.SmartScripts;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
@@ -241,35 +240,35 @@ public partial class Creature : Unit
 
     public void CallAssistance()
     {
-        if (!_alreadyCallAssistance && Victim != null && !IsPet && !IsCharmed)
+        if (_alreadyCallAssistance || Victim == null || IsPet || IsCharmed)
+            return;
+
+        SetNoCallAssistance(true);
+
+        var radius = Configuration.GetDefaultValue("CreatureFamilyAssistanceRadius", 10.0f);
+
+        if (!(radius > 0))
+            return;
+
+        List<Creature> assistList = new();
+
+        var uCheck = new AnyAssistCreatureInRangeCheck(this, Victim, radius);
+        var searcher = new CreatureListSearcher(this, assistList, uCheck, GridType.Grid);
+        Cell.VisitGrid(this, searcher, radius);
+
+        if (assistList.Empty())
+            return;
+
+        AssistDelayEvent e = new(Victim.GUID, this, ObjectAccessor);
+
+        while (!assistList.Empty())
         {
-            SetNoCallAssistance(true);
-
-            var radius = Configuration.GetDefaultValue("CreatureFamilyAssistanceRadius", 10.0f);
-
-            if (radius > 0)
-            {
-                List<Creature> assistList = new();
-
-                var uCheck = new AnyAssistCreatureInRangeCheck(this, Victim, radius);
-                var searcher = new CreatureListSearcher(this, assistList, uCheck, GridType.Grid);
-                Cell.VisitGrid(this, searcher, radius);
-
-                if (!assistList.Empty())
-                {
-                    AssistDelayEvent e = new(Victim.GUID, this);
-
-                    while (!assistList.Empty())
-                    {
-                        // Pushing guids because in delay can happen some creature gets despawned
-                        e.AddAssistant(assistList.First().GUID);
-                        assistList.Remove(assistList.First());
-                    }
-
-                    Events.AddEvent(e, Events.CalculateTime(TimeSpan.FromMilliseconds(Configuration.GetDefaultValue("CreatureFamilyAssistanceDelay", 1500))));
-                }
-            }
+            // Pushing guids because in delay can happen some creature gets despawned
+            e.AddAssistant(assistList.First().GUID);
+            assistList.Remove(assistList.First());
         }
+
+        Events.AddEvent(e, Events.CalculateTime(TimeSpan.FromMilliseconds(Configuration.GetDefaultValue("CreatureFamilyAssistanceDelay", 1500))));
     }
 
     public void CallForHelp(float radius)
@@ -404,7 +403,7 @@ public partial class Creature : Unit
             dist += CombatReach + victim.CombatReach;
 
             // to prevent creatures in air ignore attacks because distance is already too high...
-            if (MovementTemplate.IsFlightAllowed())
+            if (MovementTemplate.IsFlightAllowed)
                 return victim.Location.IsInDist2d(_homePosition, dist);
             else
                 return victim.Location.IsInDist(_homePosition, dist);
@@ -2971,7 +2970,7 @@ public partial class Creature : Unit
         var canHover = CanHover;
         var isInAir = (MathFunctions.fuzzyGt(Location.Z, ground + (canHover ? UnitData.HoverHeight : 0.0f) + MapConst.GroundHeightTolerance) || MathFunctions.fuzzyLt(Location.Z, ground - MapConst.GroundHeightTolerance)); // Can be underground too, prevent the falling
 
-        if (MovementTemplate.IsFlightAllowed() && (isInAir || !MovementTemplate.IsGroundAllowed()) && !IsFalling)
+        if (MovementTemplate.IsFlightAllowed && (isInAir || !MovementTemplate.IsGroundAllowed) && !IsFalling)
         {
             if (MovementTemplate.Flight == CreatureFlightMovementType.CanFly)
                 SetCanFly(true);
@@ -3125,7 +3124,7 @@ public partial class Creature : Unit
 
     private void LoadTemplateRoot()
     {
-        if (MovementTemplate.IsRooted())
+        if (MovementTemplate.Rooted)
             SetControlled(true, UnitState.Root);
     }
 

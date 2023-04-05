@@ -9,13 +9,6 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureMovementData
 {
-    public CreatureChaseMovementType Chase;
-    public CreatureFlightMovementType Flight;
-    public CreatureGroundMovementType Ground;
-    public uint InteractionPauseTimer;
-    public CreatureRandomMovementType Random;
-    public bool Rooted;
-    public bool Swim;
     public CreatureMovementData(IConfiguration configuration)
     {
         Ground = CreatureGroundMovementType.Run;
@@ -27,40 +20,15 @@ public class CreatureMovementData
         InteractionPauseTimer = configuration.GetDefaultValue("Creature.MovingStopTimeForPlayer", 3u * Time.MINUTE * Time.IN_MILLISECONDS);
     }
 
-    public CreatureChaseMovementType GetChase()
-    {
-        return Chase;
-    }
-
-    public uint GetInteractionPauseTimer()
-    {
-        return InteractionPauseTimer;
-    }
-
-    public CreatureRandomMovementType GetRandom()
-    {
-        return Random;
-    }
-
-    public bool IsFlightAllowed()
-    {
-        return Flight != CreatureFlightMovementType.None;
-    }
-
-    public bool IsGroundAllowed()
-    {
-        return Ground != CreatureGroundMovementType.None;
-    }
-
-    public bool IsRooted()
-    {
-        return Rooted;
-    }
-
-    public bool IsSwimAllowed()
-    {
-        return Swim;
-    }
+    public CreatureChaseMovementType Chase { get; set; }
+    public CreatureFlightMovementType Flight { get; set; }
+    public CreatureGroundMovementType Ground { get; set; }
+    public uint InteractionPauseTimer { get; set; }
+    public bool IsFlightAllowed => Flight != CreatureFlightMovementType.None;
+    public bool IsGroundAllowed => Ground != CreatureGroundMovementType.None;
+    public CreatureRandomMovementType Random { get; set; }
+    public bool Rooted { get; set; }
+    public bool Swim { get; set; }
     public override string ToString()
     {
         return $"Ground: {Ground}, Swim: {Swim}, Flight: {Flight} {(Rooted ? ", Rooted" : "")}, Chase: {Chase}, Random: {Random}, InteractionPauseTimer: {InteractionPauseTimer}";

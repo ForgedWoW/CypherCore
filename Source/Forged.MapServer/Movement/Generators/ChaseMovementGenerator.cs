@@ -227,7 +227,7 @@ internal class ChaseMovementGenerator : MovementGenerator
                 var walk = false;
 
                 if (cOwner is { IsPet: false })
-                    walk = cOwner.MovementTemplate.GetChase() switch
+                    walk = cOwner.MovementTemplate.Chase switch
                     {
                         CreatureChaseMovementType.CanWalk    => owner.IsWalking,
                         CreatureChaseMovementType.AlwaysWalk => true,

@@ -301,7 +301,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             return;
 
         // Stop the npc if moving
-        var pause = unit.MovementTemplate.GetInteractionPauseTimer();
+        var pause = unit.MovementTemplate.InteractionPauseTimer;
 
         if (pause != 0)
             unit.PauseMovement(pause);

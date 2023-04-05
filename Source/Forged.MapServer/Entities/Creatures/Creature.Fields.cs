@@ -59,8 +59,8 @@ public partial class Creature
 
     public override CreatureAI AI => Ai as CreatureAI;
     public BattlegroundManager BattlegroundManager { get; }
-    public override bool CanEnterWater => CanSwim || MovementTemplate.IsSwimAllowed();
-    public override bool CanFly => MovementTemplate.IsFlightAllowed() || IsFlying;
+    public override bool CanEnterWater => CanSwim || MovementTemplate.Swim;
+    public override bool CanFly => MovementTemplate.IsFlightAllowed || IsFlying;
     public bool CanGeneratePickPocketLoot => _pickpocketLootRestore <= GameTime.CurrentTime;
     public bool CanGiveExperience => !StaticFlags.HasFlag(CreatureStaticFlags.NO_XP);
 
@@ -81,7 +81,7 @@ public partial class Creature
 
     public bool CanRegenerateHealth => !StaticFlags.HasFlag(CreatureStaticFlags5.NO_HEALTH_REGEN) && _regenerateHealth;
     public override bool CanSwim => base.CanSwim || IsPet;
-    public bool CanWalk => MovementTemplate.IsGroundAllowed();
+    public bool CanWalk => MovementTemplate.IsGroundAllowed;
     public float CombatDistance { get; set; }
 
     // (secs) interval at which the creature pulses the entire zone into combat (only works in dungeons)

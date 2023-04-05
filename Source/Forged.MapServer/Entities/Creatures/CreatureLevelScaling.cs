@@ -5,7 +5,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureLevelScaling
 {
-    public uint ContentTuningId;
-    public short DeltaLevelMax;
-    public short DeltaLevelMin;
+    public uint ContentTuningId { get; set; }
+    public short DeltaLevelMax { get; set; }
+    public short DeltaLevelMin { get; set; }
 }

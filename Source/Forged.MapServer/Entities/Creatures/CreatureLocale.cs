@@ -8,8 +8,8 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureLocale
 {
-    public StringArray Name = new((int)Locale.Total);
-    public StringArray NameAlt = new((int)Locale.Total);
-    public StringArray Title = new((int)Locale.Total);
-    public StringArray TitleAlt = new((int)Locale.Total);
+    public StringArray Name { get; set; } = new((int)Locale.Total);
+    public StringArray NameAlt { get; set; } = new((int)Locale.Total);
+    public StringArray Title { get; set; } = new((int)Locale.Total);
+    public StringArray TitleAlt { get; set; } = new((int)Locale.Total);
 }

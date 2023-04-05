@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using Forged.MapServer.BattlePets;
+using System.Linq;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.NPC;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Serilog;
 
@@ -13,15 +16,21 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class Trainer
 {
+    private readonly BattlePetMgrData _battlePetMgr;
+    private readonly ConditionManager _conditionManager;
     private readonly string[] _greeting = new string[(int)Locale.Total];
     private readonly uint _id;
+    private readonly SpellManager _spellManager;
     private readonly List<TrainerSpell> _spells;
     private readonly TrainerType _type;
-    public Trainer(uint id, TrainerType type, string greeting, List<TrainerSpell> spells)
+    public Trainer(uint id, TrainerType type, string greeting, List<TrainerSpell> spells, ConditionManager conditionManager, BattlePetMgrData battlePetMgr, SpellManager spellManager)
     {
         _id = id;
         _type = type;
         _spells = spells;
+        _conditionManager = conditionManager;
+        _battlePetMgr = battlePetMgr;
+        _spellManager = spellManager;
 
         _greeting[(int)Locale.enUS] = greeting;
     }
@@ -43,12 +52,9 @@ public class Trainer
             Greeting = GetGreeting(locale)
         };
 
-        foreach (var trainerSpell in _spells)
+        foreach (var trainerSpell in _spells.Where(trainerSpell => player.IsSpellFitByClassAndRace(trainerSpell.SpellId)))
         {
-            if (!player.IsSpellFitByClassAndRace(trainerSpell.SpellId))
-                continue;
-
-            if (!Global.ConditionMgr.IsObjectMeetingTrainerSpellConditions(_id, trainerSpell.SpellId, player))
+            if (!_conditionManager.IsObjectMeetingTrainerSpellConditions(_id, trainerSpell.SpellId, player))
             {
                 Log.Logger.Debug($"SendSpells: conditions not met for trainer id {_id} spell {trainerSpell.SpellId} player '{player.GetName()}' ({player.GUID})");
 
@@ -84,7 +90,7 @@ public class Trainer
         }
 
         var sendSpellVisual = true;
-        var speciesEntry = BattlePetMgr.GetBattlePetSpeciesBySpell(trainerSpell.SpellId);
+        var speciesEntry = _battlePetMgr.GetBattlePetSpeciesBySpell(trainerSpell.SpellId);
 
         if (speciesEntry != null)
         {
@@ -114,9 +120,9 @@ public class Trainer
         }
 
         // learn explicitly or cast explicitly
-        if (trainerSpell.IsCastable())
+        if (_spellManager.GetSpellInfo(trainerSpell.SpellId).HasEffect(SpellEffectName.LearnSpell))
         {
-            player.CastSpell(player, trainerSpell.SpellId, true);
+            player.SpellFactory.CastSpell(player, trainerSpell.SpellId, true);
         }
         else
         {
@@ -124,7 +130,7 @@ public class Trainer
 
             if (speciesEntry != null)
             {
-                player.Session.BattlePetMgr.AddPet(speciesEntry.Id, BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+                player.Session.BattlePetMgr.AddPet(speciesEntry.Id, _battlePetMgr.SelectPetDisplay(speciesEntry), _battlePetMgr.RollPetBreed(speciesEntry.Id), _battlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
                 // If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
                 // marking as dependent prevents saving the spell to database (intended)
                 dependent = true;
@@ -140,7 +146,7 @@ public class Trainer
         if (state != TrainerSpellState.Available)
             return false;
 
-        var trainerSpellInfo = Global.SpellMgr.GetSpellInfo(trainerSpell.SpellId, Difficulty.None);
+        var trainerSpellInfo = _spellManager.GetSpellInfo(trainerSpell.SpellId);
 
         if (trainerSpellInfo.IsPrimaryProfessionFirstRank && player.FreePrimaryProfessionPoints == 0)
             return false;
@@ -150,9 +156,9 @@ public class Trainer
             if (!effect.IsEffect(SpellEffectName.LearnSpell))
                 continue;
 
-            var learnedSpellInfo = Global.SpellMgr.GetSpellInfo(effect.TriggerSpell, Difficulty.None);
+            var learnedSpellInfo = _spellManager.GetSpellInfo(effect.TriggerSpell);
 
-            if (learnedSpellInfo != null && learnedSpellInfo.IsPrimaryProfessionFirstRank && player.FreePrimaryProfessionPoints == 0)
+            if (learnedSpellInfo is { IsPrimaryProfessionFirstRank: true } && player.FreePrimaryProfessionPoints == 0)
                 return false;
         }
 
@@ -161,10 +167,7 @@ public class Trainer
 
     private string GetGreeting(Locale locale)
     {
-        if (_greeting[(int)locale].IsEmpty())
-            return _greeting[(int)Locale.enUS];
-
-        return _greeting[(int)locale];
+        return _greeting[(int)locale].IsEmpty() ? _greeting[(int)Locale.enUS] : _greeting[(int)locale];
     }
 
     private TrainerSpell GetSpell(uint spellId)
@@ -184,11 +187,10 @@ public class Trainer
         if (trainerSpell.ReqSkillLine != 0 && player.GetBaseSkillValue((SkillType)trainerSpell.ReqSkillLine) < trainerSpell.ReqSkillRank)
             return TrainerSpellState.Unavailable;
 
-        foreach (var reqAbility in trainerSpell.ReqAbility)
-            if (reqAbility != 0 && !player.HasSpell(reqAbility))
-                return TrainerSpellState.Unavailable;
+        if (trainerSpell.ReqAbility.Any(reqAbility => reqAbility != 0 && !player.HasSpell(reqAbility)))
+            return TrainerSpellState.Unavailable;
 
-        // check level requirement
+            // check level requirement
         if (player.Level < trainerSpell.ReqLevel)
             return TrainerSpellState.Unavailable;
 
@@ -196,11 +198,8 @@ public class Trainer
         var hasLearnSpellEffect = false;
         var knowsAllLearnedSpells = true;
 
-        foreach (var spellEffectInfo in Global.SpellMgr.GetSpellInfo(trainerSpell.SpellId, Difficulty.None).Effects)
+        foreach (var spellEffectInfo in _spellManager.GetSpellInfo(trainerSpell.SpellId).Effects.Where(spellEffectInfo => spellEffectInfo.IsEffect(SpellEffectName.LearnSpell)))
         {
-            if (!spellEffectInfo.IsEffect(SpellEffectName.LearnSpell))
-                continue;
-
             hasLearnSpellEffect = true;
 
             if (!player.HasSpell(spellEffectInfo.TriggerSpell))

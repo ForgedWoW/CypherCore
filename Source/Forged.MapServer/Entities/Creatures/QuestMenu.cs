@@ -2,22 +2,29 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Globals;
 
 namespace Forged.MapServer.Entities.Creatures;
 
 public class QuestMenu
 {
+    private readonly GameObjectManager _objectManager;
     private readonly List<QuestMenuItem> _questMenuItems = new();
 
-    public void AddMenuItem(uint QuestId, byte Icon)
+    public QuestMenu(GameObjectManager objectManager)
     {
-        if (Global.ObjectMgr.GetQuestTemplate(QuestId) == null)
+        _objectManager = objectManager;
+    }
+
+    public void AddMenuItem(uint questId, byte icon)
+    {
+        if (_objectManager.GetQuestTemplate(questId) == null)
             return;
 
         QuestMenuItem questMenuItem = new()
         {
-            QuestId = QuestId,
-            QuestIcon = Icon
+            QuestId = questId,
+            QuestIcon = icon
         };
 
         _questMenuItems.Add(questMenuItem);

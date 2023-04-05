@@ -1562,7 +1562,7 @@ public partial class Player
             }
         }
 
-        var qm = PlayerTalkClass.GetQuestMenu();
+        var qm = PlayerTalkClass.QuestMenu;
         qm.ClearMenu();
 
         foreach (var questId in questInvolvedRelations)
@@ -2451,7 +2451,7 @@ public partial class Player
 
     public void SendPreparedQuest(WorldObject source)
     {
-        var questMenu = PlayerTalkClass.GetQuestMenu();
+        var questMenu = PlayerTalkClass.QuestMenu;
 
         if (questMenu.IsEmpty())
             return;

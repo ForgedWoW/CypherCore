@@ -5,5 +5,5 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class GossipMenuAddon
 {
-    public int FriendshipFactionId;
+    public int FriendshipFactionId { get; set; }
 }

@@ -14,77 +14,8 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureTemplate
 {
-    public string AIName;
-    public uint BaseAttackTime;
-    public float BaseVariance;
-    public int CreatureDifficultyID;
-    public CreatureType CreatureType;
-    public uint[] DifficultyEntry = new uint[SharedConst.MaxCreatureDifficulties];
-    public uint DmgSchool;
-    public uint DynamicFlags;
-    public uint Entry;
-    public uint Faction;
-    public CreatureFamily Family;
-    public string FemaleName;
-    public CreatureFlagsExtra FlagsExtra;
-    public uint GossipMenuId;
-    public int HealthScalingExpansion;
-    public float HoverHeight;
-    public string IconName;
-    public uint[] KillCredit = new uint[SharedConst.MaxCreatureKillCredit];
-    public uint LootId;
-    public uint MaxGold;
-    public short Maxlevel;
-    public ulong MechanicImmuneMask;
-    public uint MinGold;
-    public short Minlevel;
-    public float ModArmor;
-    public float ModDamage;
-    public List<CreatureModel> Models = new();
-    public float ModExperience;
-    public float ModHealth;
-    public float ModHealthExtra;
-    public float ModMana;
-    public float ModManaExtra;
-    public CreatureMovementData Movement;
-    public uint MovementId;
-    public uint MovementType;
-    public string Name;
-    public ulong Npcflag;
-    public uint PickPocketId;
-    public QueryCreatureResponse QueryData;
-    public bool RacialLeader;
-    public uint RangeAttackTime;
-    public float RangeVariance;
-    public CreatureEliteType Rank;
-    public bool RegenHealth;
-    public uint RequiredExpansion;
-    public int[] Resistance = new int[7];
-    public float Scale;
-    public Dictionary<Difficulty, CreatureLevelScaling> scalingStorage = new();
-    public uint ScriptID;
-    public uint SkinLootId;
-    public float SpeedRun;
-    public float SpeedWalk;
-    public uint[] Spells = new uint[8];
-    public uint SpellSchoolImmuneMask;
-    public string StringId;
-    public string SubName;
-    public string TitleAlt;
-    public PlayerClass TrainerClass;
-    public CreatureTypeFlags TypeFlags;
-    public uint TypeFlags2;
-    public uint UnitClass;
-    public UnitFlags UnitFlags;
-    public uint UnitFlags2;
-    public uint UnitFlags3;
-    public uint VehicleId;
-    public uint VignetteID; // @todo Read Vignette.db2
-    public int WidgetSetID;
-    public int WidgetSetUnitConditionID;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _objectManager;
-
     public CreatureTemplate(IConfiguration configuration, GameObjectManager objectManager)
     {
         _configuration = configuration;
@@ -92,6 +23,74 @@ public class CreatureTemplate
         Movement = new CreatureMovementData(_configuration);
     }
 
+    public string AIName { get; set; }
+    public uint BaseAttackTime { get; set; }
+    public float BaseVariance { get; set; }
+    public int CreatureDifficultyID { get; set; }
+    public CreatureType CreatureType { get; set; }
+    public uint[] DifficultyEntry { get; set; } = new uint[SharedConst.MaxCreatureDifficulties];
+    public uint DmgSchool { get; set; }
+    public uint DynamicFlags { get; set; }
+    public uint Entry { get; set; }
+    public uint Faction { get; set; }
+    public CreatureFamily Family { get; set; }
+    public string FemaleName { get; set; }
+    public CreatureFlagsExtra FlagsExtra { get; set; }
+    public uint GossipMenuId { get; set; }
+    public int HealthScalingExpansion { get; set; }
+    public float HoverHeight { get; set; }
+    public string IconName { get; set; }
+    public uint[] KillCredit { get; set; } = new uint[SharedConst.MaxCreatureKillCredit];
+    public uint LootId { get; set; }
+    public uint MaxGold { get; set; }
+    public short Maxlevel { get; set; }
+    public ulong MechanicImmuneMask { get; set; }
+    public uint MinGold { get; set; }
+    public short Minlevel { get; set; }
+    public float ModArmor { get; set; }
+    public float ModDamage { get; set; }
+    public List<CreatureModel> Models { get; set; } = new();
+    public float ModExperience { get; set; }
+    public float ModHealth { get; set; }
+    public float ModHealthExtra { get; set; }
+    public float ModMana { get; set; }
+    public float ModManaExtra { get; set; }
+    public CreatureMovementData Movement { get; set; }
+    public uint MovementId { get; set; }
+    public uint MovementType { get; set; }
+    public string Name { get; set; }
+    public ulong Npcflag { get; set; }
+    public uint PickPocketId { get; set; }
+    public QueryCreatureResponse QueryData { get; set; }
+    public bool RacialLeader { get; set; }
+    public uint RangeAttackTime { get; set; }
+    public float RangeVariance { get; set; }
+    public CreatureEliteType Rank { get; set; }
+    public bool RegenHealth { get; set; }
+    public uint RequiredExpansion { get; set; }
+    public int[] Resistance { get; set; } = new int[7];
+    public float Scale { get; set; }
+    public Dictionary<Difficulty, CreatureLevelScaling> ScalingStorage { get; set; } = new();
+    public uint ScriptID { get; set; }
+    public uint SkinLootId { get; set; }
+    public float SpeedRun { get; set; }
+    public float SpeedWalk { get; set; }
+    public uint[] Spells { get; set; } = new uint[8];
+    public uint SpellSchoolImmuneMask { get; set; }
+    public string StringId { get; set; }
+    public string SubName { get; set; }
+    public string TitleAlt { get; set; }
+    public PlayerClass TrainerClass { get; set; }
+    public CreatureTypeFlags TypeFlags { get; set; }
+    public uint TypeFlags2 { get; set; }
+    public uint UnitClass { get; set; }
+    public UnitFlags UnitFlags { get; set; }
+    public uint UnitFlags2 { get; set; }
+    public uint UnitFlags3 { get; set; }
+    public uint VehicleId { get; set; }
+    public uint VignetteID { get; set; } // @todo Read Vignette.db2
+    public int WidgetSetID { get; set; }
+    public int WidgetSetUnitConditionID { get; set; }
     public static int DifficultyIDToDifficultyEntryIndex(uint difficulty)
     {
         return (Difficulty)difficulty switch
@@ -157,7 +156,7 @@ public class CreatureTemplate
 
     public CreatureLevelScaling GetLevelScaling(Difficulty difficulty)
     {
-        var creatureLevelScaling = scalingStorage.LookupByKey(difficulty);
+        var creatureLevelScaling = ScalingStorage.LookupByKey(difficulty);
 
         return creatureLevelScaling ?? new CreatureLevelScaling();
     }

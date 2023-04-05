@@ -461,17 +461,17 @@ public partial class Player : Unit
     //Helpers
     public void AddGossipItem(GossipOptionNpc optionNpc, string text, uint sender, uint action)
     {
-        PlayerTalkClass.GetGossipMenu().AddMenuItem(0, -1, optionNpc, text, 0, GossipOptionFlags.None, null, 0, 0, false, 0, "", null, null, sender, action);
+        PlayerTalkClass.GossipMenu.AddMenuItem(0, -1, optionNpc, text, 0, GossipOptionFlags.None, null, 0, 0, false, 0, "", null, null, sender, action);
     }
 
     public void AddGossipItem(GossipOptionNpc optionNpc, string text, uint sender, uint action, string popupText, uint popupMoney, bool coded)
     {
-        PlayerTalkClass.GetGossipMenu().AddMenuItem(0, -1, optionNpc, text, 0, GossipOptionFlags.None, null, 0, 0, coded, popupMoney, popupText, null, null, sender, action);
+        PlayerTalkClass.GossipMenu.AddMenuItem(0, -1, optionNpc, text, 0, GossipOptionFlags.None, null, 0, 0, coded, popupMoney, popupText, null, null, sender, action);
     }
 
     public void AddGossipItem(uint gossipMenuID, uint gossipMenuItemID, uint sender, uint action)
     {
-        PlayerTalkClass.GetGossipMenu().AddMenuItem(gossipMenuID, gossipMenuItemID, sender, action);
+        PlayerTalkClass.GossipMenu.AddMenuItem(gossipMenuID, gossipMenuItemID, sender, action);
     }
 
     public void AddHeirloom(uint itemId, uint flags)
@@ -2320,7 +2320,7 @@ public partial class Player : Unit
 
     public void InitGossipMenu(uint menuId)
     {
-        PlayerTalkClass.GetGossipMenu().MenuId = menuId;
+        PlayerTalkClass.GossipMenu.MenuId = menuId;
     }
 
     public void InitStatsForLevel(bool reapplyMods = false)
@@ -2982,7 +2982,7 @@ public partial class Player : Unit
 
     public void OnGossipSelect(WorldObject source, int gossipOptionId, uint menuId)
     {
-        var gossipMenu = PlayerTalkClass.GetGossipMenu();
+        var gossipMenu = PlayerTalkClass.GossipMenu;
 
         // if not same, then something funky is going on
         if (menuId != gossipMenu.MenuId)
@@ -3249,7 +3249,7 @@ public partial class Player : Unit
         var menu = PlayerTalkClass;
         menu.ClearMenus();
 
-        menu.GetGossipMenu().MenuId = menuId;
+        menu.GossipMenu.MenuId = menuId;
 
         var menuItemBounds = ObjectManager.GetGossipMenuItemsMapBounds(menuId);
 
@@ -3363,7 +3363,7 @@ public partial class Player : Unit
                 }
 
             if (canTalk)
-                menu.GetGossipMenu().AddMenuItem(gossipMenuItem, gossipMenuItem.MenuId, gossipMenuItem.OrderIndex);
+                menu.GossipMenu.AddMenuItem(gossipMenuItem, gossipMenuItem.MenuId, gossipMenuItem.OrderIndex);
         }
     }
 
@@ -4325,9 +4325,9 @@ public partial class Player : Unit
         var locale = Session.SessionDbLocaleIndex;
         var playerChoiceLocale = locale != Locale.enUS ? ObjectManager.GetPlayerChoiceLocale(choiceId) : null;
 
-        PlayerTalkClass.GetInteractionData().Reset();
-        PlayerTalkClass.GetInteractionData().SourceGuid = sender;
-        PlayerTalkClass.GetInteractionData().PlayerChoiceId = (uint)choiceId;
+        PlayerTalkClass.InteractionData.Reset();
+        PlayerTalkClass.InteractionData.SourceGuid = sender;
+        PlayerTalkClass.InteractionData.PlayerChoiceId = (uint)choiceId;
 
         DisplayPlayerChoice displayPlayerChoice = new()
         {
@@ -4503,7 +4503,7 @@ public partial class Player : Unit
             return;
 
         if (source.IsTypeId(TypeId.Unit) || source.IsTypeId(TypeId.GameObject))
-            if (PlayerTalkClass.GetGossipMenu().IsEmpty() && !PlayerTalkClass.GetQuestMenu().IsEmpty())
+            if (PlayerTalkClass.GossipMenu.IsEmpty() && !PlayerTalkClass.QuestMenu.IsEmpty())
             {
                 SendPreparedQuest(source);
 
@@ -4514,7 +4514,7 @@ public partial class Player : Unit
         // (quest entries from quest menu will be included in list)
 
         var textId = GetGossipTextId(source);
-        var menuId = PlayerTalkClass.GetGossipMenu().MenuId;
+        var menuId = PlayerTalkClass.GossipMenu.MenuId;
 
         if (menuId != 0)
             textId = GetGossipTextId(menuId, source);

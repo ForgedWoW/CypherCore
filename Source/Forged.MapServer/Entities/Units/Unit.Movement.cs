@@ -850,7 +850,7 @@ public partial class Unit
 
                     break;
                 case UnitState.Root:
-                    if (HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity) || Vehicle != null || (IsCreature && AsCreature.MovementTemplate.IsRooted()))
+                    if (HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity) || Vehicle != null || (IsCreature && AsCreature.MovementTemplate.Rooted))
                         return;
 
                     ClearUnitState(state);
@@ -928,7 +928,7 @@ public partial class Unit
             SendMessageToSet(packet, true);
         }
 
-        if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.IsRooted())
+        if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.Rooted)
         {
             if (IsGravityDisabled)
                 SetAnimTier(AnimTier.Fly);
@@ -1150,7 +1150,7 @@ public partial class Unit
             SendMessageToSet(packet, true);
         }
 
-        if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.IsRooted())
+        if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.Rooted)
         {
             if (IsGravityDisabled)
                 SetAnimTier(AnimTier.Fly);

@@ -202,7 +202,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 
         var walk = true;
 
-        switch (owner.MovementTemplate.GetRandom())
+        switch (owner.MovementTemplate.Random)
         {
             case CreatureRandomMovementType.CanRun:
                 walk = owner.IsWalking;

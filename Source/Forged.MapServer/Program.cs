@@ -450,4 +450,5 @@ void RegisterInstanced()
     builder.RegisterType<SceneMgr>();
     builder.RegisterType<WorldServiceManager>();
     builder.RegisterType<AreaTrigger>();
+    builder.RegisterType<QuestMenu>();
 }

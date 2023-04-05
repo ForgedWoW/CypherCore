@@ -19,76 +19,63 @@ namespace Forged.MapServer.Entities.Creatures;
 public class PlayerMenu
 {
     private readonly IConfiguration _configuration;
-    private readonly GossipMenu _gossipMenu;
-    private readonly InteractionData _interactionData = new();
     private readonly GameObjectManager _objectManager;
-    private readonly QuestMenu _questMenu = new();
     private readonly WorldSession _session;
     private readonly SpellManager _spellManager;
-    public PlayerMenu(WorldSession session, GossipMenu gossipMenu, GameObjectManager objectManager, IConfiguration configuration, SpellManager spellManager)
+    public PlayerMenu(WorldSession session, GossipMenu gossipMenu, GameObjectManager objectManager, IConfiguration configuration, SpellManager spellManager, QuestMenu questMenu)
     {
         _session = session;
         _objectManager = objectManager;
         _configuration = configuration;
         _spellManager = spellManager;
-        _gossipMenu = gossipMenu;
+        GossipMenu = gossipMenu;
+        QuestMenu = questMenu;
 
         if (_session != null)
-            _gossipMenu.Locale = _session.SessionDbLocaleIndex;
+            GossipMenu.Locale = _session.SessionDbLocaleIndex;
     }
+
+    public GossipMenu GossipMenu { get; }
+
+    public InteractionData InteractionData { get; } = new();
+
+    public QuestMenu QuestMenu { get; }
 
     public void ClearMenus()
     {
-        _gossipMenu.ClearMenu();
-        _questMenu.ClearMenu();
+        GossipMenu.ClearMenu();
+        QuestMenu.ClearMenu();
     }
-
-    public GossipMenu GetGossipMenu()
-    {
-        return _gossipMenu;
-    }
-
     public uint GetGossipOptionAction(uint selection)
     {
-        return _gossipMenu.GetMenuItemAction(selection);
+        return GossipMenu.GetMenuItemAction(selection);
     }
 
     public uint GetGossipOptionSender(uint selection)
     {
-        return _gossipMenu.GetMenuItemSender(selection);
+        return GossipMenu.GetMenuItemSender(selection);
     }
-
-    public InteractionData GetInteractionData()
-    {
-        return _interactionData;
-    }
-
-    public QuestMenu GetQuestMenu()
-    {
-        return _questMenu;
-    }
-
     public bool IsGossipOptionCoded(uint selection)
     {
-        return _gossipMenu.IsMenuItemCoded(selection);
+        return GossipMenu.IsMenuItemCoded(selection);
     }
 
     public void SendCloseGossip()
     {
-        _interactionData.Reset();
+        InteractionData.Reset();
 
         _session.SendPacket(new GossipComplete());
     }
 
     public void SendGossipMenu(uint titleTextId, ObjectGuid objectGUID)
     {
-        _interactionData.Reset();
-        _interactionData.SourceGuid = objectGUID;
+        InteractionData.Reset();
+        InteractionData.SourceGuid = objectGUID;
 
         GossipMessagePkt packet = new()
         {
             GossipGUID = objectGUID,
-            GossipID = _gossipMenu.MenuId
+            GossipID = GossipMenu.MenuId
         };
 
         var addon = _objectManager.GetGossipMenuAddon(packet.GossipID);
@@ -101,7 +88,7 @@ public class PlayerMenu
         if (text != null)
             packet.TextID = (int)text.Data.SelectRandomElementByWeight(data => data.Probability).BroadcastTextID;
 
-        foreach (var (_, item) in _gossipMenu.GetMenuItems())
+        foreach (var (_, item) in GossipMenu.GetMenuItems())
         {
             ClientGossipOptions opt = new()
             {
@@ -122,37 +109,37 @@ public class PlayerMenu
             packet.GossipOptions.Add(opt);
         }
 
-        for (byte i = 0; i < _questMenu.GetMenuItemCount(); ++i)
+        for (byte i = 0; i < QuestMenu.GetMenuItemCount(); ++i)
         {
-            var item = _questMenu.GetItem(i);
+            var item = QuestMenu.GetItem(i);
             var questID = item.QuestId;
             var quest = _objectManager.GetQuestTemplate(questID);
 
-            if (quest != null)
+            if (quest == null)
+                continue;
+
+            ClientGossipText gossipText = new()
             {
-                ClientGossipText gossipText = new()
-                {
-                    QuestID = questID,
-                    ContentTuningID = quest.ContentTuningId,
-                    QuestType = item.QuestIcon,
-                    QuestFlags = (uint)quest.Flags,
-                    QuestFlagsEx = (uint)quest.FlagsEx,
-                    Repeatable = quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly,
-                    QuestTitle = quest.LogTitle
-                };
+                QuestID = questID,
+                ContentTuningID = quest.ContentTuningId,
+                QuestType = item.QuestIcon,
+                QuestFlags = (uint)quest.Flags,
+                QuestFlagsEx = (uint)quest.FlagsEx,
+                Repeatable = quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly,
+                QuestTitle = quest.LogTitle
+            };
 
-                var locale = _session.SessionDbLocaleIndex;
+            var locale = _session.SessionDbLocaleIndex;
 
-                if (locale != Locale.enUS)
-                {
-                    var localeData = _objectManager.GetQuestLocale(quest.Id);
+            if (locale != Locale.enUS)
+            {
+                var localeData = _objectManager.GetQuestLocale(quest.Id);
 
-                    if (localeData != null)
-                        GameObjectManager.GetLocaleString(localeData.LogTitle, locale, ref gossipText.QuestTitle);
-                }
-
-                packet.GossipText.Add(gossipText);
+                if (localeData != null)
+                    GameObjectManager.GetLocaleString(localeData.LogTitle, locale, ref gossipText.QuestTitle);
             }
+
+            packet.GossipText.Add(gossipText);
         }
 
         _session.SendPacket(packet);
@@ -394,9 +381,9 @@ public class PlayerMenu
             }
         }
 
-        for (var i = 0; i < _questMenu.GetMenuItemCount(); ++i)
+        for (var i = 0; i < QuestMenu.GetMenuItemCount(); ++i)
         {
-            var questMenuItem = _questMenu.GetItem(i);
+            var questMenuItem = QuestMenu.GetItem(i);
 
             var questID = questMenuItem.QuestId;
             var quest = _objectManager.GetQuestTemplate(questID);
@@ -554,6 +541,6 @@ public class PlayerMenu
     }
     private bool IsEmpty()
     {
-        return _gossipMenu.IsEmpty() && _questMenu.IsEmpty();
+        return GossipMenu.IsEmpty() && QuestMenu.IsEmpty();
     }
 }

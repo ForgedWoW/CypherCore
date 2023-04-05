@@ -10,6 +10,10 @@ public class VendorItemData
 {
     private readonly List<VendorItem> _items = new();
 
+    public bool Empty => _items.Count == 0;
+
+    public int ItemCount => _items.Count;
+
     public void AddItem(VendorItem vItem)
     {
         _items.Add(vItem);
@@ -20,11 +24,6 @@ public class VendorItemData
         _items.Clear();
     }
 
-    public bool Empty()
-    {
-        return _items.Count == 0;
-    }
-
     public VendorItem FindItemCostPair(uint itemId, uint extendedCost, ItemVendorType type)
     {
         return _items.Find(p => p.Item == itemId && p.ExtendedCost == extendedCost && p.Type == type);
@@ -32,22 +31,13 @@ public class VendorItemData
 
     public VendorItem GetItem(uint slot)
     {
-        if (slot >= _items.Count)
-            return null;
-
-        return _items[(int)slot];
+        return slot >= _items.Count ? null : _items[(int)slot];
     }
-    public int GetItemCount()
-    {
-        return _items.Count;
-    }
-    public bool RemoveItem(uint item_id, ItemVendorType type)
-    {
-        var i = _items.RemoveAll(p => p.Item == item_id && p.Type == type);
 
-        if (i == 0)
-            return false;
-        else
-            return true;
+    public bool RemoveItem(uint itemID, ItemVendorType type)
+    {
+        var i = _items.RemoveAll(p => p.Item == itemID && p.Type == type);
+
+        return i != 0;
     }
 }

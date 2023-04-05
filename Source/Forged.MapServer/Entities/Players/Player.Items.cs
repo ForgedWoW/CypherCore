@@ -789,14 +789,14 @@ public partial class Player
 
         var vItems = creature.VendorItems;
 
-        if (vItems == null || vItems.Empty())
+        if (vItems == null || vItems.Empty)
         {
             SendBuyError(BuyResult.CantFindItem, creature, currency);
 
             return false;
         }
 
-        if (vendorSlot >= vItems.GetItemCount())
+        if (vendorSlot >= vItems.ItemCount)
         {
             SendBuyError(BuyResult.CantFindItem, creature, currency);
 
@@ -984,14 +984,14 @@ public partial class Player
 
         var vItems = creature.VendorItems;
 
-        if (vItems == null || vItems.Empty())
+        if (vItems == null || vItems.Empty)
         {
             SendBuyError(BuyResult.CantFindItem, creature, item);
 
             return false;
         }
 
-        if (vendorslot >= vItems.GetItemCount())
+        if (vendorslot >= vItems.ItemCount)
         {
             SendBuyError(BuyResult.CantFindItem, creature, item);
 

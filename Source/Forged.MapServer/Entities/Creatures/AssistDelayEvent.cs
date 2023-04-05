@@ -4,46 +4,50 @@
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
 using Framework.Dynamic;
 
 namespace Forged.MapServer.Entities.Creatures;
 
 public class AssistDelayEvent : BasicEvent
 {
-    private readonly List<ObjectGuid> m_assistants = new();
-    private readonly Unit m_owner;
+    private readonly List<ObjectGuid> _assistants = new();
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly Unit _owner;
 
 
-    private readonly ObjectGuid m_victim;
+    private readonly ObjectGuid _victim;
 
-    public AssistDelayEvent(ObjectGuid victim, Unit owner)
+    public AssistDelayEvent(ObjectGuid victim, Unit owner, ObjectAccessor objectAccessor)
     {
-        m_victim = victim;
-        m_owner = owner;
+        _victim = victim;
+        _owner = owner;
+        _objectAccessor = objectAccessor;
     }
 
-    private AssistDelayEvent() { }
     public void AddAssistant(ObjectGuid guid)
     {
-        m_assistants.Add(guid);
+        _assistants.Add(guid);
     }
 
     public override bool Execute(ulong etime, uint pTime)
     {
-        var victim = Global.ObjAccessor.GetUnit(m_owner, m_victim);
+        var victim = _objectAccessor.GetUnit(_owner, _victim);
 
-        if (victim != null)
-            while (!m_assistants.Empty())
-            {
-                var assistant = m_owner.Location.Map.GetCreature(m_assistants[0]);
-                m_assistants.RemoveAt(0);
+        if (victim == null)
+            return true;
 
-                if (assistant != null && assistant.CanAssistTo(m_owner, victim))
-                {
-                    assistant.SetNoCallAssistance(true);
-                    assistant.EngageWithTarget(victim);
-                }
-            }
+        while (!_assistants.Empty())
+        {
+            var assistant = _owner.Location.Map.GetCreature(_assistants[0]);
+            _assistants.RemoveAt(0);
+
+            if (assistant == null || !assistant.CanAssistTo(_owner, victim))
+                continue;
+
+            assistant.SetNoCallAssistance(true);
+            assistant.EngageWithTarget(victim);
+        }
 
         return true;
     }

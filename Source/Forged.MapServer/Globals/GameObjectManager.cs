@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
 using Forged.MapServer.DataStorage.Structs.D;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.AreaTriggers;
@@ -24,6 +26,7 @@ using Forged.MapServer.Movement;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
+using Forged.MapServer.Spells;
 using Forged.MapServer.World;
 using Framework.Collections;
 using Framework.Constants;
@@ -36,22 +39,22 @@ namespace Forged.MapServer.Globals;
 
 public sealed class GameObjectManager
 {
-    public Dictionary<uint, MultiMap<uint, ScriptInfo>> EventScripts = new();
+    public Dictionary<uint, MultiMap<uint, ScriptInfo>> EventScripts { get; set; } = new();
     //Faction Change
-    public Dictionary<uint, uint> FactionChangeAchievements = new();
+    public Dictionary<uint, uint> FactionChangeAchievements { get; set; } = new();
 
-    public Dictionary<uint, uint> FactionChangeItemsAllianceToHorde = new();
-    public Dictionary<uint, uint> FactionChangeItemsHordeToAlliance = new();
-    public Dictionary<uint, uint> FactionChangeQuests = new();
-    public Dictionary<uint, uint> FactionChangeReputation = new();
-    public Dictionary<uint, uint> FactionChangeSpells = new();
-    public Dictionary<uint, uint> FactionChangeTitles = new();
+    public Dictionary<uint, uint> FactionChangeItemsAllianceToHorde { get; set; } = new();
+    public Dictionary<uint, uint> FactionChangeItemsHordeToAlliance { get; set; } = new();
+    public Dictionary<uint, uint> FactionChangeQuests { get; set; } = new();
+    public Dictionary<uint, uint> FactionChangeReputation { get; set; } = new();
+    public Dictionary<uint, uint> FactionChangeSpells { get; set; } = new();
+    public Dictionary<uint, uint> FactionChangeTitles { get; set; } = new();
     //Maps
-    public Dictionary<uint, GameTele> GameTeleStorage = new();
+    public Dictionary<uint, GameTele> GameTeleStorage { get; set; } = new();
 
-    public MultiMap<uint, GraveYardData> GraveYardStorage = new();
-    public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts = new();
-    public Dictionary<uint, MultiMap<uint, ScriptInfo>> WaypointScripts = new();
+    public MultiMap<uint, GraveYardData> GraveYardStorage { get; set; } = new();
+    public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts { get; set; } = new();
+    public Dictionary<uint, MultiMap<uint, ScriptInfo>> WaypointScripts { get; set; } = new();
     private static readonly float[] armorMultipliers = new float[]
     {
         0.00f, // INVTYPE_NON_EQUIP
@@ -128,6 +131,7 @@ public sealed class GameObjectManager
     private readonly List<RaceClassAvailability> _classExpansionRequirementStorage = new();
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
+    private readonly ClassFactory _classFactory;
     private readonly Dictionary<ulong, CreatureAddon> _creatureAddonStorage = new();
     private readonly Dictionary<uint, CreatureBaseStats> _creatureBaseStatsStorage = new();
     private readonly Dictionary<ulong, CreatureData> _creatureDataStorage = new();
@@ -259,11 +263,12 @@ public sealed class GameObjectManager
     private ulong _mailId;
     private uint[] _playerXPperLevel;
     private ulong _voidItemId;
-    public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration)
+    public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
         _configuration = configuration;
+        _classFactory = classFactory;
 
         for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
         {
@@ -3416,7 +3421,7 @@ public sealed class GameObjectManager
                 ContentTuningId = result.Read<uint>(4)
             };
 
-            template.scalingStorage[difficulty] = creatureLevelScaling;
+            template.ScalingStorage[difficulty] = creatureLevelScaling;
 
             ++count;
         } while (result.NextRow());
@@ -10451,7 +10456,7 @@ public sealed class GameObjectManager
                     spellsByTrainer.Remove(trainerId);
                 }
 
-                _trainers.Add(trainerId, new Trainer(trainerId, trainerType, greeting, spells));
+                _trainers.Add(trainerId, new Trainer(trainerId, trainerType, greeting, spells, _classFactory.Resolve<ConditionManager>(), _classFactory.Resolve<BattlePetMgrData>(), _classFactory.Resolve<SpellManager>()));
             } while (trainersResult.NextRow());
 
         foreach (var unusedSpells in spellsByTrainer.KeyValueList)
