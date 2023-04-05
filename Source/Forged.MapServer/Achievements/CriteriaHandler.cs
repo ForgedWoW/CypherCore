@@ -3518,7 +3518,7 @@ public class CriteriaHandler
             {
                 var status = referencePlayer.GetQuestStatus(reqValue);
 
-                if (status == QuestStatus.None || status == QuestStatus.Failed)
+                if (status is QuestStatus.None or QuestStatus.Failed)
                     return false;
 
                 break;

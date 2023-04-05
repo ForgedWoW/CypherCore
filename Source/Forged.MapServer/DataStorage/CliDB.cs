@@ -477,7 +477,7 @@ public class CliDB
             if (!_db2Manager.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Adventure, false, out int uiMapId))
                 _db2Manager.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId);
 
-            if (uiMapId == 985 || uiMapId == 986)
+            if (uiMapId is 985 or 986)
                 OldContinentsNodesMask[field] |= submask;
         }
 

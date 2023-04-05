@@ -3076,7 +3076,7 @@ public class AuraEffect
         if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
             return;
 
-        if (MiscValue < -2 || MiscValue > 4)
+        if (MiscValue is < -2 or > 4)
         {
             Log.Logger.Error("WARNING: Spell {0} effect {1} has an unsupported misc value ({2}) for SPELL_AURA_MOD_STAT ", Id, EffIndex, MiscValue);
 
@@ -4783,7 +4783,7 @@ public class AuraEffect
 
         var target = aurApp.Target;
 
-        if (MiscValue < -1 || MiscValue > 4)
+        if (MiscValue is < -1 or > 4)
         {
             Log.Logger.Error("WARNING: Misc Value for SPELL_AURA_MOD_PERCENT_STAT not valid");
 
@@ -5068,7 +5068,7 @@ public class AuraEffect
 
         var target = aurApp.Target;
 
-        if (MiscValue < -1 || MiscValue > 4)
+        if (MiscValue is < -1 or > 4)
         {
             Log.Logger.Error("WARNING: Misc Value for SPELL_AURA_MOD_STAT_BONUS_PCT not valid");
 

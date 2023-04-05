@@ -1723,8 +1723,7 @@ public class SmartScript
                             {
                                 var player = _objectAccessor.GetPlayer(target, seat.Value.Passenger.Guid);
 
-                                if (player != null)
-                                    player.AreaExploredOrEventHappens(e.Action.quest.QuestId);
+                                player?.AreaExploredOrEventHappens(e.Action.quest.QuestId);
                             }
                     }
 
@@ -1750,8 +1749,7 @@ public class SmartScript
 
                 foreach (var target in targets)
                 {
-                    if (_go != null)
-                        _go.SpellFactory.CastSpell(target.AsUnit, e.Action.cast.Spell);
+                    _go?.SpellFactory.CastSpell(target.AsUnit, e.Action.cast.Spell);
 
                     if (!IsUnit(target))
                         continue;
@@ -2050,8 +2048,7 @@ public class SmartScript
                     {
                         var passenger = _objectAccessor.GetPlayer(unit, seat.Value.Passenger.Guid);
 
-                        if (passenger != null)
-                            passenger.GroupEventHappens(e.Action.quest.QuestId, GetBaseObject());
+                        passenger?.GroupEventHappens(e.Action.quest.QuestId, GetBaseObject());
                     }
 
                 break;
@@ -2173,7 +2170,7 @@ public class SmartScript
             }
             case SmartActions.CallKilledmonster:
             {
-                if (e.Target.type == SmartTargets.None || e.Target.type == SmartTargets.Self) // Loot recipient and his group members
+                if (e.Target.type is SmartTargets.None or SmartTargets.Self) // Loot recipient and his group members
                 {
                     if (_me == null)
                         break;
@@ -2209,8 +2206,7 @@ public class SmartScript
                                 {
                                     var player = _objectAccessor.GetPlayer(target, seat.Value.Passenger.Guid);
 
-                                    if (player != null)
-                                        player.KilledMonsterCredit(e.Action.killedMonster.Creature);
+                                    player?.KilledMonsterCredit(e.Action.killedMonster.Creature);
                                 }
                         }
                 }

@@ -178,7 +178,7 @@ internal class ServerCommands
         // Exit code should be in range of 0-125, 126-255 is used
         // in many shells for their own return codes and code > 255
         // is not supported in many others
-        if (exitCode < 0 || exitCode > 125)
+        if (exitCode is < 0 or > 125)
             return false;
 
         return true;

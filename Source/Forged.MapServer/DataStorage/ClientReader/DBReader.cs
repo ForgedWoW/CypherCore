@@ -63,7 +63,7 @@ internal class DBReader
             PalletData = new Value32[ColumnMeta.Length][];
 
             for (var i = 0; i < ColumnMeta.Length; i++)
-                if (ColumnMeta[i].CompressionType == DB2ColumnCompression.Pallet || ColumnMeta[i].CompressionType == DB2ColumnCompression.PalletArray)
+                if (ColumnMeta[i].CompressionType is DB2ColumnCompression.Pallet or DB2ColumnCompression.PalletArray)
                     PalletData[i] = reader.ReadArray<Value32>(ColumnMeta[i].AdditionalDataSize / 4);
 
             // common data

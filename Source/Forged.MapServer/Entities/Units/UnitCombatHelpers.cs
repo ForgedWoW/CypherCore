@@ -705,7 +705,7 @@ public class UnitCombatHelpers
         }
 
         // Rage from Damage made (only from direct weapon damage)
-        if (attacker != null && cleanDamage != null && (cleanDamage.AttackType == WeaponAttackType.BaseAttack || cleanDamage.AttackType == WeaponAttackType.OffAttack) && damagetype == DamageEffectType.Direct && attacker != victim && attacker.DisplayPowerType == PowerType.Rage)
+        if (attacker != null && cleanDamage != null && cleanDamage.AttackType is WeaponAttackType.BaseAttack or WeaponAttackType.OffAttack && damagetype == DamageEffectType.Direct && attacker != victim && attacker.DisplayPowerType == PowerType.Rage)
         {
             var rage = (uint)(attacker.GetBaseAttackTime(cleanDamage.AttackType) / 1000.0f * 1.75f);
 
@@ -878,7 +878,7 @@ public class UnitCombatHelpers
 
             victim.ModifyHealth(-(int)damageTaken);
 
-            if (damagetype == DamageEffectType.Direct || damagetype == DamageEffectType.SpellDirect)
+            if (damagetype is DamageEffectType.Direct or DamageEffectType.SpellDirect)
                 victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.NonPeriodicDamage, spellProto);
 
             if (!victim.IsTypeId(TypeId.Player))

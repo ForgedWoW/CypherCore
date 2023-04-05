@@ -582,7 +582,7 @@ public class Transport : GameObject, ITransport
         if (map.GetGORespawnTime(guid) != 0)
             return null;
 
-        var go = CreateGameObjectFromDb(guid, map, false);
+        var go = GameObject.CreateGameObjectFromDb(guid, map, false);
 
         if (!go)
             return null;

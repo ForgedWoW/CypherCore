@@ -134,7 +134,7 @@ public class Map : IDisposable
     }
 
     // since 25man difficulties are 1 and 3, we can check them like that
-    public bool Is25ManRaid => IsRaid && (DifficultyID == Difficulty.Raid25N || DifficultyID == Difficulty.Raid25HC);
+    public bool Is25ManRaid => IsRaid && DifficultyID is Difficulty.Raid25N or Difficulty.Raid25HC;
 
     public bool IsBattleground => Entry != null && Entry.IsBattleground();
 
@@ -2192,7 +2192,7 @@ public class Map : IDisposable
             var type = (CorpseType)result.Read<byte>(13);
             var guid = result.Read<ulong>(15);
 
-            if (type >= CorpseType.Max || type == CorpseType.Bones)
+            if (type is >= CorpseType.Max or CorpseType.Bones)
             {
                 Log.Logger.Error("Corpse (guid: {0}) have wrong corpse type ({1}), not loading.", guid, type);
 
@@ -4979,10 +4979,7 @@ public class Map : IDisposable
                                 break;
                             }
 
-                            if (pGO.GoType == GameObjectTypes.FishingNode ||
-                                pGO.GoType == GameObjectTypes.Door ||
-                                pGO.GoType == GameObjectTypes.Button ||
-                                pGO.GoType == GameObjectTypes.Trap)
+                            if (pGO.GoType is GameObjectTypes.FishingNode or GameObjectTypes.Door or GameObjectTypes.Button or GameObjectTypes.Trap)
                             {
                                 Log.Logger.Error("{0} can not be used with gameobject of type {1} (guid: {2}).",
                                                  step.Script.GetDebugInfo(),

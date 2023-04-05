@@ -499,7 +499,7 @@ internal class GoCommands
 
         var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
 
-        if (x < 0 || x > 100 || y < 0 || y > 100 || areaEntry == null)
+        if (x is < 0 or > 100 || y is < 0 or > 100 || areaEntry == null)
         {
             handler.SendSysMessage(CypherStrings.InvalidZoneCoord, x, y, areaId);
 

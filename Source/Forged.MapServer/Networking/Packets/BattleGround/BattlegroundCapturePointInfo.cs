@@ -21,7 +21,7 @@ internal class BattlegroundCapturePointInfo
         data.WriteVector2(Pos);
         data.WriteInt8((sbyte)State);
 
-        if (State == BattlegroundCapturePointState.ContestedHorde || State == BattlegroundCapturePointState.ContestedAlliance)
+        if (State is BattlegroundCapturePointState.ContestedHorde or BattlegroundCapturePointState.ContestedAlliance)
         {
             data.WriteInt64(CaptureTime);
             data.WriteUInt32((uint)CaptureTotalDuration.TotalMilliseconds);

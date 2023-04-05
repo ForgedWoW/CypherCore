@@ -96,29 +96,7 @@ public sealed class ConditionManager
 
     public bool CanHaveSourceGroupSet(ConditionSourceType sourceType)
     {
-        return sourceType == ConditionSourceType.CreatureLootTemplate ||
-               sourceType == ConditionSourceType.DisenchantLootTemplate ||
-               sourceType == ConditionSourceType.FishingLootTemplate ||
-               sourceType == ConditionSourceType.GameobjectLootTemplate ||
-               sourceType == ConditionSourceType.ItemLootTemplate ||
-               sourceType == ConditionSourceType.MailLootTemplate ||
-               sourceType == ConditionSourceType.MillingLootTemplate ||
-               sourceType == ConditionSourceType.PickpocketingLootTemplate ||
-               sourceType == ConditionSourceType.ProspectingLootTemplate ||
-               sourceType == ConditionSourceType.ReferenceLootTemplate ||
-               sourceType == ConditionSourceType.SkinningLootTemplate ||
-               sourceType == ConditionSourceType.SpellLootTemplate ||
-               sourceType == ConditionSourceType.GossipMenu ||
-               sourceType == ConditionSourceType.GossipMenuOption ||
-               sourceType == ConditionSourceType.VehicleSpell ||
-               sourceType == ConditionSourceType.SpellImplicitTarget ||
-               sourceType == ConditionSourceType.SpellClickEvent ||
-               sourceType == ConditionSourceType.SmartEvent ||
-               sourceType == ConditionSourceType.NpcVendor ||
-               sourceType == ConditionSourceType.Phase ||
-               sourceType == ConditionSourceType.AreaTrigger ||
-               sourceType == ConditionSourceType.TrainerSpell ||
-               sourceType == ConditionSourceType.ObjectIdVisibility;
+        return sourceType is ConditionSourceType.CreatureLootTemplate or ConditionSourceType.DisenchantLootTemplate or ConditionSourceType.FishingLootTemplate or ConditionSourceType.GameobjectLootTemplate or ConditionSourceType.ItemLootTemplate or ConditionSourceType.MailLootTemplate or ConditionSourceType.MillingLootTemplate or ConditionSourceType.PickpocketingLootTemplate or ConditionSourceType.ProspectingLootTemplate or ConditionSourceType.ReferenceLootTemplate or ConditionSourceType.SkinningLootTemplate or ConditionSourceType.SpellLootTemplate or ConditionSourceType.GossipMenu or ConditionSourceType.GossipMenuOption or ConditionSourceType.VehicleSpell or ConditionSourceType.SpellImplicitTarget or ConditionSourceType.SpellClickEvent or ConditionSourceType.SmartEvent or ConditionSourceType.NpcVendor or ConditionSourceType.Phase or ConditionSourceType.AreaTrigger or ConditionSourceType.TrainerSpell or ConditionSourceType.ObjectIdVisibility;
     }
 
     public bool CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -2498,7 +2476,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.CreatureType:
             {
-                if (cond.ConditionValue1 == 0 || cond.ConditionValue1 > (uint)CreatureType.GasCloud)
+                if (cond.ConditionValue1 is 0 or > (uint)CreatureType.GasCloud)
                 {
                     Log.Logger.Debug("{0} has non existing CreatureType in value1 ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -3168,7 +3146,7 @@ public sealed class ConditionManager
             }
             case ConditionSourceType.ObjectIdVisibility:
             {
-                if (cond.SourceGroup <= 0 || cond.SourceGroup >= (uint)TypeId.Max)
+                if (cond.SourceGroup is <= 0 or >= (uint)TypeId.Max)
                 {
                     Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, is no valid object type, ignoring.");
 

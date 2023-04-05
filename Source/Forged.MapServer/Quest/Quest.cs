@@ -244,7 +244,7 @@ public class Quest
     // table data accessors:
     public bool IsRepeatable => SpecialFlags.HasAnyFlag(QuestSpecialFlags.Repeatable);
 
-    public bool IsSeasonal => (QuestSortID == -(int)QuestSort.Seasonal || QuestSortID == -(int)QuestSort.Special || QuestSortID == -(int)QuestSort.LunarFestival || QuestSortID == -(int)QuestSort.Midsummer || QuestSortID == -(int)QuestSort.Brewfest || QuestSortID == -(int)QuestSort.LoveIsInTheAir || QuestSortID == -(int)QuestSort.Noblegarden) && !IsRepeatable;
+    public bool IsSeasonal => QuestSortID is -(int)QuestSort.Seasonal or -(int)QuestSort.Special or -(int)QuestSort.LunarFestival or -(int)QuestSort.Midsummer or -(int)QuestSort.Brewfest or -(int)QuestSort.LoveIsInTheAir or -(int)QuestSort.Noblegarden && !IsRepeatable;
 
     // Possibly deprecated Id
     public bool IsUnavailable => HasFlag(QuestFlags.Unavailable);
@@ -673,9 +673,9 @@ public class Quest
             case QuestInfos.Raid:
                 return true;
             case QuestInfos.Raid10:
-                return difficulty == Difficulty.Raid10N || difficulty == Difficulty.Raid10HC;
+                return difficulty is Difficulty.Raid10N or Difficulty.Raid10HC;
             case QuestInfos.Raid25:
-                return difficulty == Difficulty.Raid25N || difficulty == Difficulty.Raid25HC;
+                return difficulty is Difficulty.Raid25N or Difficulty.Raid25HC;
             default:
                 break;
         }

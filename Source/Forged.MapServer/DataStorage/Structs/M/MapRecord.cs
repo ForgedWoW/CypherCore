@@ -79,7 +79,7 @@ public sealed class MapRecord
 
     public bool Instanceable()
     {
-        return InstanceType == MapTypes.Instance || InstanceType == MapTypes.Raid || InstanceType == MapTypes.Battleground || InstanceType == MapTypes.Arena || InstanceType == MapTypes.Scenario;
+        return InstanceType is MapTypes.Instance or MapTypes.Raid or MapTypes.Battleground or MapTypes.Arena or MapTypes.Scenario;
     }
 
     public bool IsBattleArena()
@@ -94,7 +94,7 @@ public sealed class MapRecord
 
     public bool IsBattlegroundOrArena()
     {
-        return InstanceType == MapTypes.Battleground || InstanceType == MapTypes.Arena;
+        return InstanceType is MapTypes.Battleground or MapTypes.Arena;
     }
 
     public bool IsContinent()
@@ -118,7 +118,7 @@ public sealed class MapRecord
 
     public bool IsDungeon()
     {
-        return (InstanceType == MapTypes.Instance || InstanceType == MapTypes.Raid || InstanceType == MapTypes.Scenario) && !IsGarrison();
+        return InstanceType is MapTypes.Instance or MapTypes.Raid or MapTypes.Scenario && !IsGarrison();
     }
 
     public bool IsDynamicDifficultyMap()
@@ -151,7 +151,7 @@ public sealed class MapRecord
 
     public bool IsSplitByFaction()
     {
-        return Id == 609 || Id == 2175 || Id == 2570;
+        return Id is 609 or 2175 or 2570;
     }
 
     public bool IsWorldMap()

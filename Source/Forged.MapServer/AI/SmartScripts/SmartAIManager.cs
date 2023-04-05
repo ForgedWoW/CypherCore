@@ -1115,7 +1115,7 @@ public class SmartAIManager
             return false;
         }
 
-        if (e.Action.type <= 0 || e.Action.type >= SmartActions.End)
+        if (e.Action.type is <= 0 or >= SmartActions.End)
         {
             Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid action type ({2}), skipped.", e.EntryOrGuid, e.EventId, e.GetActionType());
 
@@ -1774,7 +1774,7 @@ public class SmartAIManager
 
                 var targetType = (SmartTargets)e.Action.crossCast.TargetType;
 
-                if (targetType == SmartTargets.CreatureGuid || targetType == SmartTargets.GameobjectGuid)
+                if (targetType is SmartTargets.CreatureGuid or SmartTargets.GameobjectGuid)
                 {
                     if (e.Action.crossCast.TargetParam2 != 0)
                     {
@@ -1914,7 +1914,7 @@ public class SmartAIManager
                 if (!IsCreatureValid(e, e.Action.summonCreature.Creature))
                     return false;
 
-                if (e.Action.summonCreature.Type < (uint)TempSummonType.TimedOrDeadDespawn || e.Action.summonCreature.Type > (uint)TempSummonType.ManualDespawn)
+                if (e.Action.summonCreature.Type is < (uint)TempSummonType.TimedOrDeadDespawn or > (uint)TempSummonType.ManualDespawn)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.summonCreature.Type}, skipped.");
 
@@ -2328,7 +2328,7 @@ public class SmartAIManager
             }
             case SmartActions.SetHealthPct:
             {
-                if (e.Action.setHealthPct.Percent > 100 || e.Action.setHealthPct.Percent == 0)
+                if (e.Action.setHealthPct.Percent is > 100 or 0)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} is trying to set invalid HP percent {e.Action.setHealthPct.Percent}, skipped.");
 
@@ -2541,7 +2541,7 @@ public class SmartAIManager
 
             case SmartActions.BecomePersonalCloneForPlayer:
             {
-                if (e.Action.becomePersonalClone.Type < (uint)TempSummonType.TimedOrDeadDespawn || e.Action.becomePersonalClone.Type > (uint)TempSummonType.ManualDespawn)
+                if (e.Action.becomePersonalClone.Type is < (uint)TempSummonType.TimedOrDeadDespawn or > (uint)TempSummonType.ManualDespawn)
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.becomePersonalClone.Type}, skipped.");
 

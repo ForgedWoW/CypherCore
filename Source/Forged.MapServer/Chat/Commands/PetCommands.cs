@@ -141,7 +141,7 @@ internal class PetCommands
         if (level == 0)
             level = (int)(owner.Level - pet.Level);
 
-        if (level == 0 || level < -SharedConst.StrongMaxLevel || level > SharedConst.StrongMaxLevel)
+        if (level is 0 or < -SharedConst.StrongMaxLevel or > SharedConst.StrongMaxLevel)
         {
             handler.SendSysMessage(CypherStrings.BadValue);
 

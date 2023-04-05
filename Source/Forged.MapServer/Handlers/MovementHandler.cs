@@ -354,7 +354,7 @@ public class MovementHandler : IWorldSessionHandler
             plrMover.HandleFall(movementInfo);
 
         // interrupt parachutes upon falling or landing in water
-        if (opcode == ClientOpcodes.MoveFallLand || opcode == ClientOpcodes.MoveStartSwim || opcode == ClientOpcodes.MoveSetFly)
+        if (opcode is ClientOpcodes.MoveFallLand or ClientOpcodes.MoveStartSwim or ClientOpcodes.MoveSetFly)
             mover.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LandingOrFlight); // Parachutes
 
         movementInfo.Guid = mover.GUID;

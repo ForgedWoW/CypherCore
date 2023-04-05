@@ -1476,7 +1476,7 @@ public class GameEventManager
                                                       if (!map.IsGridLoaded(data.SpawnPoint))
                                                           return;
 
-                                                      var go = GameObject.CreateGameObjectFromDb(guid, map, false);
+                                                      var go = GameObjectFactory.CreateGameObjectFromDb(guid, map, false);
 
                                                       // @todo find out when it is add to map
                                                       if (!go)

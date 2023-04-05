@@ -272,7 +272,7 @@ public class InstanceScript : ZoneScript
 
         if (go)
         {
-            if (go.GoType == GameObjectTypes.Door || go.GoType == GameObjectTypes.Button)
+            if (go.GoType is GameObjectTypes.Door or GameObjectTypes.Button)
             {
                 if (go.LootState == LootState.Ready)
                     go.UseDoorOrButton(withRestoreTime, useAlternativeState);
@@ -967,7 +967,7 @@ public class InstanceScript : ZoneScript
 
         if (go)
         {
-            if (go.GoType == GameObjectTypes.Door || go.GoType == GameObjectTypes.Button)
+            if (go.GoType is GameObjectTypes.Door or GameObjectTypes.Button)
             {
                 if (go.LootState == LootState.Activated)
                     go.ResetDoorOrButton();

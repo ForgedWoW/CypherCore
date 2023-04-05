@@ -210,7 +210,7 @@ public partial class Creature : Unit
 
         var movetype = MotionMaster.GetCurrentMovementGeneratorType();
 
-        if (movetype == MovementGeneratorType.Waypoint || movetype == MovementGeneratorType.Point || (IsAIEnabled && AI.IsEscorted()))
+        if (movetype is MovementGeneratorType.Waypoint or MovementGeneratorType.Point || (IsAIEnabled && AI.IsEscorted()))
         {
             HomePosition = Location;
             // if its a vehicle, set the home positon of every creature passenger at engage
@@ -2401,7 +2401,7 @@ public partial class Creature : Unit
             SetFullPower(PowerType.Mana);
         }
 
-        SetHealth((DeathState == DeathState.Alive || DeathState == DeathState.JustRespawned) ? curhealth : 0);
+        SetHealth(DeathState is DeathState.Alive or DeathState.JustRespawned ? curhealth : 0);
     }
 
     public void SetSpellFocus(Spell focusSpell, WorldObject target)

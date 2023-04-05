@@ -328,7 +328,7 @@ internal class BgWarsongGluch : Battleground
 
     public override ObjectGuid GetFlagPickerGUID(int team = -1)
     {
-        if (team == TeamIds.Alliance || team == TeamIds.Horde)
+        if (team is TeamIds.Alliance or TeamIds.Horde)
             return _mFlagKeepers[team];
 
         return ObjectGuid.Empty;
@@ -628,7 +628,7 @@ internal class BgWarsongGluch : Battleground
 
     public override void SetDroppedFlagGUID(ObjectGuid guid, int team = -1)
     {
-        if (team == TeamIds.Alliance || team == TeamIds.Horde)
+        if (team is TeamIds.Alliance or TeamIds.Horde)
             _mDroppedFlagGUID[team] = guid;
     }
 

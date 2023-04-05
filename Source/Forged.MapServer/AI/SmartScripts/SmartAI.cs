@@ -1080,7 +1080,7 @@ public class SmartAI : CreatureAI
 
     private void UpdateDespawn(uint diff)
     {
-        if (_despawnState <= 1 || _despawnState > 3)
+        if (_despawnState is <= 1 or > 3)
             return;
 
         if (_despawnTime < diff)

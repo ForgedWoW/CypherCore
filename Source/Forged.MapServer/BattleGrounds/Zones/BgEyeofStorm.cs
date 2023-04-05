@@ -327,7 +327,7 @@ internal class BgEyeofStorm : Battleground
                     AddPoints(TeamFaction.Horde, EotSMisc.TickPoints[_mTeamPointsCount[TeamIds.Horde] - 1]);
             }
 
-            if (_mFlagState == EotSFlagState.WaitRespawn || _mFlagState == EotSFlagState.OnGround)
+            if (_mFlagState is EotSFlagState.WaitRespawn or EotSFlagState.OnGround)
             {
                 _mFlagsTimer -= (int)diff;
 

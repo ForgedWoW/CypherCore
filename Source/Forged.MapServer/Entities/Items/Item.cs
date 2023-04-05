@@ -105,7 +105,7 @@ public class Item : WorldObject
     public bool IsBroken => ItemData.MaxDurability > 0 && ItemData.Durability == 0;
     public bool IsConjuredConsumable => Template.IsConjuredConsumable;
     public bool IsCurrencyToken => Template.IsCurrencyToken;
-    public bool IsEquipped => !IsInBag && (Slot < EquipmentSlot.End || Slot is >= ProfessionSlots.Start and < ProfessionSlots.End);
+    public bool IsEquipped => !IsInBag && Slot is < EquipmentSlot.End or >= ProfessionSlots.Start and < ProfessionSlots.End;
     public bool IsInTrade { get; private set; }
     public bool IsInUpdateQueue => QueuePos != -1;
     public bool IsLocked => !HasItemFlag(ItemFieldFlags.Unlocked);
@@ -2644,13 +2644,7 @@ public class Item : WorldObject
 
         var inventoryType = proto.InventoryType;
 
-        if (inventoryType == InventoryType.Weapon ||
-            inventoryType == InventoryType.Weapon2Hand ||
-            inventoryType == InventoryType.WeaponMainhand ||
-            inventoryType == InventoryType.WeaponOffhand ||
-            inventoryType == InventoryType.Ranged ||
-            inventoryType == InventoryType.Thrown ||
-            inventoryType == InventoryType.RangedRight)
+        if (inventoryType is InventoryType.Weapon or InventoryType.Weapon2Hand or InventoryType.WeaponMainhand or InventoryType.WeaponOffhand or InventoryType.Ranged or InventoryType.Thrown or InventoryType.RangedRight)
             baseFactor = basePrice.Weapon;
         else
             baseFactor = basePrice.Armor;

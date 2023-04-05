@@ -291,7 +291,7 @@ public class PoolGroup<T>
                     // We use current coords to unspawn, not spawn coords since creature can have changed grid
                     if (spawns.Map.IsGridLoaded(data.SpawnPoint))
                     {
-                        var go = GameObject.CreateGameObjectFromDb(obj.Guid, spawns.Map, false);
+                        var go = GameObjectFactory.CreateGameObjectFromDb(obj.Guid, spawns.Map, false);
 
                         if (go && go.IsSpawnedByDefault)
                             if (!spawns.Map.AddToMap(go))

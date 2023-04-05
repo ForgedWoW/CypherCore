@@ -285,9 +285,9 @@ public class OPvPCapturePoint
         else // grey, did not go through mid point
         {
             // old phase and current are on the same side, so one team challenges the other
-            if (Challenger == TeamFaction.Alliance && (OldState == ObjectiveStates.Horde || OldState == ObjectiveStates.NeutralHordeChallenge))
+            if (Challenger == TeamFaction.Alliance && OldState is ObjectiveStates.Horde or ObjectiveStates.NeutralHordeChallenge)
                 State = ObjectiveStates.HordeAllianceChallenge;
-            else if (Challenger == TeamFaction.Horde && (OldState == ObjectiveStates.Alliance || OldState == ObjectiveStates.NeutralAllianceChallenge))
+            else if (Challenger == TeamFaction.Horde && OldState is ObjectiveStates.Alliance or ObjectiveStates.NeutralAllianceChallenge)
                 State = ObjectiveStates.AllianceHordeChallenge;
 
             _team = TeamIds.Neutral;

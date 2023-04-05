@@ -575,7 +575,7 @@ public class BattleField : ZoneScript
         }
 
         // Create gameobject
-        var go = GameObject.CreateGameObject(entry, Map, pos, rotation, 255, GameObjectState.Ready);
+        var go = GameObjectFactory.CreateGameObject(entry, Map, pos, rotation, 255, GameObjectState.Ready);
 
         if (!go)
         {

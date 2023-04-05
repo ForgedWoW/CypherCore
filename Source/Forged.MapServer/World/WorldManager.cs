@@ -601,7 +601,7 @@ public class WorldManager
     {
         DefaultDbcLocale = (Locale)_configuration.GetDefaultValue("DBC.Locale", 0);
 
-        if (DefaultDbcLocale >= Locale.Total || DefaultDbcLocale == Locale.None)
+        if (DefaultDbcLocale is >= Locale.Total or Locale.None)
         {
             Log.Logger.Error("Incorrect DBC.Locale! Must be >= 0 and < {0} and not {1} (set to 0)", Locale.Total, Locale.None);
             DefaultDbcLocale = Locale.enUS;

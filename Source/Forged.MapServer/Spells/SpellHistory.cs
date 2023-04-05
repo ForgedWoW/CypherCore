@@ -648,7 +648,7 @@ public class SpellHistory
                 var cooldownDuration = c.Value.CooldownEnd > now ? (uint)(c.Value.CooldownEnd - now).TotalMilliseconds : 0;
 
                 // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
-                if (cooldownDuration <= 0 || cooldownDuration > 10 * Time.MINUTE * Time.IN_MILLISECONDS || c.Value.OnHold)
+                if (cooldownDuration is <= 0 or > 10 * Time.MINUTE * Time.IN_MILLISECONDS || c.Value.OnHold)
                     continue;
 
                 spellCooldown.SpellCooldowns.Add(new SpellCooldownStruct(c.Key, cooldownDuration));

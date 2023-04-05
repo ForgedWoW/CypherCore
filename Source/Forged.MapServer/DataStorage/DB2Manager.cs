@@ -392,7 +392,7 @@ public class DB2Manager
 
     public string GetBroadcastTextValue(BroadcastTextRecord broadcastText, Locale locale = Locale.enUS, Gender gender = Gender.Male, bool forceGender = false)
     {
-        if ((gender == Gender.Female || gender == Gender.None) && (forceGender || broadcastText.Text1.HasString()))
+        if (gender is Gender.Female or Gender.None && (forceGender || broadcastText.Text1.HasString()))
         {
             if (broadcastText.Text1.HasString(locale))
                 return broadcastText.Text1[locale];
@@ -1665,7 +1665,7 @@ public class DB2Manager
         {
             var type = (AzeriteItemMilestoneType)azeriteItemMilestonePower.Type;
 
-            if (type == AzeriteItemMilestoneType.MajorEssence || type == AzeriteItemMilestoneType.MinorEssence)
+            if (type is AzeriteItemMilestoneType.MajorEssence or AzeriteItemMilestoneType.MinorEssence)
             {
                 //ASSERT(azeriteEssenceSlot < MAX_AZERITE_ESSENCE_SLOT);
                 _azeriteItemMilestonePowerByEssenceSlot[azeriteEssenceSlot] = azeriteItemMilestonePower;

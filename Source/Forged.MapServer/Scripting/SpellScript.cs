@@ -363,7 +363,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
     public bool IsInCheckCastHook => CurrentScriptState == (byte)SpellScriptHookType.CheckCast;
 
-    public bool IsInEffectHook => CurrentScriptState is >= (byte)SpellScriptHookType.Launch and <= (byte)SpellScriptHookType.EffectHitTarget || CurrentScriptState == (byte)SpellScriptHookType.EffectSuccessfulDispel;
+    public bool IsInEffectHook => CurrentScriptState is >= (byte)SpellScriptHookType.Launch and <= (byte)SpellScriptHookType.EffectHitTarget or (byte)SpellScriptHookType.EffectSuccessfulDispel;
 
     public bool IsInHitPhase => CurrentScriptState is >= (byte)SpellScriptHookType.EffectHit and < (byte)SpellScriptHookType.AfterHit + 1;
 
@@ -405,7 +405,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
         }
     }
 
-    private bool IsAfterTargetSelectionPhase => IsInHitPhase || IsInEffectHook || CurrentScriptState == (byte)SpellScriptHookType.OnCast || CurrentScriptState == (byte)SpellScriptHookType.AfterCast || CurrentScriptState == (byte)SpellScriptHookType.CalcCritChance;
+    private bool IsAfterTargetSelectionPhase => IsInHitPhase || IsInEffectHook || CurrentScriptState is (byte)SpellScriptHookType.OnCast or (byte)SpellScriptHookType.AfterCast or (byte)SpellScriptHookType.CalcCritChance;
 
     private bool IsInModifiableHook
     {

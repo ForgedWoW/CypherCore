@@ -18,7 +18,7 @@ internal class Hyperlink
             {
                 var next = str[pos + 1];
 
-                if (next == 'H' || next == 'h' || next == 'c' || next == 'r' || next == '|')
+                if (next is 'H' or 'h' or 'c' or 'r' or '|')
                     pos += 2;
                 else
                     return false;

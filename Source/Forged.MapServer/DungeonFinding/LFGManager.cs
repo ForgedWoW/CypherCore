@@ -1143,7 +1143,7 @@ public class LFGManager
                     var group = _groupManager.GetGroupByGuid(gguid);
 
                     if (group != null)
-                        if (group.IsLFGGroup && GetDungeon(gguid) != 0 && (oldState == LfgState.Dungeon || oldState == LfgState.FinishedDungeon))
+                        if (group.IsLFGGroup && GetDungeon(gguid) != 0 && oldState is LfgState.Dungeon or LfgState.FinishedDungeon)
                             newState = oldState;
 
                     var queue = GetQueue(gguid);

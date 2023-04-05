@@ -430,7 +430,7 @@ public class BattleGroundHandler : IWorldSessionHandler
                 return;
             }
 
-            if (_player.InBattlegroundQueue(true) && !isInRandomBgQueue && (bgTypeId == BattlegroundTypeId.RB || bgTypeId == BattlegroundTypeId.RandomEpic))
+            if (_player.InBattlegroundQueue(true) && !isInRandomBgQueue && bgTypeId is BattlegroundTypeId.RB or BattlegroundTypeId.RandomEpic)
             {
                 // player is already in queue, can't start random queue
                 Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatusFailed, bgQueueTypeId, Player, 0, GroupJoinBattlegroundResult.InNonRandomBg);

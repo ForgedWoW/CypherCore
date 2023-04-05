@@ -214,7 +214,7 @@ internal class FollowerAI : ScriptedAI
                             {
                                 var status = member.GetQuestStatus(_questForFollow);
 
-                                if ((status == QuestStatus.Complete) || (status == QuestStatus.Incomplete))
+                                if (status is QuestStatus.Complete or QuestStatus.Incomplete)
                                     questAbandoned = false;
                             }
                         }
@@ -228,7 +228,7 @@ internal class FollowerAI : ScriptedAI
                         {
                             var status = player.GetQuestStatus(_questForFollow);
 
-                            if ((status == QuestStatus.Complete) || (status == QuestStatus.Incomplete))
+                            if (status is QuestStatus.Complete or QuestStatus.Incomplete)
                                 questAbandoned = false;
                         }
                     }

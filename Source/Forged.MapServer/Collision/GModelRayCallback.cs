@@ -48,7 +48,7 @@ public class GModelRayCallback : WorkerCallback
         var s = ray.Origin - points[tri.Idx0];
         var u = f * Vector3.Dot(s, p);
 
-        if ((u < 0.0f) || (u > 1.0f))
+        if (u is < 0.0f or > 1.0f)
             // We hit the plane of the m_geometry, but outside the m_geometry
             return false;
 

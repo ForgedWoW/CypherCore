@@ -170,7 +170,7 @@ public class SpellImplicitTargetInfo
     }
 
     public SpellTargetCheckTypes CheckType => _data[(int)Target].SelectionCheckType;
-    public bool IsArea => SelectionCategory == SpellTargetSelectionCategories.Area || SelectionCategory == SpellTargetSelectionCategories.Cone;
+    public bool IsArea => SelectionCategory is SpellTargetSelectionCategories.Area or SpellTargetSelectionCategories.Cone;
 
     public SpellTargetObjectTypes ObjectType => _data[(int)Target].ObjectType;
     public SpellTargetReferenceTypes ReferenceType => _data[(int)Target].ReferenceType;

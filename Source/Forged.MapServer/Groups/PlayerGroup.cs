@@ -1074,7 +1074,7 @@ public class PlayerGroup
 
                 player.SetPartyType(GroupCategory, GroupType.None);
 
-                if (method == RemoveMethod.Kick || method == RemoveMethod.KickLFG)
+                if (method is RemoveMethod.Kick or RemoveMethod.KickLFG)
                     player.SendPacket(new GroupUninvite());
 
                 _homebindIfInstance(player);

@@ -261,7 +261,7 @@ public class ScriptedAI : CreatureAI
     // return true for 25 man or 25 man heroic mode
     public bool Is25ManRaid()
     {
-        return _difficulty == Difficulty.Raid25N || _difficulty == Difficulty.Raid25HC;
+        return _difficulty is Difficulty.Raid25N or Difficulty.Raid25HC;
     }
 
     public bool IsCombatMovementAllowed()

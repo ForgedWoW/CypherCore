@@ -188,7 +188,7 @@ public class Battleground : ZoneScript, IDisposable
         // Must be created this way, adding to godatamap would add it to the base map of the instance
         // and when loading it (in go.LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
         // So we must create it specific for this instance
-        var go = GameObject.CreateGameObject(entry, GetBgMap(), new Position(x, y, z, o), rotation, 255, goState);
+        var go = GameObjectFactory.CreateGameObject(entry, GetBgMap(), new Position(x, y, z, o), rotation, 255, goState);
 
         if (!go)
         {
@@ -1080,7 +1080,7 @@ public class Battleground : ZoneScript, IDisposable
 
     public uint GetTeamScore(int teamIndex)
     {
-        if (teamIndex == TeamIds.Alliance || teamIndex == TeamIds.Horde)
+        if (teamIndex is TeamIds.Alliance or TeamIds.Horde)
             return m_TeamScores[teamIndex];
 
         Log.Logger.Error("GetTeamScore with wrong Team {0} for BG {1}", teamIndex, GetTypeID());

@@ -470,7 +470,7 @@ public class SpellInfo
             if (Effects.Count < 2)
                 return false;
 
-            return ((GetEffect(0).Effect == SpellEffectName.CreateRandomItem || GetEffect(0).Effect == SpellEffectName.CreateLoot) && GetEffect(1).Effect == SpellEffectName.ScriptEffect) || Id == 64323;
+            return (GetEffect(0).Effect is SpellEffectName.CreateRandomItem or SpellEffectName.CreateLoot && GetEffect(1).Effect == SpellEffectName.ScriptEffect) || Id == 64323;
         }
     }
 
@@ -493,7 +493,7 @@ public class SpellInfo
 
     public bool IsLootCrafting => HasEffect(SpellEffectName.CreateRandomItem) || HasEffect(SpellEffectName.CreateLoot);
     public bool IsMoveAllowedChannel => IsChanneled && !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags.Moving | SpellAuraInterruptFlags.Turning);
-    public bool IsMultiSlotAura => IsPassive || Id == 55849 || Id == 40075 || Id == 44413;
+    public bool IsMultiSlotAura => IsPassive || Id is 55849 or 40075 or 44413;
     public bool IsNextMeleeSwingSpell => HasAttribute(SpellAttr0.OnNextSwingNoDamage | SpellAttr0.OnNextSwing);
     public bool IsPassive => HasAttribute(SpellAttr0.Passive);
     public bool IsPassiveStackableWithRanks => IsPassive && !HasEffect(SpellEffectName.ApplyAura);
@@ -1229,7 +1229,7 @@ public class SpellInfo
             case SpellFamilyNames.Warlock:
             {
                 // Warlock (Bane of Doom | Bane of Agony | Bane of Havoc)
-                if (Id == 603 || Id == 980 || Id == 80240)
+                if (Id is 603 or 980 or 80240)
                     _spellSpecific = SpellSpecificType.Bane;
 
                 // only warlock curses have this
@@ -1300,7 +1300,7 @@ public class SpellInfo
                 break;
             }
             case SpellFamilyNames.Deathknight:
-                if (Id == 48266 || Id == 48263 || Id == 48265)
+                if (Id is 48266 or 48263 or 48265)
                     _spellSpecific = SpellSpecificType.Presence;
 
                 break;
@@ -1982,11 +1982,11 @@ public class SpellInfo
                 if (mapEntry1 != null)
                     mapToCheck = (uint)mapEntry1.CosmeticParentMapID;
 
-                if ((mapToCheck == 1116 || mapToCheck == 1464) && !player.HasSpell(191645)) // Draenor Pathfinder
+                if (mapToCheck is 1116 or 1464 && !player.HasSpell(191645)) // Draenor Pathfinder
                     return SpellCastResult.IncorrectArea;
                 else if (mapToCheck == 1220 && !player.HasSpell(233368)) // Broken Isles Pathfinder
                     return SpellCastResult.IncorrectArea;
-                else if ((mapToCheck == 1642 || mapToCheck == 1643) && !player.HasSpell(278833)) // Battle for Azeroth Pathfinder
+                else if (mapToCheck is 1642 or 1643 && !player.HasSpell(278833)) // Battle for Azeroth Pathfinder
                     return SpellCastResult.IncorrectArea;
             }
         }
@@ -2950,9 +2950,9 @@ public class SpellInfo
             SpellSpecificType.WarriorEnrage       => spellSpec1 == spellSpec2,
             SpellSpecificType.MageArcaneBrillance => spellSpec1 == spellSpec2,
             SpellSpecificType.PriestDivineSpirit  => spellSpec1 == spellSpec2,
-            SpellSpecificType.Food                => spellSpec2 == SpellSpecificType.Food || spellSpec2 == SpellSpecificType.FoodAndDrink,
-            SpellSpecificType.Drink               => spellSpec2 == SpellSpecificType.Drink || spellSpec2 == SpellSpecificType.FoodAndDrink,
-            SpellSpecificType.FoodAndDrink        => spellSpec2 == SpellSpecificType.Food || spellSpec2 == SpellSpecificType.Drink || spellSpec2 == SpellSpecificType.FoodAndDrink,
+            SpellSpecificType.Food                => spellSpec2 is SpellSpecificType.Food or SpellSpecificType.FoodAndDrink,
+            SpellSpecificType.Drink               => spellSpec2 is SpellSpecificType.Drink or SpellSpecificType.FoodAndDrink,
+            SpellSpecificType.FoodAndDrink        => spellSpec2 is SpellSpecificType.Food or SpellSpecificType.Drink or SpellSpecificType.FoodAndDrink,
             _                                     => false
         };
     }
@@ -3509,13 +3509,11 @@ public class SpellInfo
             case SpellFamilyNames.Hunter:
             {
                 // Charge (Tenacity pet) -- 53148, no flags
-                if (Id == 53148)
+                if (Id is 53148 or 200108 or 212638)
                     return DiminishingGroup.Root;
 
                 // Ranger's Net -- 200108
                 // Tracker's Net -- 212638
-                if (Id == 200108 || Id == 212638)
-                    return DiminishingGroup.Root;
 
                 // Binding Shot -- 117526, no flags
                 if (Id == 117526)
@@ -3603,16 +3601,12 @@ public class SpellInfo
                     return DiminishingGroup.Stun;
 
                 // Gnaw (Ghoul) -- 91800, no flags
-                if (Id == 91800)
+                if (Id is 91800 or 91797 or 207171)
                     return DiminishingGroup.Stun;
 
                 // Monstrous Blow (Ghoul w/ Dark Transformation active) -- 91797
-                if (Id == 91797)
-                    return DiminishingGroup.Stun;
 
                 // Winter is Coming -- 207171
-                if (Id == 207171)
-                    return DiminishingGroup.Stun;
 
                 break;
             }

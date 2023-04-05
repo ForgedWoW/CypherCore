@@ -40,7 +40,7 @@ public class UnitActionBarEntry
     {
         var type = GetActiveState();
 
-        return type == ActiveStates.Disabled || type == ActiveStates.Enabled || type == ActiveStates.Passive;
+        return type is ActiveStates.Disabled or ActiveStates.Enabled or ActiveStates.Passive;
     }
 
     public void SetAction(uint action)

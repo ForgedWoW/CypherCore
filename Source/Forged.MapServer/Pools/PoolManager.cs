@@ -222,7 +222,7 @@ public class PoolManager
                         continue;
                     }
 
-                    if (chance < 0 || chance > 100)
+                    if (chance is < 0 or > 100)
                     {
                         Log.Logger.Error("`pool_creature` has an invalid chance ({0}) for creature guid ({1}) in pool id ({2}), skipped.", chance, guid, poolID);
 
@@ -298,7 +298,7 @@ public class PoolManager
                         continue;
                     }
 
-                    if (chance < 0 || chance > 100)
+                    if (chance is < 0 or > 100)
                     {
                         Log.Logger.Error("`pool_gameobject` has an invalid chance ({0}) for gameobject guid ({1}) in pool id ({2}), skipped.", chance, guid, poolID);
 
@@ -379,7 +379,7 @@ public class PoolManager
                         continue;
                     }
 
-                    if (chance < 0 || chance > 100)
+                    if (chance is < 0 or > 100)
                     {
                         Log.Logger.Error("`pool_pool` has an invalid chance ({0}) for pool id ({1}) in mother pool id ({2}), skipped.", chance, childPoolID, motherPoolID);
 

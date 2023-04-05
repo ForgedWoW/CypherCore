@@ -109,7 +109,7 @@ public class BattlegroundManager
             Reason = (int)result
         };
 
-        if (!errorGuid.IsEmpty && (result == GroupJoinBattlegroundResult.NotInBattleground || result == GroupJoinBattlegroundResult.JoinTimedOut))
+        if (!errorGuid.IsEmpty && result is GroupJoinBattlegroundResult.NotInBattleground or GroupJoinBattlegroundResult.JoinTimedOut)
             battlefieldStatus.ClientID = errorGuid;
     }
 
@@ -162,7 +162,7 @@ public class BattlegroundManager
             return null;
         }
 
-        if (bgTypeId == BattlegroundTypeId.RB || bgTypeId == BattlegroundTypeId.AA || bgTypeId == BattlegroundTypeId.RandomEpic)
+        if (bgTypeId is BattlegroundTypeId.RB or BattlegroundTypeId.AA or BattlegroundTypeId.RandomEpic)
             return null;
 
         // create a copy of the BG template
@@ -916,7 +916,7 @@ public class BattlegroundManager
 
     private bool IsArenaType(BattlegroundTypeId bgTypeId)
     {
-        return bgTypeId == BattlegroundTypeId.AA || bgTypeId == BattlegroundTypeId.BE || bgTypeId == BattlegroundTypeId.NA || bgTypeId == BattlegroundTypeId.DS || bgTypeId == BattlegroundTypeId.RV || bgTypeId == BattlegroundTypeId.RL;
+        return bgTypeId is BattlegroundTypeId.AA or BattlegroundTypeId.BE or BattlegroundTypeId.NA or BattlegroundTypeId.DS or BattlegroundTypeId.RV or BattlegroundTypeId.RL;
     }
 
     private struct ScheduledQueueUpdate

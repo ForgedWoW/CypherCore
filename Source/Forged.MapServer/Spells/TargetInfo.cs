@@ -251,7 +251,7 @@ public class TargetInfo : TargetInfoBase
 
                 // item spells (spell hit of non-damage spell may also activate items, for example seal of corruption hidden hit)
                 if (caster.IsPlayer && procSpellType.HasAnyFlag(ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal))
-                    if (spell.SpellInfo.DmgClass == SpellDmgClass.Melee || spell.SpellInfo.DmgClass == SpellDmgClass.Ranged)
+                    if (spell.SpellInfo.DmgClass is SpellDmgClass.Melee or SpellDmgClass.Ranged)
                         if (!spell.SpellInfo.HasAttribute(SpellAttr0.CancelsAutoAttackCombat) && !spell.SpellInfo.HasAttribute(SpellAttr4.SuppressWeaponProcs))
                             caster.AsPlayer.CastItemCombatSpell(spellDamageInfo);
             }

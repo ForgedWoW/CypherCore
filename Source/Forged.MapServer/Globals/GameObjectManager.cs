@@ -831,7 +831,7 @@ public sealed class GameObjectManager
             cInfo.MovementType = (uint)MovementGeneratorType.Idle;
         }
 
-        if (cInfo.HealthScalingExpansion < (int)Expansion.LevelCurrent || cInfo.HealthScalingExpansion >= (int)Expansion.Max)
+        if (cInfo.HealthScalingExpansion is < (int)Expansion.LevelCurrent or >= (int)Expansion.Max)
         {
             Log.Logger.Verbose("Table `creature_template` lists creature (Id: {0}) with invalid `HealthScalingExpansion` {1}. Ignored and set to 0.", cInfo.Entry, cInfo.HealthScalingExpansion);
             cInfo.HealthScalingExpansion = 0;
@@ -4717,28 +4717,28 @@ public sealed class GameObjectManager
 
             data.ScriptId = GetScriptId(result.Read<string>(21));
 
-            if (data.Rotation.X < -1.0f || data.Rotation.X > 1.0f)
+            if (data.Rotation.X is < -1.0f or > 1.0f)
             {
                 Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationX ({2}) value, skip", guid, data.Id, data.Rotation.X);
 
                 continue;
             }
 
-            if (data.Rotation.Y < -1.0f || data.Rotation.Y > 1.0f)
+            if (data.Rotation.Y is < -1.0f or > 1.0f)
             {
                 Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationY ({2}) value, skip", guid, data.Id, data.Rotation.Y);
 
                 continue;
             }
 
-            if (data.Rotation.Z < -1.0f || data.Rotation.Z > 1.0f)
+            if (data.Rotation.Z is < -1.0f or > 1.0f)
             {
                 Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationZ ({2}) value, skip", guid, data.Id, data.Rotation.Z);
 
                 continue;
             }
 
-            if (data.Rotation.W < -1.0f || data.Rotation.W > 1.0f)
+            if (data.Rotation.W is < -1.0f or > 1.0f)
             {
                 Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationW ({2}) value, skip", guid, data.Id, data.Rotation.W);
 
@@ -7619,7 +7619,7 @@ public sealed class GameObjectManager
                         continue;
                     }
 
-                    if (playerCreateMode < 0 || playerCreateMode >= (sbyte)PlayerCreateMode.Max)
+                    if (playerCreateMode is < 0 or >= (sbyte)PlayerCreateMode.Max)
                     {
                         Log.Logger.Error($"Uses invalid createMode {playerCreateMode} in `playercreateinfo_cast_spell` table, ignoring.");
 
@@ -7790,14 +7790,14 @@ public sealed class GameObjectManager
                     if (_configuration.GetDefaultValue("character.EnforceRaceAndClassExpations", true))
                     {
                         // skip expansion races if not playing with expansion
-                        if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.BurningCrusade && (race == Race.BloodElf || race == Race.Draenei))
+                        if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.BurningCrusade && race is Race.BloodElf or Race.Draenei)
                             continue;
 
                         // skip expansion classes if not playing with expansion
                         if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.WrathOfTheLichKing && _class == PlayerClass.Deathknight)
                             continue;
 
-                        if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.MistsOfPandaria && (race == Race.PandarenNeutral || race == Race.PandarenHorde || race == Race.PandarenAlliance))
+                        if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.MistsOfPandaria && race is Race.PandarenNeutral or Race.PandarenHorde or Race.PandarenAlliance)
                             continue;
 
                         if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.Legion && _class == PlayerClass.DemonHunter)
@@ -11344,10 +11344,7 @@ public sealed class GameObjectManager
             switch (culture)
             {
                 case LanguageType.BasicLatin:
-                    if (wchar is >= 'a' and <= 'z') // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
-                        return true;
-
-                    if (wchar is >= 'A' and <= 'Z') // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+                    if (wchar is >= 'a' and <= 'z' or >= 'A' and <= 'Z') // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
                         return true;
 
                     return false;
@@ -11946,7 +11943,7 @@ public sealed class GameObjectManager
             var creatureID = result.Read<uint>(0);
             var school = (SpellSchools)result.Read<byte>(1);
 
-            if (school == SpellSchools.Normal || school >= SpellSchools.Max)
+            if (school is SpellSchools.Normal or >= SpellSchools.Max)
             {
                 Log.Logger.Error($"creature_template_resistance has resistance definitions for creature {creatureID} but this school {school} doesn't exist");
 
@@ -12374,11 +12371,7 @@ public sealed class GameObjectManager
                         continue;
                     }
 
-                    if (info.type == GameObjectTypes.FishingNode ||
-                        info.type == GameObjectTypes.FishingHole ||
-                        info.type == GameObjectTypes.Door ||
-                        info.type == GameObjectTypes.Button ||
-                        info.type == GameObjectTypes.Trap)
+                    if (info.type is GameObjectTypes.FishingNode or GameObjectTypes.FishingHole or GameObjectTypes.Door or GameObjectTypes.Button or GameObjectTypes.Trap)
                     {
                         if (_configuration.GetDefaultValue("load.autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");

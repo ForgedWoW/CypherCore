@@ -218,7 +218,7 @@ public class EnumCharactersResult : ServerPacket
             FirstLogin = atLoginFlags.HasAnyFlag(AtLoginFlags.FirstLogin);
 
             // show pet at selection character in character list only for non-ghost character
-            if (!playerFlags.HasAnyFlag(PlayerFlags.Ghost) && (ClassId == PlayerClass.Warlock || ClassId == PlayerClass.Hunter || ClassId == PlayerClass.Deathknight))
+            if (!playerFlags.HasAnyFlag(PlayerFlags.Ghost) && ClassId is PlayerClass.Warlock or PlayerClass.Hunter or PlayerClass.Deathknight)
             {
                 var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(fields.Read<uint>(14));
 

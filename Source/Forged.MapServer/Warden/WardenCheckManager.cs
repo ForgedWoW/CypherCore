@@ -129,20 +129,20 @@ public class WardenCheckManager
                 CheckId = id
             };
 
-            if (checkType == WardenCheckType.PageA || checkType == WardenCheckType.PageB || checkType == WardenCheckType.Driver)
+            if (checkType is WardenCheckType.PageA or WardenCheckType.PageB or WardenCheckType.Driver)
                 wardenCheck.Data = result.Read<byte[]>(2);
 
-            if (checkType == WardenCheckType.Mpq || checkType == WardenCheckType.Mem)
+            if (checkType is WardenCheckType.Mpq or WardenCheckType.Mem)
                 _checkResults.Add(id, result.Read<byte[]>(3));
 
-            if (checkType == WardenCheckType.Mem || checkType == WardenCheckType.PageA || checkType == WardenCheckType.PageB || checkType == WardenCheckType.Proc)
+            if (checkType is WardenCheckType.Mem or WardenCheckType.PageA or WardenCheckType.PageB or WardenCheckType.Proc)
                 wardenCheck.Address = result.Read<uint>(4);
 
-            if (checkType == WardenCheckType.PageA || checkType == WardenCheckType.PageB || checkType == WardenCheckType.Proc)
+            if (checkType is WardenCheckType.PageA or WardenCheckType.PageB or WardenCheckType.Proc)
                 wardenCheck.Length = result.Read<byte>(5);
 
             // PROC_CHECK support missing
-            if (checkType == WardenCheckType.Mem || checkType == WardenCheckType.Mpq || checkType == WardenCheckType.LuaEval || checkType == WardenCheckType.Driver || checkType == WardenCheckType.Module)
+            if (checkType is WardenCheckType.Mem or WardenCheckType.Mpq or WardenCheckType.LuaEval or WardenCheckType.Driver or WardenCheckType.Module)
                 wardenCheck.Str = result.Read<string>(6);
 
             wardenCheck.Comment = result.Read<string>(7);

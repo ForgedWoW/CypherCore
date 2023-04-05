@@ -39,7 +39,7 @@ public class ChatPacketSender : IDoWork<Player>
 
     public void Invoke(Player player)
     {
-        if (_language == Language.Universal || _language == Language.Addon || _language == Language.AddonLogged || player.CanUnderstandLanguage(_language))
+        if (_language is Language.Universal or Language.Addon or Language.AddonLogged || player.CanUnderstandLanguage(_language))
         {
             player.SendPacket(UntranslatedPacket);
 

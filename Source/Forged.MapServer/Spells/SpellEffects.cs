@@ -105,7 +105,7 @@ public partial class Spell
         if (msg != InventoryResult.Ok)
         {
             // convert to possible store amount
-            if (msg == InventoryResult.InvFull || msg == InventoryResult.ItemMaxCount)
+            if (msg is InventoryResult.InvFull or InventoryResult.ItemMaxCount)
             {
                 num_to_add -= no_space;
             }
@@ -1363,7 +1363,7 @@ public partial class Spell
 
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 
-        var go = GameObject.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 0, GameObjectState.Ready);
+        var go = GameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 0, GameObjectState.Ready);
 
         if (!go)
             return;
@@ -1782,7 +1782,7 @@ public partial class Spell
         if (!UnitTarget.IsAlive)
             return;
 
-        if (EffectInfo.MiscValue < 0 || EffectInfo.MiscValue >= (byte)PowerType.Max)
+        if (EffectInfo.MiscValue is < 0 or >= (byte)PowerType.Max)
             return;
 
         var power = (PowerType)EffectInfo.MiscValue;
@@ -1809,7 +1809,7 @@ public partial class Spell
         if (!UnitTarget.IsAlive)
             return;
 
-        if (EffectInfo.MiscValue < 0 || EffectInfo.MiscValue >= (byte)PowerType.Max)
+        if (EffectInfo.MiscValue is < 0 or >= (byte)PowerType.Max)
             return;
 
         var power = (PowerType)EffectInfo.MiscValue;
@@ -2984,7 +2984,7 @@ public partial class Spell
 
                                         var bitIndex = EffectInfo.MiscValueB - 1;
 
-                                        if (bitIndex < 0 || bitIndex >= sizeof(uint) * 8)
+                                        if (bitIndex is < 0 or >= sizeof(uint) * 8)
                                             return false;
 
                                         FlagArray128 reqFlag = new()
@@ -3382,7 +3382,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (EffectInfo.MiscValue < 0 || EffectInfo.MiscValue >= (int)PowerType.Max)
+        if (EffectInfo.MiscValue is < 0 or >= (int)PowerType.Max)
             return;
 
         var powerType = (PowerType)EffectInfo.MiscValue;
@@ -3409,7 +3409,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        if (EffectInfo.MiscValue < 0 || EffectInfo.MiscValue >= (byte)PowerType.Max)
+        if (EffectInfo.MiscValue is < 0 or >= (byte)PowerType.Max)
             return;
 
         var powerType = (PowerType)EffectInfo.MiscValue;
@@ -4707,7 +4707,7 @@ public partial class Spell
 
             var msg = player.CanEquipItem(CastItem.Slot, out var dest, pNewItem, true);
 
-            if (msg == InventoryResult.Ok || msg == InventoryResult.ClientLockedOut)
+            if (msg is InventoryResult.Ok or InventoryResult.ClientLockedOut)
             {
                 if (msg == InventoryResult.ClientLockedOut)
                     dest = EquipmentSlot.MainHand;
@@ -4777,7 +4777,7 @@ public partial class Spell
 
         var map = Caster.Location.Map;
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
-        var go = GameObject.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
+        var go = GameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
 
         if (!go)
             return;
@@ -4824,7 +4824,7 @@ public partial class Spell
         var map = target.Location.Map;
 
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
-        var go = GameObject.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
+        var go = GameObjectFactory.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
 
         if (!go)
             return;
@@ -4891,7 +4891,7 @@ public partial class Spell
 
         var map = Caster.Location.Map;
         var rot = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
-        var go = GameObject.CreateGameObject(goId, map, pos, rot, 255, GameObjectState.Ready);
+        var go = GameObjectFactory.CreateGameObject(goId, map, pos, rot, 255, GameObjectState.Ready);
 
         if (!go)
         {
@@ -5605,7 +5605,7 @@ public partial class Spell
 
         var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 
-        var go = GameObject.CreateGameObject(name_id, cMap, pos, rotation, 255, GameObjectState.Ready);
+        var go = GameObjectFactory.CreateGameObject(name_id, cMap, pos, rotation, 255, GameObjectState.Ready);
 
         if (!go)
             return;

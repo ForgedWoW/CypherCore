@@ -1376,7 +1376,7 @@ public class Aura
             if (script is IAuraScript)
                 foreach (var iFace in script.GetType().GetInterfaces())
                 {
-                    if (iFace.Name == nameof(IBaseSpellScript) || iFace.Name == nameof(IAuraScript))
+                    if (iFace.Name is nameof(IBaseSpellScript) or nameof(IAuraScript))
                         continue;
 
                     if (!_auraScriptsByType.TryGetValue(iFace, out var spellScripts))
@@ -2054,7 +2054,7 @@ public class Aura
                 {
                     uint mask = 0;
 
-                    if (se.EffectIndex == SpellConst.EffectAll || se.EffectIndex == SpellConst.EffectFirstFound)
+                    if (se.EffectIndex is SpellConst.EffectAll or SpellConst.EffectFirstFound)
                     {
                         foreach (var aurEff in AuraEffects)
                         {

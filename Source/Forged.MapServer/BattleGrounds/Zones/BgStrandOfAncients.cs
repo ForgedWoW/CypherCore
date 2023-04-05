@@ -202,7 +202,7 @@ public class BgStrandOfAncients : Battleground
             case SaSpellIds.HORDE_CONTROL_PHASE_SHIFT:
                 return _attackers == TeamIds.Alliance;
             case BattlegroundConst.SpellPreparation:
-                return _status == SaStatus.Warmup || _status == SaStatus.SecondWarmup;
+                return _status is SaStatus.Warmup or SaStatus.SecondWarmup;
             default:
                 break;
         }
@@ -345,7 +345,7 @@ public class BgStrandOfAncients : Battleground
                 }
             }
 
-            if (_status == SaStatus.RoundOne || _status == SaStatus.RoundTwo)
+            if (_status is SaStatus.RoundOne or SaStatus.RoundTwo)
                 UpdateDemolisherSpawns();
         }
     }

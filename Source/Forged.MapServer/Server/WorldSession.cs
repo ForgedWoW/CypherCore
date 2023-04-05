@@ -275,7 +275,7 @@ public class WorldSession : IDisposable
             if (!go || ((go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
                 return;
 
-            if (loot.IsLooted() || go.GoType == GameObjectTypes.FishingNode || go.GoType == GameObjectTypes.FishingHole)
+            if (loot.IsLooted() || go.GoType is GameObjectTypes.FishingNode or GameObjectTypes.FishingHole)
             {
                 if (go.GoType == GameObjectTypes.FishingNode)
                 {
@@ -327,7 +327,7 @@ public class WorldSession : IDisposable
             var proto = pItem.Template;
 
             // destroy only 5 items from stack in case prospecting and milling
-            if (loot.LootType == LootType.Prospecting || loot.LootType == LootType.Milling)
+            if (loot.LootType is LootType.Prospecting or LootType.Milling)
             {
                 pItem.LootGenerated = false;
                 pItem.Loot = null;
@@ -893,7 +893,7 @@ public class WorldSession : IDisposable
         if (packet == null)
             return;
 
-        if (packet.Opcode == ServerOpcodes.Unknown || packet.Opcode == ServerOpcodes.Max)
+        if (packet.Opcode is ServerOpcodes.Unknown or ServerOpcodes.Max)
         {
             Log.Logger.Error("Prevented sending of UnknownOpcode to {0}", GetPlayerInfo());
 

@@ -46,7 +46,7 @@ public class MotionMaster
 
     public static bool IsInvalidMovementGeneratorType(MovementGeneratorType type)
     {
-        return type == MovementGeneratorType.MaxDB || type >= MovementGeneratorType.Max;
+        return type is MovementGeneratorType.MaxDB or >= MovementGeneratorType.Max;
     }
 
     public static bool IsInvalidMovementSlot(MovementSlot slot)

@@ -72,10 +72,8 @@ public class Guardian : Minion
 
         if (IsPet && OwnerUnit.IsTypeId(TypeId.Player))
         {
-            if (OwnerUnit.Class == PlayerClass.Warlock ||
-                OwnerUnit.Class == PlayerClass.Shaman // Fire Elemental
-                ||
-                OwnerUnit.Class == PlayerClass.Deathknight) // Risen Ghoul
+            if (OwnerUnit.Class is PlayerClass.Warlock or PlayerClass.Shaman or PlayerClass.Deathknight
+               )                                                                 // Risen Ghoul
             {
                 petType = PetType.Summon;
             }
@@ -583,7 +581,7 @@ public class Guardian : Minion
         // Handle Death Knight Glyphs and Talents
         var mod = 0.75f;
 
-        if (IsPetGhoul() && (stat == Stats.Stamina || stat == Stats.Strength))
+        if (IsPetGhoul() && stat is Stats.Stamina or Stats.Strength)
         {
             switch (stat)
             {
@@ -609,7 +607,7 @@ public class Guardian : Minion
         //warlock's and mage's pets gain 30% of owner's intellect
         else if (stat == Stats.Intellect)
         {
-            if (owner.Class == PlayerClass.Warlock || owner.Class == PlayerClass.Mage)
+            if (owner.Class is PlayerClass.Warlock or PlayerClass.Mage)
             {
                 ownersBonus = MathFunctions.CalculatePct(owner.GetStat(stat), 30);
                 value += ownersBonus;

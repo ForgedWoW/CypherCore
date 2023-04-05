@@ -699,7 +699,7 @@ public sealed class SpellManager
 
     public bool IsProfessionSkill(uint skill)
     {
-        return IsPrimaryProfessionSkill(skill) || skill == (uint)SkillType.Fishing || skill == (uint)SkillType.Cooking;
+        return IsPrimaryProfessionSkill(skill) || skill is (uint)SkillType.Fishing or (uint)SkillType.Cooking;
     }
 
     public bool IsSpellLearnToSpell(uint spellID1, uint spellID2)
@@ -1026,7 +1026,7 @@ public sealed class SpellManager
             foreach (var spellEntry in kvp.Values)
                 if (spellEntry.Difficulty != Difficulty.None)
                     foreach (var spellEffectInfo in spellEntry.Effects)
-                        if (spellEffectInfo.Effect == SpellEffectName.Summon || spellEffectInfo.Effect == SpellEffectName.SummonPet)
+                        if (spellEffectInfo.Effect is SpellEffectName.Summon or SpellEffectName.SummonPet)
                         {
                             var creatureID = spellEffectInfo.MiscValue;
                             var cInfo = _objectManager.GetCreatureTemplate((uint)creatureID);
@@ -3474,12 +3474,7 @@ public sealed class SpellManager
                                 case SpellEffectName.ApplyAreaAuraSummons:
                                 case SpellEffectName.ApplyAreaAuraPartyNonrandom:
                                 {
-                                    if (spellEffectInfo.ApplyAuraName == AuraType.PeriodicDamage ||
-                                        spellEffectInfo.ApplyAuraName == AuraType.PeriodicDamagePercent ||
-                                        spellEffectInfo.ApplyAuraName == AuraType.PeriodicDummy ||
-                                        spellEffectInfo.ApplyAuraName == AuraType.PeriodicLeech ||
-                                        spellEffectInfo.ApplyAuraName == AuraType.PeriodicHealthFunnel ||
-                                        spellEffectInfo.ApplyAuraName == AuraType.PeriodicDummy)
+                                    if (spellEffectInfo.ApplyAuraName is AuraType.PeriodicDamage or AuraType.PeriodicDamagePercent or AuraType.PeriodicDummy or AuraType.PeriodicLeech or AuraType.PeriodicHealthFunnel or AuraType.PeriodicDummy)
                                         break;
 
                                     goto default;
@@ -3491,7 +3486,7 @@ public sealed class SpellManager
                                         break;
 
                                     // Sindragosa Frost Breath
-                                    if (spellInfo.Id == 69649 || spellInfo.Id == 71056 || spellInfo.Id == 71057 || spellInfo.Id == 71058 || spellInfo.Id == 73061 || spellInfo.Id == 73062 || spellInfo.Id == 73063 || spellInfo.Id == 73064)
+                                    if (spellInfo.Id is 69649 or 71056 or 71057 or 71058 or 73061 or 73062 or 73063 or 73064)
                                         break;
 
                                     // Frostbolt
@@ -3583,7 +3578,7 @@ public sealed class SpellManager
 
                             var type = (SpellVisualEffectNameType)spellVisualEffectName.Type;
 
-                            if (type == SpellVisualEffectNameType.UnitAmmoBasic || type == SpellVisualEffectNameType.UnitAmmoPreferred)
+                            if (type is SpellVisualEffectNameType.UnitAmmoBasic or SpellVisualEffectNameType.UnitAmmoPreferred)
                                 return true;
                         }
 
@@ -4418,7 +4413,7 @@ public sealed class SpellManager
                 continue;
             }
 
-            if (type < SpellLinkedType.Cast || type > SpellLinkedType.Remove)
+            if (type is < SpellLinkedType.Cast or > SpellLinkedType.Remove)
             {
                 Log.Logger.Error($"The spell trigger {trigger}, effect {effect} listed in `spell_linked_spell` has invalid link type {type}, skipped.");
 
@@ -4671,7 +4666,7 @@ public sealed class SpellManager
                             if (!spellEffectInfo.IsAura())
                                 continue;
 
-                            if (spellEffectInfo.ApplyAuraName == AuraType.AddPctModifier || spellEffectInfo.ApplyAuraName == AuraType.AddFlatModifier || spellEffectInfo.ApplyAuraName == AuraType.AddPctModifierBySpellLabel || spellEffectInfo.ApplyAuraName == AuraType.AddFlatModifierBySpellLabel)
+                            if (spellEffectInfo.ApplyAuraName is AuraType.AddPctModifier or AuraType.AddFlatModifier or AuraType.AddPctModifierBySpellLabel or AuraType.AddFlatModifierBySpellLabel)
                             {
                                 found = true;
 

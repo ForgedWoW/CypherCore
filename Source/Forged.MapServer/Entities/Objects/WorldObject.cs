@@ -1564,7 +1564,7 @@ public abstract class WorldObject : IDisposable
         }
 
         var map = Location.Map;
-        var go = GameObject.CreateGameObject(entry, map, pos, rotation, 255, GameObjectState.Ready);
+        var go = GameObjectFactory.CreateGameObject(entry, map, pos, rotation, 255, GameObjectState.Ready);
 
         if (!go)
             return null;

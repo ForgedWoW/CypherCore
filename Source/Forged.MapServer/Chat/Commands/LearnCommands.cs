@@ -92,7 +92,7 @@ internal class LearnCommands
             var target = player.GetConnectedPlayer();
 
             foreach (var (_, skillInfo) in CliDB.SkillLineStorage)
-                if ((skillInfo.CategoryID == SkillCategory.Profession || skillInfo.CategoryID == SkillCategory.Secondary) && skillInfo.CanLink != 0) // only prof. with recipes have
+                if (skillInfo.CategoryID is SkillCategory.Profession or SkillCategory.Secondary && skillInfo.CanLink != 0) // only prof. with recipes have
                     HandleLearnSkillRecipesHelper(target, skillInfo.Id);
 
             handler.SendSysMessage(CypherStrings.CommandLearnAllCraft);

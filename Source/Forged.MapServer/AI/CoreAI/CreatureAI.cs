@@ -592,7 +592,7 @@ public class CreatureAI : UnitAI
             {
                 var next = new KeyValuePair<int, int>(front.Key + off.Key, front.Value + off.Value);
 
-                if (next.Key > SharedConst.BoundaryVisualizeFailsafeLimit || next.Key < -SharedConst.BoundaryVisualizeFailsafeLimit || next.Value > SharedConst.BoundaryVisualizeFailsafeLimit || next.Value < -SharedConst.BoundaryVisualizeFailsafeLimit)
+                if (next.Key is > SharedConst.BoundaryVisualizeFailsafeLimit or < -SharedConst.BoundaryVisualizeFailsafeLimit || next.Value is > SharedConst.BoundaryVisualizeFailsafeLimit or < -SharedConst.BoundaryVisualizeFailsafeLimit)
                 {
                     boundsWarning = true;
 

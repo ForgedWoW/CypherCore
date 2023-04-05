@@ -77,9 +77,7 @@ public class ItemTemplate
     public bool IsCurrencyToken => (BagFamily & BagFamilyMask.CurrencyTokens) != 0;
     public bool IsPotion => Class == ItemClass.Consumable && SubClass == (uint)ItemSubClassConsumable.Potion;
     public bool IsRangedWeapon => IsWeapon &&
-                                  (SubClass == (uint)ItemSubClassWeapon.Bow ||
-                                   SubClass == (uint)ItemSubClassWeapon.Gun ||
-                                   SubClass == (uint)ItemSubClassWeapon.Crossbow);
+                                  SubClass is (uint)ItemSubClassWeapon.Bow or (uint)ItemSubClassWeapon.Gun or (uint)ItemSubClassWeapon.Crossbow;
 
     public bool IsVellum => HasFlag(ItemFlags3.CanStoreEnchants);
     public bool IsWeapon => Class == ItemClass.Weapon;
@@ -92,7 +90,7 @@ public class ItemTemplate
     public uint MaxDurability { get; set; }
     public uint MaxMoneyLoot { get; set; }
 
-    public uint MaxStackSize => (ExtendedData.Stackable == 2147483647 || ExtendedData.Stackable <= 0) ? (0x7FFFFFFF - 1) : ExtendedData.Stackable;
+    public uint MaxStackSize => ExtendedData.Stackable is 2147483647 or <= 0 ? (0x7FFFFFFF - 1) : ExtendedData.Stackable;
 
     public uint MinMoneyLoot { get; set; }
 
@@ -197,7 +195,7 @@ public class ItemTemplate
             if (location == null)
                 return 0;
 
-            if (SubClass < (uint)ItemSubClassArmor.Cloth || SubClass > (uint)ItemSubClassArmor.Plate)
+            if (SubClass is < (uint)ItemSubClassArmor.Cloth or > (uint)ItemSubClassArmor.Plate)
                 return 0;
 
             var total = 1.0f;

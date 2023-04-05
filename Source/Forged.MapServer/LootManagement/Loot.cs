@@ -504,7 +504,7 @@ public class Loot
         {
             _wasOpened = true;
 
-            if (_lootMethod == LootMethod.GroupLoot || _lootMethod == LootMethod.NeedBeforeGreed)
+            if (_lootMethod is LootMethod.GroupLoot or LootMethod.NeedBeforeGreed)
             {
                 ushort maxEnchantingSkill = 0;
 

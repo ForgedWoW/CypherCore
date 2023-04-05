@@ -202,7 +202,7 @@ public class RASocket : ISocket
         Log.Logger.Information($"Received command: {command}");
 
         // handle quit, exit and logout commands to terminate connection
-        if (command == "quit" || command == "exit" || command == "logout")
+        if (command is "quit" or "exit" or "logout")
         {
             Send("Closing\r\n");
 

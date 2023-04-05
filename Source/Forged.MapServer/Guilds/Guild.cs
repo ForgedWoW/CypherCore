@@ -2056,7 +2056,7 @@ public class Guild
 
         SQLTransaction trans = new();
 
-        if (ranks < GuildConst.MinRanks || ranks > GuildConst.MaxRanks)
+        if (ranks is < GuildConst.MinRanks or > GuildConst.MaxRanks)
         {
             Log.Logger.Error("Guild {0} has invalid number of ranks, creating new...", m_id);
             broken_ranks = true;
@@ -2917,10 +2917,7 @@ public class Guild
         public static bool IsMoneyEvent(GuildBankEventLogTypes eventType)
         {
             return
-                eventType == GuildBankEventLogTypes.DepositMoney ||
-                eventType == GuildBankEventLogTypes.WithdrawMoney ||
-                eventType == GuildBankEventLogTypes.RepairMoney ||
-                eventType == GuildBankEventLogTypes.CashFlowDeposit;
+                eventType is GuildBankEventLogTypes.DepositMoney or GuildBankEventLogTypes.WithdrawMoney or GuildBankEventLogTypes.RepairMoney or GuildBankEventLogTypes.CashFlowDeposit;
         }
 
         public override void SaveToDB(SQLTransaction trans)
@@ -2951,12 +2948,9 @@ public class Guild
         {
             var logGuid = ObjectGuid.Create(HighGuid.Player, m_playerGuid);
 
-            var hasItem = m_eventType == GuildBankEventLogTypes.DepositItem ||
-                          m_eventType == GuildBankEventLogTypes.WithdrawItem ||
-                          m_eventType == GuildBankEventLogTypes.MoveItem ||
-                          m_eventType == GuildBankEventLogTypes.MoveItem2;
+            var hasItem = m_eventType is GuildBankEventLogTypes.DepositItem or GuildBankEventLogTypes.WithdrawItem or GuildBankEventLogTypes.MoveItem or GuildBankEventLogTypes.MoveItem2;
 
-            var itemMoved = (m_eventType == GuildBankEventLogTypes.MoveItem || m_eventType == GuildBankEventLogTypes.MoveItem2);
+            var itemMoved = m_eventType is GuildBankEventLogTypes.MoveItem or GuildBankEventLogTypes.MoveItem2;
 
             var hasStack = (hasItem && m_itemStackCount > 1) || itemMoved;
 

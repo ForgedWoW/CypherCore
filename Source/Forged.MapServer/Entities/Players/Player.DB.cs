@@ -484,25 +484,22 @@ public partial class Player
             Transport transport = null;
             var transportMap = MapManager.CreateMap(mapId, this);
 
-            if (transportMap != null)
+            var transportOnMap = transportMap?.GetTransport(transGUID);
+
+            if (transportOnMap != null)
             {
-                var transportOnMap = transportMap.GetTransport(transGUID);
-
-                if (transportOnMap != null)
+                if (transportOnMap.GetExpectedMapId() != mapId)
                 {
-                    if (transportOnMap.GetExpectedMapId() != mapId)
-                    {
-                        mapId = transportOnMap.GetExpectedMapId();
-                        InstanceId = 0;
-                        transportMap = MapManager.CreateMap(mapId, this);
+                    mapId = transportOnMap.GetExpectedMapId();
+                    InstanceId = 0;
+                    transportMap = MapManager.CreateMap(mapId, this);
 
-                        if (transportMap)
-                            transport = transportMap.GetTransport(transGUID);
-                    }
-                    else
-                    {
-                        transport = transportOnMap;
-                    }
+                    if (transportMap)
+                        transport = transportMap.GetTransport(transGUID);
+                }
+                else
+                {
+                    transport = transportOnMap;
                 }
             }
 

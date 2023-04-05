@@ -117,7 +117,7 @@ public class PetHandler : IWorldSessionHandler
 
         if (!pet.IsAlive)
         {
-            var spell = (flag == ActiveStates.Enabled || flag == ActiveStates.Passive) ? Global.SpellMgr.GetSpellInfo(spellid, pet.Map.DifficultyID) : null;
+            var spell = flag is ActiveStates.Enabled or ActiveStates.Passive ? Global.SpellMgr.GetSpellInfo(spellid, pet.Map.DifficultyID) : null;
 
             if (spell == null)
                 return;
@@ -663,7 +663,7 @@ public class PetHandler : IWorldSessionHandler
 
         foreach (var petControlled in pets)
             //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
-            if (!((act_state == ActiveStates.Enabled || act_state == ActiveStates.Disabled || act_state == ActiveStates.Passive) && spell_id != 0 && !petControlled.HasSpell(spell_id)))
+            if (!(act_state is ActiveStates.Enabled or ActiveStates.Disabled or ActiveStates.Passive && spell_id != 0 && !petControlled.HasSpell(spell_id)))
             {
                 var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, petControlled.Location.Map.DifficultyID);
 

@@ -404,14 +404,7 @@ public class SpellEffectInfo
     {
         get
         {
-            if (Effect == SpellEffectName.ApplyAreaAuraParty ||
-                Effect == SpellEffectName.ApplyAreaAuraRaid ||
-                Effect == SpellEffectName.ApplyAreaAuraFriend ||
-                Effect == SpellEffectName.ApplyAreaAuraEnemy ||
-                Effect == SpellEffectName.ApplyAreaAuraPet ||
-                Effect == SpellEffectName.ApplyAreaAuraOwner ||
-                Effect == SpellEffectName.ApplyAreaAuraSummons ||
-                Effect == SpellEffectName.ApplyAreaAuraPartyNonrandom)
+            if (Effect is SpellEffectName.ApplyAreaAuraParty or SpellEffectName.ApplyAreaAuraRaid or SpellEffectName.ApplyAreaAuraFriend or SpellEffectName.ApplyAreaAuraEnemy or SpellEffectName.ApplyAreaAuraPet or SpellEffectName.ApplyAreaAuraOwner or SpellEffectName.ApplyAreaAuraSummons or SpellEffectName.ApplyAreaAuraPartyNonrandom)
                 return true;
 
             return false;
@@ -419,7 +412,7 @@ public class SpellEffectInfo
     }
 
     public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
-    public bool IsUnitOwnedAuraEffect => IsAreaAuraEffect || Effect == SpellEffectName.ApplyAura || Effect == SpellEffectName.ApplyAuraOnPet;
+    public bool IsUnitOwnedAuraEffect => IsAreaAuraEffect || Effect is SpellEffectName.ApplyAura or SpellEffectName.ApplyAuraOnPet;
     public SpellCastTargetFlags ProvidedTargetMask => SpellInfo.GetTargetFlagMask(TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(TargetB.ObjectType);
     public SpellTargetObjectTypes UsedTargetObjectType => _data[(int)Effect].UsedTargetObjectType;
     public double CalcBaseValue(WorldObject caster, Unit target, uint itemId, int itemLevel)
@@ -456,7 +449,7 @@ public class SpellEffectInfo
                     if (_spellInfo.Scaling.ScalesFromItemLevel != 0)
                         effectiveItemLevel = _spellInfo.Scaling.ScalesFromItemLevel;
 
-                    if (Scaling.Class == -8 || Scaling.Class == -9)
+                    if (Scaling.Class is -8 or -9)
                     {
                         var randPropPoints = CliDB.RandPropPointsStorage.LookupByKey(effectiveItemLevel);
 

@@ -26,6 +26,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -451,4 +452,5 @@ void RegisterInstanced()
     builder.RegisterType<WorldServiceManager>();
     builder.RegisterType<AreaTrigger>();
     builder.RegisterType<QuestMenu>();
+    builder.RegisterType<GameObject>();
 }

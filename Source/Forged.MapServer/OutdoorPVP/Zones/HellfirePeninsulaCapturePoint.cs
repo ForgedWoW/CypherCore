@@ -148,7 +148,7 @@ internal class HellfirePeninsulaCapturePoint : OPvPCapturePoint
             PvP.SetWorldState((int)field, 1);
 
         // complete quest objective
-        if (State == ObjectiveStates.Alliance || State == ObjectiveStates.Horde)
+        if (State is ObjectiveStates.Alliance or ObjectiveStates.Horde)
             SendObjectiveComplete(HPConst.CreditMarker[m_TowerType], ObjectGuid.Empty);
     }
 }

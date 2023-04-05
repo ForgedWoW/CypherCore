@@ -69,7 +69,7 @@ public class Pet : Guardian
         }
     }
 
-    public bool IsControlled => PetType == PetType.Summon || PetType == PetType.Hunter;
+    public bool IsControlled => PetType is PetType.Summon or PetType.Hunter;
 
     public override bool IsLoading => _loading;
 
@@ -678,7 +678,7 @@ public class Pet : Guardian
         map.AddToMap(AsCreature);
 
         //set last used pet number (for use in BG's)
-        if (owner.IsPlayer && IsControlled && !IsTemporarySummoned && (PetType == PetType.Summon || PetType == PetType.Hunter))
+        if (owner.IsPlayer && IsControlled && !IsTemporarySummoned && PetType is PetType.Summon or PetType.Hunter)
             owner.AsPlayer.LastPetNumber = petInfo.PetNumber;
 
         var session = owner.Session;
@@ -867,7 +867,7 @@ public class Pet : Guardian
         }
 
         // stable and not in slot saves
-        if (mode < PetSaveMode.FirstActiveSlot || mode >= PetSaveMode.LastActiveSlot)
+        if (mode is < PetSaveMode.FirstActiveSlot or >= PetSaveMode.LastActiveSlot)
             RemoveAllAuras();
 
         _SaveSpells(trans);

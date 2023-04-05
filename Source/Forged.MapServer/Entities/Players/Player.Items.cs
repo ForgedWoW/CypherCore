@@ -3442,7 +3442,7 @@ public partial class Player
     //Bags
     public Bag GetBagByPos(byte bag)
     {
-        if (bag is >= InventorySlots.BagStart and < InventorySlots.BagEnd || bag is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd || bag is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd)
+        if (bag is >= InventorySlots.BagStart and < InventorySlots.BagEnd or >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd or >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd)
         {
             var item = GetItemByPos(InventorySlots.Bag0, bag);
 
@@ -5869,7 +5869,7 @@ public partial class Player
             AddEnchantmentDurations(pItem);
             AddItemDurations(pItem);
 
-            if (bag == InventorySlots.Bag0 || bag is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
+            if (bag is InventorySlots.Bag0 or >= InventorySlots.BagStart and < InventorySlots.BagEnd)
                 ApplyItemObtainSpells(pItem, true);
 
             return pItem;
@@ -5908,7 +5908,7 @@ public partial class Player
 
             pItem2.SetState(ItemUpdateState.Changed, this);
 
-            if (bag == InventorySlots.Bag0 || bag is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
+            if (bag is InventorySlots.Bag0 or >= InventorySlots.BagStart and < InventorySlots.BagEnd)
                 ApplyItemObtainSpells(pItem2, true);
 
             return pItem2;
@@ -6598,7 +6598,7 @@ public partial class Player
         if (!pItem &&
             pProto.Class == ItemClass.Container &&
             (ItemSubClassContainer)pProto.SubClass == ItemSubClassContainer.Container &&
-            (pProto.Bonding == ItemBondingType.None || pProto.Bonding == ItemBondingType.OnAcquire))
+            pProto.Bonding is ItemBondingType.None or ItemBondingType.OnAcquire)
             searchSlotStart = InventorySlots.BagStart;
 
         res = CanStoreItem_InInventorySlots(searchSlotStart, inventoryEnd, dest, pProto, ref count, false, pItem, bag, slot);
@@ -6806,7 +6806,7 @@ public partial class Player
             if (bag == InventorySlots.Bag0)
             {
                 // prevent cheating
-                if (slot is >= InventorySlots.BuyBackStart and < InventorySlots.BuyBackEnd || slot >= (byte)PlayerSlots.End)
+                if (slot is >= InventorySlots.BuyBackStart and < InventorySlots.BuyBackEnd or >= (byte)PlayerSlots.End)
                     return InventoryResult.WrongBagType;
 
                 // can't store anything else than crafting reagents in Reagent Bank

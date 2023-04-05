@@ -1271,7 +1271,7 @@ public partial class Unit : WorldObject
         var race = Race;
 
         /* pandaren death knight (basically same thing as allied death knight) */
-        if ((race == Race.PandarenAlliance || race == Race.PandarenHorde || race == Race.PandarenNeutral) && Class == PlayerClass.Deathknight)
+        if (race is Race.PandarenAlliance or Race.PandarenHorde or Race.PandarenNeutral && Class == PlayerClass.Deathknight)
             return true;
 
         /* other allied races */

@@ -36,11 +36,6 @@ using Serilog;
 
 namespace Forged.MapServer.Entities.GameObjects
 {
-    namespace GameObjectType
-    {
-        //11 GAMEOBJECT_TYPE_TRANSPORT
-    }
-
     public class GameObject : WorldObject
     {
         protected GameObjectTemplate GoInfoProtected;
@@ -69,12 +64,14 @@ namespace Forged.MapServer.Entities.GameObjects
 
         private Player _ritualOwner;
         private uint _spellId;
+
         // used as internal reaction delay time store (not state change reaction).
         // For traps this: spell casting cooldown, for doors/buttons: reset time.
 
-        public GameObject(LootFactory lootFactory) : base(false)
+        public GameObject(LootFactory lootFactory, ClassFactory classFactory, GameObjectFactory gameObjectFactory) : base(false, classFactory)
         {
             _lootFactory = lootFactory;
+            GameObjectFactory = gameObjectFactory;
             ObjectTypeMask |= TypeMask.GameObject;
             ObjectTypeId = TypeId.GameObject;
 
@@ -102,10 +99,7 @@ namespace Forged.MapServer.Entities.GameObjects
             {
                 var got = ObjectManager.GetGameObjectTemplate(Entry);
 
-                if (got != null)
-                    return got.AIName;
-
-                return "";
+                return got != null ? got.AIName : "";
             }
         }
 
@@ -163,14 +157,8 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public uint GossipMenuId
         {
-            get
-            {
-                if (_gossipMenuId.HasValue)
-                    return _gossipMenuId.Value;
-
-                return Template.GetGossipMenuId();
-            }
-            set { _gossipMenuId = value; }
+            get => _gossipMenuId ?? Template.GetGossipMenuId();
+            set => _gossipMenuId = value;
         }
 
         public GameObjectState GoState => (GameObjectState)(sbyte)GameObjectFieldData.State;
@@ -202,10 +190,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 // If something is marked as a transport, don't transmit an out of range packet for it.
                 var gInfo = Template;
 
-                if (gInfo == null)
-                    return false;
-
-                return gInfo.type == GameObjectTypes.MapObjTransport || gInfo.type == GameObjectTypes.Transport;
+                return gInfo?.type is GameObjectTypes.MapObjTransport or GameObjectTypes.Transport;
             }
         }
 
@@ -236,10 +221,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 // If something is marked as a transport, don't transmit an out of range packet for it.
                 var gInfo = Template;
 
-                if (gInfo == null)
-                    return false;
-
-                return gInfo.type == GameObjectTypes.Transport || gInfo.type == GameObjectTypes.MapObjTransport;
+                return gInfo?.type is GameObjectTypes.Transport or GameObjectTypes.MapObjTransport;
             }
         }
 
@@ -261,34 +243,18 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public uint RespawnDelay { get; private set; }
         public long RespawnTime { get; private set; }
-        public long RespawnTimeEx
-        {
-            get
-            {
-                var now = GameTime.CurrentTime;
-
-                if (RespawnTime > now)
-                    return RespawnTime;
-                else
-                    return now;
-            }
-        }
+        public long RespawnTimeEx => RespawnTime > GameTime.CurrentTime ? RespawnTime : GameTime.CurrentTime;
 
         public uint ScriptId
         {
             get
             {
-                var gameObjectData = GameObjectData;
+                if (GameObjectData == null)
+                    return Template.ScriptId;
 
-                if (gameObjectData != null)
-                {
-                    var scriptId = gameObjectData.ScriptId;
+                var scriptId = GameObjectData.ScriptId;
 
-                    if (scriptId != 0)
-                        return scriptId;
-                }
-
-                return Template.ScriptId;
+                return scriptId != 0 ? scriptId : Template.ScriptId;
             }
         }
 
@@ -315,107 +281,15 @@ namespace Forged.MapServer.Entities.GameObjects
                 if ((GameObjectFieldData.Flags & (uint)GameObjectFlags.Destroyed) != 0)
                     return GameObjectDestructibleState.Destroyed;
 
-                if ((GameObjectFieldData.Flags & (uint)GameObjectFlags.Damaged) != 0)
-                    return GameObjectDestructibleState.Damaged;
-
-                return GameObjectDestructibleState.Intact;
+                return (GameObjectFieldData.Flags & (uint)GameObjectFlags.Damaged) != 0 ? GameObjectDestructibleState.Damaged : GameObjectDestructibleState.Intact;
             }
         }
 
         private byte GoAnimProgress => GameObjectFieldData.PercentHealth;
 
         private List<ObjectGuid> TapList { get; } = new();
-        public static GameObject CreateGameObject(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit = 0)
-        {
-            var goInfo = ObjectManager.GetGameObjectTemplate(entry);
 
-            if (goInfo == null)
-                return null;
-
-            GameObject go = new();
-
-            if (!go.Create(entry, map, pos, rotation, animProgress, goState, artKit, false, 0))
-                return null;
-
-            return go;
-        }
-
-        public static GameObject CreateGameObjectFromDb(ulong spawnId, Map map, bool addToMap = true)
-        {
-            GameObject go = new();
-
-            if (!go.LoadFromDB(spawnId, map, addToMap))
-                return null;
-
-            return go;
-        }
-
-        public static bool DeleteFromDB(ulong spawnId)
-        {
-            var data = ObjectManager.GetGameObjectData(spawnId);
-
-            if (data == null)
-                return false;
-
-            SQLTransaction trans = new();
-
-            Global.MapMgr.DoForAllMapsWithMapId(data.MapId,
-                                                map =>
-                                                {
-                                                    // despawn all active objects, and remove their respawns
-                                                    List<GameObject> toUnload = new();
-
-                                                    foreach (var creature in map.GameObjectBySpawnIdStore.LookupByKey(spawnId))
-                                                        toUnload.Add(creature);
-
-                                                    foreach (var obj in toUnload)
-                                                        map.AddObjectToRemoveList(obj);
-
-                                                    map.RemoveRespawnTime(SpawnObjectType.GameObject, spawnId, trans);
-                                                });
-
-            // delete data from memory
-            ObjectManager.DeleteGameObjectData(spawnId);
-
-            trans = new SQLTransaction();
-
-            // ... and the database
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
-            stmt.AddValue(0, spawnId);
-            trans.Append(stmt);
-
-            stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_EVENT_GAMEOBJECT);
-            stmt.AddValue(0, spawnId);
-            trans.Append(stmt);
-
-            stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
-            stmt.AddValue(0, spawnId);
-            stmt.AddValue(1, (uint)CreatureLinkedRespawnType.GOToGO);
-            trans.Append(stmt);
-
-            stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
-            stmt.AddValue(0, spawnId);
-            stmt.AddValue(1, (uint)CreatureLinkedRespawnType.GOToCreature);
-            trans.Append(stmt);
-
-            stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
-            stmt.AddValue(0, spawnId);
-            stmt.AddValue(1, (uint)CreatureLinkedRespawnType.GOToGO);
-            trans.Append(stmt);
-
-            stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER);
-            stmt.AddValue(0, spawnId);
-            stmt.AddValue(1, (uint)CreatureLinkedRespawnType.CreatureToGO);
-            trans.Append(stmt);
-
-            stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT_ADDON);
-            stmt.AddValue(0, spawnId);
-            trans.Append(stmt);
-
-            DB.World.CommitTransaction(trans);
-
-            return true;
-        }
+        public GameObjectFactory GameObjectFactory { get; }
 
         //! Object distance/size - overridden from Object._IsWithinDist. Needs to take in account proper GO size.
         public override bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius, bool incTargetRadius)
@@ -879,10 +753,10 @@ namespace Forged.MapServer.Entities.GameObjects
                 return true;
 
             if (target.GetBgTeam() == TeamFaction.Horde)
-                return GoValueProtected.CapturePoint.State == BattlegroundCapturePointState.ContestedAlliance || GoValueProtected.CapturePoint.State == BattlegroundCapturePointState.AllianceCaptured;
+                return GoValueProtected.CapturePoint.State is BattlegroundCapturePointState.ContestedAlliance or BattlegroundCapturePointState.AllianceCaptured;
 
             // For Alliance players
-            return GoValueProtected.CapturePoint.State == BattlegroundCapturePointState.ContestedHorde || GoValueProtected.CapturePoint.State == BattlegroundCapturePointState.HordeCaptured;
+            return GoValueProtected.CapturePoint.State is BattlegroundCapturePointState.ContestedHorde or BattlegroundCapturePointState.HordeCaptured;
         }
 
         public override void CleanupsBeforeDelete(bool finalCleanup)
@@ -1643,7 +1517,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void ResetDoorOrButton()
         {
-            if (LootState == LootState.Ready || LootState == LootState.JustDeactivated)
+            if (LootState is LootState.Ready or LootState.JustDeactivated)
                 return;
 
             RemoveFlag(GameObjectFlags.InUse);
@@ -2029,7 +1903,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 var collision = false;
 
                 // Use the current go state
-                if ((GoState != GameObjectState.Ready && (state == LootState.Activated || state == LootState.JustDeactivated)) || state == LootState.Ready)
+                if ((GoState != GameObjectState.Ready && state is LootState.Activated or LootState.JustDeactivated) || state == LootState.Ready)
                     collision = !collision;
 
                 EnableCollision(collision);
@@ -2589,7 +2463,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
                     var isSummonedAndExpired = (OwnerUnit != null || SpellId != 0) && RespawnTime == 0;
 
-                    if ((GoType == GameObjectTypes.Chest || GoType == GameObjectTypes.Goober) && !Template.IsDespawnAtAction() && !isSummonedAndExpired)
+                    if (GoType is GameObjectTypes.Chest or GameObjectTypes.Goober && !Template.IsDespawnAtAction() && !isSummonedAndExpired)
                     {
                         if (GoType == GameObjectTypes.Chest && Template.Chest.chestRestockTime > 0)
                         {
@@ -3934,7 +3808,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             if (linkedEntry != 0)
             {
-                var linkedGo = CreateGameObject(linkedEntry, map, pos, rotation, 255, GameObjectState.Ready);
+                var linkedGo = GameObjects.GameObjectFactory.CreateGameObject(linkedEntry, map, pos, rotation, 255, GameObjectState.Ready);
 
                 if (linkedGo != null)
                 {

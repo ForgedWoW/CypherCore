@@ -438,7 +438,7 @@ public partial class Spell : IDisposable
 
         var result = CheckPetCast(target);
 
-        if (result == SpellCastResult.SpellCastOk || result == SpellCastResult.UnitNotInfront)
+        if (result is SpellCastResult.SpellCastOk or SpellCastResult.UnitNotInfront)
         {
             // do not check targets for ground-targeted spells (we target them on top of the intended target anyway)
             if (SpellInfo.ExplicitTargetMask.HasFlag(SpellCastTargetFlags.DestLocation))
@@ -1652,7 +1652,7 @@ public partial class Spell : IDisposable
                                         return SpellCastResult.CantUpgradeBattlePet;
                                 }
 
-                                if (spellEffectInfo.Effect == SpellEffectName.GrantBattlepetLevel || spellEffectInfo.Effect == SpellEffectName.GrantBattlepetExperience)
+                                if (spellEffectInfo.Effect is SpellEffectName.GrantBattlepetLevel or SpellEffectName.GrantBattlepetExperience)
                                     if (battlePet.PacketInfo.Level >= SharedConst.MaxBattlePetLevel)
                                         return SpellCastResult.GrantPetLevelFail;
 
@@ -1705,7 +1705,7 @@ public partial class Spell : IDisposable
                     if (!unitCaster1.CharmerGUID.IsEmpty)
                         return SpellCastResult.AlreadyHaveCharm;
 
-                    if (spellEffectInfo.ApplyAuraName == AuraType.ModCharm || spellEffectInfo.ApplyAuraName == AuraType.ModPossess)
+                    if (spellEffectInfo.ApplyAuraName is AuraType.ModCharm or AuraType.ModPossess)
                     {
                         if (!SpellInfo.HasAttribute(SpellAttr1.DismissPetFirst) && !unitCaster1.PetGUID.IsEmpty)
                             return SpellCastResult.AlreadyHaveSummon;
@@ -3200,7 +3200,7 @@ public partial class Spell : IDisposable
             if (Targets.HasDst)
                 AddDestTarget(Targets.Dst, spellEffectInfo.EffectIndex);
 
-            if (spellEffectInfo.TargetA.ObjectType == SpellTargetObjectTypes.Unit || spellEffectInfo.TargetA.ObjectType == SpellTargetObjectTypes.UnitAndDest || spellEffectInfo.TargetB.ObjectType == SpellTargetObjectTypes.Unit || spellEffectInfo.TargetB.ObjectType == SpellTargetObjectTypes.UnitAndDest)
+            if (spellEffectInfo.TargetA.ObjectType is SpellTargetObjectTypes.Unit or SpellTargetObjectTypes.UnitAndDest || spellEffectInfo.TargetB.ObjectType is SpellTargetObjectTypes.Unit or SpellTargetObjectTypes.UnitAndDest)
             {
                 if (SpellInfo.HasAttribute(SpellAttr1.RequireAllTargets))
                 {
@@ -5243,7 +5243,7 @@ public partial class Spell : IDisposable
                     // Mana Potion, Rage Potion, Thistle Tea(Rogue), ...
                     if (spellEffectInfo.Effect == SpellEffectName.Energize)
                     {
-                        if (spellEffectInfo.MiscValue < 0 || spellEffectInfo.MiscValue >= (int)PowerType.Max)
+                        if (spellEffectInfo.MiscValue is < 0 or >= (int)PowerType.Max)
                         {
                             failReason = SpellCastResult.AlreadyAtFullPower;
 
@@ -6518,7 +6518,7 @@ public partial class Spell : IDisposable
             if (script is ISpellScript)
                 foreach (var iFace in script.GetType().GetInterfaces())
                 {
-                    if (iFace.Name == nameof(ISpellScript) || iFace.Name == nameof(IBaseSpellScript))
+                    if (iFace.Name is nameof(ISpellScript) or nameof(IBaseSpellScript))
                         continue;
 
                     if (!_spellScriptsByType.TryGetValue(iFace, out var spellScripts))
@@ -6665,7 +6665,7 @@ public partial class Spell : IDisposable
                 {
                     uint mask = 0;
 
-                    if (se.EffectIndex == SpellConst.EffectAll || se.EffectIndex == SpellConst.EffectFirstFound)
+                    if (se.EffectIndex is SpellConst.EffectAll or SpellConst.EffectFirstFound)
                     {
                         foreach (var effInfo in SpellInfo.Effects)
                         {
@@ -6686,7 +6686,7 @@ public partial class Spell : IDisposable
                 {
                     uint mask = 0;
 
-                    if (th.EffectIndex == SpellConst.EffectAll || th.EffectIndex == SpellConst.EffectFirstFound)
+                    if (th.EffectIndex is SpellConst.EffectAll or SpellConst.EffectFirstFound)
                     {
                         foreach (var effInfo in SpellInfo.Effects)
                         {
@@ -8960,8 +8960,7 @@ public partial class Spell : IDisposable
                 gcd = TimeSpan.FromMilliseconds(intGcd);
             }
 
-            var isMeleeOrRangedSpell = SpellInfo.DmgClass == SpellDmgClass.Melee ||
-                                       SpellInfo.DmgClass == SpellDmgClass.Ranged ||
+            var isMeleeOrRangedSpell = SpellInfo.DmgClass is SpellDmgClass.Melee or SpellDmgClass.Ranged ||
                                        SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) ||
                                        SpellInfo.HasAttribute(SpellAttr0.IsAbility);
 
@@ -9120,7 +9119,7 @@ public partial class Spell : IDisposable
                 }
             }
 
-            if (_empowerState == EmpowerState.Finished || _empowerState == EmpowerState.Canceled)
+            if (_empowerState is EmpowerState.Finished or EmpowerState.Canceled)
                 _timer = 0;
         }
     }

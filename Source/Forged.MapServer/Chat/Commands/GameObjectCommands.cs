@@ -69,7 +69,7 @@ internal class GameObjectCommands
             }
         }
 
-        if (GameObject.DeleteFromDB(spawnId))
+        if (GameObjectFactory.DeleteFromDB(spawnId))
         {
             handler.SendSysMessage(CypherStrings.CommandDelobjmessage, spawnId);
 
@@ -252,7 +252,7 @@ internal class GameObjectCommands
         // however it entirely skips parsing that block and only uses already known location
         obj.Delete();
 
-        obj = GameObject.CreateGameObjectFromDb(guidLow, map);
+        obj = GameObjectFactory.CreateGameObjectFromDb(guidLow, map);
 
         if (!obj)
             return false;
@@ -505,7 +505,7 @@ internal class GameObjectCommands
         // however it entirely skips parsing that block and only uses already known location
         obj.Delete();
 
-        obj = GameObject.CreateGameObjectFromDb(guidLow, map);
+        obj = GameObjectFactory.CreateGameObjectFromDb(guidLow, map);
 
         if (!obj)
             return false;
@@ -545,7 +545,7 @@ internal class GameObjectCommands
             var player = handler.Player;
             var map = player.Location.Map;
 
-            var obj = GameObject.CreateGameObject(objectInfo.entry, map, player.Location, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
+            var obj = GameObjectFactory.CreateGameObject(objectInfo.entry, map, player.Location, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
 
             if (!obj)
                 return false;
@@ -565,7 +565,7 @@ internal class GameObjectCommands
             var spawnId = obj.SpawnId;
 
             // this will generate a new guid if the object is in an instance
-            obj = GameObject.CreateGameObjectFromDb(spawnId, map);
+            obj = GameObjectFactory.CreateGameObjectFromDb(spawnId, map);
 
             if (!obj)
                 return false;
@@ -680,7 +680,7 @@ internal class GameObjectCommands
 
                     break;
                 case 5:
-                    if (objectState < 0 || objectState > (uint)GameObjectDestructibleState.Rebuilding)
+                    if (objectState is < 0 or > (uint)GameObjectDestructibleState.Rebuilding)
                         return false;
 
                     obj.SetDestructibleState((GameObjectDestructibleState)objectState);

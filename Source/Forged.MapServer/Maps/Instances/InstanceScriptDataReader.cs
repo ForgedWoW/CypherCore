@@ -180,7 +180,7 @@ internal class InstanceScriptDataReader
 
             var state = (EncounterState)bossState.GetInt32();
 
-            if (state == EncounterState.InProgress || state == EncounterState.Fail || state == EncounterState.Special)
+            if (state is EncounterState.InProgress or EncounterState.Fail or EncounterState.Special)
                 state = EncounterState.NotStarted;
 
             if (state < EncounterState.ToBeDecided)

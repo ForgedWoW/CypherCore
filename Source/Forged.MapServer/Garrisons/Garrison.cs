@@ -838,7 +838,7 @@ public class Garrison
                 return null;
             }
 
-            var go = GameObject.CreateGameObject(entry, map, PacketInfo.PlotPos, Rotation, 255, GameObjectState.Ready);
+            var go = GameObjectFactory.CreateGameObject(entry, map, PacketInfo.PlotPos, Rotation, 255, GameObjectState.Ready);
 
             if (!go)
                 return null;
@@ -850,7 +850,7 @@ public class Garrison
                 if (finalizeInfo != null)
                 {
                     var pos2 = finalizeInfo.factionInfo[faction].Pos;
-                    var finalizer = GameObject.CreateGameObject(finalizeInfo.factionInfo[faction].GameObjectId, map, pos2, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos2.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
+                    var finalizer = GameObjectFactory.CreateGameObject(finalizeInfo.factionInfo[faction].GameObjectId, map, pos2, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos2.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
 
                     if (finalizer)
                     {

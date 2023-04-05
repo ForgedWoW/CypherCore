@@ -152,7 +152,7 @@ public class ItemEnchantmentManager
                 continue;
             }
 
-            if (chance < 0.000001f || chance > 100.0f)
+            if (chance is < 0.000001f or > 100.0f)
             {
                 Log.Logger.Error($"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} has invalid chance {chance}");
 

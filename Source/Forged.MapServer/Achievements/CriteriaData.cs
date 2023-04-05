@@ -296,7 +296,7 @@ public class CriteriaData
                 return false;
 
             case CriteriaDataType.TTeam:
-                if (TeamId.Team == (int)TeamFaction.Alliance || TeamId.Team == (int)TeamFaction.Horde)
+                if (TeamId.Team is (int)TeamFaction.Alliance or (int)TeamFaction.Horde)
                     return true;
 
                 Log.Logger.Error("Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_T_TEAM ({2}) has unknown team in value1 ({3}), ignored.",
