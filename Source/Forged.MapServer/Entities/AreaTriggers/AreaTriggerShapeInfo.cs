@@ -17,21 +17,15 @@ public class AreaTriggerShapeInfo : AreaTriggerData
 
     public unsafe float GetMaxSearchRadius()
     {
-        switch (TriggerType)
+        return TriggerType switch
         {
-            case AreaTriggerTypes.Sphere:
-                return Math.Max(SphereDatas.Radius, SphereDatas.RadiusTarget);
-            case AreaTriggerTypes.Box:
-                return MathF.Sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] / 4 + BoxDatas.Extents[1] * BoxDatas.Extents[1] / 4);
-            case AreaTriggerTypes.Cylinder:
-                return Math.Max(CylinderDatas.Radius, CylinderDatas.RadiusTarget);
-            case AreaTriggerTypes.Disk:
-                return Math.Max(DiskDatas.OuterRadius, DiskDatas.OuterRadiusTarget);
-            case AreaTriggerTypes.BoundedPlane:
-                return MathF.Sqrt(BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4);
-        }
-
-        return 0.0f;
+            AreaTriggerTypes.Sphere       => Math.Max(SphereDatas.Radius, SphereDatas.RadiusTarget),
+            AreaTriggerTypes.Box          => MathF.Sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] / 4 + BoxDatas.Extents[1] * BoxDatas.Extents[1] / 4),
+            AreaTriggerTypes.Cylinder     => Math.Max(CylinderDatas.Radius, CylinderDatas.RadiusTarget),
+            AreaTriggerTypes.Disk         => Math.Max(DiskDatas.OuterRadius, DiskDatas.OuterRadiusTarget),
+            AreaTriggerTypes.BoundedPlane => MathF.Sqrt(BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4),
+            _                             => 0.0f
+        };
     }
 
     public bool IsBoudedPlane()

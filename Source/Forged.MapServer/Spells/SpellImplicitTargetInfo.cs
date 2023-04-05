@@ -181,29 +181,19 @@ public class SpellImplicitTargetInfo
     {
         var pi = MathFunctions.PI;
 
-        switch (DirectionType)
+        return DirectionType switch
         {
-            case SpellTargetDirectionTypes.Front:
-                return 0.0f;
-            case SpellTargetDirectionTypes.Back:
-                return pi;
-            case SpellTargetDirectionTypes.Right:
-                return -pi / 2;
-            case SpellTargetDirectionTypes.Left:
-                return pi / 2;
-            case SpellTargetDirectionTypes.FrontRight:
-                return -pi / 4;
-            case SpellTargetDirectionTypes.BackRight:
-                return -3 * pi / 4;
-            case SpellTargetDirectionTypes.BackLeft:
-                return 3 * pi / 4;
-            case SpellTargetDirectionTypes.FrontLeft:
-                return pi / 4;
-            case SpellTargetDirectionTypes.Random:
-                return (float)RandomHelper.NextDouble() * (2 * pi);
-            default:
-                return 0.0f;
-        }
+            SpellTargetDirectionTypes.Front      => 0.0f,
+            SpellTargetDirectionTypes.Back       => pi,
+            SpellTargetDirectionTypes.Right      => -pi / 2,
+            SpellTargetDirectionTypes.Left       => pi / 2,
+            SpellTargetDirectionTypes.FrontRight => -pi / 4,
+            SpellTargetDirectionTypes.BackRight  => -3 * pi / 4,
+            SpellTargetDirectionTypes.BackLeft   => 3 * pi / 4,
+            SpellTargetDirectionTypes.FrontLeft  => pi / 4,
+            SpellTargetDirectionTypes.Random     => (float)RandomHelper.NextDouble() * (2 * pi),
+            _                                    => 0.0f
+        };
     }
 
     public SpellCastTargetFlags GetExplicitTargetMask(ref bool srcSet, ref bool dstSet)
@@ -250,34 +240,16 @@ public class SpellImplicitTargetInfo
                         case SpellTargetObjectTypes.UnitAndDest:
                         case SpellTargetObjectTypes.Unit:
                         case SpellTargetObjectTypes.Dest:
-                            switch (CheckType)
+                            targetMask = CheckType switch
                             {
-                                case SpellTargetCheckTypes.Enemy:
-                                    targetMask = SpellCastTargetFlags.UnitEnemy;
-
-                                    break;
-                                case SpellTargetCheckTypes.Ally:
-                                    targetMask = SpellCastTargetFlags.UnitAlly;
-
-                                    break;
-                                case SpellTargetCheckTypes.Party:
-                                    targetMask = SpellCastTargetFlags.UnitParty;
-
-                                    break;
-                                case SpellTargetCheckTypes.Raid:
-                                    targetMask = SpellCastTargetFlags.UnitRaid;
-
-                                    break;
-                                case SpellTargetCheckTypes.Passenger:
-                                    targetMask = SpellCastTargetFlags.UnitPassenger;
-
-                                    break;
-                                case SpellTargetCheckTypes.RaidClass:
-                                default:
-                                    targetMask = SpellCastTargetFlags.Unit;
-
-                                    break;
-                            }
+                                SpellTargetCheckTypes.Enemy     => SpellCastTargetFlags.UnitEnemy,
+                                SpellTargetCheckTypes.Ally      => SpellCastTargetFlags.UnitAlly,
+                                SpellTargetCheckTypes.Party     => SpellCastTargetFlags.UnitParty,
+                                SpellTargetCheckTypes.Raid      => SpellCastTargetFlags.UnitRaid,
+                                SpellTargetCheckTypes.Passenger => SpellCastTargetFlags.UnitPassenger,
+                                SpellTargetCheckTypes.RaidClass => SpellCastTargetFlags.Unit,
+                                _                               => SpellCastTargetFlags.Unit
+                            };
 
                             break;
                     }

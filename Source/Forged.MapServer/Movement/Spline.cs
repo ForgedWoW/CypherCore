@@ -359,20 +359,13 @@ public class Spline<T>
 
     public float SegLength(int i)
     {
-        switch (MMode)
+        return MMode switch
         {
-            case EvaluationMode.Linear:
-                return SegLengthLinear(i);
-
-            case EvaluationMode.Catmullrom:
-                return SegLengthCatmullRom(i);
-
-            case EvaluationMode.Bezier3Unused:
-                return SegLengthBezier3(i);
-
-            default:
-                return 0;
-        }
+            EvaluationMode.Linear        => SegLengthLinear(i),
+            EvaluationMode.Catmullrom    => SegLengthCatmullRom(i),
+            EvaluationMode.Bezier3Unused => SegLengthBezier3(i),
+            _                            => 0
+        };
     }
 
     private float SegLengthBezier3(int index)

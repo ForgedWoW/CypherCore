@@ -1550,60 +1550,21 @@ public partial class Player
                 // should ignore the item we are trying to swap, and not the
                 // destination item. CanEquipUniqueItem should ignore destination
                 // item only when we are swapping weapon from bag
-                var ignore = ItemConst.NullSlot;
 
-                switch (eslot)
+                var ignore = eslot switch
                 {
-                    case EquipmentSlot.MainHand:
-                        ignore = EquipmentSlot.OffHand;
-
-                        break;
-
-                    case EquipmentSlot.OffHand:
-                        ignore = EquipmentSlot.MainHand;
-
-                        break;
-
-                    case EquipmentSlot.Finger1:
-                        ignore = EquipmentSlot.Finger2;
-
-                        break;
-
-                    case EquipmentSlot.Finger2:
-                        ignore = EquipmentSlot.Finger1;
-
-                        break;
-
-                    case EquipmentSlot.Trinket1:
-                        ignore = EquipmentSlot.Trinket2;
-
-                        break;
-
-                    case EquipmentSlot.Trinket2:
-                        ignore = EquipmentSlot.Trinket1;
-
-                        break;
-
-                    case ProfessionSlots.Profession1Gear1:
-                        ignore = ProfessionSlots.Profession1Gear2;
-
-                        break;
-
-                    case ProfessionSlots.Profession1Gear2:
-                        ignore = ProfessionSlots.Profession1Gear1;
-
-                        break;
-
-                    case ProfessionSlots.Profession2Gear1:
-                        ignore = ProfessionSlots.Profession2Gear2;
-
-                        break;
-
-                    case ProfessionSlots.Profession2Gear2:
-                        ignore = ProfessionSlots.Profession2Gear1;
-
-                        break;
-                }
+                    EquipmentSlot.MainHand           => EquipmentSlot.OffHand,
+                    EquipmentSlot.OffHand            => EquipmentSlot.MainHand,
+                    EquipmentSlot.Finger1            => EquipmentSlot.Finger2,
+                    EquipmentSlot.Finger2            => EquipmentSlot.Finger1,
+                    EquipmentSlot.Trinket1           => EquipmentSlot.Trinket2,
+                    EquipmentSlot.Trinket2           => EquipmentSlot.Trinket1,
+                    ProfessionSlots.Profession1Gear1 => ProfessionSlots.Profession1Gear2,
+                    ProfessionSlots.Profession1Gear2 => ProfessionSlots.Profession1Gear1,
+                    ProfessionSlots.Profession2Gear1 => ProfessionSlots.Profession2Gear2,
+                    ProfessionSlots.Profession2Gear2 => ProfessionSlots.Profession2Gear1,
+                    _                                => ItemConst.NullSlot
+                };
 
                 if (ignore == ItemConst.NullSlot || pItem != GetItemByPos(InventorySlots.Bag0, ignore))
                     ignore = eslot;
@@ -2138,20 +2099,14 @@ public partial class Player
                         // TODO: when you right-click already equipped item it throws EQUIP_ERR_PROFICIENCY_NEEDED.
                         // In fact it's a visual bug, everything works properly... I need sniffs of operations with
                         // binded to account items from off server.
-                        switch (Class)
+                        allowEquip = Class switch
                         {
-                            case PlayerClass.Hunter:
-                            case PlayerClass.Shaman:
-                                allowEquip = (itemSkill == SkillType.Mail);
-
-                                break;
-
-                            case PlayerClass.Paladin:
-                            case PlayerClass.Warrior:
-                                allowEquip = (itemSkill == SkillType.PlateMail);
-
-                                break;
-                        }
+                            PlayerClass.Hunter  => (itemSkill == SkillType.Mail),
+                            PlayerClass.Shaman  => (itemSkill == SkillType.Mail),
+                            PlayerClass.Paladin => (itemSkill == SkillType.PlateMail),
+                            PlayerClass.Warrior => (itemSkill == SkillType.PlateMail),
+                            _                   => allowEquip
+                        };
 
                     if (!allowEquip && GetSkillValue(itemSkill) == 0)
                         return InventoryResult.ProficiencyNeeded;
@@ -4023,18 +3978,16 @@ public partial class Player
             if (slot < InventorySlots.ItemStart + GetInventorySlotCount())
                 return true;
 
-            switch (slot)
+            return slot switch
             {
                 // bank main slots
-                case >= InventorySlots.BankItemStart and < InventorySlots.BankItemEnd:
+                >= InventorySlots.BankItemStart and < InventorySlots.BankItemEnd => true,
                 // bank bag slots
-                case >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd:
+                >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd => true,
                 // reagent bank bag slots
-                case >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd:
-                    return true;
-                default:
-                    return false;
-            }
+                >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd => true,
+                _                                                              => false
+            };
         }
 
         // bag content slots

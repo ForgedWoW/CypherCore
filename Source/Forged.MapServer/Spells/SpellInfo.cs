@@ -701,31 +701,20 @@ public class SpellInfo
 
     public static SpellCastTargetFlags GetTargetFlagMask(SpellTargetObjectTypes objType)
     {
-        switch (objType)
+        return objType switch
         {
-            case SpellTargetObjectTypes.Dest:
-                return SpellCastTargetFlags.DestLocation;
-            case SpellTargetObjectTypes.UnitAndDest:
-                return SpellCastTargetFlags.DestLocation | SpellCastTargetFlags.Unit;
-            case SpellTargetObjectTypes.CorpseAlly:
-                return SpellCastTargetFlags.CorpseAlly;
-            case SpellTargetObjectTypes.CorpseEnemy:
-                return SpellCastTargetFlags.CorpseEnemy;
-            case SpellTargetObjectTypes.Corpse:
-                return SpellCastTargetFlags.CorpseAlly | SpellCastTargetFlags.CorpseEnemy;
-            case SpellTargetObjectTypes.Unit:
-                return SpellCastTargetFlags.Unit;
-            case SpellTargetObjectTypes.Gobj:
-                return SpellCastTargetFlags.Gameobject;
-            case SpellTargetObjectTypes.GobjItem:
-                return SpellCastTargetFlags.GameobjectItem;
-            case SpellTargetObjectTypes.Item:
-                return SpellCastTargetFlags.Item;
-            case SpellTargetObjectTypes.Src:
-                return SpellCastTargetFlags.SourceLocation;
-            default:
-                return SpellCastTargetFlags.None;
-        }
+            SpellTargetObjectTypes.Dest        => SpellCastTargetFlags.DestLocation,
+            SpellTargetObjectTypes.UnitAndDest => SpellCastTargetFlags.DestLocation | SpellCastTargetFlags.Unit,
+            SpellTargetObjectTypes.CorpseAlly  => SpellCastTargetFlags.CorpseAlly,
+            SpellTargetObjectTypes.CorpseEnemy => SpellCastTargetFlags.CorpseEnemy,
+            SpellTargetObjectTypes.Corpse      => SpellCastTargetFlags.CorpseAlly | SpellCastTargetFlags.CorpseEnemy,
+            SpellTargetObjectTypes.Unit        => SpellCastTargetFlags.Unit,
+            SpellTargetObjectTypes.Gobj        => SpellCastTargetFlags.Gameobject,
+            SpellTargetObjectTypes.GobjItem    => SpellCastTargetFlags.GameobjectItem,
+            SpellTargetObjectTypes.Item        => SpellCastTargetFlags.Item,
+            SpellTargetObjectTypes.Src         => SpellCastTargetFlags.SourceLocation,
+            _                                  => SpellCastTargetFlags.None
+        };
     }
 
     public void _LoadAuraState()
@@ -1121,18 +1110,14 @@ public class SpellInfo
             AllowedMechanicMask |= (1 << (int)Mechanics.Disoriented);
 
         if (HasAttribute(SpellAttr5.AllowWhileFleeing))
-            switch (Id)
+            AllowedMechanicMask |= Id switch
             {
-                case 22812: // Barkskin
-                case 47585: // Dispersion
-                    AllowedMechanicMask |= (1 << (int)Mechanics.Fear) | (1 << (int)Mechanics.Horror);
-
-                    break;
-                default:
-                    AllowedMechanicMask |= (1 << (int)Mechanics.Fear);
-
-                    break;
-            }
+                22812 => // Barkskin
+                    (1 << (int)Mechanics.Fear) | (1 << (int)Mechanics.Horror),
+                47585 => // Dispersion
+                    (1 << (int)Mechanics.Fear) | (1 << (int)Mechanics.Horror),
+                _ => (1 << (int)Mechanics.Fear)
+            };
     }
 
     public void _LoadSpellDiminishInfo()
@@ -1199,18 +1184,22 @@ public class SpellInfo
                 {
                     var firstRankSpellInfo = GetFirstRankSpell();
 
-                    switch (firstRankSpellInfo.Id)
+                    _spellSpecific = firstRankSpellInfo.Id switch
                     {
-                        case 8118: // Strength
-                        case 8099: // Stamina
-                        case 8112: // Spirit
-                        case 8096: // Intellect
-                        case 8115: // Agility
-                        case 8091: // Armor
-                            _spellSpecific = SpellSpecificType.Scroll;
-
-                            break;
-                    }
+                        8118 => // Strength
+                            SpellSpecificType.Scroll,
+                        8099 => // Stamina
+                            SpellSpecificType.Scroll,
+                        8112 => // Spirit
+                            SpellSpecificType.Scroll,
+                        8096 => // Intellect
+                            SpellSpecificType.Scroll,
+                        8115 => // Agility
+                            SpellSpecificType.Scroll,
+                        8091 => // Armor
+                            SpellSpecificType.Scroll,
+                        _ => _spellSpecific
+                    };
                 }
 
                 break;
@@ -2930,20 +2919,18 @@ public class SpellInfo
     {
         var spellSpec = GetSpellSpecific();
 
-        switch (spellSpec)
+        return spellSpec switch
         {
-            case SpellSpecificType.Seal:
-            case SpellSpecificType.Hand:
-            case SpellSpecificType.Aura:
-            case SpellSpecificType.Sting:
-            case SpellSpecificType.Curse:
-            case SpellSpecificType.Bane:
-            case SpellSpecificType.Aspect:
-            case SpellSpecificType.WarlockCorruption:
-                return spellSpec == spellInfo.GetSpellSpecific();
-            default:
-                return false;
-        }
+            SpellSpecificType.Seal              => spellSpec == spellInfo.GetSpellSpecific(),
+            SpellSpecificType.Hand              => spellSpec == spellInfo.GetSpellSpecific(),
+            SpellSpecificType.Aura              => spellSpec == spellInfo.GetSpellSpecific(),
+            SpellSpecificType.Sting             => spellSpec == spellInfo.GetSpellSpecific(),
+            SpellSpecificType.Curse             => spellSpec == spellInfo.GetSpellSpecific(),
+            SpellSpecificType.Bane              => spellSpec == spellInfo.GetSpellSpecific(),
+            SpellSpecificType.Aspect            => spellSpec == spellInfo.GetSpellSpecific(),
+            SpellSpecificType.WarlockCorruption => spellSpec == spellInfo.GetSpellSpecific(),
+            _                                   => false
+        };
     }
 
     public bool IsAuraExclusiveBySpecificWith(SpellInfo spellInfo)
@@ -2951,28 +2938,23 @@ public class SpellInfo
         var spellSpec1 = GetSpellSpecific();
         var spellSpec2 = spellInfo.GetSpellSpecific();
 
-        switch (spellSpec1)
+        return spellSpec1 switch
         {
-            case SpellSpecificType.WarlockArmor:
-            case SpellSpecificType.MageArmor:
-            case SpellSpecificType.ElementalShield:
-            case SpellSpecificType.MagePolymorph:
-            case SpellSpecificType.Presence:
-            case SpellSpecificType.Charm:
-            case SpellSpecificType.Scroll:
-            case SpellSpecificType.WarriorEnrage:
-            case SpellSpecificType.MageArcaneBrillance:
-            case SpellSpecificType.PriestDivineSpirit:
-                return spellSpec1 == spellSpec2;
-            case SpellSpecificType.Food:
-                return spellSpec2 == SpellSpecificType.Food || spellSpec2 == SpellSpecificType.FoodAndDrink;
-            case SpellSpecificType.Drink:
-                return spellSpec2 == SpellSpecificType.Drink || spellSpec2 == SpellSpecificType.FoodAndDrink;
-            case SpellSpecificType.FoodAndDrink:
-                return spellSpec2 == SpellSpecificType.Food || spellSpec2 == SpellSpecificType.Drink || spellSpec2 == SpellSpecificType.FoodAndDrink;
-            default:
-                return false;
-        }
+            SpellSpecificType.WarlockArmor        => spellSpec1 == spellSpec2,
+            SpellSpecificType.MageArmor           => spellSpec1 == spellSpec2,
+            SpellSpecificType.ElementalShield     => spellSpec1 == spellSpec2,
+            SpellSpecificType.MagePolymorph       => spellSpec1 == spellSpec2,
+            SpellSpecificType.Presence            => spellSpec1 == spellSpec2,
+            SpellSpecificType.Charm               => spellSpec1 == spellSpec2,
+            SpellSpecificType.Scroll              => spellSpec1 == spellSpec2,
+            SpellSpecificType.WarriorEnrage       => spellSpec1 == spellSpec2,
+            SpellSpecificType.MageArcaneBrillance => spellSpec1 == spellSpec2,
+            SpellSpecificType.PriestDivineSpirit  => spellSpec1 == spellSpec2,
+            SpellSpecificType.Food                => spellSpec2 == SpellSpecificType.Food || spellSpec2 == SpellSpecificType.FoodAndDrink,
+            SpellSpecificType.Drink               => spellSpec2 == SpellSpecificType.Drink || spellSpec2 == SpellSpecificType.FoodAndDrink,
+            SpellSpecificType.FoodAndDrink        => spellSpec2 == SpellSpecificType.Food || spellSpec2 == SpellSpecificType.Drink || spellSpec2 == SpellSpecificType.FoodAndDrink,
+            _                                     => false
+        };
     }
 
     public bool IsDifferentRankOf(SpellInfo spellInfo)
@@ -3770,30 +3752,24 @@ public class SpellInfo
 
     private DiminishingLevels DiminishingMaxLevelCompute(DiminishingGroup group)
     {
-        switch (group)
+        return group switch
         {
-            case DiminishingGroup.Taunt:
-                return DiminishingLevels.TauntImmune;
-            case DiminishingGroup.AOEKnockback:
-                return DiminishingLevels.Level2;
-            default:
-                return DiminishingLevels.Immune;
-        }
+            DiminishingGroup.Taunt        => DiminishingLevels.TauntImmune,
+            DiminishingGroup.AOEKnockback => DiminishingLevels.Level2,
+            _                             => DiminishingLevels.Immune
+        };
     }
 
     private DiminishingReturnsType DiminishingTypeCompute(DiminishingGroup group)
     {
-        switch (group)
+        return group switch
         {
-            case DiminishingGroup.Taunt:
-            case DiminishingGroup.Stun:
-                return DiminishingReturnsType.All;
-            case DiminishingGroup.LimitOnly:
-            case DiminishingGroup.None:
-                return DiminishingReturnsType.None;
-            default:
-                return DiminishingReturnsType.Player;
-        }
+            DiminishingGroup.Taunt     => DiminishingReturnsType.All,
+            DiminishingGroup.Stun      => DiminishingReturnsType.All,
+            DiminishingGroup.LimitOnly => DiminishingReturnsType.None,
+            DiminishingGroup.None      => DiminishingReturnsType.None,
+            _                          => DiminishingReturnsType.Player
+        };
     }
     private SpellInfo GetLastRankSpell()
     {

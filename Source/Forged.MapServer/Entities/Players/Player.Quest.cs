@@ -354,19 +354,14 @@ public partial class Player
 
     public bool CanInteractWithQuestGiver(WorldObject questGiver)
     {
-        switch (questGiver.TypeId)
+        return questGiver.TypeId switch
         {
-            case TypeId.Unit:
-                return GetNPCIfCanInteractWith(questGiver.GUID, NPCFlags.QuestGiver, NPCFlags2.None) != null;
-            case TypeId.GameObject:
-                return GetGameObjectIfCanInteractWith(questGiver.GUID, GameObjectTypes.QuestGiver) != null;
-            case TypeId.Player:
-                return IsAlive && questGiver.AsPlayer.IsAlive;
-            case TypeId.Item:
-                return IsAlive;
-        }
-
-        return false;
+            TypeId.Unit       => GetNPCIfCanInteractWith(questGiver.GUID, NPCFlags.QuestGiver, NPCFlags2.None) != null,
+            TypeId.GameObject => GetGameObjectIfCanInteractWith(questGiver.GUID, GameObjectTypes.QuestGiver) != null,
+            TypeId.Player     => IsAlive && questGiver.AsPlayer.IsAlive,
+            TypeId.Item       => IsAlive,
+            _                 => false
+        };
     }
 
     public bool CanRewardQuest(Quest.Quest quest, bool msg)
@@ -547,17 +542,13 @@ public partial class Player
             (rewardProto.HasFlag(ItemFlags2.FactionHorde) && Team != TeamFaction.Horde))
             return false;
 
-        switch (questPackageItem.DisplayType)
+        return questPackageItem.DisplayType switch
         {
-            case QuestPackageFilter.LootSpecialization:
-                return rewardProto.IsUsableByLootSpecialization(this, true);
-            case QuestPackageFilter.Class:
-                return rewardProto.ItemSpecClassMask == 0 || (rewardProto.ItemSpecClassMask & ClassMask) != 0;
-            case QuestPackageFilter.Everyone:
-                return true;
-        }
-
-        return false;
+            QuestPackageFilter.LootSpecialization => rewardProto.IsUsableByLootSpecialization(this, true),
+            QuestPackageFilter.Class              => rewardProto.ItemSpecClassMask == 0 || (rewardProto.ItemSpecClassMask & ClassMask) != 0,
+            QuestPackageFilter.Everyone           => true,
+            _                                     => false
+        };
     }
 
     public bool CanShareQuest(uint questID)
@@ -2953,33 +2944,16 @@ public partial class Player
                 }
                 else
                 {
-                    switch (objectiveType)
+                    objectiveIsNowComplete = objectiveType switch
                     {
-                        case QuestObjectiveType.Currency:
-                            objectiveIsNowComplete = GetCurrencyQuantity((uint)objectId) + addCount >= objective.Amount;
-
-                            break;
-                        case QuestObjectiveType.LearnSpell:
-                            objectiveIsNowComplete = addCount != 0;
-
-                            break;
-                        case QuestObjectiveType.MinReputation:
-                            objectiveIsNowComplete = ReputationMgr.GetReputation((uint)objectId) + addCount >= objective.Amount;
-
-                            break;
-                        case QuestObjectiveType.MaxReputation:
-                            objectiveIsNowComplete = ReputationMgr.GetReputation((uint)objectId) + addCount <= objective.Amount;
-
-                            break;
-                        case QuestObjectiveType.Money:
-                            objectiveIsNowComplete = (long)Money + addCount >= objective.Amount;
-
-                            break;
-                        case QuestObjectiveType.ProgressBar:
-                            objectiveIsNowComplete = IsQuestObjectiveProgressBarComplete(logSlot, quest);
-
-                            break;
-                    }
+                        QuestObjectiveType.Currency      => GetCurrencyQuantity((uint)objectId) + addCount >= objective.Amount,
+                        QuestObjectiveType.LearnSpell    => addCount != 0,
+                        QuestObjectiveType.MinReputation => ReputationMgr.GetReputation((uint)objectId) + addCount >= objective.Amount,
+                        QuestObjectiveType.MaxReputation => ReputationMgr.GetReputation((uint)objectId) + addCount <= objective.Amount,
+                        QuestObjectiveType.Money         => (long)Money + addCount >= objective.Amount,
+                        QuestObjectiveType.ProgressBar   => IsQuestObjectiveProgressBarComplete(logSlot, quest),
+                        _                                => objectiveIsNowComplete
+                    };
                 }
 
                 if (objective.Flags.HasAnyFlag(QuestObjectiveFlags.PartOfProgressBar))

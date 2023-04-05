@@ -264,64 +264,24 @@ public class Weather
             return false;
 
         // Log the event
-        string wthstr;
 
-        switch (state)
+        string wthstr = state switch
         {
-            case WeatherState.Fog:
-                wthstr = "fog";
-
-                break;
-            case WeatherState.LightRain:
-                wthstr = "light rain";
-
-                break;
-            case WeatherState.MediumRain:
-                wthstr = "medium rain";
-
-                break;
-            case WeatherState.HeavyRain:
-                wthstr = "heavy rain";
-
-                break;
-            case WeatherState.LightSnow:
-                wthstr = "light snow";
-
-                break;
-            case WeatherState.MediumSnow:
-                wthstr = "medium snow";
-
-                break;
-            case WeatherState.HeavySnow:
-                wthstr = "heavy snow";
-
-                break;
-            case WeatherState.LightSandstorm:
-                wthstr = "light sandstorm";
-
-                break;
-            case WeatherState.MediumSandstorm:
-                wthstr = "medium sandstorm";
-
-                break;
-            case WeatherState.HeavySandstorm:
-                wthstr = "heavy sandstorm";
-
-                break;
-            case WeatherState.Thunders:
-                wthstr = "thunders";
-
-                break;
-            case WeatherState.BlackRain:
-                wthstr = "blackrain";
-
-                break;
-            case WeatherState.Fine:
-            default:
-                wthstr = "fine";
-
-                break;
-        }
+            WeatherState.Fog             => "fog",
+            WeatherState.LightRain       => "light rain",
+            WeatherState.MediumRain      => "medium rain",
+            WeatherState.HeavyRain       => "heavy rain",
+            WeatherState.LightSnow       => "light snow",
+            WeatherState.MediumSnow      => "medium snow",
+            WeatherState.HeavySnow       => "heavy snow",
+            WeatherState.LightSandstorm  => "light sandstorm",
+            WeatherState.MediumSandstorm => "medium sandstorm",
+            WeatherState.HeavySandstorm  => "heavy sandstorm",
+            WeatherState.Thunders        => "thunders",
+            WeatherState.BlackRain       => "blackrain",
+            WeatherState.Fine            => "fine",
+            _                            => "fine"
+        };
 
         Log.Logger.Debug("Change the weather of zone {0} to {1}.", Zone, wthstr);
 

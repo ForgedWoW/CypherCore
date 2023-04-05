@@ -115,48 +115,36 @@ public class PoolManager
 
     public uint IsPartOfAPool<T>(ulong dbGuid)
     {
-        switch (typeof(T).Name)
+        return typeof(T).Name switch
         {
-            case "Creature":
-                return _creatureSearchMap.LookupByKey(dbGuid);
-            case "GameObject":
-                return _gameobjectSearchMap.LookupByKey(dbGuid);
-            case "Pool":
-                return _poolSearchMap.LookupByKey(dbGuid);
-        }
-
-        return 0;
+            "Creature"   => _creatureSearchMap.LookupByKey(dbGuid),
+            "GameObject" => _gameobjectSearchMap.LookupByKey(dbGuid),
+            "Pool"       => _poolSearchMap.LookupByKey(dbGuid),
+            _            => 0
+        };
     }
 
     // Selects proper template overload to call based on passed type
     public uint IsPartOfAPool(SpawnObjectType type, ulong spawnId)
     {
-        switch (type)
+        return type switch
         {
-            case SpawnObjectType.Creature:
-                return IsPartOfAPool<Creature>(spawnId);
-            case SpawnObjectType.GameObject:
-                return IsPartOfAPool<GameObject>(spawnId);
-            case SpawnObjectType.AreaTrigger:
-                return 0;
-            default:
-                return 0;
-        }
+            SpawnObjectType.Creature    => IsPartOfAPool<Creature>(spawnId),
+            SpawnObjectType.GameObject  => IsPartOfAPool<GameObject>(spawnId),
+            SpawnObjectType.AreaTrigger => 0,
+            _                           => 0
+        };
     }
 
     public bool IsSpawnedObject<T>(ulong dbGuidOrPoolID)
     {
-        switch (typeof(T).Name)
+        return typeof(T).Name switch
         {
-            case "Creature":
-                return _creatureSearchMap.ContainsKey(dbGuidOrPoolID);
-            case "GameObject":
-                return _gameobjectSearchMap.ContainsKey(dbGuidOrPoolID);
-            case "Pool":
-                return _poolSearchMap.ContainsKey(dbGuidOrPoolID);
-        }
-
-        return false;
+            "Creature"   => _creatureSearchMap.ContainsKey(dbGuidOrPoolID),
+            "GameObject" => _gameobjectSearchMap.ContainsKey(dbGuidOrPoolID),
+            "Pool"       => _poolSearchMap.ContainsKey(dbGuidOrPoolID),
+            _            => false
+        };
     }
 
     public void LoadFromDB()

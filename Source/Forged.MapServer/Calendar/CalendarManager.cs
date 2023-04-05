@@ -385,15 +385,13 @@ public class CalendarManager
                 Result = err
             };
 
-            switch (err)
+            packet.Name = err switch
             {
-                case CalendarError.OtherInvitesExceeded:
-                case CalendarError.AlreadyInvitedToEventS:
-                case CalendarError.IgnoringYouS:
-                    packet.Name = param;
-
-                    break;
-            }
+                CalendarError.OtherInvitesExceeded   => param,
+                CalendarError.AlreadyInvitedToEventS => param,
+                CalendarError.IgnoringYouS           => param,
+                _                                    => packet.Name
+            };
 
             player.SendPacket(packet);
         }

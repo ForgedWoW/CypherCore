@@ -2707,16 +2707,16 @@ public class Guild
     private ulong GetGuildBankTabPrice(byte tabId)
     {
         // these prices are in gold units, not copper
-        switch (tabId)
+        return tabId switch
         {
-            case 0: return 100;
-            case 1: return 250;
-            case 2: return 500;
-            case 3: return 1000;
-            case 4: return 2500;
-            case 5: return 5000;
-            default: return 0;
-        }
+            0 => 100,
+            1 => 250,
+            2 => 500,
+            3 => 1000,
+            4 => 2500,
+            5 => 5000,
+            _ => 0
+        };
     }
 
     private RankInfo GetRankInfo(GuildRankId rankId)

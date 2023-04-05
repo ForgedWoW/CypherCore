@@ -375,31 +375,15 @@ public class Transport : GameObject, ITransport
                     return null;
             }
 
-        TempSummon summon = null;
-
-        switch (mask)
+        TempSummon summon = mask switch
         {
-            case UnitTypeMask.Summon:
-                summon = new TempSummon(properties, summoner, false);
-
-                break;
-            case UnitTypeMask.Guardian:
-                summon = new Guardian(properties, summoner, false);
-
-                break;
-            case UnitTypeMask.Puppet:
-                summon = new Puppet(properties, summoner);
-
-                break;
-            case UnitTypeMask.Totem:
-                summon = new Totem(properties, summoner);
-
-                break;
-            case UnitTypeMask.Minion:
-                summon = new Minion(properties, summoner, false);
-
-                break;
-        }
+            UnitTypeMask.Summon   => new TempSummon(properties, summoner, false),
+            UnitTypeMask.Guardian => new Guardian(properties, summoner, false),
+            UnitTypeMask.Puppet   => new Puppet(properties, summoner),
+            UnitTypeMask.Totem    => new Totem(properties, summoner),
+            UnitTypeMask.Minion   => new Minion(properties, summoner, false),
+            _                     => null
+        };
 
         var newPos = pos.Copy();
         CalculatePassengerPosition(newPos);

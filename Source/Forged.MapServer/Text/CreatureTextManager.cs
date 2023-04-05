@@ -93,20 +93,13 @@ public sealed class CreatureTextManager
 
     public float GetRangeForChatType(ChatMsg msgType)
     {
-        var dist = _configuration.GetDefaultValue("ListenRange.Say", 25.0f);
-
-        switch (msgType)
+        var dist = msgType switch
         {
-            case ChatMsg.MonsterYell:
-                dist = _configuration.GetDefaultValue("ListenRange.Yell", 300.0f);
-
-                break;
-            case ChatMsg.MonsterEmote:
-            case ChatMsg.RaidBossEmote:
-                dist = _configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f);
-
-                break;
-        }
+            ChatMsg.MonsterYell   => _configuration.GetDefaultValue("ListenRange.Yell", 300.0f),
+            ChatMsg.MonsterEmote  => _configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f),
+            ChatMsg.RaidBossEmote => _configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f),
+            _                     => _configuration.GetDefaultValue("ListenRange.Say", 25.0f)
+        };
 
         return dist;
     }

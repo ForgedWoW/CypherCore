@@ -99,23 +99,21 @@ public sealed class MapRecord
 
     public bool IsContinent()
     {
-        switch (Id)
+        return Id switch
         {
-            case 0:
-            case 1:
-            case 530:
-            case 571:
-            case 870:
-            case 1116:
-            case 1220:
-            case 1642:
-            case 1643:
-            case 2222:
-            case 2444:
-                return true;
-            default:
-                return false;
-        }
+            0    => true,
+            1    => true,
+            530  => true,
+            571  => true,
+            870  => true,
+            1116 => true,
+            1220 => true,
+            1642 => true,
+            1643 => true,
+            2222 => true,
+            2444 => true,
+            _    => false
+        };
     }
 
     public bool IsDungeon()

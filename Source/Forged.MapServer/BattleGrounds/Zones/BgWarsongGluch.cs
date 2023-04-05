@@ -959,17 +959,14 @@ internal class BgWarsongGluch : Battleground
     {
         int TransformValueToOtherTeamControlWorldState(WsgFlagState value)
         {
-            switch (value)
+            return value switch
             {
-                case WsgFlagState.OnBase:
-                case WsgFlagState.OnGround:
-                case WsgFlagState.WaitRespawn:
-                    return 1;
-                case WsgFlagState.OnPlayer:
-                    return 2;
-                default:
-                    return 0;
-            }
+                WsgFlagState.OnBase      => 1,
+                WsgFlagState.OnGround    => 1,
+                WsgFlagState.WaitRespawn => 1,
+                WsgFlagState.OnPlayer    => 2,
+                _                        => 0
+            };
         }
 
         ;

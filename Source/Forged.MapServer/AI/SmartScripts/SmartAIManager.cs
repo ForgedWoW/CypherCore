@@ -786,40 +786,16 @@ public class SmartAIManager
 
         for (var index = paramsCount; index < rawCount; index++)
         {
-            uint value = 0;
-
-            switch (index)
+            uint value = index switch
             {
-                case 0:
-                    value = e.Action.raw.Param1;
-
-                    break;
-
-                case 1:
-                    value = e.Action.raw.Param2;
-
-                    break;
-
-                case 2:
-                    value = e.Action.raw.Param3;
-
-                    break;
-
-                case 3:
-                    value = e.Action.raw.Param4;
-
-                    break;
-
-                case 4:
-                    value = e.Action.raw.Param5;
-
-                    break;
-
-                case 5:
-                    value = e.Action.raw.Param6;
-
-                    break;
-            }
+                0 => e.Action.raw.Param1,
+                1 => e.Action.raw.Param2,
+                2 => e.Action.raw.Param3,
+                3 => e.Action.raw.Param4,
+                4 => e.Action.raw.Param5,
+                5 => e.Action.raw.Param6,
+                _ => 0
+            };
 
             if (value != 0)
                 Log.Logger.Warning($"SmartAIMgr: {e} has unused action_param{index + 1} with value {value}, it should be 0.");
@@ -920,35 +896,15 @@ public class SmartAIManager
 
         for (var index = paramsCount; index < rawCount; index++)
         {
-            uint value = 0;
-
-            switch (index)
+            uint value = index switch
             {
-                case 0:
-                    value = e.Event.raw.Param1;
-
-                    break;
-
-                case 1:
-                    value = e.Event.raw.Param2;
-
-                    break;
-
-                case 2:
-                    value = e.Event.raw.Param3;
-
-                    break;
-
-                case 3:
-                    value = e.Event.raw.Param4;
-
-                    break;
-
-                case 4:
-                    value = e.Event.raw.Param5;
-
-                    break;
-            }
+                0 => e.Event.raw.Param1,
+                1 => e.Event.raw.Param2,
+                2 => e.Event.raw.Param3,
+                3 => e.Event.raw.Param4,
+                4 => e.Event.raw.Param5,
+                _ => 0
+            };
 
             if (value != 0)
                 Log.Logger.Warning($"SmartAIMgr: {e} has unused event_param{index + 1} with value {value}, it should be 0.");
@@ -1000,30 +956,14 @@ public class SmartAIManager
 
         for (var index = paramsCount; index < rawCount; index++)
         {
-            uint value = 0;
-
-            switch (index)
+            uint value = index switch
             {
-                case 0:
-                    value = e.Target.raw.Param1;
-
-                    break;
-
-                case 1:
-                    value = e.Target.raw.Param2;
-
-                    break;
-
-                case 2:
-                    value = e.Target.raw.Param3;
-
-                    break;
-
-                case 3:
-                    value = e.Target.raw.Param4;
-
-                    break;
-            }
+                0 => e.Target.raw.Param1,
+                1 => e.Target.raw.Param2,
+                2 => e.Target.raw.Param3,
+                3 => e.Target.raw.Param4,
+                _ => 0
+            };
 
             if (value != 0)
                 Log.Logger.Warning($"SmartAIMgr: {e} has unused target_param{index + 1} with value {value}, it must be 0, skipped.");
@@ -1034,59 +974,56 @@ public class SmartAIManager
 
     private static bool EventHasInvoker(SmartEvents smartEvent)
     {
-        switch (smartEvent)
+        return smartEvent switch
         {
             // white list of events that actually have an invoker passed to them
-            case SmartEvents.Aggro:
-            case SmartEvents.Death:
-            case SmartEvents.Kill:
-            case SmartEvents.SummonedUnit:
-            case SmartEvents.SummonedUnitDies:
-            case SmartEvents.SpellHit:
-            case SmartEvents.SpellHitTarget:
-            case SmartEvents.Damaged:
-            case SmartEvents.ReceiveHeal:
-            case SmartEvents.ReceiveEmote:
-            case SmartEvents.JustSummoned:
-            case SmartEvents.DamagedTarget:
-            case SmartEvents.SummonDespawned:
-            case SmartEvents.PassengerBoarded:
-            case SmartEvents.PassengerRemoved:
-            case SmartEvents.GossipHello:
-            case SmartEvents.GossipSelect:
-            case SmartEvents.AcceptedQuest:
-            case SmartEvents.RewardQuest:
-            case SmartEvents.FollowCompleted:
-            case SmartEvents.OnSpellclick:
-            case SmartEvents.GoLootStateChanged:
-            case SmartEvents.AreatriggerOntrigger:
-            case SmartEvents.IcLos:
-            case SmartEvents.OocLos:
-            case SmartEvents.DistanceCreature:
-            case SmartEvents.FriendlyHealthPCT:
-            case SmartEvents.FriendlyIsCc:
-            case SmartEvents.FriendlyMissingBuff:
-            case SmartEvents.ActionDone:
-            case SmartEvents.Range:
-            case SmartEvents.VictimCasting:
-            case SmartEvents.TargetBuffed:
-            case SmartEvents.InstancePlayerEnter:
-            case SmartEvents.TransportAddcreature:
-            case SmartEvents.DataSet:
-            case SmartEvents.QuestAccepted:
-            case SmartEvents.QuestObjCompletion:
-            case SmartEvents.QuestCompletion:
-            case SmartEvents.QuestFail:
-            case SmartEvents.QuestRewarded:
-            case SmartEvents.SceneStart:
-            case SmartEvents.SceneTrigger:
-            case SmartEvents.SceneCancel:
-            case SmartEvents.SceneComplete:
-                return true;
-
-            default:
-                return false;
-        }
+            SmartEvents.Aggro                => true,
+            SmartEvents.Death                => true,
+            SmartEvents.Kill                 => true,
+            SmartEvents.SummonedUnit         => true,
+            SmartEvents.SummonedUnitDies     => true,
+            SmartEvents.SpellHit             => true,
+            SmartEvents.SpellHitTarget       => true,
+            SmartEvents.Damaged              => true,
+            SmartEvents.ReceiveHeal          => true,
+            SmartEvents.ReceiveEmote         => true,
+            SmartEvents.JustSummoned         => true,
+            SmartEvents.DamagedTarget        => true,
+            SmartEvents.SummonDespawned      => true,
+            SmartEvents.PassengerBoarded     => true,
+            SmartEvents.PassengerRemoved     => true,
+            SmartEvents.GossipHello          => true,
+            SmartEvents.GossipSelect         => true,
+            SmartEvents.AcceptedQuest        => true,
+            SmartEvents.RewardQuest          => true,
+            SmartEvents.FollowCompleted      => true,
+            SmartEvents.OnSpellclick         => true,
+            SmartEvents.GoLootStateChanged   => true,
+            SmartEvents.AreatriggerOntrigger => true,
+            SmartEvents.IcLos                => true,
+            SmartEvents.OocLos               => true,
+            SmartEvents.DistanceCreature     => true,
+            SmartEvents.FriendlyHealthPCT    => true,
+            SmartEvents.FriendlyIsCc         => true,
+            SmartEvents.FriendlyMissingBuff  => true,
+            SmartEvents.ActionDone           => true,
+            SmartEvents.Range                => true,
+            SmartEvents.VictimCasting        => true,
+            SmartEvents.TargetBuffed         => true,
+            SmartEvents.InstancePlayerEnter  => true,
+            SmartEvents.TransportAddcreature => true,
+            SmartEvents.DataSet              => true,
+            SmartEvents.QuestAccepted        => true,
+            SmartEvents.QuestObjCompletion   => true,
+            SmartEvents.QuestCompletion      => true,
+            SmartEvents.QuestFail            => true,
+            SmartEvents.QuestRewarded        => true,
+            SmartEvents.SceneStart           => true,
+            SmartEvents.SceneTrigger         => true,
+            SmartEvents.SceneCancel          => true,
+            SmartEvents.SceneComplete        => true,
+            _                                => false
+        };
     }
 
     private static bool IsMinMaxValid(SmartScriptHolder e, uint min, uint max)

@@ -155,38 +155,27 @@ public class GameObjectTemplate
     // helpers
     public bool IsDespawnAtAction()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Chest:
-                return Chest.consumable != 0;
-            case GameObjectTypes.Goober:
-                return Goober.consumable != 0;
-            default:
-                return false;
-        }
+            GameObjectTypes.Chest  => Chest.consumable != 0,
+            GameObjectTypes.Goober => Goober.consumable != 0,
+            _                      => false
+        };
     }
 
     public bool IsUsableMounted()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Mailbox:
-                return true;
-            case GameObjectTypes.BarberChair:
-                return false;
-            case GameObjectTypes.QuestGiver:
-                return QuestGiver.allowMounted != 0;
-            case GameObjectTypes.Text:
-                return Text.allowMounted != 0;
-            case GameObjectTypes.Goober:
-                return Goober.allowMounted != 0;
-            case GameObjectTypes.SpellCaster:
-                return SpellCaster.allowMounted != 0;
-            case GameObjectTypes.UILink:
-                return UILink.allowMounted != 0;
-            default:
-                return false;
-        }
+            GameObjectTypes.Mailbox     => true,
+            GameObjectTypes.BarberChair => false,
+            GameObjectTypes.QuestGiver  => QuestGiver.allowMounted != 0,
+            GameObjectTypes.Text        => Text.allowMounted != 0,
+            GameObjectTypes.Goober      => Goober.allowMounted != 0,
+            GameObjectTypes.SpellCaster => SpellCaster.allowMounted != 0,
+            GameObjectTypes.UILink      => UILink.allowMounted != 0,
+            _                           => false
+        };
     }
 
     public uint GetConditionID1() => type switch
@@ -309,23 +298,16 @@ public class GameObjectTemplate
     // despawn at targeting of cast?
     public bool GetDespawnPossibility()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Door:
-                return Door.noDamageImmune != 0;
-            case GameObjectTypes.Button:
-                return Button.noDamageImmune != 0;
-            case GameObjectTypes.QuestGiver:
-                return QuestGiver.noDamageImmune != 0;
-            case GameObjectTypes.Goober:
-                return Goober.noDamageImmune != 0;
-            case GameObjectTypes.FlagStand:
-                return FlagStand.noDamageImmune != 0;
-            case GameObjectTypes.FlagDrop:
-                return FlagDrop.noDamageImmune != 0;
-            default:
-                return true;
-        }
+            GameObjectTypes.Door       => Door.noDamageImmune != 0,
+            GameObjectTypes.Button     => Button.noDamageImmune != 0,
+            GameObjectTypes.QuestGiver => QuestGiver.noDamageImmune != 0,
+            GameObjectTypes.Goober     => Goober.noDamageImmune != 0,
+            GameObjectTypes.FlagStand  => FlagStand.noDamageImmune != 0,
+            GameObjectTypes.FlagDrop   => FlagDrop.noDamageImmune != 0,
+            _                          => true
+        };
     }
 
     /// <summary>
@@ -334,25 +316,17 @@ public class GameObjectTemplate
     /// <returns> </returns>
     public uint GetNoDamageImmune()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Door:
-                return Door.noDamageImmune;
-            case GameObjectTypes.Button:
-                return Button.noDamageImmune;
-            case GameObjectTypes.QuestGiver:
-                return QuestGiver.noDamageImmune;
-            case GameObjectTypes.Chest:
-                return 1;
-            case GameObjectTypes.Goober:
-                return Goober.noDamageImmune;
-            case GameObjectTypes.FlagStand:
-                return FlagStand.noDamageImmune;
-            case GameObjectTypes.FlagDrop:
-                return FlagDrop.noDamageImmune;
-            default:
-                return 0;
-        }
+            GameObjectTypes.Door       => Door.noDamageImmune,
+            GameObjectTypes.Button     => Button.noDamageImmune,
+            GameObjectTypes.QuestGiver => QuestGiver.noDamageImmune,
+            GameObjectTypes.Chest      => 1,
+            GameObjectTypes.Goober     => Goober.noDamageImmune,
+            GameObjectTypes.FlagStand  => FlagStand.noDamageImmune,
+            GameObjectTypes.FlagDrop   => FlagDrop.noDamageImmune,
+            _                          => 0
+        };
     }
 
     public uint GetNotInCombat() => type switch
@@ -368,33 +342,25 @@ public class GameObjectTemplate
     /// <returns> </returns>
     public uint GetCharges()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.GuardPost:
-                return GuardPost.charges;
-            case GameObjectTypes.SpellCaster:
-                return (uint)SpellCaster.charges;
-            default:
-                return 0;
-        }
+            GameObjectTypes.GuardPost   => GuardPost.charges,
+            GameObjectTypes.SpellCaster => (uint)SpellCaster.charges,
+            _                           => 0
+        };
     }
 
     public uint GetLinkedGameObjectEntry()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Button:
-                return Button.linkedTrap;
-            case GameObjectTypes.Chest:
-                return Chest.linkedTrap;
-            case GameObjectTypes.SpellFocus:
-                return SpellFocus.linkedTrap;
-            case GameObjectTypes.Goober:
-                return Goober.linkedTrap;
-            case GameObjectTypes.GatheringNode:
-                return GatheringNode.linkedTrap;
-            default: return 0;
-        }
+            GameObjectTypes.Button        => Button.linkedTrap,
+            GameObjectTypes.Chest         => Chest.linkedTrap,
+            GameObjectTypes.SpellFocus    => SpellFocus.linkedTrap,
+            GameObjectTypes.Goober        => Goober.linkedTrap,
+            GameObjectTypes.GatheringNode => GatheringNode.linkedTrap,
+            _                             => 0
+        };
     }
 
     public uint GetAutoCloseTime()
@@ -440,48 +406,36 @@ public class GameObjectTemplate
 
     public uint GetLootId()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Chest:
-                return Chest.chestLoot;
-            case GameObjectTypes.FishingHole:
-                return FishingHole.chestLoot;
-            case GameObjectTypes.GatheringNode:
-                return GatheringNode.chestLoot;
-            default: return 0;
-        }
+            GameObjectTypes.Chest         => Chest.chestLoot,
+            GameObjectTypes.FishingHole   => FishingHole.chestLoot,
+            GameObjectTypes.GatheringNode => GatheringNode.chestLoot,
+            _                             => 0
+        };
     }
 
     public uint GetGossipMenuId()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.QuestGiver:
-                return QuestGiver.gossipID;
-            case GameObjectTypes.Goober:
-                return Goober.gossipID;
-            default:
-                return 0;
-        }
+            GameObjectTypes.QuestGiver => QuestGiver.gossipID,
+            GameObjectTypes.Goober     => Goober.gossipID,
+            _                          => 0
+        };
     }
 
     public uint GetEventScriptId()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Goober:
-                return Goober.eventID;
-            case GameObjectTypes.Chest:
-                return Chest.triggeredEvent;
-            case GameObjectTypes.Chair:
-                return Chest.triggeredEvent;
-            case GameObjectTypes.Camera:
-                return Camera.eventID;
-            case GameObjectTypes.GatheringNode:
-                return GatheringNode.triggeredEvent;
-            default:
-                return 0;
-        }
+            GameObjectTypes.Goober        => Goober.eventID,
+            GameObjectTypes.Chest         => Chest.triggeredEvent,
+            GameObjectTypes.Chair         => Chest.triggeredEvent,
+            GameObjectTypes.Camera        => Camera.eventID,
+            GameObjectTypes.GatheringNode => GatheringNode.triggeredEvent,
+            _                             => 0
+        };
     }
 
     public uint GetTrivialSkillHigh() => type switch
@@ -501,114 +455,73 @@ public class GameObjectTemplate
     // Cooldown preventing goober and traps to cast spell
     public uint GetCooldown()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Trap:
-                return Trap.cooldown;
-            case GameObjectTypes.Goober:
-                return Goober.cooldown;
-            default:
-                return 0;
-        }
+            GameObjectTypes.Trap   => Trap.cooldown,
+            GameObjectTypes.Goober => Goober.cooldown,
+            _                      => 0
+        };
     }
 
     public bool IsInfiniteGameObject()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Door:
-                return Door.InfiniteAOI != 0;
-            case GameObjectTypes.FlagStand:
-                return FlagStand.InfiniteAOI != 0;
-            case GameObjectTypes.FlagDrop:
-                return FlagDrop.InfiniteAOI != 0;
-            case GameObjectTypes.DestructibleBuilding:
-                return true;
-            case GameObjectTypes.TrapDoor:
-                return TrapDoor.InfiniteAOI != 0;
-            case GameObjectTypes.NewFlag:
-                return NewFlag.InfiniteAOI != 0;
-            case GameObjectTypes.GarrisonBuilding:
-                return true;
-            case GameObjectTypes.PhaseableMo:
-                return true;
-            case GameObjectTypes.SiegeableMo:
-                return true;
-            case GameObjectTypes.ClientModel:
-                return ClientModel.InfiniteAOI != 0;
-            default:
-                return false;
-        }
+            GameObjectTypes.Door                 => Door.InfiniteAOI != 0,
+            GameObjectTypes.FlagStand            => FlagStand.InfiniteAOI != 0,
+            GameObjectTypes.FlagDrop             => FlagDrop.InfiniteAOI != 0,
+            GameObjectTypes.DestructibleBuilding => true,
+            GameObjectTypes.TrapDoor             => TrapDoor.InfiniteAOI != 0,
+            GameObjectTypes.NewFlag              => NewFlag.InfiniteAOI != 0,
+            GameObjectTypes.GarrisonBuilding     => true,
+            GameObjectTypes.PhaseableMo          => true,
+            GameObjectTypes.SiegeableMo          => true,
+            GameObjectTypes.ClientModel          => ClientModel.InfiniteAOI != 0,
+            _                                    => false
+        };
     }
 
     public bool IsGiganticGameObject()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Door:
-                return Door.GiganticAOI != 0;
-            case GameObjectTypes.Button:
-                return Button.GiganticAOI != 0;
-            case GameObjectTypes.QuestGiver:
-                return QuestGiver.GiganticAOI != 0;
-            case GameObjectTypes.Chest:
-                return Chest.GiganticAOI != 0;
-            case GameObjectTypes.Generic:
-                return Generic.GiganticAOI != 0;
-            case GameObjectTypes.Trap:
-                return Trap.GiganticAOI != 0;
-            case GameObjectTypes.SpellFocus:
-                return SpellFocus.GiganticAOI != 0;
-            case GameObjectTypes.Goober:
-                return Goober.GiganticAOI != 0;
-            case GameObjectTypes.Transport:
-                return true;
-            case GameObjectTypes.SpellCaster:
-                return SpellCaster.GiganticAOI != 0;
-            case GameObjectTypes.FlagStand:
-                return FlagStand.GiganticAOI != 0;
-            case GameObjectTypes.FlagDrop:
-                return FlagDrop.GiganticAOI != 0;
-            case GameObjectTypes.ControlZone:
-                return ControlZone.GiganticAOI != 0;
-            case GameObjectTypes.DungeonDifficulty:
-                return DungeonDifficulty.GiganticAOI != 0;
-            case GameObjectTypes.TrapDoor:
-                return TrapDoor.GiganticAOI != 0;
-            case GameObjectTypes.NewFlag:
-                return NewFlag.GiganticAOI != 0;
-            case GameObjectTypes.GarrisonPlot:
-                return true;
-            case GameObjectTypes.CapturePoint:
-                return CapturePoint.GiganticAOI != 0;
-            case GameObjectTypes.GarrisonShipment:
-                return GarrisonShipment.GiganticAOI != 0;
-            case GameObjectTypes.UILink:
-                return UILink.GiganticAOI != 0;
-            case GameObjectTypes.GatheringNode:
-                return GatheringNode.GiganticAOI != 0;
-            default: return false;
-        }
+            GameObjectTypes.Door              => Door.GiganticAOI != 0,
+            GameObjectTypes.Button            => Button.GiganticAOI != 0,
+            GameObjectTypes.QuestGiver        => QuestGiver.GiganticAOI != 0,
+            GameObjectTypes.Chest             => Chest.GiganticAOI != 0,
+            GameObjectTypes.Generic           => Generic.GiganticAOI != 0,
+            GameObjectTypes.Trap              => Trap.GiganticAOI != 0,
+            GameObjectTypes.SpellFocus        => SpellFocus.GiganticAOI != 0,
+            GameObjectTypes.Goober            => Goober.GiganticAOI != 0,
+            GameObjectTypes.Transport         => true,
+            GameObjectTypes.SpellCaster       => SpellCaster.GiganticAOI != 0,
+            GameObjectTypes.FlagStand         => FlagStand.GiganticAOI != 0,
+            GameObjectTypes.FlagDrop          => FlagDrop.GiganticAOI != 0,
+            GameObjectTypes.ControlZone       => ControlZone.GiganticAOI != 0,
+            GameObjectTypes.DungeonDifficulty => DungeonDifficulty.GiganticAOI != 0,
+            GameObjectTypes.TrapDoor          => TrapDoor.GiganticAOI != 0,
+            GameObjectTypes.NewFlag           => NewFlag.GiganticAOI != 0,
+            GameObjectTypes.GarrisonPlot      => true,
+            GameObjectTypes.CapturePoint      => CapturePoint.GiganticAOI != 0,
+            GameObjectTypes.GarrisonShipment  => GarrisonShipment.GiganticAOI != 0,
+            GameObjectTypes.UILink            => UILink.GiganticAOI != 0,
+            GameObjectTypes.GatheringNode     => GatheringNode.GiganticAOI != 0,
+            _                                 => false
+        };
     }
 
     public bool IsLargeGameObject()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.Chest:
-                return Chest.LargeAOI != 0;
-            case GameObjectTypes.Generic:
-                return Generic.LargeAOI != 0;
-            case GameObjectTypes.DungeonDifficulty:
-                return DungeonDifficulty.LargeAOI != 0;
-            case GameObjectTypes.GarrisonShipment:
-                return GarrisonShipment.LargeAOI != 0;
-            case GameObjectTypes.ItemForge:
-                return ItemForge.LargeAOI != 0;
-            case GameObjectTypes.GatheringNode:
-                return GatheringNode.LargeAOI != 0;
-            default: return false;
-        }
+            GameObjectTypes.Chest             => Chest.LargeAOI != 0,
+            GameObjectTypes.Generic           => Generic.LargeAOI != 0,
+            GameObjectTypes.DungeonDifficulty => DungeonDifficulty.LargeAOI != 0,
+            GameObjectTypes.GarrisonShipment  => GarrisonShipment.LargeAOI != 0,
+            GameObjectTypes.ItemForge         => ItemForge.LargeAOI != 0,
+            GameObjectTypes.GatheringNode     => GatheringNode.LargeAOI != 0,
+            _                                 => false
+        };
     }
 
     public uint GetServerOnly() => type switch
@@ -622,28 +535,22 @@ public class GameObjectTemplate
 
     public uint GetSpellFocusType()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.SpellFocus:
-                return SpellFocus.spellFocusType;
-            case GameObjectTypes.UILink:
-                return UILink.spellFocusType;
-            default:
-                return 0;
-        }
+            GameObjectTypes.SpellFocus => SpellFocus.spellFocusType,
+            GameObjectTypes.UILink     => UILink.spellFocusType,
+            _                          => 0
+        };
     }
 
     public uint GetSpellFocusRadius()
     {
-        switch (type)
+        return type switch
         {
-            case GameObjectTypes.SpellFocus:
-                return SpellFocus.radius;
-            case GameObjectTypes.UILink:
-                return UILink.radius;
-            default:
-                return 0;
-        }
+            GameObjectTypes.SpellFocus => SpellFocus.radius,
+            GameObjectTypes.UILink     => UILink.radius,
+            _                          => 0
+        };
     }
 
     public void InitializeQueryData()

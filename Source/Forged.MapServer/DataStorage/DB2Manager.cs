@@ -172,27 +172,14 @@ public class DB2Manager
         if (expectedStatRecord == null)
             return 1.0f;
 
-        ExpectedStatModRecord classMod = null;
-
-        switch (unitClass)
+        ExpectedStatModRecord classMod = unitClass switch
         {
-            case PlayerClass.Warrior:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(4u);
-
-                break;
-            case PlayerClass.Paladin:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(2u);
-
-                break;
-            case PlayerClass.Rogue:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(3u);
-
-                break;
-            case PlayerClass.Mage:
-                classMod = _cliDB.ExpectedStatModStorage.LookupByKey(1u);
-
-                break;
-        }
+            PlayerClass.Warrior => _cliDB.ExpectedStatModStorage.LookupByKey(4u),
+            PlayerClass.Paladin => _cliDB.ExpectedStatModStorage.LookupByKey(2u),
+            PlayerClass.Rogue   => _cliDB.ExpectedStatModStorage.LookupByKey(3u),
+            PlayerClass.Mage    => _cliDB.ExpectedStatModStorage.LookupByKey(1u),
+            _                   => null
+        };
 
         var contentTuningMods = _expectedStatModsByContentTuning.LookupByKey(contentTuningId);
         var value = 0.0f;
@@ -1206,15 +1193,12 @@ public class DB2Manager
     {
         if (_pvpTalentSlotUnlock[slot] != null)
         {
-            switch (playerClass)
+            return playerClass switch
             {
-                case PlayerClass.Deathknight:
-                    return _pvpTalentSlotUnlock[slot].DeathKnightLevelRequired;
-                case PlayerClass.DemonHunter:
-                    return _pvpTalentSlotUnlock[slot].DemonHunterLevelRequired;
-            }
-
-            return _pvpTalentSlotUnlock[slot].LevelRequired;
+                PlayerClass.Deathknight => _pvpTalentSlotUnlock[slot].DeathKnightLevelRequired,
+                PlayerClass.DemonHunter => _pvpTalentSlotUnlock[slot].DemonHunterLevelRequired,
+                _                       => _pvpTalentSlotUnlock[slot].LevelRequired
+            };
         }
 
         return 0;
@@ -2320,19 +2304,14 @@ public class DB2Manager
                 return points.Count < 4 ? CurveInterpolationMode.Cosine : CurveInterpolationMode.CatmullRom;
             case 2:
             {
-                switch (points.Count)
+                return points.Count switch
                 {
-                    case 1:
-                        return CurveInterpolationMode.Constant;
-                    case 2:
-                        return CurveInterpolationMode.Linear;
-                    case 3:
-                        return CurveInterpolationMode.Bezier3;
-                    case 4:
-                        return CurveInterpolationMode.Bezier4;
-                }
-
-                return CurveInterpolationMode.Bezier;
+                    1 => CurveInterpolationMode.Constant,
+                    2 => CurveInterpolationMode.Linear,
+                    3 => CurveInterpolationMode.Bezier3,
+                    4 => CurveInterpolationMode.Bezier4,
+                    _ => CurveInterpolationMode.Bezier
+                };
             }
             case 3:
                 return CurveInterpolationMode.Cosine;
@@ -2525,29 +2504,19 @@ public class DB2Manager
 
         var expectedStatMod = _cliDB.ExpectedStatModStorage.LookupByKey((uint)contentTuningXExpected.ExpectedStatModID);
 
-        switch (stat)
+        return stat switch
         {
-            case ExpectedStatType.CreatureHealth:
-                return mod * expectedStatMod.CreatureHealthMod;
-            case ExpectedStatType.PlayerHealth:
-                return mod * expectedStatMod.PlayerHealthMod;
-            case ExpectedStatType.CreatureAutoAttackDps:
-                return mod * expectedStatMod.CreatureAutoAttackDPSMod;
-            case ExpectedStatType.CreatureArmor:
-                return mod * expectedStatMod.CreatureArmorMod;
-            case ExpectedStatType.PlayerMana:
-                return mod * expectedStatMod.PlayerManaMod;
-            case ExpectedStatType.PlayerPrimaryStat:
-                return mod * expectedStatMod.PlayerPrimaryStatMod;
-            case ExpectedStatType.PlayerSecondaryStat:
-                return mod * expectedStatMod.PlayerSecondaryStatMod;
-            case ExpectedStatType.ArmorConstant:
-                return mod * expectedStatMod.ArmorConstantMod;
-            case ExpectedStatType.CreatureSpellDamage:
-                return mod * expectedStatMod.CreatureSpellDamageMod;
-        }
-
-        return mod;
+            ExpectedStatType.CreatureHealth        => mod * expectedStatMod.CreatureHealthMod,
+            ExpectedStatType.PlayerHealth          => mod * expectedStatMod.PlayerHealthMod,
+            ExpectedStatType.CreatureAutoAttackDps => mod * expectedStatMod.CreatureAutoAttackDPSMod,
+            ExpectedStatType.CreatureArmor         => mod * expectedStatMod.CreatureArmorMod,
+            ExpectedStatType.PlayerMana            => mod * expectedStatMod.PlayerManaMod,
+            ExpectedStatType.PlayerPrimaryStat     => mod * expectedStatMod.PlayerPrimaryStatMod,
+            ExpectedStatType.PlayerSecondaryStat   => mod * expectedStatMod.PlayerSecondaryStatMod,
+            ExpectedStatType.ArmorConstant         => mod * expectedStatMod.ArmorConstantMod,
+            ExpectedStatType.CreatureSpellDamage   => mod * expectedStatMod.CreatureSpellDamageMod,
+            _                                      => mod
+        };
 
         // int32 MythicPlusSubSeason = 0;
     }

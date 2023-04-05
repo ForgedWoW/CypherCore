@@ -1629,25 +1629,18 @@ public class AuraEffect
                         uint FactionID = 0;
 
                         if (apply)
-                            switch (SpellInfo.Id)
+                            FactionID = SpellInfo.Id switch
                             {
-                                case 57819:
-                                    FactionID = 1106; // Argent Crusade
-
-                                    break;
-                                case 57820:
-                                    FactionID = 1098; // Knights of the Ebon Blade
-
-                                    break;
-                                case 57821:
-                                    FactionID = 1090; // Kirin Tor
-
-                                    break;
-                                case 57822:
-                                    FactionID = 1091; // The Wyrmrest Accord
-
-                                    break;
-                            }
+                                57819 => 1106 // Argent Crusade
+                                ,
+                                57820 => 1098 // Knights of the Ebon Blade
+                                ,
+                                57821 => 1090 // Kirin Tor
+                                ,
+                                57822 => 1091 // The Wyrmrest Accord
+                                ,
+                                _ => FactionID
+                            };
 
                         caster.AsPlayer.SetChampioningFaction(FactionID);
 

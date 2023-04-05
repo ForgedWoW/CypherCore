@@ -693,68 +693,34 @@ public class BattlegroundManager
 
     public BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday)
     {
-        switch (holiday)
+        return holiday switch
         {
-            case HolidayIds.CallToArmsAv:
-                return BattlegroundTypeId.AV;
-
-            case HolidayIds.CallToArmsEs:
-                return BattlegroundTypeId.EY;
-
-            case HolidayIds.CallToArmsWg:
-                return BattlegroundTypeId.WS;
-
-            case HolidayIds.CallToArmsSa:
-                return BattlegroundTypeId.SA;
-
-            case HolidayIds.CallToArmsAb:
-                return BattlegroundTypeId.AB;
-
-            case HolidayIds.CallToArmsIc:
-                return BattlegroundTypeId.IC;
-
-            case HolidayIds.CallToArmsTp:
-                return BattlegroundTypeId.TP;
-
-            case HolidayIds.CallToArmsBg:
-                return BattlegroundTypeId.BFG;
-
-            default:
-                return BattlegroundTypeId.None;
-        }
+            HolidayIds.CallToArmsAv => BattlegroundTypeId.AV,
+            HolidayIds.CallToArmsEs => BattlegroundTypeId.EY,
+            HolidayIds.CallToArmsWg => BattlegroundTypeId.WS,
+            HolidayIds.CallToArmsSa => BattlegroundTypeId.SA,
+            HolidayIds.CallToArmsAb => BattlegroundTypeId.AB,
+            HolidayIds.CallToArmsIc => BattlegroundTypeId.IC,
+            HolidayIds.CallToArmsTp => BattlegroundTypeId.TP,
+            HolidayIds.CallToArmsBg => BattlegroundTypeId.BFG,
+            _                       => BattlegroundTypeId.None
+        };
     }
 
     private HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId)
     {
-        switch (bgTypeId)
+        return bgTypeId switch
         {
-            case BattlegroundTypeId.AV:
-                return HolidayIds.CallToArmsAv;
-
-            case BattlegroundTypeId.EY:
-                return HolidayIds.CallToArmsEs;
-
-            case BattlegroundTypeId.WS:
-                return HolidayIds.CallToArmsWg;
-
-            case BattlegroundTypeId.SA:
-                return HolidayIds.CallToArmsSa;
-
-            case BattlegroundTypeId.AB:
-                return HolidayIds.CallToArmsAb;
-
-            case BattlegroundTypeId.IC:
-                return HolidayIds.CallToArmsIc;
-
-            case BattlegroundTypeId.TP:
-                return HolidayIds.CallToArmsTp;
-
-            case BattlegroundTypeId.BFG:
-                return HolidayIds.CallToArmsBg;
-
-            default:
-                return HolidayIds.None;
-        }
+            BattlegroundTypeId.AV  => HolidayIds.CallToArmsAv,
+            BattlegroundTypeId.EY  => HolidayIds.CallToArmsEs,
+            BattlegroundTypeId.WS  => HolidayIds.CallToArmsWg,
+            BattlegroundTypeId.SA  => HolidayIds.CallToArmsSa,
+            BattlegroundTypeId.AB  => HolidayIds.CallToArmsAb,
+            BattlegroundTypeId.IC  => HolidayIds.CallToArmsIc,
+            BattlegroundTypeId.TP  => HolidayIds.CallToArmsTp,
+            BattlegroundTypeId.BFG => HolidayIds.CallToArmsBg,
+            _                      => HolidayIds.None
+        };
     }
 
     private void BuildBattlegroundStatusHeader(BattlefieldStatusHeader header, Battleground bg, Player player, uint ticketId, uint joinTime, BattlegroundQueueTypeId queueId, ArenaTypes arenaType)

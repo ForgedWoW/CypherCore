@@ -38,7 +38,7 @@ public class AreaTriggerDataStorage
         if (!_areaTriggerCreateProperties.TryGetValue(spellMiscValue, out var val))
         {
             Log.Logger.Warning($"AreaTriggerCreateProperties did not exist for {spellMiscValue}. Using default area trigger properties.");
-            val = AreaTriggerCreateProperties.CreateDefault(spellMiscValue);
+            val = AreaTriggerCreateProperties.CreateDefault(spellMiscValue, _objectManager);
             _areaTriggerCreateProperties[spellMiscValue] = val;
         }
 

@@ -32,16 +32,12 @@ public class SpawnData : SpawnMetadata
 
     public static SpawnObjectType TypeFor<T>()
     {
-        switch (typeof(T).Name)
+        return typeof(T).Name switch
         {
-            case nameof(Creature):
-                return SpawnObjectType.Creature;
-            case nameof(GameObject):
-                return SpawnObjectType.GameObject;
-            case nameof(AreaTrigger):
-                return SpawnObjectType.AreaTrigger;
-            default:
-                return SpawnObjectType.NumSpawnTypes;
-        }
+            nameof(Creature)    => SpawnObjectType.Creature,
+            nameof(GameObject)  => SpawnObjectType.GameObject,
+            nameof(AreaTrigger) => SpawnObjectType.AreaTrigger,
+            _                   => SpawnObjectType.NumSpawnTypes
+        };
     }
 }

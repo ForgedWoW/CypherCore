@@ -941,58 +941,34 @@ public class CliDB
 
     public static float GetSpellScalingColumnForClass(GtSpellScalingRecord row, int playerClass)
     {
-        switch (playerClass)
+        return playerClass switch
         {
-            case (int)PlayerClass.Warrior:
-                return row.Warrior;
-            case (int)PlayerClass.Paladin:
-                return row.Paladin;
-            case (int)PlayerClass.Hunter:
-                return row.Hunter;
-            case (int)PlayerClass.Rogue:
-                return row.Rogue;
-            case (int)PlayerClass.Priest:
-                return row.Priest;
-            case (int)PlayerClass.Deathknight:
-                return row.DeathKnight;
-            case (int)PlayerClass.Shaman:
-                return row.Shaman;
-            case (int)PlayerClass.Mage:
-                return row.Mage;
-            case (int)PlayerClass.Warlock:
-                return row.Warlock;
-            case (int)PlayerClass.Monk:
-                return row.Monk;
-            case (int)PlayerClass.Druid:
-                return row.Druid;
-            case (int)PlayerClass.DemonHunter:
-                return row.DemonHunter;
-            case (int)PlayerClass.Evoker:
-                return row.Evoker;
-            case (int)PlayerClass.Adventurer:
-                return row.Adventurer;
-            case -1:
-            case -7:
-                return row.Item;
-            case -2:
-                return row.Consumable;
-            case -3:
-                return row.Gem1;
-            case -4:
-                return row.Gem2;
-            case -5:
-                return row.Gem3;
-            case -6:
-                return row.Health;
-            case -8:
-                return row.DamageReplaceStat;
-            case -9:
-                return row.DamageSecondary;
-            case -10:
-                return row.ManaConsumable;
-        }
-
-        return 0.0f;
+            (int)PlayerClass.Warrior     => row.Warrior,
+            (int)PlayerClass.Paladin     => row.Paladin,
+            (int)PlayerClass.Hunter      => row.Hunter,
+            (int)PlayerClass.Rogue       => row.Rogue,
+            (int)PlayerClass.Priest      => row.Priest,
+            (int)PlayerClass.Deathknight => row.DeathKnight,
+            (int)PlayerClass.Shaman      => row.Shaman,
+            (int)PlayerClass.Mage        => row.Mage,
+            (int)PlayerClass.Warlock     => row.Warlock,
+            (int)PlayerClass.Monk        => row.Monk,
+            (int)PlayerClass.Druid       => row.Druid,
+            (int)PlayerClass.DemonHunter => row.DemonHunter,
+            (int)PlayerClass.Evoker      => row.Evoker,
+            (int)PlayerClass.Adventurer  => row.Adventurer,
+            -1                           => row.Item,
+            -7                           => row.Item,
+            -2                           => row.Consumable,
+            -3                           => row.Gem1,
+            -4                           => row.Gem2,
+            -5                           => row.Gem3,
+            -6                           => row.Health,
+            -8                           => row.DamageReplaceStat,
+            -9                           => row.DamageSecondary,
+            -10                          => row.ManaConsumable,
+            _                            => 0.0f
+        };
     }
 
     public static float GetBattlePetXPPerLevel(GtBattlePetXPRecord row)
@@ -1002,25 +978,21 @@ public class CliDB
 
     public static float GetIlvlStatMultiplier(GtGenericMultByILvlRecord row, InventoryType invType)
     {
-        switch (invType)
+        return invType switch
         {
-            case InventoryType.Neck:
-            case InventoryType.Finger:
-                return row.JewelryMultiplier;
-            case InventoryType.Trinket:
-                return row.TrinketMultiplier;
-            case InventoryType.Weapon:
-            case InventoryType.Shield:
-            case InventoryType.Ranged:
-            case InventoryType.Weapon2Hand:
-            case InventoryType.WeaponMainhand:
-            case InventoryType.WeaponOffhand:
-            case InventoryType.Holdable:
-            case InventoryType.RangedRight:
-                return row.WeaponMultiplier;
-            default:
-                return row.ArmorMultiplier;
-        }
+            InventoryType.Neck           => row.JewelryMultiplier,
+            InventoryType.Finger         => row.JewelryMultiplier,
+            InventoryType.Trinket        => row.TrinketMultiplier,
+            InventoryType.Weapon         => row.WeaponMultiplier,
+            InventoryType.Shield         => row.WeaponMultiplier,
+            InventoryType.Ranged         => row.WeaponMultiplier,
+            InventoryType.Weapon2Hand    => row.WeaponMultiplier,
+            InventoryType.WeaponMainhand => row.WeaponMultiplier,
+            InventoryType.WeaponOffhand  => row.WeaponMultiplier,
+            InventoryType.Holdable       => row.WeaponMultiplier,
+            InventoryType.RangedRight    => row.WeaponMultiplier,
+            _                            => row.ArmorMultiplier
+        };
     }
 
     #endregion

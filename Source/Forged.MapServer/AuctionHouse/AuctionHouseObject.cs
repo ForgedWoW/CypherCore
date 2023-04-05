@@ -99,41 +99,19 @@ public class AuctionHouseObject
             bucket.InventoryType = (byte)itemTemplate.InventoryType;
             bucket.RequiredLevel = (byte)auction.Items[0].GetRequiredLevel();
 
-            switch (itemTemplate.Class)
+            bucket.SortLevel = itemTemplate.Class switch
             {
-                case ItemClass.Weapon:
-                case ItemClass.Armor:
-                    bucket.SortLevel = (byte)key.ItemLevel;
-
-                    break;
-
-                case ItemClass.Container:
-                    bucket.SortLevel = (byte)itemTemplate.ContainerSlots;
-
-                    break;
-
-                case ItemClass.Gem:
-                case ItemClass.ItemEnhancement:
-                    bucket.SortLevel = (byte)itemTemplate.BaseItemLevel;
-
-                    break;
-
-                case ItemClass.Consumable:
-                    bucket.SortLevel = Math.Max((byte)1, bucket.RequiredLevel);
-
-                    break;
-
-                case ItemClass.Miscellaneous:
-                case ItemClass.BattlePets:
-                    bucket.SortLevel = 1;
-
-                    break;
-
-                case ItemClass.Recipe:
-                    bucket.SortLevel = (byte)((ItemSubClassRecipe)itemTemplate.SubClass != ItemSubClassRecipe.Book ? itemTemplate.RequiredSkillRank : (uint)itemTemplate.BaseRequiredLevel);
-
-                    break;
-            }
+                ItemClass.Weapon          => (byte)key.ItemLevel,
+                ItemClass.Armor           => (byte)key.ItemLevel,
+                ItemClass.Container       => (byte)itemTemplate.ContainerSlots,
+                ItemClass.Gem             => (byte)itemTemplate.BaseItemLevel,
+                ItemClass.ItemEnhancement => (byte)itemTemplate.BaseItemLevel,
+                ItemClass.Consumable      => Math.Max((byte)1, bucket.RequiredLevel),
+                ItemClass.Miscellaneous   => 1,
+                ItemClass.BattlePets      => 1,
+                ItemClass.Recipe          => (byte)((ItemSubClassRecipe)itemTemplate.SubClass != ItemSubClassRecipe.Book ? itemTemplate.RequiredSkillRank : (uint)itemTemplate.BaseRequiredLevel),
+                _                         => bucket.SortLevel
+            };
 
             for (var locale = Locale.enUS; locale < Locale.Total; ++locale)
             {

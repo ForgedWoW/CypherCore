@@ -894,21 +894,15 @@ public sealed class GameObjectManager
 
         float GetDamageMod(CreatureEliteType rank)
         {
-            switch (rank) // define rates for each elite rank
+            return rank switch // define rates for each elite rank
             {
-                case CreatureEliteType.Normal:
-                    return _configuration.GetDefaultValue("Rate.Creature.Normal.Damage", 1.0f);
-                case CreatureEliteType.Elite:
-                    return _configuration.GetDefaultValue("Rate.Creature.Elite.Elite.Damage", 1.0f);
-                case CreatureEliteType.RareElite:
-                    return _configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.Damage", 1.0f);
-                case CreatureEliteType.WorldBoss:
-                    return _configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.Damage", 1.0f);
-                case CreatureEliteType.Rare:
-                    return _configuration.GetDefaultValue("Rate.Creature.Elite.RARE.Damage", 1.0f);
-                default:
-                    return _configuration.GetDefaultValue("Rate.Creature.Elite.Elite.Damage", 1.0f);
-            }
+                CreatureEliteType.Normal    => _configuration.GetDefaultValue("Rate.Creature.Normal.Damage", 1.0f),
+                CreatureEliteType.Elite     => _configuration.GetDefaultValue("Rate.Creature.Elite.Elite.Damage", 1.0f),
+                CreatureEliteType.RareElite => _configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.Damage", 1.0f),
+                CreatureEliteType.WorldBoss => _configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.Damage", 1.0f),
+                CreatureEliteType.Rare      => _configuration.GetDefaultValue("Rate.Creature.Elite.RARE.Damage", 1.0f),
+                _                           => _configuration.GetDefaultValue("Rate.Creature.Elite.Elite.Damage", 1.0f)
+            };
         }
 
         if (cInfo.GossipMenuId != 0 && !cInfo.Npcflag.HasAnyFlag((ulong)NPCFlags.Gossip))
@@ -2041,32 +2035,24 @@ public sealed class GameObjectManager
 
     public Dictionary<uint, MultiMap<uint, ScriptInfo>> GetScriptsMapByType(ScriptsType type)
     {
-        switch (type)
+        return type switch
         {
-            case ScriptsType.Spell:
-                return SpellScripts;
-            case ScriptsType.Event:
-                return EventScripts;
-            case ScriptsType.Waypoint:
-                return WaypointScripts;
-            default:
-                return null;
-        }
+            ScriptsType.Spell    => SpellScripts,
+            ScriptsType.Event    => EventScripts,
+            ScriptsType.Waypoint => WaypointScripts,
+            _                    => null
+        };
     }
 
     public string GetScriptsTableNameByType(ScriptsType type)
     {
-        switch (type)
+        return type switch
         {
-            case ScriptsType.Spell:
-                return "spell_scripts";
-            case ScriptsType.Event:
-                return "event_scripts";
-            case ScriptsType.Waypoint:
-                return "waypoint_scripts";
-            default:
-                return "";
-        }
+            ScriptsType.Spell    => "spell_scripts",
+            ScriptsType.Event    => "event_scripts",
+            ScriptsType.Waypoint => "waypoint_scripts",
+            _                    => ""
+        };
     }
 
     public SkillTiersEntry GetSkillTier(uint skillTierId)
@@ -2079,17 +2065,13 @@ public sealed class GameObjectManager
         if (!SpawnMetadata.TypeHasData(type))
             return null;
 
-        switch (type)
+        return type switch
         {
-            case SpawnObjectType.Creature:
-                return GetCreatureData(spawnId);
-            case SpawnObjectType.GameObject:
-                return GetGameObjectData(spawnId);
-            case SpawnObjectType.AreaTrigger:
-                return Global.AreaTriggerDataStorage.GetAreaTriggerSpawn(spawnId);
-            default:
-                return null;
-        }
+            SpawnObjectType.Creature    => GetCreatureData(spawnId),
+            SpawnObjectType.GameObject  => GetGameObjectData(spawnId),
+            SpawnObjectType.AreaTrigger => Global.AreaTriggerDataStorage.GetAreaTriggerSpawn(spawnId),
+            _                           => null
+        };
     }
 
     public SpawnGroupTemplateData GetSpawnGroupData(uint groupId)
@@ -7431,17 +7413,14 @@ public sealed class GameObjectManager
                             if (itemTemplate.Class == ItemClass.Consumable && (ItemSubClassConsumable)itemTemplate.SubClass == ItemSubClassConsumable.FoodDrink)
                             {
                                 if (!itemTemplate.Effects.Empty())
-                                    switch ((SpellCategories)itemTemplate.Effects[0].SpellCategoryID)
+                                    count = (SpellCategories)itemTemplate.Effects[0].SpellCategoryID switch
                                     {
-                                        case SpellCategories.Food: // food
-                                            count = characterLoadout.ChrClassID == (int)PlayerClass.Deathknight ? 10 : 4u;
-
-                                            break;
-                                        case SpellCategories.Drink: // drink
-                                            count = 2;
-
-                                            break;
-                                    }
+                                        SpellCategories.Food => // food
+                                            characterLoadout.ChrClassID == (int)PlayerClass.Deathknight ? 10 : 4u,
+                                        SpellCategories.Drink => // drink
+                                            2,
+                                        _ => count
+                                    };
 
                                 if (itemTemplate.MaxStackSize < count)
                                     count = itemTemplate.MaxStackSize;
@@ -11325,30 +11304,29 @@ public sealed class GameObjectManager
     }
     private static LanguageType GetRealmLanguageType(bool create)
     {
-        switch ((RealmZones)_configuration.GetDefaultValue("RealmZone", (int)RealmZones.Development))
+        return (RealmZones)_configuration.GetDefaultValue("RealmZone", (int)RealmZones.Development) switch
         {
-            case RealmZones.Unknown: // any language
-            case RealmZones.Development:
-            case RealmZones.TestServer:
-            case RealmZones.QaServer:
-                return LanguageType.Any;
-            case RealmZones.UnitedStates: // extended-Latin
-            case RealmZones.Oceanic:
-            case RealmZones.LatinAmerica:
-            case RealmZones.English:
-            case RealmZones.German:
-            case RealmZones.French:
-            case RealmZones.Spanish:
-                return LanguageType.ExtendenLatin;
-            case RealmZones.Korea: // East-Asian
-            case RealmZones.Taiwan:
-            case RealmZones.China:
-                return LanguageType.EastAsia;
-            case RealmZones.Russian: // Cyrillic
-                return LanguageType.Cyrillic;
-            default:
-                return create ? LanguageType.BasicLatin : LanguageType.Any; // basic-Latin at create, any at login
-        }
+            RealmZones.Unknown => // any language
+                LanguageType.Any,
+            RealmZones.Development => LanguageType.Any,
+            RealmZones.TestServer  => LanguageType.Any,
+            RealmZones.QaServer    => LanguageType.Any,
+            RealmZones.UnitedStates => // extended-Latin
+                LanguageType.ExtendenLatin,
+            RealmZones.Oceanic      => LanguageType.ExtendenLatin,
+            RealmZones.LatinAmerica => LanguageType.ExtendenLatin,
+            RealmZones.English      => LanguageType.ExtendenLatin,
+            RealmZones.German       => LanguageType.ExtendenLatin,
+            RealmZones.French       => LanguageType.ExtendenLatin,
+            RealmZones.Spanish      => LanguageType.ExtendenLatin,
+            RealmZones.Korea => // East-Asian
+                LanguageType.EastAsia,
+            RealmZones.Taiwan => LanguageType.EastAsia,
+            RealmZones.China  => LanguageType.EastAsia,
+            RealmZones.Russian => // Cyrillic
+                LanguageType.Cyrillic,
+            _ => create ? LanguageType.BasicLatin : LanguageType.Any
+        };
     }
 
     private static bool IsCultureString(LanguageType culture, string str, bool numericOrSpace)

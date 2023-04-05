@@ -175,16 +175,16 @@ public abstract class WorldObject : IDisposable
     {
         get
         {
-            switch (Location.Zone)
+            return Location.Zone switch
             {
-                case 4197: // Wintergrasp
-                case 5095: // Tol Barad
-                case 6941: // Ashran
-                    return true;
-
-                default:
-                    return false;
-            }
+                4197 => // Wintergrasp
+                    true,
+                5095 => // Tol Barad
+                    true,
+                6941 => // Ashran
+                    true,
+                _ => false
+            };
         }
     }
 

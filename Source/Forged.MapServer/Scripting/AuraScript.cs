@@ -162,20 +162,18 @@ public class AuraScript : BaseSpellScript, IAuraScript
 
     public bool _IsDefaultActionPrevented()
     {
-        switch ((AuraScriptHookType)CurrentScriptState)
+        return (AuraScriptHookType)CurrentScriptState switch
         {
-            case AuraScriptHookType.EffectApply:
-            case AuraScriptHookType.EffectRemove:
-            case AuraScriptHookType.EffectPeriodic:
-            case AuraScriptHookType.EffectAbsorb:
-            case AuraScriptHookType.EffectSplit:
-            case AuraScriptHookType.PrepareProc:
-            case AuraScriptHookType.Proc:
-            case AuraScriptHookType.EffectProc:
-                return _defaultActionPrevented;
-            default:
-                throw new Exception("AuraScript._IsDefaultActionPrevented is called in a wrong place");
-        }
+            AuraScriptHookType.EffectApply    => _defaultActionPrevented,
+            AuraScriptHookType.EffectRemove   => _defaultActionPrevented,
+            AuraScriptHookType.EffectPeriodic => _defaultActionPrevented,
+            AuraScriptHookType.EffectAbsorb   => _defaultActionPrevented,
+            AuraScriptHookType.EffectSplit    => _defaultActionPrevented,
+            AuraScriptHookType.PrepareProc    => _defaultActionPrevented,
+            AuraScriptHookType.Proc           => _defaultActionPrevented,
+            AuraScriptHookType.EffectProc     => _defaultActionPrevented,
+            _                                 => throw new Exception("AuraScript._IsDefaultActionPrevented is called in a wrong place")
+        };
     }
 
     public bool _Load(Aura aura)

@@ -94,34 +94,29 @@ public class CreatureTemplate
 
     public static int DifficultyIDToDifficultyEntryIndex(uint difficulty)
     {
-        switch ((Difficulty)difficulty)
+        return (Difficulty)difficulty switch
         {
-            case Difficulty.None:
-            case Difficulty.Normal:
-            case Difficulty.Raid10N:
-            case Difficulty.Raid40:
-            case Difficulty.Scenario3ManN:
-            case Difficulty.NormalRaid:
-                return -1;
-            case Difficulty.Heroic:
-            case Difficulty.Raid25N:
-            case Difficulty.Scenario3ManHC:
-            case Difficulty.HeroicRaid:
-                return 0;
-            case Difficulty.Raid10HC:
-            case Difficulty.MythicKeystone:
-            case Difficulty.MythicRaid:
-                return 1;
-            case Difficulty.Raid25HC:
-                return 2;
-            case Difficulty.LFR:
-            case Difficulty.LFRNew:
-            case Difficulty.EventRaid:
-            case Difficulty.EventDungeon:
-            case Difficulty.EventScenario:
-            default:
-                return -1;
-        }
+            Difficulty.None           => -1,
+            Difficulty.Normal         => -1,
+            Difficulty.Raid10N        => -1,
+            Difficulty.Raid40         => -1,
+            Difficulty.Scenario3ManN  => -1,
+            Difficulty.NormalRaid     => -1,
+            Difficulty.Heroic         => 0,
+            Difficulty.Raid25N        => 0,
+            Difficulty.Scenario3ManHC => 0,
+            Difficulty.HeroicRaid     => 0,
+            Difficulty.Raid10HC       => 1,
+            Difficulty.MythicKeystone => 1,
+            Difficulty.MythicRaid     => 1,
+            Difficulty.Raid25HC       => 2,
+            Difficulty.LFR            => -1,
+            Difficulty.LFRNew         => -1,
+            Difficulty.EventRaid      => -1,
+            Difficulty.EventDungeon   => -1,
+            Difficulty.EventScenario  => -1,
+            _                         => -1
+        };
     }
 
     public CreatureModel GetFirstInvisibleModel()

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -31,6 +32,8 @@ public class AreaTrigger : WorldObject
 {
     private static readonly List<IAreaTriggerScript> Dummy = new();
     private readonly AreaTriggerFieldData _areaTriggerData;
+    private readonly AreaTriggerDataStorage _dataStorage;
+    private readonly DB2Manager _db2Manager;
     private readonly Dictionary<Type, List<IAreaTriggerScript>> _scriptsByType = new();
 
     private uint _areaTriggerId;
@@ -46,8 +49,10 @@ public class AreaTrigger : WorldObject
     private ulong _spawnId;
 
     private ObjectGuid _targetGuid;
-    public AreaTrigger() : base(false)
+    public AreaTrigger(ClassFactory classFactory, AreaTriggerDataStorage dataStorage, DB2Manager db2Manager) : base(false, classFactory)
     {
+        _dataStorage = dataStorage;
+        _db2Manager = db2Manager;
         _previousCheckOrientation = float.PositiveInfinity;
         _reachedDestination = true;
 
@@ -80,10 +85,7 @@ public class AreaTrigger : WorldObject
         {
             var caster = GetCaster();
 
-            if (caster)
-                return caster.Faction;
-
-            return 0;
+            return caster ? caster.Faction : 0;
         }
     }
 
@@ -92,11 +94,11 @@ public class AreaTrigger : WorldObject
     public bool IsRemoved { get; private set; }
     public bool IsServerSide => _areaTriggerTemplate.Id.IsServerSide;
     public override ObjectGuid OwnerGUID => CasterGuid;
-    public Vector3 RollPitchYaw { get; }
+    public Vector3 RollPitchYaw { get; set; }
     public AreaTriggerShapeInfo Shape { get; private set; }
     public uint SpellId => _areaTriggerData.SpellID;
     public Spline<int> Spline { get; }
-    public Vector3 TargetRollPitchYaw { get; }
+    public Vector3 TargetRollPitchYaw { get; set; }
     public uint TimeSinceCreated { get; private set; }
 
     public uint TimeToTarget => _areaTriggerData.TimeToTarget;
@@ -108,15 +110,11 @@ public class AreaTrigger : WorldObject
     // @todo: research the right value, in sniffs both timers are nearly identical
     private float Progress => TimeSinceCreated < TimeToTargetScale ? (float)TimeSinceCreated / TimeToTargetScale : 1.0f;
 
-    private Unit Target => Global.ObjAccessor.GetUnit(this, _targetGuid);
-    public static AreaTrigger CreateAreaTrigger(uint areaTriggerCreatePropertiesId, Unit caster, Unit target, SpellInfo spell, Position pos, int duration, SpellCastVisualField spellVisual, ObjectGuid castId = default, AuraEffect aurEff = null)
+    private Unit Target => ObjectAccessor.GetUnit(this, _targetGuid);
+    public static AreaTrigger CreateAreaTrigger(ClassFactory classFactory, uint areaTriggerCreatePropertiesId, Unit caster, Unit target, SpellInfo spell, Position pos, int duration, SpellCastVisualField spellVisual, ObjectGuid castId = default, AuraEffect aurEff = null)
     {
-        AreaTrigger at = new();
-
-        if (!at.Create(areaTriggerCreatePropertiesId, caster, target, spell, pos, duration, spellVisual, castId, aurEff))
-            return null;
-
-        return at;
+        var at = classFactory.Resolve<AreaTrigger>();
+        return !at.Create(areaTriggerCreatePropertiesId, caster, target, spell, pos, duration, spellVisual, castId, aurEff) ? null : at;
     }
 
     public static ObjectGuid CreateNewMovementForceId(Map map, uint areaTriggerId)
@@ -127,15 +125,15 @@ public class AreaTrigger : WorldObject
     public override void AddToWorld()
     {
         // Register the AreaTrigger for guid lookup and for caster
-        if (!Location.IsInWorld)
-        {
-            Location.Map.ObjectsStore.TryAdd(GUID, this);
+        if (Location.IsInWorld)
+            return;
 
-            if (_spawnId != 0)
-                Location.Map.AreaTriggerBySpawnIdStore.Add(_spawnId, this);
+        Location.Map.ObjectsStore.TryAdd(GUID, this);
 
-            base.AddToWorld();
-        }
+        if (_spawnId != 0)
+            Location.Map.AreaTriggerBySpawnIdStore.Add(_spawnId, this);
+
+        base.AddToWorld();
     }
 
     public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -215,15 +213,12 @@ public class AreaTrigger : WorldObject
 
     public List<IAreaTriggerScript> GetAreaTriggerScripts<T>() where T : IAreaTriggerScript
     {
-        if (_scriptsByType.TryGetValue(typeof(T), out var scripts))
-            return scripts;
-
-        return Dummy;
+        return _scriptsByType.TryGetValue(typeof(T), out var scripts) ? scripts : Dummy;
     }
 
     public Unit GetCaster()
     {
-        return Global.ObjAccessor.GetUnit(this, CasterGuid);
+        return ObjectAccessor.GetUnit(this, CasterGuid);
     }
 
     public AreaTriggerTemplate GetTemplate()
@@ -291,17 +286,14 @@ public class AreaTrigger : WorldObject
     {
         _spawnId = spawnId;
 
-        var position = Global.AreaTriggerDataStorage.GetAreaTriggerSpawn(spawnId);
+        var position = _dataStorage.GetAreaTriggerSpawn(spawnId);
 
         if (position == null)
             return false;
 
-        var areaTriggerTemplate = Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(position.TriggerId);
+        var areaTriggerTemplate = _dataStorage.GetAreaTriggerTemplate(position.TriggerId);
 
-        if (areaTriggerTemplate == null)
-            return false;
-
-        return CreateServer(map, areaTriggerTemplate, position);
+        return areaTriggerTemplate != null && CreateServer(map, areaTriggerTemplate, position);
     }
 
     public void Remove()
@@ -313,27 +305,27 @@ public class AreaTrigger : WorldObject
     public override void RemoveFromWorld()
     {
         // Remove the AreaTrigger from the accessor and from all lists of objects in world
-        if (Location.IsInWorld)
-        {
-            IsRemoved = true;
+        if (!Location.IsInWorld)
+            return;
 
-            var caster = GetCaster();
+        IsRemoved = true;
 
-            if (caster)
-                caster._UnregisterAreaTrigger(this);
+        var caster = GetCaster();
 
-            // Handle removal of all units, calling OnUnitExit & deleting auras if needed
-            HandleUnitEnterExit(new List<Unit>());
+        if (caster)
+            caster._UnregisterAreaTrigger(this);
 
-            ForEachAreaTriggerScript<IAreaTriggerOnRemove>(a => a.OnRemove());
+        // Handle removal of all units, calling OnUnitExit & deleting auras if needed
+        HandleUnitEnterExit(new List<Unit>());
 
-            base.RemoveFromWorld();
+        ForEachAreaTriggerScript<IAreaTriggerOnRemove>(a => a.OnRemove());
 
-            if (_spawnId != 0)
-                Location.Map.AreaTriggerBySpawnIdStore.Remove(_spawnId, this);
+        base.RemoveFromWorld();
 
-            Location.Map.ObjectsStore.TryRemove(GUID, out _);
-        }
+        if (_spawnId != 0)
+            Location.Map.AreaTriggerBySpawnIdStore.Remove(_spawnId, this);
+
+        Location.Map.ObjectsStore.TryRemove(GUID, out _);
     }
     public bool SetDestination(uint timeToTarget, Position targetPos = null, WorldObject startingObject = null)
     {
@@ -406,17 +398,17 @@ public class AreaTrigger : WorldObject
 
         UpdateTargetList();
 
-        if (_basePeriodicProcTimer != 0)
+        if (_basePeriodicProcTimer == 0)
+            return;
+
+        if (_periodicProcTimer <= diff)
         {
-            if (_periodicProcTimer <= diff)
-            {
-                ForEachAreaTriggerScript<IAreaTriggerOnPeriodicProc>(a => a.OnPeriodicProc());
-                _periodicProcTimer = _basePeriodicProcTimer;
-            }
-            else
-            {
-                _periodicProcTimer -= diff;
-            }
+            ForEachAreaTriggerScript<IAreaTriggerOnPeriodicProc>(a => a.OnPeriodicProc());
+            _periodicProcTimer = _basePeriodicProcTimer;
+        }
+        else
+        {
+            _periodicProcTimer -= diff;
         }
     }
     public void UpdateShape()
@@ -460,7 +452,7 @@ public class AreaTrigger : WorldObject
             // 4.f Defines four quarters
             blendCurve = MathFunctions.RoundToInterval(ref blendCurve, 1.0f, 4.0f) / 4.0f;
             var blendProgress = Math.Min(1.0f, pathProgress / blendCurve);
-            radius = MathFunctions.lerp(cmi.BlendFromRadius, cmi.Radius, blendProgress);
+            radius = MathFunctions.Lerp(cmi.BlendFromRadius, cmi.Radius, blendProgress);
         }
 
         // Adapt Path progress depending of circle direction
@@ -561,7 +553,7 @@ public class AreaTrigger : WorldObject
 
         if (CreateProperties == null)
         {
-            CreateProperties = Global.AreaTriggerDataStorage.GetAreaTriggerCreateProperties(areaTriggerCreatePropertiesId);
+            CreateProperties = _dataStorage.GetAreaTriggerCreateProperties(areaTriggerCreatePropertiesId);
 
             if (CreateProperties == null)
             {
@@ -744,30 +736,31 @@ public class AreaTrigger : WorldObject
     {
         var caster = IsServerSide ? unit : GetCaster();
 
-        if (caster != null && GetTemplate() != null)
-            foreach (var action in GetTemplate().Actions)
-                if (IsServerSide || UnitFitToActionRequirement(unit, caster, action))
-                    switch (action.ActionType)
-                    {
-                        case AreaTriggerActionTypes.Cast:
-                            caster.CastSpell(unit,
-                                             action.Param,
-                                             new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-                                                 .SetOriginalCastId(_areaTriggerData.CreatingEffectGUID.Value.IsCast ? _areaTriggerData.CreatingEffectGUID : ObjectGuid.Empty));
+        if (caster == null || GetTemplate() == null)
+            return;
 
-                            break;
-                        case AreaTriggerActionTypes.AddAura:
-                            caster.AddAura(action.Param, unit);
+        foreach (var action in GetTemplate().Actions.Where(action => IsServerSide || UnitFitToActionRequirement(unit, caster, action)))
+            switch (action.ActionType)
+            {
+                case AreaTriggerActionTypes.Cast:
+                    caster.SpellFactory.CastSpell(unit,
+                                                  action.Param,
+                                                  new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+                                                      .SetOriginalCastId(_areaTriggerData.CreatingEffectGUID.Value.IsCast ? _areaTriggerData.CreatingEffectGUID : ObjectGuid.Empty));
 
-                            break;
-                        case AreaTriggerActionTypes.Teleport:
-                            var safeLoc = Global.ObjectMgr.GetWorldSafeLoc(action.Param);
+                    break;
+                case AreaTriggerActionTypes.AddAura:
+                    caster.AddAura(action.Param, unit);
 
-                            if (safeLoc != null && caster.TryGetAsPlayer(out var player))
-                                player.TeleportTo(safeLoc.Loc);
+                    break;
+                case AreaTriggerActionTypes.Teleport:
+                    var safeLoc = ObjectManager.GetWorldSafeLoc(action.Param);
 
-                            break;
-                    }
+                    if (safeLoc != null && caster.TryGetAsPlayer(out var player))
+                        player.TeleportTo(safeLoc.Loc);
+
+                    break;
+            }
     }
 
     private Position GetOrbitCenterPosition()
@@ -777,16 +770,13 @@ public class AreaTrigger : WorldObject
 
         if (CircularMovementInfo.PathTarget.HasValue)
         {
-            var center = Global.ObjAccessor.GetWorldObject(this, CircularMovementInfo.PathTarget.Value);
+            var center = ObjectAccessor.GetWorldObject(this, CircularMovementInfo.PathTarget.Value);
 
             if (center)
                 return center.Location;
         }
 
-        if (CircularMovementInfo.Center.HasValue)
-            return new Position(CircularMovementInfo.Center.Value);
-
-        return null;
+        return CircularMovementInfo.Center.HasValue ? new Position(CircularMovementInfo.Center.Value) : null;
     }
 
     private void HandleUnitEnterExit(List<Unit> newTargetList)
@@ -823,24 +813,24 @@ public class AreaTrigger : WorldObject
 
         foreach (var exitUnitGuid in exitUnits)
         {
-            var leavingUnit = Global.ObjAccessor.GetUnit(this, exitUnitGuid);
+            var leavingUnit = ObjectAccessor.GetUnit(this, exitUnitGuid);
 
-            if (leavingUnit)
+            if (!leavingUnit)
+                continue;
+
+            var player = leavingUnit.AsPlayer;
+
+            if (player)
             {
-                var player = leavingUnit.AsPlayer;
+                if (player.IsDebugAreaTriggers)
+                    player.SendSysMessage(CypherStrings.DebugAreatriggerLeft, Entry);
 
-                if (player)
-                {
-                    if (player.IsDebugAreaTriggers)
-                        player.SendSysMessage(CypherStrings.DebugAreatriggerLeft, Entry);
-
-                    player.UpdateQuestObjectiveProgress(QuestObjectiveType.AreaTriggerExit, (int)Entry, 1);
-                }
-
-                UndoActions(leavingUnit);
-
-                ForEachAreaTriggerScript<IAreaTriggerOnUnitExit>(a => a.OnUnitExit(leavingUnit));
+                player.UpdateQuestObjectiveProgress(QuestObjectiveType.AreaTriggerExit, (int)Entry, 1);
             }
+
+            UndoActions(leavingUnit);
+
+            ForEachAreaTriggerScript<IAreaTriggerOnUnitExit>(a => a.OnUnitExit(leavingUnit));
         }
     }
 
@@ -858,16 +848,16 @@ public class AreaTrigger : WorldObject
         CircularMovementInfo.TimeToTarget = timeToTarget;
         CircularMovementInfo.ElapsedTimeForMovement = 0;
 
-        if (Location.IsInWorld)
-        {
-            AreaTriggerRePath reshape = new()
-            {
-                TriggerGUID = GUID,
-                AreaTriggerOrbit = CircularMovementInfo
-            };
+        if (!Location.IsInWorld)
+            return;
 
-            SendMessageToSet(reshape, true);
-        }
+        AreaTriggerRePath reshape = new()
+        {
+            TriggerGUID = GUID,
+            AreaTriggerOrbit = CircularMovementInfo
+        };
+
+        SendMessageToSet(reshape, true);
     }
 
     private void InitSplineOffsets(List<Vector3> offsets, uint timeToTarget)
@@ -902,20 +892,19 @@ public class AreaTrigger : WorldObject
             Log.Logger.Debug("AreaTrigger.LoadScripts: Script `{0}` for AreaTrigger `{1}` is loaded now", script._GetScriptName(), _areaTriggerId);
             script.Register();
 
-            if (script is IAreaTriggerScript)
-                foreach (var iFace in script.GetType().GetInterfaces())
+            foreach (var iFace in script.GetType().GetInterfaces())
+            {
+                if (iFace.Name == nameof(IAreaTriggerScript))
+                    continue;
+
+                if (!_scriptsByType.TryGetValue(iFace, out var scripts))
                 {
-                    if (iFace.Name == nameof(IAreaTriggerScript))
-                        continue;
-
-                    if (!_scriptsByType.TryGetValue(iFace, out var scripts))
-                    {
-                        scripts = new List<IAreaTriggerScript>();
-                        _scriptsByType[iFace] = scripts;
-                    }
-
-                    scripts.Add(script);
+                    scripts = new List<IAreaTriggerScript>();
+                    _scriptsByType[iFace] = scripts;
                 }
+
+                scripts.Add(script);
+            }
         }
     }
 
@@ -932,7 +921,7 @@ public class AreaTrigger : WorldObject
             extentsY = Shape.BoxDatas.Extents[1];
         }
 
-        targetList.RemoveAll(unit => { return !unit.Location.IsWithinBox(boxCenter, extentsX, extentsY, MapConst.MapSize); });
+        targetList.RemoveAll(unit => !unit.Location.IsWithinBox(boxCenter, extentsX, extentsY, MapConst.MapSize));
     }
 
     private void SearchUnitInBox(List<Unit> targetList)
@@ -992,7 +981,7 @@ public class AreaTrigger : WorldObject
 
         if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasDynamicShape))
             if (CreateProperties.MorphCurveId != 0)
-                radius = MathFunctions.lerp(Shape.SphereDatas.Radius, Shape.SphereDatas.RadiusTarget, Global.DB2Mgr.GetCurveValueAt(CreateProperties.MorphCurveId, Progress));
+                radius = MathFunctions.Lerp(Shape.SphereDatas.Radius, Shape.SphereDatas.RadiusTarget, _db2Manager.GetCurveValueAt(CreateProperties.MorphCurveId, Progress));
 
         SearchUnits(targetList, radius, true);
     }
@@ -1015,32 +1004,24 @@ public class AreaTrigger : WorldObject
 
     private void UndoActions(Unit unit)
     {
-        if (GetTemplate() != null)
-            foreach (var action in GetTemplate().Actions)
-                if (action.ActionType == AreaTriggerActionTypes.Cast || action.ActionType == AreaTriggerActionTypes.AddAura)
-                    unit.RemoveAurasDueToSpell(action.Param, CasterGuid);
+        if (GetTemplate() == null)
+            return;
+
+        foreach (var action in GetTemplate().Actions.Where(action => action.ActionType is AreaTriggerActionTypes.Cast or AreaTriggerActionTypes.AddAura))
+            unit.RemoveAurasDueToSpell(action.Param, CasterGuid);
     }
 
     private bool UnitFitToActionRequirement(Unit unit, Unit caster, AreaTriggerAction action)
     {
-        switch (action.TargetType)
+        return action.TargetType switch
         {
-            case AreaTriggerActionUserTypes.Friend:
-                return caster.WorldObjectCombat.IsValidAssistTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Location.Map.DifficultyID));
-            case AreaTriggerActionUserTypes.Enemy:
-                return caster.WorldObjectCombat.IsValidAttackTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Location.Map.DifficultyID));
-            case AreaTriggerActionUserTypes.Raid:
-                return caster.IsInRaidWith(unit);
-            case AreaTriggerActionUserTypes.Party:
-                return caster.IsInPartyWith(unit);
-            case AreaTriggerActionUserTypes.Caster:
-                return unit.GUID == caster.GUID;
-            case AreaTriggerActionUserTypes.Any:
-            default:
-                break;
-        }
-
-        return true;
+            AreaTriggerActionUserTypes.Friend => caster.WorldObjectCombat.IsValidAssistTarget(unit, SpellManager.GetSpellInfo(action.Param, caster.Location.Map.DifficultyID)),
+            AreaTriggerActionUserTypes.Enemy  => caster.WorldObjectCombat.IsValidAttackTarget(unit, SpellManager.GetSpellInfo(action.Param, caster.Location.Map.DifficultyID)),
+            AreaTriggerActionUserTypes.Raid   => caster.IsInRaidWith(unit),
+            AreaTriggerActionUserTypes.Party  => caster.IsInPartyWith(unit),
+            AreaTriggerActionUserTypes.Caster => unit.GUID == caster.GUID,
+            _                                 => true
+        };
     }
 
     private void UpdateOrbitPosition()
@@ -1065,18 +1046,16 @@ public class AreaTrigger : WorldObject
         if (MathFunctions.fuzzyEq(_previousCheckOrientation, newOrientation))
             return;
 
-        _polygonVertices = CreateProperties.PolygonVertices;
-
         var angleSin = (float)Math.Sin(newOrientation);
         var angleCos = (float)Math.Cos(newOrientation);
+        _polygonVertices = CreateProperties.PolygonVertices.ToList();
 
         // This is needed to rotate the vertices, following orientation
         for (var i = 0; i < _polygonVertices.Count; ++i)
         {
             var vertice = _polygonVertices[i];
 
-            vertice.X = vertice.X * angleCos - vertice.Y * angleSin;
-            vertice.Y = vertice.Y * angleCos + vertice.X * angleSin;
+            _polygonVertices[i] = new Vector2(vertice.X * angleCos - vertice.Y * angleSin, vertice.Y * angleCos + vertice.X * angleSin);
         }
 
         _previousCheckOrientation = newOrientation;
@@ -1115,9 +1094,9 @@ public class AreaTrigger : WorldObject
 
         if (CreateProperties.MoveCurveId != 0)
         {
-            var progress = Global.DB2Mgr.GetCurveValueAt(CreateProperties.MoveCurveId, currentTimePercent);
+            var progress = _db2Manager.GetCurveValueAt(CreateProperties.MoveCurveId, currentTimePercent);
 
-            if (progress < 0.0f || progress > 1.0f)
+            if (progress is < 0.0f or > 1.0f)
                 Log.Logger.Error($"AreaTrigger (Id: {Entry}, AreaTriggerCreatePropertiesId: {CreateProperties.Id}) has wrong progress ({progress}) caused by curve calculation (MoveCurveId: {CreateProperties.MorphCurveId})");
             else
                 currentTimePercent = progress;
@@ -1182,32 +1161,12 @@ public class AreaTrigger : WorldObject
 
         if (GetTemplate() != null)
         {
-            var conditions = Global.ConditionMgr.GetConditionsForAreaTrigger(GetTemplate().Id.Id, GetTemplate().Id.IsServerSide);
+            var conditions = ConditionManager.GetConditionsForAreaTrigger(GetTemplate().Id.Id, GetTemplate().Id.IsServerSide);
 
             if (!conditions.Empty())
-                targetList.RemoveAll(target => !Global.ConditionMgr.IsObjectMeetToConditions(target, conditions));
+                targetList.RemoveAll(target => !ConditionManager.IsObjectMeetToConditions(target, conditions));
         }
 
         HandleUnitEnterExit(targetList);
-    }
-    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-    {
-        private readonly AreaTriggerFieldData _areaTriggerMask = new();
-        private readonly ObjectFieldData _objectMask = new();
-        private readonly AreaTrigger _owner;
-        public ValuesUpdateForPlayerWithMaskSender(AreaTrigger owner)
-        {
-            _owner = owner;
-        }
-
-        public void Invoke(Player player)
-        {
-            UpdateData udata = new(_owner.Location.MapId);
-
-            _owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _areaTriggerMask.GetUpdateMask(), player);
-
-            udata.BuildPacket(out var updateObject);
-            player.SendPacket(updateObject);
-        }
     }
 }

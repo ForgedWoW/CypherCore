@@ -686,15 +686,12 @@ public class TerrainInfo
 
             var res = GetLiquidStatus(phaseShift, mapId, x, y, ground_z, LiquidHeaderTypeFlags.AllLiquids, out var liquid_status, collisionHeight);
 
-            switch (res)
+            return res switch
             {
-                case ZLiquidStatus.AboveWater:
-                    return Math.Max(liquid_status.level, ground_z);
-                case ZLiquidStatus.NoWater:
-                    return ground_z;
-                default:
-                    return liquid_status.level;
-            }
+                ZLiquidStatus.AboveWater => Math.Max(liquid_status.level, ground_z),
+                ZLiquidStatus.NoWater    => ground_z,
+                _                        => liquid_status.level
+            };
         }
 
         return MapConst.VMAPInvalidHeightValue;

@@ -158,14 +158,12 @@ public class ItemTemplate
                 break;
         }
 
-        switch (Class)
+        return Class switch
         {
-            case ItemClass.Weapon:
-            case ItemClass.Projectile:
-                return true;
-        }
-
-        return false;
+            ItemClass.Weapon     => true,
+            ItemClass.Projectile => true,
+            _                    => false
+        };
     }
 
     public uint GetArea(int index)

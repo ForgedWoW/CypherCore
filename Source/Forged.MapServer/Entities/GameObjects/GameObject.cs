@@ -1041,38 +1041,37 @@ namespace Forged.MapServer.Entities.GameObjects
             if (Template.GetInteractRadiusOverride() != 0)
                 return Template.GetInteractRadiusOverride() / 100.0f;
 
-            switch (GoType)
+            return GoType switch
             {
-                case GameObjectTypes.AreaDamage:
-                    return 0.0f;
-                case GameObjectTypes.QuestGiver:
-                case GameObjectTypes.Text:
-                case GameObjectTypes.FlagStand:
-                case GameObjectTypes.FlagDrop:
-                case GameObjectTypes.MiniGame:
-                    return 5.5555553f;
-                case GameObjectTypes.Chair:
-                case GameObjectTypes.BarberChair:
-                    return 3.0f;
-                case GameObjectTypes.FishingNode:
-                    return 100.0f;
-                case GameObjectTypes.FishingHole:
-                    return 20.0f + SharedConst.ContactDistance; // max spell range
-                case GameObjectTypes.Camera:
-                case GameObjectTypes.MapObject:
-                case GameObjectTypes.DungeonDifficulty:
-                case GameObjectTypes.DestructibleBuilding:
-                case GameObjectTypes.Door:
-                    return 5.0f;
+                GameObjectTypes.AreaDamage  => 0.0f,
+                GameObjectTypes.QuestGiver  => 5.5555553f,
+                GameObjectTypes.Text        => 5.5555553f,
+                GameObjectTypes.FlagStand   => 5.5555553f,
+                GameObjectTypes.FlagDrop    => 5.5555553f,
+                GameObjectTypes.MiniGame    => 5.5555553f,
+                GameObjectTypes.Chair       => 3.0f,
+                GameObjectTypes.BarberChair => 3.0f,
+                GameObjectTypes.FishingNode => 100.0f,
+                GameObjectTypes.FishingHole => 20.0f + SharedConst.ContactDistance // max spell range
+                ,
+                GameObjectTypes.Camera               => 5.0f,
+                GameObjectTypes.MapObject            => 5.0f,
+                GameObjectTypes.DungeonDifficulty    => 5.0f,
+                GameObjectTypes.DestructibleBuilding => 5.0f,
+                GameObjectTypes.Door                 => 5.0f,
                 // Following values are not blizzlike
-                case GameObjectTypes.GuildBank:
-                case GameObjectTypes.Mailbox:
+                GameObjectTypes.GuildBank =>
                     // Successful mailbox interaction is rather critical to the client, failing it will start a minute-long cooldown until the next mail query may be executed.
                     // And since movement info update is not sent with mailbox interaction query, server may find the player outside of interaction range. Thus we increase it.
-                    return 10.0f; // 5.0f is blizzlike
-                default:
-                    return SharedConst.InteractionDistance;
-            }
+                    10.0f // 5.0f is blizzlike
+                ,
+                GameObjectTypes.Mailbox =>
+                    // Successful mailbox interaction is rather critical to the client, failing it will start a minute-long cooldown until the next mail query may be executed.
+                    // And since movement info update is not sent with mailbox interaction query, server may find the player outside of interaction range. Thus we increase it.
+                    10.0f // 5.0f is blizzlike
+                ,
+                _ => SharedConst.InteractionDistance
+            };
         }
 
         public override uint GetLevelForTarget(WorldObject target)

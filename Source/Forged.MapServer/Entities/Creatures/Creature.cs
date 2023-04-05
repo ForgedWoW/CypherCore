@@ -558,33 +558,14 @@ public partial class Creature : Unit
         if (cinfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss) && map.IsDungeon)
             RespawnDelay = 0; // special value, prevents respawn for dungeon bosses unless overridden
 
-        switch (cinfo.Rank)
+        CorpseDelay = cinfo.Rank switch
         {
-            case CreatureEliteType.Rare:
-                CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.RARE", 300u);
-
-                break;
-
-            case CreatureEliteType.Elite:
-                CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.ELITE", 300u);
-
-                break;
-
-            case CreatureEliteType.RareElite:
-                CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.RAREELITE", 300u);
-
-                break;
-
-            case CreatureEliteType.WorldBoss:
-                CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.WORLDBOSS", 3600u);
-
-                break;
-
-            default:
-                CorpseDelay = Configuration.GetDefaultValue("Corpse.Decay.NORMAL", 60u);
-
-                break;
-        }
+            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Corpse.Decay.RARE", 300u),
+            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Corpse.Decay.ELITE", 300u),
+            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Corpse.Decay.RAREELITE", 300u),
+            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Corpse.Decay.WORLDBOSS", 3600u),
+            _                           => Configuration.GetDefaultValue("Corpse.Decay.NORMAL", 60u)
+        };
 
         LoadCreaturesAddon();
 
@@ -875,26 +856,15 @@ public partial class Creature : Unit
 
     public float GetHealthMod(CreatureEliteType rank)
     {
-        switch (rank) // define rates for each elite rank
+        return rank switch // define rates for each elite rank
         {
-            case CreatureEliteType.Normal:
-                return Configuration.GetDefaultValue("Rate.Creature.Normal.HP", 1.0f);
-
-            case CreatureEliteType.Elite:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.HP", 1.0f);
-
-            case CreatureEliteType.RareElite:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f);
-
-            case CreatureEliteType.WorldBoss:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.HP", 1.0f);
-
-            case CreatureEliteType.Rare:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.RARE.HP", 1.0f);
-
-            default:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f);
-        }
+            CreatureEliteType.Normal    => Configuration.GetDefaultValue("Rate.Creature.Normal.HP", 1.0f),
+            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.HP", 1.0f),
+            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f),
+            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.HP", 1.0f),
+            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Rate.Creature.Elite.RARE.HP", 1.0f),
+            _                           => Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f)
+        };
     }
 
     public override float GetHealthMultiplierForTarget(WorldObject target)
@@ -1065,26 +1035,15 @@ public partial class Creature : Unit
 
     public float GetSpellDamageMod(CreatureEliteType rank)
     {
-        switch (rank) // define rates for each elite rank
+        return rank switch // define rates for each elite rank
         {
-            case CreatureEliteType.Normal:
-                return Configuration.GetDefaultValue("Rate.Creature.Normal.SpellDamage", 1.0f);
-
-            case CreatureEliteType.Elite:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f);
-
-            case CreatureEliteType.RareElite:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.SpellDamage", 1.0f);
-
-            case CreatureEliteType.WorldBoss:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.SpellDamage", 1.0f);
-
-            case CreatureEliteType.Rare:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.RARE.SpellDamage", 1.0f);
-
-            default:
-                return Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f);
-        }
+            CreatureEliteType.Normal    => Configuration.GetDefaultValue("Rate.Creature.Normal.SpellDamage", 1.0f),
+            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f),
+            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.SpellDamage", 1.0f),
+            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.SpellDamage", 1.0f),
+            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Rate.Creature.Elite.RARE.SpellDamage", 1.0f),
+            _                           => Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f)
+        };
     }
 
     public List<byte> GetTextRepeatGroup(byte textGroup)

@@ -43,22 +43,20 @@ public class Condition
     public uint GetMaxAvailableConditionTargets()
     {
         // returns number of targets which are available for given source type
-        switch (SourceType)
+        return SourceType switch
         {
-            case ConditionSourceType.Spell:
-            case ConditionSourceType.SpellImplicitTarget:
-            case ConditionSourceType.CreatureTemplateVehicle:
-            case ConditionSourceType.VehicleSpell:
-            case ConditionSourceType.SpellClickEvent:
-            case ConditionSourceType.GossipMenu:
-            case ConditionSourceType.GossipMenuOption:
-            case ConditionSourceType.SmartEvent:
-            case ConditionSourceType.NpcVendor:
-            case ConditionSourceType.SpellProc:
-                return 2;
-            default:
-                return 1;
-        }
+            ConditionSourceType.Spell                   => 2,
+            ConditionSourceType.SpellImplicitTarget     => 2,
+            ConditionSourceType.CreatureTemplateVehicle => 2,
+            ConditionSourceType.VehicleSpell            => 2,
+            ConditionSourceType.SpellClickEvent         => 2,
+            ConditionSourceType.GossipMenu              => 2,
+            ConditionSourceType.GossipMenuOption        => 2,
+            ConditionSourceType.SmartEvent              => 2,
+            ConditionSourceType.NpcVendor               => 2,
+            ConditionSourceType.SpellProc               => 2,
+            _                                           => 1
+        };
     }
 
     public GridMapTypeMask GetSearcherTypeMaskForCondition()
@@ -221,28 +219,16 @@ public class Condition
                     var instance = ((InstanceMap)map).InstanceScript;
 
                     if (instance != null)
-                        switch ((InstanceInfo)ConditionValue3)
+                        condMeets = (InstanceInfo)ConditionValue3 switch
                         {
-                            case InstanceInfo.Data:
-                                condMeets = instance.GetData(ConditionValue1) == ConditionValue2;
-
-                                break;
+                            InstanceInfo.Data => instance.GetData(ConditionValue1) == ConditionValue2,
                             //case INSTANCE_INFO_GUID_DATA:
                             //    condMeets = instance->GetGuidData(ConditionValue1) == ObjectGuid(uint64(ConditionValue2));
                             //    break;
-                            case InstanceInfo.BossState:
-                                condMeets = instance.GetBossState(ConditionValue1) == (EncounterState)ConditionValue2;
-
-                                break;
-                            case InstanceInfo.Data64:
-                                condMeets = instance.GetData64(ConditionValue1) == ConditionValue2;
-
-                                break;
-                            default:
-                                condMeets = false;
-
-                                break;
-                        }
+                            InstanceInfo.BossState => instance.GetBossState(ConditionValue1) == (EncounterState)ConditionValue2,
+                            InstanceInfo.Data64    => instance.GetData64(ConditionValue1) == ConditionValue2,
+                            _                      => false
+                        };
                 }
 
                 break;
@@ -455,33 +441,16 @@ public class Condition
                 var toUnit = toObject?.AsUnit;
 
                 if (toUnit != null && unit != null)
-                    switch ((RelationType)ConditionValue2)
+                    condMeets = (RelationType)ConditionValue2 switch
                     {
-                        case RelationType.Self:
-                            condMeets = unit == toUnit;
-
-                            break;
-                        case RelationType.InParty:
-                            condMeets = unit.IsInPartyWith(toUnit);
-
-                            break;
-                        case RelationType.InRaidOrParty:
-                            condMeets = unit.IsInRaidWith(toUnit);
-
-                            break;
-                        case RelationType.OwnedBy:
-                            condMeets = unit.OwnerGUID == toUnit.GUID;
-
-                            break;
-                        case RelationType.PassengerOf:
-                            condMeets = unit.IsOnVehicle(toUnit);
-
-                            break;
-                        case RelationType.CreatedBy:
-                            condMeets = unit.CreatorGUID == toUnit.GUID;
-
-                            break;
-                    }
+                        RelationType.Self          => unit == toUnit,
+                        RelationType.InParty       => unit.IsInPartyWith(toUnit),
+                        RelationType.InRaidOrParty => unit.IsInRaidWith(toUnit),
+                        RelationType.OwnedBy       => unit.OwnerGUID == toUnit.GUID,
+                        RelationType.PassengerOf   => unit.IsOnVehicle(toUnit),
+                        RelationType.CreatedBy     => unit.CreatorGUID == toUnit.GUID,
+                        _                          => condMeets
+                    };
 
                 break;
             }

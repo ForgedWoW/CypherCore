@@ -33,14 +33,11 @@ internal class PowerUsersSelector : ICheck<Unit>
         if (_playerOnly && target.TypeId != TypeId.Player)
             return false;
 
-        switch (_dist)
+        return _dist switch
         {
-            case > 0.0f when !_me.IsWithinCombatRange(target, _dist):
-            case < 0.0f when _me.IsWithinCombatRange(target, -_dist):
-                return false;
-
-            default:
-                return true;
-        }
+            > 0.0f when !_me.IsWithinCombatRange(target, _dist) => false,
+            < 0.0f when _me.IsWithinCombatRange(target, -_dist) => false,
+            _                                                   => true
+        };
     }
 }

@@ -603,16 +603,12 @@ public class PlayerComputators
 
     public uint GetDefaultGossipMenuForSource(WorldObject source)
     {
-        switch (source.TypeId)
+        return source.TypeId switch
         {
-            case TypeId.Unit:
-                return source.AsCreature.GossipMenuId;
-
-            case TypeId.GameObject:
-                return source.AsGameObject.GossipMenuId;
-        }
-
-        return 0;
+            TypeId.Unit       => source.AsCreature.GossipMenuId,
+            TypeId.GameObject => source.AsGameObject.GossipMenuId,
+            _                 => 0
+        };
     }
 
     public DrunkenState GetDrunkenstateByValue(byte value)

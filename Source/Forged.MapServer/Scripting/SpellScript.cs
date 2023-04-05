@@ -371,18 +371,16 @@ public class SpellScript : BaseSpellScript, ISpellScript
     {
         get
         {
-            switch ((SpellScriptHookType)CurrentScriptState)
+            return (SpellScriptHookType)CurrentScriptState switch
             {
-                case SpellScriptHookType.LaunchTarget:
-                case SpellScriptHookType.EffectHitTarget:
-                case SpellScriptHookType.EffectSuccessfulDispel:
-                case SpellScriptHookType.BeforeHit:
-                case SpellScriptHookType.Hit:
-                case SpellScriptHookType.AfterHit:
-                    return true;
-            }
-
-            return false;
+                SpellScriptHookType.LaunchTarget           => true,
+                SpellScriptHookType.EffectHitTarget        => true,
+                SpellScriptHookType.EffectSuccessfulDispel => true,
+                SpellScriptHookType.BeforeHit              => true,
+                SpellScriptHookType.Hit                    => true,
+                SpellScriptHookType.AfterHit               => true,
+                _                                          => false
+            };
         }
     }
 
@@ -415,16 +413,14 @@ public class SpellScript : BaseSpellScript, ISpellScript
         {
             // after hit hook executed after Damage/healing is already done
             // modifying it at this point has no effect
-            switch ((SpellScriptHookType)CurrentScriptState)
+            return (SpellScriptHookType)CurrentScriptState switch
             {
-                case SpellScriptHookType.LaunchTarget:
-                case SpellScriptHookType.EffectHitTarget:
-                case SpellScriptHookType.BeforeHit:
-                case SpellScriptHookType.Hit:
-                    return true;
-            }
-
-            return false;
+                SpellScriptHookType.LaunchTarget    => true,
+                SpellScriptHookType.EffectHitTarget => true,
+                SpellScriptHookType.BeforeHit       => true,
+                SpellScriptHookType.Hit             => true,
+                _                                   => false
+            };
         }
     }
 

@@ -258,30 +258,14 @@ internal class DebugCommands
                 var container = item.Container;
                 var bagSlot = container ? container.Slot : InventorySlots.Bag0;
 
-                var st = "";
-
-                switch (item.State)
+                var st = item.State switch
                 {
-                    case ItemUpdateState.Unchanged:
-                        st = "unchanged";
-
-                        break;
-
-                    case ItemUpdateState.Changed:
-                        st = "changed";
-
-                        break;
-
-                    case ItemUpdateState.New:
-                        st = "new";
-
-                        break;
-
-                    case ItemUpdateState.Removed:
-                        st = "removed";
-
-                        break;
-                }
+                    ItemUpdateState.Unchanged => "unchanged",
+                    ItemUpdateState.Changed   => "changed",
+                    ItemUpdateState.New       => "new",
+                    ItemUpdateState.Removed   => "removed",
+                    _                         => ""
+                };
 
                 handler.SendSysMessage("bag: {0} slot: {1} guid: {2} - state: {3}", bagSlot, item.Slot, item.GUID.ToString(), st);
             }

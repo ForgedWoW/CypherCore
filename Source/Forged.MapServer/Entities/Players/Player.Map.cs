@@ -495,19 +495,14 @@ public partial class Player
         }
         else
         {
-            switch (overrideZonePvpType)
+            PvpInfo.IsInHostileArea = overrideZonePvpType switch
             {
-                case ZonePVPTypeOverride.Friendly:
-                    PvpInfo.IsInHostileArea = false;
-
-                    break;
-                case ZonePVPTypeOverride.Hostile:
-                case ZonePVPTypeOverride.Contested:
-                case ZonePVPTypeOverride.Combat:
-                    PvpInfo.IsInHostileArea = true;
-
-                    break;
-            }
+                ZonePVPTypeOverride.Friendly  => false,
+                ZonePVPTypeOverride.Hostile   => true,
+                ZonePVPTypeOverride.Contested => true,
+                ZonePVPTypeOverride.Combat    => true,
+                _                             => PvpInfo.IsInHostileArea
+            };
         }
 
         // Treat players having a quest flagging for PvP as always in hostile area

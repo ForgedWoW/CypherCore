@@ -24,6 +24,7 @@ using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DungeonFinding;
+using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects.Update;
@@ -448,4 +449,5 @@ void RegisterInstanced()
     builder.RegisterType<ReputationMgr>();
     builder.RegisterType<SceneMgr>();
     builder.RegisterType<WorldServiceManager>();
+    builder.RegisterType<AreaTrigger>();
 }

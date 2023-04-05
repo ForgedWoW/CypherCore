@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
@@ -38,12 +39,12 @@ public unsafe class AreaTriggerCreateProperties
         ExtraScale.Structured.OverrideActive = 1;
     }
 
-    public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId)
+    public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId, GameObjectManager objectManager)
     {
         AreaTriggerCreateProperties ret = new()
         {
             Id = areaTriggerId,
-            ScriptIds = GameObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId),
+            ScriptIds = objectManager.GetAreaTriggerScriptIds(areaTriggerId),
             Template = new AreaTriggerTemplate
             {
                 Id = new AreaTriggerId(areaTriggerId, false),
@@ -73,23 +74,12 @@ public unsafe class AreaTriggerCreateProperties
 
     public float GetMaxSearchRadius()
     {
-        if (Shape.TriggerType == AreaTriggerTypes.Polygon)
-        {
-            Position center = new();
-            var maxSearchRadius = 0.0f;
+        if (Shape.TriggerType != AreaTriggerTypes.Polygon)
+            return Shape.GetMaxSearchRadius();
 
-            foreach (var vertice in PolygonVertices)
-            {
-                var pointDist = center.GetExactDist2d(vertice.X, vertice.Y);
+        Position center = new();
 
-                if (pointDist > maxSearchRadius)
-                    maxSearchRadius = pointDist;
-            }
-
-            return maxSearchRadius;
-        }
-
-        return Shape.GetMaxSearchRadius();
+        return PolygonVertices.Select(vertice => center.GetExactDist2d(vertice.X, vertice.Y)).Prepend(0.0f).Max();
     }
 
     public bool HasSplines()

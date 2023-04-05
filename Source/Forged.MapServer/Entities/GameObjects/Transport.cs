@@ -293,55 +293,20 @@ internal class Transport : GameObjectTypeBase, ITransport
 
             if (newProgress == stopTargetTime && newProgress != _pathProgress)
             {
-                uint eventId;
-
-                switch (Owner.GoState - GameObjectState.TransportActive)
+                uint eventId = (Owner.GoState - GameObjectState.TransportActive) switch
                 {
-                    case 0:
-                        eventId = Owner.Template.Transport.Reached1stfloor;
-
-                        break;
-                    case 1:
-                        eventId = Owner.Template.Transport.Reached2ndfloor;
-
-                        break;
-                    case 2:
-                        eventId = Owner.Template.Transport.Reached3rdfloor;
-
-                        break;
-                    case 3:
-                        eventId = Owner.Template.Transport.Reached4thfloor;
-
-                        break;
-                    case 4:
-                        eventId = Owner.Template.Transport.Reached5thfloor;
-
-                        break;
-                    case 5:
-                        eventId = Owner.Template.Transport.Reached6thfloor;
-
-                        break;
-                    case 6:
-                        eventId = Owner.Template.Transport.Reached7thfloor;
-
-                        break;
-                    case 7:
-                        eventId = Owner.Template.Transport.Reached8thfloor;
-
-                        break;
-                    case 8:
-                        eventId = Owner.Template.Transport.Reached9thfloor;
-
-                        break;
-                    case 9:
-                        eventId = Owner.Template.Transport.Reached10thfloor;
-
-                        break;
-                    default:
-                        eventId = 0u;
-
-                        break;
-                }
+                    0 => Owner.Template.Transport.Reached1stfloor,
+                    1 => Owner.Template.Transport.Reached2ndfloor,
+                    2 => Owner.Template.Transport.Reached3rdfloor,
+                    3 => Owner.Template.Transport.Reached4thfloor,
+                    4 => Owner.Template.Transport.Reached5thfloor,
+                    5 => Owner.Template.Transport.Reached6thfloor,
+                    6 => Owner.Template.Transport.Reached7thfloor,
+                    7 => Owner.Template.Transport.Reached8thfloor,
+                    8 => Owner.Template.Transport.Reached9thfloor,
+                    9 => Owner.Template.Transport.Reached10thfloor,
+                    _ => 0u
+                };
 
                 if (eventId != 0)
                     GameEvents.Trigger(eventId, Owner, null);

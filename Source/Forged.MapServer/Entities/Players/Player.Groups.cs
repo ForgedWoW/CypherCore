@@ -84,17 +84,13 @@ public partial class Player
 
     public bool IsGroupVisibleFor(Player p)
     {
-        switch (Configuration.GetDefaultValue("Visibility.GroupMode", 1))
+        return Configuration.GetDefaultValue("Visibility.GroupMode", 1) switch
         {
-            default:
-                return IsInSameGroupWith(p);
-            case 1:
-                return IsInSameRaidWith(p);
-            case 2:
-                return Team == p.Team;
-            case 3:
-                return false;
-        }
+            1 => IsInSameRaidWith(p),
+            2 => Team == p.Team,
+            3 => false,
+            _ => IsInSameGroupWith(p)
+        };
     }
 
     public bool IsInGroup(ObjectGuid groupGuid)

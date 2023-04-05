@@ -161,19 +161,14 @@ public class DisableManager
                         var targetDifficulty = player.GetDifficultyId(mapEntry);
                         _db2Manager.GetDownscaledMapDifficultyData(entry, ref targetDifficulty);
 
-                        switch (targetDifficulty)
+                        return targetDifficulty switch
                         {
-                            case Difficulty.Normal:
-                                return disabledModes.HasFlag(DisableFlags.DungeonStatusNormal);
-                            case Difficulty.Heroic:
-                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic);
-                            case Difficulty.Raid10HC:
-                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic10Man);
-                            case Difficulty.Raid25HC:
-                                return disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic25Man);
-                            default:
-                                return false;
-                        }
+                            Difficulty.Normal   => disabledModes.HasFlag(DisableFlags.DungeonStatusNormal),
+                            Difficulty.Heroic   => disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic),
+                            Difficulty.Raid10HC => disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic10Man),
+                            Difficulty.Raid25HC => disabledModes.HasFlag(DisableFlags.DungeonStatusHeroic25Man),
+                            _                   => false
+                        };
                     }
                     else if (mapEntry.InstanceType == MapTypes.Common)
                     {

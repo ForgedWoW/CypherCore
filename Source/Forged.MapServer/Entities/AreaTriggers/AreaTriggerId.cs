@@ -26,7 +26,7 @@ public struct AreaTriggerId
 
     public override bool Equals(object obj)
     {
-        return this == (AreaTriggerId)obj;
+        return this == (obj is AreaTriggerId id ? id : default);
     }
 
     public override int GetHashCode()

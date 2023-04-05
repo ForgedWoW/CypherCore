@@ -191,16 +191,12 @@ public partial class Player : Unit
     //Team
     public static TeamFaction TeamForRace(Race race, CliDB cliDB)
     {
-        switch (TeamIdForRace(race, cliDB))
+        return TeamIdForRace(race, cliDB) switch
         {
-            case 0:
-                return TeamFaction.Alliance;
-
-            case 1:
-                return TeamFaction.Horde;
-        }
-
-        return TeamFaction.Alliance;
+            0 => TeamFaction.Alliance,
+            1 => TeamFaction.Horde,
+            _ => TeamFaction.Alliance
+        };
     }
 
     public static uint TeamIdForRace(Race race, CliDB cliDB)
@@ -814,30 +810,17 @@ public partial class Player : Unit
             percent += rep > 0 ? repMod : -repMod;
         }
 
-        float rate;
-
-        switch (source)
+        float rate = source switch
         {
-            case ReputationSource.Kill:
-                rate = Configuration.GetDefaultValue("Rate.Reputation.LowLevel.Kill", 1.0f);
-
-                break;
-
-            case ReputationSource.Quest:
-            case ReputationSource.DailyQuest:
-            case ReputationSource.WeeklyQuest:
-            case ReputationSource.MonthlyQuest:
-            case ReputationSource.RepeatableQuest:
-                rate = Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f);
-
-                break;
-
-            case ReputationSource.Spell:
-            default:
-                rate = 1.0f;
-
-                break;
-        }
+            ReputationSource.Kill            => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.Kill", 1.0f),
+            ReputationSource.Quest           => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
+            ReputationSource.DailyQuest      => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
+            ReputationSource.WeeklyQuest     => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
+            ReputationSource.MonthlyQuest    => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
+            ReputationSource.RepeatableQuest => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
+            ReputationSource.Spell           => 1.0f,
+            _                                => 1.0f
+        };
 
         if (rate != 1.0f && creatureOrQuestLevel < Formulas.GetGrayLevel(Level))
             percent *= rate;
@@ -850,45 +833,17 @@ public partial class Player : Unit
 
         if (repData != null)
         {
-            var repRate = 0.0f;
-
-            switch (source)
+            var repRate = source switch
             {
-                case ReputationSource.Kill:
-                    repRate = repData.CreatureRate;
-
-                    break;
-
-                case ReputationSource.Quest:
-                    repRate = repData.QuestRate;
-
-                    break;
-
-                case ReputationSource.DailyQuest:
-                    repRate = repData.QuestDailyRate;
-
-                    break;
-
-                case ReputationSource.WeeklyQuest:
-                    repRate = repData.QuestWeeklyRate;
-
-                    break;
-
-                case ReputationSource.MonthlyQuest:
-                    repRate = repData.QuestMonthlyRate;
-
-                    break;
-
-                case ReputationSource.RepeatableQuest:
-                    repRate = repData.QuestRepeatableRate;
-
-                    break;
-
-                case ReputationSource.Spell:
-                    repRate = repData.SpellRate;
-
-                    break;
-            }
+                ReputationSource.Kill            => repData.CreatureRate,
+                ReputationSource.Quest           => repData.QuestRate,
+                ReputationSource.DailyQuest      => repData.QuestDailyRate,
+                ReputationSource.WeeklyQuest     => repData.QuestWeeklyRate,
+                ReputationSource.MonthlyQuest    => repData.QuestMonthlyRate,
+                ReputationSource.RepeatableQuest => repData.QuestRepeatableRate,
+                ReputationSource.Spell           => repData.SpellRate,
+                _                                => 0.0f
+            };
 
             // for custom, a rate of 0.0 will totally disable reputation gain for this faction/type
             if (repRate <= 0.0f)
@@ -6694,18 +6649,13 @@ public partial class Player : Unit
 
     private SpellSchoolMask GetEnviormentDamageType(EnviromentalDamage dmgType)
     {
-        switch (dmgType)
+        return dmgType switch
         {
-            case EnviromentalDamage.Lava:
-            case EnviromentalDamage.Fire:
-                return SpellSchoolMask.Fire;
-
-            case EnviromentalDamage.Slime:
-                return SpellSchoolMask.Nature;
-
-            default:
-                return SpellSchoolMask.Normal;
-        }
+            EnviromentalDamage.Lava  => SpellSchoolMask.Fire,
+            EnviromentalDamage.Fire  => SpellSchoolMask.Fire,
+            EnviromentalDamage.Slime => SpellSchoolMask.Nature,
+            _                        => SpellSchoolMask.Normal
+        };
     }
 
     private int GetMaxTimer(MirrorTimerType timer)

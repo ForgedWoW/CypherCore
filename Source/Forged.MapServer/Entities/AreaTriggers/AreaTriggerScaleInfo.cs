@@ -36,25 +36,13 @@ public class AreaTriggerScaleInfo
         {
             public uint Raw;
 
-            public uint NoData
-            {
-                get { return Raw & 1; }
-            }
+            public uint NoData => Raw & 1;
 
-            public uint InterpolationMode
-            {
-                get { return (Raw & 0x7) << 1; }
-            }
+            public uint InterpolationMode => (Raw & 0x7) << 1;
 
-            public uint FirstPointOffset
-            {
-                get { return (Raw & 0x7FFFFF) << 4; }
-            }
+            public uint FirstPointOffset => (Raw & 0x7FFFFF) << 4;
 
-            public uint PointCount
-            {
-                get { return (Raw & 0x1F) << 27; }
-            }
+            public uint PointCount => (Raw & 0x1F) << 27;
         }
     }
 

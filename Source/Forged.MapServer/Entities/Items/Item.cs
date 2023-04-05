@@ -586,13 +586,12 @@ public class Item : WorldObject
 
     public static uint ItemSubClassToDurabilityMultiplierId(ItemClass itemClass, uint itemSubClass)
     {
-        switch (itemClass)
+        return itemClass switch
         {
-            case ItemClass.Weapon: return itemSubClass;
-            case ItemClass.Armor: return itemSubClass + 21;
-        }
-
-        return 0;
+            ItemClass.Weapon => itemSubClass,
+            ItemClass.Armor  => itemSubClass + 21,
+            _                => 0
+        };
     }
 
     public static Item NewItemOrBag(ItemTemplate proto)
@@ -2690,30 +2689,15 @@ public class Item : WorldObject
                 if (armorPrice == null)
                     return 0;
 
-                switch ((ItemSubClassArmor)proto.SubClass)
+                typeFactor = (ItemSubClassArmor)proto.SubClass switch
                 {
-                    case ItemSubClassArmor.Miscellaneous:
-                    case ItemSubClassArmor.Cloth:
-                        typeFactor = armorPrice.ClothModifier;
-
-                        break;
-                    case ItemSubClassArmor.Leather:
-                        typeFactor = armorPrice.LeatherModifier;
-
-                        break;
-                    case ItemSubClassArmor.Mail:
-                        typeFactor = armorPrice.ChainModifier;
-
-                        break;
-                    case ItemSubClassArmor.Plate:
-                        typeFactor = armorPrice.PlateModifier;
-
-                        break;
-                    default:
-                        typeFactor = 1.0f;
-
-                        break;
-                }
+                    ItemSubClassArmor.Miscellaneous => armorPrice.ClothModifier,
+                    ItemSubClassArmor.Cloth         => armorPrice.ClothModifier,
+                    ItemSubClassArmor.Leather       => armorPrice.LeatherModifier,
+                    ItemSubClassArmor.Mail          => armorPrice.ChainModifier,
+                    ItemSubClassArmor.Plate         => armorPrice.PlateModifier,
+                    _                               => 1.0f
+                };
 
                 break;
             }

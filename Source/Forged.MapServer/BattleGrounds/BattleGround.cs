@@ -1021,15 +1021,12 @@ public class Battleground : ZoneScript, IDisposable
 
     public TeamFaction GetOtherTeam(TeamFaction teamId)
     {
-        switch (teamId)
+        return teamId switch
         {
-            case TeamFaction.Alliance:
-                return TeamFaction.Horde;
-            case TeamFaction.Horde:
-                return TeamFaction.Alliance;
-            default:
-                return TeamFaction.Other;
-        }
+            TeamFaction.Alliance => TeamFaction.Horde,
+            TeamFaction.Horde    => TeamFaction.Alliance,
+            _                    => TeamFaction.Other
+        };
     }
 
     public Dictionary<ObjectGuid, BattlegroundPlayer> GetPlayers()

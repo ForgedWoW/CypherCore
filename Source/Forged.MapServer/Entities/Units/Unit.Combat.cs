@@ -422,17 +422,13 @@ public partial class Unit
 
     public virtual bool CanUseAttackType(WeaponAttackType attacktype)
     {
-        switch (attacktype)
+        return attacktype switch
         {
-            case WeaponAttackType.BaseAttack:
-                return !HasUnitFlag(UnitFlags.Disarmed);
-            case WeaponAttackType.OffAttack:
-                return !HasUnitFlag2(UnitFlags2.DisarmOffhand);
-            case WeaponAttackType.RangedAttack:
-                return !HasUnitFlag2(UnitFlags2.DisarmRanged);
-            default:
-                return true;
-        }
+            WeaponAttackType.BaseAttack   => !HasUnitFlag(UnitFlags.Disarmed),
+            WeaponAttackType.OffAttack    => !HasUnitFlag2(UnitFlags2.DisarmOffhand),
+            WeaponAttackType.RangedAttack => !HasUnitFlag2(UnitFlags2.DisarmRanged),
+            _                             => true
+        };
     }
 
     public virtual bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect aurEff)
@@ -508,30 +504,25 @@ public partial class Unit
         if (!normalized)
             return weapon.Template.Delay / 1000.0f;
 
-        switch ((ItemSubClassWeapon)weapon.Template.SubClass)
+        return (ItemSubClassWeapon)weapon.Template.SubClass switch
         {
-            case ItemSubClassWeapon.Axe2:
-            case ItemSubClassWeapon.Mace2:
-            case ItemSubClassWeapon.Polearm:
-            case ItemSubClassWeapon.Sword2:
-            case ItemSubClassWeapon.Staff:
-            case ItemSubClassWeapon.FishingPole:
-                return 3.3f;
-            case ItemSubClassWeapon.Axe:
-            case ItemSubClassWeapon.Mace:
-            case ItemSubClassWeapon.Sword:
-            case ItemSubClassWeapon.Warglaives:
-            case ItemSubClassWeapon.Exotic:
-            case ItemSubClassWeapon.Exotic2:
-            case ItemSubClassWeapon.Fist:
-                return 2.4f;
-            case ItemSubClassWeapon.Dagger:
-                return 1.7f;
-            case ItemSubClassWeapon.Thrown:
-                return 2.0f;
-            default:
-                return weapon.Template.Delay / 1000.0f;
-        }
+            ItemSubClassWeapon.Axe2        => 3.3f,
+            ItemSubClassWeapon.Mace2       => 3.3f,
+            ItemSubClassWeapon.Polearm     => 3.3f,
+            ItemSubClassWeapon.Sword2      => 3.3f,
+            ItemSubClassWeapon.Staff       => 3.3f,
+            ItemSubClassWeapon.FishingPole => 3.3f,
+            ItemSubClassWeapon.Axe         => 2.4f,
+            ItemSubClassWeapon.Mace        => 2.4f,
+            ItemSubClassWeapon.Sword       => 2.4f,
+            ItemSubClassWeapon.Warglaives  => 2.4f,
+            ItemSubClassWeapon.Exotic      => 2.4f,
+            ItemSubClassWeapon.Exotic2     => 2.4f,
+            ItemSubClassWeapon.Fist        => 2.4f,
+            ItemSubClassWeapon.Dagger      => 1.7f,
+            ItemSubClassWeapon.Thrown      => 2.0f,
+            _                              => weapon.Template.Delay / 1000.0f
+        };
     }
 
     public Unit GetAttackerForHelper()

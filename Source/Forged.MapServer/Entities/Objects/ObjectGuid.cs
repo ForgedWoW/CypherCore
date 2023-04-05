@@ -91,37 +91,29 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
     public static ObjectGuid Create(HighGuid type, ulong dbId)
     {
-        switch (type)
+        return type switch
         {
-            case HighGuid.Null:
-                return ObjectGuidFactory.CreateNull();
-            case HighGuid.Uniq:
-                return ObjectGuidFactory.CreateUniq(dbId);
-            case HighGuid.Player:
-                return ObjectGuidFactory.CreatePlayer(0, dbId);
-            case HighGuid.Item:
-                return ObjectGuidFactory.CreateItem(0, dbId);
-            case HighGuid.StaticDoor:
-            case HighGuid.Transport:
-                return ObjectGuidFactory.CreateTransport(type, dbId);
-            case HighGuid.Party:
-            case HighGuid.WowAccount:
-            case HighGuid.BNetAccount:
-            case HighGuid.GMTask:
-            case HighGuid.RaidGroup:
-            case HighGuid.Spell:
-            case HighGuid.Mail:
-            case HighGuid.UserRouter:
-            case HighGuid.PVPQueueGroup:
-            case HighGuid.UserClient:
-            case HighGuid.BattlePet:
-            case HighGuid.CommerceObj:
-                return ObjectGuidFactory.CreateGlobal(type, 0, dbId);
-            case HighGuid.Guild:
-                return ObjectGuidFactory.CreateGuild(type, 0, dbId);
-            default:
-                return Empty;
-        }
+            HighGuid.Null          => ObjectGuidFactory.CreateNull(),
+            HighGuid.Uniq          => ObjectGuidFactory.CreateUniq(dbId),
+            HighGuid.Player        => ObjectGuidFactory.CreatePlayer(0, dbId),
+            HighGuid.Item          => ObjectGuidFactory.CreateItem(0, dbId),
+            HighGuid.StaticDoor    => ObjectGuidFactory.CreateTransport(type, dbId),
+            HighGuid.Transport     => ObjectGuidFactory.CreateTransport(type, dbId),
+            HighGuid.Party         => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.WowAccount    => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.BNetAccount   => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.GMTask        => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.RaidGroup     => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.Spell         => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.Mail          => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.UserRouter    => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.PVPQueueGroup => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.UserClient    => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.BattlePet     => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.CommerceObj   => ObjectGuidFactory.CreateGlobal(type, 0, dbId),
+            HighGuid.Guild         => ObjectGuidFactory.CreateGuild(type, 0, dbId),
+            _                      => Empty
+        };
     }
 
     public static ObjectGuid Create(HighGuid type, ushort ownerType, ushort ownerId, uint counter)
@@ -174,16 +166,14 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
     public static ObjectGuid Create(HighGuid type, uint arg1, ulong counter)
     {
-        switch (type)
+        return type switch
         {
-            case HighGuid.PetBattle:
-            case HighGuid.UniqUserClient:
-            case HighGuid.ClientSession:
-            case HighGuid.ClientConnection:
-                return ObjectGuidFactory.CreateClient(type, 0, arg1, counter);
-            default:
-                return Empty;
-        }
+            HighGuid.PetBattle        => ObjectGuidFactory.CreateClient(type, 0, arg1, counter),
+            HighGuid.UniqUserClient   => ObjectGuidFactory.CreateClient(type, 0, arg1, counter),
+            HighGuid.ClientSession    => ObjectGuidFactory.CreateClient(type, 0, arg1, counter),
+            HighGuid.ClientConnection => ObjectGuidFactory.CreateClient(type, 0, arg1, counter),
+            _                         => Empty
+        };
     }
 
     public static ObjectGuid Create(HighGuid type, byte clubType, uint clubFinderId, ulong counter)
@@ -196,42 +186,38 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
     public static ObjectGuid Create(HighGuid type, uint mapId, uint entry, ulong counter)
     {
-        switch (type)
+        return type switch
         {
-            case HighGuid.WorldTransaction:
-            case HighGuid.Conversation:
-            case HighGuid.Creature:
-            case HighGuid.Vehicle:
-            case HighGuid.Pet:
-            case HighGuid.GameObject:
-            case HighGuid.DynamicObject:
-            case HighGuid.AreaTrigger:
-            case HighGuid.Corpse:
-            case HighGuid.LootObject:
-            case HighGuid.SceneObject:
-            case HighGuid.Scenario:
-            case HighGuid.AIGroup:
-            case HighGuid.DynamicDoor:
-            case HighGuid.Vignette:
-            case HighGuid.CallForHelp:
-            case HighGuid.AIResource:
-            case HighGuid.AILock:
-            case HighGuid.AILockTicket:
-                return ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter);
-            default:
-                return Empty;
-        }
+            HighGuid.WorldTransaction => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.Conversation     => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.Creature         => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.Vehicle          => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.Pet              => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.GameObject       => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.DynamicObject    => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.AreaTrigger      => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.Corpse           => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.LootObject       => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.SceneObject      => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.Scenario         => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.AIGroup          => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.DynamicDoor      => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.Vignette         => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.CallForHelp      => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.AIResource       => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.AILock           => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            HighGuid.AILockTicket     => ObjectGuidFactory.CreateWorldObject(type, 0, 0, (ushort)mapId, 0, entry, counter),
+            _                         => Empty
+        };
     }
 
     public static ObjectGuid Create(HighGuid type, SpellCastSource subType, uint mapId, uint entry, ulong counter)
     {
-        switch (type)
+        return type switch
         {
-            case HighGuid.Cast:
-                return ObjectGuidFactory.CreateWorldObject(type, (byte)subType, 0, (ushort)mapId, 0, entry, counter);
-            default:
-                return Empty;
-        }
+            HighGuid.Cast => ObjectGuidFactory.CreateWorldObject(type, (byte)subType, 0, (ushort)mapId, 0, entry, counter),
+            _             => Empty
+        };
     }
 
     public static ObjectGuid FromString(string guidString)
@@ -246,68 +232,62 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
     public static bool IsGlobal(HighGuid high)
     {
-        switch (high)
+        return high switch
         {
-            case HighGuid.Uniq:
-            case HighGuid.Party:
-            case HighGuid.WowAccount:
-            case HighGuid.BNetAccount:
-            case HighGuid.GMTask:
-            case HighGuid.RaidGroup:
-            case HighGuid.Spell:
-            case HighGuid.Mail:
-            case HighGuid.UserRouter:
-            case HighGuid.PVPQueueGroup:
-            case HighGuid.UserClient:
-            case HighGuid.UniqUserClient:
-            case HighGuid.BattlePet:
-                return true;
-            default:
-                return false;
-        }
+            HighGuid.Uniq           => true,
+            HighGuid.Party          => true,
+            HighGuid.WowAccount     => true,
+            HighGuid.BNetAccount    => true,
+            HighGuid.GMTask         => true,
+            HighGuid.RaidGroup      => true,
+            HighGuid.Spell          => true,
+            HighGuid.Mail           => true,
+            HighGuid.UserRouter     => true,
+            HighGuid.PVPQueueGroup  => true,
+            HighGuid.UserClient     => true,
+            HighGuid.UniqUserClient => true,
+            HighGuid.BattlePet      => true,
+            _                       => false
+        };
     }
 
     public static bool IsMapSpecific(HighGuid high)
     {
-        switch (high)
+        return high switch
         {
-            case HighGuid.Conversation:
-            case HighGuid.Creature:
-            case HighGuid.Vehicle:
-            case HighGuid.Pet:
-            case HighGuid.GameObject:
-            case HighGuid.DynamicObject:
-            case HighGuid.AreaTrigger:
-            case HighGuid.Corpse:
-            case HighGuid.LootObject:
-            case HighGuid.SceneObject:
-            case HighGuid.Scenario:
-            case HighGuid.AIGroup:
-            case HighGuid.DynamicDoor:
-            case HighGuid.Vignette:
-            case HighGuid.CallForHelp:
-            case HighGuid.AIResource:
-            case HighGuid.AILock:
-            case HighGuid.AILockTicket:
-                return true;
-            default:
-                return false;
-        }
+            HighGuid.Conversation  => true,
+            HighGuid.Creature      => true,
+            HighGuid.Vehicle       => true,
+            HighGuid.Pet           => true,
+            HighGuid.GameObject    => true,
+            HighGuid.DynamicObject => true,
+            HighGuid.AreaTrigger   => true,
+            HighGuid.Corpse        => true,
+            HighGuid.LootObject    => true,
+            HighGuid.SceneObject   => true,
+            HighGuid.Scenario      => true,
+            HighGuid.AIGroup       => true,
+            HighGuid.DynamicDoor   => true,
+            HighGuid.Vignette      => true,
+            HighGuid.CallForHelp   => true,
+            HighGuid.AIResource    => true,
+            HighGuid.AILock        => true,
+            HighGuid.AILockTicket  => true,
+            _                      => false
+        };
     }
 
     public static bool IsRealmSpecific(HighGuid high)
     {
-        switch (high)
+        return high switch
         {
-            case HighGuid.Player:
-            case HighGuid.Item:
-            case HighGuid.ChatChannel:
-            case HighGuid.Transport:
-            case HighGuid.Guild:
-                return true;
-            default:
-                return false;
-        }
+            HighGuid.Player      => true,
+            HighGuid.Item        => true,
+            HighGuid.ChatChannel => true,
+            HighGuid.Transport   => true,
+            HighGuid.Guild       => true,
+            _                    => false
+        };
     }
 
     public static bool operator !=(ObjectGuid first, ObjectGuid other)
@@ -406,45 +386,34 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
     //Static Methods 
     private static TypeId GetTypeId(HighGuid high)
     {
-        switch (high)
+        return high switch
         {
-            case HighGuid.Item:
-                return TypeId.Item;
-            case HighGuid.Creature:
-            case HighGuid.Pet:
-            case HighGuid.Vehicle:
-                return TypeId.Unit;
-            case HighGuid.Player:
-                return TypeId.Player;
-            case HighGuid.GameObject:
-            case HighGuid.Transport:
-                return TypeId.GameObject;
-            case HighGuid.DynamicObject:
-                return TypeId.DynamicObject;
-            case HighGuid.Corpse:
-                return TypeId.Corpse;
-            case HighGuid.AreaTrigger:
-                return TypeId.AreaTrigger;
-            case HighGuid.SceneObject:
-                return TypeId.SceneObject;
-            case HighGuid.Conversation:
-                return TypeId.Conversation;
-            default:
-                return TypeId.Object;
-        }
+            HighGuid.Item          => TypeId.Item,
+            HighGuid.Creature      => TypeId.Unit,
+            HighGuid.Pet           => TypeId.Unit,
+            HighGuid.Vehicle       => TypeId.Unit,
+            HighGuid.Player        => TypeId.Player,
+            HighGuid.GameObject    => TypeId.GameObject,
+            HighGuid.Transport     => TypeId.GameObject,
+            HighGuid.DynamicObject => TypeId.DynamicObject,
+            HighGuid.Corpse        => TypeId.Corpse,
+            HighGuid.AreaTrigger   => TypeId.AreaTrigger,
+            HighGuid.SceneObject   => TypeId.SceneObject,
+            HighGuid.Conversation  => TypeId.Conversation,
+            _                      => TypeId.Object
+        };
     }
 
     private static bool HasEntry(HighGuid high)
     {
-        switch (high)
+        return high switch
         {
-            case HighGuid.GameObject:
-            case HighGuid.Creature:
-            case HighGuid.Pet:
-            case HighGuid.Vehicle:
-            default:
-                return true;
-        }
+            HighGuid.GameObject => true,
+            HighGuid.Creature   => true,
+            HighGuid.Pet        => true,
+            HighGuid.Vehicle    => true,
+            _                   => true
+        };
     }
 
     private bool HasEntry()

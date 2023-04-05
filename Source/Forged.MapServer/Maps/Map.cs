@@ -2731,17 +2731,13 @@ public class Map : IDisposable
 
     public WorldObject GetWorldObjectBySpawnId(SpawnObjectType type, ulong spawnId)
     {
-        switch (type)
+        return type switch
         {
-            case SpawnObjectType.Creature:
-                return GetCreatureBySpawnId(spawnId);
-            case SpawnObjectType.GameObject:
-                return GetGameObjectBySpawnId(spawnId);
-            case SpawnObjectType.AreaTrigger:
-                return GetAreaTriggerBySpawnId(spawnId);
-            default:
-                return null;
-        }
+            SpawnObjectType.Creature    => GetCreatureBySpawnId(spawnId),
+            SpawnObjectType.GameObject  => GetGameObjectBySpawnId(spawnId),
+            SpawnObjectType.AreaTrigger => GetAreaTriggerBySpawnId(spawnId),
+            _                           => null
+        };
     }
 
     public void Visit(Cell cell, IGridNotifier visitor)
@@ -3814,17 +3810,13 @@ public class Map : IDisposable
 
     private Dictionary<ulong, RespawnInfo> GetRespawnMapForType(SpawnObjectType type)
     {
-        switch (type)
+        return type switch
         {
-            case SpawnObjectType.Creature:
-                return _creatureRespawnTimesBySpawnId;
-            case SpawnObjectType.GameObject:
-                return _gameObjectRespawnTimesBySpawnId;
-            case SpawnObjectType.AreaTrigger:
-                return null;
-            default:
-                return null;
-        }
+            SpawnObjectType.Creature    => _creatureRespawnTimesBySpawnId,
+            SpawnObjectType.GameObject  => _gameObjectRespawnTimesBySpawnId,
+            SpawnObjectType.AreaTrigger => null,
+            _                           => null
+        };
     }
 
     private void UnloadAllRespawnInfos() // delete everything from memory

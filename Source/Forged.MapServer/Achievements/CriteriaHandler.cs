@@ -1010,99 +1010,87 @@ public class CriteriaHandler
         if (progress == null)
             return false;
 
-        switch (criteria.Entry.Type)
+        return criteria.Entry.Type switch
         {
-            case CriteriaType.WinBattleground:
-            case CriteriaType.KillCreature:
-            case CriteriaType.ReachLevel:
-            case CriteriaType.GuildAttainedLevel:
-            case CriteriaType.SkillRaised:
-            case CriteriaType.CompleteQuestsCount:
-            case CriteriaType.CompleteAnyDailyQuestPerDay:
-            case CriteriaType.CompleteQuestsInZone:
-            case CriteriaType.DamageDealt:
-            case CriteriaType.HealingDone:
-            case CriteriaType.CompleteDailyQuest:
-            case CriteriaType.MaxDistFallenWithoutDying:
-            case CriteriaType.BeSpellTarget:
-            case CriteriaType.GainAura:
-            case CriteriaType.CastSpell:
-            case CriteriaType.LandTargetedSpellOnTarget:
-            case CriteriaType.TrackedWorldStateUIModified:
-            case CriteriaType.PVPKillInArea:
-            case CriteriaType.EarnHonorableKill:
-            case CriteriaType.HonorableKills:
-            case CriteriaType.AcquireItem:
-            case CriteriaType.WinAnyRankedArena:
-            case CriteriaType.EarnPersonalArenaRating:
-            case CriteriaType.UseItem:
-            case CriteriaType.LootItem:
-            case CriteriaType.BankSlotsPurchased:
-            case CriteriaType.ReputationGained:
-            case CriteriaType.TotalExaltedFactions:
-            case CriteriaType.GotHaircut:
-            case CriteriaType.EquipItemInSlot:
-            case CriteriaType.RollNeed:
-            case CriteriaType.RollGreed:
-            case CriteriaType.DeliverKillingBlowToClass:
-            case CriteriaType.DeliverKillingBlowToRace:
-            case CriteriaType.DoEmote:
-            case CriteriaType.EquipItem:
-            case CriteriaType.MoneyEarnedFromQuesting:
-            case CriteriaType.MoneyLootedFromCreatures:
-            case CriteriaType.UseGameobject:
-            case CriteriaType.KillPlayer:
-            case CriteriaType.CatchFishInFishingHole:
-            case CriteriaType.LearnSpellFromSkillLine:
-            case CriteriaType.WinDuel:
-            case CriteriaType.GetLootByType:
-            case CriteriaType.LearnTradeskillSkillLine:
-            case CriteriaType.CompletedLFGDungeonWithStrangers:
-            case CriteriaType.DeliveredKillingBlow:
-            case CriteriaType.CurrencyGained:
-            case CriteriaType.PlaceGarrisonBuilding:
-            case CriteriaType.UniquePetsOwned:
-            case CriteriaType.BattlePetReachLevel:
-            case CriteriaType.ActivelyEarnPetLevel:
-            case CriteriaType.LearnAnyTransmogInSlot:
-            case CriteriaType.ParagonLevelIncreaseWithFaction:
-            case CriteriaType.PlayerHasEarnedHonor:
-            case CriteriaType.ChooseRelicTalent:
-            case CriteriaType.AccountHonorLevelReached:
-            case CriteriaType.EarnArtifactXPForAzeriteItem:
-            case CriteriaType.AzeriteLevelReached:
-            case CriteriaType.CompleteAnyReplayQuest:
-            case CriteriaType.BuyItemsFromVendors:
-            case CriteriaType.SellItemsToVendors:
-            case CriteriaType.EnterTopLevelArea:
-                return progress.Counter >= requiredAmount;
-
-            case CriteriaType.EarnAchievement:
-            case CriteriaType.CompleteQuest:
-            case CriteriaType.LearnOrKnowSpell:
-            case CriteriaType.RevealWorldMapOverlay:
-            case CriteriaType.RecruitGarrisonFollower:
-            case CriteriaType.LearnedNewPet:
-            case CriteriaType.HonorLevelIncrease:
-            case CriteriaType.PrestigeLevelIncrease:
-            case CriteriaType.ActivelyReachLevel:
-            case CriteriaType.CollectTransmogSetFromGroup:
-                return progress.Counter >= 1;
-
-            case CriteriaType.AchieveSkillStep:
-                return progress.Counter >= (requiredAmount * 75);
-
-            case CriteriaType.EarnAchievementPoints:
-                return progress.Counter >= 9000;
-
-            case CriteriaType.WinArena:
-                return requiredAmount != 0 && progress.Counter >= requiredAmount;
-
-            case CriteriaType.Login:
-                return true;
-        }
-
-        return false;
+            CriteriaType.WinBattleground                  => progress.Counter >= requiredAmount,
+            CriteriaType.KillCreature                     => progress.Counter >= requiredAmount,
+            CriteriaType.ReachLevel                       => progress.Counter >= requiredAmount,
+            CriteriaType.GuildAttainedLevel               => progress.Counter >= requiredAmount,
+            CriteriaType.SkillRaised                      => progress.Counter >= requiredAmount,
+            CriteriaType.CompleteQuestsCount              => progress.Counter >= requiredAmount,
+            CriteriaType.CompleteAnyDailyQuestPerDay      => progress.Counter >= requiredAmount,
+            CriteriaType.CompleteQuestsInZone             => progress.Counter >= requiredAmount,
+            CriteriaType.DamageDealt                      => progress.Counter >= requiredAmount,
+            CriteriaType.HealingDone                      => progress.Counter >= requiredAmount,
+            CriteriaType.CompleteDailyQuest               => progress.Counter >= requiredAmount,
+            CriteriaType.MaxDistFallenWithoutDying        => progress.Counter >= requiredAmount,
+            CriteriaType.BeSpellTarget                    => progress.Counter >= requiredAmount,
+            CriteriaType.GainAura                         => progress.Counter >= requiredAmount,
+            CriteriaType.CastSpell                        => progress.Counter >= requiredAmount,
+            CriteriaType.LandTargetedSpellOnTarget        => progress.Counter >= requiredAmount,
+            CriteriaType.TrackedWorldStateUIModified      => progress.Counter >= requiredAmount,
+            CriteriaType.PVPKillInArea                    => progress.Counter >= requiredAmount,
+            CriteriaType.EarnHonorableKill                => progress.Counter >= requiredAmount,
+            CriteriaType.HonorableKills                   => progress.Counter >= requiredAmount,
+            CriteriaType.AcquireItem                      => progress.Counter >= requiredAmount,
+            CriteriaType.WinAnyRankedArena                => progress.Counter >= requiredAmount,
+            CriteriaType.EarnPersonalArenaRating          => progress.Counter >= requiredAmount,
+            CriteriaType.UseItem                          => progress.Counter >= requiredAmount,
+            CriteriaType.LootItem                         => progress.Counter >= requiredAmount,
+            CriteriaType.BankSlotsPurchased               => progress.Counter >= requiredAmount,
+            CriteriaType.ReputationGained                 => progress.Counter >= requiredAmount,
+            CriteriaType.TotalExaltedFactions             => progress.Counter >= requiredAmount,
+            CriteriaType.GotHaircut                       => progress.Counter >= requiredAmount,
+            CriteriaType.EquipItemInSlot                  => progress.Counter >= requiredAmount,
+            CriteriaType.RollNeed                         => progress.Counter >= requiredAmount,
+            CriteriaType.RollGreed                        => progress.Counter >= requiredAmount,
+            CriteriaType.DeliverKillingBlowToClass        => progress.Counter >= requiredAmount,
+            CriteriaType.DeliverKillingBlowToRace         => progress.Counter >= requiredAmount,
+            CriteriaType.DoEmote                          => progress.Counter >= requiredAmount,
+            CriteriaType.EquipItem                        => progress.Counter >= requiredAmount,
+            CriteriaType.MoneyEarnedFromQuesting          => progress.Counter >= requiredAmount,
+            CriteriaType.MoneyLootedFromCreatures         => progress.Counter >= requiredAmount,
+            CriteriaType.UseGameobject                    => progress.Counter >= requiredAmount,
+            CriteriaType.KillPlayer                       => progress.Counter >= requiredAmount,
+            CriteriaType.CatchFishInFishingHole           => progress.Counter >= requiredAmount,
+            CriteriaType.LearnSpellFromSkillLine          => progress.Counter >= requiredAmount,
+            CriteriaType.WinDuel                          => progress.Counter >= requiredAmount,
+            CriteriaType.GetLootByType                    => progress.Counter >= requiredAmount,
+            CriteriaType.LearnTradeskillSkillLine         => progress.Counter >= requiredAmount,
+            CriteriaType.CompletedLFGDungeonWithStrangers => progress.Counter >= requiredAmount,
+            CriteriaType.DeliveredKillingBlow             => progress.Counter >= requiredAmount,
+            CriteriaType.CurrencyGained                   => progress.Counter >= requiredAmount,
+            CriteriaType.PlaceGarrisonBuilding            => progress.Counter >= requiredAmount,
+            CriteriaType.UniquePetsOwned                  => progress.Counter >= requiredAmount,
+            CriteriaType.BattlePetReachLevel              => progress.Counter >= requiredAmount,
+            CriteriaType.ActivelyEarnPetLevel             => progress.Counter >= requiredAmount,
+            CriteriaType.LearnAnyTransmogInSlot           => progress.Counter >= requiredAmount,
+            CriteriaType.ParagonLevelIncreaseWithFaction  => progress.Counter >= requiredAmount,
+            CriteriaType.PlayerHasEarnedHonor             => progress.Counter >= requiredAmount,
+            CriteriaType.ChooseRelicTalent                => progress.Counter >= requiredAmount,
+            CriteriaType.AccountHonorLevelReached         => progress.Counter >= requiredAmount,
+            CriteriaType.EarnArtifactXPForAzeriteItem     => progress.Counter >= requiredAmount,
+            CriteriaType.AzeriteLevelReached              => progress.Counter >= requiredAmount,
+            CriteriaType.CompleteAnyReplayQuest           => progress.Counter >= requiredAmount,
+            CriteriaType.BuyItemsFromVendors              => progress.Counter >= requiredAmount,
+            CriteriaType.SellItemsToVendors               => progress.Counter >= requiredAmount,
+            CriteriaType.EnterTopLevelArea                => progress.Counter >= requiredAmount,
+            CriteriaType.EarnAchievement                  => progress.Counter >= 1,
+            CriteriaType.CompleteQuest                    => progress.Counter >= 1,
+            CriteriaType.LearnOrKnowSpell                 => progress.Counter >= 1,
+            CriteriaType.RevealWorldMapOverlay            => progress.Counter >= 1,
+            CriteriaType.RecruitGarrisonFollower          => progress.Counter >= 1,
+            CriteriaType.LearnedNewPet                    => progress.Counter >= 1,
+            CriteriaType.HonorLevelIncrease               => progress.Counter >= 1,
+            CriteriaType.PrestigeLevelIncrease            => progress.Counter >= 1,
+            CriteriaType.ActivelyReachLevel               => progress.Counter >= 1,
+            CriteriaType.CollectTransmogSetFromGroup      => progress.Counter >= 1,
+            CriteriaType.AchieveSkillStep                 => progress.Counter >= (requiredAmount * 75),
+            CriteriaType.EarnAchievementPoints            => progress.Counter >= 9000,
+            CriteriaType.WinArena                         => requiredAmount != 0 && progress.Counter >= requiredAmount,
+            CriteriaType.Login                            => true,
+            _                                             => false
+        };
     }
 
     private bool ModifierSatisfied(ModifierTreeRecord modifier, ulong miscValue1, ulong miscValue2, WorldObject refe, Player referencePlayer)

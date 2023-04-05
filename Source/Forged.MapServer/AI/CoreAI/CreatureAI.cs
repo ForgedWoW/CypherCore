@@ -67,18 +67,15 @@ public class CreatureAI : UnitAI
                 if (properties.GetFlags().HasFlag(SummonPropertiesFlags.JoinSummonerSpawnGroup))
                     return true;
 
-                switch (properties.Title)
+                return properties.Title switch
                 {
-                    case SummonTitle.Pet:
-                    case SummonTitle.Guardian:
-                    case SummonTitle.Runeblade:
-                    case SummonTitle.Minion:
-                    case SummonTitle.Companion:
-                        return true;
-
-                    default:
-                        return false;
-                }
+                    SummonTitle.Pet       => true,
+                    SummonTitle.Guardian  => true,
+                    SummonTitle.Runeblade => true,
+                    SummonTitle.Minion    => true,
+                    SummonTitle.Companion => true,
+                    _                     => false
+                };
             default:
                 return false;
         }

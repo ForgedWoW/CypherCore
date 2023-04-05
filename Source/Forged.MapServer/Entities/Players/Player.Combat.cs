@@ -232,16 +232,12 @@ public partial class Player
     {
         var baseExpertise = 7.5f;
 
-        switch (attType)
+        return attType switch
         {
-            case WeaponAttackType.BaseAttack:
-                return baseExpertise + ActivePlayerData.MainhandExpertise / 4.0f;
-
-            case WeaponAttackType.OffAttack:
-                return baseExpertise + ActivePlayerData.OffhandExpertise / 4.0f;
-        }
-
-        return 0.0f;
+            WeaponAttackType.BaseAttack => baseExpertise + ActivePlayerData.MainhandExpertise / 4.0f,
+            WeaponAttackType.OffAttack  => baseExpertise + ActivePlayerData.OffhandExpertise / 4.0f,
+            _                           => 0.0f
+        };
     }
 
     public double GetRatingBonusValue(CombatRating cr)
@@ -488,70 +484,26 @@ public partial class Player
 
     private double ApplyRatingDiminishing(CombatRating cr, double bonusValue)
     {
-        uint diminishingCurveId = 0;
-
-        switch (cr)
+        uint diminishingCurveId = cr switch
         {
-            case CombatRating.Dodge:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.DodgeDiminishing);
-
-                break;
-
-            case CombatRating.Parry:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.ParryDiminishing);
-
-                break;
-
-            case CombatRating.Block:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.BlockDiminishing);
-
-                break;
-
-            case CombatRating.CritMelee:
-            case CombatRating.CritRanged:
-            case CombatRating.CritSpell:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.CritDiminishing);
-
-                break;
-
-            case CombatRating.Speed:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.SpeedDiminishing);
-
-                break;
-
-            case CombatRating.Lifesteal:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.LifestealDiminishing);
-
-                break;
-
-            case CombatRating.HasteMelee:
-            case CombatRating.HasteRanged:
-            case CombatRating.HasteSpell:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.HasteDiminishing);
-
-                break;
-
-            case CombatRating.Avoidance:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.AvoidanceDiminishing);
-
-                break;
-
-            case CombatRating.Mastery:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.MasteryDiminishing);
-
-                break;
-
-            case CombatRating.VersatilityDamageDone:
-            case CombatRating.VersatilityHealingDone:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.VersatilityDoneDiminishing);
-
-                break;
-
-            case CombatRating.VersatilityDamageTaken:
-                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.VersatilityTakenDiminishing);
-
-                break;
-        }
+            CombatRating.Dodge                  => DB2Manager.GetGlobalCurveId(GlobalCurve.DodgeDiminishing),
+            CombatRating.Parry                  => DB2Manager.GetGlobalCurveId(GlobalCurve.ParryDiminishing),
+            CombatRating.Block                  => DB2Manager.GetGlobalCurveId(GlobalCurve.BlockDiminishing),
+            CombatRating.CritMelee              => DB2Manager.GetGlobalCurveId(GlobalCurve.CritDiminishing),
+            CombatRating.CritRanged             => DB2Manager.GetGlobalCurveId(GlobalCurve.CritDiminishing),
+            CombatRating.CritSpell              => DB2Manager.GetGlobalCurveId(GlobalCurve.CritDiminishing),
+            CombatRating.Speed                  => DB2Manager.GetGlobalCurveId(GlobalCurve.SpeedDiminishing),
+            CombatRating.Lifesteal              => DB2Manager.GetGlobalCurveId(GlobalCurve.LifestealDiminishing),
+            CombatRating.HasteMelee             => DB2Manager.GetGlobalCurveId(GlobalCurve.HasteDiminishing),
+            CombatRating.HasteRanged            => DB2Manager.GetGlobalCurveId(GlobalCurve.HasteDiminishing),
+            CombatRating.HasteSpell             => DB2Manager.GetGlobalCurveId(GlobalCurve.HasteDiminishing),
+            CombatRating.Avoidance              => DB2Manager.GetGlobalCurveId(GlobalCurve.AvoidanceDiminishing),
+            CombatRating.Mastery                => DB2Manager.GetGlobalCurveId(GlobalCurve.MasteryDiminishing),
+            CombatRating.VersatilityDamageDone  => DB2Manager.GetGlobalCurveId(GlobalCurve.VersatilityDoneDiminishing),
+            CombatRating.VersatilityHealingDone => DB2Manager.GetGlobalCurveId(GlobalCurve.VersatilityDoneDiminishing),
+            CombatRating.VersatilityDamageTaken => DB2Manager.GetGlobalCurveId(GlobalCurve.VersatilityTakenDiminishing),
+            _                                   => 0
+        };
 
         if (diminishingCurveId != 0)
             return DB2Manager.GetCurveValueAt(diminishingCurveId, (float)bonusValue);

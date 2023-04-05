@@ -3579,15 +3579,13 @@ public partial class Unit
 
         foreach (var otherSpellEffectInfo in spellProto.Effects)
         {
-            switch (otherSpellEffectInfo.ApplyAuraName)
+            doneTotal = otherSpellEffectInfo.ApplyAuraName switch
             {
                 // Bonus healing does not apply to these spells
-                case AuraType.PeriodicLeech:
-                case AuraType.PeriodicHealthFunnel:
-                    doneTotal = 0;
-
-                    break;
-            }
+                AuraType.PeriodicLeech        => 0,
+                AuraType.PeriodicHealthFunnel => 0,
+                _                             => doneTotal
+            };
 
             if (otherSpellEffectInfo.IsEffect(SpellEffectName.HealthLeech))
                 doneTotal = 0;

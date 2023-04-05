@@ -208,31 +208,21 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public WorldObject GetWorldObject(WorldObject p, ObjectGuid guid)
     {
-        switch (guid.High)
+        return guid.High switch
         {
-            case HighGuid.Player:
-                return GetPlayer(p, guid);
-            case HighGuid.Transport:
-            case HighGuid.GameObject:
-                return GetGameObject(p, guid);
-            case HighGuid.Vehicle:
-            case HighGuid.Creature:
-                return GetCreature(p, guid);
-            case HighGuid.Pet:
-                return GetPet(p, guid);
-            case HighGuid.DynamicObject:
-                return GetDynamicObject(p, guid);
-            case HighGuid.AreaTrigger:
-                return GetAreaTrigger(p, guid);
-            case HighGuid.Corpse:
-                return GetCorpse(p, guid);
-            case HighGuid.SceneObject:
-                return GetSceneObject(p, guid);
-            case HighGuid.Conversation:
-                return GetConversation(p, guid);
-            default:
-                return null;
-        }
+            HighGuid.Player        => GetPlayer(p, guid),
+            HighGuid.Transport     => GetGameObject(p, guid),
+            HighGuid.GameObject    => GetGameObject(p, guid),
+            HighGuid.Vehicle       => GetCreature(p, guid),
+            HighGuid.Creature      => GetCreature(p, guid),
+            HighGuid.Pet           => GetPet(p, guid),
+            HighGuid.DynamicObject => GetDynamicObject(p, guid),
+            HighGuid.AreaTrigger   => GetAreaTrigger(p, guid),
+            HighGuid.Corpse        => GetCorpse(p, guid),
+            HighGuid.SceneObject   => GetSceneObject(p, guid),
+            HighGuid.Conversation  => GetConversation(p, guid),
+            _                      => null
+        };
     }
     public void RemoveObject(Player obj)
     {

@@ -516,39 +516,16 @@ public class Guardian : Minion
         var unitMod = UnitMods.Health;
         var stamina = GetStat(Stats.Stamina) - GetCreateStat(Stats.Stamina);
 
-        float multiplicator;
-
-        switch (Entry)
+        float multiplicator = Entry switch
         {
-            case ENTRY_IMP:
-                multiplicator = 8.4f;
-
-                break;
-            case ENTRY_VOIDWALKER:
-                multiplicator = 11.0f;
-
-                break;
-            case ENTRY_SUCCUBUS:
-                multiplicator = 9.1f;
-
-                break;
-            case ENTRY_FELHUNTER:
-                multiplicator = 9.5f;
-
-                break;
-            case ENTRY_FELGUARD:
-                multiplicator = 11.0f;
-
-                break;
-            case ENTRY_BLOODWORM:
-                multiplicator = 1.0f;
-
-                break;
-            default:
-                multiplicator = 10.0f;
-
-                break;
-        }
+            ENTRY_IMP        => 8.4f,
+            ENTRY_VOIDWALKER => 11.0f,
+            ENTRY_SUCCUBUS   => 9.1f,
+            ENTRY_FELHUNTER  => 9.5f,
+            ENTRY_FELGUARD   => 11.0f,
+            ENTRY_BLOODWORM  => 1.0f,
+            _                => 10.0f
+        };
 
         var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + GetCreateHealth();
         value *= GetPctModifierValue(unitMod, UnitModifierPctType.Base);

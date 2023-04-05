@@ -445,17 +445,13 @@ public class Pet : Guardian
         switch (PetType)
         {
             case PetType.Summon:
-                switch (owner.Class)
+                return owner.Class switch
                 {
-                    case PlayerClass.Warlock:
-                        return Template.CreatureType == CreatureType.Demon;
-                    case PlayerClass.Deathknight:
-                        return Template.CreatureType == CreatureType.Undead;
-                    case PlayerClass.Mage:
-                        return Template.CreatureType == CreatureType.Elemental;
-                    default:
-                        return false;
-                }
+                    PlayerClass.Warlock     => Template.CreatureType == CreatureType.Demon,
+                    PlayerClass.Deathknight => Template.CreatureType == CreatureType.Undead,
+                    PlayerClass.Mage        => Template.CreatureType == CreatureType.Elemental,
+                    _                       => false
+                };
             case PetType.Hunter:
                 return true;
             default:

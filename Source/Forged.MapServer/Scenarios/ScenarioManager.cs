@@ -40,19 +40,12 @@ public class ScenarioManager
         if (dbData == null)
             return null;
 
-        uint scenarioID = 0;
-
-        switch (team)
+        uint scenarioID = team switch
         {
-            case TeamIds.Alliance:
-                scenarioID = dbData.Scenario_A;
-
-                break;
-            case TeamIds.Horde:
-                scenarioID = dbData.Scenario_H;
-
-                break;
-        }
+            TeamIds.Alliance => dbData.Scenario_A,
+            TeamIds.Horde    => dbData.Scenario_H,
+            _                => 0
+        };
 
         var scenarioData = _scenarioData.LookupByKey(scenarioID);
 

@@ -134,17 +134,13 @@ public class SupportManager
 
     public uint GetOpenTicketCount<T>() where T : Ticket
     {
-        switch (typeof(T).Name)
+        return typeof(T).Name switch
         {
-            case "BugTicket":
-                return _openBugTicketCount;
-            case "ComplaintTicket":
-                return _openComplaintTicketCount;
-            case "SuggestionTicket":
-                return _openSuggestionTicketCount;
-        }
-
-        return 0;
+            "BugTicket"        => _openBugTicketCount,
+            "ComplaintTicket"  => _openComplaintTicketCount,
+            "SuggestionTicket" => _openSuggestionTicketCount,
+            _                  => 0
+        };
     }
 
     public bool GetSuggestionSystemStatus()
@@ -159,17 +155,13 @@ public class SupportManager
 
     public T GetTicket<T>(uint id) where T : Ticket
     {
-        switch (typeof(T).Name)
+        return typeof(T).Name switch
         {
-            case "BugTicket":
-                return _bugTicketList.LookupByKey(id) as T;
-            case "ComplaintTicket":
-                return _complaintTicketList.LookupByKey(id) as T;
-            case "SuggestionTicket":
-                return _suggestionTicketList.LookupByKey(id) as T;
-        }
-
-        return default;
+            "BugTicket"        => _bugTicketList.LookupByKey(id) as T,
+            "ComplaintTicket"  => _complaintTicketList.LookupByKey(id) as T,
+            "SuggestionTicket" => _suggestionTicketList.LookupByKey(id) as T,
+            _                  => default
+        };
     }
     public bool GetTicketSystemStatus()
     {

@@ -1221,16 +1221,14 @@ public class LFGManager
             if (_db2Manager.GetMapDifficultyData((uint)dungeon.MapID, dungeon.DifficultyID) == null)
                 continue;
 
-            switch (dungeon.TypeID)
+            _lfgDungeonStore[dungeon.Id] = dungeon.TypeID switch
             {
-                case LfgType.Dungeon:
-                case LfgType.Raid:
-                case LfgType.Random:
-                case LfgType.Zone:
-                    _lfgDungeonStore[dungeon.Id] = new LFGDungeonData(dungeon);
-
-                    break;
-            }
+                LfgType.Dungeon => new LFGDungeonData(dungeon),
+                LfgType.Raid    => new LFGDungeonData(dungeon),
+                LfgType.Random  => new LFGDungeonData(dungeon),
+                LfgType.Zone    => new LFGDungeonData(dungeon),
+                _               => _lfgDungeonStore[dungeon.Id]
+            };
         }
 
         // Fill teleport locations from DB
@@ -2161,27 +2159,26 @@ public class LFGManager
 
     private bool IsSeasonActive(uint dungeonId)
     {
-        switch (dungeonId)
+        return dungeonId switch
         {
-            case 285: // The Headless Horseman
-                return _gameEventManager.IsHolidayActive(HolidayIds.HallowsEnd);
-            case 286: // The Frost Lord Ahune
-                return _gameEventManager.IsHolidayActive(HolidayIds.MidsummerFireFestival);
-            case 287: // Coren Direbrew
-                return _gameEventManager.IsHolidayActive(HolidayIds.Brewfest);
-            case 288: // The Crown Chemical Co.
-                return _gameEventManager.IsHolidayActive(HolidayIds.LoveIsInTheAir);
-            case 744: // Random Timewalking Dungeon (Burning Crusade)
-                return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventBcDefault);
-            case 995: // Random Timewalking Dungeon (Wrath of the Lich King)
-                return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventLkDefault);
-            case 1146: // Random Timewalking Dungeon (Cataclysm)
-                return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventCataDefault);
-            case 1453: // Timewalker MoP
-                return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventMopDefault);
-        }
-
-        return false;
+            285 => // The Headless Horseman
+                _gameEventManager.IsHolidayActive(HolidayIds.HallowsEnd),
+            286 => // The Frost Lord Ahune
+                _gameEventManager.IsHolidayActive(HolidayIds.MidsummerFireFestival),
+            287 => // Coren Direbrew
+                _gameEventManager.IsHolidayActive(HolidayIds.Brewfest),
+            288 => // The Crown Chemical Co.
+                _gameEventManager.IsHolidayActive(HolidayIds.LoveIsInTheAir),
+            744 => // Random Timewalking Dungeon (Burning Crusade)
+                _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventBcDefault),
+            995 => // Random Timewalking Dungeon (Wrath of the Lich King)
+                _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventLkDefault),
+            1146 => // Random Timewalking Dungeon (Cataclysm)
+                _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventCataDefault),
+            1453 => // Timewalker MoP
+                _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventMopDefault),
+            _ => false
+        };
     }
 
     private void MakeNewGroup(LfgProposal proposal)

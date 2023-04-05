@@ -31,15 +31,12 @@ public class RestMgr
 
     public float CalcExtraPerSec(RestTypes restType, float bubble)
     {
-        switch (restType)
+        return restType switch
         {
-            case RestTypes.Honor:
-                return _player.ActivePlayerData.HonorNextLevel / 72000.0f * bubble;
-            case RestTypes.XP:
-                return _player.ActivePlayerData.NextLevelXP / 72000.0f * bubble;
-            default:
-                return 0.0f;
-        }
+            RestTypes.Honor => _player.ActivePlayerData.HonorNextLevel / 72000.0f * bubble,
+            RestTypes.XP    => _player.ActivePlayerData.NextLevelXP / 72000.0f * bubble,
+            _               => 0.0f
+        };
     }
 
     public uint GetInnTriggerId()

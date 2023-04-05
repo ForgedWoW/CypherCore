@@ -852,32 +852,16 @@ public partial class Unit : WorldObject
 
             if (formModelData != null)
             {
-                var useRandom = false;
-
-                switch (form)
+                var useRandom = form switch
                 {
-                    case ShapeShiftForm.CatForm:
-                        useRandom = HasAura(210333);
-
-                        break; // Glyph of the Feral Chameleon
-                    case ShapeShiftForm.TravelForm:
-                        useRandom = HasAura(344336);
-
-                        break; // Glyph of the Swift Chameleon
-                    case ShapeShiftForm.AquaticForm:
-                        useRandom = HasAura(344338);
-
-                        break; // Glyph of the Aquatic Chameleon
-                    case ShapeShiftForm.BearForm:
-                        useRandom = HasAura(107059);
-
-                        break; // Glyph of the Ursol Chameleon
-                    case ShapeShiftForm.FlightFormEpic:
-                    case ShapeShiftForm.FlightForm:
-                        useRandom = HasAura(344342);
-
-                        break; // Glyph of the Aerial Chameleon
-                }
+                    ShapeShiftForm.CatForm        => HasAura(210333),
+                    ShapeShiftForm.TravelForm     => HasAura(344336),
+                    ShapeShiftForm.AquaticForm    => HasAura(344338),
+                    ShapeShiftForm.BearForm       => HasAura(107059),
+                    ShapeShiftForm.FlightFormEpic => HasAura(344342),
+                    ShapeShiftForm.FlightForm     => HasAura(344342),
+                    _                             => false
+                };
 
                 if (useRandom)
                 {
@@ -1291,23 +1275,20 @@ public partial class Unit : WorldObject
             return true;
 
         /* other allied races */
-        switch (race)
+        return race switch
         {
-            case Race.Nightborne:
-            case Race.HighmountainTauren:
-            case Race.VoidElf:
-            case Race.LightforgedDraenei:
-            case Race.ZandalariTroll:
-            case Race.KulTiran:
-            case Race.DarkIronDwarf:
-            case Race.Vulpera:
-            case Race.MagharOrc:
-            case Race.MechaGnome:
-                return true;
-
-            default:
-                return false;
-        }
+            Race.Nightborne         => true,
+            Race.HighmountainTauren => true,
+            Race.VoidElf            => true,
+            Race.LightforgedDraenei => true,
+            Race.ZandalariTroll     => true,
+            Race.KulTiran           => true,
+            Race.DarkIronDwarf      => true,
+            Race.Vulpera            => true,
+            Race.MagharOrc          => true,
+            Race.MechaGnome         => true,
+            _                       => false
+        };
     }
 
     public override bool IsAlwaysVisibleFor(WorldObject seer)

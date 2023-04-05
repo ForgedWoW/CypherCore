@@ -983,21 +983,13 @@ public sealed class ConditionManager
         {
             var secondResult = EvalRelOp(buffer, player);
 
-            switch (resultLogic)
+            finalResult = resultLogic switch
             {
-                case WorldStateExpressionLogic.And:
-                    finalResult = finalResult && secondResult;
-
-                    break;
-                case WorldStateExpressionLogic.Or:
-                    finalResult = finalResult || secondResult;
-
-                    break;
-                case WorldStateExpressionLogic.Xor:
-                    finalResult = finalResult != secondResult;
-
-                    break;
-            }
+                WorldStateExpressionLogic.And => finalResult && secondResult,
+                WorldStateExpressionLogic.Or  => finalResult || secondResult,
+                WorldStateExpressionLogic.Xor => finalResult != secondResult,
+                _                             => finalResult
+            };
 
             if (buffer.GetCurrentStream().Position < buffer.GetSize())
                 break;
@@ -1020,35 +1012,17 @@ public sealed class ConditionManager
                 break;
 
             var unitValue = GetUnitConditionVariable(unit, otherUnit, (UnitConditionVariable)condition.Variable[i], condition.Value[i]);
-            var meets = false;
 
-            switch ((UnitConditionOp)condition.Op[i])
+            var meets = (UnitConditionOp)condition.Op[i] switch
             {
-                case UnitConditionOp.EqualTo:
-                    meets = unitValue == condition.Value[i];
-
-                    break;
-                case UnitConditionOp.NotEqualTo:
-                    meets = unitValue != condition.Value[i];
-
-                    break;
-                case UnitConditionOp.LessThan:
-                    meets = unitValue < condition.Value[i];
-
-                    break;
-                case UnitConditionOp.LessThanOrEqualTo:
-                    meets = unitValue <= condition.Value[i];
-
-                    break;
-                case UnitConditionOp.GreaterThan:
-                    meets = unitValue > condition.Value[i];
-
-                    break;
-                case UnitConditionOp.GreaterThanOrEqualTo:
-                    meets = unitValue >= condition.Value[i];
-
-                    break;
-            }
+                UnitConditionOp.EqualTo              => unitValue == condition.Value[i],
+                UnitConditionOp.NotEqualTo           => unitValue != condition.Value[i],
+                UnitConditionOp.LessThan             => unitValue < condition.Value[i],
+                UnitConditionOp.LessThanOrEqualTo    => unitValue <= condition.Value[i],
+                UnitConditionOp.GreaterThan          => unitValue > condition.Value[i],
+                UnitConditionOp.GreaterThanOrEqualTo => unitValue >= condition.Value[i],
+                _                                    => false
+            };
 
             if (condition.GetFlags().HasFlag(UnitConditionFlags.LogicOr))
             {
@@ -1625,23 +1599,16 @@ public sealed class ConditionManager
 
         var rightValue = EvalValue(buffer, player);
 
-        switch (compareLogic)
+        return compareLogic switch
         {
-            case WorldStateExpressionComparisonType.Equal:
-                return leftValue == rightValue;
-            case WorldStateExpressionComparisonType.NotEqual:
-                return leftValue != rightValue;
-            case WorldStateExpressionComparisonType.Less:
-                return leftValue < rightValue;
-            case WorldStateExpressionComparisonType.LessOrEqual:
-                return leftValue <= rightValue;
-            case WorldStateExpressionComparisonType.Greater:
-                return leftValue > rightValue;
-            case WorldStateExpressionComparisonType.GreaterOrEqual:
-                return leftValue >= rightValue;
-        }
-
-        return false;
+            WorldStateExpressionComparisonType.Equal          => leftValue == rightValue,
+            WorldStateExpressionComparisonType.NotEqual       => leftValue != rightValue,
+            WorldStateExpressionComparisonType.Less           => leftValue < rightValue,
+            WorldStateExpressionComparisonType.LessOrEqual    => leftValue <= rightValue,
+            WorldStateExpressionComparisonType.Greater        => leftValue > rightValue,
+            WorldStateExpressionComparisonType.GreaterOrEqual => leftValue >= rightValue,
+            _                                                 => false
+        };
     }
 
     private int EvalSingleValue(ByteBuffer buffer, Player player)
@@ -1693,21 +1660,15 @@ public sealed class ConditionManager
 
         var rightValue = EvalSingleValue(buffer, player);
 
-        switch (operatorType)
+        return operatorType switch
         {
-            case WorldStateExpressionOperatorType.Sum:
-                return leftValue + rightValue;
-            case WorldStateExpressionOperatorType.Substraction:
-                return leftValue - rightValue;
-            case WorldStateExpressionOperatorType.Multiplication:
-                return leftValue * rightValue;
-            case WorldStateExpressionOperatorType.Division:
-                return rightValue == 0 ? 0 : leftValue / rightValue;
-            case WorldStateExpressionOperatorType.Remainder:
-                return rightValue == 0 ? 0 : leftValue % rightValue;
-        }
-
-        return leftValue;
+            WorldStateExpressionOperatorType.Sum            => leftValue + rightValue,
+            WorldStateExpressionOperatorType.Substraction   => leftValue - rightValue,
+            WorldStateExpressionOperatorType.Multiplication => leftValue * rightValue,
+            WorldStateExpressionOperatorType.Division       => rightValue == 0 ? 0 : leftValue / rightValue,
+            WorldStateExpressionOperatorType.Remainder      => rightValue == 0 ? 0 : leftValue % rightValue,
+            _                                               => leftValue
+        };
     }
 
     private int GetUnitConditionVariable(Unit unit, Unit otherUnit, UnitConditionVariable variable, int value)
@@ -2561,23 +2522,12 @@ public sealed class ConditionManager
             }
             case ConditionTypes.StandState:
             {
-                bool valid;
-
-                switch (cond.ConditionValue1)
+                bool valid = cond.ConditionValue1 switch
                 {
-                    case 0:
-                        valid = cond.ConditionValue2 <= (uint)UnitStandStateType.Submerged;
-
-                        break;
-                    case 1:
-                        valid = cond.ConditionValue2 <= 1;
-
-                        break;
-                    default:
-                        valid = false;
-
-                        break;
-                }
+                    0 => cond.ConditionValue2 <= (uint)UnitStandStateType.Submerged,
+                    1 => cond.ConditionValue2 <= 1,
+                    _ => false
+                };
 
                 if (!valid)
                 {
@@ -3286,23 +3236,16 @@ public sealed class ConditionManager
     }
     private bool PlayerConditionCompare(int comparisonType, int value1, int value2)
     {
-        switch (comparisonType)
+        return comparisonType switch
         {
-            case 1:
-                return value1 == value2;
-            case 2:
-                return value1 != value2;
-            case 3:
-                return value1 > value2;
-            case 4:
-                return value1 >= value2;
-            case 5:
-                return value1 < value2;
-            case 6:
-                return value1 <= value2;
-        }
-
-        return false;
+            1 => value1 == value2,
+            2 => value1 != value2,
+            3 => value1 > value2,
+            4 => value1 >= value2,
+            5 => value1 < value2,
+            6 => value1 <= value2,
+            _ => false
+        };
     }
 
     private bool PlayerConditionLogic(uint logic, bool[] results)
@@ -3314,17 +3257,12 @@ public sealed class ConditionManager
         var result = results[0];
 
         for (var i = 1; i < results.Length; ++i)
-            switch ((logic >> (2 * (i - 1))) & 3)
+            result = ((logic >> (2 * (i - 1))) & 3) switch
             {
-                case 1:
-                    result = result && results[i];
-
-                    break;
-                case 2:
-                    result = result || results[i];
-
-                    break;
-            }
+                1 => result && results[i],
+                2 => result || results[i],
+                _ => result
+            };
 
         return result;
     }

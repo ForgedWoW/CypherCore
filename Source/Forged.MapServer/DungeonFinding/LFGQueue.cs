@@ -317,29 +317,15 @@ public class LFGQueue
 
             role &= ~LfgRoles.Leader;
 
-            switch (role)
+            waitTime = role switch
             {
-                case LfgRoles.None: // Should not happen - just in case
-                    waitTime = -1;
-
-                    break;
-                case LfgRoles.Tank:
-                    waitTime = wtTank;
-
-                    break;
-                case LfgRoles.Healer:
-                    waitTime = wtHealer;
-
-                    break;
-                case LfgRoles.Damage:
-                    waitTime = wtDps;
-
-                    break;
-                default:
-                    waitTime = wtAvg;
-
-                    break;
-            }
+                LfgRoles.None => // Should not happen - just in case
+                    -1,
+                LfgRoles.Tank   => wtTank,
+                LfgRoles.Healer => wtHealer,
+                LfgRoles.Damage => wtDps,
+                _               => wtAvg
+            };
 
             if (string.IsNullOrEmpty(queueinfo.bestCompatible))
                 FindBestCompatibleInQueue(itQueue.Key, itQueue.Value);
@@ -727,31 +713,20 @@ public class LFGQueue
 
     private string GetCompatibleString(LfgCompatibility compatibles)
     {
-        switch (compatibles)
+        return compatibles switch
         {
-            case LfgCompatibility.Pending:
-                return "Pending";
-            case LfgCompatibility.BadStates:
-                return "Compatibles (Bad States)";
-            case LfgCompatibility.Match:
-                return "Match";
-            case LfgCompatibility.WithLessPlayers:
-                return "Compatibles (Not enough players)";
-            case LfgCompatibility.HasIgnores:
-                return "Has ignores";
-            case LfgCompatibility.MultipleLfgGroups:
-                return "Multiple Lfg Groups";
-            case LfgCompatibility.NoDungeons:
-                return "Incompatible dungeons";
-            case LfgCompatibility.NoRoles:
-                return "Incompatible roles";
-            case LfgCompatibility.TooMuchPlayers:
-                return "Too much players";
-            case LfgCompatibility.WrongGroupSize:
-                return "Wrong group size";
-            default:
-                return "Unknown";
-        }
+            LfgCompatibility.Pending           => "Pending",
+            LfgCompatibility.BadStates         => "Compatibles (Bad States)",
+            LfgCompatibility.Match             => "Match",
+            LfgCompatibility.WithLessPlayers   => "Compatibles (Not enough players)",
+            LfgCompatibility.HasIgnores        => "Has ignores",
+            LfgCompatibility.MultipleLfgGroups => "Multiple Lfg Groups",
+            LfgCompatibility.NoDungeons        => "Incompatible dungeons",
+            LfgCompatibility.NoRoles           => "Incompatible roles",
+            LfgCompatibility.TooMuchPlayers    => "Too much players",
+            LfgCompatibility.WrongGroupSize    => "Wrong group size",
+            _                                  => "Unknown"
+        };
     }
 
     private void RemoveFromCompatibles(ObjectGuid guid)

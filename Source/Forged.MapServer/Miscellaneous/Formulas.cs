@@ -217,28 +217,16 @@ public class Formulas
             // set to < 1 to, so client will display raid related strings
             rate = 0.99f;
         else
-            switch (count)
+            rate = count switch
             {
-                case 0:
-                case 1:
-                case 2:
-                    rate = 1.0f;
-
-                    break;
-                case 3:
-                    rate = 1.166f;
-
-                    break;
-                case 4:
-                    rate = 1.3f;
-
-                    break;
-                case 5:
-                default:
-                    rate = 1.4f;
-
-                    break;
-            }
+                0 => 1.0f,
+                1 => 1.0f,
+                2 => 1.0f,
+                3 => 1.166f,
+                4 => 1.3f,
+                5 => 1.4f,
+                _ => 1.4f
+            };
 
         ScriptManager.ForEach<IFormulaOnGroupRateCaclulation>(p => p.OnGroupRateCalculation(rate, count, isRaid));
 

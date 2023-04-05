@@ -112,24 +112,13 @@ public partial class Player
 
     public override void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, out double minDamage, out double maxDamage)
     {
-        UnitMods unitMod;
-
-        switch (attType)
+        UnitMods unitMod = attType switch
         {
-            case WeaponAttackType.BaseAttack:
-            default:
-                unitMod = UnitMods.DamageMainHand;
-
-                break;
-            case WeaponAttackType.OffAttack:
-                unitMod = UnitMods.DamageOffHand;
-
-                break;
-            case WeaponAttackType.RangedAttack:
-                unitMod = UnitMods.DamageRanged;
-
-                break;
-        }
+            WeaponAttackType.BaseAttack   => UnitMods.DamageMainHand,
+            WeaponAttackType.OffAttack    => UnitMods.DamageOffHand,
+            WeaponAttackType.RangedAttack => UnitMods.DamageRanged,
+            _                             => UnitMods.DamageMainHand
+        };
 
         var attackPowerMod = Math.Max(GetApMultiplier(attType, normalized), 0.25f);
 
@@ -964,75 +953,42 @@ public partial class Player
 
     private float GetGameTableColumnForCombatRating(GtCombatRatingsRecord row, CombatRating rating)
     {
-        switch (rating)
+        return rating switch
         {
-            case CombatRating.Amplify:
-                return row.Amplify;
-            case CombatRating.DefenseSkill:
-                return row.DefenseSkill;
-            case CombatRating.Dodge:
-                return row.Dodge;
-            case CombatRating.Parry:
-                return row.Parry;
-            case CombatRating.Block:
-                return row.Block;
-            case CombatRating.HitMelee:
-                return row.HitMelee;
-            case CombatRating.HitRanged:
-                return row.HitRanged;
-            case CombatRating.HitSpell:
-                return row.HitSpell;
-            case CombatRating.CritMelee:
-                return row.CritMelee;
-            case CombatRating.CritRanged:
-                return row.CritRanged;
-            case CombatRating.CritSpell:
-                return row.CritSpell;
-            case CombatRating.Corruption:
-                return row.Corruption;
-            case CombatRating.CorruptionResistance:
-                return row.CorruptionResistance;
-            case CombatRating.Speed:
-                return row.Speed;
-            case CombatRating.ResilienceCritTaken:
-                return row.ResilienceCritTaken;
-            case CombatRating.ResiliencePlayerDamage:
-                return row.ResiliencePlayerDamage;
-            case CombatRating.Lifesteal:
-                return row.Lifesteal;
-            case CombatRating.HasteMelee:
-                return row.HasteMelee;
-            case CombatRating.HasteRanged:
-                return row.HasteRanged;
-            case CombatRating.HasteSpell:
-                return row.HasteSpell;
-            case CombatRating.Avoidance:
-                return row.Avoidance;
-            case CombatRating.Studiness:
-                return row.Sturdiness;
-            case CombatRating.Unused7:
-                return row.Unused7;
-            case CombatRating.Expertise:
-                return row.Expertise;
-            case CombatRating.ArmorPenetration:
-                return row.ArmorPenetration;
-            case CombatRating.Mastery:
-                return row.Mastery;
-            case CombatRating.PvpPower:
-                return row.PvPPower;
-            case CombatRating.Cleave:
-                return row.Cleave;
-            case CombatRating.VersatilityDamageDone:
-                return row.VersatilityDamageDone;
-            case CombatRating.VersatilityHealingDone:
-                return row.VersatilityHealingDone;
-            case CombatRating.VersatilityDamageTaken:
-                return row.VersatilityDamageTaken;
-            case CombatRating.Unused12:
-                return row.Unused12;
-        }
-
-        return 1.0f;
+            CombatRating.Amplify                => row.Amplify,
+            CombatRating.DefenseSkill           => row.DefenseSkill,
+            CombatRating.Dodge                  => row.Dodge,
+            CombatRating.Parry                  => row.Parry,
+            CombatRating.Block                  => row.Block,
+            CombatRating.HitMelee               => row.HitMelee,
+            CombatRating.HitRanged              => row.HitRanged,
+            CombatRating.HitSpell               => row.HitSpell,
+            CombatRating.CritMelee              => row.CritMelee,
+            CombatRating.CritRanged             => row.CritRanged,
+            CombatRating.CritSpell              => row.CritSpell,
+            CombatRating.Corruption             => row.Corruption,
+            CombatRating.CorruptionResistance   => row.CorruptionResistance,
+            CombatRating.Speed                  => row.Speed,
+            CombatRating.ResilienceCritTaken    => row.ResilienceCritTaken,
+            CombatRating.ResiliencePlayerDamage => row.ResiliencePlayerDamage,
+            CombatRating.Lifesteal              => row.Lifesteal,
+            CombatRating.HasteMelee             => row.HasteMelee,
+            CombatRating.HasteRanged            => row.HasteRanged,
+            CombatRating.HasteSpell             => row.HasteSpell,
+            CombatRating.Avoidance              => row.Avoidance,
+            CombatRating.Studiness              => row.Sturdiness,
+            CombatRating.Unused7                => row.Unused7,
+            CombatRating.Expertise              => row.Expertise,
+            CombatRating.ArmorPenetration       => row.ArmorPenetration,
+            CombatRating.Mastery                => row.Mastery,
+            CombatRating.PvpPower               => row.PvPPower,
+            CombatRating.Cleave                 => row.Cleave,
+            CombatRating.VersatilityDamageDone  => row.VersatilityDamageDone,
+            CombatRating.VersatilityHealingDone => row.VersatilityHealingDone,
+            CombatRating.VersatilityDamageTaken => row.VersatilityDamageTaken,
+            CombatRating.Unused12               => row.Unused12,
+            _                                   => 1.0f
+        };
     }
 
     private float GetHealthBonusFromStamina()

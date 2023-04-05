@@ -969,19 +969,14 @@ public class PathGenerator
 
         data.type_flags &= ~LiquidHeaderTypeFlags.DarkWater;
 
-        switch (data.type_flags)
+        return data.type_flags switch
         {
-            case LiquidHeaderTypeFlags.Water:
-            case LiquidHeaderTypeFlags.Ocean:
-                return NavTerrainFlag.Water;
-
-            case LiquidHeaderTypeFlags.Magma:
-            case LiquidHeaderTypeFlags.Slime:
-                return NavTerrainFlag.MagmaSlime;
-
-            default:
-                return NavTerrainFlag.Ground;
-        }
+            LiquidHeaderTypeFlags.Water => NavTerrainFlag.Water,
+            LiquidHeaderTypeFlags.Ocean => NavTerrainFlag.Water,
+            LiquidHeaderTypeFlags.Magma => NavTerrainFlag.MagmaSlime,
+            LiquidHeaderTypeFlags.Slime => NavTerrainFlag.MagmaSlime,
+            _                           => NavTerrainFlag.Ground
+        };
     }
 
     private ulong GetPathPolyByPosition(ulong[] polyPath, uint polyPathSize, float[] point, ref float distance)

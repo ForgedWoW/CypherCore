@@ -211,25 +211,15 @@ public class PlayerAI : UnitAI
         var rangedTemplate = rangedItem ? rangedItem.Template : null;
 
         if (rangedTemplate != null)
-            switch ((ItemSubClassWeapon)rangedTemplate.SubClass)
+            rangedAttackSpell = (ItemSubClassWeapon)rangedTemplate.SubClass switch
             {
-                case ItemSubClassWeapon.Bow:
-                case ItemSubClassWeapon.Gun:
-                case ItemSubClassWeapon.Crossbow:
-                    rangedAttackSpell = Spells.SHOOT;
-
-                    break;
-
-                case ItemSubClassWeapon.Thrown:
-                    rangedAttackSpell = Spells.THROW;
-
-                    break;
-
-                case ItemSubClassWeapon.Wand:
-                    rangedAttackSpell = Spells.WAND;
-
-                    break;
-            }
+                ItemSubClassWeapon.Bow      => Spells.SHOOT,
+                ItemSubClassWeapon.Gun      => Spells.SHOOT,
+                ItemSubClassWeapon.Crossbow => Spells.SHOOT,
+                ItemSubClassWeapon.Thrown   => Spells.THROW,
+                ItemSubClassWeapon.Wand     => Spells.WAND,
+                _                           => rangedAttackSpell
+            };
 
         if (rangedAttackSpell == 0)
             return;

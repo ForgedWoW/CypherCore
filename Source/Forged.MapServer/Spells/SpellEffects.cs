@@ -5096,37 +5096,30 @@ public partial class Spell
         TempSummon summon = null;
 
         // determine how many units should be summoned
-        uint numSummons;
 
         // some spells need to summon many units, for those spells number of summons is stored in effect value
         // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc
         // and in spell attributes, possibly we need to add a table for those)
         // so here's a list of MiscValueB values, which is currently most generic check
-        switch (EffectInfo.MiscValueB)
+        uint numSummons = EffectInfo.MiscValueB switch
         {
-            case 64:
-            case 61:
-            case 1101:
-            case 66:
-            case 648:
-            case 2301:
-            case 1061:
-            case 1261:
-            case 629:
-            case 181:
-            case 715:
-            case 1562:
-            case 833:
-            case 1161:
-            case 713:
-                numSummons = (uint)(Damage > 0 ? Damage : 1);
-
-                break;
-            default:
-                numSummons = 1;
-
-                break;
-        }
+            64   => (uint)(Damage > 0 ? Damage : 1),
+            61   => (uint)(Damage > 0 ? Damage : 1),
+            1101 => (uint)(Damage > 0 ? Damage : 1),
+            66   => (uint)(Damage > 0 ? Damage : 1),
+            648  => (uint)(Damage > 0 ? Damage : 1),
+            2301 => (uint)(Damage > 0 ? Damage : 1),
+            1061 => (uint)(Damage > 0 ? Damage : 1),
+            1261 => (uint)(Damage > 0 ? Damage : 1),
+            629  => (uint)(Damage > 0 ? Damage : 1),
+            181  => (uint)(Damage > 0 ? Damage : 1),
+            715  => (uint)(Damage > 0 ? Damage : 1),
+            1562 => (uint)(Damage > 0 ? Damage : 1),
+            833  => (uint)(Damage > 0 ? Damage : 1),
+            1161 => (uint)(Damage > 0 ? Damage : 1),
+            713  => (uint)(Damage > 0 ? Damage : 1),
+            _    => 1
+        };
 
         switch (properties.Control)
         {

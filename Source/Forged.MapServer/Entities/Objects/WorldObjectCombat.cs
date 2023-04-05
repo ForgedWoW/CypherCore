@@ -736,18 +736,14 @@ public class WorldObjectCombat
         if (spellInfo.HasAttribute(SpellAttr3.AlwaysHit))
             return SpellMissInfo.None;
 
-        switch (spellInfo.DmgClass)
+        return spellInfo.DmgClass switch
         {
-            case SpellDmgClass.Ranged:
-            case SpellDmgClass.Melee:
-                return MeleeSpellHitResult(victim, spellInfo);
-            case SpellDmgClass.None:
-                return SpellMissInfo.None;
-            case SpellDmgClass.Magic:
-                return MagicSpellHitResult(victim, spellInfo);
-        }
-
-        return SpellMissInfo.None;
+            SpellDmgClass.Ranged => MeleeSpellHitResult(victim, spellInfo),
+            SpellDmgClass.Melee  => MeleeSpellHitResult(victim, spellInfo),
+            SpellDmgClass.None   => SpellMissInfo.None,
+            SpellDmgClass.Magic  => MagicSpellHitResult(victim, spellInfo),
+            _                    => SpellMissInfo.None
+        };
     }
     private SpellMissInfo MagicSpellHitResult(Unit victim, SpellInfo spellInfo)
     {

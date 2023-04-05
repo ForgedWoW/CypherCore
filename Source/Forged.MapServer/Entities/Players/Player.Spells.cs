@@ -718,26 +718,14 @@ public partial class Player
                         if (proto.Class == ItemClass.Weapon)
                         {
                             // offhand item cannot proc from main hand hit etc
-                            byte slot;
 
-                            switch (damageInfo.AttackType)
+                            byte slot = damageInfo.AttackType switch
                             {
-                                case WeaponAttackType.BaseAttack:
-                                case WeaponAttackType.RangedAttack:
-                                    slot = EquipmentSlot.MainHand;
-
-                                    break;
-
-                                case WeaponAttackType.OffAttack:
-                                    slot = EquipmentSlot.OffHand;
-
-                                    break;
-
-                                default:
-                                    slot = EquipmentSlot.End;
-
-                                    break;
-                            }
+                                WeaponAttackType.BaseAttack   => EquipmentSlot.MainHand,
+                                WeaponAttackType.RangedAttack => EquipmentSlot.MainHand,
+                                WeaponAttackType.OffAttack    => EquipmentSlot.OffHand,
+                                _                             => EquipmentSlot.End
+                            };
 
                             if (slot != i)
                                 continue;

@@ -1191,35 +1191,16 @@ public class ItemHandler : IWorldSessionHandler
         stmt.AddValue(3, (uint)item.ItemData.DynamicFlags);
         trans.Append(stmt);
 
-        item.Entry = gift.Entry;
-
-        switch (item.Entry)
+        item.Entry = item.Entry switch
         {
-            case 5042:
-                item.Entry = 5043;
-
-                break;
-            case 5048:
-                item.Entry = 5044;
-
-                break;
-            case 17303:
-                item.Entry = 17302;
-
-                break;
-            case 17304:
-                item.Entry = 17305;
-
-                break;
-            case 17307:
-                item.Entry = 17308;
-
-                break;
-            case 21830:
-                item.Entry = 21831;
-
-                break;
-        }
+            5042  => 5043,
+            5048  => 5044,
+            17303 => 17302,
+            17304 => 17305,
+            17307 => 17308,
+            21830 => 21831,
+            _     => gift.Entry
+        };
 
         item.SetGiftCreator(Player.GUID);
         item.ReplaceAllItemFlags(ItemFieldFlags.Wrapped);

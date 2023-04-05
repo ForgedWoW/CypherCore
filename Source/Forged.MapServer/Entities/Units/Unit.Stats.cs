@@ -997,27 +997,14 @@ public partial class Unit
 
     private Stats GetStatByAuraGroup(UnitMods unitMod)
     {
-        var stat = Stats.Strength;
-
-        switch (unitMod)
+        var stat = unitMod switch
         {
-            case UnitMods.StatStrength:
-                stat = Stats.Strength;
-
-                break;
-            case UnitMods.StatAgility:
-                stat = Stats.Agility;
-
-                break;
-            case UnitMods.StatStamina:
-                stat = Stats.Stamina;
-
-                break;
-            case UnitMods.StatIntellect:
-                stat = Stats.Intellect;
-
-                break;
-        }
+            UnitMods.StatStrength  => Stats.Strength,
+            UnitMods.StatAgility   => Stats.Agility,
+            UnitMods.StatStamina   => Stats.Stamina,
+            UnitMods.StatIntellect => Stats.Intellect,
+            _                      => Stats.Strength
+        };
 
         return stat;
     }
@@ -1064,21 +1051,13 @@ public partial class Unit
 
         if (thisPlayer != null)
         {
-            switch (attackType)
+            chance = attackType switch
             {
-                case WeaponAttackType.BaseAttack:
-                    chance = thisPlayer.ActivePlayerData.CritPercentage;
-
-                    break;
-                case WeaponAttackType.OffAttack:
-                    chance = thisPlayer.ActivePlayerData.OffhandCritPercentage;
-
-                    break;
-                case WeaponAttackType.RangedAttack:
-                    chance = thisPlayer.ActivePlayerData.RangedCritPercentage;
-
-                    break;
-            }
+                WeaponAttackType.BaseAttack   => thisPlayer.ActivePlayerData.CritPercentage,
+                WeaponAttackType.OffAttack    => thisPlayer.ActivePlayerData.OffhandCritPercentage,
+                WeaponAttackType.RangedAttack => thisPlayer.ActivePlayerData.RangedCritPercentage,
+                _                             => chance
+            };
         }
         else
         {

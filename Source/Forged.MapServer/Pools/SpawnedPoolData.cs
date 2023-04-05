@@ -53,17 +53,13 @@ public class SpawnedPoolData
 
     public bool IsSpawnedObject<T>(ulong dbGuid)
     {
-        switch (typeof(T).Name)
+        return typeof(T).Name switch
         {
-            case "Creature":
-                return _spawnedCreatures.Contains(dbGuid);
-            case "GameObject":
-                return _spawnedGameobjects.Contains(dbGuid);
-            case "Pool":
-                return _spawnedPools.ContainsKey(dbGuid);
-            default:
-                return false;
-        }
+            "Creature"   => _spawnedCreatures.Contains(dbGuid),
+            "GameObject" => _spawnedGameobjects.Contains(dbGuid),
+            "Pool"       => _spawnedPools.ContainsKey(dbGuid),
+            _            => false
+        };
     }
 
     public bool IsSpawnedObject(SpawnObjectType type, ulong dbGuidOrPoolId)

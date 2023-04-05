@@ -71,21 +71,29 @@ public class PacketManager
 
     public bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
     {
-        switch (opcode)
+        return opcode switch
         {
-            case ServerOpcodes.QuestGiverStatus:  // ClientQuest
-            case ServerOpcodes.DuelRequested:     // Client
-            case ServerOpcodes.DuelInBounds:      // Client
-            case ServerOpcodes.QueryTimeResponse: // Client
-            case ServerOpcodes.DuelWinner:        // Client
-            case ServerOpcodes.DuelComplete:      // Client
-            case ServerOpcodes.DuelOutOfBounds:   // Client
-            case ServerOpcodes.AttackStop:        // Client
-            case ServerOpcodes.AttackStart:       // Client
-            case ServerOpcodes.MountResult:       // Client
-                return true;
-            default:
-                return false;
-        }
+            ServerOpcodes.QuestGiverStatus => // ClientQuest
+                true,
+            ServerOpcodes.DuelRequested => // Client
+                true,
+            ServerOpcodes.DuelInBounds => // Client
+                true,
+            ServerOpcodes.QueryTimeResponse => // Client
+                true,
+            ServerOpcodes.DuelWinner => // Client
+                true,
+            ServerOpcodes.DuelComplete => // Client
+                true,
+            ServerOpcodes.DuelOutOfBounds => // Client
+                true,
+            ServerOpcodes.AttackStop => // Client
+                true,
+            ServerOpcodes.AttackStart => // Client
+                true,
+            ServerOpcodes.MountResult => // Client
+                true,
+            _ => false
+        };
     }
 }

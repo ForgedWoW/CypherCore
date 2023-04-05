@@ -109,20 +109,16 @@ public class ItemEnchantmentManager
         if (randPropPointsEntry == null)
             return 0;
 
-        switch (quality)
+        return quality switch
         {
-            case ItemQuality.Uncommon:
-                return randPropPointsEntry.GoodF[propIndex];
-            case ItemQuality.Rare:
-            case ItemQuality.Heirloom:
-                return randPropPointsEntry.SuperiorF[propIndex];
-            case ItemQuality.Epic:
-            case ItemQuality.Legendary:
-            case ItemQuality.Artifact:
-                return randPropPointsEntry.EpicF[propIndex];
-        }
-
-        return 0;
+            ItemQuality.Uncommon  => randPropPointsEntry.GoodF[propIndex],
+            ItemQuality.Rare      => randPropPointsEntry.SuperiorF[propIndex],
+            ItemQuality.Heirloom  => randPropPointsEntry.SuperiorF[propIndex],
+            ItemQuality.Epic      => randPropPointsEntry.EpicF[propIndex],
+            ItemQuality.Legendary => randPropPointsEntry.EpicF[propIndex],
+            ItemQuality.Artifact  => randPropPointsEntry.EpicF[propIndex],
+            _                     => 0
+        };
     }
 
     public void LoadItemRandomBonusListTemplates()

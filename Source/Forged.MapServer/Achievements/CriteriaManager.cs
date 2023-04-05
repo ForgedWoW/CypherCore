@@ -54,18 +54,19 @@ public class CriteriaManager
 
     public static bool IsGroupCriteriaType(CriteriaType type)
     {
-        switch (type)
+        return type switch
         {
-            case CriteriaType.KillCreature:
-            case CriteriaType.WinBattleground:
-            case CriteriaType.BeSpellTarget: // NYI
-            case CriteriaType.WinAnyRankedArena:
-            case CriteriaType.GainAura:           // NYI
-            case CriteriaType.WinAnyBattleground: // NYI
-                return true;
-        }
-
-        return false;
+            CriteriaType.KillCreature    => true,
+            CriteriaType.WinBattleground => true,
+            CriteriaType.BeSpellTarget => // NYI
+                true,
+            CriteriaType.WinAnyRankedArena => true,
+            CriteriaType.GainAura => // NYI
+                true,
+            CriteriaType.WinAnyBattleground => // NYI
+                true,
+            _ => false
+        };
     }
 
     public static void WalkCriteriaTree(CriteriaTree tree, Action<CriteriaTree> func)
@@ -445,43 +446,40 @@ public class CriteriaManager
 
     private bool IsCriteriaTypeStoredByAsset(CriteriaType type)
     {
-        switch (type)
+        return type switch
         {
-            case CriteriaType.KillCreature:
-            case CriteriaType.WinBattleground:
-            case CriteriaType.SkillRaised:
-            case CriteriaType.EarnAchievement:
-            case CriteriaType.CompleteQuestsInZone:
-            case CriteriaType.ParticipateInBattleground:
-            case CriteriaType.KilledByCreature:
-            case CriteriaType.CompleteQuest:
-            case CriteriaType.BeSpellTarget:
-            case CriteriaType.CastSpell:
-            case CriteriaType.TrackedWorldStateUIModified:
-            case CriteriaType.PVPKillInArea:
-            case CriteriaType.LearnOrKnowSpell:
-            case CriteriaType.AcquireItem:
-            case CriteriaType.AchieveSkillStep:
-            case CriteriaType.UseItem:
-            case CriteriaType.LootItem:
-            case CriteriaType.RevealWorldMapOverlay:
-            case CriteriaType.ReputationGained:
-            case CriteriaType.EquipItemInSlot:
-            case CriteriaType.DeliverKillingBlowToClass:
-            case CriteriaType.DeliverKillingBlowToRace:
-            case CriteriaType.DoEmote:
-            case CriteriaType.EquipItem:
-            case CriteriaType.UseGameobject:
-            case CriteriaType.GainAura:
-            case CriteriaType.CatchFishInFishingHole:
-            case CriteriaType.LearnSpellFromSkillLine:
-            case CriteriaType.GetLootByType:
-            case CriteriaType.LandTargetedSpellOnTarget:
-            case CriteriaType.LearnTradeskillSkillLine:
-                return true;
-
-            default:
-                return false;
-        }
+            CriteriaType.KillCreature                => true,
+            CriteriaType.WinBattleground             => true,
+            CriteriaType.SkillRaised                 => true,
+            CriteriaType.EarnAchievement             => true,
+            CriteriaType.CompleteQuestsInZone        => true,
+            CriteriaType.ParticipateInBattleground   => true,
+            CriteriaType.KilledByCreature            => true,
+            CriteriaType.CompleteQuest               => true,
+            CriteriaType.BeSpellTarget               => true,
+            CriteriaType.CastSpell                   => true,
+            CriteriaType.TrackedWorldStateUIModified => true,
+            CriteriaType.PVPKillInArea               => true,
+            CriteriaType.LearnOrKnowSpell            => true,
+            CriteriaType.AcquireItem                 => true,
+            CriteriaType.AchieveSkillStep            => true,
+            CriteriaType.UseItem                     => true,
+            CriteriaType.LootItem                    => true,
+            CriteriaType.RevealWorldMapOverlay       => true,
+            CriteriaType.ReputationGained            => true,
+            CriteriaType.EquipItemInSlot             => true,
+            CriteriaType.DeliverKillingBlowToClass   => true,
+            CriteriaType.DeliverKillingBlowToRace    => true,
+            CriteriaType.DoEmote                     => true,
+            CriteriaType.EquipItem                   => true,
+            CriteriaType.UseGameobject               => true,
+            CriteriaType.GainAura                    => true,
+            CriteriaType.CatchFishInFishingHole      => true,
+            CriteriaType.LearnSpellFromSkillLine     => true,
+            CriteriaType.GetLootByType               => true,
+            CriteriaType.LandTargetedSpellOnTarget   => true,
+            CriteriaType.LearnTradeskillSkillLine    => true,
+            _                                        => false
+        };
     }
 }

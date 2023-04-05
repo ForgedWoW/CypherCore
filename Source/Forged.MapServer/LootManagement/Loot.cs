@@ -242,17 +242,13 @@ public class Loot
                     if (proto.Quality < group.LootThreshold)
                         item.IsUnderthreshold = true;
                     else
-                        switch (_lootMethod)
+                        item.IsBlocked = _lootMethod switch
                         {
-                            case LootMethod.MasterLoot:
-                            case LootMethod.GroupLoot:
-                            case LootMethod.NeedBeforeGreed:
-                            {
-                                item.IsBlocked = true;
-
-                                break;
-                            }
-                        }
+                            LootMethod.MasterLoot      => true,
+                            LootMethod.GroupLoot       => true,
+                            LootMethod.NeedBeforeGreed => true,
+                            _                          => item.IsBlocked
+                        };
                 }
             }
         }
@@ -579,34 +575,21 @@ public class Loot
     }
     private LootStore GetLootStorage(LootStorageType storageType)
     {
-        switch (storageType)
+        return storageType switch
         {
-            case LootStorageType.Creature:
-                return _lootStorage.Creature;
-            case LootStorageType.Gameobject:
-                return _lootStorage.Gameobject;
-            case LootStorageType.Disenchant:
-                return _lootStorage.Disenchant;
-            case LootStorageType.Fishing:
-                return _lootStorage.Fishing;
-            case LootStorageType.Items:
-                return _lootStorage.Items;
-            case LootStorageType.Mail:
-                return _lootStorage.Mail;
-            case LootStorageType.Milling:
-                return _lootStorage.Milling;
-            case LootStorageType.Pickpocketing:
-                return _lootStorage.Pickpocketing;
-            case LootStorageType.Prospecting:
-                return _lootStorage.Prospecting;
-            case LootStorageType.Reference:
-                return _lootStorage.Reference;
-            case LootStorageType.Skinning:
-                return _lootStorage.Skinning;
-            case LootStorageType.Spell:
-                return _lootStorage.Spell;
-        }
-
-        return _lootStorage.Reference; // it will never hit this. Shutup compiler.
+            LootStorageType.Creature      => _lootStorage.Creature,
+            LootStorageType.Gameobject    => _lootStorage.Gameobject,
+            LootStorageType.Disenchant    => _lootStorage.Disenchant,
+            LootStorageType.Fishing       => _lootStorage.Fishing,
+            LootStorageType.Items         => _lootStorage.Items,
+            LootStorageType.Mail          => _lootStorage.Mail,
+            LootStorageType.Milling       => _lootStorage.Milling,
+            LootStorageType.Pickpocketing => _lootStorage.Pickpocketing,
+            LootStorageType.Prospecting   => _lootStorage.Prospecting,
+            LootStorageType.Reference     => _lootStorage.Reference,
+            LootStorageType.Skinning      => _lootStorage.Skinning,
+            LootStorageType.Spell         => _lootStorage.Spell,
+            _                             => _lootStorage.Reference // it will never hit this. Shutup compiler.
+        };
     }
 }
