@@ -136,7 +136,7 @@ public partial class Player
         if (!mapEntry.IsRaid())
             return DungeonDifficultyId;
 
-        var defaultDifficulty = Global.DB2Mgr.GetDefaultMapDifficulty(mapEntry.Id);
+        var defaultDifficulty = DB2Manager.GetDefaultMapDifficulty(mapEntry.Id);
 
         if (defaultDifficulty == null)
             return LegacyRaidDifficultyId;
@@ -256,11 +256,11 @@ public partial class Player
                 return false;
 
             var targetDifficulty = GetDifficultyId(mapEntry);
-            var mapDiff = Global.DB2Mgr.GetDownscaledMapDifficultyData(targetMap, ref targetDifficulty);
+            var mapDiff = DB2Manager.GetDownscaledMapDifficultyData(targetMap, ref targetDifficulty);
 
             if (!GetDefaultValue("Instance.IgnoreLevel", false))
             {
-                var mapDifficultyConditions = Global.DB2Mgr.GetMapDifficultyConditions(mapDiff.Id);
+                var mapDifficultyConditions = DB2Manager.GetMapDifficultyConditions(mapDiff.Id);
 
                 foreach (var pair in mapDifficultyConditions)
                     if (!ConditionManager.IsPlayerMeetingCondition(this, pair.Item2))
@@ -320,7 +320,7 @@ public partial class Player
                     {
                         SendSysMessage("{0}", ar.QuestFailedText);
                     }
-                    else if (!mapDiff.Message[Global.WorldMgr.DefaultDbcLocale].IsEmpty() && mapDiff.Message[Global.WorldMgr.DefaultDbcLocale][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
+                    else if (!mapDiff.Message[WorldManager.DefaultDbcLocale].IsEmpty() && mapDiff.Message[WorldManager.DefaultDbcLocale][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
                     {
                         if (abortParams != null)
                         {
@@ -471,7 +471,7 @@ public partial class Player
         }
         else if (overrideZonePvpType == ZonePVPTypeOverride.None)
         {
-            if (InBattleground || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && Global.WorldStateMgr.GetValue(area.PvpCombatWorldStateID, Location.Map) != 0))
+            if (InBattleground || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && WorldManager.GetValue(area.PvpCombatWorldStateID, Location.Map) != 0))
             {
                 PvpInfo.IsInHostileArea = true;
             }
@@ -490,7 +490,7 @@ public partial class Player
                     else if (factionTemplate.EnemyGroup.HasAnyFlag(area.FactionGroupMask))
                         PvpInfo.IsInHostileArea = true;
                     else
-                        PvpInfo.IsInHostileArea = Global.WorldMgr.IsPvPRealm;
+                        PvpInfo.IsInHostileArea = WorldManager.IsPvPRealm;
                 }
             }
         }
@@ -530,7 +530,7 @@ public partial class Player
         if (oldZone != newZone)
         {
             Global.OutdoorPvPMgr.HandlePlayerLeaveZone(this, oldZone);
-            Global.BattleFieldMgr.HandlePlayerLeaveZone(this, oldZone);
+            BattleFieldManager.HandlePlayerLeaveZone(this, oldZone);
         }
 
         // group update
@@ -589,12 +589,12 @@ public partial class Player
         UpdateZoneDependentAuras(newZone);
 
         // call enter script hooks after everyting else has processed
-        Global.ScriptMgr.ForEach<IPlayerOnUpdateZone>(p => p.OnUpdateZone(this, newZone, newArea));
+        ScriptManager.ForEach<IPlayerOnUpdateZone>(p => p.OnUpdateZone(this, newZone, newArea));
 
         if (oldZone != newZone)
         {
             Global.OutdoorPvPMgr.HandlePlayerEnterZone(this, newZone);
-            Global.BattleFieldMgr.HandlePlayerEnterZone(this, newZone);
+            BattleFieldManager.HandlePlayerEnterZone(this, newZone);
             SendInitWorldStates(newZone, newArea); // only if really enters to new zone, not just area change, works strange...
             var guild = Guild;
 

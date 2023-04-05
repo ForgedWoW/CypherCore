@@ -32,7 +32,7 @@ public partial class Player
 
         SQLTransaction trans = new();
         _SaveActions(trans);
-        DB.Characters.CommitTransaction(trans);
+        CharacterDatabase.CommitTransaction(trans);
 
         // TO-DO: We need more research to know what happens with warlock's reagent
         var pet = CurrentPet;
@@ -192,7 +192,7 @@ public partial class Player
 
         foreach (var glyphId in GetGlyphs(spec.OrderIndex))
         {
-            var bindableSpells = Global.DB2Mgr.GetGlyphBindableSpells(glyphId);
+            var bindableSpells = DB2Manager.GetGlyphBindableSpells(glyphId);
 
             foreach (var bindableSpell in bindableSpells)
                 if (HasSpell(bindableSpell) && !_overrideSpells.ContainsKey(bindableSpell))
@@ -324,7 +324,7 @@ public partial class Player
 
     public uint GetDefaultSpecId()
     {
-        return Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class).Id;
+        return DB2Manager.GetDefaultChrSpecializationForClass(Class).Id;
     }
 
     public List<uint> GetGlyphs(byte spec)
@@ -408,7 +408,7 @@ public partial class Player
         if (level < PlayerConst.MinSpecializationLevel)
             ResetTalentSpecialization();
 
-        var talentTiers = Global.DB2Mgr.GetNumTalentsAtLevel(level, Class);
+        var talentTiers = DB2Manager.GetNumTalentsAtLevel(level, Class);
 
         if (level < 10)
         {
@@ -420,7 +420,7 @@ public partial class Player
             if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
                 for (var t = talentTiers; t < PlayerConst.MaxTalentTiers; ++t)
                     for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-                        foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, t, c))
+                        foreach (var talent in DB2Manager.GetTalentsByPosition(Class, t, c))
                             RemoveTalent(talent);
         }
 
@@ -429,7 +429,7 @@ public partial class Player
         if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
             for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
             {
-                for (var slot = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
+                for (var slot = DB2Manager.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
                 {
                     var pvpTalent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(spec)[slot]);
 
@@ -463,7 +463,7 @@ public partial class Player
         if (talentInfo.LevelRequired > Level)
             return TalentLearnResult.FailedUnknown;
 
-        if (Global.DB2Mgr.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
+        if (DB2Manager.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
             return TalentLearnResult.FailedUnknown;
 
         var talentCategory = CliDB.PvpTalentCategoryStorage.LookupByKey(talentInfo.PvpTalentCategoryID);
@@ -542,7 +542,7 @@ public partial class Player
         // We need to make sure that if player is in one of these defined specs he will not learn the other choice
         TalentRecord bestSlotMatch = null;
 
-        foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, talentInfo.ColumnIndex))
+        foreach (var talent in DB2Manager.GetTalentsByPosition(Class, talentInfo.TierID, talentInfo.ColumnIndex))
             if (talent.SpecID == 0)
             {
                 bestSlotMatch = talent;
@@ -560,7 +560,7 @@ public partial class Player
 
         // Check if player doesn't have any talent in current tier
         for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-            foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, c))
+            foreach (var talent in DB2Manager.GetTalentsByPosition(Class, talentInfo.TierID, c))
             {
                 if (talent.SpecID != 0 && talent.SpecID != GetPrimarySpecialization())
                     continue;
@@ -641,7 +641,7 @@ public partial class Player
 
     public bool ResetTalents(bool noCost = false)
     {
-        Global.ScriptMgr.ForEach<IPlayerOnTalentsReset>(p => p.OnTalentsReset(this, noCost));
+        ScriptManager.ForEach<IPlayerOnTalentsReset>(p => p.OnTalentsReset(this, noCost));
 
         // not need after this call
         if (HasAtLoginFlag(AtLoginFlags.ResetTalents))
@@ -681,7 +681,7 @@ public partial class Player
         SQLTransaction trans = new();
         _SaveTalents(trans);
         _SaveSpells(trans);
-        DB.Characters.CommitTransaction(trans);
+        CharacterDatabase.CommitTransaction(trans);
 
         if (!noCost)
         {
@@ -704,15 +704,15 @@ public partial class Player
         for (uint t = 0; t < PlayerConst.MaxTalentTiers; ++t)
         {
             for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-                if (Global.DB2Mgr.GetTalentsByPosition(@class, t, c).Count > 1)
-                    foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(@class, t, c))
+                if (DB2Manager.GetTalentsByPosition(@class, t, c).Count > 1)
+                    foreach (var talent in DB2Manager.GetTalentsByPosition(@class, t, c))
                         RemoveTalent(talent);
         }
 
         ResetPvpTalents();
         RemoveSpecializationSpells();
 
-        var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class);
+        var defaultSpec = DB2Manager.GetDefaultChrSpecializationForClass(Class);
         SetPrimarySpecialization(defaultSpec.Id);
         SetActiveTalentGroup(defaultSpec.OrderIndex);
 
@@ -745,7 +745,7 @@ public partial class Player
 
         for (byte i = 0; i < PlayerConst.MaxSpecializations; ++i)
         {
-            var spec = Global.DB2Mgr.GetChrSpecializationByIndex(Class, i);
+            var spec = DB2Manager.GetChrSpecializationByIndex(Class, i);
 
             if (spec == null)
                 continue;
@@ -849,10 +849,10 @@ public partial class Player
         {
             SetUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.SharedActionBars);
 
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
+            var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
             stmt.AddValue(0, GUID.Counter);
             stmt.AddValue(1, traitConfigId);
-            DB.Characters.Execute(stmt);
+            CharacterDatabase.Execute(stmt);
 
             if (isLastSelectedSavedConfig)
                 StartLoadingActionButtons(); // load action buttons that were saved in shared mode
@@ -973,7 +973,7 @@ public partial class Player
         {
             var trans = new SQLTransaction();
             _SaveActions(trans);
-            DB.Characters.CommitTransaction(trans);
+            CharacterDatabase.CommitTransaction(trans);
 
             StartLoadingActionButtons(finalizeTraitConfigUpdate);
         }
@@ -1275,7 +1275,7 @@ public partial class Player
         }
 
         // load them asynchronously
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
+        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
         stmt.AddValue(0, GUID.Counter);
         stmt.AddValue(1, GetActiveTalentGroup());
         stmt.AddValue(2, traitConfigId);
@@ -1285,7 +1285,7 @@ public partial class Player
         var mySess = Session;
 
         mySess.QueryProcessor
-              .AddCallback(DB.Characters.AsyncQuery(stmt)
+              .AddCallback(CharacterDatabase.AsyncQuery(stmt)
                              .WithCallback(result =>
                              {
                                  // safe callback, we can't pass this pointer directly

@@ -42,7 +42,7 @@ public class QuestHandler : IWorldSessionHandler
             return;
         }
 
-        Global.ScriptMgr.ForEach<IPlayerOnPlayerChoiceResponse>(p => p.OnPlayerChoiceResponse(_player, (uint)choiceResponse.ChoiceID, (uint)choiceResponse.ResponseIdentifier));
+        ScriptManager.ForEach<IPlayerOnPlayerChoiceResponse>(p => p.OnPlayerChoiceResponse(_player, (uint)choiceResponse.ChoiceID, (uint)choiceResponse.ResponseIdentifier));
 
         if (playerChoiceResponse.Reward != null)
         {
@@ -585,7 +585,7 @@ public class QuestHandler : IWorldSessionHandler
         if (quest == null)
             return;
 
-        Global.ScriptMgr.RunScript<IQuestOnAckAutoAccept>(script => script.OnAcknowledgeAutoAccept(_player, quest), quest.ScriptId);
+        ScriptManager.RunScript<IQuestOnAckAutoAccept>(script => script.OnAcknowledgeAutoAccept(_player, quest), quest.ScriptId);
     }
 
     [WorldPacketHandler(ClientOpcodes.QuestGiverCompleteQuest, Processing = PacketProcessing.Inplace)]
@@ -821,10 +821,10 @@ public class QuestHandler : IWorldSessionHandler
 
                 Log.Logger.Information<string, uint>("Player {0} abandoned quest {1}", _player.GUID.ToString(), questId);
 
-                Global.ScriptMgr.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(_player, questId));
+                ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(_player, questId));
 
                 if (quest != null)
-                    Global.ScriptMgr.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(_player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
+                    ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(_player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
             }
 
             _player.UpdateCriteria(CriteriaType.AbandonAnyQuest, 1);

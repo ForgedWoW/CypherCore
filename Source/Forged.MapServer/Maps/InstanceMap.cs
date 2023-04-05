@@ -180,7 +180,7 @@ public class InstanceMap : Map
         if (mInstance != null)
         {
             ScriptId = mInstance.ScriptId;
-            InstanceScript = Global.ScriptMgr.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), ScriptId, null);
+            InstanceScript = ScriptManager.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), ScriptId, null);
         }
 
         if (InstanceScript == null)

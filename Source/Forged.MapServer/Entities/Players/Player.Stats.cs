@@ -177,7 +177,7 @@ public partial class Player
 
     public override uint GetPowerIndex(PowerType powerType)
     {
-        return Global.DB2Mgr.GetPowerIndexByClass(powerType, Class);
+        return DB2Manager.GetPowerIndexByClass(powerType, Class);
     }
 
     public void RecalculateRating(CombatRating cr)

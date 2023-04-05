@@ -24,6 +24,7 @@ public struct RealmId : IEquatable<RealmId>
     public uint Index { get; set; }
     public byte Region { get; set; }
     public byte Site { get; set; }
+    public uint VirtualRealmAddress => (uint)((Region << 24) | (Site << 16) | (ushort)Index);
 
     public override bool Equals(object obj)
     {
@@ -33,11 +34,6 @@ public struct RealmId : IEquatable<RealmId>
     public bool Equals(RealmId other)
     {
         return other.Index == Index;
-    }
-
-    public uint GetAddress()
-    {
-        return (uint)((Region << 24) | (Site << 16) | (ushort)Index);
     }
 
     public string GetAddressString()

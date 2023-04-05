@@ -163,8 +163,8 @@ public partial class Player
 
         SendQuestUpdate(questId);
 
-        Global.ScriptMgr.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(this, questId));
-        Global.ScriptMgr.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status), quest.ScriptId);
+        ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(this, questId));
+        ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status), quest.ScriptId);
     }
 
     public void AddQuestAndCheckCompletion(Quest.Quest quest, WorldObject questGiver)
@@ -195,7 +195,7 @@ public partial class Player
             case TypeId.AzeriteEmpoweredItem:
             {
                 var item = (Item)questGiver;
-                Global.ScriptMgr.RunScriptRet<IItemOnQuestAccept>(p => p.OnQuestAccept(this, item, quest), item.ScriptId);
+                ScriptManager.RunScriptRet<IItemOnQuestAccept>(p => p.OnQuestAccept(this, item, quest), item.ScriptId);
 
                 // There are two cases where the source item is not destroyed when the quest is accepted:
                 // - It is required to finish the quest, and is an unique item
@@ -482,7 +482,7 @@ public partial class Player
         if (quest.PackageID != 0)
         {
             var hasFilteredQuestPackageReward = false;
-            var questPackageItems = Global.DB2Mgr.GetQuestPackageItems(quest.PackageID);
+            var questPackageItems = DB2Manager.GetQuestPackageItems(quest.PackageID);
 
             if (questPackageItems != null)
                 foreach (var questPackageItem in questPackageItems)
@@ -506,7 +506,7 @@ public partial class Player
 
             if (!hasFilteredQuestPackageReward)
             {
-                var questPackageItems1 = Global.DB2Mgr.GetQuestPackageItemsFallback(quest.PackageID);
+                var questPackageItems1 = DB2Manager.GetQuestPackageItemsFallback(quest.PackageID);
 
                 if (questPackageItems1 != null)
                     foreach (var questPackageItem in questPackageItems1)
@@ -621,7 +621,7 @@ public partial class Player
     {
         foreach (var questId in ActivePlayerData.DailyQuestsCompleted)
         {
-            var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questId);
+            var questBit = DB2Manager.GetQuestUniqueBitFlag(questId);
 
             if (questBit != 0)
                 SetQuestCompletedBit(questBit, false);
@@ -854,7 +854,7 @@ public partial class Player
             if (quest == null)
                 continue;
 
-            if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.QuestAvailable, quest.Id, this))
+            if (!ConditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.QuestAvailable, quest.Id, this))
                 continue;
 
             if (GetQuestStatus(questId) == QuestStatus.None)
@@ -902,7 +902,7 @@ public partial class Player
 
     public int GetQuestLevel(uint contentTuningId)
     {
-        var questLevels = Global.DB2Mgr.GetContentTuningData(contentTuningId, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+        var questLevels = DB2Manager.GetContentTuningData(contentTuningId, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
         if (questLevels.HasValue)
         {
@@ -1653,7 +1653,7 @@ public partial class Player
             _rewardedQuestsSave[questId] = QuestSaveType.ForceDelete;
         }
 
-        var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questId);
+        var questBit = DB2Manager.GetQuestUniqueBitFlag(questId);
 
         if (questBit != 0)
             SetQuestCompletedBit(questBit, false);
@@ -1695,7 +1695,7 @@ public partial class Player
 
         foreach (var questId in _monthlyquests)
         {
-            var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questId);
+            var questBit = DB2Manager.GetQuestUniqueBitFlag(questId);
 
             if (questBit != 0)
                 SetQuestCompletedBit(questBit, false);
@@ -1719,7 +1719,7 @@ public partial class Player
         foreach (var (questId, completedTime) in eventList.ToList())
             if (completedTime < eventStartTime)
             {
-                var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questId);
+                var questBit = DB2Manager.GetQuestUniqueBitFlag(questId);
 
                 if (questBit != 0)
                     SetQuestCompletedBit(questBit, false);
@@ -1738,7 +1738,7 @@ public partial class Player
 
         foreach (var questId in _weeklyquests)
         {
-            var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questId);
+            var questBit = DB2Manager.GetQuestUniqueBitFlag(questId);
 
             if (questBit != 0)
                 SetQuestCompletedBit(questBit, false);
@@ -1908,7 +1908,7 @@ public partial class Player
             else
                 new MailDraft(mailTemplateID).SendMailTo(trans, this, new MailSender(questGiver), MailCheckMask.HasBody, quest.RewardMailDelay);
 
-            DB.Characters.CommitTransaction(trans);
+            CharacterDatabase.CommitTransaction(trans);
         }
 
         if (quest.IsDaily || quest.IsDFQuest)
@@ -1994,7 +1994,7 @@ public partial class Player
         // make full db save
         SaveToDB();
 
-        var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(questId);
+        var questBit = DB2Manager.GetQuestUniqueBitFlag(questId);
 
         if (questBit != 0)
             SetQuestCompletedBit(questBit, true);
@@ -2069,8 +2069,8 @@ public partial class Player
                 }
         }
 
-        Global.ScriptMgr.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(this, questId));
-        Global.ScriptMgr.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(this, quest, oldStatus, QuestStatus.Rewarded), quest.ScriptId);
+        ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(this, questId));
+        ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(this, quest, oldStatus, QuestStatus.Rewarded), quest.ScriptId);
 
         if (conditionChanged)
             UpdateObjectVisibility();
@@ -2079,7 +2079,7 @@ public partial class Player
     public void RewardQuestPackage(uint questPackageId, uint onlyItemId = 0)
     {
         var hasFilteredQuestPackageReward = false;
-        var questPackageItems = Global.DB2Mgr.GetQuestPackageItems(questPackageId);
+        var questPackageItems = DB2Manager.GetQuestPackageItems(questPackageId);
 
         if (questPackageItems != null)
             foreach (var questPackageItem in questPackageItems)
@@ -2102,7 +2102,7 @@ public partial class Player
 
         if (!hasFilteredQuestPackageReward)
         {
-            var questPackageItemsFallback = Global.DB2Mgr.GetQuestPackageItemsFallback(questPackageId);
+            var questPackageItemsFallback = DB2Manager.GetQuestPackageItemsFallback(questPackageId);
 
             if (questPackageItemsFallback != null)
                 foreach (var questPackageItem in questPackageItemsFallback)
@@ -2144,7 +2144,7 @@ public partial class Player
 
     public bool SatisfyQuestConditions(Quest.Quest qInfo, bool msg)
     {
-        if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.QuestAvailable, qInfo.Id, this))
+        if (!ConditionManager.IsObjectMeetingNotGroupedConditions(ConditionSourceType.QuestAvailable, qInfo.Id, this))
         {
             if (msg)
             {
@@ -2778,7 +2778,7 @@ public partial class Player
         var quest = Global.ObjectMgr.GetQuestTemplate(objective.QuestID);
 
         if (quest != null)
-            Global.ScriptMgr.RunScript<IQuestOnQuestObjectiveChange>(script => script.OnQuestObjectiveChange(this, quest, objective, oldData, data), quest.ScriptId);
+            ScriptManager.RunScript<IQuestOnQuestObjectiveChange>(script => script.OnQuestObjectiveChange(this, quest, objective, oldData, data), quest.ScriptId);
 
         // Add to save
         _questStatusSave[objective.QuestID] = QuestSaveType.Default;
@@ -2852,8 +2852,8 @@ public partial class Player
             if (!quest.IsAutoComplete)
                 _questStatusSave[questId] = QuestSaveType.Default;
 
-            Global.ScriptMgr.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(this, questId));
-            Global.ScriptMgr.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(this, quest, oldStatus, status), quest.ScriptId);
+            ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(this, questId));
+            ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(this, quest, oldStatus, status), quest.ScriptId);
         }
 
         if (update)
@@ -3087,7 +3087,7 @@ public partial class Player
 
                     foreach (var spellClickInfo in clickBounds)
                     {
-                        var conds = Global.ConditionMgr.GetConditionsForSpellClickEvent(obj.Entry, spellClickInfo.spellId);
+                        var conds = ConditionManager.GetConditionsForSpellClickEvent(obj.Entry, spellClickInfo.spellId);
 
                         if (conds != null)
                         {
@@ -3123,7 +3123,7 @@ public partial class Player
     }
     private int GetQuestMinLevel(uint contentTuningId)
     {
-        var questLevels = Global.DB2Mgr.GetContentTuningData(contentTuningId, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+        var questLevels = DB2Manager.GetContentTuningData(contentTuningId, PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
         if (questLevels.HasValue)
         {

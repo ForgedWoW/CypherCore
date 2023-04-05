@@ -76,7 +76,7 @@ namespace BNetServer.Networking
                 do
                 {
                     var realmId = new RealmId(characterCountsResult.Read<byte>(3), characterCountsResult.Read<byte>(4), characterCountsResult.Read<uint>(2));
-                    accountInfo.GameAccounts[characterCountsResult.Read<uint>(0)].CharacterCounts[realmId.GetAddress()] = characterCountsResult.Read<byte>(1);
+                    accountInfo.GameAccounts[characterCountsResult.Read<uint>(0)].CharacterCounts[realmId.VirtualRealmAddress] = characterCountsResult.Read<byte>(1);
 
                 } while (characterCountsResult.NextRow());
             }

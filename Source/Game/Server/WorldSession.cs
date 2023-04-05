@@ -1105,7 +1105,7 @@ public partial class WorldSession : IDisposable
 		if (!result.IsEmpty())
 			do
 			{
-				_realmCharacterCounts[new RealmId(result.Read<byte>(3), result.Read<byte>(4), result.Read<uint>(2)).GetAddress()] = result.Read<byte>(1);
+				_realmCharacterCounts[new RealmId(result.Read<byte>(3), result.Read<byte>(4), result.Read<uint>(2)).VirtualRealmAddress] = result.Read<byte>(1);
 			} while (result.NextRow());
 
 		ConnectionStatus bnetConnected = new();

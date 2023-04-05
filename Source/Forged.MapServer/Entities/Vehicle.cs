@@ -337,7 +337,7 @@ public class Vehicle : ITransport
         _status = Status.Installed;
 
         if (GetBase().IsTypeId(TypeId.Unit))
-            Global.ScriptMgr.RunScript<IVehicleOnInstall>(p => p.OnInstall(this), GetBase().AsCreature.GetScriptId());
+            ScriptManager.RunScript<IVehicleOnInstall>(p => p.OnInstall(this), GetBase().AsCreature.GetScriptId());
     }
 
     public void InstallAllAccessories(bool evading)
@@ -467,7 +467,7 @@ public class Vehicle : ITransport
             _me.AsCreature.AI.PassengerBoarded(unit, seat.Key, false);
 
         if (GetBase().IsTypeId(TypeId.Unit))
-            Global.ScriptMgr.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
+            ScriptManager.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
 
         unit.Vehicle = null;
 
@@ -524,7 +524,7 @@ public class Vehicle : ITransport
         if (GetBase().IsAlive)
             InstallAllAccessories(evading);
 
-        Global.ScriptMgr.RunScript<IVehicleOnReset>(p => p.OnReset(this), GetBase().AsCreature.GetScriptId());
+        ScriptManager.RunScript<IVehicleOnReset>(p => p.OnReset(this), GetBase().AsCreature.GetScriptId());
     }
 
     public void Uninstall()
@@ -545,7 +545,7 @@ public class Vehicle : ITransport
         RemoveAllPassengers();
 
         if (GetBase().IsTypeId(TypeId.Unit))
-            Global.ScriptMgr.RunScript<IVehicleOnUninstall>(p => p.OnUninstall(this), GetBase().AsCreature.GetScriptId());
+            ScriptManager.RunScript<IVehicleOnUninstall>(p => p.OnUninstall(this), GetBase().AsCreature.GetScriptId());
     }
     private void ApplyAllImmunities()
     {

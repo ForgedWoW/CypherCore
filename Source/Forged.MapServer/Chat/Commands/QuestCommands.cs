@@ -203,8 +203,8 @@ internal class QuestCommands
             player.RemoveActiveQuest(quest.Id, false);
             player.RemoveRewardedQuest(quest.Id);
 
-            Global.ScriptMgr.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, quest.Id));
-            Global.ScriptMgr.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
+            ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, quest.Id));
+            ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
 
             handler.SendSysMessage(CypherStrings.CommandQuestRemoved);
 

@@ -468,7 +468,7 @@ public partial class Player
 
             if (plrVictim)
             {
-                if (EffectiveTeam == plrVictim.EffectiveTeam && !Global.WorldMgr.IsFFAPvPRealm)
+                if (EffectiveTeam == plrVictim.EffectiveTeam && !WorldManager.IsFFAPvPRealm)
                     return false;
 
                 var kLevel = (byte)Level;
@@ -681,9 +681,9 @@ public partial class Player
 
         if (_isBgRandomWinner)
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_BATTLEGROUND_RANDOM);
+            var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_BATTLEGROUND_RANDOM);
             stmt.AddValue(0, GUID.Counter);
-            DB.Characters.Execute(stmt);
+            CharacterDatabase.Execute(stmt);
         }
     }
 
@@ -768,7 +768,7 @@ public partial class Player
                 if (area.HasFlag(AreaFlags.Arena))
                     return true;
 
-                if (Global.BattleFieldMgr.IsWorldPvpArea(area.Id))
+                if (BattleFieldManager.IsWorldPvpArea(area.Id))
                     return true;
 
                 area = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
@@ -799,12 +799,12 @@ public partial class Player
 
         ModifyMoney(rewardPackEntry.Money);
 
-        var rewardCurrencyTypes = Global.DB2Mgr.GetRewardPackCurrencyTypesByRewardID(rewardPackEntry.Id);
+        var rewardCurrencyTypes = DB2Manager.GetRewardPackCurrencyTypesByRewardID(rewardPackEntry.Id);
 
         foreach (var currency in rewardCurrencyTypes)
             AddCurrency(currency.CurrencyTypeID, (uint)currency.Quantity /* TODO: CurrencyGainSource */);
 
-        var rewardPackXItems = Global.DB2Mgr.GetRewardPackItemsByRewardID(rewardPackEntry.Id);
+        var rewardPackXItems = DB2Manager.GetRewardPackItemsByRewardID(rewardPackEntry.Id);
 
         foreach (var rewardPackXItem in rewardPackXItems)
             AddItem(rewardPackXItem.ItemID, rewardPackXItem.ItemQuantity);

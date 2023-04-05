@@ -88,8 +88,8 @@ public class BattlePetMgr
             BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
             {
                 Guid = player.GUID,
-                PlayerVirtualRealm = WorldManager.Realm.Id.GetAddress(),
-                PlayerNativeRealm = WorldManager.Realm.Id.GetAddress()
+                PlayerVirtualRealm = WorldManager.Realm.Id.VirtualRealmAddress,
+                PlayerNativeRealm = WorldManager.Realm.Id.VirtualRealmAddress
             };
 
             pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
@@ -491,8 +491,8 @@ public class BattlePetMgr
                         BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
                         {
                             Guid = ownerGuid,
-                            PlayerVirtualRealm = WorldManager.Realm.Id.GetAddress(),
-                            PlayerNativeRealm = WorldManager.Realm.Id.GetAddress()
+                            PlayerVirtualRealm = WorldManager.Realm.Id.VirtualRealmAddress,
+                            PlayerNativeRealm = WorldManager.Realm.Id.VirtualRealmAddress
                         };
 
                         pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;

@@ -437,7 +437,7 @@ public class Map : IDisposable
         var worldStateTemplate = Global.WorldStateMgr.GetWorldStateTemplate(worldStateId);
 
         if (worldStateTemplate != null)
-            Global.ScriptMgr.RunScript<IWorldStateOnValueChange>(script => script.OnValueChange(worldStateTemplate.Id, oldValue, value, this), worldStateTemplate.ScriptId);
+            ScriptManager.RunScript<IWorldStateOnValueChange>(script => script.OnValueChange(worldStateTemplate.Id, oldValue, value, this), worldStateTemplate.ScriptId);
 
         // Broadcast update to all players on the map
         UpdateWorldState updateWorldState = new()
@@ -4193,13 +4193,13 @@ public class Map : IDisposable
         var record = map.Entry;
 
         if (record != null && record.IsWorldMap())
-            Global.ScriptMgr.ForEach<IMapOnCreate<Map>>(p => p.OnCreate(map));
+            ScriptManager.ForEach<IMapOnCreate<Map>>(p => p.OnCreate(map));
 
         if (record != null && record.IsDungeon())
-            Global.ScriptMgr.ForEach<IMapOnCreate<InstanceMap>>(p => p.OnCreate(map.ToInstanceMap));
+            ScriptManager.ForEach<IMapOnCreate<InstanceMap>>(p => p.OnCreate(map.ToInstanceMap));
 
         if (record != null && record.IsBattleground())
-            Global.ScriptMgr.ForEach<IMapOnCreate<BattlegroundMap>>(p => p.OnCreate(map.ToBattlegroundMap));
+            ScriptManager.ForEach<IMapOnCreate<BattlegroundMap>>(p => p.OnCreate(map.ToBattlegroundMap));
     }
 
     public static void OnDestroyMap(Map map)
@@ -4207,29 +4207,29 @@ public class Map : IDisposable
         var record = map.Entry;
 
         if (record != null && record.IsWorldMap())
-            Global.ScriptMgr.ForEach<IMapOnDestroy<Map>>(p => p.OnDestroy(map));
+            ScriptManager.ForEach<IMapOnDestroy<Map>>(p => p.OnDestroy(map));
 
         if (record != null && record.IsDungeon())
-            Global.ScriptMgr.ForEach<IMapOnDestroy<InstanceMap>>(p => p.OnDestroy(map.ToInstanceMap));
+            ScriptManager.ForEach<IMapOnDestroy<InstanceMap>>(p => p.OnDestroy(map.ToInstanceMap));
 
         if (record != null && record.IsBattleground())
-            Global.ScriptMgr.ForEach<IMapOnDestroy<BattlegroundMap>>(p => p.OnDestroy(map.ToBattlegroundMap));
+            ScriptManager.ForEach<IMapOnDestroy<BattlegroundMap>>(p => p.OnDestroy(map.ToBattlegroundMap));
     }
 
     public static void OnPlayerEnterMap(Map map, Player player)
     {
-        Global.ScriptMgr.ForEach<IPlayerOnMapChanged>(p => p.OnMapChanged(player));
+        ScriptManager.ForEach<IPlayerOnMapChanged>(p => p.OnMapChanged(player));
 
         var record = map.Entry;
 
         if (record != null && record.IsWorldMap())
-            Global.ScriptMgr.ForEach<IMapOnPlayerEnter<Map>>(p => p.OnPlayerEnter(map, player));
+            ScriptManager.ForEach<IMapOnPlayerEnter<Map>>(p => p.OnPlayerEnter(map, player));
 
         if (record != null && record.IsDungeon())
-            Global.ScriptMgr.ForEach<IMapOnPlayerEnter<InstanceMap>>(p => p.OnPlayerEnter(map.ToInstanceMap, player));
+            ScriptManager.ForEach<IMapOnPlayerEnter<InstanceMap>>(p => p.OnPlayerEnter(map.ToInstanceMap, player));
 
         if (record != null && record.IsBattleground())
-            Global.ScriptMgr.ForEach<IMapOnPlayerEnter<BattlegroundMap>>(p => p.OnPlayerEnter(map.ToBattlegroundMap, player));
+            ScriptManager.ForEach<IMapOnPlayerEnter<BattlegroundMap>>(p => p.OnPlayerEnter(map.ToBattlegroundMap, player));
     }
 
     public static void OnPlayerLeaveMap(Map map, Player player)
@@ -4237,13 +4237,13 @@ public class Map : IDisposable
         var record = map.Entry;
 
         if (record != null && record.IsWorldMap())
-            Global.ScriptMgr.ForEach<IMapOnPlayerLeave<Map>>(p => p.OnPlayerLeave(map, player));
+            ScriptManager.ForEach<IMapOnPlayerLeave<Map>>(p => p.OnPlayerLeave(map, player));
 
         if (record != null && record.IsDungeon())
-            Global.ScriptMgr.ForEach<IMapOnPlayerLeave<InstanceMap>>(p => p.OnPlayerLeave(map.ToInstanceMap, player));
+            ScriptManager.ForEach<IMapOnPlayerLeave<InstanceMap>>(p => p.OnPlayerLeave(map.ToInstanceMap, player));
 
         if (record != null && record.IsBattleground())
-            Global.ScriptMgr.ForEach<IMapOnPlayerLeave<BattlegroundMap>>(p => p.OnPlayerLeave(map.ToBattlegroundMap, player));
+            ScriptManager.ForEach<IMapOnPlayerLeave<BattlegroundMap>>(p => p.OnPlayerLeave(map.ToBattlegroundMap, player));
     }
 
     public static void OnMapUpdate(Map map, uint diff)
@@ -4251,13 +4251,13 @@ public class Map : IDisposable
         var record = map.Entry;
 
         if (record != null && record.IsWorldMap())
-            Global.ScriptMgr.ForEach<IMapOnUpdate<Map>>(p => p.OnUpdate(map, diff));
+            ScriptManager.ForEach<IMapOnUpdate<Map>>(p => p.OnUpdate(map, diff));
 
         if (record != null && record.IsDungeon())
-            Global.ScriptMgr.ForEach<IMapOnUpdate<InstanceMap>>(p => p.OnUpdate(map.ToInstanceMap, diff));
+            ScriptManager.ForEach<IMapOnUpdate<InstanceMap>>(p => p.OnUpdate(map.ToInstanceMap, diff));
 
         if (record != null && record.IsBattleground())
-            Global.ScriptMgr.ForEach<IMapOnUpdate<BattlegroundMap>>(p => p.OnUpdate(map.ToBattlegroundMap, diff));
+            ScriptManager.ForEach<IMapOnUpdate<BattlegroundMap>>(p => p.OnUpdate(map.ToBattlegroundMap, diff));
     }
 
     #endregion

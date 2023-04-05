@@ -401,7 +401,7 @@ public class PlayerAchievementMgr : AchievementManager
             if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
             {
                 earned.Owner = _owner.GUID;
-                earned.VirtualRealmAddress = earned.NativeRealmAddress = WorldManager.Realm.Id.GetAddress();
+                earned.VirtualRealmAddress = earned.NativeRealmAddress = WorldManager.Realm.Id.VirtualRealmAddress;
             }
 
             inspectedAchievements.Data.Earned.Add(earned);
@@ -447,7 +447,7 @@ public class PlayerAchievementMgr : AchievementManager
             if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
             {
                 earned.Owner = _owner.GUID;
-                earned.VirtualRealmAddress = earned.NativeRealmAddress = WorldManager.Realm.Id.GetAddress();
+                earned.VirtualRealmAddress = earned.NativeRealmAddress = WorldManager.Realm.Id.VirtualRealmAddress;
             }
 
             achievementData.Data.Earned.Add(earned);
@@ -594,7 +594,7 @@ public class PlayerAchievementMgr : AchievementManager
             Earner = _owner.GUID
         };
 
-        achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = WorldManager.Realm.Id.GetAddress();
+        achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = WorldManager.Realm.Id.VirtualRealmAddress;
         achievementEarned.AchievementID = achievement.Id;
         achievementEarned.Time = GameTime.CurrentTime;
 

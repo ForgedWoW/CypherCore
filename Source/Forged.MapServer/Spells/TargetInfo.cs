@@ -192,7 +192,7 @@ public class TargetInfo : TargetInfoBase
                     var p = caster.AsPlayer;
 
                     if (p != null)
-                        Global.ScriptMgr.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
+                        ScriptManager.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
 
                     UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 

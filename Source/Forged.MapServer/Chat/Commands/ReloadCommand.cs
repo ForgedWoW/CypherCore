@@ -899,7 +899,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Reloading spell_script_names table...");
         Global.ObjectMgr.LoadSpellScriptNames();
-        //Global.ScriptMgr.NotifyScriptIDUpdate();
+        //ScriptManager.NotifyScriptIDUpdate();
         Global.ObjectMgr.ValidateSpellScripts();
         handler.SendGlobalGMSysMessage("Spell scripts reloaded.");
 

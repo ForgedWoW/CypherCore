@@ -169,11 +169,11 @@ public class VehicleJoinEvent : BasicEvent
 
             ai?.PassengerBoarded(Passenger, Seat.Key, true);
 
-            Global.ScriptMgr.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.GetBase().AsCreature.GetScriptId());
+            ScriptManager.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.GetBase().AsCreature.GetScriptId());
 
             // Actually quite a redundant hook. Could just use OnAddPassenger and check for unit typemask inside script.
             if (Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
-                Global.ScriptMgr.RunScript<IVehicleOnInstallAccessory>(p => p.OnInstallAccessory(Target, Passenger.AsCreature), Target.GetBase().AsCreature.GetScriptId());
+                ScriptManager.RunScript<IVehicleOnInstallAccessory>(p => p.OnInstallAccessory(Target, Passenger.AsCreature), Target.GetBase().AsCreature.GetScriptId());
         }
 
         return true;

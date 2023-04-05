@@ -44,7 +44,7 @@ class PartyInvite : ServerPacket
 		ProposedRoles = proposedRoles;
 
 		var realm = Global.WorldMgr.Realm;
-		InviterRealm = new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
+		InviterRealm = new VirtualRealmInfo(realm.Id.VirtualRealmAddress, true, false, realm.Name, realm.NormalizedName);
 	}
 
 	public override void Write()

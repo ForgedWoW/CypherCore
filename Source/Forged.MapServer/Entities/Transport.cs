@@ -58,7 +58,7 @@ public class Transport : GameObject, ITransport
                 var player = passenger.AsPlayer;
 
                 if (player)
-                    Global.ScriptMgr.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), ScriptId);
+                    ScriptManager.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), ScriptId);
             }
         }
     }
@@ -217,7 +217,7 @@ public class Transport : GameObject, ITransport
             _staticPassengers.Add(creature);
         }
 
-        Global.ScriptMgr.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), ScriptId);
+        ScriptManager.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), ScriptId);
 
         return creature;
     }
@@ -294,7 +294,7 @@ public class Transport : GameObject, ITransport
 
                 if (plr != null)
                 {
-                    Global.ScriptMgr.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
+                    ScriptManager.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
                     plr.SetFallInformation(0, plr.Location.Z);
                 }
             }
@@ -453,7 +453,7 @@ public class Transport : GameObject, ITransport
         else if (!AIM_Initialize())
             Log.Logger.Error("Could not initialize GameObjectAI for Transport");
 
-        Global.ScriptMgr.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
+        ScriptManager.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
 
         _positionChangeTimer.Update(diff);
 
@@ -563,7 +563,7 @@ public class Transport : GameObject, ITransport
     }
     public void UpdatePosition(float x, float y, float z, float o)
     {
-        Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), ScriptId);
+        ScriptManager.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), ScriptId);
 
         var newActive = Location.Map.IsGridLoaded(x, y);
         Cell oldCell = new(Location.X, Location.Y);

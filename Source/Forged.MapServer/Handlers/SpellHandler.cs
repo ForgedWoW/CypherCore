@@ -787,7 +787,7 @@ public class SpellHandler : IWorldSessionHandler
         SpellCastTargets targets = new(user, packet.Cast);
 
         // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
-        if (!Global.ScriptMgr.RunScriptRet<IItemOnUse>(p => p.OnUse(user, item, targets, packet.Cast.CastID), item.ScriptId))
+        if (!ScriptManager.RunScriptRet<IItemOnUse>(p => p.OnUse(user, item, targets, packet.Cast.CastID), item.ScriptId))
             // no script or script not process request by self
             user.CastItemUseSpell(item, targets, packet.Cast.CastID, packet.Cast.Misc);
     }

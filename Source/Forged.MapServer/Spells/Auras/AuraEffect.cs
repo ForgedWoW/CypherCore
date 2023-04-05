@@ -5476,7 +5476,7 @@ public class AuraEffect
         var damage = Math.Max(Amount, 0);
 
         // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
-        Global.ScriptMgr.ForEach<IUnitModifyPeriodicDamageAurasTick>(p => p.ModifyPeriodicDamageAurasTick(target, caster, ref damage));
+        ScriptManager.ForEach<IUnitModifyPeriodicDamageAurasTick>(p => p.ModifyPeriodicDamageAurasTick(target, caster, ref damage));
 
         switch (AuraType)
         {

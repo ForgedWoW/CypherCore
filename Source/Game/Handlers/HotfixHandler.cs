@@ -47,7 +47,7 @@ public partial class WorldSession
 
 	void SendAvailableHotfixes()
 	{
-		SendPacket(new AvailableHotfixes(Global.WorldMgr.RealmId.GetAddress(), Global.DB2Mgr.GetHotfixData()));
+		SendPacket(new AvailableHotfixes(Global.WorldMgr.RealmId.VirtualRealmAddress, Global.DB2Mgr.GetHotfixData()));
 	}
 
 	[WorldPacketHandler(ClientOpcodes.HotfixRequest, Status = SessionStatus.Authed)]

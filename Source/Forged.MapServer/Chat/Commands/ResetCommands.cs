@@ -123,7 +123,7 @@ internal class ResetCommands
         if (pet)
             pet.SynchronizeLevelWithOwner();
 
-        Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(target.Class, p => p.OnLevelChanged(target, oldLevel));
+        ScriptManager.ForEach<IPlayerOnLevelChanged>(target.Class, p => p.OnLevelChanged(target, oldLevel));
 
         return true;
     }

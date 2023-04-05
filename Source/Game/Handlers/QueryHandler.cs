@@ -365,7 +365,7 @@ public partial class WorldSession
 		{
 			realmQueryResponse.LookupState = (byte)ResponseCodes.Success;
 			realmQueryResponse.NameInfo.IsInternalRealm = false;
-			realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == Global.WorldMgr.Realm.Id.GetAddress();
+			realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == Global.WorldMgr.Realm.Id.VirtualRealmAddress;
 		}
 		else
 		{

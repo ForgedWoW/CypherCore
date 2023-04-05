@@ -685,7 +685,7 @@ public class Condition
         if (!condMeets)
             sourceInfo.mLastFailedCondition = this;
 
-        return condMeets && Global.ScriptMgr.RunScriptRet<IConditionCheck>(p => p.OnConditionCheck(this, sourceInfo), ScriptId, true); // Returns true by default.;
+        return condMeets && ScriptManager.RunScriptRet<IConditionCheck>(p => p.OnConditionCheck(this, sourceInfo), ScriptId, true); // Returns true by default.;
     }
     public string ToString(bool ext = false)
     {

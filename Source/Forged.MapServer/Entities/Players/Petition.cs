@@ -21,13 +21,13 @@ public class Petition
         if (isLoading)
             return;
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PETITION_SIGNATURE);
+        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PETITION_SIGNATURE);
         stmt.AddValue(0, OwnerGuid.Counter);
         stmt.AddValue(1, PetitionGuid.Counter);
         stmt.AddValue(2, playerGuid.Counter);
         stmt.AddValue(3, accountId);
 
-        DB.Characters.Execute(stmt);
+        CharacterDatabase.Execute(stmt);
     }
 
     public bool IsPetitionSignedByAccount(uint accountId)
@@ -59,9 +59,9 @@ public class Petition
     {
         PetitionName = newName;
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
+        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
         stmt.AddValue(0, newName);
         stmt.AddValue(1, PetitionGuid.Counter);
-        DB.Characters.Execute(stmt);
+        CharacterDatabase.Execute(stmt);
     }
 }

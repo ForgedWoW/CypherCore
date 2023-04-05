@@ -260,7 +260,7 @@ public class DynamicObject : WorldObject
         if (expired)
             Remove();
         else
-            Global.ScriptMgr.ForEach<IDynamicObjectOnUpdate>(p => p.OnUpdate(this, diff));
+            ScriptManager.ForEach<IDynamicObjectOnUpdate>(p => p.OnUpdate(this, diff));
     }
     private void BindToCaster()
     {

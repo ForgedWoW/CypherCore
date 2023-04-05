@@ -9,7 +9,7 @@ public class SpellScriptLoader : ScriptObject, ISpellScriptLoaderGetSpellScript
 {
     public SpellScriptLoader(string name) : base(name)
     {
-        Global.ScriptMgr.AddScript(this);
+        ScriptManager.AddScript(this);
     }
 
     // Should return a fully valid SpellScript.

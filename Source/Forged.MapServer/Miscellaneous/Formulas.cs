@@ -50,7 +50,7 @@ public class Formulas
             baseGain = Math.Max(baseGainMin, baseGain);
         }
 
-        Global.ScriptMgr.ForEach<IFormulaOnBaseGainCalculation>(p => p.OnBaseGainCalculation(baseGain, pl_level, mob_level));
+        ScriptManager.ForEach<IFormulaOnBaseGainCalculation>(p => p.OnBaseGainCalculation(baseGain, pl_level, mob_level));
 
         return baseGain;
     }
@@ -87,7 +87,7 @@ public class Formulas
         else
             color = XPColorChar.Gray;
 
-        Global.ScriptMgr.ForEach<IFormulaOnColorCodeCaclculation>(p => p.OnColorCodeCalculation(color, pl_level, mob_level));
+        ScriptManager.ForEach<IFormulaOnColorCodeCaclculation>(p => p.OnColorCodeCalculation(color, pl_level, mob_level));
 
         return color;
     }
@@ -115,7 +115,7 @@ public class Formulas
             level = pl_level - 10;
         }
 
-        Global.ScriptMgr.ForEach<IFormulaOnGrayLevelCalculation>(p => p.OnGrayLevelCalculation(level, pl_level));
+        ScriptManager.ForEach<IFormulaOnGrayLevelCalculation>(p => p.OnGrayLevelCalculation(level, pl_level));
 
         return level;
     }
@@ -149,7 +149,7 @@ public class Formulas
         else
             diff = 17;
 
-        Global.ScriptMgr.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, pl_level));
+        ScriptManager.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, pl_level));
 
         return diff;
     }
@@ -162,7 +162,7 @@ public class Formulas
     public static float HKHonorAtLevelF(uint level, float multiplier = 1.0f)
     {
         var honor = multiplier * level * 1.55f;
-        Global.ScriptMgr.ForEach<IFormulaOnHonorCalculation>(p => p.OnHonorCalculation(honor, level, multiplier));
+        ScriptManager.ForEach<IFormulaOnHonorCalculation>(p => p.OnHonorCalculation(honor, level, multiplier));
 
         return honor;
     }
@@ -203,7 +203,7 @@ public class Formulas
             gain = (uint)(gain * xpMod);
         }
 
-        Global.ScriptMgr.ForEach<IFormulaOnGainCalculation>(p => p.OnGainCalculation(gain, player, u));
+        ScriptManager.ForEach<IFormulaOnGainCalculation>(p => p.OnGainCalculation(gain, player, u));
 
         return gain;
     }
@@ -240,7 +240,7 @@ public class Formulas
                     break;
             }
 
-        Global.ScriptMgr.ForEach<IFormulaOnGroupRateCaclulation>(p => p.OnGroupRateCalculation(rate, count, isRaid));
+        ScriptManager.ForEach<IFormulaOnGroupRateCaclulation>(p => p.OnGroupRateCalculation(rate, count, isRaid));
 
         return rate;
     }

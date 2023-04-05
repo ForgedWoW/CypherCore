@@ -2568,7 +2568,7 @@ public class Item : WorldObject
         if (duration <= diff)
         {
             var itemTemplate = Template;
-            Global.ScriptMgr.RunScriptRet<IItemOnExpire>(p => p.OnExpire(owner, itemTemplate), itemTemplate.ScriptId);
+            ScriptManager.RunScriptRet<IItemOnExpire>(p => p.OnExpire(owner, itemTemplate), itemTemplate.ScriptId);
 
             owner.DestroyItem(BagSlot, Slot, true);
 

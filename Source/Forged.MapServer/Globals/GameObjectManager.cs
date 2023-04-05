@@ -2586,7 +2586,7 @@ public sealed class GameObjectManager
 
         _areaTriggerScriptStorage.RemoveIfMatching((script) =>
         {
-            var areaTriggerScriptLoaders = Global.ScriptMgr.CreateAreaTriggerScriptLoaders(script.Key);
+            var areaTriggerScriptLoaders = ScriptManager.CreateAreaTriggerScriptLoaders(script.Key);
 
             foreach (var pair in areaTriggerScriptLoaders)
             {
@@ -11264,7 +11264,7 @@ public sealed class GameObjectManager
         {
             var spellEntry = Global.SpellMgr.GetSpellInfo(script.Key, Difficulty.None);
 
-            var SpellScriptLoaders = Global.ScriptMgr.CreateSpellScriptLoaders(script.Key);
+            var SpellScriptLoaders = ScriptManager.CreateSpellScriptLoaders(script.Key);
 
             foreach (var pair in SpellScriptLoaders)
             {
@@ -11290,7 +11290,7 @@ public sealed class GameObjectManager
                     return true;
             }
 
-            var AuraScriptLoaders = Global.ScriptMgr.CreateAuraScriptLoaders(script.Key);
+            var AuraScriptLoaders = ScriptManager.CreateAuraScriptLoaders(script.Key);
 
             foreach (var pair in AuraScriptLoaders)
             {

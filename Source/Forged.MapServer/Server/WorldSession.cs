@@ -759,14 +759,14 @@ public class WorldSession : IDisposable
             {
                 ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)Expansion,
                 AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)AccountExpansion,
-                VirtualRealmAddress = _realm.Id.GetAddress(),
+                VirtualRealmAddress = _realm.Id.VirtualRealmAddress,
                 Time = (uint)GameTime.CurrentTime
             };
 
             var realm = _realm;
 
             // Send current home realm. Also there is no need to send it later in realm queries.
-            response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName));
+            response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.VirtualRealmAddress, true, false, realm.Name, realm.NormalizedName));
 
             if (HasPermission(RBACPermissions.UseCharacterTemplates))
                 foreach (var templ in _characterTemplateDataStorage.GetCharacterTemplates().Values)
@@ -1350,7 +1350,7 @@ public class WorldSession : IDisposable
         if (!result.IsEmpty())
             do
             {
-                RealmCharacterCounts[new RealmId(result.Read<byte>(3), result.Read<byte>(4), result.Read<uint>(2)).GetAddress()] = result.Read<byte>(1);
+                RealmCharacterCounts[new RealmId(result.Read<byte>(3), result.Read<byte>(4), result.Read<uint>(2)).VirtualRealmAddress] = result.Read<byte>(1);
             } while (result.NextRow());
 
         ConnectionStatus bnetConnected = new()
@@ -1445,7 +1445,7 @@ public class WorldSession : IDisposable
     }
     private void SendAvailableHotfixes()
     {
-        SendPacket(new AvailableHotfixes(_realm.Id.GetAddress(), _db2Manager.GetHotfixData()));
+        SendPacket(new AvailableHotfixes(_realm.Id.VirtualRealmAddress, _db2Manager.GetHotfixData()));
     }
 
     private void SetLogoutStartTime(long requestTime)

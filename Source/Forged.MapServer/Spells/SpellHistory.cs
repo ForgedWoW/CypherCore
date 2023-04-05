@@ -101,7 +101,7 @@ public class SpellHistory
             var p = GetPlayerOwner();
 
             if (p != null)
-                Global.ScriptMgr.ForEach<IPlayerOnChargeRecoveryTimeStart>(p.Class, c => c.OnChargeRecoveryTimeStart(p, chargeCategoryId, ref chargeRecovery));
+                ScriptManager.ForEach<IPlayerOnChargeRecoveryTimeStart>(p.Class, c => c.OnChargeRecoveryTimeStart(p, chargeCategoryId, ref chargeRecovery));
 
             _categoryCharges.Add(chargeCategoryId, new ChargeEntry(recoveryStart, TimeSpan.FromMilliseconds(chargeRecovery)));
 
@@ -905,7 +905,7 @@ public class SpellHistory
             var playerOwner = GetPlayerOwner();
 
             if (playerOwner)
-                Global.ScriptMgr.ForEach<IPlayerOnCooldownStart>(playerOwner.Class, c => c.OnCooldownStart(playerOwner, spellInfo, itemId, categoryId, cooldown, ref recTime, ref catrecTime, ref onHold));
+                ScriptManager.ForEach<IPlayerOnCooldownStart>(playerOwner.Class, c => c.OnCooldownStart(playerOwner, spellInfo, itemId, categoryId, cooldown, ref recTime, ref catrecTime, ref onHold));
 
             AddCooldown(spellInfo.Id, itemId, recTime, categoryId, catrecTime, onHold);
 
@@ -1170,7 +1170,7 @@ public class SpellHistory
         if (cooldownEntry.CooldownEnd <= now)
         {
             if (playerOwner)
-                Global.ScriptMgr.ForEach<IPlayerOnCooldownEnd>(playerOwner.Class, c => c.OnCooldownEnd(playerOwner, Global.SpellMgr.GetSpellInfo(cooldownEntry.SpellId), cooldownEntry.ItemId, cooldownEntry.CategoryId));
+                ScriptManager.ForEach<IPlayerOnCooldownEnd>(playerOwner.Class, c => c.OnCooldownEnd(playerOwner, Global.SpellMgr.GetSpellInfo(cooldownEntry.SpellId), cooldownEntry.ItemId, cooldownEntry.CategoryId));
 
             _categoryCooldowns.Remove(cooldownEntry.CategoryId);
             _spellCooldowns.Remove(cooldownEntry.SpellId);

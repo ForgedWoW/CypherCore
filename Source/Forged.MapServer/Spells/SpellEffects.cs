@@ -1401,7 +1401,7 @@ public partial class Spell
         caster.SetDuelArbiter(go.GUID);
         target.SetDuelArbiter(go.GUID);
 
-        Global.ScriptMgr.ForEach<IPlayerOnDuelRequest>(p => p.OnDuelRequest(target, caster));
+        ScriptManager.ForEach<IPlayerOnDuelRequest>(p => p.OnDuelRequest(target, caster));
     }
 
     [SpellEffectHandler(SpellEffectName.Dummy)]
@@ -3616,8 +3616,8 @@ public partial class Spell
         player.RemoveActiveQuest(quest_id, false);
         player.RemoveRewardedQuest(quest_id);
 
-        Global.ScriptMgr.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, quest_id));
-        Global.ScriptMgr.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
+        ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, quest_id));
+        ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
     }
 
     [SpellEffectHandler(SpellEffectName.QuestComplete)]

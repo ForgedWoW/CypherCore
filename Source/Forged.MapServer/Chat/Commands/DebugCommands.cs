@@ -678,7 +678,7 @@ internal class DebugCommands
 
         handler.Player.DestroyItem(item.BagSlot, item.Slot, true);
         var itemTemplate = item.Template;
-        Global.ScriptMgr.RunScriptRet<IItemOnExpire>(p => p.OnExpire(handler.Player, itemTemplate), itemTemplate.ScriptId);
+        ScriptManager.RunScriptRet<IItemOnExpire>(p => p.OnExpire(handler.Player, itemTemplate), itemTemplate.ScriptId);
 
         return true;
     }

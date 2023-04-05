@@ -55,8 +55,8 @@ public class ChatPkt : ServerPacket
         if (receiver)
             SetReceiver(receiver, locale);
 
-        SenderVirtualAddress = Global.WorldMgr.VirtualRealmAddress;
-        TargetVirtualAddress = Global.WorldMgr.VirtualRealmAddress;
+        SenderVirtualAddress = WorldManager.Realm.Id.GetAddress();
+        TargetVirtualAddress = WorldManager.Realm.Id.GetAddress();
         AchievementID = achievementId;
         Channel = channelName;
         Prefix = addonPrefix;

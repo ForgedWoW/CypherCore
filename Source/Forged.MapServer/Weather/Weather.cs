@@ -238,7 +238,7 @@ public class Weather
                     return false;
         }
 
-        Global.ScriptMgr.RunScript<IWeatherOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
+        ScriptManager.RunScript<IWeatherOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
 
         return true;
     }
@@ -325,7 +325,7 @@ public class Weather
 
         Log.Logger.Debug("Change the weather of zone {0} to {1}.", Zone, wthstr);
 
-        Global.ScriptMgr.RunScript<IWeatherOnChange>(p => p.OnChange(this, state, _intensity), ScriptId);
+        ScriptManager.RunScript<IWeatherOnChange>(p => p.OnChange(this, state, _intensity), ScriptId);
 
         return true;
     }

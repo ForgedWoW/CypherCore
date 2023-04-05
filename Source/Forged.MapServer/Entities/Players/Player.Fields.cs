@@ -15,6 +15,7 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
@@ -22,6 +23,7 @@ using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
@@ -215,6 +217,7 @@ public partial class Player
     public WorldLocation CorpseLocation { get; private set; }
     public PlayerCreateMode CreateMode { get; private set; }
     public CharacterDatabase CharacterDatabase { get; }
+    public ChannelManagerFactory ChannelManagerFactory { get; }
     public byte CufProfilesCount => (byte)_cufProfiles.Count(p => p != null);
 
     public Pet CurrentPet
@@ -271,6 +274,7 @@ public partial class Player
     public GuildManager GuildMgr { get; }
     public string GuildName => GuildId != 0 ? GuildMgr.GetGuildById(GuildId).GetName() : "";
     public uint GuildRank => PlayerData.GuildRankID;
+    public GroupManager GroupManager { get; }
     public bool HasCorpse => CorpseLocation != null && CorpseLocation.MapId != 0xFFFFFFFF;
 
     //Binds
@@ -397,6 +401,8 @@ public partial class Player
     public Unit SelectedUnit => !Target.IsEmpty ? ObjectAccessor.GetUnit(this, Target) : null;
 
     public WorldSession Session { get; }
+    public WorldManager WorldManager { get; }
+    public WorldStateManager WorldStateManager { get; }
 
     public PlayerSocial Social { get; private set; }
 

@@ -62,7 +62,7 @@ public class RealmManager
             if (!realm.Flags.HasAnyFlag(RealmFlags.Offline) && realm.Build == build)
             {
                 var realmEntry = new RealmEntry();
-                realmEntry.WowRealmAddress = (int)realm.Id.GetAddress();
+                realmEntry.WowRealmAddress = (int)realm.Id.VirtualRealmAddress;
                 realmEntry.CfgTimezonesID = 1;
                 realmEntry.PopulationState = Math.Max((int)realm.PopulationLevel, 1);
                 realmEntry.CfgCategoriesID = realm.Timezone;
@@ -114,7 +114,7 @@ public class RealmManager
                 flag |= RealmFlags.VersionMismatch;
 
             RealmListUpdate realmListUpdate = new();
-            realmListUpdate.Update.WowRealmAddress = (int)realm.Value.Id.GetAddress();
+            realmListUpdate.Update.WowRealmAddress = (int)realm.Value.Id.VirtualRealmAddress;
             realmListUpdate.Update.CfgTimezonesID = 1;
             realmListUpdate.Update.PopulationState = (realm.Value.Flags.HasAnyFlag(RealmFlags.Offline) ? 0 : Math.Max((int)realm.Value.PopulationLevel, 1));
             realmListUpdate.Update.CfgCategoriesID = realm.Value.Timezone;

@@ -1366,7 +1366,7 @@ public class Aura
 
     public void LoadScripts()
     {
-        _loadedScripts = Global.ScriptMgr.CreateAuraScripts(SpellInfo.Id, this);
+        _loadedScripts = ScriptManager.CreateAuraScripts(SpellInfo.Id, this);
 
         foreach (var script in _loadedScripts)
         {

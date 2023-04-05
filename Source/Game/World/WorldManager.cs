@@ -209,7 +209,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	public RealmId RealmId => _realm.Id;
 
-	public uint VirtualRealmAddress => _realm.Id.GetAddress();
+	public uint VirtualRealmAddress => _realm.Id.VirtualRealmAddress;
 
 	public float MaxVisibleDistanceOnContinents => _maxVisibleDistanceOnContinents;
 

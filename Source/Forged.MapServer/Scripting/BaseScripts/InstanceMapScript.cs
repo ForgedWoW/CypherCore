@@ -14,7 +14,7 @@ public class InstanceMapScript : MapScript<InstanceMap>
             !GetEntry().IsDungeon())
             Log.Logger.Error("InstanceMapScript for map {0} is invalid.", mapId);
 
-        Global.ScriptMgr.AddScript(this);
+        ScriptManager.AddScript(this);
     }
 
     public override bool IsDatabaseBound()

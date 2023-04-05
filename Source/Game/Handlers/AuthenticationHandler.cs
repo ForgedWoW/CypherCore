@@ -28,7 +28,7 @@ public partial class WorldSession
 			var realm = Global.WorldMgr.Realm;
 
 			// Send current home realm. Also there is no need to send it later in realm queries.
-			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName));
+			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.VirtualRealmAddress, true, false, realm.Name, realm.NormalizedName));
 
 			if (HasPermission(RBACPermissions.UseCharacterTemplates))
 				foreach (var templ in Global.CharacterTemplateDataStorage.GetCharacterTemplates().Values)

@@ -126,7 +126,7 @@ public class PlayerGroup
 
         player.GroupInvite = this;
 
-        Global.ScriptMgr.ForEach<IGroupOnInviteMember>(p => p.OnInviteMember(this, player.GUID));
+        ScriptManager.ForEach<IGroupOnInviteMember>(p => p.OnInviteMember(this, player.GUID));
 
         return true;
     }
@@ -220,7 +220,7 @@ public class PlayerGroup
         }
 
         SendUpdate();
-        Global.ScriptMgr.ForEach<IGroupOnAddMember>(p => p.OnAddMember(this, player.GUID));
+        ScriptManager.ForEach<IGroupOnAddMember>(p => p.OnAddMember(this, player.GUID));
 
         if (!IsLeader(player.GUID) && !IsBGGroup && !IsBFGroup)
         {
@@ -481,7 +481,7 @@ public class PlayerGroup
         if (newLeader == null)
             return;
 
-        Global.ScriptMgr.ForEach<IGroupOnChangeLeader>(p => p.OnChangeLeader(this, newLeaderGuid, _leaderGuid));
+        ScriptManager.ForEach<IGroupOnChangeLeader>(p => p.OnChangeLeader(this, newLeaderGuid, _leaderGuid));
 
         if (!IsBGGroup && !IsBFGroup)
         {
@@ -746,7 +746,7 @@ public class PlayerGroup
 
     public void Disband(bool hideDestroy = false)
     {
-        Global.ScriptMgr.ForEach<IGroupOnDisband>(p => p.OnDisband(this));
+        ScriptManager.ForEach<IGroupOnDisband>(p => p.OnDisband(this));
 
         Player player;
 
@@ -1027,7 +1027,7 @@ public class PlayerGroup
     {
         BroadcastGroupUpdate();
 
-        Global.ScriptMgr.ForEach<IGroupOnRemoveMember>(p => p.OnRemoveMember(this, guid, method, kicker, reason));
+        ScriptManager.ForEach<IGroupOnRemoveMember>(p => p.OnRemoveMember(this, guid, method, kicker, reason));
 
         var player = Global.ObjAccessor.FindConnectedPlayer(guid);
 

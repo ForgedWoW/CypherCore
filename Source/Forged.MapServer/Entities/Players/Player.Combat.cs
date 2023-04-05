@@ -12,7 +12,9 @@ using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Networking.Packets.Duel;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -22,7 +24,7 @@ public partial class Player
     public void _ApplyWeaponDamage(byte slot, Item item, bool apply)
     {
         var proto = item.Template;
-        var attType = Players.PlayerComputators.GetAttackBySlot(slot, proto.InventoryType);
+        var attType = PlayerComputators.GetAttackBySlot(slot, proto.InventoryType);
 
         if (!IsInFeralForm && apply && !CanUseAttackType(attType))
             return;
@@ -129,8 +131,8 @@ public partial class Player
             {
                 BeatenName = (type == DuelCompleteType.Won ? opponent.GetName() : GetName()),
                 WinnerName = (type == DuelCompleteType.Won ? GetName() : opponent.GetName()),
-                BeatenVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-                WinnerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+                BeatenVirtualRealmAddress = WorldManager.Realm.Id.VirtualRealmAddress,
+                WinnerVirtualRealmAddress = WorldManager.Realm.Id.VirtualRealmAddress,
                 Fled = type != DuelCompleteType.Won
             };
 
@@ -140,7 +142,7 @@ public partial class Player
         opponent.DisablePvpRules();
         DisablePvpRules();
 
-        Global.ScriptMgr.ForEach<IPlayerOnDuelEnd>(p => p.OnDuelEnd(type == DuelCompleteType.Won ? this : opponent,
+        ScriptManager.ForEach<IPlayerOnDuelEnd>(p => p.OnDuelEnd(type == DuelCompleteType.Won ? this : opponent,
                                                                     type == DuelCompleteType.Won ? opponent : this,
                                                                     type));
 
@@ -171,10 +173,10 @@ public partial class Player
 
                 // Credit for quest Death's Challenge
                 if (Class == PlayerClass.Deathknight && opponent.GetQuestStatus(12733) == QuestStatus.Incomplete)
-                    opponent.CastSpell(Duel.Opponent, 52994, true);
+                    opponent.SpellFactory.CastSpell(Duel.Opponent, 52994, true);
 
                 // Honor points after duel (the winner) - ImpConfig
-                var amount = GetDefaultValue("HonorPointsAfterDuel", 0);
+                var amount = Configuration.GetDefaultValue("HonorPointsAfterDuel", 0);
 
                 if (amount != 0)
                     opponent.RewardHonor(null, 1, amount);
@@ -184,7 +186,7 @@ public partial class Player
 
         // Victory emote spell
         if (type != DuelCompleteType.Interrupted)
-            opponent.CastSpell(Duel.Opponent, 52852, true);
+            opponent.SpellFactory.CastSpell(Duel.Opponent, 52852, true);
 
         //Remove Duel Flag object
         var obj = Location.Map.GetGameObject(PlayerData.DuelArbiter);
@@ -218,7 +220,7 @@ public partial class Player
     public override float GetBlockPercent(uint attackerLevel)
     {
         var blockArmor = (float)ActivePlayerData.ShieldBlock;
-        var armorConstant = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, PlayerClass.None);
+        var armorConstant = DB2Manager.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, PlayerClass.None);
 
         if ((blockArmor + armorConstant) == 0)
             return 0;
@@ -237,9 +239,6 @@ public partial class Player
 
             case WeaponAttackType.OffAttack:
                 return baseExpertise + ActivePlayerData.OffhandExpertise / 4.0f;
-
-            default:
-                break;
         }
 
         return 0.0f;
@@ -424,18 +423,13 @@ public partial class Player
             _contestedPvPTimer -= diff;
     }
 
-    public void UpdatePvP(bool state, bool @override = false)
+    public void UpdatePvP(bool state, bool overrideEndTime = false)
     {
-        if (!state || @override)
-        {
-            SetPvP(state);
+        SetPvP(state);
+        if (!state || overrideEndTime)
             PvpInfo.EndTimer = 0;
-        }
         else
-        {
             PvpInfo.EndTimer = GameTime.CurrentTime;
-            SetPvP(state);
-        }
     }
 
     public void UpdatePvPFlag(long currTime)
@@ -459,7 +453,7 @@ public partial class Player
     {
         // @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
         // no, we shouldn't, those are checked for affecting player by client
-        if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || Global.WorldMgr.IsFFAPvPRealm || HasAuraType(AuraType.SetFFAPvp)))
+        if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || WorldManager.IsFFAPvPRealm || HasAuraType(AuraType.SetFFAPvp)))
         {
             if (!IsFFAPvP)
             {
@@ -499,68 +493,68 @@ public partial class Player
         switch (cr)
         {
             case CombatRating.Dodge:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.DodgeDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.DodgeDiminishing);
 
                 break;
 
             case CombatRating.Parry:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.ParryDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.ParryDiminishing);
 
                 break;
 
             case CombatRating.Block:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.BlockDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.BlockDiminishing);
 
                 break;
 
             case CombatRating.CritMelee:
             case CombatRating.CritRanged:
             case CombatRating.CritSpell:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.CritDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.CritDiminishing);
 
                 break;
 
             case CombatRating.Speed:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.SpeedDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.SpeedDiminishing);
 
                 break;
 
             case CombatRating.Lifesteal:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.LifestealDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.LifestealDiminishing);
 
                 break;
 
             case CombatRating.HasteMelee:
             case CombatRating.HasteRanged:
             case CombatRating.HasteSpell:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.HasteDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.HasteDiminishing);
 
                 break;
 
             case CombatRating.Avoidance:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.AvoidanceDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.AvoidanceDiminishing);
 
                 break;
 
             case CombatRating.Mastery:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.MasteryDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.MasteryDiminishing);
 
                 break;
 
             case CombatRating.VersatilityDamageDone:
             case CombatRating.VersatilityHealingDone:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.VersatilityDoneDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.VersatilityDoneDiminishing);
 
                 break;
 
             case CombatRating.VersatilityDamageTaken:
-                diminishingCurveId = Global.DB2Mgr.GetGlobalCurveId(GlobalCurve.VersatilityTakenDiminishing);
+                diminishingCurveId = DB2Manager.GetGlobalCurveId(GlobalCurve.VersatilityTakenDiminishing);
 
                 break;
         }
 
         if (diminishingCurveId != 0)
-            return Global.DB2Mgr.GetCurveValueAt(diminishingCurveId, (float)bonusValue);
+            return DB2Manager.GetCurveValueAt(diminishingCurveId, (float)bonusValue);
 
         return bonusValue;
     }
@@ -613,7 +607,7 @@ public partial class Player
         if (apply)
         {
             if (!HasAura(_titanGripPenaltySpellId))
-                CastSpell((Unit)null, _titanGripPenaltySpellId, true);
+                SpellFactory.CastSpell((Unit)null, _titanGripPenaltySpellId, true);
         }
         else
         {
@@ -767,7 +761,7 @@ public partial class Player
     {
         if (Duel is { State: DuelState.Countdown } && Duel.StartTime <= currTime)
         {
-            Global.ScriptMgr.ForEach<IPlayerOnDuelStart>(p => p.OnDuelStart(this, Duel.Opponent));
+            ScriptManager.ForEach<IPlayerOnDuelStart>(p => p.OnDuelStart(this, Duel.Opponent));
 
             SetDuelTeam(1);
             Duel.Opponent.SetDuelTeam(2);

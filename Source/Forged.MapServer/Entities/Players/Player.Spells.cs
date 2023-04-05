@@ -231,7 +231,7 @@ public partial class Player
 
                     case ItemEnchantmentType.Damage:
                     {
-                        var attackType = Players.PlayerComputators.GetAttackBySlot(item.Slot, item.Template.InventoryType);
+                        var attackType = PlayerComputators.GetAttackBySlot(item.Slot, item.Template.InventoryType);
 
                         if (attackType != WeaponAttackType.Max)
                             UpdateDamageDoneMods(attackType, apply ? -1 : (int)slot);
@@ -524,7 +524,7 @@ public partial class Player
                     }
                     case ItemEnchantmentType.Totem: // Shaman Rockbiter Weapon
                     {
-                        var attackType = Players.PlayerComputators.GetAttackBySlot(item.Slot, item.Template.InventoryType);
+                        var attackType = PlayerComputators.GetAttackBySlot(item.Slot, item.Template.InventoryType);
 
                         if (attackType != WeaponAttackType.Max)
                             UpdateDamageDoneMods(attackType, apply ? -1 : (int)slot);
@@ -683,7 +683,7 @@ public partial class Player
             if (!spellClickInfo.IsFitToRequirements(this, creature))
                 return false;
 
-            if (Global.ConditionMgr.IsObjectMeetingSpellClickConditions(creature.Entry, spellClickInfo.spellId, this, creature))
+            if (ConditionManager.IsObjectMeetingSpellClickConditions(creature.Entry, spellClickInfo.spellId, this, creature))
                 return true;
         }
 
@@ -794,7 +794,7 @@ public partial class Player
                         chance = GetWeaponProcChance();
                     }
 
-                    if (RandomHelper.randChance(chance) && Global.ScriptMgr.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.ScriptId))
+                    if (RandomHelper.randChance(chance) && ScriptManager.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.ScriptId))
                         CastSpell(damageInfo.Victim, spellInfo.Id, item);
                 }
 
@@ -2635,7 +2635,7 @@ public partial class Player
     public void UpdateEquipSpellsAtFormChange()
     {
         for (byte i = 0; i < InventorySlots.BagEnd; ++i)
-            if (_items[i] && !_items[i].IsBroken && CanUseAttackType(Players.PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
+            if (_items[i] && !_items[i].IsBroken && CanUseAttackType(PlayerComputators.GetAttackBySlot(i, _items[i].Template.InventoryType)))
             {
                 ApplyItemEquipSpell(_items[i], false, true); // remove spells that not fit to form
                 ApplyItemEquipSpell(_items[i], true, true);  // add spells that fit form but not active

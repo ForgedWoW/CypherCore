@@ -93,7 +93,7 @@ public class MiscHandler : IWorldSessionHandler
         if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.AreatriggerClientTriggered, atEntry.Id, player))
             return;
 
-        if (Global.ScriptMgr.OnAreaTrigger(player, atEntry, packet.Entered))
+        if (ScriptManager.OnAreaTrigger(player, atEntry, packet.Entered))
             return;
 
         if (player.IsAlive)
@@ -342,7 +342,7 @@ public class MiscHandler : IWorldSessionHandler
             return;
 
         _player.Movie = 0;
-        Global.ScriptMgr.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_player, movie));
+        ScriptManager.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_player, movie));
     }
 
     [WorldPacketHandler(ClientOpcodes.ConversationLineStarted)]
@@ -351,7 +351,7 @@ public class MiscHandler : IWorldSessionHandler
         var convo = ObjectAccessor.GetConversation(_player, conversationLineStarted.ConversationGUID);
 
         if (convo != null)
-            Global.ScriptMgr.RunScript<IConversationOnConversationLineStarted>(script => script.OnConversationLineStarted(convo, conversationLineStarted.LineID, _player), convo.GetScriptId());
+            ScriptManager.RunScript<IConversationOnConversationLineStarted>(script => script.OnConversationLineStarted(convo, conversationLineStarted.LineID, _player), convo.GetScriptId());
     }
 
     [WorldPacketHandler(ClientOpcodes.FarSight)]

@@ -162,13 +162,13 @@ public class Guild
         {
             Guid = guid,
             Name = name,
-            VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress
+            VirtualRealmAddress = WorldManager.Realm.Id.GetAddress()
         };
 
         BroadcastPacket(joinNotificationPacket);
 
         // Call scripts if member was succesfully added (and stored to database)
-        Global.ScriptMgr.ForEach<IGuildOnAddMember>(p => p.OnAddMember(this, player, (byte)rankId));
+        ScriptManager.ForEach<IGuildOnAddMember>(p => p.OnAddMember(this, player, (byte)rankId));
 
         return true;
     }
@@ -333,7 +333,7 @@ public class Guild
             if (leader != null)
                 SendEventNewLeader(leader, null);
 
-            Global.ScriptMgr.ForEach<IGuildOnCreate>(p => p.OnCreate(this, pLeader, name));
+            ScriptManager.ForEach<IGuildOnCreate>(p => p.OnCreate(this, pLeader, name));
         }
 
         return ret;
@@ -374,7 +374,7 @@ public class Guild
         }
 
         // Call script on remove before member is actually removed from guild (and database)
-        Global.ScriptMgr.ForEach<IGuildOnRemoveMember>(p => p.OnRemoveMember(this, player, isDisbanding, isKicked));
+        ScriptManager.ForEach<IGuildOnRemoveMember>(p => p.OnRemoveMember(this, player, isDisbanding, isKicked));
 
         m_members.Remove(guid);
 
@@ -401,7 +401,7 @@ public class Guild
 
     public void Disband()
     {
-        Global.ScriptMgr.ForEach<IGuildOnDisband>(p => p.OnDisband(this));
+        ScriptManager.ForEach<IGuildOnDisband>(p => p.OnDisband(this));
 
         BroadcastPacket(new GuildEventDisbanded());
 
@@ -709,8 +709,8 @@ public class Guild
 
         GuildInvite invite = new()
         {
-            InviterVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-            GuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+            InviterVirtualRealmAddress = WorldManager.Realm.Id.GetAddress(),
+            GuildVirtualRealmAddress = WorldManager.Realm.Id.GetAddress(),
             GuildGUID = GetGUID(),
             EmblemStyle = m_emblemInfo.GetStyle(),
             EmblemColor = m_emblemInfo.GetColor(),
@@ -728,7 +728,7 @@ public class Guild
         {
             invite.OldGuildGUID = oldGuild.GetGUID();
             invite.OldGuildName = oldGuild.GetName();
-            invite.OldGuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+            invite.OldGuildVirtualRealmAddress = WorldManager.Realm.Id.GetAddress();
         }
 
         pInvitee.SendPacket(invite);
@@ -772,7 +772,7 @@ public class Guild
         var player = session.Player;
 
         // Call script after validation and before money transfer.
-        Global.ScriptMgr.ForEach<IGuildOnMemberDepositMoney>(p => p.OnMemberDepositMoney(this, player, amount));
+        ScriptManager.ForEach<IGuildOnMemberDepositMoney>(p => p.OnMemberDepositMoney(this, player, amount));
 
         if (m_bankMoney > GuildConst.MoneyLimit - amount)
         {
@@ -843,7 +843,7 @@ public class Guild
             return false;
 
         // Call script after validation and before money transfer.
-        Global.ScriptMgr.ForEach<IGuildOnMemberWithDrawMoney>(p => p.OnMemberWitdrawMoney(this, player, amount, repair));
+        ScriptManager.ForEach<IGuildOnMemberWithDrawMoney>(p => p.OnMemberWitdrawMoney(this, player, amount, repair));
 
         SQLTransaction trans = new();
 
@@ -1001,7 +1001,7 @@ public class Guild
                 GuildReputation = (int)member.GetTotalReputation(),
                 LastSave = member.GetInactiveDays(),
                 //GuildRosterProfessionData
-                VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+                VirtualRealmAddress = WorldManager.Realm.Id.GetAddress(),
                 Status = (byte)member.GetFlags(),
                 Level = member.GetLevel(),
                 ClassID = (byte)member.GetClass(),
@@ -1118,7 +1118,7 @@ public class Guild
         {
             m_info = info;
 
-            Global.ScriptMgr.ForEach<IGuildOnInfoChanged>(p => p.OnInfoChanged(this, info));
+            ScriptManager.ForEach<IGuildOnInfoChanged>(p => p.OnInfoChanged(this, info));
 
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GUILD_INFO);
             stmt.AddValue(0, info);
@@ -1205,7 +1205,7 @@ public class Guild
         {
             m_motd = motd;
 
-            Global.ScriptMgr.ForEach<IGuildOnMOTDChanged>(p => p.OnMOTDChanged(this, motd));
+            ScriptManager.ForEach<IGuildOnMOTDChanged>(p => p.OnMOTDChanged(this, motd));
 
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GUILD_MOTD);
             stmt.AddValue(0, motd);
@@ -1927,7 +1927,7 @@ public class Guild
             Info =
             {
                 GuildGuid = GetGUID(),
-                VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+                VirtualRealmAddress = WorldManager.Realm.Id.GetAddress(),
                 EmblemStyle = m_emblemInfo.GetStyle(),
                 EmblemColor = m_emblemInfo.GetColor(),
                 BorderStyle = m_emblemInfo.GetBorderStyle(),
@@ -2421,7 +2421,7 @@ public class Guild
         var pLog = m_bankEventLog[tabId];
         pLog.AddEvent(trans, new BankEventLogEntry(m_id, pLog.GetNextGUID(), eventType, dbTabId, lowguid, itemOrMoney, itemStackCount, destTabId));
 
-        Global.ScriptMgr.ForEach<IGuildOnBankEvent>(p => p.OnBankEvent(this, (byte)eventType, tabId, lowguid, itemOrMoney, itemStackCount, destTabId));
+        ScriptManager.ForEach<IGuildOnBankEvent>(p => p.OnBankEvent(this, (byte)eventType, tabId, lowguid, itemOrMoney, itemStackCount, destTabId));
     }
 
     private void _LogEvent(GuildEventLogTypes eventType, ulong playerGuid1, ulong playerGuid2 = 0, byte newRank = 0)
@@ -2430,7 +2430,7 @@ public class Guild
         m_eventLog.AddEvent(trans, new EventLogEntry(m_id, m_eventLog.GetNextGUID(), eventType, playerGuid1, playerGuid2, newRank));
         DB.Characters.CommitTransaction(trans);
 
-        Global.ScriptMgr.ForEach<IGuildOnEvent>(p => p.OnEvent(this, (byte)eventType, playerGuid1, playerGuid2, newRank));
+        ScriptManager.ForEach<IGuildOnEvent>(p => p.OnEvent(this, (byte)eventType, playerGuid1, playerGuid2, newRank));
     }
 
     private bool _MemberHasTabRights(ObjectGuid guid, byte tabId, GuildBankRights rights)
@@ -2791,14 +2791,14 @@ public class Guild
         {
             eventPacket.NewLeaderGUID = newLeader.GetGUID();
             eventPacket.NewLeaderName = newLeader.GetName();
-            eventPacket.NewLeaderVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+            eventPacket.NewLeaderVirtualRealmAddress = WorldManager.Realm.Id.GetAddress();
         }
 
         if (oldLeader != null)
         {
             eventPacket.OldLeaderGUID = oldLeader.GetGUID();
             eventPacket.OldLeaderName = oldLeader.GetName();
-            eventPacket.OldLeaderVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+            eventPacket.OldLeaderVirtualRealmAddress = WorldManager.Realm.Id.GetAddress();
         }
 
         BroadcastPacket(eventPacket);
@@ -2811,14 +2811,14 @@ public class Guild
             Removed = isRemoved,
             LeaverGUID = leaver.GUID,
             LeaverName = leaver.GetName(),
-            LeaverVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress
+            LeaverVirtualRealmAddress = WorldManager.Realm.Id.GetAddress()
         };
 
         if (isRemoved && remover)
         {
             eventPacket.RemoverGUID = remover.GUID;
             eventPacket.RemoverName = remover.GetName();
-            eventPacket.RemoverVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+            eventPacket.RemoverVirtualRealmAddress = WorldManager.Realm.Id.GetAddress();
         }
 
         BroadcastPacket(eventPacket);
@@ -2832,7 +2832,7 @@ public class Guild
         {
             Guid = player.GUID,
             Name = player.GetName(),
-            VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+            VirtualRealmAddress = WorldManager.Realm.Id.GetAddress(),
             LoggedOn = loggedOn,
             Mobile = false
         };
@@ -4218,7 +4218,7 @@ public class Guild
 
         public virtual void LogAction(MoveItemData pFrom)
         {
-            Global.ScriptMgr.ForEach<IGuildOnItemMove>(p => p.OnItemMove(m_pGuild,
+            ScriptManager.ForEach<IGuildOnItemMove>(p => p.OnItemMove(m_pGuild,
                                                                          m_pPlayer,
                                                                          pFrom.GetItem(),
                                                                          pFrom.IsBank(),

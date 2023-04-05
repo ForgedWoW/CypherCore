@@ -895,7 +895,7 @@ public class AreaTrigger : WorldObject
 
     private void LoadScripts()
     {
-        _loadedScripts = Global.ScriptMgr.CreateAreaTriggerScripts(_areaTriggerId, this);
+        _loadedScripts = ScriptManager.CreateAreaTriggerScripts(_areaTriggerId, this);
 
         foreach (var script in _loadedScripts)
         {

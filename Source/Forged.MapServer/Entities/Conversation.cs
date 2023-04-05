@@ -245,7 +245,7 @@ public class Conversation : WorldObject
         foreach (var actor in conversationTemplate.Actors)
             new ConversationActorFillVisitor(this, creator, map, actor).Invoke(actor);
 
-        Global.ScriptMgr.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
+        ScriptManager.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
 
         List<ConversationLine> lines = new();
 
@@ -292,7 +292,7 @@ public class Conversation : WorldObject
         // conversations are despawned 5-20s after LastLineEndTime
         _duration += TimeSpan.FromSeconds(10);
 
-        Global.ScriptMgr.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
+        ScriptManager.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
     }
 
     private TimeSpan GetDuration()
