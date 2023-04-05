@@ -690,8 +690,7 @@ class BgWarsongGluch : Battleground
 				player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, WSObjectives.ReturnFlag);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;

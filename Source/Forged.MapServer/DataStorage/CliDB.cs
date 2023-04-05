@@ -932,8 +932,7 @@ public class CliDB
                 return row.Evoker;
             case PlayerClass.Adventurer:
                 return row.Adventurer;
-            default:
-                break;
+            
         }
 
         return 0.0f;

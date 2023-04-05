@@ -423,8 +423,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
                         HandleGameObject(ObjectGuid.Empty, true, go);
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -451,8 +450,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
                 case DataTypes.GeneralDrakkisath:
                 case DataTypes.DragonspireRoom:
                     break;
-                default:
-                    break;
+                
             }
 
             return true;
@@ -476,8 +474,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
                     if (GetBossState(CreaturesIds.UrokDoomhowl) == EncounterState.NotStarted) { }
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -501,8 +498,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
                     }
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -578,8 +574,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
                     return go_portcullis_active;
                 case GameObjectsIds.PortcullisTobossrooms:
                     return go_portcullis_tobossrooms;
-                default:
-                    break;
+                
             }
 
             return ObjectGuid.Empty;
@@ -605,8 +600,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
                             _events.ScheduleEvent(EventIds.DargonspireRoomCheck, TimeSpan.FromSeconds(3));
 
                         break;
-                    default:
-                        break;
+                    
                 }
             });
         }
@@ -689,8 +683,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
                             SetBossState(DataTypes.HallRune7, EncounterState.Done);
 
                             break;
-                        default:
-                            break;
+                        
                     }
                 }
             }

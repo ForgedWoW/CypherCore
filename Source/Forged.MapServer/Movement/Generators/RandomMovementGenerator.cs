@@ -214,8 +214,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 
                 break;
 
-            default:
-                break;
+            
         }
 
         MoveSplineInit init = new(owner);

@@ -777,8 +777,7 @@ public class CriteriaHandler
 
 				return progress >= requiredCount;
 			}
-			default:
-				break;
+			
 		}
 
 		return false;
@@ -831,8 +830,7 @@ public class CriteriaHandler
 
 				return false;
 			}
-			default:
-				break;
+			
 		}
 
 		return false;
@@ -955,8 +953,7 @@ public class CriteriaHandler
 			case CriteriaType.Login:
 				return true;
 			// handle all statistic-only criteria here
-			default:
-				break;
+			
 		}
 
 		return false;
@@ -1031,8 +1028,7 @@ public class CriteriaHandler
 					return false;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -1384,8 +1380,7 @@ public class CriteriaHandler
 					return false;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -3829,8 +3824,7 @@ public class CriteriaHandler
 					case 149: // Shadowlands Season 2 End
 						// timestamp = unknown
 						break;
-					default:
-						break;
+					
 				}
 
 				if (GameTime.GetGameTime() < eventTimestamp)

@@ -112,8 +112,7 @@ class DisableCommands
 
 					break;
 				}
-				default:
-					break;
+				
 			}
 
 			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_DISABLES);

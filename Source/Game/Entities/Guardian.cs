@@ -410,8 +410,7 @@ public class Guardian : Minion
 				UpdateMaxPower(PowerType.Mana);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;

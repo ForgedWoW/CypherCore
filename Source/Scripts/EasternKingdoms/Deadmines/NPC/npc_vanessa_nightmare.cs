@@ -244,8 +244,7 @@ public class npc_vanessa_nightmare : BossAI
                         Me.MotionMaster.MovePoint(1, -150.96f, -579.99f, 19.31f);
 
                         break;
-                    default:
-                        break;
+                    
                 }
             else
                 NightmareTimer -= diff;
@@ -420,8 +419,7 @@ public class npc_vanessa_nightmare : BossAI
                         break;
                     case 24:
                         break;
-                    default:
-                        break;
+                    
                 }
             else
                 NightmareTimer -= diff;

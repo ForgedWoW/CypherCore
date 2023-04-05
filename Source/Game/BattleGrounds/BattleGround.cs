@@ -133,8 +133,7 @@ public class Battleground : ZoneScript, IDisposable
 				_ProcessLeave(diff);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		// Update start time and reset stats timer
@@ -661,8 +660,7 @@ public class Battleground : ZoneScript, IDisposable
 				pvpMatchInitialize.State = PVPMatchInitialize.MatchState.Complete;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		if (GetElapsedTime() >= (int)BattlegroundStartTimeIntervals.Delay2m)
@@ -1570,8 +1568,7 @@ public class Battleground : ZoneScript, IDisposable
 					return 3;
 				case ArenaTypes.Team5v5: // removed
 					return 5;
-				default:
-					break;
+				
 			}
 
 		return _battlegroundTemplate.GetMaxPlayersPerTeam();

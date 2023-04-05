@@ -701,8 +701,7 @@ class BgArathiBasin : Battleground
 				player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, (uint)ABObjectives.DefendBase);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -797,8 +796,7 @@ class BgArathiBasin : Battleground
 				UpdateWorldState(ABWorldStates.GoldMineAllianceControlState, m_Nodes[node] == ABNodeStatus.AllyOccupied ? 2 : (m_Nodes[node] == ABNodeStatus.AllyContested ? 1 : 0));
 
 				break;
-			default:
-				break;
+			
 		}
 
 		// How many bases each team owns

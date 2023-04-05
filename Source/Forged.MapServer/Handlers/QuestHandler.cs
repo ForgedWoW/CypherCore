@@ -158,8 +158,7 @@ public class QuestHandler : IWorldSessionHandler
 
                     continue;
                 }
-                default:
-                    break;
+                
             }
 
             if (!receiver.SatisfyQuestLog(false))

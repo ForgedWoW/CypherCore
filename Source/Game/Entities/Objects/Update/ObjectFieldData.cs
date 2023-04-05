@@ -163,8 +163,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 							dynFlags |= GameObjectDynamicLowFlags.Depleted;
 
 						break;
-					default:
-						break;
+					
 				}
 
 				if (!gameObject.MeetsInteractCondition(receiver))

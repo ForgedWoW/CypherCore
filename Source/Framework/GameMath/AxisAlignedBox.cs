@@ -309,8 +309,7 @@ public struct AxisAlignedBox : ISerializable, ICloneable
 
                 break;
 
-            default:
-                break;
+            
         }
 
         return v;

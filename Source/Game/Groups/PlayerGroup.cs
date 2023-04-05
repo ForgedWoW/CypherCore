@@ -1451,8 +1451,7 @@ public class PlayerGroup
 					_recentInstances.Remove(map.Id); // forget the instance, allows retrying different lockout with a new leader
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 	}

@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Runtime.InteropServices;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Query;
 using Framework.Constants;
 
@@ -397,8 +398,7 @@ public class GameObjectTemplate
                 autoCloseTime = TrapDoor.autoClose;
 
                 break;
-            default:
-                break;
+            
         }
 
         return autoCloseTime; // prior to 3.0.3, conversion was / 0x10000;
@@ -553,7 +553,7 @@ public class GameObjectTemplate
         };
     }
 
-    public void InitializeQueryData()
+    public void InitializeQueryData(GameObjectManager objectManager)
     {
         QueryData = new QueryGameObjectResponse
         {
@@ -575,7 +575,7 @@ public class GameObjectTemplate
             Size = size
         };
 
-        var items = Global.ObjectMgr.GetGameObjectQuestItemList(entry);
+        var items = objectManager.GetGameObjectQuestItemList(entry);
 
         foreach (var item in items)
             stats.QuestItems.Add(item);

@@ -979,8 +979,7 @@ public class BattlepayManager
                     player->CompletedAchievement(sAchievementStore.LookupEntry(11446));
                     player->GetSession()->SendNotification("|cff00FF00Has aprendido poder volar en las Islas Abruptas, Costas Abruptas y Draenor");
                     break;
-                    //default:
-                        //break;
+                    //
                         */
             }
         }
@@ -1360,8 +1359,7 @@ public class BattlepayManager
                 SendBattlePayDistribution(data.ProductID, data.Status, data.DistributionId, data.TargetCharacter);
                 break;
             }
-            default:
-                break;
+            
             }
             break;
         }
@@ -1375,8 +1373,7 @@ public class BattlepayManager
                 SendBattlePayDistribution(data.ProductID, data.Status, data.DistributionId, data.TargetCharacter);
                 break;
             }
-            default:
-                break;
+            
             }
             break;
         }
@@ -1388,15 +1385,13 @@ public class BattlepayManager
                 SendBattlePayDistribution(data.ProductID, data.Status, data.DistributionId, data.TargetCharacter);
                 break;
 
-            default:
-                break;
+            
             }
             break;
         }
         case Battlepay::Properties::DistributionStatus::BATTLE_PAY_DIST_STATUS_AVAILABLE:
         case Battlepay::Properties::DistributionStatus::BATTLE_PAY_DIST_STATUS_NONE:
-        default:
-            break;
+        
         }
         */
     }

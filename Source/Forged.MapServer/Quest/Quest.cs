@@ -676,8 +676,7 @@ public class Quest
                 return difficulty is Difficulty.Raid10N or Difficulty.Raid10HC;
             case QuestInfos.Raid25:
                 return difficulty is Difficulty.Raid25N or Difficulty.Raid25HC;
-            default:
-                break;
+            
         }
 
         if (Flags.HasAnyFlag(QuestFlags.Raid))

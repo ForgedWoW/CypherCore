@@ -67,8 +67,7 @@ public class AuctionManager : Singleton<AuctionManager>
 				return _hordeAuctions;
 			case 7:
 				return _goblinAuctions;
-			default:
-				break;
+			
 		}
 
 		return _neutralAuctions;

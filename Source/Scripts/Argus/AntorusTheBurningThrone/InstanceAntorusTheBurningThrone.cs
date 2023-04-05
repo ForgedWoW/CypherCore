@@ -101,8 +101,7 @@ internal class instance_antorus_the_burning_throne : InstanceMapScript, IInstanc
                         garothi.AI.JustSummoned(creature);
 
                     break;
-                default:
-                    break;
+                
             }
         }
     }

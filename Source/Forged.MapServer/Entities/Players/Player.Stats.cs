@@ -112,7 +112,7 @@ public partial class Player
 
     public override void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, out double minDamage, out double maxDamage)
     {
-        UnitMods unitMod = attType switch
+        var unitMod = attType switch
         {
             WeaponAttackType.BaseAttack   => UnitMods.DamageMainHand,
             WeaponAttackType.OffAttack    => UnitMods.DamageOffHand,

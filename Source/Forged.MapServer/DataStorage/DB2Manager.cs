@@ -172,7 +172,7 @@ public class DB2Manager
         if (expectedStatRecord == null)
             return 1.0f;
 
-        ExpectedStatModRecord classMod = unitClass switch
+        var classMod = unitClass switch
         {
             PlayerClass.Warrior => _cliDB.ExpectedStatModStorage.LookupByKey(4u),
             PlayerClass.Paladin => _cliDB.ExpectedStatModStorage.LookupByKey(2u),

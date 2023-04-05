@@ -7687,8 +7687,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							Log.outError(LogFilter.Sql, "Quest {0} objective {1} has invalid StorageIndex = {2} for objective type {3}", qinfo.Id, obj.Id, obj.StorageIndex, obj.Type);
 
 							break;
-						default:
-							break;
+						
 					}
 
 				switch (obj.Type)
@@ -10830,8 +10829,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.ShadowLands", 60);
 			case Expansion.Dragonflight:
 				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.Dragonflight", 70);
-			default:
-				break;
+			
 		}
 
 		return 0;
@@ -11979,8 +11977,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					continue;
 				}
-				default:
-					break;
+				
 			}
 
 			if (!scripts.ContainsKey(tmp.id))
@@ -13206,8 +13203,7 @@ public class SpellClickInfo
 					return false;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -13504,8 +13500,7 @@ class ItemSpecStats
 					AddStat(ItemSpecStat.Wand);
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 		else if (item.ClassID == ItemClass.Armor)

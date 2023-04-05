@@ -1112,8 +1112,7 @@ internal class LookupCommands
                                         statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
 
                                         break;
-                                    default:
-                                        break;
+                                    
                                 }
 
                             if (handler.Session != null)
@@ -1186,8 +1185,7 @@ internal class LookupCommands
                                 statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
 
                                 break;
-                            default:
-                                break;
+                            
                         }
                     }
 
@@ -1267,8 +1265,7 @@ internal class LookupCommands
                             statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
 
                             break;
-                        default:
-                            break;
+                        
                     }
 
                 if (handler.Session)

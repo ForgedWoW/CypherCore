@@ -212,9 +212,8 @@ public class CollectionMgr
             // Check for heirloom pairs (normal - heroic, heroic - mythic)
             var heirloomItemId = heirloom.StaticUpgradedItemID;
             uint newItemId = 0;
-            HeirloomRecord heirloomDiff;
 
-            while ((heirloomDiff = _db2Manager.GetHeirloomByItemId(heirloomItemId)) != null)
+            while (_db2Manager.GetHeirloomByItemId(heirloomItemId) is { } heirloomDiff)
             {
                 if (player.GetItemByEntry(heirloomDiff.ItemID))
                     newItemId = heirloomDiff.ItemID;

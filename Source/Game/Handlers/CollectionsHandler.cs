@@ -31,8 +31,7 @@ public partial class WorldSession
 			}
 			case CollectionType.TransmogSet:
 				break;
-			default:
-				break;
+			
 		}
 	}
 }

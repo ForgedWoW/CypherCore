@@ -381,8 +381,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 			case CriteriaType.GainAura:           // NYI
 			case CriteriaType.WinAnyBattleground: // NYI
 				return true;
-			default:
-				break;
+			
 		}
 
 		return false;

@@ -10,7 +10,7 @@ namespace Forged.MapServer.Maps;
 
 public class BattlegroundMap : Map
 {
-    private Battleground _bg;
+    public Battleground BG { get; private set; }
 
     public BattlegroundMap(uint id, uint expiry, uint InstanceId, Difficulty spawnMode)
         : base(id, expiry, InstanceId, spawnMode)
@@ -40,10 +40,6 @@ public class BattlegroundMap : Map
         return base.CannotEnter(player);
     }
 
-    public Battleground GetBG()
-    {
-        return _bg;
-    }
 
     public override void InitVisibilityDistance()
     {
@@ -70,7 +66,7 @@ public class BattlegroundMap : Map
 
     public void SetBG(Battleground bg)
     {
-        _bg = bg;
+        BG = bg;
     }
 
     public void SetUnload()

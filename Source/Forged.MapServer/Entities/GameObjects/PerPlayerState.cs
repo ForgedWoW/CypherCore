@@ -8,7 +8,7 @@ namespace Forged.MapServer.Entities.GameObjects;
 
 public class PerPlayerState
 {
-    public GameObjectState? State;
     public bool Despawned { get; set; }
+    public GameObjectState? State { get; set; }
     public DateTime ValidUntil { get; set; } = DateTime.MinValue;
 }

@@ -147,8 +147,7 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
                         SummonNote();
 
                     break;
-                default:
-                    break;
+                
             }
 
             return true;

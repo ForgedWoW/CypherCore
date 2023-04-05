@@ -33,8 +33,7 @@ public class QuestObjective
             case QuestObjectiveType.HaveCurrency:
             case QuestObjectiveType.IncreaseReputation:
                 return true;
-            default:
-                break;
+            
         }
 
         return false;
@@ -51,8 +50,7 @@ public class QuestObjective
             case QuestObjectiveType.AreaTriggerEnter:
             case QuestObjectiveType.AreaTriggerExit:
                 return true;
-            default:
-                break;
+            
         }
 
         return false;
@@ -72,8 +70,7 @@ public class QuestObjective
             case QuestObjectiveType.ObtainCurrency:
             case QuestObjectiveType.IncreaseReputation:
                 return true;
-            default:
-                break;
+            
         }
 
         return false;

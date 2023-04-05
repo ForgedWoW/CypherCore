@@ -102,8 +102,7 @@ internal class HellfirePeninsulaPvP : OutdoorPvP
                 m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.Stadium] = go.SpawnId;
 
                 break;
-            default:
-                break;
+            
         }
 
         base.OnGameObjectCreate(go);

@@ -121,8 +121,7 @@ internal class SmartQuest : ScriptObjectAutoAddDBBound, IQuestOnQuestStatusChang
 
                 break;
             case QuestStatus.None:
-            default:
-                break;
+            
         }
     }
 }

@@ -525,8 +525,7 @@ public partial class Unit
 					DoneTotal += aurEff.Amount;
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 
@@ -806,8 +805,7 @@ public partial class Unit
 								}
 
 								break;
-							default:
-								break;
+							
 						}
 					}
 
@@ -1139,8 +1137,7 @@ public partial class Unit
 					hitMask |= ProcFlagsHit.FullResist;
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 		else
@@ -1788,8 +1785,7 @@ public partial class Unit
 
 				break;
 			}
-			default:
-				break; // other spell types don't break anything now
+			 // other spell types don't break anything now
 		}
 
 		// current spell (if it is still here) may be safely deleted now
@@ -2076,8 +2072,7 @@ public partial class Unit
 
 					break;
 				}
-				default:
-					break;
+				
 			}
 		}
 
@@ -2352,8 +2347,7 @@ public partial class Unit
 							mod = 0.0f;
 
 							break;
-						default:
-							break;
+						
 					}
 				}
 
@@ -2373,8 +2367,7 @@ public partial class Unit
 							mod = 0.5f;
 
 							break;
-						default:
-							break;
+						
 					}
 				}
 
@@ -4515,8 +4508,7 @@ public partial class Unit
 				}
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return false;

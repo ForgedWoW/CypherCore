@@ -126,8 +126,7 @@ internal class spell_brewfest_giddyup : AuraScript, IHasAuraEffects
                 target.CastSpell(target, SpellIds.RamGallop, true);
 
                 break;
-            default:
-                break;
+            
         }
 
         if (TargetApplication.RemoveMode == AuraRemoveMode.Default)
@@ -207,8 +206,7 @@ internal class spell_brewfest_ram : AuraScript, IHasAuraEffects
 
                 break;
             }
-            default:
-                break;
+            
         }
     }
 }

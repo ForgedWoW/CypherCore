@@ -71,8 +71,7 @@ public class TraitConfigPacket
 				TraitSystemID = data.ReadInt32();
 
 				break;
-			default:
-				break;
+			
 		}
 
 		for (var i = 0; i < entriesCount; ++i)
@@ -108,8 +107,7 @@ public class TraitConfigPacket
 				data.WriteInt32(TraitSystemID);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		foreach (var tkvp in Entries)

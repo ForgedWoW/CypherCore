@@ -316,8 +316,7 @@ internal class boss_felblood_kaelthas : BossAI
                 unitTarget.RemoveAura(DungeonMode(SpellIds.GravityLapse, SpellIds.HGravityLapse));
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -339,8 +338,7 @@ internal class boss_felblood_kaelthas : BossAI
                 summon.DespawnOrUnsummon(TimeSpan.FromSeconds(15));
 
                 break;
-            default:
-                break;
+            
         }
     }
 

@@ -86,8 +86,7 @@ public class LFGManager : Singleton<LFGManager>
 				SetState(guid, state);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 

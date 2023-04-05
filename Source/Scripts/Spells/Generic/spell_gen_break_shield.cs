@@ -82,8 +82,7 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 
                 break;
             }
-            default:
-                break;
+            
         }
     }
 }

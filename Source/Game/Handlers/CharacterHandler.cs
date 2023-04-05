@@ -238,8 +238,7 @@ public partial class WorldSession
 							pCurrChar.SceneMgr.PlayScene(playerInfo.IntroSceneIdNpe.Value);
 
 						break;
-					default:
-						break;
+					
 				}
 		}
 
@@ -435,8 +434,7 @@ public partial class WorldSession
 						repMgr.SetOneFactionReputation(CliDB.FactionStorage.LookupByKey(1085), 42999, false); // Warsong Offensive
 
 						break;
-					default:
-						break;
+					
 				}
 
 				repMgr.SendState(null);

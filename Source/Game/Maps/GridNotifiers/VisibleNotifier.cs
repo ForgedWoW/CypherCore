@@ -73,8 +73,7 @@ public class VisibleNotifier : IGridNotifierWorldObject
 							Player.UpdateVisibilityOf(obj.AsAreaTrigger, Data, VisibleNow);
 
 							break;
-						default:
-							break;
+						
 					}
 				}
 

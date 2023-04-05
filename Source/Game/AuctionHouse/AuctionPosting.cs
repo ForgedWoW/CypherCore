@@ -191,8 +191,7 @@ public class AuctionPosting
 					return (long)(left.BidAmount - right.BidAmount);
 				case AuctionHouseSortOrder.Buyout:
 					return (long)(left.BuyoutOrUnitPrice - right.BuyoutOrUnitPrice);
-				default:
-					break;
+				
 			}
 
 			return 0;

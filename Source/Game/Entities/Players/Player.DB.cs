@@ -2518,8 +2518,7 @@ public partial class Player
 						max = GetMaxSkillValueForLevel();
 
 						break;
-					default:
-						break;
+					
 				}
 
 				if (!_skillStatus.ContainsKey(skill))
@@ -3244,8 +3243,7 @@ public partial class Player
 						traitConfig.TraitSystemID = configsResult.Read<int>(6);
 
 						break;
-					default:
-						break;
+					
 				}
 
 				traitConfig.Name = configsResult.Read<string>(7);
@@ -3318,8 +3316,7 @@ public partial class Player
 						continue;
 
 					break;
-				default:
-					break;
+				
 			}
 
 			ApplyTraitConfig(traitConfig.ID, true);
@@ -3973,8 +3970,7 @@ public partial class Player
 					trans.Append(stmt);
 
 					break;
-				default:
-					break;
+				
 			}
 
 			pair.Value.State = SkillState.Unchanged;
@@ -4143,8 +4139,7 @@ public partial class Player
 					trans.Append(stmt);
 
 					break;
-				default:
-					break;
+				
 			}
 
 			currency.State = PlayerCurrencyState.Unchanged;
@@ -4217,8 +4212,7 @@ public partial class Player
 					_actionButtons.Remove(pair.Key);
 
 					break;
-				default:
-					break;
+				
 			}
 	}
 
@@ -4507,8 +4501,7 @@ public partial class Player
 								stmt.AddValue(7, traitConfig.TraitSystemID);
 
 								break;
-							default:
-								break;
+							
 						}
 
 						stmt.AddValue(8, traitConfig.Name);
@@ -4545,8 +4538,7 @@ public partial class Player
 					trans.Append(stmt);
 
 					break;
-				default:
-					break;
+				
 			}
 
 		_traitConfigStates.Clear();

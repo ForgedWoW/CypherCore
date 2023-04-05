@@ -229,8 +229,7 @@ public class LanguageManager : Singleton<LanguageManager>
 						i += 2;
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 

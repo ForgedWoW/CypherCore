@@ -71,8 +71,7 @@ internal class BanCommands
 
                 return false;
             }
-            default:
-                break;
+            
         }
 
         return true;

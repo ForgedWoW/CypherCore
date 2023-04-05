@@ -439,8 +439,7 @@ public sealed class CreatureTextManager
 
                 return;
             case CreatureTextRange.Normal:
-            default:
-                break;
+            
         }
 
         var dist = GetRangeForChatType(msgType);
@@ -605,8 +604,7 @@ public sealed class CreatureTextManager
 
                 return;
             case CreatureTextRange.Normal:
-            default:
-                break;
+            
         }
 
         source.SendMessageToSetInRange(data, dist, true);

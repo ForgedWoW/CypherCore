@@ -376,8 +376,7 @@ public partial class WorldSession
 						Log.outDebug(LogFilter.Maps, $"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because instance is resetting.");
 
 						break;
-					default:
-						break;
+					
 				}
 
 				if (denyReason.Reason != TransferAbortReason.NeedGroup)

@@ -41,8 +41,7 @@ internal class spell_evoker_eternity_surge : SpellScript, ISpellOnEpowerSpellEnd
                 targets = 4 * multi;
 
                 break;
-            default:
-                break;
+            
         }
 
         targets--;

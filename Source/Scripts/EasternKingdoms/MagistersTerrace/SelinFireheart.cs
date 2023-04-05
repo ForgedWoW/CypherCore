@@ -83,8 +83,7 @@ internal class boss_selin_fireheart : BossAI
                 Me.MotionMaster.MoveChase(Me.Victim);
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -190,8 +189,7 @@ internal class boss_selin_fireheart : BossAI
 
                     break;
                 }
-                default:
-                    break;
+                
             }
 
             if (Me.HasUnitState(UnitState.Casting))

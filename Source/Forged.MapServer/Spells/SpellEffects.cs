@@ -2954,8 +2954,7 @@ public partial class Spell
                 targetAura.SetStackAmount((byte)Damage);
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -3360,8 +3359,7 @@ public partial class Spell
                 player.Session.SendNotification(CypherStrings.ZoneNoflyzone);
 
                 break;
-            default:
-                break;
+            
         }
 
         var soundId = (uint)EffectInfo.MiscValue;
@@ -5665,8 +5663,7 @@ public partial class Spell
                 break;
             case GameObjectTypes.FishingHole:
             case GameObjectTypes.Chest:
-            default:
-                break;
+            
         }
 
         go.SetRespawnTime(duration > 0 ? duration / Time.IN_MILLISECONDS : 0);
@@ -6177,8 +6174,7 @@ public partial class Spell
                     MathFunctions.ApplyPct(ref weaponDamagePercentMod, CalculateDamage(spellEffectInfo, UnitTarget));
 
                     break;
-                default:
-                    break; // not weapon damage effect, just skip
+                 // not weapon damage effect, just skip
             }
 
         // if (addPctMods) { percent mods are added in Unit::CalculateDamage } else { percent mods are added in Unit::MeleeDamageBonusDone }
@@ -6233,8 +6229,7 @@ public partial class Spell
                     weaponDamage = weaponDamage * weaponDamagePercentMod;
 
                     break;
-                default:
-                    break; // not weapon damage effect, just skip
+                 // not weapon damage effect, just skip
             }
 
         weaponDamage += spell_bonus;

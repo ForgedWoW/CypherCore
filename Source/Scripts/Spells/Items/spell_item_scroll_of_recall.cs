@@ -42,8 +42,7 @@ internal class spell_item_scroll_of_recall : SpellScript, IHasSpellEffects
                 maxSafeLevel = 80;
 
                 break;
-            default:
-                break;
+            
         }
 
         if (caster.Level > maxSafeLevel)

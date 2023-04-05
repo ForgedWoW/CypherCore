@@ -659,8 +659,7 @@ namespace Game.Entities
 										GoValueProtected.FishingHole.MaxOpens = RandomHelper.URand(Template.FishingHole.minRestock, Template.FishingHole.maxRestock);
 
 										break;
-									default:
-										break;
+									
 								}
 
 								if (!_spawnedByDefault) // despawn timer
@@ -897,8 +896,7 @@ namespace Game.Entities
 
 							break;
 						}
-						default:
-							break;
+						
 					}
 
 					break;
@@ -1514,8 +1512,7 @@ namespace Game.Entities
 
 					break;
 				}
-				default:
-					break;
+				
 			}
 
 			return false;
@@ -2597,8 +2594,7 @@ namespace Game.Entities
 
 							break;
 						}
-						default:
-							break;
+						
 					}
 
 					break;
@@ -2631,8 +2627,7 @@ namespace Game.Entities
 							gameObjectUILink.InteractionType = PlayerInteractionType.ItemInteraction;
 
 							break;
-						default:
-							break;
+						
 					}
 
 					player.SendPacket(gameObjectUILink);
@@ -3218,8 +3213,7 @@ namespace Game.Entities
 								return modelData.State2NameSet;
 							case GameObjectDestructibleState.Rebuilding:
 								return modelData.State3NameSet;
-							default:
-								break;
+							
 						}
 
 					break;
@@ -3229,8 +3223,7 @@ namespace Game.Entities
 					var flags = (GameObjectFlags)(uint)GameObjectFieldData.Flags;
 
 					return (byte)(((int)flags >> 8) & 0xF);
-				default:
-					break;
+				
 			}
 
 			return 0;
@@ -3371,8 +3364,7 @@ namespace Game.Entities
 					return (GameObjectType.Transport)_goTypeImpl;
 				case GameObjectTypes.MapObjTransport:
 					return (Transport)this;
-				default:
-					break;
+				
 			}
 
 			return null;
@@ -3531,8 +3523,7 @@ namespace Game.Entities
 						GoValueProtected.CapturePoint.AssaultTimer = Template.CapturePoint.CaptureTime;
 
 						break;
-					default:
-						break;
+					
 				}
 			}
 			else
@@ -3565,8 +3556,7 @@ namespace Game.Entities
 						GoValueProtected.CapturePoint.AssaultTimer = Template.CapturePoint.CaptureTime;
 
 						break;
-					default:
-						break;
+					
 				}
 			}
 		}
@@ -4162,8 +4152,7 @@ namespace Game.Entities
 					spellVisualId = Template.CapturePoint.SpellVisual5;
 
 					break;
-				default:
-					break;
+				
 			}
 
 			if (customAnim != 0)

@@ -205,8 +205,7 @@ public class AuctionManager
             case 7:
                 return _goblinAuctions;
 
-            default:
-                break;
+            
         }
 
         return _neutralAuctions;

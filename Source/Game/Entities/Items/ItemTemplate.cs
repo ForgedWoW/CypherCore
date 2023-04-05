@@ -212,8 +212,7 @@ public class ItemTemplate
 			case InventoryType.Shield:
 			case InventoryType.Holdable:
 				return true;
-			default:
-				break;
+			
 		}
 
 		switch (Class)
@@ -312,8 +311,7 @@ public class ItemTemplate
 					locationModifier = location.Platemodifier;
 
 					break;
-				default:
-					break;
+				
 			}
 
 			return (uint)(armorQuality.QualityMod[(int)quality] * total * locationModifier + 0.5f);
@@ -368,8 +366,7 @@ public class ItemTemplate
 							dps = CliDB.ItemDamageTwoHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
 						break;
-					default:
-						break;
+					
 				}
 
 				break;
@@ -382,8 +379,7 @@ public class ItemTemplate
 					dps = CliDB.ItemDamageOneHandStorage.LookupByKey(itemLevel).Quality[(int)quality];
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return dps;

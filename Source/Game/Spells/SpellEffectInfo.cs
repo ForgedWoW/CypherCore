@@ -811,13 +811,11 @@ public class SpellEffectInfo
 							return ExpectedStatType.PlayerMana;
 
 						return ExpectedStatType.None;
-					default:
-						break;
+					
 				}
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return ExpectedStatType.None;

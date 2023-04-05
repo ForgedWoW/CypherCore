@@ -375,7 +375,7 @@ public class Transport : GameObject, ITransport
                     return null;
             }
 
-        TempSummon summon = mask switch
+        var summon = mask switch
         {
             UnitTypeMask.Summon   => new TempSummon(properties, summoner, false),
             UnitTypeMask.Guardian => new Guardian(properties, summoner, false),

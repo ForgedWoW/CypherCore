@@ -430,8 +430,7 @@ public partial class Spell : IDisposable
 
                         break;
                     case SpellGroupStackRule.Default:
-                    default:
-                        break;
+                    
                 }
             }
         }
@@ -495,8 +494,7 @@ public partial class Spell : IDisposable
 
                 break;
 
-            default:
-                break;
+            
         }
 
         SetReferencedFromCurrent(false);
@@ -1664,8 +1662,7 @@ public partial class Spell : IDisposable
 
                     break;
                 }
-                default:
-                    break;
+                
             }
 
             if (spellEffectInfo.IsAura())
@@ -1799,8 +1796,7 @@ public partial class Spell : IDisposable
 
                     break;
                 }
-                default:
-                    break;
+                
             }
 
             // check if target already has the same type, but more powerful aura
@@ -1964,16 +1960,14 @@ public partial class Spell : IDisposable
                                 return !th.Area;
                             case SpellTargetReferenceTypes.Target: // BOTH
                                 return true;
-                            default:
-                                break;
+                            
                         }
 
                         break;
                 }
 
                 break;
-            default:
-                break;
+            
         }
 
         return false;
@@ -2487,8 +2481,7 @@ public partial class Spell : IDisposable
                 retMask &= GridMapTypeMask.GameObject;
 
                 break;
-            default:
-                break;
+            
         }
 
         if (SpellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
@@ -3490,8 +3483,7 @@ public partial class Spell : IDisposable
 
                 break;
             }
-            default:
-                break;
+            
         }
     }
     private static void FillSpellCastFailedArgs<T>(T packet, ObjectGuid castId, SpellInfo spellInfo, SpellCastResult result, SpellCustomErrors customError, int? param1, int? param2, Player caster) where T : CastFailedBase
@@ -3717,8 +3709,7 @@ public partial class Spell : IDisposable
                 break;
             }
             // TODO: SPELL_FAILED_NOT_STANDING
-            default:
-                break;
+            
         }
     }
 
@@ -5077,8 +5068,7 @@ public partial class Spell : IDisposable
                         return false;
 
                 break;
-            default:
-                break;
+            
         }
 
         // check for ignore LOS on the effect itself
@@ -5168,8 +5158,7 @@ public partial class Spell : IDisposable
                     return false;
 
                 break;
-            default:
-                break;
+            
         }
 
         return true;
@@ -5716,8 +5705,7 @@ public partial class Spell : IDisposable
                         case ItemSubClassWeapon.Crossbow:
                         case ItemSubClassWeapon.Wand:
                             break;
-                        default:
-                            break;
+                        
                     }
 
                     break;
@@ -5773,8 +5761,7 @@ public partial class Spell : IDisposable
 
                     break;
                 }
-                default:
-                    break;
+                
             }
 
         // check weapon presence in slots for main/offhand weapons
@@ -6913,8 +6900,7 @@ public partial class Spell : IDisposable
 
                 break;
             }
-            default:
-                break;
+            
         }
 
         switch (targetType.SelectionCategory)
@@ -7045,8 +7031,7 @@ public partial class Spell : IDisposable
                 }
 
                 return;
-            default:
-                break;
+            
         }
 
         // select spell implicit targets based on effect type
@@ -7106,8 +7091,7 @@ public partial class Spell : IDisposable
                     target = Caster;
 
                 break;
-            default:
-                break;
+            
         }
 
         CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, new SpellImplicitTargetInfo());
@@ -7146,8 +7130,7 @@ public partial class Spell : IDisposable
                         redirect = Caster.AsUnit.GetMeleeHitRedirectTarget(target, SpellInfo);
 
                         break;
-                    default:
-                        break;
+                    
                 }
 
                 if (redirect != null && (redirect != target))
@@ -7484,8 +7467,7 @@ public partial class Spell : IDisposable
 
                         break;
                     }
-                    default:
-                        break;
+                    
                 }
 
                 if (dist < objSize)
@@ -7580,8 +7562,7 @@ public partial class Spell : IDisposable
 
                 break;
             }
-            default:
-                break;
+            
         }
 
         CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
@@ -7742,8 +7723,7 @@ public partial class Spell : IDisposable
                     coneSrc.Orientation = Caster.Location.GetAbsoluteAngle(Targets.DstPos);
 
                 break;
-            default:
-                break;
+            
         }
 
         switch (targetType.Target)
@@ -7753,8 +7733,7 @@ public partial class Spell : IDisposable
                     coneAngle = 180.0f;
 
                 break;
-            default:
-                break;
+            
         }
 
         List<WorldObject> targets = new();
@@ -7979,8 +7958,7 @@ public partial class Spell : IDisposable
                     }
 
                     break;
-                default:
-                    break;
+                
             }
         }
 

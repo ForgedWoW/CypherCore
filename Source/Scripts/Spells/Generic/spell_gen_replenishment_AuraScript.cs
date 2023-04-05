@@ -37,8 +37,7 @@ internal class spell_gen_replenishment_AuraScript : AuraScript, IHasAuraEffects
                 amount.Value = (OwnerAsUnit.GetMaxPower(PowerType.Mana) * 0.0025f);
 
                 break;
-            default:
-                break;
+            
         }
     }
 }

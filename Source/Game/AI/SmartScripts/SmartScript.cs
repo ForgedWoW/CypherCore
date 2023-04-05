@@ -2858,8 +2858,7 @@ public class SmartScript
 								target.AsGameObject.SetAnimKitId((ushort)e.Action.animKit.animKit, false);
 
 								break;
-							default:
-								break;
+							
 						}
 
 						Log.outDebug(LogFilter.ScriptsAi, "SmartScript.ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: {0} ({1}), AnimKit: {2}, Type: {3}", target.GetName(), target.GUID.ToString(), e.Action.animKit.animKit, e.Action.animKit.type);
@@ -3725,8 +3724,7 @@ public class SmartScript
 				break;
 			}
 			case SmartTargets.Position:
-			default:
-				break;
+			
 		}
 
 		return targets;
@@ -4664,8 +4662,7 @@ public class SmartScript
 							}
 
 						break;
-					default:
-						break;
+					
 				}
 			}
 

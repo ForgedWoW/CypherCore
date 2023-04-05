@@ -751,8 +751,7 @@ internal class BgWarsongGluch : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, WsObjectives.RETURN_FLAG);
 
                 break;
-            default:
-                break;
+            
         }
 
         return true;

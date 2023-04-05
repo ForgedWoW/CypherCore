@@ -719,7 +719,7 @@ public partial class Player
                         {
                             // offhand item cannot proc from main hand hit etc
 
-                            byte slot = damageInfo.AttackType switch
+                            var slot = damageInfo.AttackType switch
                             {
                                 WeaponAttackType.BaseAttack   => EquipmentSlot.MainHand,
                                 WeaponAttackType.RangedAttack => EquipmentSlot.MainHand,

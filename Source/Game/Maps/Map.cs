@@ -1943,8 +1943,7 @@ public class Map : IDisposable
 					respawnLocation = gameObject.GetRespawnPosition();
 
 				break;
-			default:
-				break;
+			
 		}
 
 		if (respawnLocation != null)
@@ -1985,8 +1984,7 @@ public class Map : IDisposable
 					respawnLocation = gameObject.GetRespawnPosition();
 
 				break;
-			default:
-				break;
+			
 		}
 
 		if (respawnLocation != null)
@@ -2117,8 +2115,7 @@ public class Map : IDisposable
 				return GetCreatureRespawnTime(linkedGuid.Counter);
 			case HighGuid.GameObject:
 				return GetGORespawnTime(linkedGuid.Counter);
-			default:
-				break;
+			
 		}
 
 		return 0L;
@@ -3743,8 +3740,7 @@ public class Map : IDisposable
 					toUnload.Add(obj);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		foreach (var o in toUnload)
@@ -3982,8 +3978,7 @@ public class Map : IDisposable
 						SwitchGridContainers(obj.AsCreature, on);
 
 						break;
-					default:
-						break;
+					
 				}
 		}
 
@@ -4783,8 +4778,7 @@ public class Map : IDisposable
 
 									break;
 								}
-								default:
-									break; // must be already checked at load
+								 // must be already checked at load
 							}
 						}
 

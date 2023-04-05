@@ -277,8 +277,7 @@ internal class boss_victor_nefarius : BossAI
                         Me.MotionMaster.MovePath(MiscConst.NefariusPath3, false);
 
                         break;
-                    default:
-                        break;
+                    
                 }
             });
 
@@ -603,8 +602,7 @@ internal class boss_nefarian : BossAI
                                 DoCast(Me, SpellIds.DeathKnight);
 
                                 break;
-                            default:
-                                break;
+                            
                         }
 
                     Events.ScheduleEvent(EventIds.Classcall, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));

@@ -600,8 +600,7 @@ public class Vehicle : ITransport
                 _me.ApplySpellImmune(0, SpellImmunity.State, AuraType.ModDamagePercentTaken, false); // Battering Ram
 
                 break;
-            default:
-                break;
+            
         }
     }
 

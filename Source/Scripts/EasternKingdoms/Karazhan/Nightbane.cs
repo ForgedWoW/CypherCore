@@ -197,8 +197,7 @@ internal class boss_nightbane : BossAI
                     SchedulerProtected.Schedule(TimeSpan.FromMilliseconds(1), task => { Me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoLanding, SplineChainIds.SecondLanding, false); });
 
                     break;
-                default:
-                    break;
+                
             }
         }
         else if (type == MovementGeneratorType.Point)

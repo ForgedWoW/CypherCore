@@ -896,8 +896,7 @@ public class CliDB
 				return row.Evoker;
 			case PlayerClass.Adventurer:
 				return row.Adventurer;
-			default:
-				break;
+			
 		}
 
 		return 0.0f;
@@ -954,8 +953,7 @@ public class CliDB
 				return row.DamageSecondary;
 			case -10:
 				return row.ManaConsumable;
-			default:
-				break;
+			
 		}
 
 		return 0.0f;

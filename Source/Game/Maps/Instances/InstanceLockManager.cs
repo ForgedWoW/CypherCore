@@ -482,8 +482,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 
 		return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day + day, hour, 0, 0);

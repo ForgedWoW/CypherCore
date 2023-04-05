@@ -667,7 +667,7 @@ public partial class Player
             InstanceValid = false;
 
         if (playerAtBG)
-            map.ToBattlegroundMap.GetBG().AddPlayer(this);
+            map.ToBattlegroundMap.BG.AddPlayer(this);
 
         // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
         // this must help in case next save after mass player load after server startup
@@ -2677,8 +2677,7 @@ public partial class Player
 
                         break;
 
-                    default:
-                        break;
+                    
                 }
 
                 if (!_skillStatus.ContainsKey(skill))
@@ -3814,8 +3813,7 @@ public partial class Player
 
                     break;
 
-                default:
-                    break;
+                
             }
 
             pair.Value.State = SkillState.Unchanged;

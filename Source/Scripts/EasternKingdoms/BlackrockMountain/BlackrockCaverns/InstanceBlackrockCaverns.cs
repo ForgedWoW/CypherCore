@@ -72,8 +72,7 @@ internal class instance_blackrock_caverns : InstanceMapScript, IInstanceMapGetIn
                 case DataTypes.Beauty:
                 case DataTypes.AscendantLordObsidius:
                     break;
-                default:
-                    break;
+                
             }
 
             return true;

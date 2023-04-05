@@ -1750,8 +1750,7 @@ internal class npc_train_wrecker : NullCreatureAI
                     _nextAction = 0;
 
                     break;
-                default:
-                    break;
+                
             }
         }
     }
@@ -1868,8 +1867,7 @@ internal class npc_argent_squire_gruntling : ScriptedAI
                 player.PlayerTalkClass.SendCloseGossip();
 
                 break;
-            default:
-                break;
+            
         }
 
         return false;
@@ -1950,8 +1948,7 @@ internal class npc_bountiful_table : PassiveAI
                     holders.InstallAllAccessories(true);
 
                 return;
-            default:
-                break;
+            
         }
 
         var initializer = (MoveSplineInit init) =>

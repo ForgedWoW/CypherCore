@@ -108,8 +108,7 @@ public class AuctionsBucketData
 					return left.FullName[(int)_locale].CompareTo(right.FullName[(int)_locale]);
 				case AuctionHouseSortOrder.Level:
 					return left.SortLevel - right.SortLevel;
-				default:
-					break;
+				
 			}
 
 			return 0;

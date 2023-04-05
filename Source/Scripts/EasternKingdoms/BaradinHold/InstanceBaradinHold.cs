@@ -114,8 +114,7 @@ internal class instance_baradin_hold : InstanceMapScript, IInstanceMapGetInstanc
                     return OccutharGUID;
                 case DataTypes.Alizabal:
                     return AlizabalGUID;
-                default:
-                    break;
+                
             }
 
             return ObjectGuid.Empty;

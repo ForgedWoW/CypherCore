@@ -654,8 +654,7 @@ public partial class WorldSession
 
 					continue;
 				}
-				default:
-					break;
+				
 			}
 
 			if (!receiver.SatisfyQuestLog(false))

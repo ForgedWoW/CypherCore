@@ -1286,8 +1286,7 @@ public partial class Player
 
 					break;
 				}
-				default:
-					break;
+				
 			}
 		}
 
@@ -4740,8 +4739,7 @@ public partial class Player
 							RecalculateRating(CombatRating.ArmorPenetration);
 
 							break;
-						default:
-							break;
+						
 					}
 
 					if (slot == EquipmentSlot.MainHand)

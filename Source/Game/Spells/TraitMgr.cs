@@ -336,8 +336,7 @@ class TraitMgr
 				return TraitTreesBySkillLine.LookupByKey(traitConfig.SkillLineID);
 			case TraitConfigType.Generic:
 				return TraitTreesByTraitSystem.LookupByKey(traitConfig.TraitSystemID);
-			default:
-				break;
+			
 		}
 
 		return null;
@@ -465,8 +464,7 @@ class TraitMgr
 							}
 
 						break;
-					default:
-						break;
+					
 				}
 		}
 	}

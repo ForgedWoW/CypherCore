@@ -1460,8 +1460,7 @@ public abstract class WorldObject : IDisposable
 					creature.SetUnitFlag2(UnitFlags2.InfiniteAoi);
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 

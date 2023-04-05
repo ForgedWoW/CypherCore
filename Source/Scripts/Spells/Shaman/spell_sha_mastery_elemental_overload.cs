@@ -88,8 +88,7 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
                 return ShamanSpells.ChainLightningOverload;
             case ShamanSpells.LavaBeam:
                 return ShamanSpells.LavaBeamOverload;
-            default:
-                break;
+            
         }
 
         return 0;

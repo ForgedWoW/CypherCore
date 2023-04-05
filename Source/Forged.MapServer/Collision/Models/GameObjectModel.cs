@@ -115,7 +115,7 @@ public class GameObjectModel : IModel
 
     public bool GetLocationInfo(Vector3 point, LocationInfo info, PhaseShift phaseShift)
     {
-        if (!IsCollisionEnabled() || !_owner.IsSpawned() || !IsMapObject())
+        if (!IsCollisionEnabled() || !_owner.IsSpawned || !IsMapObject())
             return false;
 
         if (!_owner.IsInPhase(phaseShift))
@@ -148,7 +148,7 @@ public class GameObjectModel : IModel
 
     public byte GetNameSetId()
     {
-        return _owner.GetNameSetId();
+        return _owner.NameSetId;
     }
 
     public virtual Vector3 GetPosition()
@@ -158,7 +158,7 @@ public class GameObjectModel : IModel
 
     public override void IntersectPoint(Vector3 point, AreaInfo info, PhaseShift phaseShift)
     {
-        if (!IsCollisionEnabled() || !_owner.IsSpawned() || !IsMapObject())
+        if (!IsCollisionEnabled() || !_owner.IsSpawned || !IsMapObject())
             return;
 
         if (!_owner.IsInPhase(phaseShift))
@@ -179,14 +179,14 @@ public class GameObjectModel : IModel
             if (info.GroundZ < world_Z)
             {
                 info.GroundZ = world_Z;
-                info.AdtId = _owner.GetNameSetId();
+                info.AdtId = _owner.NameSetId;
             }
         }
     }
 
     public override bool IntersectRay(Ray ray, ref float maxDist, bool stopAtFirstHit, PhaseShift phaseShift, ModelIgnoreFlags ignoreFlags)
     {
-        if (!IsCollisionEnabled() || !_owner.IsSpawned())
+        if (!IsCollisionEnabled() || !_owner.IsSpawned)
             return false;
 
         if (!_owner.IsInPhase(phaseShift))
@@ -221,7 +221,7 @@ public class GameObjectModel : IModel
         if (_iModel == null)
             return false;
 
-        var it = StaticModelList.Models.LookupByKey(_owner.GetDisplayId());
+        var it = StaticModelList.Models.LookupByKey(_owner.DisplayId);
 
         if (it == null)
             return false;
@@ -236,9 +236,9 @@ public class GameObjectModel : IModel
             return false;
         }
 
-        _iPos = _owner.GetPosition();
+        _iPos = _owner.Position;
 
-        var iRotation = _owner.GetRotation().ToMatrix();
+        var iRotation = _owner.Rotation.ToMatrix();
         iRotation.Inverse(out _iInvRot);
         // transform bounding box:
         mdl_box = new AxisAlignedBox(mdl_box.Lo * _iScale, mdl_box.Hi * _iScale);
@@ -253,7 +253,7 @@ public class GameObjectModel : IModel
     }
     private bool Initialize(GameObjectModelOwnerBase modelOwner)
     {
-        var modelData = StaticModelList.Models.LookupByKey(modelOwner.GetDisplayId());
+        var modelData = StaticModelList.Models.LookupByKey(modelOwner.DisplayId);
 
         if (modelData == null)
             return false;
@@ -273,11 +273,11 @@ public class GameObjectModel : IModel
         if (_iModel == null)
             return false;
 
-        _iPos = modelOwner.GetPosition();
-        _iScale = modelOwner.GetScale();
+        _iPos = modelOwner.Position;
+        _iScale = modelOwner.Scale;
         _iInvScale = 1.0f / _iScale;
 
-        var iRotation = modelOwner.GetRotation().ToMatrix();
+        var iRotation = modelOwner.Rotation.ToMatrix();
         iRotation.Inverse(out _iInvRot);
         // transform bounding box:
         mdl_box = new AxisAlignedBox(mdl_box.Lo * _iScale, mdl_box.Hi * _iScale);

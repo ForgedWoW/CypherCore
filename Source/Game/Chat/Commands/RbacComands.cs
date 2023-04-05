@@ -123,8 +123,7 @@ class RbacComands
 					handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
 					break;
-				default:
-					break;
+				
 			}
 
 			return true;
@@ -183,8 +182,7 @@ class RbacComands
 					handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
 					break;
-				default:
-					break;
+				
 			}
 
 			return true;
@@ -284,8 +282,7 @@ class RbacComands
 					handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
 					break;
-				default:
-					break;
+				
 			}
 
 			return true;

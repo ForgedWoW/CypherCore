@@ -344,8 +344,7 @@ internal class npc_direbrew_antagonist : ScriptedAI
                 DoZoneInCombat();
 
                 break;
-            default:
-                break;
+            
         }
     }
 

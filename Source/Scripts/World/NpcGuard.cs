@@ -187,8 +187,7 @@ internal class npc_guard_generic : GuardAI
                 Me.HandleEmoteCommand(Emote.OneshotPoint);
 
                 break;
-            default:
-                break;
+            
         }
     }
 }

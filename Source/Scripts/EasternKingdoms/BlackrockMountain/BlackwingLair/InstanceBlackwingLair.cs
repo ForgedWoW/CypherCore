@@ -159,8 +159,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
                     }
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -183,8 +182,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
                     EggList.Add(go.GUID);
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -222,8 +220,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
                         return false;
 
                     break;
-                default:
-                    break;
+                
             }
 
             return true;
@@ -264,8 +261,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
                             SetBossState(DataTypes.Nefarian, EncounterState.NotStarted);
 
                             break;
-                        default:
-                            break;
+                        
                     }
 
                     break;

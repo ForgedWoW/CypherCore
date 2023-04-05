@@ -107,8 +107,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
 
 		switch (_speedSelectionMode)
 		{
-			case MovementWalkRunSpeedSelectionMode.Default:
-				break;
+			case MovementWalkRunSpeedSelectionMode.
 			case MovementWalkRunSpeedSelectionMode.ForceRun:
 				init.SetWalk(false);
 
@@ -117,8 +116,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
 				init.SetWalk(true);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		init.Launch();

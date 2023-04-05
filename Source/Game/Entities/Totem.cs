@@ -164,8 +164,7 @@ public class Totem : Minion
 			case AuraType.ModFear:
 			case AuraType.Transform:
 				return true;
-			default:
-				break;
+			
 		}
 
 		return base.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);

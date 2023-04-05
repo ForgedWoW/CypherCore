@@ -44,8 +44,7 @@ class DisplayToast : ServerPacket
 				_worldPacket.WriteUInt32(CurrencyID);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		_worldPacket.FlushBits();

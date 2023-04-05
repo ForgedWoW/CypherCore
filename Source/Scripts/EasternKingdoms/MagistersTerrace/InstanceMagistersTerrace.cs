@@ -130,8 +130,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
             {
                 case DataTypes.DelrissaDeathCount:
                     return _delrissaDeathCount;
-                default:
-                    break;
+                
             }
 
             return 0;
@@ -148,8 +147,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
                         _delrissaDeathCount = 0;
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -169,8 +167,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
                         _kaelthasPreTrashGUIDs.Add(creature.GUID);
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -201,8 +198,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
                     }
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -217,8 +213,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
                         go.RemoveFlag(GameObjectFlags.NotSelectable);
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -267,8 +262,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
                     }
 
                     break;
-                default:
-                    break;
+                
             }
 
             return true;

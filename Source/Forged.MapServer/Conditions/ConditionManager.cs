@@ -2500,7 +2500,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.StandState:
             {
-                bool valid = cond.ConditionValue1 switch
+                var valid = cond.ConditionValue1 switch
                 {
                     0 => cond.ConditionValue2 <= (uint)UnitStandStateType.Submerged,
                     1 => cond.ConditionValue2 <= 1,

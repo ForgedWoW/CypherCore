@@ -45,8 +45,7 @@ public class CreatureTextLocalizer : IDoWork<Player>
 				player.SendPacket(message);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		sender.Invoke(player);

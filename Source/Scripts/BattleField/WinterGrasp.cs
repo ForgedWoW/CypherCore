@@ -687,8 +687,7 @@ internal class BattlefieldWG : BattleField
                     return graveyard.GetControlTeamId();
 
                 break;
-            default:
-                break;
+            
         }
 
         return base.GetData(data);
@@ -1273,8 +1272,7 @@ internal class BfWGGameObjectBuilding
                     _state = WGGameObjectState.NeutralIntact;
 
                     break;
-                default:
-                    break;
+                
             }
 
             Global.WorldStateMgr.SetValueAndSaveInDb((int)_worldState, (int)_state, false, _wg.GetMap());

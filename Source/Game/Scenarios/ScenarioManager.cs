@@ -39,8 +39,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 				scenarioID = dbData.Scenario_H;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		var scenarioData = _scenarioData.LookupByKey(scenarioID);

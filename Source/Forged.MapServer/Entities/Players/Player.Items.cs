@@ -4441,8 +4441,7 @@ public partial class Player
 
                     break;
                 }
-                default:
-                    break;
+                
             }
         }
 

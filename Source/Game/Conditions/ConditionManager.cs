@@ -659,8 +659,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 						continue;
 					}
-					default:
-						break;
+					
 				}
 
 				if (!valid)
@@ -729,8 +728,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				break;
 			case PlayerConditionLfgStatus.GearDiff:
 				break;
-			default:
-				break;
+			
 		}
 
 		return 0;
@@ -947,8 +945,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						return false;
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 
@@ -1281,8 +1278,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					finalResult = finalResult != secondResult;
 
 					break;
-				default:
-					break;
+				
 			}
 
 			if (buffer.GetCurrentStream().Position < buffer.GetSize())
@@ -1330,8 +1326,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					meets = unitValue >= condition.Value[i];
 
 					break;
-				default:
-					break;
+				
 			}
 
 			if (condition.GetFlags().HasFlag(UnitConditionFlags.LogicOr))
@@ -1367,8 +1362,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					default:
 						return false;
 				}
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -1466,8 +1460,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 																		break;
 																	}
-																	default:
-																		break;
+																	
 																}
 
 															// check if effect is already a part of some shared mask
@@ -1885,8 +1878,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						case SpellTargetSelectionCategories.Traj:
 						case SpellTargetSelectionCategories.Line:
 							continue;
-						default:
-							break;
+						
 					}
 
 					switch (spellEffectInfo.TargetB.SelectionCategory)
@@ -1897,8 +1889,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						case SpellTargetSelectionCategories.Traj:
 						case SpellTargetSelectionCategories.Line:
 							continue;
-						default:
-							break;
+						
 					}
 
 					switch (spellEffectInfo.Effect)
@@ -1914,8 +1905,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						case SpellEffectName.ApplyAreaAuraSummons:
 						case SpellEffectName.ApplyAreaAuraPartyNonrandom:
 							continue;
-						default:
-							break;
+						
 					}
 
 					Log.outDebug(LogFilter.Sql, "SourceEntry {0} SourceGroup {1} in `condition` table - spell {2} does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, _CHAIN_ for effect {3}, SourceGroup needs correction, ignoring.", cond.SourceEntry, origGroup, cond.SourceEntry, spellEffectInfo.EffectIndex);
@@ -2907,8 +2897,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				return value1 < value2;
 			case 6:
 				return value1 <= value2;
-			default:
-				break;
+			
 		}
 
 		return false;
@@ -2933,8 +2922,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					result = result || results[i];
 
 					break;
-				default:
-					break;
+				
 			}
 
 		return result;
@@ -3244,8 +3232,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 							.Any()
 							? 1
 							: 0;
-			default:
-				break;
+			
 		}
 
 		return 0;
@@ -3284,8 +3271,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 
 		return value;
@@ -3404,8 +3390,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				return rightValue == 0 ? 0 : leftValue / rightValue;
 			case WorldStateExpressionOperatorType.Remainder:
 				return rightValue == 0 ? 0 : leftValue % rightValue;
-			default:
-				break;
+			
 		}
 
 		return leftValue;
@@ -3436,8 +3421,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				return leftValue > rightValue;
 			case WorldStateExpressionComparisonType.GreaterOrEqual:
 				return leftValue >= rightValue;
-			default:
-				break;
+			
 		}
 
 		return false;

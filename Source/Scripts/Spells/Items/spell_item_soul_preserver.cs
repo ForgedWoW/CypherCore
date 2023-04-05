@@ -45,8 +45,7 @@ internal class spell_item_soul_preserver : AuraScript, IHasAuraEffects
                 caster.CastSpell(caster, ItemSpellIds.SoulPreserverShaman, new CastSpellExtraArgs(aurEff));
 
                 break;
-            default:
-                break;
+            
         }
     }
 }

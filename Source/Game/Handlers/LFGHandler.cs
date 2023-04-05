@@ -151,8 +151,7 @@ public partial class WorldSession
 				queued = updateData.state == LfgState.Queued;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		LFGUpdateStatus lfgUpdateStatus = new();

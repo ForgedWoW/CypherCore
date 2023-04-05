@@ -349,8 +349,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					}
 
 					break;
-				default:
-					break;
+				
 			}
 
 			// creature entry / guid not found in storage, create empty event list for it and increase counters

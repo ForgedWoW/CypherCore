@@ -92,8 +92,7 @@ public class AuctionHouseObject
 					bucket.SortLevel = (byte)((ItemSubClassRecipe)itemTemplate.SubClass != ItemSubClassRecipe.Book ? itemTemplate.RequiredSkillRank : (uint)itemTemplate.BaseRequiredLevel);
 
 					break;
-				default:
-					break;
+				
 			}
 
 			for (var locale = Locale.enUS; locale < Locale.Total; ++locale)

@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
@@ -14,11 +12,10 @@ namespace Forged.MapServer.Entities.GameObjects;
 
 public class GameObjectFactory
 {
-    private readonly GameObjectManager _objectManager;
-    private readonly MapManager _mapManager;
-    private readonly WorldDatabase _worldDatabase;
     private readonly ClassFactory _classFactory;
-
+    private readonly MapManager _mapManager;
+    private readonly GameObjectManager _objectManager;
+    private readonly WorldDatabase _worldDatabase;
     public GameObjectFactory(GameObjectManager objectManager, MapManager mapManager, WorldDatabase worldDatabase, ClassFactory classFactory)
     {
         _objectManager = objectManager;
@@ -36,10 +33,7 @@ public class GameObjectFactory
 
         var go = _classFactory.Resolve<GameObject>();
 
-        if (!go.Create(entry, map, pos, rotation, animProgress, goState, artKit, false, 0))
-            return null;
-
-        return go;
+        return !go.Create(entry, map, pos, rotation, animProgress, goState, artKit, false, 0) ? null : go;
     }
 
     public GameObject CreateGameObjectFromDb(ulong spawnId, Map map, bool addToMap = true)

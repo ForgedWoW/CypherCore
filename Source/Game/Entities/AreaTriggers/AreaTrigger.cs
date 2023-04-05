@@ -939,8 +939,7 @@ public class AreaTrigger : WorldObject
 			case AreaTriggerActionUserTypes.Caster:
 				return unit.GUID == caster.GUID;
 			case AreaTriggerActionUserTypes.Any:
-			default:
-				break;
+			
 		}
 
 		return true;

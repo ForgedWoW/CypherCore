@@ -229,7 +229,7 @@ public class WorldLocation : Position
             var bgMap = map.ToBattlegroundMap;
 
             if (bgMap != null)
-                return bgMap.GetBG();
+                return bgMap.BG;
 
             if (!map.IsBattlegroundOrArena)
             {

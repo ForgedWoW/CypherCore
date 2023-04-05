@@ -134,8 +134,7 @@ public class AuraEffect
 				_canBeRecalculated = false;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		if (SpellInfo.HasAttribute(SpellAttr10.RollingPeriodic))
@@ -172,8 +171,7 @@ public class AuraEffect
 					_estimatedAmount = caster.SpellHealingBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 
@@ -219,8 +217,7 @@ public class AuraEffect
 				_isPeriodic = true;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		Base.CallScriptEffectCalcPeriodicHandlers(this, ref _isPeriodic, ref _period);
@@ -323,8 +320,7 @@ public class AuraEffect
 				(_spellModifier as SpellPctModifierByLabel).Value.ModifierValue = 1.0f + MathFunctions.CalculatePct(1.0f, Amount);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		Base.CallScriptEffectCalcSpellModHandlers(this, _spellModifier);
@@ -568,8 +564,7 @@ public class AuraEffect
 					return false;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return result;
@@ -608,8 +603,7 @@ public class AuraEffect
 				HandleProcTriggerDamageAuraProc(aurApp, eventInfo);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		Base.CallScriptAfterEffectProcHandlers(this, aurApp, eventInfo);
@@ -681,8 +675,7 @@ public class AuraEffect
 					spellId = 160942;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		if (apply)
@@ -1039,8 +1032,7 @@ public class AuraEffect
 				recalculateEffectMask.Set(4, true);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		if (recalculateEffectMask.Any())
@@ -1154,8 +1146,7 @@ public class AuraEffect
 				HandlePeriodicPowerBurnAuraTick(target, caster);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -1539,8 +1530,7 @@ public class AuraEffect
 
 					break;
 				}
-				default:
-					break;
+				
 			}
 
 			// remove other shapeshift before applying a new one
@@ -1603,8 +1593,7 @@ public class AuraEffect
 						target.CastSpell(target, 37325, new CastSpellExtraArgs(dummy));
 
 					break;
-				default:
-					break;
+				
 			}
 
 			// remove the shapeshift aura's boosts
@@ -1743,8 +1732,7 @@ public class AuraEffect
 									target.SetDisplayId(isFemale ? 10144 : 10143u);
 
 									break;
-								default:
-									break;
+								
 							}
 
 							break;
@@ -1814,8 +1802,7 @@ public class AuraEffect
 									target.SetDisplayId(isFemale ? 25038 : 25049u);
 
 									break;
-								default:
-									break;
+								
 							}
 
 							break;
@@ -1841,8 +1828,7 @@ public class AuraEffect
 							target.SetDisplayId(isFemale ? 31655 : 31654u);
 
 							break;
-						default:
-							break;
+						
 					}
 				}
 				else
@@ -4069,8 +4055,7 @@ public class AuraEffect
 					return;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		target.CastSpell(target, triggerSpell, new CastSpellExtraArgs(this));
@@ -4797,8 +4782,7 @@ public class AuraEffect
 							target.CastSpell(target, (uint)Amount, new CastSpellExtraArgs(this));
 
 						break;
-					default:
-						break;
+					
 				}
 		}
 
@@ -5213,8 +5197,7 @@ public class AuraEffect
 					return;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		target.CastSpell(target, triggerSpell, new CastSpellExtraArgs(this));
@@ -5244,8 +5227,7 @@ public class AuraEffect
 					return;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		target.CastSpell(target, triggerSpell, new CastSpellExtraArgs(this));
@@ -5546,8 +5528,7 @@ public class AuraEffect
 							damage *= Math.Pow(1.25f, _ticksDone);
 
 							break;
-						default:
-							break;
+						
 					}
 				}
 
@@ -5573,8 +5554,7 @@ public class AuraEffect
 				damage = target.SpellDamageBonusTaken(caster, SpellInfo, damage, DamageEffectType.DOT);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		var crit = RandomHelper.randChance(GetCritChanceFor(caster, target));

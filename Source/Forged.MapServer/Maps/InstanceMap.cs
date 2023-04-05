@@ -330,8 +330,7 @@ public class InstanceMap : Map
 
                     break;
                 }
-                default:
-                    break;
+                
             }
 
             return InstanceResetResult.NotEmpty;

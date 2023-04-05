@@ -27,8 +27,7 @@ internal class spell_evoker_dream_breath_charged : SpellScript, ISpellCalculateB
                 multi = 6;
 
                 break;
-            default:
-                break;
+            
         }
 
         return bonusCoefficient + (GetEffectInfo(0).BonusCoefficient * multi);

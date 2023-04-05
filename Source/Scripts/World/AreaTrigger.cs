@@ -286,8 +286,7 @@ internal class AreaTrigger_at_brewfest : ScriptObjectAutoAddDBBound, IAreaTrigge
                     ipfelkofer.AI.Talk(TextIds.SayWelcome, player);
 
                 break;
-            default:
-                break;
+            
         }
 
         _triggerTimes[triggerId] = GameTime.GetGameTime();

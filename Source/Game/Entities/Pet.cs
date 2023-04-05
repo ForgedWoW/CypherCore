@@ -743,8 +743,7 @@ public class Pet : Guardian
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 
 		base.Update(diff);
@@ -1079,8 +1078,7 @@ public class Pet : Guardian
 				GivePetLevel((int)owner.Level);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 

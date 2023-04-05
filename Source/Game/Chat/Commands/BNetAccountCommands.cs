@@ -52,8 +52,7 @@ class BNetAccountCommands
 				handler.SendSysMessage(CypherStrings.AccountAlreadyExist);
 
 				return false;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -135,8 +134,7 @@ class BNetAccountCommands
 				handler.SendSysMessage(CypherStrings.AccountAlreadyLinked, gameAccountName);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -253,8 +251,7 @@ class BNetAccountCommands
 				handler.SendSysMessage(CypherStrings.AccountBnetNotLinked, gameAccountName);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -356,8 +353,7 @@ class BNetAccountCommands
 					handler.SendSysMessage(CypherStrings.PasswordTooLong);
 
 					return false;
-				default:
-					break;
+				
 			}
 
 			return true;

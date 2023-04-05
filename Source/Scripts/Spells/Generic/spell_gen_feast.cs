@@ -54,8 +54,7 @@ internal class spell_gen_feast : SpellScript, IHasSpellEffects
                 target.CastSpell(target, GenericSpellIds.BountifulFeastFood);
 
                 break;
-            default:
-                break;
+            
         }
     }
 }

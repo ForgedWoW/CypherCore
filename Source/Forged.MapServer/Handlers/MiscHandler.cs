@@ -246,8 +246,7 @@ public class MiscHandler : IWorldSessionHandler
                         Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because instance is resetting.");
 
                         break;
-                    default:
-                        break;
+                    
                 }
 
                 if (denyReason.Reason != TransferAbortReason.NeedGroup)

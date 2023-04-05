@@ -226,8 +226,7 @@ public class DisableManager : Singleton<DisableManager>
 								Log.outInfo(LogFilter.Server, "LoS disabled for arena map {0}.", entry);
 
 							break;
-						default:
-							break;
+						
 					}
 
 					break;
@@ -262,14 +261,12 @@ public class DisableManager : Singleton<DisableManager>
 							Log.outInfo(LogFilter.Server, "Pathfinding disabled for arena map {0}.", entry);
 
 							break;
-						default:
-							break;
+						
 					}
 
 					break;
 				}
-				default:
-					break;
+				
 			}
 
 			if (!m_DisableMap.ContainsKey(type))

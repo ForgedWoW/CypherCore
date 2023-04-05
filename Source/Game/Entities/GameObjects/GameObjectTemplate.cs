@@ -431,8 +431,7 @@ public class GameObjectTemplate
 				autoCloseTime = TrapDoor.autoClose;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return autoCloseTime; // prior to 3.0.3, conversion was / 0x10000;

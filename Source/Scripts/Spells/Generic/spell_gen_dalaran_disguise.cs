@@ -39,8 +39,7 @@ internal class spell_gen_dalaran_disguise : SpellScript, IHasSpellEffects
                     spellId = gender == Gender.Female ? GenericSpellIds.SilverCovenantFemale : GenericSpellIds.SilverCovenantMale;
 
                     break;
-                default:
-                    break;
+                
             }
 
             Caster.CastSpell(player, spellId, true);

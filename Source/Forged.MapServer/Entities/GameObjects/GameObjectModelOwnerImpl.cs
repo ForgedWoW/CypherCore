@@ -16,38 +16,19 @@ internal class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
         _owner = owner;
     }
 
-    public override uint GetDisplayId()
-    {
-        return _owner.DisplayId;
-    }
+    public override uint DisplayId => _owner.DisplayId;
 
-    public override byte GetNameSetId()
-    {
-        return _owner.GetNameSetId();
-    }
+    public override bool IsSpawned => _owner.IsSpawned;
+    public override byte NameSetId => _owner.GetNameSetId();
 
-    public override Vector3 GetPosition()
-    {
-        return new Vector3(_owner.Location.X, _owner.Location.Y, _owner.Location.Z);
-    }
+    public override Vector3 Position => _owner.Location;
 
-    public override Quaternion GetRotation()
-    {
-        return new Quaternion(_owner.LocalRotation.X, _owner.LocalRotation.Y, _owner.LocalRotation.Z, _owner.LocalRotation.W);
-    }
+    public override Quaternion Rotation => _owner.LocalRotation;
 
-    public override float GetScale()
-    {
-        return _owner.ObjectScale;
-    }
+    public override float Scale => _owner.ObjectScale;
 
     public override bool IsInPhase(PhaseShift phaseShift)
     {
         return _owner.Location.PhaseShift.CanSee(phaseShift);
-    }
-
-    public override bool IsSpawned()
-    {
-        return _owner.IsSpawned;
     }
 }

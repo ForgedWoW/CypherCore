@@ -127,8 +127,7 @@ internal class boss_occuthar : BossAI
                     DoCast(Me, SpellIds.Berserk, new CastSpellExtraArgs(true));
 
                     break;
-                default:
-                    break;
+                
             }
         });
 

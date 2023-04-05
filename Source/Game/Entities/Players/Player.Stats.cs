@@ -109,8 +109,7 @@ public partial class Player
 				UpdateSpellCritChance();
 
 				break;
-			default:
-				break;
+			
 		}
 
 		if (stat == Stats.Strength)
@@ -558,8 +557,7 @@ public partial class Player
 						ApplyCastTimePercentMod(newVal, true);
 
 						break;
-					default:
-						break;
+					
 				}
 
 				break;
@@ -1047,8 +1045,7 @@ public partial class Player
 				return row.VersatilityDamageTaken;
 			case CombatRating.Unused12:
 				return row.Unused12;
-			default:
-				break;
+			
 		}
 
 		return 1.0f;

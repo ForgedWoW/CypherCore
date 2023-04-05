@@ -86,8 +86,7 @@ internal class ItemSpecStats
                     AddStat(ItemSpecStat.Wand);
 
                     break;
-                default:
-                    break;
+                
             }
         }
         else if (item.ClassID == ItemClass.Armor)

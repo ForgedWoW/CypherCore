@@ -146,8 +146,7 @@ public class Condition
                         mask |= GridMapTypeMask.AreaTrigger;
 
                         break;
-                    default:
-                        break;
+                    
                 }
 
                 break;
@@ -644,8 +643,7 @@ public class Condition
 
                 break;
             }
-            default:
-                break;
+            
         }
 
         if (NegativeCondition)

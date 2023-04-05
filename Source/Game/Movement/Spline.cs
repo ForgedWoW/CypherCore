@@ -262,8 +262,7 @@ public class Spline<T>
 				InitBezier3(controls, count, _cyclic, 0);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 

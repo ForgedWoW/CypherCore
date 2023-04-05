@@ -1586,8 +1586,7 @@ public partial class Unit
 
 				break;
 
-			default:
-				break;
+			
 		}
 
 		// Always apply HITINFO_AFFECTS_VICTIM in case its not a miss
@@ -1764,8 +1763,7 @@ public partial class Unit
 				SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.RangedAttackRoundBaseTime), (uint)(_baseAttackSpeed[(int)att] * ModAttackSpeedPct[(int)att]));
 
 				break;
-			default:
-				break;
+			
 
 				;
 		}

@@ -810,7 +810,7 @@ public partial class Player : Unit
             percent += rep > 0 ? repMod : -repMod;
         }
 
-        float rate = source switch
+        var rate = source switch
         {
             ReputationSource.Kill            => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.Kill", 1.0f),
             ReputationSource.Quest           => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
@@ -7505,8 +7505,7 @@ public partial class Player : Unit
 
                 break;
 
-            default:
-                break;
+            
         }
     }
 

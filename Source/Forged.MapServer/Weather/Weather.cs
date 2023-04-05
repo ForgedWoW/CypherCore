@@ -265,7 +265,7 @@ public class Weather
 
         // Log the event
 
-        string wthstr = state switch
+        var wthstr = state switch
         {
             WeatherState.Fog             => "fog",
             WeatherState.LightRain       => "light rain",

@@ -405,8 +405,7 @@ public class SharedConst
             case LootType.FishingJunk:
                 return LootType.Fishing;
 
-            default:
-                break;
+            
         }
 
         return lootType;

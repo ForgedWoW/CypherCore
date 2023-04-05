@@ -600,8 +600,7 @@ public partial class Unit
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 
 		var creature = AsCreature;
@@ -1272,8 +1271,7 @@ public partial class Unit
 					}
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 		else

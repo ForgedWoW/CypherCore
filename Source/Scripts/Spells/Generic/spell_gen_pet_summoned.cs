@@ -55,8 +55,7 @@ internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
                         newPet.Entry = CreatureIds.Imp;
 
                         break;
-                    default:
-                        break;
+                    
                 }
             }
         }

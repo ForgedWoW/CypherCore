@@ -686,8 +686,7 @@ internal class GameObjectCommands
                     obj.SetDestructibleState((GameObjectDestructibleState)objectState);
 
                     break;
-                default:
-                    break;
+                
             }
 
             handler.SendSysMessage("Set gobject type {0} state {1}", objectType, objectState);

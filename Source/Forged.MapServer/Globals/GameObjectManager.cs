@@ -1727,8 +1727,7 @@ public sealed class GameObjectManager
                 return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.ShadowLands", 60);
             case Expansion.Dragonflight:
                 return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Dragonflight", 70);
-            default:
-                break;
+            
         }
 
         return 0;
@@ -2283,7 +2282,7 @@ public sealed class GameObjectManager
         // Initialize Query Data for gameobjects
         if (mask.HasAnyFlag(QueryDataGroup.Gameobjects))
             foreach (var gameobjectPair in _gameObjectTemplateStorage)
-                gameobjectPair.Value.InitializeQueryData();
+                gameobjectPair.Value.InitializeQueryData(this);
 
         // Initialize Query Data for quests
         if (mask.HasAnyFlag(QueryDataGroup.Quests))
@@ -4269,23 +4268,23 @@ public sealed class GameObjectManager
             GameObjectAddon gameObjectAddon = new()
             {
                 ParentRotation = new Quaternion(result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4)),
-                invisibilityType = (InvisibilityType)result.Read<byte>(5),
-                invisibilityValue = result.Read<uint>(6),
+                InvisibilityType = (InvisibilityType)result.Read<byte>(5),
+                InvisibilityValue = result.Read<uint>(6),
                 WorldEffectID = result.Read<uint>(7),
                 AIAnimKitID = result.Read<uint>(8)
             };
 
-            if (gameObjectAddon.invisibilityType >= InvisibilityType.Max)
+            if (gameObjectAddon.InvisibilityType >= InvisibilityType.Max)
             {
                 Log.Logger.Error($"GameObject (GUID: {guid}) has invalid InvisibilityType in `gameobject_addon`, disabled invisibility");
-                gameObjectAddon.invisibilityType = InvisibilityType.General;
-                gameObjectAddon.invisibilityValue = 0;
+                gameObjectAddon.InvisibilityType = InvisibilityType.General;
+                gameObjectAddon.InvisibilityValue = 0;
             }
 
-            if (gameObjectAddon.invisibilityType != 0 && gameObjectAddon.invisibilityValue == 0)
+            if (gameObjectAddon.InvisibilityType != 0 && gameObjectAddon.InvisibilityValue == 0)
             {
                 Log.Logger.Error($"GameObject (GUID: {guid}) has InvisibilityType set but has no InvisibilityValue in `gameobject_addon`, set to 1");
-                gameObjectAddon.invisibilityValue = 1;
+                gameObjectAddon.InvisibilityValue = 1;
             }
 
             if (!(Math.Abs(Quaternion.Dot(gameObjectAddon.ParentRotation, gameObjectAddon.ParentRotation) - 1) < 1e-5))
@@ -8855,8 +8854,7 @@ public sealed class GameObjectManager
                             Log.Logger.Error("QuestId {0} objective {1} has invalid StorageIndex = {2} for objective type {3}", qinfo.Id, obj.Id, obj.StorageIndex, obj.Type);
 
                             break;
-                        default:
-                            break;
+                        
                     }
 
                 switch (obj.Type)
@@ -12619,8 +12617,7 @@ public sealed class GameObjectManager
 
                     continue;
                 }
-                default:
-                    break;
+                
             }
 
             if (!scripts.ContainsKey(tmp.id))

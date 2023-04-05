@@ -7,6 +7,6 @@ namespace Forged.MapServer.Entities.GameObjects;
 
 public class GameObjectOverride
 {
-    public uint Faction;
-    public GameObjectFlags Flags;
+    public uint Faction { get; set; }
+    public GameObjectFlags Flags { get; set; }
 }

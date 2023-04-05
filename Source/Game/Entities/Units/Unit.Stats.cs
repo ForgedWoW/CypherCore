@@ -42,8 +42,7 @@ public partial class Unit
 				AuraFlatModifiersGroup[(int)unitMod][(int)modifierType] += apply ? amount : -amount;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		UpdateUnitMod(unitMod);
@@ -68,8 +67,7 @@ public partial class Unit
 				MathFunctions.AddPct(ref AuraPctModifiersGroup[(int)unitMod][(int)modifierType], pct);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		UpdateUnitMod(unitMod);
@@ -683,8 +681,7 @@ public partial class Unit
 				SetFullPower(powerType);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -1074,8 +1071,7 @@ public partial class Unit
 				UpdateDamagePhysical(WeaponAttackType.RangedAttack);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -1106,8 +1102,7 @@ public partial class Unit
 				stat = Stats.Intellect;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return stat;
@@ -1153,8 +1148,7 @@ public partial class Unit
 							continue;
 
 						break;
-					default:
-						break;
+					
 				}
 
 				CastSpell(this, triggerSpell, new CastSpellExtraArgs(effect));

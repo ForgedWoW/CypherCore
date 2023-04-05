@@ -186,8 +186,7 @@ public class LootItem
 				return null;
 			case LootMethod.PersonalLoot:
 				return LootSlotType.Owner;
-			default:
-				break;
+			
 		}
 
 		return null;
@@ -587,8 +586,7 @@ public class LootRoll
 					++notVoted;
 
 					break;
-				default:
-					break;
+				
 			}
 
 		return notVoted == 0;
@@ -865,8 +863,7 @@ public class Loot
 
 								break;
 							}
-							default:
-								break;
+							
 						}
 				}
 			}

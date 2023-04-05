@@ -514,7 +514,7 @@ public class Guardian : Minion
         var unitMod = UnitMods.Health;
         var stamina = GetStat(Stats.Stamina) - GetCreateStat(Stats.Stamina);
 
-        float multiplicator = Entry switch
+        var multiplicator = Entry switch
         {
             ENTRY_IMP        => 8.4f,
             ENTRY_VOIDWALKER => 11.0f,
@@ -636,8 +636,7 @@ public class Guardian : Minion
                 UpdateMaxPower(PowerType.Mana);
 
                 break;
-            default:
-                break;
+            
         }
 
         return true;

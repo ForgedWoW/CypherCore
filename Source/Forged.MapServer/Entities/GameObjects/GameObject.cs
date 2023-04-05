@@ -10,7 +10,7 @@ using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Collision.Models;
-using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -27,11 +27,14 @@ using Forged.MapServer.Networking.Packets.Artifact;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.GameObject;
 using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Phasing;
+using Forged.MapServer.Pools;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
 using Framework.GameMath;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Entities.GameObjects
@@ -42,9 +45,15 @@ namespace Forged.MapServer.Entities.GameObjects
         protected GameObjectTemplateAddon GoTemplateAddonProtected;
         protected GameObjectValue GoValueProtected; // TODO: replace with m_goTypeImpl
         private readonly Dictionary<uint, ObjectGuid> _chairListSlots = new();
+        private readonly DB2Manager _db2Manager;
         private readonly LootFactory _lootFactory;
+        private readonly LootManager _lootManager;
+        private readonly LootStoreBox _lootStoreBox;
+        private readonly OutdoorPvPManager _outdoorPvPManager;
+        private readonly PoolManager _poolManager;
         private readonly List<ObjectGuid> _skillupList = new();
         private readonly List<ObjectGuid> _uniqueUsers = new();
+        private readonly WorldDatabase _worldDatabase;
         private ushort _animKitId;
         private long _cooldownTime;
         private uint _despawnDelay;
@@ -68,9 +77,16 @@ namespace Forged.MapServer.Entities.GameObjects
         // used as internal reaction delay time store (not state change reaction).
         // For traps this: spell casting cooldown, for doors/buttons: reset time.
 
-        public GameObject(LootFactory lootFactory, ClassFactory classFactory, GameObjectFactory gameObjectFactory) : base(false, classFactory)
+        public GameObject(LootFactory lootFactory, ClassFactory classFactory, GameObjectFactory gameObjectFactory, LootStoreBox lootStoreBox, PoolManager poolManager,
+                          DB2Manager db2Manager, WorldDatabase worldDatabase, LootManager lootManager, OutdoorPvPManager outdoorPvPManager) : base(false, classFactory)
         {
             _lootFactory = lootFactory;
+            _lootStoreBox = lootStoreBox;
+            _poolManager = poolManager;
+            _db2Manager = db2Manager;
+            _worldDatabase = worldDatabase;
+            _lootManager = lootManager;
+            _outdoorPvPManager = outdoorPvPManager;
             GameObjectFactory = gameObjectFactory;
             ObjectTypeMask |= TypeMask.GameObject;
             ObjectTypeId = TypeId.GameObject;
@@ -122,6 +138,8 @@ namespace Forged.MapServer.Entities.GameObjects
         }
 
         public GameObjectData GameObjectData { get; private set; }
+
+        public GameObjectFactory GameObjectFactory { get; }
 
         // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
         // What state to set whenever resetting
@@ -288,11 +306,8 @@ namespace Forged.MapServer.Entities.GameObjects
         private byte GoAnimProgress => GameObjectFieldData.PercentHealth;
 
         private List<ObjectGuid> TapList { get; } = new();
-
-        public GameObjectFactory GameObjectFactory { get; }
-
         //! Object distance/size - overridden from Object._IsWithinDist. Needs to take in account proper GO size.
-        public override bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius, bool incTargetRadius)
+        public override bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
         {
             //! Following check does check 3d distance
             return IsInRange(obj.Location.X, obj.Location.Y, obj.Location.Z, dist2Compare);
@@ -300,7 +315,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void ActivateObject(GameObjectActions action, int param, WorldObject spellCaster = null, uint spellId = 0, int effectIndex = -1)
         {
-            var unitCaster = spellCaster ? spellCaster.AsUnit : null;
+            var unitCaster = spellCaster?.AsUnit;
 
             switch (action)
             {
@@ -451,7 +466,8 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     break;
                 case GameObjectActions.PlaySpellVisual:
-                    SetSpellVisualId((uint)param, spellCaster.GUID);
+                    if (spellCaster != null)
+                        SetSpellVisualId((uint)param, spellCaster.GUID);
 
                     break;
                 case GameObjectActions.StopSpellVisual:
@@ -489,15 +505,8 @@ namespace Forged.MapServer.Entities.GameObjects
                         return false;
 
                     // scan GO chest with loot including quest items
-                    if (target.GetQuestStatus(Template.Chest.questID) == QuestStatus.Incomplete || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestLoot, target) || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPersonalLoot, target) || LootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPushLoot, target))
-                    {
-                        var bg = target.Battleground;
-
-                        if (bg)
-                            return bg.CanActivateGO((int)Entry, (uint)bg.GetPlayerTeam(target.GUID));
-
-                        return true;
-                    }
+                    if (target.GetQuestStatus(Template.Chest.questID) == QuestStatus.Incomplete || _lootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestLoot, target) || _lootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPersonalLoot, target) || _lootStoreBox.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPushLoot, target))
+                        return target.Battleground == null || target.Battleground.CanActivateGO((int)Entry, (uint)target.Battleground.GetPlayerTeam(target.GUID));
 
                     break;
                 }
@@ -515,8 +524,6 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     break;
                 }
-                default:
-                    break;
             }
 
             return false;
@@ -605,12 +612,12 @@ namespace Forged.MapServer.Entities.GameObjects
             Battleground battleground = null;
             var map = Location.Map.ToBattlegroundMap;
 
-            var bg = map?.GetBG();
+            var bg = map?.BG;
 
             if (bg != null)
                 battleground = bg;
 
-            if (!battleground)
+            if (battleground == null)
                 return;
 
             // Cancel current timer
@@ -646,8 +653,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         GoValueProtected.CapturePoint.AssaultTimer = Template.CapturePoint.CaptureTime;
 
                         break;
-                    default:
-                        break;
+                    
                 }
             }
             else
@@ -680,8 +686,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         GoValueProtected.CapturePoint.AssaultTimer = Template.CapturePoint.CaptureTime;
 
                         break;
-                    default:
-                        break;
+                    
                 }
             }
         }
@@ -759,7 +764,7 @@ namespace Forged.MapServer.Entities.GameObjects
             return GoValueProtected.CapturePoint.State is BattlegroundCapturePointState.ContestedHorde or BattlegroundCapturePointState.HordeCaptured;
         }
 
-        public override void CleanupsBeforeDelete(bool finalCleanup)
+        public override void CleanupsBeforeDelete(bool finalCleanup = true)
         {
             base.CleanupsBeforeDelete(finalCleanup);
 
@@ -801,7 +806,7 @@ namespace Forged.MapServer.Entities.GameObjects
             var poolid = GameObjectData?.poolId ?? 0;
 
             if (RespawnCompatibilityMode && poolid != 0)
-                Global.PoolMgr.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
+                _poolManager.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
             else
                 Location.AddObjectToRemoveList();
         }
@@ -854,14 +859,13 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             uint defaultzone = 1;
 
-            Loot fishLoot = new(Location.Map, GUID, LootType.Fishing, null);
+            var fishLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Fishing);
 
             var areaId = Location.Area;
-            AreaTableRecord areaEntry;
 
-            while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
+            while (CliDB.AreaTableStorage.LookupByKey(areaId) is { } areaEntry)
             {
-                fishLoot.FillLoot(areaId, LootStoreBox.Fishing, lootOwner, true, true);
+                fishLoot.FillLoot(areaId, LootStorageType.Fishing, lootOwner, true, true);
 
                 if (!fishLoot.IsLooted())
                     break;
@@ -870,7 +874,7 @@ namespace Forged.MapServer.Entities.GameObjects
             }
 
             if (fishLoot.IsLooted())
-                fishLoot.FillLoot(defaultzone, LootStoreBox.Fishing, lootOwner, true, true);
+                fishLoot.FillLoot(defaultzone, LootStorageType.Fishing, lootOwner, true, true);
 
             return fishLoot;
         }
@@ -879,14 +883,13 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             uint defaultzone = 1;
 
-            Loot fishLoot = new(Location.Map, GUID, LootType.FishingJunk, null);
+            var fishLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.FishingJunk);
 
             var areaId = Location.Area;
-            AreaTableRecord areaEntry;
 
-            while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
+            while (CliDB.AreaTableStorage.LookupByKey(areaId) is { } areaEntry)
             {
-                fishLoot.FillLoot(areaId, LootStoreBox.Fishing, lootOwner, true, true, LootModes.JunkFish);
+                fishLoot.FillLoot(areaId, LootStorageType.Fishing, lootOwner, true, true, LootModes.JunkFish);
 
                 if (!fishLoot.IsLooted())
                     break;
@@ -895,7 +898,7 @@ namespace Forged.MapServer.Entities.GameObjects
             }
 
             if (fishLoot.IsLooted())
-                fishLoot.FillLoot(defaultzone, LootStoreBox.Fishing, lootOwner, true, true, LootModes.JunkFish);
+                fishLoot.FillLoot(defaultzone, LootStorageType.Fishing, lootOwner, true, true, LootModes.JunkFish);
 
             return fishLoot;
         }
@@ -955,45 +958,41 @@ namespace Forged.MapServer.Entities.GameObjects
             if (owner != null)
                 return owner.GetLevelForTarget(target);
 
-            if (GoType == GameObjectTypes.Trap)
+            if (GoType != GameObjectTypes.Trap)
+                return 1;
+
+            var player = target.AsPlayer;
+
+            if (player != null)
             {
-                var player = target.AsPlayer;
+                var userLevels = _db2Manager.GetContentTuningData(Template.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
-                if (player != null)
-                {
-                    var userLevels = Global.DB2Mgr.GetContentTuningData(Template.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
-
-                    if (userLevels.HasValue)
-                        return (byte)Math.Clamp(player.Level, userLevels.Value.MinLevel, userLevels.Value.MaxLevel);
-                }
-
-                var targetUnit = target.AsUnit;
-
-                if (targetUnit != null)
-                    return targetUnit.Level;
+                if (userLevels.HasValue)
+                    return (byte)Math.Clamp(player.Level, userLevels.Value.MinLevel, userLevels.Value.MaxLevel);
             }
 
-            return 1;
+            var targetUnit = target.AsUnit;
+
+            return targetUnit?.Level ?? 1;
         }
 
         public override Loot GetLootForPlayer(Player player)
         {
-            if (_personalLoot.Empty())
-                return Loot;
-
-            return _personalLoot.LookupByKey(player.GUID);
+            return _personalLoot.Empty() ? Loot : _personalLoot.LookupByKey(player.GUID);
         }
 
         public override string GetName(Locale locale = Locale.enUS)
         {
-            if (locale != Locale.enUS)
-            {
-                var cl = ObjectManager.GetGameObjectLocale(Entry);
+            if (locale == Locale.enUS)
+                return base.GetName(locale);
 
-                if (cl != null)
-                    if (cl.Name.Length > (int)locale && !cl.Name[(int)locale].IsEmpty())
-                        return cl.Name[(int)locale];
-            }
+            var cl = ObjectManager.GetGameObjectLocale(Entry);
+
+            if (cl == null)
+                return base.GetName(locale);
+
+            if (cl.Name.Length > (int)locale && !cl.Name[(int)locale].IsEmpty())
+                return cl.Name[(int)locale];
 
             return base.GetName(locale);
         }
@@ -1016,8 +1015,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 return modelData.State2NameSet;
                             case GameObjectDestructibleState.Rebuilding:
                                 return modelData.State3NameSet;
-                            default:
-                                break;
+                            
                         }
 
                     break;
@@ -1027,8 +1025,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     var flags = (GameObjectFlags)(uint)GameObjectFieldData.Flags;
 
                     return (byte)(((int)flags >> 8) & 0xF);
-                default:
-                    break;
+                
             }
 
             return 0;
@@ -1043,10 +1040,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public Position GetRespawnPosition()
         {
-            if (GameObjectData != null)
-                return GameObjectData.SpawnPoint.Copy();
-            else
-                return Location.Copy();
+            return GameObjectData != null ? GameObjectData.SpawnPoint.Copy() : Location.Copy();
         }
 
         public SpellInfo GetSpellForLock(Player player)
@@ -1071,7 +1065,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                 if (lockEntry.LockType[i] == (byte)LockKeyType.Spell)
                 {
-                    var spell = Global.SpellMgr.GetSpellInfo((uint)lockEntry.Index[i], Location.Map.DifficultyID);
+                    var spell = SpellManager.GetSpellInfo((uint)lockEntry.Index[i], Location.Map.DifficultyID);
 
                     if (spell != null)
                         return spell;
@@ -1082,13 +1076,13 @@ namespace Forged.MapServer.Entities.GameObjects
 
                 foreach (var playerSpell in player.GetSpellMap())
                 {
-                    var spell = Global.SpellMgr.GetSpellInfo(playerSpell.Key, Location.Map.DifficultyID);
+                    var spell = SpellManager.GetSpellInfo(playerSpell.Key, Location.Map.DifficultyID);
 
-                    if (spell != null)
-                        foreach (var effect in spell.Effects)
-                            if (effect.Effect == SpellEffectName.OpenLock && effect.MiscValue == lockEntry.Index[i])
-                                if (effect.CalcValue(player) >= lockEntry.Skill[i])
-                                    return spell;
+                    if (spell == null)
+                        continue;
+
+                    if (spell.Effects.Where(effect => effect.Effect == SpellEffectName.OpenLock && effect.MiscValue == lockEntry.Index[i]).Any(effect => effect.CalcValue(player) >= lockEntry.Skill[i]))
+                        return spell;
                 }
             }
 
@@ -1608,19 +1602,18 @@ namespace Forged.MapServer.Entities.GameObjects
             data.SpawnDifficulties = spawnDifficulties;
             data.ArtKit = (byte)GoArtKit;
 
-            if (data.SpawnGroupData == null)
-                data.SpawnGroupData = ObjectManager.GetDefaultSpawnGroup();
+            data.SpawnGroupData ??= ObjectManager.GetDefaultSpawnGroup();
 
             data.PhaseId = Location.DBPhase > 0 ? (uint)Location.DBPhase : data.PhaseId;
             data.PhaseGroup = Location.DBPhase < 0 ? (uint)-Location.DBPhase : data.PhaseGroup;
 
             // Update in DB
             byte index = 0;
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
+            var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAMEOBJECT);
             stmt.AddValue(0, SpawnId);
-            DB.World.Execute(stmt);
+            _worldDatabase.Execute(stmt);
 
-            stmt = DB.World.GetPreparedStatement(WorldStatements.INS_GAMEOBJECT);
+            stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_GAMEOBJECT);
             stmt.AddValue(index++, SpawnId);
             stmt.AddValue(index++, Entry);
             stmt.AddValue(index++, mapid);
@@ -1638,7 +1631,7 @@ namespace Forged.MapServer.Entities.GameObjects
             stmt.AddValue(index++, RespawnDelay);
             stmt.AddValue(index++, GoAnimProgress);
             stmt.AddValue(index++, (byte)GoState);
-            DB.World.Execute(stmt);
+            _worldDatabase.Execute(stmt);
         }
 
         public void SendCustomAnim(uint anim)
@@ -1670,10 +1663,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
                 return;
 
-            if (!oneshot)
-                _animKitId = animKitId;
-            else
-                _animKitId = 0;
+            _animKitId = !oneshot ? animKitId : (ushort)0;
 
             GameObjectActivateAnimKit activateAnimKit = new()
             {
@@ -1745,7 +1735,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     var player = attackerOrHealer?.CharmerOrOwnerPlayerOrPlayerItself;
 
-                    if (player)
+                    if (player != null)
                     {
                         var bg = player.Battleground;
 
@@ -1846,19 +1836,14 @@ namespace Forged.MapServer.Entities.GameObjects
 
             _goTypeImpl?.OnStateChanged(oldState, state);
 
-            if (Model != null && !IsTransport)
-            {
-                if (!Location.IsInWorld)
-                    return;
+            if (Model == null || IsTransport)
+                return;
 
-                // startOpen determines whether we are going to add or remove the LoS on activation
-                var collision = false;
+            if (!Location.IsInWorld)
+                return;
 
-                if (state == GameObjectState.Ready)
-                    collision = !collision;
-
-                EnableCollision(collision);
-            }
+            // startOpen determines whether we are going to add or remove the LoS on activation
+            EnableCollision(state == GameObjectState.Ready);
         }
 
         public void SetLevel(uint level)
@@ -1887,7 +1872,7 @@ namespace Forged.MapServer.Entities.GameObjects
         public void SetLootState(LootState state, Unit unit = null)
         {
             LootState = state;
-            _lootStateUnitGuid = unit ? unit.GUID : ObjectGuid.Empty;
+            _lootStateUnitGuid = unit?.GUID ?? ObjectGuid.Empty;
             AI.OnLootStateChanged((uint)state, unit);
 
             // Start restock timer if the chest is partially looted or not looted at all
@@ -1899,15 +1884,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 return;
 
             if (Model != null)
-            {
-                var collision = false;
-
-                // Use the current go state
-                if ((GoState != GameObjectState.Ready && state is LootState.Activated or LootState.JustDeactivated) || state == LootState.Ready)
-                    collision = !collision;
-
-                EnableCollision(collision);
-            }
+                EnableCollision((GoState != GameObjectState.Ready && state is LootState.Activated or LootState.JustDeactivated) || state == LootState.Ready);
         }
 
         public void SetOwnerGUID(ObjectGuid owner)
@@ -1983,8 +1960,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     return (Transport)_goTypeImpl;
                 case GameObjectTypes.MapObjTransport:
                     return (Entities.Transport)this;
-                default:
-                    break;
+                
             }
 
             return null;
@@ -1994,10 +1970,10 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             var trapInfo = ObjectManager.GetGameObjectTemplate(trapEntry);
 
-            if (trapInfo == null || trapInfo.type != GameObjectTypes.Trap)
+            if (trapInfo is not { type: GameObjectTypes.Trap })
                 return;
 
-            var trapSpell = Global.SpellMgr.GetSpellInfo(trapInfo.Trap.spell, Location.Map.DifficultyID);
+            var trapSpell = SpellManager.GetSpellInfo(trapInfo.Trap.spell, Location.Map.DifficultyID);
 
             if (trapSpell == null) // checked at load already
                 return;
@@ -2005,7 +1981,7 @@ namespace Forged.MapServer.Entities.GameObjects
             var trapGO = LinkedTrap;
 
             if (trapGO)
-                trapGO.CastSpell(target, trapSpell.Id);
+                trapGO.SpellFactory.CastSpell(target, trapSpell.Id);
         }
 
         public override void Update(uint diff)
@@ -2038,29 +2014,29 @@ namespace Forged.MapServer.Entities.GameObjects
                     if (playerState.ValidUntil > GameTime.SystemTime)
                         continue;
 
-                    var seer = Global.ObjAccessor.GetPlayer(this, guid);
+                    var seer = ObjectAccessor.GetPlayer(this, guid);
                     var needsStateUpdate = playerState.State != GoState;
                     var despawned = playerState.Despawned;
 
                     _perPlayerState.Remove(guid);
 
-                    if (seer)
-                    {
-                        if (despawned)
-                        {
-                            seer.UpdateVisibilityOf(this);
-                        }
-                        else if (needsStateUpdate)
-                        {
-                            ObjectFieldData objMask = new();
-                            GameObjectFieldData goMask = new();
-                            goMask.MarkChanged(GameObjectFieldData.State);
+                    if (!seer)
+                        continue;
 
-                            UpdateData udata = new(Location.MapId);
-                            BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), goMask.GetUpdateMask(), seer);
-                            udata.BuildPacket(out var packet);
-                            seer.SendPacket(packet);
-                        }
+                    if (despawned)
+                    {
+                        seer.UpdateVisibilityOf(this);
+                    }
+                    else if (needsStateUpdate)
+                    {
+                        ObjectFieldData objMask = new();
+                        GameObjectFieldData goMask = new();
+                        goMask.MarkChanged(GameObjectFieldData.State);
+
+                        UpdateData udata = new(Location.MapId);
+                        BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), goMask.GetUpdateMask(), seer);
+                        udata.BuildPacket(out var packet);
+                        seer.SendPacket(packet);
                     }
                 }
 
@@ -2091,16 +2067,16 @@ namespace Forged.MapServer.Entities.GameObjects
                         case GameObjectTypes.FishingNode:
                         {
                             // fishing code (bobber ready)
-                            if (GameTime.CurrentTime > RespawnTime - 5)
-                            {
-                                // splash bobber (bobber ready now)
-                                var caster = OwnerUnit;
+                            if (GameTime.CurrentTime <= RespawnTime - 5)
+                                return;
 
-                                if (caster != null && caster.IsTypeId(TypeId.Player))
-                                    SendCustomAnim(0);
+                            // splash bobber (bobber ready now)
+                            var caster = OwnerUnit;
 
-                                LootState = LootState.Ready; // can be successfully open with some chance
-                            }
+                            if (caster != null && caster.IsTypeId(TypeId.Player))
+                                SendCustomAnim(0);
+
+                            LootState = LootState.Ready; // can be successfully open with some chance
 
                             return;
                         }
@@ -2182,8 +2158,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                         GoValueProtected.FishingHole.MaxOpens = RandomHelper.URand(Template.FishingHole.minRestock, Template.FishingHole.maxRestock);
 
                                         break;
-                                    default:
-                                        break;
+                                    
                                 }
 
                                 if (!IsSpawnedByDefault) // despawn timer
@@ -2201,7 +2176,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 var poolid = GameObjectData?.poolId ?? 0;
 
                                 if (poolid != 0)
-                                    Global.PoolMgr.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
+                                    _poolManager.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
                                 else
                                     Location.Map.AddToMap(this);
                             }
@@ -2285,7 +2260,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                         GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.HordeCaptured;
                                         var map = Location.Map.ToBattlegroundMap;
 
-                                        var bg = map?.GetBG();
+                                        var bg = map?.BG;
 
                                         if (bg != null)
                                         {
@@ -2300,7 +2275,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                         GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.AllianceCaptured;
                                         var map = Location.Map.ToBattlegroundMap;
 
-                                        var bg = map?.GetBG();
+                                        var bg = map?.BG;
 
                                         if (bg != null)
                                         {
@@ -2371,12 +2346,12 @@ namespace Forged.MapServer.Entities.GameObjects
                         case GameObjectTypes.Trap:
                         {
                             var goInfo = Template;
-                            var target = Global.ObjAccessor.GetUnit(this, _lootStateUnitGuid);
+                            var target = ObjectAccessor.GetUnit(this, _lootStateUnitGuid);
 
                             if (goInfo.Trap.charges == 2 && goInfo.Trap.spell != 0)
                             {
                                 //todo NULL target won't work for target type 1
-                                CastSpell(goInfo.Trap.spell);
+                                SpellFactory.CastSpell(goInfo.Trap.spell);
                                 SetLootState(LootState.JustDeactivated);
                             }
                             else if (target)
@@ -2386,35 +2361,31 @@ namespace Forged.MapServer.Entities.GameObjects
                                 args.SetOriginalCaster(OwnerGUID);
 
                                 if (goInfo.Trap.spell != 0)
-                                    CastSpell(target, goInfo.Trap.spell, args);
+                                    SpellFactory.CastSpell(target, goInfo.Trap.spell, args);
 
                                 // Template value or 4 seconds
                                 _cooldownTime = (GameTime.CurrentTimeMS + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4u)) * Time.IN_MILLISECONDS;
 
-                                if (goInfo.Trap.charges == 1)
-                                    SetLootState(LootState.JustDeactivated);
-                                else if (goInfo.Trap.charges == 0)
-                                    SetLootState(LootState.Ready);
+                                switch (goInfo.Trap.charges)
+                                {
+                                    case 1:
+                                        SetLootState(LootState.JustDeactivated);
+
+                                        break;
+                                    case 0:
+                                        SetLootState(LootState.Ready);
+
+                                        break;
+                                }
 
                                 // Battleground gameobjects have data2 == 0 && data5 == 3
                                 if (goInfo.Trap is { radius: 0, cooldown: 3 })
-                                {
-                                    var player = target.AsPlayer;
-
-                                    if (player)
-                                    {
-                                        var bg = player.Battleground;
-
-                                        if (bg)
-                                            bg.HandleTriggerBuff(GUID);
-                                    }
-                                }
+                                    target.AsPlayer?.Battleground?.HandleTriggerBuff(GUID);
                             }
 
                             break;
                         }
-                        default:
-                            break;
+                        
                     }
 
                     break;
@@ -2435,13 +2406,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         if (spellId != 0)
                         {
                             foreach (var id in _uniqueUsers)
-                            {
-                                // m_unique_users can contain only player GUIDs
-                                var owner = Global.ObjAccessor.GetPlayer(this, id);
-
-                                if (owner != null)
-                                    owner.CastSpell(owner, spellId, false);
-                            }
+                                ObjectAccessor.GetPlayer(this, id)?.SpellFactory?.CastSpell(spellId);
 
                             _uniqueUsers.Clear();
                             UseCount = 0;
@@ -2518,7 +2483,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     }
 
                     var respawnDelay = RespawnDelay;
-                    var scalingMode = GetDefaultValue("Respawn.DynamicMode", 0u);
+                    var scalingMode = Configuration.GetDefaultValue("Respawn.DynamicMode", 0u);
 
                     if (scalingMode != 0)
                         Location.Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
@@ -2652,7 +2617,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             }
                         }
 
-                        /// @todo possible must be moved to loot release (in different from linked triggering)
+                        // @todo possible must be moved to loot release (in different from linked triggering)
                         if (info.Chest.triggeredEvent != 0)
                             GameEvents.Trigger(info.Chest.triggeredEvent, player, this);
 
@@ -2674,7 +2639,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                                 foreach (var tapperGuid in TapList)
                                 {
-                                    var tapper = Global.ObjAccessor.GetPlayer(this, tapperGuid);
+                                    var tapper = ObjectAccessor.GetPlayer(this, tapperGuid);
 
                                     if (tapper != null)
                                         tappers.Add(tapper);
@@ -2683,24 +2648,24 @@ namespace Forged.MapServer.Entities.GameObjects
                                 if (tappers.Empty())
                                     tappers.Add(player);
 
-                                _personalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(info.Chest.DungeonEncounter,
-                                                                                                 info.Chest.chestPersonalLoot,
-                                                                                                 LootStoreBox.Gameobject,
-                                                                                                 LootType.Chest,
-                                                                                                 this,
-                                                                                                 addon?.Mingold ?? 0,
-                                                                                                 addon?.Maxgold ?? 0,
-                                                                                                 (ushort)LootMode,
-                                                                                                 Location.Map.GetDifficultyLootItemContext(),
-                                                                                                 tappers);
+                                _personalLoot = _lootManager.GenerateDungeonEncounterPersonalLoot(info.Chest.DungeonEncounter,
+                                                                                                  info.Chest.chestPersonalLoot,
+                                                                                                  _lootStoreBox.Gameobject,
+                                                                                                  LootType.Chest,
+                                                                                                  this,
+                                                                                                  addon?.Mingold ?? 0,
+                                                                                                  addon?.Maxgold ?? 0,
+                                                                                                  (ushort)LootMode,
+                                                                                                  Location.Map.GetDifficultyLootItemContext(),
+                                                                                                  tappers);
                             }
                             else
                             {
-                                Loot loot = new(Location.Map, GUID, LootType.Chest, null);
+                                var loot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
                                 _personalLoot[player.GUID] = loot;
 
                                 loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
-                                loot.FillLoot(info.Chest.chestPersonalLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                                loot.FillLoot(info.Chest.chestPersonalLoot, _lootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
 
                                 if (LootMode > 0 && addon != null)
                                     loot.GenerateMoneyLoot(addon.Mingold, addon.Maxgold);
@@ -2712,8 +2677,8 @@ namespace Forged.MapServer.Entities.GameObjects
                     {
                         if (info.Chest.chestPushLoot != 0)
                         {
-                            Loot pushLoot = new(Location.Map, GUID, LootType.Chest, null);
-                            pushLoot.FillLoot(info.Chest.chestPushLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                            var pushLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
+                            pushLoot.FillLoot(info.Chest.chestPushLoot, _lootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
                             pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
                         }
 
@@ -2745,7 +2710,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     var goInfo = Template;
 
                     if (goInfo.Trap.spell != 0)
-                        CastSpell(user, goInfo.Trap.spell);
+                        SpellFactory.CastSpell(user, goInfo.Trap.spell);
 
                     _cooldownTime = GameTime.CurrentTimeMS + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4) * Time.IN_MILLISECONDS; // template or 4 seconds
 
@@ -2791,7 +2756,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                         if (!sittingUnit.IsEmpty)
                         {
-                            var chairUser = Global.ObjAccessor.GetUnit(this, sittingUnit);
+                            var chairUser = ObjectAccessor.GetUnit(this, sittingUnit);
 
                             if (chairUser != null)
                             {
@@ -3095,7 +3060,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     if (info.Ritual.animSpell != 0)
                     {
-                        player.CastSpell(player, info.Ritual.animSpell, true);
+                        player.SpellFactory.CastSpell(player, info.Ritual.animSpell, true);
 
                         // for this case, summoningRitual.spellId is always triggered
                         triggered = true;
@@ -3124,10 +3089,10 @@ namespace Forged.MapServer.Entities.GameObjects
                             for (uint i = 0; i < info.Ritual.casterTargetSpellTargets; i++)
                             {
                                 // m_unique_users can contain only player GUIDs
-                                var target = Global.ObjAccessor.GetPlayer(this, _uniqueUsers.SelectRandom());
+                                var target = ObjectAccessor.GetPlayer(this, _uniqueUsers.SelectRandom());
 
                                 if (target != null)
-                                    spellCaster.CastSpell(target, info.Ritual.casterTargetSpell, true);
+                                    spellCaster.SpellFactory.CastSpell(target, info.Ritual.casterTargetSpell, true);
                             }
 
                         // finish owners spell
@@ -3188,20 +3153,20 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     var player = user.AsPlayer;
 
-                    var targetPlayer = Global.ObjAccessor.FindPlayer(player.Target);
+                    var targetPlayer = ObjectAccessor.FindPlayer(player.Target);
 
                     // accept only use by player from same raid as caster, except caster itself
                     if (targetPlayer == null || targetPlayer == player || !targetPlayer.IsInSameRaidWith(player))
                         return;
 
                     //required lvl checks!
-                    var userLevels = Global.DB2Mgr.GetContentTuningData(info.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+                    var userLevels = _db2Manager.GetContentTuningData(info.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                     if (userLevels.HasValue)
                         if (player.Level < userLevels.Value.MaxLevel)
                             return;
 
-                    var targetLevels = Global.DB2Mgr.GetContentTuningData(info.ContentTuningId, targetPlayer.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                    var targetLevels = _db2Manager.GetContentTuningData(info.ContentTuningId, targetPlayer.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                     if (targetLevels.HasValue)
                         if (targetPlayer.Level < targetLevels.Value.MaxLevel)
@@ -3382,7 +3347,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             var artifactAura = player.GetAura(PlayerConst.ArtifactsAllWeaponsGeneralWeaponEquippedPassive);
                             var item = artifactAura != null ? player.GetItemByGuid(artifactAura.CastItemGuid) : null;
 
-                            if (!item)
+                            if (item == null)
                             {
                                 player.SendPacket(new DisplayGameError(GameError.MustEquipArtifact));
 
@@ -3416,8 +3381,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                             break;
                         }
-                        default:
-                            break;
+                        
                     }
 
                     break;
@@ -3452,8 +3416,7 @@ namespace Forged.MapServer.Entities.GameObjects
                             gameObjectUiLink.InteractionType = PlayerInteractionType.ItemInteraction;
 
                             break;
-                        default:
-                            break;
+                        
                     }
 
                     player.SendPacket(gameObjectUiLink);
@@ -3473,10 +3436,10 @@ namespace Forged.MapServer.Entities.GameObjects
                     {
                         if (info.GatheringNode.chestLoot != 0)
                         {
-                            Loot newLoot = new(Location.Map, GUID, LootType.Chest, null);
+                            Loot newLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
                             _personalLoot[player.GUID] = newLoot;
 
-                            newLoot.FillLoot(info.GatheringNode.chestLoot, LootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
+                            newLoot.FillLoot(info.GatheringNode.chestLoot, _lootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
                         }
 
                         if (info.GatheringNode.triggeredEvent != 0)
@@ -3543,9 +3506,9 @@ namespace Forged.MapServer.Entities.GameObjects
             if (spellId == 0)
                 return;
 
-            if (!Global.SpellMgr.HasSpellInfo(spellId, Location.Map.DifficultyID))
+            if (!SpellManager.HasSpellInfo(spellId, Location.Map.DifficultyID))
             {
-                if (!user.IsTypeId(TypeId.Player) || !Global.OutdoorPvPMgr.HandleCustomSpell(user.AsPlayer, spellId, this))
+                if (!user.IsTypeId(TypeId.Player) || !_outdoorPvPManager.HandleCustomSpell(user.AsPlayer, spellId, this))
                     Log.Logger.Error("WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GoType);
                 else
                     Log.Logger.Debug("WORLD: {0} non-dbc spell was handled by OutdoorPvP", spellId);
@@ -3556,12 +3519,12 @@ namespace Forged.MapServer.Entities.GameObjects
             var player1 = user.AsPlayer;
 
             if (player1)
-                Global.OutdoorPvPMgr.HandleCustomSpell(player1, spellId, this);
+                _outdoorPvPManager.HandleCustomSpell(player1, spellId, this);
 
             if (spellCaster != null)
-                spellCaster.CastSpell(user, spellId, triggered);
+                spellCaster.SpellFactory.CastSpell(user, spellId, triggered);
             else
-                CastSpell(user, spellId);
+                SpellFactory.CastSpell(user, spellId);
         }
 
         public void UseDoorOrButton(uint timeToRestore = 0, bool alternative = false, Unit user = null)
@@ -3577,26 +3540,8 @@ namespace Forged.MapServer.Entities.GameObjects
 
             _cooldownTime = timeToRestore != 0 ? GameTime.CurrentTimeMS + timeToRestore : 0;
         }
-        private void AddLootMode(LootModes lootMode)
-        {
-            LootMode |= lootMode;
-        }
 
-        private void ClearLoot()
-        {
-            // Unlink loot objects from this GameObject before destroying to avoid accessing freed memory from Loot destructor
-            Loot = null;
-            _personalLoot.Clear();
-            _uniqueUsers.Clear();
-            UseCount = 0;
-        }
-
-        private void ClearSkillupList()
-        {
-            _skillupList.Clear();
-        }
-
-        private bool Create(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit, bool dynamic, ulong spawnid)
+        internal bool Create(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit, bool dynamic, ulong spawnid)
         {
             Location.WorldRelocate(map, pos);
             CheckAddToMap();
@@ -3713,7 +3658,7 @@ namespace Forged.MapServer.Entities.GameObjects
             SetGoState(goState);
             GoArtKit = artKit;
 
-            SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+            SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), _db2Manager.GetEmptyAnimStateID());
 
             switch (goInfo.type)
             {
@@ -3782,10 +3727,10 @@ namespace Forged.MapServer.Entities.GameObjects
 
             if (gameObjectAddon != null)
             {
-                if (gameObjectAddon.invisibilityValue != 0)
+                if (gameObjectAddon.InvisibilityValue != 0)
                 {
-                    Visibility.Invisibility.AddFlag(gameObjectAddon.invisibilityType);
-                    Visibility.Invisibility.AddValue(gameObjectAddon.invisibilityType, gameObjectAddon.invisibilityValue);
+                    Visibility.Invisibility.AddFlag(gameObjectAddon.InvisibilityType);
+                    Visibility.Invisibility.AddValue(gameObjectAddon.InvisibilityType, gameObjectAddon.InvisibilityValue);
                 }
 
                 if (gameObjectAddon.WorldEffectID != 0)
@@ -3808,7 +3753,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             if (linkedEntry != 0)
             {
-                var linkedGo = GameObjects.GameObjectFactory.CreateGameObject(linkedEntry, map, pos, rotation, 255, GameObjectState.Ready);
+                var linkedGo = GameObjectFactory.CreateGameObject(linkedEntry, map, pos, rotation, 255, GameObjectState.Ready);
 
                 if (linkedGo != null)
                 {
@@ -3834,6 +3779,14 @@ namespace Forged.MapServer.Entities.GameObjects
             return true;
         }
 
+        private void ClearLoot()
+        {
+            // Unlink loot objects from this GameObject before destroying to avoid accessing freed memory from Loot destructor
+            Loot = null;
+            _personalLoot.Clear();
+            _uniqueUsers.Clear();
+            UseCount = 0;
+        }
         private void DespawnForPlayer(Player seer, TimeSpan respawnTime)
         {
             var perPlayerState = GetOrCreatePerPlayerStates(seer.GUID);
@@ -3863,41 +3816,29 @@ namespace Forged.MapServer.Entities.GameObjects
             return (uint)_uniqueUsers.Count;
         }
 
-        private void HandleCustomTypeCommand(GameObjectTypeBase.CustomCommand command)
-        {
-            if (_goTypeImpl != null)
-                command.Execute(_goTypeImpl);
-        }
-
-        private bool HasLootMode(LootModes lootMode)
-        {
-            return Convert.ToBoolean(LootMode & lootMode);
-        }
-
         private bool IsAtInteractDistance(Position pos, float radius)
         {
             var displayInfo = CliDB.GameObjectDisplayInfoStorage.LookupByKey(Template.displayId);
 
-            if (displayInfo != null)
-            {
-                var scale = ObjectScale;
+            if (displayInfo == null)
+                return Location.GetExactDist(pos) <= radius;
 
-                var minX = displayInfo.GeoBoxMin.X * scale - radius;
-                var minY = displayInfo.GeoBoxMin.Y * scale - radius;
-                var minZ = displayInfo.GeoBoxMin.Z * scale - radius;
-                var maxX = displayInfo.GeoBoxMax.X * scale + radius;
-                var maxY = displayInfo.GeoBoxMax.Y * scale + radius;
-                var maxZ = displayInfo.GeoBoxMax.Z * scale + radius;
+            var scale = ObjectScale;
 
-                var worldRotation = GetWorldRotation();
+            var minX = displayInfo.GeoBoxMin.X * scale - radius;
+            var minY = displayInfo.GeoBoxMin.Y * scale - radius;
+            var minZ = displayInfo.GeoBoxMin.Z * scale - radius;
+            var maxX = displayInfo.GeoBoxMax.X * scale + radius;
+            var maxY = displayInfo.GeoBoxMax.Y * scale + radius;
+            var maxZ = displayInfo.GeoBoxMax.Z * scale + radius;
 
-                //Todo Test this. Needs checked.
-                var worldSpaceBox = MathFunctions.toWorldSpace(worldRotation.ToMatrix(), new Vector3(Location.X, Location.Y, Location.Z), new Box(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ)));
+            var worldRotation = GetWorldRotation();
 
-                return worldSpaceBox.Contains(new Vector3(pos.X, pos.Y, pos.Z));
-            }
+            //Todo Test this. Needs checked.
+            var worldSpaceBox = MathFunctions.toWorldSpace(worldRotation.ToMatrix(), new Vector3(Location.X, Location.Y, Location.Z), new Box(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ)));
 
-            return Location.GetExactDist(pos) <= radius;
+            return worldSpaceBox.Contains(new Vector3(pos.X, pos.Y, pos.Z));
+
         }
 
         private GameObject LookupFishingHoleAround(float range)
@@ -3917,7 +3858,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (ownerGUID.IsEmpty)
                 return;
 
-            var owner = Global.ObjAccessor.GetUnit(this, ownerGUID);
+            var owner = ObjectAccessor.GetUnit(this, ownerGUID);
 
             if (owner)
             {
@@ -3935,10 +3876,6 @@ namespace Forged.MapServer.Entities.GameObjects
                              ownerGUID.ToString());
 
             SetOwnerGUID(ObjectGuid.Empty);
-        }
-        private void RemoveLootMode(LootModes lootMode)
-        {
-            LootMode &= ~lootMode;
         }
 
         private void ResetLootMode()
@@ -4013,8 +3950,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     spellVisualId = Template.CapturePoint.SpellVisual5;
 
                     break;
-                default:
-                    break;
+                
             }
 
             if (customAnim != 0)
@@ -4025,7 +3961,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             var map = Location.Map.ToBattlegroundMap;
 
-            var bg = map?.GetBG();
+            var bg = map?.BG;
 
             if (bg != null)
             {
@@ -4070,27 +4006,5 @@ namespace Forged.MapServer.Entities.GameObjects
             if (Model != null)
                 Location.Map.InsertGameObjectModel(Model);
         }
-        private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-        {
-            public readonly GameObjectFieldData GameObjectMask = new();
-            public readonly ObjectFieldData ObjectMask = new();
-            public readonly GameObject Owner;
-            public ValuesUpdateForPlayerWithMaskSender(GameObject owner)
-            {
-                Owner = owner;
-            }
-
-            public void Invoke(Player player)
-            {
-                UpdateData udata = new(Owner.Location.MapId);
-
-                Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), GameObjectMask.GetUpdateMask(), player);
-
-                udata.BuildPacket(out var packet);
-                player.SendPacket(packet);
-            }
-        }
     }
-
-    // Base class for GameObject type specific implementations
 }

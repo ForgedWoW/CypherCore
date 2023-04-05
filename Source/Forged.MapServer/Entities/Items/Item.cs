@@ -1223,8 +1223,7 @@ public class Item : WorldObject
             case ItemModType.Corruption:
             case ItemModType.CorruptionResistance:
                 return BonusData.StatPercentEditor[index];
-            default:
-                break;
+            
         }
 
         var itemLevel = GetItemLevel(owner);
@@ -1618,8 +1617,7 @@ public class Item : WorldObject
                                 }
 
                                 break;
-                            default:
-                                break;
+                            
                         }
             }
 
@@ -2361,8 +2359,7 @@ public class Item : WorldObject
 
                                 break;
                             }
-                            default:
-                                break;
+                            
                         }
                 }
             }
@@ -2771,8 +2768,7 @@ public class Item : WorldObject
                     return ItemTransmogrificationWeaponCategory.Dagger;
                 case ItemSubClassWeapon.Fist:
                     return ItemTransmogrificationWeaponCategory.Fist;
-                default:
-                    break;
+                
             }
 
         return ItemTransmogrificationWeaponCategory.Invalid;
@@ -2906,8 +2902,7 @@ public class Item : WorldObject
                         }
 
                         break;
-                    default:
-                        break;
+                    
                 }
     }
 

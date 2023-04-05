@@ -298,8 +298,7 @@ class WardenWin : Warden
 					buff << uint8(wd.Length);
 					break;
 				}*/
-				default:
-					break; // Should never happen
+				 // Should never happen
 			}
 		}
 

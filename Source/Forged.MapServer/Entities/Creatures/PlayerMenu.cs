@@ -505,8 +505,7 @@ public class PlayerMenu
                     packet.MoneyToGet += obj.Amount;
 
                     break;
-                default:
-                    break;
+                
             }
 
         packet.AutoLaunched = autoLaunched;

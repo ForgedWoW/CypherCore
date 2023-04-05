@@ -41,8 +41,7 @@ internal class spell_item_shadowmourne_soul_fragment : AuraScript, IHasAuraEffec
                 target.CastSpell(target, ItemSpellIds.ShadowmourneChaosBaneBuff, true);
 
                 break;
-            default:
-                break;
+            
         }
     }
 

@@ -31,8 +31,7 @@ internal class spell_gen_adaptive_warding : AuraScript, IAuraCheckProc, IHasAura
             case SpellSchools.Normal:
             case SpellSchools.Holy:
                 return false;
-            default:
-                break;
+            
         }
 
         return true;

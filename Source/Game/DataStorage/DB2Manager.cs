@@ -1358,8 +1358,7 @@ public class DB2Manager : Singleton<DB2Manager>
 			}
 			case CurveInterpolationMode.Constant:
 				return points[0].Pos.Y;
-			default:
-				break;
+			
 		}
 
 		return 0.0f;
@@ -1410,8 +1409,7 @@ public class DB2Manager : Singleton<DB2Manager>
 				classMod = ExpectedStatModStorage.LookupByKey(1);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		var contentTuningMods = _expectedStatModsByContentTuning.LookupByKey(contentTuningId);
@@ -1511,8 +1509,7 @@ public class DB2Manager : Singleton<DB2Manager>
 					value *= classMod.CreatureSpellDamageMod;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return value;
@@ -1981,8 +1978,7 @@ public class DB2Manager : Singleton<DB2Manager>
 					return _pvpTalentSlotUnlock[slot].DeathKnightLevelRequired;
 				case PlayerClass.DemonHunter:
 					return _pvpTalentSlotUnlock[slot].DemonHunterLevelRequired;
-				default:
-					break;
+				
 			}
 
 			return _pvpTalentSlotUnlock[slot].LevelRequired;
@@ -2323,16 +2319,14 @@ public class DB2Manager : Singleton<DB2Manager>
 						return CurveInterpolationMode.Bezier3;
 					case 4:
 						return CurveInterpolationMode.Bezier4;
-					default:
-						break;
+					
 				}
 
 				return CurveInterpolationMode.Bezier;
 			}
 			case 3:
 				return CurveInterpolationMode.Cosine;
-			default:
-				break;
+			
 		}
 
 		return points.Count != 1 ? CurveInterpolationMode.Linear : CurveInterpolationMode.Constant;

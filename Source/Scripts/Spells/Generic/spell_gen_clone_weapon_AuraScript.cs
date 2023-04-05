@@ -102,8 +102,7 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 
                 break;
             }
-            default:
-                break;
+            
         }
     }
 
@@ -128,8 +127,7 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
                 target.SetVirtualItem(2, prevItem);
 
                 break;
-            default:
-                break;
+            
         }
     }
 }

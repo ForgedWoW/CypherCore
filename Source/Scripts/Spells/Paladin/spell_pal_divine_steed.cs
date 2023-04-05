@@ -47,8 +47,7 @@ internal class spell_pal_divine_steed : SpellScript, ISpellOnCast
                 spellId = PaladinSpells.DivineSteedZandalariTroll;
 
                 break;
-            default:
-                break;
+            
         }
 
         caster.CastSpell(caster, spellId, true);

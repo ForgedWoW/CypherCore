@@ -209,8 +209,7 @@ class ChaseMovementGenerator : MovementGenerator
 							walk = true;
 
 							break;
-						default:
-							break;
+						
 					}
 
 				owner.AddUnitState(UnitState.ChaseMove);

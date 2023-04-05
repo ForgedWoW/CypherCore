@@ -640,8 +640,7 @@ public class CriteriaData
 
 				return (uint)pProto.Quality == itemQuality.Quality;
 			}
-			default:
-				break;
+			
 		}
 
 		return false;

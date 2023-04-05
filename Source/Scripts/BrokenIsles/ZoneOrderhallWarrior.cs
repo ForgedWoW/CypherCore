@@ -127,8 +127,7 @@ internal class npc_danica_the_reclaimer : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -210,8 +209,7 @@ internal class npc_feasting_valarjar : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -270,8 +268,7 @@ internal class npc_incoming_valarjar_aspirant_1 : ScriptedAI
                 Me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -330,8 +327,7 @@ internal class npc_incoming_valarjar_aspirant_2 : ScriptedAI
                 Me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -390,8 +386,7 @@ internal class npc_leaving_valarjar_1 : ScriptedAI
                 Me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -450,8 +445,7 @@ internal class npc_leaving_valarjar_2 : ScriptedAI
                 Me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -519,8 +513,7 @@ internal class npc_spectating_valarjar : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -580,8 +573,7 @@ internal class npc_valkyr_of_odyn_1 : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -641,8 +633,7 @@ internal class npc_valkyr_of_odyn_2 : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -702,8 +693,7 @@ internal class npc_valkyr_of_odyn_3 : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -763,8 +753,7 @@ internal class npc_valkyr_of_odyn_4 : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -824,8 +813,7 @@ internal class npc_valkyr_of_odyn_5 : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -885,8 +873,7 @@ internal class npc_valkyr_of_odyn_6 : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }
@@ -946,8 +933,7 @@ internal class npc_valkyr_of_odyn_7 : ScriptedAI
                 Me.DespawnOrUnsummon();
 
                 break;
-            default:
-                break;
+            
         }
     }
 }

@@ -496,8 +496,7 @@ internal class boss_rend_blackhand : BossAI
                         // move wave
                         break;
                     }
-                    default:
-                        break;
+                    
                 }
             });
         }

@@ -431,8 +431,7 @@ public class ArenaTeam
 			case ArenaTypes.Team2v2: return 0;
 			case ArenaTypes.Team3v3: return 1;
 			case ArenaTypes.Team5v5: return 2;
-			default:
-				break;
+			
 		}
 
 		Log.outError(LogFilter.Arena, "FATAL: Unknown arena team type {0} for some arena team", type);
@@ -447,8 +446,7 @@ public class ArenaTeam
 			case 0: return (byte)ArenaTypes.Team2v2;
 			case 1: return (byte)ArenaTypes.Team3v3;
 			case 2: return (byte)ArenaTypes.Team5v5;
-			default:
-				break;
+			
 		}
 
 		Log.outError(LogFilter.Arena, "FATAL: Unknown arena team slot {0} for some arena team", slot);

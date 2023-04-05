@@ -168,8 +168,7 @@ internal class instance_karazhan : InstanceMapScript, IInstanceMapGetInstanceScr
                     NightbaneGUID = creature.GUID;
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -213,8 +212,7 @@ internal class instance_karazhan : InstanceMapScript, IInstanceMapGetInstanceScr
                     }
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -258,8 +256,7 @@ internal class instance_karazhan : InstanceMapScript, IInstanceMapGetInstanceScr
                         DoRespawnGameObject(DustCoveredChest, TimeSpan.FromHours(24));
 
                     break;
-                default:
-                    break;
+                
             }
 
             return true;

@@ -3097,8 +3097,7 @@ public partial class Player : Unit
 				return source.AsCreature.GossipMenuId;
 			case TypeId.GameObject:
 				return source.AsGameObject.GossipMenuId;
-			default:
-				break;
+			
 		}
 
 		return 0;
@@ -3521,8 +3520,7 @@ public partial class Player : Unit
 				SetPower(PowerType.LunarPower, 0);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -5472,8 +5470,7 @@ public partial class Player : Unit
 							amount += enchantmentEntry.EffectScalingPoints[i] * item.Template.Delay / 1000.0f;
 
 						break;
-					default:
-						break;
+					
 				}
 		}
 
@@ -7806,8 +7803,7 @@ public partial class Player : Unit
 				UpdateCritPercentage(WeaponAttackType.OffAttack);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -7982,8 +7978,7 @@ public partial class Player : Unit
 					UpdateVisibilityOf(target.AsConversation, udata, newVisibleUnits);
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 

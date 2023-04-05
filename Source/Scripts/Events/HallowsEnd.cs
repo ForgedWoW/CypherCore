@@ -140,8 +140,7 @@ internal class spell_hallow_end_trick : SpellScript, IHasSpellEffects
                     spellId = SpellIds.SkeletonCostume;
 
                     break;
-                default:
-                    break;
+                
             }
 
             caster.CastSpell(target, spellId, true);

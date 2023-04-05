@@ -147,8 +147,7 @@ internal class boss_ragnaros : BossAI
                         _introState = 2;
 
                         break;
-                    default:
-                        break;
+                    
                 }
             });
         }
@@ -312,8 +311,7 @@ internal class boss_ragnaros : BossAI
 
                         break;
                     }
-                    default:
-                        break;
+                    
                 }
             });
 

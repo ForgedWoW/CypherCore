@@ -379,8 +379,7 @@ public class CalendarManager : Singleton<CalendarManager>
 					++pendingNum;
 
 					break;
-				default:
-					break;
+				
 			}
 
 		return pendingNum;

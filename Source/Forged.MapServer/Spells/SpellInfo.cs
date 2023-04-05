@@ -797,8 +797,7 @@ public class SpellInfo
                 _auraState = AuraStateType.FaerieFire;
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -862,8 +861,7 @@ public class SpellInfo
                                     immuneInfo.SpellEffectImmune.Add(SpellEffectName.KnockBackDest);
 
                                     break;
-                                default:
-                                    break;
+                                
                             }
 
                             break;
@@ -966,8 +964,7 @@ public class SpellInfo
 
                             break;
                         }
-                        default:
-                            break;
+                        
                     }
 
                     if (immuneInfo.AuraTypeImmune.Empty())
@@ -1073,8 +1070,7 @@ public class SpellInfo
 
                     break;
                 }
-                default:
-                    break;
+                
             }
 
             immuneInfo.SchoolImmuneMask = schoolImmunityMask;
@@ -1167,8 +1163,7 @@ public class SpellInfo
                                 drink = true;
 
                                 break;
-                            default:
-                                break;
+                            
                         }
                     }
 
@@ -1285,8 +1280,7 @@ public class SpellInfo
                         _spellSpecific = SpellSpecificType.Aura;
 
                         break;
-                    default:
-                        break;
+                    
                 }
 
                 break;
@@ -1684,8 +1678,7 @@ public class SpellInfo
                     mod = SpellModOp.PowerCost2;
 
                     break;
-                default:
-                    break;
+                
             }
 
             if (mod != SpellModOp.Max)
@@ -1837,8 +1830,7 @@ public class SpellInfo
 
                     break;
                 }
-                default:
-                    break;
+                
             }
 
         return ppm;
@@ -2856,8 +2848,7 @@ public class SpellInfo
 
                     break;
                 }
-                default:
-                    break;
+                
             }
         }
     }
@@ -2908,8 +2899,7 @@ public class SpellInfo
                 return HasLabel((uint)(mod as SpellFlatModifierByLabel).Value.LabelID);
             case SpellModType.LabelPct:
                 return HasLabel((uint)(mod as SpellPctModifierByLabel).Value.LabelID);
-            default:
-                break;
+            
         }
 
         return false;
@@ -3145,8 +3135,7 @@ public class SpellInfo
                 return spellCrit * mod.Coeff * 0.01f;
             case 4:
                 return Math.Min(Math.Min(crit, rangedCrit), spellCrit) * mod.Coeff * 0.01f;
-            default:
-                break;
+            
         }
 
         return 0.0f;
@@ -3171,8 +3160,7 @@ public class SpellInfo
                 return (1.0f / regenHaste - 1.0f) * mod.Coeff;
             case 5:
                 return (1.0f / Math.Min(Math.Min(Math.Min(haste, rangedHaste), spellHaste), regenHaste) - 1.0f) * mod.Coeff;
-            default:
-                break;
+            
         }
 
         return 0.0f;
@@ -3308,8 +3296,7 @@ public class SpellInfo
             case 108199: // Gorefiend's Grasp
             case 191244: // Sticky Bomb
                 return DiminishingGroup.AOEKnockback;
-            default:
-                break;
+            
         }
 
         // Explicit Diminishing Groups
@@ -3681,13 +3668,11 @@ public class SpellInfo
                     case 217832: // Imprison
                     case 221527: // Imprison
                         return DiminishingGroup.Incapacitate;
-                    default:
-                        break;
+                    
                 }
 
                 break;
-            default:
-                break;
+            
         }
 
         return DiminishingGroup.None;
@@ -3732,13 +3717,11 @@ public class SpellInfo
                     case 217832: // Imprison
                     case 221527: // Imprison
                         return 4 * Time.IN_MILLISECONDS;
-                    default:
-                        break;
+                    
                 }
 
                 break;
-            default:
-                break;
+            
         }
 
         return 8 * Time.IN_MILLISECONDS;
@@ -3823,8 +3806,7 @@ public class SpellInfo
                     case 61834: // Manabonked! (minigob)
                     case 73523: // Rigor Mortis
                         return true;
-                    default:
-                        break;
+                    
                 }
 
                 break;
@@ -3836,8 +3818,7 @@ public class SpellInfo
                         return true;
                     case 40251: // Shadow of Death, Teron Gorefiend, Black Temple
                         return false;
-                    default:
-                        break;
+                    
                 }
 
                 break;
@@ -3847,16 +3828,14 @@ public class SpellInfo
                     return false;
 
                 break;
-            default:
-                break;
+            
         }
 
         switch (spellInfo.Mechanic)
         {
             case Mechanics.ImmuneShield:
                 return true;
-            default:
-                break;
+            
         }
 
         // Special case: effects which determine positivity of whole spell
@@ -3882,8 +3861,7 @@ public class SpellInfo
                         return false;
 
                     break;
-                default:
-                    break;
+                
             }
 
             if (otherEffect.IsAura())
@@ -3897,8 +3875,7 @@ public class SpellInfo
                     case AuraType.ModSpellDamageFromCaster:
                     case AuraType.PreventsFleeing:
                         return false;
-                    default:
-                        break;
+                    
                 }
         }
 
@@ -3947,8 +3924,7 @@ public class SpellInfo
                     case DispelType.Invisibility:
                     case DispelType.Enrage:
                         return false;
-                    default:
-                        break;
+                    
                 }
 
                 // also check targets
@@ -3966,8 +3942,7 @@ public class SpellInfo
                         case Mechanics.Mount:
                         case Mechanics.Invulnerability:
                             return false;
-                        default:
-                            break;
+                        
                     }
 
                 break;
@@ -3978,8 +3953,7 @@ public class SpellInfo
                     return false;
 
                 break;
-            default:
-                break;
+            
         }
 
         if (effect.IsAura())
@@ -4149,8 +4123,7 @@ public class SpellInfo
                         case Mechanics.Mount:
                         case Mechanics.Invulnerability:
                             return false;
-                        default:
-                            break;
+                        
                     }
 
                     break;
@@ -4205,8 +4178,7 @@ public class SpellInfo
 
                     break;
                 }
-                default:
-                    break;
+                
             }
 
         // negative spell if triggered spell is negative

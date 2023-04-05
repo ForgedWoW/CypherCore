@@ -1273,8 +1273,7 @@ public class SmartScript
                 break;
             }
             case SmartTargets.Position:
-            default:
-                break;
+            
         }
 
         return targets;
@@ -1628,7 +1627,7 @@ public class SmartScript
 
                                     if (session)
                                     {
-                                        PlayerMenu menu = player.ClassFactory.Resolve<PlayerMenu>(new PositionalParameter(0, session));
+                                        var menu = player.ClassFactory.Resolve<PlayerMenu>(new PositionalParameter(0, session));
                                         menu.SendQuestGiverQuestDetails(quest, _me.GUID, true, false);
                                         Log.Logger.Debug("SmartScript.ProcessAction:: SMART_ACTION_OFFER_QUEST: Player {0} - offering quest {1}", player.GUID.ToString(), e.Action.questOffer.QuestId);
                                     }
@@ -3514,7 +3513,7 @@ public class SmartScript
             {
                 var closestWaypointFromList = e.Action.closestWaypointFromList;
 
-                List<uint> waypoints = new[]
+                var waypoints = new[]
                     {
                         closestWaypointFromList.Wp1, closestWaypointFromList.Wp2, closestWaypointFromList.Wp3, closestWaypointFromList.Wp4, closestWaypointFromList.Wp5, closestWaypointFromList.Wp6
                     }.Where(id => id != 0)

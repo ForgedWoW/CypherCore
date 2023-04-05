@@ -285,8 +285,7 @@ public class MotionMaster
 					}
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return movement;
@@ -315,8 +314,7 @@ public class MotionMaster
 					}
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return value;
@@ -396,8 +394,7 @@ public class MotionMaster
 							Remove(movement, GetCurrentMovementGenerator() == movement, false);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -434,8 +431,7 @@ public class MotionMaster
 					}
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -477,8 +473,7 @@ public class MotionMaster
 				DirectClear();
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 

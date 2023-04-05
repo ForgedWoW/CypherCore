@@ -121,8 +121,7 @@ public class LFGManager
                 SetState(guid, state);
 
                 break;
-            default:
-                break;
+            
         }
     }
 

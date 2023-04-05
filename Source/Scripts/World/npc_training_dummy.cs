@@ -131,8 +131,7 @@ internal class npc_training_dummy : NullCreatureAI
 //                    if (Caster->ToPlayer())
 //                        Caster->ToPlayer()->KilledMonsterCredit(44175, 0);
 //                    break;
-//                default:
-//                    break;
+//                
 //            }
 //}
 

@@ -90,8 +90,7 @@ public partial class Player
 				return baseExpertise + ActivePlayerData.MainhandExpertise / 4.0f;
 			case WeaponAttackType.OffAttack:
 				return baseExpertise + ActivePlayerData.OffhandExpertise / 4.0f;
-			default:
-				break;
+			
 		}
 
 		return 0.0f;

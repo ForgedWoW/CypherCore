@@ -847,8 +847,7 @@ public partial class Player
 				isActiveConfig = HasSkill((uint)(int)ActivePlayerData.TraitConfigs[index].SkillLineID);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		var finalizeTraitConfigUpdate = () =>
@@ -1245,8 +1244,7 @@ public partial class Player
 						RemoveCurrency((uint)traitCurrency.CurrencyTypesID, amount /* TODO: CurrencyDestroyReason */);
 
 						break;
-					default:
-						break;
+					
 				}
 			}
 		}

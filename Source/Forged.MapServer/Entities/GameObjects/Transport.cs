@@ -293,7 +293,7 @@ internal class Transport : GameObjectTypeBase, ITransport
 
             if (newProgress == stopTargetTime && newProgress != _pathProgress)
             {
-                uint eventId = (Owner.GoState - GameObjectState.TransportActive) switch
+                var eventId = (Owner.GoState - GameObjectState.TransportActive) switch
                 {
                     0 => Owner.Template.Transport.Reached1stfloor,
                     1 => Owner.Template.Transport.Reached2ndfloor,

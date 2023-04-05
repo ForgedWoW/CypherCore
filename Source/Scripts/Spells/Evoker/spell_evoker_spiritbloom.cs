@@ -38,8 +38,7 @@ internal class spell_evoker_spiritbloom : SpellScript, ISpellOnEpowerSpellEnd
                 targets = 3;
 
                 break;
-            default:
-                break;
+            
         }
 
         if (targets > 0)

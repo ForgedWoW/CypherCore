@@ -164,8 +164,7 @@ internal class boss_garothi_worldbreaker : BossAI
                 _apocalypseDriveHealthLimit[1] = 20;
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -222,8 +221,7 @@ internal class boss_garothi_worldbreaker : BossAI
                 Me.RemoveUnitFlag(UnitFlags.Uninteractible);
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -289,8 +287,7 @@ internal class boss_garothi_worldbreaker : BossAI
                 _surgingFelDummyGuids.Add(summon.GUID);
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -325,8 +322,7 @@ internal class boss_garothi_worldbreaker : BossAI
                 HideCannons();
 
                 break;
-            default:
-                break;
+            
         }
     }
 
@@ -403,8 +399,7 @@ internal class boss_garothi_worldbreaker : BossAI
 
                     break;
                 }
-                default:
-                    break;
+                
             }
         });
 

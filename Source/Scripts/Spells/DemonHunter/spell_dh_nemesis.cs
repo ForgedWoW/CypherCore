@@ -79,8 +79,7 @@ public class spell_dh_nemesis : AuraScript, IHasAuraEffects
                 spellId = NemesisSpells.NEMESIS_UNDEAD;
 
                 break;
-            default:
-                break;
+            
         }
 
         if (spellId != 0)

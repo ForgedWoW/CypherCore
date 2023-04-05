@@ -64,8 +64,7 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
                 caster.CastSpell(caster, PriestSpells.VOIDFORM_TENTACLES + 3, true);
 
                 break;
-            default:
-                break;
+            
         }
 
         caster.CastSpell(caster, PriestSpells.VOIDFORM_BUFFS, true);

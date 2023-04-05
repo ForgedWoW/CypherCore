@@ -117,8 +117,7 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
                     _majordomoExecutusGUID = creature.GUID;
 
                     break;
-                default:
-                    break;
+                
             }
         }
 
@@ -130,8 +129,7 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
                     _cacheOfTheFirelordGUID = go.GUID;
 
                     break;
-                default:
-                    break;
+                
             }
         }
 

@@ -50,8 +50,7 @@ internal class ConnectTo : ServerPacket
                 whereBuffer.WriteString(Payload.Where.NameSocket);
 
                 break;
-            default:
-                break;
+            
         }
 
         Sha256 hash = new();

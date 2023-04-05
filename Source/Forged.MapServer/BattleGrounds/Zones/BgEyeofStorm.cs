@@ -561,8 +561,7 @@ internal class BgEyeofStorm : Battleground
                 player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, EotSMisc.OBJECTIVE_CAPTURE_FLAG);
 
                 break;
-            default:
-                break;
+            
         }
 
         return true;

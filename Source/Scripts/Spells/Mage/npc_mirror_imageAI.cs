@@ -70,8 +70,7 @@ public class npc_mirror_imageAI : CasterAI
                 spellId = eSpells.FIREBALL;
 
                 break;
-            default:
-                break;
+            
         }
 
         Events.ScheduleEvent(spellId, TimeSpan.Zero); ///< Schedule cast

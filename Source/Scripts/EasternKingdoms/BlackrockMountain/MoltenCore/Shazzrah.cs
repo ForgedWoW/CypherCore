@@ -97,8 +97,7 @@ internal class boss_shazzrah : BossAI
                     Events.ScheduleEvent(EventIds.ShazzrahGate, TimeSpan.FromSeconds(45));
 
                     break;
-                default:
-                    break;
+                
             }
 
             if (Me.HasUnitState(UnitState.Casting))

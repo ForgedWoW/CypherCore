@@ -1909,8 +1909,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 								addTriggerFlag = true;
 
 								break;
-							default:
-								break;
+							
 						}
 				}
 
@@ -3369,8 +3368,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 							spellInfo.AttributesCu |= SpellCustomAttributes.AuraCC;
 
 						break;
-					default:
-						break;
+					
 				}
 
 				spellInfo.InitializeExplicitTargetMask();
@@ -3446,8 +3444,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 									}
 
 									break;
-								default:
-									break;
+								
 							}
 
 					if (overrideAttr && allNonBinary)

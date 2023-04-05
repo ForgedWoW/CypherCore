@@ -168,8 +168,7 @@ public class InstanceScript : ZoneScript
 					open = (info.BossInfo.State == EncounterState.InProgress);
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 
@@ -308,8 +307,7 @@ public class InstanceScript : ZoneScript
 						}
 
 						break;
-					default:
-						break;
+					
 				}
 
 				bossInfo.State = state;
@@ -492,8 +490,7 @@ public class InstanceScript : ZoneScript
 					Log.outError(LogFilter.Scripts, "InstanceScript: DoRespawnGameObject can't respawn gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
 
 					return;
-				default:
-					break;
+				
 			}
 
 			if (go.IsSpawned)
@@ -687,8 +684,7 @@ public class InstanceScript : ZoneScript
 				Instance.SendToPlayers(encounterChangePriorityMessage);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -939,8 +935,7 @@ public class InstanceScript : ZoneScript
 					minion.AI.DoZoneInCombat();
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 

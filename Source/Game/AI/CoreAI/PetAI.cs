@@ -320,8 +320,7 @@ public class PetAI : CreatureAI
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 	}
 

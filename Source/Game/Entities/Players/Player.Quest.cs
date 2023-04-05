@@ -267,8 +267,7 @@ public partial class Player
 				return IsAlive && questGiver.AsPlayer.IsAlive;
 			case TypeId.Item:
 				return IsAlive;
-			default:
-				break;
+			
 		}
 
 		return false;
@@ -766,8 +765,7 @@ public partial class Player
 				questGiver.AsGameObject.AI.OnQuestAccept(this, quest);
 
 				break;
-			default:
-				break;
+			
 		}
 	}
 
@@ -816,8 +814,7 @@ public partial class Player
 					_questObjectiveCriteriaManager.ResetCriteriaTree((uint)obj.ObjectID);
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 
@@ -952,8 +949,7 @@ public partial class Player
 				return rewardProto.ItemSpecClassMask == 0 || (rewardProto.ItemSpecClassMask & ClassMask) != 0;
 			case QuestPackageFilter.Everyone:
 				return true;
-			default:
-				break;
+			
 		}
 
 		return false;
@@ -1320,8 +1316,7 @@ public partial class Player
 
 						break;
 					}
-					default:
-						break;
+					
 				}
 		}
 
@@ -2044,8 +2039,7 @@ public partial class Player
 						result |= QuestGiverStatus.Reward;
 
 					break;
-				default:
-					break;
+				
 			}
 
 			if (quest.IsAutoComplete && CanTakeQuest(quest, false) && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly)
@@ -3038,8 +3032,7 @@ public partial class Player
 									objMask.MarkChanged(obj.ObjectData.DynamicFlags);
 
 								break;
-							default:
-								break;
+							
 						}
 
 						if (objMask.GetUpdateMask().IsAnySet() || goMask.GetUpdateMask().IsAnySet())
@@ -3416,8 +3409,7 @@ public partial class Player
 				displayToast.CurrencyID = entry;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		SendPacket(displayToast);

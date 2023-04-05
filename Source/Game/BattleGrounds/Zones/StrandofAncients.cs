@@ -330,8 +330,7 @@ public class BgStrandOfAncients : Battleground
 										rewardHonor = false;
 
 									break;
-								default:
-									break;
+								
 							}
 
 							if (invoker)
@@ -364,8 +363,7 @@ public class BgStrandOfAncients : Battleground
 
 					break;
 				}
-				default:
-					break;
+				
 			}
 	}
 
@@ -466,8 +464,7 @@ public class BgStrandOfAncients : Battleground
 				return Attackers == TeamIds.Alliance;
 			case BattlegroundConst.SpellPreparation:
 				return Status == SAStatus.Warmup || Status == SAStatus.SecondWarmup;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -488,8 +485,7 @@ public class BgStrandOfAncients : Battleground
 				player.UpdateCriteria(CriteriaType.TrackedWorldStateUIModified, (uint)SAObjectives.GatesDestroyed);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return true;
@@ -549,8 +545,7 @@ public class BgStrandOfAncients : Battleground
 					boatid = Attackers != 0 ? SAGameObjectIds.BoatTwoH : SAGameObjectIds.BoatTwoA;
 
 					break;
-				default:
-					break;
+				
 			}
 
 			if (!AddObject(i,

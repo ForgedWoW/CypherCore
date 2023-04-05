@@ -147,8 +147,7 @@ public class npc_vanessa_introAI : BossAI
                     }
 
                         break;
-                    default:
-                        break;
+                    
                 }
             else
                 PongTimer -= diff;

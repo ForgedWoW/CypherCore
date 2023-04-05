@@ -1648,8 +1648,7 @@ public partial class Unit : WorldObject
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 
 		var thisPlayer = AsPlayer;
@@ -1701,8 +1700,7 @@ public partial class Unit : WorldObject
 						useRandom = HasAura(344342);
 
 						break; // Glyph of the Aerial Chameleon
-					default:
-						break;
+					
 				}
 
 				if (useRandom)
@@ -1751,8 +1749,7 @@ public partial class Unit : WorldObject
 						return 60247;
 
 					break;
-				default:
-					break;
+				
 			}
 		}
 
@@ -4788,8 +4785,7 @@ public partial class Unit : WorldObject
 						continue;
 
 					break;
-				default:
-					break;
+				
 			}
 
 			CastSpell(this, triggerSpell, new CastSpellExtraArgs(effect));

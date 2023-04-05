@@ -49,8 +49,7 @@ internal class spell_item_death_choice : AuraScript, IHasAuraEffects
 
                 break;
             }
-            default:
-                break;
+            
         }
     }
 }

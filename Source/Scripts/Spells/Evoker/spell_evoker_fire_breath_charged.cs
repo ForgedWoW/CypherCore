@@ -27,8 +27,7 @@ internal class spell_evoker_fire_breath_charged : SpellScript, ISpellCalculateBo
                 multi = 9;
 
                 break;
-            default:
-                break;
+            
         }
 
         return bonusCoefficient + (GetEffectInfo(1).BonusCoefficient * multi);

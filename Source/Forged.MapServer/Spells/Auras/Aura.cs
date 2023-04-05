@@ -151,8 +151,7 @@ public class Aura
                         effMask.Add(spellEffectInfo.EffectIndex);
 
                 break;
-            default:
-                break;
+            
         }
 
         effMask.IntersectWith(availableEffectMask);
@@ -287,8 +286,7 @@ public class Aura
             case AuraType.ChargeRecoveryMod:
             case AuraType.ChargeRecoveryMultiplier:
                 return true;
-            default:
-                break;
+            
         }
 
         return false;
@@ -628,8 +626,7 @@ public class Aura
                 break;
             case SpellGroupStackRule.Default:
             case SpellGroupStackRule.ExclusiveSameEffect:
-            default:
-                break;
+            
         }
 
         if (SpellInfo.SpellFamilyName != existingSpellInfo.SpellFamilyName)
@@ -669,8 +666,7 @@ public class Aura
 
                             return true;
                         }
-                        default:
-                            break;
+                        
                     }
 
                 return false;
@@ -1145,8 +1141,7 @@ public class Aura
                             target.CastSpell(target, 32612, new CastSpellExtraArgs(GetEffect(1)));
 
                             break;
-                        default:
-                            break;
+                        
                     }
 
                     break;
@@ -1352,8 +1347,7 @@ public class Aura
                     return true;
 
                 break;
-            default:
-                break;
+            
         }
 
         return false;

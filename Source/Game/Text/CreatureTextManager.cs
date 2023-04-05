@@ -286,8 +286,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 				dist = WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote);
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return dist;
@@ -411,8 +410,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 
 		switch (range)
@@ -472,8 +470,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 				return;
 			case CreatureTextRange.Normal:
-			default:
-				break;
+			
 		}
 
 		var dist = GetRangeForChatType(msgType);
@@ -517,8 +514,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 
 		switch (range)
@@ -578,8 +574,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 				return;
 			case CreatureTextRange.Normal:
-			default:
-				break;
+			
 		}
 
 		source.SendMessageToSetInRange(data, dist, true);

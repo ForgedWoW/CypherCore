@@ -127,8 +127,7 @@ internal class RbacComands
 
                     break;
 
-                default:
-                    break;
+                
             }
 
             return true;
@@ -191,8 +190,7 @@ internal class RbacComands
 
                     break;
 
-                default:
-                    break;
+                
             }
 
             return true;
@@ -295,8 +293,7 @@ internal class RbacComands
 
                     break;
 
-                default:
-                    break;
+                
             }
 
             return true;

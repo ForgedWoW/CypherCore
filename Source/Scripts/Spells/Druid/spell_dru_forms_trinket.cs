@@ -29,8 +29,7 @@ internal class spell_dru_forms_trinket : AuraScript, IAuraCheckProc, IHasAuraEff
             case ShapeShiftForm.None:
             case ShapeShiftForm.TreeOfLife:
                 return true;
-            default:
-                break;
+            
         }
 
         return false;

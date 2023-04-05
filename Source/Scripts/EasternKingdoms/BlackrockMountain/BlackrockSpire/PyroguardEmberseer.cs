@@ -128,8 +128,7 @@ internal class boss_pyroguard_emberseer : BossAI
                                    });
 
                 break;
-            default:
-                break;
+            
         }
     }
 

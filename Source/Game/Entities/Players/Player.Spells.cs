@@ -686,8 +686,7 @@ public partial class Player
 								Log.outDebug(LogFilter.Player, "+ {0} VERSATILITY", enchant_amount);
 
 								break;
-							default:
-								break;
+							
 						}
 
 						break;
@@ -1748,8 +1747,7 @@ public partial class Player
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 	}
 
@@ -2278,8 +2276,7 @@ public partial class Player
 
 				break;
 			}
-			default:
-				break;
+			
 		}
 
 		foreach (SpellModifierByClassMask mod in _spellModifiers[(int)op][(int)SpellModType.Flat])
@@ -3859,8 +3856,7 @@ public partial class Player
 					return false;
 
 				break;
-			default:
-				break;
+			
 		}
 
 		return spellInfo.IsAffectedBySpellMod(mod);

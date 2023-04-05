@@ -114,8 +114,7 @@ internal class boss_gyth : BossAI
                                    });
 
                 break;
-            default:
-                break;
+            
         }
     }
 
