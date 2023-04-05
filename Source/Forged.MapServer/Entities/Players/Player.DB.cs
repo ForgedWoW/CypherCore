@@ -361,7 +361,7 @@ public partial class Player
 
         LoginFlags = (AtLoginFlags)atLogin;
 
-        if (!ValidateAppearance(Race, Class, gender, customizations))
+        if (!Session.ValidateAppearance(Race, Class, gender, customizations))
         {
             Log.Logger.Error("Player {0} has wrong Appearance values (Hair/Skin/Color), can't be loaded.", guid.ToString());
 
@@ -590,7 +590,7 @@ public partial class Player
         else if (mapEntry.IsDungeon() && Location.Map?.InstanceId != 0)
         {
             // try finding instance by id first
-            map = MapManager.FindMap(mapId, Location.Map?.InstanceId);
+            map = MapManager.FindMap(mapId, Location.Map.InstanceId);
         }
 
         // Map could be changed before
