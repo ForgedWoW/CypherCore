@@ -478,7 +478,7 @@ public partial class Player
             return;
 
         // Get base of Mana Pool in sBaseMPGameTable
-        Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
+        ObjectManager.GetPlayerClassLevelInfo(Class, Level, out var basemana);
         double baseRegen = basemana / 100.0f;
 
         baseRegen += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)PowerType.Mana);
@@ -544,7 +544,7 @@ public partial class Player
     {
         var powerIndex = GetPowerIndex(power);
 
-        if (powerIndex == (uint)PowerType.Max || powerIndex >= (uint)PowerType.MaxPerClass)
+        if (powerIndex is (uint)PowerType.Max or >= (uint)PowerType.MaxPerClass)
             return;
 
         var unitMod = UnitMods.PowerStart + (int)power;
@@ -813,7 +813,7 @@ public partial class Player
 
         SetStat(stat, (int)value);
 
-        if (stat == Stats.Stamina || stat == Stats.Intellect || stat == Stats.Strength)
+        if (stat is Stats.Stamina or Stats.Intellect or Stats.Strength)
         {
             var pet = CurrentPet;
 

@@ -4,10 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.AI.PlayerAI;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Cache;
+using Forged.MapServer.Chat;
 using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
@@ -19,6 +25,8 @@ using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
+using Forged.MapServer.Maps;
+using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Server;
@@ -218,6 +226,12 @@ public partial class Player
     public PlayerCreateMode CreateMode { get; private set; }
     public CharacterDatabase CharacterDatabase { get; }
     public ChannelManagerFactory ChannelManagerFactory { get; }
+    public MapManager MapManager { get; }
+    public CharacterTemplateDataStorage CharacterTemplateDataStorage { get; }
+    public AccountManager AccountManager { get; }
+    public CollectionMgr CollectionMgr { get; }
+    public BattlegroundManager BattlegroundManager { get; }
+    public OutdoorPvPManager OutdoorPvPManager { get; }
     public byte CufProfilesCount => (byte)_cufProfiles.Count(p => p != null);
 
     public Pet CurrentPet
@@ -386,10 +400,14 @@ public partial class Player
     public PlayerComputators PlayerComputators { get; }
     public PlayerData PlayerData { get; set; }
 
+    public LoginDatabase LoginDatabase { get; }
+    public ArenaTeamManager ArenaTeamManager { get; }
+    public LanguageManager LanguageManager { get; }
+
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }
 
-    public WorldLocation Recall1 { get; private set; }
+    public WorldLocation Recall { get; private set; }
     public ReputationMgr ReputationMgr { get; private set; }
     public RestMgr RestMgr { get; }
     public uint SaveTimer { get; private set; }

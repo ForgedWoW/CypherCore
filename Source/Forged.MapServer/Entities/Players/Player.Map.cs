@@ -207,7 +207,7 @@ public partial class Player
     {
         foreach (var (mapId, instanceId) in _recentInstances.ToList())
         {
-            var map = Global.MapMgr.FindMap(mapId, instanceId);
+            var map = MapManager.FindMap(mapId, instanceId);
             var forgetInstance = false;
 
             if (map)
@@ -331,11 +331,11 @@ public partial class Player
                     }
                     else if (missingItem != 0)
                     {
-                        Session.SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, Global.ObjectMgr.GetItemTemplate(missingItem).GetName());
+                        Session.SendNotification(ObjectManager.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, ObjectManager.GetItemTemplate(missingItem).GetName());
                     }
                     else if (levelMin != 0)
                     {
-                        Session.SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
+                        Session.SendNotification(ObjectManager.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
                     }
                 }
 
@@ -529,7 +529,7 @@ public partial class Player
         // call leave script hooks immedately (before updating flags)
         if (oldZone != newZone)
         {
-            Global.OutdoorPvPMgr.HandlePlayerLeaveZone(this, oldZone);
+            OutdoorPvPManager.HandlePlayerLeaveZone(this, oldZone);
             BattleFieldManager.HandlePlayerLeaveZone(this, oldZone);
         }
 
@@ -593,7 +593,7 @@ public partial class Player
 
         if (oldZone != newZone)
         {
-            Global.OutdoorPvPMgr.HandlePlayerEnterZone(this, newZone);
+            OutdoorPvPManager.HandlePlayerEnterZone(this, newZone);
             BattleFieldManager.HandlePlayerEnterZone(this, newZone);
             SendInitWorldStates(newZone, newArea); // only if really enters to new zone, not just area change, works strange...
             var guild = Guild;

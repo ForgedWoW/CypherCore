@@ -812,7 +812,7 @@ public class CollectionMgr
         if (itemModifiedAppearance == null)
             return false;
 
-        if (itemModifiedAppearance.TransmogSourceTypeEnum == 6 || itemModifiedAppearance.TransmogSourceTypeEnum == 9)
+        if (itemModifiedAppearance.TransmogSourceTypeEnum is 6 or 9)
             return false;
 
         if (!_cliDB.ItemSearchNameStorage.ContainsKey(itemModifiedAppearance.ItemID))

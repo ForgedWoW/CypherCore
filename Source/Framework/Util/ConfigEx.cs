@@ -23,4 +23,11 @@ public static class ConfigEx
 
         return (T)Convert.ChangeType(value, typeof(T));
     }
+
+    public static bool TryGetIfNotDefaultValue<T>(this IConfiguration config, string name, T defaultValue, out T value)
+    {
+        value = config.GetDefaultValue(name, defaultValue);
+
+        return value.GetHashCode() != defaultValue.GetHashCode();
+    }
 }

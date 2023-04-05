@@ -1785,7 +1785,7 @@ internal class MiscCommands
         // stop flight if need
         target.FinishTaxiFlight();
 
-        target.Recall();
+        target.RecallLocation();
 
         return true;
     }

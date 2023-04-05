@@ -176,7 +176,7 @@ public partial class Player
 
         if (result.IsEmpty())
         {
-            Global.CharacterCacheStorage.GetCharacterNameByGuid(guid, out var cacheName);
+            CharacterCache.GetCharacterNameByGuid(guid, out var cacheName);
             Log.Logger.Error("Player {0} {1} not found in table `characters`, can't load. ", cacheName, guid.ToString());
 
             return false;
@@ -278,7 +278,7 @@ public partial class Player
 
         // check name limitations
         if (GameObjectManager.CheckPlayerName(GetName(), Session.SessionDbcLocale) != ResponseCodes.CharNameSuccess ||
-            (!Session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(GetName())))
+            (!Session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && ObjectManager.IsReservedName(GetName())))
         {
             var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
             stmt.AddValue(0, (ushort)AtLoginFlags.Rename);
@@ -303,7 +303,7 @@ public partial class Player
         Gender = gender;
 
         // check if race/class combination is valid
-        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+        var info = ObjectManager.GetPlayerInfo(Race, Class);
 
         if (info == null)
         {
@@ -361,7 +361,7 @@ public partial class Player
 
         LoginFlags = (AtLoginFlags)atLogin;
 
-        if (!Session.ValidateAppearance(Race, Class, gender, customizations))
+        if (!ValidateAppearance(Race, Class, gender, customizations))
         {
             Log.Logger.Error("Player {0} has wrong Appearance values (Hair/Skin/Color), can't be loaded.", guid.ToString());
 
@@ -426,7 +426,7 @@ public partial class Player
             Battleground currentBg = null;
 
             if (_bgData.BgInstanceId != 0) //saved in Battleground
-                currentBg = Global.BattlegroundMgr.GetBattleground(_bgData.BgInstanceId, BattlegroundTypeId.None);
+                currentBg = BattlegroundManager.GetBattleground(_bgData.BgInstanceId, BattlegroundTypeId.None);
 
             playerAtBG = currentBg != null && currentBg.IsPlayerInBattleground(GUID);
 
@@ -480,7 +480,7 @@ public partial class Player
             var transGUID = ObjectGuid.Create(HighGuid.Transport, transguid);
 
             Transport transport = null;
-            var transportMap = Global.MapMgr.CreateMap(mapId, this);
+            var transportMap = MapManager.CreateMap(mapId, this);
 
             if (transportMap != null)
             {
@@ -492,7 +492,7 @@ public partial class Player
                     {
                         mapId = transportOnMap.GetExpectedMapId();
                         InstanceId = 0;
-                        transportMap = Global.MapMgr.CreateMap(mapId, this);
+                        transportMap = MapManager.CreateMap(mapId, this);
 
                         if (transportMap)
                             transport = transportMap.GetTransport(transGUID);
@@ -590,7 +590,7 @@ public partial class Player
         else if (mapEntry.IsDungeon() && Location.Map?.InstanceId != 0)
         {
             // try finding instance by id first
-            map = Global.MapMgr.FindMap(mapId, Location.Map?.InstanceId);
+            map = MapManager.FindMap(mapId, Location.Map?.InstanceId);
         }
 
         // Map could be changed before
@@ -607,14 +607,14 @@ public partial class Player
         // NOW player must have valid map
         // load the player's map here if it's not already loaded
         if (!map)
-            map = Global.MapMgr.CreateMap(mapId, this);
+            map = MapManager.CreateMap(mapId, this);
 
         AreaTriggerStruct areaTrigger = null;
         var check = false;
 
         if (!map)
         {
-            areaTrigger = Global.ObjectMgr.GetGoBackTrigger(mapId);
+            areaTrigger = ObjectManager.GetGoBackTrigger(mapId);
             check = true;
         }
         else if (map.IsDungeon) // if map is dungeon...
@@ -624,12 +624,12 @@ public partial class Player
             if (denyReason != null)
             {
                 SendTransferAborted(map.Id, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
-                areaTrigger = Global.ObjectMgr.GetGoBackTrigger(mapId);
+                areaTrigger = ObjectManager.GetGoBackTrigger(mapId);
                 check = true;
             }
             else if (instanceID != 0 && Global.InstanceLockMgr.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID)) != null) // ... and instance is reseted then look for entrance.
             {
-                areaTrigger = Global.ObjectMgr.GetMapEntranceTrigger(mapId);
+                areaTrigger = ObjectManager.GetMapEntranceTrigger(mapId);
                 check = true;
             }
         }
@@ -642,14 +642,14 @@ public partial class Player
                 if (mapId != areaTrigger.TargetMapId)
                 {
                     mapId = areaTrigger.TargetMapId;
-                    map = Global.MapMgr.CreateMap(mapId, this);
+                    map = MapManager.CreateMap(mapId, this);
                 }
             }
 
         if (!map)
         {
             relocateToHomebind();
-            map = Global.MapMgr.CreateMap(mapId, this);
+            map = MapManager.CreateMap(mapId, this);
 
             if (!map)
             {
@@ -1038,7 +1038,7 @@ public partial class Player
         SaveToDB(loginTransaction, characterTransaction, create);
 
         CharacterDatabase.CommitTransaction(characterTransaction);
-        DB.Login.CommitTransaction(loginTransaction);
+        LoginDatabase.CommitTransaction(loginTransaction);
     }
 
     public void SaveToDB(SQLTransaction loginTransaction, SQLTransaction characterTransaction, bool create = false)
@@ -1446,13 +1446,13 @@ public partial class Player
         Session.CollectionMgr.SaveAccountItemAppearances(loginTransaction);
         Session.CollectionMgr.SaveAccountTransmogIllusions(loginTransaction);
 
-        stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BNET_LAST_PLAYER_CHARACTERS);
+        stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_LAST_PLAYER_CHARACTERS);
         stmt.AddValue((int)0, (uint)Session.AccountId);
         stmt.AddValue(1, WorldManager.RealmId.Region);
         stmt.AddValue(2, WorldManager.RealmId.Site);
         loginTransaction.Append(stmt);
 
-        stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_LAST_PLAYER_CHARACTERS);
+        stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_LAST_PLAYER_CHARACTERS);
         stmt.AddValue((int)0, (uint)Session.AccountId);
         stmt.AddValue(1, WorldManager.RealmId.Region);
         stmt.AddValue(2, WorldManager.RealmId.Site);
@@ -1512,7 +1512,7 @@ public partial class Player
             {
                 var arenaTeamId = result.Read<uint>(0);
 
-                var arenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(arenaTeamId);
+                var arenaTeam = ArenaTeamManager.GetArenaTeamById(arenaTeamId);
 
                 if (arenaTeam == null)
                 {
@@ -1727,7 +1727,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var qQuest = Global.ObjectMgr.GetQuestTemplate(questID);
+                var qQuest = ObjectManager.GetQuestTemplate(questID);
 
                 if (qQuest != null)
                     if (qQuest.IsDFQuest)
@@ -1741,7 +1741,7 @@ public partial class Player
                 // save _any_ from daily quest times (it must be after last reset anyway)
                 _lastDailyQuestTime = result.Read<long>(1);
 
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+                var quest = ObjectManager.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -1863,7 +1863,7 @@ public partial class Player
 
     private bool _LoadHomeBind(SQLResult result)
     {
-        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+        var info = ObjectManager.GetPlayerInfo(Race, Class);
 
         if (info == null)
         {
@@ -1927,10 +1927,10 @@ public partial class Player
 
         if (!ok)
         {
-            var loc = Global.ObjectMgr.GetDefaultGraveYard(Team);
+            var loc = ObjectManager.GetDefaultGraveYard(Team);
 
             if (loc == null && Race == Race.PandarenNeutral)
-                loc = Global.ObjectMgr.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
+                loc = ObjectManager.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
 
             Homebind.WorldRelocate(loc.Loc);
             _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);
@@ -2138,7 +2138,7 @@ public partial class Player
             // Send problematic items by mail
             while (problematicItems.Count != 0)
             {
-                var subject = Global.ObjectMgr.GetCypherString(CypherStrings.NotEquippedItem);
+                var subject = ObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
                 MailDraft draft = new(subject, "There were problems with equipping item(s).");
 
                 for (var i = 0; problematicItems.Count != 0 && i < SharedConst.MaxMailItems; ++i)
@@ -2160,7 +2160,7 @@ public partial class Player
         Item item = null;
         var itemGuid = fields.Read<ulong>(0);
         var itemEntry = fields.Read<uint>(1);
-        var proto = Global.ObjectMgr.GetItemTemplate(itemEntry);
+        var proto = ObjectManager.GetItemTemplate(itemEntry);
 
         if (proto != null)
         {
@@ -2342,7 +2342,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+                var quest = ObjectManager.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -2429,7 +2429,7 @@ public partial class Player
             {
                 var questId = result.Read<uint>(0);
                 // used to be new, no delete?
-                var quest = Global.ObjectMgr.GetQuestTemplate(questId);
+                var quest = ObjectManager.GetQuestTemplate(questId);
 
                 if (quest != null)
                 {
@@ -2514,7 +2514,7 @@ public partial class Player
             {
                 var questID = result.Read<uint>(0);
 
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+                var quest = ObjectManager.GetQuestTemplate(questID);
 
                 var questStatusData = _mQuestStatus.LookupByKey(questID);
 
@@ -2552,7 +2552,7 @@ public partial class Player
             {
                 var questID = result.Read<uint>(0);
                 // used to be new, no delete?
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+                var quest = ObjectManager.GetQuestTemplate(questID);
 
                 if (quest != null)
                 {
@@ -2589,7 +2589,7 @@ public partial class Player
                     if (questPackageItems != null)
                         foreach (var questPackageItem in questPackageItems)
                         {
-                            var rewardProto = Global.ObjectMgr.GetItemTemplate(questPackageItem.ItemID);
+                            var rewardProto = ObjectManager.GetItemTemplate(questPackageItem.ItemID);
 
                             if (rewardProto != null)
                                 if (rewardProto.ItemSpecClassMask.HasAnyFlag(ClassMask))
@@ -2618,7 +2618,7 @@ public partial class Player
                 var questID = result.Read<uint>(0);
                 var eventID = result.Read<uint>(1);
                 var completedTime = result.Read<long>(2);
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+                var quest = ObjectManager.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -3044,7 +3044,7 @@ public partial class Player
                 continue;
             }
 
-            if (Global.ObjectMgr.GetItemTemplate(itemEntry) == null)
+            if (ObjectManager.GetItemTemplate(itemEntry) == null)
             {
                 Log.Logger.Error("Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid entry (item id: item id: {2}, entry: {3}).", GUID.ToString(), GetName(), itemId, itemEntry);
 
@@ -3073,7 +3073,7 @@ public partial class Player
             do
             {
                 var questID = result.Read<uint>(0);
-                var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+                var quest = ObjectManager.GetQuestTemplate(questID);
 
                 if (quest == null)
                     continue;
@@ -3707,7 +3707,7 @@ public partial class Player
                     stmt.AddValue(1, save.Key);
                     trans.Append(stmt);
 
-                    var quest = Global.ObjectMgr.GetQuestTemplate(save.Key);
+                    var quest = ObjectManager.GetQuestTemplate(save.Key);
 
                     foreach (var obj in quest.Objectives)
                     {
@@ -3848,7 +3848,7 @@ public partial class Player
 
         foreach (var (id, spell) in _spells.ToList())
         {
-            if (spell.State == PlayerSpellState.Removed || spell.State == PlayerSpellState.Changed)
+            if (spell.State is PlayerSpellState.Removed or PlayerSpellState.Changed)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_BY_SPELL);
                 stmt.AddValue(0, id);
@@ -3856,7 +3856,7 @@ public partial class Player
                 trans.Append(stmt);
             }
 
-            if (spell.State == PlayerSpellState.New || spell.State == PlayerSpellState.Changed)
+            if (spell.State is PlayerSpellState.New or PlayerSpellState.Changed)
             {
                 // add only changed/new not dependent spells
                 if (!spell.Dependent)

@@ -60,7 +60,7 @@ public class PlayerTaxi
             return 0;
 
 
-        Global.ObjectMgr.GetTaxiPath(_taxiDestinations[0], _taxiDestinations[1], out var path, out _);
+        ObjectManager.GetTaxiPath(_taxiDestinations[0], _taxiDestinations[1], out var path, out _);
 
         return path;
     }
@@ -201,14 +201,14 @@ public class PlayerTaxi
 
         for (var i = 1; i < _taxiDestinations.Count; ++i)
         {
-            Global.ObjectMgr.GetTaxiPath(_taxiDestinations[i - 1], _taxiDestinations[i], out var path, out _);
+            ObjectManager.GetTaxiPath(_taxiDestinations[i - 1], _taxiDestinations[i], out var path, out _);
 
             if (path == 0)
                 return false;
         }
 
         // can't load taxi path without mount set (quest taxi path?)
-        if (Global.ObjectMgr.GetTaxiMountDisplayId(GetTaxiSource(), team, true) == 0)
+        if (ObjectManager.GetTaxiMountDisplayId(GetTaxiSource(), team, true) == 0)
             return false;
 
         return true;

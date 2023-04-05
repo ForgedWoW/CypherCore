@@ -30,7 +30,7 @@ public partial class Player
             if (BattlegroundId == 0)
                 return null;
 
-            return Global.BattlegroundMgr.GetBattleground(BattlegroundId, _bgData.BgTypeId);
+            return BattlegroundManager.GetBattleground(BattlegroundId, _bgData.BgTypeId);
         }
     }
 
@@ -63,7 +63,7 @@ public partial class Player
 
     public static void LeaveAllArenaTeams(ObjectGuid guid)
     {
-        var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(guid);
+        var characterInfo = CharacterCache.GetCharacterCacheByGuid(guid);
 
         if (characterInfo == null)
             return;
@@ -74,7 +74,7 @@ public partial class Player
 
             if (arenaTeamId != 0)
             {
-                var arenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(arenaTeamId);
+                var arenaTeam = ArenaTeamManager.GetArenaTeamById(arenaTeamId);
 
                 if (arenaTeam != null)
                     arenaTeam.DelMember(guid, true);
@@ -236,7 +236,7 @@ public partial class Player
     public bool GetBgAccessByLevel(BattlegroundTypeId bgTypeId)
     {
         // get a template bg instead of running one
-        var bg = Global.BattlegroundMgr.GetBattlegroundTemplate(bgTypeId);
+        var bg = BattlegroundManager.GetBattlegroundTemplate(bgTypeId);
 
         if (!bg)
             return false;
@@ -260,7 +260,7 @@ public partial class Player
 
     public OutdoorPvP GetOutdoorPvP()
     {
-        return Global.OutdoorPvPMgr.GetOutdoorPvPToZoneId(Location.Map, Location.Zone);
+        return OutdoorPvPManager.GetOutdoorPvPToZoneId(Location.Map, Location.Zone);
     }
 
     public PVPInfo GetPvpInfoForBracket(byte bracket)
@@ -632,7 +632,7 @@ public partial class Player
             // If map is dungeon find linked graveyard
             if (Location.Map.IsDungeon)
             {
-                var entry = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
+                var entry = ObjectManager.GetClosestGraveYard(Location, Team, this);
 
                 if (entry != null)
                     _bgData.JoinPos = entry.Loc;

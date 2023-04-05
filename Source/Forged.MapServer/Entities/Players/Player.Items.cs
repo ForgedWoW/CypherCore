@@ -956,7 +956,7 @@ public partial class Player
         if (!IsAlive)
             return false;
 
-        var pProto = Global.ObjectMgr.GetItemTemplate(item);
+        var pProto = ObjectManager.GetItemTemplate(item);
 
         if (pProto == null)
         {
@@ -1722,7 +1722,7 @@ public partial class Player
         // check unique-equipped on gems
         foreach (var gemData in pItem.ItemData.Gems)
         {
-            var pGem = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
+            var pGem = ObjectManager.GetItemTemplate(gemData.ItemId);
 
             if (pGem == null)
                 continue;
@@ -2219,7 +2219,7 @@ public partial class Player
 
         // learning (recipes, mounts, pets, etc.)
         if (proto.Effects.Count >= 2)
-            if (proto.Effects[0].SpellID == 483 || proto.Effects[0].SpellID == 55884)
+            if (proto.Effects[0].SpellID is 483 or 55884)
                 if (HasSpell((uint)proto.Effects[1].SpellID))
                     return InventoryResult.InternalBagError;
 
@@ -3189,7 +3189,7 @@ public partial class Player
             return pItem2;
         }
 
-        if (slot == EquipmentSlot.MainHand || slot == EquipmentSlot.OffHand)
+        if (slot is EquipmentSlot.MainHand or EquipmentSlot.OffHand)
             CheckTitanGripPenalty();
 
         // only for full equip instead adding to stack
@@ -3429,7 +3429,7 @@ public partial class Player
         for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
         {
             // don't check tabard, ranged, offhand or shirt
-            if (i == EquipmentSlot.Tabard || i == EquipmentSlot.Ranged || i == EquipmentSlot.OffHand || i == EquipmentSlot.Shirt)
+            if (i is EquipmentSlot.Tabard or EquipmentSlot.Ranged or EquipmentSlot.OffHand or EquipmentSlot.Shirt)
                 continue;
 
             if (_items[i] != null)
@@ -3668,7 +3668,7 @@ public partial class Player
 
     public Item GetItemByPos(byte bag, byte slot)
     {
-        if (bag == InventorySlots.Bag0 && slot < (int)PlayerSlots.End && (slot < InventorySlots.BuyBackStart || slot >= InventorySlots.BuyBackEnd))
+        if (bag == InventorySlots.Bag0 && slot < (int)PlayerSlots.End && slot is < InventorySlots.BuyBackStart or >= InventorySlots.BuyBackEnd)
             return _items[slot];
 
         var pBag = GetBagByPos(bag);
@@ -3884,7 +3884,7 @@ public partial class Player
     {
         uint tempcount = 0;
 
-        var pProto = Global.ObjectMgr.GetItemTemplate(item);
+        var pProto = ObjectManager.GetItemTemplate(item);
         var includeGems = pProto?.GemProperties != 0;
 
         return !ForEachItem(ItemSearchLocation.Equipment,
@@ -4315,7 +4315,7 @@ public partial class Player
                 {
                     SetVisibleItemSlot(slot, null);
 
-                    if (slot == EquipmentSlot.MainHand || slot == EquipmentSlot.OffHand)
+                    if (slot is EquipmentSlot.MainHand or EquipmentSlot.OffHand)
                         CheckTitanGripPenalty();
                 }
             }
@@ -4449,7 +4449,7 @@ public partial class Player
                 case InventoryResult.ItemMaxLimitCategorySocketedExceededIs:
                 case InventoryResult.ItemMaxLimitCategoryEquippedExceededIs:
                 {
-                    var proto = item1 ? item1.Template : Global.ObjectMgr.GetItemTemplate(itemId);
+                    var proto = item1 ? item1.Template : ObjectManager.GetItemTemplate(itemId);
                     failure.LimitCategory = (int)(proto?.ItemLimitCategory ?? 0u);
 
                     break;
@@ -4738,7 +4738,7 @@ public partial class Player
             }
         }
 
-        var setGuid = (newEqSet.Guid != 0) ? newEqSet.Guid : Global.ObjectMgr.GenerateEquipmentSetGuid();
+        var setGuid = (newEqSet.Guid != 0) ? newEqSet.Guid : ObjectManager.GenerateEquipmentSetGuid();
 
         if (!_equipmentSets.ContainsKey(setGuid))
             _equipmentSets[setGuid] = new EquipmentSetInfo();
@@ -4788,7 +4788,7 @@ public partial class Player
 
                 var sendItemsBatch = new Action<int, int>((batchNumber, batchSize) =>
                 {
-                    MailDraft draft = new(Global.ObjectMgr.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
+                    MailDraft draft = new(ObjectManager.GetCypherString(CypherStrings.NotEquippedItem), "There were problems with equipping item(s).");
 
                     for (var j = 0; j < batchSize; ++j)
                         draft.AddItem(unstorableItems[batchNumber * SharedConst.MaxMailItems + j]);
@@ -5054,7 +5054,7 @@ public partial class Player
 
             --loot.UnlootedCount;
 
-            if (Global.ObjectMgr.GetItemTemplate(item.Itemid) != null)
+            if (ObjectManager.GetItemTemplate(item.Itemid) != null)
                 if (newitem.Quality > ItemQuality.Epic || (newitem.Quality == ItemQuality.Epic && newitem.GetItemLevel(this) >= GuildConst.MinNewsItemLevel))
                 {
                     var guild = Guild;
@@ -5137,7 +5137,7 @@ public partial class Player
 
             if (childItemEntry != null)
             {
-                var childTemplate = Global.ObjectMgr.GetItemTemplate(childItemEntry.ChildItemID);
+                var childTemplate = ObjectManager.GetItemTemplate(childItemEntry.ChildItemID);
 
                 if (childTemplate != null)
                 {
@@ -5866,8 +5866,7 @@ public partial class Player
             if (pItem == null)
                 return null;
 
-            if (pItem.Bonding == ItemBondingType.OnAcquire ||
-                pItem.Bonding == ItemBondingType.Quest ||
+            if (pItem.Bonding is ItemBondingType.OnAcquire or ItemBondingType.Quest ||
                 (pItem.Bonding == ItemBondingType.OnEquip && PlayerComputators.IsBagPos(pos)))
                 pItem.SetBinding(true);
 
@@ -5908,8 +5907,7 @@ public partial class Player
         }
         else
         {
-            if (pItem2.Bonding == ItemBondingType.OnAcquire ||
-                pItem2.Bonding == ItemBondingType.Quest ||
+            if (pItem2.Bonding is ItemBondingType.OnAcquire or ItemBondingType.Quest ||
                 (pItem2.Bonding == ItemBondingType.OnEquip && PlayerComputators.IsBagPos(pos)))
                 pItem2.SetBinding(true);
 
@@ -6283,7 +6281,7 @@ public partial class Player
         noSpaceCount = 0;
         Log.Logger.Debug("STORAGE: CanStoreItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, entry, count);
 
-        var pProto = Global.ObjectMgr.GetItemTemplate(entry);
+        var pProto = ObjectManager.GetItemTemplate(entry);
 
         if (pProto == null)
         {
@@ -6913,7 +6911,7 @@ public partial class Player
 
     private InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint noSpaceCount, ref uint offendingItemId)
     {
-        var pProto = Global.ObjectMgr.GetItemTemplate(entry);
+        var pProto = ObjectManager.GetItemTemplate(entry);
 
         if (pProto == null)
         {
@@ -7505,7 +7503,7 @@ public partial class Player
                 pItem.SendUpdateToPlayer(this);
             }
 
-            if (slot == EquipmentSlot.MainHand || slot == EquipmentSlot.OffHand)
+            if (slot is EquipmentSlot.MainHand or EquipmentSlot.OffHand)
                 CheckTitanGripPenalty();
 
             UpdateCriteria(CriteriaType.EquipItem, pItem.Entry);
@@ -7637,7 +7635,7 @@ public partial class Player
             return;
 
         // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-        if (pItem.Bonding == ItemBondingType.OnEquip || pItem.Bonding == ItemBondingType.OnAcquire || pItem.Bonding == ItemBondingType.Quest)
+        if (pItem.Bonding is ItemBondingType.OnEquip or ItemBondingType.OnAcquire or ItemBondingType.Quest)
         {
             pItem.SetBinding(true);
 

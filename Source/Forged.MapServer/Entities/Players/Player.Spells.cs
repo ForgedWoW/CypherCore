@@ -189,7 +189,7 @@ public partial class Player
 
         // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
         // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
-        if ((slot == EnchantmentSlot.Sock1 || slot == EnchantmentSlot.Sock2 || slot == EnchantmentSlot.Sock3))
+        if (slot is EnchantmentSlot.Sock1 or EnchantmentSlot.Sock2 or EnchantmentSlot.Sock3)
         {
             if (item.GetSocketColor((uint)(slot - EnchantmentSlot.Sock1)) == 0)
             {
@@ -205,7 +205,7 @@ public partial class Player
 
             if (gem != null)
             {
-                var gemTemplate = Global.ObjectMgr.GetItemTemplate(gem.ItemId);
+                var gemTemplate = ObjectManager.GetItemTemplate(gem.ItemId);
 
                 if (gemTemplate != null)
                     if (gemTemplate.RequiredSkill != 0 && GetSkillValue((SkillType)gemTemplate.RequiredSkill) < gemTemplate.RequiredSkillRank)
@@ -673,7 +673,7 @@ public partial class Player
         if (!creature.HasNpcFlag(NPCFlags.SpellClick))
             return false;
 
-        var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(creature.Entry);
+        var clickBounds = ObjectManager.GetSpellClickInfoMapBounds(creature.Entry);
 
         if (clickBounds.Empty())
             return true;
@@ -1530,7 +1530,7 @@ public partial class Player
         //    return;
 
         // learn default race/class spells
-        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+        var info = ObjectManager.GetPlayerInfo(Race, Class);
 
         foreach (var tspell in info.CustomSpells)
         {
@@ -1575,7 +1575,7 @@ public partial class Player
 
             case SkillRangeType.Rank:
             {
-                var tier = Global.ObjectMgr.GetSkillTier(rcInfo.SkillTierID);
+                var tier = ObjectManager.GetSkillTier(rcInfo.SkillTierID);
                 var maxValue = (ushort)tier.Value[0];
                 ushort skillValue = 1;
 
@@ -1596,7 +1596,7 @@ public partial class Player
     public void LearnDefaultSkills()
     {
         // learn default race/class skills
-        var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+        var info = ObjectManager.GetPlayerInfo(Race, Class);
 
         foreach (var rcInfo in info.Skills)
         {
@@ -2311,7 +2311,7 @@ public partial class Player
                 UpdateCriteria(CriteriaType.AchieveSkillStep, id);
 
                 // update skill state
-                if (skillStatusData.State == SkillState.Unchanged || skillStatusData.State == SkillState.Deleted)
+                if (skillStatusData.State is SkillState.Unchanged or SkillState.Deleted)
                 {
                     if (currVal == 0) // activated skill, mark as new to save into database
                     {
@@ -2423,7 +2423,7 @@ public partial class Player
 
                     if (rcEntry != null)
                     {
-                        var tier = Global.ObjectMgr.GetSkillTier(rcEntry.SkillTierID);
+                        var tier = ObjectManager.GetSkillTier(rcEntry.SkillTierID);
 
                         if (tier != null)
                         {
@@ -2759,7 +2759,7 @@ public partial class Player
         if (!spell)
         {
             // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-            var proto = Global.ObjectMgr.GetItemTemplate(_lastPotionId);
+            var proto = ObjectManager.GetItemTemplate(_lastPotionId);
 
             if (proto != null)
                 for (byte idx = 0; idx < proto.Effects.Count; ++idx)
@@ -3490,7 +3490,7 @@ public partial class Player
             if (pItem2 is { IsBroken: false })
                 foreach (var gemData in pItem2.ItemData.Gems)
                 {
-                    var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
+                    var gemProto = ObjectManager.GetItemTemplate(gemData.ItemId);
 
                     if (gemProto == null)
                         continue;
@@ -4018,7 +4018,7 @@ public partial class Player
 
                     // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
                     // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
-                    if ((slot == EnchantmentSlot.Sock1 || slot == EnchantmentSlot.Sock2 || slot == EnchantmentSlot.Sock3) && _items[i].GetSocketColor((uint)(slot - EnchantmentSlot.Sock1)) == 0)
+                    if (slot is EnchantmentSlot.Sock1 or EnchantmentSlot.Sock2 or EnchantmentSlot.Sock3 && _items[i].GetSocketColor((uint)(slot - EnchantmentSlot.Sock1)) == 0)
                     {
                         var pPrismaticEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(_items[i].GetEnchantmentId(EnchantmentSlot.Prismatic));
 
