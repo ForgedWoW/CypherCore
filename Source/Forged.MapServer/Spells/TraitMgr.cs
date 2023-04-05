@@ -13,7 +13,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Spells;
 
-internal class TraitMgr
+public class TraitMgr
 {
     public const uint COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID = 384255u;
     public const uint MAX_COMBAT_TRAIT_CONFIGS = 10u;

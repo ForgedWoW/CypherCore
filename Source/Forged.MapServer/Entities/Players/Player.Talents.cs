@@ -16,6 +16,7 @@ using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -68,7 +69,7 @@ public partial class Player
             if (talentInfo.SpellID == 0)
                 continue;
 
-            var spellInfo = SpellManager.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+            var spellInfo = SpellManager.GetSpellInfo(talentInfo.SpellID);
 
             if (spellInfo == null)
                 continue;
@@ -86,7 +87,7 @@ public partial class Player
 
         foreach (var talentInfo in CliDB.PvpTalentStorage.Values)
         {
-            var spellInfo = SpellManager.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+            var spellInfo = SpellManager.GetSpellInfo(talentInfo.SpellID);
 
             if (spellInfo == null)
                 continue;
@@ -186,7 +187,7 @@ public partial class Player
         }
 
         foreach (var glyphId in GetGlyphs(spec.OrderIndex))
-            CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
+            SpellFactory.CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
 
         ActiveGlyphs activeGlyphs = new();
 
@@ -236,7 +237,7 @@ public partial class Player
 
     public bool AddTalent(TalentRecord talent, byte spec, bool learning)
     {
-        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID);
 
         if (spellInfo == null)
         {
@@ -605,7 +606,7 @@ public partial class Player
 
     public void RemoveTalent(TalentRecord talent)
     {
-        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID);
 
         if (spellInfo == null)
             return;
@@ -649,7 +650,7 @@ public partial class Player
 
         uint cost = 0;
 
-        if (!noCost && !GetDefaultValue("NoResetTalentsCost", false))
+        if (!noCost && !Configuration.GetDefaultValue("NoResetTalentsCost", false))
         {
             cost = GetNextResetTalentsCost();
 
@@ -772,7 +773,7 @@ public partial class Player
                     continue;
                 }
 
-                var spellEntry = SpellManager.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+                var spellEntry = SpellManager.GetSpellInfo(talentInfo.SpellID);
 
                 if (spellEntry == null)
                 {
@@ -798,7 +799,7 @@ public partial class Player
                     continue;
                 }
 
-                var spellEntry = SpellManager.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+                var spellEntry = SpellManager.GetSpellInfo(talentInfo.SpellID);
 
                 if (spellEntry == null)
                 {
@@ -932,7 +933,7 @@ public partial class Player
 
         if (withCastTime)
         {
-            CastSpell(this, TraitMgr.COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID, new CastSpellExtraArgs(SpellValueMod.BasePoint0, savedConfigId).SetCustomArg(newConfig));
+            SpellFactory.CastSpell(this, TraitMgr.COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID, new CastSpellExtraArgs(SpellValueMod.BasePoint0, savedConfigId).SetCustomArg(newConfig));
 
             return;
         }
@@ -951,11 +952,9 @@ public partial class Player
                 isActiveConfig = HasSkill((uint)(int)ActivePlayerData.TraitConfigs[index].SkillLineID);
 
                 break;
-            default:
-                break;
         }
 
-        var finalizeTraitConfigUpdate = () =>
+        void FinalizeTraitConfigUpdate()
         {
             TraitConfig newTraitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, index);
             SetUpdateFieldValue(newTraitConfig.ModifyValue(newTraitConfig.LocalIdentifier), newConfig.LocalIdentifier);
@@ -967,7 +966,7 @@ public partial class Player
 
             if (((TraitCombatConfigFlags)(int)newConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.StarterBuild))
                 SetTraitConfigUseStarterBuild(newConfig.ID, true);
-        };
+        }
 
         if (loadActionButtons)
         {
@@ -975,17 +974,17 @@ public partial class Player
             _SaveActions(trans);
             CharacterDatabase.CommitTransaction(trans);
 
-            StartLoadingActionButtons(finalizeTraitConfigUpdate);
+            StartLoadingActionButtons(FinalizeTraitConfigUpdate);
         }
         else
         {
-            finalizeTraitConfigUpdate();
+            FinalizeTraitConfigUpdate();
         }
     }
     private bool AddPvpTalent(PvpTalentRecord talent, byte activeTalentGroup, byte slot)
     {
         //ASSERT(talent);
-        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID);
 
         if (spellInfo == null)
         {
@@ -1052,10 +1051,10 @@ public partial class Player
             return;
 
         foreach (var traitEntry in traitConfig.Entries)
-            ApplyTraitEntry(traitEntry.TraitNodeEntryID, traitEntry.Rank, traitEntry.GrantedRanks, apply);
+            ApplyTraitEntry(traitEntry.TraitNodeEntryID, apply);
     }
 
-    private void ApplyTraitEntry(int traitNodeEntryId, int rank, int grantedRanks, bool apply)
+    private void ApplyTraitEntry(int traitNodeEntryId, bool apply)
     {
         var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(traitNodeEntryId);
 
@@ -1067,13 +1066,13 @@ public partial class Player
         if (traitDefinition == null)
             return;
 
-        if (traitDefinition.SpellID != 0)
-        {
-            if (apply)
-                LearnSpell(traitDefinition.SpellID, true, 0, false, traitNodeEntry.TraitDefinitionID);
-            else
-                RemoveSpell(traitDefinition.SpellID);
-        }
+        if (traitDefinition.SpellID == 0)
+            return;
+
+        if (apply)
+            LearnSpell(traitDefinition.SpellID, true, 0, false, traitNodeEntry.TraitDefinitionID);
+        else
+            RemoveSpell(traitDefinition.SpellID);
     }
 
     private void ApplyTraitEntryChanges(int editedConfigId, TraitConfigPacket newConfig, bool applyTraits, bool consumeCurrencies)
@@ -1097,7 +1096,7 @@ public partial class Player
                 continue;
 
             if (applyTraits)
-                ApplyTraitEntry(oldEntry.TraitNodeEntryID, 0, 0, false);
+                ApplyTraitEntry(oldEntry.TraitNodeEntryID, false);
 
             entryIndicesToRemove.Add(i);
         }
@@ -1134,7 +1133,7 @@ public partial class Player
                     AddDynamicUpdateFieldValue(newTraitConfig.ModifyValue(newTraitConfig.Entries), newUfEntry);
 
                     if (applyTraits)
-                        ApplyTraitEntry(newUfEntry.TraitNodeEntryID, newUfEntry.Rank, 0, true);
+                        ApplyTraitEntry(newUfEntry.TraitNodeEntryID, true);
                 }
                 else if (newEntry.Rank != editedConfig.Entries[oldEntryIndex].Rank || newEntry.GrantedRanks != editedConfig.Entries[oldEntryIndex].GrantedRanks)
                 {
@@ -1152,7 +1151,7 @@ public partial class Player
                     SetUpdateFieldValue(traitConfig.Entries, oldEntryIndex, traitEntry);
 
                     if (applyTraits)
-                        ApplyTraitEntry(newEntry.TraitNodeEntryID, newEntry.Rank, newEntry.GrantedRanks, true);
+                        ApplyTraitEntry(newEntry.TraitNodeEntryID, true);
                 }
             }
 
@@ -1179,8 +1178,6 @@ public partial class Player
                     case TraitCurrencyType.CurrencyTypesBased:
                         RemoveCurrency((uint)traitCurrency.CurrencyTypesID, amount /* TODO: CurrencyDestroyReason */);
 
-                        break;
-                    default:
                         break;
                 }
             }
@@ -1210,7 +1207,7 @@ public partial class Player
     }
     private void RemovePvpTalent(PvpTalentRecord talent, byte activeTalentGroup)
     {
-        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID);
 
         if (spellInfo == null)
             return;

@@ -184,14 +184,21 @@ public class Loot
         }
     }
 
-    // Calls processor of corresponding LootTemplate (which handles everything including references)
     public bool FillLoot(uint lootId, LootStorageType storageType, Player lootOwner, bool personal, bool noEmptyError = false, LootModes lootMode = LootModes.Default, ItemContext context = 0)
+    {
+        var store = GetLootStorage(storageType);
+
+        return FillLoot(lootId, store, lootOwner, personal, noEmptyError, lootMode, context);
+    }
+
+    // Calls processor of corresponding LootTemplate (which handles everything including references)
+    public bool FillLoot(uint lootId, LootStore store, Player lootOwner, bool personal, bool noEmptyError = false, LootModes lootMode = LootModes.Default, ItemContext context = 0)
     {
         // Must be provided
         if (lootOwner == null)
             return false;
 
-        var store = GetLootStorage(storageType);
+        
         var tab = store.GetLootFor(lootId);
 
         if (tab == null)

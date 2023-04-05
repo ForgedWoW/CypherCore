@@ -16,6 +16,7 @@ using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.OutdoorPVP;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -60,27 +61,6 @@ public partial class Player
 
     public bool IsUsingPvpItemLevels { get; private set; }
     // live player
-
-    public static void LeaveAllArenaTeams(ObjectGuid guid)
-    {
-        var characterInfo = CharacterCache.GetCharacterCacheByGuid(guid);
-
-        if (characterInfo == null)
-            return;
-
-        for (byte i = 0; i < SharedConst.MaxArenaSlot; ++i)
-        {
-            var arenaTeamId = characterInfo.ArenaTeamId[i];
-
-            if (arenaTeamId != 0)
-            {
-                var arenaTeam = ArenaTeamManager.GetArenaTeamById(arenaTeamId);
-
-                if (arenaTeam != null)
-                    arenaTeam.DelMember(guid, true);
-            }
-        }
-    }
 
     public void ActivatePvpItemLevels(bool activate)
     {
@@ -169,9 +149,9 @@ public partial class Player
             return;
 
         if (!HasSpell(195710))       // Honorable Medallion
-            CastSpell(this, 208682); // Learn Gladiator's Medallion
+            SpellFactory.CastSpell(this, 208682); // Learn Gladiator's Medallion
 
-        CastSpell(this, PlayerConst.SpellPvpRulesEnabled);
+        SpellFactory.CastSpell(this, PlayerConst.SpellPvpRulesEnabled);
 
         if (!dueToCombat)
         {
@@ -227,10 +207,7 @@ public partial class Player
 
     public BattlegroundQueueTypeId GetBattlegroundQueueTypeId(uint index)
     {
-        if (index < SharedConst.MaxPlayerBGQueues)
-            return _battlegroundQueueIdRecs[index].BgQueueTypeId;
-
-        return default;
+        return index < SharedConst.MaxPlayerBGQueues ? _battlegroundQueueIdRecs[index].BgQueueTypeId : default;
     }
 
     public bool GetBgAccessByLevel(BattlegroundTypeId bgTypeId)
@@ -244,13 +221,10 @@ public partial class Player
         // limit check leel to dbc compatible level range
         var level = Level;
 
-        if (level > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
-            level = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
+        if (level > Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+            level = (uint)Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
-        if (level < bg.GetMinLevel() || level > bg.GetMaxLevel())
-            return false;
-
-        return true;
+        return level >= bg.GetMinLevel() && level <= bg.GetMaxLevel();
     }
 
     public TeamFaction GetBgTeam()
@@ -349,7 +323,7 @@ public partial class Player
             bg.RemovePlayerAtLeave(GUID, teleportToEntryPoint, true);
 
             // call after remove to be sure that player resurrected for correct cast
-            if (bg.IsBattleground() && !IsGameMaster && GetDefaultValue("Battleground.CastDeserter", true))
+            if (bg.IsBattleground() && !IsGameMaster && Configuration.GetDefaultValue("Battleground.CastDeserter", true))
                 if (bg.GetStatus() == BattlegroundStatus.InProgress || bg.GetStatus() == BattlegroundStatus.WaitJoin)
                 {
                     //lets check if player was teleported from BG and schedule delayed Deserter spell cast
@@ -360,7 +334,7 @@ public partial class Player
                         return;
                     }
 
-                    CastSpell(this, 26013, true); // Deserter
+                    SpellFactory.CastSpell(this, 26013, true); // Deserter
                 }
         }
     }
@@ -406,10 +380,10 @@ public partial class Player
             _bgData.BgAfkReporter.Add(reporter.GUID);
 
             // by default 3 players have to complain to apply debuff
-            if (_bgData.BgAfkReporter.Count >= GetDefaultValue("Battleground.ReportAFK", 3))
+            if (_bgData.BgAfkReporter.Count >= Configuration.GetDefaultValue("Battleground.ReportAFK", 3))
             {
                 // cast 'Idle' spell
-                CastSpell(this, 43680, true);
+                SpellFactory.CastSpell(this, 43680, true);
                 _bgData.BgAfkReporter.Clear();
                 reportAfkResult.NumBlackMarksOnOffender = (byte)_bgData.BgAfkReporter.Count;
                 reportAfkResult.NumPlayersIHaveReported = reporter._bgData.BgAfkReportedCount;
@@ -435,10 +409,7 @@ public partial class Player
             if (!victim || victim == this || !victim.IsTypeId(TypeId.Player))
                 return false;
 
-            if (GetBgTeam() == victim.AsPlayer.GetBgTeam())
-                return false;
-
-            return true;
+            return GetBgTeam() != victim.AsPlayer.GetBgTeam();
         }
 
         // 'Inactive' this aura prevents the player from gaining honor points and BattlegroundTokenizer
@@ -468,7 +439,7 @@ public partial class Player
 
             if (plrVictim)
             {
-                if (EffectiveTeam == plrVictim.EffectiveTeam && !WorldManager.IsFFAPvPRealm)
+                if (EffectiveTeam == plrVictim.EffectiveTeam && !WorldMgr.IsFFAPvPRealm)
                     return false;
 
                 var kLevel = (byte)Level;
@@ -534,7 +505,7 @@ public partial class Player
             honorF += (float)RestMgr.GetRestBonusFor(RestTypes.Honor, (uint)honorF);
         }
 
-        honorF *= GetDefaultValue("Rate.Honor", 1.0f);
+        honorF *= Configuration.GetDefaultValue("Rate.Honor", 1.0f);
         // Back to int now
         honor = (int)honorF;
 
@@ -562,26 +533,26 @@ public partial class Player
             bg?.UpdatePlayerScore(this, ScoreType.BonusHonor, (uint)honor, false); //false: prevent looping
         }
 
-        if (GetDefaultValue("PvPToken.Enable", false) && pvptoken)
-        {
-            if (victim != null && (!victim || victim == this || victim.HasAuraType(AuraType.NoPvpCredit)))
-                return true;
+        if (!Configuration.GetDefaultValue("PvPToken.Enable", false) || !pvptoken)
+            return true;
 
-            if (victim != null && victim.IsTypeId(TypeId.Player))
-            {
-                // Check if allowed to receive it in current map
-                var mapType = GetDefaultValue("PvPToken.MapAllowType", 4);
+        if (victim != null && (!victim || victim == this || victim.HasAuraType(AuraType.NoPvpCredit)))
+            return true;
 
-                if ((mapType == 1 && !InBattleground && !IsFFAPvP) || (mapType == 2 && !IsFFAPvP) || (mapType == 3 && !InBattleground))
-                    return true;
+        if (victim == null || !victim.IsTypeId(TypeId.Player))
+            return true;
 
-                var itemId = GetDefaultValue("PvPToken.ItemID", 29434);
-                var count = GetDefaultValue("PvPToken.ItemCount", 1);
+        // Check if allowed to receive it in current map
+        var mapType = Configuration.GetDefaultValue("PvPToken.MapAllowType", 4);
 
-                if (AddItem(itemId, count))
-                    SendSysMessage("You have been awarded a token for slaying another player.");
-            }
-        }
+        if ((mapType == 1 && !InBattleground && !IsFFAPvP) || (mapType == 2 && !IsFFAPvP) || (mapType == 3 && !InBattleground))
+            return true;
+
+        var itemId = Configuration.GetDefaultValue("PvPToken.ItemID", 29434u);
+        var count = Configuration.GetDefaultValue("PvPToken.ItemCount", 1u);
+
+        if (AddItem(itemId, count))
+            SendSysMessage("You have been awarded a token for slaying another player.");
 
         return true;
     }

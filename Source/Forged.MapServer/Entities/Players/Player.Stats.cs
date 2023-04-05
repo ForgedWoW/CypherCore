@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.DataStorage.Structs.GameTable;
 using Framework.Constants;
+using Framework.Util;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -372,19 +373,19 @@ public partial class Player
             // Increase from rating
             value += GetRatingBonusValue(CombatRating.Block);
 
-            if (GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > GetDefaultValue("Stats.Limits.Block", 95.0f) ? GetDefaultValue("Stats.Limits.Block", 95.0f) : value;
+            if (Configuration.GetDefaultValue("Stats.Limits.Enable", false))
+                value = value > Configuration.GetDefaultValue("Stats.Limits.Block", 95.0f) ? Configuration.GetDefaultValue("Stats.Limits.Block", 95.0f) : value;
         }
 
         SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.BlockPercentage), (float)value);
     }
 
     public void UpdateCritPercentage(WeaponAttackType attType)
-    {
-        static float ApplyCritLimit(double value)
+    { 
+        float ApplyCritLimit(double value)
         {
-            if (GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > GetDefaultValue("Stats.Limits.Crit", 95.0f) ? GetDefaultValue("Stats.Limits.Crit", 95.0f) : value;
+            if (Configuration.GetDefaultValue("Stats.Limits.Enable", false))
+                value = value > Configuration.GetDefaultValue("Stats.Limits.Crit", 95.0f) ? Configuration.GetDefaultValue("Stats.Limits.Crit", 95.0f) : value;
 
             return (float)value;
         }
@@ -421,8 +422,8 @@ public partial class Player
         // apply diminishing formula to diminishing dodge chance
         var value = CalculateDiminishingReturns(_dodgeCap, Class, nondiminishing, diminishing);
 
-        if (GetDefaultValue("Stats.Limits.Enable", false))
-            value = value > GetDefaultValue("Stats.Limits.Dodge", 95.0f) ? GetDefaultValue("Stats.Limits.Dodge", 95.0f) : value;
+        if (Configuration.GetDefaultValue("Stats.Limits.Enable", false))
+            value = value > Configuration.GetDefaultValue("Stats.Limits.Dodge", 95.0f) ? Configuration.GetDefaultValue("Stats.Limits.Dodge", 95.0f) : value;
 
         SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DodgePercentage), (float)value);
     }
@@ -451,7 +452,6 @@ public partial class Player
                 SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OffhandExpertise), expertise);
 
                 break;
-            default: break;
         }
     }
 
@@ -579,8 +579,8 @@ public partial class Player
             // apply diminishing formula to diminishing parry chance
             value = CalculateDiminishingReturns(_parryCap, Class, nondiminishing, diminishing);
 
-            if (GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > GetDefaultValue("Stats.Limits.Parry", 95.0f) ? GetDefaultValue("Stats.Limits.Parry", 95.0f) : value;
+            if (Configuration.GetDefaultValue("Stats.Limits.Enable", false))
+                value = value > Configuration.GetDefaultValue("Stats.Limits.Parry", 95.0f) ? Configuration.GetDefaultValue("Stats.Limits.Parry", 95.0f) : value;
         }
 
         SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ParryPercentage), (float)value);
@@ -604,7 +604,7 @@ public partial class Player
                     if ((aurEff.MiscValue & (1 << dependentRating)) != 0)
                         highestRating = (short)Math.Max(highestRating ?? _baseRatingValue[dependentRating], _baseRatingValue[dependentRating]);
 
-                if (highestRating != 0)
+                if (highestRating != 0 && highestRating != null)
                     amount += MathFunctions.CalculatePct(highestRating.Value, aurEff.Amount);
             }
 
@@ -702,8 +702,6 @@ public partial class Player
                         ApplyCastTimePercentMod(oldVal, false);
                         ApplyCastTimePercentMod(newVal, true);
 
-                        break;
-                    default:
                         break;
                 }
 
@@ -835,18 +833,19 @@ public partial class Player
                 UpdateSpellCritChance();
 
                 break;
-            default:
-                break;
         }
 
-        if (stat == Stats.Strength)
+        switch (stat)
         {
-            UpdateAttackPowerAndDamage();
-        }
-        else if (stat == Stats.Agility)
-        {
-            UpdateAttackPowerAndDamage();
-            UpdateAttackPowerAndDamage(true);
+            case Stats.Strength:
+                UpdateAttackPowerAndDamage();
+
+                break;
+            case Stats.Agility:
+                UpdateAttackPowerAndDamage();
+                UpdateAttackPowerAndDamage(true);
+
+                break;
         }
 
         UpdateArmor();
@@ -1031,8 +1030,6 @@ public partial class Player
                 return row.VersatilityDamageTaken;
             case CombatRating.Unused12:
                 return row.Unused12;
-            default:
-                break;
         }
 
         return 1.0f;
@@ -1110,7 +1107,7 @@ public partial class Player
                     continue;
                 }
 
-            CastSpell(this, corruptionEffect.Aura, true);
+            SpellFactory.CastSpell(this, corruptionEffect.Aura, true);
         }
     }
 }

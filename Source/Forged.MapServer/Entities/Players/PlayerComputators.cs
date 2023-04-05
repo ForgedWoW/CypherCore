@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Arenas;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
@@ -40,11 +41,12 @@ public class PlayerComputators
     private readonly TerrainManager _terrainManager;
     private readonly PetitionManager _petitionManager;
     private readonly GameObjectManager _gameObjectManager;
+    private readonly ArenaTeamManager _arenaTeamManager;
 
     public PlayerComputators(CliDB cliDB, IConfiguration configuration, CharacterCache characterCache, GuildManager guildManager,
                              CharacterDatabase characterDatabase, GroupManager groupManager, ObjectAccessor objectAccessor, SocialManager socialManager,
                              LoginDatabase loginDatabase, WorldManager worldManager, TerrainManager terrainManager, PetitionManager petitionManager,
-                             GameObjectManager gameObjectManager)
+                             GameObjectManager gameObjectManager, ArenaTeamManager arenaTeamManager)
     {
         _cliDB = cliDB;
         _configuration = configuration;
@@ -59,6 +61,7 @@ public class PlayerComputators
         _terrainManager = terrainManager;
         _petitionManager = petitionManager;
         _gameObjectManager = gameObjectManager;
+        _arenaTeamManager = arenaTeamManager;
     }
 
     public WeaponAttackType GetAttackBySlot(byte slot, InventoryType inventoryType)
@@ -189,7 +192,7 @@ public class PlayerComputators
         }
 
         // remove from arena teams
-        Player.LeaveAllArenaTeams(playerGuid);
+        LeaveAllArenaTeams(playerGuid);
 
         // the player was uninvited already on logout so just remove from group
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
@@ -201,7 +204,7 @@ public class PlayerComputators
             var group = _groupManager.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
 
             if (group)
-                Player.RemoveFromGroup(group, playerGuid);
+                RemoveFromGroup(group, playerGuid);
         }
 
         // Remove signs from petitions (also remove petitions if owner);
@@ -634,6 +637,34 @@ public class PlayerComputators
             return;
 
         DeleteOldCharacters(keepDays);
+    }
+
+    public static void RemoveFromGroup(PlayerGroup group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
+    {
+        if (!group)
+            return;
+
+        group.RemoveMember(guid, method, kicker, reason);
+    }
+
+    public void LeaveAllArenaTeams(ObjectGuid guid)
+    {
+        var characterInfo = _characterCache.GetCharacterCacheByGuid(guid);
+
+        if (characterInfo == null)
+            return;
+
+        for (byte i = 0; i < SharedConst.MaxArenaSlot; ++i)
+        {
+            var arenaTeamId = characterInfo.ArenaTeamId[i];
+
+            if (arenaTeamId == 0)
+                continue;
+
+            var arenaTeam = _arenaTeamManager.GetArenaTeamById(arenaTeamId);
+
+            arenaTeam?.DelMember(guid, true);
+        }
     }
 
     public void DeleteOldCharacters(int keepDays)

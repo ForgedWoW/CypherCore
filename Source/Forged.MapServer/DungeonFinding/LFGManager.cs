@@ -1795,7 +1795,7 @@ public class LFGManager
             var group = _groupManager.GetGroupByGuid(gguid);
 
             if (group)
-                Player.RemoveFromGroup(group, boot.Victim, RemoveMethod.KickLFG);
+                PlayerComputators.RemoveFromGroup(group, boot.Victim, RemoveMethod.KickLFG);
 
             DecreaseKicksLeft(gguid);
         }

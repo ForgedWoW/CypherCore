@@ -14,11 +14,13 @@ using Forged.MapServer.Chat;
 using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Events;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
@@ -26,11 +28,13 @@ using Forged.MapServer.Guilds;
 using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Skills;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
@@ -70,7 +74,7 @@ public partial class Player
     private readonly Item[] _items = new Item[(int)PlayerSlots.Count];
     private readonly List<ObjectGuid> _itemSoulboundTradeable = new();
     private readonly long _logintime;
-    private readonly LootFactory _lootFactory;
+    public LootFactory LootFactory { get; }
     private readonly List<LootRoll> _lootRolls = new();
 
     //Mail
@@ -396,13 +400,48 @@ public partial class Player
 
     public List<PetAura> PetAuras { get; set; } = new();
 
-    public PetStable PetStable { get; } = new();
+    public PetStable PetStable { get; set; } = new();
     public PlayerComputators PlayerComputators { get; }
     public PlayerData PlayerData { get; set; }
 
     public LoginDatabase LoginDatabase { get; }
     public ArenaTeamManager ArenaTeamManager { get; }
     public LanguageManager LanguageManager { get; }
+    public InstanceLockManager InstanceLockManager { get; }
+    public SocialManager SocialManager { get; }
+    public RealmManager RealmManager { get; }
+    public TerrainManager TerrainManager { get; }
+    public GameEventManager GameEventManager { get; }
+    public TraitMgr TraitMgr { get; }
+    public LootItemStorage LootItemStorage { get; }
+    public LFGManager LFGManager { get; }
+    public ItemEnchantmentManager ItemEnchantmentManager { get; }
+    public PlayerGroup Group => GroupRef.Target;
+    public PlayerGroup GroupInvite { get; set; }
+    public SkillDiscovery SkillDiscovery { get; }
+    public GroupReference GroupRef { get; } = new();
+    public GroupUpdateFlags GroupUpdateFlag { get; private set; }
+    public bool InRandomLfgDungeon
+    {
+        get
+        {
+            if (LFGManager.SelectedRandomLfgDungeon(GUID))
+            {
+                var map = Location.Map;
+
+                return LFGManager.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
+            }
+
+            return false;
+        }
+    }
+
+    public bool IsUsingLfg => LFGManager.GetState(GUID) != LfgState.None;
+    public PlayerGroup OriginalGroup => OriginalGroupRef.Target;
+    public GroupReference OriginalGroupRef { get; } = new();
+    public byte OriginalSubGroup => OriginalGroupRef.SubGroup;
+    public bool PassOnGroupLoot { get; set; }
+    public byte SubGroup => GroupRef.SubGroup;
 
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }
@@ -419,7 +458,7 @@ public partial class Player
     public Unit SelectedUnit => !Target.IsEmpty ? ObjectAccessor.GetUnit(this, Target) : null;
 
     public WorldSession Session { get; }
-    public WorldManager WorldManager { get; }
+    public WorldManager WorldMgr { get; }
     public WorldStateManager WorldStateManager { get; }
 
     public PlayerSocial Social { get; private set; }

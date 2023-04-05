@@ -128,37 +128,6 @@ internal class ResetCommands
         return true;
     }
 
-    [Command("spells", RBACPermissions.CommandResetSpells, true)]
-    private static bool HandleResetSpellsCommand(CommandHandler handler, PlayerIdentifier player)
-    {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
-
-        if (player == null)
-            return false;
-
-        if (player.IsConnected())
-        {
-            var target = player.GetConnectedPlayer();
-            target.ResetSpells();
-
-            target.SendSysMessage(CypherStrings.ResetSpells);
-
-            if (handler.Session == null || handler.Session.Player != target)
-                handler.SendSysMessage(CypherStrings.ResetSpellsOnline, handler.GetNameLink(target));
-        }
-        else
-        {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
-            stmt.AddValue(0, (ushort)AtLoginFlags.ResetSpells);
-            stmt.AddValue(1, player.GetGUID().Counter);
-            DB.Characters.Execute(stmt);
-
-            handler.SendSysMessage(CypherStrings.ResetSpellsOffline, player.GetName());
-        }
-
-        return true;
-    }
 
     [Command("stats", RBACPermissions.CommandResetStats, true)]
     private static bool HandleResetStatsCommand(CommandHandler handler, PlayerIdentifier player)

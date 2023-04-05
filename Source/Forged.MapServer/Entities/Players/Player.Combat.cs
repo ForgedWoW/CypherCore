@@ -453,7 +453,7 @@ public partial class Player
     {
         // @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
         // no, we shouldn't, those are checked for affecting player by client
-        if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || WorldManager.IsFFAPvPRealm || HasAuraType(AuraType.SetFFAPvp)))
+        if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || WorldMgr.IsFFAPvPRealm || HasAuraType(AuraType.SetFFAPvp)))
         {
             if (!IsFFAPvP)
             {

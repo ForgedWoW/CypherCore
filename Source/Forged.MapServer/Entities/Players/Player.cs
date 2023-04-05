@@ -19,20 +19,24 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.DataStorage.Structs.C;
 using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Events;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Networking;
@@ -60,6 +64,7 @@ using Forged.MapServer.Reputation;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Skills;
 using Forged.MapServer.Text;
 using Forged.MapServer.World;
 using Framework.Constants;
@@ -84,7 +89,7 @@ public partial class Player : Unit
         GuildMgr = classFactory.Resolve<GuildManager>();
         CharacterDatabase = classFactory.Resolve<CharacterDatabase>();
         PlayerComputators = classFactory.Resolve<PlayerComputators>();
-        WorldManager = classFactory.Resolve<WorldManager>();
+        WorldMgr = classFactory.Resolve<WorldManager>();
         ChannelManagerFactory = classFactory.Resolve<ChannelManagerFactory>();
         WorldStateManager = classFactory.Resolve<WorldStateManager>();
         GroupManager = classFactory.Resolve<GroupManager>();
@@ -97,6 +102,17 @@ public partial class Player : Unit
         LoginDatabase = classFactory.Resolve<LoginDatabase>();
         ArenaTeamManager = classFactory.Resolve<ArenaTeamManager>();
         LanguageManager = classFactory.Resolve<LanguageManager>();
+        InstanceLockManager = classFactory.Resolve<InstanceLockManager>();
+        SocialManager = classFactory.Resolve<SocialManager>();
+        RealmManager = classFactory.Resolve<RealmManager>();
+        TerrainManager = classFactory.Resolve<TerrainManager>();
+        GameEventManager = classFactory.Resolve<GameEventManager>();
+        TraitMgr = classFactory.Resolve<TraitMgr>();
+        LootItemStorage = classFactory.Resolve<LootItemStorage>();
+        LFGManager = classFactory.Resolve<LFGManager>();
+        ItemEnchantmentManager = classFactory.Resolve<ItemEnchantmentManager>();
+        LootFactory = classFactory.Resolve<LootFactory>();
+        SkillDiscovery = classFactory.Resolve<SkillDiscovery>();
         Session = session;
         // players always accept
         if (!Session.HasPermission(RBACPermissions.CanFilterWhispers))
@@ -1382,7 +1398,7 @@ public partial class Player : Unit
 
         ClearResurrectRequestData();
 
-        WorldManager.DecreasePlayerCount();
+        WorldMgr.DecreasePlayerCount();
 
         base.Dispose();
     }
@@ -3661,7 +3677,7 @@ public partial class Player : Unit
 
     public void RemoveSocial()
     {
-        Global.SocialMgr.RemovePlayerSocial(GUID);
+        SocialManager.RemovePlayerSocial(GUID);
         Social = null;
     }
 
@@ -4998,7 +5014,7 @@ public partial class Player : Unit
                 pet.Faction = Faction;
 
             // restore FFA PvP Server state
-            if (WorldManager.IsFFAPvPRealm)
+            if (WorldMgr.IsFFAPvPRealm)
                 SetPvpFlag(UnitPVPStateFlags.FFAPvp);
 
             // restore FFA PvP area state, remove not allowed for GM mounts
@@ -7429,7 +7445,7 @@ public partial class Player : Unit
 
     private void SendInitWorldStates(uint zoneId, uint areaId)
     {
-        // data depends on zoneid/mapid...
+        // data depends on zoneid/mapId..
         var mapid = Location.MapId;
 
         InitWorldStates packet = new()
@@ -8255,7 +8271,7 @@ public partial class Player : Unit
         if (!isAddonMessage)               // if not addon data
             language = Language.Universal; // whispers should always be readable
 
-        //Player rPlayer = Global.ObjAccessor.FindPlayer(receiver);
+        //Player rPlayer = ObjectAccessor.FindPlayer(receiver);
 
         ScriptManager.OnPlayerChat(this, ChatMsg.Whisper, language, text, target);
 

@@ -26,9 +26,11 @@ using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Tools;
+using Forged.MapServer.World;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -587,7 +589,7 @@ public partial class Player
                 // flight will started later
             }
         }
-        else if (mapEntry.IsDungeon() && Location.Map?.InstanceId != 0)
+        else if (mapEntry.IsDungeon() && Location.Map != null && Location.Map.InstanceId != 0)
         {
             // try finding instance by id first
             map = MapManager.FindMap(mapId, Location.Map.InstanceId);
@@ -627,7 +629,7 @@ public partial class Player
                 areaTrigger = ObjectManager.GetGoBackTrigger(mapId);
                 check = true;
             }
-            else if (instanceID != 0 && Global.InstanceLockMgr.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID)) != null) // ... and instance is reseted then look for entrance.
+            else if (instanceID != 0 && InstanceLockManager.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID)) != null) // ... and instance is reseted then look for entrance.
             {
                 areaTrigger = ObjectManager.GetMapEntranceTrigger(mapId);
                 check = true;
@@ -812,7 +814,7 @@ public partial class Player
                   holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteUnlockedEssence),
                   holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteEmpowered));
 
-        Social = Global.SocialMgr.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.SocialList), GUID);
+        Social = SocialManager.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.SocialList), GUID);
 
         // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
         // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
@@ -881,11 +883,8 @@ public partial class Player
         // GM state
         if (Session.HasPermission(RBACPermissions.RestoreSavedGmState))
         {
-            switch (GetDefaultValue("GM.LoginState", 2))
+            switch (Configuration.GetDefaultValue("GM.LoginState", 2))
             {
-                default:
-                case 0:
-                    break; // disable
                 case 1:
                     SetGameMaster(true);
 
@@ -897,10 +896,9 @@ public partial class Player
                     break;
             }
 
-            switch (GetDefaultValue("GM.Visible", 2))
+            switch (Configuration.GetDefaultValue("GM.Visible", 2))
             {
                 default:
-                case 0:
                     SetGMVisible(false);
 
                     break; // invisible
@@ -913,11 +911,8 @@ public partial class Player
                     break;
             }
 
-            switch (GetDefaultValue("GM.Chat", 2))
+            switch (Configuration.GetDefaultValue("GM.Chat", 2))
             {
-                default:
-                case 0:
-                    break; // disable
                 case 1:
                     SetGMChat(true);
 
@@ -929,11 +924,8 @@ public partial class Player
                     break;
             }
 
-            switch (GetDefaultValue("GM.WhisperingTo", 2))
+            switch (Configuration.GetDefaultValue("GM.WhisperingTo", 2))
             {
-                default:
-                case 0:
-                    break; // disable
                 case 1:
                     SetAcceptWhispers(true);
 
@@ -980,8 +972,8 @@ public partial class Player
             var bubble1 = 0.125f;
 
             var bubble = isLogoutResting > 0
-                             ? bubble1 * GetDefaultValue("Rate.Rest.Offline.InTavernOrCity", 1.0f)
-                             : bubble0 * GetDefaultValue("Rate.Rest.Offline.InWilderness", 1.0f);
+                             ? bubble1 * Configuration.GetDefaultValue("Rate.Rest.Offline.InTavernOrCity", 1.0f)
+                             : bubble0 * Configuration.GetDefaultValue("Rate.Rest.Offline.InWilderness", 1.0f);
 
             RestMgr.AddRestBonus(RestTypes.XP, timeDiff * RestMgr.CalcExtraPerSec(RestTypes.XP, bubble));
         }
@@ -1044,7 +1036,7 @@ public partial class Player
     public void SaveToDB(SQLTransaction loginTransaction, SQLTransaction characterTransaction, bool create = false)
     {
         // delay auto save at any saves (manual, in code, or autosave)
-        SaveTimer = GetDefaultValue("PlayerSaveInterval", 15u * Time.MINUTE * Time.IN_MILLISECONDS);
+        SaveTimer = Configuration.GetDefaultValue("PlayerSaveInterval", 15u * Time.MINUTE * Time.IN_MILLISECONDS);
 
         //lets allow only players in world to be saved
         if (IsBeingTeleportedFar)
@@ -1062,10 +1054,9 @@ public partial class Player
         if (!create)
             ScriptManager.ForEach<IPlayerOnSave>(p => p.OnSave(this));
 
-        PreparedStatement stmt;
         byte index = 0;
 
-        stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_FISHINGSTEPS);
+        var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_FISHINGSTEPS);
         stmt.AddValue(0, GUID.Counter);
         characterTransaction.Append(stmt);
 
@@ -1074,15 +1065,13 @@ public partial class Player
             return float.IsFinite(f) ? f : 0.0f;
         }
 
-        ;
-
         if (create)
         {
             //! Insert query
-            /// @todo: Filter out more redundant fields that can take their default value at player create
+            // @todo: Filter out more redundant fields that can take their default value at player create
             stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER);
             stmt.AddValue(index++, GUID.Counter);
-            stmt.AddValue((int)index++, (uint)Session.AccountId);
+            stmt.AddValue(index++, Session.AccountId);
             stmt.AddValue(index++, GetName());
             stmt.AddValue(index++, (byte)Race);
             stmt.AddValue(index++, (byte)Class);
@@ -1169,7 +1158,7 @@ public partial class Player
             for (; storedPowers < (int)PowerType.MaxPerClass; ++storedPowers)
                 stmt.AddValue(index++, 0);
 
-            stmt.AddValue((int)index++, (uint)Session.Latency);
+            stmt.AddValue(index++, Session.Latency);
             stmt.AddValue(index++, GetActiveTalentGroup());
             stmt.AddValue(index++, GetLootSpecId());
 
@@ -1197,7 +1186,7 @@ public partial class Player
                     else
                         ss.Append('0');
 
-                    ss.Append($" {(uint)CliDB.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {(uint)item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
+                    ss.Append($" {CliDB.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
                 }
                 else
                 {
@@ -1215,7 +1204,7 @@ public partial class Player
             stmt.AddValue(index++, ss.ToString());
 
             stmt.AddValue(index++, ActivePlayerData.MultiActionBars);
-            stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(WorldManager.Realm.Build));
+            stmt.AddValue(index++, RealmManager.GetMinorMajorBugfixVersionForBuild(WorldManager.Realm.Build));
         }
         else
         {
@@ -1293,7 +1282,7 @@ public partial class Player
             stmt.AddValue(index++, NumRespecs);
             stmt.AddValue(index++, GetPrimarySpecialization());
             stmt.AddValue(index++, (ushort)_extraFlags);
-            var petStable = PetStable1;
+            var petStable = PetStable;
 
             if (petStable != null)
                 stmt.AddValue(index++, petStable.GetCurrentPet() != null && petStable.GetCurrentPet().Health > 0 ? petStable.GetCurrentPet().PetNumber : 0); // summonedPetNumber
@@ -1381,7 +1370,7 @@ public partial class Player
             stmt.AddValue(index++, HonorLevel);
             stmt.AddValue(index++, ActivePlayerData.RestInfo[(int)RestTypes.Honor].StateID);
             stmt.AddValue(index++, FiniteAlways((float)RestMgr.GetRestBonus(RestTypes.Honor)));
-            stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(WorldManager.Realm.Build));
+            stmt.AddValue(index++, RealmManager.GetMinorMajorBugfixVersionForBuild(WorldManager.Realm.Build));
 
             // Index
             stmt.AddValue(index, GUID.Counter);
@@ -1432,7 +1421,7 @@ public partial class Player
 
         // check if stats should only be saved on logout
         // save stats can be out of transaction
-        if (Session.IsLogingOut || !GetDefaultValue("PlayerSave.Stats.SaveOnlyOnLogout", true))
+        if (Session.IsLogingOut || !Configuration.GetDefaultValue("PlayerSave.Stats.SaveOnlyOnLogout", true))
             _SaveStats(characterTransaction);
 
         // TODO: Move this out
@@ -1448,15 +1437,15 @@ public partial class Player
 
         stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_LAST_PLAYER_CHARACTERS);
         stmt.AddValue((int)0, (uint)Session.AccountId);
-        stmt.AddValue(1, WorldManager.RealmId.Region);
-        stmt.AddValue(2, WorldManager.RealmId.Site);
+        stmt.AddValue(1, WorldManager.Realm.Id.Region);
+        stmt.AddValue(2, WorldManager.Realm.Id.Site);
         loginTransaction.Append(stmt);
 
         stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_LAST_PLAYER_CHARACTERS);
         stmt.AddValue((int)0, (uint)Session.AccountId);
-        stmt.AddValue(1, WorldManager.RealmId.Region);
-        stmt.AddValue(2, WorldManager.RealmId.Site);
-        stmt.AddValue(3, WorldManager.RealmId.Index);
+        stmt.AddValue(1, WorldManager.Realm.Id.Region);
+        stmt.AddValue(2, WorldManager.Realm.Id.Site);
+        stmt.AddValue(3, WorldManager.Realm.Id.Index);
         stmt.AddValue(4, GetName());
         stmt.AddValue(5, GUID.Counter);
         stmt.AddValue(6, GameTime.CurrentTime);
@@ -1729,14 +1718,13 @@ public partial class Player
                 var questID = result.Read<uint>(0);
                 var qQuest = ObjectManager.GetQuestTemplate(questID);
 
-                if (qQuest != null)
-                    if (qQuest.IsDFQuest)
-                    {
-                        _dfQuests.Add(qQuest.Id);
-                        _lastDailyQuestTime = result.Read<uint>(1);
+                if (qQuest is { IsDFQuest: true })
+                {
+                    _dfQuests.Add(qQuest.Id);
+                    _lastDailyQuestTime = result.Read<uint>(1);
 
-                        continue;
-                    }
+                    continue;
+                }
 
                 // save _any_ from daily quest times (it must be after last reset anyway)
                 _lastDailyQuestTime = result.Read<long>(1);
@@ -1809,7 +1797,7 @@ public partial class Player
     private void _LoadGlyphAuras()
     {
         foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
-            CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
+           SpellFactory.CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
     }
 
     private void _LoadGlyphs(SQLResult result)
@@ -1908,9 +1896,7 @@ public partial class Player
             stmt.AddValue(6, Homebind.Orientation);
             CharacterDatabase.Execute(stmt);
         }
-
-        ;
-
+        
         if (!ok && HasAtLoginFlag(AtLoginFlags.FirstLogin))
         {
             var createPosition = CreateMode == PlayerCreateMode.NPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
@@ -1918,7 +1904,7 @@ public partial class Player
             if (!createPosition.TransportGuid.HasValue)
             {
                 Homebind.WorldRelocate(createPosition.Loc);
-                _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, Homebind);
+                _homebindAreaId = TerrainManager.GetAreaId(PhasingHandler.EmptyPhaseShift, Homebind);
 
                 SaveHomebindToDb();
                 ok = true;
@@ -1932,8 +1918,11 @@ public partial class Player
             if (loc == null && Race == Race.PandarenNeutral)
                 loc = ObjectManager.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
 
+            if (loc == null)
+                loc = ObjectManager.GetWorldSafeLoc(1); // Stormwind, Default GY
+
             Homebind.WorldRelocate(loc.Loc);
-            _homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);
+            _homebindAreaId = TerrainManager.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);
 
             SaveHomebindToDb();
         }
@@ -2157,7 +2146,6 @@ public partial class Player
 
     private Item _LoadItem(SQLTransaction trans, uint zoneId, uint timeDiff, SQLFields fields)
     {
-        Item item = null;
         var itemGuid = fields.Read<ulong>(0);
         var itemEntry = fields.Read<uint>(1);
         var proto = ObjectManager.GetItemTemplate(itemEntry);
@@ -2165,7 +2153,7 @@ public partial class Player
         if (proto != null)
         {
             var remove = false;
-            item = Item.NewItemOrBag(proto);
+            var item = Item.NewItemOrBag(proto);
 
             if (item.LoadFromDB(itemGuid, GUID, fields, itemEntry))
             {
@@ -2281,17 +2269,10 @@ public partial class Player
                 }
                 else if (proto.HolidayID != 0)
                 {
-                    remove = true;
-                    var events = Global.GameEventMgr.GetEventMap();
-                    var activeEventsList = Global.GameEventMgr.GetActiveEventList();
+                    var events = GameEventManager.GetEventMap();
+                    var activeEventsList = GameEventManager.GetActiveEventList();
 
-                    foreach (var id in activeEventsList)
-                        if (events[id].holiday_id == proto.HolidayID)
-                        {
-                            remove = false;
-
-                            break;
-                        }
+                    remove = activeEventsList.All(id => events[id].HolidayID != proto.HolidayID);
                 }
             }
             else
@@ -2306,13 +2287,12 @@ public partial class Player
             }
 
             // Remove item from inventory if necessary
-            if (remove)
-            {
-                Item.DeleteFromInventoryDB(trans, itemGuid);
-                item.FSetState(ItemUpdateState.Removed);
-                item.SaveToDB(trans); // it also deletes item object!
-                item = null;
-            }
+            if (!remove)
+                return item;
+
+            Item.DeleteFromInventoryDB(trans, itemGuid);
+            item.FSetState(ItemUpdateState.Removed);
+            item.SaveToDB(trans); // it also deletes item object!
         }
         else
         {
@@ -2327,7 +2307,7 @@ public partial class Player
             AzeriteEmpoweredItem.DeleteFromDB(trans, itemGuid);
         }
 
-        return item;
+        return null;
     }
 
     private void _LoadMonthlyQuestStatus()
@@ -2364,7 +2344,7 @@ public partial class Player
         if (result.IsEmpty())
             return;
 
-        PetStable1 = new PetStable();
+        PetStable = new PetStable();
 
         //         0      1        2      3    4           5     6     7        8          9       10      11        12              13       14              15
         // SELECT id, entry, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization FROM character_pet WHERE owner = ?
@@ -2392,32 +2372,43 @@ public partial class Player
                 petInfo.Type = (PetType)result.Read<byte>(14);
                 petInfo.SpecializationId = result.Read<ushort>(15);
 
-                if (slot is >= PetSaveMode.FirstActiveSlot and < PetSaveMode.LastActiveSlot)
-                    PetStable1.ActivePets[(int)slot] = petInfo;
-                else if (slot is >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot)
-                    PetStable1.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
-                else if (slot == PetSaveMode.NotInSlot)
-                    PetStable1.UnslottedPets.Add(petInfo);
+                switch (slot)
+                {
+                    case >= PetSaveMode.FirstActiveSlot and < PetSaveMode.LastActiveSlot:
+                        PetStable.ActivePets[(int)slot] = petInfo;
+
+                        break;
+                    case >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot:
+                        PetStable.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
+
+                        break;
+                    case PetSaveMode.NotInSlot:
+                        PetStable.UnslottedPets.Add(petInfo);
+
+                        break;
+                }
             } while (result.NextRow());
 
-        if (Pet.GetLoadPetInfo(PetStable1, 0, summonedPetNumber, null).Item1 != null)
+        if (Pet.GetLoadPetInfo(PetStable, 0, summonedPetNumber, null).Item1 != null)
             TemporaryUnsummonedPetNumber = summonedPetNumber;
     }
 
     private void _LoadPvpTalents(SQLResult result)
     {
         // "SELECT talentID0, talentID1, talentID2, talentID3, talentGroup FROM character_pvp_talent WHERE guid = ?"
-        if (!result.IsEmpty())
-            do
-            {
-                for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
-                {
-                    var talent = CliDB.PvpTalentStorage.LookupByKey(result.Read<uint>(slot));
+        if (result.IsEmpty())
+            return;
 
-                    if (talent != null)
-                        AddPvpTalent(talent, result.Read<byte>(4), slot);
-                }
-            } while (result.NextRow());
+        do
+        {
+            for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
+            {
+                var talent = CliDB.PvpTalentStorage.LookupByKey(result.Read<uint>(slot));
+
+                if (talent != null)
+                    AddPvpTalent(talent, result.Read<byte>(4), slot);
+            }
+        } while (result.NextRow());
     }
 
     private void _LoadQuestStatus(SQLResult result)
@@ -2792,47 +2783,51 @@ public partial class Player
 
         _storedAuraTeleportLocations.Clear();
 
-        if (!result.IsEmpty())
-            do
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            var spellId = result.Read<uint>(0);
+
+            if (!SpellManager.HasSpellInfo(spellId))
             {
-                var spellId = result.Read<uint>(0);
+                Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) does not exist");
 
-                if (!SpellManager.HasSpellInfo(spellId, Difficulty.None))
-                {
-                    Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) does not exist");
+                continue;
+            }
 
-                    continue;
-                }
+            WorldLocation location = new(result.Read<uint>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
 
-                WorldLocation location = new(result.Read<uint>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
+            if (!GridDefines.IsValidMapCoord(location))
+            {
+                Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) has invalid position on map {location.MapId}, {location}.");
 
-                if (!GridDefines.IsValidMapCoord(location))
-                {
-                    Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) has invalid position on map {location.MapId}, {location}.");
+                continue;
+            }
 
-                    continue;
-                }
+            StoredAuraTeleportLocation storedLocation = new()
+            {
+                Loc = location,
+                CurrentState = StoredAuraTeleportLocation.State.Unchanged
+            };
 
-                StoredAuraTeleportLocation storedLocation = new()
-                {
-                    Loc = location,
-                    CurrentState = StoredAuraTeleportLocation.State.Unchanged
-                };
-
-                _storedAuraTeleportLocations[spellId] = storedLocation;
-            } while (result.NextRow());
+            _storedAuraTeleportLocations[spellId] = storedLocation;
+        } while (result.NextRow());
     }
 
     private void _LoadTalents(SQLResult result)
     {
-        if (!result.IsEmpty())
-            do
-            {
-                var talent = CliDB.TalentStorage.LookupByKey(result.Read<uint>(0));
+        if (result.IsEmpty())
+            return;
 
-                if (talent != null)
-                    AddTalent(talent, result.Read<byte>(1), false);
-            } while (result.NextRow());
+        do
+        {
+            var talent = CliDB.TalentStorage.LookupByKey(result.Read<uint>(0));
+
+            if (talent != null)
+                AddTalent(talent, result.Read<byte>(1), false);
+        } while (result.NextRow());
     }
 
     private void _LoadTraits(SQLResult configsResult, SQLResult entriesResult)
@@ -2886,9 +2881,6 @@ public partial class Player
                     case TraitConfigType.Generic:
                         traitConfig.TraitSystemID = configsResult.Read<int>(6);
 
-                        break;
-
-                    default:
                         break;
                 }
 
@@ -2964,9 +2956,6 @@ public partial class Player
                     if (!HasSkill((uint)(int)traitConfig.SkillLineID))
                         continue;
 
-                    break;
-
-                default:
                     break;
             }
 
@@ -3148,9 +3137,6 @@ public partial class Player
                     _actionButtons.Remove(pair.Key);
 
                     break;
-
-                default:
-                    break;
             }
     }
 
@@ -3302,9 +3288,6 @@ public partial class Player
                     stmt.AddValue(7, id);
                     trans.Append(stmt);
 
-                    break;
-
-                default:
                     break;
             }
 
@@ -3516,7 +3499,7 @@ public partial class Player
             {
                 if (itemTemplate != null)
                     if (itemTemplate.HasFlag(ItemFlags.HasLoot))
-                        Global.LootItemStorage.RemoveStoredLootForContainer(item.GUID.Counter);
+                        LootItemStorage.RemoveStoredLootForContainer(item.GUID.Counter);
 
                 continue;
             }
@@ -3527,7 +3510,7 @@ public partial class Player
 
             if (itemTemplate != null)
                 if (itemTemplate.HasFlag(ItemFlags.HasLoot))
-                    Global.LootItemStorage.RemoveStoredLootForContainer(item.GUID.Counter);
+                    LootItemStorage.RemoveStoredLootForContainer(item.GUID.Counter);
         }
 
         // Updated played time for refundable items. We don't do this in Player.Update because there's simply no need for it,
@@ -3683,7 +3666,7 @@ public partial class Player
             trans = new SQLTransaction();
 
         PreparedStatement stmt;
-        var keepAbandoned = !WorldManager.CleaningFlags.HasAnyFlag(CleaningFlags.Queststatus);
+        var keepAbandoned = !WorldMgr.CleaningFlags.HasAnyFlag(CleaningFlags.Queststatus);
 
         foreach (var save in _questStatusSave)
             if (save.Value == QuestSaveType.Default)
@@ -3898,7 +3881,7 @@ public partial class Player
     private void _SaveStats(SQLTransaction trans)
     {
         // check if stat saving is enabled and if char level is high enough
-        if (GetDefaultValue("PlayerSave.Stats.MinLevel", 0) == 0 || Level < GetDefaultValue("PlayerSave.Stats.MinLevel", 0))
+        if (Configuration.GetDefaultValue("PlayerSave.Stats.MinLevel", 0) == 0 || Level < Configuration.GetDefaultValue("PlayerSave.Stats.MinLevel", 0))
             return;
 
         var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_STATS);
@@ -4015,7 +3998,7 @@ public partial class Player
 
     private void _SaveTraits(SQLTransaction trans)
     {
-        PreparedStatement stmt = null;
+        PreparedStatement stmt;
 
         foreach (var (traitConfigId, state) in _traitConfigStates)
             switch (state)
@@ -4068,9 +4051,6 @@ public partial class Player
                                 stmt.AddValue(7, traitConfig.TraitSystemID);
 
                                 break;
-
-                            default:
-                                break;
                         }
 
                         stmt.AddValue(8, traitConfig.Name);
@@ -4108,9 +4088,6 @@ public partial class Player
                     trans.Append(stmt);
 
                     break;
-
-                default:
-                    break;
             }
 
         _traitConfigStates.Clear();
@@ -4118,10 +4095,10 @@ public partial class Player
 
     private void _SaveVoidStorage(SQLTransaction trans)
     {
-        PreparedStatement stmt;
-
         for (byte i = 0; i < SharedConst.VoidStorageMaxSlot; ++i)
         {
+            PreparedStatement stmt;
+
             if (_voidStorageItems[i] == null) // unused item
             {
                 // DELETE FROM void_storage WHERE slot = ? AND playerGuid = ?
@@ -4146,7 +4123,7 @@ public partial class Player
                 StringBuilder bonusListIDs = new();
 
                 foreach (var bonusListID in _voidStorageItems[i].BonusListIDs)
-                    bonusListIDs.AppendFormat("{0} ", bonusListID);
+                    bonusListIDs.Append($"{bonusListID} ");
 
                 stmt.AddValue(9, bonusListIDs.ToString());
             }

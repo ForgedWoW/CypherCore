@@ -16,6 +16,7 @@ using Forged.MapServer.Networking.Packets.Movement;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
+using Framework.Util;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -31,7 +32,7 @@ public partial class Player
     }
 
     public Difficulty RaidDifficultyId { get; set; }
-    public static Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
+    public Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
     {
         var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
 
@@ -44,7 +45,7 @@ public partial class Player
         return difficulty;
     }
 
-    public static Difficulty CheckLoadedLegacyRaidDifficultyId(Difficulty difficulty)
+    public Difficulty CheckLoadedLegacyRaidDifficultyId(Difficulty difficulty)
     {
         var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
 
@@ -57,7 +58,7 @@ public partial class Player
         return difficulty;
     }
 
-    public static Difficulty CheckLoadedRaidDifficultyId(Difficulty difficulty)
+    public Difficulty CheckLoadedRaidDifficultyId(Difficulty difficulty)
     {
         var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
 
@@ -78,7 +79,7 @@ public partial class Player
 
     public bool CheckInstanceCount(uint instanceId)
     {
-        if (_instanceResetTimes.Count < GetDefaultValue("AccountInstancesPerHour", 5))
+        if (_instanceResetTimes.Count < Configuration.GetDefaultValue("AccountInstancesPerHour", 5))
             return true;
 
         return _instanceResetTimes.ContainsKey(instanceId);
@@ -100,7 +101,7 @@ public partial class Player
         var group = Group;
 
         // raid instances require the player to be in a raid group to be valid
-        if (map.IsRaid && !GetDefaultValue("Instance.IgnoreRaid", false) && (map.Entry.Expansion() >= (Expansion)GetDefaultValue("Expansion", (int)Expansion.Dragonflight)))
+        if (map.IsRaid && !Configuration.GetDefaultValue("Instance.IgnoreRaid", false) && (map.Entry.Expansion() >= (Expansion)Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)))
             if (group == null || group.IsRaidGroup)
                 return false;
 
@@ -160,7 +161,7 @@ public partial class Player
         if (dungeonEncounter == null)
             return false;
 
-        var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GUID, new MapDb2Entries(Location.Map.Entry, Location.Map.MapDifficulty));
+        var instanceLock = InstanceLockManager.FindActiveInstanceLock(GUID, new MapDb2Entries(Location.Map.Entry, Location.Map.MapDifficulty));
 
         if (instanceLock == null)
             return false;
@@ -258,22 +259,21 @@ public partial class Player
             var targetDifficulty = GetDifficultyId(mapEntry);
             var mapDiff = DB2Manager.GetDownscaledMapDifficultyData(targetMap, ref targetDifficulty);
 
-            if (!GetDefaultValue("Instance.IgnoreLevel", false))
+            if (!Configuration.GetDefaultValue("Instance.IgnoreLevel", false))
             {
                 var mapDifficultyConditions = DB2Manager.GetMapDifficultyConditions(mapDiff.Id);
 
-                foreach (var pair in mapDifficultyConditions)
-                    if (!ConditionManager.IsPlayerMeetingCondition(this, pair.Item2))
-                    {
-                        failedMapDifficultyXCondition = pair.Item1;
+                foreach (var pair in mapDifficultyConditions.Where(pair => !ConditionManager.IsPlayerMeetingCondition(this, pair.Item2)))
+                {
+                    failedMapDifficultyXCondition = pair.Item1;
 
-                        break;
-                    }
+                    break;
+                }
             }
 
             if (ar != null)
             {
-                if (!GetDefaultValue("Instance.IgnoreLevel", false))
+                if (!Configuration.GetDefaultValue("Instance.IgnoreLevel", false))
                 {
                     if (ar.LevelMin != 0 && Level < ar.LevelMin)
                         levelMin = ar.LevelMin;
@@ -302,7 +302,7 @@ public partial class Player
                 var leaderGuid = Group?.LeaderGUID ?? GUID;
 
                 if (leaderGuid != GUID)
-                    leader = Global.ObjAccessor.FindPlayer(leaderGuid);
+                    leader = ObjectAccessor.FindPlayer(leaderGuid);
 
                 if (ar.Achievement != 0)
                     if (leader == null || !leader.HasAchieved(ar.Achievement))
@@ -320,7 +320,7 @@ public partial class Player
                     {
                         SendSysMessage("{0}", ar.QuestFailedText);
                     }
-                    else if (!mapDiff.Message[WorldManager.DefaultDbcLocale].IsEmpty() && mapDiff.Message[WorldManager.DefaultDbcLocale][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
+                    else if (!mapDiff.Message[WorldMgr.DefaultDbcLocale].IsEmpty() && mapDiff.Message[WorldMgr.DefaultDbcLocale][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
                     {
                         if (abortParams != null)
                         {
@@ -382,7 +382,7 @@ public partial class Player
     {
         var now = GameTime.SystemTime;
 
-        var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(GUID);
+        var instanceLocks = InstanceLockManager.GetInstanceLocksForPlayer(GUID);
 
         InstanceInfoPkt instanceInfo = new();
 
@@ -471,7 +471,7 @@ public partial class Player
         }
         else if (overrideZonePvpType == ZonePVPTypeOverride.None)
         {
-            if (InBattleground || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && WorldManager.GetValue(area.PvpCombatWorldStateID, Location.Map) != 0))
+            if (InBattleground || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && WorldStateManager.GetValue(area.PvpCombatWorldStateID, Location.Map) != 0))
             {
                 PvpInfo.IsInHostileArea = true;
             }
@@ -490,7 +490,7 @@ public partial class Player
                     else if (factionTemplate.EnemyGroup.HasAnyFlag(area.FactionGroupMask))
                         PvpInfo.IsInHostileArea = true;
                     else
-                        PvpInfo.IsInHostileArea = WorldManager.IsPvPRealm;
+                        PvpInfo.IsInHostileArea = WorldMgr.IsPvPRealm;
                 }
             }
         }
@@ -552,7 +552,7 @@ public partial class Player
         if (zone == null)
             return;
 
-        if (GetDefaultValue("ActivateWeather", true))
+        if (Configuration.GetDefaultValue("ActivateWeather", true))
             Location.Map.GetOrGenerateZoneDefaultWeather(newZone);
 
         Location.Map.SendZoneDynamicInfo(newZone, this);

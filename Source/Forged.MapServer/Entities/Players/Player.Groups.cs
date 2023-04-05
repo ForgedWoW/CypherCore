@@ -5,44 +5,12 @@ using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Groups;
 using Framework.Constants;
+using Framework.Util;
 
 namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-    public PlayerGroup Group => GroupRef.Target;
-    public PlayerGroup GroupInvite { get; set; }
-    public GroupReference GroupRef { get; } = new();
-    public GroupUpdateFlags GroupUpdateFlag { get; private set; }
-    public bool InRandomLfgDungeon
-    {
-        get
-        {
-            if (Global.LFGMgr.SelectedRandomLfgDungeon(GUID))
-            {
-                var map = Location.Map;
-
-                return Global.LFGMgr.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
-            }
-
-            return false;
-        }
-    }
-
-    public bool IsUsingLfg => Global.LFGMgr.GetState(GUID) != LfgState.None;
-    public PlayerGroup OriginalGroup => OriginalGroupRef.Target;
-    public GroupReference OriginalGroupRef { get; } = new();
-    public byte OriginalSubGroup => OriginalGroupRef.SubGroup;
-    public bool PassOnGroupLoot { get; set; }
-    public byte SubGroup => GroupRef.SubGroup;
-    public static void RemoveFromGroup(PlayerGroup group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
-    {
-        if (!group)
-            return;
-
-        group.RemoveMember(guid, method, kicker, reason);
-    }
-
     public PartyResult CanUninviteFromGroup(ObjectGuid guidMember = default)
     {
         var grp = Group;
@@ -54,12 +22,12 @@ public partial class Player
         {
             var gguid = grp.GUID;
 
-            if (Global.LFGMgr.GetKicksLeft(gguid) == 0)
+            if (LFGManager.GetKicksLeft(gguid) == 0)
                 return PartyResult.PartyLfgBootLimit;
 
-            var state = Global.LFGMgr.GetState(gguid);
+            var state = LFGManager.GetState(gguid);
 
-            if (Global.LFGMgr.IsVoteKickActive(gguid))
+            if (LFGManager.IsVoteKickActive(gguid))
                 return PartyResult.PartyLfgBootInProgress;
 
             if (grp.MembersCount <= SharedConst.LFGKickVotesNeeded)
@@ -68,7 +36,7 @@ public partial class Player
             if (state == LfgState.FinishedDungeon)
                 return PartyResult.PartyLfgBootDungeonComplete;
 
-            var player = Global.ObjAccessor.FindConnectedPlayer(guidMember);
+            var player = ObjectAccessor.FindConnectedPlayer(guidMember);
 
             if (!player._lootRolls.Empty())
                 return PartyResult.PartyLfgBootLootRolls;
@@ -111,12 +79,12 @@ public partial class Player
         if (player.Location.Map.IsDungeon)
             return true;
 
-        return pRewardSource.Location.GetDistance(player) <= GetDefaultValue("MaxGroupXPDistance", 74.0f);
+        return pRewardSource.Location.GetDistance(player) <= Configuration.GetDefaultValue("MaxGroupXPDistance", 74.0f);
     }
 
     public bool IsGroupVisibleFor(Player p)
     {
-        switch (GetDefaultValue("Visibility.GroupMode", 1))
+        switch (Configuration.GetDefaultValue("Visibility.GroupMode", 1))
         {
             default:
                 return IsInSameGroupWith(p);
@@ -139,11 +107,10 @@ public partial class Player
 
         var originalGroup = OriginalGroup;
 
-        if (originalGroup != null)
-            if (originalGroup.GUID == groupGuid)
-                return true;
+        if (originalGroup == null)
+            return false;
 
-        return false;
+        return originalGroup.GUID == groupGuid;
     }
 
     public bool IsInSameGroupWith(Player p)
@@ -181,7 +148,7 @@ public partial class Player
 
     public void RemoveFromGroup(RemoveMethod method = RemoveMethod.Default)
     {
-        RemoveFromGroup(Group, GUID, method);
+        PlayerComputators.RemoveFromGroup(Group, GUID, method);
     }
 
     public void RemoveGroupUpdateFlag(GroupUpdateFlags flag)
@@ -194,13 +161,13 @@ public partial class Player
         var category = group.GroupCategory;
 
         // Rejoining the last group should not reset the sequence
-        if (_groupUpdateSequences[(int)category].GroupGuid != group.GUID)
-        {
-            GroupUpdateCounter groupUpdate;
-            groupUpdate.GroupGuid = group.GUID;
-            groupUpdate.UpdateSequenceNumber = 1;
-            _groupUpdateSequences[(int)category] = groupUpdate;
-        }
+        if (_groupUpdateSequences[(int)category].GroupGuid == group.GUID)
+            return;
+
+        GroupUpdateCounter groupUpdate;
+        groupUpdate.GroupGuid = group.GUID;
+        groupUpdate.UpdateSequenceNumber = 1;
+        _groupUpdateSequences[(int)category] = groupUpdate;
     }
 
     public void SetBattlegroundOrBattlefieldRaid(PlayerGroup group, byte subgroup)
