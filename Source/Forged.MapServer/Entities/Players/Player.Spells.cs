@@ -587,7 +587,7 @@ public partial class Player
                 if (pair.Value.State == PlayerSpellState.Removed || pair.Value.Disabled)
                     continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key, Difficulty.None);
+                var spellInfo = SpellManager.GetSpellInfo(pair.Key, Difficulty.None);
 
                 if (spellInfo == null || !spellInfo.IsPassive || spellInfo.EquippedItemClass < 0)
                     continue;
@@ -773,7 +773,7 @@ public partial class Player
                     if (effectData.TriggerType != ItemSpelltriggerType.OnProc)
                         continue;
 
-                    var spellInfo = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
+                    var spellInfo = SpellManager.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
 
                     if (spellInfo == null)
                     {
@@ -812,7 +812,7 @@ public partial class Player
                 if (pEnchant.Effect[s] != ItemEnchantmentType.CombatSpell)
                     continue;
 
-                var entry = Global.SpellMgr.GetSpellEnchantProcEvent(enchantID);
+                var entry = SpellManager.GetSpellEnchantProcEvent(enchantID);
 
                 if (entry != null && entry.HitMask != 0)
                 {
@@ -831,7 +831,7 @@ public partial class Player
                 if (entry != null && entry.AttributesMask.HasAnyFlag(EnchantProcAttributes.WhiteHit) && damageInfo.SpellInfo != null)
                     continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
+                var spellInfo = SpellManager.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
 
                 if (spellInfo == null)
                 {
@@ -904,7 +904,7 @@ public partial class Player
                 if (effectData.TriggerType != ItemSpelltriggerType.OnUse)
                     continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
+                var spellInfo = SpellManager.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
 
                 if (spellInfo == null)
                 {
@@ -946,7 +946,7 @@ public partial class Player
                 if (pEnchant.Effect[s] != ItemEnchantmentType.UseSpell)
                     continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
+                var spellInfo = SpellManager.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
 
                 if (spellInfo == null)
                 {
@@ -1016,7 +1016,7 @@ public partial class Player
         if (!overrides.Empty())
             foreach (var spellId in overrides)
             {
-                var newInfo = Global.SpellMgr.GetSpellInfo(spellId, Location.Map.DifficultyID);
+                var newInfo = SpellManager.GetSpellInfo(spellId, Location.Map.DifficultyID);
 
                 if (newInfo != null)
                     return GetCastSpellInfo(newInfo);
@@ -1547,7 +1547,7 @@ public partial class Player
     {
         var skillId = (SkillType)rcInfo.SkillID;
 
-        switch (Global.SpellMgr.GetSkillRangeType(rcInfo))
+        switch (SpellManager.GetSkillRangeType(rcInfo))
         {
             case SkillRangeType.Language:
                 SetSkill(skillId, 0, 300, 300);
@@ -1622,7 +1622,7 @@ public partial class Player
             if (ability.SkillLine != skillId)
                 continue;
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(ability.Spell, Difficulty.None);
+            var spellInfo = SpellManager.GetSpellInfo(ability.Spell, Difficulty.None);
 
             if (spellInfo == null)
                 continue;
@@ -1679,7 +1679,7 @@ public partial class Player
             for (var j = 0; j < specSpells.Count; ++j)
             {
                 var specSpell = specSpells[j];
-                var spellInfo = Global.SpellMgr.GetSpellInfo(specSpell.SpellID, Difficulty.None);
+                var spellInfo = SpellManager.GetSpellInfo(specSpell.SpellID, Difficulty.None);
 
                 if (spellInfo == null || spellInfo.SpellLevel > Level)
                     continue;
@@ -1726,7 +1726,7 @@ public partial class Player
         // learn all disabled higher ranks and required spells (recursive)
         if (disabled)
         {
-            var nextSpell = Global.SpellMgr.GetNextSpellInChain(spellId);
+            var nextSpell = SpellManager.GetNextSpellInChain(spellId);
 
             if (nextSpell != 0)
             {
@@ -1736,7 +1736,7 @@ public partial class Player
                     LearnSpell(nextSpell, false, fromSkill);
             }
 
-            var spellsRequiringSpell = Global.SpellMgr.GetSpellsRequiringSpellBounds(spellId);
+            var spellsRequiringSpell = SpellManager.GetSpellsRequiringSpellBounds(spellId);
 
             foreach (var id in spellsRequiringSpell)
             {
@@ -1834,7 +1834,7 @@ public partial class Player
                 if (enchantDuration.Item && enchantDuration.Item.GetEnchantmentId(slot) != 0)
                 {
                     // Poisons and DK runes are enchants which are allowed on arenas
-                    if (Global.SpellMgr.IsArenaAllowedEnchancment(enchantDuration.Item.GetEnchantmentId(slot)))
+                    if (SpellManager.IsArenaAllowedEnchancment(enchantDuration.Item.GetEnchantmentId(slot)))
                         continue;
 
                     // remove from stats
@@ -1857,7 +1857,7 @@ public partial class Player
         {
             var pItem = GetItemByPos(InventorySlots.Bag0, i);
 
-            if (pItem && !Global.SpellMgr.IsArenaAllowedEnchancment(pItem.GetEnchantmentId(slot)))
+            if (pItem && !SpellManager.IsArenaAllowedEnchancment(pItem.GetEnchantmentId(slot)))
                 pItem.ClearEnchantment(slot);
         }
 
@@ -1871,7 +1871,7 @@ public partial class Player
                 {
                     var pItem = pBag.GetItemByPos(j);
 
-                    if (pItem && !Global.SpellMgr.IsArenaAllowedEnchancment(pItem.GetEnchantmentId(slot)))
+                    if (pItem && !SpellManager.IsArenaAllowedEnchancment(pItem.GetEnchantmentId(slot)))
                         pItem.ClearEnchantment(slot);
                 }
         }
@@ -1883,7 +1883,7 @@ public partial class Player
         SpellHistory
             .ResetCooldowns(p =>
                             {
-                                var spellInfo = Global.SpellMgr.GetSpellInfo(p.Key, Difficulty.None);
+                                var spellInfo = SpellManager.GetSpellInfo(p.Key, Difficulty.None);
 
                                 return spellInfo.RecoveryTime < 10 * Time.MINUTE * Time.IN_MILLISECONDS && spellInfo.CategoryRecoveryTime < 10 * Time.MINUTE * Time.IN_MILLISECONDS && !spellInfo.HasAttribute(SpellAttr6.DoNotResetCooldownInArena);
                             },
@@ -1920,18 +1920,18 @@ public partial class Player
             return;
 
         // unlearn non talent higher ranks (recursive)
-        var nextSpell = Global.SpellMgr.GetNextSpellInChain(spellId);
+        var nextSpell = SpellManager.GetNextSpellInChain(spellId);
 
         if (nextSpell != 0)
         {
-            var spellInfo1 = Global.SpellMgr.GetSpellInfo(nextSpell, Difficulty.None);
+            var spellInfo1 = SpellManager.GetSpellInfo(nextSpell, Difficulty.None);
 
             if (HasSpell(nextSpell) && !spellInfo1.HasAttribute(SpellCustomAttributes.IsTalent))
                 RemoveSpell(nextSpell, disabled, false);
         }
 
         //unlearn spells dependent from recently removed spells
-        var spellsRequiringSpell = Global.SpellMgr.GetSpellsRequiringSpellBounds(spellId);
+        var spellsRequiringSpell = SpellManager.GetSpellsRequiringSpellBounds(spellId);
 
         foreach (var id in spellsRequiringSpell)
             RemoveSpell(id, disabled);
@@ -1963,11 +1963,11 @@ public partial class Player
         RemoveOwnedAura(spellId, GUID);
 
         // remove pet auras
-        foreach (var petAur in Global.SpellMgr.GetPetAuras(spellId)?.Values)
+        foreach (var petAur in SpellManager.GetPetAuras(spellId)?.Values)
             RemovePetAura(petAur);
 
         // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(spellId, Difficulty.None);
 
         if (spellInfo != null && spellInfo.IsPrimaryProfessionFirstRank)
         {
@@ -1978,11 +1978,11 @@ public partial class Player
         }
 
         // remove dependent skill
-        var spellLearnSkill = Global.SpellMgr.GetSpellLearnSkill(spellId);
+        var spellLearnSkill = SpellManager.GetSpellLearnSkill(spellId);
 
         if (spellLearnSkill != null)
         {
-            var prevSpell = Global.SpellMgr.GetPrevSpellInChain(spellId);
+            var prevSpell = SpellManager.GetPrevSpellInChain(spellId);
 
             if (prevSpell == 0) // first rank, remove skill
             {
@@ -1991,12 +1991,12 @@ public partial class Player
             else
             {
                 // search prev. skill setting by spell ranks chain
-                var prevSkill = Global.SpellMgr.GetSpellLearnSkill(prevSpell);
+                var prevSkill = SpellManager.GetSpellLearnSkill(prevSpell);
 
                 while (prevSkill == null && prevSpell != 0)
                 {
-                    prevSpell = Global.SpellMgr.GetPrevSpellInChain(prevSpell);
-                    prevSkill = Global.SpellMgr.GetSpellLearnSkill(Global.SpellMgr.GetFirstSpellInChain(prevSpell));
+                    prevSpell = SpellManager.GetPrevSpellInChain(prevSpell);
+                    prevSkill = SpellManager.GetSpellLearnSkill(SpellManager.GetFirstSpellInChain(prevSpell));
                 }
 
                 if (prevSkill == null) // not found prev skill setting, remove skill
@@ -2022,7 +2022,7 @@ public partial class Player
         }
 
         // remove dependent spells
-        var spellBounds = Global.SpellMgr.GetSpellLearnSpellMapBounds(spellId);
+        var spellBounds = SpellManager.GetSpellLearnSpellMapBounds(spellId);
 
         foreach (var spellNode in spellBounds)
         {
@@ -2035,7 +2035,7 @@ public partial class Player
         // activate lesser rank in spellbook/action bar, and cast it if need
         var prevActivate = false;
 
-        var prevID = Global.SpellMgr.GetPrevSpellInChain(spellId);
+        var prevID = SpellManager.GetPrevSpellInChain(spellId);
 
         if (prevID != 0)
             // if ranked non-stackable spell: need activate lesser rank and update dendence state
@@ -2136,7 +2136,7 @@ public partial class Player
 
             foreach (var spellId in smap.Keys)
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+                var spellInfo = SpellManager.GetSpellInfo(spellId, Difficulty.None);
 
                 if (spellInfo == null)
                     continue;
@@ -2154,7 +2154,7 @@ public partial class Player
                     continue;
 
                 // skip broken spells
-                if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
+                if (!SpellManager.IsSpellValid(spellInfo, this, false))
                     continue;
             }
         }
@@ -2384,7 +2384,7 @@ public partial class Player
                 var skillLineAbilities = DB2Manager.GetSkillLineAbilitiesBySkill(id);
 
                 foreach (var skillLineAbility in skillLineAbilities)
-                    RemoveSpell(Global.SpellMgr.GetFirstSpellInChain(skillLineAbility.Spell));
+                    RemoveSpell(SpellManager.GetFirstSpellInChain(skillLineAbility.Spell));
 
                 var childSkillLines = DB2Manager.GetSkillLinesForParentSkill(id);
 
@@ -2588,7 +2588,7 @@ public partial class Player
                          (pair) => RemoveOwnedAura(pair.SpellInfo.Id, pair));
 
         // some auras applied at subzone enter
-        var saBounds = Global.SpellMgr.GetSpellAreaForAreaMapBounds(newArea);
+        var saBounds = SpellManager.GetSpellAreaForAreaMapBounds(newArea);
 
         foreach (var spell in saBounds)
             if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoCast) && spell.IsFitToRequirements(this, _zoneUpdateId, newArea))
@@ -2603,7 +2603,7 @@ public partial class Player
 
         Log.Logger.Debug("UpdateCraftSkill spellid {0}", spellInfo.Id);
 
-        var bounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(spellInfo.Id);
+        var bounds = SpellManager.GetSkillLineAbilityMapBounds(spellInfo.Id);
 
         foreach (var spellIdx in bounds)
             if (spellIdx.SkillupSkillLineID != 0)
@@ -2765,7 +2765,7 @@ public partial class Player
                 for (byte idx = 0; idx < proto.Effects.Count; ++idx)
                     if (proto.Effects[idx].SpellID != 0 && proto.Effects[idx].TriggerType == ItemSpelltriggerType.OnUse)
                     {
-                        var spellInfo = Global.SpellMgr.GetSpellInfo((uint)proto.Effects[idx].SpellID, Difficulty.None);
+                        var spellInfo = SpellManager.GetSpellInfo((uint)proto.Effects[idx].SpellID, Difficulty.None);
 
                         if (spellInfo != null)
                             SpellHistory.SendCooldownEvent(spellInfo, _lastPotionId);
@@ -2872,7 +2872,7 @@ public partial class Player
             if (rcEntry == null)
                 continue;
 
-            if (Global.SpellMgr.GetSkillRangeType(rcEntry) == SkillRangeType.Level)
+            if (SpellManager.GetSkillRangeType(rcEntry) == SkillRangeType.Level)
             {
                 if (rcEntry.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
                     SetSkillRank(pair.Value.Pos, maxSkill);
@@ -2898,7 +2898,7 @@ public partial class Player
     public void UpdateZoneDependentAuras(uint newZone)
     {
         // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone.area update
-        var saBounds = Global.SpellMgr.GetSpellAreaForAreaMapBounds(newZone);
+        var saBounds = SpellManager.GetSpellAreaForAreaMapBounds(newZone);
 
         foreach (var spell in saBounds)
             if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoCast) && spell.IsFitToRequirements(this, newZone, 0))
@@ -2954,7 +2954,7 @@ public partial class Player
 
     private bool AddSpell(uint spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, uint fromSkill = 0, bool favorite = false, int? traitDefinitionId = null)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(spellId, Difficulty.None);
 
         if (spellInfo == null)
         {
@@ -2973,7 +2973,7 @@ public partial class Player
             return false;
         }
 
-        if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
+        if (!SpellManager.IsSpellValid(spellInfo, this, false))
         {
             // do character spell book cleanup (all characters)
             if (!Location.IsInWorld && !learning)
@@ -3008,7 +3008,7 @@ public partial class Player
             // fix activate state for non-stackable low rank (and find next spell for !active case)
             if (spellInfo.IsRanked)
             {
-                var next = Global.SpellMgr.GetNextSpellInChain(spellId);
+                var next = SpellManager.GetNextSpellInChain(spellId);
 
                 if (next != 0)
                     if (HasSpell(next))
@@ -3130,7 +3130,7 @@ public partial class Player
         if (!disabledCase) // skip new spell adding if spell already known (disabled spells case)
         {
             // non talent spell: learn low ranks (recursive call)
-            var prevSpell = Global.SpellMgr.GetPrevSpellInChain(spellId);
+            var prevSpell = SpellManager.GetPrevSpellInChain(spellId);
 
             if (prevSpell != 0)
             {
@@ -3159,7 +3159,7 @@ public partial class Player
                     if (spell.Value.State == PlayerSpellState.Removed)
                         continue;
 
-                    var iSpellInfo = Global.SpellMgr.GetSpellInfo(spell.Key, Difficulty.None);
+                    var iSpellInfo = SpellManager.GetSpellInfo(spell.Key, Difficulty.None);
 
                     if (iSpellInfo == null)
                         continue;
@@ -3275,9 +3275,9 @@ public partial class Player
             if (spellInfo.IsPrimaryProfessionFirstRank)
                 SetFreePrimaryProfessions(freeProfs - 1);
 
-        var skillBounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(spellId);
+        var skillBounds = SpellManager.GetSkillLineAbilityMapBounds(spellId);
 
-        var spellLearnSkill = Global.SpellMgr.GetSpellLearnSkill(spellId);
+        var spellLearnSkill = SpellManager.GetSpellLearnSkill(spellId);
 
         if (spellLearnSkill != null)
         {
@@ -3323,7 +3323,7 @@ public partial class Player
         }
 
         // learn dependent spells
-        var spellBounds = Global.SpellMgr.GetSpellLearnSpellMapBounds(spellId);
+        var spellBounds = SpellManager.GetSpellLearnSpellMapBounds(spellId);
 
         foreach (var spellNode in spellBounds)
         {
@@ -3976,7 +3976,7 @@ public partial class Player
 
             foreach (var itemSetSpell in eff.SetBonuses)
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(itemSetSpell.SpellID, Difficulty.None);
+                var spellInfo = SpellManager.GetSpellInfo(itemSetSpell.SpellID, Difficulty.None);
 
                 if (itemSetSpell.ChrSpecID != 0 && itemSetSpell.ChrSpecID != GetPrimarySpecialization())
                 {

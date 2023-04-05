@@ -68,7 +68,7 @@ public partial class Player
             if (talentInfo.SpellID == 0)
                 continue;
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+            var spellInfo = SpellManager.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
 
             if (spellInfo == null)
                 continue;
@@ -86,7 +86,7 @@ public partial class Player
 
         foreach (var talentInfo in CliDB.PvpTalentStorage.Values)
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+            var spellInfo = SpellManager.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
 
             if (spellInfo == null)
                 continue;
@@ -236,7 +236,7 @@ public partial class Player
 
     public bool AddTalent(TalentRecord talent, byte spec, bool learning)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID, Difficulty.None);
 
         if (spellInfo == null)
         {
@@ -245,7 +245,7 @@ public partial class Player
             return false;
         }
 
-        if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
+        if (!SpellManager.IsSpellValid(spellInfo, this, false))
         {
             Log.Logger.Error("Player.AddTalent: Spell (ID: {0}) is invalid", talent.SpellID);
 
@@ -605,7 +605,7 @@ public partial class Player
 
     public void RemoveTalent(TalentRecord talent)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID, Difficulty.None);
 
         if (spellInfo == null)
             return;
@@ -772,7 +772,7 @@ public partial class Player
                     continue;
                 }
 
-                var spellEntry = Global.SpellMgr.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+                var spellEntry = SpellManager.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
 
                 if (spellEntry == null)
                 {
@@ -798,7 +798,7 @@ public partial class Player
                     continue;
                 }
 
-                var spellEntry = Global.SpellMgr.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+                var spellEntry = SpellManager.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
 
                 if (spellEntry == null)
                 {
@@ -985,7 +985,7 @@ public partial class Player
     private bool AddPvpTalent(PvpTalentRecord talent, byte activeTalentGroup, byte slot)
     {
         //ASSERT(talent);
-        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID, Difficulty.None);
 
         if (spellInfo == null)
         {
@@ -994,7 +994,7 @@ public partial class Player
             return false;
         }
 
-        if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
+        if (!SpellManager.IsSpellValid(spellInfo, this, false))
         {
             Log.Logger.Error($"Player.AddPvpTalent: Spell (ID: {talent.SpellID}) is invalid");
 
@@ -1210,7 +1210,7 @@ public partial class Player
     }
     private void RemovePvpTalent(PvpTalentRecord talent, byte activeTalentGroup)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(talent.SpellID, Difficulty.None);
 
         if (spellInfo == null)
             return;

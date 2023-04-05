@@ -140,7 +140,7 @@ public partial class Player
 
         if (quest.SourceSpellID > 0)
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(quest.SourceSpellID, Location.Map.DifficultyID);
+            var spellInfo = SpellManager.GetSpellInfo(quest.SourceSpellID, Location.Map.DifficultyID);
             Unit caster = this;
 
             if (questGiver != null && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnAccept) && !spellInfo.HasTargetType(Targets.UnitCaster) && !spellInfo.HasTargetType(Targets.DestCasterSummon))
@@ -1497,7 +1497,7 @@ public partial class Player
             return;
         }
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo((uint)spellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo((uint)spellID, Difficulty.None);
 
         if (spellInfo == null)
             return;
@@ -1523,7 +1523,7 @@ public partial class Player
         if (!HasSpell(learned0))
         {
             found = false;
-            var skills = Global.SpellMgr.GetSkillLineAbilityMapBounds(learned0);
+            var skills = SpellManager.GetSkillLineAbilityMapBounds(learned0);
 
             foreach (var skillLine in skills)
                 if (skillLine.AcquireMethod == AbilityLearnType.RewardedFromQuest)
@@ -1946,7 +1946,7 @@ public partial class Player
         // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
         if (quest.RewardSpell > 0)
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, Location.Map.DifficultyID);
+            var spellInfo = SpellManager.GetSpellInfo(quest.RewardSpell, Location.Map.DifficultyID);
             Unit caster = this;
 
             if (questGiver != null && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnComplete) && !spellInfo.HasTargetType(Targets.UnitCaster))
@@ -1969,7 +1969,7 @@ public partial class Player
                     if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                         continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(displaySpell.SpellId, Location.Map.DifficultyID);
+                var spellInfo = SpellManager.GetSpellInfo(displaySpell.SpellId, Location.Map.DifficultyID);
                 Unit caster = this;
 
                 if (questGiver && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnComplete) && !spellInfo.HasTargetType(Targets.UnitCaster))
@@ -3311,7 +3311,7 @@ public partial class Player
 
     private bool SendQuestUpdate(uint questId, bool updateVisiblity = true)
     {
-        var saBounds = Global.SpellMgr.GetSpellAreaForQuestMapBounds(questId);
+        var saBounds = SpellManager.GetSpellAreaForQuestMapBounds(questId);
 
         if (!saBounds.Empty())
         {

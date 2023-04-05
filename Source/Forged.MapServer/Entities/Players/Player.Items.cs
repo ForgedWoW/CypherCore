@@ -557,7 +557,7 @@ public partial class Player
 
     public void ApplyArtifactPowerRank(Item artifact, ArtifactPowerRankRecord artifactPowerRank, bool apply)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(artifactPowerRank.SpellID, Difficulty.None);
+        var spellInfo = SpellManager.GetSpellInfo(artifactPowerRank.SpellID, Difficulty.None);
 
         if (spellInfo == null)
             return;
@@ -3110,7 +3110,7 @@ public partial class Player
                 if (pProto != null && IsInCombat && (pProto.Class == ItemClass.Weapon || pProto.InventoryType == InventoryType.Relic) && _weaponChangeTimer == 0)
                 {
                     var cooldownSpell = (uint)(Class == PlayerClass.Rogue ? 6123 : 6119);
-                    var spellProto = Global.SpellMgr.GetSpellInfo(cooldownSpell, Difficulty.None);
+                    var spellProto = SpellManager.GetSpellInfo(cooldownSpell, Difficulty.None);
 
                     if (spellProto == null)
                     {
@@ -6098,7 +6098,7 @@ public partial class Player
 
     private void ApplyAzeriteEssencePower(AzeriteItem item, AzeriteEssencePowerRecord azeriteEssencePower, bool major, bool apply)
     {
-        var powerSpell = Global.SpellMgr.GetSpellInfo(azeriteEssencePower.MinorPowerDescription, Difficulty.None);
+        var powerSpell = SpellManager.GetSpellInfo(azeriteEssencePower.MinorPowerDescription, Difficulty.None);
 
         if (powerSpell != null)
         {
@@ -6110,7 +6110,7 @@ public partial class Player
 
         if (major)
         {
-            powerSpell = Global.SpellMgr.GetSpellInfo(azeriteEssencePower.MajorPowerDescription, Difficulty.None);
+            powerSpell = SpellManager.GetSpellInfo(azeriteEssencePower.MajorPowerDescription, Difficulty.None);
 
             if (powerSpell != null)
             {
@@ -6179,7 +6179,7 @@ public partial class Player
 
         foreach (var effectData in pItem.Effects)
         {
-            var effectSpellInfo = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
+            var effectSpellInfo = SpellManager.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
 
             if (effectSpellInfo == null)
                 continue;
@@ -6187,7 +6187,7 @@ public partial class Player
             // apply proc cooldown to equip auras if we have any
             if (effectData.TriggerType == ItemSpelltriggerType.OnEquip)
             {
-                var procEntry = Global.SpellMgr.GetSpellProcEntry(effectSpellInfo);
+                var procEntry = SpellManager.GetSpellProcEntry(effectSpellInfo);
 
                 if (procEntry == null)
                     continue;
@@ -6237,7 +6237,7 @@ public partial class Player
                 continue;
 
             // check if it is valid spell
-            var spellproto = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
+            var spellproto = SpellManager.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
 
             if (spellproto == null)
                 continue;

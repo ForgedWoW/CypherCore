@@ -1577,7 +1577,7 @@ public partial class Player
                 var castItemId = auraResult.Read<uint>(10);
                 var castItemLevel = auraResult.Read<int>(11);
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(key.SpellId, difficulty);
+                var spellInfo = SpellManager.GetSpellInfo(key.SpellId, difficulty);
 
                 if (spellInfo == null)
                 {
@@ -2672,7 +2672,7 @@ public partial class Player
                 }
 
                 // set fixed skill ranges
-                switch (Global.SpellMgr.GetSkillRangeType(rcEntry))
+                switch (SpellManager.GetSkillRangeType(rcEntry))
                 {
                     case SkillRangeType.Language:
                         value = max = 300;
@@ -2797,7 +2797,7 @@ public partial class Player
             {
                 var spellId = result.Read<uint>(0);
 
-                if (!Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
+                if (!SpellManager.HasSpellInfo(spellId, Difficulty.None))
                 {
                     Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) does not exist");
 

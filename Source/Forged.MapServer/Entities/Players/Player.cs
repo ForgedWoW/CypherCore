@@ -1907,8 +1907,7 @@ public partial class Player : Unit
 
         ObjectManager.GetPlayerClassLevelInfo(Class, level, out var basemana);
 
-        LevelUpInfo packet = new();
-
+        LevelUpInfo packet = new()
         {
             Level = level,
             HealthDelta = 0,
@@ -1918,38 +1917,36 @@ public partial class Player : Unit
                 // @todo find some better solution
                 [
 
-                0] = (int)basemana - (int)GetCreateMana(),
+                 0] = (int)basemana - (int)GetCreateMana(),
 
                 [
 
-                1] = 0,
+                 1] = 0,
 
                 [
 
-                2] = 0,
+                 2] = 0,
 
                 [
 
-                3] = 0,
+                 3] = 0,
 
                 [
 
-                4] = 0,
+                 4] = 0,
 
                 [
 
-                5] = 0,
+                 5] = 0,
 
                 [
 
-                6] = 0
+                 6] = 0
             }
-        }
+        };
 
-        f(var i = Stats.Strength;
-        i < Stats.Max;
-        ++i)
-        packet.StatDelta[(int)i] = info.Stats[(int)i] - (int)GetCreateStat(i);
+        for(var i = Stats.Strength; i < Stats.Max; ++i)
+            packet.StatDelta[(int)i] = info.Stats[(int)i] - (int)GetCreateStat(i);
 
         packet.NumNewTalents = (int)(DB2Manager.GetNumTalentsAtLevel(level, Class) - DB2Manager.GetNumTalentsAtLevel(oldLevel, Class));
         packet.NumNewPvpTalentSlots = DB2Manager.GetPvpTalentNumSlotsAtLevel(level, Class) - DB2Manager.GetPvpTalentNumSlotsAtLevel(oldLevel, Class);
@@ -2051,18 +2048,16 @@ public partial class Player : Unit
         else
             bonusXP = victim != null ? RestMgr.GetRestBonusFor(RestTypes.XP, xp) : 0; // XP resting bonus
 
-        LogXPGain packet = new();
-
+        LogXPGain packet = new()
         {
-            Victim = victim ? victim.GUID : ObjectGuid.Empty,
+            Victim = victim?.GUID ?? ObjectGuid.Empty,
             Original = (int)(xp + bonusXP),
             Reason = victim ? PlayerLogXPReason.Kill : PlayerLogXPReason.NoKill,
             Amount = (int)xp,
             GroupBonus = groupRate
-        }
+        };
 
-        p
-        dPacket(packet);
+        SendPacket(packet);
 
         var nextLvlXP = XPForNextLevel;
         var newXP = XP + xp + (uint)bonusXP;
@@ -2261,14 +2256,13 @@ public partial class Player : Unit
 
         if (playerCurrency == null)
         {
-            playerCurrency = new PlayerCurrency();
-
+            playerCurrency = new PlayerCurrency()
             {
                 State = PlayerCurrencyState.New,
                 IncreasedCapQuantity = amount
-            }
+            };
 
-            rrencyStorage[id] = playerCurrency;
+            _currencyStorage[id] = playerCurrency;
         }
         else
         {
@@ -2278,16 +2272,15 @@ public partial class Player : Unit
         if (playerCurrency.State != PlayerCurrencyState.New)
             playerCurrency.State = PlayerCurrencyState.Changed;
 
-        SetCurrency packet = new();
-
+        SetCurrency packet = new()
         {
             Type = currency.Id,
             Quantity = (int)playerCurrency.Quantity,
             Flags = CurrencyGainFlags.None
-        }
+        };
 
-        i((playerCurrency.WeeklyQuantity / currency.GetScaler()) > 0)
-        packet.WeeklyQuantity = (int)playerCurrency.WeeklyQuantity;
+        if(playerCurrency.WeeklyQuantity / currency.GetScaler() > 0)
+            packet.WeeklyQuantity = (int)playerCurrency.WeeklyQuantity;
 
         if (currency.IsTrackingQuantity())
             packet.TrackedQuantity = (int)playerCurrency.TrackedQuantity;
@@ -2714,7 +2707,7 @@ public partial class Player : Unit
         var racemask = SharedConst.GetMaskForRace(Race);
         var classmask = ClassMask;
 
-        var bounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(spellID);
+        var bounds = SpellManager.GetSkillLineAbilityMapBounds(spellID);
 
         if (bounds.Empty())
             return true;
@@ -3220,15 +3213,14 @@ public partial class Player : Unit
             {
                 var addon = ObjectManager.GetGossipMenuAddon(menuId);
 
-                GossipOptionNPCInteraction npcInteraction = new();
-
+                GossipOptionNPCInteraction npcInteraction = new()
                 {
                     GossipGUID = source.GUID,
                     GossipNpcOptionID = item.GossipNpcOptionId.Value
-                }
+                };
 
-                (addon != null && addon.FriendshipFactionId != 0)
-                npcInteraction.FriendshipFactionID = addon.FriendshipFactionId;
+                if (addon != null && addon.FriendshipFactionId != 0)
+                    npcInteraction.FriendshipFactionID = addon.FriendshipFactionId;
 
                 SendPacket(npcInteraction);
             }
@@ -3243,15 +3235,14 @@ public partial class Player : Unit
 
                 if (interactionType != PlayerInteractionType.None)
                 {
-                    NPCInteractionOpenResult npcInteraction = new();
-
+                    NPCInteractionOpenResult npcInteraction = new()
                     {
                         Npc = source.GUID,
                         InteractionType = interactionType,
                         Success = true
-                    }
+                    };
 
-                    dPacket(npcInteraction);
+                    SendPacket(npcInteraction);
                 }
             }
         }
@@ -3282,21 +3273,16 @@ public partial class Player : Unit
             return;
         }
 
-        PetSpells petSpellsPacket = new();
-
+        PetSpells petSpellsPacket = new()
         {
             PetGUID = charm.GUID
-        }
+        };
 
-        f(byte i = 0;
-        i < SharedConst.ActionBarIndexMax;
-        ++i)
-        petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).PackedData;
+        for(byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
+            petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).PackedData;
 
         // Cooldowns
-        charm.
-            // Cooldowns
-            SpellHistory.WritePacket(petSpellsPacket);
+        charm.SpellHistory.WritePacket(petSpellsPacket);
 
         SendPacket(petSpellsPacket);
     }
@@ -3600,7 +3586,7 @@ public partial class Player : Unit
         {
             //returning of reagents only for players, so best done here
             var spellId = pet ? pet.UnitData.CreatedBySpell : _oldpetspell;
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Location.Map.DifficultyID);
+            var spellInfo = SpellManager.GetSpellInfo(spellId, Location.Map.DifficultyID);
 
             if (spellInfo != null)
                 for (uint i = 0; i < SpellConst.MaxReagents; ++i)
@@ -5188,14 +5174,12 @@ public partial class Player : Unit
 
     public void SetResurrectRequestData(WorldObject caster, uint health, uint mana, uint appliedAura)
     {
-        _resurrectionData = new ResurrectionData();
-
+        _resurrectionData = new ResurrectionData()
         {
             Guid = caster.GUID
-        }
-
-        _
-        surrectionData.Location.WorldRelocate(caster.Location);
+        };
+        
+        _resurrectionData.Location.WorldRelocate(caster.Location);
         _resurrectionData.Health = health;
         _resurrectionData.Mana = mana;
         _resurrectionData.Aura = appliedAura;
@@ -5254,14 +5238,12 @@ public partial class Player : Unit
             SetUpdateFieldFlagValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.KnownTitles, fieldIndexOffset), flag);
         }
 
-        TitleEarned packet = new(lost ? ServerOpcodes.TitleLost : ServerOpcodes.TitleEarned);
-
+        TitleEarned packet = new(lost ? ServerOpcodes.TitleLost : ServerOpcodes.TitleEarned)
         {
             Index = title.MaskID
-        }
+        };
 
-        S
-        dPacket(packet);
+        SendPacket(packet);
     }
 
     public void SetTrackCreatureFlag(uint flags)
@@ -5426,17 +5408,16 @@ public partial class Player : Unit
         {
             var group = Group;
 
-            if (group != null)
+            if (group == null)
+                return;
+
+            BroadcastSummonResponse summonResponse = new()
             {
-                BroadcastSummonResponse summonResponse = new();
+                Target = GUID,
+                Accepted = accepted
+            };
 
-                {
-                    Target = GUID,
-                    Accepted = accepted
-                }
-
-                up.BroadcastPacket(summonResponse, false);
-            }
+            group.BroadcastPacket(summonResponse, false);
         }
 
         if (!agree)
@@ -5798,25 +5779,23 @@ public partial class Player : Unit
             if (!Session.PlayerLogout && !options.HasAnyFlag(TeleportToOptions.Seamless))
             {
                 // send transfer packets
-                TransferPending transferPending = new();
-
+                TransferPending transferPending = new()
                 {
                     MapID = (int)mapid,
                     OldMapPosition = Location
-                }
+                };
 
-                transport1 = (Transport)Transport;
+                var transport1 = (Transport)Transport;
 
                 if (transport1 != null)
                 {
-                    TransferPending.ShipTransferPending shipTransferPending = new();
-
+                    TransferPending.ShipTransferPending shipTransferPending = new()
                     {
                         Id = transport1.Entry,
                         OriginMapID = (int)Location.MapId
-                    }
+                    };
 
-                    nsferPending.Ship = shipTransferPending;
+                    transferPending.Ship = shipTransferPending;
                 }
 
                 SendPacket(transferPending);
@@ -5834,14 +5813,13 @@ public partial class Player : Unit
 
             if (!Session.PlayerLogout)
             {
-                SuspendToken suspendToken = new();
-
+                SuspendToken suspendToken = new()
                 {
                     SequenceIndex = MovementCounter, // not incrementing
                     Reason = options.HasAnyFlag(TeleportToOptions.Seamless) ? 2 : 1u
-                }
+                };
 
-                dPacket(suspendToken);
+                SendPacket(suspendToken);
             }
 
             // move packet sent by client always after far teleport
@@ -6452,8 +6430,7 @@ public partial class Player : Unit
         if (!vehicle)
             return;
 
-        PetSpells petSpells = new();
-
+        PetSpells petSpells = new()
         {
             PetGUID = vehicle.GUID,
             CreatureFamily = 0, // Pet Family (0 for all vehicles)
@@ -6462,17 +6439,15 @@ public partial class Player : Unit
             ReactState = vehicle.ReactState,
             CommandState = CommandStates.Follow,
             Flag = 0x8
-        }
+        };
 
-        f(uint i = 0;
-        i < SharedConst.MaxSpellControlBar;
-        ++i)
-        petSpells.ActionButtons[i] = UnitActionBarEntry.MAKE_UNIT_ACTION_BUTTON(0, i + 8);
+        for(uint i = 0; i < SharedConst.MaxSpellControlBar; ++i)
+            petSpells.ActionButtons[i] = UnitActionBarEntry.MAKE_UNIT_ACTION_BUTTON(0, i + 8);
 
         for (uint i = 0; i < SharedConst.MaxCreatureSpells; ++i)
         {
             var spellId = vehicle.Spells[i];
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Location.Map.DifficultyID);
+            var spellInfo = SpellManager.GetSpellInfo(spellId, Location.Map.DifficultyID);
 
             if (spellInfo == null)
                 continue;
@@ -6488,7 +6463,7 @@ public partial class Player : Unit
             }
 
             if (spellInfo.IsPassive)
-                vehicle.CastSpell(vehicle, spellInfo.Id, true);
+                vehicle.SpellFactory.CastSpell(vehicle, spellInfo.Id, true);
 
             petSpells.ActionButtons[i] = UnitActionBarEntry.MAKE_UNIT_ACTION_BUTTON(spellId, i + 8);
         }
@@ -6504,13 +6479,13 @@ public partial class Player : Unit
     private void ApplyCustomConfigs()
     {
         // Adds the extra bag slots for having an authenticator.
-        if (ConfigMgr.GetDefaultValue("player.enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
+        if (Configuration.GetDefaultValue("player.enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
             SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
 
-        if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
+        if (Configuration.GetDefaultValue("player.addHearthstoneToCollection", false))
             Session.CollectionMgr.AddToy(193588, true, true);
 
-        if (ConfigMgr.TryGetIfNotDefaultValue("AutoJoinChatChannel", "", out var chatChannel))
+        if (Configuration.TryGetIfNotDefaultValue("AutoJoinChatChannel", "", out var chatChannel))
         {
             var channelMgr = ChannelManagerFactory.ForTeam(Team);
 
@@ -6960,7 +6935,7 @@ public partial class Player : Unit
         switch ((ActionButtonType)type)
         {
             case ActionButtonType.Spell:
-                if (!Global.SpellMgr.HasSpellInfo((uint)action, Difficulty.None))
+                if (!SpellManager.HasSpellInfo((uint)action, Difficulty.None))
                 {
                     Log.Logger.Error($"Player::IsActionButtonDataValid: Spell action {action} not added into button {button} for player {GetName()} ({GUID}): spell not exist");
 
@@ -7451,14 +7426,13 @@ public partial class Player : Unit
 
         var visibleAuras = target.VisibleAuras;
 
-        AuraUpdate update = new();
-
+        AuraUpdate update = new()
         {
             UpdateAll = true,
             UnitGUID = target.GUID
-        }
+        };
 
-        f Each(var auraApp in visibleAuras.ToList())
+        foreach(var auraApp in visibleAuras.ToList())
         {
             AuraInfo auraInfo = new();
             auraApp.BuildUpdatePacket(ref auraInfo, false);
@@ -7488,15 +7462,14 @@ public partial class Player : Unit
         // data depends on zoneid/mapid...
         var mapid = Location.MapId;
 
-        InitWorldStates packet = new();
-
+        InitWorldStates packet = new()
         {
             MapID = mapid,
             AreaID = zoneId,
             SubareaID = areaId
-        }
+        };
 
-        G bal.WorldStateMgr.FillInitialWorldStates(packet, Location.Map, areaId);
+        WorldStateManager.FillInitialWorldStates(packet, Location.Map, areaId);
 
         SendPacket(packet);
     }
@@ -7537,17 +7510,16 @@ public partial class Player : Unit
 
     private void SetCreateCurrency(uint id, uint amount)
     {
-        if (!_currencyStorage.ContainsKey(id))
+        if (_currencyStorage.ContainsKey(id))
+            return;
+
+        PlayerCurrency playerCurrency = new()
         {
-            PlayerCurrency playerCurrency = new();
+            State = PlayerCurrencyState.New,
+            Quantity = amount
+        };
 
-            {
-                State = PlayerCurrencyState.New,
-                Quantity = amount
-            }
-
-            rrencyStorage.Add(id, playerCurrency);
-        }
+        _currencyStorage.Add(id, playerCurrency);
     }
 
     private void SetDelayedTeleportFlag(bool setting)
@@ -7810,16 +7782,12 @@ public partial class Player : Unit
 
     public void SendBuyError(BuyResult msg, Creature creature, uint item)
     {
-        BuyFailed packet = new();
-
+        SendPacket(new BuyFailed()
         {
             VendorGUID = creature ? creature.GUID : ObjectGuid.Empty,
             Muid = item,
             Reason = msg
-        }
-
-        p
-        dPacket(packet);
+        });
     }
 
     public void SendInitialVisiblePackets(Unit target)
@@ -7860,16 +7828,12 @@ public partial class Player : Unit
 
     public void SendSellError(SellResult msg, Creature creature, ObjectGuid guid)
     {
-        SellResponse sellResponse = new();
-
+        SendPacket(new SellResponse()
         {
             VendorGUID = (creature ? creature.GUID : ObjectGuid.Empty),
             ItemGUID = guid,
             Reason = msg
-        }
-
-        s
-        dPacket(sellResponse);
+        });
     }
 
     public void SendSysMessage(CypherStrings str, params object[] args)
@@ -8216,15 +8180,14 @@ public partial class Player : Unit
                     continue;
             }
 
-            SetupCurrency.Record record = new();
-
+            SetupCurrency.Record record = new()
             {
                 Type = currencyRecord.Id,
                 Quantity = currency.Quantity
-            }
+            };
 
-            ((currency.WeeklyQuantity / currencyRecord.GetScaler()) > 0)
-            record.WeeklyQuantity = currency.WeeklyQuantity;
+            if (currency.WeeklyQuantity / currencyRecord.GetScaler() > 0)
+                record.WeeklyQuantity = currency.WeeklyQuantity;
 
             if (currencyRecord.HasMaxEarnablePerWeek())
                 record.MaxWeeklyQuantity = GetCurrencyWeeklyCap(currencyRecord);
