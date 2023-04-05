@@ -74,9 +74,7 @@ public partial class Player
     private readonly Item[] _items = new Item[(int)PlayerSlots.Count];
     private readonly List<ObjectGuid> _itemSoulboundTradeable = new();
     private readonly long _logintime;
-    public LootFactory LootFactory { get; }
     private readonly List<LootRoll> _lootRolls = new();
-
     //Mail
     private readonly Dictionary<ulong, Item> _mailItems = new();
 
@@ -84,7 +82,6 @@ public partial class Player
     private readonly List<uint> _monthlyquests = new();
     private readonly Dictionary<uint, QuestStatusData> _mQuestStatus = new();
     private readonly MultiMap<uint, uint> _overrideSpells = new();
-
     // loot rolls waiting for answer
     private readonly double[] _powerFraction = new double[(int)PowerType.MaxPerClass];
 
@@ -100,12 +97,10 @@ public partial class Player
     private readonly Dictionary<uint, Dictionary<uint, long>> _seasonalquests = new();
     private readonly Dictionary<uint, SkillStatusData> _skillStatus = new();
     private readonly List<SpellModifier>[][] _spellModifiers = new List<SpellModifier>[(int)SpellModOp.Max][];
-
     //Spell
     private readonly Dictionary<uint, PlayerSpell> _spells = new();
 
     private readonly Dictionary<uint, StoredAuraTeleportLocation> _storedAuraTeleportLocations = new();
-
     //QuestId
     private readonly List<uint> _timedquests = new();
 
@@ -120,7 +115,6 @@ public partial class Player
     private uint _armorProficiency;
     private uint _baseHealthRegen;
     private uint _baseManaRegen;
-
     //Stats
     private uint _baseSpellPower;
 
@@ -138,7 +132,6 @@ public partial class Player
     private PlayerExtraFlags _extraFlags;
     private byte _fishingSteps;
     private uint _foodEmoteTimerCount;
-
     // variables to save health and mana before duel and restore them after duel
     private ulong _healthBeforeDuel;
 
@@ -162,7 +155,6 @@ public partial class Player
     private uint _pendingBindId;
     private uint _pendingBindTimer;
     private ObjectGuid _playerSharingQuest;
-
     // Recall position
     private uint _recallInstanceId;
 
@@ -173,12 +165,10 @@ public partial class Player
     private uint _sharedQuestId;
     private SpecializationInfo _specializationInfo;
     private int _spellPenetrationItemMod;
-
     // Player summoning
     private long _summonExpire;
 
     private uint _summonInstanceId;
-
     //Pets
     private WorldLocation _summonLocation;
 
@@ -190,17 +180,22 @@ public partial class Player
     private bool _weeklyQuestChanged;
     private uint _zoneUpdateId;
     private uint _zoneUpdateTimer;
+    public AccountManager AccountManager { get; }
     public ActivePlayerData ActivePlayerData { get; set; }
     public override PlayerAI AI => Ai as PlayerAI;
+    public ArenaTeamManager ArenaTeamManager { get; }
     public bool AutoAcceptQuickJoin { get; set; }
     public string AutoReplyMsg { get; set; }
+    public BattlegroundManager BattlegroundManager { get; }
     public bool CanBeGameMaster => Session.HasPermission(RBACPermissions.CommandGm);
     public bool CanBlock { get; private set; }
     public override bool CanEnterWater => true;
     public override bool CanFly => MovementInfo.HasMovementFlag(MovementFlag.CanFly);
     public bool CanParry { get; private set; }
     public bool CanTameExoticPets => IsGameMaster || HasAuraType(AuraType.AllowTamePetType);
-
+    public ChannelManagerFactory ChannelManagerFactory { get; }
+    public CharacterDatabase CharacterDatabase { get; }
+    public CharacterTemplateDataStorage CharacterTemplateDataStorage { get; }
     public ChatFlags ChatFlags
     {
         get
@@ -226,18 +221,10 @@ public partial class Player
     public byte Cinematic { get; set; }
     public CinematicManager CinematicMgr { get; }
     public List<ObjectGuid> ClientGuiDs { get; set; } = new();
+    public CollectionMgr CollectionMgr { get; }
     public WorldLocation CorpseLocation { get; private set; }
     public PlayerCreateMode CreateMode { get; private set; }
-    public CharacterDatabase CharacterDatabase { get; }
-    public ChannelManagerFactory ChannelManagerFactory { get; }
-    public MapManager MapManager { get; }
-    public CharacterTemplateDataStorage CharacterTemplateDataStorage { get; }
-    public AccountManager AccountManager { get; }
-    public CollectionMgr CollectionMgr { get; }
-    public BattlegroundManager BattlegroundManager { get; }
-    public OutdoorPvPManager OutdoorPvPManager { get; }
     public byte CufProfilesCount => (byte)_cufProfiles.Count(p => p != null);
-
     public Pet CurrentPet
     {
         get
@@ -268,8 +255,13 @@ public partial class Player
     public float EmpoweredSpellMinHoldPct { get; set; }
     public byte[] ForcedSpeedChanges { get; set; } = new byte[(int)UnitMoveType.Max];
     public uint FreePrimaryProfessionPoints => ActivePlayerData.CharacterPoints;
+    public GameEventManager GameEventManager { get; }
     public Garrison Garrison { get; private set; }
-
+    public PlayerGroup Group => GroupRef.Target;
+    public PlayerGroup GroupInvite { get; set; }
+    public GroupManager GroupManager { get; }
+    public GroupReference GroupRef { get; } = new();
+    public GroupUpdateFlags GroupUpdateFlag { get; private set; }
     public Guild Guild
     {
         get
@@ -282,7 +274,6 @@ public partial class Player
 
     public ulong GuildId => ((ObjectGuid)UnitData.GuildGUID).Counter;
     public ulong GuildIdInvited { get; set; }
-
     public uint GuildLevel
     {
         get => PlayerData.GuildLevel;
@@ -292,17 +283,29 @@ public partial class Player
     public GuildManager GuildMgr { get; }
     public string GuildName => GuildId != 0 ? GuildMgr.GetGuildById(GuildId).GetName() : "";
     public uint GuildRank => PlayerData.GuildRankID;
-    public GroupManager GroupManager { get; }
     public bool HasCorpse => CorpseLocation != null && CorpseLocation.MapId != 0xFFFFFFFF;
-
     //Binds
     public bool HasPendingBind => _pendingBindId > 0;
 
     public bool HasSummonPending => _summonExpire >= GameTime.CurrentTime;
     public WorldLocation Homebind { get; } = new();
-
     public bool InArena => Battleground && Battleground.IsArena();
+    public bool InRandomLfgDungeon
+    {
+        get
+        {
+            if (LFGManager.SelectedRandomLfgDungeon(GUID))
+            {
+                var map = Location.Map;
 
+                return LFGManager.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
+            }
+
+            return false;
+        }
+    }
+
+    public InstanceLockManager InstanceLockManager { get; }
     public bool InstanceValid { get; set; }
     public bool IsAcceptWhispers => _extraFlags.HasAnyFlag(PlayerExtraFlags.AcceptWhispers);
     public bool IsAdvancedCombatLoggingEnabled { get; private set; }
@@ -312,7 +315,6 @@ public partial class Player
     public bool IsBeingTeleportedNear { get; private set; }
     public bool IsBeingTeleportedSeamlessly => IsBeingTeleportedFar && TeleportOptions.HasAnyFlag(TeleportToOptions.Seamless);
     public bool IsDebugAreaTriggers { get; set; }
-
     //GM
     public bool IsDeveloper => HasPlayerFlag(PlayerFlags.Developer);
 
@@ -322,7 +324,6 @@ public partial class Player
     public bool IsGMChat => _extraFlags.HasAnyFlag(PlayerExtraFlags.GMChat);
     public bool IsGMVisible => !_extraFlags.HasAnyFlag(PlayerExtraFlags.GMInvisible);
     public override bool IsLoading => Session.PlayerLoading;
-
     public bool IsMaxLevel
     {
         get
@@ -337,21 +338,27 @@ public partial class Player
     public bool IsReagentBankUnlocked => HasPlayerFlagEx(PlayerFlagsEx.ReagentBankUnlocked);
     public bool IsResurrectRequested => _resurrectionData != null;
     public bool IsTaxiCheater => _extraFlags.HasAnyFlag(PlayerExtraFlags.TaxiCheat);
+    public bool IsUsingLfg => LFGManager.GetState(GUID) != LfgState.None;
     public bool IsWarModeLocalActive => HasPlayerLocalFlag(PlayerLocalFlags.WarMode);
+    public ItemEnchantmentManager ItemEnchantmentManager { get; }
     public List<ItemSetEffect> ItemSetEff { get; } = new();
     public List<Item> ItemUpdateQueue { get; } = new();
     public bool ItemUpdateQueueBlocked { get; set; }
     public List<Channel> JoinedChannels { get; } = new();
-
+    public LanguageManager LanguageManager { get; }
     // last used pet number (for BG's)
     public uint LastPetNumber { get; set; }
 
     public uint LevelPlayedTime { get; private set; }
+    public LFGManager LFGManager { get; }
+    public LoginDatabase LoginDatabase { get; }
     public AtLoginFlags LoginFlags { get; set; }
+    public LootFactory LootFactory { get; }
+    public LootItemStorage LootItemStorage { get; }
     public List<Mail> Mails { get; } = new();
     public uint MailSize => (uint)Mails.Count;
     public bool MailsUpdated { get; set; }
-
+    public MapManager MapManager { get; }
     //Money
     public ulong Money
     {
@@ -372,7 +379,6 @@ public partial class Player
 
     public byte MovementForceModMagnitudeChanges { get; set; }
     public uint Movie { get; set; }
-
     public override Gender NativeGender
     {
         get => (Gender)(byte)PlayerData.NativeSex;
@@ -380,7 +386,6 @@ public partial class Player
     }
 
     public byte NumRespecs => ActivePlayerData.NumRespecs;
-
     public override float ObjectScale
     {
         get => base.ObjectScale;
@@ -396,77 +401,37 @@ public partial class Player
         }
     }
 
+    public PlayerGroup OriginalGroup => OriginalGroupRef.Target;
+    public GroupReference OriginalGroupRef { get; } = new();
+    public byte OriginalSubGroup => OriginalGroupRef.SubGroup;
+    public OutdoorPvPManager OutdoorPvPManager { get; }
     public bool OverrideScreenFlash { get; set; }
 
+    public bool PassOnGroupLoot { get; set; }
     public List<PetAura> PetAuras { get; set; } = new();
 
     public PetStable PetStable { get; set; } = new();
     public PlayerComputators PlayerComputators { get; }
     public PlayerData PlayerData { get; set; }
-
-    public LoginDatabase LoginDatabase { get; }
-    public ArenaTeamManager ArenaTeamManager { get; }
-    public LanguageManager LanguageManager { get; }
-    public InstanceLockManager InstanceLockManager { get; }
-    public SocialManager SocialManager { get; }
-    public RealmManager RealmManager { get; }
-    public TerrainManager TerrainManager { get; }
-    public GameEventManager GameEventManager { get; }
-    public TraitMgr TraitMgr { get; }
-    public LootItemStorage LootItemStorage { get; }
-    public LFGManager LFGManager { get; }
-    public ItemEnchantmentManager ItemEnchantmentManager { get; }
-    public PlayerGroup Group => GroupRef.Target;
-    public PlayerGroup GroupInvite { get; set; }
-    public SkillDiscovery SkillDiscovery { get; }
-    public GroupReference GroupRef { get; } = new();
-    public GroupUpdateFlags GroupUpdateFlag { get; private set; }
-    public bool InRandomLfgDungeon
-    {
-        get
-        {
-            if (LFGManager.SelectedRandomLfgDungeon(GUID))
-            {
-                var map = Location.Map;
-
-                return LFGManager.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
-            }
-
-            return false;
-        }
-    }
-
-    public bool IsUsingLfg => LFGManager.GetState(GUID) != LfgState.None;
-    public PlayerGroup OriginalGroup => OriginalGroupRef.Target;
-    public GroupReference OriginalGroupRef { get; } = new();
-    public byte OriginalSubGroup => OriginalGroupRef.SubGroup;
-    public bool PassOnGroupLoot { get; set; }
-    public byte SubGroup => GroupRef.SubGroup;
-
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }
 
+    public RealmManager RealmManager { get; }
     public WorldLocation Recall { get; private set; }
     public ReputationMgr ReputationMgr { get; private set; }
     public RestMgr RestMgr { get; }
     public uint SaveTimer { get; private set; }
     public SceneMgr SceneMgr { get; }
     public WorldObject SeerView { get; set; }
-
     public Player SelectedPlayer => !Target.IsEmpty ? ObjectAccessor.GetPlayer(this, Target) : null;
-
     public Unit SelectedUnit => !Target.IsEmpty ? ObjectAccessor.GetUnit(this, Target) : null;
-
     public WorldSession Session { get; }
-    public WorldManager WorldMgr { get; }
-    public WorldStateManager WorldStateManager { get; }
-
+    public SkillDiscovery SkillDiscovery { get; }
     public PlayerSocial Social { get; private set; }
-
+    public SocialManager SocialManager { get; }
     public Spell SpellModTakingSpell { get; set; }
-
+    public byte SubGroup => GroupRef.SubGroup;
     public ObjectGuid SummonedBattlePetGUID => ActivePlayerData.SummonedBattlePetGUID;
-
     //Movement
     public PlayerTaxi Taxi { get; set; } = new();
 
@@ -476,12 +441,12 @@ public partial class Player
     public uint? TeleportDestInstanceId { get; private set; }
     public TeleportToOptions TeleportOptions { get; private set; }
     public uint TemporaryUnsummonedPetNumber { get; set; }
-
+    public TerrainManager TerrainManager { get; }
     //Misc
     public uint TotalPlayedTime { get; private set; }
 
+    public TraitMgr TraitMgr { get; }
     public byte UnReadMails { get; set; }
-
     public WorldObject Viewpoint
     {
         get
@@ -493,7 +458,8 @@ public partial class Player
     }
 
     public List<ObjectGuid> VisibleTransports { get; set; } = new();
-
+    public WorldManager WorldMgr { get; }
+    public WorldStateManager WorldStateManager { get; }
     public uint XP
     {
         get => ActivePlayerData.XP;

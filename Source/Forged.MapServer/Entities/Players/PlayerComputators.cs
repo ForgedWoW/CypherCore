@@ -28,21 +28,20 @@ namespace Forged.MapServer.Entities.Players;
 
 public class PlayerComputators
 {
+    private readonly ArenaTeamManager _arenaTeamManager;
+    private readonly CharacterCache _characterCache;
+    private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
-    private readonly CharacterCache _characterCache;
-    private readonly GuildManager _guildManager;
-    private readonly CharacterDatabase _characterDatabase;
-    private readonly GroupManager _groupManager;
-    private readonly ObjectAccessor _objectAccessor;
-    private readonly SocialManager _socialManager;
-    private readonly LoginDatabase _loginDatabase;
-    private readonly WorldManager _worldManager;
-    private readonly TerrainManager _terrainManager;
-    private readonly PetitionManager _petitionManager;
     private readonly GameObjectManager _gameObjectManager;
-    private readonly ArenaTeamManager _arenaTeamManager;
-
+    private readonly GroupManager _groupManager;
+    private readonly GuildManager _guildManager;
+    private readonly LoginDatabase _loginDatabase;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly PetitionManager _petitionManager;
+    private readonly SocialManager _socialManager;
+    private readonly TerrainManager _terrainManager;
+    private readonly WorldManager _worldManager;
     public PlayerComputators(CliDB cliDB, IConfiguration configuration, CharacterCache characterCache, GuildManager guildManager,
                              CharacterDatabase characterDatabase, GroupManager groupManager, ObjectAccessor objectAccessor, SocialManager socialManager,
                              LoginDatabase loginDatabase, WorldManager worldManager, TerrainManager terrainManager, PetitionManager petitionManager,
@@ -64,81 +63,12 @@ public class PlayerComputators
         _arenaTeamManager = arenaTeamManager;
     }
 
-    public WeaponAttackType GetAttackBySlot(byte slot, InventoryType inventoryType)
+    public static void RemoveFromGroup(PlayerGroup group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
     {
-        return slot switch
-        {
-            EquipmentSlot.MainHand => inventoryType != InventoryType.Ranged && inventoryType != InventoryType.RangedRight ? WeaponAttackType.BaseAttack : WeaponAttackType.RangedAttack,
-            EquipmentSlot.OffHand  => WeaponAttackType.OffAttack,
-            _                      => WeaponAttackType.Max,
-        };
-    }
+        if (!group)
+            return;
 
-    public uint GetDefaultGossipMenuForSource(WorldObject source)
-    {
-        switch (source.TypeId)
-        {
-            case TypeId.Unit:
-                return source.AsCreature.GossipMenuId;
-
-            case TypeId.GameObject:
-                return source.AsGameObject.GossipMenuId;
-        }
-
-        return 0;
-    }
-
-    public DrunkenState GetDrunkenstateByValue(byte value)
-    {
-        if (value >= 90)
-            return DrunkenState.Smashed;
-
-        if (value >= 50)
-            return DrunkenState.Drunk;
-
-        if (value != 0)
-            return DrunkenState.Tipsy;
-
-        return DrunkenState.Sober;
-    }
-
-    public byte GetFactionGroupForRace(Race race)
-    {
-        var rEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)race);
-
-        if (rEntry != null)
-        {
-            var faction = _cliDB.FactionTemplateStorage.LookupByKey(rEntry.FactionID);
-
-            if (faction != null)
-                return faction.FactionGroup;
-        }
-
-        return 1;
-    }
-
-    public bool IsValidClass(PlayerClass @class)
-    {
-        return Convert.ToBoolean((1 << ((int)@class - 1)) & (int)PlayerClass.ClassMaskAllPlayable);
-    }
-
-    public bool IsValidGender(Gender gender)
-    {
-        return gender <= Gender.Female;
-    }
-
-    public bool IsValidRace(Race race)
-    {
-        return Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(race) & SharedConst.RaceMaskAllPlayable);
-    }
-
-    public void OfflineResurrect(ObjectGuid guid, SQLTransaction trans)
-    {
-        Corpse.DeleteFromDB(guid, trans);
-        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
-        stmt.AddValue(0, (ushort)AtLoginFlags.Resurrect);
-        stmt.AddValue(1, guid.Counter);
-        _characterDatabase.ExecuteOrAppend(trans, stmt);
+        group.RemoveMember(guid, method, kicker, reason);
     }
 
     public void DeleteFromDB(ObjectGuid playerGuid, uint accountId, bool updateRealmChars = true, bool deleteFinally = false)
@@ -639,34 +569,6 @@ public class PlayerComputators
         DeleteOldCharacters(keepDays);
     }
 
-    public static void RemoveFromGroup(PlayerGroup group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
-    {
-        if (!group)
-            return;
-
-        group.RemoveMember(guid, method, kicker, reason);
-    }
-
-    public void LeaveAllArenaTeams(ObjectGuid guid)
-    {
-        var characterInfo = _characterCache.GetCharacterCacheByGuid(guid);
-
-        if (characterInfo == null)
-            return;
-
-        for (byte i = 0; i < SharedConst.MaxArenaSlot; ++i)
-        {
-            var arenaTeamId = characterInfo.ArenaTeamId[i];
-
-            if (arenaTeamId == 0)
-                continue;
-
-            var arenaTeam = _arenaTeamManager.GetArenaTeamById(arenaTeamId);
-
-            arenaTeam?.DelMember(guid, true);
-        }
-    }
-
     public void DeleteOldCharacters(int keepDays)
     {
         Log.Logger.Information("Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
@@ -687,6 +589,59 @@ public class PlayerComputators
 
             Log.Logger.Debug("Player:DeleteOldChars: Deleted {0} character(s)", count);
         }
+    }
+
+    public WeaponAttackType GetAttackBySlot(byte slot, InventoryType inventoryType)
+    {
+        return slot switch
+        {
+            EquipmentSlot.MainHand => inventoryType != InventoryType.Ranged && inventoryType != InventoryType.RangedRight ? WeaponAttackType.BaseAttack : WeaponAttackType.RangedAttack,
+            EquipmentSlot.OffHand  => WeaponAttackType.OffAttack,
+            _                      => WeaponAttackType.Max,
+        };
+    }
+
+    public uint GetDefaultGossipMenuForSource(WorldObject source)
+    {
+        switch (source.TypeId)
+        {
+            case TypeId.Unit:
+                return source.AsCreature.GossipMenuId;
+
+            case TypeId.GameObject:
+                return source.AsGameObject.GossipMenuId;
+        }
+
+        return 0;
+    }
+
+    public DrunkenState GetDrunkenstateByValue(byte value)
+    {
+        if (value >= 90)
+            return DrunkenState.Smashed;
+
+        if (value >= 50)
+            return DrunkenState.Drunk;
+
+        if (value != 0)
+            return DrunkenState.Tipsy;
+
+        return DrunkenState.Sober;
+    }
+
+    public byte GetFactionGroupForRace(Race race)
+    {
+        var rEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)race);
+
+        if (rEntry != null)
+        {
+            var faction = _cliDB.FactionTemplateStorage.LookupByKey(rEntry.FactionID);
+
+            if (faction != null)
+                return faction.FactionGroup;
+        }
+
+        return 1;
     }
 
     public uint GetZoneIdFromDB(ObjectGuid guid)
@@ -735,6 +690,145 @@ public class PlayerComputators
         return zone;
     }
 
+    public bool IsBagPos(ushort pos)
+    {
+        var bag = (byte)(pos >> 8);
+        var slot = (byte)(pos & 255);
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd)
+            return true;
+
+        return false;
+    }
+
+    public bool IsBankPos(ushort pos)
+    {
+        return IsBankPos((byte)(pos >> 8), (byte)(pos & 255));
+    }
+
+    public bool IsBankPos(byte bag, byte slot)
+    {
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankItemStart and < InventorySlots.BankItemEnd)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
+            return true;
+
+        if (bag is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
+            return true;
+
+        return false;
+    }
+
+    public bool IsChildEquipmentPos(byte bag, byte slot)
+    {
+        return bag == InventorySlots.Bag0 && slot is >= InventorySlots.ChildEquipmentStart and < InventorySlots.ChildEquipmentEnd;
+    }
+
+    public bool IsChildEquipmentPos(ushort pos)
+    {
+        return IsChildEquipmentPos((byte)(pos >> 8), (byte)(pos & 255));
+    }
+
+    public bool IsEquipmentPos(ushort pos)
+    {
+        return IsEquipmentPos((byte)(pos >> 8), (byte)(pos & 255));
+    }
+
+    public bool IsEquipmentPos(byte bag, byte slot)
+    {
+        if (bag == InventorySlots.Bag0 && (slot < EquipmentSlot.End))
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= ProfessionSlots.Start and < ProfessionSlots.End)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd)
+            return true;
+
+        return false;
+    }
+
+    public bool IsInventoryPos(byte bag, byte slot)
+    {
+        if (bag == InventorySlots.Bag0 && slot == ItemConst.NullSlot)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ItemStart and < InventorySlots.ItemEnd)
+            return true;
+
+        if (bag is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
+            return true;
+
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ChildEquipmentStart and < InventorySlots.ChildEquipmentEnd)
+            return true;
+
+        return false;
+    }
+
+    public bool IsReagentBankPos(ushort pos)
+    {
+        return IsReagentBankPos((byte)(pos >> 8), (byte)(pos & 255));
+    }
+
+    public bool IsReagentBankPos(byte bag, byte slot)
+    {
+        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
+            return true;
+
+        return false;
+    }
+
+    public bool IsValidClass(PlayerClass @class)
+    {
+        return Convert.ToBoolean((1 << ((int)@class - 1)) & (int)PlayerClass.ClassMaskAllPlayable);
+    }
+
+    public bool IsValidGender(Gender gender)
+    {
+        return gender <= Gender.Female;
+    }
+
+    public bool IsValidRace(Race race)
+    {
+        return Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(race) & SharedConst.RaceMaskAllPlayable);
+    }
+
+    public void LeaveAllArenaTeams(ObjectGuid guid)
+    {
+        var characterInfo = _characterCache.GetCharacterCacheByGuid(guid);
+
+        if (characterInfo == null)
+            return;
+
+        for (byte i = 0; i < SharedConst.MaxArenaSlot; ++i)
+        {
+            var arenaTeamId = characterInfo.ArenaTeamId[i];
+
+            if (arenaTeamId == 0)
+                continue;
+
+            var arenaTeam = _arenaTeamManager.GetArenaTeamById(arenaTeamId);
+
+            arenaTeam?.DelMember(guid, true);
+        }
+    }
+
     public bool LoadPositionFromDB(out WorldLocation loc, out bool inFlight, ObjectGuid guid)
     {
         var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_POSITION);
@@ -754,6 +848,14 @@ public class PlayerComputators
         return true;
     }
 
+    public void OfflineResurrect(ObjectGuid guid, SQLTransaction trans)
+    {
+        Corpse.DeleteFromDB(guid, trans);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+        stmt.AddValue(0, (ushort)AtLoginFlags.Resurrect);
+        stmt.AddValue(1, guid.Counter);
+        _characterDatabase.ExecuteOrAppend(trans, stmt);
+    }
     public void RemovePetitionsAndSigns(ObjectGuid guid)
     {
         _petitionManager.RemoveSignaturesBySigner(guid);
@@ -868,109 +970,5 @@ public class PlayerComputators
         player?.AddMItem(item);
 
         return item;
-    }
-
-    public bool IsBagPos(ushort pos)
-    {
-        var bag = (byte)(pos >> 8);
-        var slot = (byte)(pos & 255);
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd)
-            return true;
-
-        return false;
-    }
-
-    public bool IsBankPos(ushort pos)
-    {
-        return IsBankPos((byte)(pos >> 8), (byte)(pos & 255));
-    }
-
-    public bool IsBankPos(byte bag, byte slot)
-    {
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankItemStart and < InventorySlots.BankItemEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
-            return true;
-
-        if (bag is >= InventorySlots.BankBagStart and < InventorySlots.BankBagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
-            return true;
-
-        return false;
-    }
-
-    public bool IsChildEquipmentPos(byte bag, byte slot)
-    {
-        return bag == InventorySlots.Bag0 && slot is >= InventorySlots.ChildEquipmentStart and < InventorySlots.ChildEquipmentEnd;
-    }
-
-    public bool IsChildEquipmentPos(ushort pos)
-    {
-        return IsChildEquipmentPos((byte)(pos >> 8), (byte)(pos & 255));
-    }
-
-    public bool IsEquipmentPos(ushort pos)
-    {
-        return IsEquipmentPos((byte)(pos >> 8), (byte)(pos & 255));
-    }
-
-    public bool IsEquipmentPos(byte bag, byte slot)
-    {
-        if (bag == InventorySlots.Bag0 && (slot < EquipmentSlot.End))
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= ProfessionSlots.Start and < ProfessionSlots.End)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentBagStart and < InventorySlots.ReagentBagEnd)
-            return true;
-
-        return false;
-    }
-
-    public bool IsInventoryPos(byte bag, byte slot)
-    {
-        if (bag == InventorySlots.Bag0 && slot == ItemConst.NullSlot)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ItemStart and < InventorySlots.ItemEnd)
-            return true;
-
-        if (bag is >= InventorySlots.BagStart and < InventorySlots.BagEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
-            return true;
-
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ChildEquipmentStart and < InventorySlots.ChildEquipmentEnd)
-            return true;
-
-        return false;
-    }
-
-    public bool IsReagentBankPos(ushort pos)
-    {
-        return IsReagentBankPos((byte)(pos >> 8), (byte)(pos & 255));
-    }
-
-    public bool IsReagentBankPos(byte bag, byte slot)
-    {
-        if (bag == InventorySlots.Bag0 && slot is >= InventorySlots.ReagentStart and < InventorySlots.ReagentEnd)
-            return true;
-
-        return false;
     }
 }

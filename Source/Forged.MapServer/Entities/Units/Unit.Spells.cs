@@ -57,6 +57,69 @@ public partial class Unit
         }
     }
 
+    /// <summary>
+    ///     Will add the aura to the unit. If the aura exists and it has a stack amount, a stack will be added up to the max stack amount.
+    /// </summary>
+    /// <param name="spellId"> Spell id of the aura to add </param>
+    /// <returns> The aura and its applications. </returns>
+    public Aura AddAura(uint spellId)
+    {
+        return AddAura(spellId, this);
+    }
+
+    public Aura AddAura(uint spellId, Unit target)
+    {
+        if (target == null)
+            return null;
+
+        var spellInfo = SpellManager.GetSpellInfo(spellId, Location.Map.DifficultyID);
+
+        if (spellInfo == null)
+            return null;
+
+        return AddAura(spellInfo, SpellConst.MaxEffects, target);
+    }
+
+    public Aura AddAura(SpellInfo spellInfo, HashSet<int> effMask, Unit target)
+    {
+        if (spellInfo == null)
+            return null;
+
+        if (!target.IsAlive && !spellInfo.IsPassive && !spellInfo.HasAttribute(SpellAttr2.AllowDeadTarget))
+            return null;
+
+        if (target.IsImmunedToSpell(spellInfo, this))
+            return null;
+
+        foreach (var spellEffectInfo in spellInfo.Effects)
+        {
+            if (!effMask.Contains(spellEffectInfo.EffectIndex))
+                continue;
+
+            if (target.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, this))
+                effMask.Remove(spellEffectInfo.EffectIndex);
+        }
+
+        if (effMask.Count == 0)
+            return null;
+
+        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
+
+        AuraCreateInfo createInfo = new(castId, spellInfo, Location.Map.DifficultyID, effMask, target);
+        createInfo.SetCaster(this);
+
+        var aura = Aura.TryRefreshStackOrCreate(createInfo);
+
+        if (aura != null)
+        {
+            aura.ApplyForTargets();
+
+            return aura;
+        }
+
+        return null;
+    }
+
     public void ApplyAllAuraStatMods()
     {
         foreach (var i in AppliedAuras)
@@ -138,244 +201,6 @@ public partial class Unit
             ApplyAura(aurApp, effIndex);
         else
             aurApp._HandleEffect(effIndex, true);
-    }
-
-    public void DeleteRemovedAuras()
-    {
-        RemovedAurasCount = 0;
-    }
-
-    public void RegisterAuraEffect(AuraEffect aurEff, bool apply)
-    {
-        if (apply)
-            _modAuras.Add(aurEff.AuraType, aurEff);
-        else
-            _modAuras.Remove(aurEff.AuraType, aurEff);
-    }
-
-    public void RemoveAllAuraStatMods()
-    {
-        foreach (var i in AppliedAuras)
-            i.Base.HandleAllEffects(i, AuraEffectHandleModes.Stat, false);
-    }
-
-    public Aura TryStackingOrRefreshingExistingAura(AuraCreateInfo createInfo)
-    {
-        // Check if these can stack anyway
-        if (createInfo.CasterGuid.IsEmpty && !createInfo.SpellInfo.IsStackableOnOneSlotWithDifferentCasters)
-            createInfo.CasterGuid = createInfo.Caster.GUID;
-
-        // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
-        if (createInfo.SpellInfo.IsMultiSlotAura)
-            return null;
-
-        // check if cast item changed
-        var castItemGUID = createInfo.CastItemGuid;
-
-        // find current aura from spell and change it's stackamount, or refresh it's duration
-        var foundAura = GetOwnedAura(createInfo.SpellInfo.Id, createInfo.SpellInfo.IsStackableOnOneSlotWithDifferentCasters ? ObjectGuid.Empty : createInfo.CasterGuid, createInfo.SpellInfo.HasAttribute(SpellCustomAttributes.EnchantProc) ? castItemGUID : ObjectGuid.Empty);
-
-        if (foundAura == null)
-            return null;
-
-        // effect masks do not match
-        // extremely rare case
-        // let's just recreate aura
-        if (!createInfo.AuraEffectMask.SetEquals(foundAura.AuraEffects.Keys))
-            return null;
-
-        // update basepoints with new values - effect amount will be recalculated in ModStackAmount
-        foreach (var spellEffectInfo in createInfo.SpellInfo.Effects)
-        {
-            var auraEff = foundAura.GetEffect(spellEffectInfo.EffectIndex);
-
-            if (auraEff == null)
-                continue;
-
-            auraEff.BaseAmount = createInfo.BaseAmount != null ? createInfo.BaseAmount[spellEffectInfo.EffectIndex] : spellEffectInfo.BasePoints;
-        }
-
-        // correct cast item guid if needed
-        if (castItemGUID != foundAura.CastItemGuid)
-        {
-            foundAura.CastItemGuid = castItemGUID;
-            foundAura.CastItemId = createInfo.CastItemId;
-            foundAura.CastItemLevel = createInfo.CastItemLevel;
-        }
-
-        // try to increase stack amount
-        foundAura.ModStackAmount(1, AuraRemoveMode.Default, createInfo.ResetPeriodicTimer);
-
-        return foundAura;
-    }
-
-    // removes aura application from lists and unapplies effects
-    public void UnapplyAura(AuraApplication aurApp, AuraRemoveMode removeMode)
-    {
-        var check = aurApp.Base.GetApplicationOfTarget(GUID);
-
-        if (check == null)
-            return; // The user logged out
-
-        if (check != aurApp)
-        {
-            Log.Logger.Error($"Tried to remove aura app with spell ID: {aurApp.Base.SpellInfo.Id} that does not match. GetApplicationOfTarget: {aurApp.Base.GetApplicationOfTarget(GUID).Guid} AuraApp: {aurApp.Guid}");
-
-            return;
-        }
-
-        //Check if aura was already removed, if so just return.
-        if (!_appliedAuras.Remove(aurApp))
-            return;
-
-        aurApp.RemoveMode = removeMode;
-        var aura = aurApp.Base;
-        Log.Logger.Debug("Aura {0} now is remove mode {1}", aura.Id, removeMode);
-
-        ++RemovedAurasCount;
-
-        var caster = aura.Caster;
-
-        if (aura.SpellInfo.HasAnyAuraInterruptFlag)
-        {
-            _interruptableAuras.Remove(aurApp);
-            UpdateInterruptMask();
-        }
-
-        var auraStateFound = false;
-        var auraState = aura.SpellInfo.GetAuraState();
-
-        if (auraState != 0)
-        {
-            var canBreak = false;
-            // Get mask of all aurastates from remaining auras
-            var list = _auraStateAuras.LookupByKey(auraState);
-
-            for (var i = 0; i < list.Count && !(auraStateFound && canBreak);)
-            {
-                if (list[i] == aurApp)
-                {
-                    _auraStateAuras.Remove(auraState, list[i]);
-                    list = _auraStateAuras.LookupByKey(auraState);
-                    i = 0;
-                    canBreak = true;
-
-                    continue;
-                }
-
-                auraStateFound = true;
-                ++i;
-            }
-        }
-
-        aurApp.Remove();
-        aura.UnapplyForTarget(this, caster, aurApp);
-
-        // remove effects of the spell - needs to be done after removing aura from lists
-        foreach (var effect in aurApp.Base.AuraEffects)
-            if (aurApp.HasEffect(effect.Key))
-                aurApp._HandleEffect(effect.Key, false);
-
-        // all effect mustn't be applied
-        // Cypher.Assert(aurApp.EffectMask.Count == 0);
-
-        // Remove totem at next update if totem loses its aura
-        if (aurApp.RemoveMode == AuraRemoveMode.Expire && IsTypeId(TypeId.Unit) && IsTotem)
-            if (ToTotem().GetSpell() == aura.Id && ToTotem().GetTotemType() == TotemType.Passive)
-                ToTotem().SetDeathState(DeathState.JustDied);
-
-        // Remove aurastates only if needed and were not found
-        if (auraState != 0)
-        {
-            if (!auraStateFound)
-            {
-                ModifyAuraState(auraState, false);
-            }
-            else
-            {
-                // update for casters, some shouldn't 'see' the aura state
-                var aStateMask = (1u << ((int)auraState - 1));
-
-                if ((aStateMask & (uint)AuraStateType.PerCasterAuraStateMask) != 0)
-                {
-                    Values.ModifyValue(UnitData).ModifyValue(UnitData.AuraState);
-                    ForceUpdateFieldChange();
-                }
-            }
-        }
-
-        aura.HandleAuraSpecificMods(aurApp, caster, false, false);
-
-        var player = AsPlayer;
-
-        if (player == null)
-            return;
-
-        if (ConditionManager.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
-            player.UpdateVisibleGameobjectsOrSpellClicks();
-    }
-
-    /// <summary>
-    ///     Will add the aura to the unit. If the aura exists and it has a stack amount, a stack will be added up to the max stack amount.
-    /// </summary>
-    /// <param name="spellId"> Spell id of the aura to add </param>
-    /// <returns> The aura and its applications. </returns>
-    public Aura AddAura(uint spellId)
-    {
-        return AddAura(spellId, this);
-    }
-
-    public Aura AddAura(uint spellId, Unit target)
-    {
-        if (target == null)
-            return null;
-
-        var spellInfo = SpellManager.GetSpellInfo(spellId, Location.Map.DifficultyID);
-
-        if (spellInfo == null)
-            return null;
-
-        return AddAura(spellInfo, SpellConst.MaxEffects, target);
-    }
-
-    public Aura AddAura(SpellInfo spellInfo, HashSet<int> effMask, Unit target)
-    {
-        if (spellInfo == null)
-            return null;
-
-        if (!target.IsAlive && !spellInfo.IsPassive && !spellInfo.HasAttribute(SpellAttr2.AllowDeadTarget))
-            return null;
-
-        if (target.IsImmunedToSpell(spellInfo, this))
-            return null;
-
-        foreach (var spellEffectInfo in spellInfo.Effects)
-        {
-            if (!effMask.Contains(spellEffectInfo.EffectIndex))
-                continue;
-
-            if (target.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, this))
-                effMask.Remove(spellEffectInfo.EffectIndex);
-        }
-
-        if (effMask.Count == 0)
-            return null;
-
-        var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
-
-        AuraCreateInfo createInfo = new(castId, spellInfo, Location.Map.DifficultyID, effMask, target);
-        createInfo.SetCaster(this);
-
-        var aura = Aura.TryRefreshStackOrCreate(createInfo);
-
-        if (aura != null)
-        {
-            aura.ApplyForTargets();
-
-            return aura;
-        }
-
-        return null;
     }
 
     public void ApplyCastTimePercentMod(double val, bool apply)
@@ -768,6 +593,11 @@ public partial class Unit
             // update for out of range group members (on 1 slot use)
             aura.SetNeedClientUpdateForTargets();
         }
+    }
+
+    public void DeleteRemovedAuras()
+    {
+        RemovedAurasCount = 0;
     }
 
     public void EnergizeBySpell(Unit victim, SpellInfo spellInfo, double damage, PowerType powerType)
@@ -2285,6 +2115,14 @@ public partial class Unit
                 }
     }
 
+    public void RegisterAuraEffect(AuraEffect aurEff, bool apply)
+    {
+        if (apply)
+            _modAuras.Add(aurEff.AuraType, aurEff);
+        else
+            _modAuras.Remove(aurEff.AuraType, aurEff);
+    }
+
     public void RemoveAllAuras()
     {
         // this may be a dead loop if some events on aura remove will continiously apply aura on remove
@@ -2341,6 +2179,12 @@ public partial class Unit
     {
         _appliedAuras.Query().IsPassive(false).IsRequiringDeadTarget().Execute(UnapplyAura);
         _ownedAuras.Query().IsPassive(false).IsRequiringDeadTarget().Execute(RemoveOwnedAura);
+    }
+
+    public void RemoveAllAuraStatMods()
+    {
+        foreach (var i in AppliedAuras)
+            i.Base.HandleAllEffects(i, AuraEffectHandleModes.Stat, false);
     }
 
     public void RemoveAllGroupBuffsFromCaster(ObjectGuid casterGUID)
@@ -3929,6 +3773,161 @@ public partial class Unit
         return auraEffect != null;
     }
 
+    public Aura TryStackingOrRefreshingExistingAura(AuraCreateInfo createInfo)
+    {
+        // Check if these can stack anyway
+        if (createInfo.CasterGuid.IsEmpty && !createInfo.SpellInfo.IsStackableOnOneSlotWithDifferentCasters)
+            createInfo.CasterGuid = createInfo.Caster.GUID;
+
+        // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
+        if (createInfo.SpellInfo.IsMultiSlotAura)
+            return null;
+
+        // check if cast item changed
+        var castItemGUID = createInfo.CastItemGuid;
+
+        // find current aura from spell and change it's stackamount, or refresh it's duration
+        var foundAura = GetOwnedAura(createInfo.SpellInfo.Id, createInfo.SpellInfo.IsStackableOnOneSlotWithDifferentCasters ? ObjectGuid.Empty : createInfo.CasterGuid, createInfo.SpellInfo.HasAttribute(SpellCustomAttributes.EnchantProc) ? castItemGUID : ObjectGuid.Empty);
+
+        if (foundAura == null)
+            return null;
+
+        // effect masks do not match
+        // extremely rare case
+        // let's just recreate aura
+        if (!createInfo.AuraEffectMask.SetEquals(foundAura.AuraEffects.Keys))
+            return null;
+
+        // update basepoints with new values - effect amount will be recalculated in ModStackAmount
+        foreach (var spellEffectInfo in createInfo.SpellInfo.Effects)
+        {
+            var auraEff = foundAura.GetEffect(spellEffectInfo.EffectIndex);
+
+            if (auraEff == null)
+                continue;
+
+            auraEff.BaseAmount = createInfo.BaseAmount != null ? createInfo.BaseAmount[spellEffectInfo.EffectIndex] : spellEffectInfo.BasePoints;
+        }
+
+        // correct cast item guid if needed
+        if (castItemGUID != foundAura.CastItemGuid)
+        {
+            foundAura.CastItemGuid = castItemGUID;
+            foundAura.CastItemId = createInfo.CastItemId;
+            foundAura.CastItemLevel = createInfo.CastItemLevel;
+        }
+
+        // try to increase stack amount
+        foundAura.ModStackAmount(1, AuraRemoveMode.Default, createInfo.ResetPeriodicTimer);
+
+        return foundAura;
+    }
+
+    // removes aura application from lists and unapplies effects
+    public void UnapplyAura(AuraApplication aurApp, AuraRemoveMode removeMode)
+    {
+        var check = aurApp.Base.GetApplicationOfTarget(GUID);
+
+        if (check == null)
+            return; // The user logged out
+
+        if (check != aurApp)
+        {
+            Log.Logger.Error($"Tried to remove aura app with spell ID: {aurApp.Base.SpellInfo.Id} that does not match. GetApplicationOfTarget: {aurApp.Base.GetApplicationOfTarget(GUID).Guid} AuraApp: {aurApp.Guid}");
+
+            return;
+        }
+
+        //Check if aura was already removed, if so just return.
+        if (!_appliedAuras.Remove(aurApp))
+            return;
+
+        aurApp.RemoveMode = removeMode;
+        var aura = aurApp.Base;
+        Log.Logger.Debug("Aura {0} now is remove mode {1}", aura.Id, removeMode);
+
+        ++RemovedAurasCount;
+
+        var caster = aura.Caster;
+
+        if (aura.SpellInfo.HasAnyAuraInterruptFlag)
+        {
+            _interruptableAuras.Remove(aurApp);
+            UpdateInterruptMask();
+        }
+
+        var auraStateFound = false;
+        var auraState = aura.SpellInfo.GetAuraState();
+
+        if (auraState != 0)
+        {
+            var canBreak = false;
+            // Get mask of all aurastates from remaining auras
+            var list = _auraStateAuras.LookupByKey(auraState);
+
+            for (var i = 0; i < list.Count && !(auraStateFound && canBreak);)
+            {
+                if (list[i] == aurApp)
+                {
+                    _auraStateAuras.Remove(auraState, list[i]);
+                    list = _auraStateAuras.LookupByKey(auraState);
+                    i = 0;
+                    canBreak = true;
+
+                    continue;
+                }
+
+                auraStateFound = true;
+                ++i;
+            }
+        }
+
+        aurApp.Remove();
+        aura.UnapplyForTarget(this, caster, aurApp);
+
+        // remove effects of the spell - needs to be done after removing aura from lists
+        foreach (var effect in aurApp.Base.AuraEffects)
+            if (aurApp.HasEffect(effect.Key))
+                aurApp._HandleEffect(effect.Key, false);
+
+        // all effect mustn't be applied
+        // Cypher.Assert(aurApp.EffectMask.Count == 0);
+
+        // Remove totem at next update if totem loses its aura
+        if (aurApp.RemoveMode == AuraRemoveMode.Expire && IsTypeId(TypeId.Unit) && IsTotem)
+            if (ToTotem().GetSpell() == aura.Id && ToTotem().GetTotemType() == TotemType.Passive)
+                ToTotem().SetDeathState(DeathState.JustDied);
+
+        // Remove aurastates only if needed and were not found
+        if (auraState != 0)
+        {
+            if (!auraStateFound)
+            {
+                ModifyAuraState(auraState, false);
+            }
+            else
+            {
+                // update for casters, some shouldn't 'see' the aura state
+                var aStateMask = (1u << ((int)auraState - 1));
+
+                if ((aStateMask & (uint)AuraStateType.PerCasterAuraStateMask) != 0)
+                {
+                    Values.ModifyValue(UnitData).ModifyValue(UnitData.AuraState);
+                    ForceUpdateFieldChange();
+                }
+            }
+        }
+
+        aura.HandleAuraSpecificMods(aurApp, caster, false, false);
+
+        var player = AsPlayer;
+
+        if (player == null)
+            return;
+
+        if (ConditionManager.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
+            player.UpdateVisibleGameobjectsOrSpellClicks();
+    }
     public void UpdateEmpowerState(EmpowerState state, uint exceptSpellid = 0)
     {
         for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
@@ -3954,24 +3953,6 @@ public partial class Unit
             _interruptMask |= spell.SpellInfo.ChannelInterruptFlags;
             _interruptMask2 |= spell.SpellInfo.ChannelInterruptFlags2;
         }
-    }
-
-    private void RemoveNoStackAurasDueToAura(Aura aura)
-    {
-        var spellProto = aura.SpellInfo;
-
-        // passive spell special case (only non stackable with ranks)
-        if (spellProto.IsPassiveStackableWithRanks)
-            return;
-
-        if (!IsHighestExclusiveAura(aura))
-        {
-            aura.Remove();
-
-            return;
-        }
-
-        _appliedAuras.AuraApplications.CallOnMatch((app) => !aura.CanStackWith(app.Base), (app) => RemoveAura(app));
     }
 
     private AuraApplication GetAuraApplicationOfRankedSpell(uint spellId)
@@ -4128,6 +4109,23 @@ public partial class Unit
         _appliedAuras.AuraApplications.CallOnMatch((pair) => pair.Base.Owner != this, (pair) => RemoveAura(pair));
     }
 
+    private void RemoveNoStackAurasDueToAura(Aura aura)
+    {
+        var spellProto = aura.SpellInfo;
+
+        // passive spell special case (only non stackable with ranks)
+        if (spellProto.IsPassiveStackableWithRanks)
+            return;
+
+        if (!IsHighestExclusiveAura(aura))
+        {
+            aura.Remove();
+
+            return;
+        }
+
+        _appliedAuras.AuraApplications.CallOnMatch((app) => !aura.CanStackWith(app.Base), (app) => RemoveAura(app));
+    }
     private void SendHealSpellLog(HealInfo healInfo, bool critical = false)
     {
         SpellHealLog spellHealLog = new()
