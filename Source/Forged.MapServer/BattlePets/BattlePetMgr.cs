@@ -26,16 +26,18 @@ public class BattlePetMgr
     private readonly CliDB _cliDB;
     private readonly LoginDatabase _loginDatabase;
     private readonly GameObjectManager _objectManager;
+    private readonly ClassFactory _classFactory;
     private readonly Dictionary<ulong, BattlePet> _pets = new();
     private readonly WorldManager _worldManager;
 
-    public BattlePetMgr(WorldSession owner, CliDB cliDB, WorldManager worldManager, LoginDatabase loginDatabase, GameObjectManager objectManager)
+    public BattlePetMgr(WorldSession owner, CliDB cliDB, WorldManager worldManager, LoginDatabase loginDatabase, GameObjectManager objectManager, ClassFactory classFactory)
     {
         Owner = owner;
         _cliDB = cliDB;
         _worldManager = worldManager;
         _loginDatabase = loginDatabase;
         _objectManager = objectManager;
+        _classFactory = classFactory;
 
         for (byte i = 0; i < (int)BattlePetSlots.Count; ++i)
         {
@@ -55,7 +57,7 @@ public class BattlePetMgr
     public WorldSession Owner { get; }
 
     public List<BattlePetSlot> Slots { get; } = new();
-    public ushort TrapLevel { get; }
+    public ushort TrapLevel { get; set; }
 
     public void AddPet(uint species, uint display, ushort breed, BattlePetBreedQuality quality, ushort level = 1)
     {
@@ -67,7 +69,7 @@ public class BattlePetMgr
         if (!battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.WellKnown)) // Not learnable
             return;
 
-        BattlePet pet = new();
+        var pet = _classFactory.Resolve<BattlePet>();
         pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, _objectManager.GetGenerator(HighGuid.BattlePet).Generate());
         pet.PacketInfo.Species = species;
         pet.PacketInfo.CreatureID = battlePetSpecies.CreatureID;
@@ -99,8 +101,11 @@ public class BattlePetMgr
 
         _pets[pet.PacketInfo.Guid.Counter] = pet;
 
-        List<BattlePet> updates = new();
-        updates.Add(pet);
+        List<BattlePet> updates = new()
+        {
+            pet
+        };
+
         SendUpdates(updates, true);
 
         player.UpdateCriteria(CriteriaType.UniquePetsOwned);
@@ -159,12 +164,14 @@ public class BattlePetMgr
         var player = Owner.Player;
         var summonedBattlePet = player.GetSummonedBattlePet();
 
-        if (summonedBattlePet != null)
-            if (summonedBattlePet.BattlePetCompanionGUID == guid)
-            {
-                summonedBattlePet.DespawnOrUnsummon();
-                player.SetBattlePetData();
-            }
+        if (summonedBattlePet == null)
+            return;
+
+        if (summonedBattlePet.BattlePetCompanionGUID != guid)
+            return;
+
+        summonedBattlePet.DespawnOrUnsummon();
+        player.SetBattlePetData();
     }
 
     public void ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality quality)
@@ -198,8 +205,11 @@ public class BattlePetMgr
         if (pet.SaveInfo != BattlePetSaveInfo.New)
             pet.SaveInfo = BattlePetSaveInfo.Changed;
 
-        List<BattlePet> updates = new();
-        updates.Add(pet);
+        List<BattlePet> updates = new()
+        {
+            pet
+        };
+
         SendUpdates(updates, false);
 
         // UF::PlayerData::CurrentBattlePetBreedQuality isn't updated (Intended)
@@ -224,22 +234,16 @@ public class BattlePetMgr
         var player = Owner.Player;
         var summonedBattlePet = player.GetSummonedBattlePet();
 
-        if (summonedBattlePet != null)
-        {
-            summonedBattlePet.DespawnOrUnsummon();
-            player.SetBattlePetData();
-        }
+        if (summonedBattlePet == null)
+            return;
+
+        summonedBattlePet.DespawnOrUnsummon();
+        player.SetBattlePetData();
     }
 
     public ushort GetMaxPetLevel()
     {
-        ushort level = 0;
-
-        foreach (var pet in _pets)
-            if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
-                level = Math.Max(level, pet.Value.PacketInfo.Level);
-
-        return level;
+        return _pets.Where(pet => pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed).Aggregate<KeyValuePair<ulong, BattlePet>, ushort>(0, (current, pet) => Math.Max(current, pet.Value.PacketInfo.Level));
     }
 
     public BattlePet GetPet(ObjectGuid guid)
@@ -257,12 +261,13 @@ public class BattlePetMgr
             if (battlePet.SaveInfo == BattlePetSaveInfo.Removed)
                 return false;
 
-            if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
-                if (!ownerGuid.IsEmpty && battlePet.PacketInfo.OwnerInfo.HasValue)
-                    if (battlePet.PacketInfo.OwnerInfo.Value.Guid != ownerGuid)
-                        return false;
+            if (!battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
+                return true;
 
-            return true;
+            if (ownerGuid.IsEmpty || !battlePet.PacketInfo.OwnerInfo.HasValue)
+                return true;
+
+            return battlePet.PacketInfo.OwnerInfo.Value.Guid == ownerGuid;
         });
     }
 
@@ -270,9 +275,8 @@ public class BattlePetMgr
     {
         HashSet<uint> speciesIds = new();
 
-        foreach (var pair in _pets)
-            if (pair.Value != null)
-                speciesIds.Add(pair.Value.PacketInfo.Species);
+        foreach (var pair in _pets.Where(pair => pair.Value != null))
+            speciesIds.Add(pair.Value.PacketInfo.Species);
 
         return (uint)speciesIds.Count;
     }
@@ -344,8 +348,11 @@ public class BattlePetMgr
         if (pet.SaveInfo != BattlePetSaveInfo.New)
             pet.SaveInfo = BattlePetSaveInfo.Changed;
 
-        List<BattlePet> updates = new();
-        updates.Add(pet);
+        List<BattlePet> updates = new()
+        {
+            pet
+        };
+
         SendUpdates(updates, false);
     }
 
@@ -389,8 +396,11 @@ public class BattlePetMgr
         if (pet.SaveInfo != BattlePetSaveInfo.New)
             pet.SaveInfo = BattlePetSaveInfo.Changed;
 
-        var updates = new List<BattlePet>();
-        updates.Add(pet);
+        var updates = new List<BattlePet>
+        {
+            pet
+        };
+
         SendUpdates(updates, false);
     }
 
@@ -407,18 +417,17 @@ public class BattlePetMgr
         // regain 50 % of the damage that was taken during combat
         List<BattlePet> updates = new();
 
-        foreach (var pet in _pets.Values)
-            if (pet != null && pet.PacketInfo.Health != pet.PacketInfo.MaxHealth)
-            {
-                pet.PacketInfo.Health += MathFunctions.CalculatePct(pet.PacketInfo.MaxHealth, pct);
-                // don't allow Health to be greater than MaxHealth
-                pet.PacketInfo.Health = Math.Min(pet.PacketInfo.Health, pet.PacketInfo.MaxHealth);
+        foreach (var pet in _pets.Values.Where(pet => pet != null && pet.PacketInfo.Health != pet.PacketInfo.MaxHealth))
+        {
+            pet.PacketInfo.Health += MathFunctions.CalculatePct(pet.PacketInfo.MaxHealth, pct);
+            // don't allow Health to be greater than MaxHealth
+            pet.PacketInfo.Health = Math.Min(pet.PacketInfo.Health, pet.PacketInfo.MaxHealth);
 
-                if (pet.SaveInfo != BattlePetSaveInfo.New)
-                    pet.SaveInfo = BattlePetSaveInfo.Changed;
+            if (pet.SaveInfo != BattlePetSaveInfo.New)
+                pet.SaveInfo = BattlePetSaveInfo.Changed;
 
-                updates.Add(pet);
-            }
+            updates.Add(pet);
+        }
 
         SendUpdates(updates, false);
     }
@@ -464,7 +473,7 @@ public class BattlePetMgr
                         continue;
                     }
 
-                    BattlePet pet = new();
+                    var pet = _classFactory.Resolve<BattlePet>();
                     pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, petsResult.Read<ulong>(0));
                     pet.PacketInfo.Species = species;
                     pet.PacketInfo.Breed = petsResult.Read<ushort>(2);
@@ -698,10 +707,8 @@ public class BattlePetMgr
             HasJournalLock = HasJournalLock
         };
 
-        foreach (var pet in _pets)
-            if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
-                if (!pet.Value.PacketInfo.OwnerInfo.HasValue || pet.Value.PacketInfo.OwnerInfo.Value.Guid == Owner.Player.GUID)
-                    battlePetJournal.Pets.Add(pet.Value.PacketInfo);
+        foreach (var pet in _pets.Where(pet => pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed).Where(pet => !pet.Value.PacketInfo.OwnerInfo.HasValue || pet.Value.PacketInfo.OwnerInfo.Value.Guid == Owner.Player.GUID))
+            battlePetJournal.Pets.Add(pet.Value.PacketInfo);
 
         battlePetJournal.Slots = Slots;
         Owner.SendPacket(battlePetJournal);
@@ -781,21 +788,19 @@ public class BattlePetMgr
         // Update battle pet related update fields
         var summonedBattlePet = player.GetSummonedBattlePet();
 
-        if (summonedBattlePet != null)
-            if (summonedBattlePet.BattlePetCompanionGUID == guid)
-            {
-                summonedBattlePet.WildBattlePetLevel = pet.PacketInfo.Level;
-                player.SetBattlePetData(pet);
-            }
+        if (summonedBattlePet == null)
+            return;
+
+        if (summonedBattlePet.BattlePetCompanionGUID != guid)
+            return;
+
+        summonedBattlePet.WildBattlePetLevel = pet.PacketInfo.Level;
+        player.SetBattlePetData(pet);
     }
 
     private bool IsPetInSlot(ObjectGuid guid)
     {
-        foreach (var slot in Slots)
-            if (slot.Pet.Guid == guid)
-                return true;
-
-        return false;
+        return Slots.Any(slot => slot.Pet.Guid == guid);
     }
 
     private void SendUpdates(List<BattlePet> pets, bool petAdded)

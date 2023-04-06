@@ -2,7 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Forged.MapServer.Chat;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.B;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Networking.Packets.BattlePet;
 using Framework.Constants;
@@ -11,17 +16,23 @@ namespace Forged.MapServer.BattlePets;
 
 public class BattlePet
 {
+    private readonly BattlePetMgrData _battlePetMgr;
+    private readonly DB6Storage<BattlePetBreedQualityRecord> _battlePetBreedQualityRecords;
     public DeclinedName DeclinedName;
     public long NameTimestamp;
     public BattlePetStruct PacketInfo;
     public BattlePetSaveInfo SaveInfo;
 
+    public BattlePet(BattlePetMgrData battlePetMgr, DB6Storage<BattlePetBreedQualityRecord> battlePetBreedQualityRecords)
+    {
+        _battlePetMgr = battlePetMgr;
+        _battlePetBreedQualityRecords = battlePetBreedQualityRecords;
+    }
+
     public void CalculateStats()
     {
         // get base breed stats
-        var breedState = BattlePetMgr.BattlePetBreedStates.LookupByKey(PacketInfo.Breed);
-
-        if (breedState == null) // non existing breed id
+        if (!_battlePetMgr.BattlePetBreedStates.TryGetValue(PacketInfo.Breed, out var breedState)) // non existing breed id
             return;
 
         float health = breedState[BattlePetState.StatStamina];
@@ -29,9 +40,7 @@ public class BattlePet
         float speed = breedState[BattlePetState.StatSpeed];
 
         // modify stats depending on species - not all pets have this
-        var speciesState = BattlePetMgr.BattlePetSpeciesStates.LookupByKey(PacketInfo.Species);
-
-        if (speciesState != null)
+        if (_battlePetMgr.BattlePetSpeciesStates.TryGetValue(PacketInfo.Species, out var speciesState))
         {
             health += speciesState[BattlePetState.StatStamina];
             power += speciesState[BattlePetState.StatPower];
@@ -39,15 +48,14 @@ public class BattlePet
         }
 
         // modify stats by quality
-        foreach (var battlePetBreedQuality in CliDB.BattlePetBreedQualityStorage.Values)
-            if (battlePetBreedQuality.QualityEnum == PacketInfo.Quality)
-            {
-                health *= battlePetBreedQuality.StateMultiplier;
-                power *= battlePetBreedQuality.StateMultiplier;
-                speed *= battlePetBreedQuality.StateMultiplier;
+        foreach (var battlePetBreedQuality in _battlePetBreedQualityRecords.Values.Where(battlePetBreedQuality => battlePetBreedQuality.QualityEnum == PacketInfo.Quality))
+        {
+            health *= battlePetBreedQuality.StateMultiplier;
+            power *= battlePetBreedQuality.StateMultiplier;
+            speed *= battlePetBreedQuality.StateMultiplier;
 
-                break;
-            }
+            break;
+        }
 
         // TOOD: add check if pet has existing quality
         // scale stats depending on level

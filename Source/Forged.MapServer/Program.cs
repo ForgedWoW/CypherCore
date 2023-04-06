@@ -455,6 +455,7 @@ void RegisterInstanced()
     builder.RegisterType<AreaTrigger>();
     builder.RegisterType<QuestMenu>();
     builder.RegisterType<GameObject>();
+    builder.RegisterType<BattlePet>();
 }
 
 void RegisterHandlers()
