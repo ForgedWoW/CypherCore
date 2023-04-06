@@ -59,6 +59,7 @@ public class CalendarEvent
     public ObjectGuid OwnerGuid { get; set; }
     public int TextureId { get; set; }
     public string Title { get; set; }
+
     public static bool ModifyIsGuildAnnouncementFlags(uint flags)
     {
         return (flags & (uint)CalendarFlags.WithoutInvites) != 0;

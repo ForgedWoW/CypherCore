@@ -42,12 +42,6 @@ public class CalendarInvite
         Note = note;
     }
 
-    ~CalendarInvite()
-    {
-        if (InviteId != 0 && EventId != 0)
-            Global.CalendarMgr.FreeInviteId(InviteId);
-    }
-
     public ulong EventId { get; set; }
     public ObjectGuid InviteeGuid { get; set; }
     public ulong InviteId { get; set; }
