@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Item;
 using Framework.Collections;
 using Framework.Database;
@@ -11,13 +12,20 @@ namespace Forged.MapServer.BlackMarket;
 
 public class BlackMarketTemplate
 {
-    public float Chance;
-    public long Duration;
-    public ItemInstance Item;
-    public uint MarketID;
-    public ulong MinBid;
-    public uint Quantity;
-    public uint SellerNPC;
+    private readonly GameObjectManager _objectManager;
+    public float Chance { get; set; }
+    public long Duration { get; set; }
+    public ItemInstance Item { get; set; }
+    public uint MarketID { get; set; }
+    public ulong MinBid { get; set; }
+    public uint Quantity { get; set; }
+    public uint SellerNPC { get; set; }
+
+    public BlackMarketTemplate(GameObjectManager objectManager)
+    {
+        _objectManager = objectManager;
+    }
+
     public bool LoadFromDB(SQLFields fields)
     {
         MarketID = fields.Read<uint>(0);
@@ -47,20 +55,19 @@ public class BlackMarketTemplate
                 BonusListIDs = bonusListIDs
             };
 
-        if (Global.ObjectMgr.GetCreatureTemplate(SellerNPC) == null)
+        if (_objectManager.GetCreatureTemplate(SellerNPC) == null)
         {
             Log.Logger.Error("Black market template {0} does not have a valid seller. (Entry: {1})", MarketID, SellerNPC);
 
             return false;
         }
 
-        if (Global.ObjectMgr.GetItemTemplate(Item.ItemID) == null)
-        {
-            Log.Logger.Error("Black market template {0} does not have a valid item. (Entry: {1})", MarketID, Item.ItemID);
+        if (_objectManager.GetItemTemplate(Item.ItemID) != null)
+            return true;
 
-            return false;
-        }
+        Log.Logger.Error("Black market template {0} does not have a valid item. (Entry: {1})", MarketID, Item.ItemID);
 
-        return true;
+        return false;
+
     }
 }

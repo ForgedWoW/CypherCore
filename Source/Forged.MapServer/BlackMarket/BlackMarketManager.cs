@@ -12,6 +12,8 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Networking.Packets.BlackMarket;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
@@ -23,6 +25,7 @@ namespace Forged.MapServer.BlackMarket;
 public class BlackMarketManager
 {
     private readonly AccountManager _accountManager;
+    private readonly ClassFactory _classFactory;
     private readonly Dictionary<uint, BlackMarketEntry> _auctions = new();
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
@@ -32,9 +35,10 @@ public class BlackMarketManager
     private readonly Realm _realm;
     private readonly Dictionary<uint, BlackMarketTemplate> _templates = new();
     private readonly WorldDatabase _worldDatabase;
+
     public BlackMarketManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase,
                               ObjectAccessor objectAccessor, Realm realm, GameObjectManager objectManager,
-                              CharacterCache characterCache, AccountManager accountManager)
+                              CharacterCache characterCache, AccountManager accountManager, ClassFactory classFactory)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
@@ -44,6 +48,7 @@ public class BlackMarketManager
         _objectManager = objectManager;
         _characterCache = characterCache;
         _accountManager = accountManager;
+        _classFactory = classFactory;
     }
 
     public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket.Enabled", true);
@@ -128,7 +133,7 @@ public class BlackMarketManager
 
         do
         {
-            BlackMarketEntry auction = new();
+            var auction = _classFactory.Resolve<BlackMarketEntry>();
 
             if (!auction.LoadFromDB(result.GetFields()))
             {
@@ -170,7 +175,7 @@ public class BlackMarketManager
 
         do
         {
-            BlackMarketTemplate templ = new();
+            BlackMarketTemplate templ = new(_objectManager);
 
             if (!templ.LoadFromDB(result.GetFields())) // Add checks
                 continue;
@@ -214,7 +219,7 @@ public class BlackMarketManager
 
         foreach (var templat in templates)
         {
-            BlackMarketEntry entry = new();
+            var entry = _classFactory.Resolve<BlackMarketEntry>();
             entry.Initialize(templat.MarketID, (uint)templat.Duration);
             entry.SaveToDB(trans);
             AddAuction(entry);
@@ -240,7 +245,7 @@ public class BlackMarketManager
             return;
 
         if (oldBidder)
-            oldBidder.Session.SendBlackMarketOutbidNotification(entry.GetTemplate());
+            SendBlackMarketOutbidNotification(oldBidder.Session, entry.GetTemplate());
 
         new MailDraft(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Outbid), entry.BuildAuctionMailBody())
             .AddMoney(entry.CurrentBid)
@@ -306,7 +311,7 @@ public class BlackMarketManager
                             entry.CurrentBid / MoneyConstants.Gold);
 
         if (bidder)
-            bidder.Session.SendBlackMarketWonNotification(entry, item);
+            SendBlackMarketWonNotification(bidder.Session, entry, item);
 
         new MailDraft(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Won), entry.BuildAuctionMailBody())
             .AddItem(item)
@@ -333,5 +338,28 @@ public class BlackMarketManager
             LastUpdate = now;
 
         _characterDatabase.CommitTransaction(trans);
+    }
+
+    public void SendBlackMarketWonNotification(WorldSession session, BlackMarketEntry entry, Item item)
+    {
+        BlackMarketWon packet = new()
+        {
+            MarketID = entry.MarketId,
+            Item = new ItemInstance(item)
+        };
+
+        session.SendPacket(packet);
+    }
+
+    public void SendBlackMarketOutbidNotification(WorldSession session, BlackMarketTemplate templ)
+    {
+        BlackMarketOutbid packet = new()
+        {
+            MarketID = templ.MarketID,
+            Item = templ.Item,
+            RandomPropertiesID = 0
+        };
+
+        session.SendPacket(packet);
     }
 }

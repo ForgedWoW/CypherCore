@@ -456,6 +456,7 @@ void RegisterInstanced()
     builder.RegisterType<QuestMenu>();
     builder.RegisterType<GameObject>();
     builder.RegisterType<BattlePet>();
+    builder.RegisterType<BlackMarketEntry>();
 }
 
 void RegisterHandlers()
