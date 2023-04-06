@@ -7,8 +7,8 @@ namespace Forged.MapServer.Entities.Items;
 
 internal class ArtifactData
 {
-    public uint ArtifactAppearanceId;
-    public List<ArtifactPowerData> ArtifactPowers = new();
-    public uint ArtifactTierId;
-    public ulong Xp;
+    public uint ArtifactAppearanceId { get; set; }
+    public List<ArtifactPowerData> ArtifactPowers { get; set; } = new();
+    public uint ArtifactTierId { get; set; }
+    public ulong Xp { get; set; }
 }

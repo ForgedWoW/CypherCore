@@ -8,10 +8,10 @@ namespace Forged.MapServer.Entities.Items;
 
 public class AzeriteData
 {
-    public List<uint> AzeriteItemMilestonePowers = new();
-    public uint KnowledgeLevel;
-    public uint Level;
-    public AzeriteItemSelectedEssencesData[] SelectedAzeriteEssences = new AzeriteItemSelectedEssencesData[4];
-    public List<AzeriteEssencePowerRecord> UnlockedAzeriteEssences = new();
-    public ulong Xp;
+    public List<uint> AzeriteItemMilestonePowers { get; set; } = new();
+    public uint KnowledgeLevel { get; set; }
+    public uint Level { get; set; }
+    public AzeriteItemSelectedEssencesData[] SelectedAzeriteEssences { get; set; } = new AzeriteItemSelectedEssencesData[4];
+    public List<AzeriteEssencePowerRecord> UnlockedAzeriteEssences { get; set; } = new();
+    public ulong Xp { get; set; }
 }

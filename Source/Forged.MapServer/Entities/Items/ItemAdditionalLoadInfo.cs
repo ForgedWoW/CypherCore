@@ -11,9 +11,10 @@ namespace Forged.MapServer.Entities.Items;
 
 internal class ItemAdditionalLoadInfo
 {
-    public ArtifactData Artifact;
-    public AzeriteEmpoweredData AzeriteEmpoweredItem;
-    public AzeriteData AzeriteItem;
+    public ArtifactData Artifact { get; set; }
+    public AzeriteEmpoweredData AzeriteEmpoweredItem { get; set; }
+    public AzeriteData AzeriteItem { get; set; }
+
     public static void Init(Dictionary<ulong, ItemAdditionalLoadInfo> loadInfo, SQLResult artifactResult, SQLResult azeriteItemResult, SQLResult azeriteItemMilestonePowersResult,
                             SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult)
     {
@@ -30,8 +31,7 @@ internal class ItemAdditionalLoadInfo
             {
                 var info = GetOrCreateLoadInfo(artifactResult.Read<ulong>(0));
 
-                if (info.Artifact == null)
-                    info.Artifact = new ArtifactData();
+                info.Artifact ??= new ArtifactData();
 
                 info.Artifact.Xp = artifactResult.Read<ulong>(1);
                 info.Artifact.ArtifactAppearanceId = artifactResult.Read<uint>(2);
@@ -67,8 +67,7 @@ internal class ItemAdditionalLoadInfo
             {
                 var info = GetOrCreateLoadInfo(azeriteItemResult.Read<ulong>(0));
 
-                if (info.AzeriteItem == null)
-                    info.AzeriteItem = new AzeriteData();
+                info.AzeriteItem ??= new AzeriteData();
 
                 info.AzeriteItem.Xp = azeriteItemResult.Read<ulong>(1);
                 info.AzeriteItem.Level = azeriteItemResult.Read<uint>(2);

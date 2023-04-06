@@ -63,6 +63,7 @@ using Framework.Constants;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
+using Forged.MapServer.OpCodeHandlers;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -131,6 +132,7 @@ void RegisterServerTypes()
     RegisterManagers();
     RegisterFactories();
     RegisterInstanced();
+    RegisterHandlers();
 }
 
 void RegisterManagers()
@@ -453,4 +455,9 @@ void RegisterInstanced()
     builder.RegisterType<AreaTrigger>();
     builder.RegisterType<QuestMenu>();
     builder.RegisterType<GameObject>();
+}
+
+void RegisterHandlers()
+{
+    builder.RegisterType<BattlepayHandler>();
 }

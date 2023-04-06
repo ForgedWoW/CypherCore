@@ -1144,34 +1144,28 @@ namespace Forged.MapServer.Entities.GameObjects
             // Always seen by owner and friendly units
             var guid = OwnerGUID;
 
-            if (!guid.IsEmpty)
-            {
-                if (seer.GUID == guid)
-                    return true;
+            if (guid.IsEmpty)
+                return false;
 
-                var owner = OwnerUnit;
+            if (seer.GUID == guid)
+                return true;
 
-                if (owner != null && seer.IsTypeMask(TypeMask.Unit) && owner.WorldObjectCombat.IsFriendlyTo(seer.AsUnit))
-                    return true;
-            }
+            var owner = OwnerUnit;
 
-            return false;
+            return owner != null && seer.IsTypeMask(TypeMask.Unit) && owner.WorldObjectCombat.IsFriendlyTo(seer.AsUnit);
         }
 
         public bool IsAtInteractDistance(Player player, SpellInfo spell = null)
         {
-            if (spell != null || (spell = GetSpellForLock(player)) != null)
-            {
-                var maxRange = spell.GetMaxRange(spell.IsPositive);
+            if (spell == null && (spell = GetSpellForLock(player)) == null)
+                return IsAtInteractDistance(player.Location, GetInteractionDistance());
 
-                if (GoType == GameObjectTypes.SpellFocus)
-                    return maxRange * maxRange >= Location.GetExactDistSq(player.Location);
+            var maxRange = spell.GetMaxRange(spell.IsPositive);
 
-                if (CliDB.GameObjectDisplayInfoStorage.ContainsKey(Template.displayId))
-                    return IsAtInteractDistance(player.Location, maxRange);
-            }
+            if (GoType == GameObjectTypes.SpellFocus)
+                return maxRange * maxRange >= Location.GetExactDistSq(player.Location);
 
-            return IsAtInteractDistance(player.Location, GetInteractionDistance());
+            return IsAtInteractDistance(player.Location, CliDB.GameObjectDisplayInfoStorage.ContainsKey(Template.displayId) ? maxRange : GetInteractionDistance());
         }
 
         public bool IsInRange(float x, float y, float z, float radius)
@@ -1203,11 +1197,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public bool IsInSkillupList(ObjectGuid playerGuid)
         {
-            foreach (var i in _skillupList)
-                if (i == playerGuid)
-                    return true;
-
-            return false;
+            return _skillupList.Any(i => i == playerGuid);
         }
 
         public override bool IsInvisibleDueToDespawn(WorldObject seer)
@@ -1221,10 +1211,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
             var state = _perPlayerState?.LookupByKey(seer.GUID);
 
-            if (state is { Despawned: true })
-                return true;
-
-            return false;
+            return state is { Despawned: true };
         }
 
         public bool IsLootAllowedFor(Player player)

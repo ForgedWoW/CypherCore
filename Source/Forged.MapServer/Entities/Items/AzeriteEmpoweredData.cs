@@ -7,5 +7,5 @@ namespace Forged.MapServer.Entities.Items;
 
 public class AzeriteEmpoweredData
 {
-    public int[] SelectedAzeritePowers = new int[SharedConst.MaxAzeriteEmpoweredTier];
+    public int[] SelectedAzeritePowers { get; set; } = new int[SharedConst.MaxAzeriteEmpoweredTier];
 }

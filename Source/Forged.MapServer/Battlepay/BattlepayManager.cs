@@ -3,41 +3,55 @@
 
 using System;
 using System.Collections.Generic;
-using Forged.MapServer.BattlePets;
+using System.Linq;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Bpay;
+using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Server;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Battlepay;
 
 public class BattlepayManager
 {
+    private readonly BattlePayDataStoreMgr _battlePayDataStoreMgr;
     private readonly BattlePetMgrData _battlePetMgr;
+    private readonly IConfiguration _configuration;
     private readonly SortedDictionary<uint, BpayProduct> _existProducts = new();
-
+    private readonly LoginDatabase _loginDatabase;
     private readonly WorldSession _session;
-    private readonly string _walletName;
-    private Purchase _actualTransaction = new();
     private ulong _distributionIDCount;
     private ulong _purchaseIDCount;
 
-    public BattlepayManager(WorldSession session, BattlePetMgrData battlePetMgr)
+    public BattlepayHandler BattlepayHandler { get; set; }
+    public Purchase CurrentTransaction { get; private set; } = new();
+
+    public bool IsAvailable => _configuration.GetDefaultValue("FeatureSystem.BpayStore.Enabled", false);
+
+    public uint ShopCurrency => _configuration.GetDefaultValue("FeatureSystem.BpayStore.Currency", 1u);
+
+    public string WalletName { get; }
+
+    public BattlepayManager(WorldSession session, BattlePetMgrData battlePetMgr, LoginDatabase loginDatabase, IConfiguration configuration, BattlePayDataStoreMgr battlePayDataStoreMgr)
     {
         _session = session;
         _battlePetMgr = battlePetMgr;
+        _loginDatabase = loginDatabase;
+        _configuration = configuration;
+        _battlePayDataStoreMgr = battlePayDataStoreMgr;
         _purchaseIDCount = 0;
         _distributionIDCount = 0;
-        _walletName = "Credits";
+        WalletName = "Credits";
     }
 
-    //C++ TO C# CONVERTER WARNING: 'const' methods are not available in C#:
-    //ORIGINAL LINE: void AddBattlePetFromBpayShop(uint battlePetCreatureID) const
     public void AddBattlePetFromBpayShop(uint battlePetCreatureID)
     {
         var speciesEntry = _battlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID);
@@ -53,24 +67,18 @@ public class BattlepayManager
 
     public bool AlreadyOwnProduct(uint itemId)
     {
-        var player = _session.Player;
+        if (_session.Player == null)
+            return false;
 
-        if (player)
-        {
-            var itemTemplate = _session.Player.ObjectManager.GetItemTemplate(itemId);
+        var itemTemplate = _session.Player.ObjectManager.GetItemTemplate(itemId);
 
-            if (itemTemplate == null)
-                return true;
+        if (itemTemplate == null)
+            return true;
 
-            foreach (var itr in itemTemplate.Effects)
-                if (itr.TriggerType == ItemSpelltriggerType.OnLearn && player.HasSpell((uint)itr.SpellID))
-                    return true;
+        if (itemTemplate.Effects.Any(itr => itr.TriggerType == ItemSpelltriggerType.OnLearn && _session.Player.HasSpell((uint)itr.SpellID)))
+            return true;
 
-            if (player.GetItemCount(itemId) != 0)
-                return true;
-        }
-
-        return false;
+        return _session.Player.GetItemCount(itemId) != 0;
     }
 
     public void AssignDistributionToCharacter(in ObjectGuid targetCharGuid, ulong distributionId, uint productId, ushort specializationID, ushort choiceID)
@@ -91,7 +99,7 @@ public class BattlepayManager
 
         _session.SendPacket(upgrade);
 
-        var purchase = GetPurchase();
+        var purchase = CurrentTransaction;
         purchase.Status = (ushort)BpayDistributionStatus.AddToProcess; // DistributionStatus.Globals.BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS;
 
         SendBattlePayDistribution(productId, purchase.Status, distributionId, targetCharGuid);
@@ -109,11 +117,11 @@ public class BattlepayManager
 
     public uint GetBattlePayCredits()
     {
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
 
         stmt.AddValue(0, _session.BattlenetAccountId);
 
-        var resultDon = DB.Login.Query(stmt);
+        var resultDon = _loginDatabase.Query(stmt);
 
         if (resultDon == null)
             return 0;
@@ -122,23 +130,6 @@ public class BattlepayManager
         var credits = fields.Read<uint>(0);
 
         return credits * 10000u; // currency precision .. in retail it like gold and copper .. 10 usd is 100000 battlepay credit
-    }
-
-    //C++ TO C# CONVERTER WARNING: 'const' methods are not available in C#:
-    //ORIGINAL LINE: string const& GetDefaultWalletName() const
-    public string GetDefaultWalletName()
-    {
-        return _walletName;
-    }
-
-    public Purchase GetPurchase()
-    {
-        return _actualTransaction;
-    }
-
-    public uint GetShopCurrency()
-    {
-        return (uint)ConfigMgr.GetDefaultValue("FeatureSystem.BpayStore.Currency", 1);
     }
 
     public bool HasBattlePayCredits(uint count)
@@ -151,17 +142,12 @@ public class BattlepayManager
         return false;
     }
 
-    public bool IsAvailable()
-    {
-        return GetDefaultValue("FeatureSystem.BpayStore.Enabled", false);
-    }
-
     public bool ModifyBattlePayCredits(uint credits)
     {
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
         stmt.AddValue(0, credits);
         stmt.AddValue(1, _session.BattlenetAccountId);
-        DB.Login.Execute(stmt);
+        _loginDatabase.Execute(stmt);
         SendBattlePayMessage(3, "", credits);
 
         return true;
@@ -174,12 +160,12 @@ public class BattlepayManager
         if (!player)
             return;
 
-        var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(purchase.ProductID);
+        var productInfo = _battlePayDataStoreMgr.GetProductInfoForProduct(purchase.ProductID);
         var itemstosendinmail = new List<uint>();
 
         foreach (var productId in productInfo.ProductIds)
         {
-            var product = BattlePayDataStoreMgr.Instance.GetProduct(productId);
+            var product = _battlePayDataStoreMgr.GetProduct(productId);
             var itemTemplate = _session.Player.ObjectManager.GetItemTemplate(product.Flags);
             var itemsToSendIfInventoryFull = new List<uint>();
 
@@ -201,62 +187,63 @@ public class BattlepayManager
                     }
                     else
                     {
-                        _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                        BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
                     }
 
-                    foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
-                        if (_session.Player.ObjectManager.GetItemTemplate(item.ItemID) != null)
-                        {
-                            if (player.GetFreeInventorySpace() > item.Quantity)
-                                player.AddItemWithToast(item.ItemID, (ushort)item.Quantity, 0);
-                            else
-                                itemsToSendIfInventoryFull.Add(item.ItemID); // problem if the quantity > 0
-                        }
+                    foreach (var item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId).Where(item => _session.Player.ObjectManager.GetItemTemplate(item.ItemID) != null))
+                        if (player.GetFreeInventorySpace() > item.Quantity)
+                            player.AddItemWithToast(item.ItemID, (ushort)item.Quantity, 0);
+                        else
+                            itemsToSendIfInventoryFull.Add(item.ItemID); // problem if the quantity > 0
 
                     if (itemsToSendIfInventoryFull.Count > 0)
                         player.SendABunchOfItemsInMail(itemsToSendIfInventoryFull, "Ingame Shop Item Delivery");
 
                     break;
 
-                case ProductType.LevelBoost:      // 1
-                    if (product.ProductId == 572) // level 50 boost
+                case ProductType.LevelBoost: // 1
+                    switch (product.ProductId)
                     {
-                        player.SetLevel(50);
+                        // level 50 boost
+                        case 572:
+                            player.SetLevel(50);
 
-                        player.GearUpByLoadout(9,
-                                               new List<uint>
-                                               {
-                                                   6771
-                                               });
+                            player.GearUpByLoadout(9,
+                                                   new List<uint>
+                                                   {
+                                                       6771
+                                                   });
 
-                        player.InitTalentForLevel();
-                        player.InitStatsForLevel();
-                        player.UpdateSkillsForLevel();
-                        player.LearnDefaultSkills();
-                        player.LearnSpecializationSpells();
-                        player.UpdateAllStats();
-                        player.SetFullHealth();
-                        player.SetFullPower(PowerType.Mana);
-                    }
+                            player.InitTalentForLevel();
+                            player.InitStatsForLevel();
+                            player.UpdateSkillsForLevel();
+                            player.LearnDefaultSkills();
+                            player.LearnSpecializationSpells();
+                            player.UpdateAllStats();
+                            player.SetFullHealth();
+                            player.SetFullPower(PowerType.Mana);
 
-                    if (product.ProductId == 630) // level 60 boost
-                    {
-                        player.SetLevel(60);
+                            break;
+                        // level 60 boost
+                        case 630:
+                            player.SetLevel(60);
 
-                        player.GearUpByLoadout(9,
-                                               new List<uint>
-                                               {
-                                                   6771
-                                               });
+                            player.GearUpByLoadout(9,
+                                                   new List<uint>
+                                                   {
+                                                       6771
+                                                   });
 
-                        player.InitTalentForLevel();
-                        player.InitStatsForLevel();
-                        player.UpdateSkillsForLevel();
-                        player.LearnDefaultSkills();
-                        player.LearnSpecializationSpells();
-                        player.UpdateAllStats();
-                        player.SetFullHealth();
-                        player.SetFullPower(PowerType.Mana);
+                            player.InitTalentForLevel();
+                            player.InitStatsForLevel();
+                            player.UpdateSkillsForLevel();
+                            player.LearnDefaultSkills();
+                            player.LearnSpecializationSpells();
+                            player.UpdateAllStats();
+                            player.SetFullHealth();
+                            player.SetFullPower(PowerType.Mana);
+
+                            break;
                     }
 
                     break;
@@ -265,7 +252,7 @@ public class BattlepayManager
                     if (player)       // if logged in
                         player.Session.BattlePayMgr.AddBattlePetFromBpayShop(product.ItemId);
                     else
-                        _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                        BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
 
                     break;
 
@@ -288,7 +275,7 @@ public class BattlepayManager
                     }
                     else
                     {
-                        _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                        BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
                     }
 
                     break;
@@ -297,7 +284,7 @@ public class BattlepayManager
                     if (player)              // if logged in
                         player.SetAtLoginFlag(AtLoginFlags.Rename);
                     else
-                        _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                        BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
 
                     break;
 
@@ -305,7 +292,7 @@ public class BattlepayManager
                     if (player)                                            // if logged in
                         player.SetAtLoginFlag(AtLoginFlags.ChangeFaction); // not ok for 6 or 3 faction change - only does once yet
                     else
-                        _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                        BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
 
                     break;
 
@@ -313,13 +300,13 @@ public class BattlepayManager
                     if (player)                                         // if logged in
                         player.SetAtLoginFlag(AtLoginFlags.ChangeRace); // not ok for 6 or 3 faction change - only does once yet
                     else
-                        _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                        BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
 
                     break;
 
                 case ProductType.CharacterTransfer: // 11
                     // if u have multiple realms u have to implement this xD otherwise it sends error
-                    _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                    BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
 
                     break;
 
@@ -350,7 +337,7 @@ public class BattlepayManager
                     }
                     else
                     {
-                        _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                        BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
                     }
 
                     break;
@@ -360,7 +347,7 @@ public class BattlepayManager
                 case ProductType.GuildTransfer:       // 23
                 case ProductType.GuildFactionTranfer: // 24
                     // Not implemented yet - need some more guild functions e.g.: getmembers
-                    _session.SendStartPurchaseResponse(_session, GetPurchase(), BpayError.PurchaseDenied);
+                    BattlepayHandler.SendStartPurchaseResponse(CurrentTransaction, BpayError.PurchaseDenied);
 
                     break;
 
@@ -369,7 +356,7 @@ public class BattlepayManager
 
                     break;
 
-                /// Customs:
+                // Customs:
                 case ProductType.ItemSet:
                 {
                     var its = _session.Player.ObjectManager.GetItemTemplates();
@@ -400,7 +387,7 @@ public class BattlepayManager
                         player.SendABunchOfItemsInMail(itemstosendinmail, "Ingame Shop - You bought an item set!");
                 }
 
-                break;
+                    break;
 
                 case ProductType.Gold: // 30
                     if (player)
@@ -970,17 +957,17 @@ public class BattlepayManager
                     }
 
                     break;
-                    /*
-                case Battlepay::VueloDL:
-                    if (!player)
-                        player->AddItem(128706, 1);
-                    player->CompletedAchievement(sAchievementStore.LookupEntry(10018));
-                    player->CompletedAchievement(sAchievementStore.LookupEntry(11190));
-                    player->CompletedAchievement(sAchievementStore.LookupEntry(11446));
-                    player->GetSession()->SendNotification("|cff00FF00Has aprendido poder volar en las Islas Abruptas, Costas Abruptas y Draenor");
-                    break;
-                    //
-                        */
+                /*
+            case Battlepay::VueloDL:
+                if (!player)
+                    player->AddItem(128706, 1);
+                player->CompletedAchievement(sAchievementStore.LookupEntry(10018));
+                player->CompletedAchievement(sAchievementStore.LookupEntry(11190));
+                player->CompletedAchievement(sAchievementStore.LookupEntry(11446));
+                player->GetSession()->SendNotification("|cff00FF00Has aprendido poder volar en las Islas Abruptas, Costas Abruptas y Draenor");
+                break;
+                //
+                    */
             }
         }
         /*
@@ -991,31 +978,31 @@ public class BattlepayManager
 
     public void RegisterStartPurchase(Purchase purchase)
     {
-        _actualTransaction = purchase;
+        CurrentTransaction = purchase;
     }
 
     public void SavePurchase(Purchase purchase)
     {
-        var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(purchase.ProductID);
-        var displayInfo = BattlePayDataStoreMgr.Instance.GetDisplayInfo(productInfo.Entry);
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
+        var productInfo = _battlePayDataStoreMgr.GetProductInfoForProduct(purchase.ProductID);
+        var displayInfo = _battlePayDataStoreMgr.GetDisplayInfo(productInfo.Entry);
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
         stmt.AddValue(0, _session.AccountId);
-        stmt.AddValue(1, WorldManager.Realm.Id.GetAddress());
+        stmt.AddValue(1, WorldManager.Realm.Id.VirtualRealmAddress);
         stmt.AddValue(2, _session.Player ? _session.Player.GUID.Counter : 0);
         stmt.AddValue(3, purchase.ProductID);
         stmt.AddValue(4, displayInfo.Name1);
         stmt.AddValue(5, purchase.CurrentPrice);
         stmt.AddValue(6, _session.RemoteAddress);
-        DB.Login.Execute(stmt);
+        _loginDatabase.Execute(stmt);
     }
 
     public void SendAccountCredits()
     {
         //    auto sessionId = _session->GetAccountId();
         //
-        //    LoginDatabasePreparedStatement* stmt = DB.Login.GetPreparedStatement(LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+        //    LoginDatabasePreparedStatement* stmt = _loginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
         //    stmt->setUInt32(0, _session->GetAccountId());
-        //    PreparedQueryResult result = DB.Login.Query(stmt);
+        //    PreparedQueryResult result = _loginDatabase.Query(stmt);
         //
         //    auto sSession = sWorld->FindSession(sessionId);
         //    if (!sSession)
@@ -1051,9 +1038,9 @@ public class BattlepayManager
     public void SendBattlePayDistribution(uint productId, ushort status, ulong distributionId, ObjectGuid targetGuid)
     {
         var distributionBattlePay = new DistributionUpdate();
-        var product = BattlePayDataStoreMgr.Instance.GetProduct(productId);
+        var product = _battlePayDataStoreMgr.GetProduct(productId);
 
-        var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(productId);
+        var productInfo = _battlePayDataStoreMgr.GetProductInfoForProduct(productId);
 
         distributionBattlePay.DistributionObject.DistributionID = distributionId;
         distributionBattlePay.DistributionObject.Status = status;
@@ -1063,8 +1050,8 @@ public class BattlepayManager
         if (!targetGuid.IsEmpty)
         {
             distributionBattlePay.DistributionObject.TargetPlayer = targetGuid;
-            distributionBattlePay.DistributionObject.TargetVirtualRealm = WorldManager.Realm.Id.GetAddress();
-            distributionBattlePay.DistributionObject.TargetNativeRealm = WorldManager.Realm.Id.GetAddress();
+            distributionBattlePay.DistributionObject.TargetVirtualRealm = WorldManager.Realm.Id.VirtualRealmAddress;
+            distributionBattlePay.DistributionObject.TargetNativeRealm = WorldManager.Realm.Id.VirtualRealmAddress;
         }
 
         var productData = new BpayProduct
@@ -1086,7 +1073,7 @@ public class BattlepayManager
             UnkBits = product.UnkBits
         };
 
-        foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
+        foreach (var item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId))
         {
             var productItem = new BpayProductItem
             {
@@ -1156,7 +1143,7 @@ public class BattlepayManager
         var response = new ProductListResponse();
         var player = _session.Player; // it's a false value if player is in character screen
 
-        if (!IsAvailable())
+        if (!IsAvailable)
         {
             response.Result = (uint)ProductListResult.LockUnk1;
             _session.SendPacket(response);
@@ -1165,10 +1152,10 @@ public class BattlepayManager
         }
 
         response.Result = (uint)ProductListResult.Available;
-        response.CurrencyID = GetShopCurrency() > 0 ? GetShopCurrency() : 1;
+        response.CurrencyID = ShopCurrency > 0 ? ShopCurrency : 1;
 
         // BATTLEPAY GROUP
-        foreach (var itr in BattlePayDataStoreMgr.Instance.ProductGroups)
+        foreach (var itr in _battlePayDataStoreMgr.ProductGroups)
         {
             var group = new BpayGroup
             {
@@ -1185,7 +1172,7 @@ public class BattlepayManager
         }
 
         // BATTLEPAY SHOP
-        foreach (var itr in BattlePayDataStoreMgr.Instance.ShopEntries)
+        foreach (var itr in _battlePayDataStoreMgr.ShopEntries)
         {
             var shop = new BpayShop
             {
@@ -1207,7 +1194,7 @@ public class BattlepayManager
             if (player == null && shop.StoreDeliveryType != 2)
                 continue;
 
-            var productAddon = BattlePayDataStoreMgr.Instance.GetProductAddon(itr.Entry);
+            var productAddon = _battlePayDataStoreMgr.GetProductAddon(itr.Entry);
 
             if (productAddon != null)
                 if (productAddon.DisableListing > 0)
@@ -1217,11 +1204,11 @@ public class BattlepayManager
         }
 
         // BATTLEPAY PRODUCT INFO
-        foreach (var itr in BattlePayDataStoreMgr.Instance.ProductInfos)
+        foreach (var itr in _battlePayDataStoreMgr.ProductInfos)
         {
             var productInfo = itr.Value;
 
-            var productAddon = BattlePayDataStoreMgr.Instance.GetProductAddon(productInfo.Entry);
+            var productAddon = _battlePayDataStoreMgr.GetProductAddon(productInfo.Entry);
 
             if (productAddon != null)
                 if (productAddon.DisableListing > 0)
@@ -1249,12 +1236,12 @@ public class BattlepayManager
             response.ProductInfos.Add(productinfo);
         }
 
-        foreach (var itr in BattlePayDataStoreMgr.Instance.Products)
+        foreach (var itr in _battlePayDataStoreMgr.Products)
         {
             var product = itr.Value;
-            var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(product.ProductId);
+            var productInfo = _battlePayDataStoreMgr.GetProductInfoForProduct(product.ProductId);
 
-            var productAddon = BattlePayDataStoreMgr.Instance.GetProductAddon(productInfo.Entry);
+            var productAddon = _battlePayDataStoreMgr.GetProductAddon(productInfo.Entry);
 
             if (productAddon != null)
                 if (productAddon.DisableListing > 0)
@@ -1282,7 +1269,7 @@ public class BattlepayManager
 
             // BATTLEPAY ITEM
             if (product.Items.Count > 0)
-                foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
+                foreach (var item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId))
                 {
                     var pItem = new BpayProductItem
                     {
@@ -1296,7 +1283,7 @@ public class BattlepayManager
                         PetResult = item.PetResult
                     };
 
-                    if (BattlePayDataStoreMgr.Instance.DisplayInfoExist(productInfo.Entry))
+                    if (_battlePayDataStoreMgr.DisplayInfoExist(productInfo.Entry))
                     {
                         // productinfo entry and display entry must be the same
                         var disInfo = WriteDisplayInfo(productInfo.Entry);
@@ -1400,10 +1387,10 @@ public class BattlepayManager
     {
         //TC_LOG_INFO("server.BattlePay", "UpdateBattlePayCredits: GetBattlePayCredits(): {} - price: {}", GetBattlePayCredits(), price);
         var calcCredit = (GetBattlePayCredits() - price) / 10000;
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
         stmt.AddValue(0, calcCredit);
         stmt.AddValue(1, _session.BattlenetAccountId);
-        DB.Login.Execute(stmt);
+        _loginDatabase.Execute(stmt);
 
         return true;
     }
@@ -1413,12 +1400,12 @@ public class BattlepayManager
         //C++ TO C# CONVERTER TASK: Lambda expressions cannot be assigned to 'var':
         var qualityColor = (uint displayInfoOrProductInfoEntry) =>
         {
-            var productAddon = BattlePayDataStoreMgr.Instance.GetProductAddon(displayInfoOrProductInfoEntry);
+            var productAddon = _battlePayDataStoreMgr.GetProductAddon(displayInfoOrProductInfoEntry);
 
             if (productAddon == null)
                 return "|cffffffff";
 
-            switch (BattlePayDataStoreMgr.Instance.GetProductAddon(displayInfoOrProductInfoEntry).NameColorIndex)
+            switch (_battlePayDataStoreMgr.GetProductAddon(displayInfoOrProductInfoEntry).NameColorIndex)
             {
                 case 0:
                     return "|cffffffff";
@@ -1448,7 +1435,7 @@ public class BattlepayManager
 
         var info = new BpayDisplayInfo();
 
-        var displayInfo = BattlePayDataStoreMgr.Instance.GetDisplayInfo(displayInfoEntry);
+        var displayInfo = _battlePayDataStoreMgr.GetDisplayInfo(displayInfoEntry);
 
         if (displayInfo == null)
             return Tuple.Create(false, info);

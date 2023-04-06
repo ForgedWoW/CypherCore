@@ -7,6 +7,6 @@ namespace Forged.MapServer.Entities.Items;
 
 public class AzeriteItemSelectedEssencesData
 {
-    public uint[] AzeriteEssenceId = new uint[SharedConst.MaxAzeriteEssenceSlot];
-    public uint SpecializationId;
+    public uint[] AzeriteEssenceId { get; set; } = new uint[SharedConst.MaxAzeriteEssenceSlot];
+    public uint SpecializationId { get; set; }
 }
