@@ -64,30 +64,21 @@ public class CharacterCache
     {
         var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
 
-        if (characterCacheEntry == null)
-            return 0;
-
-        return characterCacheEntry.AccountId;
+        return characterCacheEntry?.AccountId ?? 0;
     }
 
     public uint GetCharacterAccountIdByName(string name)
     {
         var characterCacheEntry = _characterCacheByNameStore.LookupByKey(name);
 
-        if (characterCacheEntry != null)
-            return characterCacheEntry.AccountId;
-
-        return 0;
+        return characterCacheEntry?.AccountId ?? 0;
     }
 
     public uint GetCharacterArenaTeamIdByGuid(ObjectGuid guid, byte type)
     {
         var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
 
-        if (characterCacheEntry == null)
-            return 0;
-
-        return characterCacheEntry.ArenaTeamId[ArenaTeam.GetSlotByType(type)];
+        return characterCacheEntry == null ? 0 : characterCacheEntry.ArenaTeamId[ArenaTeam.GetSlotByType(type)];
     }
 
     public CharacterCacheEntry GetCharacterCacheByGuid(ObjectGuid guid)
@@ -104,30 +95,21 @@ public class CharacterCache
     {
         var characterCacheEntry = _characterCacheByNameStore.LookupByKey(name);
 
-        if (characterCacheEntry != null)
-            return characterCacheEntry.Guid;
-
-        return ObjectGuid.Empty;
+        return characterCacheEntry?.Guid ?? ObjectGuid.Empty;
     }
 
     public ulong GetCharacterGuildIdByGuid(ObjectGuid guid)
     {
         var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
 
-        if (characterCacheEntry == null)
-            return 0;
-
-        return characterCacheEntry.GuildId;
+        return characterCacheEntry?.GuildId ?? 0;
     }
 
     public byte GetCharacterLevelByGuid(ObjectGuid guid)
     {
         var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
 
-        if (characterCacheEntry == null)
-            return 0;
-
-        return characterCacheEntry.Level;
+        return characterCacheEntry?.Level ?? 0;
     }
 
     public bool GetCharacterNameAndClassByGUID(ObjectGuid guid, out string name, out byte _class)
@@ -163,10 +145,7 @@ public class CharacterCache
     {
         var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
 
-        if (characterCacheEntry == null)
-            return 0;
-
-        return Player.TeamForRace(characterCacheEntry.RaceId, _cliDB);
+        return characterCacheEntry == null ? 0 : Player.TeamForRace(characterCacheEntry.RaceId, _cliDB);
     }
 
     public bool HasCharacterCacheEntry(ObjectGuid guid)
