@@ -668,17 +668,17 @@ internal class NPCCommands
                                   map.DifficultyID
                               });
 
-            var db_guid = creature.SpawnId;
+            var dbGUID = creature.SpawnId;
 
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells()
             // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
             creature.CleanupsBeforeDelete();
-            creature = CreatureFactory.CreateCreatureFromDB(db_guid, map, true, true);
+            creature = CreatureFactory.CreateCreatureFromDB(dbGUID, map, true, true);
 
             if (!creature)
                 return false;
 
-            handler.Session.Player.ObjectManager.AddCreatureToGrid(handler.Session.Player.ObjectManager.GetCreatureData(db_guid));
+            handler.Session.Player.ObjectManager.AddCreatureToGrid(handler.Session.Player.ObjectManager.GetCreatureData(dbGUID));
 
             return true;
         }
@@ -798,7 +798,7 @@ internal class NPCCommands
             var maxcount = mc.GetValueOrDefault(0);
             var incrtime = it.GetValueOrDefault(0);
             var extendedcost = ec.GetValueOrDefault(0);
-            var vendor_entry = vendor.Entry;
+            var vendorEntry = vendor.Entry;
 
             VendorItem vItem = new()
             {
@@ -819,10 +819,10 @@ internal class NPCCommands
                             vItem.BonusListIDs.Add(id);
             }
 
-            if (!ObjectManager.IsVendorItemValid(vendor_entry, vItem, handler.Session.Player))
+            if (!ObjectManager.IsVendorItemValid(vendorEntry, vItem, handler.Session.Player))
                 return false;
 
-            ObjectManager.AddVendorItem(vendor_entry, vItem);
+            ObjectManager.AddVendorItem(vendorEntry, vItem);
 
             var itemTemplate = ObjectManager.GetItemTemplate(itemId);
 
@@ -996,7 +996,7 @@ internal class NPCCommands
         }
 
         [Command("data", RBACPermissions.CommandNpcSetData)]
-        private static bool HandleNpcSetDataCommand(CommandHandler handler, uint data_1, uint data_2)
+        private static bool HandleNpcSetDataCommand(CommandHandler handler, uint data1, uint data2)
         {
             var creature = handler.SelectedCreature;
 
@@ -1007,9 +1007,9 @@ internal class NPCCommands
                 return false;
             }
 
-            creature.AI.SetData(data_1, data_2);
-            var AIorScript = creature.GetAIName() != "" ? "AI type: " + creature.GetAIName() : (creature.GetScriptName() != "" ? "Script Name: " + creature.GetScriptName() : "No AI or Script Name Set");
-            handler.SendSysMessage(CypherStrings.NpcSetdata, creature.GUID, creature.Entry, creature.GetName(), data_1, data_2, AIorScript);
+            creature.AI.SetData(data1, data2);
+            var aIorScript = creature.GetAIName() != "" ? "AI type: " + creature.GetAIName() : (creature.GetScriptName() != "" ? "Script Name: " + creature.GetScriptName() : "No AI or Script Name Set");
+            handler.SendSysMessage(CypherStrings.NpcSetdata, creature.GUID, creature.Entry, creature.GetName(), data1, data2, aIorScript);
 
             return true;
         }
@@ -1242,22 +1242,22 @@ internal class NPCCommands
             // now lowguid is low guid really existed creature
             // and creature point (maybe) to this creature or NULL
 
-            MovementGeneratorType move_type;
+            MovementGeneratorType moveType;
 
             switch (type)
             {
                 case "stay":
-                    move_type = MovementGeneratorType.Idle;
+                    moveType = MovementGeneratorType.Idle;
 
                     break;
 
                 case "random":
-                    move_type = MovementGeneratorType.Random;
+                    moveType = MovementGeneratorType.Random;
 
                     break;
 
                 case "way":
-                    move_type = MovementGeneratorType.Waypoint;
+                    moveType = MovementGeneratorType.Waypoint;
 
                     break;
 
@@ -1271,7 +1271,7 @@ internal class NPCCommands
                 if (!doNotDelete)
                     creature.LoadPath(0);
 
-                creature.SetDefaultMovementType(move_type);
+                creature.SetDefaultMovementType(moveType);
                 creature.MotionMaster.Initialize();
 
                 if (creature.IsAlive) // dead creature will reset movement generator at respawn

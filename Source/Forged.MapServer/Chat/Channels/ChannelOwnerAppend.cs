@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Cache;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.World;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
@@ -15,13 +17,13 @@ internal struct ChannelOwnerAppend : IChannelAppender
 
     private ObjectGuid _ownerGuid;
 
-    public ChannelOwnerAppend(Channel channel, ObjectGuid ownerGuid)
+    public ChannelOwnerAppend(Channel channel, ObjectGuid ownerGuid, CharacterCache characterCache)
     {
         _channel = channel;
         _ownerGuid = ownerGuid;
         _ownerName = "";
 
-        var characterCacheEntry = Global.CharacterCacheStorage.GetCharacterCacheByGuid(_ownerGuid);
+        var characterCacheEntry = characterCache.GetCharacterCacheByGuid(_ownerGuid);
 
         if (characterCacheEntry != null)
             _ownerName = characterCacheEntry.Name;

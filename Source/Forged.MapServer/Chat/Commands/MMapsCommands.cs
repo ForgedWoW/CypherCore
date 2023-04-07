@@ -250,10 +250,10 @@ internal class MMapsCommands
         // Get Creatures
         List<Unit> creatureList = new();
 
-        var go_check = new AnyUnitInObjectRangeCheck(obj, radius);
-        var go_search = new UnitListSearcher(obj, creatureList, go_check, GridType.Grid);
+        var goCheck = new AnyUnitInObjectRangeCheck(obj, radius);
+        var goSearch = new UnitListSearcher(obj, creatureList, goCheck, GridType.Grid);
 
-        Cell.VisitGrid(obj, go_search, radius);
+        Cell.VisitGrid(obj, goSearch, radius);
 
         if (!creatureList.Empty())
         {

@@ -189,40 +189,40 @@ internal class ModifyCommand
             return false;
         }
 
-        if (!uint.TryParse(pfactionid, out var factionid))
+        if (!uint.TryParse(pfactionid, out var targetFaction))
         {
-            var _factionid = target.Faction;
-            uint _flag = target.UnitData.Flags;
-            var _npcflag = (ulong)target.UnitData.NpcFlags[0] << 32 | target.UnitData.NpcFlags[1];
-            uint _dyflag = target.ObjectData.DynamicFlags;
-            handler.SendSysMessage(CypherStrings.CurrentFaction, target.GUID.ToString(), _factionid, _flag, _npcflag, _dyflag);
+            var factionid = target.Faction;
+            uint flag = target.UnitData.Flags;
+            var npcflag = (ulong)target.UnitData.NpcFlags[0] << 32 | target.UnitData.NpcFlags[1];
+            uint dyflag = target.ObjectData.DynamicFlags;
+            handler.SendSysMessage(CypherStrings.CurrentFaction, target.GUID.ToString(), factionid, flag, npcflag, dyflag);
 
             return true;
         }
 
-        if (!uint.TryParse(args.NextString(), out var flag))
-            flag = target.UnitData.Flags;
+        if (!uint.TryParse(args.NextString(), out var unitDataFlags))
+            unitDataFlags = target.UnitData.Flags;
 
-        if (!ulong.TryParse(args.NextString(), out var npcflag))
-            npcflag = (ulong)target.UnitData.NpcFlags[0] << 32 | target.UnitData.NpcFlags[1];
+        if (!ulong.TryParse(args.NextString(), out var unitDataNpcFlag))
+            unitDataNpcFlag = (ulong)target.UnitData.NpcFlags[0] << 32 | target.UnitData.NpcFlags[1];
 
-        if (!uint.TryParse(args.NextString(), out var dyflag))
-            dyflag = target.ObjectData.DynamicFlags;
+        if (!uint.TryParse(args.NextString(), out var objectDataDynamicFlags))
+            objectDataDynamicFlags = target.ObjectData.DynamicFlags;
 
-        if (!CliDB.FactionTemplateStorage.ContainsKey(factionid))
+        if (!CliDB.FactionTemplateStorage.ContainsKey(targetFaction))
         {
-            handler.SendSysMessage(CypherStrings.WrongFaction, factionid);
+            handler.SendSysMessage(CypherStrings.WrongFaction, targetFaction);
 
             return false;
         }
 
-        handler.SendSysMessage(CypherStrings.YouChangeFaction, target.GUID.ToString(), factionid, flag, npcflag, dyflag);
+        handler.SendSysMessage(CypherStrings.YouChangeFaction, target.GUID.ToString(), targetFaction, unitDataFlags, unitDataNpcFlag, objectDataDynamicFlags);
 
-        target.Faction = factionid;
-        target.ReplaceAllUnitFlags((UnitFlags)flag);
-        target.ReplaceAllNpcFlags((NPCFlags)(npcflag & 0xFFFFFFFF));
-        target.ReplaceAllNpcFlags2((NPCFlags2)(npcflag >> 32));
-        target.ReplaceAllDynamicFlags((UnitDynFlags)dyflag);
+        target.Faction = targetFaction;
+        target.ReplaceAllUnitFlags((UnitFlags)unitDataFlags);
+        target.ReplaceAllNpcFlags((NPCFlags)(unitDataNpcFlag & 0xFFFFFFFF));
+        target.ReplaceAllNpcFlags2((NPCFlags2)(unitDataNpcFlag >> 32));
+        target.ReplaceAllDynamicFlags((UnitDynFlags)objectDataDynamicFlags);
 
         return true;
     }
@@ -247,17 +247,17 @@ internal class ModifyCommand
         if (info == null)
             return false;
 
-        var gender_str = args.NextString();
+        var genderStr = args.NextString();
         Gender gender;
 
-        if (gender_str == "male") // MALE
+        if (genderStr == "male") // MALE
         {
             if (target.Gender == Gender.Male)
                 return true;
 
             gender = Gender.Male;
         }
-        else if (gender_str == "female") // FEMALE
+        else if (genderStr == "female") // FEMALE
         {
             if (target.Gender == Gender.Female)
                 return true;
@@ -360,7 +360,7 @@ internal class ModifyCommand
     }
 
     [Command("hp", RBACPermissions.CommandModifyHp)]
-    private static bool HandleModifyHPCommand(CommandHandler handler, int hp)
+    private static bool HandleModifyHpCommand(CommandHandler handler, int hp)
     {
         var target = handler.SelectedPlayerOrSelf;
         var maxHp = hp;
@@ -469,7 +469,7 @@ internal class ModifyCommand
         if (args.Empty())
             return false;
 
-        var display_id = args.NextUInt32();
+        var displayID = args.NextUInt32();
 
         var target = handler.SelectedUnit;
 
@@ -480,7 +480,7 @@ internal class ModifyCommand
         else if (target.IsTypeId(TypeId.Player) && handler.HasLowerSecurity(target.AsPlayer, ObjectGuid.Empty))
             return false;
 
-        target.SetDisplayId(display_id);
+        target.SetDisplayId(displayID);
 
         return true;
     }
@@ -774,15 +774,15 @@ internal class ModifyCommand
     {
         var target = handler.SelectedUnit;
 
-        if (CheckModifySpeed(args, handler, target, out var Scale, 0.1f, 10.0f, false))
+        if (CheckModifySpeed(args, handler, target, out var scale, 0.1f, 10.0f, false))
         {
-            NotifyModification(handler, target, CypherStrings.YouChangeSize, CypherStrings.YoursSizeChanged, Scale);
+            NotifyModification(handler, target, CypherStrings.YouChangeSize, CypherStrings.YoursSizeChanged, scale);
             var creatureTarget = target.AsCreature;
 
             if (creatureTarget)
-                creatureTarget.SetDisplayId(creatureTarget.DisplayId, Scale);
+                creatureTarget.SetDisplayId(creatureTarget.DisplayId, scale);
             else
-                target.ObjectScale = Scale;
+                target.ObjectScale = scale;
 
             return true;
         }
@@ -855,8 +855,8 @@ internal class ModifyCommand
         if (args.Empty())
             return false;
 
-        var anim_id = args.NextUInt32();
-        handler.Session.Player.EmoteState = (Emote)anim_id;
+        var animID = args.NextUInt32();
+        handler.Session.Player.EmoteState = (Emote)animID;
 
         return true;
     }
@@ -997,10 +997,10 @@ internal class ModifyCommand
         {
             var target = handler.SelectedPlayerOrSelf;
 
-            if (CheckModifySpeed(args, handler, target, out var Speed, 0.1f, 50.0f))
+            if (CheckModifySpeed(args, handler, target, out var speed, 0.1f, 50.0f))
             {
-                NotifyModification(handler, target, CypherStrings.YouChangeSpeed, CypherStrings.YoursSpeedChanged, Speed);
-                target.SetSpeedRate(UnitMoveType.Run, Speed);
+                NotifyModification(handler, target, CypherStrings.YouChangeSpeed, CypherStrings.YoursSpeedChanged, speed);
+                target.SetSpeedRate(UnitMoveType.Run, speed);
 
                 return true;
             }

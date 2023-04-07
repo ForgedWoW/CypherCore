@@ -11,8 +11,6 @@ namespace Game.Common.Extendability;
 
 public static class IOHelpers
 {
-    private static readonly Dictionary<string, List<Assembly>> _loadedAssemblies = new();
-
     /// <summary>
     ///     Compares the values of 2 objects
     /// </summary>
@@ -64,20 +62,13 @@ public static class IOHelpers
         if (inter.IsAssignableFrom(type))
             return true;
 
-        if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == inter))
-            return true;
-
-        return type.GetInterfaces().Any(i => i == inter);
+        return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == inter) || type.GetInterfaces().Any(i => i == inter);
     }
 
-    public static List<Assembly> GetAllAssembliesInDir(string path, bool loadGameAssembly = true)
+    public static List<Assembly> GetAllAssembliesInDir(string path, bool loadGameAssembly = true, bool loadScriptsDll = true)
     {
-        var assemblies = _loadedAssemblies.LookupByKey(path);
-
-        if (assemblies != null)
-            return assemblies;
-        else
-            assemblies = new List<Assembly>();
+        path ??= ".\\Scripts";
+        var assemblies = new List<Assembly>();
 
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
@@ -86,32 +77,22 @@ public static class IOHelpers
 
         var dlls = dir.GetFiles("*.dll", SearchOption.AllDirectories);
 
-        foreach (var dll in dlls)
-            assemblies.Add(Assembly.LoadFile(dll.FullName));
+        assemblies.AddRange(dlls.Select(dll => Assembly.LoadFile(dll.FullName)));
 
         if (loadGameAssembly)
             assemblies.Add(Assembly.GetExecutingAssembly());
 
-        _loadedAssemblies[path] = assemblies;
+        if (loadScriptsDll && File.Exists(AppContext.BaseDirectory + "Scripts.dll"))
+            assemblies.Add(Assembly.LoadFile(AppContext.BaseDirectory + "Scripts.dll"));
 
         return assemblies;
     }
 
     public static IEnumerable<T> GetAllObjectsFromAssemblies<T>(string path)
     {
-        var assemblies = GetAllAssembliesInDir(Path.Combine(AppContext.BaseDirectory, "Scripts"));
+        var assemblies = GetAllAssembliesInDir(path);
 
-        if (File.Exists(AppContext.BaseDirectory + "Scripts.dll"))
-        {
-            var scrAss = Assembly.LoadFile(AppContext.BaseDirectory + "Scripts.dll");
-
-            if (scrAss != null)
-                assemblies.Add(scrAss);
-        }
-
-        foreach (var assembly in assemblies)
-            foreach (var type in assembly.GetTypes())
-                if (DoesTypeSupportInterface(type, typeof(T)))
-                    yield return (T)Activator.CreateInstance(type);
+        foreach (var type in from assembly in assemblies from type in assembly.GetTypes() where DoesTypeSupportInterface(type, typeof(T)) select type)
+            yield return (T)Activator.CreateInstance(type);
     }
 }

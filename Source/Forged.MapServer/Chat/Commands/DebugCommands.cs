@@ -1288,7 +1288,7 @@ internal class DebugCommands
     }
 
     [Command("wsexpression", RBACPermissions.CommandDebug)]
-    private static bool HandleDebugWSExpressionCommand(CommandHandler handler, uint expressionId)
+    private static bool HandleDebugWsExpressionCommand(CommandHandler handler, uint expressionId)
     {
         var target = handler.SelectedPlayerOrSelf;
 
@@ -1313,7 +1313,7 @@ internal class DebugCommands
     }
 
     [CommandNonGroup("wpgps", RBACPermissions.CommandDebug)]
-    private static bool HandleWPGPSCommand(CommandHandler handler)
+    private static bool HandleWpgpsCommand(CommandHandler handler)
     {
         var player = handler.Player;
 

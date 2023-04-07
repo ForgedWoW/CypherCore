@@ -13,21 +13,22 @@ internal class BanListCommands
     [Command("account", RBACPermissions.CommandBanlistAccount, true)]
     private static bool HandleBanListAccountCommand(CommandHandler handler, [OptionalArg] string filter)
     {
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
-        DB.Login.Execute(stmt);
+        var loginDb = handler.ClassFactory.Resolve<LoginDatabase>();
+        var stmt = loginDb.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
+        loginDb.Execute(stmt);
 
         SQLResult result;
 
         if (filter.IsEmpty())
         {
-            stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_ALL);
-            result = DB.Login.Query(stmt);
+            stmt = loginDb.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_ALL);
+            result = loginDb.Query(stmt);
         }
         else
         {
-            stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_BY_FILTER);
+            stmt = loginDb.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_BY_FILTER);
             stmt.AddValue(0, filter);
-            result = DB.Login.Query(stmt);
+            result = loginDb.Query(stmt);
         }
 
         if (result.IsEmpty())
@@ -46,9 +47,10 @@ internal class BanListCommands
         if (filter.IsEmpty())
             return false;
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUID_BY_NAME_FILTER);
+        var charDB = handler.ClassFactory.Resolve<CharacterDatabase>();
+        var stmt = charDB.GetPreparedStatement(CharStatements.SEL_GUID_BY_NAME_FILTER);
         stmt.AddValue(0, filter);
-        var result = DB.Characters.Query(stmt);
+        var result = charDB.Query(stmt);
 
         if (result.IsEmpty())
         {
@@ -64,9 +66,9 @@ internal class BanListCommands
         {
             do
             {
-                var stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_BANNED_NAME);
+                var stmt2 = charDB.GetPreparedStatement(CharStatements.SEL_BANNED_NAME);
                 stmt2.AddValue(0, result.Read<ulong>(0));
-                var banResult = DB.Characters.Query(stmt2);
+                var banResult = charDB.Query(stmt2);
 
                 if (!banResult.IsEmpty())
                     handler.SendSysMessage(banResult.Read<string>(0));
@@ -83,53 +85,55 @@ internal class BanListCommands
             {
                 handler.SendSysMessage("-------------------------------------------------------------------------------");
 
-                var char_name = result.Read<string>(1);
+                var charName = result.Read<string>(1);
 
-                var stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_BANINFO_LIST);
+                var stmt2 = charDB.GetPreparedStatement(CharStatements.SEL_BANINFO_LIST);
                 stmt2.AddValue(0, result.Read<ulong>(0));
-                var banInfo = DB.Characters.Query(stmt2);
+                var banInfo = charDB.Query(stmt2);
 
-                if (!banInfo.IsEmpty())
-                    do
+                if (banInfo.IsEmpty())
+                    continue;
+
+                do
+                {
+                    var timeBan = banInfo.Read<long>(0);
+                    var tmBan = Time.UnixTimeToDateTime(timeBan);
+                    var bannedby = banInfo.Read<string>(2).Substring(0, 15);
+                    var banreason = banInfo.Read<string>(3).Substring(0, 15);
+
+                    if (banInfo.Read<long>(0) == banInfo.Read<long>(1))
                     {
-                        var timeBan = banInfo.Read<long>(0);
-                        var tmBan = Time.UnixTimeToDateTime(timeBan);
-                        var bannedby = banInfo.Read<string>(2).Substring(0, 15);
-                        var banreason = banInfo.Read<string>(3).Substring(0, 15);
+                        handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
+                                               charName,
+                                               tmBan.Year % 100,
+                                               tmBan.Month + 1,
+                                               tmBan.Day,
+                                               tmBan.Hour,
+                                               tmBan.Minute,
+                                               bannedby,
+                                               banreason);
+                    }
+                    else
+                    {
+                        var timeUnban = banInfo.Read<long>(1);
+                        var tmUnban = Time.UnixTimeToDateTime(timeUnban);
 
-                        if (banInfo.Read<long>(0) == banInfo.Read<long>(1))
-                        {
-                            handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
-                                                   char_name,
-                                                   tmBan.Year % 100,
-                                                   tmBan.Month + 1,
-                                                   tmBan.Day,
-                                                   tmBan.Hour,
-                                                   tmBan.Minute,
-                                                   bannedby,
-                                                   banreason);
-                        }
-                        else
-                        {
-                            var timeUnban = banInfo.Read<long>(1);
-                            var tmUnban = Time.UnixTimeToDateTime(timeUnban);
-
-                            handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
-                                                   char_name,
-                                                   tmBan.Year % 100,
-                                                   tmBan.Month + 1,
-                                                   tmBan.Day,
-                                                   tmBan.Hour,
-                                                   tmBan.Minute,
-                                                   tmUnban.Year % 100,
-                                                   tmUnban.Month + 1,
-                                                   tmUnban.Day,
-                                                   tmUnban.Hour,
-                                                   tmUnban.Minute,
-                                                   bannedby,
-                                                   banreason);
-                        }
-                    } while (banInfo.NextRow());
+                        handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
+                                               charName,
+                                               tmBan.Year % 100,
+                                               tmBan.Month + 1,
+                                               tmBan.Day,
+                                               tmBan.Hour,
+                                               tmBan.Minute,
+                                               tmUnban.Year % 100,
+                                               tmUnban.Month + 1,
+                                               tmUnban.Day,
+                                               tmUnban.Hour,
+                                               tmUnban.Minute,
+                                               bannedby,
+                                               banreason);
+                    }
+                } while (banInfo.NextRow());
             } while (result.NextRow());
 
             handler.SendSysMessage(" =============================================================================== ");
@@ -149,7 +153,7 @@ internal class BanListCommands
             {
                 var accountid = result.Read<uint>(0);
 
-                var banResult = DB.Login.Query("SELECT account.username FROM account, account_banned WHERE account_banned.id='{0}' AND account_banned.id=account.id", accountid);
+                var banResult = handler.ClassFactory.Resolve<LoginDatabase>().Query("SELECT account.username FROM account, account_banned WHERE account_banned.id='{0}' AND account_banned.id=account.id", accountid);
 
                 if (!banResult.IsEmpty())
                     handler.SendSysMessage(banResult.Read<string>(0));
@@ -175,54 +179,56 @@ internal class BanListCommands
                     accountName = result.Read<string>(1);
                 // "character" case, name need extract from another DB
                 else
-                    Global.AccountMgr.GetName(accountId, out accountName);
+                    handler.AccountManager.GetName(accountId, out accountName);
 
                 // No SQL injection. id is uint32.
-                var banInfo = DB.Login.Query("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = {0} ORDER BY unbandate", accountId);
+                var banInfo = handler.ClassFactory.Resolve<LoginDatabase>().Query("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = {0} ORDER BY unbandate", accountId);
 
-                if (!banInfo.IsEmpty())
-                    do
+                if (banInfo.IsEmpty())
+                    continue;
+
+                do
+                {
+                    long timeBan = banInfo.Read<uint>(0);
+                    DateTime tmBan;
+                    tmBan = Time.UnixTimeToDateTime(timeBan);
+                    var bannedby = banInfo.Read<string>(2).Substring(0, 15);
+                    var banreason = banInfo.Read<string>(3).Substring(0, 15);
+
+                    if (banInfo.Read<uint>(0) == banInfo.Read<uint>(1))
                     {
-                        long timeBan = banInfo.Read<uint>(0);
-                        DateTime tmBan;
-                        tmBan = Time.UnixTimeToDateTime(timeBan);
-                        var bannedby = banInfo.Read<string>(2).Substring(0, 15);
-                        var banreason = banInfo.Read<string>(3).Substring(0, 15);
+                        handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
+                                               accountName.Substring(0, 15),
+                                               tmBan.Year % 100,
+                                               tmBan.Month + 1,
+                                               tmBan.Day,
+                                               tmBan.Hour,
+                                               tmBan.Minute,
+                                               bannedby,
+                                               banreason);
+                    }
+                    else
+                    {
+                        long timeUnban = banInfo.Read<uint>(1);
+                        DateTime tmUnban;
+                        tmUnban = Time.UnixTimeToDateTime(timeUnban);
 
-                        if (banInfo.Read<uint>(0) == banInfo.Read<uint>(1))
-                        {
-                            handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|   permanent  |{6}|{7}|",
-                                                   accountName.Substring(0, 15),
-                                                   tmBan.Year % 100,
-                                                   tmBan.Month + 1,
-                                                   tmBan.Day,
-                                                   tmBan.Hour,
-                                                   tmBan.Minute,
-                                                   bannedby,
-                                                   banreason);
-                        }
-                        else
-                        {
-                            long timeUnban = banInfo.Read<uint>(1);
-                            DateTime tmUnban;
-                            tmUnban = Time.UnixTimeToDateTime(timeUnban);
-
-                            handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
-                                                   accountName.Substring(0, 15),
-                                                   tmBan.Year % 100,
-                                                   tmBan.Month + 1,
-                                                   tmBan.Day,
-                                                   tmBan.Hour,
-                                                   tmBan.Minute,
-                                                   tmUnban.Year % 100,
-                                                   tmUnban.Month + 1,
-                                                   tmUnban.Day,
-                                                   tmUnban.Hour,
-                                                   tmUnban.Minute,
-                                                   bannedby,
-                                                   banreason);
-                        }
-                    } while (banInfo.NextRow());
+                        handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
+                                               accountName.Substring(0, 15),
+                                               tmBan.Year % 100,
+                                               tmBan.Month + 1,
+                                               tmBan.Day,
+                                               tmBan.Hour,
+                                               tmBan.Minute,
+                                               tmUnban.Year % 100,
+                                               tmUnban.Month + 1,
+                                               tmUnban.Day,
+                                               tmUnban.Hour,
+                                               tmUnban.Minute,
+                                               bannedby,
+                                               banreason);
+                    }
+                } while (banInfo.NextRow());
             } while (result.NextRow());
 
             handler.SendSysMessage(" ===============================================================================");
@@ -234,21 +240,22 @@ internal class BanListCommands
     [Command("ip", RBACPermissions.CommandBanlistIp, true)]
     private static bool HandleBanListIPCommand(CommandHandler handler, [OptionalArg] string filter)
     {
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
-        DB.Login.Execute(stmt);
+        var loginDb = handler.ClassFactory.Resolve<LoginDatabase>();
+        var stmt = loginDb.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
+        loginDb.Execute(stmt);
 
         SQLResult result;
 
         if (filter.IsEmpty())
         {
-            stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_IP_BANNED_ALL);
-            result = DB.Login.Query(stmt);
+            stmt = loginDb.GetPreparedStatement(LoginStatements.SEL_IP_BANNED_ALL);
+            result = loginDb.Query(stmt);
         }
         else
         {
-            stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_IP_BANNED_BY_IP);
+            stmt = loginDb.GetPreparedStatement(LoginStatements.SEL_IP_BANNED_BY_IP);
             stmt.AddValue(0, filter);
-            result = DB.Login.Query(stmt);
+            result = loginDb.Query(stmt);
         }
 
         if (result.IsEmpty())

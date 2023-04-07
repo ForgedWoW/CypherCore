@@ -3,6 +3,7 @@
 
 using System;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.World;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat;
@@ -10,17 +11,19 @@ namespace Forged.MapServer.Chat;
 public class RemoteAccessHandler : CommandHandler
 {
     private readonly Action<string> _reportToRA;
+    private readonly WorldManager _worldManager;
 
-    public RemoteAccessHandler(Action<string> reportToRA) : base()
+    public RemoteAccessHandler(Action<string> reportToRA, WorldManager worldManager) : base()
     {
         _reportToRA = reportToRA;
+        _worldManager = worldManager;
     }
 
     public override string NameLink => GetCypherString(CypherStrings.ConsoleCommand);
 
-    public override Locale SessionDbcLocale => Global.WorldMgr.DefaultDbcLocale;
+    public override Locale SessionDbcLocale => _worldManager.DefaultDbcLocale;
 
-    public override byte SessionDbLocaleIndex => (byte)Global.WorldMgr.DefaultDbcLocale;
+    public override byte SessionDbLocaleIndex => (byte)_worldManager.DefaultDbcLocale;
     public override bool HasPermission(RBACPermissions permission)
     {
         return true;
@@ -47,7 +50,7 @@ public class RemoteAccessHandler : CommandHandler
         return _ParseCommands(str);
     }
 
-    public override void SendSysMessage(string str, bool escapeCharacters)
+    public override void SendSysMessage(string str, bool escapeCharacters = false)
     {
         SetSentErrorMessage(true);
         _reportToRA(str);

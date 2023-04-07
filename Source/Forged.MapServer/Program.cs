@@ -421,6 +421,7 @@ void RegisterManagers()
     builder.RegisterType<BattlePetMgrData>().SingleInstance();
     builder.RegisterType<UnitCombatHelpers>().SingleInstance();
     builder.RegisterType<PlayerComputators>().SingleInstance();
+    builder.RegisterType<CommandManager>().SingleInstance();
 }
 
 void RegisterFactories()

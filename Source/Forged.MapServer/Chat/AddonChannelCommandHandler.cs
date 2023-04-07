@@ -10,13 +10,13 @@ namespace Forged.MapServer.Chat;
 
 internal class AddonChannelCommandHandler : CommandHandler
 {
-    public static string PREFIX = "ForgedCore";
+    public const string PREFIX = "ForgedCore";
 
     private string _echo;
     private bool _hadAck;
     private bool _humanReadable;
 
-    public AddonChannelCommandHandler(WorldSession session) : base(session) { }
+    public AddonChannelCommandHandler(ClassFactory classFactory, WorldSession session) : base(classFactory, session) { }
 
     public override bool IsHumanReadable()
     {
@@ -67,28 +67,27 @@ internal class AddonChannelCommandHandler : CommandHandler
         }
     }
 
-    public override void SendSysMessage(string str, bool escapeCharacters)
+    public override void SendSysMessage(string str, bool escapeCharacters = false)
     {
         if (!_hadAck)
             SendAck();
 
         StringBuilder msg = new("m");
         msg.Append(_echo, 0, 4);
-        var body = str;
 
         if (escapeCharacters)
-            body.Replace("|", "||");
+            str = str.Replace("|", "||");
 
         int pos, lastpos;
 
-        for (lastpos = 0, pos = body.IndexOf('\n', lastpos); pos != -1; lastpos = pos + 1, pos = body.IndexOf('\n', lastpos))
+        for (lastpos = 0, pos = str.IndexOf('\n', lastpos); pos != -1; lastpos = pos + 1, pos = str.IndexOf('\n', lastpos))
         {
             var line = msg;
-            line.Append(body, lastpos, pos - lastpos);
+            line.Append(str, lastpos, pos - lastpos);
             Send(line.ToString());
         }
 
-        msg.Append(body, lastpos, pos - lastpos);
+        msg.Append(str, lastpos, pos - lastpos);
         Send(msg.ToString());
     }
     private void Send(string msg)

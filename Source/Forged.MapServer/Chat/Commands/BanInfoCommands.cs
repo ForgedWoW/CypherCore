@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
@@ -19,7 +20,7 @@ internal class BanInfoCommands
         if (accountName.IsEmpty())
             return false;
 
-        var accountId = Global.AccountMgr.GetId(accountName);
+        var accountId = handler.AccountManager.GetId(accountName);
 
         if (accountId == 0)
         {
@@ -41,12 +42,12 @@ internal class BanInfoCommands
             return false;
         }
 
-        var target = Global.ObjAccessor.FindPlayerByName(name);
+        var target = handler.ClassFactory.Resolve<ObjectAccessor>().FindPlayerByName(name);
         ObjectGuid targetGuid;
 
         if (!target)
         {
-            targetGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(name);
+            targetGuid = handler.ClassFactory.Resolve<CharacterCache>().GetCharacterGuidByName(name);
 
             if (targetGuid.IsEmpty)
             {
@@ -59,10 +60,10 @@ internal class BanInfoCommands
         {
             targetGuid = target.GUID;
         }
-
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_BANINFO);
+        var charDb = handler.ClassFactory.Resolve<CharacterDatabase>();
+        var stmt = charDb.GetPreparedStatement(CharStatements.SEL_BANINFO);
         stmt.AddValue(0, targetGuid.Counter);
-        var result = DB.Characters.Query(stmt);
+        var result = charDb.Query(stmt);
 
         if (result.IsEmpty())
         {
@@ -76,10 +77,7 @@ internal class BanInfoCommands
         do
         {
             var unbanDate = result.Read<long>(3);
-            var active = false;
-
-            if (result.Read<bool>(2) && (result.Read<long>(1) == 0L || unbanDate >= GameTime.CurrentTime))
-                active = true;
+            var active = result.Read<bool>(2) && (result.Read<long>(1) == 0L || unbanDate >= GameTime.CurrentTime);
 
             var permanent = (result.Read<long>(1) == 0L);
             var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.SecsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
@@ -97,7 +95,7 @@ internal class BanInfoCommands
 
     private static bool HandleBanInfoHelper(uint accountId, string accountName, CommandHandler handler)
     {
-        var result = DB.Login.Query("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{0}' ORDER BY bandate ASC", accountId);
+        var result = handler.ClassFactory.Resolve<LoginDatabase>().Query("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{0}' ORDER BY bandate ASC", accountId);
 
         if (result.IsEmpty())
         {
@@ -111,10 +109,7 @@ internal class BanInfoCommands
         do
         {
             long unbanDate = result.Read<uint>(3);
-            var active = false;
-
-            if (result.Read<bool>(2) && (result.Read<ulong>(1) == 0 || unbanDate >= GameTime.CurrentTime))
-                active = true;
+            var active = result.Read<bool>(2) && (result.Read<ulong>(1) == 0 || unbanDate >= GameTime.CurrentTime);
 
             var permanent = (result.Read<ulong>(1) == 0);
             var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.SecsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
@@ -136,7 +131,7 @@ internal class BanInfoCommands
         if (ip.IsEmpty())
             return false;
 
-        var result = DB.Login.Query("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '{0}'", ip);
+        var result = handler.ClassFactory.Resolve<LoginDatabase>().Query("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '{0}'", ip);
 
         if (result.IsEmpty())
         {

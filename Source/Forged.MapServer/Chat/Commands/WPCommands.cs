@@ -12,7 +12,7 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("wp")]
-internal class WPCommands
+internal class WpCommands
 {
     [Command("add", RBACPermissions.CommandWpAdd)]
     private static bool HandleWpAddCommand(CommandHandler handler, uint? optionalPathId)
@@ -671,14 +671,14 @@ internal class WPCommands
                 var point = result.Read<uint>(1);
                 var delay = result.Read<uint>(2);
                 var flag = result.Read<uint>(3);
-                var ev_id = result.Read<uint>(4);
-                uint ev_chance = result.Read<ushort>(5);
+                var evID = result.Read<uint>(4);
+                uint evChance = result.Read<ushort>(5);
 
                 handler.SendSysMessage("|cff00ff00Show info: for current point: |r|cff00ffff{0}|r|cff00ff00, Path ID: |r|cff00ffff{1}|r", point, pathId);
                 handler.SendSysMessage("|cff00ff00Show info: delay: |r|cff00ffff{0}|r", delay);
                 handler.SendSysMessage("|cff00ff00Show info: Move Id: |r|cff00ffff{0}|r", flag);
-                handler.SendSysMessage("|cff00ff00Show info: Waypoint event: |r|cff00ffff{0}|r", ev_id);
-                handler.SendSysMessage("|cff00ff00Show info: Event chance: |r|cff00ffff{0}|r", ev_chance);
+                handler.SendSysMessage("|cff00ff00Show info: Waypoint event: |r|cff00ffff{0}|r", evID);
+                handler.SendSysMessage("|cff00ff00Show info: Event chance: |r|cff00ffff{0}|r", evChance);
             } while (result.NextRow());
 
             return true;

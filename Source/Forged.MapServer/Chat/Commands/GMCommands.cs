@@ -182,31 +182,31 @@ internal class GMCommands
     [Command("visible", RBACPermissions.CommandGmVisible)]
     private static bool HandleGMVisibleCommand(CommandHandler handler, bool? visibleArg)
     {
-        var _player = handler.Session.Player;
+        var player = handler.Session.Player;
 
         if (!visibleArg.HasValue)
         {
-            handler.SendSysMessage(CypherStrings.YouAre, _player.IsGMVisible ? Global.ObjectMgr.GetCypherString(CypherStrings.Visible) : Global.ObjectMgr.GetCypherString(CypherStrings.Invisible));
+            handler.SendSysMessage(CypherStrings.YouAre, player.IsGMVisible ? Global.ObjectMgr.GetCypherString(CypherStrings.Visible) : Global.ObjectMgr.GetCypherString(CypherStrings.Invisible));
 
             return true;
         }
 
-        uint VISUAL_AURA = 37800;
+        uint visualAura = 37800;
 
         if (visibleArg.Value)
         {
-            if (_player.HasAura(VISUAL_AURA, ObjectGuid.Empty))
-                _player.RemoveAura(VISUAL_AURA);
+            if (player.HasAura(visualAura, ObjectGuid.Empty))
+                player.RemoveAura(visualAura);
 
-            _player.SetGMVisible(true);
-            _player.UpdateObjectVisibility();
+            player.SetGMVisible(true);
+            player.UpdateObjectVisibility();
             handler.Session.SendNotification(CypherStrings.InvisibleVisible);
         }
         else
         {
-            _player.AddAura(VISUAL_AURA, _player);
-            _player.SetGMVisible(false);
-            _player.UpdateObjectVisibility();
+            player.AddAura(visualAura, player);
+            player.SetGMVisible(false);
+            player.UpdateObjectVisibility();
             handler.Session.SendNotification(CypherStrings.InvisibleInvisible);
         }
 

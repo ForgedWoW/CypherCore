@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Accounts;
+using Forged.MapServer.Cache;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
@@ -16,15 +18,18 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Server;
+using Forged.MapServer.World;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.IO;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Chat;
 
 public class CommandHandler
 {
-    private static readonly string[] spellKeys =
+    private static readonly string[] SpellKeys =
     {
         "Hspell",   // normal spell
         "Htalent",  // talent spell
@@ -33,8 +38,16 @@ public class CommandHandler
         "Hglyph",   // glyph
     };
 
-    public CommandHandler(WorldSession session = null)
+    public CommandHandler(ClassFactory classFactory, WorldSession session = null)
     {
+        ClassFactory = classFactory;
+        Configuration = classFactory.Resolve<IConfiguration>();
+        WorldManager = classFactory.Resolve<WorldManager>();
+        AccountManager = classFactory.Resolve<AccountManager>();
+        ObjectManager = classFactory.Resolve<GameObjectManager>();
+        CliDB = classFactory.Resolve<CliDB>();
+        CharacterCache = classFactory.Resolve<CharacterCache>();
+        ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
         Session = session;
     }
 
@@ -46,16 +59,7 @@ public class CommandHandler
 
     public Player Player => Session?.Player;
 
-    public Creature SelectedCreature
-    {
-        get
-        {
-            if (Session == null)
-                return null;
-
-            return ObjectAccessor.GetCreatureOrPetOrVehicle(Session.Player, Session.Player.Target);
-        }
-    }
+    public Creature SelectedCreature => Session == null ? null : ObjectAccessor.GetCreatureOrPetOrVehicle(Session.Player, Session.Player.Target);
 
     public WorldObject SelectedObject
     {
@@ -69,7 +73,7 @@ public class CommandHandler
             if (selected.IsEmpty)
                 return NearbyGameObject;
 
-            return Global.ObjAccessor.GetUnit(Session.Player, selected);
+            return ObjectAccessor.GetUnit(Session.Player, selected);
         }
     }
 
@@ -85,7 +89,7 @@ public class CommandHandler
             if (selected.IsEmpty)
                 return Session.Player;
 
-            return Global.ObjAccessor.FindConnectedPlayer(selected);
+            return ObjectAccessor.FindConnectedPlayer(selected);
         }
     }
 
@@ -102,7 +106,7 @@ public class CommandHandler
                 return Session.Player;
 
             // first try with selected target
-            var targetPlayer = Global.ObjAccessor.FindConnectedPlayer(selected);
+            var targetPlayer = ObjectAccessor.FindConnectedPlayer(selected);
 
             // if the target is not a player, then return self
             if (!targetPlayer)
@@ -127,6 +131,15 @@ public class CommandHandler
             return Session.Player;
         }
     }
+
+    public ClassFactory ClassFactory { get; private set; }
+    public IConfiguration Configuration { get; private set; }
+    public WorldManager WorldManager { get; }
+    public AccountManager AccountManager { get; }
+    public GameObjectManager ObjectManager { get; }
+    public CliDB CliDB { get; }
+    public CharacterCache CharacterCache { get; }
+    public ObjectAccessor ObjectAccessor { get; }
     public WorldSession Session { get; }
 
     public virtual Locale SessionDbcLocale => Session.SessionDbcLocale;
@@ -247,12 +260,12 @@ public class CommandHandler
                 if (!GameObjectManager.NormalizePlayerName(ref idS))
                     return 0;
 
-                var player = Global.ObjAccessor.FindPlayerByName(idS);
+                var player = ObjectAccessor.FindPlayerByName(idS);
 
                 if (player)
                     return player.GUID.Counter;
 
-                var guid = Global.CharacterCacheStorage.GetCharacterGuidByName(idS);
+                var guid = CharacterCache.GetCharacterGuidByName(idS);
 
                 if (guid.IsEmpty)
                     return 0;
@@ -311,8 +324,8 @@ public class CommandHandler
                 return false;
             }
 
-            player = Global.ObjAccessor.FindPlayerByName(name);
-            var guid = player == null ? Global.CharacterCacheStorage.GetCharacterGuidByName(name) : ObjectGuid.Empty;
+            player = ObjectAccessor.FindPlayerByName(name);
+            var guid = player == null ? CharacterCache.GetCharacterGuidByName(name) : ObjectGuid.Empty;
 
             playerGuid = player?.GUID ?? guid;
             playerName = player != null || !guid.IsEmpty ? name : "";
@@ -353,7 +366,7 @@ public class CommandHandler
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
         // number or [name] Shift-click form |color|Htalent:talent_id, rank|h[name]|h|r
         // number or [name] Shift-click form |color|Htrade:spell_id, skill_id, max_value, cur_value|h[name]|h|r
-        var idS = ExtractKeyFromLink(args, spellKeys, out var type, out var param1Str);
+        var idS = ExtractKeyFromLink(args, SpellKeys, out var type, out var param1Str);
 
         if (string.IsNullOrEmpty(idS))
             return 0;
@@ -418,7 +431,7 @@ public class CommandHandler
 
     public string GetCypherString(CypherStrings str)
     {
-        return Global.ObjectMgr.GetCypherString(str);
+        return ObjectManager.GetCypherString(str);
     }
 
     public string GetNameLink(Player obj)
@@ -433,15 +446,12 @@ public class CommandHandler
 
         var bounds = Session.Player.Location.Map.GameObjectBySpawnIdStore.LookupByKey(lowguid);
 
-        if (!bounds.Empty())
-            return Enumerable.First<GameObject>(bounds);
-
-        return null;
+        return !bounds.Empty() ? bounds.First() : null;
     }
 
     public string GetParsedString(CypherStrings cypherString, params object[] args)
     {
-        return string.Format(Global.ObjectMgr.GetCypherString(cypherString), args);
+        return string.Format(ObjectManager.GetCypherString(cypherString), args);
     }
 
     public bool GetPlayerGroupAndGUIDByName(string name, out Player player, out PlayerGroup group, out ObjectGuid guid, bool offline = false)
@@ -459,10 +469,10 @@ public class CommandHandler
                 return false;
             }
 
-            player = Global.ObjAccessor.FindPlayerByName(name);
+            player = ObjectAccessor.FindPlayerByName(name);
 
             if (offline)
-                guid = Global.CharacterCacheStorage.GetCharacterGuidByName(name);
+                guid = CharacterCache.GetCharacterGuidByName(name);
         }
 
         if (player)
@@ -496,7 +506,7 @@ public class CommandHandler
         if (target != null)
             target_session = target.Session;
         else if (!guid.IsEmpty)
-            target_account = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
+            target_account = CharacterCache.GetCharacterAccountIdByGuid(guid);
 
         if (target_session == null && target_account == 0)
         {
@@ -518,13 +528,13 @@ public class CommandHandler
             return false;
 
         // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-        if (!Global.AccountMgr.IsPlayerAccount(Session.Security) && !strong && !GetDefaultValue("GM.LowerSecurity", false))
+        if (!AccountManager.IsPlayerAccount(Session.Security) && !strong && !Configuration.GetDefaultValue("GM.LowerSecurity", false))
             return false;
 
         if (target != null)
             target_ac_sec = target.Security;
         else if (target_account != 0)
-            target_ac_sec = Global.AccountMgr.GetSecurity(target_account, (int)Global.WorldMgr.RealmId.Index);
+            target_ac_sec = AccountManager.GetSecurity(target_account, (int)WorldManager.Realm.Id.Index);
         else
             return true; // caller must report error for (target == NULL && target_account == 0)
 
@@ -592,7 +602,7 @@ public class CommandHandler
         // Chat output
         ChatPkt data = new();
         data.Initialize(ChatMsg.System, Language.Universal, null, null, str);
-        Global.WorldMgr.SendGlobalGMMessage(data);
+        WorldManager.SendGlobalGMMessage(data);
     }
 
     public void SendGlobalSysMessage(string str)
@@ -600,7 +610,7 @@ public class CommandHandler
         // Chat output
         ChatPkt data = new();
         data.Initialize(ChatMsg.System, Language.Universal, null, null, str);
-        Global.WorldMgr.SendGlobalMessage(data);
+        WorldManager.SendGlobalMessage(data);
     }
 
     public void SendNotification(CypherStrings str, params object[] args)
@@ -615,7 +625,7 @@ public class CommandHandler
 
     public void SendSysMessage(CypherStrings cypherString, params object[] args)
     {
-        SendSysMessage(string.Format(Global.ObjectMgr.GetCypherString(cypherString), args));
+        SendSysMessage(string.Format(ObjectManager.GetCypherString(cypherString), args));
     }
 
     public virtual void SendSysMessage(string str, bool escapeCharacters = false)

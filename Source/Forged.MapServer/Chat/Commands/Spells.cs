@@ -5,6 +5,6 @@ namespace Forged.MapServer.Chat.Commands;
 
 internal struct Spells
 {
-    public const uint BGDeserter = 26013;
-    public const uint LFGDundeonDeserter = 71041;
+    public const uint BG_DESERTER = 26013;
+    public const uint LFG_DUNDEON_DESERTER = 71041;
 }

@@ -14,7 +14,7 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("lookup")]
 internal class LookupCommands
 {
-    private static readonly int maxResults = 50;
+    private static readonly int MaxResults = 50;
 
     [Command("area", RBACPermissions.CommandLookupArea, true)]
     private static bool HandleLookupAreaCommand(CommandHandler handler, string namePart)
@@ -54,9 +54,9 @@ internal class LookupCommands
 
             if (locale < Locale.Total)
             {
-                if (maxResults != 0 && count++ == maxResults)
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                     return true;
                 }
@@ -101,21 +101,21 @@ internal class LookupCommands
             if (creatureLocale != null)
                 if (creatureLocale.Name.Length > localeIndex && !string.IsNullOrEmpty(creatureLocale.Name[localeIndex]))
                 {
-                    var name = creatureLocale.Name[localeIndex];
+                    var creatureName = creatureLocale.Name[localeIndex];
 
-                    if (name.Like(namePart))
+                    if (creatureName.Like(namePart))
                     {
-                        if (maxResults != 0 && count++ == maxResults)
+                        if (MaxResults != 0 && count++ == MaxResults)
                         {
-                            handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                            handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                             return true;
                         }
 
                         if (handler.Session != null)
-                            handler.SendSysMessage(CypherStrings.CreatureEntryListChat, id, id, name);
+                            handler.SendSysMessage(CypherStrings.CreatureEntryListChat, id, id, creatureName);
                         else
-                            handler.SendSysMessage(CypherStrings.CreatureEntryListConsole, id, name);
+                            handler.SendSysMessage(CypherStrings.CreatureEntryListConsole, id, creatureName);
 
                         if (!found)
                             found = true;
@@ -124,24 +124,24 @@ internal class LookupCommands
                     }
                 }
 
-            var _name = template.Value.Name;
+            var name = template.Value.Name;
 
-            if (string.IsNullOrEmpty(_name))
+            if (string.IsNullOrEmpty(name))
                 continue;
 
-            if (_name.Like(namePart))
+            if (name.Like(namePart))
             {
-                if (maxResults != 0 && count++ == maxResults)
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                     return true;
                 }
 
                 if (handler.Session != null)
-                    handler.SendSysMessage(CypherStrings.CreatureEntryListChat, id, id, _name);
+                    handler.SendSysMessage(CypherStrings.CreatureEntryListChat, id, id, name);
                 else
-                    handler.SendSysMessage(CypherStrings.CreatureEntryListConsole, id, _name);
+                    handler.SendSysMessage(CypherStrings.CreatureEntryListConsole, id, name);
 
                 if (!found)
                     found = true;
@@ -176,9 +176,9 @@ internal class LookupCommands
 
             if (descr.Like(namePart))
             {
-                if (maxResults != 0 && count++ == maxResults)
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                     return true;
                 }
@@ -244,9 +244,9 @@ internal class LookupCommands
 
             if (locale < Locale.Total)
             {
-                if (maxResults != 0 && count++ == maxResults)
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                     return true;
                 }
@@ -341,9 +341,9 @@ internal class LookupCommands
 
             if (locale < Locale.Total)
             {
-                if (maxResults != 0 && count++ == maxResults)
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                     return true;
                 }
@@ -382,21 +382,21 @@ internal class LookupCommands
             if (objectLocalte != null)
                 if (objectLocalte.Name.Length > localeIndex && !string.IsNullOrEmpty(objectLocalte.Name[localeIndex]))
                 {
-                    var name = objectLocalte.Name[localeIndex];
+                    var objName = objectLocalte.Name[localeIndex];
 
-                    if (name.Like(namePart))
+                    if (objName.Like(namePart))
                     {
-                        if (maxResults != 0 && count++ == maxResults)
+                        if (MaxResults != 0 && count++ == MaxResults)
                         {
-                            handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                            handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                             return true;
                         }
 
                         if (handler.Session != null)
-                            handler.SendSysMessage(CypherStrings.GoEntryListChat, template.entry, template.entry, name);
+                            handler.SendSysMessage(CypherStrings.GoEntryListChat, template.entry, template.entry, objName);
                         else
-                            handler.SendSysMessage(CypherStrings.GoEntryListConsole, template.entry, name);
+                            handler.SendSysMessage(CypherStrings.GoEntryListConsole, template.entry, objName);
 
                         if (!found)
                             found = true;
@@ -405,24 +405,24 @@ internal class LookupCommands
                     }
                 }
 
-            var _name = template.name;
+            var name = template.name;
 
-            if (string.IsNullOrEmpty(_name))
+            if (string.IsNullOrEmpty(name))
                 continue;
 
-            if (_name.Like(namePart))
+            if (name.Like(namePart))
             {
-                if (maxResults != 0 && count++ == maxResults)
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                     return true;
                 }
 
                 if (handler.Session != null)
-                    handler.SendSysMessage(CypherStrings.GoEntryListChat, template.entry, template.entry, _name);
+                    handler.SendSysMessage(CypherStrings.GoEntryListChat, template.entry, template.entry, name);
                 else
-                    handler.SendSysMessage(CypherStrings.GoEntryListConsole, template.entry, _name);
+                    handler.SendSysMessage(CypherStrings.GoEntryListConsole, template.entry, name);
 
                 if (!found)
                     found = true;
@@ -474,9 +474,9 @@ internal class LookupCommands
 
             if (locale < Locale.Total)
             {
-                if (maxResults != 0 && count++ == maxResults)
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                     return true;
                 }
@@ -531,9 +531,9 @@ internal class LookupCommands
             if (!name.Like(namePart))
                 continue;
 
-            if (maxResults != 0 && count++ == maxResults)
+            if (MaxResults != 0 && count++ == MaxResults)
             {
-                handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                 return true;
             }
@@ -583,7 +583,7 @@ internal class LookupCommands
             if (!tele.Value.name.Like(namePart))
                 continue;
 
-            if (maxResults != 0 && count++ == maxResults)
+            if (MaxResults != 0 && count++ == MaxResults)
             {
                 limitReached = true;
 
@@ -602,7 +602,7 @@ internal class LookupCommands
             handler.SendSysMessage(CypherStrings.CommandTeleLocation, reply.ToString());
 
         if (limitReached)
-            handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+            handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
         return true;
     }
@@ -652,9 +652,9 @@ internal class LookupCommands
 
                 if (locale < Locale.Total)
                 {
-                    if (maxResults != 0 && counter == maxResults)
+                    if (MaxResults != 0 && counter == MaxResults)
                     {
-                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                         return true;
                     }
@@ -704,9 +704,9 @@ internal class LookupCommands
 
                 if (name.Like(namePart))
                 {
-                    if (maxResults != 0 && count++ == maxResults)
+                    if (MaxResults != 0 && count++ == MaxResults)
                     {
-                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                         return true;
                     }
@@ -862,9 +862,9 @@ internal class LookupCommands
 
                 if (locale < Locale.Total)
                 {
-                    if (maxResults != 0 && counter == maxResults)
+                    if (MaxResults != 0 && counter == MaxResults)
                     {
-                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                         return true;
                     }
@@ -1019,9 +1019,9 @@ internal class LookupCommands
 
             do
             {
-                if (maxResults != 0 && count++ == maxResults)
+                if (MaxResults != 0 && count++ == MaxResults)
                 {
-                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                    handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                     return true;
                 }
@@ -1084,13 +1084,13 @@ internal class LookupCommands
                 if (questLocale != null)
                     if (questLocale.LogTitle.Length > localeIndex && !questLocale.LogTitle[localeIndex].IsEmpty())
                     {
-                        var title = questLocale.LogTitle[localeIndex];
+                        var questTitle = questLocale.LogTitle[localeIndex];
 
-                        if (title.Like(namePart))
+                        if (questTitle.Like(namePart))
                         {
-                            if (maxResults != 0 && count++ == maxResults)
+                            if (MaxResults != 0 && count++ == MaxResults)
                             {
-                                handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                                handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                                 return true;
                             }
@@ -1136,12 +1136,12 @@ internal class LookupCommands
                                                        handler.Session.Player.GetQuestMinLevel(qInfo),
                                                        maxLevel,
                                                        scalingFactionGroup,
-                                                       title,
+                                                       questTitle,
                                                        statusStr);
                             }
                             else
                             {
-                                handler.SendSysMessage(CypherStrings.QuestListConsole, qInfo.Id, title, statusStr);
+                                handler.SendSysMessage(CypherStrings.QuestListConsole, qInfo.Id, questTitle, statusStr);
                             }
 
                             if (!found)
@@ -1151,16 +1151,16 @@ internal class LookupCommands
                         }
                     }
 
-                var _title = qInfo.LogTitle;
+                var title = qInfo.LogTitle;
 
-                if (string.IsNullOrEmpty(_title))
+                if (string.IsNullOrEmpty(title))
                     continue;
 
-                if (_title.Like(namePart))
+                if (title.Like(namePart))
                 {
-                    if (maxResults != 0 && count++ == maxResults)
+                    if (MaxResults != 0 && count++ == MaxResults)
                     {
-                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                        handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                         return true;
                     }
@@ -1210,12 +1210,12 @@ internal class LookupCommands
                                                handler.Session.Player.GetQuestMinLevel(qInfo),
                                                maxLevel,
                                                scalingFactionGroup,
-                                               _title,
+                                               title,
                                                statusStr);
                     }
                     else
                     {
-                        handler.SendSysMessage(CypherStrings.QuestListConsole, qInfo.Id, _title, statusStr);
+                        handler.SendSysMessage(CypherStrings.QuestListConsole, qInfo.Id, title, statusStr);
                     }
 
                     if (!found)
@@ -1352,9 +1352,9 @@ internal class LookupCommands
 
                     if (locale < Locale.Total)
                     {
-                        if (maxResults != 0 && count++ == maxResults)
+                        if (MaxResults != 0 && count++ == MaxResults)
                         {
-                            handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, maxResults);
+                            handler.SendSysMessage(CypherStrings.CommandLookupMaxResults, MaxResults);
 
                             return true;
                         }

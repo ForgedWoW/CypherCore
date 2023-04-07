@@ -3,6 +3,7 @@
 
 using System;
 using Forged.MapServer.Arenas;
+using Forged.MapServer.Cache;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Commands;
@@ -13,7 +14,7 @@ internal class ArenaCommands
     [Command("captain", RBACPermissions.CommandArenaCaptain)]
     private static bool HandleArenaCaptainCommand(CommandHandler handler, uint teamId, PlayerIdentifier target)
     {
-        var arena = Global.ArenaTeamMgr.GetArenaTeamById(teamId);
+        var arena = handler.ClassFactory.Resolve<ArenaTeamManager>().GetArenaTeamById(teamId);
 
         if (arena == null)
         {
@@ -49,7 +50,7 @@ internal class ArenaCommands
             return false;
         }
 
-        if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(arena.GetCaptain(), out var oldCaptainName))
+        if (!handler.ClassFactory.Resolve<CharacterCache>().GetCharacterNameByGuid(arena.GetCaptain(), out var oldCaptainName))
             return false;
 
         arena.SetCaptain(target.GetGUID());
@@ -61,7 +62,8 @@ internal class ArenaCommands
     [Command("create", RBACPermissions.CommandArenaCreate, true)]
     private static bool HandleArenaCreateCommand(CommandHandler handler, PlayerIdentifier captain, string name, ArenaTypes type)
     {
-        if (Global.ArenaTeamMgr.GetArenaTeamByName(name) != null)
+        var atm = handler.ClassFactory.Resolve<ArenaTeamManager>();
+        if (atm.GetArenaTeamByName(name) != null)
         {
             handler.SendSysMessage(CypherStrings.ArenaErrorNameExists, name);
 
@@ -74,7 +76,7 @@ internal class ArenaCommands
         if (captain == null)
             return false;
 
-        if (Global.CharacterCacheStorage.GetCharacterArenaTeamIdByGuid(captain.GetGUID(), (byte)type) != 0)
+        if (handler.ClassFactory.Resolve<CharacterCache>().GetCharacterArenaTeamIdByGuid(captain.GetGUID(), (byte)type) != 0)
         {
             handler.SendSysMessage(CypherStrings.ArenaErrorSize, captain.GetName());
 
@@ -90,7 +92,7 @@ internal class ArenaCommands
             return false;
         }
 
-        Global.ArenaTeamMgr.AddArenaTeam(arena);
+        atm.AddArenaTeam(arena);
         handler.SendSysMessage(CypherStrings.ArenaCreate, arena.GetName(), arena.GetId(), arena.GetArenaType(), arena.GetCaptain());
 
         return true;
@@ -99,7 +101,7 @@ internal class ArenaCommands
     [Command("disband", RBACPermissions.CommandArenaDisband, true)]
     private static bool HandleArenaDisbandCommand(CommandHandler handler, uint teamId)
     {
-        var arena = Global.ArenaTeamMgr.GetArenaTeamById(teamId);
+        var arena = handler.ClassFactory.Resolve<ArenaTeamManager>().GetArenaTeamById(teamId);
 
         if (arena == null)
         {
@@ -126,7 +128,7 @@ internal class ArenaCommands
     [Command("info", RBACPermissions.CommandArenaInfo, true)]
     private static bool HandleArenaInfoCommand(CommandHandler handler, uint teamId)
     {
-        var arena = Global.ArenaTeamMgr.GetArenaTeamById(teamId);
+        var arena = handler.ClassFactory.Resolve<ArenaTeamManager>().GetArenaTeamById(teamId);
 
         if (arena == null)
         {
@@ -151,7 +153,7 @@ internal class ArenaCommands
 
         var found = false;
 
-        foreach (var (_, team) in Global.ArenaTeamMgr.GetArenaTeamMap())
+        foreach (var (_, team) in handler.ClassFactory.Resolve<ArenaTeamManager>().GetArenaTeamMap())
             if (team.GetName().Equals(needle, StringComparison.OrdinalIgnoreCase))
                 if (handler.Session != null)
                 {
@@ -170,7 +172,8 @@ internal class ArenaCommands
     [Command("rename", RBACPermissions.CommandArenaRename, true)]
     private static bool HandleArenaRenameCommand(CommandHandler handler, string oldName, string newName)
     {
-        var arena = Global.ArenaTeamMgr.GetArenaTeamByName(oldName);
+        var atm = handler.ClassFactory.Resolve<ArenaTeamManager>();
+        var arena = atm.GetArenaTeamByName(oldName);
 
         if (arena == null)
         {
@@ -179,7 +182,7 @@ internal class ArenaCommands
             return false;
         }
 
-        if (Global.ArenaTeamMgr.GetArenaTeamByName(newName) != null)
+        if (atm.GetArenaTeamByName(newName) != null)
         {
             handler.SendSysMessage(CypherStrings.ArenaErrorNameExists, oldName);
 

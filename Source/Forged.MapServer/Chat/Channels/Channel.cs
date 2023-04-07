@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Accounts;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
@@ -31,10 +32,12 @@ public class Channel
     private readonly string _channelName;
     private readonly TeamFaction _channelTeam;
     private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldManager _worldManager;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _gameObjectManager;
     private readonly ObjectAccessor _objectAccessor;
+    private readonly CharacterCache _characterCache;
     private readonly Dictionary<ObjectGuid, PlayerInfo> _playersStore = new();
     private string _channelPassword;
     private bool _isDirty; // whether the channel needs to be saved to DB
@@ -44,8 +47,8 @@ public class Channel
     private bool _ownershipEnabled;
 
     public Channel(ObjectGuid guid, uint channelId, TeamFaction team, AreaTableRecord zoneEntry,
-                   CliDB cliDB, GameObjectManager gameObjectManager, ObjectAccessor objectAccessor,
-                   IConfiguration configuration, AccountManager accountManager, CharacterDatabase characterDatabase)
+                   CliDB cliDB, GameObjectManager gameObjectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
+                   IConfiguration configuration, AccountManager accountManager, CharacterDatabase characterDatabase, WorldManager worldManager)
     {
         Flags = ChannelFlags.General;
         ChannelId = channelId;
@@ -55,9 +58,11 @@ public class Channel
         _cliDB = cliDB;
         _gameObjectManager = gameObjectManager;
         _objectAccessor = objectAccessor;
+        _characterCache = characterCache;
         _configuration = configuration;
         _accountManager = accountManager;
         _characterDatabase = characterDatabase;
+        _worldManager = worldManager;
 
         var channelEntry = _cliDB.ChatChannelsStorage.LookupByKey(channelId);
 
@@ -136,7 +141,7 @@ public class Channel
         if (!IsOn(guid))
         {
             NotMemberAppend appender;
-            ChannelNameBuilder builder = new(this, appender);
+            ChannelNameBuilder builder = new(this, appender, _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -147,7 +152,7 @@ public class Channel
         if (playerInfo.IsMuted)
         {
             MutedAppend appender;
-            ChannelNameBuilder builder = new(this, appender);
+            ChannelNameBuilder builder = new(this, appender, _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -155,7 +160,7 @@ public class Channel
 
         var player = _objectAccessor.FindConnectedPlayer(guid);
 
-        SendToAllWithAddon(new ChannelWhisperBuilder(this, isLogged ? Language.AddonLogged : Language.Addon, what, prefix, guid),
+        SendToAllWithAddon(new ChannelWhisperBuilder(this, isLogged ? Language.AddonLogged : Language.Addon, what, prefix, guid, _worldManager, _objectAccessor),
                            prefix,
                            !playerInfo.IsModerator ? guid : ObjectGuid.Empty,
                            !playerInfo.IsModerator && player ? player.Session.AccountGUID : ObjectGuid.Empty);
@@ -167,7 +172,7 @@ public class Channel
 
         if (!IsOn(guid))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -177,7 +182,7 @@ public class Channel
 
         if (!playerInfo.IsModerator && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
         {
-            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -187,12 +192,12 @@ public class Channel
 
         if (IsAnnounce)
         {
-            ChannelNameBuilder builder = new(this, new AnnouncementsOnAppend(guid));
+            ChannelNameBuilder builder = new(this, new AnnouncementsOnAppend(guid), _worldManager);
             SendToAll(builder);
         }
         else
         {
-            ChannelNameBuilder builder = new(this, new AnnouncementsOffAppend(guid));
+            ChannelNameBuilder builder = new(this, new AnnouncementsOffAppend(guid), _worldManager);
             SendToAll(builder);
         }
 
@@ -233,7 +238,7 @@ public class Channel
 
         if (!IsOn(guid))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -243,7 +248,7 @@ public class Channel
 
         if (!newp || !newp.IsGMVisible)
         {
-            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname));
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -251,7 +256,7 @@ public class Channel
 
         if (IsBanned(newp.GUID))
         {
-            ChannelNameBuilder builder = new(this, new PlayerInviteBannedAppend(newname));
+            ChannelNameBuilder builder = new(this, new PlayerInviteBannedAppend(newname), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -261,7 +266,7 @@ public class Channel
             (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
              !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel)))
         {
-            ChannelNameBuilder builder = new(this, new InviteWrongFactionAppend());
+            ChannelNameBuilder builder = new(this, new InviteWrongFactionAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -269,7 +274,7 @@ public class Channel
 
         if (IsOn(newp.GUID))
         {
-            ChannelNameBuilder builder = new(this, new PlayerAlreadyMemberAppend(newp.GUID));
+            ChannelNameBuilder builder = new(this, new PlayerAlreadyMemberAppend(newp.GUID), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -277,11 +282,11 @@ public class Channel
 
         if (!newp.Social.HasIgnore(guid, player.Session.AccountGUID))
         {
-            ChannelNameBuilder builder = new(this, new InviteAppend(guid));
+            ChannelNameBuilder builder = new(this, new InviteAppend(guid), _worldManager);
             SendToOne(builder, newp.GUID);
         }
 
-        ChannelNameBuilder builder1 = new(this, new PlayerInvitedAppend(newp.GetName()));
+        ChannelNameBuilder builder1 = new(this, new PlayerInvitedAppend(newp.GetName()), _worldManager);
         SendToOne(builder1, guid);
     }
 
@@ -294,7 +299,7 @@ public class Channel
             // Do not send error message for built-in channels
             if (!IsConstant)
             {
-                var builder = new ChannelNameBuilder(this, new PlayerAlreadyMemberAppend(guid));
+                var builder = new ChannelNameBuilder(this, new PlayerAlreadyMemberAppend(guid), _worldManager);
                 SendToOne(builder, guid);
             }
 
@@ -303,7 +308,7 @@ public class Channel
 
         if (IsBanned(guid))
         {
-            var builder = new ChannelNameBuilder(this, new BannedAppend());
+            var builder = new ChannelNameBuilder(this, new BannedAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -311,7 +316,7 @@ public class Channel
 
         if (!CheckPassword(pass))
         {
-            var builder = new ChannelNameBuilder(this, new WrongPasswordAppend());
+            var builder = new ChannelNameBuilder(this, new WrongPasswordAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -322,7 +327,7 @@ public class Channel
             _accountManager.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
             player.Group)
         {
-            var builder = new ChannelNameBuilder(this, new NotInLFGAppend());
+            var builder = new ChannelNameBuilder(this, new NotInLFGAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -332,7 +337,7 @@ public class Channel
 
         if (IsAnnounce && !player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
         {
-            var builder = new ChannelNameBuilder(this, new JoinedAppend(guid));
+            var builder = new ChannelNameBuilder(this, new JoinedAppend(guid), _worldManager);
             SendToAll(builder);
         }
 
@@ -350,7 +355,7 @@ public class Channel
         SendToOne(builder, guid);
         */
 
-        SendToOne(new ChannelNotifyJoinedBuilder(this), guid);
+        SendToOne(new ChannelNotifyJoinedBuilder(this, _worldManager), guid);
 
         JoinNotify(player);
 
@@ -381,7 +386,7 @@ public class Channel
         {
             if (send)
             {
-                var builder = new ChannelNameBuilder(this, new NotMemberAppend());
+                var builder = new ChannelNameBuilder(this, new NotMemberAppend(), _worldManager);
                 SendToOne(builder, guid);
             }
 
@@ -395,7 +400,7 @@ public class Channel
             ChannelNameBuilder<YouLeftAppend> builder = new ChannelNameBuilder(this, new YouLeftAppend());
             SendToOne(builder, guid);
             */
-            SendToOne(new ChannelNotifyLeftBuilder(this, suspend), guid);
+            SendToOne(new ChannelNotifyLeftBuilder(this, suspend, _worldManager), guid);
 
         var info = _playersStore.LookupByKey(guid);
         var changeowner = info.IsOwner;
@@ -403,7 +408,7 @@ public class Channel
 
         if (IsAnnounce && !player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
         {
-            var builder = new ChannelNameBuilder(this, new LeftAppend(guid));
+            var builder = new ChannelNameBuilder(this, new LeftAppend(guid), _worldManager);
             SendToAll(builder);
         }
 
@@ -443,7 +448,7 @@ public class Channel
 
         if (!IsOn(guid))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -483,7 +488,7 @@ public class Channel
 
         if (!IsOn(guid))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -493,7 +498,7 @@ public class Channel
 
         if (!info.IsModerator && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
         {
-            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -501,7 +506,7 @@ public class Channel
 
         _channelPassword = pass;
 
-        ChannelNameBuilder builder1 = new(this, new PasswordChangedAppend(guid));
+        ChannelNameBuilder builder1 = new(this, new PasswordChangedAppend(guid), _worldManager);
         SendToAll(builder1);
 
         _isDirty = true;
@@ -518,7 +523,7 @@ public class Channel
 
         if (!IsOn(guid))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -528,14 +533,14 @@ public class Channel
 
         if (playerInfo.IsMuted)
         {
-            ChannelNameBuilder builder = new(this, new MutedAppend());
+            ChannelNameBuilder builder = new(this, new MutedAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
         }
 
         var player = _objectAccessor.FindConnectedPlayer(guid);
-        SendToAll(new ChannelSayBuilder(this, lang, what, guid, GUID), !playerInfo.IsModerator ? guid : ObjectGuid.Empty, !playerInfo.IsModerator && player ? player.Session.AccountGUID : ObjectGuid.Empty);
+        SendToAll(new ChannelSayBuilder(this, lang, what, guid, GUID, _worldManager, _objectAccessor), !playerInfo.IsModerator ? guid : ObjectGuid.Empty, !playerInfo.IsModerator && player ? player.Session.AccountGUID : ObjectGuid.Empty);
     }
 
     public void SendWhoOwner(Player player)
@@ -544,12 +549,12 @@ public class Channel
 
         if (IsOn(guid))
         {
-            ChannelNameBuilder builder = new(this, new ChannelOwnerAppend(this, _ownerGuid));
+            ChannelNameBuilder builder = new(this, new ChannelOwnerAppend(this, _ownerGuid, _characterCache), _worldManager);
             SendToOne(builder, guid);
         }
         else
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, guid);
         }
     }
@@ -595,7 +600,7 @@ public class Channel
 
         if (!IsOn(guid))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -603,7 +608,7 @@ public class Channel
 
         if (!player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator) && guid != _ownerGuid)
         {
-            ChannelNameBuilder builder = new(this, new NotOwnerAppend());
+            ChannelNameBuilder builder = new(this, new NotOwnerAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -619,7 +624,7 @@ public class Channel
              (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
               !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel))))
         {
-            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname));
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -647,12 +652,12 @@ public class Channel
         playerInfo.SetModerator(true);
         playerInfo.SetOwner(true);
 
-        ChannelNameBuilder builder = new(this, new ModeChangeAppend(_ownerGuid, oldFlag, GetPlayerFlags(_ownerGuid)));
+        ChannelNameBuilder builder = new(this, new ModeChangeAppend(_ownerGuid, oldFlag, GetPlayerFlags(_ownerGuid)), _worldManager);
         SendToAll(builder);
 
         if (exclaim)
         {
-            ChannelNameBuilder ownerBuilder = new(this, new OwnerChangedAppend(_ownerGuid));
+            ChannelNameBuilder ownerBuilder = new(this, new OwnerChangedAppend(_ownerGuid), _worldManager);
             SendToAll(ownerBuilder);
         }
 
@@ -678,7 +683,7 @@ public class Channel
 
         if (!IsOn(good))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, good);
 
             return;
@@ -688,7 +693,7 @@ public class Channel
 
         if (!info.IsModerator && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
         {
-            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend(), _worldManager);
             SendToOne(builder, good);
 
             return;
@@ -699,7 +704,7 @@ public class Channel
 
         if (victim.IsEmpty || !IsBanned(victim))
         {
-            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname));
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname), _worldManager);
             SendToOne(builder, good);
 
             return;
@@ -707,7 +712,7 @@ public class Channel
 
         _bannedStore.Remove(victim);
 
-        ChannelNameBuilder builder1 = new(this, new PlayerUnbannedAppend(good, victim));
+        ChannelNameBuilder builder1 = new(this, new PlayerUnbannedAppend(good, victim), _worldManager);
         SendToAll(builder1);
 
         _isDirty = true;
@@ -782,9 +787,9 @@ public class Channel
         var guid = player.GUID;
 
         if (IsConstant)
-            SendToAllButOne(new ChannelUserlistAddBuilder(this, guid), guid);
+            SendToAllButOne(new ChannelUserlistAddBuilder(this, guid, _worldManager), guid);
         else
-            SendToAll(new ChannelUserlistUpdateBuilder(this, guid));
+            SendToAll(new ChannelUserlistUpdateBuilder(this, guid, _worldManager));
     }
 
     private void KickOrBan(Player player, string badname, bool ban)
@@ -793,7 +798,7 @@ public class Channel
 
         if (!IsOn(good))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, good);
 
             return;
@@ -803,7 +808,7 @@ public class Channel
 
         if (!info.IsModerator && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
         {
-            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend(), _worldManager);
             SendToOne(builder, good);
 
             return;
@@ -814,7 +819,7 @@ public class Channel
 
         if (bad == null || victim.IsEmpty || !IsOn(victim))
         {
-            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname));
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname), _worldManager);
             SendToOne(builder, good);
 
             return;
@@ -824,7 +829,7 @@ public class Channel
 
         if (!player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator) && changeowner && good != _ownerGuid)
         {
-            ChannelNameBuilder builder = new(this, new NotOwnerAppend());
+            ChannelNameBuilder builder = new(this, new NotOwnerAppend(), _worldManager);
             SendToOne(builder, good);
 
             return;
@@ -837,13 +842,13 @@ public class Channel
 
             if (!player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
             {
-                ChannelNameBuilder builder = new(this, new PlayerBannedAppend(good, victim));
+                ChannelNameBuilder builder = new(this, new PlayerBannedAppend(good, victim), _worldManager);
                 SendToAll(builder);
             }
         }
         else if (!player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
         {
-            ChannelNameBuilder builder = new(this, new PlayerKickedAppend(good, victim));
+            ChannelNameBuilder builder = new(this, new PlayerKickedAppend(good, victim), _worldManager);
             SendToAll(builder);
         }
 
@@ -861,7 +866,7 @@ public class Channel
     {
         var guid = player.GUID;
 
-        var builder = new ChannelUserlistRemoveBuilder(this, guid);
+        var builder = new ChannelUserlistRemoveBuilder(this, guid, _worldManager);
 
         if (IsConstant)
             SendToAllButOne(builder, guid);
@@ -931,7 +936,7 @@ public class Channel
 
         if (!IsOn(guid))
         {
-            ChannelNameBuilder builder = new(this, new NotMemberAppend());
+            ChannelNameBuilder builder = new(this, new NotMemberAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -941,7 +946,7 @@ public class Channel
 
         if (!info.IsModerator && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
         {
-            ChannelNameBuilder builder = new(this, new NotModeratorAppend());
+            ChannelNameBuilder builder = new(this, new NotModeratorAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -960,7 +965,7 @@ public class Channel
              (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
               !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel))))
         {
-            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(p2N));
+            ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(p2N), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -968,7 +973,7 @@ public class Channel
 
         if (_ownerGuid == victim && _ownerGuid != guid)
         {
-            ChannelNameBuilder builder = new(this, new NotOwnerAppend());
+            ChannelNameBuilder builder = new(this, new NotOwnerAppend(), _worldManager);
             SendToOne(builder, guid);
 
             return;
@@ -993,7 +998,7 @@ public class Channel
         var oldFlag = _playersStore[guid].Flags;
         playerInfo.SetModerator(set);
 
-        ChannelNameBuilder builder = new(this, new ModeChangeAppend(guid, oldFlag, playerInfo.Flags));
+        ChannelNameBuilder builder = new(this, new ModeChangeAppend(guid, oldFlag, playerInfo.Flags), _worldManager);
         SendToAll(builder);
     }
 
@@ -1010,7 +1015,7 @@ public class Channel
         var oldFlag = _playersStore[guid].Flags;
         playerInfo.SetMuted(set);
 
-        ChannelNameBuilder builder = new(this, new ModeChangeAppend(guid, oldFlag, playerInfo.Flags));
+        ChannelNameBuilder builder = new(this, new ModeChangeAppend(guid, oldFlag, playerInfo.Flags), _worldManager);
         SendToAll(builder);
     }
 

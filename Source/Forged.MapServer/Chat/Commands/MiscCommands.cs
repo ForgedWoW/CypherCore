@@ -36,9 +36,9 @@ internal class MiscCommands
         if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid, out var targetName))
             return false;
 
-        var _player = handler.Session.Player;
+        var player = handler.Session.Player;
 
-        if (target == _player || targetGuid == _player.GUID)
+        if (target == player || targetGuid == player.GUID)
         {
             handler.SendSysMessage(CypherStrings.CantTeleportSelf);
 
@@ -58,35 +58,35 @@ internal class MiscCommands
             if (map.IsBattlegroundOrArena)
             {
                 // only allow if gm mode is on
-                if (!_player.IsGameMaster)
+                if (!player.IsGameMaster)
                 {
                     handler.SendSysMessage(CypherStrings.CannotGoToBgGm, chrNameLink);
 
                     return false;
                 }
                 // if both players are in different bgs
-                else if (_player.BattlegroundId != 0 && _player.BattlegroundId != target.BattlegroundId)
+                else if (player.BattlegroundId != 0 && player.BattlegroundId != target.BattlegroundId)
                 {
-                    _player.LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
+                    player.LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
                 }
 
                 // all's well, set bg id
                 // when porting out from the bg, it will be reset to 0
-                _player.SetBattlegroundId(target.BattlegroundId, target.BattlegroundTypeId);
+                player.SetBattlegroundId(target.BattlegroundId, target.BattlegroundTypeId);
 
                 // remember current position as entry point for return at bg end teleportation
-                if (!_player.Location.Map.IsBattlegroundOrArena)
-                    _player.SetBattlegroundEntryPoint();
+                if (!player.Location.Map.IsBattlegroundOrArena)
+                    player.SetBattlegroundEntryPoint();
             }
             else if (map.IsDungeon)
             {
                 // we have to go to instance, and can go to player only if:
                 //   1) we are in his group (either as leader or as member)
                 //   2) we are not bound to any group and have GM mode on
-                if (_player.Group)
+                if (player.Group)
                 {
                     // we are in group, we can go only if we are in the player group
-                    if (_player.Group != target.Group)
+                    if (player.Group != target.Group)
                     {
                         handler.SendSysMessage(CypherStrings.CannotGoToInstParty, chrNameLink);
 
@@ -96,7 +96,7 @@ internal class MiscCommands
                 else
                 {
                     // we are not in group, let's verify our GM mode
-                    if (!_player.IsGameMaster)
+                    if (!player.IsGameMaster)
                     {
                         handler.SendSysMessage(CypherStrings.CannotGoToInstGm, chrNameLink);
 
@@ -106,30 +106,30 @@ internal class MiscCommands
 
                 if (map.IsRaid)
                 {
-                    _player.RaidDifficultyId = target.RaidDifficultyId;
-                    _player.LegacyRaidDifficultyId = target.LegacyRaidDifficultyId;
+                    player.RaidDifficultyId = target.RaidDifficultyId;
+                    player.LegacyRaidDifficultyId = target.LegacyRaidDifficultyId;
                 }
                 else
                 {
-                    _player.DungeonDifficultyId = target.DungeonDifficultyId;
+                    player.DungeonDifficultyId = target.DungeonDifficultyId;
                 }
             }
 
             handler.SendSysMessage(CypherStrings.AppearingAt, chrNameLink);
 
             // stop flight if need
-            if (_player.IsInFlight)
-                _player.FinishTaxiFlight();
+            if (player.IsInFlight)
+                player.FinishTaxiFlight();
             else
-                _player.SaveRecallPosition(); // save only in non-flight case
+                player.SaveRecallPosition(); // save only in non-flight case
 
             // to point to see at target with same orientation
             var pos = new Position();
-            target.Location.GetClosePoint(pos, _player.CombatReach, 1.0f);
-            pos.Orientation = _player.Location.GetAbsoluteAngle(target.Location);
-            _player.TeleportTo(target.Location.MapId, pos, TeleportToOptions.GMMode, target.InstanceId);
-            PhasingHandler.InheritPhaseShift(_player, target);
-            _player.UpdateObjectVisibility();
+            target.Location.GetClosePoint(pos, player.CombatReach, 1.0f);
+            pos.Orientation = player.Location.GetAbsoluteAngle(target.Location);
+            player.TeleportTo(target.Location.MapId, pos, TeleportToOptions.GMMode, target.InstanceId);
+            PhasingHandler.InheritPhaseShift(player, target);
+            player.UpdateObjectVisibility();
         }
         else
         {
@@ -146,13 +146,13 @@ internal class MiscCommands
                 return false;
 
             // stop flight if need
-            if (_player.IsInFlight)
-                _player.FinishTaxiFlight();
+            if (player.IsInFlight)
+                player.FinishTaxiFlight();
             else
-                _player.SaveRecallPosition(); // save only in non-flight case
+                player.SaveRecallPosition(); // save only in non-flight case
 
-            loc.Orientation = _player.Location.Orientation;
-            _player.TeleportTo(loc);
+            loc.Orientation = player.Location.Orientation;
+            player.TeleportTo(loc);
         }
 
         return true;
@@ -282,38 +282,37 @@ internal class MiscCommands
                 return false;
             }
 
-            var damage = args.NextInt32();
+            var damageAmount = args.NextInt32();
 
-            if (damage == 0)
+            if (damageAmount == 0)
             {
                 handler.SendSysMessage(CypherStrings.BadValue);
 
                 return false;
             }
 
-            var player = handler.Session.Player;
 
-            if (player)
+            if (handler.Session.Player == null)
+                return true;
+
+            var go = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
+
+            if (!go)
             {
-                var go = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
+                handler.SendSysMessage(CypherStrings.CommandObjnotfound, guidLow);
 
-                if (!go)
-                {
-                    handler.SendSysMessage(CypherStrings.CommandObjnotfound, guidLow);
-
-                    return false;
-                }
-
-                if (!go.IsDestructibleBuilding)
-                {
-                    handler.SendSysMessage(CypherStrings.InvalidGameobjectType);
-
-                    return false;
-                }
-
-                go.ModifyHealth(-damage, player);
-                handler.SendSysMessage(CypherStrings.GameobjectDamaged, go.GetName(), guidLow, -damage, go.GoValue.Building.Health);
+                return false;
             }
+
+            if (!go.IsDestructibleBuilding)
+            {
+                handler.SendSysMessage(CypherStrings.InvalidGameobjectType);
+
+                return false;
+            }
+
+            go.ModifyHealth(-damageAmount, handler.Session.Player);
+            handler.SendSysMessage(CypherStrings.GameobjectDamaged, go.GetName(), guidLow, -damageAmount, go.GoValue.Building.Health);
 
             return true;
         }
@@ -327,22 +326,22 @@ internal class MiscCommands
             return false;
         }
 
-        var player_ = target.AsPlayer;
+        var player = target.AsPlayer;
 
-        if (player_)
-            if (handler.HasLowerSecurity(player_, ObjectGuid.Empty))
+        if (player)
+            if (handler.HasLowerSecurity(player, ObjectGuid.Empty))
                 return false;
 
         if (!target.IsAlive)
             return true;
 
-        if (!double.TryParse(str, out var damage_int))
+        if (!double.TryParse(str, out var damageInt))
             return false;
 
-        if (damage_int <= 0)
+        if (damageInt <= 0)
             return true;
 
-        var damage_ = damage_int;
+        var damage = damageInt;
 
         var schoolStr = args.NextString();
 
@@ -351,10 +350,10 @@ internal class MiscCommands
         // flat melee damage without resistence/etc reduction
         if (string.IsNullOrEmpty(schoolStr))
         {
-            damage_ = UnitCombatHelpers.DealDamage(attacker, target, damage_, null, DamageEffectType.Direct, SpellSchoolMask.Normal, null, false);
+            damage = UnitCombatHelpers.DealDamage(attacker, target, damage, null, DamageEffectType.Direct, SpellSchoolMask.Normal, null, false);
 
             if (target != attacker)
-                attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, SpellSchoolMask.Normal, damage_, 0, 0, VictimState.Hit, 0);
+                attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, SpellSchoolMask.Normal, damage, 0, 0, VictimState.Hit, 0);
 
             return true;
         }
@@ -365,26 +364,26 @@ internal class MiscCommands
         var schoolmask = (SpellSchoolMask)(1 << school);
 
         if (UnitCombatHelpers.IsDamageReducedByArmor(schoolmask))
-            damage_ = UnitCombatHelpers.CalcArmorReducedDamage(handler.Player, target, damage_, null, WeaponAttackType.BaseAttack);
+            damage = UnitCombatHelpers.CalcArmorReducedDamage(handler.Player, target, damage, null, WeaponAttackType.BaseAttack);
 
         var spellStr = args.NextString();
 
         // melee damage by specific school
         if (string.IsNullOrEmpty(spellStr))
         {
-            DamageInfo dmgInfo = new(attacker, target, damage_, null, schoolmask, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
+            DamageInfo dmgInfo = new(attacker, target, damage, null, schoolmask, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
             UnitCombatHelpers.CalcAbsorbResist(dmgInfo);
 
             if (dmgInfo.Damage == 0)
                 return true;
 
-            damage_ = dmgInfo.Damage;
+            damage = dmgInfo.Damage;
 
             var absorb = dmgInfo.Absorb;
             var resist = dmgInfo.Resist;
-            UnitCombatHelpers.DealDamageMods(attacker, target, ref damage_, ref absorb);
-            damage_ = UnitCombatHelpers.DealDamage(attacker, target, damage_, null, DamageEffectType.Direct, schoolmask, null, false);
-            attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, schoolmask, damage_, absorb, resist, VictimState.Hit, 0);
+            UnitCombatHelpers.DealDamageMods(attacker, target, ref damage, ref absorb);
+            damage = UnitCombatHelpers.DealDamage(attacker, target, damage, null, DamageEffectType.Direct, schoolmask, null, false);
+            attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, schoolmask, damage, absorb, resist, VictimState.Hit, 0);
 
             return true;
         }
@@ -403,7 +402,7 @@ internal class MiscCommands
 
         SpellNonMeleeDamage damageInfo = new(attacker, target, spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(attacker), 0), spellInfo.SchoolMask)
         {
-            Damage = damage_
+            Damage = damage
         };
 
         UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
@@ -659,7 +658,7 @@ internal class MiscCommands
     }
 
     [CommandNonGroup("gps", RBACPermissions.CommandGps)]
-    private static bool HandleGPSCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleGpsCommand(CommandHandler handler, StringArguments args)
     {
         WorldObject obj;
 
@@ -1232,7 +1231,7 @@ internal class MiscCommands
     [CommandNonGroup("mutehistory", RBACPermissions.CommandMutehistory, true)]
     private static bool HandleMuteHistoryCommand(CommandHandler handler, string accountName)
     {
-        var accountId = Global.AccountMgr.GetId(accountName);
+        var accountId = handler.AccountManager.GetId(accountName);
 
         if (accountId == 0)
         {
@@ -1303,30 +1302,30 @@ internal class MiscCommands
 
             team = (TeamFaction)data.team;
 
-            var team_name = handler.GetCypherString(CypherStrings.CommandGraveyardNoteam);
+            var teamName = handler.GetCypherString(CypherStrings.CommandGraveyardNoteam);
 
             if (team == 0)
-                team_name = handler.GetCypherString(CypherStrings.CommandGraveyardAny);
+                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardAny);
             else if (team == TeamFaction.Horde)
-                team_name = handler.GetCypherString(CypherStrings.CommandGraveyardHorde);
+                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardHorde);
             else if (team == TeamFaction.Alliance)
-                team_name = handler.GetCypherString(CypherStrings.CommandGraveyardAlliance);
+                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardAlliance);
 
-            handler.SendSysMessage(CypherStrings.CommandGraveyardnearest, graveyardId, team_name, zoneId);
+            handler.SendSysMessage(CypherStrings.CommandGraveyardnearest, graveyardId, teamName, zoneId);
         }
         else
         {
-            var team_name = "";
+            var teamName = "";
 
             if (team == TeamFaction.Horde)
-                team_name = handler.GetCypherString(CypherStrings.CommandGraveyardHorde);
+                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardHorde);
             else if (team == TeamFaction.Alliance)
-                team_name = handler.GetCypherString(CypherStrings.CommandGraveyardAlliance);
+                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardAlliance);
 
             if (team == 0)
                 handler.SendSysMessage(CypherStrings.CommandZonenograveyards, zoneId);
             else
-                handler.SendSysMessage(CypherStrings.CommandZonenografaction, zoneId, team_name);
+                handler.SendSysMessage(CypherStrings.CommandZonenografaction, zoneId, teamName);
         }
 
         return true;
@@ -1399,7 +1398,7 @@ internal class MiscCommands
         var lastLogin = handler.GetCypherString(CypherStrings.Error);
         uint failedLogins = 0;
         uint latency = 0;
-        var OS = handler.GetCypherString(CypherStrings.Unknown);
+        var os = handler.GetCypherString(CypherStrings.Unknown);
 
         // Mute data print variables
         long muteTime = -1;
@@ -1525,7 +1524,7 @@ internal class MiscCommands
             muteBy = result0.Read<string>(8);
             failedLogins = result0.Read<uint>(9);
             locked = result0.Read<byte>(10);
-            OS = result0.Read<string>(11);
+            os = result0.Read<string>(11);
         }
 
         // Creates a chat link to the character. Returns nameLink
@@ -1609,7 +1608,7 @@ internal class MiscCommands
         handler.SendSysMessage(CypherStrings.PinfoAccLastlogin, lastLogin, failedLogins);
 
         // Output VII. LANG_PINFO_ACC_OS
-        handler.SendSysMessage(CypherStrings.PinfoAccOs, OS, latency);
+        handler.SendSysMessage(CypherStrings.PinfoAccOs, os, latency);
 
         // Output VIII. LANG_PINFO_ACC_REGMAILS
         handler.SendSysMessage(CypherStrings.PinfoAccRegmails, regMail, eMail);
@@ -1742,14 +1741,14 @@ internal class MiscCommands
 
             if (!result.IsEmpty())
             {
-                var horde_victories = result.Read<uint>(1);
+                var hordeVictories = result.Read<uint>(1);
 
                 if (!(result.NextRow()))
                     return false;
 
-                var alliance_victories = result.Read<uint>(1);
+                var allianceVictories = result.Read<uint>(1);
 
-                handler.SendSysMessage(CypherStrings.Pvpstats, alliance_victories, horde_victories);
+                handler.SendSysMessage(CypherStrings.Pvpstats, allianceVictories, hordeVictories);
             }
             else
             {
@@ -1965,9 +1964,9 @@ internal class MiscCommands
         if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid, out var targetName))
             return false;
 
-        var _player = handler.Session.Player;
+        var player = handler.Session.Player;
 
-        if (target == _player || targetGuid == _player.GUID)
+        if (target == player || targetGuid == player.GUID)
         {
             handler.SendSysMessage(CypherStrings.CantTeleportSelf);
 
@@ -1989,26 +1988,26 @@ internal class MiscCommands
                 return false;
             }
 
-            var map = _player.Location.Map;
+            var map = player.Location.Map;
 
             if (map.IsBattlegroundOrArena)
             {
                 // only allow if gm mode is on
-                if (!_player.IsGameMaster)
+                if (!player.IsGameMaster)
                 {
                     handler.SendSysMessage(CypherStrings.CannotGoToBgGm, nameLink);
 
                     return false;
                 }
                 // if both players are in different bgs
-                else if (target.BattlegroundId != 0 && _player.BattlegroundId != target.BattlegroundId)
+                else if (target.BattlegroundId != 0 && player.BattlegroundId != target.BattlegroundId)
                 {
                     target.LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
                 }
 
                 // all's well, set bg id
                 // when porting out from the bg, it will be reset to 0
-                target.SetBattlegroundId(_player.BattlegroundId, _player.BattlegroundTypeId);
+                target.SetBattlegroundId(player.BattlegroundId, player.BattlegroundTypeId);
 
                 // remember current position as entry point for return at bg end teleportation
                 if (!target.Location.Map.IsBattlegroundOrArena)
@@ -2045,20 +2044,20 @@ internal class MiscCommands
             handler.SendSysMessage(CypherStrings.Summoning, nameLink, "");
 
             if (handler.NeedReportToTarget(target))
-                target.SendSysMessage(CypherStrings.SummonedBy, handler.PlayerLink(_player.GetName()));
+                target.SendSysMessage(CypherStrings.SummonedBy, handler.PlayerLink(player.GetName()));
 
             // stop flight if need
-            if (_player.IsInFlight)
-                _player.FinishTaxiFlight();
+            if (player.IsInFlight)
+                player.FinishTaxiFlight();
             else
-                _player.SaveRecallPosition(); // save only in non-flight case
+                player.SaveRecallPosition(); // save only in non-flight case
 
             // before GM
             var pos = new Position();
-            _player.Location.GetClosePoint(pos, target.CombatReach);
+            player.Location.GetClosePoint(pos, target.CombatReach);
             pos.Orientation = target.Location.Orientation;
-            target.TeleportTo(_player.Location.MapId, pos, 0, map.InstanceId);
-            PhasingHandler.InheritPhaseShift(target, _player);
+            target.TeleportTo(player.Location.MapId, pos, 0, map.InstanceId);
+            PhasingHandler.InheritPhaseShift(target, player);
             target.UpdateObjectVisibility();
         }
         else
@@ -2072,7 +2071,7 @@ internal class MiscCommands
             handler.SendSysMessage(CypherStrings.Summoning, nameLink, handler.GetCypherString(CypherStrings.Offline));
 
             // in point where GM stay
-            PlayerComputators.SavePositionInDB(new WorldLocation(_player.Location.MapId, _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.Location.Zone, targetGuid);
+            PlayerComputators.SavePositionInDB(new WorldLocation(player.Location.MapId, player.Location.X, player.Location.Y, player.Location.Z, player.Location.Orientation), player.Location.Zone, targetGuid);
         }
 
         return true;
@@ -2221,8 +2220,8 @@ internal class MiscCommands
     [CommandNonGroup("unstuck", RBACPermissions.CommandUnstuck, true)]
     private static bool HandleUnstuckCommand(CommandHandler handler, StringArguments args)
     {
-        uint SPELL_UNSTUCK_ID = 7355;
-        uint SPELL_UNSTUCK_VISUAL = 2683;
+        uint spellUnstuckID = 7355;
+        uint spellUnstuckVisual = 2683;
 
         // No args required for players
         if (handler.Session != null && handler.Session.HasPermission(RBACPermissions.CommandsUseUnstuckWithArgs))
@@ -2231,7 +2230,7 @@ internal class MiscCommands
             var player1 = handler.Session.Player;
 
             if (player1)
-                player1.CastSpell(player1, SPELL_UNSTUCK_ID, false);
+                player1.CastSpell(player1, spellUnstuckID, false);
 
             return true;
         }
@@ -2239,11 +2238,11 @@ internal class MiscCommands
         if (args.Empty())
             return false;
 
-        var location_str = "inn";
+        var locationStr = "inn";
         var loc = args.NextString();
 
         if (string.IsNullOrEmpty(loc))
-            location_str = loc;
+            locationStr = loc;
 
         if (!handler.ExtractPlayerTarget(args, out var player, out var targetGUID))
             return false;
@@ -2266,7 +2265,7 @@ internal class MiscCommands
 
         if (player.IsInFlight || player.IsInCombat)
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(SPELL_UNSTUCK_ID, Difficulty.None);
+            var spellInfo = Global.SpellMgr.GetSpellInfo(spellUnstuckID, Difficulty.None);
 
             if (spellInfo == null)
                 return false;
@@ -2275,21 +2274,21 @@ internal class MiscCommands
 
             if (caster)
             {
-                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.MapId, SPELL_UNSTUCK_ID, player.Location.Map.GenerateLowGuid(HighGuid.Cast));
-                Spell.SendCastResult(caster, spellInfo, new SpellCastVisual(SPELL_UNSTUCK_VISUAL, 0), castId, SpellCastResult.CantDoThatRightNow);
+                var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.MapId, spellUnstuckID, player.Location.Map.GenerateLowGuid(HighGuid.Cast));
+                Spell.SendCastResult(caster, spellInfo, new SpellCastVisual(spellUnstuckVisual, 0), castId, SpellCastResult.CantDoThatRightNow);
             }
 
             return false;
         }
 
-        if (location_str == "inn")
+        if (locationStr == "inn")
         {
             player.TeleportTo(player.Homebind);
 
             return true;
         }
 
-        if (location_str == "graveyard")
+        if (locationStr == "graveyard")
         {
             player.RepopAtGraveyard();
 

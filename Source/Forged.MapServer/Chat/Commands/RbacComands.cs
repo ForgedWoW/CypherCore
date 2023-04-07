@@ -15,17 +15,17 @@ internal class RbacComands
         if (account.IsConnected())
             return new RBACCommandData()
             {
-                rbac = account.GetConnectedSession().RBACData,
-                needDelete = false
+                RBAC = account.GetConnectedSession().RBACData,
+                NeedDelete = false
             };
 
-        RBACData rbac = new(account.GetID(), account.GetName(), (int)Global.WorldMgr.RealmId.Index, (byte)Global.AccountMgr.GetSecurity(account.GetID(), (int)Global.WorldMgr.RealmId.Index));
+        RBACData rbac = new(account.GetID(), account.GetName(), (int)Global.WorldMgr.RealmId.Index, (byte)handler.AccountManager.GetSecurity(account.GetID(), (int)Global.WorldMgr.RealmId.Index));
         rbac.LoadFromDB();
 
         return new RBACCommandData()
         {
-            rbac = rbac,
-            needDelete = true
+            RBAC = rbac,
+            NeedDelete = true
         };
     }
 
@@ -34,7 +34,7 @@ internal class RbacComands
     {
         if (!permId.HasValue)
         {
-            var permissions = Global.AccountMgr.RBACPermissionList;
+            var permissions = handler.AccountManager.RBACPermissionList;
             handler.SendSysMessage(CypherStrings.RbacListPermissionsHeader);
 
             foreach (var (_, permission) in permissions)
@@ -42,7 +42,7 @@ internal class RbacComands
         }
         else
         {
-            var permission = Global.AccountMgr.GetRBACPermission(permId.Value);
+            var permission = handler.AccountManager.GetRBACPermission(permId.Value);
 
             if (permission == null)
             {
@@ -57,7 +57,7 @@ internal class RbacComands
 
             foreach (var linkedPerm in permission.LinkedPermissions)
             {
-                var rbacPermission = Global.AccountMgr.GetRBACPermission(linkedPerm);
+                var rbacPermission = handler.AccountManager.GetRBACPermission(linkedPerm);
 
                 if (rbacPermission != null)
                     handler.SendSysMessage(CypherStrings.RbacListElement, rbacPermission.Id, rbacPermission.Name);
@@ -87,8 +87,8 @@ internal class RbacComands
 
             var data = GetRBACData(account);
 
-            var result = data.rbac.DenyPermission(permId, realmId.Value);
-            var permission = Global.AccountMgr.GetRBACPermission(permId);
+            var result = data.RBAC.DenyPermission(permId, realmId.Value);
+            var permission = handler.AccountManager.GetRBACPermission(permId);
 
             switch (result)
             {
@@ -97,8 +97,8 @@ internal class RbacComands
                                            permId,
                                            permission.Name,
                                            realmId.Value,
-                                           data.rbac.Id,
-                                           data.rbac.Name);
+                                           data.RBAC.Id,
+                                           data.RBAC.Name);
 
                     break;
 
@@ -107,8 +107,8 @@ internal class RbacComands
                                            permId,
                                            permission.Name,
                                            realmId.Value,
-                                           data.rbac.Id,
-                                           data.rbac.Name);
+                                           data.RBAC.Id,
+                                           data.RBAC.Name);
 
                     break;
 
@@ -117,8 +117,8 @@ internal class RbacComands
                                            permId,
                                            permission.Name,
                                            realmId.Value,
-                                           data.rbac.Id,
-                                           data.rbac.Name);
+                                           data.RBAC.Id,
+                                           data.RBAC.Name);
 
                     break;
 
@@ -150,8 +150,8 @@ internal class RbacComands
 
             var data = GetRBACData(account);
 
-            var result = data.rbac.GrantPermission(permId, realmId.Value);
-            var permission = Global.AccountMgr.GetRBACPermission(permId);
+            var result = data.RBAC.GrantPermission(permId, realmId.Value);
+            var permission = handler.AccountManager.GetRBACPermission(permId);
 
             switch (result)
             {
@@ -160,8 +160,8 @@ internal class RbacComands
                                            permId,
                                            permission.Name,
                                            realmId.Value,
-                                           data.rbac.Id,
-                                           data.rbac.Name);
+                                           data.RBAC.Id,
+                                           data.RBAC.Name);
 
                     break;
 
@@ -170,8 +170,8 @@ internal class RbacComands
                                            permId,
                                            permission.Name,
                                            realmId.Value,
-                                           data.rbac.Id,
-                                           data.rbac.Name);
+                                           data.RBAC.Id,
+                                           data.RBAC.Name);
 
                     break;
 
@@ -180,8 +180,8 @@ internal class RbacComands
                                            permId,
                                            permission.Name,
                                            realmId.Value,
-                                           data.rbac.Id,
-                                           data.rbac.Name);
+                                           data.RBAC.Id,
+                                           data.RBAC.Name);
 
                     break;
 
@@ -207,39 +207,39 @@ internal class RbacComands
 
             var data = GetRBACData(account);
 
-            handler.SendSysMessage(CypherStrings.RbacListHeaderGranted, data.rbac.Id, data.rbac.Name);
-            var granted = data.rbac.GrantedPermissions;
+            handler.SendSysMessage(CypherStrings.RbacListHeaderGranted, data.RBAC.Id, data.RBAC.Name);
+            var granted = data.RBAC.GrantedPermissions;
 
             if (granted.Empty())
                 handler.SendSysMessage(CypherStrings.RbacListEmpty);
             else
                 foreach (var id in granted)
                 {
-                    var permission = Global.AccountMgr.GetRBACPermission(id);
+                    var permission = handler.AccountManager.GetRBACPermission(id);
                     handler.SendSysMessage(CypherStrings.RbacListElement, permission.Id, permission.Name);
                 }
 
-            handler.SendSysMessage(CypherStrings.RbacListHeaderDenied, data.rbac.Id, data.rbac.Name);
-            var denied = data.rbac.DeniedPermissions;
+            handler.SendSysMessage(CypherStrings.RbacListHeaderDenied, data.RBAC.Id, data.RBAC.Name);
+            var denied = data.RBAC.DeniedPermissions;
 
             if (denied.Empty())
                 handler.SendSysMessage(CypherStrings.RbacListEmpty);
             else
                 foreach (var id in denied)
                 {
-                    var permission = Global.AccountMgr.GetRBACPermission(id);
+                    var permission = handler.AccountManager.GetRBACPermission(id);
                     handler.SendSysMessage(CypherStrings.RbacListElement, permission.Id, permission.Name);
                 }
 
-            handler.SendSysMessage(CypherStrings.RbacListHeaderBySecLevel, data.rbac.Id, data.rbac.Name, data.rbac.GetSecurityLevel());
-            var defaultPermissions = Global.AccountMgr.GetRBACDefaultPermissions(data.rbac.GetSecurityLevel());
+            handler.SendSysMessage(CypherStrings.RbacListHeaderBySecLevel, data.RBAC.Id, data.RBAC.Name, data.RBAC.GetSecurityLevel());
+            var defaultPermissions = handler.AccountManager.GetRBACDefaultPermissions(data.RBAC.GetSecurityLevel());
 
             if (defaultPermissions.Empty())
                 handler.SendSysMessage(CypherStrings.RbacListEmpty);
             else
                 foreach (var id in defaultPermissions)
                 {
-                    var permission = Global.AccountMgr.GetRBACPermission(id);
+                    var permission = handler.AccountManager.GetRBACPermission(id);
                     handler.SendSysMessage(CypherStrings.RbacListElement, permission.Id, permission.Name);
                 }
 
@@ -263,8 +263,8 @@ internal class RbacComands
 
             var data = GetRBACData(account);
 
-            var result = data.rbac.RevokePermission(permId, realmId.Value);
-            var permission = Global.AccountMgr.GetRBACPermission(permId);
+            var result = data.RBAC.RevokePermission(permId, realmId.Value);
+            var permission = handler.AccountManager.GetRBACPermission(permId);
 
             switch (result)
             {
@@ -273,8 +273,8 @@ internal class RbacComands
                                            permId,
                                            permission.Name,
                                            realmId.Value,
-                                           data.rbac.Id,
-                                           data.rbac.Name);
+                                           data.RBAC.Id,
+                                           data.RBAC.Name);
 
                     break;
 
@@ -283,8 +283,8 @@ internal class RbacComands
                                            permId,
                                            permission.Name,
                                            realmId.Value,
-                                           data.rbac.Id,
-                                           data.rbac.Name);
+                                           data.RBAC.Id,
+                                           data.RBAC.Name);
 
                     break;
 
@@ -302,7 +302,7 @@ internal class RbacComands
 
     private class RBACCommandData
     {
-        public bool needDelete;
-        public RBACData rbac;
+        public bool NeedDelete;
+        public RBACData RBAC;
     }
 }

@@ -4,6 +4,7 @@
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Networking.Packets.Channel;
 using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
@@ -12,17 +13,19 @@ namespace Forged.MapServer.Chat.Channels;
 internal class ChannelNameBuilder : MessageBuilder
 {
     private readonly IChannelAppender _modifier;
+    private readonly WorldManager _worldManager;
     private readonly Channel _source;
-    public ChannelNameBuilder(Channel source, IChannelAppender modifier)
+    public ChannelNameBuilder(Channel source, IChannelAppender modifier, WorldManager worldManager)
     {
         _source = source;
         _modifier = modifier;
+        _worldManager = worldManager;
     }
 
     public override PacketSenderOwning<ChannelNotify> Invoke(Locale locale = Locale.enUS)
     {
         // LocalizedPacketDo sends client DBC locale, we need to get available to server locale
-        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+        var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
         PacketSenderOwning<ChannelNotify> sender = new()
         {

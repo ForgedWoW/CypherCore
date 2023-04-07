@@ -491,7 +491,7 @@ internal class GoCommands
 
     //teleport at coordinates
     [Command("zonexy", RBACPermissions.CommandGo)]
-    private static bool HandleGoZoneXYCommand(CommandHandler handler, float x, float y, uint? areaIdArg)
+    private static bool HandleGoZoneXyCommand(CommandHandler handler, float x, float y, uint? areaIdArg)
     {
         var player = handler.Session.Player;
 

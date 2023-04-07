@@ -5,6 +5,7 @@ using System;
 using Forged.MapServer.Accounts;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Chat.Commands;
@@ -13,7 +14,7 @@ namespace Forged.MapServer.Chat.Commands;
 internal class AccountCommands
 {
     [Command("2fa remove", CypherStrings.CommandAcc2faRemoveHelp, RBACPermissions.CommandAccount2FaRemove)]
-    private static bool HandleAccount2FARemoveCommand(CommandHandler handler, uint? token)
+    private static bool HandleAccount2FaRemoveCommand(CommandHandler handler, uint? token)
     {
         /*var masterKey = Global.SecretMgr.GetSecret(Secrets.TOTPMasterKey);
         if (!masterKey.IsAvailable())
@@ -76,7 +77,7 @@ internal class AccountCommands
     }
 
     [Command("2fa setup", CypherStrings.CommandAcc2faSetupHelp, RBACPermissions.CommandAccount2FaSetup)]
-    private static bool HandleAccount2FASetupCommand(CommandHandler handler, uint? token)
+    private static bool HandleAccount2FaSetupCommand(CommandHandler handler, uint? token)
     {
         /*var masterKey = Global.SecretMgr.GetSecret(Secrets.TOTPMasterKey);
         if (!masterKey.IsAvailable())
@@ -139,17 +140,18 @@ internal class AccountCommands
     [Command("addon", CypherStrings.CommandAccAddonHelp, RBACPermissions.CommandAccountAddon)]
     private static bool HandleAccountAddonCommand(CommandHandler handler, byte expansion)
     {
-        if (expansion > GetDefaultValue("Expansion", (int)Expansion.Dragonflight))
+        if (expansion > handler.Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight))
         {
             handler.SendSysMessage(CypherStrings.ImproperValue);
 
             return false;
         }
 
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
+        var loginDB = handler.ClassFactory.Resolve<LoginDatabase>();
+        var stmt = loginDB.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
         stmt.AddValue(0, expansion);
         stmt.AddValue(1, handler.Session.AccountId);
-        DB.Login.Execute(stmt);
+        loginDB.Execute(stmt);
 
         handler.SendSysMessage(CypherStrings.AccountAddon, expansion);
 
@@ -168,7 +170,7 @@ internal class AccountCommands
 
         // Security level required
         var session = handler.Session;
-        var hasRBAC = (session.HasPermission(RBACPermissions.EmailConfirmForPassChange));
+        var hasRBAC = session.HasPermission(RBACPermissions.EmailConfirmForPassChange);
         uint pwConfig = 0; // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
 
         handler.SendSysMessage(CypherStrings.AccountSecType,
@@ -186,10 +188,10 @@ internal class AccountCommands
         {
             string emailoutput;
             var accountId = session.AccountId;
-
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
+            var loginDB = handler.ClassFactory.Resolve<LoginDatabase>();
+            var stmt = loginDB.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
             stmt.AddValue(0, accountId);
-            var result = DB.Login.Query(stmt);
+            var result = loginDB.Query(stmt);
 
             if (!result.IsEmpty())
             {
@@ -210,7 +212,7 @@ internal class AccountCommands
             return false;
         }
 
-        var result = Global.AccountMgr.CreateAccount(accountName, password, email ?? "");
+        var result = handler.AccountManager.CreateAccount(accountName, password, email ?? "");
 
         switch (result)
         {
@@ -255,7 +257,7 @@ internal class AccountCommands
     [Command("delete", CypherStrings.CommandAccDeleteHelp, RBACPermissions.CommandAccountDelete, true)]
     private static bool HandleAccountDeleteCommand(CommandHandler handler, string accountName)
     {
-        var accountId = Global.AccountMgr.GetId(accountName);
+        var accountId = handler.AccountManager.GetId(accountName);
 
         if (accountId == 0)
         {
@@ -267,7 +269,7 @@ internal class AccountCommands
         if (handler.HasLowerSecurityAccount(null, accountId, true))
             return false;
 
-        var result = Global.AccountMgr.DeleteAccount(accountId);
+        var result = handler.AccountManager.DeleteAccount(accountId);
 
         switch (result)
         {
@@ -295,7 +297,7 @@ internal class AccountCommands
     [Command("email", CypherStrings.CommandAccEmailHelp, RBACPermissions.CommandAccountEmail)]
     private static bool HandleAccountEmailCommand(CommandHandler handler, string oldEmail, string password, string email, string emailConfirm)
     {
-        if (!Global.AccountMgr.CheckEmail(handler.Session.AccountId, oldEmail))
+        if (!handler.AccountManager.CheckEmail(handler.Session.AccountId, oldEmail))
         {
             handler.SendSysMessage(CypherStrings.CommandWrongemail);
 
@@ -310,7 +312,7 @@ internal class AccountCommands
             return false;
         }
 
-        if (!Global.AccountMgr.CheckPassword(handler.Session.AccountId, password))
+        if (!handler.AccountManager.CheckPassword(handler.Session.AccountId, password))
         {
             handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
@@ -344,7 +346,7 @@ internal class AccountCommands
         }
 
 
-        var result = Global.AccountMgr.ChangeEmail(handler.Session.AccountId, email);
+        var result = handler.AccountManager.ChangeEmail(handler.Session.AccountId, email);
 
         switch (result)
         {
@@ -377,10 +379,10 @@ internal class AccountCommands
     private static bool HandleAccountPasswordCommand(CommandHandler handler, string oldPassword, string newPassword, string confirmPassword, [OptionalArg] string confirmEmail)
     {
         // First, we check config. What security type (sec type) is it ? Depending on it, the command branches out
-        var pwConfig = GetDefaultValue("Account.PasswordChangeSecurity", 0); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
+        var pwConfig = handler.Configuration.GetDefaultValue("Account.PasswordChangeSecurity", 0); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
 
         // We compare the old, saved password to the entered old password - no chance for the unauthorized.
-        if (!Global.AccountMgr.CheckPassword(handler.Session.AccountId, oldPassword))
+        if (!handler.AccountManager.CheckPassword(handler.Session.AccountId, oldPassword))
         {
             handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
@@ -396,7 +398,7 @@ internal class AccountCommands
         // This compares the old, current email to the entered email - however, only...
         if ((pwConfig == 1 || (pwConfig == 2 && handler.Session.HasPermission(RBACPermissions.EmailConfirmForPassChange))) // ...if either PW_EMAIL or PW_RBAC with the Permission is active...
             &&
-            !Global.AccountMgr.CheckEmail(handler.Session.AccountId, confirmEmail)) // ... and returns false if the comparison fails.
+            !handler.AccountManager.CheckEmail(handler.Session.AccountId, confirmEmail)) // ... and returns false if the comparison fails.
         {
             handler.SendSysMessage(CypherStrings.CommandWrongemail);
 
@@ -419,7 +421,7 @@ internal class AccountCommands
         }
 
         // Changes password and prints result.
-        var result = Global.AccountMgr.ChangePassword(handler.Session.AccountId, newPassword);
+        var result = handler.AccountManager.ChangePassword(handler.Session.AccountId, newPassword);
 
         switch (result)
         {
@@ -478,10 +480,11 @@ internal class AccountCommands
             }
             else
             {
-                var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
+                var loginDB = handler.ClassFactory.Resolve<LoginDatabase>();
+                var stmt = loginDB.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
                 stmt.AddValue(0, "00");
                 stmt.AddValue(1, handler.Session.AccountId);
-                DB.Login.Execute(stmt);
+                loginDB.Execute(stmt);
                 handler.SendSysMessage(CypherStrings.CommandAcclockunlocked);
             }
 
@@ -491,7 +494,8 @@ internal class AccountCommands
         [Command("ip", CypherStrings.CommandAccLockIpHelp, RBACPermissions.CommandAccountLockIp)]
         private static bool HandleAccountLockIpCommand(CommandHandler handler, bool state)
         {
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK);
+            var loginDB = handler.ClassFactory.Resolve<LoginDatabase>();
+            var stmt = loginDB.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK);
 
             if (state)
             {
@@ -506,7 +510,7 @@ internal class AccountCommands
 
             stmt.AddValue(1, handler.Session.AccountId);
 
-            DB.Login.Execute(stmt);
+            loginDB.Execute(stmt);
 
             return true;
         }
@@ -525,7 +529,7 @@ internal class AccountCommands
         {
             var sessionsMatchCount = 0;
 
-            foreach (var session in Global.WorldMgr.AllSessions)
+            foreach (var session in handler.WorldManager.AllSessions)
             {
                 var player = session.Player;
 
@@ -534,7 +538,7 @@ internal class AccountCommands
                     continue;
 
                 var playerMapId = player.Location.MapId;
-                var playerZoneId = player.Zone;
+                var playerZoneId = player.Location.Zone;
 
                 // Apply optional ipAddress filter
                 if (!ipAddress.IsEmpty() && ipAddress != session.RemoteAddress)
@@ -550,7 +554,7 @@ internal class AccountCommands
 
                 if (sessionsMatchCount == 0)
                 {
-                    ///- Display the list of account/characters online on the first matched sessions
+                    //- Display the list of account/characters online on the first matched sessions
                     handler.SendSysMessage(CypherStrings.AccountListBarHeader);
                     handler.SendSysMessage(CypherStrings.AccountListHeader);
                     handler.SendSysMessage(CypherStrings.AccountListBar);
@@ -568,7 +572,7 @@ internal class AccountCommands
                 ++sessionsMatchCount;
 
                 // Apply optional count limit
-                if (limit.HasValue && sessionsMatchCount >= limit)
+                if (sessionsMatchCount >= limit)
                     break;
             }
 
@@ -614,9 +618,9 @@ internal class AccountCommands
     private class AccountSetCommands
     {
         [Command("2fa", CypherStrings.CommandAccSet2faHelp, RBACPermissions.CommandAccountSet2Fa, true)]
-        private static bool HandleAccountSet2FACommand(CommandHandler handler, string accountName, string secret)
+        private static bool HandleAccountSet2FaCommand(CommandHandler handler, string accountName, string secret)
         {
-            /*uint targetAccountId = Global.AccountMgr.GetId(accountName);
+            /*uint targetAccountId = handler.AccountManager.GetId(accountName);
             if (targetAccountId == 0)
             {
                 handler.SendSysMessage(CypherStrings.AccountNotExist, accountName);
@@ -677,7 +681,7 @@ internal class AccountCommands
                 // Convert Account name to Upper Format
                 accountName = accountName.ToUpper();
 
-                accountId = Global.AccountMgr.GetId(accountName);
+                accountId = handler.AccountManager.GetId(accountName);
 
                 if (accountId == 0)
                 {
@@ -694,7 +698,7 @@ internal class AccountCommands
                     return false;
 
                 accountId = player.Session.AccountId;
-                Global.AccountMgr.GetName(accountId, out accountName);
+                handler.AccountManager.GetName(accountId, out accountName);
             }
 
             // Let set addon state only for lesser (strong) security level
@@ -704,15 +708,16 @@ internal class AccountCommands
                 handler.HasLowerSecurityAccount(null, accountId, true))
                 return false;
 
-            if (expansion > GetDefaultValue("Expansion", (int)Expansion.Dragonflight))
+            if (expansion > handler.Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight))
                 return false;
 
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
+            var loginDB = handler.ClassFactory.Resolve<LoginDatabase>();
+            var stmt = loginDB.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
 
             stmt.AddValue(0, expansion);
             stmt.AddValue(1, accountId);
 
-            DB.Login.Execute(stmt);
+            loginDB.Execute(stmt);
 
             handler.SendSysMessage(CypherStrings.AccountSetaddon, accountName, accountId, expansion);
 
@@ -722,7 +727,7 @@ internal class AccountCommands
         [Command("password", CypherStrings.CommandAccSetPasswordHelp, RBACPermissions.CommandAccountSetPassword, true)]
         private static bool HandleAccountSetPasswordCommand(CommandHandler handler, string accountName, string password, string confirmPassword)
         {
-            var targetAccountId = Global.AccountMgr.GetId(accountName);
+            var targetAccountId = handler.AccountManager.GetId(accountName);
 
             if (targetAccountId == 0)
             {
@@ -743,7 +748,7 @@ internal class AccountCommands
                 return false;
             }
 
-            var result = Global.AccountMgr.ChangePassword(targetAccountId, password);
+            var result = handler.AccountManager.ChangePassword(targetAccountId, password);
 
             switch (result)
             {
@@ -776,7 +781,7 @@ internal class AccountCommands
 
             if (!accountName.IsEmpty())
             {
-                accountId = Global.AccountMgr.GetId(accountName);
+                accountId = handler.AccountManager.GetId(accountName);
 
                 if (accountId == 0)
                 {
@@ -793,7 +798,7 @@ internal class AccountCommands
                     return false;
 
                 accountId = player.Session.AccountId;
-                Global.AccountMgr.GetName(accountId, out accountName);
+                handler.AccountManager.GetName(accountId, out accountName);
             }
 
             if (securityLevel > (uint)AccountTypes.Console)
@@ -810,14 +815,11 @@ internal class AccountCommands
 
             AccountTypes playerSecurity;
 
-            if (handler.IsConsole)
-                playerSecurity = AccountTypes.Console;
-            else
-                playerSecurity = Global.AccountMgr.GetSecurity(handler.Session.AccountId, realmID);
+            playerSecurity = handler.IsConsole ? AccountTypes.Console : handler.AccountManager.GetSecurity(handler.Session.AccountId, realmID);
 
             // can set security level only for target with less security and to less security that we have
             // This is also reject self apply in fact
-            var targetSecurity = Global.AccountMgr.GetSecurity(accountId, realmID);
+            var targetSecurity = handler.AccountManager.GetSecurity(accountId, realmID);
 
             if (targetSecurity >= playerSecurity || (AccountTypes)securityLevel >= playerSecurity)
             {
@@ -826,34 +828,35 @@ internal class AccountCommands
                 return false;
             }
 
-            PreparedStatement stmt;
-
-            // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
-            if (realmID == -1 && !Global.AccountMgr.IsConsoleAccount(playerSecurity))
+            switch (realmID)
             {
-                stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
-                stmt.AddValue(0, accountId);
-                stmt.AddValue(1, securityLevel);
-
-                var result = DB.Login.Query(stmt);
-
-                if (!result.IsEmpty())
+                // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
+                case -1 when !handler.AccountManager.IsConsoleAccount(playerSecurity):
                 {
-                    handler.SendSysMessage(CypherStrings.YoursSecurityIsLow);
+                    var loginDB = handler.ClassFactory.Resolve<LoginDatabase>();
+                    PreparedStatement stmt = loginDB.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
+                    stmt.AddValue(0, accountId);
+                    stmt.AddValue(1, securityLevel);
+
+                    var result = loginDB.Query(stmt);
+
+                    if (!result.IsEmpty())
+                    {
+                        handler.SendSysMessage(CypherStrings.YoursSecurityIsLow);
+
+                        return false;
+                    }
+
+                    break;
+                }
+                // Check if provided realmID has a negative value other than -1
+                case < -1:
+                    handler.SendSysMessage(CypherStrings.InvalidRealmid);
 
                     return false;
-                }
             }
 
-            // Check if provided realmID has a negative value other than -1
-            if (realmID < -1)
-            {
-                handler.SendSysMessage(CypherStrings.InvalidRealmid);
-
-                return false;
-            }
-
-            Global.AccountMgr.UpdateAccountAccess(null, accountId, securityLevel, realmID);
+            handler.AccountManager.UpdateAccountAccess(null, accountId, securityLevel, realmID);
 
             handler.SendSysMessage(CypherStrings.YouChangeSecurity, accountName, securityLevel);
 
@@ -866,7 +869,7 @@ internal class AccountCommands
             [Command("email", CypherStrings.CommandAccSetSecEmailHelp, RBACPermissions.CommandAccountSetSecEmail, true)]
             private static bool HandleAccountSetEmailCommand(CommandHandler handler, string accountName, string email, string confirmEmail)
             {
-                var targetAccountId = Global.AccountMgr.GetId(accountName);
+                var targetAccountId = handler.AccountManager.GetId(accountName);
 
                 if (targetAccountId == 0)
                 {
@@ -887,7 +890,7 @@ internal class AccountCommands
                     return false;
                 }
 
-                var result = Global.AccountMgr.ChangeEmail(targetAccountId, email);
+                var result = handler.AccountManager.ChangeEmail(targetAccountId, email);
 
                 switch (result)
                 {
@@ -916,7 +919,7 @@ internal class AccountCommands
             [Command("regmail", CypherStrings.CommandAccSetSecRegmailHelp, RBACPermissions.CommandAccountSetSecRegmail, true)]
             private static bool HandleAccountSetRegEmailCommand(CommandHandler handler, string accountName, string email, string confirmEmail)
             {
-                var targetAccountId = Global.AccountMgr.GetId(accountName);
+                var targetAccountId = handler.AccountManager.GetId(accountName);
 
                 if (targetAccountId == 0)
                 {
@@ -937,7 +940,7 @@ internal class AccountCommands
                     return false;
                 }
 
-                var result = Global.AccountMgr.ChangeRegEmail(targetAccountId, email);
+                var result = handler.AccountManager.ChangeRegEmail(targetAccountId, email);
 
                 switch (result)
                 {

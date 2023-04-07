@@ -42,7 +42,7 @@ internal class CharacterCommands
         if (newAccount.GetID() == oldAccountId)
             return true;
 
-        var charCount = Global.AccountMgr.GetCharactersCount(newAccount.GetID());
+        var charCount = handler.AccountManager.GetCharactersCount(newAccount.GetID());
 
         if (charCount != 0)
             if (charCount >= GetDefaultValue("CharactersPerRealm", 60))
@@ -187,7 +187,7 @@ internal class CharacterCommands
             accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(player.GetGUID());
         }
 
-        Global.AccountMgr.GetName(accountId, out var accountName);
+        handler.AccountManager.GetName(accountId, out var accountName);
 
         PlayerComputators.DeleteFromDB(player.GetGUID(), accountId, true, true);
         handler.SendSysMessage(CypherStrings.CharacterDeleted, player.GetName(), player.GetGUID().ToString(), accountName, accountId);
@@ -380,9 +380,9 @@ internal class CharacterCommands
         var target = player.GetConnectedPlayer();
         var loc = handler.SessionDbcLocale;
 
-        var targetFSL = target.ReputationMgr.StateList;
+        var targetFsl = target.ReputationMgr.StateList;
 
-        foreach (var pair in targetFSL)
+        foreach (var pair in targetFsl)
         {
             var faction = pair.Value;
             var factionEntry = CliDB.FactionStorage.LookupByKey(faction.Id);
@@ -562,13 +562,13 @@ internal class CharacterCommands
                 {
                     DeletedInfo info;
 
-                    info.guid = ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0));
-                    info.name = result.Read<string>(1);
-                    info.accountId = result.Read<uint>(2);
+                    info.GUID = ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0));
+                    info.Name = result.Read<string>(1);
+                    info.AccountId = result.Read<uint>(2);
 
                     // account name will be empty for not existed account
-                    Global.AccountMgr.GetName(info.accountId, out info.accountName);
-                    info.deleteDate = result.Read<long>(3);
+                    handler.AccountManager.GetName(info.AccountId, out info.AccountName);
+                    info.DeleteDate = result.Read<long>(3);
                     foundList.Add(info);
                 } while (result.NextRow());
 
@@ -595,7 +595,7 @@ internal class CharacterCommands
 
             // Call the appropriate function to delete them (current account for deleted characters is 0)
             foreach (var info in foundList)
-                PlayerComputators.DeleteFromDB(info.guid, 0, false, true);
+                PlayerComputators.DeleteFromDB(info.GUID, 0, false, true);
 
             return true;
         }
@@ -632,21 +632,21 @@ internal class CharacterCommands
 
             foreach (var info in foundList)
             {
-                var dateStr = Time.UnixTimeToDateTime(info.deleteDate).ToShortDateString();
+                var dateStr = Time.UnixTimeToDateTime(info.DeleteDate).ToShortDateString();
 
                 if (!handler.Session)
                     handler.SendSysMessage(CypherStrings.CharacterDeletedListLineConsole,
-                                           info.guid.ToString(),
-                                           info.name,
-                                           info.accountName.IsEmpty() ? "<Not existed>" : info.accountName,
-                                           info.accountId,
+                                           info.GUID.ToString(),
+                                           info.Name,
+                                           info.AccountName.IsEmpty() ? "<Not existed>" : info.AccountName,
+                                           info.AccountId,
                                            dateStr);
                 else
                     handler.SendSysMessage(CypherStrings.CharacterDeletedListLineChat,
-                                           info.guid.ToString(),
-                                           info.name,
-                                           info.accountName.IsEmpty() ? "<Not existed>" : info.accountName,
-                                           info.accountId,
+                                           info.GUID.ToString(),
+                                           info.Name,
+                                           info.AccountName.IsEmpty() ? "<Not existed>" : info.AccountName,
+                                           info.AccountId,
                                            dateStr);
             }
 
@@ -701,13 +701,13 @@ internal class CharacterCommands
                 var delInfo = foundList[0];
 
                 // update name
-                delInfo.name = newCharName;
+                delInfo.Name = newCharName;
 
                 // if new account provided update deleted info
                 if (newAccount != null)
                 {
-                    delInfo.accountId = newAccount.GetID();
-                    delInfo.accountName = newAccount.GetName();
+                    delInfo.AccountId = newAccount.GetID();
+                    delInfo.AccountName = newAccount.GetName();
                 }
 
                 HandleCharacterDeletedRestoreHelper(delInfo, handler);
@@ -721,50 +721,50 @@ internal class CharacterCommands
         }
         private static void HandleCharacterDeletedRestoreHelper(DeletedInfo delInfo, CommandHandler handler)
         {
-            if (delInfo.accountName.IsEmpty()) // account not exist
+            if (delInfo.AccountName.IsEmpty()) // account not exist
             {
-                handler.SendSysMessage(CypherStrings.CharacterDeletedSkipAccount, delInfo.name, delInfo.guid.ToString(), delInfo.accountId);
+                handler.SendSysMessage(CypherStrings.CharacterDeletedSkipAccount, delInfo.Name, delInfo.GUID.ToString(), delInfo.AccountId);
 
                 return;
             }
 
             // check character count
-            var charcount = Global.AccountMgr.GetCharactersCount(delInfo.accountId);
+            var charcount = handler.AccountManager.GetCharactersCount(delInfo.AccountId);
 
             if (charcount >= GetDefaultValue("CharactersPerRealm", 60))
             {
-                handler.SendSysMessage(CypherStrings.CharacterDeletedSkipFull, delInfo.name, delInfo.guid.ToString(), delInfo.accountId);
+                handler.SendSysMessage(CypherStrings.CharacterDeletedSkipFull, delInfo.Name, delInfo.GUID.ToString(), delInfo.AccountId);
 
                 return;
             }
 
-            if (!Global.CharacterCacheStorage.GetCharacterGuidByName(delInfo.name).IsEmpty)
+            if (!Global.CharacterCacheStorage.GetCharacterGuidByName(delInfo.Name).IsEmpty)
             {
-                handler.SendSysMessage(CypherStrings.CharacterDeletedSkipName, delInfo.name, delInfo.guid.ToString(), delInfo.accountId);
+                handler.SendSysMessage(CypherStrings.CharacterDeletedSkipName, delInfo.Name, delInfo.GUID.ToString(), delInfo.AccountId);
 
                 return;
             }
 
             var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_RESTORE_DELETE_INFO);
-            stmt.AddValue(0, delInfo.name);
-            stmt.AddValue(1, delInfo.accountId);
-            stmt.AddValue(2, delInfo.guid.Counter);
+            stmt.AddValue(0, delInfo.Name);
+            stmt.AddValue(1, delInfo.AccountId);
+            stmt.AddValue(2, delInfo.GUID.Counter);
             DB.Characters.Execute(stmt);
 
-            Global.CharacterCacheStorage.UpdateCharacterInfoDeleted(delInfo.guid, false, delInfo.name);
+            Global.CharacterCacheStorage.UpdateCharacterInfoDeleted(delInfo.GUID, false, delInfo.Name);
         }
 
         private struct DeletedInfo
         {
-            public uint accountId;
+            public uint AccountId;
             // the account id
-            public string accountName;
+            public string AccountName;
 
             // the account name
-            public long deleteDate;
+            public long DeleteDate;
 
-            public ObjectGuid guid;    // the GUID from the character
-            public string name;        // the character name
+            public ObjectGuid GUID;    // the GUID from the character
+            public string Name;        // the character name
     // the date at which the character has been deleted
         }
     }

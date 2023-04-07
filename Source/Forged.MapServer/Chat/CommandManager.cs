@@ -3,43 +3,51 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Framework.Database;
+using Framework.Util;
+using Game.Common.Extendability;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Chat;
 
 public class CommandManager
 {
-    static CommandManager()
+    private readonly IConfiguration _configuration;
+
+    public CommandManager(WorldDatabase worldDatabase, IConfiguration configuration)
     {
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
-        {
-            if (type.Attributes.HasAnyFlag(TypeAttributes.NestedPrivate | TypeAttributes.NestedPublic))
-                continue;
-
-            var groupAttribute = type.GetCustomAttribute<CommandGroupAttribute>(true);
-
-            if (groupAttribute != null)
+        _configuration = configuration;
+        foreach (var ass in IOHelpers.GetAllAssembliesInDir(configuration.GetDefaultValue("ScriptsDirectory", Path.Combine(AppContext.BaseDirectory, "Scripts"))))
+            foreach (var type in ass.GetTypes())
             {
-                ChatCommandNode command = new(groupAttribute);
-                BuildSubCommandsForCommand(command, type);
-                Commands.Add(groupAttribute.Name, command);
+                if (type.Attributes.HasAnyFlag(TypeAttributes.NestedPrivate | TypeAttributes.NestedPublic))
+                    continue;
+
+                var groupAttribute = type.GetCustomAttribute<CommandGroupAttribute>(true);
+
+                if (groupAttribute != null)
+                {
+                    ChatCommandNode command = new(groupAttribute);
+                    BuildSubCommandsForCommand(command, type);
+                    Commands.Add(groupAttribute.Name, command);
+                }
+
+                //This check for any command not part of that group,  but saves us from having to add them into a new class.
+                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic))
+                {
+                    var commandAttribute = method.GetCustomAttribute<CommandNonGroupAttribute>(true);
+
+                    if (commandAttribute != null)
+                        Commands.Add(commandAttribute.Name, new ChatCommandNode(commandAttribute, method));
+                }
             }
 
-            //This check for any command not part of that group,  but saves us from having to add them into a new class.
-            foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic))
-            {
-                var commandAttribute = method.GetCustomAttribute<CommandNonGroupAttribute>(true);
-
-                if (commandAttribute != null)
-                    Commands.Add(commandAttribute.Name, new ChatCommandNode(commandAttribute, method));
-            }
-        }
-
-        var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_COMMANDS);
-        var result = DB.World.Query(stmt);
+        var stmt = worldDatabase.GetPreparedStatement(WorldStatements.SEL_COMMANDS);
+        var result = worldDatabase.Query(stmt);
 
         if (!result.IsEmpty())
             do
@@ -84,18 +92,21 @@ public class CommandManager
             cmd.ResolveNames(name);
     }
 
-    public static SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
-    public static void InitConsole()
+    public SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
+    public bool Running { get; set; }
+
+    public void InitConsole()
     {
-        if (ConfigMgr.GetDefaultValue("BeepAtStart", true))
+        if (_configuration.GetDefaultValue("BeepAtStart", true))
             Console.Beep();
 
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write("Forged>> ");
 
         var handler = new ConsoleHandler();
+        Running = true;
 
-        while (!Global.WorldMgr.IsStopped)
+        while (Running)
         {
             handler.ParseCommands(Console.ReadLine());
             Console.ForegroundColor = ConsoleColor.Green;
@@ -103,7 +114,7 @@ public class CommandManager
         }
     }
 
-    private static void BuildSubCommandsForCommand(ChatCommandNode command, Type type)
+    private void BuildSubCommandsForCommand(ChatCommandNode command, Type type)
     {
         foreach (var nestedType in type.GetNestedTypes(BindingFlags.NonPublic))
         {
@@ -124,11 +135,8 @@ public class CommandManager
             if (commandAttributes.Count == 0)
                 continue;
 
-            foreach (var commandAttribute in commandAttributes)
+            foreach (var commandAttribute in commandAttributes.Where(commandAttribute => commandAttribute.GetType() != typeof(CommandNonGroupAttribute)))
             {
-                if (commandAttribute.GetType() == typeof(CommandNonGroupAttribute))
-                    continue;
-
                 command.AddSubCommand(new ChatCommandNode(commandAttribute, method));
             }
         }

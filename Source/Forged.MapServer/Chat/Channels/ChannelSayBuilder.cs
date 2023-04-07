@@ -2,9 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Text;
+using Forged.MapServer.World;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
@@ -12,25 +14,29 @@ namespace Forged.MapServer.Chat.Channels;
 internal class ChannelSayBuilder : MessageBuilder
 {
     private readonly ObjectGuid _channelGuid;
+    private readonly WorldManager _worldManager;
+    private readonly ObjectAccessor _objectAccessor;
     private readonly ObjectGuid _guid;
     private readonly Language _lang;
     private readonly Channel _source;
     private readonly string _what;
-    public ChannelSayBuilder(Channel source, Language lang, string what, ObjectGuid guid, ObjectGuid channelGuid)
+    public ChannelSayBuilder(Channel source, Language lang, string what, ObjectGuid guid, ObjectGuid channelGuid, WorldManager worldManager, ObjectAccessor objectAccessor)
     {
         _source = source;
         _lang = lang;
         _what = what;
         _guid = guid;
         _channelGuid = channelGuid;
+        _worldManager = worldManager;
+        _objectAccessor = objectAccessor;
     }
 
     public override PacketSenderOwning<ChatPkt> Invoke(Locale locale = Locale.enUS)
     {
-        var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+        var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
         PacketSenderOwning<ChatPkt> packet = new();
-        var player = Global.ObjAccessor.FindConnectedPlayer(_guid);
+        var player = _objectAccessor.FindConnectedPlayer(_guid);
 
         if (player)
         {

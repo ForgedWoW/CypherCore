@@ -176,7 +176,7 @@ internal class BNetAccountCommands
         // Generate random hex string for password, these accounts must not be logged on with GRUNT
         var randPassword = Array.Empty<byte>().GenerateRandomKey(8);
 
-        switch (Global.AccountMgr.CreateAccount(accountName, randPassword.ToHexString(), bnetAccountName, accountId, index))
+        switch (handler.AccountManager.CreateAccount(accountName, randPassword.ToHexString(), bnetAccountName, accountId, index))
         {
             case AccountOpResult.Ok:
                 handler.SendSysMessage(CypherStrings.AccountCreated, accountName);

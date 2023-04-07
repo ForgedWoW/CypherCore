@@ -709,7 +709,7 @@ internal class ReloadCommand
     private static bool HandleReloadRBACCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading RBAC tables...");
-        Global.AccountMgr.LoadRBAC();
+        handler.AccountManager.LoadRBAC();
         Global.WorldMgr.ReloadRBAC();
         handler.SendGlobalGMSysMessage("RBAC data reloaded.");
 

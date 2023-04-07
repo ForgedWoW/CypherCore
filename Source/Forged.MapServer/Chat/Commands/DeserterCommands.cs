@@ -19,7 +19,7 @@ internal class DeserterCommands
             return false;
         }
 
-        var aura = player.AddAura(isInstance ? Spells.LFGDundeonDeserter : Spells.BGDeserter, player);
+        var aura = player.AddAura(isInstance ? Spells.LFG_DUNDEON_DESERTER : Spells.BG_DESERTER, player);
 
         if (aura == null)
         {
@@ -44,7 +44,7 @@ internal class DeserterCommands
             return false;
         }
 
-        player.RemoveAura(isInstance ? Spells.LFGDundeonDeserter : Spells.BGDeserter);
+        player.RemoveAura(isInstance ? Spells.LFG_DUNDEON_DESERTER : Spells.BG_DESERTER);
 
         return true;
     }

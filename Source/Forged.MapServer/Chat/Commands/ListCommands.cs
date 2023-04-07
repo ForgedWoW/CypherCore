@@ -328,18 +328,18 @@ internal class ListCommands
                         if (!result2.IsEmpty())
                             do
                             {
-                                var item_guid = result2.Read<uint>(0);
+                                var itemGUID = result2.Read<uint>(0);
                                 stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_ITEMS);
-                                stmt.AddValue(0, item_guid);
+                                stmt.AddValue(0, itemGUID);
                                 var result3 = DB.Characters.Query(stmt);
 
                                 if (!result3.IsEmpty())
                                     do
                                     {
-                                        var item_entry = result3.Read<uint>(0);
-                                        var item_count = result3.Read<uint>(1);
+                                        var itemEntry = result3.Read<uint>(0);
+                                        var itemCount = result3.Read<uint>(1);
 
-                                        var itemTemplate = Global.ObjectMgr.GetItemTemplate(item_entry);
+                                        var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemEntry);
 
                                         if (itemTemplate == null)
                                             continue;
@@ -347,12 +347,12 @@ internal class ListCommands
                                         if (handler.Session != null)
                                         {
                                             var color = ItemConst.ItemQualityColors[(int)itemTemplate.Quality];
-                                            var itemStr = $"|c{color}|Hitem:{item_entry}:0:0:0:0:0:0:0:{handler.Session.Player.Level}:0:0:0:0:0|h[{itemTemplate.GetName(handler.SessionDbcLocale)}]|h|r";
-                                            handler.SendSysMessage(CypherStrings.ListMailInfoItem, itemStr, item_entry, item_guid, item_count);
+                                            var itemStr = $"|c{color}|Hitem:{itemEntry}:0:0:0:0:0:0:0:{handler.Session.Player.Level}:0:0:0:0:0|h[{itemTemplate.GetName(handler.SessionDbcLocale)}]|h|r";
+                                            handler.SendSysMessage(CypherStrings.ListMailInfoItem, itemStr, itemEntry, itemGUID, itemCount);
                                         }
                                         else
                                         {
-                                            handler.SendSysMessage(CypherStrings.ListMailInfoItem, itemTemplate.GetName(handler.SessionDbcLocale), item_entry, item_guid, item_count);
+                                            handler.SendSysMessage(CypherStrings.ListMailInfoItem, itemTemplate.GetName(handler.SessionDbcLocale), itemEntry, itemGUID, itemCount);
                                         }
                                     } while (result3.NextRow());
                             } while (result2.NextRow());
@@ -631,11 +631,11 @@ internal class ListCommands
                 if (!ShouldListAura(aura.SpellInfo, spellId, namePart, handler.SessionDbcLocale))
                     continue;
 
-                var ss_name = "|cffffffff|Hspell:" + aura.Id + "|h[" + name + "]|h|r";
+                var ssName = "|cffffffff|Hspell:" + aura.Id + "|h[" + name + "]|h|r";
 
                 handler.SendSysMessage(CypherStrings.CommandTargetAuradetail,
                                        aura.Id,
-                                       (handler.Session != null ? ss_name : name),
+                                       (handler.Session != null ? ssName : name),
                                        aurApp.EffectMask.ToMask(),
                                        aura.Charges,
                                        aura.StackAmount,

@@ -13,7 +13,6 @@ using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Extendability;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
@@ -29,6 +28,9 @@ using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Game.Common.Extendability;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Scripting;
@@ -50,13 +52,15 @@ public class ScriptManager
     private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
     private readonly WorldDatabase _worldDatabase;
     private readonly ClassFactory _classFactory;
+    private readonly IConfiguration _configuration;
     private uint _scriptCount;
 
-    public ScriptManager(GameObjectManager gameObjectManager, WorldDatabase worldDatabase, ClassFactory classFactory)
+    public ScriptManager(GameObjectManager gameObjectManager, WorldDatabase worldDatabase, ClassFactory classFactory, IConfiguration configuration)
     {
         _gameObjectManager = gameObjectManager;
         _worldDatabase = worldDatabase;
         _classFactory = classFactory;
+        _configuration = configuration;
     }
 
     public void Initialize()
@@ -240,7 +244,7 @@ public class ScriptManager
 
     public void FillSpellSummary()
     {
-        UnitAI.FillAISpellInfo();
+        UnitAI.FillAISpellInfo(_classFactory.Resolve<SpellManager>());
     }
 
     public WaypointPath GetPath(uint creatureEntry)
@@ -271,10 +275,7 @@ public class ScriptManager
 
     public void LoadScripts()
     {
-        var assemblies = IOHelpers.GetAllAssembliesInDir(Path.Combine(AppContext.BaseDirectory, "Scripts"));
-
-        if (File.Exists(AppContext.BaseDirectory + "Scripts.dll"))
-            assemblies.Add(Assembly.LoadFile(AppContext.BaseDirectory + "Scripts.dll"));
+        var assemblies = IOHelpers.GetAllAssembliesInDir(_configuration.GetDefaultValue("ScriptsDirectory", Path.Combine(AppContext.BaseDirectory, "Scripts")));
 
         Dictionary<string, IScriptActivator> activators = new();
         Dictionary<Type, IScriptRegister> registers = new();

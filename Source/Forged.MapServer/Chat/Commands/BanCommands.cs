@@ -4,7 +4,10 @@
 using System;
 using System.Net;
 using Forged.MapServer.Globals;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -43,22 +46,23 @@ internal class BanCommands
         }
 
         var author = handler.Session != null ? handler.Session.PlayerName : "Server";
-
-        switch (Global.WorldMgr.BanCharacter(playerName, duration, reason, author))
+        var worldManager = handler.ClassFactory.Resolve<WorldManager>();
+        var cfg = handler.ClassFactory.Resolve<IConfiguration>();
+        switch (worldManager.BanCharacter(playerName, duration, reason, author))
         {
             case BanReturn.Success:
             {
                 if (duration > 0)
                 {
-                    if (GetDefaultValue("ShowBanInWorld", false))
-                        Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
+                    if (cfg.GetDefaultValue("ShowBanInWorld", false))
+                        worldManager.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
                     else
                         handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
                 }
                 else
                 {
-                    if (GetDefaultValue("ShowBanInWorld", false))
-                        Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoupermbannedmessageWorld, author, playerName, reason);
+                    if (cfg.GetDefaultValue("ShowBanInWorld", false))
+                        worldManager.SendWorldText(CypherStrings.BanCharacterYoupermbannedmessageWorld, author, playerName, reason);
                     else
                         handler.SendSysMessage(CypherStrings.BanYoupermbanned, playerName, reason);
                 }
@@ -103,21 +107,22 @@ internal class BanCommands
         }
 
         var author = handler.Session ? handler.Session.PlayerName : "Server";
-
-        switch (Global.WorldMgr.BanAccount(mode, nameOrIP, duration, reason, author))
+        var worldManager = handler.ClassFactory.Resolve<WorldManager>();
+        var cfg = handler.ClassFactory.Resolve<IConfiguration>();
+        switch (worldManager.BanAccount(mode, nameOrIP, duration, reason, author))
         {
             case BanReturn.Success:
                 if (duration > 0)
                 {
-                    if (GetDefaultValue("ShowBanInWorld", false))
-                        Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.SecsToTimeString(duration), reason);
+                    if (cfg.GetDefaultValue("ShowBanInWorld", false))
+                        worldManager.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.SecsToTimeString(duration), reason);
                     else
                         handler.SendSysMessage(CypherStrings.BanYoubanned, nameOrIP, Time.SecsToTimeString(duration, TimeFormat.ShortText), reason);
                 }
                 else
                 {
-                    if (GetDefaultValue("ShowBanInWorld", false))
-                        Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoupermbannedmessageWorld, author, nameOrIP, reason);
+                    if (cfg.GetDefaultValue("ShowBanInWorld", false))
+                        worldManager.SendWorldText(CypherStrings.BanAccountYoupermbannedmessageWorld, author, nameOrIP, reason);
                     else
                         handler.SendSysMessage(CypherStrings.BanYoupermbanned, nameOrIP, reason);
                 }

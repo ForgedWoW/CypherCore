@@ -179,7 +179,7 @@ internal class TicketCommands
         var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(targetGuid);
 
         // Target must exist and have administrative rights
-        if (!Global.AccountMgr.HasPermission(accountId, RBACPermissions.CommandsBeAssignedTicket, Global.WorldMgr.Realm.Id.Index))
+        if (!handler.AccountManager.HasPermission(accountId, RBACPermissions.CommandsBeAssignedTicket, Global.WorldMgr.Realm.Id.Index))
         {
             handler.SendSysMessage(CypherStrings.CommandTicketassignerrorA);
 
@@ -206,7 +206,7 @@ internal class TicketCommands
         }
 
         // Assign ticket
-        ticket.SetAssignedTo(targetGuid, Global.AccountMgr.IsAdminAccount(Global.AccountMgr.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index)));
+        ticket.SetAssignedTo(targetGuid, handler.AccountManager.IsAdminAccount(handler.AccountManager.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index)));
         ticket.SaveToDB();
 
         var msg = ticket.FormatViewMessageString(handler, null, targetName, null, null);
@@ -262,7 +262,7 @@ internal class TicketCommands
         {
             var guid = ticket.AssignedToGUID;
             var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
-            security = Global.AccountMgr.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index);
+            security = handler.AccountManager.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index);
         }
 
         // Check security
