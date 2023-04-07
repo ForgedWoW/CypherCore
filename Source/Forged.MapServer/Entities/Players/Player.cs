@@ -990,8 +990,8 @@ public partial class Player : Unit
             if (cMgr == null)
                 continue;
 
-            if (ch.IsConstant())
-                cMgr.LeftChannel(ch.GetChannelId(), ch.GetZoneEntry());
+            if (ch.IsConstant)
+                cMgr.LeftChannel(ch.ChannelId, ch.ZoneEntry);
         }
 
         Log.Logger.Debug("Player {0}: channels cleaned up!", GetName());
@@ -6966,7 +6966,7 @@ public partial class Player : Unit
     private void LeaveLFGChannel()
     {
         foreach (var i in JoinedChannels)
-            if (i.IsLFG())
+            if (i.IsLFG)
             {
                 i.LeaveChannel(this);
 
@@ -7587,7 +7587,7 @@ public partial class Player : Unit
             Channel usedChannel = null;
 
             foreach (var channel in JoinedChannels)
-                if (channel.GetChannelId() == channelEntry.Id)
+                if (channel.ChannelId == channelEntry.Id)
                 {
                     usedChannel = channel;
 
@@ -7636,8 +7636,8 @@ public partial class Player : Unit
             {
                 removeChannel.LeaveChannel(this, sendRemove, true); // Leave old channel
 
-                LeftChannel(removeChannel);                                                   // Remove from player's channel list
-                cMgr.LeftChannel(removeChannel.GetChannelId(), removeChannel.GetZoneEntry()); // Delete if empty
+                LeftChannel(removeChannel);                                         // Remove from player's channel list
+                cMgr.LeftChannel(removeChannel.ChannelId, removeChannel.ZoneEntry); // Delete if empty
             }
         }
     }

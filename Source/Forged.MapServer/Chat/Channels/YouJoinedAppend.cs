@@ -17,7 +17,7 @@ internal struct YouJoinedAppend : IChannelAppender
 
     public void Append(ChannelNotify data)
     {
-        data.ChatChannelID = (int)_channel.GetChannelId();
+        data.ChatChannelID = (int)_channel.ChannelId;
     }
 
     public ChatNotify GetNotificationType() => ChatNotify.YouJoinedNotice;

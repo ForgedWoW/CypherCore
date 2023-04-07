@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Autofac;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
@@ -11698,7 +11699,7 @@ public sealed class GameObjectManager
     private ObjectGuidGenerator GetGuidSequenceGenerator(HighGuid high)
     {
         if (!_guidGenerators.ContainsKey(high))
-            _guidGenerators[high] = new ObjectGuidGenerator(high);
+            _guidGenerators[high] = _classFactory.Resolve<ObjectGuidGenerator>(new PositionalParameter(0, high), new PositionalParameter(1, 1));
 
         return _guidGenerators[high];
     }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks.Dataflow;
+using Autofac;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Collision;
 using Forged.MapServer.Collision.Models;
@@ -46,6 +47,7 @@ namespace Forged.MapServer.Maps;
 
 public class Map : IDisposable
 {
+    private readonly ClassFactory _classFactory;
     private readonly LimitedThreadTaskManager _threadManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
     private readonly ActionBlock<uint> _processRelocationQueue;
     private readonly LimitedThreadTaskManager _processTransportaionQueue = new(1);
@@ -168,8 +170,10 @@ public class Map : IDisposable
 
     public SpawnedPoolData PoolData { get; }
 
-    public Map(uint id, long expiry, uint instanceId, Difficulty spawnmode)
+    public Map(uint id, long expiry, uint instanceId, Difficulty spawnmode, ClassFactory classFactory)
     {
+        _classFactory = classFactory;
+
         try
         {
             Entry = CliDB.MapStorage.LookupByKey(id);
@@ -4167,7 +4171,7 @@ public class Map : IDisposable
     private ObjectGuidGenerator GetGuidSequenceGenerator(HighGuid high)
     {
         if (!_guidGenerators.ContainsKey(high))
-            _guidGenerators[high] = new ObjectGuidGenerator(high);
+            _guidGenerators[high] = _classFactory.Resolve<ObjectGuidGenerator>(new PositionalParameter(0, high), new PositionalParameter(1, 1));
 
         return _guidGenerators[high];
     }

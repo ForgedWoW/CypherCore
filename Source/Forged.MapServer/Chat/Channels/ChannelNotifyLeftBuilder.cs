@@ -28,7 +28,7 @@ internal class ChannelNotifyLeftBuilder : MessageBuilder
             Data =
             {
                 Channel = _source.GetName(localeIdx),
-                ChatChannelID = _source.GetChannelId(),
+                ChatChannelID = _source.ChannelId,
                 Suspended = _suspended
             }
         };

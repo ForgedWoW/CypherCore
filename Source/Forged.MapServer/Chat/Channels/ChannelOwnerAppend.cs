@@ -29,7 +29,7 @@ internal struct ChannelOwnerAppend : IChannelAppender
 
     public void Append(ChannelNotify data)
     {
-        data.Sender = ((_channel.IsConstant() || _ownerGuid.IsEmpty) ? "Nobody" : _ownerName);
+        data.Sender = ((_channel.IsConstant || _ownerGuid.IsEmpty) ? "Nobody" : _ownerName);
     }
 
     public ChatNotify GetNotificationType() => ChatNotify.ChannelOwnerNotice;

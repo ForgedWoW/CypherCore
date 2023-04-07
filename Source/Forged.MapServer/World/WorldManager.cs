@@ -442,10 +442,7 @@ public class WorldManager
 
     public Locale GetAvailableDbcLocale(Locale locale)
     {
-        if (_availableDbcLocaleMask[(int)locale])
-            return locale;
-        else
-            return DefaultDbcLocale;
+        return _availableDbcLocaleMask[(int)locale] ? locale : DefaultDbcLocale;
     }
 
     public int GetPersistentWorldVariable(string var)
@@ -804,12 +801,12 @@ public class WorldManager
         }
         else
         {
-            uint account = 0;
-
-            if (mode == BanMode.Account)
-                account = _accountManager.GetId(nameOrIP);
-            else if (mode == BanMode.Character)
-                account = _characterCache.GetCharacterAccountIdByName(nameOrIP);
+            uint account = mode switch
+            {
+                BanMode.Account   => _accountManager.GetId(nameOrIP),
+                BanMode.Character => _characterCache.GetCharacterAccountIdByName(nameOrIP),
+                _                 => 0
+            };
 
             if (account == 0)
                 return false;

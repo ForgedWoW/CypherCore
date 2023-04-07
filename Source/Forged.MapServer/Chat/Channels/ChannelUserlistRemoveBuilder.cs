@@ -28,8 +28,8 @@ internal class ChannelUserlistRemoveBuilder : MessageBuilder
             Data =
             {
                 RemovedUserGUID = _guid,
-                ChannelFlags = _source.GetFlags(),
-                ChannelID = _source.GetChannelId(),
+                ChannelFlags = _source.Flags,
+                ChannelID = _source.ChannelId,
                 ChannelName = _source.GetName(localeIdx)
             }
         };

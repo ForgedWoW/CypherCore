@@ -3,10 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Autofac;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Channel;
 using Framework.Constants;
 using Framework.Database;
@@ -21,19 +24,24 @@ public class ChannelManager
     private readonly Dictionary<ObjectGuid, Channel> _channels = new();
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
+    private readonly ClassFactory _classFactory;
+    private readonly GameObjectManager _objectManager;
     private readonly IConfiguration _configuration;
     private readonly Dictionary<string, Channel> _customChannels = new();
     private readonly ObjectGuidGenerator _guidGenerator;
     private readonly Realm _realm;
     private readonly TeamFaction _team;
-    public ChannelManager(TeamFaction team, IConfiguration configuration, CharacterDatabase characterDatabase, Realm realm, CliDB cliDB)
+
+    public ChannelManager(TeamFaction team, IConfiguration configuration, CharacterDatabase characterDatabase, Realm realm, CliDB cliDB, ClassFactory classFactory, GameObjectManager objectManager)
     {
         _team = team;
         _configuration = configuration;
         _characterDatabase = characterDatabase;
         _realm = realm;
         _cliDB = cliDB;
-        _guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
+        _classFactory = classFactory;
+        _objectManager = objectManager;
+        _guidGenerator = classFactory.Resolve<ObjectGuidGenerator>(new PositionalParameter(0, HighGuid.ChatChannel), new PositionalParameter(1, 1));
     }
 
     public Channel CreateCustomChannel(string name)
@@ -68,24 +76,20 @@ public class ChannelManager
                 result = channel;
         }
 
-        if (result == null && notify)
-        {
-            var channelName = name;
-            Channel.GetChannelName(ref channelName, channelId, player.Session.SessionDbcLocale, zoneEntry);
+        if (result != null || !notify)
+            return result;
 
-            SendNotOnChannelNotify(player, channelName);
-        }
+        var channelName = name;
+        Channel.GetChannelName(ref channelName, channelId, player.Session.SessionDbcLocale, zoneEntry, _cliDB, _objectManager);
+
+        SendNotOnChannelNotify(player, channelName);
 
         return result;
     }
 
     public Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
     {
-        foreach (var channel in playerSearcher.JoinedChannels)
-            if (channel.GetGUID() == channelGuid)
-                return channel;
-
-        return null;
+        return playerSearcher.JoinedChannels.FirstOrDefault(channel => channel.GUID == channelGuid);
     }
 
     public Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
@@ -114,7 +118,10 @@ public class ChannelManager
         if (currentChannel != null)
             return currentChannel;
 
-        var newChannel = new Channel(channelGuid, channelId, _team, zoneEntry);
+        var newChannel = _classFactory.Resolve<Channel>(new PositionalParameter(0, channelGuid),
+                                                        new PositionalParameter(1, channelId),
+                                                        new PositionalParameter(2, _team),
+                                                        new PositionalParameter(3, zoneEntry));
         _channels[channelGuid] = newChannel;
 
         return newChannel;
@@ -128,7 +135,7 @@ public class ChannelManager
         if (channel == null)
             return;
 
-        if (channel.GetNumPlayers() == 0)
+        if (channel.NumPlayers == 0)
             _channels.Remove(guid);
     }
 

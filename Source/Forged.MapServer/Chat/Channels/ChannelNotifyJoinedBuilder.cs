@@ -26,11 +26,11 @@ internal class ChannelNotifyJoinedBuilder : MessageBuilder
             Data =
             {
                 //notify.ChannelWelcomeMsg = "";
-                ChatChannelID = (int)_source.GetChannelId(),
+                ChatChannelID = (int)_source.ChannelId,
                 //notify.InstanceID = 0;
-                ChannelFlags = _source.GetFlags(),
+                ChannelFlags = _source.Flags,
                 Channel = _source.GetName(localeIdx),
-                ChannelGUID = _source.GetGUID()
+                ChannelGUID = _source.GUID
             }
         };
 

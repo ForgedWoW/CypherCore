@@ -159,7 +159,7 @@ public class BattlePetMgrData
             var speciesId = result.Read<uint>(0);
             var quality = (BattlePetBreedQuality)result.Read<byte>(1);
 
-            var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(speciesId);
+            var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(speciesId);
 
             if (battlePetSpecies == null)
             {

@@ -28,9 +28,9 @@ internal class ChannelUserlistUpdateBuilder : MessageBuilder
             Data =
             {
                 UpdatedUserGUID = _guid,
-                ChannelFlags = _source.GetFlags(),
+                ChannelFlags = _source.Flags,
                 UserFlags = _source.GetPlayerFlags(_guid),
-                ChannelID = _source.GetChannelId(),
+                ChannelID = _source.ChannelId,
                 ChannelName = _source.GetName(localeIdx)
             }
         };

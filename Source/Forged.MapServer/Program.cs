@@ -28,6 +28,7 @@ using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Taxis;
@@ -457,6 +458,8 @@ void RegisterInstanced()
     builder.RegisterType<GameObject>();
     builder.RegisterType<BattlePet>();
     builder.RegisterType<BlackMarketEntry>();
+    builder.RegisterType<ObjectGuidGenerator>();
+    builder.RegisterType<Channel>();
 }
 
 void RegisterHandlers()
