@@ -7,6 +7,7 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 
 namespace Forged.MapServer.Entities.GameObjects;
 

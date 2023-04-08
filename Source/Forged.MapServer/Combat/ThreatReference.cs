@@ -10,16 +10,16 @@ namespace Forged.MapServer.Combat;
 
 public class ThreatReference : IComparable<ThreatReference>
 {
-    public ThreatManager _mgr;
+    public ThreatManager ThreatManager;
     public OnlineState Online;
     public int TempModifier; // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers
     private double _baseAmount;
     private TauntState _taunted;
 
-    public ThreatReference(ThreatManager mgr, Unit victim)
+    public ThreatReference(ThreatManager threatManager, Unit victim)
     {
-        Owner = mgr._owner as Creature;
-        _mgr = mgr;
+        Owner = threatManager._owner as Creature;
+        ThreatManager = threatManager;
         Victim = victim;
         Online = OnlineState.Offline;
     }
@@ -50,10 +50,7 @@ public class ThreatReference : IComparable<ThreatReference>
             if (!Owner._IsTargetAcceptable(Victim) || !Owner.CanCreatureAttack(Victim))
                 return true;
 
-            if (!FlagsAllowFighting(Owner, Victim) || !FlagsAllowFighting(Victim, Owner))
-                return true;
-
-            return false;
+            return !FlagsAllowFighting(Owner, Victim) || !FlagsAllowFighting(Victim, Owner);
         }
     }
 
@@ -67,13 +64,7 @@ public class ThreatReference : IComparable<ThreatReference>
             if (Victim.IsImmunedToDamage(Owner.GetMeleeDamageSchoolMask()))
                 return true;
 
-            if (Victim.HasAuraType(AuraType.ModConfuse))
-                return true;
-
-            if (Victim.HasBreakableByDamageAuraType(AuraType.ModStun))
-                return true;
-
-            return false;
+            return Victim.HasAuraType(AuraType.ModConfuse) || Victim.HasBreakableByDamageAuraType(AuraType.ModStun);
         }
     }
     public TauntState TauntState => IsTaunting ? TauntState.Taunt : _taunted;
@@ -105,12 +96,12 @@ public class ThreatReference : IComparable<ThreatReference>
 
         _baseAmount = Math.Max(_baseAmount + amount, 0.0f);
         ListNotifyChanged();
-        _mgr.NeedClientUpdate = true;
+        ThreatManager.NeedClientUpdate = true;
     }
 
     public void ClearThreat()
     {
-        _mgr.ClearThreat(this);
+        ThreatManager.ClearThreat(this);
     }
 
     public int CompareTo(ThreatReference other)
@@ -119,7 +110,7 @@ public class ThreatReference : IComparable<ThreatReference>
     }
     public void ListNotifyChanged()
     {
-        _mgr.ListNotifyChanged();
+        ThreatManager.ListNotifyChanged();
     }
 
     public void ModifyThreatByPercent(int percent)
@@ -135,7 +126,7 @@ public class ThreatReference : IComparable<ThreatReference>
 
         _baseAmount *= factor;
         ListNotifyChanged();
-        _mgr.NeedClientUpdate = true;
+        ThreatManager.NeedClientUpdate = true;
     }
 
     public void SetThreat(float amount)
@@ -161,13 +152,13 @@ public class ThreatReference : IComparable<ThreatReference>
         {
             Online = OnlineState.Offline;
             ListNotifyChanged();
-            _mgr.SendRemoveToClients(Victim);
+            ThreatManager.SendRemoveToClients(Victim);
         }
         else
         {
             Online = ShouldBeSuppressed ? OnlineState.Suppressed : OnlineState.Online;
             ListNotifyChanged();
-            _mgr.RegisterForAIUpdate(this);
+            ThreatManager.RegisterForAIUpdate(this);
         }
     }
     public void UpdateTauntState(TauntState state = TauntState.None)
@@ -182,6 +173,6 @@ public class ThreatReference : IComparable<ThreatReference>
         Extensions.Swap(ref state, ref _taunted);
 
         ListNotifyChanged();
-        _mgr.NeedClientUpdate = true;
+        ThreatManager.NeedClientUpdate = true;
     }
 }

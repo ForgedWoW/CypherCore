@@ -5,6 +5,7 @@ using System.Text;
 using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Game.Common;
 
 namespace Forged.MapServer.Chat;
 

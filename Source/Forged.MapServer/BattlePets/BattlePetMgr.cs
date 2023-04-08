@@ -17,6 +17,7 @@ using Forged.MapServer.Spells;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.BattlePets;

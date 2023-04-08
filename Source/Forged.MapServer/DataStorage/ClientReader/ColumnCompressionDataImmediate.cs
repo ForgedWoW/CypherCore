@@ -3,9 +3,9 @@
 
 namespace Forged.MapServer.DataStorage.ClientReader;
 
-public struct ColumnCompressionData_Common
+public struct ColumnCompressionDataImmediate
 {
-    public int B;
-    public int C;
-    public Value32 DefaultValue;
+    public int BitOffset;
+    public int BitWidth;
+    public int Flags; // 0x1 signed
 }

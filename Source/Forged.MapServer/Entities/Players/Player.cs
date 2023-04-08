@@ -71,6 +71,7 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;

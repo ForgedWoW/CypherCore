@@ -12,6 +12,7 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Quest;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Achievements;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage.ClientReader;
 
-public struct ColumnCompressionData_Pallet
+public struct ColumnCompressionDataPallet
 {
     public int BitOffset;
     public int BitWidth;

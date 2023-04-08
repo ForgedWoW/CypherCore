@@ -6,6 +6,7 @@ using Autofac;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Spells;

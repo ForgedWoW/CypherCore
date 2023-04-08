@@ -7,10 +7,10 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public struct Value32
 {
-    private uint Value;
+    private uint _value;
 
     public T As<T>() where T : unmanaged
     {
-        return Unsafe.As<uint, T>(ref Value);
+        return Unsafe.As<uint, T>(ref _value);
     }
 }

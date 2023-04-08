@@ -73,7 +73,7 @@ internal class Hyperlink
 
         for (byte i = 0; i < 8; ++i)
         {
-            var hex = toHex(currentString[pos++]);
+            var hex = ToHex(currentString[pos++]);
 
             if (hex != 0)
                 color = (uint)((int)(color << 4) | (hex & 0xf));
@@ -181,8 +181,13 @@ internal class Hyperlink
         else
             return new ChatCommandResult(info.Tail);
     }
-    private static byte toHex(char c)
+    private static byte ToHex(char c)
     {
-        return (byte)(c is >= '0' and <= '9' ? c - '0' + 0x10 : c is >= 'a' and <= 'f' ? c - 'a' + 0x1a : 0x00);
+        return (byte)(c switch
+                         {
+                             >= '0' and <= '9' => c - '0' + 0x10,
+                             >= 'a' and <= 'f' => c - 'a' + 0x1a,
+                             _                 => 0x00
+                         });
     }
 }

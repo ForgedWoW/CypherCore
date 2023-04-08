@@ -33,6 +33,7 @@ using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -7834,13 +7835,13 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loading Player Create XP Data...");
 
         {
-            _playerXPperLevel = new uint[_cliDB.XpGameTable.GetTableRowCount() + 1];
+            _playerXPperLevel = new uint[_cliDB.XpGameTable.TableRowCount + 1];
 
             //                                          0      1
             var result = _worldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
             // load the DBC's levels at first...
-            for (uint level = 1; level < _cliDB.XpGameTable.GetTableRowCount(); ++level)
+            for (uint level = 1; level < _cliDB.XpGameTable.TableRowCount; ++level)
                 _playerXPperLevel[level] = (uint)_cliDB.XpGameTable.GetRow(level).Total;
 
             uint count = 0;

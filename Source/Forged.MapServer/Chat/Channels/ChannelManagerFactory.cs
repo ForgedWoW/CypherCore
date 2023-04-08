@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Autofac;
 using Framework.Constants;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Chat.Channels;

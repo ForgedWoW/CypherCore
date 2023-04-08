@@ -261,7 +261,7 @@ public partial class Player
 
                             var minLevel = pEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.ScaleAsAGem) ? 1 : 60u;
                             var scalingLevel = Level;
-                            var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : CliDB.SpellScalingGameTable.GetTableRowCount() - 1);
+                            var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : CliDB.SpellScalingGameTable.TableRowCount - 1);
 
                             if (minLevel > Level)
                                 scalingLevel = minLevel;
@@ -290,7 +290,7 @@ public partial class Player
 
                             var minLevel = pEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.ScaleAsAGem) ? 1 : 60u;
                             var scalingLevel = Level;
-                            var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : CliDB.SpellScalingGameTable.GetTableRowCount() - 1);
+                            var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : CliDB.SpellScalingGameTable.TableRowCount - 1);
 
                             if (minLevel > Level)
                                 scalingLevel = minLevel;

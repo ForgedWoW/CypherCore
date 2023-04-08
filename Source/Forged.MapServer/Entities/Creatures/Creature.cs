@@ -29,6 +29,7 @@ using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Creatures;

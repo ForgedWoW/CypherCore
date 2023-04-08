@@ -36,6 +36,7 @@ using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Text;
 using Framework.Constants;
 using Framework.Util;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Units;

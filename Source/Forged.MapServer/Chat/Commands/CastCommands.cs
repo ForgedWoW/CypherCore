@@ -13,7 +13,7 @@ internal class CastCommands
 {
     private static bool CheckSpellExistsAndIsValid(CommandHandler handler, uint spellId)
     {
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId, Difficulty.None);
 
         if (spellInfo == null)
         {
@@ -22,14 +22,13 @@ internal class CastCommands
             return false;
         }
 
-        if (!Global.SpellMgr.IsSpellValid(spellInfo, handler.Player))
-        {
-            handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellInfo.Id);
+        if (handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo, handler.Player))
+            return true;
 
-            return false;
-        }
+        handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellInfo.Id);
 
-        return true;
+        return false;
+
     }
 
     private static TriggerCastFlags? GetTriggerFlags(string triggeredStr)
@@ -65,7 +64,7 @@ internal class CastCommands
         if (!triggerFlags.HasValue)
             return false;
 
-        caster.CastSpell((WorldObject)handler.Session.Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+        caster.SpellFactory.CastSpell((WorldObject)handler.Session.Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
         return true;
     }
@@ -90,7 +89,7 @@ internal class CastCommands
         if (!triggerFlags.HasValue)
             return false;
 
-        handler.Session.Player.CastSpell(target, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+        handler.Session.Player.SpellFactory.CastSpell(target, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
         return true;
     }
@@ -114,7 +113,7 @@ internal class CastCommands
         if (!triggerFlags.HasValue)
             return false;
 
-        caster.CastSpell(new Position(x, y, z), spellId, new CastSpellExtraArgs(triggerFlags.Value));
+        caster.SpellFactory.CastSpell(new Position(x, y, z), spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
         return true;
     }
@@ -133,7 +132,7 @@ internal class CastCommands
         var closestPos = new Position();
         handler.Session.Player.Location.GetClosePoint(closestPos, dist);
 
-        handler.Session.Player.CastSpell(closestPos, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+        handler.Session.Player.SpellFactory.CastSpell(closestPos, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
         return true;
     }
@@ -158,7 +157,7 @@ internal class CastCommands
         if (!triggerFlags.HasValue)
             return false;
 
-        target.CastSpell(target, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+        target.SpellFactory.CastSpell(target, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
         return true;
     }
@@ -190,7 +189,7 @@ internal class CastCommands
         if (!triggerFlags.HasValue)
             return false;
 
-        caster.CastSpell(caster.Victim, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+        caster.SpellFactory.CastSpell(caster.Victim, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
         return true;
     }

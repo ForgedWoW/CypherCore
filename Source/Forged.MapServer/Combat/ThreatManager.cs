@@ -589,7 +589,7 @@ public class ThreatManager
         while (!ThreatenedByMeList.Empty())
         {
             var refe = ThreatenedByMeList.FirstOrDefault().Value;
-            refe._mgr.ClearThreat(_owner);
+            refe.ThreatManager.ClearThreat(_owner);
         }
     }
 

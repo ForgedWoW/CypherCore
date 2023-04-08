@@ -22,7 +22,7 @@ internal class BNetAccountCommands
             return false;
         }
 
-        switch (Global.BNetAccountMgr.CreateBattlenetAccount(accountName, password, createGameAccount.GetValueOrDefault(true), out var gameAccountName))
+        switch (handler.ClassFactory.Resolve<BNetAccountManager>().CreateBattlenetAccount(accountName, password, createGameAccount.GetValueOrDefault(true), out var gameAccountName))
         {
             case AccountOpResult.Ok:
                 if (createGameAccount.HasValue && createGameAccount.Value)
@@ -62,7 +62,7 @@ internal class BNetAccountCommands
     [Command("link", RBACPermissions.CommandBnetAccountLink, true)]
     private static bool HandleAccountLinkCommand(CommandHandler handler, string bnetAccountName, string gameAccountName)
     {
-        switch (Global.BNetAccountMgr.LinkWithGameAccount(bnetAccountName, gameAccountName))
+        switch (handler.ClassFactory.Resolve<BNetAccountManager>().LinkWithGameAccount(bnetAccountName, gameAccountName))
         {
             case AccountOpResult.Ok:
                 handler.SendSysMessage(CypherStrings.AccountBnetLinked, bnetAccountName, gameAccountName);
@@ -86,7 +86,7 @@ internal class BNetAccountCommands
     private static bool HandleAccountPasswordCommand(CommandHandler handler, string oldPassword, string newPassword, string passwordConfirmation)
     {
         // We compare the old, saved password to the entered old password - no chance for the unauthorized.
-        if (!Global.BNetAccountMgr.CheckPassword(handler.Session.BattlenetAccountId, oldPassword))
+        if (!handler.ClassFactory.Resolve<BNetAccountManager>().CheckPassword(handler.Session.BattlenetAccountId, oldPassword))
         {
             handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
@@ -108,7 +108,7 @@ internal class BNetAccountCommands
         }
 
         // Changes password and prints result.
-        var result = Global.BNetAccountMgr.ChangePassword(handler.Session.BattlenetAccountId, newPassword);
+        var result = handler.ClassFactory.Resolve<BNetAccountManager>().ChangePassword(handler.Session.BattlenetAccountId, newPassword);
 
         switch (result)
         {
@@ -138,7 +138,7 @@ internal class BNetAccountCommands
     [Command("unlink", RBACPermissions.CommandBnetAccountUnlink, true)]
     private static bool HandleAccountUnlinkCommand(CommandHandler handler, string gameAccountName)
     {
-        switch (Global.BNetAccountMgr.UnlinkGameAccount(gameAccountName))
+        switch (handler.ClassFactory.Resolve<BNetAccountManager>().UnlinkGameAccount(gameAccountName))
         {
             case AccountOpResult.Ok:
                 handler.SendSysMessage(CypherStrings.AccountBnetUnlinked, gameAccountName);
@@ -161,7 +161,7 @@ internal class BNetAccountCommands
     [Command("gameaccountcreate", RBACPermissions.CommandBnetAccountCreateGame, true)]
     private static bool HandleGameAccountCreateCommand(CommandHandler handler, string bnetAccountName)
     {
-        var accountId = Global.BNetAccountMgr.GetId(bnetAccountName);
+        var accountId = handler.ClassFactory.Resolve<BNetAccountManager>().GetId(bnetAccountName);
 
         if (accountId == 0)
         {
@@ -170,7 +170,7 @@ internal class BNetAccountCommands
             return false;
         }
 
-        var index = (byte)(Global.BNetAccountMgr.GetMaxIndex(accountId) + 1);
+        var index = (byte)(handler.ClassFactory.Resolve<BNetAccountManager>().GetMaxIndex(accountId) + 1);
         var accountName = accountId.ToString() + '#' + index;
 
         // Generate random hex string for password, these accounts must not be logged on with GRUNT
@@ -218,10 +218,10 @@ internal class BNetAccountCommands
     [Command("listgameaccounts", RBACPermissions.CommandBnetAccountListGameAccounts, true)]
     private static bool HandleListGameAccountsCommand(CommandHandler handler, string battlenetAccountName)
     {
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
+        var stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
         stmt.AddValue(0, battlenetAccountName);
 
-        var accountList = DB.Login.Query(stmt);
+        var accountList = handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt);
 
         if (!accountList.IsEmpty())
         {
@@ -290,7 +290,7 @@ internal class BNetAccountCommands
         [Command("ip", RBACPermissions.CommandBnetAccountLockIp, true)]
         private static bool HandleAccountLockIpCommand(CommandHandler handler, bool state)
         {
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BNET_ACCOUNT_LOCK);
+            var stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.UPD_BNET_ACCOUNT_LOCK);
 
             if (state)
             {
@@ -305,7 +305,7 @@ internal class BNetAccountCommands
 
             stmt.AddValue(1, handler.Session.BattlenetAccountId);
 
-            DB.Login.Execute(stmt);
+            handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
 
             return true;
         }
@@ -317,7 +317,7 @@ internal class BNetAccountCommands
         [Command("password", RBACPermissions.CommandBnetAccountSetPassword, true)]
         private static bool HandleAccountSetPasswordCommand(CommandHandler handler, string accountName, string password, string passwordConfirmation)
         {
-            var targetAccountId = Global.BNetAccountMgr.GetId(accountName);
+            var targetAccountId = handler.ClassFactory.Resolve<BNetAccountManager>().GetId(accountName);
 
             if (targetAccountId == 0)
             {
@@ -333,7 +333,7 @@ internal class BNetAccountCommands
                 return false;
             }
 
-            var result = Global.BNetAccountMgr.ChangePassword(targetAccountId, password);
+            var result = handler.ClassFactory.Resolve<BNetAccountManager>().ChangePassword(targetAccountId, password);
 
             switch (result)
             {

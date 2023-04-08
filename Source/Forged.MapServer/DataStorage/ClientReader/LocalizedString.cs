@@ -8,16 +8,16 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public class LocalizedString
 {
-    private readonly StringArray stringStorage = new((int)Locale.Total);
+    private readonly StringArray _stringStorage = new((int)Locale.Total);
 
     public string this[Locale locale]
     {
-        get { return stringStorage[(int)locale] ?? ""; }
-        set { stringStorage[(int)locale] = value; }
+        get => _stringStorage[(int)locale] ?? "";
+        set => _stringStorage[(int)locale] = value;
     }
 
     public bool HasString(Locale locale = SharedConst.DefaultLocale)
     {
-        return !string.IsNullOrEmpty(stringStorage[(int)locale]);
+        return !string.IsNullOrEmpty(_stringStorage[(int)locale]);
     }
 }

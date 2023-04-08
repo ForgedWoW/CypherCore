@@ -4,6 +4,7 @@
 using System;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Scripting.Interfaces;
+using Game.Common;
 
 namespace Forged.MapServer.Scripting;
 

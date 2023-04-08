@@ -168,7 +168,6 @@ public class M2Storage
 
                     var x = lastTarget.Locations.X;
                     var y = lastTarget.Locations.Y;
-                    var z = lastTarget.Locations.Z;
 
                     // Now, the timestamps for target cam and position can be different. So, if they differ we interpolate
                     if (lastTarget.TimeStamp != posTimestamps[i])
@@ -177,10 +176,8 @@ public class M2Storage
                         var timeDiffThis = posTimestamps[i] - lastTarget.TimeStamp;
                         var xDiff = nextTarget.Locations.X - lastTarget.Locations.X;
                         var yDiff = nextTarget.Locations.Y - lastTarget.Locations.Y;
-                        var zDiff = nextTarget.Locations.Z - lastTarget.Locations.Z;
                         x = lastTarget.Locations.X + (xDiff * ((float)timeDiffThis / timeDiffTarget));
                         y = lastTarget.Locations.Y + (yDiff * ((float)timeDiffThis / timeDiffTarget));
-                        z = lastTarget.Locations.Z + (zDiff * ((float)timeDiffThis / timeDiffTarget));
                     }
 
                     var xDiff1 = x - thisCam.Locations.X;

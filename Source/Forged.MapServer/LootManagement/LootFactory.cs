@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
 using Framework.Constants;
+using Game.Common;
 
 namespace Forged.MapServer.LootManagement;
 

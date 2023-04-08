@@ -13,7 +13,7 @@ public struct ColumnMetaData
     [FieldOffset(2)] public ushort Size;
     [FieldOffset(4)] public uint AdditionalDataSize;
     [FieldOffset(8)] public DB2ColumnCompression CompressionType;
-    [FieldOffset(12)] public ColumnCompressionData_Immediate Immediate;
-    [FieldOffset(12)] public ColumnCompressionData_Pallet Pallet;
-    [FieldOffset(12)] public ColumnCompressionData_Common Common;
+    [FieldOffset(12)] public ColumnCompressionDataImmediate Immediate;
+    [FieldOffset(12)] public ColumnCompressionDataPallet Pallet;
+    [FieldOffset(12)] public ColumnCompressionDataCommon Common;
 }
