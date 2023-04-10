@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
@@ -11,6 +14,9 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
 {
     private readonly bool _activate;
     private readonly ushort _eventId;
+
+    public GridType GridType { get; set; }
+
     public GameEventAIHookWorker(ushort eventId, bool activate, GridType gridType = GridType.All)
     {
         _eventId = eventId;
@@ -18,19 +24,18 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
         GridType = gridType;
     }
 
-    public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
         for (var i = 0; i < objs.Count; ++i)
         {
             var creature = objs[i];
 
-            if (creature.Location.IsInWorld && creature.IsAIEnabled)
-            {
-                var ai = creature.AI;
+            if (!creature.Location.IsInWorld || !creature.IsAIEnabled)
+                continue;
 
-                ai?.OnGameEvent(_activate, _eventId);
-            }
+            var ai = creature.AI;
+
+            ai?.OnGameEvent(_activate, _eventId);
         }
     }
 
@@ -40,12 +45,12 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
         {
             var gameObject = objs[i];
 
-            if (gameObject.Location.IsInWorld)
-            {
-                var ai = gameObject.AI;
+            if (!gameObject.Location.IsInWorld)
+                continue;
 
-                ai?.OnGameEvent(_activate, _eventId);
-            }
+            var ai = gameObject.AI;
+
+            ai?.OnGameEvent(_activate, _eventId);
         }
     }
 
@@ -55,12 +60,12 @@ internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCre
         {
             var gameObject = objs[i] as GameObject;
 
-            if (gameObject is { Location.IsInWorld: true })
-            {
-                var ai = gameObject.AI;
+            if (gameObject is not { Location.IsInWorld: true })
+                continue;
 
-                ai?.OnGameEvent(_activate, _eventId);
-            }
+            var ai = gameObject.AI;
+
+            ai?.OnGameEvent(_activate, _eventId);
         }
     }
 }

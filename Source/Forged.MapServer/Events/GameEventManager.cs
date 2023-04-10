@@ -31,6 +31,8 @@ public class GameEventManager
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
+    private readonly CreatureFactory _creatureFactory;
+    private readonly GameObjectFactory _gameObjectFactory;
     private readonly MapManager _mapManager;
     private readonly GameObjectManager _objectManager;
     private readonly PoolManager _poolManager;
@@ -50,7 +52,7 @@ public class GameEventManager
 
     public GameEventManager(WorldManager worldManager, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, CliDB cliDB,
                             BattlegroundManager battlegroundManager, WorldStateManager worldStateManager, MapManager mapManager, GameObjectManager objectManager,
-                            PoolManager poolManager, IConfiguration configuration)
+                            PoolManager poolManager, IConfiguration configuration, CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory)
     {
         _worldManager = worldManager;
         _characterDatabase = characterDatabase;
@@ -62,6 +64,8 @@ public class GameEventManager
         _objectManager = objectManager;
         _poolManager = poolManager;
         _configuration = configuration;
+        _creatureFactory = creatureFactory;
+        _gameObjectFactory = gameObjectFactory;
     }
 
     public List<ushort> GetActiveEventList()
@@ -1148,33 +1152,33 @@ public class GameEventManager
         else if (serverwideEvt)
         {
             // if finished world event, then only gm command can stop it
-            if (overwrite || data.State != GameEventState.WorldFinished)
-            {
-                // reset conditions
-                data.Nextstart = 0;
-                data.State = GameEventState.WorldInactive;
+            if (!overwrite && data.State == GameEventState.WorldFinished)
+                return;
 
-                foreach (var pair in data.Conditions)
-                    pair.Value.Done = 0;
+            // reset conditions
+            data.Nextstart = 0;
+            data.State = GameEventState.WorldInactive;
 
-                SQLTransaction trans = new();
-                var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GAME_EVENT_CONDITION_SAVE);
-                stmt.AddValue(0, eventID);
-                trans.Append(stmt);
+            foreach (var pair in data.Conditions)
+                pair.Value.Done = 0;
 
-                stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
-                stmt.AddValue(0, eventID);
-                trans.Append(stmt);
+            SQLTransaction trans = new();
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GAME_EVENT_CONDITION_SAVE);
+            stmt.AddValue(0, eventID);
+            trans.Append(stmt);
 
-                _characterDatabase.CommitTransaction(trans);
-            }
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
+            stmt.AddValue(0, eventID);
+            trans.Append(stmt);
+
+            _characterDatabase.CommitTransaction(trans);
         }
     }
+
     public uint Update() // return the next event delay in ms
     {
         var currenttime = GameTime.CurrentTime;
         uint nextEventDelay = Time.DAY; // 1 day
-        uint calcDelay;
         List<ushort> activate = new();
         List<ushort> deactivate = new();
 
@@ -1231,7 +1235,7 @@ public class GameEventManager
                 }
             }
 
-            calcDelay = NextCheck(id);
+            var calcDelay = NextCheck(id);
 
             if (calcDelay < nextEventDelay)
                 nextEventDelay = calcDelay;
@@ -1254,6 +1258,7 @@ public class GameEventManager
 
         return (nextEventDelay + 1) * Time.IN_MILLISECONDS; // Add 1 second to be sure event has started/stopped at next call
     }
+
     private void AddActiveEvent(ushort eventID)
     {
         _activeEvents.Add(eventID);
@@ -1315,25 +1320,25 @@ public class GameEventManager
                                                           tuple.Item2.ModelidPrev = creature.DisplayId;
                                                           creature.LoadEquipment(tuple.Item2.EquipmentID);
 
-                                                          if (tuple.Item2.Modelid > 0 &&
-                                                              tuple.Item2.ModelidPrev != tuple.Item2.Modelid &&
-                                                              _objectManager.GetCreatureModelInfo(tuple.Item2.Modelid) != null)
-                                                          {
-                                                              creature.SetDisplayId(tuple.Item2.Modelid);
-                                                              creature.SetNativeDisplayId(tuple.Item2.Modelid);
-                                                          }
+                                                          if (tuple.Item2.Modelid <= 0 ||
+                                                              tuple.Item2.ModelidPrev == tuple.Item2.Modelid ||
+                                                              _objectManager.GetCreatureModelInfo(tuple.Item2.Modelid) == null)
+                                                              continue;
+
+                                                          creature.SetDisplayId(tuple.Item2.Modelid);
+                                                          creature.SetNativeDisplayId(tuple.Item2.Modelid);
                                                       }
                                                       else
                                                       {
                                                           creature.LoadEquipment(tuple.Item2.EquipementIDPrev);
 
-                                                          if (tuple.Item2.ModelidPrev > 0 &&
-                                                              tuple.Item2.ModelidPrev != tuple.Item2.Modelid &&
-                                                              _objectManager.GetCreatureModelInfo(tuple.Item2.ModelidPrev) != null)
-                                                          {
-                                                              creature.SetDisplayId(tuple.Item2.ModelidPrev);
-                                                              creature.SetNativeDisplayId(tuple.Item2.ModelidPrev);
-                                                          }
+                                                          if (tuple.Item2.ModelidPrev <= 0 ||
+                                                              tuple.Item2.ModelidPrev == tuple.Item2.Modelid ||
+                                                              _objectManager.GetCreatureModelInfo(tuple.Item2.ModelidPrev) == null)
+                                                              continue;
+
+                                                          creature.SetDisplayId(tuple.Item2.ModelidPrev);
+                                                          creature.SetNativeDisplayId(tuple.Item2.ModelidPrev);
                                                       }
                                               });
 
@@ -1443,7 +1448,7 @@ public class GameEventManager
 
                                                   // We use spawn coords to spawn
                                                   if (map.IsGridLoaded(data.SpawnPoint))
-                                                      handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(guid, map);
+                                                      _creatureFactory.CreateCreatureFromDB(guid, map);
                                               });
         }
 
@@ -1461,35 +1466,35 @@ public class GameEventManager
             // Add to correct cell
             var data = _objectManager.GetGameObjectData(guid);
 
-            if (data != null)
-            {
-                _objectManager.AddGameObjectToGrid(data);
+            if (data == null)
+                continue;
 
-                // Spawn if necessary (loaded grids only)
-                // this base map checked as non-instanced and then only existed
-                _mapManager.DoForAllMapsWithMapId(data.MapId,
-                                                  map =>
-                                                  {
-                                                      map.RemoveRespawnTime(SpawnObjectType.GameObject, guid);
+            _objectManager.AddGameObjectToGrid(data);
 
-                                                      // We use current coords to unspawn, not spawn coords since creature can have changed grid
-                                                      if (!map.IsGridLoaded(data.SpawnPoint))
-                                                          return;
+            // Spawn if necessary (loaded grids only)
+            // this base map checked as non-instanced and then only existed
+            _mapManager.DoForAllMapsWithMapId(data.MapId,
+                                              map =>
+                                              {
+                                                  map.RemoveRespawnTime(SpawnObjectType.GameObject, guid);
 
-                                                      var go = GameObjectFactory.CreateGameObjectFromDb(guid, map, false);
+                                                  // We use current coords to unspawn, not spawn coords since creature can have changed grid
+                                                  if (!map.IsGridLoaded(data.SpawnPoint))
+                                                      return;
 
-                                                      // @todo find out when it is add to map
-                                                      if (!go)
-                                                          return;
+                                                  var go = _gameObjectFactory.CreateGameObjectFromDb(guid, map, false);
 
-                                                      // @todo find out when it is add to map
-                                                      if (!go.IsSpawnedByDefault)
-                                                          return;
+                                                  // @todo find out when it is add to map
+                                                  if (!go)
+                                                      return;
 
-                                                      if (!map.AddToMap(go))
-                                                          go.Dispose();
-                                                  });
-            }
+                                                  // @todo find out when it is add to map
+                                                  if (!go.IsSpawnedByDefault)
+                                                      return;
+
+                                                  if (!map.AddToMap(go))
+                                                      go.Dispose();
+                                              });
         }
 
         if (internalEventID >= _gameEventPoolIds.Length)
@@ -1532,20 +1537,20 @@ public class GameEventManager
             // Remove the creature from grid
             var data = _objectManager.GetCreatureData(guid);
 
-            if (data != null)
-            {
-                _objectManager.RemoveCreatureFromGrid(data);
+            if (data == null)
+                continue;
 
-                _mapManager.DoForAllMapsWithMapId(data.MapId,
-                                                  map =>
-                                                  {
-                                                      map.RemoveRespawnTime(SpawnObjectType.Creature, guid);
-                                                      var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(guid);
+            _objectManager.RemoveCreatureFromGrid(data);
 
-                                                      foreach (var creature in creatureBounds)
-                                                          creature.Location.AddObjectToRemoveList();
-                                                  });
-            }
+            _mapManager.DoForAllMapsWithMapId(data.MapId,
+                                              map =>
+                                              {
+                                                  map.RemoveRespawnTime(SpawnObjectType.Creature, guid);
+                                                  var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(guid);
+
+                                                  foreach (var creature in creatureBounds)
+                                                      creature.Location.AddObjectToRemoveList();
+                                              });
         }
 
         if (internalEventID >= GameEventGameobjectGuids.Length)
@@ -1566,20 +1571,20 @@ public class GameEventManager
             // Remove the gameobject from grid
             var data = _objectManager.GetGameObjectData(guid);
 
-            if (data != null)
-            {
-                _objectManager.RemoveGameObjectFromGrid(data);
+            if (data == null)
+                continue;
 
-                _mapManager.DoForAllMapsWithMapId(data.MapId,
-                                                  map =>
-                                                  {
-                                                      map.RemoveRespawnTime(SpawnObjectType.GameObject, guid);
-                                                      var gameobjectBounds = map.GameObjectBySpawnIdStore.LookupByKey(guid);
+            _objectManager.RemoveGameObjectFromGrid(data);
 
-                                                      foreach (var go in gameobjectBounds)
-                                                          go.Location.AddObjectToRemoveList();
-                                                  });
-            }
+            _mapManager.DoForAllMapsWithMapId(data.MapId,
+                                              map =>
+                                              {
+                                                  map.RemoveRespawnTime(SpawnObjectType.GameObject, guid);
+                                                  var gameobjectBounds = map.GameObjectBySpawnIdStore.LookupByKey(guid);
+
+                                                  foreach (var go in gameobjectBounds)
+                                                      go.Location.AddObjectToRemoveList();
+                                              });
         }
 
         if (internalEventID >= _gameEventPoolIds.Length)
@@ -1633,9 +1638,8 @@ public class GameEventManager
     {
         foreach (var activeEventId in _activeEvents)
             if (activeEventId != eventId)
-                foreach (var pair in _gameEventCreatureQuests[activeEventId])
-                    if (pair.Item2 == questId)
-                        return true;
+                if (_gameEventCreatureQuests[activeEventId].Any(pair => pair.Item2 == questId))
+                    return true;
 
         return false;
     }
@@ -1647,9 +1651,8 @@ public class GameEventManager
             {
                 var internalEventID = _gameEvent.Length + activeEventId - 1;
 
-                foreach (var id in GameEventGameobjectGuids[internalEventID])
-                    if (id == goId)
-                        return true;
+                if (GameEventGameobjectGuids[internalEventID].Any(id => id == goId))
+                    return true;
             }
 
         return false;
@@ -1659,9 +1662,8 @@ public class GameEventManager
     {
         foreach (var activeEventId in _activeEvents)
             if (activeEventId != eventId)
-                foreach (var pair in _gameEventGameObjectQuests[activeEventId])
-                    if (pair.Item2 == questId)
-                        return true;
+                if (_gameEventGameObjectQuests[activeEventId].Any(pair => pair.Item2 == questId))
+                    return true;
 
         return false;
     }
@@ -1807,6 +1809,7 @@ public class GameEventManager
         // update bg holiday
         UpdateBattlegroundSettings();
     }
+
     private void UpdateBattlegroundSettings()
     {
         _battlegroundManager.ResetHolidays();
@@ -1853,6 +1856,7 @@ public class GameEventManager
                                                   }
                                               });
     }
+
     private void UpdateEventNPCVendor(ushort eventId, bool activate)
     {
         foreach (var npcEventVendor in _gameEventVendors[eventId])
@@ -1861,6 +1865,7 @@ public class GameEventManager
             else
                 _objectManager.RemoveVendorItem(npcEventVendor.Key, npcEventVendor.Value.Item, npcEventVendor.Value.Type, false);
     }
+
     private void UpdateEventQuests(ushort eventId, bool activate)
     {
         foreach (var pair in _gameEventCreatureQuests[eventId])
@@ -1900,18 +1905,20 @@ public class GameEventManager
     {
         var ev = _gameEvent[eventID];
 
-        if (ev.HolidayID != HolidayIds.None)
-        {
-            var bgTypeId = _battlegroundManager.WeekendHolidayIdToBGType(ev.HolidayID);
+        if (ev.HolidayID == HolidayIds.None)
+            return;
 
-            if (bgTypeId != BattlegroundTypeId.None)
-            {
-                var bl = _cliDB.BattlemasterListStorage.LookupByKey((uint)_battlegroundManager.WeekendHolidayIdToBGType(ev.HolidayID));
+        var bgTypeId = _battlegroundManager.WeekendHolidayIdToBGType(ev.HolidayID);
 
-                if (bl != null)
-                    if (bl.HolidayWorldState != 0)
-                        _worldStateManager.SetValue(bl.HolidayWorldState, activate ? 1 : 0, false, null);
-            }
-        }
+        if (bgTypeId == BattlegroundTypeId.None)
+            return;
+
+        var bl = _cliDB.BattlemasterListStorage.LookupByKey((uint)_battlegroundManager.WeekendHolidayIdToBGType(ev.HolidayID));
+
+        if (bl == null)
+            return;
+
+        if (bl.HolidayWorldState != 0)
+            _worldStateManager.SetValue(bl.HolidayWorldState, activate ? 1 : 0, false, null);
     }
 }
