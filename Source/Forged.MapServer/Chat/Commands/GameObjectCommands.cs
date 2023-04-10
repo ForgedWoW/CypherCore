@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Events;
@@ -380,19 +379,19 @@ internal class GameObjectCommands
         {
             if (uint.TryParse(objectIdStr, out var objectId))
                 result = worldDB.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE map = '{3}' AND id = '{4}' ORDER BY order_ ASC LIMIT 1",
-                                        player.Location.X,
-                                        player.Location.Y,
-                                        player.Location.Z,
-                                        player.Location.MapId,
-                                        objectId);
+                                       player.Location.X,
+                                       player.Location.Y,
+                                       player.Location.Z,
+                                       player.Location.MapId,
+                                       objectId);
             else
                 result = worldDB.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ " +
-                                        "FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = {3} AND name LIKE CONCAT('%%', '{4}', '%%') ORDER BY order_ ASC LIMIT 1",
-                                        player.Location.X,
-                                        player.Location.Y,
-                                        player.Location.Z,
-                                        player.Location.MapId,
-                                        objectIdStr);
+                                       "FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = {3} AND name LIKE CONCAT('%%', '{4}', '%%') ORDER BY order_ ASC LIMIT 1",
+                                       player.Location.X,
+                                       player.Location.Y,
+                                       player.Location.Z,
+                                       player.Location.MapId,
+                                       objectIdStr);
         }
         else
         {
@@ -417,13 +416,13 @@ internal class GameObjectCommands
                 eventFilter.Append(')');
 
             result = worldDB.Query("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, " +
-                                    "(POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ FROM gameobject " +
-                                    "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{3}' {4} ORDER BY order_ ASC LIMIT 10",
-                                    handler.Session.Player.Location.X,
-                                    handler.Session.Player.Location.Y,
-                                    handler.Session.Player.Location.Z,
-                                    handler.Session.Player.Location.MapId,
-                                    eventFilter.ToString());
+                                   "(POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ FROM gameobject " +
+                                   "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{3}' {4} ORDER BY order_ ASC LIMIT 10",
+                                   handler.Session.Player.Location.X,
+                                   handler.Session.Player.Location.Y,
+                                   handler.Session.Player.Location.Z,
+                                   handler.Session.Player.Location.MapId,
+                                   eventFilter.ToString());
         }
 
         if (result.IsEmpty())
@@ -439,6 +438,7 @@ internal class GameObjectCommands
         uint id, phaseId, phaseGroup;
         ushort mapId;
         var poolMgr = handler.ClassFactory.Resolve<PoolManager>();
+
         do
         {
             guidLow = result.Read<ulong>(0);
@@ -702,7 +702,6 @@ internal class GameObjectCommands
                     obj.SetDestructibleState((GameObjectDestructibleState)objectState);
 
                     break;
-                
             }
 
             handler.SendSysMessage("Set gobject type {0} state {1}", objectType, objectState);

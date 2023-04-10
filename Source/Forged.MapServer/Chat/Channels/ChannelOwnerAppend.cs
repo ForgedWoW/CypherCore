@@ -4,7 +4,6 @@
 using Forged.MapServer.Cache;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Networking.Packets.Channel;
-using Forged.MapServer.World;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;

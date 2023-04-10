@@ -3,11 +3,12 @@
 
 using System;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.Server;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.IO;
+using Framework.Util;
 using Serilog;
-using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -103,7 +104,7 @@ internal class ServerCommands
 
                     break;
                 case "reset":
-                    handler.WorldManager.PlayerAmountLimit = ConfigMgr.GetDefaultValue<uint>("PlayerLimit", 100);
+                    handler.WorldManager.PlayerAmountLimit = handler.Configuration.GetDefaultValue<uint>("PlayerLimit", 100);
                     handler.WorldManager.LoadDBAllowedSecurityLevel();
 
                     break;
@@ -153,7 +154,7 @@ internal class ServerCommands
         return true;
     }
 
-    private static bool IsOnlyUser(WorldSession mySession)
+    private static bool IsOnlyUser(WorldSession mySession, CommandHandler handler)
     {
         // check if there is any session connected from a different address
         var myAddr = mySession ? mySession.RemoteAddress : "";
@@ -231,9 +232,9 @@ internal class ServerCommands
                 return false;
 
         // Override parameter "delay" with the configuration value if there are still players connected and "force" parameter was not specified
-        if (delay < GetDefaultValue("GM.ForceShutdownThreshold", 30) && !shutdownMask.HasAnyFlag(ShutdownMask.Force) && !IsOnlyUser(handler.Session))
+        if (delay < handler.Configuration.GetDefaultValue("GM.ForceShutdownThreshold", 30) && !shutdownMask.HasAnyFlag(ShutdownMask.Force) && !IsOnlyUser(handler.Session, handler))
         {
-            delay = GetDefaultValue("GM.ForceShutdownThreshold", 30);
+            delay = handler.Configuration.GetDefaultValue("GM.ForceShutdownThreshold", 30);
             handler.SendSysMessage(CypherStrings.ShutdownDelayed, delay);
         }
 
@@ -365,7 +366,7 @@ internal class ServerCommands
             if (name.IsEmpty() || level < 0 || (type != "a" && type != "l"))
                 return false;
 
-            return Log.SetLogLevel(name, level, type == "l");
+            return false;
         }
 
         [Command("motd", RBACPermissions.CommandServerSetMotd, true)]

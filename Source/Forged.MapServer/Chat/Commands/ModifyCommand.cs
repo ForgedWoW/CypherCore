@@ -401,6 +401,7 @@ internal class ModifyCommand
 
         return false;
     }
+
     [Command("money", RBACPermissions.CommandModifyMoney)]
     private static bool HandleModifyMoneyCommand(CommandHandler handler, StringArguments args)
     {
@@ -782,6 +783,7 @@ internal class ModifyCommand
 
         return false;
     }
+
     [Command("scale", RBACPermissions.CommandModifyScale)]
     private static bool HandleModifyScaleCommand(CommandHandler handler, StringArguments args)
     {
@@ -879,6 +881,7 @@ internal class ModifyCommand
     {
         return false;
     }
+
     [Command("xp", RBACPermissions.CommandModifyXp)]
     private static bool HandleModifyXPCommand(CommandHandler handler, StringArguments args)
     {
@@ -911,6 +914,7 @@ internal class ModifyCommand
 
         return true;
     }
+
     private static void NotifyModification(CommandHandler handler, Unit target, CypherStrings resourceMessage, CypherStrings resourceReportMessage, params object[] args)
     {
         var player = target.AsPlayer;
@@ -931,6 +935,7 @@ internal class ModifyCommand
                                       }.Combine(args));
         }
     }
+
     [CommandGroup("speed")]
     private class ModifySpeed
     {
@@ -990,6 +995,7 @@ internal class ModifyCommand
         {
             return HandleModifyASpeedCommand(handler, args);
         }
+
         [Command("swim", RBACPermissions.CommandModifySpeedSwim)]
         private static bool HandleModifySwimCommand(CommandHandler handler, StringArguments args)
         {
@@ -1005,6 +1011,7 @@ internal class ModifyCommand
 
             return false;
         }
+
         [Command("walk", RBACPermissions.CommandModifySpeedWalk)]
         private static bool HandleModifyWalkSpeedCommand(CommandHandler handler, StringArguments args)
         {

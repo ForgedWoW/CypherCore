@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;

@@ -21,7 +21,7 @@ internal class RbacComands
                 NeedDelete = false
             };
 
-        RBACData rbac = new(account.GetID(), account.GetName(), (int)WorldManager.Realm.Id.Index, handler.AccountManager, handler.ClassFactory.Resolve<LoginDatabase>(), (byte)handler.AccountManager.GetSecurity(account.GetID(),  (int)WorldManager.Realm.Id.Index));
+        RBACData rbac = new(account.GetID(), account.GetName(), (int)WorldManager.Realm.Id.Index, handler.AccountManager, handler.ClassFactory.Resolve<LoginDatabase>(), (byte)handler.AccountManager.GetSecurity(account.GetID(), (int)WorldManager.Realm.Id.Index));
         rbac.LoadFromDB();
 
         return new RBACCommandData()
@@ -134,8 +134,6 @@ internal class RbacComands
                     handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
                     break;
-
-                
             }
 
             return true;
@@ -203,8 +201,6 @@ internal class RbacComands
                     handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
                     break;
-
-                
             }
 
             return true;
@@ -315,8 +311,6 @@ internal class RbacComands
                     handler.SendSysMessage(CypherStrings.RbacWrongParameterId, permId);
 
                     break;
-
-                
             }
 
             return true;

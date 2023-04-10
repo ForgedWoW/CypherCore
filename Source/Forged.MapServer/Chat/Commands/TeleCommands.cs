@@ -279,7 +279,7 @@ internal class TeleCommands
                         WorldLocation loc = new(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
                         uint zoneId = result.Read<ushort>(1);
 
-                        handler.ClassFactory.Resolve<PlayerComputators>()SavePositionInDB(loc, zoneId, player.GetGUID());
+                        handler.ClassFactory.Resolve<PlayerComputators>().SavePositionInDB(loc, zoneId, player.GetGUID());
                     }
                 }
 

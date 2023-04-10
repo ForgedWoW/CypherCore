@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 
@@ -82,6 +81,7 @@ internal class TitleCommands
 
         return true;
     }
+
     [Command("remove", RBACPermissions.CommandTitlesRemove)]
     private static bool HandleTitlesRemoveCommand(CommandHandler handler, uint titleId)
     {

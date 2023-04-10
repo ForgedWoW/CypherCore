@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
@@ -30,7 +29,6 @@ using Forged.MapServer.Scripting.Interfaces.IItem;
 using Forged.MapServer.Spells;
 using Forged.MapServer.World;
 using Framework.Constants;
-using Framework.Database;
 using Framework.Util;
 using Serilog;
 using Transport = Forged.MapServer.Entities.Transport;
@@ -734,7 +732,6 @@ internal class DebugCommands
         handler.SendSysMessage($"{unit.GetName()} is {(player.Location.IsWithinLOSInMap(unit) ? "" : "not ")}in line of sight of {player.GetName()}.");
 
         return true;
-
     }
 
     [Command("moveflags", RBACPermissions.CommandDebug)]
@@ -969,7 +966,6 @@ internal class DebugCommands
         handler.SendSysMessage($"Difficulty {(Difficulty)difficulty} is not valid for '{mEntry.MapName[handler.SessionDbcLocale]}'.");
 
         return true;
-
     }
 
     [Command("setaurastate", RBACPermissions.CommandDebug)]

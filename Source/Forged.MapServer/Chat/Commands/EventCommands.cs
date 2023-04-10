@@ -86,6 +86,7 @@ internal class EventCommands
 
         return true;
     }
+
     [Command("start", RBACPermissions.CommandEventStart, true)]
     private static bool HandleEventStartCommand(CommandHandler handler, ushort eventId)
     {

@@ -10,13 +10,15 @@ internal class HyperlinkDataTokenizer
 {
     private readonly bool _allowEmptyTokens;
     private readonly StringArguments _arg;
+
+    public bool IsEmpty => _arg.Empty();
+
     public HyperlinkDataTokenizer(string arg, bool allowEmptyTokens = false)
     {
         _arg = new StringArguments(arg);
         _allowEmptyTokens = allowEmptyTokens;
     }
 
-    public bool IsEmpty => _arg.Empty();
     public bool TryConsumeTo(out byte val)
     {
         if (IsEmpty)

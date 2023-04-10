@@ -10,12 +10,11 @@ namespace Forged.MapServer.Chat;
 
 internal class AccountIdentifier
 {
+    private readonly AccountManager _accountManager;
+    private readonly WorldManager _worldManager;
     private uint _id;
     private string _name;
     private WorldSession _session;
-    private readonly AccountManager _accountManager;
-    private readonly WorldManager _worldManager;
-
     public AccountIdentifier() { }
 
     public AccountIdentifier(WorldSession session, AccountManager accountManager, WorldManager worldManager)
@@ -57,6 +56,7 @@ internal class AccountIdentifier
     {
         return _session != null;
     }
+
     public ChatCommandResult TryConsume(CommandHandler handler, string args)
     {
         var next = CommandArgs.TryConsume(out var text, typeof(string), handler, args);

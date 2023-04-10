@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Text;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Events;
 using Forged.MapServer.Spells;
 using Framework.Constants;
@@ -1045,6 +1044,7 @@ internal class LookupCommands
 
             return LookupPlayerSearchCommand(handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt), limit, handler);
         }
+
         private static bool LookupPlayerSearchCommand(SQLResult result, int limit, CommandHandler handler)
         {
             if (result.IsEmpty())
@@ -1152,7 +1152,6 @@ internal class LookupCommands
                                         statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
 
                                         break;
-                                    
                                 }
 
                             if (handler.Session != null)
@@ -1228,7 +1227,6 @@ internal class LookupCommands
                                 statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
 
                                 break;
-                            
                         }
                     }
 
@@ -1311,7 +1309,6 @@ internal class LookupCommands
                             statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
 
                             break;
-                        
                     }
 
                 if (handler.Session)

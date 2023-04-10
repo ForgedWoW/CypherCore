@@ -66,6 +66,7 @@ internal class BattleFieldCommands
 
         return true;
     }
+
     [Command("switch", RBACPermissions.CommandBfSwitch)]
     private static bool HandleBattlefieldSwitch(CommandHandler handler, uint battleId)
     {

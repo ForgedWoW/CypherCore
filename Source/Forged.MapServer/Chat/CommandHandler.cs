@@ -39,25 +39,19 @@ public class CommandHandler
         "Hglyph",   // glyph
     };
 
-    public CommandHandler(ClassFactory classFactory, WorldSession session = null)
-    {
-        ClassFactory = classFactory;
-        Configuration = classFactory.Resolve<IConfiguration>();
-        WorldManager = classFactory.Resolve<WorldManager>();
-        AccountManager = classFactory.Resolve<AccountManager>();
-        ObjectManager = classFactory.Resolve<GameObjectManager>();
-        CliDB = classFactory.Resolve<CliDB>();
-        CharacterCache = classFactory.Resolve<CharacterCache>();
-        ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
-        Session = session;
-    }
-
+    public AccountManager AccountManager { get; }
+    public CharacterCache CharacterCache { get; }
+    public ClassFactory ClassFactory { get; private set; }
+    public CliDB CliDB { get; }
+    public IConfiguration Configuration { get; private set; }
     public bool HasSentErrorMessage { get; private set; }
 
     public bool IsConsole => Session == null;
 
     public virtual string NameLink => GetNameLink(Session.Player);
 
+    public ObjectAccessor ObjectAccessor { get; }
+    public GameObjectManager ObjectManager { get; }
     public Player Player => Session?.Player;
 
     public Creature SelectedCreature => Session == null ? null : ObjectAccessor.GetCreatureOrPetOrVehicle(Session.Player, Session.Player.Target);
@@ -133,19 +127,10 @@ public class CommandHandler
         }
     }
 
-    public ClassFactory ClassFactory { get; private set; }
-    public IConfiguration Configuration { get; private set; }
-    public WorldManager WorldManager { get; }
-    public AccountManager AccountManager { get; }
-    public GameObjectManager ObjectManager { get; }
-    public CliDB CliDB { get; }
-    public CharacterCache CharacterCache { get; }
-    public ObjectAccessor ObjectAccessor { get; }
     public WorldSession Session { get; }
-
     public virtual Locale SessionDbcLocale => Session.SessionDbcLocale;
-
     public virtual byte SessionDbLocaleIndex => (byte)Session.SessionDbLocaleIndex;
+    public WorldManager WorldManager { get; }
 
     private GameObject NearbyGameObject
     {
@@ -162,6 +147,20 @@ public class CommandHandler
             return searcher.GetTarget();
         }
     }
+
+    public CommandHandler(ClassFactory classFactory, WorldSession session = null)
+    {
+        ClassFactory = classFactory;
+        Configuration = classFactory.Resolve<IConfiguration>();
+        WorldManager = classFactory.Resolve<WorldManager>();
+        AccountManager = classFactory.Resolve<AccountManager>();
+        ObjectManager = classFactory.Resolve<GameObjectManager>();
+        CliDB = classFactory.Resolve<CliDB>();
+        CharacterCache = classFactory.Resolve<CharacterCache>();
+        ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
+        Session = session;
+    }
+
     public bool _ParseCommands(string text)
     {
         if (ChatCommandNode.TryExecuteCommand(this, text))
@@ -594,10 +593,12 @@ public class CommandHandler
 
         return _ParseCommands(text.Substring(1));
     }
+
     public string PlayerLink(string name)
     {
         return Session != null ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name;
     }
+
     public void SendGlobalGMSysMessage(string str)
     {
         // Chat output
@@ -646,6 +647,7 @@ public class CommandHandler
             Session.SendPacket(messageChat);
         }
     }
+
     public void SetSentErrorMessage(bool val)
     {
         HasSentErrorMessage = val;

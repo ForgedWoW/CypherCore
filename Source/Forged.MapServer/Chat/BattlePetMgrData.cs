@@ -22,6 +22,7 @@ public class BattlePetMgrData
     private readonly Dictionary<uint, BattlePetBreedQuality> _defaultQualityPerSpecies = new();
     private readonly GameObjectManager _objectManager;
     private readonly WorldDatabase _worldDatabase;
+
     public BattlePetMgrData(LoginDatabase loginDatabase, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager)
     {
         _worldDatabase = worldDatabase;
@@ -92,6 +93,7 @@ public class BattlePetMgrData
 
         return list.SelectRandom();
     }
+
     public uint SelectPetDisplay(BattlePetSpeciesRecord speciesEntry)
     {
         var creatureTemplate = _objectManager.GetCreatureTemplate(speciesEntry.CreatureID);

@@ -24,12 +24,12 @@ public class ChannelManager
 {
     private readonly Dictionary<ObjectGuid, Channel> _channels = new();
     private readonly CharacterDatabase _characterDatabase;
-    private readonly CliDB _cliDB;
     private readonly ClassFactory _classFactory;
-    private readonly GameObjectManager _objectManager;
+    private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly Dictionary<string, Channel> _customChannels = new();
     private readonly ObjectGuidGenerator _guidGenerator;
+    private readonly GameObjectManager _objectManager;
     private readonly Realm _realm;
     private readonly TeamFaction _team;
 
@@ -123,6 +123,7 @@ public class ChannelManager
                                                         new PositionalParameter(1, channelId),
                                                         new PositionalParameter(2, _team),
                                                         new PositionalParameter(3, zoneEntry));
+
         _channels[channelGuid] = newChannel;
 
         return newChannel;
@@ -200,11 +201,13 @@ public class ChannelManager
 
         Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
+
     public void SaveToDB()
     {
         foreach (var pair in _customChannels)
             pair.Value.UpdateChannelInDB();
     }
+
     public void SendNotOnChannelNotify(Player player, string name)
     {
         ChannelNotify notify = new()

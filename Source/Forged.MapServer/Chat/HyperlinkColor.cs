@@ -9,6 +9,7 @@ internal struct HyperlinkColor
     public byte B;
     public byte G;
     public byte R;
+
     public HyperlinkColor(uint c)
     {
         R = (byte)(c >> 16);

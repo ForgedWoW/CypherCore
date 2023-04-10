@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 

@@ -202,6 +202,7 @@ internal class AccountCommands
 
         return true;
     }
+
     [Command("create", CypherStrings.CommandAccCreateHelp, RBACPermissions.CommandAccountCreate, true)]
     private static bool HandleAccountCreateCommand(CommandHandler handler, string accountName, string password, [OptionalArg] string email)
     {
@@ -834,7 +835,7 @@ internal class AccountCommands
                 case -1 when !handler.AccountManager.IsConsoleAccount(playerSecurity):
                 {
                     var loginDB = handler.ClassFactory.Resolve<LoginDatabase>();
-                    PreparedStatement stmt = loginDB.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
+                    var stmt = loginDB.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
                     stmt.AddValue(0, accountId);
                     stmt.AddValue(1, securityLevel);
 

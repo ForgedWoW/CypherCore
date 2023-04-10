@@ -53,7 +53,6 @@ internal class BNetAccountCommands
                 handler.SendSysMessage(CypherStrings.AccountAlreadyExist);
 
                 return false;
-            
         }
 
         return true;
@@ -76,7 +75,6 @@ internal class BNetAccountCommands
                 handler.SendSysMessage(CypherStrings.AccountAlreadyLinked, gameAccountName);
 
                 break;
-            
         }
 
         return true;
@@ -152,7 +150,6 @@ internal class BNetAccountCommands
                 handler.SendSysMessage(CypherStrings.AccountBnetNotLinked, gameAccountName);
 
                 break;
-            
         }
 
         return true;
@@ -215,6 +212,7 @@ internal class BNetAccountCommands
 
         return true;
     }
+
     [Command("listgameaccounts", RBACPermissions.CommandBnetAccountListGameAccounts, true)]
     private static bool HandleListGameAccountsCommand(CommandHandler handler, string battlenetAccountName)
     {
@@ -254,6 +252,7 @@ internal class BNetAccountCommands
 
         return true;
     }
+
     [CommandGroup("lock")]
     private class AccountLockCommands
     {
@@ -350,7 +349,6 @@ internal class BNetAccountCommands
                     handler.SendSysMessage(CypherStrings.PasswordTooLong);
 
                     return false;
-                
             }
 
             return true;

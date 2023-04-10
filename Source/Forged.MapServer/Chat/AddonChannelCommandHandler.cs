@@ -91,6 +91,7 @@ internal class AddonChannelCommandHandler : CommandHandler
         msg.Append(str, lastpos, pos - lastpos);
         Send(msg.ToString());
     }
+
     private void Send(string msg)
     {
         ChatPkt chat = new();

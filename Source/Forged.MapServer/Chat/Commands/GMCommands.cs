@@ -165,6 +165,7 @@ internal class GMCommands
 
         return true;
     }
+
     [Command("off", RBACPermissions.CommandGm)]
     private static bool HandleGMOffCommand(CommandHandler handler)
     {

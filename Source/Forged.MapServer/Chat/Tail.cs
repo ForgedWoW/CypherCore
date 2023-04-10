@@ -18,6 +18,7 @@ internal struct Tail
     {
         return _str.IsEmpty();
     }
+
     public ChatCommandResult TryConsume(CommandHandler handler, string args)
     {
         _str = args;

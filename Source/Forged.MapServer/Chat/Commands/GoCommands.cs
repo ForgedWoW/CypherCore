@@ -544,6 +544,7 @@ internal class GoCommands
 
         return true;
     }
+
     [CommandGroup("creature")]
     private class GoCommandCreature
     {

@@ -150,13 +150,14 @@ internal class LearnCommands
         [Command("languages", CypherStrings.CommandLearnAllLanguagesHelp, RBACPermissions.CommandLearnAllLang)]
         private static bool HandleLearnAllLangCommand(CommandHandler handler)
         {
-            handler.ClassFactory.Resolve<LanguageManager>().ForEachLanguage((_, languageDesc) =>
-            {
-                if (languageDesc.SpellId != 0)
-                    handler.Session.Player.LearnSpell(languageDesc.SpellId, false);
+            handler.ClassFactory.Resolve<LanguageManager>()
+                   .ForEachLanguage((_, languageDesc) =>
+                   {
+                       if (languageDesc.SpellId != 0)
+                           handler.Session.Player.LearnSpell(languageDesc.SpellId, false);
 
-                return true;
-            });
+                       return true;
+                   });
 
             handler.SendSysMessage(CypherStrings.CommandLearnAllLang);
 

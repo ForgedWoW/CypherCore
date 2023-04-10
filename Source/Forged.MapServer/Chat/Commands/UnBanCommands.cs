@@ -44,6 +44,7 @@ internal class UnBanCommands
 
         return true;
     }
+
     private static bool HandleUnBanHelper(BanMode mode, string nameOrIp, CommandHandler handler)
     {
         if (nameOrIp.IsEmpty())

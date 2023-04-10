@@ -48,6 +48,7 @@ internal class BanCommands
         var author = handler.Session != null ? handler.Session.PlayerName : "Server";
         var worldManager = handler.ClassFactory.Resolve<WorldManager>();
         var cfg = handler.ClassFactory.Resolve<IConfiguration>();
+
         switch (worldManager.BanCharacter(playerName, duration, reason, author))
         {
             case BanReturn.Success:
@@ -75,11 +76,11 @@ internal class BanCommands
 
                 return false;
             }
-            
         }
 
         return true;
     }
+
     private static bool HandleBanHelper(BanMode mode, string nameOrIP, uint duration, string reason, CommandHandler handler)
     {
         if (nameOrIP.IsEmpty())
@@ -109,6 +110,7 @@ internal class BanCommands
         var author = handler.Session ? handler.Session.PlayerName : "Server";
         var worldManager = handler.ClassFactory.Resolve<WorldManager>();
         var cfg = handler.ClassFactory.Resolve<IConfiguration>();
+
         switch (worldManager.BanAccount(mode, nameOrIP, duration, reason, author))
         {
             case BanReturn.Success:

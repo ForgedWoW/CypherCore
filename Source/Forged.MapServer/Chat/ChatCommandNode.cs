@@ -174,6 +174,7 @@ public class ChatCommandNode
 
         return false;
     }
+
     public void AddSubCommand(ChatCommandNode command)
     {
         if (command.Name.IsEmpty())
@@ -277,6 +278,7 @@ public class ChatCommandNode
             handler.SendSysMessage(subCommandHasSubCommand ? CypherStrings.SubcmdsListEntryEllipsis : CypherStrings.SubcmdsListEntry, command.Name);
         }
     }
+
     private static void LogCommandUsage(WorldSession session, uint permission, string cmdStr)
     {
         if (Global.AccountMgr.IsPlayerAccount(session.Security))
@@ -328,6 +330,7 @@ public class ChatCommandNode
 
         return who.HasPermission(Permission.RequiredPermission);
     }
+
     private bool IsVisible(CommandHandler who)
     {
         return IsInvokerVisible(who) || HasVisibleSubCommands(who);

@@ -25,6 +25,7 @@ public class ConsoleHandler : CommandHandler
     {
         return cmd.Permission.AllowConsole;
     }
+
     public override bool NeedReportToTarget(Player chr)
     {
         return true;

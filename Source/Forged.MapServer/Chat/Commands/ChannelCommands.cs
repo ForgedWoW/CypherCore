@@ -4,8 +4,6 @@
 using System;
 using System.Linq;
 using Forged.MapServer.Chat.Channels;
-using Forged.MapServer.DataStorage;
-using Forged.MapServer.DataStorage.Structs.A;
 using Framework.Constants;
 using Framework.Database;
 
@@ -20,12 +18,12 @@ internal class ChannelCommands
         [Command("ownership", RBACPermissions.CommandChannelSetOwnership)]
         private static bool HandleChannelSetOwnership(CommandHandler handler, string channelName, bool grantOwnership)
         {
-            var channelId = (from channelEntry 
-                            in 
-                                 handler.CliDB.ChatChannelsStorage.Values 
-                             where 
-                                 channelEntry.Name[handler.SessionDbcLocale].Equals(channelName, StringComparison.OrdinalIgnoreCase) 
-                             select 
+            var channelId = (from channelEntry
+                                 in
+                                 handler.CliDB.ChatChannelsStorage.Values
+                             where
+                                 channelEntry.Name[handler.SessionDbcLocale].Equals(channelName, StringComparison.OrdinalIgnoreCase)
+                             select
                                  channelEntry.Id).FirstOrDefault();
 
             var zoneEntry = handler.CliDB.AreaTableStorage.Values.FirstOrDefault(entry => entry.AreaName[handler.SessionDbcLocale].Equals(channelName, StringComparison.OrdinalIgnoreCase));

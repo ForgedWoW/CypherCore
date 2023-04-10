@@ -1,9 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Achievements;
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.AuctionHouse;
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.LootManagement;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Skills;
+using Forged.MapServer.SupportSystem;
+using Forged.MapServer.Text;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
@@ -28,7 +40,7 @@ internal class ReloadCommand
     private static bool HandleReloadAchievementRewardCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Achievement Reward Data...");
-        Global.AchievementMgr.LoadRewards();
+        handler.ClassFactory.Resolve<AchievementGlobalMgr>().LoadRewards();
         handler.SendGlobalGMSysMessage("DB table `achievement_reward` reloaded.");
 
         return true;
@@ -38,7 +50,7 @@ internal class ReloadCommand
     private static bool HandleReloadAchievementRewardLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Achievement Reward Data Locale...");
-        Global.AchievementMgr.LoadRewardLocales();
+        handler.ClassFactory.Resolve<AchievementGlobalMgr>().LoadRewardLocales();
         handler.SendGlobalGMSysMessage("DB table `achievement_reward_locale` reloaded.");
 
         return true;
@@ -68,7 +80,7 @@ internal class ReloadCommand
     private static bool HandleReloadAreaTriggerTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading areatrigger_template table...");
-        Global.AreaTriggerDataStorage.LoadAreaTriggerTemplates();
+        handler.ClassFactory.Resolve<AreaTriggerDataStorage>().LoadAreaTriggerTemplates();
         handler.SendGlobalGMSysMessage("AreaTrigger templates reloaded. Already spawned AT won't be affected. New scriptname need a reboot.");
 
         return true;
@@ -79,7 +91,7 @@ internal class ReloadCommand
     {
         // Reload dynamic data tables from the database
         Log.Logger.Information("Re-Loading Auctions...");
-        Global.AuctionHouseMgr.LoadAuctions();
+        handler.ClassFactory.Resolve<AuctionManager>().LoadAuctions();
         handler.SendGlobalGMSysMessage("Auctions reloaded.");
 
         return true;
@@ -99,7 +111,7 @@ internal class ReloadCommand
     private static bool HandleReloadBattlegroundTemplate(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Battleground Templates...");
-        Global.BattlegroundMgr.LoadBattlegroundTemplates();
+        handler.ClassFactory.Resolve<BattlegroundManager>().LoadBattlegroundTemplates();
         handler.SendGlobalGMSysMessage("DB table `battleground_template` reloaded.");
 
         return true;
@@ -109,7 +121,7 @@ internal class ReloadCommand
     private static bool HandleReloadCharacterTemplate(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Character Templates...");
-        Global.CharacterTemplateDataStorage.LoadCharacterTemplates();
+        handler.ClassFactory.Resolve<CharacterTemplateDataStorage>().LoadCharacterTemplates();
         handler.SendGlobalGMSysMessage("DB table `character_template` and `character_template_class` reloaded.");
 
         return true;
@@ -119,7 +131,7 @@ internal class ReloadCommand
     private static bool HandleReloadConditions(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Conditions...");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
         handler.SendGlobalGMSysMessage("Conditions reloaded.");
 
         return true;
@@ -140,7 +152,7 @@ internal class ReloadCommand
     private static bool HandleReloadConversationTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading conversation_* tables...");
-        Global.ConversationDataStorage.LoadConversationTemplates();
+        handler.ClassFactory.Resolve<ConversationDataStorage>().LoadConversationTemplates();
         handler.SendGlobalGMSysMessage("Conversation templates reloaded.");
 
         return true;
@@ -243,7 +255,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureText(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Creature Texts...");
-        Global.CreatureTextMgr.LoadCreatureTexts();
+        handler.ClassFactory.Resolve<CreatureTextManager>().LoadCreatureTexts();
         handler.SendGlobalGMSysMessage("Creature Texts reloaded.");
 
         return true;
@@ -253,7 +265,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureTextLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Creature Texts Locale...");
-        Global.CreatureTextMgr.LoadCreatureTextLocales();
+        handler.ClassFactory.Resolve<CreatureTextManager>().LoadCreatureTextLocales();
         handler.SendGlobalGMSysMessage("DB table `creature_text_locale` reloaded.");
 
         return true;
@@ -263,7 +275,7 @@ internal class ReloadCommand
     private static bool HandleReloadCriteriaDataCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Additional Criteria Data...");
-        Global.CriteriaMgr.LoadCriteriaData();
+        handler.ClassFactory.Resolve<CriteriaManager>().LoadCriteriaData();
         handler.SendGlobalGMSysMessage("DB table `criteria_data` reloaded.");
 
         return true;
@@ -372,7 +384,7 @@ internal class ReloadCommand
         Log.Logger.Information("Re-Loading `gossip_menu` Table!");
         handler.ObjectManager.LoadGossipMenu();
         handler.SendGlobalGMSysMessage("DB table `gossip_menu` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -383,7 +395,7 @@ internal class ReloadCommand
         Log.Logger.Information("Re-Loading `gossip_menu_option` Table!");
         handler.ObjectManager.LoadGossipMenuItems();
         handler.SendGlobalGMSysMessage("DB table `gossip_menu_option` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -402,7 +414,7 @@ internal class ReloadCommand
     private static bool HandleReloadItemRandomBonusListTemplatesCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Random item bonus list definitions...");
-        ItemEnchantmentManager.LoadItemRandomBonusListTemplates();
+        handler.ClassFactory.Resolve<ItemEnchantmentManager>().LoadItemRandomBonusListTemplates();
         handler.SendGlobalGMSysMessage("DB table `item_random_bonus_list_template` reloaded.");
 
         return true;
@@ -432,10 +444,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesCreatureCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`creature_loot_template`)");
-        LootManager.LoadLootTemplates_Creature();
-        LootStoreBox.Creature.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Creature();
+        handler.ClassFactory.Resolve<LootStoreBox>().Creature.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `creature_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -444,10 +456,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesDisenchantCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`disenchant_loot_template`)");
-        LootManager.LoadLootTemplates_Disenchant();
-        LootStoreBox.Disenchant.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Disenchant();
+        handler.ClassFactory.Resolve<LootStoreBox>().Disenchant.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `disenchant_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -456,10 +468,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesFishingCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`fishing_loot_template`)");
-        LootManager.LoadLootTemplates_Fishing();
-        LootStoreBox.Fishing.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Fishing();
+        handler.ClassFactory.Resolve<LootStoreBox>().Fishing.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `fishing_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -468,10 +480,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesGameobjectCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`gameobject_loot_template`)");
-        LootManager.LoadLootTemplates_Gameobject();
-        LootStoreBox.Gameobject.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Gameobject();
+        handler.ClassFactory.Resolve<LootStoreBox>().Gameobject.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `gameobject_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -480,10 +492,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesItemCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`item_loot_template`)");
-        LootManager.LoadLootTemplates_Item();
-        LootStoreBox.Items.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Item();
+        handler.ClassFactory.Resolve<LootStoreBox>().Items.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `item_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -492,10 +504,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesMailCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`mail_loot_template`)");
-        LootManager.LoadLootTemplates_Mail();
-        LootStoreBox.Mail.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Mail();
+        handler.ClassFactory.Resolve<LootStoreBox>().Mail.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `mail_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -504,10 +516,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesMillingCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`milling_loot_template`)");
-        LootManager.LoadLootTemplates_Milling();
-        LootStoreBox.Milling.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Milling();
+        handler.ClassFactory.Resolve<LootStoreBox>().Milling.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `milling_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -516,10 +528,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesPickpocketingCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`pickpocketing_loot_template`)");
-        LootManager.LoadLootTemplates_Pickpocketing();
-        LootStoreBox.Pickpocketing.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Pickpocketing();
+        handler.ClassFactory.Resolve<LootStoreBox>().Pickpocketing.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `pickpocketing_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -528,10 +540,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesProspectingCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`prospecting_loot_template`)");
-        LootManager.LoadLootTemplates_Prospecting();
-        LootStoreBox.Prospecting.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Prospecting();
+        handler.ClassFactory.Resolve<LootStoreBox>().Prospecting.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `prospecting_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -540,9 +552,9 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesReferenceCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`reference_loot_template`)");
-        LootManager.LoadLootTemplates_Reference();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Reference();
         handler.SendGlobalGMSysMessage("DB table `reference_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -551,10 +563,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesSkinningCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`skinning_loot_template`)");
-        LootManager.LoadLootTemplates_Skinning();
-        LootStoreBox.Skinning.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Skinning();
+        handler.ClassFactory.Resolve<LootStoreBox>().Skinning.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `skinning_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -563,10 +575,10 @@ internal class ReloadCommand
     private static bool HandleReloadLootTemplatesSpellCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Loot Tables... (`spell_loot_template`)");
-        LootManager.LoadLootTemplates_Spell();
-        LootStoreBox.Spell.CheckLootRefs();
+        handler.ClassFactory.Resolve<LootManager>().LoadLootTemplates_Spell();
+        handler.ClassFactory.Resolve<LootStoreBox>().Spell.CheckLootRefs();
         handler.SendGlobalGMSysMessage("DB table `spell_loot_template` reloaded.");
-        Global.ConditionMgr.LoadConditions(true);
+        handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
         return true;
     }
@@ -760,7 +772,7 @@ internal class ReloadCommand
     private static bool HandleReloadSkillDiscoveryTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Skill Discovery Table...");
-        SkillDiscovery.LoadSkillDiscoveryTable();
+        handler.ClassFactory.Resolve<SkillDiscovery>().LoadSkillDiscoveryTable();
         handler.SendGlobalGMSysMessage("DB table `skill_discovery_template` (recipes discovered at crafting) reloaded.");
 
         return true;
@@ -770,7 +782,7 @@ internal class ReloadCommand
     private static bool HandleReloadSkillExtraItemTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Skill Extra Item Table...");
-        SkillExtraItems.LoadSkillExtraItemTable();
+        handler.ClassFactory.Resolve<SkillExtraItems>().LoadSkillExtraItemTable();
         handler.SendGlobalGMSysMessage("DB table `skill_extra_item_template` (extra item creation when crafting) reloaded.");
 
         return HandleReloadSkillPerfectItemTemplateCommand(handler);
@@ -790,7 +802,7 @@ internal class ReloadCommand
     {
         // latched onto HandleReloadSkillExtraItemTemplateCommand as it's part of that table group (and i don't want to chance all the command IDs)
         Log.Logger.Information("Re-Loading Skill Perfection Data Table...");
-        SkillPerfectItems.LoadSkillPerfectItemTable();
+        handler.ClassFactory.Resolve<SkillPerfectItems>().LoadSkillPerfectItemTable();
         handler.SendGlobalGMSysMessage("DB table `skill_perfect_item_template` (perfect item procs when crafting) reloaded.");
 
         return true;
@@ -800,7 +812,7 @@ internal class ReloadCommand
     private static bool HandleReloadSmartScripts(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Smart Scripts...");
-        Global.SmartAIMgr.LoadFromDB();
+        handler.ClassFactory.Resolve<SmartAIManager>().LoadFromDB();
         handler.SendGlobalGMSysMessage("Smart Scripts reloaded.");
 
         return true;
@@ -1007,7 +1019,7 @@ internal class ReloadCommand
         if (args != null)
             Log.Logger.Information("Re-Loading Waypoints data from 'waypoints_data'");
 
-        Global.WaypointMgr.Load();
+        handler.ClassFactory.Resolve<WaypointManager>().Load();
 
         if (args != null)
             handler.SendGlobalGMSysMessage("DB Table 'waypoint_data' reloaded.");
@@ -1129,9 +1141,9 @@ internal class ReloadCommand
         private static bool HandleReloadAllLootCommand(CommandHandler handler)
         {
             Log.Logger.Information("Re-Loading Loot Tables...");
-            LootManager.LoadLootTables();
+            handler.ClassFactory.Resolve<LootManager>().LoadLootTables();
             handler.SendGlobalGMSysMessage("DB tables `*_loot_template` reloaded.");
-            Global.ConditionMgr.LoadConditions(true);
+            handler.ClassFactory.Resolve<ConditionManager>().LoadConditions(true);
 
             return true;
         }

@@ -2,10 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
 using Forged.MapServer.SupportSystem;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Util;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -218,7 +221,7 @@ internal class TicketCommands
     [Command("togglesystem", RBACPermissions.CommandTicketTogglesystem, true)]
     private static bool HandleToggleGMTicketSystem(CommandHandler handler)
     {
-        if (!GetDefaultValue("Support.TicketsEnabled", false))
+        if (!handler.Configuration.GetDefaultValue("Support.TicketsEnabled", false))
         {
             handler.SendSysMessage(CypherStrings.DisallowTicketsConfig);
 
@@ -254,7 +257,7 @@ internal class TicketCommands
         AccountTypes security;
         var assignedPlayer = ticket.AssignedPlayer;
 
-        if (assignedPlayer && assignedPlayer.IsInWorld)
+        if (assignedPlayer && assignedPlayer.Location.IsInWorld)
         {
             security = assignedPlayer.Session.Security;
         }

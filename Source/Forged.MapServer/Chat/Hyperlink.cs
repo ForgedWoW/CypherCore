@@ -181,6 +181,7 @@ internal class Hyperlink
         else
             return new ChatCommandResult(info.Tail);
     }
+
     private static byte ToHex(char c)
     {
         return (byte)(c switch

@@ -69,10 +69,12 @@ internal class PlayerIdentifier
     {
         return _name;
     }
+
     public bool IsConnected()
     {
         return _player != null;
     }
+
     public ChatCommandResult TryConsume(CommandHandler handler, string args)
     {
         var next = CommandArgs.TryConsume(out var tempVal, typeof(ulong), handler, args);

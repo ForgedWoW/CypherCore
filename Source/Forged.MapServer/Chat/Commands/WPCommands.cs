@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Movement;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
@@ -599,7 +600,7 @@ internal class WpCommands
             return false;
 
         handler.SendSysMessage("|cff00ff00Loading Path: |r|cff00ffff{0}|r", pathId);
-        Global.WaypointMgr.ReloadPath(pathId);
+        handler.ClassFactory.Resolve<WaypointManager>().ReloadPath(pathId);
 
         return true;
     }

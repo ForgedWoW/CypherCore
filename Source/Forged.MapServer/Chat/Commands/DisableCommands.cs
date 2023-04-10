@@ -4,7 +4,6 @@
 using System;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.Conditions;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
@@ -151,7 +150,6 @@ internal class DisableCommands
 
                     break;
                 }
-                
             }
 
             var worldDB = handler.ClassFactory.Resolve<WorldDatabase>();
@@ -184,6 +182,7 @@ internal class DisableCommands
         {
             return HandleAddDisables(entry, flags, disableComment, handler, DisableType.Spell);
         }
+
         [Command("vmap", RBACPermissions.CommandDisableAddVmap, true)]
         private static bool HandleAddDisableVmapCommand(CommandHandler handler, uint entry, uint flags, string disableComment)
         {
@@ -263,6 +262,7 @@ internal class DisableCommands
         {
             return HandleRemoveDisables(entry, handler, DisableType.Spell);
         }
+
         [Command("vmap", RBACPermissions.CommandDisableRemoveVmap, true)]
         private static bool HandleRemoveDisableVmapCommand(CommandHandler handler, uint entry)
         {

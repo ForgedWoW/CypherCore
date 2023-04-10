@@ -66,6 +66,7 @@ internal class ArenaCommands
     private static bool HandleArenaCreateCommand(CommandHandler handler, PlayerIdentifier captain, string name, ArenaTypes type)
     {
         var atm = handler.ClassFactory.Resolve<ArenaTeamManager>();
+
         if (atm.GetArenaTeamByName(name) != null)
         {
             handler.SendSysMessage(CypherStrings.ArenaErrorNameExists, name);

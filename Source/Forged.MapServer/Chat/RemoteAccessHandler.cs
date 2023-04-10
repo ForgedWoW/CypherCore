@@ -13,17 +13,18 @@ public class RemoteAccessHandler : CommandHandler
     private readonly Action<string> _reportToRA;
     private readonly WorldManager _worldManager;
 
+    public override string NameLink => GetCypherString(CypherStrings.ConsoleCommand);
+
+    public override Locale SessionDbcLocale => _worldManager.DefaultDbcLocale;
+
+    public override byte SessionDbLocaleIndex => (byte)_worldManager.DefaultDbcLocale;
+
     public RemoteAccessHandler(Action<string> reportToRA, WorldManager worldManager) : base()
     {
         _reportToRA = reportToRA;
         _worldManager = worldManager;
     }
 
-    public override string NameLink => GetCypherString(CypherStrings.ConsoleCommand);
-
-    public override Locale SessionDbcLocale => _worldManager.DefaultDbcLocale;
-
-    public override byte SessionDbLocaleIndex => (byte)_worldManager.DefaultDbcLocale;
     public override bool HasPermission(RBACPermissions permission)
     {
         return true;
@@ -33,6 +34,7 @@ public class RemoteAccessHandler : CommandHandler
     {
         return cmd.Permission.AllowConsole;
     }
+
     public override bool NeedReportToTarget(Player chr)
     {
         return true;

@@ -31,20 +31,29 @@ public class Channel
     private readonly List<ObjectGuid> _bannedStore = new();
     private readonly string _channelName;
     private readonly TeamFaction _channelTeam;
+    private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly WorldManager _worldManager;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly GameObjectManager _gameObjectManager;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly CharacterCache _characterCache;
     private readonly Dictionary<ObjectGuid, PlayerInfo> _playersStore = new();
+    private readonly WorldManager _worldManager;
     private string _channelPassword;
     private bool _isDirty; // whether the channel needs to be saved to DB
     private bool _isOwnerInvisible;
     private long _nextActivityUpdateTime;
     private ObjectGuid _ownerGuid;
     private bool _ownershipEnabled;
+
+    public uint ChannelId { get; }
+    public ChannelFlags Flags { get; }
+    public ObjectGuid GUID { get; }
+    public bool IsConstant => ChannelId != 0;
+    public bool IsLFG => Flags.HasAnyFlag(ChannelFlags.Lfg);
+    public int NumPlayers => _playersStore.Count;
+    public AreaTableRecord ZoneEntry { get; }
+    private bool IsAnnounce { get; set; }
 
     public Channel(ObjectGuid guid, uint channelId, TeamFaction team, AreaTableRecord zoneEntry,
                    CliDB cliDB, GameObjectManager gameObjectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
@@ -103,15 +112,6 @@ public class Channel
             _bannedStore.Add(banned);
         }
     }
-
-    public uint ChannelId { get; }
-    public ChannelFlags Flags { get; }
-    public ObjectGuid GUID { get; }
-    public bool IsConstant => ChannelId != 0;
-    public bool IsLFG => Flags.HasAnyFlag(ChannelFlags.Lfg);
-    public int NumPlayers => _playersStore.Count;
-    public AreaTableRecord ZoneEntry { get; }
-    private bool IsAnnounce { get; set; }
 
     public static void GetChannelName(ref string channelName, uint channelId, Locale locale, AreaTableRecord zoneEntry, CliDB cliDB, GameObjectManager objectManager)
     {
@@ -214,8 +214,7 @@ public class Channel
         return _channelPassword.IsEmpty() || (_channelPassword == password);
     }
 
-    public void DeclineInvite(Player player)
-    { }
+    public void DeclineInvite(Player player) { }
 
     public string GetName(Locale locale = Locale.enUS)
     {
@@ -427,6 +426,7 @@ public class Channel
         foreach (var key in _playersStore.Keys.Where(key => !_playersStore[key].IsInvisible))
         {
             newowner = key;
+
             break;
         }
 
@@ -674,8 +674,7 @@ public class Channel
         _channelPassword = npassword;
     }
 
-    public void SilenceAll(Player player, string name)
-    { }
+    public void SilenceAll(Player player, string name) { }
 
     public void UnBan(Player player, string badname)
     {
@@ -728,8 +727,7 @@ public class Channel
         SetMode(player, newname, false, false);
     }
 
-    public void UnsilenceAll(Player player, string name)
-    { }
+    public void UnsilenceAll(Player player, string name) { }
 
     public void UpdateChannelInDB()
     {

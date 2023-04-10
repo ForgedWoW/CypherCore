@@ -19,6 +19,7 @@ public struct ChatCommandResult
     public string ErrorMessage { get; private set; }
     public bool HasErrorMessage => !ErrorMessage.IsEmpty();
     public bool IsSuccessful { get; private set; }
+
     public static ChatCommandResult FromErrorMessage(string str)
     {
         var result = new ChatCommandResult();

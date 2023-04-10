@@ -78,6 +78,7 @@ internal class MessageCommands
 
         return true;
     }
+
     [CommandNonGroup("notify", RBACPermissions.CommandNotify, true)]
     private static bool HandleNotifyCommand(CommandHandler handler, Tail message)
     {
@@ -91,6 +92,7 @@ internal class MessageCommands
 
         return true;
     }
+
     [CommandNonGroup("whispers", RBACPermissions.CommandWhispers)]
     private static bool HandleWhispersCommand(CommandHandler handler, bool? operationArg, [OptionalArg] string playerNameArg)
     {

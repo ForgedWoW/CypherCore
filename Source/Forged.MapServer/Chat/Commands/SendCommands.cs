@@ -138,6 +138,7 @@ internal class SendCommands
 
         return true;
     }
+
     [Command("message", RBACPermissions.CommandSendMessage, true)]
     private static bool HandleSendMessageCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString msgStr)
     {

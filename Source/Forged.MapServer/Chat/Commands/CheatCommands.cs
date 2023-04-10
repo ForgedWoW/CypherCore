@@ -157,6 +157,7 @@ internal class CheatCommands
 
         return true;
     }
+
     [Command("taxi", RBACPermissions.CommandCheatTaxi)]
     private static bool HandleTaxiCheatCommand(CommandHandler handler, bool? enableArg)
     {

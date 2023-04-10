@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
 using Framework.Database;
@@ -30,7 +31,7 @@ internal class ResetCommands
         if (player.IsConnected())
             player.GetConnectedPlayer().ResetAchievements();
         else
-            PlayerAchievementMgr.DeleteFromDB(player.GetGUID());
+            handler.ClassFactory.Resolve<PlayerAchievementMgr>().DeleteFromDB(player.GetGUID());
 
         return true;
     }
@@ -165,7 +166,7 @@ internal class ResetCommands
 
     private static bool HandleResetStatsOrLevelHelper(Player player)
     {
-        var classEntry = handler.CliDB.ChrClassesStorage.LookupByKey(player.Class);
+        var classEntry = player.CliDB.ChrClassesStorage.LookupByKey(player.Class);
 
         if (classEntry == null)
         {

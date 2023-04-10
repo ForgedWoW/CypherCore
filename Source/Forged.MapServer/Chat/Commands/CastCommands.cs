@@ -28,7 +28,6 @@ internal class CastCommands
         handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellInfo.Id);
 
         return false;
-
     }
 
     private static TriggerCastFlags? GetTriggerFlags(string triggeredStr)
@@ -93,6 +92,7 @@ internal class CastCommands
 
         return true;
     }
+
     [Command("dest", RBACPermissions.CommandCastDest)]
     private static bool HandleCastDestCommand(CommandHandler handler, uint spellId, float x, float y, float z, [OptionalArg] string triggeredStr)
     {

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.Chrono;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Maps;
@@ -52,18 +51,20 @@ internal class ListCommands
         {
             var player = handler.Session.Player;
 
-            result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM creature WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
-                                    player.Location.X,
-                                    player.Location.Y,
-                                    player.Location.Z,
-                                    creatureId,
-                                    count);
+            result = handler.ClassFactory.Resolve<WorldDatabase>()
+                            .Query("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM creature WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
+                                   player.Location.X,
+                                   player.Location.Y,
+                                   player.Location.Z,
+                                   creatureId,
+                                   count);
         }
         else
         {
-            result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{0}' LIMIT {1}",
-                                    creatureId,
-                                    count);
+            result = handler.ClassFactory.Resolve<WorldDatabase>()
+                            .Query("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{0}' LIMIT {1}",
+                                   creatureId,
+                                   count);
         }
 
         if (!result.IsEmpty())
@@ -142,6 +143,7 @@ internal class ListCommands
 
                 string itemPos;
                 var computator = handler.ClassFactory.Resolve<PlayerComputators>();
+
                 if (computator.IsEquipmentPos((byte)itemBag, itemSlot))
                     itemPos = "[equipped]";
                 else if (computator.IsInventoryPos((byte)itemBag, itemSlot))
@@ -403,18 +405,20 @@ internal class ListCommands
         {
             var player = handler.Session.Player;
 
-            result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
-                                    player.Location.X,
-                                    player.Location.Y,
-                                    player.Location.Z,
-                                    gameObjectId,
-                                    count);
+            result = handler.ClassFactory.Resolve<WorldDatabase>()
+                            .Query("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
+                                   player.Location.X,
+                                   player.Location.Y,
+                                   player.Location.Z,
+                                   gameObjectId,
+                                   count);
         }
         else
         {
-            result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{0}' LIMIT {1}",
-                                    gameObjectId,
-                                    count);
+            result = handler.ClassFactory.Resolve<WorldDatabase>()
+                            .Query("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{0}' LIMIT {1}",
+                                   gameObjectId,
+                                   count);
         }
 
         if (!result.IsEmpty())
@@ -587,6 +591,7 @@ internal class ListCommands
 
         return true;
     }
+
     [CommandGroup("auras")]
     private class ListAuraCommands
     {

@@ -14,12 +14,13 @@ namespace Forged.MapServer.Chat.Channels;
 internal class ChannelWhisperBuilder : MessageBuilder
 {
     private readonly ObjectGuid _guid;
-    private readonly WorldManager _worldManager;
-    private readonly ObjectAccessor _objectAccessor;
     private readonly Language _lang;
+    private readonly ObjectAccessor _objectAccessor;
     private readonly string _prefix;
     private readonly Channel _source;
     private readonly string _what;
+    private readonly WorldManager _worldManager;
+
     public ChannelWhisperBuilder(Channel source, Language lang, string what, string prefix, ObjectGuid guid, WorldManager worldManager, ObjectAccessor objectAccessor)
     {
         _source = source;

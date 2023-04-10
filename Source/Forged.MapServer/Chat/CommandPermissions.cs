@@ -9,6 +9,7 @@ public struct CommandPermissions
 {
     public bool AllowConsole;
     public RBACPermissions RequiredPermission;
+
     public CommandPermissions(RBACPermissions perm, bool allowConsole)
     {
         RequiredPermission = perm;

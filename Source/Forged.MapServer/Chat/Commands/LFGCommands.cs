@@ -108,6 +108,7 @@ internal class LFGCommands
 
         return false;
     }
+
     [Command("queue", RBACPermissions.CommandLfgQueue, true)]
     private static bool HandleLfgQueueInfoCommand(CommandHandler handler, string full)
     {
@@ -115,6 +116,7 @@ internal class LFGCommands
 
         return true;
     }
+
     private static void PrintPlayerInfo(CommandHandler handler, Player player)
     {
         if (!player)

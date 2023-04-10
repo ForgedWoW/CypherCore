@@ -193,6 +193,7 @@ internal class MMapsCommands
 
         return true;
     }
+
     [Command("stats", RBACPermissions.CommandMmapStats)]
     private static bool HandleMmapStatsCommand(CommandHandler handler)
     {

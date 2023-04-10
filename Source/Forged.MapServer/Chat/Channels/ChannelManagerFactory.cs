@@ -14,6 +14,7 @@ public class ChannelManagerFactory
 {
     private readonly Dictionary<TeamFaction, ChannelManager> _channelManagers = new();
     private readonly IConfiguration _configuration;
+
     public ChannelManagerFactory(ClassFactory classFactory, IConfiguration configuration)
     {
         _configuration = configuration;

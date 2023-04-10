@@ -18,9 +18,13 @@ public class CommandManager
 {
     private readonly IConfiguration _configuration;
 
+    public SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
+    public bool Running { get; set; }
+
     public CommandManager(WorldDatabase worldDatabase, IConfiguration configuration)
     {
         _configuration = configuration;
+
         foreach (var ass in IOHelpers.GetAllAssembliesInDir(configuration.GetDefaultValue("ScriptsDirectory", Path.Combine(AppContext.BaseDirectory, "Scripts"))))
             foreach (var type in ass.GetTypes())
             {
@@ -92,9 +96,6 @@ public class CommandManager
             cmd.ResolveNames(name);
     }
 
-    public SortedDictionary<string, ChatCommandNode> Commands { get; } = new();
-    public bool Running { get; set; }
-
     public void InitConsole()
     {
         if (_configuration.GetDefaultValue("BeepAtStart", true))
@@ -136,9 +137,7 @@ public class CommandManager
                 continue;
 
             foreach (var commandAttribute in commandAttributes.Where(commandAttribute => commandAttribute.GetType() != typeof(CommandNonGroupAttribute)))
-            {
                 command.AddSubCommand(new ChatCommandNode(commandAttribute, method));
-            }
         }
     }
 }

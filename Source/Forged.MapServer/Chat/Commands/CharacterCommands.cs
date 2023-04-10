@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Text;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Cache;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
@@ -487,6 +486,7 @@ internal class CharacterCommands
 
         return true;
     }
+
     [CommandNonGroup("levelup", RBACPermissions.CommandLevelup)]
     private static bool HandleLevelUpCommand(CommandHandler handler, [OptionalArg] PlayerIdentifier player, short level)
     {
@@ -748,6 +748,7 @@ internal class CharacterCommands
 
             return false;
         }
+
         private static void HandleCharacterDeletedRestoreHelper(DeletedInfo delInfo, CommandHandler handler)
         {
             if (delInfo.AccountName.IsEmpty()) // account not exist
@@ -787,15 +788,17 @@ internal class CharacterCommands
         private struct DeletedInfo
         {
             public uint AccountId;
+
             // the account id
             public string AccountName;
 
             // the account name
             public long DeleteDate;
 
-            public ObjectGuid GUID;    // the GUID from the character
-            public string Name;        // the character name
-    // the date at which the character has been deleted
+            public ObjectGuid GUID; // the GUID from the character
+
+            public string Name; // the character name
+            // the date at which the character has been deleted
         }
     }
 }

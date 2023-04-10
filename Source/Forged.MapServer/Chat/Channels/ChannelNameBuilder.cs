@@ -13,8 +13,9 @@ namespace Forged.MapServer.Chat.Channels;
 internal class ChannelNameBuilder : MessageBuilder
 {
     private readonly IChannelAppender _modifier;
-    private readonly WorldManager _worldManager;
     private readonly Channel _source;
+    private readonly WorldManager _worldManager;
+
     public ChannelNameBuilder(Channel source, IChannelAppender modifier, WorldManager worldManager)
     {
         _source = source;

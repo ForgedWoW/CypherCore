@@ -115,6 +115,7 @@ public class LanguageManager
         var languageId = (uint)spellEffect.EffectMiscValue[0];
         _langsMap.Add(languageId, new LanguageDesc(spellEffect.SpellID, 0)); // register without a skill id for now
     }
+
     public string Translate(string msg, uint language, Locale locale)
     {
         var textToTranslate = StripHyperlinks(msg);
@@ -174,6 +175,7 @@ public class LanguageManager
 
         return result;
     }
+
     private static char upper_backslash(char c)
     {
         return c == '/' ? '\\' : char.ToUpper(c);
