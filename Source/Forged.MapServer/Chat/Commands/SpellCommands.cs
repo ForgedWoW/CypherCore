@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
@@ -84,6 +83,7 @@ internal class SpellCommands
 
         return true;
     }
+
     [CommandNonGroup("setskill", RBACPermissions.CommandSetskill)]
     private static bool HandleSetSkillCommand(CommandHandler handler, uint skillId, uint level, uint? maxSkillArg)
     {

@@ -234,6 +234,7 @@ internal class TicketCommands
 
         return true;
     }
+
     private static bool HandleUnAssignCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
     {
         var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
@@ -288,6 +289,7 @@ internal class TicketCommands
 
         return true;
     }
+
     [CommandGroup("bug")]
     private class TicketBugCommands
     {

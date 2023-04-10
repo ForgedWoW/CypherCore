@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
@@ -150,6 +149,7 @@ internal class TeleCommands
 
         return true;
     }
+
     [Command("del", RBACPermissions.CommandTeleDel, true)]
     private static bool HandleTeleDelCommand(CommandHandler handler, GameTele tele)
     {
@@ -245,6 +245,7 @@ internal class TeleCommands
 
         return true;
     }
+
     [CommandGroup("name")]
     private class TeleNameCommands
     {

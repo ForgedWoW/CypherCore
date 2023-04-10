@@ -8,7 +8,6 @@ using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.IO;
 using Framework.Util;
-using Serilog;
 
 namespace Forged.MapServer.Chat.Commands;
 

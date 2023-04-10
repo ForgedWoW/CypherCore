@@ -662,6 +662,7 @@ internal class ReloadCommand
 
         return true;
     }
+
     [Command("quest_greeting", RBACPermissions.CommandReloadQuestGreeting, true)]
     private static bool HandleReloadQuestGreetingCommand(CommandHandler handler)
     {
@@ -837,6 +838,7 @@ internal class ReloadCommand
 
         return true;
     }
+
     [Command("spell_group", RBACPermissions.CommandReloadSpellGroup, true)]
     private static bool HandleReloadSpellGroupsCommand(CommandHandler handler)
     {
@@ -876,6 +878,7 @@ internal class ReloadCommand
 
         return true;
     }
+
     [Command("spell_pet_auras", RBACPermissions.CommandReloadSpellPetAuras, true)]
     private static bool HandleReloadSpellPetAurasCommand(CommandHandler handler)
     {
@@ -938,6 +941,7 @@ internal class ReloadCommand
 
         return true;
     }
+
     [Command("spell_target_position", RBACPermissions.CommandReloadSpellTargetPosition, true)]
     private static bool HandleReloadSpellTargetPositionCommand(CommandHandler handler)
     {
@@ -1013,6 +1017,7 @@ internal class ReloadCommand
 
         return true;
     }
+
     [Command("waypoint_data", RBACPermissions.CommandReloadWaypointData, true)]
     private static bool HandleReloadWpCommand(CommandHandler handler, StringArguments args)
     {
@@ -1103,6 +1108,7 @@ internal class ReloadCommand
 
             return true;
         }
+
         [Command("gossips", RBACPermissions.CommandReloadAllGossip, true)]
         private static bool HandleReloadAllGossipsCommand(CommandHandler handler)
         {
