@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Cache;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Objects;
@@ -101,8 +102,11 @@ internal class GroupCommands
         if (level < 1)
             return false;
 
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => player
+        };
 
         var target = player?.GetConnectedPlayer();
 
@@ -152,9 +156,9 @@ internal class GroupCommands
         var parseGUID = ObjectGuid.Create(HighGuid.Player, args.NextUInt64());
 
         // ... and try to extract a player out of it.
-        if (Global.CharacterCacheStorage.GetCharacterNameByGuid(parseGUID, out var nameTarget))
+        if (handler.ClassFactory.Resolve<CharacterCache>().GetCharacterNameByGuid(parseGUID, out var nameTarget))
         {
-            playerTarget = Global.ObjAccessor.FindPlayer(parseGUID);
+            playerTarget = handler.ObjectAccessor.FindPlayer(parseGUID);
             guidTarget = parseGUID;
         }
         // If not, we return false and end right away.
@@ -173,12 +177,12 @@ internal class GroupCommands
         // If not, we extract it from the SQL.
         if (!groupTarget)
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
+            var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
             stmt.AddValue(0, guidTarget.Counter);
-            var resultGroup = DB.Characters.Query(stmt);
+            var resultGroup = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
             if (!resultGroup.IsEmpty())
-                groupTarget = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
+                groupTarget = handler.ClassFactory.Resolve<GroupManager>().GetGroupByDbStoreId(resultGroup.Read<uint>(0));
         }
 
         // If both fails, players simply has no party. Return false.
@@ -225,20 +229,20 @@ internal class GroupCommands
                 flags = "None";
 
             // Check if iterator is online. If is...
-            var p = Global.ObjAccessor.FindPlayer(slot.Guid);
+            var p = handler.ObjectAccessor.FindPlayer(slot.Guid);
             var phases = "";
 
-            if (p && p.IsInWorld)
+            if (p && p.Location.IsInWorld)
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
-                phases = PhasingHandler.FormatPhases(p.PhaseShift);
+                phases = PhasingHandler.FormatPhases(p.Location.PhaseShift);
 
-                var area = CliDB.AreaTableStorage.LookupByKey(p.Area);
+                var area = handler.CliDB.AreaTableStorage.LookupByKey(p.Location.Area);
 
                 if (area != null)
                 {
-                    var zone = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
+                    var zone = handler.CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
 
                     if (zone != null)
                         zoneName = zone.AreaName[handler.SessionDbcLocale];
@@ -287,8 +291,11 @@ internal class GroupCommands
     [Command("repair", RBACPermissions.CommandRepairitems, true)]
     private static bool HandleGroupRepairCommand(CommandHandler handler, PlayerIdentifier playerTarget)
     {
-        if (playerTarget == null)
-            playerTarget = PlayerIdentifier.FromTargetOrSelf(handler);
+        playerTarget = playerTarget switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => playerTarget
+        };
 
         if (playerTarget == null || !playerTarget.IsConnected())
             return false;
@@ -311,8 +318,11 @@ internal class GroupCommands
     [Command("revive", RBACPermissions.CommandRevive, true)]
     private static bool HandleGroupReviveCommand(CommandHandler handler, PlayerIdentifier playerTarget)
     {
-        if (playerTarget == null)
-            playerTarget = PlayerIdentifier.FromTargetOrSelf(handler);
+        playerTarget = playerTarget switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => playerTarget
+        };
 
         if (playerTarget == null || !playerTarget.IsConnected())
             return false;
@@ -340,8 +350,11 @@ internal class GroupCommands
     [Command("summon", RBACPermissions.CommandGroupSummon)]
     private static bool HandleGroupSummonCommand(CommandHandler handler, PlayerIdentifier playerTarget)
     {
-        if (playerTarget == null)
-            playerTarget = PlayerIdentifier.FromTargetOrSelf(handler);
+        playerTarget = playerTarget switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => playerTarget
+        };
 
         if (playerTarget == null || !playerTarget.IsConnected())
             return false;
@@ -373,7 +386,7 @@ internal class GroupCommands
         // :close enough:
         if (toInstance)
         {
-            var groupLeader = Global.ObjAccessor.GetPlayer(gmMap, group.LeaderGUID);
+            var groupLeader = handler.ObjectAccessor.GetPlayer(gmMap, group.LeaderGUID);
 
             if (!groupLeader || (groupLeader.Location.MapId != gmMap.Id) || (groupLeader.InstanceId != gmMap.InstanceId))
             {

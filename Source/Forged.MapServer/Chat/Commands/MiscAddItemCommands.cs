@@ -8,6 +8,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Items;
 using Framework.Collections;
 using Framework.Constants;
+using Framework.Database;
 using Framework.IO;
 using Serilog;
 
@@ -30,7 +31,7 @@ internal class MiscAddItemCommands
 
             if (!string.IsNullOrEmpty(itemName))
             {
-                var record = CliDB.ItemSparseStorage.Values.FirstOrDefault(itemSparse =>
+                var record = handler.CliDB.ItemSparseStorage.Values.FirstOrDefault(itemSparse =>
                 {
                     for (Locale i = 0; i < Locale.Total; ++i)
                         if (itemName == itemSparse.Display[i])
@@ -66,8 +67,11 @@ internal class MiscAddItemCommands
 
         var count = args.NextInt32();
 
-        if (count == 0)
-            count = 1;
+        count = count switch
+        {
+            0 => 1,
+            _ => count
+        };
 
         List<uint> bonusListIDs = new();
         var bonuses = args.NextString();
@@ -91,7 +95,7 @@ internal class MiscAddItemCommands
 
             if (itemContext != ItemContext.None && itemContext < ItemContext.Max)
             {
-                var contextBonuses = Global.DB2Mgr.GetDefaultItemBonusTree(itemId, itemContext);
+                var contextBonuses = handler.ClassFactory.Resolve<DB2Manager>().GetDefaultItemBonusTree(itemId, itemContext);
                 bonusListIDs.AddRange(contextBonuses);
             }
         }
@@ -102,7 +106,7 @@ internal class MiscAddItemCommands
         if (!playerTarget)
             playerTarget = player;
 
-        var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+        var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
 
         if (itemTemplate == null)
         {
@@ -153,7 +157,7 @@ internal class MiscAddItemCommands
             return false;
         }
 
-        var item = playerTarget.StoreNewItem(dest, itemId, true, ItemEnchantmentManager.GenerateItemRandomBonusListId(itemId), null, itemContext, bonusListIDs);
+        var item = playerTarget.StoreNewItem(dest, itemId, true, handler.ClassFactory.Resolve<ItemEnchantmentManager>().GenerateItemRandomBonusListId(itemId), null, itemContext, bonusListIDs);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -214,10 +218,10 @@ internal class MiscAddItemCommands
         if (!playerTarget)
             playerTarget = player;
 
-        Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.Additemset), itemSetId);
+        Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.Additemset), itemSetId);
 
         var found = false;
-        var its = Global.ObjectMgr.GetItemTemplates();
+        var its = handler.ObjectManager.GetItemTemplates();
 
         foreach (var template in its)
         {
@@ -234,7 +238,7 @@ internal class MiscAddItemCommands
 
                 if (itemContext != ItemContext.None && itemContext < ItemContext.Max)
                 {
-                    var contextBonuses = Global.DB2Mgr.GetDefaultItemBonusTree(template.Value.Id, itemContext);
+                    var contextBonuses = handler.ClassFactory.Resolve<DB2Manager>().GetDefaultItemBonusTree(template.Value.Id, itemContext);
                     bonusListIDsForItem.AddRange(contextBonuses);
                 }
 
@@ -292,7 +296,7 @@ internal class MiscAddItemCommands
             {
                 var itemName = itemNameStr.Substring(1);
 
-                var itr = CliDB.ItemSparseStorage.Values.FirstOrDefault(sparse =>
+                var itr = handler.CliDB.ItemSparseStorage.Values.FirstOrDefault(sparse =>
                 {
                     for (var i = Locale.enUS; i < Locale.Total; ++i)
                         if (itemName == sparse.Display[i])
@@ -332,8 +336,11 @@ internal class MiscAddItemCommands
         if (!ccount.IsEmpty())
             count = int.Parse(ccount);
 
-        if (count == 0)
-            count = 1;
+        count = count switch
+        {
+            0 => 1,
+            _ => count
+        };
 
         List<uint> bonusListIDs = new();
         var bonuses = tailArgs.NextString();
@@ -348,7 +355,7 @@ internal class MiscAddItemCommands
 
             if (itemContext != ItemContext.None && itemContext < ItemContext.Max)
             {
-                var contextBonuses = Global.DB2Mgr.GetDefaultItemBonusTree(itemId, itemContext);
+                var contextBonuses = handler.ClassFactory.Resolve<DB2Manager>().GetDefaultItemBonusTree(itemId, itemContext);
                 bonusListIDs.AddRange(contextBonuses);
             }
         }
@@ -359,7 +366,7 @@ internal class MiscAddItemCommands
                 if (uint.TryParse(token, out var bonusListId))
                     bonusListIDs.Add(bonusListId);
 
-        var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+        var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
 
         if (itemTemplate == null)
         {
@@ -410,7 +417,7 @@ internal class MiscAddItemCommands
             return false;
         }
 
-        var item = playerTarget.StoreNewItem(dest, itemId, true, ItemEnchantmentManager.GenerateItemRandomBonusListId(itemId), null, itemContext, bonusListIDs);
+        var item = playerTarget.StoreNewItem(dest, itemId, true, handler.ClassFactory.Resolve<ItemEnchantmentManager>().GenerateItemRandomBonusListId(itemId), null, itemContext, bonusListIDs);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)

@@ -2,8 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -27,7 +29,7 @@ internal class GMCommands
                 return true;
             }
 
-            if (enableArg.HasValue)
+            if (enableArg == true)
             {
                 session.Player.SetGMChat(true);
                 session.SendNotification(CypherStrings.GmChatOn);
@@ -49,10 +51,7 @@ internal class GMCommands
     [Command("fly", RBACPermissions.CommandGmFly)]
     private static bool HandleGMFlyCommand(CommandHandler handler, bool enable)
     {
-        var target = handler.SelectedPlayer;
-
-        if (target == null)
-            target = handler.Player;
+        var target = handler.SelectedPlayer ?? handler.Player;
 
         if (enable)
         {
@@ -74,10 +73,11 @@ internal class GMCommands
     private static bool HandleGMListFullCommand(CommandHandler handler)
     {
         // Get the accounts with GM Level >0
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_GM_ACCOUNTS);
+        var loginDB = handler.ClassFactory.Resolve<LoginDatabase>();
+        var stmt = loginDB.GetPreparedStatement(LoginStatements.SEL_GM_ACCOUNTS);
         stmt.AddValue(0, (byte)AccountTypes.Moderator);
-        stmt.AddValue(1, Global.WorldMgr.Realm.Id.Index);
-        var result = DB.Login.Query(stmt);
+        stmt.AddValue(1, WorldManager.Realm.Id.Index);
+        var result = loginDB.Query(stmt);
 
         if (!result.IsEmpty())
         {
@@ -92,8 +92,11 @@ internal class GMCommands
                 var max = (16 - name.Length) / 2;
                 var max2 = max;
 
-                if ((max + max2 + name.Length) == 16)
-                    max2 = max - 1;
+                max2 = (max + max2 + name.Length) switch
+                {
+                    16 => max - 1,
+                    _  => max2
+                };
 
                 var padding = "";
 
@@ -119,13 +122,13 @@ internal class GMCommands
         var first = true;
         var footer = false;
 
-        foreach (var player in Global.ObjAccessor.GetPlayers())
+        foreach (var player in handler.ObjectAccessor.GetPlayers())
         {
             var playerSec = player.Session.Security;
 
             if ((player.IsGameMaster ||
                  (player.Session.HasPermission(RBACPermissions.CommandsAppearInGmList) &&
-                  playerSec <= (AccountTypes)GetDefaultValue("GM.InGMList.Level", (int)AccountTypes.Administrator))) &&
+                  playerSec <= (AccountTypes)handler.Configuration.GetDefaultValue("GM.InGMList.Level", (int)AccountTypes.Administrator))) &&
                 (handler.Session == null || player.IsVisibleGloballyFor(handler.Session.Player)))
             {
                 if (first)
@@ -141,8 +144,11 @@ internal class GMCommands
                 var max = ((16 - size) / 2);
                 var max2 = max;
 
-                if ((max + max2 + size) == 16)
-                    max2 = max - 1;
+                max2 = (max + max2 + size) switch
+                {
+                    16 => max - 1,
+                    _  => max2
+                };
 
                 if (handler.Session != null)
                     handler.SendSysMessage("|    {0} GMLevel {1}", player.GetName(), security);
@@ -186,7 +192,7 @@ internal class GMCommands
 
         if (!visibleArg.HasValue)
         {
-            handler.SendSysMessage(CypherStrings.YouAre, player.IsGMVisible ? Global.ObjectMgr.GetCypherString(CypherStrings.Visible) : Global.ObjectMgr.GetCypherString(CypherStrings.Invisible));
+            handler.SendSysMessage(CypherStrings.YouAre, player.IsGMVisible ? handler.ObjectManager.GetCypherString(CypherStrings.Visible) : handler.ObjectManager.GetCypherString(CypherStrings.Invisible));
 
             return true;
         }

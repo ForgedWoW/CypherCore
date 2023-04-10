@@ -5089,7 +5089,7 @@ public partial class Player
                 StringBuilder ss = new();
 
                 foreach (var guid in allowedLooters)
-                    ss.AppendFormat("{0} ", guid);
+                    ss.Append($"{guid} ");
 
                 var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_BOP_TRADE);
                 stmt.AddValue(0, item.GUID.Counter);

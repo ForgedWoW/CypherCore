@@ -396,11 +396,11 @@ public class WorldSession : IDisposable
         ss.Append("[Player: ");
 
         if (!_playerLoading.IsEmpty)
-            ss.AppendFormat("Logging in: {0}, ", _playerLoading.ToString());
+            ss.Append($"Logging in: {_playerLoading.ToString()}, ");
         else if (Player)
-            ss.AppendFormat("{0} {1}, ", Player.GetName(), Player.GUID.ToString());
+            ss.Append($"{Player.GetName()} {Player.GUID.ToString()}, ");
 
-        ss.AppendFormat("Account: {0}]", AccountId);
+        ss.Append($"Account: {AccountId}]");
 
         return ss.ToString();
     }

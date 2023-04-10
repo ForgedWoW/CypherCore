@@ -18,9 +18,9 @@ namespace Forged.MapServer.Chat.Commands;
 [CommandGroup("list")]
 internal class ListCommands
 {
-    private static string GetZoneName(uint zoneId, Locale locale)
+    private static string GetZoneName(uint zoneId, Locale locale, CommandHandler handler)
     {
-        var zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
+        var zoneEntry = handler.CliDB.AreaTableStorage.LookupByKey(zoneId);
 
         return zoneEntry != null ? zoneEntry.AreaName[locale] : "<unknown zone>";
     }
@@ -28,7 +28,7 @@ internal class ListCommands
     [Command("creature", RBACPermissions.CommandListCreature, true)]
     private static bool HandleListCreatureCommand(CommandHandler handler, uint creatureId, uint? countArg)
     {
-        var cInfo = Global.ObjectMgr.GetCreatureTemplate(creatureId);
+        var cInfo = handler.ObjectManager.GetCreatureTemplate(creatureId);
 
         if (cInfo == null)
         {
@@ -43,7 +43,7 @@ internal class ListCommands
             return false;
 
         uint creatureCount = 0;
-        var result = DB.World.Query("SELECT COUNT(guid) FROM creature WHERE id='{0}'", creatureId);
+        var result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT COUNT(guid) FROM creature WHERE id='{0}'", creatureId);
 
         if (!result.IsEmpty())
             creatureCount = result.Read<uint>(0);
@@ -52,7 +52,7 @@ internal class ListCommands
         {
             var player = handler.Session.Player;
 
-            result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM creature WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
+            result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM creature WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
                                     player.Location.X,
                                     player.Location.Y,
                                     player.Location.Z,
@@ -61,7 +61,7 @@ internal class ListCommands
         }
         else
         {
-            result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{0}' LIMIT {1}",
+            result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{0}' LIMIT {1}",
                                     creatureId,
                                     count);
         }
@@ -118,17 +118,17 @@ internal class ListCommands
         // inventory case
         uint inventoryCount = 0;
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_INVENTORY_COUNT_ITEM);
+        var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHAR_INVENTORY_COUNT_ITEM);
         stmt.AddValue(0, itemId);
-        var result = DB.Characters.Query(stmt);
+        var result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
             inventoryCount = result.Read<uint>(0);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_INVENTORY_ITEM_BY_ENTRY);
+        stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHAR_INVENTORY_ITEM_BY_ENTRY);
         stmt.AddValue(0, itemId);
         stmt.AddValue(1, count);
-        result = DB.Characters.Query(stmt);
+        result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
             do
@@ -141,14 +141,14 @@ internal class ListCommands
                 var ownerName = result.Read<string>(5);
 
                 string itemPos;
-
-                if (PlayerComputators.IsEquipmentPos((byte)itemBag, itemSlot))
+                var computator = handler.ClassFactory.Resolve<PlayerComputators>();
+                if (computator.IsEquipmentPos((byte)itemBag, itemSlot))
                     itemPos = "[equipped]";
-                else if (PlayerComputators.IsInventoryPos((byte)itemBag, itemSlot))
+                else if (computator.IsInventoryPos((byte)itemBag, itemSlot))
                     itemPos = "[in inventory]";
-                else if (PlayerComputators.IsReagentBankPos((byte)itemBag, itemSlot))
+                else if (computator.IsReagentBankPos((byte)itemBag, itemSlot))
                     itemPos = "[in reagent bank]";
-                else if (PlayerComputators.IsBankPos((byte)itemBag, itemSlot))
+                else if (computator.IsBankPos((byte)itemBag, itemSlot))
                     itemPos = "[in bank]";
                 else
                     itemPos = "";
@@ -161,19 +161,19 @@ internal class ListCommands
         // mail case
         uint mailCount = 0;
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_COUNT_ITEM);
+        stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_MAIL_COUNT_ITEM);
         stmt.AddValue(0, itemId);
-        result = DB.Characters.Query(stmt);
+        result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
             mailCount = result.Read<uint>(0);
 
         if (count > 0)
         {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_ITEMS_BY_ENTRY);
+            stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_MAIL_ITEMS_BY_ENTRY);
             stmt.AddValue(0, itemId);
             stmt.AddValue(1, count);
-            result = DB.Characters.Query(stmt);
+            result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
         }
         else
         {
@@ -201,19 +201,19 @@ internal class ListCommands
         // auction case
         uint auctionCount = 0;
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTIONHOUSE_COUNT_ITEM);
+        stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_AUCTIONHOUSE_COUNT_ITEM);
         stmt.AddValue(0, itemId);
-        result = DB.Characters.Query(stmt);
+        result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
             auctionCount = result.Read<uint>(0);
 
         if (count > 0)
         {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTIONHOUSE_ITEM_BY_ENTRY);
+            stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_AUCTIONHOUSE_ITEM_BY_ENTRY);
             stmt.AddValue(0, itemId);
             stmt.AddValue(1, count);
-            result = DB.Characters.Query(stmt);
+            result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
         }
         else
         {
@@ -236,17 +236,17 @@ internal class ListCommands
         // guild bank case
         uint guildCount = 0;
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_COUNT_ITEM);
+        stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_GUILD_BANK_COUNT_ITEM);
         stmt.AddValue(0, itemId);
-        result = DB.Characters.Query(stmt);
+        result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
             guildCount = result.Read<uint>(0);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_ITEM_BY_ENTRY);
+        stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_GUILD_BANK_ITEM_BY_ENTRY);
         stmt.AddValue(0, itemId);
         stmt.AddValue(1, count);
-        result = DB.Characters.Query(stmt);
+        result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
             do
@@ -277,15 +277,18 @@ internal class ListCommands
     [Command("mail", RBACPermissions.CommandListMail, true)]
     private static bool HandleListMailCommand(CommandHandler handler, PlayerIdentifier player)
     {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => player
+        };
 
         if (player == null)
             return false;
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_COUNT);
+        var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_MAIL_LIST_COUNT);
         stmt.AddValue(0, player.GetGUID().Counter);
-        var result = DB.Characters.Query(stmt);
+        var result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
         {
@@ -295,9 +298,9 @@ internal class ListCommands
             handler.SendSysMessage(CypherStrings.ListMailHeader, countMail, nameLink, player.GetGUID().ToString());
             handler.SendSysMessage(CypherStrings.AccountListBar);
 
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_INFO);
+            stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_MAIL_LIST_INFO);
             stmt.AddValue(0, player.GetGUID().Counter);
-            var result1 = DB.Characters.Query(stmt);
+            var result1 = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
             if (!result1.IsEmpty())
                 do
@@ -323,15 +326,15 @@ internal class ListCommands
 
                     if (hasItem == 1)
                     {
-                        var result2 = DB.Characters.Query("SELECT item_guid FROM mail_items WHERE mail_id = '{0}'", messageId);
+                        var result2 = handler.ClassFactory.Resolve<CharacterDatabase>().Query("SELECT item_guid FROM mail_items WHERE mail_id = '{0}'", messageId);
 
                         if (!result2.IsEmpty())
                             do
                             {
                                 var itemGUID = result2.Read<uint>(0);
-                                stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_ITEMS);
+                                stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_MAIL_LIST_ITEMS);
                                 stmt.AddValue(0, itemGUID);
-                                var result3 = DB.Characters.Query(stmt);
+                                var result3 = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
                                 if (!result3.IsEmpty())
                                     do
@@ -339,7 +342,7 @@ internal class ListCommands
                                         var itemEntry = result3.Read<uint>(0);
                                         var itemCount = result3.Read<uint>(1);
 
-                                        var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemEntry);
+                                        var itemTemplate = handler.ObjectManager.GetItemTemplate(itemEntry);
 
                                         if (itemTemplate == null)
                                             continue;
@@ -376,7 +379,7 @@ internal class ListCommands
     [Command("object", RBACPermissions.CommandListObject, true)]
     private static bool HandleListObjectCommand(CommandHandler handler, uint gameObjectId, uint? countArg)
     {
-        var gInfo = Global.ObjectMgr.GetGameObjectTemplate(gameObjectId);
+        var gInfo = handler.ObjectManager.GetGameObjectTemplate(gameObjectId);
 
         if (gInfo == null)
         {
@@ -391,7 +394,7 @@ internal class ListCommands
             return false;
 
         uint objectCount = 0;
-        var result = DB.World.Query("SELECT COUNT(guid) FROM gameobject WHERE id='{0}'", gameObjectId);
+        var result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT COUNT(guid) FROM gameobject WHERE id='{0}'", gameObjectId);
 
         if (!result.IsEmpty())
             objectCount = result.Read<uint>(0);
@@ -400,7 +403,7 @@ internal class ListCommands
         {
             var player = handler.Session.Player;
 
-            result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
+            result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
                                     player.Location.X,
                                     player.Location.Y,
                                     player.Location.Z,
@@ -409,7 +412,7 @@ internal class ListCommands
         }
         else
         {
-            result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{0}' LIMIT {1}",
+            result = handler.ClassFactory.Resolve<WorldDatabase>().Query("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{0}' LIMIT {1}",
                                     gameObjectId,
                                     count);
         }
@@ -463,10 +466,10 @@ internal class ListCommands
         var map = player.Location.Map;
 
         var locale = handler.Session.SessionDbcLocale;
-        var stringOverdue = Global.ObjectMgr.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
+        var stringOverdue = handler.ObjectManager.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
 
         var zoneId = player.Location.Zone;
-        var zoneName = GetZoneName(zoneId, locale);
+        var zoneName = GetZoneName(zoneId, locale, handler);
 
         for (SpawnObjectType type = 0; type < SpawnObjectType.NumSpawnTypes; type++)
         {
@@ -481,7 +484,7 @@ internal class ListCommands
 
             foreach (var ri in respawns)
             {
-                var data = Global.ObjectMgr.GetSpawnMetadata(ri.ObjectType, ri.SpawnId);
+                var data = handler.ObjectManager.GetSpawnMetadata(ri.ObjectType, ri.SpawnId);
 
                 if (data == null)
                     continue;
@@ -509,7 +512,7 @@ internal class ListCommands
                 var gridX = ri.GridId % MapConst.MaxGrids;
 
                 var respawnTime = ri.RespawnTime > GameTime.CurrentTime ? Time.SecsToTimeString((ulong)(ri.RespawnTime - GameTime.CurrentTime), TimeFormat.ShortText) : stringOverdue;
-                handler.SendSysMessage($"{ri.SpawnId} | {ri.Entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.SpawnGroupData.GroupId) ? "" : " (inactive)")}");
+                handler.SendSysMessage($"{ri.SpawnId} | {ri.Entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale, handler)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.SpawnGroupData.GroupId) ? "" : " (inactive)")}");
             }
         }
 
@@ -550,14 +553,14 @@ internal class ListCommands
         var showAll = map.IsBattlegroundOrArena || map.IsDungeon;
         handler.SendSysMessage($"Listing all spawn points in map {mapId} ({map.MapName}){(showAll ? "" : " within 5000yd")}:");
 
-        foreach (var pair in Global.ObjectMgr.GetAllCreatureData())
+        foreach (var pair in handler.ObjectManager.GetAllCreatureData())
         {
             SpawnData data = pair.Value;
 
             if (data.MapId != mapId)
                 continue;
 
-            var cTemp = Global.ObjectMgr.GetCreatureTemplate(data.Id);
+            var cTemp = handler.ObjectManager.GetCreatureTemplate(data.Id);
 
             if (cTemp == null)
                 continue;
@@ -566,14 +569,14 @@ internal class ListCommands
                 handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.X:3} | Y: {data.SpawnPoint.Y:3} | Z: {data.SpawnPoint.Z:3}");
         }
 
-        foreach (var pair in Global.ObjectMgr.GetAllGameObjectData())
+        foreach (var pair in handler.ObjectManager.GetAllGameObjectData())
         {
             SpawnData data = pair.Value;
 
             if (data.MapId != mapId)
                 continue;
 
-            var goTemp = Global.ObjectMgr.GetGameObjectTemplate(data.Id);
+            var goTemp = handler.ObjectManager.GetGameObjectTemplate(data.Id);
 
             if (goTemp == null)
                 continue;

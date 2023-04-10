@@ -239,7 +239,7 @@ public class GuildAchievementMgr : AchievementManager
             stmt.AddValue(2, pair.Value.Date);
 
             foreach (var guid in pair.Value.CompletingPlayers)
-                guidstr.AppendFormat("{0},", guid.Counter);
+                guidstr.Append($"{guid.Counter},");
 
             stmt.AddValue(3, guidstr.ToString());
             trans.Append(stmt);

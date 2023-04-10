@@ -168,7 +168,7 @@ public class SkillDiscovery
 
             if (chance <= 0) // chance
             {
-                ssNonDiscoverableEntries.AppendFormat("spellId = {0} reqSkillOrSpell = {1} reqSkillValue = {2} chance = {3} (chance problem)\n", spellId, reqSkillOrSpell, reqSkillValue, chance);
+                ssNonDiscoverableEntries.Append($"spellId = {spellId} reqSkillOrSpell = {reqSkillOrSpell} reqSkillValue = {reqSkillValue} chance = {chance} (chance problem)\n");
 
                 continue;
             }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Cache;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
@@ -25,8 +26,11 @@ internal class ModifyCommand
         res *= multiplier;
         resmax *= multiplier;
 
-        if (resmax == 0)
-            resmax = res;
+        resmax = resmax switch
+        {
+            0 => res,
+            _ => resmax
+        };
 
         if (res < 1 || resmax < 1 || resmax < res)
         {
@@ -124,7 +128,7 @@ internal class ModifyCommand
 
         var currencyId = args.NextUInt32();
 
-        if (!CliDB.CurrencyTypesStorage.ContainsKey(currencyId))
+        if (!handler.CliDB.CurrencyTypesStorage.ContainsKey(currencyId))
             return false;
 
         var amount = args.NextUInt32();
@@ -145,8 +149,11 @@ internal class ModifyCommand
 
         var drunklevel = args.NextByte();
 
-        if (drunklevel > 100)
-            drunklevel = 100;
+        drunklevel = drunklevel switch
+        {
+            > 100 => 100,
+            _     => drunklevel
+        };
 
         var target = handler.SelectedPlayerOrSelf;
 
@@ -209,7 +216,7 @@ internal class ModifyCommand
         if (!uint.TryParse(args.NextString(), out var objectDataDynamicFlags))
             objectDataDynamicFlags = target.ObjectData.DynamicFlags;
 
-        if (!CliDB.FactionTemplateStorage.ContainsKey(targetFaction))
+        if (!handler.CliDB.FactionTemplateStorage.ContainsKey(targetFaction))
         {
             handler.SendSysMessage(CypherStrings.WrongFaction, targetFaction);
 
@@ -242,7 +249,7 @@ internal class ModifyCommand
             return false;
         }
 
-        var info = Global.ObjectMgr.GetPlayerInfo(target.Race, target.Class);
+        var info = handler.ObjectManager.GetPlayerInfo(target.Race, target.Class);
 
         if (info == null)
             return false;
@@ -282,29 +289,29 @@ internal class ModifyCommand
         target.InitDisplayIds();
 
         target.RestoreDisplayId();
-        Global.CharacterCacheStorage.UpdateCharacterGender(target.GUID, (byte)gender);
+        handler.ClassFactory.Resolve<CharacterCache>().UpdateCharacterGender(target.GUID, (byte)gender);
 
         // Generate random customizations
         List<ChrCustomizationChoice> customizations = new();
 
-        var options = Global.DB2Mgr.GetCustomiztionOptions(target.Race, gender);
+        var options = handler.ClassFactory.Resolve<DB2Manager>().GetCustomiztionOptions(target.Race, gender);
         var worldSession = target.Session;
 
         foreach (var option in options)
         {
-            var optionReq = CliDB.ChrCustomizationReqStorage.LookupByKey(option.ChrCustomizationReqID);
+            var optionReq = handler.CliDB.ChrCustomizationReqStorage.LookupByKey(option.ChrCustomizationReqID);
 
-            if (optionReq != null && !worldSession.MeetsChrCustomizationReq(optionReq, target.Class, false, customizations))
+            if (optionReq != null && !worldSession.Player.MeetsChrCustomizationReq(optionReq, target.Class, false, customizations))
                 continue;
 
             // Loop over the options until the first one fits
-            var choicesForOption = Global.DB2Mgr.GetCustomiztionChoices(option.Id);
+            var choicesForOption = handler.ClassFactory.Resolve<DB2Manager>().GetCustomiztionChoices(option.Id);
 
             foreach (var choiceForOption in choicesForOption)
             {
-                var choiceReq = CliDB.ChrCustomizationReqStorage.LookupByKey(choiceForOption.ChrCustomizationReqID);
+                var choiceReq = handler.CliDB.ChrCustomizationReqStorage.LookupByKey(choiceForOption.ChrCustomizationReqID);
 
-                if (choiceReq != null && !worldSession.MeetsChrCustomizationReq(choiceReq, target.Class, false, customizations))
+                if (choiceReq != null && !worldSession.Player.MeetsChrCustomizationReq(choiceReq, target.Class, false, customizations))
                     continue;
 
                 var choiceEntry = choicesForOption[0];
@@ -417,7 +424,7 @@ internal class ModifyCommand
         {
             var newmoney = (long)targetMoney + moneyToAdd;
 
-            Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.CurrentMoney), targetMoney, moneyToAdd, newmoney);
+            Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.CurrentMoney), targetMoney, moneyToAdd, newmoney);
 
             if (newmoney <= 0)
             {
@@ -432,8 +439,11 @@ internal class ModifyCommand
             {
                 var moneyToAddMsg = (ulong)(moneyToAdd * -1);
 
-                if (newmoney > (long)PlayerConst.MaxMoneyAmount)
-                    newmoney = (long)PlayerConst.MaxMoneyAmount;
+                newmoney = newmoney switch
+                {
+                    > (long)PlayerConst.MaxMoneyAmount => (long)PlayerConst.MaxMoneyAmount,
+                    _                                  => newmoney
+                };
 
                 handler.SendSysMessage(CypherStrings.YouTakeMoney, moneyToAddMsg, handler.GetNameLink(target));
 
@@ -450,15 +460,18 @@ internal class ModifyCommand
             if (handler.NeedReportToTarget(target))
                 target.SendSysMessage(CypherStrings.YoursMoneyGiven, handler.NameLink, moneyToAdd);
 
-            if ((ulong)moneyToAdd >= PlayerConst.MaxMoneyAmount)
-                moneyToAdd = Convert.ToInt64(PlayerConst.MaxMoneyAmount);
+            moneyToAdd = (ulong)moneyToAdd switch
+            {
+                >= PlayerConst.MaxMoneyAmount => Convert.ToInt64(PlayerConst.MaxMoneyAmount),
+                _                             => moneyToAdd
+            };
 
             moneyToAdd = (long)Math.Min((ulong)moneyToAdd, (PlayerConst.MaxMoneyAmount - targetMoney));
 
             target.ModifyMoney(moneyToAdd);
         }
 
-        Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
+        Log.Logger.Debug(handler.ObjectManager.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
 
         return true;
     }
@@ -494,7 +507,7 @@ internal class ModifyCommand
         if (!uint.TryParse(args.NextString(), out var mount))
             return false;
 
-        if (!CliDB.CreatureDisplayInfoStorage.HasRecord(mount))
+        if (!handler.CliDB.CreatureDisplayInfoStorage.HasRecord(mount))
         {
             handler.SendSysMessage(CypherStrings.NoMount);
 
@@ -534,7 +547,7 @@ internal class ModifyCommand
         var phaseId = args.NextUInt32();
         var visibleMapId = args.NextUInt32();
 
-        if (phaseId != 0 && !CliDB.PhaseStorage.ContainsKey(phaseId))
+        if (phaseId != 0 && !handler.CliDB.PhaseStorage.ContainsKey(phaseId))
         {
             handler.SendSysMessage(CypherStrings.PhaseNotfound);
 
@@ -545,7 +558,7 @@ internal class ModifyCommand
 
         if (visibleMapId != 0)
         {
-            var visibleMap = CliDB.MapStorage.LookupByKey(visibleMapId);
+            var visibleMap = handler.CliDB.MapStorage.LookupByKey(visibleMapId);
 
             if (visibleMap == null || visibleMap.ParentMapID != target.Location.MapId)
             {
@@ -594,7 +607,7 @@ internal class ModifyCommand
         if (powerTypeToken.IsEmpty())
             return false;
 
-        var powerType = Global.DB2Mgr.GetPowerTypeByName(powerTypeToken);
+        var powerType = handler.ClassFactory.Resolve<DB2Manager>().GetPowerTypeByName(powerTypeToken);
 
         if (powerType == null)
         {
@@ -678,7 +691,7 @@ internal class ModifyCommand
         if (factionId == 0 || !int.TryParse(rankTxt, out var amount))
             return false;
 
-        var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
+        var factionEntry = handler.CliDB.FactionStorage.LookupByKey(factionId);
 
         if (factionEntry == null)
         {

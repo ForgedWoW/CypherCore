@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Commands;
@@ -24,7 +25,7 @@ internal class LearnCommands
             return false;
         }
 
-        if (!Global.SpellMgr.IsSpellValid(spellId, handler.Session.Player))
+        if (!handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellId, handler.Session.Player))
         {
             handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellId);
 
@@ -46,7 +47,7 @@ internal class LearnCommands
         targetPlayer.LearnSpell(spellId, false);
 
         if (allRanks)
-            while ((spellId = Global.SpellMgr.GetNextSpellInChain(spellId)) != 0)
+            while ((spellId = handler.ClassFactory.Resolve<SpellManager>().GetNextSpellInChain(spellId)) != 0)
                 targetPlayer.LearnSpell(spellId, false);
 
         return true;
@@ -66,8 +67,11 @@ internal class LearnCommands
 
         var allRanks = !allRanksStr.IsEmpty() && allRanksStr.Equals("all", StringComparison.OrdinalIgnoreCase);
 
-        if (allRanks)
-            spellId = Global.SpellMgr.GetFirstSpellInChain(spellId);
+        spellId = allRanks switch
+        {
+            true => handler.ClassFactory.Resolve<SpellManager>().GetFirstSpellInChain(spellId),
+            _    => spellId
+        };
 
         if (target.HasSpell(spellId))
             target.RemoveSpell(spellId, false, !allRanks);
@@ -83,17 +87,20 @@ internal class LearnCommands
         [Command("crafts", CypherStrings.CommandLearnAllCraftsHelp, RBACPermissions.CommandLearnAllCrafts)]
         private static bool HandleLearnAllCraftsCommand(CommandHandler handler, PlayerIdentifier player)
         {
-            if (player == null)
-                player = PlayerIdentifier.FromTargetOrSelf(handler);
+            player = player switch
+            {
+                null => PlayerIdentifier.FromTargetOrSelf(handler),
+                _    => player
+            };
 
             if (player == null || !player.IsConnected())
                 return false;
 
             var target = player.GetConnectedPlayer();
 
-            foreach (var (_, skillInfo) in CliDB.SkillLineStorage)
+            foreach (var (_, skillInfo) in handler.CliDB.SkillLineStorage)
                 if (skillInfo.CategoryID is SkillCategory.Profession or SkillCategory.Secondary && skillInfo.CanLink != 0) // only prof. with recipes have
-                    HandleLearnSkillRecipesHelper(target, skillInfo.Id);
+                    HandleLearnSkillRecipesHelper(target, skillInfo.Id, handler);
 
             handler.SendSysMessage(CypherStrings.CommandLearnAllCraft);
 
@@ -103,8 +110,11 @@ internal class LearnCommands
         [Command("default", CypherStrings.CommandLearnAllDefaultHelp, RBACPermissions.CommandLearnAllDefault)]
         private static bool HandleLearnAllDefaultCommand(CommandHandler handler, PlayerIdentifier player)
         {
-            if (player == null)
-                player = PlayerIdentifier.FromTargetOrSelf(handler);
+            player = player switch
+            {
+                null => PlayerIdentifier.FromTargetOrSelf(handler),
+                _    => player
+            };
 
             if (player == null || !player.IsConnected())
                 return false;
@@ -122,11 +132,11 @@ internal class LearnCommands
         [Command("blizzard", CypherStrings.CommandLearnAllBlizzardHelp, RBACPermissions.CommandLearnAllGm)]
         private static bool HandleLearnAllGMCommand(CommandHandler handler)
         {
-            foreach (var skillSpell in Global.SpellMgr.GetSkillLineAbilityMapBounds((uint)SkillType.Internal))
+            foreach (var skillSpell in handler.ClassFactory.Resolve<SpellManager>().GetSkillLineAbilityMapBounds((uint)SkillType.Internal))
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(skillSpell.Spell, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(skillSpell.Spell, Difficulty.None);
 
-                if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, handler.Session.Player, false))
+                if (spellInfo == null || !handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo, handler.Session.Player, false))
                     continue;
 
                 handler.Session.Player.LearnSpell(skillSpell.Spell, false);
@@ -140,7 +150,7 @@ internal class LearnCommands
         [Command("languages", CypherStrings.CommandLearnAllLanguagesHelp, RBACPermissions.CommandLearnAllLang)]
         private static bool HandleLearnAllLangCommand(CommandHandler handler)
         {
-            Global.LanguageMgr.ForEachLanguage((_, languageDesc) =>
+            handler.ClassFactory.Resolve<LanguageManager>().ForEachLanguage((_, languageDesc) =>
             {
                 if (languageDesc.SpellId != 0)
                     handler.Session.Player.LearnSpell(languageDesc.SpellId, false);
@@ -180,7 +190,7 @@ internal class LearnCommands
             var name = "";
             uint skillId = 0;
 
-            foreach (var (_, skillInfo) in CliDB.SkillLineStorage)
+            foreach (var (_, skillInfo) in handler.CliDB.SkillLineStorage)
             {
                 if ((skillInfo.CategoryID != SkillCategory.Profession &&
                      skillInfo.CategoryID != SkillCategory.Secondary) ||
@@ -220,7 +230,7 @@ internal class LearnCommands
             if (!(name.IsEmpty() && skillId != 0))
                 return false;
 
-            HandleLearnSkillRecipesHelper(target, skillId);
+            HandleLearnSkillRecipesHelper(target, skillId, handler);
 
             var maxLevel = target.GetPureMaxSkillValue((SkillType)skillId);
             target.SetSkill(skillId, target.GetSkillStep((SkillType)skillId), maxLevel, maxLevel);
@@ -235,7 +245,7 @@ internal class LearnCommands
             var player = handler.Session.Player;
             var playerClass = (uint)player.Class;
 
-            foreach (var (_, talentInfo) in CliDB.TalentStorage)
+            foreach (var (_, talentInfo) in handler.CliDB.TalentStorage)
             {
                 if (playerClass != talentInfo.ClassID)
                     continue;
@@ -243,9 +253,9 @@ internal class LearnCommands
                 if (talentInfo.SpecID != 0 && player.GetPrimarySpecialization() != talentInfo.SpecID)
                     continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(talentInfo.SpellID, Difficulty.None);
 
-                if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, handler.Session.Player, false))
+                if (spellInfo == null || !handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo, handler.Session.Player, false))
                     continue;
 
                 // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
@@ -275,11 +285,11 @@ internal class LearnCommands
             return true;
         }
 
-        private static void HandleLearnSkillRecipesHelper(Player player, uint skillId)
+        private static void HandleLearnSkillRecipesHelper(Player player, uint skillId, CommandHandler handler)
         {
             var classmask = player.ClassMask;
 
-            var skillLineAbilities = Global.DB2Mgr.GetSkillLineAbilitiesBySkill(skillId);
+            var skillLineAbilities = handler.ClassFactory.Resolve<DB2Manager>().GetSkillLineAbilitiesBySkill(skillId);
 
             if (skillLineAbilities == null)
                 return;
@@ -298,9 +308,9 @@ internal class LearnCommands
                 if (skillLine.ClassMask != 0 && (skillLine.ClassMask & classmask) == 0)
                     continue;
 
-                var spellInfo = Global.SpellMgr.GetSpellInfo(skillLine.Spell, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(skillLine.Spell, Difficulty.None);
 
-                if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, player, false))
+                if (spellInfo == null || !handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo, player, false))
                     continue;
 
                 player.LearnSpell(skillLine.Spell, false);
@@ -316,7 +326,7 @@ internal class LearnCommands
         {
             var player = handler.Player;
 
-            foreach (var (_, quest) in Global.ObjectMgr.GetQuestTemplates())
+            foreach (var (_, quest) in handler.ObjectManager.GetQuestTemplates())
                 if (quest.AllowableClasses != 0 && player.SatisfyQuestClass(quest, false))
                     player.LearnQuestRewardedSpells(quest);
 
@@ -326,16 +336,16 @@ internal class LearnCommands
         [Command("trainer", CypherStrings.CommandLearnMyTrainerHelp, RBACPermissions.CommandLearnAllMySpells)]
         private static bool HandleLearnMySpellsCommand(CommandHandler handler)
         {
-            var classEntry = CliDB.ChrClassesStorage.LookupByKey(handler.Player.Class);
+            var classEntry = handler.CliDB.ChrClassesStorage.LookupByKey(handler.Player.Class);
 
             if (classEntry == null)
                 return true;
 
             uint family = classEntry.SpellClassSet;
 
-            foreach (var (_, entry) in CliDB.SkillLineAbilityStorage)
+            foreach (var (_, entry) in handler.CliDB.SkillLineAbilityStorage)
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(entry.Spell, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(entry.Spell, Difficulty.None);
 
                 if (spellInfo == null)
                     continue;
@@ -353,7 +363,7 @@ internal class LearnCommands
                     continue;
 
                 // skip broken spells
-                if (!Global.SpellMgr.IsSpellValid(spellInfo, handler.Session.Player, false))
+                if (!handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo, handler.Session.Player, false))
                     continue;
 
                 handler.Session.Player.LearnSpell(spellInfo.Id, false);

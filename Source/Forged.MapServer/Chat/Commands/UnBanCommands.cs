@@ -33,7 +33,7 @@ internal class UnBanCommands
             return false;
         }
 
-        if (!Global.WorldMgr.RemoveBanCharacter(name))
+        if (!handler.WorldManager.RemoveBanCharacter(name))
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -67,7 +67,7 @@ internal class UnBanCommands
                 break;
         }
 
-        if (Global.WorldMgr.RemoveBanAccount(mode, nameOrIp))
+        if (handler.WorldManager.RemoveBanAccount(mode, nameOrIp))
             handler.SendSysMessage(CypherStrings.UnbanUnbanned, nameOrIp);
         else
             handler.SendSysMessage(CypherStrings.UnbanError, nameOrIp);

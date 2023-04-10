@@ -8,6 +8,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.SupportSystem;
@@ -22,10 +23,13 @@ internal class GoCommands
     {
         var player = handler.Session.Player;
 
-        if (mapId == 0xFFFFFFFF)
-            mapId = player.Location.MapId;
+        mapId = mapId switch
+        {
+            0xFFFFFFFF => player.Location.MapId,
+            _          => mapId
+        };
 
-        if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
+        if (!GridDefines.IsValidMapCoord(mapId, pos) || handler.ObjectManager.IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 
@@ -46,7 +50,7 @@ internal class GoCommands
     [Command("areatrigger", RBACPermissions.CommandGo)]
     private static bool HandleGoAreaTriggerCommand(CommandHandler handler, uint areaTriggerId)
     {
-        var at = CliDB.AreaTriggerStorage.LookupByKey(areaTriggerId);
+        var at = handler.CliDB.AreaTriggerStorage.LookupByKey(areaTriggerId);
 
         if (at == null)
         {
@@ -68,7 +72,7 @@ internal class GoCommands
         Dictionary<uint, List<CreatureData>> spawnLookup = new();
 
         // find all boss flagged mobs that match our needles
-        foreach (var pair in Global.ObjectMgr.GetCreatureTemplates())
+        foreach (var pair in handler.ObjectManager.GetCreatureTemplates())
         {
             var data = pair.Value;
 
@@ -76,7 +80,7 @@ internal class GoCommands
                 continue;
 
             uint count = 0;
-            var scriptName = Global.ObjectMgr.GetScriptName(data.ScriptID);
+            var scriptName = handler.ObjectManager.GetScriptName(data.ScriptID);
 
             foreach (var label in needles)
                 if (scriptName.Contains(label) || data.Name.Contains(label))
@@ -92,7 +96,7 @@ internal class GoCommands
         if (!matches.Empty())
         {
             // find the spawn points of any matches
-            foreach (var pair in Global.ObjectMgr.GetAllCreatureData())
+            foreach (var pair in handler.ObjectManager.GetAllCreatureData())
             {
                 var data = pair.Value;
 
@@ -124,7 +128,7 @@ internal class GoCommands
 
                 do
                 {
-                    handler.SendSysMessage(CypherStrings.CommandMultipleBossesEntry, keyValueList[i].Value.Entry, keyValueList[i].Value.Name, Global.ObjectMgr.GetScriptName(keyValueList[i].Value.ScriptID));
+                    handler.SendSysMessage(CypherStrings.CommandMultipleBossesEntry, keyValueList[i].Value.Entry, keyValueList[i].Value.Name, handler.ObjectManager.GetScriptName(keyValueList[i].Value.ScriptID));
                 } while (((++i) != 0) && (keyValueList[i].Key == maxCount));
 
                 return false;
@@ -139,7 +143,7 @@ internal class GoCommands
 
             foreach (var spawnData in spawns)
             {
-                var map = CliDB.MapStorage.LookupByKey(spawnData.MapId);
+                var map = handler.CliDB.MapStorage.LookupByKey(spawnData.MapId);
                 handler.SendSysMessage(CypherStrings.CommandBossMultipleSpawnEty, spawnData.SpawnId, spawnData.MapId, map.MapName[handler.SessionDbcLocale], spawnData.SpawnPoint.ToString());
             }
 
@@ -158,7 +162,7 @@ internal class GoCommands
 
         if (!player.TeleportTo(new WorldLocation(mapId, spawn.SpawnPoint)))
         {
-            var mapName = CliDB.MapStorage.LookupByKey(mapId).MapName[handler.SessionDbcLocale];
+            var mapName = handler.CliDB.MapStorage.LookupByKey(mapId).MapName[handler.SessionDbcLocale];
             handler.SendSysMessage(CypherStrings.CommandGoBossFailed, spawn.SpawnId, boss.Name, boss.Entry, mapName);
 
             return false;
@@ -184,7 +188,7 @@ internal class GoCommands
     [Command("graveyard", RBACPermissions.CommandGo)]
     private static bool HandleGoGraveyardCommand(CommandHandler handler, uint graveyardId)
     {
-        var gy = Global.ObjectMgr.GetWorldSafeLoc(graveyardId);
+        var gy = handler.ObjectManager.GetWorldSafeLoc(graveyardId);
 
         if (gy == null)
         {
@@ -236,7 +240,7 @@ internal class GoCommands
         else
             player.SaveRecallPosition(); // save only in non-flight case
 
-        var terrain = Global.TerrainMgr.LoadTerrain(mapId);
+        var terrain = handler.ClassFactory.Resolve<TerrainManager>().LoadTerrain(mapId);
         var z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, mapId, x, y));
 
         player.TeleportTo(mapId, x, y, z, player.Location.Orientation);
@@ -252,11 +256,11 @@ internal class GoCommands
 
         MultiMap<uint, Tuple<uint, string, string>> matches = new();
 
-        foreach (var pair in Global.ObjectMgr.GetInstanceTemplates())
+        foreach (var pair in handler.ObjectManager.GetInstanceTemplates())
         {
             uint count = 0;
-            var scriptName = Global.ObjectMgr.GetScriptName(pair.Value.ScriptId);
-            var mapName1 = CliDB.MapStorage.LookupByKey(pair.Key).MapName[handler.SessionDbcLocale];
+            var scriptName = handler.ObjectManager.GetScriptName(pair.Value.ScriptId);
+            var mapName1 = handler.CliDB.MapStorage.LookupByKey(pair.Key).MapName[handler.SessionDbcLocale];
 
             foreach (var label in labels)
                 if (scriptName.Contains(label))
@@ -303,11 +307,11 @@ internal class GoCommands
             player.SaveRecallPosition();
 
         // try going to entrance
-        var exit = Global.ObjectMgr.GetGoBackTrigger(mapId);
+        var exit = handler.ObjectManager.GetGoBackTrigger(mapId);
 
         if (exit != null)
         {
-            if (player.TeleportTo(exit.target_mapId, exit.target_X, exit.target_Y, exit.target_Z, exit.target_Orientation + MathF.PI))
+            if (player.TeleportTo(exit.TargetMapId, exit.TargetX, exit.TargetY, exit.TargetZ, exit.TargetOrientation + MathF.PI))
             {
                 handler.SendSysMessage(CypherStrings.CommandWentToInstanceGate, mapName, mapId);
 
@@ -315,8 +319,8 @@ internal class GoCommands
             }
             else
             {
-                var parentMapId = exit.target_mapId;
-                var parentMapName = CliDB.MapStorage.LookupByKey(parentMapId).MapName[handler.SessionDbcLocale];
+                var parentMapId = exit.TargetMapId;
+                var parentMapName = handler.CliDB.MapStorage.LookupByKey(parentMapId).MapName[handler.SessionDbcLocale];
                 handler.SendSysMessage(CypherStrings.CommandGoInstanceGateFailed, mapName, mapId, parentMapName, parentMapId);
             }
         }
@@ -326,11 +330,11 @@ internal class GoCommands
         }
 
         // try going to start
-        var entrance = Global.ObjectMgr.GetMapEntranceTrigger(mapId);
+        var entrance = handler.ObjectManager.GetMapEntranceTrigger(mapId);
 
         if (entrance != null)
         {
-            if (player.TeleportTo(entrance.target_mapId, entrance.target_X, entrance.target_Y, entrance.target_Z, entrance.target_Orientation))
+            if (player.TeleportTo(entrance.TargetMapId, entrance.TargetX, entrance.TargetY, entrance.TargetZ, entrance.TargetOrientation))
             {
                 handler.SendSysMessage(CypherStrings.CommandWentToInstanceStart, mapName, mapId);
 
@@ -363,7 +367,7 @@ internal class GoCommands
     {
         var player = handler.Session.Player;
 
-        if (Global.ObjectMgr.GetQuestTemplate(questId) == null)
+        if (handler.ObjectManager.GetQuestTemplate(questId) == null)
         {
             handler.SendSysMessage(CypherStrings.CommandQuestNotfound, questId);
 
@@ -373,7 +377,7 @@ internal class GoCommands
         float x, y, z;
         uint mapId;
 
-        var poiData = Global.ObjectMgr.GetQuestPOIData(questId);
+        var poiData = handler.ObjectManager.GetQuestPOIData(questId);
 
         if (poiData != null)
         {
@@ -391,7 +395,7 @@ internal class GoCommands
             return false;
         }
 
-        if (!GridDefines.IsValidMapCoord(mapId, x, y) || Global.ObjectMgr.IsTransportMap(mapId))
+        if (!GridDefines.IsValidMapCoord(mapId, x, y) || handler.ObjectManager.IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, x, y, mapId);
 
@@ -404,7 +408,7 @@ internal class GoCommands
         else
             player.SaveRecallPosition(); // save only in non-flight case
 
-        var terrain = Global.TerrainMgr.LoadTerrain(mapId);
+        var terrain = handler.ClassFactory.Resolve<TerrainManager>().LoadTerrain(mapId);
         z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, mapId, x, y));
 
         player.TeleportTo(mapId, x, y, z, 0.0f);
@@ -421,7 +425,7 @@ internal class GoCommands
     [Command("taxinode", RBACPermissions.CommandGo)]
     private static bool HandleGoTaxinodeCommand(CommandHandler handler, uint nodeId)
     {
-        var node = CliDB.TaxiNodesStorage.LookupByKey(nodeId);
+        var node = handler.CliDB.TaxiNodesStorage.LookupByKey(nodeId);
 
         if (node == null)
         {
@@ -435,7 +439,7 @@ internal class GoCommands
 
     private static bool HandleGoTicketCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
     {
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+        var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
 
         if (ticket == null)
         {
@@ -482,7 +486,7 @@ internal class GoCommands
                 return false;
             }
 
-            var terrain = Global.TerrainMgr.LoadTerrain(mapId);
+            var terrain = handler.ClassFactory.Resolve<TerrainManager>().LoadTerrain(mapId);
             z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, mapId, x, y));
         }
 
@@ -497,7 +501,7 @@ internal class GoCommands
 
         var areaId = areaIdArg ?? player.Location.Zone;
 
-        var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
+        var areaEntry = handler.CliDB.AreaTableStorage.LookupByKey(areaId);
 
         if (x is < 0 or > 100 || y is < 0 or > 100 || areaEntry == null)
         {
@@ -507,14 +511,14 @@ internal class GoCommands
         }
 
         // update to parent zone if exist (client map show only zones without parents)
-        var zoneEntry = areaEntry.ParentAreaID != 0 ? CliDB.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID) : areaEntry;
+        var zoneEntry = areaEntry.ParentAreaID != 0 ? handler.CliDB.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID) : areaEntry;
 
         x /= 100.0f;
         y /= 100.0f;
 
-        var terrain = Global.TerrainMgr.LoadTerrain(zoneEntry.ContinentID);
+        var terrain = handler.ClassFactory.Resolve<TerrainManager>().LoadTerrain(zoneEntry.ContinentID);
 
-        if (!Global.DB2Mgr.Zone2MapCoordinates(areaEntry.ParentAreaID != 0 ? areaEntry.ParentAreaID : areaId, ref x, ref y))
+        if (!handler.ClassFactory.Resolve<DB2Manager>().Zone2MapCoordinates(areaEntry.ParentAreaID != 0 ? areaEntry.ParentAreaID : areaId, ref x, ref y))
         {
             handler.SendSysMessage(CypherStrings.InvalidZoneMap, areaId, areaEntry.AreaName[handler.SessionDbcLocale], terrain.GetId(), terrain.GetMapName());
 
@@ -548,7 +552,7 @@ internal class GoCommands
         {
             CreatureData spawnpoint = null;
 
-            foreach (var pair in Global.ObjectMgr.GetAllCreatureData())
+            foreach (var pair in handler.ObjectManager.GetAllCreatureData())
             {
                 if (pair.Value.Id != id)
                     continue;
@@ -578,7 +582,7 @@ internal class GoCommands
         [Command("", RBACPermissions.CommandGo)]
         private static bool HandleGoCreatureSpawnIdCommand(CommandHandler handler, ulong spawnId)
         {
-            var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
+            var spawnpoint = handler.ObjectManager.GetCreatureData(spawnId);
 
             if (spawnpoint == null)
             {
@@ -599,7 +603,7 @@ internal class GoCommands
         {
             GameObjectData spawnpoint = null;
 
-            foreach (var pair in Global.ObjectMgr.GetAllGameObjectData())
+            foreach (var pair in handler.ObjectManager.GetAllGameObjectData())
             {
                 if (pair.Value.Id != goId)
                     continue;
@@ -629,7 +633,7 @@ internal class GoCommands
         [Command("", RBACPermissions.CommandGo)]
         private static bool HandleGoGameObjectSpawnIdCommand(CommandHandler handler, ulong spawnId)
         {
-            var spawnpoint = Global.ObjectMgr.GetGameObjectData(spawnId);
+            var spawnpoint = handler.ObjectManager.GetGameObjectData(spawnId);
 
             if (spawnpoint == null)
             {

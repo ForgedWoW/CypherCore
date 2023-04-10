@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Entities;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Commands;
@@ -18,10 +19,11 @@ internal class PetCommands
             if (target.IsTypeId(TypeId.Player))
                 return target.AsPlayer.CurrentPet;
 
-            if (target.IsPet)
-                return target.AsPet;
-
-            return null;
+            return target.IsPet switch
+            {
+                true => target.AsPet,
+                _    => null
+            };
         }
 
         var player = handler.Session.Player;
@@ -97,7 +99,7 @@ internal class PetCommands
             return false;
         }
 
-        if (spellId == 0 || !Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
+        if (spellId == 0 || !handler.ClassFactory.Resolve<SpellManager>().HasSpellInfo(spellId, Difficulty.None))
             return false;
 
         // Check if pet already has it
@@ -109,9 +111,9 @@ internal class PetCommands
         }
 
         // Check if spell is valid
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId, Difficulty.None);
 
-        if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo))
+        if (spellInfo == null || !handler.ClassFactory.Resolve<SpellManager>().IsSpellValid(spellInfo))
         {
             handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellId);
 
@@ -138,8 +140,11 @@ internal class PetCommands
             return false;
         }
 
-        if (level == 0)
-            level = (int)(owner.Level - pet.Level);
+        level = level switch
+        {
+            0 => (int)(owner.Level - pet.Level),
+            _ => level
+        };
 
         if (level is 0 or < -SharedConst.StrongMaxLevel or > SharedConst.StrongMaxLevel)
         {

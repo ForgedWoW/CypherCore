@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Framework.Constants;
 
@@ -23,8 +24,11 @@ internal class InstanceCommands
             return false;
         }
 
-        if (player == null)
-            player = PlayerIdentifier.FromSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromSelf(handler),
+            _    => player
+        };
 
         if (player.IsConnected())
         {
@@ -67,11 +71,14 @@ internal class InstanceCommands
     {
         var player = handler.SelectedPlayer;
 
-        if (player == null)
-            player = handler.Session.Player;
+        player = player switch
+        {
+            null => handler.Session.Player,
+            _    => player
+        };
 
         var now = GameTime.DateAndTime;
-        var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(player.GUID);
+        var instanceLocks = handler.ClassFactory.Resolve<InstanceLockManager>().GetInstanceLocksForPlayer(player.GUID);
 
         foreach (var instanceLock in instanceLocks)
         {
@@ -80,9 +87,9 @@ internal class InstanceCommands
 
             handler.SendSysMessage(CypherStrings.CommandListBindInfo,
                                    entries.Map.Id,
-                                   entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+                                   entries.Map.MapName[handler.WorldManager.DefaultDbcLocale],
                                    entries.MapDifficulty.DifficultyID,
-                                   CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+                                   handler.CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
                                    instanceLock.GetInstanceId(),
                                    handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
                                    handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
@@ -105,8 +112,11 @@ internal class InstanceCommands
             return false;
         }
 
-        if (player == null)
-            player = PlayerIdentifier.FromSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromSelf(handler),
+            _    => player
+        };
 
         if (!player.IsConnected())
         {
@@ -148,10 +158,10 @@ internal class InstanceCommands
     [Command("stats", RBACPermissions.CommandInstanceStats, true)]
     private static bool HandleInstanceStatsCommand(CommandHandler handler)
     {
-        handler.SendSysMessage("instances loaded: {0}", Global.MapMgr.GetNumInstances());
-        handler.SendSysMessage("players in instances: {0}", Global.MapMgr.GetNumPlayersInInstances());
+        handler.SendSysMessage("instances loaded: {0}", handler.ClassFactory.Resolve<MapManager>().GetNumInstances());
+        handler.SendSysMessage("players in instances: {0}", handler.ClassFactory.Resolve<MapManager>().GetNumPlayersInInstances());
 
-        var statistics = Global.InstanceLockMgr.GetStatistics();
+        var statistics = handler.ClassFactory.Resolve<InstanceLockManager>().GetStatistics();
 
         handler.SendSysMessage(CypherStrings.CommandInstStatSaves, statistics.InstanceCount);
         handler.SendSysMessage(CypherStrings.CommandInstStatPlayersbound, statistics.PlayerCount);
@@ -164,22 +174,28 @@ internal class InstanceCommands
     {
         var player = handler.SelectedPlayer;
 
-        if (player == null)
-            player = handler.Session.Player;
+        player = player switch
+        {
+            null => handler.Session.Player,
+            _    => player
+        };
 
         uint? mapId = null;
         Difficulty? difficulty = null;
 
-        if (mapArg is uint)
-            mapId = (uint)mapArg;
+        mapId = mapArg switch
+        {
+            uint arg => arg,
+            _        => mapId
+        };
 
-        if (difficultyArg.HasValue && CliDB.DifficultyStorage.ContainsKey(difficultyArg.Value))
+        if (difficultyArg.HasValue && handler.CliDB.DifficultyStorage.ContainsKey(difficultyArg.Value))
             difficulty = (Difficulty)difficultyArg;
 
         List<InstanceLock> locksReset = new();
         List<InstanceLock> locksNotReset = new();
 
-        Global.InstanceLockMgr.ResetInstanceLocksForPlayer(player.GUID, mapId, difficulty, locksReset, locksNotReset);
+        handler.ClassFactory.Resolve<InstanceLockManager>().ResetInstanceLocksForPlayer(player.GUID, mapId, difficulty, locksReset, locksNotReset);
 
         var now = GameTime.DateAndTime;
 
@@ -190,9 +206,9 @@ internal class InstanceCommands
 
             handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
                                    entries.Map.Id,
-                                   entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+                                   entries.Map.MapName[handler.WorldManager.DefaultDbcLocale],
                                    entries.MapDifficulty.DifficultyID,
-                                   CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+                                   handler.CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
                                    instanceLock.GetInstanceId(),
                                    handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
                                    handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
@@ -208,9 +224,9 @@ internal class InstanceCommands
 
             handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,
                                    entries.Map.Id,
-                                   entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+                                   entries.Map.MapName[handler.WorldManager.DefaultDbcLocale],
                                    entries.MapDifficulty.DifficultyID,
-                                   CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+                                   handler.CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
                                    instanceLock.GetInstanceId(),
                                    handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
                                    handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),

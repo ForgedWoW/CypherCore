@@ -30,8 +30,11 @@ internal class ArenaCommands
             return false;
         }
 
-        if (target == null)
-            target = PlayerIdentifier.FromTargetOrSelf(handler);
+        target = target switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => target
+        };
 
         if (target == null)
             return false;
@@ -70,8 +73,11 @@ internal class ArenaCommands
             return false;
         }
 
-        if (captain == null)
-            captain = PlayerIdentifier.FromTargetOrSelf(handler);
+        captain = captain switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => captain
+        };
 
         if (captain == null)
             return false;

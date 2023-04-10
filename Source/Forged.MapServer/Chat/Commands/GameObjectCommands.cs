@@ -9,8 +9,10 @@ using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Events;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
+using Forged.MapServer.Pools;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
@@ -56,7 +58,7 @@ internal class GameObjectCommands
 
             if (!ownerGuid.IsEmpty)
             {
-                var owner = Global.ObjAccessor.GetUnit(player, ownerGuid);
+                var owner = handler.ObjectAccessor.GetUnit(player, ownerGuid);
 
                 if (!owner || !ownerGuid.IsPlayer)
                 {
@@ -69,7 +71,7 @@ internal class GameObjectCommands
             }
         }
 
-        if (GameObjectFactory.DeleteFromDB(spawnId))
+        if (handler.ClassFactory.Resolve<GameObjectFactory>().DeleteFromDB(spawnId))
         {
             handler.SendSysMessage(CypherStrings.CommandDelobjmessage, spawnId);
 
@@ -123,7 +125,7 @@ internal class GameObjectCommands
         if (!isGuid.IsEmpty() && isGuid.Equals("guid", StringComparison.OrdinalIgnoreCase))
         {
             spawnId = data;
-            spawnData = Global.ObjectMgr.GetGameObjectData(spawnId);
+            spawnData = handler.ObjectManager.GetGameObjectData(spawnId);
 
             if (spawnData == null)
             {
@@ -140,7 +142,7 @@ internal class GameObjectCommands
             entry = (uint)data;
         }
 
-        var gameObjectInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+        var gameObjectInfo = handler.ObjectManager.GetGameObjectTemplate(entry);
 
         if (gameObjectInfo == null)
         {
@@ -154,8 +156,11 @@ internal class GameObjectCommands
         var name = gameObjectInfo.name;
         var lootId = gameObjectInfo.GetLootId();
 
-        if (type == GameObjectTypes.Chest && lootId == 0)
-            lootId = gameObjectInfo.Chest.chestPersonalLoot;
+        lootId = type switch
+        {
+            GameObjectTypes.Chest when lootId == 0 => gameObjectInfo.Chest.chestPersonalLoot,
+            _                                      => lootId
+        };
 
         // If we have a real object, send some info about it
         if (thisGO != null)
@@ -169,10 +174,7 @@ internal class GameObjectCommands
                 handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.Location.Map.IsSpawnGroupActive(groupData.GroupId));
             }
 
-            var goOverride = Global.ObjectMgr.GetGameObjectOverride(spawnId);
-
-            if (goOverride == null)
-                goOverride = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
+            var goOverride = handler.ObjectManager.GetGameObjectOverride(spawnId) ?? handler.ObjectManager.GetGameObjectTemplateAddon(entry);
 
             if (goOverride != null)
                 handler.SendSysMessage(CypherStrings.GoinfoAddon, goOverride.Faction, goOverride.Flags);
@@ -192,13 +194,13 @@ internal class GameObjectCommands
         handler.SendSysMessage(CypherStrings.GoinfoName, name);
         handler.SendSysMessage(CypherStrings.GoinfoSize, gameObjectInfo.size);
 
-        handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, gameObjectInfo.AIName, Global.ObjectMgr.GetScriptName(gameObjectInfo.ScriptId));
+        handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, gameObjectInfo.AIName, handler.ObjectManager.GetScriptName(gameObjectInfo.ScriptId));
         var ai = thisGO?.AI;
 
         if (ai != null)
             handler.SendSysMessage(CypherStrings.ObjectinfoAiType, nameof(ai));
 
-        var modelInfo = CliDB.GameObjectDisplayInfoStorage.LookupByKey(displayId);
+        var modelInfo = handler.CliDB.GameObjectDisplayInfoStorage.LookupByKey(displayId);
 
         if (modelInfo != null)
             handler.SendSysMessage(CypherStrings.GoinfoModel, modelInfo.GeoBoxMax.X, modelInfo.GeoBoxMax.Y, modelInfo.GeoBoxMax.Z, modelInfo.GeoBoxMin.X, modelInfo.GeoBoxMin.Y, modelInfo.GeoBoxMin.Z);
@@ -242,9 +244,9 @@ internal class GameObjectCommands
         obj.Location.Relocate(pos);
 
         // update which cell has this gameobject registered for loading
-        Global.ObjectMgr.RemoveGameObjectFromGrid(obj.GameObjectData);
+        handler.ObjectManager.RemoveGameObjectFromGrid(obj.GameObjectData);
         obj.SaveToDB();
-        Global.ObjectMgr.AddGameObjectToGrid(obj.GameObjectData);
+        handler.ObjectManager.AddGameObjectToGrid(obj.GameObjectData);
 
         // Generate a completely new spawn with new guid
         // client caches recently deleted objects and brings them back to life
@@ -252,7 +254,7 @@ internal class GameObjectCommands
         // however it entirely skips parsing that block and only uses already known location
         obj.Delete();
 
-        obj = GameObjectFactory.CreateGameObjectFromDb(guidLow, map);
+        obj = handler.ClassFactory.Resolve<GameObjectFactory>().CreateGameObjectFromDb(guidLow, map);
 
         if (!obj)
             return false;
@@ -269,8 +271,8 @@ internal class GameObjectCommands
         uint count = 0;
 
         var player = handler.Player;
-
-        var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_GAMEOBJECT_NEAREST);
+        var worldDB = handler.ClassFactory.Resolve<WorldDatabase>();
+        var stmt = worldDB.GetPreparedStatement(WorldStatements.SEL_GAMEOBJECT_NEAREST);
         stmt.AddValue(0, player.Location.X);
         stmt.AddValue(1, player.Location.Y);
         stmt.AddValue(2, player.Location.Z);
@@ -279,7 +281,7 @@ internal class GameObjectCommands
         stmt.AddValue(5, player.Location.Y);
         stmt.AddValue(6, player.Location.Z);
         stmt.AddValue(7, distance * distance);
-        var result = DB.World.Query(stmt);
+        var result = worldDB.Query(stmt);
 
         if (!result.IsEmpty())
             do
@@ -291,7 +293,7 @@ internal class GameObjectCommands
                 var z = result.Read<float>(4);
                 var mapId = result.Read<ushort>(5);
 
-                var gameObjectInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+                var gameObjectInfo = handler.ObjectManager.GetGameObjectTemplate(entry);
 
                 if (gameObjectInfo == null)
                     continue;
@@ -323,14 +325,26 @@ internal class GameObjectCommands
         {
             var thisArg = arg.ToLower();
 
-            if (thisArg == "ignorerespawn")
-                ignoreRespawn = true;
-            else if (thisArg == "force")
-                force = true;
-            else if (thisArg.IsEmpty() || !thisArg.IsNumber())
-                return false;
-            else
-                groupId = uint.Parse(thisArg);
+            switch (thisArg)
+            {
+                case "ignorerespawn":
+                    ignoreRespawn = true;
+
+                    break;
+                case "force":
+                    force = true;
+
+                    break;
+                default:
+                {
+                    if (thisArg.IsEmpty() || !thisArg.IsNumber())
+                        return false;
+
+                    groupId = uint.Parse(thisArg);
+
+                    break;
+                }
+            }
 
             arg = args.NextString();
         }
@@ -359,19 +373,20 @@ internal class GameObjectCommands
     {
         var player = handler.Session.Player;
         SQLResult result;
-        var activeEventsList = Global.GameEventMgr.GetActiveEventList();
+        var activeEventsList = handler.ClassFactory.Resolve<GameEventManager>().GetActiveEventList();
+        var worldDB = handler.ClassFactory.Resolve<WorldDatabase>();
 
         if (objectIdStr.IsEmpty())
         {
             if (uint.TryParse(objectIdStr, out var objectId))
-                result = DB.World.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE map = '{3}' AND id = '{4}' ORDER BY order_ ASC LIMIT 1",
+                result = worldDB.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE map = '{3}' AND id = '{4}' ORDER BY order_ ASC LIMIT 1",
                                         player.Location.X,
                                         player.Location.Y,
                                         player.Location.Z,
                                         player.Location.MapId,
                                         objectId);
             else
-                result = DB.World.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ " +
+                result = worldDB.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ " +
                                         "FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = {3} AND name LIKE CONCAT('%%', '{4}', '%%') ORDER BY order_ ASC LIMIT 1",
                                         player.Location.X,
                                         player.Location.Y,
@@ -401,7 +416,7 @@ internal class GameObjectCommands
             else
                 eventFilter.Append(')');
 
-            result = DB.World.Query("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, " +
+            result = worldDB.Query("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, " +
                                     "(POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ FROM gameobject " +
                                     "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{3}' {4} ORDER BY order_ ASC LIMIT 10",
                                     handler.Session.Player.Location.X,
@@ -423,8 +438,7 @@ internal class GameObjectCommands
         ulong guidLow;
         uint id, phaseId, phaseGroup;
         ushort mapId;
-        uint poolId;
-
+        var poolMgr = handler.ClassFactory.Resolve<PoolManager>();
         do
         {
             guidLow = result.Read<ulong>(0);
@@ -436,9 +450,9 @@ internal class GameObjectCommands
             mapId = result.Read<ushort>(6);
             phaseId = result.Read<uint>(7);
             phaseGroup = result.Read<uint>(8);
-            poolId = Global.PoolMgr.IsPartOfAPool<GameObject>(guidLow);
+            var poolId = poolMgr.IsPartOfAPool<GameObject>(guidLow);
 
-            if (poolId == 0 || Global.PoolMgr.IsSpawnedObject<GameObject>(guidLow))
+            if (poolId == 0 || poolMgr.IsSpawnedObject<GameObject>(guidLow))
                 found = true;
         } while (result.NextRow() && !found);
 
@@ -449,7 +463,7 @@ internal class GameObjectCommands
             return false;
         }
 
-        var objectInfo = Global.ObjectMgr.GetGameObjectTemplate(id);
+        var objectInfo = handler.ObjectManager.GetGameObjectTemplate(id);
 
         if (objectInfo == null)
         {
@@ -462,18 +476,21 @@ internal class GameObjectCommands
 
         handler.SendSysMessage(CypherStrings.GameobjectDetail, guidLow, objectInfo.name, guidLow, id, x, y, z, mapId, o, phaseId, phaseGroup);
 
-        if (target)
+        if (!target)
+            return true;
+
+        var curRespawnDelay = (int)(target.RespawnTimeEx - GameTime.CurrentTime);
+
+        curRespawnDelay = curRespawnDelay switch
         {
-            var curRespawnDelay = (int)(target.RespawnTimeEx - GameTime.CurrentTime);
+            < 0 => 0,
+            _   => curRespawnDelay
+        };
 
-            if (curRespawnDelay < 0)
-                curRespawnDelay = 0;
+        var curRespawnDelayStr = Time.SecsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
+        var defRespawnDelayStr = Time.SecsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
-            var curRespawnDelayStr = Time.SecsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
-            var defRespawnDelayStr = Time.SecsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
-
-            handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);
-        }
+        handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);
 
         return true;
     }
@@ -490,8 +507,7 @@ internal class GameObjectCommands
             return false;
         }
 
-        if (!oz.HasValue)
-            oz = handler.Session.Player.Location.Orientation;
+        oz ??= handler.Session.Player.Location.Orientation;
 
         var map = obj.Location.Map;
 
@@ -505,7 +521,7 @@ internal class GameObjectCommands
         // however it entirely skips parsing that block and only uses already known location
         obj.Delete();
 
-        obj = GameObjectFactory.CreateGameObjectFromDb(guidLow, map);
+        obj = handler.ClassFactory.Resolve<GameObjectFactory>().CreateGameObjectFromDb(guidLow, map);
 
         if (!obj)
             return false;
@@ -524,7 +540,7 @@ internal class GameObjectCommands
             if (objectId == 0)
                 return false;
 
-            var objectInfo = Global.ObjectMgr.GetGameObjectTemplate(objectId);
+            var objectInfo = handler.ObjectManager.GetGameObjectTemplate(objectId);
 
             if (objectInfo == null)
             {
@@ -533,7 +549,7 @@ internal class GameObjectCommands
                 return false;
             }
 
-            if (objectInfo.displayId != 0 && !CliDB.GameObjectDisplayInfoStorage.ContainsKey(objectInfo.displayId))
+            if (objectInfo.displayId != 0 && !handler.CliDB.GameObjectDisplayInfoStorage.ContainsKey(objectInfo.displayId))
             {
                 // report to DB errors log as in loading case
                 Log.Logger.Error("Gameobject (Entry {0} GoType: {1}) have invalid displayId ({2}), not spawned.", objectId, objectInfo.type, objectInfo.displayId);
@@ -545,7 +561,7 @@ internal class GameObjectCommands
             var player = handler.Player;
             var map = player.Location.Map;
 
-            var obj = GameObjectFactory.CreateGameObject(objectInfo.entry, map, player.Location, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
+            var obj = handler.ClassFactory.Resolve<GameObjectFactory>().CreateGameObject(objectInfo.entry, map, player.Location, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
 
             if (!obj)
                 return false;
@@ -565,13 +581,13 @@ internal class GameObjectCommands
             var spawnId = obj.SpawnId;
 
             // this will generate a new guid if the object is in an instance
-            obj = GameObjectFactory.CreateGameObjectFromDb(spawnId, map);
+            obj = handler.ClassFactory.Resolve<GameObjectFactory>().CreateGameObjectFromDb(spawnId, map);
 
             if (!obj)
                 return false;
 
             // TODO: is it really necessary to add both the real and DB table guid here ?
-            Global.ObjectMgr.AddGameObjectToGrid(Global.ObjectMgr.GetGameObjectData(spawnId));
+            handler.ObjectManager.AddGameObjectToGrid(handler.ObjectManager.GetGameObjectData(spawnId));
             handler.SendSysMessage(CypherStrings.GameobjectAdd, objectId, objectInfo.name, spawnId, player.Location.X, player.Location.Y, player.Location.Z);
 
             return true;
@@ -585,7 +601,7 @@ internal class GameObjectCommands
 
             var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f));
 
-            if (Global.ObjectMgr.GetGameObjectTemplate(objectId) == null)
+            if (handler.ObjectManager.GetGameObjectTemplate(objectId) == null)
             {
                 handler.SendSysMessage(CypherStrings.GameobjectNotExist, objectId);
 

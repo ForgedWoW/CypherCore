@@ -260,9 +260,9 @@ public class LFGManager
         if (!dungeons.Empty())
             foreach (var id in dungeons)
                 if (dungeonstr.Capacity != 0)
-                    dungeonstr.AppendFormat(", {0}", id);
+                    dungeonstr.Append($", {id}");
                 else
-                    dungeonstr.AppendFormat("{0}", id);
+                    dungeonstr.Append($"{id}");
 
         return dungeonstr.ToString();
     }
@@ -1118,7 +1118,7 @@ public class LFGManager
         }
 
         StringBuilder o = new();
-        o.AppendFormat("Join: [{0}] joined ({1}{2}) Members: {3}. Dungeons ({4}): ", guid, (grp ? "group" : "player"), debugNames, dungeons.Count, ConcatenateDungeons(dungeons));
+        o.Append($"Join: [{guid}] joined ({(grp ? "group" : "player")}{debugNames}) Members: {dungeons.Count}. Dungeons ({ConcatenateDungeons(dungeons)}): ");
         Log.Logger.Debug(o.ToString());
     }
 

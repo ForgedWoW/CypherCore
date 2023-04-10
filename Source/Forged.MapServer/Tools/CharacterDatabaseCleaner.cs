@@ -102,7 +102,7 @@ internal class CharacterDatabaseCleaner
             {
                 if (!found)
                 {
-                    ss.AppendFormat("DELETE FROM {0} WHERE {1} IN(", table, column);
+                    ss.Append($"DELETE FROM {table} WHERE {column} IN(");
                     found = true;
                 }
                 else

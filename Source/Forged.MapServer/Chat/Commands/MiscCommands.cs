@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.Objects;
@@ -21,9 +23,11 @@ using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Weather;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+using Framework.Util;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -142,7 +146,7 @@ internal class MiscCommands
             handler.SendSysMessage(CypherStrings.AppearingAt, nameLink);
 
             // to point where player stay (if loaded)
-            if (!PlayerComputators.LoadPositionFromDB(out var loc, out _, targetGuid))
+            if (!handler.ClassFactory.Resolve<PlayerComputators>().LoadPositionFromDB(out var loc, out _, targetGuid))
                 return false;
 
             // stop flight if need
@@ -174,7 +178,7 @@ internal class MiscCommands
         if (!unit)
             return false;
 
-        handler.Session.Player.CastSpell(unit, 6277, true);
+        handler.Session.Player.SpellFactory.CastSpell(unit, 6277, true);
 
         return true;
     }
@@ -183,7 +187,7 @@ internal class MiscCommands
     private static bool HandleChangeWeather(CommandHandler handler, uint type, float intensity)
     {
         // Weather is OFF
-        if (!GetDefaultValue("ActivateWeather", true))
+        if (!handler.Configuration.GetDefaultValue("ActivateWeather", true))
         {
             handler.SendSysMessage(CypherStrings.WeatherDisabled);
 
@@ -214,7 +218,7 @@ internal class MiscCommands
 
         if (!args.Empty())
         {
-            target = Global.ObjAccessor.FindPlayerByName(args.NextString());
+            target = handler.ObjectAccessor.FindPlayerByName(args.NextString());
 
             if (!target)
             {
@@ -350,7 +354,7 @@ internal class MiscCommands
         // flat melee damage without resistence/etc reduction
         if (string.IsNullOrEmpty(schoolStr))
         {
-            damage = UnitCombatHelpers.DealDamage(attacker, target, damage, null, DamageEffectType.Direct, SpellSchoolMask.Normal, null, false);
+            damage = handler.ClassFactory.Resolve<UnitCombatHelpers>().DealDamage(attacker, target, damage, null, DamageEffectType.Direct, SpellSchoolMask.Normal, null, false);
 
             if (target != attacker)
                 attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, SpellSchoolMask.Normal, damage, 0, 0, VictimState.Hit, 0);
@@ -363,8 +367,8 @@ internal class MiscCommands
 
         var schoolmask = (SpellSchoolMask)(1 << school);
 
-        if (UnitCombatHelpers.IsDamageReducedByArmor(schoolmask))
-            damage = UnitCombatHelpers.CalcArmorReducedDamage(handler.Player, target, damage, null, WeaponAttackType.BaseAttack);
+        if (handler.ClassFactory.Resolve<UnitCombatHelpers>().IsDamageReducedByArmor(schoolmask))
+            damage = handler.ClassFactory.Resolve<UnitCombatHelpers>().CalcArmorReducedDamage(handler.Player, target, damage, null, WeaponAttackType.BaseAttack);
 
         var spellStr = args.NextString();
 
@@ -372,7 +376,7 @@ internal class MiscCommands
         if (string.IsNullOrEmpty(spellStr))
         {
             DamageInfo dmgInfo = new(attacker, target, damage, null, schoolmask, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
-            UnitCombatHelpers.CalcAbsorbResist(dmgInfo);
+            handler.ClassFactory.Resolve<UnitCombatHelpers>().CalcAbsorbResist(dmgInfo);
 
             if (dmgInfo.Damage == 0)
                 return true;
@@ -381,8 +385,8 @@ internal class MiscCommands
 
             var absorb = dmgInfo.Absorb;
             var resist = dmgInfo.Resist;
-            UnitCombatHelpers.DealDamageMods(attacker, target, ref damage, ref absorb);
-            damage = UnitCombatHelpers.DealDamage(attacker, target, damage, null, DamageEffectType.Direct, schoolmask, null, false);
+            handler.ClassFactory.Resolve<UnitCombatHelpers>().DealDamageMods(attacker, target, ref damage, ref absorb);
+            damage = handler.ClassFactory.Resolve<UnitCombatHelpers>().DealDamage(attacker, target, damage, null, DamageEffectType.Direct, schoolmask, null, false);
             attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, schoolmask, damage, absorb, resist, VictimState.Hit, 0);
 
             return true;
@@ -395,7 +399,7 @@ internal class MiscCommands
         if (spellid == 0)
             return false;
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellid, attacker.Location.Map.DifficultyID);
+        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellid, attacker.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return false;
@@ -405,7 +409,7 @@ internal class MiscCommands
             Damage = damage
         };
 
-        UnitCombatHelpers.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+        handler.ClassFactory.Resolve<UnitCombatHelpers>().DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
         target.DealSpellDamage(damageInfo, true);
         target.SendSpellNonMeleeDamageLog(damageInfo);
 
@@ -457,7 +461,7 @@ internal class MiscCommands
                 return false;
 
         if (target.IsAlive)
-            UnitCombatHelpers.Kill(handler.Session.Player, target);
+            handler.ClassFactory.Resolve<UnitCombatHelpers>().Kill(handler.Session.Player, target);
 
         return true;
     }
@@ -526,7 +530,7 @@ internal class MiscCommands
                     // find the player
                     var name = arg1;
                     GameObjectManager.NormalizePlayerName(ref name);
-                    player = Global.ObjAccessor.FindPlayerByName(name);
+                    player = handler.ObjectAccessor.FindPlayerByName(name);
 
                     // Check if we have duration set
                     if (!arg2.IsEmpty() && arg2.IsNumber())
@@ -547,44 +551,44 @@ internal class MiscCommands
         // Check if duration needs to be retrieved from config
         if (getDurationFromConfig)
         {
-            freezeDuration = GetDefaultValue("GM.FreezeAuraDuration", 0);
+            freezeDuration = handler.Configuration.GetDefaultValue("GM.FreezeAuraDuration", 0);
             canApplyFreeze = true;
         }
 
         // Player and duration retrieval is over
-        if (canApplyFreeze)
+        if (!canApplyFreeze)
+            return false;
+
+        if (!player) // can be null if some previous selection failed
         {
-            if (!player) // can be null if some previous selection failed
+            handler.SendSysMessage(CypherStrings.CommandFreezeWrong);
+
+            return true;
+        }
+        else if (player == handler.Session.Player)
+        {
+            // Can't freeze himself
+            handler.SendSysMessage(CypherStrings.CommandFreezeError);
+
+            return true;
+        }
+        else // Apply the effect
+        {
+            // Add the freeze aura and set the proper duration
+            // Player combat status and flags are now handled
+            // in Freeze Spell AuraScript (OnApply)
+            var freeze = player.AddAura(9454, player);
+
+            if (freeze != null)
             {
-                handler.SendSysMessage(CypherStrings.CommandFreezeWrong);
+                if (freezeDuration != 0)
+                    freeze.SetDuration(freezeDuration * Time.IN_MILLISECONDS);
+
+                handler.SendSysMessage(CypherStrings.CommandFreeze, player.GetName());
+                // save player
+                player.SaveToDB();
 
                 return true;
-            }
-            else if (player == handler.Session.Player)
-            {
-                // Can't freeze himself
-                handler.SendSysMessage(CypherStrings.CommandFreezeError);
-
-                return true;
-            }
-            else // Apply the effect
-            {
-                // Add the freeze aura and set the proper duration
-                // Player combat status and flags are now handled
-                // in Freeze Spell AuraScript (OnApply)
-                var freeze = player.AddAura(9454, player);
-
-                if (freeze != null)
-                {
-                    if (freezeDuration != 0)
-                        freeze.SetDuration(freezeDuration * Time.IN_MILLISECONDS);
-
-                    handler.SendSysMessage(CypherStrings.CommandFreeze, player.GetName());
-                    // save player
-                    player.SaveToDB();
-
-                    return true;
-                }
             }
         }
 
@@ -608,7 +612,7 @@ internal class MiscCommands
             {
                 case HighGuid.Player:
                 {
-                    obj = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
+                    obj = handler.ObjectAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
 
                     if (!obj)
                         handler.SendSysMessage(CypherStrings.PlayerNotFound);
@@ -674,7 +678,7 @@ internal class MiscCommands
             {
                 case HighGuid.Player:
                 {
-                    obj = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
+                    obj = handler.ObjectAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, guidLow));
 
                     if (!obj)
                         handler.SendSysMessage(CypherStrings.PlayerNotFound);
@@ -723,14 +727,14 @@ internal class MiscCommands
 
         var mapId = obj.Location.MapId;
 
-        var mapEntry = CliDB.MapStorage.LookupByKey(mapId);
-        var zoneEntry = CliDB.AreaTableStorage.LookupByKey(obj.Location.Zone);
-        var areaEntry = CliDB.AreaTableStorage.LookupByKey(obj.Location.Area);
+        var mapEntry = handler.CliDB.MapStorage.LookupByKey(mapId);
+        var zoneEntry = handler.CliDB.AreaTableStorage.LookupByKey(obj.Location.Zone);
+        var areaEntry = handler.CliDB.AreaTableStorage.LookupByKey(obj.Location.Area);
 
         var zoneX = obj.Location.X;
         var zoneY = obj.Location.Y;
 
-        Global.DB2Mgr.Map2ZoneCoordinates((int)obj.Location.Zone, ref zoneX, ref zoneY);
+        handler.ClassFactory.Resolve<DB2Manager>().Map2ZoneCoordinates((int)obj.Location.Zone, ref zoneX, ref zoneY);
 
         var map = obj.Location.Map;
         var groundZ = obj.Location.GetMapHeight(obj.Location.X, obj.Location.Y, MapConst.MaxHeight);
@@ -744,7 +748,7 @@ internal class MiscCommands
 
         var haveMap = TerrainInfo.ExistMap(mapId, gridX, gridY);
         var haveVMap = TerrainInfo.ExistVMap(mapId, gridX, gridY);
-        var haveMMap = (Global.DisableMgr.IsPathfindingEnabled(mapId) && Global.MMapMgr.GetNavMesh(handler.Session.Player.Location.MapId) != null);
+        var haveMMap = (handler.ClassFactory.Resolve<DisableManager>().IsPathfindingEnabled(mapId) && handler.ClassFactory.Resolve<MMapManager>().GetNavMesh(handler.Session.Player.Location.MapId) != null);
 
         if (haveVMap)
         {
@@ -849,7 +853,7 @@ internal class MiscCommands
             return false;
         }
 
-        var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+        var area = handler.CliDB.AreaTableStorage.LookupByKey(areaId);
 
         if (area == null)
         {
@@ -927,8 +931,8 @@ internal class MiscCommands
         if (kickReason != null)
             kickReasonStr = kickReason;
 
-        if (GetDefaultValue("ShowKickInWorld", false))
-            Global.WorldMgr.SendWorldText(CypherStrings.CommandKickmessageWorld, (handler.Session != null ? handler.Session.PlayerName : "Server"), playerName, kickReasonStr);
+        if (handler.Configuration.GetDefaultValue("ShowKickInWorld", false))
+            handler.WorldManager.SendWorldText(CypherStrings.CommandKickmessageWorld, (handler.Session != null ? handler.Session.PlayerName : "Server"), playerName, kickReasonStr);
         else
             handler.SendSysMessage(CypherStrings.CommandKickmessage, playerName);
 
@@ -951,7 +955,7 @@ internal class MiscCommands
         else
             return false;
 
-        var graveyard = ObjectManager.GetWorldSafeLoc(graveyardId);
+        var graveyard = handler.ObjectManager.GetWorldSafeLoc(graveyardId);
 
         if (graveyard == null)
         {
@@ -964,7 +968,7 @@ internal class MiscCommands
 
         var zoneId = player.Location.Zone;
 
-        var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
+        var areaEntry = handler.CliDB.AreaTableStorage.LookupByKey(zoneId);
 
         if (areaEntry == null || areaEntry.ParentAreaID != 0)
         {
@@ -973,7 +977,7 @@ internal class MiscCommands
             return false;
         }
 
-        if (ObjectManager.AddGraveYardLink(graveyardId, zoneId, team))
+        if (handler.ObjectManager.AddGraveYardLink(graveyardId, zoneId, team))
             handler.SendSysMessage(CypherStrings.CommandGraveyardlinked, graveyardId, zoneId);
         else
             handler.SendSysMessage(CypherStrings.CommandGraveyardalrlinked, graveyardId, zoneId);
@@ -985,8 +989,8 @@ internal class MiscCommands
     private static bool HandleListFreezeCommand(CommandHandler handler)
     {
         // Get names from DB
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_FROZEN);
-        var result = DB.Characters.Query(stmt);
+        var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_FROZEN);
+        var result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
         if (result.IsEmpty())
         {
@@ -1005,7 +1009,7 @@ internal class MiscCommands
             var remaintime = result.Read<int>(1);
             // Save the frozen player to update remaining time in case of future .listfreeze uses
             // before the frozen state expires
-            var frozen = Global.ObjAccessor.FindPlayerByName(player);
+            var frozen = handler.ObjectAccessor.FindPlayerByName(player);
 
             if (frozen)
                 frozen.SaveToDB();
@@ -1150,8 +1154,11 @@ internal class MiscCommands
         if (muteReason.IsEmpty())
             muteReasonStr = handler.GetCypherString(CypherStrings.NoReason);
 
-        if (player == null)
-            player = PlayerIdentifier.FromTarget(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTarget(handler),
+            _    => player
+        };
 
         if (player == null)
         {
@@ -1161,12 +1168,12 @@ internal class MiscCommands
         }
 
         var target = player.GetConnectedPlayer();
-        var accountId = target != null ? target.Session.AccountId : Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(player.GetGUID());
+        var accountId = target != null ? target.Session.AccountId : handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(player.GetGUID());
 
         // find only player from same account if any
         if (!target)
         {
-            var session = Global.WorldMgr.FindSession(accountId);
+            var session = handler.WorldManager.FindSession(accountId);
 
             if (session != null)
                 target = session.Player;
@@ -1176,7 +1183,7 @@ internal class MiscCommands
         if (handler.HasLowerSecurity(target, player.GetGUID(), true))
             return false;
 
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
+        var stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
         string muteBy;
         var gmPlayer = handler.Player;
 
@@ -1200,19 +1207,19 @@ internal class MiscCommands
         stmt.AddValue(1, muteReasonStr);
         stmt.AddValue(2, muteBy);
         stmt.AddValue(3, accountId);
-        DB.Login.Execute(stmt);
+        handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
 
-        stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_ACCOUNT_MUTE);
+        stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.INS_ACCOUNT_MUTE);
         stmt.AddValue(0, accountId);
         stmt.AddValue(1, muteTime);
         stmt.AddValue(2, muteBy);
         stmt.AddValue(3, muteReasonStr);
-        DB.Login.Execute(stmt);
+        handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
 
         var nameLink = handler.PlayerLink(player.GetName());
 
-        if (GetDefaultValue("ShowMuteInWorld", false))
-            Global.WorldMgr.SendWorldText(CypherStrings.CommandMutemessageWorld, muteBy, nameLink, muteTime, muteReasonStr);
+        if (handler.Configuration.GetDefaultValue("ShowMuteInWorld", false))
+            handler.WorldManager.SendWorldText(CypherStrings.CommandMutemessageWorld, muteBy, nameLink, muteTime, muteReasonStr);
 
         if (target)
         {
@@ -1240,10 +1247,10 @@ internal class MiscCommands
             return false;
         }
 
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_MUTE_INFO);
+        var stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_ACCOUNT_MUTE_INFO);
         stmt.AddValue(0, accountId);
 
-        var result = DB.Login.Query(stmt);
+        var result = handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt);
 
         if (result.IsEmpty())
         {
@@ -1285,13 +1292,13 @@ internal class MiscCommands
         var player = handler.Session.Player;
         var zoneId = player.Location.Zone;
 
-        var graveyard = ObjectManager.GetClosestGraveYard(player.Location, team, null);
+        var graveyard = handler.ObjectManager.GetClosestGraveYard(player.Location, team, null);
 
         if (graveyard != null)
         {
             var graveyardId = graveyard.Id;
 
-            var data = ObjectManager.FindGraveYardData(graveyardId, zoneId);
+            var data = handler.ObjectManager.FindGraveYardData(graveyardId, zoneId);
 
             if (data == null)
             {
@@ -1300,27 +1307,26 @@ internal class MiscCommands
                 return false;
             }
 
-            team = (TeamFaction)data.team;
+            team = (TeamFaction)data.Team;
 
-            var teamName = handler.GetCypherString(CypherStrings.CommandGraveyardNoteam);
-
-            if (team == 0)
-                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardAny);
-            else if (team == TeamFaction.Horde)
-                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardHorde);
-            else if (team == TeamFaction.Alliance)
-                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardAlliance);
+            var teamName = team switch
+            {
+                0                    => handler.GetCypherString(CypherStrings.CommandGraveyardAny),
+                TeamFaction.Horde    => handler.GetCypherString(CypherStrings.CommandGraveyardHorde),
+                TeamFaction.Alliance => handler.GetCypherString(CypherStrings.CommandGraveyardAlliance),
+                _                    => handler.GetCypherString(CypherStrings.CommandGraveyardNoteam)
+            };
 
             handler.SendSysMessage(CypherStrings.CommandGraveyardnearest, graveyardId, teamName, zoneId);
         }
         else
         {
-            var teamName = "";
-
-            if (team == TeamFaction.Horde)
-                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardHorde);
-            else if (team == TeamFaction.Alliance)
-                teamName = handler.GetCypherString(CypherStrings.CommandGraveyardAlliance);
+            var teamName = team switch
+            {
+                TeamFaction.Horde    => handler.GetCypherString(CypherStrings.CommandGraveyardHorde),
+                TeamFaction.Alliance => handler.GetCypherString(CypherStrings.CommandGraveyardAlliance),
+                _                    => ""
+            };
 
             if (team == 0)
                 handler.SendSysMessage(CypherStrings.CommandZonenograveyards, zoneId);
@@ -1343,9 +1349,9 @@ internal class MiscCommands
         var parseGUID = ObjectGuid.Create(HighGuid.Player, args.NextUInt64());
 
         // ... and make sure we get a target, somehow.
-        if (Global.CharacterCacheStorage.GetCharacterNameByGuid(parseGUID, out var targetName))
+        if (handler.ClassFactory.Resolve<CharacterCache>().GetCharacterNameByGuid(parseGUID, out var targetName))
         {
-            target = Global.ObjAccessor.FindPlayer(parseGUID);
+            target = handler.ObjectAccessor.FindPlayer(parseGUID);
             targetGuid = parseGUID;
         }
         // if not, then return false. Which shouldn't happen, now should it ?
@@ -1466,9 +1472,9 @@ internal class MiscCommands
                 return false;
 
             // Query informations from the DB
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_PINFO);
+            stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHAR_PINFO);
             stmt.AddValue(0, lowguid);
-            var result = DB.Characters.Query(stmt);
+            var result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
             if (result.IsEmpty())
                 return false;
@@ -1492,10 +1498,10 @@ internal class MiscCommands
         }
 
         // Query the prepared statement for login data
-        stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_PINFO);
-        stmt.AddValue(0, Global.WorldMgr.Realm.Id.Index);
+        stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_PINFO);
+        stmt.AddValue(0, WorldManager.Realm.Id.Index);
         stmt.AddValue(1, accId);
-        var result0 = DB.Login.Query(stmt);
+        var result0 = handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt);
 
         if (!result0.IsEmpty())
         {
@@ -1531,16 +1537,16 @@ internal class MiscCommands
         var nameLink = handler.PlayerLink(targetName);
 
         // Returns banType, banTime, bannedBy, banreason
-        var stmt2 = DB.Login.GetPreparedStatement(LoginStatements.SEL_PINFO_BANS);
+        var stmt2 = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_PINFO_BANS);
         stmt2.AddValue(0, accId);
-        var result2 = DB.Login.Query(stmt2);
+        var result2 = handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt2);
 
         if (result2.IsEmpty())
         {
             banType = handler.GetCypherString(CypherStrings.Character);
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_BANS);
+            stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_PINFO_BANS);
             stmt.AddValue(0, lowguid);
-            result2 = DB.Characters.Query(stmt);
+            result2 = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
         }
         else
         {
@@ -1556,22 +1562,22 @@ internal class MiscCommands
         }
 
         // Can be used to query data from Characters database
-        stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_XP);
+        stmt2 = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_PINFO_XP);
         stmt2.AddValue(0, lowguid);
-        var result4 = DB.Characters.Query(stmt2);
+        var result4 = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt2);
 
         if (!result4.IsEmpty())
         {
             xp = result4.Read<uint>(0);         // Used for "current xp" output and "%u XP Left" calculation
             var gguid = result4.Read<ulong>(1); // We check if have a guild for the person, so we might not require to query it at all
-            xptotal = ObjectManager.GetXPForLevel(level);
+            xptotal = handler.ObjectManager.GetXPForLevel(level);
 
             if (gguid != 0)
             {
                 // Guild Data - an own query, because it may not happen.
-                var stmt3 = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_MEMBER_EXTENDED);
+                var stmt3 = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_GUILD_MEMBER_EXTENDED);
                 stmt3.AddValue(0, lowguid);
-                var result5 = DB.Characters.Query(stmt3);
+                var result5 = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt3);
 
                 if (!result5.IsEmpty())
                 {
@@ -1617,7 +1623,7 @@ internal class MiscCommands
         handler.SendSysMessage(CypherStrings.PinfoAccIp, lastIp, locked != 0 ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No));
 
         // Output X. LANG_PINFO_CHR_LEVEL
-        if (level != GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+        if (level != handler.Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
             handler.SendSysMessage(CypherStrings.PinfoChrLevelLow, level, xp, xptotal, (xptotal - xp));
         else
             handler.SendSysMessage(CypherStrings.PinfoChrLevelHigh, level);
@@ -1625,8 +1631,8 @@ internal class MiscCommands
         // Output XI. LANG_PINFO_CHR_RACE
         handler.SendSysMessage(CypherStrings.PinfoChrRace,
                                (gender == 0 ? handler.GetCypherString(CypherStrings.CharacterGenderMale) : handler.GetCypherString(CypherStrings.CharacterGenderFemale)),
-                               Global.DB2Mgr.GetChrRaceName(raceid, locale),
-                               Global.DB2Mgr.GetClassName(classid, locale));
+                               handler.ClassFactory.Resolve<DB2Manager>().GetChrRaceName(raceid, locale),
+                               handler.ClassFactory.Resolve<DB2Manager>().GetClassName(classid, locale));
 
         // Output XII. LANG_PINFO_CHR_ALIVE
         handler.SendSysMessage(CypherStrings.PinfoChrAlive, alive);
@@ -1642,14 +1648,14 @@ internal class MiscCommands
         handler.SendSysMessage(CypherStrings.PinfoChrMoney, gold, silv, copp);
 
         // Position data
-        var map = CliDB.MapStorage.LookupByKey(mapId);
-        var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+        var map = handler.CliDB.MapStorage.LookupByKey(mapId);
+        var area = handler.CliDB.AreaTableStorage.LookupByKey(areaId);
 
         if (area != null)
         {
             zoneName = area.AreaName[locale];
 
-            var zone = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
+            var zone = handler.CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
 
             if (zone != null)
             {
@@ -1658,8 +1664,11 @@ internal class MiscCommands
             }
         }
 
-        if (zoneName == null)
-            zoneName = handler.GetCypherString(CypherStrings.Unknown);
+        zoneName = zoneName switch
+        {
+            null => handler.GetCypherString(CypherStrings.Unknown),
+            _    => zoneName
+        };
 
         if (areaName != null)
             handler.SendSysMessage(CypherStrings.PinfoChrMapWithArea, map.MapName[locale], zoneName, areaName);
@@ -1684,9 +1693,9 @@ internal class MiscCommands
 
         // Mail Data - an own query, because it may or may not be useful.
         // SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
-        var stmt4 = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_MAILS);
+        var stmt4 = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_PINFO_MAILS);
         stmt4.AddValue(0, lowguid);
-        var result6 = DB.Characters.Query(stmt4);
+        var result6 = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt4);
 
         if (!result6.IsEmpty())
         {
@@ -1704,14 +1713,14 @@ internal class MiscCommands
     [CommandNonGroup("playall", RBACPermissions.CommandPlayall)]
     private static bool HandlePlayAllCommand(CommandHandler handler, uint soundId, uint? broadcastTextId)
     {
-        if (!CliDB.SoundKitStorage.ContainsKey(soundId))
+        if (!handler.CliDB.SoundKitStorage.ContainsKey(soundId))
         {
             handler.SendSysMessage(CypherStrings.SoundNotExist, soundId);
 
             return false;
         }
 
-        Global.WorldMgr.SendGlobalMessage(new PlaySound(handler.Session.Player.GUID, soundId, broadcastTextId.GetValueOrDefault(0)));
+        handler.WorldManager.SendGlobalMessage(new PlaySound(handler.Session.Player.GUID, soundId, broadcastTextId.GetValueOrDefault(0)));
 
         handler.SendSysMessage(CypherStrings.CommandPlayedToAll, soundId);
 
@@ -1726,7 +1735,7 @@ internal class MiscCommands
         if (!unit)
             return false;
 
-        handler.Session.Player.CastSpell(unit, 530, true);
+        handler.Session.Player.SpellFactory.CastSpell(unit, 530, true);
 
         return true;
     }
@@ -1734,10 +1743,10 @@ internal class MiscCommands
     [CommandNonGroup("pvpstats", RBACPermissions.CommandPvpstats, true)]
     private static bool HandlePvPstatsCommand(CommandHandler handler)
     {
-        if (GetDefaultValue("Battleground.StoreStatistics.Enable", false))
+        if (handler.Configuration.GetDefaultValue("Battleground.StoreStatistics.Enable", false))
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
-            var result = DB.Characters.Query(stmt);
+            var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
+            var result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
             if (!result.IsEmpty())
             {
@@ -1867,7 +1876,7 @@ internal class MiscCommands
         }
         else
         {
-            PlayerComputators.OfflineResurrect(targetGuid, null);
+            handler.ClassFactory.Resolve<PlayerComputators>().OfflineResurrect(targetGuid, null);
         }
 
         return true;
@@ -1877,7 +1886,7 @@ internal class MiscCommands
     [CommandNonGroup("saveall", RBACPermissions.CommandSaveall, true)]
     private static bool HandleSaveAllCommand(CommandHandler handler)
     {
-        Global.ObjAccessor.SaveAllPlayers();
+        handler.ObjectAccessor.SaveAllPlayers();
         handler.SendSysMessage(CypherStrings.PlayersSaved);
 
         return true;
@@ -1904,7 +1913,7 @@ internal class MiscCommands
         }
 
         // save if the player has last been saved over 20 seconds ago
-        var saveInterval = GetDefaultValue("PlayerSaveInterval", 15u * Time.MINUTE * Time.IN_MILLISECONDS);
+        var saveInterval = handler.Configuration.GetDefaultValue("PlayerSaveInterval", 15u * Time.MINUTE * Time.IN_MILLISECONDS);
 
         if (saveInterval == 0 || (saveInterval > 20 * Time.IN_MILLISECONDS && player.SaveTimer <= saveInterval - 20 * Time.IN_MILLISECONDS))
             player.SaveToDB();
@@ -1924,7 +1933,7 @@ internal class MiscCommands
             return false;
         }
 
-        var area = CliDB.AreaTableStorage.LookupByKey(areaId);
+        var area = handler.CliDB.AreaTableStorage.LookupByKey(areaId);
 
         if (area == null)
         {
@@ -2021,7 +2030,7 @@ internal class MiscCommands
                 var targetGroup = target.Group;
 
                 if (targetGroup != null)
-                    targetGroupLeader = Global.ObjAccessor.GetPlayer(map, targetGroup.LeaderGUID);
+                    targetGroupLeader = handler.ObjectAccessor.GetPlayer(map, targetGroup.LeaderGUID);
 
                 // check if far teleport is allowed
                 if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.Id) || (targetGroupLeader.InstanceId != map.InstanceId))
@@ -2071,7 +2080,7 @@ internal class MiscCommands
             handler.SendSysMessage(CypherStrings.Summoning, nameLink, handler.GetCypherString(CypherStrings.Offline));
 
             // in point where GM stay
-            PlayerComputators.SavePositionInDB(new WorldLocation(player.Location.MapId, player.Location.X, player.Location.Y, player.Location.Z, player.Location.Orientation), player.Location.Zone, targetGuid);
+            handler.ClassFactory.Resolve<PlayerComputators>().SavePositionInDB(new WorldLocation(player.Location.MapId, player.Location.X, player.Location.Y, player.Location.Z, player.Location.Orientation), player.Location.Zone, targetGuid);
         }
 
         return true;
@@ -2100,7 +2109,7 @@ internal class MiscCommands
         {
             name = targetNameArg;
             GameObjectManager.NormalizePlayerName(ref name);
-            player = Global.ObjAccessor.FindPlayerByName(name);
+            player = handler.ObjectAccessor.FindPlayerByName(name);
         }
         else // If no name was entered - use target
         {
@@ -2124,7 +2133,7 @@ internal class MiscCommands
             if (!targetNameArg.IsEmpty())
             {
                 // Check for offline players
-                var guid = Global.CharacterCacheStorage.GetCharacterGuidByName(name);
+                var guid = handler.ClassFactory.Resolve<CharacterCache>().GetCharacterGuidByName(name);
 
                 if (guid.IsEmpty)
                 {
@@ -2134,9 +2143,9 @@ internal class MiscCommands
                 }
 
                 // If player found: delete his freeze aura
-                var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_FROZEN);
+                var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.DEL_CHAR_AURA_FROZEN);
                 stmt.AddValue(0, guid.Counter);
-                DB.Characters.Execute(stmt);
+                handler.ClassFactory.Resolve<CharacterDatabase>().Execute(stmt);
 
                 handler.SendSysMessage(CypherStrings.CommandUnfreeze, name);
 
@@ -2160,12 +2169,12 @@ internal class MiscCommands
         if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid, out var targetName))
             return false;
 
-        var accountId = target ? target.Session.AccountId : Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(targetGuid);
+        var accountId = target ? target.Session.AccountId : handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(targetGuid);
 
         // find only player from same account if any
         if (!target)
         {
-            var session = Global.WorldMgr.FindSession(accountId);
+            var session = handler.WorldManager.FindSession(accountId);
 
             if (session != null)
                 target = session.Player;
@@ -2187,12 +2196,12 @@ internal class MiscCommands
             target.Session.MuteTime = 0;
         }
 
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
+        var stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
         stmt.AddValue(0, 0);
         stmt.AddValue(1, "");
         stmt.AddValue(2, "");
         stmt.AddValue(3, accountId);
-        DB.Login.Execute(stmt);
+        handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
 
         if (target)
             target.SendSysMessage(CypherStrings.YourChatEnabled);
@@ -2230,7 +2239,7 @@ internal class MiscCommands
             var player1 = handler.Session.Player;
 
             if (player1)
-                player1.CastSpell(player1, spellUnstuckID, false);
+                player1.SpellFactory.CastSpell(player1, spellUnstuckID, false);
 
             return true;
         }
@@ -2249,13 +2258,13 @@ internal class MiscCommands
 
         if (!player)
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
+            var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
             stmt.AddValue(0, targetGUID.Counter);
-            var result = DB.Characters.Query(stmt);
+            var result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
             if (!result.IsEmpty())
             {
-                PlayerComputators.SavePositionInDB(new WorldLocation(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4)), result.Read<ushort>(1), targetGUID);
+                handler.ClassFactory.Resolve<PlayerComputators>().SavePositionInDB(new WorldLocation(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4)), result.Read<ushort>(1), targetGUID);
 
                 return true;
             }
@@ -2265,7 +2274,7 @@ internal class MiscCommands
 
         if (player.IsInFlight || player.IsInCombat)
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellUnstuckID, Difficulty.None);
+            var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellUnstuckID, Difficulty.None);
 
             if (spellInfo == null)
                 return false;

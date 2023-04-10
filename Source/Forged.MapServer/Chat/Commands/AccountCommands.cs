@@ -26,9 +26,9 @@ internal class AccountCommands
         uint accountId = handler.GetSession().GetAccountId();
         byte[] secret;
         { // get current TOTP secret
-            PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_TOTP_SECRET);
+            PreparedStatement stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_ACCOUNT_TOTP_SECRET);
             stmt.AddValue(0, accountId);
-            SQLResult result = DB.Login.Query(stmt);
+            SQLResult result = handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt);
       
             if (result.IsEmpty())
             {
@@ -61,10 +61,10 @@ internal class AccountCommands
       
             if (TOTP.ValidateToken(secret, token.Value))
             {
-                PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
+                PreparedStatement stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
                 stmt.AddNull(0);
                 stmt.AddValue(1, accountId);
-                DB.Login.Execute(stmt);
+                handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
                 handler.SendSysMessage(CypherStrings.TwoFARemoveComplete);
                 return true;
             }
@@ -89,9 +89,9 @@ internal class AccountCommands
         uint accountId = handler.GetSession().GetAccountId();
       
         { // check if 2FA already enabled
-            PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_TOTP_SECRET);
+            PreparedStatement stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_ACCOUNT_TOTP_SECRET);
             stmt.AddValue(0, accountId);
-            SQLResult result = DB.Login.Query(stmt);
+            SQLResult result = handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt);
       
             if (result.IsEmpty())
             {
@@ -120,10 +120,10 @@ internal class AccountCommands
                 if (masterKey.IsValid())
                     AES.Encrypt(suggestions[accountId], masterKey.GetValue());
       
-                PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
+                PreparedStatement stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
                 stmt.AddValue(0, suggestions[accountId]);
                 stmt.AddValue(1, accountId);
-                DB.Login.Execute(stmt);
+                handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
                 suggestions.Remove(accountId);
                 handler.SendSysMessage(CypherStrings.TwoFASetupComplete);
                 return true;
@@ -459,17 +459,17 @@ internal class AccountCommands
                 /*var ipBytes = System.Net.IPAddress.Parse(handler.GetSession().GetRemoteAddress()).GetAddressBytes();
                 Array.Reverse(ipBytes);
             
-                PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_LOGON_COUNTRY);
+                PreparedStatement stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_LOGON_COUNTRY);
                 stmt.AddValue(0, BitConverter.ToUInt32(ipBytes, 0));
             
-                SQLResult result = DB.Login.Query(stmt);
+                SQLResult result = handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt);
                 if (!result.IsEmpty())
                 {
                     string country = result.Read<string>(0);
-                    stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
+                    stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
                     stmt.AddValue(0, country);
                     stmt.AddValue(1, handler.GetSession().GetAccountId());
-                    DB.Login.Execute(stmt);
+                    handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
                     handler.SendSysMessage(CypherStrings.CommandAcclocklocked);
                 }
                 else
@@ -633,10 +633,10 @@ internal class AccountCommands
             PreparedStatement stmt;
             if (secret == "off")
             {
-                stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
+                stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
                 stmt.AddNull(0);
                 stmt.AddValue(1, targetAccountId);
-                DB.Login.Execute(stmt);
+                handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
                 handler.SendSysMessage(CypherStrings.TwoFARemoveComplete);
                 return true;
             }
@@ -663,10 +663,10 @@ internal class AccountCommands
             if (masterKey.IsValid())
                 AES.Encrypt(decoded, masterKey.GetValue());
          
-            stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
+            stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
             stmt.AddValue(0, decoded);
             stmt.AddValue(1, targetAccountId);
-            DB.Login.Execute(stmt);
+            handler.ClassFactory.Resolve<LoginDatabase>().Execute(stmt);
             handler.SendSysMessage(CypherStrings.TwoFASecretSetComplete, accountName);*/
             return true;
         }

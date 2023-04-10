@@ -18,6 +18,7 @@ using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+using Framework.Util;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -33,7 +34,7 @@ internal class NPCCommands
 
             var list = map[key];
 
-            var player = Global.ObjAccessor.FindConnectedPlayer(key);
+            var player = handler.ObjectAccessor.FindConnectedPlayer(key);
             handler.SendSysMessage(CypherStrings.CommandNpcShowlootSublabel, player ? player.GetName() : $"Offline player (GUID {key})", list.Count);
 
             foreach (var it in list)
@@ -50,7 +51,7 @@ internal class NPCCommands
     {
         var name = "Unknown item";
 
-        var itemTemplate = ObjectManager.GetItemTemplate(itemId);
+        var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
 
         if (itemTemplate != null)
             name = itemTemplate.GetName(handler.SessionDbcLocale);
@@ -141,8 +142,11 @@ internal class NPCCommands
 
         var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.CurrentTime : target.Location.Map.GetCreatureRespawnTime(target.SpawnId) - GameTime.CurrentTime;
 
-        if (curRespawnDelay < 0)
-            curRespawnDelay = 0;
+        curRespawnDelay = curRespawnDelay switch
+        {
+            < 0 => 0,
+            _   => curRespawnDelay
+        };
 
         var curRespawnDelayStr = Time.SecsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
         var defRespawnDelayStr = Time.SecsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
@@ -184,7 +188,7 @@ internal class NPCCommands
         handler.SendSysMessage(CypherStrings.NpcinfoLoot, cInfo.LootId, cInfo.PickPocketId, cInfo.SkinLootId);
         handler.SendSysMessage(CypherStrings.NpcinfoDungeonId, target.InstanceId);
 
-        var data = ObjectManager.GetCreatureData(target.SpawnId);
+        var data = handler.ObjectManager.GetCreatureData(target.SpawnId);
 
         if (data != null)
             handler.SendSysMessage(CypherStrings.NpcinfoPhases, data.PhaseId, data.PhaseGroup);
@@ -237,7 +241,7 @@ internal class NPCCommands
         var lowguid = spawnId ?? creature.SpawnId;
 
         // Attempting creature load from DB data
-        var data = ObjectManager.GetCreatureData(lowguid);
+        var data = handler.ObjectManager.GetCreatureData(lowguid);
 
         if (data == null)
         {
@@ -253,19 +257,19 @@ internal class NPCCommands
             return false;
         }
 
-        ObjectManager.RemoveCreatureFromGrid(data);
+        handler.ObjectManager.RemoveCreatureFromGrid(data);
         data.SpawnPoint.Relocate(player.Location);
-        ObjectManager.AddCreatureToGrid(data);
+        handler.ObjectManager.AddCreatureToGrid(data);
 
         // update position in DB
-        var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_POSITION);
+        var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_POSITION);
         stmt.AddValue(0, player.Location.X);
         stmt.AddValue(1, player.Location.Y);
         stmt.AddValue(2, player.Location.Z);
         stmt.AddValue(3, player.Location.Orientation);
         stmt.AddValue(4, lowguid);
 
-        DB.World.Execute(stmt);
+        handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
         // respawn selected creature at the new location
         creature?.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(1));
@@ -283,7 +287,7 @@ internal class NPCCommands
 
         var player = handler.Player;
 
-        var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_NEAREST);
+        var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_CREATURE_NEAREST);
         stmt.AddValue(0, player.Location.X);
         stmt.AddValue(1, player.Location.Y);
         stmt.AddValue(2, player.Location.Z);
@@ -292,7 +296,7 @@ internal class NPCCommands
         stmt.AddValue(5, player.Location.Y);
         stmt.AddValue(6, player.Location.Z);
         stmt.AddValue(7, distance * distance);
-        var result = DB.World.Query(stmt);
+        var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
             do
@@ -304,7 +308,7 @@ internal class NPCCommands
                 var z = result.Read<float>(4);
                 var mapId = result.Read<ushort>(5);
 
-                var creatureTemplate = ObjectManager.GetCreatureTemplate(entry);
+                var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(entry);
 
                 if (creatureTemplate == null)
                     continue;
@@ -582,7 +586,7 @@ internal class NPCCommands
         }
 
         // check online security
-        var receiver = Global.ObjAccessor.FindPlayerByName(recv);
+        var receiver = handler.ObjectAccessor.FindPlayerByName(recv);
 
         if (handler.HasLowerSecurity(receiver, ObjectGuid.Empty))
             return false;
@@ -655,7 +659,7 @@ internal class NPCCommands
                 return true;
             }
 
-            var creature = CreatureFactory.CreateCreature(id, map, chr.Location);
+            var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(id, map, chr.Location);
 
             if (!creature)
                 return false;
@@ -673,7 +677,7 @@ internal class NPCCommands
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells()
             // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
             creature.CleanupsBeforeDelete();
-            creature = CreatureFactory.CreateCreatureFromDB(dbGUID, map, true, true);
+            creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGUID, map, true, true);
 
             if (!creature)
                 return false;
@@ -711,17 +715,17 @@ internal class NPCCommands
             var followAngle = (creature.Location.GetAbsoluteAngle(chr.Location) - chr.Location.Orientation) * 180.0f / MathF.PI;
             var followDist = MathF.Sqrt(MathF.Pow(chr.Location.X - creature.Location.X, 2f) + MathF.Pow(chr.Location.Y - creature.Location.Y, 2f));
             uint groupAI = 0;
-            FormationMgr.AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
+            handler.ClassFactory.Resolve<FormationMgr>().AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
             creature.SearchFormation();
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_CREATURE_FORMATION);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.INS_CREATURE_FORMATION);
             stmt.AddValue(0, leaderGUID);
             stmt.AddValue(1, lowguid);
             stmt.AddValue(2, followAngle);
             stmt.AddValue(3, followDist);
             stmt.AddValue(4, groupAI);
 
-            DB.World.Execute(stmt);
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
             handler.SendSysMessage("Creature {0} added to formation with leader {1}", lowguid, leaderGUID);
 
@@ -732,7 +736,7 @@ internal class NPCCommands
         private static bool HandleNpcAddMoveCommand(CommandHandler handler, ulong lowGuid)
         {
             // attempt check creature existence by DB data
-            var data = ObjectManager.GetCreatureData(lowGuid);
+            var data = handler.ObjectManager.GetCreatureData(lowGuid);
 
             if (data == null)
             {
@@ -742,10 +746,10 @@ internal class NPCCommands
             }
 
             // Update movement type
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
             stmt.AddValue(0, (byte)MovementGeneratorType.Waypoint);
             stmt.AddValue(1, lowGuid);
-            DB.World.Execute(stmt);
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
             handler.SendSysMessage(CypherStrings.WaypointAdded);
 
@@ -767,7 +771,7 @@ internal class NPCCommands
                     return false;
             }
 
-            if (ObjectManager.GetCreatureTemplate(id) == null)
+            if (handler.ObjectManager.GetCreatureTemplate(id) == null)
                 return false;
 
             var chr = handler.Session.Player;
@@ -819,12 +823,12 @@ internal class NPCCommands
                             vItem.BonusListIDs.Add(id);
             }
 
-            if (!ObjectManager.IsVendorItemValid(vendorEntry, vItem, handler.Session.Player))
+            if (!handler.ObjectManager.IsVendorItemValid(vendorEntry, vItem, handler.Session.Player))
                 return false;
 
-            ObjectManager.AddVendorItem(vendorEntry, vItem);
+            handler.ObjectManager.AddVendorItem(vendorEntry, vItem);
 
-            var itemTemplate = ObjectManager.GetItemTemplate(itemId);
+            var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
 
             handler.SendSysMessage(CypherStrings.ItemAddedToList, itemId, itemTemplate.GetName(), maxcount, incrtime, extendedcost);
 
@@ -868,7 +872,7 @@ internal class NPCCommands
                 spawnId = creature.SpawnId;
             }
 
-            if (CreatureFactory.DeleteFromDB(spawnId))
+            if (handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(spawnId))
             {
                 handler.SendSysMessage(CypherStrings.CommandDelcreatmessage);
 
@@ -895,14 +899,14 @@ internal class NPCCommands
             if (itemId == 0)
                 return false;
 
-            if (!ObjectManager.RemoveVendorItem(vendor.Entry, itemId, ItemVendorType.Item))
+            if (!handler.ObjectManager.RemoveVendorItem(vendor.Entry, itemId, ItemVendorType.Item))
             {
                 handler.SendSysMessage(CypherStrings.ItemNotInList, itemId);
 
                 return false;
             }
 
-            var itemTemplate = ObjectManager.GetItemTemplate(itemId);
+            var itemTemplate = handler.ObjectManager.GetItemTemplate(itemId);
             handler.SendSysMessage(CypherStrings.ItemDeletedFromList, itemId, itemTemplate.GetName());
 
             return true;
@@ -981,14 +985,14 @@ internal class NPCCommands
         private static bool HandleNpcSetAllowMovementCommand(CommandHandler handler)
         {
             /*
-            if (Global.WorldMgr.getAllowMovement())
+            if (handler.WorldManager.getAllowMovement())
             {
-                Global.WorldMgr.SetAllowMovement(false);
+                handler.WorldManager.SetAllowMovement(false);
                 handler.SendSysMessage(LANG_CREATURE_MOVE_DISABLED);
             }
             else
             {
-                Global.WorldMgr.SetAllowMovement(true);
+                handler.WorldManager.SetAllowMovement(true);
                 handler.SendSysMessage(LANG_CREATURE_MOVE_ENABLED);
             }
             */
@@ -1042,7 +1046,7 @@ internal class NPCCommands
         [Command("factionid", RBACPermissions.CommandNpcSetFactionid)]
         private static bool HandleNpcSetFactionIdCommand(CommandHandler handler, uint factionId)
         {
-            if (!CliDB.FactionTemplateStorage.ContainsKey(factionId))
+            if (!handler.CliDB.FactionTemplateStorage.ContainsKey(factionId))
             {
                 handler.SendSysMessage(CypherStrings.WrongFaction, factionId);
 
@@ -1069,13 +1073,13 @@ internal class NPCCommands
                 cinfo.Faction = factionId;
 
             // ..and DB
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_FACTION);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_FACTION);
 
             stmt.AddValue(0, factionId);
             stmt.AddValue(1, factionId);
             stmt.AddValue(2, creature.Entry);
 
-            DB.World.Execute(stmt);
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
             return true;
         }
@@ -1095,10 +1099,10 @@ internal class NPCCommands
             creature.ReplaceAllNpcFlags(npcFlags);
             creature.ReplaceAllNpcFlags2(npcFlags2);
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_NPCFLAG);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_NPCFLAG);
             stmt.AddValue(0, (ulong)npcFlags | ((ulong)npcFlags2 << 32));
             stmt.AddValue(1, creature.Entry);
-            DB.World.Execute(stmt);
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
             handler.SendSysMessage(CypherStrings.ValueSavedRejoin);
 
@@ -1108,7 +1112,7 @@ internal class NPCCommands
         [Command("level", RBACPermissions.CommandNpcSetLevel)]
         private static bool HandleNpcSetLevelCommand(CommandHandler handler, byte lvl)
         {
-            if (lvl < 1 || lvl > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) + 3)
+            if (lvl < 1 || lvl > handler.Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) + 3)
             {
                 handler.SendSysMessage(CypherStrings.BadValue);
 
@@ -1151,7 +1155,7 @@ internal class NPCCommands
                 return false;
             }
 
-            if (!ObjectManager.SetCreatureLinkedRespawn(creature.SpawnId, linkguid))
+            if (!handler.ObjectManager.SetCreatureLinkedRespawn(creature.SpawnId, linkguid))
             {
                 handler.SendSysMessage("Selected creature can't link with guid '{0}'", linkguid);
 
@@ -1175,7 +1179,7 @@ internal class NPCCommands
                 return false;
             }
 
-            if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(displayId))
+            if (!handler.CliDB.CreatureDisplayInfoStorage.ContainsKey(displayId))
             {
                 handler.SendSysMessage(CypherStrings.CommandInvalidParam, displayId);
 
@@ -1224,7 +1228,7 @@ internal class NPCCommands
                 // attempt check creature existence by DB data
                 if (creature == null)
                 {
-                    var data = ObjectManager.GetCreatureData(lowguid);
+                    var data = handler.ObjectManager.GetCreatureData(lowguid);
 
                     if (data == null)
                     {
@@ -1353,10 +1357,10 @@ internal class NPCCommands
             if (!creature)
                 return false;
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_SPAWN_TIME_SECS);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_SPAWN_TIME_SECS);
             stmt.AddValue(0, spawnTime);
             stmt.AddValue(1, creature.SpawnId);
-            DB.World.Execute(stmt);
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
             creature.RespawnDelay = spawnTime;
             handler.SendSysMessage(CypherStrings.CommandSpawntime, spawnTime);
@@ -1374,10 +1378,11 @@ internal class NPCCommands
                 return false;
             }
 
-            var mtype = MovementGeneratorType.Idle;
-
-            if (option > 0.0f)
-                mtype = MovementGeneratorType.Random;
+            var mtype = option switch
+            {
+                > 0.0f => MovementGeneratorType.Random,
+                _      => MovementGeneratorType.Idle
+            };
 
             var creature = handler.SelectedCreature;
             ulong guidLow;
@@ -1397,12 +1402,12 @@ internal class NPCCommands
                 creature.Respawn();
             }
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_WANDER_DISTANCE);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_WANDER_DISTANCE);
             stmt.AddValue(0, option);
             stmt.AddValue(1, (byte)mtype);
             stmt.AddValue(2, guidLow);
 
-            DB.World.Execute(stmt);
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
             handler.SendSysMessage(CypherStrings.CommandWanderDistance, option);
 

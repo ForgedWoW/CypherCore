@@ -15,7 +15,7 @@ internal class MessageCommands
         if (message.IsEmpty())
             return false;
 
-        Global.WorldMgr.SendServerMessage(ServerMessageType.String, handler.GetParsedString(CypherStrings.Systemmessage, message));
+        handler.WorldManager.SendServerMessage(ServerMessageType.String, handler.GetParsedString(CypherStrings.Systemmessage, message));
 
         return true;
     }
@@ -26,7 +26,7 @@ internal class MessageCommands
         if (message.IsEmpty())
             return false;
 
-        Global.WorldMgr.SendGMText(CypherStrings.GmBroadcast, message);
+        handler.WorldManager.SendGMText(CypherStrings.GmBroadcast, message);
 
         return true;
     }
@@ -43,7 +43,7 @@ internal class MessageCommands
         if (session)
             name = session.Player.GetName();
 
-        Global.WorldMgr.SendGMText(CypherStrings.AnnounceColor, name, message);
+        handler.WorldManager.SendGMText(CypherStrings.AnnounceColor, name, message);
 
         return true;
     }
@@ -57,7 +57,7 @@ internal class MessageCommands
         var str = handler.GetCypherString(CypherStrings.GmNotify);
         str += message;
 
-        Global.WorldMgr.SendGlobalGMMessage(new PrintNotification(str));
+        handler.WorldManager.SendGlobalGMMessage(new PrintNotification(str));
 
         return true;
     }
@@ -74,7 +74,7 @@ internal class MessageCommands
         if (session)
             name = session.Player.GetName();
 
-        Global.WorldMgr.SendWorldText(CypherStrings.AnnounceColor, name, message);
+        handler.WorldManager.SendWorldText(CypherStrings.AnnounceColor, name, message);
 
         return true;
     }
@@ -87,7 +87,7 @@ internal class MessageCommands
         var str = handler.GetCypherString(CypherStrings.GlobalNotify);
         str += message;
 
-        Global.WorldMgr.SendGlobalMessage(new PrintNotification(str));
+        handler.WorldManager.SendGlobalMessage(new PrintNotification(str));
 
         return true;
     }

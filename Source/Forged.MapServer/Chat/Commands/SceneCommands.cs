@@ -21,7 +21,7 @@ internal class SceneCommands
             return false;
         }
 
-        if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
+        if (!handler.CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
             return false;
 
         target.SceneMgr.CancelSceneByPackageId(sceneScriptPackageId);
@@ -55,7 +55,7 @@ internal class SceneCommands
             return false;
         }
 
-        if (Global.ObjectMgr.GetSceneTemplate(sceneId) == null)
+        if (handler.ObjectManager.GetSceneTemplate(sceneId) == null)
             return false;
 
         target.SceneMgr.PlayScene(sceneId);
@@ -75,7 +75,7 @@ internal class SceneCommands
             return false;
         }
 
-        if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
+        if (!handler.CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
             return false;
 
         target.SceneMgr.PlaySceneByPackageId(sceneScriptPackageId, flags.GetValueOrDefault(0));

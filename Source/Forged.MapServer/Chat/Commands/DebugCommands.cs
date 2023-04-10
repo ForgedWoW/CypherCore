@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Forged.MapServer.BattleFields;
+using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
@@ -23,9 +25,13 @@ using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Networking.Packets.Movement;
 using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IItem;
+using Forged.MapServer.Spells;
 using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
+using Framework.Util;
 using Serilog;
 using Transport = Forged.MapServer.Entities.Transport;
 
@@ -69,7 +75,7 @@ internal class DebugCommands
     [Command("arena", RBACPermissions.CommandDebug, true)]
     private static bool HandleDebugArenaCommand(CommandHandler handler)
     {
-        Global.BattlegroundMgr.ToggleArenaTesting();
+        handler.ClassFactory.Resolve<BattlegroundManager>().ToggleArenaTesting();
 
         return true;
     }
@@ -77,7 +83,7 @@ internal class DebugCommands
     [Command("bg", RBACPermissions.CommandDebug, true)]
     private static bool HandleDebugBattlegroundCommand(CommandHandler handler)
     {
-        Global.BattlegroundMgr.ToggleTesting();
+        handler.ClassFactory.Resolve<BattlegroundManager>().ToggleTesting();
 
         return true;
     }
@@ -497,7 +503,7 @@ internal class DebugCommands
 
         foreach (var tapperGuid in target.TapList)
         {
-            var tapper = Global.ObjAccessor.GetPlayer(target, tapperGuid);
+            var tapper = handler.ObjectAccessor.GetPlayer(target, tapperGuid);
             handler.SendSysMessage($"* {(tapper != null ? tapper.GetName() : "offline")}");
         }
 
@@ -508,12 +514,12 @@ internal class DebugCommands
     private static bool HandleDebugGuidLimitsCommand(CommandHandler handler, uint mapId)
     {
         if (mapId != 0)
-            Global.MapMgr.DoForAllMapsWithMapId(mapId, map => HandleDebugGuidLimitsMap(handler, map));
+            handler.ClassFactory.Resolve<MapManager>().DoForAllMapsWithMapId(mapId, map => HandleDebugGuidLimitsMap(handler, map));
         else
-            Global.MapMgr.DoForAllMaps(map => HandleDebugGuidLimitsMap(handler, map));
+            handler.ClassFactory.Resolve<MapManager>().DoForAllMaps(map => HandleDebugGuidLimitsMap(handler, map));
 
-        handler.SendSysMessage($"Guid Warn Level: {GetDefaultValue("Respawn.GuidWarnLevel", 12000000)}");
-        handler.SendSysMessage($"Guid Alert Level: {GetDefaultValue("Respawn.GuidAlertLevel", 16000000)}");
+        handler.SendSysMessage($"Guid Warn Level: {handler.Configuration.GetDefaultValue("Respawn.GuidWarnLevel", 12000000)}");
+        handler.SendSysMessage($"Guid Alert Level: {handler.Configuration.GetDefaultValue("Respawn.GuidAlertLevel", 16000000)}");
 
         return true;
     }
@@ -534,12 +540,12 @@ internal class DebugCommands
         var explain = false;
         uint groupID = 0;
 
-        if (optArg is string && (optArg as string).Equals("explain", StringComparison.OrdinalIgnoreCase))
+        if (optArg is string s && s.Equals("explain", StringComparison.OrdinalIgnoreCase))
             explain = true;
         else
             groupID = (uint)optArg;
 
-        if (groupID != 0 && ObjectManager.GetSpawnGroupData(groupID) == null)
+        if (groupID != 0 && handler.ObjectManager.GetSpawnGroupData(groupID) == null)
         {
             handler.SendSysMessage($"There is no spawn group with ID {groupID}.");
 
@@ -587,7 +593,7 @@ internal class DebugCommands
 
         if (groupID != 0 && !store.ContainsKey(groupID))
         {
-            handler.SendSysMessage($"{mapName}'s instance script does not manage group '{ObjectManager.GetSpawnGroupData(groupID).Name}'.");
+            handler.SendSysMessage($"{mapName}'s instance script does not manage group '{handler.ObjectManager.GetSpawnGroupData(groupID).Name}'.");
 
             return false;
         }
@@ -597,7 +603,7 @@ internal class DebugCommands
 
         foreach (var key in store.Keys)
         {
-            var groupData = ObjectManager.GetSpawnGroupData(key);
+            var groupData = handler.ObjectManager.GetSpawnGroupData(key);
 
             if (groupData == null)
                 continue;
@@ -662,7 +668,7 @@ internal class DebugCommands
 
         handler.Player.DestroyItem(item.BagSlot, item.Slot, true);
         var itemTemplate = item.Template;
-        ScriptManager.RunScriptRet<IItemOnExpire>(p => p.OnExpire(handler.Player, itemTemplate), itemTemplate.ScriptId);
+        handler.ClassFactory.Resolve<ScriptManager>().RunScriptRet<IItemOnExpire>(p => p.OnExpire(handler.Player, itemTemplate), itemTemplate.ScriptId);
 
         return true;
     }
@@ -672,18 +678,16 @@ internal class DebugCommands
     {
         if (mapId.HasValue)
         {
-            Global.MapMgr.DoForAllMapsWithMapId(mapId.Value, map => HandleDebugLoadCellsCommandHelper(handler, map, tileX, tileY));
+            handler.ClassFactory.Resolve<MapManager>().DoForAllMapsWithMapId(mapId.Value, map => HandleDebugLoadCellsCommandHelper(handler, map, tileX, tileY));
 
             return true;
         }
 
         var player = handler.Player;
 
-        if (player != null)
-            // Fallback to player's map if no map has been specified
-            return HandleDebugLoadCellsCommandHelper(handler, player.Location.Map, tileX, tileY);
-
-        return false;
+        return player != null &&
+               // Fallback to player's map if no map has been specified
+               HandleDebugLoadCellsCommandHelper(handler, player.Location.Map, tileX, tileY);
     }
 
     private static bool HandleDebugLoadCellsCommandHelper(CommandHandler handler, Map map, uint? tileX, uint? tileY)
@@ -720,18 +724,17 @@ internal class DebugCommands
     {
         var unit = handler.SelectedUnit;
 
-        if (unit)
-        {
-            var player = handler.Player;
-            handler.SendSysMessage($"Checking LoS {player.GetName()} . {unit.GetName()}:");
-            handler.SendSysMessage($"    VMAP LoS: {(player.Location.IsWithinLOSInMap(unit, LineOfSightChecks.Vmap) ? "clear" : "obstructed")}");
-            handler.SendSysMessage($"    GObj LoS: {(player.Location.IsWithinLOSInMap(unit, LineOfSightChecks.Gobject) ? "clear" : "obstructed")}");
-            handler.SendSysMessage($"{unit.GetName()} is {(player.Location.IsWithinLOSInMap(unit) ? "" : "not ")}in line of sight of {player.GetName()}.");
+        if (!unit)
+            return false;
 
-            return true;
-        }
+        var player = handler.Player;
+        handler.SendSysMessage($"Checking LoS {player.GetName()} . {unit.GetName()}:");
+        handler.SendSysMessage($"    VMAP LoS: {(player.Location.IsWithinLOSInMap(unit, LineOfSightChecks.Vmap) ? "clear" : "obstructed")}");
+        handler.SendSysMessage($"    GObj LoS: {(player.Location.IsWithinLOSInMap(unit, LineOfSightChecks.Gobject) ? "clear" : "obstructed")}");
+        handler.SendSysMessage($"{unit.GetName()} is {(player.Location.IsWithinLOSInMap(unit) ? "" : "not ")}in line of sight of {player.GetName()}.");
 
-        return false;
+        return true;
+
     }
 
     [Command("moveflags", RBACPermissions.CommandDebug)]
@@ -792,12 +795,9 @@ internal class DebugCommands
             }
             else
             {
-                var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Location.Map, player.Location.Zone);
+                var bf = handler.ClassFactory.Resolve<BattleFieldManager>().GetBattlefieldToZoneId(player.Location.Map, player.Location.Zone);
 
-                if (bf != null)
-                    nearestLoc = bf.GetClosestGraveYard(player);
-                else
-                    nearestLoc = ObjectManager.GetClosestGraveYard(player.Location, player.Team, player);
+                nearestLoc = bf != null ? bf.GetClosestGraveYard(player) : handler.ObjectManager.GetClosestGraveYard(player.Location, player.Team, player);
             }
         }
         else
@@ -807,20 +807,20 @@ internal class DebugCommands
             var z = player.Location.Z;
             var distNearest = float.MaxValue;
 
-            foreach (var pair in ObjectManager.GetWorldSafeLocs())
+            foreach (var pair in handler.ObjectManager.GetWorldSafeLocs())
             {
                 var worldSafe = pair.Value;
 
-                if (worldSafe.Loc.MapId == player.Location.MapId)
-                {
-                    var dist = (worldSafe.Loc.X - x) * (worldSafe.Loc.X - x) + (worldSafe.Loc.Y - y) * (worldSafe.Loc.Y - y) + (worldSafe.Loc.Z - z) * (worldSafe.Loc.Z - z);
+                if (worldSafe.Loc.MapId != player.Location.MapId)
+                    continue;
 
-                    if (dist < distNearest)
-                    {
-                        distNearest = dist;
-                        nearestLoc = worldSafe;
-                    }
-                }
+                var dist = (worldSafe.Loc.X - x) * (worldSafe.Loc.X - x) + (worldSafe.Loc.Y - y) * (worldSafe.Loc.Y - y) + (worldSafe.Loc.Z - z) * (worldSafe.Loc.Z - z);
+
+                if (!(dist < distNearest))
+                    continue;
+
+                distNearest = dist;
+                nearestLoc = worldSafe;
             }
         }
 
@@ -844,8 +844,11 @@ internal class DebugCommands
             foreach (var p in map.ObjectsStore)
                 if (p.Value.IsCreature)
                 {
-                    if (!creatureIds.ContainsKey(p.Value.Entry))
-                        creatureIds[p.Value.Entry] = 0;
+                    creatureIds[p.Value.Entry] = creatureIds.ContainsKey(p.Value.Entry) switch
+                    {
+                        false => 0,
+                        _     => creatureIds[p.Value.Entry]
+                    };
 
                     creatureIds[p.Value.Entry]++;
                 }
@@ -859,9 +862,9 @@ internal class DebugCommands
         }
 
         if (mapId.HasValue)
-            Global.MapMgr.DoForAllMapsWithMapId(mapId.Value, map => HandleDebugObjectCountMap(map));
+            handler.ClassFactory.Resolve<MapManager>().DoForAllMapsWithMapId(mapId.Value, HandleDebugObjectCountMap);
         else
-            Global.MapMgr.DoForAllMaps(map => HandleDebugObjectCountMap(map));
+            handler.ClassFactory.Resolve<MapManager>().DoForAllMaps(HandleDebugObjectCountMap);
 
         return true;
     }
@@ -878,10 +881,17 @@ internal class DebugCommands
             return false;
         }
 
-        if (target.Location.DBPhase > 0)
-            handler.SendSysMessage($"Target creature's PhaseId in DB: {target.Location.DBPhase}");
-        else if (target.Location.DBPhase < 0)
-            handler.SendSysMessage($"Target creature's PhaseGroup in DB: {Math.Abs(target.Location.DBPhase)}");
+        switch (target.Location.DBPhase)
+        {
+            case > 0:
+                handler.SendSysMessage($"Target creature's PhaseId in DB: {target.Location.DBPhase}");
+
+                break;
+            case < 0:
+                handler.SendSysMessage($"Target creature's PhaseGroup in DB: {Math.Abs(target.Location.DBPhase)}");
+
+                break;
+        }
 
         PhasingHandler.PrintToChat(handler, target);
 
@@ -908,21 +918,21 @@ internal class DebugCommands
 
         if (daily)
         {
-            Global.WorldMgr.DailyReset();
-            handler.SendSysMessage($"Daily quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NEXT_DAILY_QUEST_RESET_TIME_VAR_ID)).ToShortTimeString()}");
+            handler.WorldManager.DailyReset();
+            handler.SendSysMessage($"Daily quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(handler.WorldManager.GetPersistentWorldVariable(WorldManager.NEXT_DAILY_QUEST_RESET_TIME_VAR_ID)).ToShortTimeString()}");
         }
 
         if (weekly)
         {
-            Global.WorldMgr.ResetWeeklyQuests();
-            handler.SendSysMessage($"Weekly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID)).ToShortTimeString()}");
+            handler.WorldManager.ResetWeeklyQuests();
+            handler.SendSysMessage($"Weekly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(handler.WorldManager.GetPersistentWorldVariable(WorldManager.NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID)).ToShortTimeString()}");
         }
 
-        if (monthly)
-        {
-            Global.WorldMgr.ResetMonthlyQuests();
-            handler.SendSysMessage($"Monthly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NEXT_MONTHLY_QUEST_RESET_TIME_VAR_ID)).ToShortTimeString()}");
-        }
+        if (!monthly)
+            return true;
+
+        handler.WorldManager.ResetMonthlyQuests();
+        handler.SendSysMessage($"Monthly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(handler.WorldManager.GetPersistentWorldVariable(WorldManager.NEXT_MONTHLY_QUEST_RESET_TIME_VAR_ID)).ToShortTimeString()}");
 
         return true;
     }
@@ -930,7 +940,7 @@ internal class DebugCommands
     [Command("raidreset", RBACPermissions.CommandDebug)]
     private static bool HandleDebugRaidResetCommand(CommandHandler handler, uint mapId, uint difficulty)
     {
-        var mEntry = CliDB.MapStorage.LookupByKey(mapId);
+        var mEntry = handler.CliDB.MapStorage.LookupByKey(mapId);
 
         if (mEntry == null)
         {
@@ -946,21 +956,20 @@ internal class DebugCommands
             return true;
         }
 
-        if (difficulty != 0 && CliDB.DifficultyStorage.HasRecord(difficulty))
+        if (difficulty != 0 && handler.CliDB.DifficultyStorage.HasRecord(difficulty))
         {
             handler.SendSysMessage($"Invalid difficulty {difficulty}.");
 
             return false;
         }
 
-        if (difficulty != 0 && Global.DB2Mgr.GetMapDifficultyData(mEntry.Id, (Difficulty)difficulty) == null)
-        {
-            handler.SendSysMessage($"Difficulty {(Difficulty)difficulty} is not valid for '{mEntry.MapName[handler.SessionDbcLocale]}'.");
-
+        if (difficulty == 0 || handler.ClassFactory.Resolve<DB2Manager>().GetMapDifficultyData(mEntry.Id, (Difficulty)difficulty) != null)
             return true;
-        }
+
+        handler.SendSysMessage($"Difficulty {(Difficulty)difficulty} is not valid for '{mEntry.MapName[handler.SessionDbcLocale]}'.");
 
         return true;
+
     }
 
     [Command("setaurastate", RBACPermissions.CommandDebug)]
@@ -1002,19 +1011,19 @@ internal class DebugCommands
         if (id == 0)
             return handler.Player.SummonCreature(entry, pos);
 
-        var creatureTemplate = ObjectManager.GetCreatureTemplate(entry);
+        var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(entry);
 
         if (creatureTemplate == null)
             return false;
 
-        var vehicleRecord = CliDB.VehicleStorage.LookupByKey(id);
+        var vehicleRecord = handler.CliDB.VehicleStorage.LookupByKey(id);
 
         if (vehicleRecord == null)
             return false;
 
         var map = handler.Player.Location.Map;
 
-        var creature = CreatureFactory.CreateCreature(entry, map, pos, id);
+        var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(entry, map, pos, id);
 
         if (!creature)
             return false;
@@ -1076,7 +1085,7 @@ internal class DebugCommands
 
                 foreach (var pair in redirectInfo)
                 {
-                    var unit = Global.ObjAccessor.GetUnit(target, pair.Item1);
+                    var unit = handler.ObjectAccessor.GetUnit(target, pair.Item1);
                     handler.SendSysMessage($" |-- {pair.Item2:D2} to {(unit != null ? unit.GetName() : pair.Item1)}");
                 }
             }
@@ -1093,15 +1102,16 @@ internal class DebugCommands
             else
             {
                 handler.SendSysMessage($" - {redirectRegistry.Count} spells may have redirects registered");
+                var spellManager = handler.ClassFactory.Resolve<SpellManager>();
 
                 foreach (var outerPair in redirectRegistry) // (spellId, (guid, pct))
                 {
-                    var spell = Global.SpellMgr.GetSpellInfo(outerPair.Key, Difficulty.None);
-                    handler.SendSysMessage($" |-- #{outerPair.Key} {(spell != null ? spell.SpellName[Global.WorldMgr.DefaultDbcLocale] : "<unknown>")} ({outerPair.Value.Count} entries):");
+                    var spell = spellManager.GetSpellInfo(outerPair.Key);
+                    handler.SendSysMessage($" |-- #{outerPair.Key} {(spell != null ? spell.SpellName[handler.WorldManager.DefaultDbcLocale] : "<unknown>")} ({outerPair.Value.Count} entries):");
 
                     foreach (var innerPair in outerPair.Value) // (guid, pct)
                     {
-                        var unit = Global.ObjAccessor.GetUnit(target, innerPair.Key);
+                        var unit = handler.ObjectAccessor.GetUnit(target, innerPair.Key);
                         handler.SendSysMessage($"   |-- {innerPair.Value} to {(unit != null ? unit.GetName() : innerPair.Key)}");
                     }
                 }
@@ -1116,8 +1126,11 @@ internal class DebugCommands
     {
         var target = handler.SelectedUnit;
 
-        if (target == null)
-            target = handler.Player;
+        target = target switch
+        {
+            null => handler.Player,
+            _    => target
+        };
 
         var mgr = target.GetThreatManager();
 
@@ -1259,22 +1272,22 @@ internal class DebugCommands
         switch (command)
         {
             case "alliance":
-                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue.GetValueOrDefault(0));
+                handler.ClassFactory.Resolve<WorldStateManager>().SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue.GetValueOrDefault(0));
 
                 break;
 
             case "horde":
-                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue.GetValueOrDefault(0));
+                handler.ClassFactory.Resolve<WorldStateManager>().SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue.GetValueOrDefault(0));
 
                 break;
 
             case "neutral":
-                Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
+                handler.ClassFactory.Resolve<WorldStateManager>().SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
 
                 break;
 
             case "off":
-                Global.WorldMgr.DisableForcedWarModeFactionBalanceState();
+                handler.WorldManager.DisableForcedWarModeFactionBalanceState();
 
                 break;
 
@@ -1299,15 +1312,12 @@ internal class DebugCommands
             return false;
         }
 
-        var wsExpressionEntry = CliDB.WorldStateExpressionStorage.LookupByKey(expressionId);
+        var wsExpressionEntry = handler.CliDB.WorldStateExpressionStorage.LookupByKey(expressionId);
 
         if (wsExpressionEntry == null)
             return false;
 
-        if (ConditionManager.IsPlayerMeetingExpression(target, wsExpressionEntry))
-            handler.SendSysMessage($"Expression {expressionId} meet");
-        else
-            handler.SendSysMessage($"Expression {expressionId} not meet");
+        handler.SendSysMessage(handler.ClassFactory.Resolve<ConditionManager>().IsPlayerMeetingExpression(target, wsExpressionEntry) ? $"Expression {expressionId} meet" : $"Expression {expressionId} not meet");
 
         return true;
     }
@@ -1346,7 +1356,7 @@ internal class DebugCommands
         [Command("cinematic", RBACPermissions.CommandDebug)]
         private static bool HandleDebugPlayCinematicCommand(CommandHandler handler, uint cinematicId)
         {
-            var cineSeq = CliDB.CinematicSequencesStorage.LookupByKey(cinematicId);
+            var cineSeq = handler.CliDB.CinematicSequencesStorage.LookupByKey(cinematicId);
 
             if (cineSeq == null)
             {
@@ -1356,7 +1366,7 @@ internal class DebugCommands
             }
 
             // Dump camera locations
-            var list = M2Storage.GetFlyByCameras(cineSeq.Camera[0]);
+            var list = handler.ClassFactory.Resolve<M2Storage>().GetFlyByCameras(cineSeq.Camera[0]);
 
             if (list != null)
             {
@@ -1380,7 +1390,7 @@ internal class DebugCommands
         [Command("movie", RBACPermissions.CommandDebug)]
         private static bool HandleDebugPlayMovieCommand(CommandHandler handler, uint movieId)
         {
-            if (!CliDB.MovieStorage.ContainsKey(movieId))
+            if (!handler.CliDB.MovieStorage.ContainsKey(movieId))
             {
                 handler.SendSysMessage(CypherStrings.MovieNotExist, movieId);
 
@@ -1395,7 +1405,7 @@ internal class DebugCommands
         [Command("music", RBACPermissions.CommandDebug)]
         private static bool HandleDebugPlayMusicCommand(CommandHandler handler, uint musicId)
         {
-            if (!CliDB.SoundKitStorage.ContainsKey(musicId))
+            if (!handler.CliDB.SoundKitStorage.ContainsKey(musicId))
             {
                 handler.SendSysMessage(CypherStrings.SoundNotExist, musicId);
 
@@ -1414,7 +1424,7 @@ internal class DebugCommands
         [Command("sound", RBACPermissions.CommandDebug)]
         private static bool HandleDebugPlaySoundCommand(CommandHandler handler, uint soundId, uint broadcastTextId)
         {
-            if (!CliDB.SoundKitStorage.ContainsKey(soundId))
+            if (!handler.CliDB.SoundKitStorage.ContainsKey(soundId))
             {
                 handler.SendSysMessage(CypherStrings.SoundNotExist, soundId);
 
@@ -1462,22 +1472,22 @@ internal class DebugCommands
                     return false;
 
                 case "alliance":
-                    Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue);
+                    handler.ClassFactory.Resolve<WorldStateManager>().SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue);
 
                     break;
 
                 case "horde":
-                    Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue);
+                    handler.ClassFactory.Resolve<WorldStateManager>().SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue);
 
                     break;
 
                 case "neutral":
-                    Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
+                    handler.ClassFactory.Resolve<WorldStateManager>().SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
 
                     break;
 
                 case "off":
-                    Global.WorldMgr.DisableForcedWarModeFactionBalanceState();
+                    handler.WorldManager.DisableForcedWarModeFactionBalanceState();
 
                     break;
             }

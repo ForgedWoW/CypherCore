@@ -28,7 +28,7 @@ internal class TitleCommands
         if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
             return false;
 
-        var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
+        var titleInfo = handler.CliDB.CharTitlesStorage.LookupByKey(titleId);
 
         if (titleInfo == null)
         {
@@ -63,7 +63,7 @@ internal class TitleCommands
         if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
             return false;
 
-        var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
+        var titleInfo = handler.CliDB.CharTitlesStorage.LookupByKey(titleId);
 
         if (titleInfo == null)
         {
@@ -98,7 +98,7 @@ internal class TitleCommands
         if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
             return false;
 
-        var titleInfo = CliDB.CharTitlesStorage.LookupByKey(titleId);
+        var titleInfo = handler.CliDB.CharTitlesStorage.LookupByKey(titleId);
 
         if (titleInfo == null)
         {
@@ -145,7 +145,7 @@ internal class TitleCommands
 
             var titles2 = mask;
 
-            foreach (var tEntry in CliDB.CharTitlesStorage.Values)
+            foreach (var tEntry in handler.CliDB.CharTitlesStorage.Values)
                 titles2 &= ~(1ul << tEntry.MaskID);
 
             mask &= ~titles2; // remove not existed titles

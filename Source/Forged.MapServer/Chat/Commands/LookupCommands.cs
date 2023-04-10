@@ -6,8 +6,12 @@ using System.Collections.Generic;
 using System.Text;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Events;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -25,7 +29,7 @@ internal class LookupCommands
         uint count = 0;
 
         // Search in AreaTable.dbc
-        foreach (var areaEntry in CliDB.AreaTableStorage.Values)
+        foreach (var areaEntry in handler.CliDB.AreaTableStorage.Values)
         {
             var locale = handler.SessionDbcLocale;
             var name = areaEntry.AreaName[locale];
@@ -71,8 +75,11 @@ internal class LookupCommands
 
                 handler.SendSysMessage(ss);
 
-                if (!found)
-                    found = true;
+                found = found switch
+                {
+                    false => true,
+                    _     => found
+                };
             }
         }
 
@@ -90,13 +97,13 @@ internal class LookupCommands
         var found = false;
         uint count = 0;
 
-        var ctc = Global.ObjectMgr.GetCreatureTemplates();
+        var ctc = handler.ObjectManager.GetCreatureTemplates();
 
         foreach (var template in ctc)
         {
             var id = template.Value.Entry;
             var localeIndex = handler.SessionDbLocaleIndex;
-            var creatureLocale = Global.ObjectMgr.GetCreatureLocale(id);
+            var creatureLocale = handler.ObjectManager.GetCreatureLocale(id);
 
             if (creatureLocale != null)
                 if (creatureLocale.Name.Length > localeIndex && !string.IsNullOrEmpty(creatureLocale.Name[localeIndex]))
@@ -117,8 +124,11 @@ internal class LookupCommands
                         else
                             handler.SendSysMessage(CypherStrings.CreatureEntryListConsole, id, creatureName);
 
-                        if (!found)
-                            found = true;
+                        found = found switch
+                        {
+                            false => true,
+                            _     => found
+                        };
 
                         continue;
                     }
@@ -143,8 +153,11 @@ internal class LookupCommands
                 else
                     handler.SendSysMessage(CypherStrings.CreatureEntryListConsole, id, name);
 
-                if (!found)
-                    found = true;
+                found = found switch
+                {
+                    false => true,
+                    _     => found
+                };
             }
         }
 
@@ -162,14 +175,14 @@ internal class LookupCommands
         var found = false;
         uint count = 0;
 
-        var events = Global.GameEventMgr.GetEventMap();
-        var activeEvents = Global.GameEventMgr.GetActiveEventList();
+        var events = handler.ClassFactory.Resolve<GameEventManager>().GetEventMap();
+        var activeEvents = handler.ClassFactory.Resolve<GameEventManager>().GetActiveEventList();
 
         for (ushort id = 0; id < events.Length; ++id)
         {
             var eventData = events[id];
 
-            var descr = eventData.description;
+            var descr = eventData.Description;
 
             if (string.IsNullOrEmpty(descr))
                 continue;
@@ -186,12 +199,15 @@ internal class LookupCommands
                 var active = activeEvents.Contains(id) ? handler.GetCypherString(CypherStrings.Active) : "";
 
                 if (handler.Session != null)
-                    handler.SendSysMessage(CypherStrings.EventEntryListChat, id, id, eventData.description, active);
+                    handler.SendSysMessage(CypherStrings.EventEntryListChat, id, id, eventData.Description, active);
                 else
-                    handler.SendSysMessage(CypherStrings.EventEntryListConsole, id, eventData.description, active);
+                    handler.SendSysMessage(CypherStrings.EventEntryListConsole, id, eventData.Description, active);
 
-                if (!found)
-                    found = true;
+                found = found switch
+                {
+                    false => true,
+                    _     => found
+                };
             }
         }
 
@@ -213,7 +229,7 @@ internal class LookupCommands
         uint count = 0;
 
 
-        foreach (var factionEntry in CliDB.FactionStorage.Values)
+        foreach (var factionEntry in handler.CliDB.FactionStorage.Values)
         {
             var factionState = target ? target.ReputationMgr.GetState(factionEntry) : null;
 
@@ -265,7 +281,7 @@ internal class LookupCommands
                     var index = target.ReputationMgr.GetReputationRankStrIndex(factionEntry);
                     var rankName = handler.GetCypherString((CypherStrings)index);
 
-                    ss.AppendFormat(" {0}|h|r ({1})", rankName, target.ReputationMgr.GetReputation(factionEntry));
+                    ss.Append($" {rankName}|h|r ({target.ReputationMgr.GetReputation(factionEntry)})");
 
                     if (factionState.Flags.HasFlag(ReputationFlags.Visible))
                         ss.Append(handler.GetCypherString(CypherStrings.FactionVisible));
@@ -292,8 +308,11 @@ internal class LookupCommands
 
                 handler.SendSysMessage(ss.ToString());
 
-                if (!found)
-                    found = true;
+                found = found switch
+                {
+                    false => true,
+                    _     => found
+                };
             }
         }
 
@@ -312,7 +331,7 @@ internal class LookupCommands
         uint count = 0;
 
         // Search in ItemSet.dbc
-        foreach (var set in CliDB.ItemSetStorage.Values)
+        foreach (var set in handler.CliDB.ItemSetStorage.Values)
         {
             var locale = handler.SessionDbcLocale;
             var name = set.Name[locale];
@@ -354,8 +373,11 @@ internal class LookupCommands
                 else
                     handler.SendSysMessage(CypherStrings.ItemsetListConsole, set.Id, name, "");
 
-                if (!found)
-                    found = true;
+                found = found switch
+                {
+                    false => true,
+                    _     => found
+                };
             }
         }
 
@@ -371,13 +393,13 @@ internal class LookupCommands
         var found = false;
         uint count = 0;
 
-        var gotc = Global.ObjectMgr.GetGameObjectTemplates();
+        var gotc = handler.ObjectManager.GetGameObjectTemplates();
 
         foreach (var template in gotc.Values)
         {
             var localeIndex = handler.SessionDbLocaleIndex;
 
-            var objectLocalte = Global.ObjectMgr.GetGameObjectLocale(template.entry);
+            var objectLocalte = handler.ObjectManager.GetGameObjectLocale(template.entry);
 
             if (objectLocalte != null)
                 if (objectLocalte.Name.Length > localeIndex && !string.IsNullOrEmpty(objectLocalte.Name[localeIndex]))
@@ -398,8 +420,11 @@ internal class LookupCommands
                         else
                             handler.SendSysMessage(CypherStrings.GoEntryListConsole, template.entry, objName);
 
-                        if (!found)
-                            found = true;
+                        found = found switch
+                        {
+                            false => true,
+                            _     => found
+                        };
 
                         continue;
                     }
@@ -424,8 +449,11 @@ internal class LookupCommands
                 else
                     handler.SendSysMessage(CypherStrings.GoEntryListConsole, template.entry, name);
 
-                if (!found)
-                    found = true;
+                found = found switch
+                {
+                    false => true,
+                    _     => found
+                };
             }
         }
 
@@ -445,7 +473,7 @@ internal class LookupCommands
         uint count = 0;
 
         // Search in SkillLine.dbc
-        foreach (var skillInfo in CliDB.SkillLineStorage.Values)
+        foreach (var skillInfo in handler.CliDB.SkillLineStorage.Values)
         {
             var locale = handler.SessionDbcLocale;
             var name = skillInfo.DisplayName[locale];
@@ -502,8 +530,11 @@ internal class LookupCommands
                 else
                     handler.SendSysMessage(CypherStrings.SkillListConsole, skillInfo.Id, name, "", knownStr, valStr);
 
-                if (!found)
-                    found = true;
+                found = found switch
+                {
+                    false => true,
+                    _     => found
+                };
             }
         }
 
@@ -521,7 +552,7 @@ internal class LookupCommands
         var locale = handler.SessionDbcLocale;
 
         // Search in TaxiNodes.dbc
-        foreach (var nodeEntry in CliDB.TaxiNodesStorage.Values)
+        foreach (var nodeEntry in handler.CliDB.TaxiNodesStorage.Values)
         {
             var name = nodeEntry.Name[locale];
 
@@ -559,8 +590,11 @@ internal class LookupCommands
                                        nodeEntry.Pos.Y,
                                        nodeEntry.Pos.Z);
 
-            if (!found)
-                found = true;
+            found = found switch
+            {
+                false => true,
+                _     => found
+            };
         }
 
         if (!found)
@@ -578,9 +612,9 @@ internal class LookupCommands
         uint count = 0;
         var limitReached = false;
 
-        foreach (var tele in Global.ObjectMgr.GameTeleStorage)
+        foreach (var tele in handler.ObjectManager.GameTeleStorage)
         {
-            if (!tele.Value.name.Like(namePart))
+            if (!tele.Value.Name.Like(namePart))
                 continue;
 
             if (MaxResults != 0 && count++ == MaxResults)
@@ -591,9 +625,9 @@ internal class LookupCommands
             }
 
             if (handler.Player != null)
-                reply.AppendFormat("  |cffffffff|Htele:{0}|h[{1}]|h|r\n", tele.Key, tele.Value.name);
+                reply.AppendFormat("  |cffffffff|Htele:{0}|h[{1}]|h|r\n", tele.Key, tele.Value.Name);
             else
-                reply.AppendFormat("  {0} : {1}\n", tele.Key, tele.Value.name);
+                reply.AppendFormat("  {0} : {1}\n", tele.Key, tele.Value.Name);
         }
 
         if (reply.Capacity == 0)
@@ -619,7 +653,7 @@ internal class LookupCommands
         uint counter = 0; // Counter for figure out that we found smth.
 
         // Search in CharTitles.dbc
-        foreach (var titleInfo in CliDB.CharTitlesStorage.Values)
+        foreach (var titleInfo in handler.CliDB.CharTitlesStorage.Values)
             for (var gender = Gender.Male; gender <= Gender.Female; ++gender)
             {
                 if (target && target.Gender != gender)
@@ -693,7 +727,7 @@ internal class LookupCommands
             uint count = 0;
 
             // Search in ItemSparse
-            var its = Global.ObjectMgr.GetItemTemplates();
+            var its = handler.ObjectManager.GetItemTemplates();
 
             foreach (var template in its.Values)
             {
@@ -716,8 +750,11 @@ internal class LookupCommands
                     else
                         handler.SendSysMessage(CypherStrings.ItemListConsole, template.Id, name);
 
-                    if (!found)
-                        found = true;
+                    found = found switch
+                    {
+                        false => true,
+                        _     => found
+                    };
                 }
             }
 
@@ -730,7 +767,7 @@ internal class LookupCommands
         [Command("id", RBACPermissions.CommandLookupItemId, true)]
         private static bool HandleLookupItemIdCommand(CommandHandler handler, uint id)
         {
-            var itemTemplate = Global.ObjectMgr.GetItemTemplate(id);
+            var itemTemplate = handler.ObjectManager.GetItemTemplate(id);
 
             if (itemTemplate != null)
             {
@@ -764,10 +801,10 @@ internal class LookupCommands
 
             var found = false;
             uint count = 0;
-            var maxResults = GetDefaultValue("Command.LookupMaxResults", 0);
+            var maxResults = handler.Configuration.GetDefaultValue("Command.LookupMaxResults", 0);
 
             // Search in ItemSet.dbc
-            foreach (var (id, set) in CliDB.ItemSetStorage)
+            foreach (var (id, set) in handler.CliDB.ItemSetStorage)
             {
                 var locale = handler.SessionDbcLocale;
                 var name = set.Name[locale];
@@ -809,8 +846,11 @@ internal class LookupCommands
                     else
                         handler.SendSysMessage(CypherStrings.ItemsetListConsole, id, name, "");
 
-                    if (!found)
-                        found = true;
+                    found = found switch
+                    {
+                        false => true,
+                        _     => found
+                    };
                 }
             }
 
@@ -833,7 +873,7 @@ internal class LookupCommands
             uint counter = 0;
 
             // search in Map.dbc
-            foreach (var mapInfo in CliDB.MapStorage.Values)
+            foreach (var mapInfo in handler.CliDB.MapStorage.Values)
             {
                 var locale = handler.SessionDbcLocale;
                 var name = mapInfo.MapName[locale];
@@ -910,11 +950,11 @@ internal class LookupCommands
         [Command("id", RBACPermissions.CommandLookupMapId, true)]
         private static bool HandleLookupMapIdCommand(CommandHandler handler, uint id)
         {
-            var mapInfo = CliDB.MapStorage.LookupByKey(id);
+            var mapInfo = handler.CliDB.MapStorage.LookupByKey(id);
 
             if (mapInfo != null)
             {
-                var locale = handler.Session ? handler.Session.SessionDbcLocale : Global.WorldMgr.DefaultDbcLocale;
+                var locale = handler.Session ? handler.Session.SessionDbcLocale : handler.WorldManager.DefaultDbcLocale;
                 var name = mapInfo.MapName[locale];
 
                 if (name.IsEmpty())
@@ -971,19 +1011,19 @@ internal class LookupCommands
         [Command("account", RBACPermissions.CommandLookupPlayerAccount)]
         private static bool HandleLookupPlayerAccountCommand(CommandHandler handler, string account, int limit = -1)
         {
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_NAME);
+            var stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_NAME);
             stmt.AddValue(0, account);
 
-            return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
+            return LookupPlayerSearchCommand(handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt), limit, handler);
         }
 
         [Command("email", RBACPermissions.CommandLookupPlayerEmail)]
         private static bool HandleLookupPlayerEmailCommand(CommandHandler handler, string email, int limit = -1)
         {
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_EMAIL);
+            var stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_EMAIL);
             stmt.AddValue(0, email);
 
-            return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
+            return LookupPlayerSearchCommand(handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt), limit, handler);
         }
 
         [Command("ip", RBACPermissions.CommandLookupPlayerIp)]
@@ -1000,10 +1040,10 @@ internal class LookupCommands
                 ip = target.Session.RemoteAddress;
             }
 
-            var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
+            var stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
             stmt.AddValue(0, ip);
 
-            return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
+            return LookupPlayerSearchCommand(handler.ClassFactory.Resolve<LoginDatabase>().Query(stmt), limit, handler);
         }
         private static bool LookupPlayerSearchCommand(SQLResult result, int limit, CommandHandler handler)
         {
@@ -1029,9 +1069,9 @@ internal class LookupCommands
                 var accountId = result.Read<uint>(0);
                 var accountName = result.Read<string>(1);
 
-                var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_GUID_NAME_BY_ACC);
+                var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHAR_GUID_NAME_BY_ACC);
                 stmt.AddValue(0, accountId);
-                var result2 = DB.Characters.Query(stmt);
+                var result2 = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
                 if (!result2.IsEmpty())
                 {
@@ -1074,12 +1114,12 @@ internal class LookupCommands
             var found = false;
             uint count = 0;
 
-            var qTemplates = Global.ObjectMgr.GetQuestTemplates();
+            var qTemplates = handler.ObjectManager.GetQuestTemplates();
 
             foreach (var qInfo in qTemplates.Values)
             {
                 int localeIndex = handler.SessionDbLocaleIndex;
-                var questLocale = Global.ObjectMgr.GetQuestLocale(qInfo.Id);
+                var questLocale = handler.ObjectManager.GetQuestLocale(qInfo.Id);
 
                 if (questLocale != null)
                     if (questLocale.LogTitle.Length > localeIndex && !questLocale.LogTitle[localeIndex].IsEmpty())
@@ -1118,13 +1158,13 @@ internal class LookupCommands
                             if (handler.Session != null)
                             {
                                 var maxLevel = 0;
-                                var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+                                var questLevels = handler.ClassFactory.Resolve<DB2Manager>().GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                                 if (questLevels.HasValue)
                                     maxLevel = questLevels.Value.MaxLevel;
 
                                 var scalingFactionGroup = 0;
-                                var contentTuning = CliDB.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
+                                var contentTuning = handler.CliDB.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
 
                                 if (contentTuning != null)
                                     scalingFactionGroup = contentTuning.GetScalingFactionGroup();
@@ -1144,8 +1184,11 @@ internal class LookupCommands
                                 handler.SendSysMessage(CypherStrings.QuestListConsole, qInfo.Id, questTitle, statusStr);
                             }
 
-                            if (!found)
-                                found = true;
+                            found = found switch
+                            {
+                                false => true,
+                                _     => found
+                            };
 
                             continue;
                         }
@@ -1192,13 +1235,13 @@ internal class LookupCommands
                     if (handler.Session != null)
                     {
                         var maxLevel = 0;
-                        var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+                        var questLevels = handler.ClassFactory.Resolve<DB2Manager>().GetContentTuningData(qInfo.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                         if (questLevels.HasValue)
                             maxLevel = questLevels.Value.MaxLevel;
 
                         var scalingFactionGroup = 0;
-                        var contentTuning = CliDB.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
+                        var contentTuning = handler.CliDB.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
 
                         if (contentTuning != null)
                             scalingFactionGroup = contentTuning.GetScalingFactionGroup();
@@ -1218,8 +1261,11 @@ internal class LookupCommands
                         handler.SendSysMessage(CypherStrings.QuestListConsole, qInfo.Id, title, statusStr);
                     }
 
-                    if (!found)
-                        found = true;
+                    found = found switch
+                    {
+                        false => true,
+                        _     => found
+                    };
                 }
             }
 
@@ -1235,7 +1281,7 @@ internal class LookupCommands
             // can be NULL at console call
             var target = handler.SelectedPlayerOrSelf;
 
-            var quest = Global.ObjectMgr.GetQuestTemplate(id);
+            var quest = handler.ObjectManager.GetQuestTemplate(id);
 
             if (quest != null)
             {
@@ -1271,13 +1317,13 @@ internal class LookupCommands
                 if (handler.Session)
                 {
                     var maxLevel = 0;
-                    var questLevels = Global.DB2Mgr.GetContentTuningData(quest.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
+                    var questLevels = handler.ClassFactory.Resolve<DB2Manager>().GetContentTuningData(quest.ContentTuningId, handler.Session.Player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
 
                     if (questLevels.HasValue)
                         maxLevel = questLevels.Value.MaxLevel;
 
                     var scalingFactionGroup = 0;
-                    var contentTuning = CliDB.ContentTuningStorage.LookupByKey(quest.ContentTuningId);
+                    var contentTuning = handler.CliDB.ContentTuningStorage.LookupByKey(quest.ContentTuningId);
 
                     if (contentTuning != null)
                         scalingFactionGroup = contentTuning.GetScalingFactionGroup();
@@ -1319,9 +1365,9 @@ internal class LookupCommands
             uint count = 0;
 
             // Search in SpellName.dbc
-            foreach (var spellName in CliDB.SpellNameStorage.Values)
+            foreach (var spellName in handler.CliDB.SpellNameStorage.Values)
             {
-                var spellInfo = Global.SpellMgr.GetSpellInfo(spellName.Id, Difficulty.None);
+                var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellName.Id, Difficulty.None);
 
                 if (spellInfo != null)
                 {
@@ -1362,7 +1408,7 @@ internal class LookupCommands
                         var known = target && target.HasSpell(spellInfo.Id);
                         var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffect(SpellEffectName.LearnSpell));
 
-                        var learnSpellInfo = spellEffectInfo != null ? Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo.Difficulty) : null;
+                        var learnSpellInfo = spellEffectInfo != null ? handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo.Difficulty) : null;
 
                         var talent = spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
                         var passive = spellInfo.IsPassive;
@@ -1404,8 +1450,11 @@ internal class LookupCommands
 
                         handler.SendSysMessage(ss.ToString());
 
-                        if (!found)
-                            found = true;
+                        found = found switch
+                        {
+                            false => true,
+                            _     => found
+                        };
                     }
                 }
             }
@@ -1422,7 +1471,7 @@ internal class LookupCommands
             // can be NULL at console call
             var target = handler.SelectedPlayer;
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(id, Difficulty.None);
+            var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(id, Difficulty.None);
 
             if (spellInfo != null)
             {
@@ -1439,7 +1488,7 @@ internal class LookupCommands
                 var known = target && target.HasSpell(id);
                 var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffect(SpellEffectName.LearnSpell));
 
-                var learnSpellInfo = Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, Difficulty.None);
+                var learnSpellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellEffectInfo.TriggerSpell, Difficulty.None);
 
                 var talent = spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
                 var passive = spellInfo.IsPassive;

@@ -1545,7 +1545,7 @@ public class Pet : Guardian
         StringBuilder ss = new();
 
         for (byte i = SharedConst.ActionBarIndexStart; i < SharedConst.ActionBarIndexEnd; ++i)
-            ss.AppendFormat("{0} {1} ", (uint)GetCharmInfo().GetActionBarEntry(i).GetActiveState(), GetCharmInfo().GetActionBarEntry(i).GetAction());
+            ss.Append($"{(uint)GetCharmInfo().GetActionBarEntry(i).GetActiveState()} {GetCharmInfo().GetActionBarEntry(i).GetAction()} ");
 
         return ss.ToString();
     }

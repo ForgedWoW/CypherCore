@@ -2,8 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Achievements;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
 
@@ -63,7 +65,7 @@ internal class DisableCommands
             {
                 case DisableType.Spell:
                 {
-                    if (!Global.SpellMgr.HasSpellInfo(entry, Difficulty.None))
+                    if (!handler.ClassFactory.Resolve<SpellManager>().HasSpellInfo(entry, Difficulty.None))
                     {
                         handler.SendSysMessage(CypherStrings.CommandNospellfound);
 
@@ -74,7 +76,7 @@ internal class DisableCommands
                 }
                 case DisableType.Quest:
                 {
-                    if (Global.ObjectMgr.GetQuestTemplate(entry) == null)
+                    if (handler.ObjectManager.GetQuestTemplate(entry) == null)
                     {
                         handler.SendSysMessage(CypherStrings.CommandNoquestfound, entry);
 
@@ -85,7 +87,7 @@ internal class DisableCommands
                 }
                 case DisableType.Map:
                 {
-                    if (!CliDB.MapStorage.ContainsKey(entry))
+                    if (!handler.CliDB.MapStorage.ContainsKey(entry))
                     {
                         handler.SendSysMessage(CypherStrings.CommandNomapfound);
 
@@ -96,7 +98,7 @@ internal class DisableCommands
                 }
                 case DisableType.Battleground:
                 {
-                    if (!CliDB.BattlemasterListStorage.ContainsKey(entry))
+                    if (!handler.CliDB.BattlemasterListStorage.ContainsKey(entry))
                     {
                         handler.SendSysMessage(CypherStrings.CommandNoBattlegroundFound);
 
@@ -107,7 +109,7 @@ internal class DisableCommands
                 }
                 case DisableType.Criteria:
                 {
-                    if (Global.CriteriaMgr.GetCriteria(entry) == null)
+                    if (handler.ClassFactory.Resolve<CriteriaManager>().GetCriteria(entry) == null)
                     {
                         handler.SendSysMessage(CypherStrings.CommandNoAchievementCriteriaFound);
 
@@ -129,7 +131,7 @@ internal class DisableCommands
                 }
                 case DisableType.VMAP:
                 {
-                    if (!CliDB.MapStorage.ContainsKey(entry))
+                    if (!handler.CliDB.MapStorage.ContainsKey(entry))
                     {
                         handler.SendSysMessage(CypherStrings.CommandNomapfound);
 
@@ -140,7 +142,7 @@ internal class DisableCommands
                 }
                 case DisableType.MMAP:
                 {
-                    if (!CliDB.MapStorage.ContainsKey(entry))
+                    if (!handler.CliDB.MapStorage.ContainsKey(entry))
                     {
                         handler.SendSysMessage(CypherStrings.CommandNomapfound);
 
@@ -152,10 +154,11 @@ internal class DisableCommands
                 
             }
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_DISABLES);
+            var worldDB = handler.ClassFactory.Resolve<WorldDatabase>();
+            var stmt = worldDB.GetPreparedStatement(WorldStatements.SEL_DISABLES);
             stmt.AddValue(0, entry);
             stmt.AddValue(1, (byte)disableType);
-            var result = DB.World.Query(stmt);
+            var result = worldDB.Query(stmt);
 
             if (!result.IsEmpty())
             {
@@ -164,12 +167,12 @@ internal class DisableCommands
                 return false;
             }
 
-            stmt = DB.World.GetPreparedStatement(WorldStatements.INS_DISABLES);
+            stmt = worldDB.GetPreparedStatement(WorldStatements.INS_DISABLES);
             stmt.AddValue(0, entry);
             stmt.AddValue(1, (byte)disableType);
             stmt.AddValue(2, flags);
             stmt.AddValue(3, disableComment);
-            DB.World.Execute(stmt);
+            worldDB.Execute(stmt);
 
             handler.SendSysMessage($"Add Disabled {disableType} (Id: {entry}) for reason {disableComment}");
 
@@ -232,10 +235,11 @@ internal class DisableCommands
             if (entry == 0)
                 return false;
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_DISABLES);
+            var worldDB = handler.ClassFactory.Resolve<WorldDatabase>();
+            var stmt = worldDB.GetPreparedStatement(WorldStatements.SEL_DISABLES);
             stmt.AddValue(0, entry);
             stmt.AddValue(1, (byte)disableType);
-            var result = DB.World.Query(stmt);
+            var result = worldDB.Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -244,10 +248,10 @@ internal class DisableCommands
                 return false;
             }
 
-            stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_DISABLES);
+            stmt = worldDB.GetPreparedStatement(WorldStatements.DEL_DISABLES);
             stmt.AddValue(0, entry);
             stmt.AddValue(1, (byte)disableType);
-            DB.World.Execute(stmt);
+            worldDB.Execute(stmt);
 
             handler.SendSysMessage($"Remove Disabled {disableType} (Id: {entry})");
 

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Cache;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Guilds;
 using Framework.Constants;
@@ -32,14 +33,14 @@ internal class GuildCommands
             return false;
         }
 
-        if (Global.GuildMgr.GetGuildByName(guildName))
+        if (handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(guildName))
         {
             handler.SendSysMessage(CypherStrings.GuildRenameAlreadyExists);
 
             return false;
         }
 
-        if (Global.ObjectMgr.IsReservedName(guildName) || !GameObjectManager.IsValidCharterName(guildName))
+        if (handler.ObjectManager.IsReservedName(guildName) || !GameObjectManager.IsValidCharterName(guildName))
         {
             handler.SendSysMessage(CypherStrings.BadValue);
 
@@ -55,7 +56,7 @@ internal class GuildCommands
             return false;
         }
 
-        Global.GuildMgr.AddGuild(guild);
+        handler.ClassFactory.Resolve<GuildManager>().AddGuild(guild);
 
         return true;
     }
@@ -66,7 +67,7 @@ internal class GuildCommands
         if (guildName.IsEmpty())
             return false;
 
-        var guild = Global.GuildMgr.GetGuildByName(guildName);
+        var guild = handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(guildName);
 
         if (guild == null)
             return false;
@@ -85,9 +86,9 @@ internal class GuildCommands
         if (!args.Empty() && args[0] != '\0')
         {
             if (char.IsDigit(args[0]))
-                guild = Global.GuildMgr.GetGuildById(args.NextUInt64());
+                guild = handler.ClassFactory.Resolve<GuildManager>().GetGuildById(args.NextUInt64());
             else
-                guild = Global.GuildMgr.GetGuildByName(args.NextString());
+                guild = handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(args.NextString());
         }
         else if (target)
         {
@@ -100,7 +101,7 @@ internal class GuildCommands
         // Display Guild Information
         handler.SendSysMessage(CypherStrings.GuildInfoName, guild.GetName(), guild.GetId()); // Guild Id + Name
 
-        if (Global.CharacterCacheStorage.GetCharacterNameByGuid(guild.GetLeaderGUID(), out var guildMasterName))
+        if (handler.ClassFactory.Resolve<CharacterCache>().GetCharacterNameByGuid(guild.GetLeaderGUID(), out var guildMasterName))
             handler.SendSysMessage(CypherStrings.GuildInfoGuildMaster, guildMasterName, guild.GetLeaderGUID().ToString()); // Guild Master
 
         // Format creation date
@@ -119,8 +120,11 @@ internal class GuildCommands
     [Command("invite", RBACPermissions.CommandGuildInvite, true)]
     private static bool HandleGuildInviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
     {
-        if (targetIdentifier == null)
-            targetIdentifier = PlayerIdentifier.FromTargetOrSelf(handler);
+        targetIdentifier = targetIdentifier switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => targetIdentifier
+        };
 
         if (targetIdentifier == null)
             return false;
@@ -128,7 +132,7 @@ internal class GuildCommands
         if (guildName.IsEmpty())
             return false;
 
-        var targetGuild = Global.GuildMgr.GetGuildByName(guildName);
+        var targetGuild = handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(guildName);
 
         if (targetGuild == null)
             return false;
@@ -141,18 +145,21 @@ internal class GuildCommands
     [Command("rank", RBACPermissions.CommandGuildRank, true)]
     private static bool HandleGuildRankCommand(CommandHandler handler, PlayerIdentifier player, byte rank)
     {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => player
+        };
 
         if (player == null)
             return false;
 
-        var guildId = player.IsConnected() ? player.GetConnectedPlayer().GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(player.GetGUID());
+        var guildId = player.IsConnected() ? player.GetConnectedPlayer().GuildId : handler.ClassFactory.Resolve<CharacterCache>().GetCharacterGuildIdByGuid(player.GetGUID());
 
         if (guildId == 0)
             return false;
 
-        var targetGuild = Global.GuildMgr.GetGuildById(guildId);
+        var targetGuild = handler.ClassFactory.Resolve<GuildManager>().GetGuildById(guildId);
 
         if (!targetGuild)
             return false;
@@ -177,7 +184,7 @@ internal class GuildCommands
             return false;
         }
 
-        var guild = Global.GuildMgr.GetGuildByName(oldGuildName);
+        var guild = handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(oldGuildName);
 
         if (!guild)
         {
@@ -186,7 +193,7 @@ internal class GuildCommands
             return false;
         }
 
-        if (Global.GuildMgr.GetGuildByName(newGuildName))
+        if (handler.ClassFactory.Resolve<GuildManager>().GetGuildByName(newGuildName))
         {
             handler.SendSysMessage(CypherStrings.GuildRenameAlreadyExists, newGuildName);
 
@@ -208,18 +215,21 @@ internal class GuildCommands
     [Command("uninvite", RBACPermissions.CommandGuildUninvite, true)]
     private static bool HandleGuildUninviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
     {
-        if (targetIdentifier == null)
-            targetIdentifier = PlayerIdentifier.FromTargetOrSelf(handler);
+        targetIdentifier = targetIdentifier switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => targetIdentifier
+        };
 
         if (targetIdentifier == null)
             return false;
 
-        var guildId = targetIdentifier.IsConnected() ? targetIdentifier.GetConnectedPlayer().GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(targetIdentifier.GetGUID());
+        var guildId = targetIdentifier.IsConnected() ? targetIdentifier.GetConnectedPlayer().GuildId : handler.ClassFactory.Resolve<CharacterCache>().GetCharacterGuildIdByGuid(targetIdentifier.GetGUID());
 
         if (guildId == 0)
             return false;
 
-        var targetGuild = Global.GuildMgr.GetGuildById(guildId);
+        var targetGuild = handler.ClassFactory.Resolve<GuildManager>().GetGuildById(guildId);
 
         if (targetGuild == null)
             return false;

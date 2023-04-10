@@ -19,7 +19,7 @@ internal class TeleCommands
 {
     private static bool DoNameTeleport(CommandHandler handler, PlayerIdentifier player, uint mapId, Position pos, string locationName)
     {
-        if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
+        if (!GridDefines.IsValidMapCoord(mapId, pos) || handler.ObjectManager.IsTransportMap(mapId))
         {
             handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 
@@ -66,7 +66,7 @@ internal class TeleCommands
 
             handler.SendSysMessage(CypherStrings.TeleportingTo, nameLink, handler.GetCypherString(CypherStrings.Offline), locationName);
 
-            PlayerComputators.SavePositionInDB(new WorldLocation(mapId, pos), Global.TerrainMgr.GetZoneId(PhasingHandler.EmptyPhaseShift, new WorldLocation(mapId, pos)), player.GetGUID());
+            handler.ClassFactory.Resolve<PlayerComputators>()SavePositionInDB(new WorldLocation(mapId, pos), handler.ClassFactory.Resolve<TerrainManager>().GetZoneId(PhasingHandler.EmptyPhaseShift, new WorldLocation(mapId, pos)), player.GetGUID());
         }
 
         return true;
@@ -80,7 +80,7 @@ internal class TeleCommands
         if (player == null)
             return false;
 
-        if (Global.ObjectMgr.GetGameTeleExactName(name) != null)
+        if (handler.ObjectManager.GetGameTeleExactName(name) != null)
         {
             handler.SendSysMessage(CypherStrings.CommandTpAlreadyexist);
 
@@ -98,7 +98,7 @@ internal class TeleCommands
             NameLow = name.ToLowerInvariant()
         };
 
-        if (Global.ObjectMgr.AddGameTele(tele))
+        if (handler.ObjectManager.AddGameTele(tele))
         {
             handler.SendSysMessage(CypherStrings.CommandTpAdded);
         }
@@ -131,7 +131,7 @@ internal class TeleCommands
             return false;
         }
 
-        var map = CliDB.MapStorage.LookupByKey(tele.MapId);
+        var map = handler.CliDB.MapStorage.LookupByKey(tele.MapId);
 
         if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.MapId || !player.IsGameMaster)))
         {
@@ -160,7 +160,7 @@ internal class TeleCommands
             return false;
         }
 
-        Global.ObjectMgr.DeleteGameTele(tele.Name);
+        handler.ObjectManager.DeleteGameTele(tele.Name);
         handler.SendSysMessage(CypherStrings.CommandTpDeleted);
 
         return true;
@@ -189,7 +189,7 @@ internal class TeleCommands
         if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
             return false;
 
-        var map = CliDB.MapStorage.LookupByKey(tele.MapId);
+        var map = handler.CliDB.MapStorage.LookupByKey(tele.MapId);
 
         if (map == null || map.IsBattlegroundOrArena())
         {
@@ -251,8 +251,11 @@ internal class TeleCommands
         [Command("", RBACPermissions.CommandTeleName, true)]
         private static bool HandleTeleNameCommand(CommandHandler handler, [OptionalArg] PlayerIdentifier player, [VariantArg(typeof(GameTele), typeof(string))] object where)
         {
-            if (player == null)
-                player = PlayerIdentifier.FromTargetOrSelf(handler);
+            player = player switch
+            {
+                null => PlayerIdentifier.FromTargetOrSelf(handler),
+                _    => player
+            };
 
             if (player == null)
                 return false;
@@ -267,16 +270,16 @@ internal class TeleCommands
                 }
                 else
                 {
-                    var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
+                    var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
                     stmt.AddValue(0, player.GetGUID().Counter);
-                    var result = DB.Characters.Query(stmt);
+                    var result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);
 
                     if (!result.IsEmpty())
                     {
                         WorldLocation loc = new(result.Read<ushort>(0), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4));
                         uint zoneId = result.Read<ushort>(1);
 
-                        PlayerComputators.SavePositionInDB(loc, zoneId, player.GetGUID());
+                        handler.ClassFactory.Resolve<PlayerComputators>()SavePositionInDB(loc, zoneId, player.GetGUID());
                     }
                 }
 
@@ -300,7 +303,7 @@ internal class TeleCommands
 
                 CreatureData spawnpoint = null;
 
-                foreach (var (id, creatureData) in Global.ObjectMgr.GetAllCreatureData())
+                foreach (var (id, creatureData) in handler.ObjectManager.GetAllCreatureData())
                 {
                     if (id != creatureId)
                         continue;
@@ -324,7 +327,7 @@ internal class TeleCommands
                     return false;
                 }
 
-                var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(creatureId);
+                var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(creatureId);
 
                 return DoNameTeleport(handler, player, spawnpoint.MapId, spawnpoint.SpawnPoint, creatureTemplate.Name);
             }
@@ -339,7 +342,7 @@ internal class TeleCommands
 
                 WorldDatabase.EscapeString(ref normalizedName);
 
-                var result = DB.World.Query($"SELECT c.position_x, c.position_y, c.position_z, c.orientation, c.map, ct.name FROM creature c INNER JOIN creature_template ct ON c.id = ct.entry WHERE ct.name LIKE '{normalizedName}'");
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query($"SELECT c.position_x, c.position_y, c.position_z, c.orientation, c.map, ct.name FROM creature c INNER JOIN creature_template ct ON c.id = ct.entry WHERE ct.name LIKE '{normalizedName}'");
 
                 if (result.IsEmpty())
                 {
@@ -360,7 +363,7 @@ internal class TeleCommands
                 if (player == null)
                     return false;
 
-                var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
+                var spawnpoint = handler.ObjectManager.GetCreatureData(spawnId);
 
                 if (spawnpoint == null)
                 {
@@ -369,7 +372,7 @@ internal class TeleCommands
                     return false;
                 }
 
-                var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(spawnpoint.Id);
+                var creatureTemplate = handler.ObjectManager.GetCreatureTemplate(spawnpoint.Id);
 
                 return DoNameTeleport(handler, player, spawnpoint.MapId, spawnpoint.SpawnPoint, creatureTemplate.Name);
             }

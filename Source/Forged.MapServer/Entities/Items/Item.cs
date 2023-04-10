@@ -1873,7 +1873,7 @@ public class Item : WorldObject
                 StringBuilder ss = new();
 
                 for (byte i = 0; i < ItemData.SpellCharges.GetSize() && i < BonusData.EffectCount; ++i)
-                    ss.AppendFormat("{0} ", GetSpellCharges(i));
+                    ss.Append($"{GetSpellCharges(i)} ");
 
                 stmt.AddValue(++index, ss.ToString());
                 stmt.AddValue(++index, (uint)ItemData.DynamicFlags);
@@ -1939,7 +1939,7 @@ public class Item : WorldObject
 
                             foreach (var bonusListID in gemData.BonusListIDs)
                                 if (bonusListID != 0)
-                                    gemBonusListIDs.AppendFormat("{0} ", bonusListID);
+                                    gemBonusListIDs.Append($"{bonusListID} ");
 
                             stmt.AddValue(2 + i * gemFields, gemBonusListIDs.ToString());
                             stmt.AddValue(3 + i * gemFields, (byte)gemData.Context);

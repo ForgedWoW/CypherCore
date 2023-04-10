@@ -2,12 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Quest;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IQuest;
 using Framework.Constants;
@@ -37,7 +39,7 @@ internal class QuestCommands
             }
             case QuestObjectiveType.Monster:
             {
-                var creatureInfo = Global.ObjectMgr.GetCreatureTemplate((uint)obj.ObjectID);
+                var creatureInfo = player.ObjectManager.GetCreatureTemplate((uint)obj.ObjectID);
 
                 if (creatureInfo != null)
                     for (var z = 0; z < obj.Amount; ++z)
@@ -58,7 +60,7 @@ internal class QuestCommands
 
                 if (curRep < obj.Amount)
                 {
-                    var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
+                    var factionEntry = player.CliDB.FactionStorage.LookupByKey(obj.ObjectID);
 
                     if (factionEntry != null)
                         player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
@@ -72,7 +74,7 @@ internal class QuestCommands
 
                 if (curRep > obj.Amount)
                 {
-                    var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
+                    var factionEntry = player.CliDB.FactionStorage.LookupByKey(obj.ObjectID);
 
                     if (factionEntry != null)
                         player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
@@ -108,7 +110,7 @@ internal class QuestCommands
             return false;
         }
 
-        if (Global.DisableMgr.IsDisabledFor(DisableType.Quest, quest.Id, null))
+        if (handler.ClassFactory.Resolve<DisableManager>().IsDisabledFor(DisableType.Quest, quest.Id, null))
         {
             handler.SendSysMessage(CypherStrings.CommandQuestNotfound, quest.Id);
 
@@ -116,7 +118,7 @@ internal class QuestCommands
         }
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
-        var itc = Global.ObjectMgr.GetItemTemplates();
+        var itc = handler.ObjectManager.GetItemTemplates();
         var result = itc.Values.FirstOrDefault(p => p.StartQuest == quest.Id);
 
         if (result != null)
@@ -149,7 +151,7 @@ internal class QuestCommands
         }
 
         // If player doesn't have the quest
-        if (player.GetQuestStatus(quest.Id) == QuestStatus.None || Global.DisableMgr.IsDisabledFor(DisableType.Quest, quest.Id, null))
+        if (player.GetQuestStatus(quest.Id) == QuestStatus.None || handler.ClassFactory.Resolve<DisableManager>().IsDisabledFor(DisableType.Quest, quest.Id, null))
         {
             handler.SendSysMessage(CypherStrings.CommandQuestNotfound, quest.Id);
 
@@ -203,8 +205,8 @@ internal class QuestCommands
             player.RemoveActiveQuest(quest.Id, false);
             player.RemoveRewardedQuest(quest.Id);
 
-            ScriptManager.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, quest.Id));
-            ScriptManager.RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
+            handler.ClassFactory.Resolve<ScriptManager>().ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(player, quest.Id));
+            handler.ClassFactory.Resolve<ScriptManager>().RunScript<IQuestOnQuestStatusChange>(script => script.OnQuestStatusChange(player, quest, oldStatus, QuestStatus.None), quest.ScriptId);
 
             handler.SendSysMessage(CypherStrings.CommandQuestRemoved);
 
@@ -231,7 +233,7 @@ internal class QuestCommands
         }
 
         // If player doesn't have the quest
-        if (player.GetQuestStatus(quest.Id) != QuestStatus.Complete || Global.DisableMgr.IsDisabledFor(DisableType.Quest, quest.Id, null))
+        if (player.GetQuestStatus(quest.Id) != QuestStatus.Complete || handler.ClassFactory.Resolve<DisableManager>().IsDisabledFor(DisableType.Quest, quest.Id, null))
         {
             handler.SendSysMessage(CypherStrings.CommandQuestNotfound, quest.Id);
 
@@ -257,7 +259,7 @@ internal class QuestCommands
                 return false;
             }
 
-            var obj = Global.ObjectMgr.GetQuestObjective(objectiveId);
+            var obj = handler.ObjectManager.GetQuestObjective(objectiveId);
 
             if (obj == null)
             {

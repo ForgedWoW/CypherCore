@@ -657,7 +657,7 @@ public class Condition
     public string ToString(bool ext = false)
     {
         StringBuilder ss = new();
-        ss.AppendFormat("[Condition SourceType: {0}", SourceType);
+        ss.Append($"[Condition SourceType: {SourceType}");
 
         if (SourceType < ConditionSourceType.Max)
         {
@@ -670,16 +670,16 @@ public class Condition
         }
 
         if (Global.ConditionMgr.CanHaveSourceGroupSet(SourceType))
-            ss.AppendFormat(", SourceGroup: {0}", SourceGroup);
+            ss.Append($", SourceGroup: {SourceGroup}");
 
-        ss.AppendFormat(", SourceEntry: {0}", SourceEntry);
+        ss.Append($", SourceEntry: {SourceEntry}");
 
         if (Global.ConditionMgr.CanHaveSourceIdSet(SourceType))
-            ss.AppendFormat(", SourceId: {0}", SourceId);
+            ss.Append($", SourceId: {SourceId}");
 
         if (ext)
         {
-            ss.AppendFormat(", ConditionType: {0}", ConditionType);
+            ss.Append($", ConditionType: {ConditionType}");
 
             if (ConditionType < ConditionTypes.Max)
                 ss.AppendFormat(" ({0})", Global.ConditionMgr.StaticConditionTypeData[(int)ConditionType].Name);

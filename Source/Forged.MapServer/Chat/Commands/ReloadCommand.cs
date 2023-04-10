@@ -18,7 +18,7 @@ internal class ReloadCommand
     private static bool HandleReloadAccessRequirementCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Access Requirement definitions...");
-        Global.ObjectMgr.LoadAccessRequirements();
+        handler.ObjectManager.LoadAccessRequirements();
         handler.SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
 
         return true;
@@ -48,7 +48,7 @@ internal class ReloadCommand
     private static bool HandleReloadAreaTriggerTavernCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Tavern Area Triggers...");
-        Global.ObjectMgr.LoadTavernAreaTriggers();
+        handler.ObjectManager.LoadTavernAreaTriggers();
         handler.SendGlobalGMSysMessage("DB table `areatrigger_tavern` reloaded.");
 
         return true;
@@ -58,7 +58,7 @@ internal class ReloadCommand
     private static bool HandleReloadAreaTriggerTeleportCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading AreaTrigger teleport definitions...");
-        Global.ObjectMgr.LoadAreaTriggerTeleports();
+        handler.ObjectManager.LoadAreaTriggerTeleports();
         handler.SendGlobalGMSysMessage("DB table `areatrigger_teleport` reloaded.");
 
         return true;
@@ -89,7 +89,7 @@ internal class ReloadCommand
     private static bool HandleReloadAutobroadcastCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Autobroadcasts...");
-        Global.WorldMgr.LoadAutobroadcasts();
+        handler.WorldManager.LoadAutobroadcasts();
         handler.SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
 
         return true;
@@ -129,8 +129,8 @@ internal class ReloadCommand
     private static bool HandleReloadConfigCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading config settings...");
-        Global.WorldMgr.LoadConfigSettings(true);
-        Global.MapMgr.InitializeVisibilityDistanceInfo();
+        handler.WorldManager.LoadConfigSettings(true);
+        handler.ClassFactory.Resolve<MapManager>().InitializeVisibilityDistanceInfo();
         handler.SendGlobalGMSysMessage("World config settings reloaded.");
 
         return true;
@@ -150,7 +150,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureMovementOverrideCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Creature movement overrides...");
-        Global.ObjectMgr.LoadCreatureMovementOverrides();
+        handler.ObjectManager.LoadCreatureMovementOverrides();
         handler.SendGlobalGMSysMessage("DB table `creature_movement_override` reloaded.");
 
         return true;
@@ -160,7 +160,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureQuestEnderCommand(CommandHandler handler)
     {
         Log.Logger.Information("Loading Quests Relations... (`creature_questender`)");
-        Global.ObjectMgr.LoadCreatureQuestEnders();
+        handler.ObjectManager.LoadCreatureQuestEnders();
         handler.SendGlobalGMSysMessage("DB table `creature_questender` reloaded.");
 
         return true;
@@ -170,7 +170,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureQuestStarterCommand(CommandHandler handler)
     {
         Log.Logger.Information("Loading Quests Relations... (`creature_queststarter`)");
-        Global.ObjectMgr.LoadCreatureQuestStarters();
+        handler.ObjectManager.LoadCreatureQuestStarters();
         handler.SendGlobalGMSysMessage("DB table `creature_queststarter` reloaded.");
 
         return true;
@@ -180,7 +180,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureSummonGroupsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading creature summon groups...");
-        Global.ObjectMgr.LoadTempSummons();
+        handler.ObjectManager.LoadTempSummons();
         handler.SendGlobalGMSysMessage("DB table `creature_summon_groups` reloaded.");
 
         return true;
@@ -196,10 +196,10 @@ internal class ReloadCommand
 
         while ((entry = args.NextUInt32()) != 0)
         {
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
             stmt.AddValue(0, entry);
             stmt.AddValue(1, 0);
-            var result = DB.World.Query(stmt);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -208,7 +208,7 @@ internal class ReloadCommand
                 continue;
             }
 
-            var cInfo = Global.ObjectMgr.GetCreatureTemplate(entry);
+            var cInfo = handler.ObjectManager.GetCreatureTemplate(entry);
 
             if (cInfo == null)
             {
@@ -219,11 +219,11 @@ internal class ReloadCommand
 
             Log.Logger.Information("Reloading creature template entry {0}", entry);
 
-            Global.ObjectMgr.LoadCreatureTemplate(result.GetFields());
-            Global.ObjectMgr.CheckCreatureTemplate(cInfo);
+            handler.ObjectManager.LoadCreatureTemplate(result.GetFields());
+            handler.ObjectManager.CheckCreatureTemplate(cInfo);
         }
 
-        Global.ObjectMgr.InitializeQueriesData(QueryDataGroup.Creatures);
+        handler.ObjectManager.InitializeQueriesData(QueryDataGroup.Creatures);
         handler.SendGlobalGMSysMessage("Creature template reloaded.");
 
         return true;
@@ -233,7 +233,7 @@ internal class ReloadCommand
     private static bool HandleReloadCreatureTemplateLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Creature Template Locale...");
-        Global.ObjectMgr.LoadCreatureLocales();
+        handler.ObjectManager.LoadCreatureLocales();
         handler.SendGlobalGMSysMessage("DB table `Creature Template Locale` reloaded.");
 
         return true;
@@ -273,7 +273,7 @@ internal class ReloadCommand
     private static bool HandleReloadCypherStringCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading trinity_string Table!");
-        Global.ObjectMgr.LoadCypherStrings();
+        handler.ObjectManager.LoadCypherStrings();
         handler.SendGlobalGMSysMessage("DB table `trinity_string` reloaded.");
 
         return true;
@@ -283,9 +283,9 @@ internal class ReloadCommand
     private static bool HandleReloadDisablesCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading disables table...");
-        Global.DisableMgr.LoadDisables();
+        handler.ClassFactory.Resolve<DisableManager>().LoadDisables();
         Log.Logger.Information("Checking quest disables...");
-        Global.DisableMgr.CheckQuestDisables();
+        handler.ClassFactory.Resolve<DisableManager>().CheckQuestDisables();
         handler.SendGlobalGMSysMessage("DB table `disables` reloaded.");
 
         return true;
@@ -294,7 +294,7 @@ internal class ReloadCommand
     [Command("event_scripts", RBACPermissions.CommandReloadEventScripts, true)]
     private static bool HandleReloadEventScriptsCommand(CommandHandler handler, StringArguments args)
     {
-        if (Global.MapMgr.IsScriptScheduled())
+        if (handler.ClassFactory.Resolve<MapManager>().IsScriptScheduled())
         {
             handler.SendSysMessage("DB scripts used currently, please attempt reload later.");
 
@@ -304,7 +304,7 @@ internal class ReloadCommand
         if (args != null)
             Log.Logger.Information("Re-Loading Scripts from `event_scripts`...");
 
-        Global.ObjectMgr.LoadEventScripts();
+        handler.ObjectManager.LoadEventScripts();
 
         if (args != null)
             handler.SendGlobalGMSysMessage("DB table `event_scripts` reloaded.");
@@ -317,7 +317,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Graveyard-zone links...");
 
-        Global.ObjectMgr.LoadGraveyardZones();
+        handler.ObjectManager.LoadGraveyardZones();
 
         handler.SendGlobalGMSysMessage("DB table `game_graveyard_zone` reloaded.");
 
@@ -328,7 +328,7 @@ internal class ReloadCommand
     private static bool HandleReloadGameobjectTemplateLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Gameobject Template Locale... ");
-        Global.ObjectMgr.LoadGameObjectLocales();
+        handler.ObjectManager.LoadGameObjectLocales();
         handler.SendGlobalGMSysMessage("DB table `gameobject_template_locale` reloaded.");
 
         return true;
@@ -339,7 +339,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Re-Loading Game Tele coordinates...");
 
-        Global.ObjectMgr.LoadGameTele();
+        handler.ObjectManager.LoadGameTele();
 
         handler.SendGlobalGMSysMessage("DB table `game_tele` reloaded.");
 
@@ -350,7 +350,7 @@ internal class ReloadCommand
     private static bool HandleReloadGOQuestEnderCommand(CommandHandler handler)
     {
         Log.Logger.Information("Loading Quests Relations... (`gameobject_questender`)");
-        Global.ObjectMgr.LoadGameobjectQuestEnders();
+        handler.ObjectManager.LoadGameobjectQuestEnders();
         handler.SendGlobalGMSysMessage("DB table `gameobject_questender` reloaded.");
 
         return true;
@@ -360,7 +360,7 @@ internal class ReloadCommand
     private static bool HandleReloadGOQuestStarterCommand(CommandHandler handler)
     {
         Log.Logger.Information("Loading Quests Relations... (`gameobject_queststarter`)");
-        Global.ObjectMgr.LoadGameobjectQuestStarters();
+        handler.ObjectManager.LoadGameobjectQuestStarters();
         handler.SendGlobalGMSysMessage("DB table `gameobject_queststarter` reloaded.");
 
         return true;
@@ -370,7 +370,7 @@ internal class ReloadCommand
     private static bool HandleReloadGossipMenuCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `gossip_menu` Table!");
-        Global.ObjectMgr.LoadGossipMenu();
+        handler.ObjectManager.LoadGossipMenu();
         handler.SendGlobalGMSysMessage("DB table `gossip_menu` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -381,7 +381,7 @@ internal class ReloadCommand
     private static bool HandleReloadGossipMenuOptionCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `gossip_menu_option` Table!");
-        Global.ObjectMgr.LoadGossipMenuItems();
+        handler.ObjectManager.LoadGossipMenuItems();
         handler.SendGlobalGMSysMessage("DB table `gossip_menu_option` reloaded.");
         Global.ConditionMgr.LoadConditions(true);
 
@@ -392,7 +392,7 @@ internal class ReloadCommand
     private static bool HandleReloadGossipMenuOptionLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Gossip Menu Option Locale... ");
-        Global.ObjectMgr.LoadGossipMenuItemsLocales();
+        handler.ObjectManager.LoadGossipMenuItemsLocales();
         handler.SendGlobalGMSysMessage("DB table `gossip_menu_option_locale` reloaded.");
 
         return true;
@@ -412,7 +412,7 @@ internal class ReloadCommand
     private static bool HandleReloadLfgRewardsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading lfg dungeon rewards...");
-        Global.LFGMgr.LoadRewards();
+        handler.ClassFactory.Resolve<LFGManager>().LoadRewards();
         handler.SendGlobalGMSysMessage("DB table `lfg_dungeon_rewards` reloaded.");
 
         return true;
@@ -422,7 +422,7 @@ internal class ReloadCommand
     private static bool HandleReloadLinkedRespawnCommand(CommandHandler handler)
     {
         Log.Logger.Information("Loading Linked Respawns... (`creature_linked_respawn`)");
-        Global.ObjectMgr.LoadLinkedRespawn();
+        handler.ObjectManager.LoadLinkedRespawn();
         handler.SendGlobalGMSysMessage("DB table `creature_linked_respawn` (creature linked respawns) reloaded.");
 
         return true;
@@ -575,7 +575,7 @@ internal class ReloadCommand
     private static bool HandleReloadMailLevelRewardCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Player level dependent mail rewards...");
-        Global.ObjectMgr.LoadMailLevelRewards();
+        handler.ObjectManager.LoadMailLevelRewards();
         handler.SendGlobalGMSysMessage("DB table `mail_level_reward` reloaded.");
 
         return true;
@@ -585,7 +585,7 @@ internal class ReloadCommand
     private static bool HandleReloadNpcVendorCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `npc_vendor` Table!");
-        Global.ObjectMgr.LoadVendors();
+        handler.ObjectManager.LoadVendors();
         handler.SendGlobalGMSysMessage("DB table `npc_vendor` reloaded.");
 
         return true;
@@ -595,7 +595,7 @@ internal class ReloadCommand
     private static bool HandleReloadOnKillReputationCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading creature award reputation definitions...");
-        Global.ObjectMgr.LoadReputationOnKill();
+        handler.ObjectManager.LoadReputationOnKill();
         handler.SendGlobalGMSysMessage("DB table `creature_onkill_reputation` reloaded.");
 
         return true;
@@ -605,7 +605,7 @@ internal class ReloadCommand
     private static bool HandleReloadPageTextLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Page Text Locale... ");
-        Global.ObjectMgr.LoadPageTextLocales();
+        handler.ObjectManager.LoadPageTextLocales();
         handler.SendGlobalGMSysMessage("DB table `page_text_locale` reloaded.");
 
         return true;
@@ -615,7 +615,7 @@ internal class ReloadCommand
     private static bool HandleReloadPageTextsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Page Text...");
-        Global.ObjectMgr.LoadPageTexts();
+        handler.ObjectManager.LoadPageTexts();
         handler.SendGlobalGMSysMessage("DB table `page_text` reloaded.");
 
         return true;
@@ -625,7 +625,7 @@ internal class ReloadCommand
     private static bool HandleReloadPointsOfInterestCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `points_of_interest` Table!");
-        Global.ObjectMgr.LoadPointsOfInterest();
+        handler.ObjectManager.LoadPointsOfInterest();
         handler.SendGlobalGMSysMessage("DB table `points_of_interest` reloaded.");
 
         return true;
@@ -635,7 +635,7 @@ internal class ReloadCommand
     private static bool HandleReloadPointsOfInterestLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Points Of Interest Locale... ");
-        Global.ObjectMgr.LoadPointOfInterestLocales();
+        handler.ObjectManager.LoadPointOfInterestLocales();
         handler.SendGlobalGMSysMessage("DB table `points_of_interest_locale` reloaded.");
 
         return true;
@@ -645,7 +645,7 @@ internal class ReloadCommand
     private static bool HandleReloadQuestAreaTriggersCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading QuestId Area Triggers...");
-        Global.ObjectMgr.LoadQuestAreaTriggers();
+        handler.ObjectManager.LoadQuestAreaTriggers();
         handler.SendGlobalGMSysMessage("DB table `areatrigger_involvedrelation` (quest area triggers) reloaded.");
 
         return true;
@@ -654,7 +654,7 @@ internal class ReloadCommand
     private static bool HandleReloadQuestGreetingCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading QuestId Greeting ... ");
-        Global.ObjectMgr.LoadQuestGreetings();
+        handler.ObjectManager.LoadQuestGreetings();
         handler.SendGlobalGMSysMessage("DB table `quest_greeting` reloaded.");
 
         return true;
@@ -664,8 +664,8 @@ internal class ReloadCommand
     private static bool HandleReloadQuestPOICommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading QuestId POI ...");
-        Global.ObjectMgr.LoadQuestPOI();
-        Global.ObjectMgr.InitializeQueriesData(QueryDataGroup.POIs);
+        handler.ObjectManager.LoadQuestPOI();
+        handler.ObjectManager.InitializeQueriesData(QueryDataGroup.POIs);
         handler.SendGlobalGMSysMessage("DB Table `quest_poi` and `quest_poi_points` reloaded.");
 
         return true;
@@ -675,13 +675,13 @@ internal class ReloadCommand
     private static bool HandleReloadQuestTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading QuestId Templates...");
-        Global.ObjectMgr.LoadQuests();
-        Global.ObjectMgr.InitializeQueriesData(QueryDataGroup.Quests);
+        handler.ObjectManager.LoadQuests();
+        handler.ObjectManager.InitializeQueriesData(QueryDataGroup.Quests);
         handler.SendGlobalGMSysMessage("DB table `quest_template` (quest definitions) reloaded.");
 
         // dependent also from `gameobject` but this table not reloaded anyway
         Log.Logger.Information("Re-Loading GameObjects for quests...");
-        Global.ObjectMgr.LoadGameObjectForQuests();
+        handler.ObjectManager.LoadGameObjectForQuests();
         handler.SendGlobalGMSysMessage("Data GameObjects for quests reloaded.");
 
         return true;
@@ -691,11 +691,11 @@ internal class ReloadCommand
     private static bool HandleReloadQuestTemplateLocaleCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading QuestId Locale... ");
-        Global.ObjectMgr.LoadQuestTemplateLocale();
-        Global.ObjectMgr.LoadQuestObjectivesLocale();
-        Global.ObjectMgr.LoadQuestGreetingLocales();
-        Global.ObjectMgr.LoadQuestOfferRewardLocale();
-        Global.ObjectMgr.LoadQuestRequestItemsLocale();
+        handler.ObjectManager.LoadQuestTemplateLocale();
+        handler.ObjectManager.LoadQuestObjectivesLocale();
+        handler.ObjectManager.LoadQuestGreetingLocales();
+        handler.ObjectManager.LoadQuestOfferRewardLocale();
+        handler.ObjectManager.LoadQuestRequestItemsLocale();
         handler.SendGlobalGMSysMessage("DB table `quest_template_locale` reloaded.");
         handler.SendGlobalGMSysMessage("DB table `quest_objectives_locale` reloaded.");
         handler.SendGlobalGMSysMessage("DB table `quest_greeting_locale` reloaded.");
@@ -710,7 +710,7 @@ internal class ReloadCommand
     {
         Log.Logger.Information("Reloading RBAC tables...");
         handler.AccountManager.LoadRBAC();
-        Global.WorldMgr.ReloadRBAC();
+        handler.WorldManager.ReloadRBAC();
         handler.SendGlobalGMSysMessage("RBAC data reloaded.");
 
         return true;
@@ -720,7 +720,7 @@ internal class ReloadCommand
     private static bool HandleReloadReputationRewardRateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `reputation_reward_rate` Table!");
-        Global.ObjectMgr.LoadReputationRewardRate();
+        handler.ObjectManager.LoadReputationRewardRate();
         handler.SendGlobalSysMessage("DB table `reputation_reward_rate` reloaded.");
 
         return true;
@@ -730,7 +730,7 @@ internal class ReloadCommand
     private static bool HandleReloadReputationSpilloverTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `reputation_spillover_template` Table!");
-        Global.ObjectMgr.LoadReputationSpilloverTemplate();
+        handler.ObjectManager.LoadReputationSpilloverTemplate();
         handler.SendGlobalSysMessage("DB table `reputation_spillover_template` reloaded.");
 
         return true;
@@ -740,7 +740,7 @@ internal class ReloadCommand
     private static bool HandleReloadReservedNameCommand(CommandHandler handler)
     {
         Log.Logger.Information("Loading ReservedNames... (`reserved_name`)");
-        Global.ObjectMgr.LoadReservedPlayersNames();
+        handler.ObjectManager.LoadReservedPlayersNames();
         handler.SendGlobalGMSysMessage("DB table `reserved_name` (player reserved names) reloaded.");
 
         return true;
@@ -750,7 +750,7 @@ internal class ReloadCommand
     private static bool HandleReloadSceneTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading scene_template table...");
-        Global.ObjectMgr.LoadSceneTemplates();
+        handler.ObjectManager.LoadSceneTemplates();
         handler.SendGlobalGMSysMessage("Scenes templates reloaded. New scriptname need a reboot.");
 
         return true;
@@ -780,7 +780,7 @@ internal class ReloadCommand
     private static bool HandleReloadSkillFishingBaseLevelCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Skill Fishing base level requirements...");
-        Global.ObjectMgr.LoadFishingBaseSkillLevel();
+        handler.ObjectManager.LoadFishingBaseSkillLevel();
         handler.SendGlobalGMSysMessage("DB table `skill_fishing_base_level` (fishing base level for zone/subzone) reloaded.");
 
         return true;
@@ -810,7 +810,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellAreaCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading SpellArea Data...");
-        Global.SpellMgr.LoadSpellAreas();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellAreas();
         handler.SendGlobalGMSysMessage("DB table `spell_area` (spell dependences from area/quest/auras state) reloaded.");
 
         return true;
@@ -820,7 +820,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellClickSpellsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `npc_spellclick_spells` Table!");
-        Global.ObjectMgr.LoadNPCSpellClickSpells();
+        handler.ObjectManager.LoadNPCSpellClickSpells();
         handler.SendGlobalGMSysMessage("DB table `npc_spellclick_spells` reloaded.");
 
         return true;
@@ -829,7 +829,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellGroupsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Spell Groups...");
-        Global.SpellMgr.LoadSpellGroups();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellGroups();
         handler.SendGlobalGMSysMessage("DB table `spell_group` (spell groups) reloaded.");
 
         return true;
@@ -839,7 +839,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellGroupStackRulesCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Spell Group Stack Rules...");
-        Global.SpellMgr.LoadSpellGroupStackRules();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellGroupStackRules();
         handler.SendGlobalGMSysMessage("DB table `spell_group_stack_rules` (spell stacking definitions) reloaded.");
 
         return true;
@@ -849,7 +849,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellLearnSpellCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Spell Learn Spells...");
-        Global.SpellMgr.LoadSpellLearnSpells();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellLearnSpells();
         handler.SendGlobalGMSysMessage("DB table `spell_learn_spell` reloaded.");
 
         return true;
@@ -859,7 +859,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellLinkedSpellCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Spell Linked Spells...");
-        Global.SpellMgr.LoadSpellLinked();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellLinked();
         handler.SendGlobalGMSysMessage("DB table `spell_linked_spell` reloaded.");
 
         return true;
@@ -868,7 +868,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellPetAurasCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Spell pet auras...");
-        Global.SpellMgr.LoadSpellPetAuras();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellPetAuras();
         handler.SendGlobalGMSysMessage("DB table `spell_pet_auras` reloaded.");
 
         return true;
@@ -878,7 +878,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellProcsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Spell Proc conditions and data...");
-        Global.SpellMgr.LoadSpellProcs();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellProcs();
         handler.SendGlobalGMSysMessage("DB table `spell_proc` (spell proc conditions and data) reloaded.");
 
         return true;
@@ -888,7 +888,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellRequiredCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Spell Required Data... ");
-        Global.SpellMgr.LoadSpellRequired();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellRequired();
         handler.SendGlobalGMSysMessage("DB table `spell_required` reloaded.");
 
         return true;
@@ -898,9 +898,9 @@ internal class ReloadCommand
     private static bool HandleReloadSpellScriptNamesCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading spell_script_names table...");
-        Global.ObjectMgr.LoadSpellScriptNames();
-        //ScriptManager.NotifyScriptIDUpdate();
-        Global.ObjectMgr.ValidateSpellScripts();
+        handler.ObjectManager.LoadSpellScriptNames();
+        //handler.ClassFactory.Resolve<ScriptManager>().NotifyScriptIDUpdate();
+        handler.ObjectManager.ValidateSpellScripts();
         handler.SendGlobalGMSysMessage("Spell scripts reloaded.");
 
         return true;
@@ -909,7 +909,7 @@ internal class ReloadCommand
     [Command("spell_scripts", RBACPermissions.CommandReloadSpellScripts, true)]
     private static bool HandleReloadSpellScriptsCommand(CommandHandler handler, StringArguments args)
     {
-        if (Global.MapMgr.IsScriptScheduled())
+        if (handler.ClassFactory.Resolve<MapManager>().IsScriptScheduled())
         {
             handler.SendSysMessage("DB scripts used currently, please attempt reload later.");
 
@@ -919,7 +919,7 @@ internal class ReloadCommand
         if (args != null)
             Log.Logger.Information("Re-Loading Scripts from `spell_scripts`...");
 
-        Global.ObjectMgr.LoadSpellScripts();
+        handler.ObjectManager.LoadSpellScripts();
 
         if (args != null)
             handler.SendGlobalGMSysMessage("DB table `spell_scripts` reloaded.");
@@ -930,7 +930,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellTargetPositionCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Spell target coordinates...");
-        Global.SpellMgr.LoadSpellTargetPositions();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellTargetPositions();
         handler.SendGlobalGMSysMessage("DB table `spell_target_position` (destination coordinates for spell targets) reloaded.");
 
         return true;
@@ -940,7 +940,7 @@ internal class ReloadCommand
     private static bool HandleReloadSpellThreatsCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Aggro Spells Definitions...");
-        Global.SpellMgr.LoadSpellThreats();
+        handler.ClassFactory.Resolve<SpellManager>().LoadSpellThreats();
         handler.SendGlobalGMSysMessage("DB table `spell_threat` (spell aggro definitions) reloaded.");
 
         return true;
@@ -950,9 +950,9 @@ internal class ReloadCommand
     private static bool HandleReloadSupportSystemCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading Support System Tables...");
-        Global.SupportMgr.LoadBugTickets();
-        Global.SupportMgr.LoadComplaintTickets();
-        Global.SupportMgr.LoadSuggestionTickets();
+        handler.ClassFactory.Resolve<SupportManager>().LoadBugTickets();
+        handler.ClassFactory.Resolve<SupportManager>().LoadComplaintTickets();
+        handler.ClassFactory.Resolve<SupportManager>().LoadSuggestionTickets();
         handler.SendGlobalGMSysMessage("DB tables `gm_*` reloaded.");
 
         return true;
@@ -962,8 +962,8 @@ internal class ReloadCommand
     private static bool HandleReloadTrainerCommand(CommandHandler handler)
     {
         Log.Logger.Information("Re-Loading `trainer` Table!");
-        Global.ObjectMgr.LoadTrainers();
-        Global.ObjectMgr.LoadCreatureTrainers();
+        handler.ObjectManager.LoadTrainers();
+        handler.ObjectManager.LoadCreatureTrainers();
         handler.SendGlobalGMSysMessage("DB table `trainer` reloaded.");
         handler.SendGlobalGMSysMessage("DB table `trainer_locale` reloaded.");
         handler.SendGlobalGMSysMessage("DB table `trainer_spell` reloaded.");
@@ -976,7 +976,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleAccessoryCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_accessory table...");
-        Global.ObjectMgr.LoadVehicleAccessories();
+        handler.ObjectManager.LoadVehicleAccessories();
         handler.SendGlobalGMSysMessage("Vehicle accessories reloaded.");
 
         return true;
@@ -986,7 +986,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleTemplateAccessoryCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_template_accessory table...");
-        Global.ObjectMgr.LoadVehicleTemplateAccessories();
+        handler.ObjectManager.LoadVehicleTemplateAccessories();
         handler.SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
 
         return true;
@@ -996,7 +996,7 @@ internal class ReloadCommand
     private static bool HandleReloadVehicleTemplateCommand(CommandHandler handler)
     {
         Log.Logger.Information("Reloading vehicle_template table...");
-        Global.ObjectMgr.LoadVehicleTemplate();
+        handler.ObjectManager.LoadVehicleTemplate();
         handler.SendGlobalGMSysMessage("Vehicle templates reloaded.");
 
         return true;
@@ -1018,7 +1018,7 @@ internal class ReloadCommand
     [Command("waypoint_scripts", RBACPermissions.CommandReloadWaypointScripts, true)]
     private static bool HandleReloadWpScriptsCommand(CommandHandler handler, StringArguments args)
     {
-        if (Global.MapMgr.IsScriptScheduled())
+        if (handler.ClassFactory.Resolve<MapManager>().IsScriptScheduled())
         {
             handler.SendSysMessage("DB scripts used currently, please attempt reload later.");
 
@@ -1028,7 +1028,7 @@ internal class ReloadCommand
         if (args != null)
             Log.Logger.Information("Re-Loading Scripts from `waypoint_scripts`...");
 
-        Global.ObjectMgr.LoadWaypointScripts();
+        handler.ObjectManager.LoadWaypointScripts();
 
         if (args != null)
             handler.SendGlobalGMSysMessage("DB table `waypoint_scripts` reloaded.");
@@ -1156,7 +1156,7 @@ internal class ReloadCommand
             HandleReloadQuestTemplateCommand(handler);
 
             Log.Logger.Information("Re-Loading Quests Relations...");
-            Global.ObjectMgr.LoadQuestStartersAndEnders();
+            handler.ObjectManager.LoadQuestStartersAndEnders();
             handler.SendGlobalGMSysMessage("DB tables `*_queststarter` and `*_questender` reloaded.");
 
             return true;
@@ -1165,7 +1165,7 @@ internal class ReloadCommand
         [Command("scripts", RBACPermissions.CommandReloadAllScripts, true)]
         private static bool HandleReloadAllScriptsCommand(CommandHandler handler)
         {
-            if (Global.MapMgr.IsScriptScheduled())
+            if (handler.ClassFactory.Resolve<MapManager>().IsScriptScheduled())
             {
                 handler.SendSysMessage("DB scripts used currently, please attempt reload later.");
 

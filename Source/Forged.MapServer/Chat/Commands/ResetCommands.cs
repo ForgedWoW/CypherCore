@@ -18,8 +18,11 @@ internal class ResetCommands
     [Command("achievements", RBACPermissions.CommandResetAchievements, true)]
     private static bool HandleResetAchievementsCommand(CommandHandler handler, PlayerIdentifier player)
     {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => player
+        };
 
         if (player == null)
             return false;
@@ -41,7 +44,7 @@ internal class ResetCommands
         if (subCommand == "spells")
         {
             atLogin = AtLoginFlags.ResetSpells;
-            Global.WorldMgr.SendWorldText(CypherStrings.ResetallSpells);
+            handler.WorldManager.SendWorldText(CypherStrings.ResetallSpells);
 
             if (handler.Session == null)
                 handler.SendSysMessage(CypherStrings.ResetallSpells);
@@ -49,7 +52,7 @@ internal class ResetCommands
         else if (subCommand == "talents")
         {
             atLogin = AtLoginFlags.ResetTalents | AtLoginFlags.ResetPetTalents;
-            Global.WorldMgr.SendWorldText(CypherStrings.ResetallTalents);
+            handler.WorldManager.SendWorldText(CypherStrings.ResetallTalents);
 
             if (handler.Session == null)
                 handler.SendSysMessage(CypherStrings.ResetallTalents);
@@ -61,11 +64,11 @@ internal class ResetCommands
             return false;
         }
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ALL_AT_LOGIN_FLAGS);
+        var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.UPD_ALL_AT_LOGIN_FLAGS);
         stmt.AddValue(0, (ushort)atLogin);
-        DB.Characters.Execute(stmt);
+        handler.ClassFactory.Resolve<CharacterDatabase>().Execute(stmt);
 
-        var plist = Global.ObjAccessor.GetPlayers();
+        var plist = handler.ObjectAccessor.GetPlayers();
 
         foreach (var player in plist)
             player.SetAtLoginFlag(atLogin);
@@ -76,8 +79,11 @@ internal class ResetCommands
     [Command("honor", RBACPermissions.CommandResetHonor, true)]
     private static bool HandleResetHonorCommand(CommandHandler handler, PlayerIdentifier player)
     {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => player
+        };
 
         if (player == null || !player.IsConnected())
             return false;
@@ -91,8 +97,11 @@ internal class ResetCommands
     [Command("level", RBACPermissions.CommandResetLevel, true)]
     private static bool HandleResetLevelCommand(CommandHandler handler, PlayerIdentifier player)
     {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => player
+        };
 
         if (player == null || !player.IsConnected())
             return false;
@@ -123,7 +132,7 @@ internal class ResetCommands
         if (pet)
             pet.SynchronizeLevelWithOwner();
 
-        ScriptManager.ForEach<IPlayerOnLevelChanged>(target.Class, p => p.OnLevelChanged(target, oldLevel));
+        handler.ClassFactory.Resolve<ScriptManager>().ForEach<IPlayerOnLevelChanged>(target.Class, p => p.OnLevelChanged(target, oldLevel));
 
         return true;
     }
@@ -132,8 +141,11 @@ internal class ResetCommands
     [Command("stats", RBACPermissions.CommandResetStats, true)]
     private static bool HandleResetStatsCommand(CommandHandler handler, PlayerIdentifier player)
     {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => player
+        };
 
         if (player == null || !player.IsConnected())
             return false;
@@ -153,7 +165,7 @@ internal class ResetCommands
 
     private static bool HandleResetStatsOrLevelHelper(Player player)
     {
-        var classEntry = CliDB.ChrClassesStorage.LookupByKey(player.Class);
+        var classEntry = handler.CliDB.ChrClassesStorage.LookupByKey(player.Class);
 
         if (classEntry == null)
         {
@@ -188,8 +200,11 @@ internal class ResetCommands
     [Command("talents", RBACPermissions.CommandResetTalents, true)]
     private static bool HandleResetTalentsCommand(CommandHandler handler, PlayerIdentifier player)
     {
-        if (player == null)
-            player = PlayerIdentifier.FromTargetOrSelf(handler);
+        player = player switch
+        {
+            null => PlayerIdentifier.FromTargetOrSelf(handler),
+            _    => player
+        };
 
         if (player == null)
             return false;
@@ -215,10 +230,10 @@ internal class ResetCommands
         }
         else if (!player.GetGUID().IsEmpty)
         {
-            var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+            var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
             stmt.AddValue(0, (ushort)(AtLoginFlags.None | AtLoginFlags.ResetPetTalents));
             stmt.AddValue(1, player.GetGUID().Counter);
-            DB.Characters.Execute(stmt);
+            handler.ClassFactory.Resolve<CharacterDatabase>().Execute(stmt);
 
             var nameLink = handler.PlayerLink(player.GetName());
             handler.SendSysMessage(CypherStrings.ResetTalentsOffline, nameLink);

@@ -38,15 +38,14 @@ public class ItemEnchantmentManager
 
         var tab = _storage.LookupByKey(itemProto.RandomBonusListTemplateId);
 
-        if (tab == null)
-        {
-            Log.Logger.Error($"Item RandomBonusListTemplateId id {itemProto.RandomBonusListTemplateId} used in `item_template_addon` but it does not have records in `item_random_bonus_list_template` table.");
+        if (tab != null)
+            return tab.BonusListIDs.SelectRandomElementByWeight(x => (float)tab.Chances[tab.BonusListIDs.IndexOf(x)]);
 
-            return 0;
-        }
+        Log.Logger.Error($"Item RandomBonusListTemplateId id {itemProto.RandomBonusListTemplateId} used in `item_template_addon` but it does not have records in `item_random_bonus_list_template` table.");
+
+        return 0;
 
         //todo fix me this is ulgy
-        return tab.BonusListIDs.SelectRandomElementByWeight(x => (float)tab.Chances[tab.BonusListIDs.IndexOf(x)]);
     }
 
     public float GetRandomPropertyPoints(uint itemLevel, ItemQuality quality, InventoryType inventoryType, uint subClass)

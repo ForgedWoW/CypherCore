@@ -1443,7 +1443,7 @@ public class GameEventManager
 
                                                   // We use spawn coords to spawn
                                                   if (map.IsGridLoaded(data.SpawnPoint))
-                                                      CreatureFactory.CreateCreatureFromDB(guid, map);
+                                                      handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(guid, map);
                                               });
         }
 

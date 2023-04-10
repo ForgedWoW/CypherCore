@@ -229,10 +229,11 @@ internal class BNetAccountCommands
             {
                 var index = name.IndexOf('#');
 
-                if (index > 0)
-                    return "WoW" + name[++index..];
-                else
-                    return name;
+                return index switch
+                {
+                    > 0 => "WoW" + name[++index..],
+                    _   => name
+                };
             });
 
             handler.SendSysMessage("----------------------------------------------------");
@@ -263,7 +264,7 @@ internal class BNetAccountCommands
             {
                 if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
          {
-                    LoginDatabasePreparedStatement* stmt = DB.Login.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
+                    LoginDatabasePreparedStatement* stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
                     stmt->setString(0, location->CountryCode);
                     stmt->setUInt32(1, handler->GetSession()->GetBattlenetAccountId());
                     LoginDatabase.Execute(stmt);
@@ -277,7 +278,7 @@ internal class BNetAccountCommands
             }
             else
             {
-                LoginDatabasePreparedStatement* stmt = DB.Login.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
+                LoginDatabasePreparedStatement* stmt = handler.ClassFactory.Resolve<LoginDatabase>().GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
                 stmt->setString(0, "00");
                 stmt->setUInt32(1, handler->GetSession()->GetBattlenetAccountId());
                 LoginDatabase.Execute(stmt);

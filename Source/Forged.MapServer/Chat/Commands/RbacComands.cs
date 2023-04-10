@@ -3,14 +3,16 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Accounts;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
 
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("rbac")]
 internal class RbacComands
 {
-    private static RBACCommandData GetRBACData(AccountIdentifier account)
+    private static RBACCommandData GetRBACData(AccountIdentifier account, CommandHandler handler)
     {
         if (account.IsConnected())
             return new RBACCommandData()
@@ -19,7 +21,7 @@ internal class RbacComands
                 NeedDelete = false
             };
 
-        RBACData rbac = new(account.GetID(), account.GetName(), (int)Global.WorldMgr.RealmId.Index, (byte)handler.AccountManager.GetSecurity(account.GetID(), (int)Global.WorldMgr.RealmId.Index));
+        RBACData rbac = new(account.GetID(), account.GetName(), (int)WorldManager.Realm.Id.Index, handler.AccountManager, handler.ClassFactory.Resolve<LoginDatabase>(), (byte)handler.AccountManager.GetSecurity(account.GetID(),  (int)WorldManager.Realm.Id.Index));
         rbac.LoadFromDB();
 
         return new RBACCommandData()
@@ -73,8 +75,11 @@ internal class RbacComands
         [Command("deny", RBACPermissions.CommandRbacAccPermDeny, true)]
         private static bool HandleRBACPermDenyCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
         {
-            if (account == null)
-                account = AccountIdentifier.FromTarget(handler);
+            account = account switch
+            {
+                null => AccountIdentifier.FromTarget(handler),
+                _    => account
+            };
 
             if (account == null)
                 return false;
@@ -82,10 +87,13 @@ internal class RbacComands
             if (handler.HasLowerSecurityAccount(null, account.GetID(), true))
                 return false;
 
-            if (!realmId.HasValue)
-                realmId = -1;
+            realmId = realmId switch
+            {
+                null => -1,
+                _    => realmId
+            };
 
-            var data = GetRBACData(account);
+            var data = GetRBACData(account, handler);
 
             var result = data.RBAC.DenyPermission(permId, realmId.Value);
             var permission = handler.AccountManager.GetRBACPermission(permId);
@@ -136,8 +144,11 @@ internal class RbacComands
         [Command("grant", RBACPermissions.CommandRbacAccPermGrant, true)]
         private static bool HandleRBACPermGrantCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
         {
-            if (account == null)
-                account = AccountIdentifier.FromTarget(handler);
+            account = account switch
+            {
+                null => AccountIdentifier.FromTarget(handler),
+                _    => account
+            };
 
             if (account == null)
                 return false;
@@ -145,10 +156,13 @@ internal class RbacComands
             if (handler.HasLowerSecurityAccount(null, account.GetID(), true))
                 return false;
 
-            if (!realmId.HasValue)
-                realmId = -1;
+            realmId = realmId switch
+            {
+                null => -1,
+                _    => realmId
+            };
 
-            var data = GetRBACData(account);
+            var data = GetRBACData(account, handler);
 
             var result = data.RBAC.GrantPermission(permId, realmId.Value);
             var permission = handler.AccountManager.GetRBACPermission(permId);
@@ -199,13 +213,16 @@ internal class RbacComands
         [Command("list", RBACPermissions.CommandRbacAccPermList, true)]
         private static bool HandleRBACPermListCommand(CommandHandler handler, AccountIdentifier account)
         {
-            if (account == null)
-                account = AccountIdentifier.FromTarget(handler);
+            account = account switch
+            {
+                null => AccountIdentifier.FromTarget(handler),
+                _    => account
+            };
 
             if (account == null)
                 return false;
 
-            var data = GetRBACData(account);
+            var data = GetRBACData(account, handler);
 
             handler.SendSysMessage(CypherStrings.RbacListHeaderGranted, data.RBAC.Id, data.RBAC.Name);
             var granted = data.RBAC.GrantedPermissions;
@@ -249,8 +266,11 @@ internal class RbacComands
         [Command("revoke", RBACPermissions.CommandRbacAccPermRevoke, true)]
         private static bool HandleRBACPermRevokeCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
         {
-            if (account == null)
-                account = AccountIdentifier.FromTarget(handler);
+            account = account switch
+            {
+                null => AccountIdentifier.FromTarget(handler),
+                _    => account
+            };
 
             if (account == null)
                 return false;
@@ -258,10 +278,13 @@ internal class RbacComands
             if (handler.HasLowerSecurityAccount(null, account.GetID(), true))
                 return false;
 
-            if (!realmId.HasValue)
-                realmId = -1;
+            realmId = realmId switch
+            {
+                null => -1,
+                _    => realmId
+            };
 
-            var data = GetRBACData(account);
+            var data = GetRBACData(account, handler);
 
             var result = data.RBAC.RevokePermission(permId, realmId.Value);
             var permission = handler.AccountManager.GetRBACPermission(permId);

@@ -23,7 +23,7 @@ internal class SpellCommands
             return false;
         }
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.Location.Map.DifficultyID);
+        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId, target.Location.Map.DifficultyID);
 
         if (spellInfo == null)
             return false;
@@ -67,7 +67,7 @@ internal class SpellCommands
         }
         else
         {
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellIdArg.Value, target.Location.Map.DifficultyID);
+            var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellIdArg.Value, target.Location.Map.DifficultyID);
 
             if (spellInfo == null)
             {
@@ -95,7 +95,7 @@ internal class SpellCommands
             return false;
         }
 
-        var skillLine = CliDB.SkillLineStorage.LookupByKey(skillId);
+        var skillLine = handler.CliDB.SkillLineStorage.LookupByKey(skillId);
 
         if (skillLine == null)
         {
@@ -141,7 +141,7 @@ internal class SpellCommands
             return true;
         }
 
-        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
+        var spellInfo = handler.ClassFactory.Resolve<SpellManager>().GetSpellInfo(spellId, Difficulty.None);
 
         if (spellInfo != null)
         {

@@ -17,9 +17,12 @@ internal class SendCommands
     [Command("items", RBACPermissions.CommandSendItems, true)]
     private static bool HandleSendItemsCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, string itemsStr)
     {
-        // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
-        if (playerIdentifier == null)
-            playerIdentifier = PlayerIdentifier.FromTarget(handler);
+        playerIdentifier = playerIdentifier switch
+        {
+            // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
+            null => PlayerIdentifier.FromTarget(handler),
+            _    => playerIdentifier
+        };
 
         if (playerIdentifier == null)
             return false;
@@ -40,7 +43,7 @@ internal class SendCommands
             if (!uint.TryParse(itemIdAndCountStr[0], out var itemId) || itemId == 0)
                 return false;
 
-            var itemProto = Global.ObjectMgr.GetItemTemplate(itemId);
+            var itemProto = handler.ObjectManager.GetItemTemplate(itemId);
 
             if (itemProto == null)
             {
@@ -95,7 +98,7 @@ internal class SendCommands
         }
 
         draft.SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
-        DB.Characters.CommitTransaction(trans);
+        handler.ClassFactory.Resolve<CharacterDatabase>().CommitTransaction(trans);
 
         var nameLink = handler.PlayerLink(playerIdentifier.GetName());
         handler.SendSysMessage(CypherStrings.MailSent, nameLink);
@@ -106,9 +109,12 @@ internal class SendCommands
     [Command("mail", RBACPermissions.CommandSendMail, true)]
     private static bool HandleSendMailCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text)
     {
-        // format: name "subject text" "mail text"
-        if (playerIdentifier == null)
-            playerIdentifier = PlayerIdentifier.FromTarget(handler);
+        playerIdentifier = playerIdentifier switch
+        {
+            // format: name "subject text" "mail text"
+            null => PlayerIdentifier.FromTarget(handler),
+            _    => playerIdentifier
+        };
 
         if (playerIdentifier == null)
             return false;
@@ -125,7 +131,7 @@ internal class SendCommands
         new MailDraft(subject, text)
             .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
-        DB.Characters.CommitTransaction(trans);
+        handler.ClassFactory.Resolve<CharacterDatabase>().CommitTransaction(trans);
 
         var nameLink = handler.PlayerLink(playerIdentifier.GetName());
         handler.SendSysMessage(CypherStrings.MailSent, nameLink);
@@ -135,9 +141,12 @@ internal class SendCommands
     [Command("message", RBACPermissions.CommandSendMessage, true)]
     private static bool HandleSendMessageCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString msgStr)
     {
-        // - Find the player
-        if (playerIdentifier == null)
-            playerIdentifier = PlayerIdentifier.FromTarget(handler);
+        playerIdentifier = playerIdentifier switch
+        {
+            // - Find the player
+            null => PlayerIdentifier.FromTarget(handler),
+            _    => playerIdentifier
+        };
 
         if (playerIdentifier == null || !playerIdentifier.IsConnected())
             return false;
@@ -171,9 +180,12 @@ internal class SendCommands
     [Command("money", RBACPermissions.CommandSendMoney, true)]
     private static bool HandleSendMoneyCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, long money)
     {
-        // format: name "subject text" "mail text" money
-        if (playerIdentifier == null)
-            playerIdentifier = PlayerIdentifier.FromTarget(handler);
+        playerIdentifier = playerIdentifier switch
+        {
+            // format: name "subject text" "mail text" money
+            null => PlayerIdentifier.FromTarget(handler),
+            _    => playerIdentifier
+        };
 
         if (playerIdentifier == null)
             return false;
@@ -193,7 +205,7 @@ internal class SendCommands
             .AddMoney((uint)money)
             .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
-        DB.Characters.CommitTransaction(trans);
+        handler.ClassFactory.Resolve<CharacterDatabase>().CommitTransaction(trans);
 
         var nameLink = handler.PlayerLink(playerIdentifier.GetName());
         handler.SendSysMessage(CypherStrings.MailSent, nameLink);

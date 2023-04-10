@@ -31,8 +31,8 @@ internal class WpCommands
             }
             else
             {
-                stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_ID);
-                var result1 = DB.World.Query(stmt);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_ID);
+                var result1 = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
                 var maxpathid = result1.Read<uint>(0);
                 pathId = maxpathid + 1;
@@ -54,16 +54,16 @@ internal class WpCommands
             return true;
         }
 
-        stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_POINT);
+        stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_POINT);
         stmt.AddValue(0, pathId);
-        var result = DB.World.Query(stmt);
+        var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
         if (result.IsEmpty())
             point = result.Read<uint>(0);
 
         var player = handler.Session.Player;
 
-        stmt = DB.World.GetPreparedStatement(WorldStatements.INS_WAYPOINT_DATA);
+        stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.INS_WAYPOINT_DATA);
         stmt.AddValue(0, pathId);
         stmt.AddValue(1, point + 1);
         stmt.AddValue(2, player.Location.X);
@@ -71,7 +71,7 @@ internal class WpCommands
         stmt.AddValue(4, player.Location.Z);
         stmt.AddValue(5, player.Location.Orientation);
 
-        DB.World.Execute(stmt);
+        handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
         handler.SendSysMessage("|cff00ff00PathID: |r|cff00ffff{0} |r|cff00ff00: Waypoint |r|cff00ffff{1}|r|cff00ff00 created.|r", pathId, point + 1);
 
@@ -91,15 +91,15 @@ internal class WpCommands
         {
             if (id != 0)
             {
-                stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
                 stmt.AddValue(0, id);
-                var result = DB.World.Query(stmt);
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
                 if (result.IsEmpty())
                 {
-                    stmt = DB.World.GetPreparedStatement(WorldStatements.INS_WAYPOINT_SCRIPT);
+                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.INS_WAYPOINT_SCRIPT);
                     stmt.AddValue(0, id);
-                    DB.World.Execute(stmt);
+                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                     handler.SendSysMessage("|cff00ff00Wp Event: New waypoint event added: {0}|r", "", id);
                 }
@@ -110,13 +110,13 @@ internal class WpCommands
             }
             else
             {
-                stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPTS_MAX_ID);
-                var result = DB.World.Query(stmt);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPTS_MAX_ID);
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
                 id = result.Read<uint>(0);
 
-                stmt = DB.World.GetPreparedStatement(WorldStatements.INS_WAYPOINT_SCRIPT);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.INS_WAYPOINT_SCRIPT);
                 stmt.AddValue(0, id + 1);
-                DB.World.Execute(stmt);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                 handler.SendSysMessage("|cff00ff00Wp Event: New waypoint event added: |r|cff00ffff{0}|r", id + 1);
             }
@@ -137,9 +137,9 @@ internal class WpCommands
             float a8, a9, a10, a11;
             string a7;
 
-            stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_BY_ID);
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_BY_ID);
             stmt.AddValue(0, id);
-            var result = DB.World.Query(stmt);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -187,15 +187,15 @@ internal class WpCommands
                 return true;
             }
 
-            stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
             stmt.AddValue(0, id);
-            var result = DB.World.Query(stmt);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (!result.IsEmpty())
             {
-                stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_WAYPOINT_SCRIPT);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.DEL_WAYPOINT_SCRIPT);
                 stmt.AddValue(0, id);
-                DB.World.Execute(stmt);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                 handler.SendSysMessage("|cff00ff00{0}{1}|r", "Wp Event: Waypoint script removed: ", id);
             }
@@ -244,19 +244,19 @@ internal class WpCommands
 
                 handler.SendSysMessage("|cff00ff00Wp Event: Waypoint script guid: {0}|r|cff00ffff id changed: |r|cff00ff00{1}|r", newid, id);
 
-                stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_ID);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_ID);
                 stmt.AddValue(0, newid);
                 stmt.AddValue(1, id);
 
-                DB.World.Execute(stmt);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                 return true;
             }
             else
             {
-                stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
                 stmt.AddValue(0, id);
-                var result = DB.World.Query(stmt);
+                var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
                 if (result.IsEmpty())
                 {
@@ -270,10 +270,10 @@ internal class WpCommands
                     if (!float.TryParse(arg2, out var arg3))
                         return false;
 
-                    stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_X);
+                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_X);
                     stmt.AddValue(0, arg3);
                     stmt.AddValue(1, id);
-                    DB.World.Execute(stmt);
+                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                     handler.SendSysMessage("|cff00ff00Waypoint script:|r|cff00ffff {0}|r|cff00ff00 position_x updated.|r", id);
 
@@ -284,10 +284,10 @@ internal class WpCommands
                     if (!float.TryParse(arg2, out var arg3))
                         return false;
 
-                    stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Y);
+                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Y);
                     stmt.AddValue(0, arg3);
                     stmt.AddValue(1, id);
-                    DB.World.Execute(stmt);
+                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                     handler.SendSysMessage("|cff00ff00Waypoint script: {0} position_y updated.|r", id);
 
@@ -298,10 +298,10 @@ internal class WpCommands
                     if (!float.TryParse(arg2, out var arg3))
                         return false;
 
-                    stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Z);
+                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Z);
                     stmt.AddValue(0, arg3);
                     stmt.AddValue(1, id);
-                    DB.World.Execute(stmt);
+                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                     handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 position_z updated.|r", id);
 
@@ -312,10 +312,10 @@ internal class WpCommands
                     if (!float.TryParse(arg2, out var arg3))
                         return false;
 
-                    stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_O);
+                    stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_O);
                     stmt.AddValue(0, arg3);
                     stmt.AddValue(1, id);
-                    DB.World.Execute(stmt);
+                    handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                     handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 orientation updated.|r", id);
 
@@ -326,7 +326,7 @@ internal class WpCommands
                     if (!uint.TryParse(arg2, out var arg3))
                         return false;
 
-                    DB.World.Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg3, id); // Query can't be a prepared statement
+                    handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg3, id); // Query can't be a prepared statement
 
                     handler.SendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff{0}|r|cff00ff00 dataint updated.|r", id);
 
@@ -334,7 +334,7 @@ internal class WpCommands
                 }
                 else
                 {
-                    DB.World.Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg, id); // Query can't be a prepared statement
+                    handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_scripts SET {0}='{1}' WHERE guid='{2}'", arg, arg, id); // Query can't be a prepared statement
                 }
             }
 
@@ -378,30 +378,30 @@ internal class WpCommands
 
         var guidLow = target.SpawnId;
 
-        var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_ADDON_BY_GUID);
+        var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_CREATURE_ADDON_BY_GUID);
         stmt.AddValue(0, guidLow);
-        var result = DB.World.Query(stmt);
+        var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
         if (!result.IsEmpty())
         {
-            stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_ADDON_PATH);
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_ADDON_PATH);
             stmt.AddValue(0, pathId);
             stmt.AddValue(1, guidLow);
         }
         else
         {
-            stmt = DB.World.GetPreparedStatement(WorldStatements.INS_CREATURE_ADDON);
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.INS_CREATURE_ADDON);
             stmt.AddValue(0, guidLow);
             stmt.AddValue(1, pathId);
         }
 
-        DB.World.Execute(stmt);
+        handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
-        stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
+        stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
         stmt.AddValue(0, (byte)MovementGeneratorType.Waypoint);
         stmt.AddValue(1, guidLow);
 
-        DB.World.Execute(stmt);
+        handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
         target.LoadPath(pathId);
         target.SetDefaultMovementType(MovementGeneratorType.Waypoint);
@@ -439,9 +439,9 @@ internal class WpCommands
         }
 
         // Check the creature
-        var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_WPGUID);
+        var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_WPGUID);
         stmt.AddValue(0, target.SpawnId);
-        var result = DB.World.Query(stmt);
+        var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
         if (result.IsEmpty())
         {
@@ -453,14 +453,14 @@ internal class WpCommands
             // See also: http://dev.mysql.com/doc/refman/5.0/en/problems-with-float.html
             var maxDiff = "0.01";
 
-            stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_POS);
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_POS);
             stmt.AddValue(0, target.Location.X);
             stmt.AddValue(1, maxDiff);
             stmt.AddValue(2, target.Location.Y);
             stmt.AddValue(3, maxDiff);
             stmt.AddValue(4, target.Location.Z);
             stmt.AddValue(5, maxDiff);
-            result = DB.World.Query(stmt);
+            result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -491,17 +491,17 @@ internal class WpCommands
         {
             handler.SendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff{0}|r", pathid);
 
-            if (CreatureFactory.DeleteFromDB(target.SpawnId))
+            if (handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(target.SpawnId))
             {
-                stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_WAYPOINT_DATA);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.DEL_WAYPOINT_DATA);
                 stmt.AddValue(0, pathid);
                 stmt.AddValue(1, point);
-                DB.World.Execute(stmt);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
-                stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POINT);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POINT);
                 stmt.AddValue(0, pathid);
                 stmt.AddValue(1, point);
-                DB.World.Execute(stmt);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
                 handler.SendSysMessage(CypherStrings.WaypointRemoved);
 
@@ -525,7 +525,7 @@ internal class WpCommands
             // What to do:
             // Move the visual spawnpoint
             // Respawn the owner of the waypoints
-            if (!CreatureFactory.DeleteFromDB(target.SpawnId))
+            if (!handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(target.SpawnId))
             {
                 handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
 
@@ -533,7 +533,7 @@ internal class WpCommands
             }
 
             // re-create
-            var creature = CreatureFactory.CreateCreature(1, map, chr.Location);
+            var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(1, map, chr.Location);
 
             if (!creature)
             {
@@ -557,7 +557,7 @@ internal class WpCommands
             creature.Dispose();
 
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-            creature = CreatureFactory.CreateCreatureFromDB(dbGuid, map, true, true);
+            creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
 
             if (!creature)
             {
@@ -566,14 +566,14 @@ internal class WpCommands
                 return false;
             }
 
-            stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POSITION);
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POSITION);
             stmt.AddValue(0, chr.Location.X);
             stmt.AddValue(1, chr.Location.Y);
             stmt.AddValue(2, chr.Location.Z);
             stmt.AddValue(3, chr.Location.Orientation);
             stmt.AddValue(4, pathid);
             stmt.AddValue(5, point);
-            DB.World.Execute(stmt);
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
             handler.SendSysMessage(CypherStrings.WaypointChanged);
 
@@ -582,10 +582,10 @@ internal class WpCommands
 
         if (arg.IsEmpty())
             // show_str check for present in list of correct values, no sql injection possible
-            DB.World.Execute("UPDATE waypoint_data SET {0}=null WHERE id='{1}' AND point='{2}'", subCommand, pathid, point); // Query can't be a prepared statement
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_data SET {0}=null WHERE id='{1}' AND point='{2}'", subCommand, pathid, point); // Query can't be a prepared statement
         else
             // show_str check for present in list of correct values, no sql injection possible
-            DB.World.Execute("UPDATE waypoint_data SET {0}='{1}' WHERE id='{2}' AND point='{3}'", subCommand, arg, pathid, point); // Query can't be a prepared statement
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute("UPDATE waypoint_data SET {0}='{1}' WHERE id='{2}' AND point='{3}'", subCommand, arg, pathid, point); // Query can't be a prepared statement
 
         handler.SendSysMessage(CypherStrings.WaypointChangedNo, subCommand);
 
@@ -652,9 +652,9 @@ internal class WpCommands
                 return false;
             }
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
             stmt.AddValue(0, target.SpawnId);
-            var result = DB.World.Query(stmt);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -686,9 +686,9 @@ internal class WpCommands
 
         if (subCommand == "on")
         {
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_BY_ID);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_BY_ID);
             stmt.AddValue(0, pathId);
-            var result = DB.World.Query(stmt);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -700,9 +700,9 @@ internal class WpCommands
             handler.SendSysMessage("|cff00ff00DEBUG: wp on, PathID: |cff00ffff{0}|r", pathId);
 
             // Delete all visuals for this NPC
-            stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_WPGUID_BY_ID);
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_WPGUID_BY_ID);
             stmt.AddValue(0, pathId);
-            var result2 = DB.World.Query(stmt);
+            var result2 = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (!result2.IsEmpty())
             {
@@ -712,7 +712,7 @@ internal class WpCommands
                 {
                     var wpguid = result2.Read<ulong>(0);
 
-                    if (!CreatureFactory.DeleteFromDB(wpguid))
+                    if (!handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(wpguid))
                     {
                         handler.SendSysMessage(CypherStrings.WaypointNotremoved, wpguid);
                         hasError = true;
@@ -740,7 +740,7 @@ internal class WpCommands
                 var chr = handler.Session.Player;
                 var map = chr.Location.Map;
 
-                var creature = CreatureFactory.CreateCreature(id, map, new Position(x, y, z, o));
+                var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(id, map, new Position(x, y, z, o));
 
                 if (!creature)
                 {
@@ -764,7 +764,7 @@ internal class WpCommands
                 creature.Dispose();
 
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-                creature = CreatureFactory.CreateCreatureFromDB(dbGuid, map, true, true);
+                creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
 
                 if (!creature)
                 {
@@ -781,11 +781,11 @@ internal class WpCommands
                 }
 
                 // Set "wpguid" column to the visual waypoint
-                stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_WPGUID);
+                stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_WPGUID);
                 stmt.AddValue(0, creature.SpawnId);
                 stmt.AddValue(1, pathId);
                 stmt.AddValue(2, point);
-                DB.World.Execute(stmt);
+                handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
             } while (result.NextRow());
 
             handler.SendSysMessage("|cff00ff00Showing the current creature's path.|r");
@@ -797,9 +797,9 @@ internal class WpCommands
         {
             handler.SendSysMessage("|cff00ff00DEBUG: wp first, pathid: {0}|r", pathId);
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_FIRST_BY_ID);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_FIRST_BY_ID);
             stmt.AddValue(0, pathId);
-            var result = DB.World.Query(stmt);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -816,7 +816,7 @@ internal class WpCommands
             var chr = handler.Session.Player;
             var map = chr.Location.Map;
 
-            var creature = CreatureFactory.CreateCreature(1, map, new Position(x, y, z));
+            var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(1, map, new Position(x, y, z));
 
             if (!creature)
             {
@@ -839,7 +839,7 @@ internal class WpCommands
             creature.CleanupsBeforeDelete();
             creature.Dispose();
 
-            creature = CreatureFactory.CreateCreatureFromDB(dbGuid, map, true, true);
+            creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
 
             if (!creature)
             {
@@ -861,9 +861,9 @@ internal class WpCommands
         {
             handler.SendSysMessage("|cff00ff00DEBUG: wp last, PathID: |r|cff00ffff{0}|r", pathId);
 
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_LAST_BY_ID);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_LAST_BY_ID);
             stmt.AddValue(0, pathId);
-            var result = DB.World.Query(stmt);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -881,7 +881,7 @@ internal class WpCommands
             var map = chr.Location.Map;
             Position pos = new(x, y, z, o);
 
-            var creature = CreatureFactory.CreateCreature(1, map, pos);
+            var creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreature(1, map, pos);
 
             if (!creature)
             {
@@ -904,7 +904,7 @@ internal class WpCommands
             creature.CleanupsBeforeDelete();
             creature.Dispose();
 
-            creature = CreatureFactory.CreateCreatureFromDB(dbGuid, map, true, true);
+            creature = handler.ClassFactory.Resolve<CreatureFactory>().CreateCreatureFromDB(dbGuid, map, true, true);
 
             if (!creature)
             {
@@ -924,9 +924,9 @@ internal class WpCommands
 
         if (subCommand == "off")
         {
-            var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_BY_ID);
+            var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.SEL_CREATURE_BY_ID);
             stmt.AddValue(0, 1);
-            var result = DB.World.Query(stmt);
+            var result = handler.ClassFactory.Resolve<WorldDatabase>().Query(stmt);
 
             if (result.IsEmpty())
             {
@@ -941,7 +941,7 @@ internal class WpCommands
             {
                 var lowguid = result.Read<ulong>(0);
 
-                if (!CreatureFactory.DeleteFromDB(lowguid))
+                if (!handler.ClassFactory.Resolve<CreatureFactory>().DeleteFromDB(lowguid))
                 {
                     handler.SendSysMessage(CypherStrings.WaypointNotremoved, lowguid);
                     hasError = true;
@@ -949,10 +949,10 @@ internal class WpCommands
             } while (result.NextRow());
 
             // set "wpguid" column to "empty" - no visual waypoint spawned
-            stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_ALL_WPGUID);
+            stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_ALL_WPGUID);
 
-            DB.World.Execute(stmt);
-            //DB.World.PExecute("UPDATE creature_movement SET wpguid = '0' WHERE wpguid <> '0'");
+            handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
+            //handler.ClassFactory.Resolve<WorldDatabase>().PExecute("UPDATE creature_movement SET wpguid = '0' WHERE wpguid <> '0'");
 
             if (hasError)
             {
@@ -992,7 +992,7 @@ internal class WpCommands
             return true;
         }
 
-        var addon = Global.ObjectMgr.GetCreatureAddon(guidLow);
+        var addon = handler.ObjectManager.GetCreatureAddon(guidLow);
 
         if (addon == null || addon.PathId == 0)
         {
@@ -1001,16 +1001,16 @@ internal class WpCommands
             return true;
         }
 
-        var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_CREATURE_ADDON);
+        var stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.DEL_CREATURE_ADDON);
         stmt.AddValue(0, guidLow);
-        DB.World.Execute(stmt);
+        handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
         target.UpdateCurrentWaypointInfo(0, 0);
 
-        stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
+        stmt = handler.ClassFactory.Resolve<WorldDatabase>().GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
         stmt.AddValue(0, (byte)MovementGeneratorType.Idle);
         stmt.AddValue(1, guidLow);
-        DB.World.Execute(stmt);
+        handler.ClassFactory.Resolve<WorldDatabase>().Execute(stmt);
 
         target.LoadPath(0);
         target.SetDefaultMovementType(MovementGeneratorType.Idle);

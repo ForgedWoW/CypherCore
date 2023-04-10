@@ -59,7 +59,7 @@ public class LFGQueue
             if (guid == it)
                 continue;
 
-            val.AppendFormat("|{0}", guid);
+            val.Append($"|{guid}");
         }
 
         return val.ToString();
@@ -523,7 +523,7 @@ public class LFGQueue
                 o = new StringBuilder();
 
                 foreach (var it in debugRoles)
-                    o.AppendFormat(", {0}: {1}", it.Key, GetRolesString(it.Value));
+                    o.Append($", {it.Key}: {GetRolesString(it.Value)}");
 
                 Log.Logger.Debug("CheckCompatibility: ({0}) Roles not compatible{1}", strGuids, o.ToString());
                 SetCompatibles(strGuids, LfgCompatibility.NoRoles);

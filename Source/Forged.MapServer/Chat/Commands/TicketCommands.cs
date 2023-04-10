@@ -14,7 +14,7 @@ internal class TicketCommands
 {
     private static bool HandleCloseByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
     {
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+        var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
 
         if (ticket == null || ticket.IsClosed)
         {
@@ -41,7 +41,7 @@ internal class TicketCommands
         else
             closedByGuid.SetRawValue(0, ulong.MaxValue);
 
-        Global.SupportMgr.CloseTicket<T>(ticket.Id, closedByGuid);
+        handler.ClassFactory.Resolve<SupportManager>().CloseTicket<T>(ticket.Id, closedByGuid);
 
         var msg = ticket.FormatViewMessageString(handler, player ? player.GetName() : "Console", null, null, null);
         handler.SendGlobalGMSysMessage(msg);
@@ -51,7 +51,7 @@ internal class TicketCommands
 
     private static bool HandleClosedListCommand<T>(CommandHandler handler) where T : Ticket
     {
-        Global.SupportMgr.ShowClosedList<T>(handler);
+        handler.ClassFactory.Resolve<SupportManager>().ShowClosedList<T>(handler);
 
         return true;
     }
@@ -61,7 +61,7 @@ internal class TicketCommands
         if (comment.IsEmpty())
             return false;
 
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+        var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
 
         if (ticket == null || ticket.IsClosed)
         {
@@ -83,7 +83,7 @@ internal class TicketCommands
 
         ticket.SetComment(comment);
         ticket.SaveToDB();
-        Global.SupportMgr.UpdateLastChange();
+        handler.ClassFactory.Resolve<SupportManager>().UpdateLastChange();
 
         var msg = ticket.FormatViewMessageString(handler, null, ticket.AssignedToName, null, null);
         msg += string.Format(handler.GetCypherString(CypherStrings.CommandTicketlistaddcomment), player ? player.GetName() : "Console", comment);
@@ -94,7 +94,7 @@ internal class TicketCommands
 
     private static bool HandleDeleteByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
     {
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+        var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
 
         if (ticket == null)
         {
@@ -113,14 +113,14 @@ internal class TicketCommands
         var msg = ticket.FormatViewMessageString(handler, null, null, null, handler.Session != null ? handler.Session.Player.GetName() : "Console");
         handler.SendGlobalGMSysMessage(msg);
 
-        Global.SupportMgr.RemoveTicket<T>(ticket.Id);
+        handler.ClassFactory.Resolve<SupportManager>().RemoveTicket<T>(ticket.Id);
 
         return true;
     }
 
     private static bool HandleGetByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
     {
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+        var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
 
         if (ticket == null || ticket.IsClosed)
         {
@@ -136,14 +136,14 @@ internal class TicketCommands
 
     private static bool HandleListCommand<T>(CommandHandler handler) where T : Ticket
     {
-        Global.SupportMgr.ShowList<T>(handler);
+        handler.ClassFactory.Resolve<SupportManager>().ShowList<T>(handler);
 
         return true;
     }
 
     private static bool HandleResetCommand<T>(CommandHandler handler) where T : Ticket
     {
-        if (Global.SupportMgr.GetOpenTicketCount<T>() != 0)
+        if (handler.ClassFactory.Resolve<SupportManager>().GetOpenTicketCount<T>() != 0)
         {
             handler.SendSysMessage(CypherStrings.CommandTicketpending);
 
@@ -151,7 +151,7 @@ internal class TicketCommands
         }
         else
         {
-            Global.SupportMgr.ResetTickets<T>();
+            handler.ClassFactory.Resolve<SupportManager>().ResetTickets<T>();
             handler.SendSysMessage(CypherStrings.CommandTicketreset);
         }
 
@@ -166,7 +166,7 @@ internal class TicketCommands
         if (!GameObjectManager.NormalizePlayerName(ref targetName))
             return false;
 
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+        var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
 
         if (ticket == null || ticket.IsClosed)
         {
@@ -175,11 +175,11 @@ internal class TicketCommands
             return true;
         }
 
-        var targetGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(targetName);
-        var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(targetGuid);
+        var targetGuid = handler.ClassFactory.Resolve<CharacterCache>().GetCharacterGuidByName(targetName);
+        var accountId = handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(targetGuid);
 
         // Target must exist and have administrative rights
-        if (!handler.AccountManager.HasPermission(accountId, RBACPermissions.CommandsBeAssignedTicket, Global.WorldMgr.Realm.Id.Index))
+        if (!handler.AccountManager.HasPermission(accountId, RBACPermissions.CommandsBeAssignedTicket, WorldManager.Realm.Id.Index))
         {
             handler.SendSysMessage(CypherStrings.CommandTicketassignerrorA);
 
@@ -206,7 +206,7 @@ internal class TicketCommands
         }
 
         // Assign ticket
-        ticket.SetAssignedTo(targetGuid, handler.AccountManager.IsAdminAccount(handler.AccountManager.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index)));
+        ticket.SetAssignedTo(targetGuid, handler.AccountManager.IsAdminAccount(handler.AccountManager.GetSecurity(accountId, (int)WorldManager.Realm.Id.Index)));
         ticket.SaveToDB();
 
         var msg = ticket.FormatViewMessageString(handler, null, targetName, null, null);
@@ -225,15 +225,15 @@ internal class TicketCommands
             return true;
         }
 
-        var status = !Global.SupportMgr.GetSupportSystemStatus();
-        Global.SupportMgr.SetSupportSystemStatus(status);
+        var status = !handler.ClassFactory.Resolve<SupportManager>().GetSupportSystemStatus();
+        handler.ClassFactory.Resolve<SupportManager>().SetSupportSystemStatus(status);
         handler.SendSysMessage(status ? CypherStrings.AllowTickets : CypherStrings.DisallowTickets);
 
         return true;
     }
     private static bool HandleUnAssignCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
     {
-        var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
+        var ticket = handler.ClassFactory.Resolve<SupportManager>().GetTicket<T>(ticketId);
 
         if (ticket == null || ticket.IsClosed)
         {
@@ -261,8 +261,8 @@ internal class TicketCommands
         else
         {
             var guid = ticket.AssignedToGUID;
-            var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
-            security = handler.AccountManager.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index);
+            var accountId = handler.ClassFactory.Resolve<CharacterCache>().GetCharacterAccountIdByGuid(guid);
+            security = handler.AccountManager.GetSecurity(accountId, (int)WorldManager.Realm.Id.Index);
         }
 
         // Check security
@@ -395,7 +395,7 @@ internal class TicketCommands
         [Command("all", RBACPermissions.CommandTicketResetAll, true)]
         private static bool HandleTicketResetAllCommand(CommandHandler handler)
         {
-            if (Global.SupportMgr.GetOpenTicketCount<BugTicket>() != 0 || Global.SupportMgr.GetOpenTicketCount<ComplaintTicket>() != 0 || Global.SupportMgr.GetOpenTicketCount<SuggestionTicket>() != 0)
+            if (handler.ClassFactory.Resolve<SupportManager>().GetOpenTicketCount<BugTicket>() != 0 || handler.ClassFactory.Resolve<SupportManager>().GetOpenTicketCount<ComplaintTicket>() != 0 || handler.ClassFactory.Resolve<SupportManager>().GetOpenTicketCount<SuggestionTicket>() != 0)
             {
                 handler.SendSysMessage(CypherStrings.CommandTicketpending);
 
@@ -403,9 +403,9 @@ internal class TicketCommands
             }
             else
             {
-                Global.SupportMgr.ResetTickets<BugTicket>();
-                Global.SupportMgr.ResetTickets<ComplaintTicket>();
-                Global.SupportMgr.ResetTickets<SuggestionTicket>();
+                handler.ClassFactory.Resolve<SupportManager>().ResetTickets<BugTicket>();
+                handler.ClassFactory.Resolve<SupportManager>().ResetTickets<ComplaintTicket>();
+                handler.ClassFactory.Resolve<SupportManager>().ResetTickets<SuggestionTicket>();
                 handler.SendSysMessage(CypherStrings.CommandTicketreset);
             }
 
