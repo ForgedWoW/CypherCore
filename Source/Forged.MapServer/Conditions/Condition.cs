@@ -4,11 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.Achievements;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Scenarios;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.ICondition;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Serilog;
 
@@ -16,26 +21,48 @@ namespace Forged.MapServer.Conditions;
 
 public class Condition
 {
-    public byte ConditionTarget;
-    public ConditionTypes ConditionType;
-    //ConditionTypeOrReference
-    public uint ConditionValue1;
+    private readonly AchievementGlobalMgr _achievementGlobalMgr;
+    private readonly CliDB _cliDB;
+    private readonly ConditionManager _conditionManager;
+    private readonly GameEventManager _gameEventManager;
+    private readonly GameObjectManager _objectManager;
+    private readonly PlayerComputators _playerComputators;
+    private readonly ScriptManager _scriptManager;
+    private readonly WorldStateManager _worldStateManager;
 
-    public uint ConditionValue2;
-    public uint ConditionValue3;
-    public uint ElseGroup;
-    public uint ErrorTextId;
-    public uint ErrorType;
-    public bool NegativeCondition;
-    public uint ReferenceId;
-    public uint ScriptId;
-    public int SourceEntry;
-    public uint SourceGroup;
-    public uint SourceId;
-    public ConditionSourceType SourceType; //SourceTypeOrReferenceId
-                                           // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
-    public Condition()
+    public byte ConditionTarget { get; set; }
+
+    public ConditionTypes ConditionType { get; set; }
+
+    //ConditionTypeOrReference
+    public uint ConditionValue1 { get; set; }
+
+    public uint ConditionValue2 { get; set; }
+    public uint ConditionValue3 { get; set; }
+    public uint ElseGroup { get; set; }
+    public uint ErrorTextId { get; set; }
+    public uint ErrorType { get; set; }
+    public bool NegativeCondition { get; set; }
+    public uint ReferenceId { get; set; }
+    public uint ScriptId { get; set; }
+    public int SourceEntry { get; set; }
+    public uint SourceGroup { get; set; }
+    public uint SourceId { get; set; }
+
+    public ConditionSourceType SourceType { get; set; } //SourceTypeOrReferenceId
+
+    // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
+    public Condition(ConditionManager conditionManager, ScriptManager scriptManager, CliDB cliDB, GameObjectManager objectManager, PlayerComputators playerComputators,
+                     GameEventManager gameEventManager, WorldStateManager worldStateManager, AchievementGlobalMgr achievementGlobalMgr)
     {
+        _conditionManager = conditionManager;
+        _scriptManager = scriptManager;
+        _cliDB = cliDB;
+        _objectManager = objectManager;
+        _playerComputators = playerComputators;
+        _gameEventManager = gameEventManager;
+        _worldStateManager = worldStateManager;
+        _achievementGlobalMgr = achievementGlobalMgr;
         SourceType = ConditionSourceType.None;
         ConditionType = ConditionTypes.None;
     }
@@ -146,7 +173,6 @@ public class Condition
                         mask |= GridMapTypeMask.AreaTrigger;
 
                         break;
-                    
                 }
 
                 break;
@@ -197,7 +223,7 @@ public class Condition
 
     public bool Meets(ConditionSourceInfo sourceInfo)
     {
-        var map = sourceInfo.mConditionMap;
+        var map = sourceInfo.ConditionMap;
         var condMeets = false;
         var needsObject = false;
 
@@ -208,7 +234,7 @@ public class Condition
 
                 break;
             case ConditionTypes.ActiveEvent:
-                condMeets = Global.GameEventMgr.IsActiveEvent((ushort)ConditionValue1);
+                condMeets = _gameEventManager.IsActiveEvent((ushort)ConditionValue1);
 
                 break;
             case ConditionTypes.InstanceInfo:
@@ -238,15 +264,15 @@ public class Condition
                 break;
             case ConditionTypes.WorldState:
             {
-                condMeets = Global.WorldStateMgr.GetValue((int)ConditionValue1, map) == ConditionValue2;
+                condMeets = _worldStateManager.GetValue((int)ConditionValue1, map) == ConditionValue2;
 
                 break;
             }
             case ConditionTypes.RealmAchievement:
             {
-                var achievement = CliDB.AchievementStorage.LookupByKey(ConditionValue1);
+                var achievement = _cliDB.AchievementStorage.LookupByKey(ConditionValue1);
 
-                if (achievement != null && Global.AchievementMgr.IsRealmCompleted(achievement))
+                if (achievement != null && _achievementGlobalMgr.IsRealmCompleted(achievement))
                     condMeets = true;
 
                 break;
@@ -276,7 +302,7 @@ public class Condition
                 break;
         }
 
-        var obj = sourceInfo.mConditionTargets[ConditionTarget];
+        var obj = sourceInfo.ConditionTargets[ConditionTarget];
 
         // object not present, return false
         if (needsObject && obj == null)
@@ -310,13 +336,14 @@ public class Condition
 
                 break;
             case ConditionTypes.Zoneid:
-                condMeets = obj.Location.Zone == ConditionValue1;
+                if (obj != null)
+                    condMeets = obj.Location.Zone == ConditionValue1;
 
                 break;
             case ConditionTypes.ReputationRank:
                 if (player != null)
                 {
-                    var faction = CliDB.FactionStorage.LookupByKey(ConditionValue1);
+                    var faction = _cliDB.FactionStorage.LookupByKey(ConditionValue1);
 
                     if (faction != null)
                         condMeets = Convert.ToBoolean(ConditionValue2 & (1 << (int)player.ReputationMgr.GetRank(faction)));
@@ -383,7 +410,8 @@ public class Condition
 
                 break;
             case ConditionTypes.Areaid:
-                condMeets = obj.Location.Area == ConditionValue1;
+                if (obj != null)
+                    condMeets = obj.Location.Area == ConditionValue1;
 
                 break;
             case ConditionTypes.Spell:
@@ -398,19 +426,21 @@ public class Condition
                 break;
             case ConditionTypes.DrunkenState:
                 if (player != null)
-                    condMeets = (uint)PlayerComputators.GetDrunkenstateByValue(player.DrunkValue) >= ConditionValue1;
+                    condMeets = (uint)_playerComputators.GetDrunkenstateByValue(player.DrunkValue) >= ConditionValue1;
 
                 break;
             case ConditionTypes.NearCreature:
-                condMeets = obj.Location.FindNearestCreature(ConditionValue1, ConditionValue2, ConditionValue3 == 0) != null;
+                if (obj != null)
+                    condMeets = obj.Location.FindNearestCreature(ConditionValue1, ConditionValue2, ConditionValue3 == 0) != null;
 
                 break;
             case ConditionTypes.NearGameobject:
-                condMeets = obj.Location.FindNearestGameObject(ConditionValue1, ConditionValue2) != null;
+                if (obj != null)
+                    condMeets = obj.Location.FindNearestGameObject(ConditionValue1, ConditionValue2) != null;
 
                 break;
             case ConditionTypes.ObjectEntryGuid:
-                if ((uint)obj.TypeId == ConditionValue1)
+                if (obj != null && (uint)obj.TypeId == ConditionValue1)
                 {
                     condMeets = ConditionValue2 == 0 || (obj.Entry == ConditionValue2);
 
@@ -430,12 +460,13 @@ public class Condition
 
                 break;
             case ConditionTypes.TypeMask:
-                condMeets = Convert.ToBoolean((TypeMask)ConditionValue1 & obj.ObjectTypeMask);
+                if (obj != null)
+                    condMeets = Convert.ToBoolean((TypeMask)ConditionValue1 & obj.ObjectTypeMask);
 
                 break;
             case ConditionTypes.RelationTo:
             {
-                var toObject = sourceInfo.mConditionTargets[ConditionValue1];
+                var toObject = sourceInfo.ConditionTargets[ConditionValue1];
 
                 var toUnit = toObject?.AsUnit;
 
@@ -455,7 +486,7 @@ public class Condition
             }
             case ConditionTypes.ReactionTo:
             {
-                var toObject = sourceInfo.mConditionTargets[ConditionValue1];
+                var toObject = sourceInfo.ConditionTargets[ConditionValue1];
 
                 var toUnit = toObject?.AsUnit;
 
@@ -466,9 +497,9 @@ public class Condition
             }
             case ConditionTypes.DistanceTo:
             {
-                var toObject = sourceInfo.mConditionTargets[ConditionValue1];
+                var toObject = sourceInfo.ConditionTargets[ConditionValue1];
 
-                if (toObject != null)
+                if (toObject != null && obj != null)
                     condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, obj.Location.GetDistance(toObject), ConditionValue2);
 
                 break;
@@ -489,7 +520,8 @@ public class Condition
 
                 break;
             case ConditionTypes.PhaseId:
-                condMeets = obj.Location.PhaseShift.HasPhase(ConditionValue1);
+                if (obj != null)
+                    condMeets = obj.Location.PhaseShift.HasPhase(ConditionValue1);
 
                 break;
             case ConditionTypes.Title:
@@ -504,6 +536,9 @@ public class Condition
                 break;
             case ConditionTypes.CreatureType:
             {
+                if (obj == null)
+                    break;
+
                 var creature = obj.AsCreature;
 
                 if (creature)
@@ -512,64 +547,65 @@ public class Condition
                 break;
             }
             case ConditionTypes.InWater:
-                if (unit)
+                if (unit != null)
                     condMeets = unit.Location.IsInWater;
 
                 break;
             case ConditionTypes.TerrainSwap:
-                condMeets = obj.Location.PhaseShift.HasVisibleMapId(ConditionValue1);
+                if (obj != null)
+                    condMeets = obj.Location.PhaseShift.HasVisibleMapId(ConditionValue1);
 
                 break;
             case ConditionTypes.StandState:
             {
-                if (unit)
+                if (unit != null)
                 {
                     if (ConditionValue1 == 0)
                         condMeets = (unit.StandState == (UnitStandStateType)ConditionValue2);
-                    else if (ConditionValue2 == 0)
-                        condMeets = unit.IsStandState;
-                    else if (ConditionValue2 == 1)
-                        condMeets = unit.IsSitState;
+                    else
+                        condMeets = ConditionValue2 switch
+                        {
+                            0 => unit.IsStandState,
+                            1 => unit.IsSitState,
+                            _ => condMeets
+                        };
                 }
 
                 break;
             }
             case ConditionTypes.DailyQuestDone:
             {
-                if (player)
+                if (player != null)
                     condMeets = player.IsDailyQuestDone(ConditionValue1);
 
                 break;
             }
             case ConditionTypes.Charmed:
             {
-                if (unit)
+                if (unit != null)
                     condMeets = unit.IsCharmed;
 
                 break;
             }
             case ConditionTypes.PetType:
             {
-                if (player)
-                {
-                    var pet = player.CurrentPet;
+                var pet = player?.CurrentPet;
 
-                    if (pet)
-                        condMeets = (((1 << (int)pet.PetType) & ConditionValue1) != 0);
-                }
+                if (pet != null)
+                    condMeets = (((1 << (int)pet.PetType) & ConditionValue1) != 0);
 
                 break;
             }
             case ConditionTypes.Taxi:
             {
-                if (player)
+                if (player != null)
                     condMeets = player.IsInFlight;
 
                 break;
             }
             case ConditionTypes.Queststate:
             {
-                if (player)
+                if (player != null)
                     if (
                         (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.None)) && (player.GetQuestStatus(ConditionValue1) == QuestStatus.None)) ||
                         (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.Complete)) && (player.GetQuestStatus(ConditionValue1) == QuestStatus.Complete)) ||
@@ -583,14 +619,14 @@ public class Condition
             }
             case ConditionTypes.ObjectiveProgress:
             {
-                if (player)
+                if (player != null)
                 {
-                    var questObj = Global.ObjectMgr.GetQuestObjective(ConditionValue1);
+                    var questObj = _objectManager.GetQuestObjective(ConditionValue1);
 
                     if (questObj == null)
                         break;
 
-                    var quest = Global.ObjectMgr.GetQuestTemplate(questObj.QuestID);
+                    var quest = _objectManager.GetQuestTemplate(questObj.QuestID);
 
                     if (quest == null)
                         break;
@@ -608,12 +644,7 @@ public class Condition
             case ConditionTypes.Gamemaster:
             {
                 if (player != null)
-                {
-                    if (ConditionValue1 == 1)
-                        condMeets = player.CanBeGameMaster;
-                    else
-                        condMeets = player.IsGameMaster;
-                }
+                    condMeets = ConditionValue1 == 1 ? player.CanBeGameMaster : player.IsGameMaster;
 
                 break;
             }
@@ -635,25 +666,25 @@ public class Condition
             {
                 if (player != null)
                 {
-                    var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(ConditionValue1);
+                    var playerCondition = _cliDB.PlayerConditionStorage.LookupByKey(ConditionValue1);
 
                     if (playerCondition != null)
-                        condMeets = ConditionManager.IsPlayerMeetingCondition(player, playerCondition);
+                        condMeets = _conditionManager.IsPlayerMeetingCondition(player, playerCondition);
                 }
 
                 break;
             }
-            
         }
 
         if (NegativeCondition)
             condMeets = !condMeets;
 
         if (!condMeets)
-            sourceInfo.mLastFailedCondition = this;
+            sourceInfo.LastFailedCondition = this;
 
-        return condMeets && ScriptManager.RunScriptRet<IConditionCheck>(p => p.OnConditionCheck(this, sourceInfo), ScriptId, true); // Returns true by default.;
+        return condMeets && _scriptManager.RunScriptRet<IConditionCheck>(p => p.OnConditionCheck(this, sourceInfo), ScriptId, true); // Returns true by default.;
     }
+
     public string ToString(bool ext = false)
     {
         StringBuilder ss = new();
@@ -661,20 +692,20 @@ public class Condition
 
         if (SourceType < ConditionSourceType.Max)
         {
-            if (Global.ConditionMgr.StaticSourceTypeData.Length > (int)SourceType)
-                ss.AppendFormat(" ({0})", Global.ConditionMgr.StaticSourceTypeData[(int)SourceType]);
+            if (_conditionManager.StaticSourceTypeData.Length > (int)SourceType)
+                ss.AppendFormat(" ({0})", _conditionManager.StaticSourceTypeData[(int)SourceType]);
         }
         else
         {
             ss.Append(" (Unknown)");
         }
 
-        if (Global.ConditionMgr.CanHaveSourceGroupSet(SourceType))
+        if (_conditionManager.CanHaveSourceGroupSet(SourceType))
             ss.Append($", SourceGroup: {SourceGroup}");
 
         ss.Append($", SourceEntry: {SourceEntry}");
 
-        if (Global.ConditionMgr.CanHaveSourceIdSet(SourceType))
+        if (_conditionManager.CanHaveSourceIdSet(SourceType))
             ss.Append($", SourceId: {SourceId}");
 
         if (ext)
@@ -682,7 +713,7 @@ public class Condition
             ss.Append($", ConditionType: {ConditionType}");
 
             if (ConditionType < ConditionTypes.Max)
-                ss.AppendFormat(" ({0})", Global.ConditionMgr.StaticConditionTypeData[(int)ConditionType].Name);
+                ss.AppendFormat(" ({0})", _conditionManager.StaticConditionTypeData[(int)ConditionType].Name);
             else
                 ss.Append(" (Unknown)");
         }

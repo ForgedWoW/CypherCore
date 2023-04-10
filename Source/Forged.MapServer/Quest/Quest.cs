@@ -326,14 +326,13 @@ public class Quest
 
     public static uint RoundXPValue(uint xp)
     {
-        if (xp <= 100)
-            return 5 * ((xp + 2) / 5);
-        else if (xp <= 500)
-            return 10 * ((xp + 5) / 10);
-        else if (xp <= 1000)
-            return 25 * ((xp + 12) / 25);
-        else
-            return 50 * ((xp + 25) / 50);
+        return xp switch
+        {
+            <= 100  => 5 * ((xp + 2) / 5),
+            <= 500  => 10 * ((xp + 5) / 10),
+            <= 1000 => 25 * ((xp + 12) / 25),
+            _       => 50 * ((xp + 25) / 50)
+        };
     }
 
     public static uint XPValue(Player player, uint contentTuningId, uint xpDifficulty, float xpMultiplier = 1.0f, int expansion = -1)
@@ -348,10 +347,12 @@ public class Quest
 
             var diffFactor = (int)(2 * (questLevel - player.Level) + 12);
 
-            if (diffFactor < 1)
-                diffFactor = 1;
-            else if (diffFactor > 10)
-                diffFactor = 10;
+            diffFactor = diffFactor switch
+            {
+                < 1  => 1,
+                > 10 => 10,
+                _    => diffFactor
+            };
 
             var xp = (uint)(diffFactor * questXp.Difficulty[xpDifficulty] * xpMultiplier / 10);
 

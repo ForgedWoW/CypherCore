@@ -273,22 +273,26 @@ public class OPvPCapturePoint
         }
         else if (oldValue * Value <= 0) // grey, go through mid point
         {
-            // if challenger is ally, then n.a challenge
-            if (Challenger == TeamFaction.Alliance)
-                State = ObjectiveStates.NeutralAllianceChallenge;
-            // if challenger is horde, then n.h challenge
-            else if (Challenger == TeamFaction.Horde)
-                State = ObjectiveStates.NeutralHordeChallenge;
+            State = Challenger switch
+            {
+                // if challenger is ally, then n.a challenge
+                TeamFaction.Alliance => ObjectiveStates.NeutralAllianceChallenge,
+                // if challenger is horde, then n.h challenge
+                TeamFaction.Horde => ObjectiveStates.NeutralHordeChallenge,
+                _                 => State
+            };
 
             _team = TeamIds.Neutral;
         }
         else // grey, did not go through mid point
         {
-            // old phase and current are on the same side, so one team challenges the other
-            if (Challenger == TeamFaction.Alliance && OldState is ObjectiveStates.Horde or ObjectiveStates.NeutralHordeChallenge)
-                State = ObjectiveStates.HordeAllianceChallenge;
-            else if (Challenger == TeamFaction.Horde && OldState is ObjectiveStates.Alliance or ObjectiveStates.NeutralAllianceChallenge)
-                State = ObjectiveStates.AllianceHordeChallenge;
+            State = Challenger switch
+            {
+                // old phase and current are on the same side, so one team challenges the other
+                TeamFaction.Alliance when OldState is ObjectiveStates.Horde or ObjectiveStates.NeutralHordeChallenge    => ObjectiveStates.HordeAllianceChallenge,
+                TeamFaction.Horde when OldState is ObjectiveStates.Alliance or ObjectiveStates.NeutralAllianceChallenge => ObjectiveStates.AllianceHordeChallenge,
+                _                                                                                                       => State
+            };
 
             _team = TeamIds.Neutral;
         }

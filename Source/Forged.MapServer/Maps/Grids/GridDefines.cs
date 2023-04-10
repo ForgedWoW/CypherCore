@@ -91,10 +91,12 @@ public class GridDefines
 
     public static float NormalizeMapCoord(float c)
     {
-        if (c > MapConst.MapHalfSize - 0.5f)
-            c = MapConst.MapHalfSize - 0.5f;
-        else if (c < -(MapConst.MapHalfSize - 0.5f))
-            c = -(MapConst.MapHalfSize - 0.5f);
+        c = c switch
+        {
+            > MapConst.MapHalfSize - 0.5f    => MapConst.MapHalfSize - 0.5f,
+            < -(MapConst.MapHalfSize - 0.5f) => -(MapConst.MapHalfSize - 0.5f),
+            _                                => c
+        };
 
         return c;
     }

@@ -725,13 +725,14 @@ public class SpellInfo
         if (Category == 1133)
             _auraState = AuraStateType.FaerieFire;
 
-        // Swiftmend state on Regrowth, Rejuvenation, Wild Growth
-        if (SpellFamilyName == SpellFamilyNames.Druid && (SpellFamilyFlags[0].HasAnyFlag(0x50u) || SpellFamilyFlags[1].HasAnyFlag(0x4000000u)))
-            _auraState = AuraStateType.DruidPeriodicHeal;
-
-        // Deadly poison aura state
-        if (SpellFamilyName == SpellFamilyNames.Rogue && SpellFamilyFlags[0].HasAnyFlag(0x10000u))
-            _auraState = AuraStateType.RoguePoisoned;
+        _auraState = SpellFamilyName switch
+        {
+            // Swiftmend state on Regrowth, Rejuvenation, Wild Growth
+            SpellFamilyNames.Druid when (SpellFamilyFlags[0].HasAnyFlag(0x50u) || SpellFamilyFlags[1].HasAnyFlag(0x4000000u)) => AuraStateType.DruidPeriodicHeal,
+            // Deadly poison aura state
+            SpellFamilyNames.Rogue when SpellFamilyFlags[0].HasAnyFlag(0x10000u) => AuraStateType.RoguePoisoned,
+            _                                                                    => _auraState
+        };
 
         // Enrage aura state
         if (Dispel == DispelType.Enrage)

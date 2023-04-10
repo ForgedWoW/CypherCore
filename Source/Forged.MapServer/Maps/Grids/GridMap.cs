@@ -187,14 +187,16 @@ public class GridMap
         if (delta > collisionHeight) // Under water
             return ZLiquidStatus.UnderWater;
 
-        if (delta > 0.0f) // In water
-            return ZLiquidStatus.InWater;
-
-        if (delta > -0.1f) // Walk on water
-            return ZLiquidStatus.WaterWalk;
+        return delta switch
+        {
+            // In water
+            > 0.0f => ZLiquidStatus.InWater,
+            // Walk on water
+            > -0.1f => ZLiquidStatus.WaterWalk,
+            _       => ZLiquidStatus.AboveWater
+        };
 
         // Above water
-        return ZLiquidStatus.AboveWater;
     }
 
     public float GetMinHeight(float x, float y)

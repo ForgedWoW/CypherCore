@@ -93,14 +93,13 @@ public class PlayerComputators
         else if (characterInfo != null) // To avoid a Select, we select loaded data. If it doesn't exist, return.
         {
             // Define the required variables
-            uint charDeleteMinLvl;
 
-            if (characterInfo.ClassId == PlayerClass.Deathknight)
-                charDeleteMinLvl = _configuration.GetDefaultValue("CharDelete.DeathKnight.MinLevel", 0u);
-            else if (characterInfo.ClassId == PlayerClass.DemonHunter)
-                charDeleteMinLvl = _configuration.GetDefaultValue("CharDelete.DemonHunter.MinLevel", 0u);
-            else
-                charDeleteMinLvl = _configuration.GetDefaultValue("CharDelete.MinLevel", 0u);
+            uint charDeleteMinLvl = characterInfo.ClassId switch
+            {
+                PlayerClass.Deathknight => _configuration.GetDefaultValue("CharDelete.DeathKnight.MinLevel", 0u),
+                PlayerClass.DemonHunter => _configuration.GetDefaultValue("CharDelete.DemonHunter.MinLevel", 0u),
+                _                       => _configuration.GetDefaultValue("CharDelete.MinLevel", 0u)
+            };
 
             // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
             // we set it to mode CHAR_DELETE_REMOVE

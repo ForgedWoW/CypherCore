@@ -30,6 +30,7 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -43,11 +44,13 @@ public sealed class ConditionManager
     };
 
     public string[] StaticSourceTypeData =
-        {
+    {
         "None", "Creature Loot", "Disenchant Loot", "Fishing Loot", "GameObject Loot", "Item Loot", "Mail Loot", "Milling Loot", "Pickpocketing Loot", "Prospecting Loot", "Reference Loot", "Skinning Loot", "Spell Loot", "Spell Impl. Target", "Gossip Menu", "Gossip Menu Option", "Creature Vehicle", "Spell Expl. Target", "Spell Click Event", "QuestId Accept", "QuestId Show Mark", "Vehicle Spell", "SmartScript", "Npc Vendor", "Spell Proc", "Terrain Swap", "Phase", "Graveyard", "AreaTrigger", "ConversationLine", "AreaTrigger Client Triggered", "Trainer Spell", "Object Visibility (by ID)", "Spawn Group"
     };
+
     private readonly MultiMap<Tuple<uint, bool>, Condition> _areaTriggerConditionContainerStorage = new();
     private readonly AreaTriggerDataStorage _areaTriggerDataStorage;
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly MultiMap<uint, Condition> _conditionReferenceStorage = new();
     private readonly Dictionary<ConditionSourceType, MultiMap<uint, Condition>> _conditionStorage = new();
@@ -62,6 +65,7 @@ public sealed class ConditionManager
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
     private readonly MultiMap<(uint objectType, uint objectId), Condition> _objectVisibilityConditionStorage = new();
+    private readonly PlayerComputators _playerComputators;
     private readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> _smartEventConditionStorage = new();
     private readonly Dictionary<uint, MultiMap<uint, Condition>> _spellClickEventConditionStorage = new();
     private readonly SpellManager _spellManager;
@@ -71,11 +75,12 @@ public sealed class ConditionManager
     private readonly WorldDatabase _worldDatabase;
     private readonly WorldManager _worldManager;
     private readonly WorldStateManager _worldStateManager;
+
     public ConditionManager(GameObjectManager objectManager, SpellManager spellManager, WorldDatabase worldDatabase,
                             LFGManager lfgManager, CliDB cliDB, DB2Manager db2Manager, LanguageManager languageManager,
                             IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
                             GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
-                            ObjectAccessor objectAccessor, LootStoreBox lootStorage)
+                            ObjectAccessor objectAccessor, LootStoreBox lootStorage, ClassFactory classFactory, PlayerComputators playerComputators)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -92,6 +97,8 @@ public sealed class ConditionManager
         _worldStateManager = worldStateManager;
         _objectAccessor = objectAccessor;
         _lootStorage = lootStorage;
+        _classFactory = classFactory;
+        _playerComputators = playerComputators;
     }
 
     public bool CanHaveSourceGroupSet(ConditionSourceType sourceType)
@@ -426,6 +433,7 @@ public sealed class ConditionManager
 
         return IsObjectMeetToConditionList(sourceInfo, conditions);
     }
+
     public bool IsPlayerMeetingCondition(Player player, PlayerConditionRecord condition)
     {
         var levels = _db2Manager.GetContentTuningData(condition.ContentTuningID, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask);
@@ -982,6 +990,7 @@ public sealed class ConditionManager
     {
         return _spellsUsedInSpellClickConditions.Contains(spellId);
     }
+
     public bool IsUnitMeetingCondition(Unit unit, Unit otherUnit, UnitConditionRecord condition)
     {
         for (var i = 0; i < condition.Variable.Length; ++i)
@@ -1063,7 +1072,7 @@ public sealed class ConditionManager
 
         do
         {
-            Condition cond = new();
+            var cond = _classFactory.Resolve<Condition>();
             var iSourceTypeOrReferenceId = result.Read<int>(0);
             cond.SourceGroup = result.Read<uint>(1);
             cond.SourceEntry = result.Read<int>(2);
@@ -1327,6 +1336,7 @@ public sealed class ConditionManager
 
         Log.Logger.Information("Loaded {0} conditions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
+
     private bool AddToGossipMenuItems(Condition cond)
     {
         var pMenuItemBounds = _objectManager.GetGossipMenuItemsMapBounds(cond.SourceGroup);
@@ -1377,6 +1387,7 @@ public sealed class ConditionManager
 
         return false;
     }
+
     private bool AddToPhases(Condition cond)
     {
         if (cond.SourceEntry == 0)
@@ -1541,6 +1552,7 @@ public sealed class ConditionManager
 
         return true;
     }
+
     private void Clean()
     {
         _conditionReferenceStorage.Clear();
@@ -2149,7 +2161,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.Gender:
             {
-                if (!PlayerComputators.IsValidGender((Gender)cond.ConditionValue1))
+                if (!_playerComputators.IsValidGender((Gender)cond.ConditionValue1))
                 {
                     Log.Logger.Debug("{0} has invalid gender ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -3208,10 +3220,12 @@ public sealed class ConditionManager
 
         return true;
     }
+
     private void LogUselessConditionValue(Condition cond, byte index, uint value)
     {
         Log.Logger.Debug("{0} has useless data in ConditionValue{1} ({2})!", cond.ToString(true), index, value);
     }
+
     private bool PlayerConditionCompare(int comparisonType, int value1, int value2)
     {
         return comparisonType switch
@@ -3244,6 +3258,7 @@ public sealed class ConditionManager
 
         return result;
     }
+
     private int WorldStateExpressionFunction(WorldStateExpressionFunctions functionType, Player player, int arg1, int arg2)
     {
         switch (functionType)
@@ -3333,6 +3348,7 @@ public sealed class ConditionManager
                 return 0;
         }
     }
+
     public struct ConditionTypeInfo
     {
         public bool HasConditionValue1;

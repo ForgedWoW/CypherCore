@@ -800,12 +800,12 @@ public class Item : WorldObject
         if (durabilityQualityEntry == null)
             return 0;
 
-        uint dmultiplier = 0;
-
-        if (itemTemplate.Class == ItemClass.Weapon)
-            dmultiplier = durabilityCost.WeaponSubClassCost[itemTemplate.SubClass];
-        else if (itemTemplate.Class == ItemClass.Armor)
-            dmultiplier = durabilityCost.ArmorSubClassCost[itemTemplate.SubClass];
+        uint dmultiplier = itemTemplate.Class switch
+        {
+            ItemClass.Weapon => durabilityCost.WeaponSubClassCost[itemTemplate.SubClass],
+            ItemClass.Armor  => durabilityCost.ArmorSubClassCost[itemTemplate.SubClass],
+            _                => 0
+        };
 
         var cost = (ulong)Math.Round(lostDurability * dmultiplier * durabilityQualityEntry.Data * RepairCostMultiplier);
         cost = (ulong)(cost * discount * GetDefaultValue("Rate.RepairCost", 1.0f));
@@ -1425,12 +1425,13 @@ public class Item : WorldObject
             if (artifactKnowledge != null)
                 amount = (ulong)(amount * artifactKnowledge.Multiplier);
 
-            if (amount >= 5000)
-                amount = 50 * (amount / 50);
-            else if (amount >= 1000)
-                amount = 25 * (amount / 25);
-            else if (amount >= 50)
-                amount = 5 * (amount / 5);
+            amount = amount switch
+            {
+                >= 5000 => 50 * (amount / 50),
+                >= 1000 => 25 * (amount / 25),
+                >= 50   => 5 * (amount / 5),
+                _       => amount
+            };
         }
 
         SetArtifactXP(ItemData.ArtifactXP + amount);

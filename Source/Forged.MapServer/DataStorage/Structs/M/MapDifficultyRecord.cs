@@ -26,13 +26,12 @@ public sealed class MapDifficultyRecord
 
     public uint GetRaidDuration()
     {
-        if (ResetInterval == MapDifficultyResetInterval.Daily)
-            return 86400;
-
-        if (ResetInterval == MapDifficultyResetInterval.Weekly)
-            return 604800;
-
-        return 0;
+        return ResetInterval switch
+        {
+            MapDifficultyResetInterval.Daily  => 86400,
+            MapDifficultyResetInterval.Weekly => 604800,
+            _                                 => 0
+        };
     }
 
     public bool HasResetSchedule()

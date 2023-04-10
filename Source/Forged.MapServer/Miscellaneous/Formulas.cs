@@ -122,32 +122,21 @@ public class Formulas
 
     public static uint GetZeroDifference(uint pl_level)
     {
-        uint diff;
-
-        if (pl_level < 4)
-            diff = 5;
-        else if (pl_level < 10)
-            diff = 6;
-        else if (pl_level < 12)
-            diff = 7;
-        else if (pl_level < 16)
-            diff = 8;
-        else if (pl_level < 20)
-            diff = 9;
-        else if (pl_level < 30)
-            diff = 11;
-        else if (pl_level < 40)
-            diff = 12;
-        else if (pl_level < 45)
-            diff = 13;
-        else if (pl_level < 50)
-            diff = 14;
-        else if (pl_level < 55)
-            diff = 15;
-        else if (pl_level < 60)
-            diff = 16;
-        else
-            diff = 17;
+        uint diff = pl_level switch
+        {
+            < 4  => 5,
+            < 10 => 6,
+            < 12 => 7,
+            < 16 => 8,
+            < 20 => 9,
+            < 30 => 11,
+            < 40 => 12,
+            < 45 => 13,
+            < 50 => 14,
+            < 55 => 15,
+            < 60 => 16,
+            _    => 17
+        };
 
         ScriptManager.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, pl_level));
 
@@ -234,19 +223,15 @@ public class Formulas
     }
     private static Expansion GetExpansionForLevel(uint level)
     {
-        if (level < 60)
-            return Expansion.Classic;
-        else if (level < 70)
-            return Expansion.BurningCrusade;
-        else if (level < 80)
-            return Expansion.WrathOfTheLichKing;
-        else if (level < 85)
-            return Expansion.Cataclysm;
-        else if (level < 90)
-            return Expansion.MistsOfPandaria;
-        else if (level < 100)
-            return Expansion.WarlordsOfDraenor;
-        else
-            return Expansion.Legion;
+        return level switch
+        {
+            < 60  => Expansion.Classic,
+            < 70  => Expansion.BurningCrusade,
+            < 80  => Expansion.WrathOfTheLichKing,
+            < 85  => Expansion.Cataclysm,
+            < 90  => Expansion.MistsOfPandaria,
+            < 100 => Expansion.WarlordsOfDraenor,
+            _     => Expansion.Legion
+        };
     }
 }

@@ -27,6 +27,7 @@ public class DisableManager
     private readonly GameObjectManager _objectManager;
     private readonly SpellManager _spellManager;
     private readonly WorldDatabase _worldDatabase;
+
     public DisableManager(WorldDatabase worldDatabase, IConfiguration configuration, CliDB cliDB, SpellManager spellManager,
                           DB2Manager db2Manager, CriteriaManager criteriaManager, GameObjectManager objectManager)
     {
@@ -462,10 +463,11 @@ public class DisableManager
 
         Log.Logger.Information("Loaded {0} disables in {1} ms", totalCount, Time.GetMSTimeDiffToNow(oldMSTime));
     }
+
     public class DisableData
     {
-        public ushort Flags;
-        public List<uint> Param0 = new();
-        public List<uint> Param1 = new();
+        public ushort Flags { get; set; }
+        public List<uint> Param0 { get; set; } = new();
+        public List<uint> Param1 { get; set; } = new();
     }
 }

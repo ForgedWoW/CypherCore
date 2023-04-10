@@ -338,12 +338,12 @@ internal class CommandArgs
             if (result2.IsSuccessful)
                 return result2;
 
-            if (result1.HasErrorMessage && result2.HasErrorMessage)
-                return ChatCommandResult.FromErrorMessage($"{handler.GetCypherString(CypherStrings.CmdparserEither)} \"{result2.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} \"{result1.ErrorMessage}\"");
-            else if (result1.HasErrorMessage)
-                return result1;
-            else
-                return result2;
+            return result1.HasErrorMessage switch
+            {
+                true when result2.HasErrorMessage => ChatCommandResult.FromErrorMessage($"{handler.GetCypherString(CypherStrings.CmdparserEither)} \"{result2.ErrorMessage}\"\n{handler.GetCypherString(CypherStrings.CmdparserOr)} \"{result1.ErrorMessage}\""),
+                true                              => result1,
+                _                                 => result2
+            };
         }
         else
         {

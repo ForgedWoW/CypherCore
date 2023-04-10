@@ -150,7 +150,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
         if (_condSrcInfo == null)
             return true;
 
-        _condSrcInfo.mConditionTargets[0] = target;
+        _condSrcInfo.ConditionTargets[0] = target;
 
         return Global.ConditionMgr.IsObjectMeetToConditions(_condSrcInfo, _condList);
     }

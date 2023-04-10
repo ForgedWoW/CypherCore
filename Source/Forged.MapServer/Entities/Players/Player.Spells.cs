@@ -3510,14 +3510,13 @@ public partial class Player
 
     private byte GetFishingStepsNeededToLevelUp(uint skillValue)
     {
-        // These formulas are guessed to be as close as possible to how the skill difficulty curve for fishing was on Retail.
-        if (skillValue < 75)
-            return 1;
-
-        if (skillValue <= 300)
-            return (byte)(skillValue / 44);
-
-        return (byte)(skillValue / 31);
+        return skillValue switch
+        {
+            // These formulas are guessed to be as close as possible to how the skill difficulty curve for fishing was on Retail.
+            < 75   => 1,
+            <= 300 => (byte)(skillValue / 44),
+            _      => (byte)(skillValue / 31)
+        };
     }
 
     private ushort GetMaxSkillValue(SkillType skill)

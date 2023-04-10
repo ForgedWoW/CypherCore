@@ -408,12 +408,12 @@ public class ItemTemplate
         if (chrSpecialization == null)
             return false;
 
-        var levelIndex = 0;
-
-        if (player.Level >= 110)
-            levelIndex = 2;
-        else if (player.Level > 40)
-            levelIndex = 1;
+        var levelIndex = player.Level switch
+        {
+            >= 110 => 2,
+            > 40   => 1,
+            _      => 0
+        };
 
         return Specializations[levelIndex].Get(CalculateItemSpecBit(chrSpecialization));
     }

@@ -1015,14 +1015,12 @@ public partial class Player
         else
             primaryStatPriority = CliDB.ChrClassesStorage.LookupByKey(Class).PrimaryStatPriority;
 
-
-        if (primaryStatPriority >= 4)
-            return Stats.Strength;
-
-        if (primaryStatPriority >= 2)
-            return Stats.Agility;
-
-        return Stats.Intellect;
+        return primaryStatPriority switch
+        {
+            >= 4 => Stats.Strength,
+            >= 2 => Stats.Agility,
+            _    => Stats.Intellect
+        };
     }
 
     private void UpdateAllRatings()

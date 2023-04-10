@@ -199,13 +199,12 @@ public class WorldObjectVisibility
             if (!_worldObject.IsPlayer)
                 return _worldObject.IsCreature ? _worldObject.AsCreature.SightDistance : SharedConst.SightRangeUnit;
 
-            if (target is { Visibility: { IsVisibilityOverridden: true, _visibilityDistanceOverride: { } }, IsPlayer: true })
-                return target.Visibility._visibilityDistanceOverride.Value;
-
-            if (target is { Visibility: { IsFarVisible: true, _worldObject.IsPlayer: false } })
-                return SharedConst.MaxVisibilityDistance;
-
-            return _worldObject.AsPlayer.CinematicMgr.IsOnCinematic() ? SharedConst.DefaultVisibilityInstance : _worldObject.Location.Map.VisibilityRange;
+            return target switch
+            {
+                { Visibility: { IsVisibilityOverridden: true, _visibilityDistanceOverride: { } }, IsPlayer: true } => target.Visibility._visibilityDistanceOverride.Value,
+                { Visibility: { IsFarVisible: true, _worldObject.IsPlayer: false } }                               => SharedConst.MaxVisibilityDistance,
+                _                                                                                                  => _worldObject.AsPlayer.CinematicMgr.IsOnCinematic() ? SharedConst.DefaultVisibilityInstance : _worldObject.Location.Map.VisibilityRange
+            };
         }
 
         if (_worldObject.IsDynObject && _worldObject.IsActive)

@@ -41,26 +41,26 @@ public class Weather
         switch (_type)
         {
             case WeatherType.Rain:
-                if (_intensity < 0.40f)
-                    return WeatherState.LightRain;
-                else if (_intensity < 0.70f)
-                    return WeatherState.MediumRain;
-                else
-                    return WeatherState.HeavyRain;
+                return _intensity switch
+                {
+                    < 0.40f => WeatherState.LightRain,
+                    < 0.70f => WeatherState.MediumRain,
+                    _       => WeatherState.HeavyRain
+                };
             case WeatherType.Snow:
-                if (_intensity < 0.40f)
-                    return WeatherState.LightSnow;
-                else if (_intensity < 0.70f)
-                    return WeatherState.MediumSnow;
-                else
-                    return WeatherState.HeavySnow;
+                return _intensity switch
+                {
+                    < 0.40f => WeatherState.LightSnow,
+                    < 0.70f => WeatherState.MediumSnow,
+                    _       => WeatherState.HeavySnow
+                };
             case WeatherType.Storm:
-                if (_intensity < 0.40f)
-                    return WeatherState.LightSandstorm;
-                else if (_intensity < 0.70f)
-                    return WeatherState.MediumSandstorm;
-                else
-                    return WeatherState.HeavySandstorm;
+                return _intensity switch
+                {
+                    < 0.40f => WeatherState.LightSandstorm,
+                    < 0.70f => WeatherState.MediumSandstorm,
+                    _       => WeatherState.HeavySandstorm
+                };
             case WeatherType.BlackRain:
                 return WeatherState.BlackRain;
             case WeatherType.Thunders:
@@ -249,11 +249,13 @@ public class Weather
         if (player == null)
             return false;
 
-        // Send the weather packet to all players in this zone
-        if (_intensity >= 1)
-            _intensity = 0.9999f;
-        else if (_intensity < 0)
-            _intensity = 0.0001f;
+        _intensity = _intensity switch
+        {
+            // Send the weather packet to all players in this zone
+            >= 1 => 0.9999f,
+            < 0  => 0.0001f,
+            _    => _intensity
+        };
 
         var state = GetWeatherState();
 

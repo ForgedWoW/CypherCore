@@ -431,12 +431,13 @@ public class TerrainInfo
 
             if (delta > collisionHeight)
                 data.LiquidStatus = ZLiquidStatus.UnderWater;
-            else if (delta > 0.0f)
-                data.LiquidStatus = ZLiquidStatus.InWater;
-            else if (delta > -0.1f)
-                data.LiquidStatus = ZLiquidStatus.WaterWalk;
             else
-                data.LiquidStatus = ZLiquidStatus.AboveWater;
+                data.LiquidStatus = delta switch
+                {
+                    > 0.0f  => ZLiquidStatus.InWater,
+                    > -0.1f => ZLiquidStatus.WaterWalk,
+                    _       => ZLiquidStatus.AboveWater
+                };
         }
 
         // look up liquid data from grid map

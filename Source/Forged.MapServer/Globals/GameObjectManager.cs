@@ -1432,11 +1432,12 @@ public sealed class GameObjectManager
 
     public WorldSafeLocsEntry GetDefaultGraveYard(TeamFaction team)
     {
-        if (team == TeamFaction.Horde)
-            return GetWorldSafeLoc(10);
-        else if (team == TeamFaction.Alliance)
-            return GetWorldSafeLoc(4);
-        else return null;
+        return team switch
+        {
+            TeamFaction.Horde    => GetWorldSafeLoc(10),
+            TeamFaction.Alliance => GetWorldSafeLoc(4),
+            _                    => null
+        };
     }
 
     public SpawnGroupTemplateData GetDefaultSpawnGroup()

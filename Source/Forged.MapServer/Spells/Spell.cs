@@ -742,15 +742,15 @@ public partial class Spell : IDisposable
             if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.Spell, SpellInfo.Id, condInfo))
             {
                 // mLastFailedCondition can be NULL if there was an error processing the condition in Condition.Meets (i.e. wrong data for ConditionTarget or others)
-                if (condInfo.mLastFailedCondition != null && condInfo.mLastFailedCondition.ErrorType != 0)
+                if (condInfo.LastFailedCondition != null && condInfo.LastFailedCondition.ErrorType != 0)
                 {
-                    if (condInfo.mLastFailedCondition.ErrorType == (uint)SpellCastResult.CustomError)
-                        CustomErrors = (SpellCustomErrors)condInfo.mLastFailedCondition.ErrorTextId;
+                    if (condInfo.LastFailedCondition.ErrorType == (uint)SpellCastResult.CustomError)
+                        CustomErrors = (SpellCustomErrors)condInfo.LastFailedCondition.ErrorTextId;
 
-                    return (SpellCastResult)condInfo.mLastFailedCondition.ErrorType;
+                    return (SpellCastResult)condInfo.LastFailedCondition.ErrorType;
                 }
 
-                if (condInfo.mLastFailedCondition == null || condInfo.mLastFailedCondition.ConditionTarget == 0)
+                if (condInfo.LastFailedCondition == null || condInfo.LastFailedCondition.ConditionTarget == 0)
                     return SpellCastResult.CasterAurastate;
 
                 return SpellCastResult.BadTargets;
@@ -3321,12 +3321,12 @@ public partial class Spell : IDisposable
     {
         if (_empowerState != EmpowerState.Finished)
         {
-            if (_empowerState == EmpowerState.None && state == EmpowerState.Canceled)
-                _empowerState = EmpowerState.CanceledStartup;
-            else if (_empowerState == EmpowerState.CanceledStartup && state == EmpowerState.Empowering)
-                _empowerState = EmpowerState.None;
-            else
-                _empowerState = state;
+            _empowerState = _empowerState switch
+            {
+                EmpowerState.None when state == EmpowerState.Canceled              => EmpowerState.CanceledStartup,
+                EmpowerState.CanceledStartup when state == EmpowerState.Empowering => EmpowerState.None,
+                _                                                                  => state
+            };
         }
     }
 
@@ -6031,13 +6031,12 @@ public partial class Spell : IDisposable
 
     private bool CheckSpellEffectHandler(ISpellEffectHandler se, SpellEffectInfo spellEffectInfo)
     {
-        if (spellEffectInfo.Effect == 0 && se.EffectName == 0)
-            return true;
-
-        if (spellEffectInfo.Effect == 0)
-            return false;
-
-        return se.EffectName == SpellEffectName.Any || spellEffectInfo.Effect == se.EffectName;
+        return spellEffectInfo.Effect switch
+        {
+            0 when se.EffectName == 0 => true,
+            0                         => false,
+            _                         => se.EffectName == SpellEffectName.Any || spellEffectInfo.Effect == se.EffectName
+        };
     }
 
     private void CheckSrc()
@@ -6619,14 +6618,14 @@ public partial class Spell : IDisposable
         if (OriginalCaster && targetInfo.MissCondition != SpellMissInfo.Evade && !OriginalCaster.WorldObjectCombat.IsFriendlyTo(targetUnit) && (!SpellInfo.IsPositive || SpellInfo.HasEffect(SpellEffectName.Dispel)) && (SpellInfo.HasInitialAggro || targetUnit.IsEngaged))
             OriginalCaster.SetInCombatWith(targetUnit, true);
 
-        Unit unit = null;
-
-        // In case spell hit target, do all effect on that target
-        if (targetInfo.MissCondition == SpellMissInfo.None)
-            unit = targetUnit;
-        // In case spell reflect from target, do all effect on caster (if hit)
-        else if (targetInfo.MissCondition == SpellMissInfo.Reflect && targetInfo.ReflectResult == SpellMissInfo.None)
-            unit = Caster.AsUnit;
+        Unit unit = targetInfo.MissCondition switch
+        {
+            // In case spell hit target, do all effect on that target
+            SpellMissInfo.None => targetUnit,
+            // In case spell reflect from target, do all effect on caster (if hit)
+            SpellMissInfo.Reflect when targetInfo.ReflectResult == SpellMissInfo.None => Caster.AsUnit,
+            _                                                                         => null
+        };
 
         if (unit == null)
             return;
@@ -8900,11 +8899,13 @@ public partial class Spell : IDisposable
     {
         x = (float)Math.Tan(x);
 
-        if (x is < 100000.0f and > -100000.0f) return x;
-        if (x >= 100000.0f) return 100000.0f;
-        if (x <= 100000.0f) return -100000.0f;
-
-        return 0.0f;
+        return x switch
+        {
+            < 100000.0f and > -100000.0f => x,
+            >= 100000.0f                 => 100000.0f,
+            <= 100000.0f                 => -100000.0f,
+            _                            => 0.0f
+        };
     }
     private void TriggerGlobalCooldown()
     {

@@ -461,6 +461,7 @@ void RegisterInstanced()
     builder.RegisterType<BlackMarketEntry>();
     builder.RegisterType<ObjectGuidGenerator>();
     builder.RegisterType<Channel>();
+    builder.RegisterType<Condition>();
 }
 
 void RegisterHandlers()

@@ -122,10 +122,12 @@ public class MoveSpline
 
             if (Splineflags.HasFlag(SplineFlag.Done) && Facing.Type != MonsterMoveType.Normal)
             {
-                if (Facing.Type == MonsterMoveType.FacingAngle)
-                    orientation = Facing.Angle;
-                else if (Facing.Type == MonsterMoveType.FacingSpot)
-                    orientation = MathF.Atan2(Facing.F.Y - c.Y, Facing.F.X - c.X);
+                orientation = Facing.Type switch
+                {
+                    MonsterMoveType.FacingAngle => Facing.Angle,
+                    MonsterMoveType.FacingSpot  => MathF.Atan2(Facing.F.Y - c.Y, Facing.F.X - c.X),
+                    _                           => orientation
+                };
                 //nothing to do for MoveSplineFlag.Final_Target Id
             }
             else

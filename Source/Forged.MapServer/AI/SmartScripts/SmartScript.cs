@@ -449,12 +449,13 @@ public class SmartScript
             var scriptHolder = _timedActionList[i];
             scriptHolder.EnableTimed = i == 0; //enable processing only for the first action
 
-            if (e.Action.timedActionList.TimerType == 0)
-                scriptHolder.Event.type = SmartEvents.UpdateOoc;
-            else if (e.Action.timedActionList.TimerType == 1)
-                scriptHolder.Event.type = SmartEvents.UpdateIc;
-            else if (e.Action.timedActionList.TimerType > 1)
-                scriptHolder.Event.type = SmartEvents.Update;
+            scriptHolder.Event.type = e.Action.timedActionList.TimerType switch
+            {
+                0   => SmartEvents.UpdateOoc,
+                1   => SmartEvents.UpdateIc,
+                > 1 => SmartEvents.Update,
+                _   => scriptHolder.Event.type
+            };
 
             InitTimer(scriptHolder);
         }

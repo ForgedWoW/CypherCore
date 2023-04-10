@@ -266,11 +266,13 @@ public class BfCapturePoint
         }
         else // grey, did not go through mid point
         {
-            // old phase and current are on the same side, so one team challenges the other
-            if (challenger == TeamFaction.Alliance && _oldState is BattleFieldObjectiveStates.Horde or BattleFieldObjectiveStates.NeutralHordeChallenge)
-                _state = BattleFieldObjectiveStates.HordeAllianceChallenge;
-            else if (challenger == TeamFaction.Horde && _oldState is BattleFieldObjectiveStates.Alliance or BattleFieldObjectiveStates.NeutralAllianceChallenge)
-                _state = BattleFieldObjectiveStates.AllianceHordeChallenge;
+            _state = challenger switch
+            {
+                // old phase and current are on the same side, so one team challenges the other
+                TeamFaction.Alliance when _oldState is BattleFieldObjectiveStates.Horde or BattleFieldObjectiveStates.NeutralHordeChallenge    => BattleFieldObjectiveStates.HordeAllianceChallenge,
+                TeamFaction.Horde when _oldState is BattleFieldObjectiveStates.Alliance or BattleFieldObjectiveStates.NeutralAllianceChallenge => BattleFieldObjectiveStates.AllianceHordeChallenge,
+                _                                                                                                                              => _state
+            };
 
             Team = TeamIds.Neutral;
         }

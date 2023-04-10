@@ -267,10 +267,12 @@ public partial class Unit : WorldObject
 
         comboPoints += count;
 
-        if (comboPoints > 5)
-            comboPoints = 5;
-        else if (comboPoints < 0)
-            comboPoints = 0;
+        comboPoints = comboPoints switch
+        {
+            > 5 => 5,
+            < 0 => 0,
+            _   => comboPoints
+        };
 
         if (spell == null)
             SetPower(PowerType.ComboPoints, comboPoints);

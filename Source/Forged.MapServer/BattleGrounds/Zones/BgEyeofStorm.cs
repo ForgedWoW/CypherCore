@@ -946,15 +946,13 @@ internal class BgEyeofStorm : Battleground
                     //point is fully horde's
                     _mPointBarStatus[point] = EotSProgressBarConsts.ProgressBarHordeControlled;
 
-                uint pointOwnerTeamId;
-
-                //find which team should own this point
-                if (_mPointBarStatus[point] <= EotSProgressBarConsts.ProgressBarNeutralLow)
-                    pointOwnerTeamId = (uint)TeamFaction.Horde;
-                else if (_mPointBarStatus[point] >= EotSProgressBarConsts.ProgressBarNeutralHigh)
-                    pointOwnerTeamId = (uint)TeamFaction.Alliance;
-                else
-                    pointOwnerTeamId = (uint)EotSPointState.NoOwner;
+                uint pointOwnerTeamId = _mPointBarStatus[point] switch
+                {
+                    //find which team should own this point
+                    <= EotSProgressBarConsts.ProgressBarNeutralLow  => (uint)TeamFaction.Horde,
+                    >= EotSProgressBarConsts.ProgressBarNeutralHigh => (uint)TeamFaction.Alliance,
+                    _                                               => (uint)EotSPointState.NoOwner
+                };
 
                 for (byte i = 0; i < _mPlayersNearPoint[point].Count; ++i)
                 {

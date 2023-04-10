@@ -292,10 +292,12 @@ public partial class Player
                     missingItem = ar.Item2;
                 }
 
-                if (Team == TeamFaction.Alliance && ar.QuestA != 0 && !GetQuestRewardStatus(ar.QuestA))
-                    missingQuest = ar.QuestA;
-                else if (Team == TeamFaction.Horde && ar.QuestH != 0 && !GetQuestRewardStatus(ar.QuestH))
-                    missingQuest = ar.QuestH;
+                missingQuest = Team switch
+                {
+                    TeamFaction.Alliance when ar.QuestA != 0 && !GetQuestRewardStatus(ar.QuestA) => ar.QuestA,
+                    TeamFaction.Horde when ar.QuestH != 0 && !GetQuestRewardStatus(ar.QuestH)    => ar.QuestH,
+                    _                                                                            => missingQuest
+                };
 
                 var leader = this;
                 var leaderGuid = Group?.LeaderGUID ?? GUID;

@@ -1992,13 +1992,12 @@ public class Aura
 
         var spellEffectInfo = SpellInfo.GetEffect(effIndex);
 
-        if (spellEffectInfo.ApplyAuraName == 0 && ae.AuraType == 0)
-            return true;
-
-        if (spellEffectInfo.ApplyAuraName == 0)
-            return false;
-
-        return ae.AuraType == AuraType.Any || spellEffectInfo.ApplyAuraName == ae.AuraType;
+        return spellEffectInfo.ApplyAuraName switch
+        {
+            0 when ae.AuraType == 0 => true,
+            0                       => false,
+            _                       => ae.AuraType == AuraType.Any || spellEffectInfo.ApplyAuraName == ae.AuraType
+        };
     }
 
     private WorldObject GetWorldObjectCaster()
