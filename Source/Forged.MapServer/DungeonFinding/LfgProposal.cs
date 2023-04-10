@@ -9,16 +9,16 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgProposal
 {
-    public long CancelTime;
-    public uint DungeonId;
-    public uint Encounters;
-    public ObjectGuid Group;
-    public uint ID;
-    public bool IsNew;
-    public ObjectGuid Leader;
-    public Dictionary<ObjectGuid, LfgProposalPlayer> Players = new();
-    public List<ObjectGuid> Queues = new();
-    public List<ulong> Showorder = new();
+    public long CancelTime { get; set; }
+    public uint DungeonId { get; set; }
+    public uint Encounters { get; set; }
+    public ObjectGuid Group { get; set; }
+    public uint ID { get; set; }
+    public bool IsNew { get; set; }
+    public ObjectGuid Leader { get; set; }
+    public Dictionary<ObjectGuid, LfgProposalPlayer> Players { get; set; } = new();
+    public List<ObjectGuid> Queues { get; set; } = new();
+    public List<ulong> Showorder { get; set; } = new();
 
     public LfgProposalState State;
     // Players data

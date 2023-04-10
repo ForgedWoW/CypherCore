@@ -9,10 +9,10 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgRoleCheck
 {
-    public long CancelTime;
-    public List<uint> Dungeons = new();
-    public ObjectGuid Leader;
-    public uint RDungeonId;
-    public Dictionary<ObjectGuid, LfgRoles> Roles = new();
-    public LfgRoleCheckState State;
+    public long CancelTime { get; set; }
+    public List<uint> Dungeons { get; set; } = new();
+    public ObjectGuid Leader { get; set; }
+    public uint RDungeonId { get; set; }
+    public Dictionary<ObjectGuid, LfgRoles> Roles { get; set; } = new();
+    public LfgRoleCheckState State { get; set; }
 }

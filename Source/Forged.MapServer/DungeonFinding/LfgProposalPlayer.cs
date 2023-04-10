@@ -8,9 +8,9 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgProposalPlayer
 {
-    public LfgAnswer Accept;
-    public ObjectGuid Group;
-    public LfgRoles Role;
+    public LfgAnswer Accept { get; set; }
+    public ObjectGuid Group { get; set; }
+    public LfgRoles Role { get; set; }
 
     public LfgProposalPlayer()
     {

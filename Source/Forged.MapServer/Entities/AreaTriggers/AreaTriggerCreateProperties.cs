@@ -12,25 +12,6 @@ namespace Forged.MapServer.Entities.AreaTriggers;
 
 public unsafe class AreaTriggerCreateProperties
 {
-    public int AnimId;
-    public uint AnimKitId;
-    public uint DecalPropertiesId;
-    public AreaTriggerScaleInfo ExtraScale = new();
-    public uint FacingCurveId;
-    public uint Id;
-    public uint MorphCurveId;
-    public uint MoveCurveId;
-    public AreaTriggerOrbitInfo OrbitInfo;
-    public AreaTriggerScaleInfo OverrideScale = new();
-    public List<Vector2> PolygonVertices = new();
-    public List<Vector2> PolygonVerticesTarget = new();
-    public uint ScaleCurveId;
-    public List<uint> ScriptIds = new();
-    public AreaTriggerShapeInfo Shape = new();
-    public List<Vector3> SplinePoints = new();
-    public AreaTriggerTemplate Template;
-    public uint TimeToTarget;
-    public uint TimeToTargetScale;
     public AreaTriggerCreateProperties()
     {
         // legacy code from before it was known what each curve field does
@@ -39,6 +20,39 @@ public unsafe class AreaTriggerCreateProperties
         ExtraScale.Structured.OverrideActive = 1;
     }
 
+    public int AnimId { get; set; }
+    public uint AnimKitId { get; set; }
+    public uint DecalPropertiesId { get; set; }
+    public AreaTriggerScaleInfo ExtraScale { get; set; } = new();
+    public uint FacingCurveId { get; set; }
+    public bool HasSplines => SplinePoints.Count >= 2;
+    public uint Id { get; set; }
+    public float MaxSearchRadius
+    {
+        get
+        {
+            if (Shape.TriggerType != AreaTriggerTypes.Polygon)
+                return Shape.GetMaxSearchRadius();
+
+            Position center = new();
+
+            return PolygonVertices.Select(vertice => center.GetExactDist2d(vertice.X, vertice.Y)).Prepend(0.0f).Max();
+        }
+    }
+
+    public uint MorphCurveId { get; set; }
+    public uint MoveCurveId { get; set; }
+    public AreaTriggerOrbitInfo OrbitInfo { get; set; }
+    public AreaTriggerScaleInfo OverrideScale { get; set; } = new();
+    public List<Vector2> PolygonVertices { get; set; } = new();
+    public List<Vector2> PolygonVerticesTarget { get; set; } = new();
+    public uint ScaleCurveId { get; set; }
+    public List<uint> ScriptIds { get; set; } = new();
+    public AreaTriggerShapeInfo Shape { get; set; } = new();
+    public List<Vector3> SplinePoints { get; set; } = new();
+    public AreaTriggerTemplate Template { get; set; }
+    public uint TimeToTarget { get; set; }
+    public uint TimeToTargetScale { get; set; }
     public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId, GameObjectManager objectManager)
     {
         AreaTriggerCreateProperties ret = new()
@@ -70,20 +84,5 @@ public unsafe class AreaTriggerCreateProperties
         ret.TimeToTargetScale = 0;
 
         return ret;
-    }
-
-    public float GetMaxSearchRadius()
-    {
-        if (Shape.TriggerType != AreaTriggerTypes.Polygon)
-            return Shape.GetMaxSearchRadius();
-
-        Position center = new();
-
-        return PolygonVertices.Select(vertice => center.GetExactDist2d(vertice.X, vertice.Y)).Prepend(0.0f).Max();
-    }
-
-    public bool HasSplines()
-    {
-        return SplinePoints.Count >= 2;
     }
 }

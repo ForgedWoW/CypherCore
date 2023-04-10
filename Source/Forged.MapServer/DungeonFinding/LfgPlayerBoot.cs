@@ -9,9 +9,9 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgPlayerBoot
 {
-    public long CancelTime;
-    public bool InProgress;
-    public string Reason;
-    public ObjectGuid Victim;
-    public Dictionary<ObjectGuid, LfgAnswer> Votes = new();
+    public long CancelTime { get; set; }
+    public bool InProgress { get; set; }
+    public string Reason { get; set; }
+    public ObjectGuid Victim { get; set; }
+    public Dictionary<ObjectGuid, LfgAnswer> Votes { get; set; } = new();
 }

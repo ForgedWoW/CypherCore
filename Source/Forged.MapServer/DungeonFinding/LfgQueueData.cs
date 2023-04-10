@@ -10,29 +10,29 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgQueueData
 {
-    public string bestCompatible = "";
-    public byte dps;
-    public List<uint> dungeons;
-    public byte healers;
-    public long joinTime;
-    public Dictionary<ObjectGuid, LfgRoles> roles;
-    public byte tanks;
+    public string BestCompatible = "";
+    public byte Dps;
+    public List<uint> Dungeons;
+    public byte Healers;
+    public long JoinTime;
+    public Dictionary<ObjectGuid, LfgRoles> Roles;
+    public byte Tanks;
 
     public LfgQueueData()
     {
-        joinTime = GameTime.CurrentTime;
-        tanks = SharedConst.LFGTanksNeeded;
-        healers = SharedConst.LFGHealersNeeded;
-        dps = SharedConst.LFGDPSNeeded;
+        JoinTime = GameTime.CurrentTime;
+        Tanks = SharedConst.LFGTanksNeeded;
+        Healers = SharedConst.LFGHealersNeeded;
+        Dps = SharedConst.LFGDPSNeeded;
     }
 
-    public LfgQueueData(long _joinTime, List<uint> _dungeons, Dictionary<ObjectGuid, LfgRoles> _roles)
+    public LfgQueueData(long joinTime, List<uint> dungeons, Dictionary<ObjectGuid, LfgRoles> roles)
     {
-        joinTime = _joinTime;
-        tanks = SharedConst.LFGTanksNeeded;
-        healers = SharedConst.LFGHealersNeeded;
-        dps = SharedConst.LFGDPSNeeded;
-        dungeons = _dungeons;
-        roles = _roles;
+        JoinTime = joinTime;
+        Tanks = SharedConst.LFGTanksNeeded;
+        Healers = SharedConst.LFGHealersNeeded;
+        Dps = SharedConst.LFGDPSNeeded;
+        Dungeons = dungeons;
+        Roles = roles;
     }
 }

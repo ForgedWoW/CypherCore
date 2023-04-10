@@ -32,7 +32,7 @@ public class AreaTriggerScaleInfo
 
         [FieldOffset(24)] public uint OverrideActive;
 
-        public struct curveparameters
+        public struct Curveparameter
         {
             public uint Raw;
 

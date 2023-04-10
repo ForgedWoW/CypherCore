@@ -96,12 +96,12 @@ internal class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOn
         if (isLFG && method == RemoveMethod.Kick) // Player have been kicked
         {
             // @todo - Update internal kick cooldown of kicker
-            var str_reason = "";
+            var strReason = "";
 
             if (!string.IsNullOrEmpty(reason))
-                str_reason = reason;
+                strReason = reason;
 
-            Global.LFGMgr.InitBoot(gguid, kicker, guid, str_reason);
+            Global.LFGMgr.InitBoot(gguid, kicker, guid, strReason);
 
             return;
         }

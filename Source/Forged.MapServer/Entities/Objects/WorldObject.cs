@@ -636,12 +636,12 @@ public abstract class WorldObject : IDisposable
             var hasMorphCurveID = createProperties != null && createProperties.MorphCurveId != 0;
             var hasFacingCurveID = createProperties != null && createProperties.FacingCurveId != 0;
             var hasMoveCurveID = createProperties != null && createProperties.MoveCurveId != 0;
-            var hasAreaTriggerSphere = shape.IsSphere();
-            var hasAreaTriggerBox = shape.IsBox();
-            var hasAreaTriggerPolygon = createProperties != null && shape.IsPolygon();
-            var hasAreaTriggerCylinder = shape.IsCylinder();
-            var hasDisk = shape.IsDisk();
-            var hasBoundedPlane = shape.IsBoudedPlane();
+            var hasAreaTriggerSphere = shape.TriggerType == AreaTriggerTypes.Sphere;
+            var hasAreaTriggerBox = shape.TriggerType == AreaTriggerTypes.Box;
+            var hasAreaTriggerPolygon = createProperties != null && shape.TriggerType == AreaTriggerTypes.Polygon;
+            var hasAreaTriggerCylinder = shape.TriggerType == AreaTriggerTypes.Cylinder;
+            var hasDisk = shape.TriggerType == AreaTriggerTypes.Disk;
+            var hasBoundedPlane = shape.TriggerType == AreaTriggerTypes.BoundedPlane;
             var hasAreaTriggerSpline = areaTrigger.HasSplines;
             var hasOrbit = areaTrigger.HasOrbit();
             var hasMovementScript = false;

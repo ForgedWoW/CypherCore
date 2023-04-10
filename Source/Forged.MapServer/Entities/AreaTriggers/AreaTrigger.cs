@@ -414,7 +414,7 @@ public class AreaTrigger : WorldObject
     }
     public void UpdateShape()
     {
-        if (Shape.IsPolygon())
+        if (Shape.TriggerType == AreaTriggerTypes.Polygon)
             UpdatePolygonOrientation();
     }
     private void _UpdateDuration(int newDuration)
@@ -576,7 +576,7 @@ public class AreaTrigger : WorldObject
         ObjectScale = 1.0f;
 
         Shape = CreateProperties.Shape;
-        MaxSearchRadius = CreateProperties.GetMaxSearchRadius();
+        MaxSearchRadius = CreateProperties.MaxSearchRadius;
 
         var areaTriggerData = Values.ModifyValue(_areaTriggerData);
         SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.Caster), caster.GUID);
@@ -649,7 +649,7 @@ public class AreaTrigger : WorldObject
 
             InitOrbit(orbit, timeToTarget);
         }
-        else if (CreateProperties.HasSplines())
+        else if (CreateProperties.HasSplines)
         {
             InitSplineOffsets(CreateProperties.SplinePoints, timeToTarget);
         }

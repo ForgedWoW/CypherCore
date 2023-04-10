@@ -5,9 +5,9 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgReward
 {
-    public uint FirstQuest;
-    public uint MaxLevel;
-    public uint OtherQuest;
+    public uint FirstQuest { get; set; }
+    public uint MaxLevel { get; set; }
+    public uint OtherQuest { get; set; }
 
     public LfgReward(uint maxLevel = 0, uint firstQuest = 0, uint otherQuest = 0)
     {

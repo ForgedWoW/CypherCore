@@ -9,48 +9,48 @@ namespace Forged.MapServer.Entities.AreaTriggers;
 [StructLayout(LayoutKind.Explicit)]
 public unsafe class AreaTriggerData
 {
-    [FieldOffset(0)] public defaultdatas DefaultDatas;
+    [FieldOffset(0)] public DefaultData DefaultDatas;
 
-    [FieldOffset(0)] public spheredatas SphereDatas;
+    [FieldOffset(0)] public SphereData SphereDatas;
 
-    [FieldOffset(0)] public boxdatas BoxDatas;
+    [FieldOffset(0)] public BoxData BoxDatas;
 
-    [FieldOffset(0)] public polygondatas PolygonDatas;
+    [FieldOffset(0)] public PolygonData PolygonDatas;
 
-    [FieldOffset(0)] public cylinderdatas CylinderDatas;
+    [FieldOffset(0)] public CylinderData CylinderDatas;
 
-    [FieldOffset(0)] public diskDatas DiskDatas;
+    [FieldOffset(0)] public DiskData DiskDatas;
 
-    [FieldOffset(0)] public boundedPlaneDatas BoundedPlaneDatas;
+    [FieldOffset(0)] public BoundedPlaneData BoundedPlaneDatas;
 
-    public struct defaultdatas
+    public struct DefaultData
     {
         public fixed float Data[SharedConst.MaxAreatriggerEntityData];
     }
 
     // AREATRIGGER_TYPE_SPHERE
-    public struct spheredatas
+    public struct SphereData
     {
         public float Radius;
         public float RadiusTarget;
     }
 
     // AREATRIGGER_TYPE_BOX
-    public struct boxdatas
+    public struct BoxData
     {
         public fixed float Extents[3];
         public fixed float ExtentsTarget[3];
     }
 
     // AREATRIGGER_TYPE_POLYGON
-    public struct polygondatas
+    public struct PolygonData
     {
         public float Height;
         public float HeightTarget;
     }
 
     // AREATRIGGER_TYPE_CYLINDER
-    public struct cylinderdatas
+    public struct CylinderData
     {
         public float Radius;
         public float RadiusTarget;
@@ -61,7 +61,7 @@ public unsafe class AreaTriggerData
     }
 
     // AREATRIGGER_TYPE_DISK
-    public struct diskDatas
+    public struct DiskData
     {
         public float InnerRadius;
         public float InnerRadiusTarget;
@@ -74,7 +74,7 @@ public unsafe class AreaTriggerData
     }
 
     // AREATRIGGER_TYPE_BOUNDED_PLANE
-    public struct boundedPlaneDatas
+    public struct BoundedPlaneData
     {
         public fixed float Extents[2];
         public fixed float ExtentsTarget[2];

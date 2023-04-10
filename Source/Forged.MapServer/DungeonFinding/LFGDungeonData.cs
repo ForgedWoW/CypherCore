@@ -9,22 +9,25 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LFGDungeonData
 {
-    public uint ContentTuningId;
-    public Difficulty Difficulty;
-    public uint Expansion;
-    public uint Group;
-    public uint ID;
-    public uint Map;
-    public string Name;
-    public ushort RequiredItemLevel;
-    public bool Seasonal;
-    public LfgType Type;
-    public float X, Y, Z, O;
+    public uint ContentTuningId { get; set; }
+    public Difficulty Difficulty { get; set; }
+    public uint Expansion { get; set; }
+    public uint Group { get; set; }
+    public uint ID { get; set; }
+    public uint Map { get; set; }
+    public string Name { get; set; }
+    public ushort RequiredItemLevel { get; set; }
+    public bool Seasonal { get; set; }
+    public LfgType Type { get; set; }
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+    public float O { get; set; }
 
-    public LFGDungeonData(LFGDungeonsRecord dbc)
+    public LFGDungeonData(LFGDungeonsRecord dbc, Locale locale)
     {
         ID = dbc.Id;
-        Name = dbc.Name[Global.WorldMgr.DefaultDbcLocale];
+        Name = dbc.Name[locale];
         Map = (uint)dbc.MapID;
         Type = dbc.TypeID;
         Expansion = dbc.ExpansionLevel;

@@ -9,10 +9,10 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgJoinResultData
 {
-    public Dictionary<ObjectGuid, Dictionary<uint, LfgLockInfoData>> Lockmap = new();
-    public List<string> PlayersMissingRequirement = new();
-    public LfgJoinResult Result;
-    public LfgRoleCheckState State;
+    public Dictionary<ObjectGuid, Dictionary<uint, LfgLockInfoData>> Lockmap { get; set; } = new();
+    public List<string> PlayersMissingRequirement { get; set; } = new();
+    public LfgJoinResult Result { get; set; }
+    public LfgRoleCheckState State { get; set; }
 
     public LfgJoinResultData(LfgJoinResult result = LfgJoinResult.Ok, LfgRoleCheckState state = LfgRoleCheckState.Default)
     {

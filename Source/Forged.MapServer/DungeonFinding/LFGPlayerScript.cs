@@ -17,12 +17,12 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
 
     public void OnLogin(Player player)
     {
-        if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+        if (!player.LFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
             return;
 
         // Temporal: Trying to determine when group data and LFG data gets desynched
         var guid = player.GUID;
-        var gguid = Global.LFGMgr.GetGroup(guid);
+        var gguid = player.LFGManager.GetGroup(guid);
 
         var group = player.Group;
 
@@ -33,31 +33,31 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
             if (gguid != gguid2)
             {
                 Log.Logger.Error("{0} on group {1} but LFG has group {2} saved... Fixing.", player.Session.GetPlayerInfo(), gguid2.ToString(), gguid.ToString());
-                Global.LFGMgr.SetupGroupMember(guid, group.GUID);
+                player.LFGManager.SetupGroupMember(guid, group.GUID);
             }
         }
 
-        Global.LFGMgr.SetTeam(player.GUID, player.Team);
+        player.LFGManager.SetTeam(player.GUID, player.Team);
         // @todo - Restore LfgPlayerData and send proper status to player if it was in a group
     }
 
     // Player Hooks
     public void OnLogout(Player player)
     {
-        if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
+        if (!player.LFGManager.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
             return;
 
         if (!player.Group)
-            Global.LFGMgr.LeaveLfg(player.GUID);
+            player.LFGManager.LeaveLfg(player.GUID);
         else if (player.Session.PlayerDisconnected)
-            Global.LFGMgr.LeaveLfg(player.GUID, true);
+            player.LFGManager.LeaveLfg(player.GUID, true);
     }
 
     public void OnMapChanged(Player player)
     {
         var map = player.Location.Map;
 
-        if (Global.LFGMgr.InLfgDungeonMap(player.GUID, map.Id, map.DifficultyID))
+        if (player.LFGManager.InLfgDungeonMap(player.GUID, map.Id, map.DifficultyID))
         {
             var group = player.Group;
 
@@ -67,7 +67,7 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
             // crashes or other undefined behaviour
             if (!group)
             {
-                Global.LFGMgr.LeaveLfg(player.GUID);
+                player.LFGManager.LeaveLfg(player.GUID);
                 player.RemoveAura(SharedConst.LFGSpellLuckOfTheDraw);
                 player.TeleportTo(player.Homebind);
 
@@ -88,8 +88,8 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
 
             player.SendPacket(response);
 
-            if (Global.LFGMgr.SelectedRandomLfgDungeon(player.GUID))
-                player.CastSpell(player, SharedConst.LFGSpellLuckOfTheDraw, true);
+            if (player.LFGManager.SelectedRandomLfgDungeon(player.GUID))
+                player.SpellFactory.CastSpell(player, SharedConst.LFGSpellLuckOfTheDraw, true);
         }
         else
         {
@@ -97,7 +97,7 @@ internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOn
 
             if (group && group.MembersCount == 1)
             {
-                Global.LFGMgr.LeaveLfg(group.GUID);
+                player.LFGManager.LeaveLfg(group.GUID);
                 group.Disband();
 
                 Log.Logger.Debug("LFGPlayerScript::OnMapChanged, Player {0}({1}) is last in the lfggroup so we disband the group.",

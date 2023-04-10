@@ -9,22 +9,22 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgCompatibilityData
 {
-    public LfgCompatibility compatibility;
-    public Dictionary<ObjectGuid, LfgRoles> roles;
+    public LfgCompatibility Compatibility;
+    public Dictionary<ObjectGuid, LfgRoles> Roles;
 
     public LfgCompatibilityData()
     {
-        compatibility = LfgCompatibility.Pending;
+        Compatibility = LfgCompatibility.Pending;
     }
 
-    public LfgCompatibilityData(LfgCompatibility _compatibility)
+    public LfgCompatibilityData(LfgCompatibility compatibility)
     {
-        compatibility = _compatibility;
+        Compatibility = compatibility;
     }
 
-    public LfgCompatibilityData(LfgCompatibility _compatibility, Dictionary<ObjectGuid, LfgRoles> _roles)
+    public LfgCompatibilityData(LfgCompatibility compatibility, Dictionary<ObjectGuid, LfgRoles> roles)
     {
-        compatibility = _compatibility;
-        roles = _roles;
+        Compatibility = compatibility;
+        Roles = roles;
     }
 }

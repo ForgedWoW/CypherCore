@@ -16,6 +16,7 @@ using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.LFG;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
@@ -34,6 +35,7 @@ public class LFGManager
     private readonly DB2Manager _db2Manager;
     private readonly DisableManager _disableManager;
     private readonly GameEventManager _gameEventManager;
+    private readonly WorldManager _worldManager;
     private readonly GroupManager _groupManager;
     private readonly Dictionary<ObjectGuid, LFGGroupData> _groupsStore = new();
     private readonly InstanceLockManager _instanceLockManager;
@@ -76,7 +78,7 @@ public class LFGManager
 
     public LFGManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager objectManager, CliDB cliDB,
                       DB2Manager db2Manager, GroupManager groupManager, ObjectAccessor objectAccessor, DisableManager disableManager,
-                      InstanceLockManager instanceLockManager, GameEventManager gameEventManager)
+                      InstanceLockManager instanceLockManager, GameEventManager gameEventManager, WorldManager worldManager)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
@@ -89,6 +91,7 @@ public class LFGManager
         _disableManager = disableManager;
         _instanceLockManager = instanceLockManager;
         _gameEventManager = gameEventManager;
+        _worldManager = worldManager;
         _lfgProposalId = 1;
         _options = (LfgOptions)configuration.GetDefaultValue("DungeonFinder.OptionsMask", 1);
 
@@ -1222,10 +1225,10 @@ public class LFGManager
 
             _lfgDungeonStore[dungeon.Id] = dungeon.TypeID switch
             {
-                LfgType.Dungeon => new LFGDungeonData(dungeon),
-                LfgType.Raid    => new LFGDungeonData(dungeon),
-                LfgType.Random  => new LFGDungeonData(dungeon),
-                LfgType.Zone    => new LFGDungeonData(dungeon),
+                LfgType.Dungeon => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                LfgType.Raid    => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                LfgType.Random  => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                LfgType.Zone    => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
                 _               => _lfgDungeonStore[dungeon.Id]
             };
         }

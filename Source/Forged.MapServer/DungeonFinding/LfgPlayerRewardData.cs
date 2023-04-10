@@ -5,10 +5,10 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LfgPlayerRewardData
 {
-    public bool Done;
-    public Quest.Quest Quest;
-    public uint RdungeonEntry;
-    public uint SdungeonEntry;
+    public bool Done { get; set; }
+    public Quest.Quest Quest { get; set; }
+    public uint RdungeonEntry { get; set; }
+    public uint SdungeonEntry { get; set; }
 
     public LfgPlayerRewardData(uint random, uint current, bool done, Quest.Quest quest)
     {
