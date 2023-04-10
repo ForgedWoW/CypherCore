@@ -15,6 +15,7 @@ public class GModelRayCallback : WorkerCallback
 
     private readonly List<MeshTriangle> _triangles;
     private readonly List<Vector3> _vertices;
+
     public GModelRayCallback(List<MeshTriangle> tris, List<Vector3> vert)
     {
         _vertices = vert;
@@ -61,15 +62,14 @@ public class GModelRayCallback : WorkerCallback
 
         var t = f * Vector3.Dot(e2, q);
 
-        if ((t > 0.0f) && (t < distance))
-        {
-            // This is a new hit, closer than the previous one
-            distance = t;
+        if ((!(t > 0.0f)) || (!(t < distance)))
+            return false;
 
-            return true;
-        }
+        // This is a new hit, closer than the previous one
+        distance = t;
+
+        return true;
 
         // This hit is after the previous hit, so ignore it
-        return false;
     }
 }

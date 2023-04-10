@@ -9,10 +9,10 @@ namespace Forged.MapServer.Collision.Models;
 public class ModelMinimalData
 {
     public byte AdtId;
+    public AxisAlignedBox Bound;
     public byte Flags;
-    public AxisAlignedBox IBound;
     public uint Id;
-    public Vector3 IPos;
-    public float IScale;
     public string Name;
+    public Vector3 Pos;
+    public float Scale;
 }

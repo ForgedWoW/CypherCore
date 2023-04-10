@@ -26,29 +26,29 @@ public class ModelInstance : ModelMinimalData
         Flags = spawn.Flags;
         AdtId = spawn.AdtId;
         Id = spawn.Id;
-        IPos = spawn.IPos;
-        IScale = spawn.IScale;
-        IBound = spawn.IBound;
+        Pos = spawn.Pos;
+        Scale = spawn.Scale;
+        Bound = spawn.Bound;
         Name = spawn.Name;
 
         _iModel = model;
 
-        Extensions.fromEulerAnglesZYX(MathFunctions.PI * spawn.IRot.Y / 180.0f, MathFunctions.PI * spawn.IRot.X / 180.0f, MathFunctions.PI * spawn.IRot.Z / 180.0f).Inverse(out _iInvRot);
+        Extensions.fromEulerAnglesZYX(MathFunctions.PI * spawn.Rot.Y / 180.0f, MathFunctions.PI * spawn.Rot.X / 180.0f, MathFunctions.PI * spawn.Rot.Z / 180.0f).Inverse(out _iInvRot);
 
-        _iInvScale = 1.0f / IScale;
+        _iInvScale = 1.0f / Scale;
     }
 
     public bool GetLiquidLevel(Vector3 p, LocationInfo info, ref float liqHeight)
     {
         // child bounds are defined in object space:
-        var pModel = _iInvRot.Multiply(p - IPos) * _iInvScale;
+        var pModel = _iInvRot.Multiply(p - Pos) * _iInvScale;
 
         //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
         if (info.HitModel.GetLiquidLevel(pModel, out var zDist))
         {
             // calculate world height (zDist in model coords):
             // assume WMO not tilted (wouldn't make much sense anyway)
-            liqHeight = zDist * IScale + IPos.Z;
+            liqHeight = zDist * Scale + Pos.Z;
 
             return true;
         }
@@ -65,11 +65,11 @@ public class ModelInstance : ModelMinimalData
         if (Convert.ToBoolean(Flags & (uint)ModelFlags.M2))
             return false;
 
-        if (!IBound.contains(p))
+        if (!Bound.contains(p))
             return false;
 
         // child bounds are defined in object space:
-        var pModel = _iInvRot.Multiply(p - IPos) * _iInvScale;
+        var pModel = _iInvRot.Multiply(p - Pos) * _iInvScale;
         var zDirModel = _iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
 
         GroupLocationInfo groupInfo = new();
@@ -80,7 +80,7 @@ public class ModelInstance : ModelMinimalData
             // Transform back to world space. Note that:
             // Mat * vec == vec * Mat.transpose()
             // and for rotation matrices: Mat.inverse() == Mat.transpose()
-            var worldZ = (_iInvRot.Multiply(modelGround * IScale) + IPos).Z;
+            var worldZ = (_iInvRot.Multiply(modelGround * Scale) + Pos).Z;
 
             if (info.GroundZ < worldZ) // hm...could it be handled automatically with zDist at intersection?
             {
@@ -105,11 +105,11 @@ public class ModelInstance : ModelMinimalData
         if (Convert.ToBoolean(Flags & (uint)ModelFlags.M2))
             return;
 
-        if (!IBound.contains(p))
+        if (!Bound.contains(p))
             return;
 
         // child bounds are defined in object space:
-        var pModel = _iInvRot.Multiply(p - IPos) * _iInvScale;
+        var pModel = _iInvRot.Multiply(p - Pos) * _iInvScale;
         var zDirModel = _iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
 
         if (_iModel.IntersectPoint(pModel, zDirModel, out var zDist, info))
@@ -118,11 +118,11 @@ public class ModelInstance : ModelMinimalData
             // Transform back to world space. Note that:
             // Mat * vec == vec * Mat.transpose()
             // and for rotation matrices: Mat.inverse() == Mat.transpose()
-            var world_Z = (_iInvRot.Multiply(modelGround) * IScale + IPos).Z;
+            var worldZ = (_iInvRot.Multiply(modelGround) * Scale + Pos).Z;
 
-            if (info.GroundZ < world_Z)
+            if (info.GroundZ < worldZ)
             {
-                info.GroundZ = world_Z;
+                info.GroundZ = worldZ;
                 info.AdtId = AdtId;
             }
         }
@@ -133,25 +133,26 @@ public class ModelInstance : ModelMinimalData
         if (_iModel == null)
             return false;
 
-        var time = pRay.intersectionTime(IBound);
+        var time = pRay.intersectionTime(Bound);
 
         if (float.IsInfinity(time))
             return false;
 
         // child bounds are defined in object space:
-        var p = _iInvRot.Multiply(pRay.Origin - IPos) * _iInvScale;
+        var p = _iInvRot.Multiply(pRay.Origin - Pos) * _iInvScale;
         var modRay = new Ray(p, _iInvRot.Multiply(pRay.Direction));
         var distance = pMaxDist * _iInvScale;
         var hit = _iModel.IntersectRay(modRay, ref distance, pStopAtFirstHit, ignoreFlags);
 
         if (hit)
         {
-            distance *= IScale;
+            distance *= Scale;
             pMaxDist = distance;
         }
 
         return hit;
     }
+
     public void SetUnloaded()
     {
         _iModel = null;

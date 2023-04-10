@@ -4,6 +4,7 @@
 using System.Numerics;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Collision.Models;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Phasing;
 using Framework.GameMath;
 
@@ -11,21 +12,23 @@ namespace Forged.MapServer.Collision;
 
 public class DynamicMapTree
 {
-    private readonly DynTreeImpl impl;
+    private readonly DB2Manager _db2Manager;
+    private readonly DynTreeImpl _impl;
 
-    public DynamicMapTree()
+    public DynamicMapTree(DB2Manager db2Manager)
     {
-        impl = new DynTreeImpl();
+        _db2Manager = db2Manager;
+        _impl = new DynTreeImpl();
     }
 
     public void Balance()
     {
-        impl.Balance();
+        _impl.Balance();
     }
 
     public bool Contains(GameObjectModel mdl)
     {
-        return impl.Contains(mdl);
+        return _impl.Contains(mdl);
     }
 
     public AreaAndLiquidData GetAreaAndLiquidData(float x, float y, float z, PhaseShift phaseShift, byte reqLiquidType)
@@ -34,22 +37,22 @@ public class DynamicMapTree
 
         Vector3 v = new(x, y, z + 0.5f);
         DynamicTreeLocationInfoCallback intersectionCallBack = new(phaseShift);
-        impl.IntersectPoint(v, intersectionCallBack);
+        _impl.IntersectPoint(v, intersectionCallBack);
 
-        if (intersectionCallBack.GetLocationInfo().HitModel != null)
+        if (intersectionCallBack.LocationInfo.HitModel != null)
         {
-            data.FloorZ = intersectionCallBack.GetLocationInfo().GroundZ;
-            var liquidType = intersectionCallBack.GetLocationInfo().HitModel.GetLiquidType();
+            data.FloorZ = intersectionCallBack.LocationInfo.GroundZ;
+            var liquidType = intersectionCallBack.LocationInfo.HitModel.LiquidType;
             float liquidLevel = 0;
 
-            if (reqLiquidType == 0 || (Global.DB2Mgr.GetLiquidFlags(liquidType) & reqLiquidType) != 0)
-                if (intersectionCallBack.GetHitModel().GetLiquidLevel(v, intersectionCallBack.GetLocationInfo(), ref liquidLevel))
+            if (reqLiquidType == 0 || (_db2Manager.GetLiquidFlags(liquidType) & reqLiquidType) != 0)
+                if (intersectionCallBack.HitModel.GetLiquidLevel(v, intersectionCallBack.LocationInfo, ref liquidLevel))
                     data.LiquidInfo = new AreaAndLiquidData.LiquidInfoModel(liquidType, liquidLevel);
 
-            data.AreaInfo = new AreaAndLiquidData.AreaInfoModel(intersectionCallBack.GetHitModel().GetNameSetId(),
-                                                                intersectionCallBack.GetLocationInfo().RootId,
-                                                                (int)intersectionCallBack.GetLocationInfo().HitModel.GetWmoID(),
-                                                                intersectionCallBack.GetLocationInfo().HitModel.GetMogpFlags());
+            data.AreaInfo = new AreaAndLiquidData.AreaInfoModel(intersectionCallBack.HitModel.NameSetId,
+                                                                intersectionCallBack.LocationInfo.RootId,
+                                                                (int)intersectionCallBack.LocationInfo.HitModel.WmoID,
+                                                                intersectionCallBack.LocationInfo.HitModel.MogpFlags);
         }
 
         return data;
@@ -64,20 +67,18 @@ public class DynamicMapTree
 
         Vector3 v = new(x, y, z + 0.5f);
         DynamicTreeAreaInfoCallback intersectionCallBack = new(phaseShift);
-        impl.IntersectPoint(v, intersectionCallBack);
+        _impl.IntersectPoint(v, intersectionCallBack);
 
-        if (intersectionCallBack.GetAreaInfo().Result)
-        {
-            flags = intersectionCallBack.GetAreaInfo().Flags;
-            adtId = intersectionCallBack.GetAreaInfo().AdtId;
-            rootId = intersectionCallBack.GetAreaInfo().RootId;
-            groupId = intersectionCallBack.GetAreaInfo().GroupId;
-            z = intersectionCallBack.GetAreaInfo().GroundZ;
+        if (!intersectionCallBack.AreaInfo.Result)
+            return false;
 
-            return true;
-        }
+        flags = intersectionCallBack.AreaInfo.Flags;
+        adtId = intersectionCallBack.AreaInfo.AdtId;
+        rootId = intersectionCallBack.AreaInfo.RootId;
+        groupId = intersectionCallBack.AreaInfo.GroupId;
+        z = intersectionCallBack.AreaInfo.GroundZ;
 
-        return false;
+        return true;
     }
 
     public float GetHeight(float x, float y, float z, float maxSearchDist, PhaseShift phaseShift)
@@ -85,9 +86,9 @@ public class DynamicMapTree
         Vector3 v = new(x, y, z);
         Ray r = new(v, new Vector3(0, 0, -1));
         DynamicTreeIntersectionCallback callback = new(phaseShift);
-        impl.IntersectZAllignedRay(r, callback, ref maxSearchDist);
+        _impl.IntersectZAllignedRay(r, callback, ref maxSearchDist);
 
-        if (callback.DidHit())
+        if (callback.DidHit)
             return v.Z - maxSearchDist;
         else
             return float.NegativeInfinity;
@@ -97,12 +98,12 @@ public class DynamicMapTree
     {
         var distance = maxDist;
         DynamicTreeIntersectionCallback callback = new(phaseShift);
-        impl.IntersectRay(ray, callback, ref distance, endPos);
+        _impl.IntersectRay(ray, callback, ref distance, endPos);
 
-        if (callback.DidHit())
+        if (callback.DidHit)
             maxDist = distance;
 
-        return callback.DidHit();
+        return callback.DidHit;
     }
 
     public bool GetObjectHitPos(Vector3 startPos, Vector3 endPos, ref Vector3 resultHitPos, float modifyDist, PhaseShift phaseShift)
@@ -152,7 +153,7 @@ public class DynamicMapTree
 
     public void Insert(GameObjectModel mdl)
     {
-        impl.Insert(mdl);
+        _impl.Insert(mdl);
     }
 
     public bool IsInLineOfSight(Vector3 startPos, Vector3 endPos, PhaseShift phaseShift)
@@ -164,17 +165,18 @@ public class DynamicMapTree
 
         Ray r = new(startPos, (endPos - startPos) / maxDist);
         DynamicTreeIntersectionCallback callback = new(phaseShift);
-        impl.IntersectRay(r, callback, ref maxDist, endPos);
+        _impl.IntersectRay(r, callback, ref maxDist, endPos);
 
-        return !callback.DidHit();
+        return !callback.DidHit;
     }
 
     public void Remove(GameObjectModel mdl)
     {
-        impl.Remove(mdl);
+        _impl.Remove(mdl);
     }
+
     public void Update(uint diff)
     {
-        impl.Update(diff);
+        _impl.Update(diff);
     }
 }

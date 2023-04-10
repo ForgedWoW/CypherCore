@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Collision.Maps;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
@@ -13,7 +14,7 @@ using Serilog;
 
 namespace Forged.MapServer.Collision.Models;
 
-public class GameObjectModel : IModel
+public class GameObjectModel : Model
 {
     private bool _collisionEnabled;
     private AxisAlignedBox _iBound;
@@ -22,16 +23,21 @@ public class GameObjectModel : IModel
     private WorldModel _iModel;
     private Vector3 _iPos;
     private float _iScale;
-    private bool _isWmo;
     private GameObjectModelOwnerBase _owner;
-    public static GameObjectModel Create(GameObjectModelOwnerBase modelOwner)
+
+    public override AxisAlignedBox Bounds => _iBound;
+
+    public bool IsMapObject { get; private set; }
+
+    public byte NameSetId => _owner.NameSetId;
+
+    public virtual Vector3 Position => _iPos;
+
+    public static GameObjectModel Create(GameObjectModelOwnerBase modelOwner, VMapManager vMapManager)
     {
         GameObjectModel mdl = new();
 
-        if (!mdl.Initialize(modelOwner))
-            return null;
-
-        return mdl;
+        return !mdl.Initialize(modelOwner, vMapManager) ? null : mdl;
     }
 
     public static bool LoadGameObjectModelList(string dataPath)
@@ -90,32 +96,25 @@ public class GameObjectModel : IModel
         _collisionEnabled = enable;
     }
 
-    public override AxisAlignedBox GetBounds()
-    {
-        return _iBound;
-    }
-
     public bool GetLiquidLevel(Vector3 point, LocationInfo info, ref float liqHeight)
     {
         // child bounds are defined in object space:
         var pModel = _iInvRot.Multiply(point - _iPos) * _iInvScale;
 
         //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
-        if (info.HitModel.GetLiquidLevel(pModel, out var zDist))
-        {
-            // calculate world height (zDist in model coords):
-            // assume WMO not tilted (wouldn't make much sense anyway)
-            liqHeight = zDist * _iScale + _iPos.Z;
+        if (!info.HitModel.GetLiquidLevel(pModel, out var zDist))
+            return false;
 
-            return true;
-        }
+        // calculate world height (zDist in model coords):
+        // assume WMO not tilted (wouldn't make much sense anyway)
+        liqHeight = zDist * _iScale + _iPos.Z;
 
-        return false;
+        return true;
     }
 
     public bool GetLocationInfo(Vector3 point, LocationInfo info, PhaseShift phaseShift)
     {
-        if (!IsCollisionEnabled() || !_owner.IsSpawned || !IsMapObject())
+        if (!_collisionEnabled || !_owner.IsSpawned || !IsMapObject)
             return false;
 
         if (!_owner.IsInPhase(phaseShift))
@@ -130,35 +129,23 @@ public class GameObjectModel : IModel
 
         GroupLocationInfo groupInfo = new();
 
-        if (_iModel.GetLocationInfo(pModel, zDirModel, out var zDist, groupInfo))
-        {
-            var modelGround = pModel + zDist * zDirModel;
-            var world_Z = (_iInvRot.Multiply(modelGround) * _iScale + _iPos).Z;
+        if (!_iModel.GetLocationInfo(pModel, zDirModel, out var zDist, groupInfo))
+            return false;
 
-            if (info.GroundZ < world_Z)
-            {
-                info.GroundZ = world_Z;
+        var modelGround = pModel + zDist * zDirModel;
+        var worldZ = (_iInvRot.Multiply(modelGround) * _iScale + _iPos).Z;
 
-                return true;
-            }
-        }
+        if (!(info.GroundZ < worldZ))
+            return false;
 
-        return false;
-    }
+        info.GroundZ = worldZ;
 
-    public byte GetNameSetId()
-    {
-        return _owner.NameSetId;
-    }
-
-    public virtual Vector3 GetPosition()
-    {
-        return _iPos;
+        return true;
     }
 
     public override void IntersectPoint(Vector3 point, AreaInfo info, PhaseShift phaseShift)
     {
-        if (!IsCollisionEnabled() || !_owner.IsSpawned || !IsMapObject())
+        if (!_collisionEnabled || !_owner.IsSpawned || !IsMapObject)
             return;
 
         if (!_owner.IsInPhase(phaseShift))
@@ -171,22 +158,22 @@ public class GameObjectModel : IModel
         var pModel = _iInvRot.Multiply(point - _iPos) * _iInvScale;
         var zDirModel = _iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
 
-        if (_iModel.IntersectPoint(pModel, zDirModel, out var zDist, info))
-        {
-            var modelGround = pModel + zDist * zDirModel;
-            var world_Z = (_iInvRot.Multiply(modelGround) * _iScale + _iPos).Z;
+        if (!_iModel.IntersectPoint(pModel, zDirModel, out var zDist, info))
+            return;
 
-            if (info.GroundZ < world_Z)
-            {
-                info.GroundZ = world_Z;
-                info.AdtId = _owner.NameSetId;
-            }
-        }
+        var modelGround = pModel + zDist * zDirModel;
+        var worldZ = (_iInvRot.Multiply(modelGround) * _iScale + _iPos).Z;
+
+        if (!(info.GroundZ < worldZ))
+            return;
+
+        info.GroundZ = worldZ;
+        info.AdtId = _owner.NameSetId;
     }
 
     public override bool IntersectRay(Ray ray, ref float maxDist, bool stopAtFirstHit, PhaseShift phaseShift, ModelIgnoreFlags ignoreFlags)
     {
-        if (!IsCollisionEnabled() || !_owner.IsSpawned)
+        if (!_collisionEnabled || !_owner.IsSpawned)
             return false;
 
         if (!_owner.IsInPhase(phaseShift))
@@ -203,17 +190,13 @@ public class GameObjectModel : IModel
         var distance = maxDist * _iInvScale;
         var hit = _iModel.IntersectRay(modRay, ref distance, stopAtFirstHit, ignoreFlags);
 
-        if (hit)
-        {
-            distance *= _iScale;
-            maxDist = distance;
-        }
+        if (!hit)
+            return false;
 
-        return hit;
-    }
-    public bool IsMapObject()
-    {
-        return _isWmo;
+        distance *= _iScale;
+        maxDist = distance;
+
+        return true;
     }
 
     public bool UpdatePosition()
@@ -226,10 +209,10 @@ public class GameObjectModel : IModel
         if (it == null)
             return false;
 
-        AxisAlignedBox mdl_box = new(it.Bound);
+        AxisAlignedBox mdlBox = new(it.Bound);
 
         // ignore models with no bounds
-        if (mdl_box == AxisAlignedBox.Zero())
+        if (mdlBox == AxisAlignedBox.Zero())
         {
             Log.Logger.Error("GameObject model {0} has zero bounds, loading skipped", it.Name);
 
@@ -241,34 +224,35 @@ public class GameObjectModel : IModel
         var iRotation = _owner.Rotation.ToMatrix();
         iRotation.Inverse(out _iInvRot);
         // transform bounding box:
-        mdl_box = new AxisAlignedBox(mdl_box.Lo * _iScale, mdl_box.Hi * _iScale);
-        AxisAlignedBox rotated_bounds = new();
+        mdlBox = new AxisAlignedBox(mdlBox.Lo * _iScale, mdlBox.Hi * _iScale);
+        AxisAlignedBox rotatedBounds = new();
 
         for (var i = 0; i < 8; ++i)
-            rotated_bounds.merge(iRotation.Multiply(mdl_box.corner(i)));
+            rotatedBounds.merge(iRotation.Multiply(mdlBox.corner(i)));
 
-        _iBound = rotated_bounds + _iPos;
+        _iBound = rotatedBounds + _iPos;
 
         return true;
     }
-    private bool Initialize(GameObjectModelOwnerBase modelOwner)
+
+    private bool Initialize(GameObjectModelOwnerBase modelOwner, VMapManager vMapManager)
     {
         var modelData = StaticModelList.Models.LookupByKey(modelOwner.DisplayId);
 
         if (modelData == null)
             return false;
 
-        AxisAlignedBox mdl_box = new(modelData.Bound);
+        AxisAlignedBox mdlBox = new(modelData.Bound);
 
         // ignore models with no bounds
-        if (mdl_box == AxisAlignedBox.Zero())
+        if (mdlBox == AxisAlignedBox.Zero())
         {
             Log.Logger.Error("GameObject model {0} has zero bounds, loading skipped", modelData.Name);
 
             return false;
         }
 
-        _iModel = Global.VMapMgr.AcquireModelInstance(modelData.Name);
+        _iModel = vMapManager.AcquireModelInstance(modelData.Name);
 
         if (_iModel == null)
             return false;
@@ -280,21 +264,16 @@ public class GameObjectModel : IModel
         var iRotation = modelOwner.Rotation.ToMatrix();
         iRotation.Inverse(out _iInvRot);
         // transform bounding box:
-        mdl_box = new AxisAlignedBox(mdl_box.Lo * _iScale, mdl_box.Hi * _iScale);
-        AxisAlignedBox rotated_bounds = new();
+        mdlBox = new AxisAlignedBox(mdlBox.Lo * _iScale, mdlBox.Hi * _iScale);
+        AxisAlignedBox rotatedBounds = new();
 
         for (var i = 0; i < 8; ++i)
-            rotated_bounds.merge(iRotation.Multiply(mdl_box.corner(i)));
+            rotatedBounds.merge(iRotation.Multiply(mdlBox.corner(i)));
 
-        _iBound = rotated_bounds + _iPos;
+        _iBound = rotatedBounds + _iPos;
         _owner = modelOwner;
-        _isWmo = modelData.IsWmo;
+        IsMapObject = modelData.IsWmo;
 
         return true;
-    }
-
-    private bool IsCollisionEnabled()
-    {
-        return _collisionEnabled;
     }
 }

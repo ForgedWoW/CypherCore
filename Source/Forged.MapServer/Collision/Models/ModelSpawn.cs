@@ -10,7 +10,7 @@ namespace Forged.MapServer.Collision.Models;
 
 public class ModelSpawn : ModelMinimalData
 {
-    public Vector3 IRot;
+    public Vector3 Rot;
 
     public ModelSpawn() { }
 
@@ -19,10 +19,10 @@ public class ModelSpawn : ModelMinimalData
         Flags = spawn.Flags;
         AdtId = spawn.AdtId;
         Id = spawn.Id;
-        IPos = spawn.IPos;
-        IRot = spawn.IRot;
-        IScale = spawn.IScale;
-        IBound = spawn.IBound;
+        Pos = spawn.Pos;
+        Rot = spawn.Rot;
+        Scale = spawn.Scale;
+        Bound = spawn.Bound;
         Name = spawn.Name;
     }
 
@@ -33,18 +33,18 @@ public class ModelSpawn : ModelMinimalData
             Flags = reader.ReadByte(),
             AdtId = reader.ReadByte(),
             Id = reader.ReadUInt32(),
-            IPos = reader.Read<Vector3>(),
-            IRot = reader.Read<Vector3>(),
-            IScale = reader.ReadSingle()
+            Pos = reader.Read<Vector3>(),
+            Rot = reader.Read<Vector3>(),
+            Scale = reader.ReadSingle()
         };
 
-        var has_bound = Convert.ToBoolean(spawn.Flags & (uint)ModelFlags.HasBound);
+        var hasBound = Convert.ToBoolean(spawn.Flags & (uint)ModelFlags.HasBound);
 
-        if (has_bound) // only WMOs have bound in MPQ, only available after computation
+        if (hasBound) // only WMOs have bound in MPQ, only available after computation
         {
             var bLow = reader.Read<Vector3>();
             var bHigh = reader.Read<Vector3>();
-            spawn.IBound = new AxisAlignedBox(bLow, bHigh);
+            spawn.Bound = new AxisAlignedBox(bLow, bHigh);
         }
 
         var nameLen = reader.ReadUInt32();

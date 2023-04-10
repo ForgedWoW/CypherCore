@@ -8,7 +8,7 @@ using Framework.GameMath;
 
 namespace Forged.MapServer.Collision;
 
-public class BIHWrap<T> where T : IModel
+public class BIHWrap<T> where T : Model
 {
     private readonly Dictionary<T, int> _obj2Idx = new();
     private readonly List<T> _objects = new();
@@ -47,7 +47,7 @@ public class BIHWrap<T> where T : IModel
         lock (_objects)
         {
             Balance();
-            MDLCallback callback = new(intersectCallback, _objects.ToArray(), _objects.Count);
+            MdlCallback callback = new(intersectCallback, _objects.ToArray(), _objects.Count);
             _tree.IntersectPoint(point, callback);
         }
     }
@@ -57,7 +57,7 @@ public class BIHWrap<T> where T : IModel
         lock (_objects)
         {
             Balance();
-            MDLCallback tempCb = new(intersectCallback, _objects.ToArray(), _objects.Count);
+            MdlCallback tempCb = new(intersectCallback, _objects.ToArray(), _objects.Count);
             _tree.IntersectRay(ray, tempCb, ref maxDist, true);
         }
     }
@@ -74,13 +74,14 @@ public class BIHWrap<T> where T : IModel
                 _objectsToPush.Remove(obj);
         }
     }
-    public class MDLCallback : WorkerCallback
+
+    public class MdlCallback : WorkerCallback
     {
         private readonly WorkerCallback _callback;
         private readonly T[] _objects;
         private readonly int _objectsSize;
 
-        public MDLCallback(WorkerCallback callback, T[] objectsArray, int size)
+        public MdlCallback(WorkerCallback callback, T[] objectsArray, int size)
         {
             _objects = objectsArray;
             _callback = callback;
@@ -95,10 +96,7 @@ public class BIHWrap<T> where T : IModel
 
             var obj = _objects[idx];
 
-            if (obj != null)
-                return _callback.Invoke(ray, obj, ref maxDist);
-
-            return false;
+            return obj != null && _callback.Invoke(ray, obj, ref maxDist);
         }
 
         /// Intersect point

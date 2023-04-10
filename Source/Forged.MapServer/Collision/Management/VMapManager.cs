@@ -23,6 +23,12 @@ public class VMapManager
     private readonly Dictionary<string, ManagedModel> _loadedModelFiles = new();
     private readonly object _loadedModelFilesLock = new();
     private readonly Dictionary<uint, uint> _parentMapData = new();
+
+    public bool IsHeightCalcEnabled { get; private set; }
+    public bool IsLineOfSightCalcEnabled { get; private set; }
+    public bool IsMapLoadingEnabled => IsLineOfSightCalcEnabled || IsHeightCalcEnabled;
+    public string VMapPath { get; }
+
     public VMapManager(IConfiguration configuration, DisableManager disableManager, DB2Manager db2Manager)
     {
         _disableManager = disableManager;
@@ -30,10 +36,6 @@ public class VMapManager
         VMapPath = configuration.GetDefaultValue("DataDir", "./") + "/vmaps/";
     }
 
-    public bool IsHeightCalcEnabled { get; private set; }
-    public bool IsLineOfSightCalcEnabled { get; private set; }
-    public bool IsMapLoadingEnabled => IsLineOfSightCalcEnabled || IsHeightCalcEnabled;
-    public string VMapPath { get; }
     public static string GetMapFileName(uint mapId)
     {
         return $"{mapId:D4}.vmtree";
@@ -98,7 +100,7 @@ public class VMapManager
             if (instanceTree.GetLocationInfo(pos, info))
             {
                 data.FloorZ = info.GroundZ;
-                var liquidType = info.HitModel.GetLiquidType();
+                var liquidType = info.HitModel.LiquidType;
                 float liquidLevel = 0;
 
                 if (reqLiquidType == 0 || Convert.ToBoolean(_db2Manager.GetLiquidFlags(liquidType) & reqLiquidType))
@@ -106,7 +108,7 @@ public class VMapManager
                         data.LiquidInfo = new AreaAndLiquidData.LiquidInfoModel(liquidType, liquidLevel);
 
                 if (!_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
-                    data.AreaInfo = new AreaAndLiquidData.AreaInfoModel(info.HitInstance.AdtId, info.RootId, (int)info.HitModel.GetWmoID(), info.HitModel.GetMogpFlags());
+                    data.AreaInfo = new AreaAndLiquidData.AreaInfoModel(info.HitInstance.AdtId, info.RootId, (int)info.HitModel.WmoID, info.HitModel.MogpFlags);
             }
         }
 
@@ -173,8 +175,8 @@ public class VMapManager
                 if (instanceTree.GetLocationInfo(pos, info))
                 {
                     floor = info.GroundZ;
-                    type = info.HitModel.GetLiquidType(); // entry from LiquidType.dbc
-                    mogpFlags = info.HitModel.GetMogpFlags();
+                    type = info.HitModel.LiquidType; // entry from LiquidType.dbc
+                    mogpFlags = info.HitModel.MogpFlags;
 
                     if (reqLiquidType != 0 && !Convert.ToBoolean(_db2Manager.GetLiquidFlags(type) & reqLiquidType))
                         return false;
@@ -329,6 +331,7 @@ public class VMapManager
                 _instanceMapTrees.Remove(mapId);
         }
     }
+
     private Vector3 ConvertPositionToInternalRep(float x, float y, float z)
     {
         Vector3 pos = new();

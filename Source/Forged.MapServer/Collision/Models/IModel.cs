@@ -9,17 +9,15 @@ using Framework.GameMath;
 
 namespace Forged.MapServer.Collision.Models;
 
-public class IModel
+public class Model
 {
-    public virtual AxisAlignedBox GetBounds()
-    {
-        return default;
-    }
+    public virtual AxisAlignedBox Bounds => default;
 
     public virtual Vector3 GetPosition()
     {
         return default;
     }
+
     public virtual void IntersectPoint(Vector3 point, AreaInfo info, PhaseShift phaseShift) { }
 
     public virtual bool IntersectRay(Ray ray, ref float maxDist, bool stopAtFirstHit, PhaseShift phaseShift, ModelIgnoreFlags ignoreFlags)

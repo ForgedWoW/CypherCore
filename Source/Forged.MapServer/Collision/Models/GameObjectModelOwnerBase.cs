@@ -10,6 +10,7 @@ public abstract class GameObjectModelOwnerBase
 {
     public abstract uint DisplayId { get; }
 
+    public abstract bool IsSpawned { get; }
     public abstract byte NameSetId { get; }
 
     public abstract Vector3 Position { get; }
@@ -19,6 +20,4 @@ public abstract class GameObjectModelOwnerBase
     public abstract float Scale { get; }
 
     public abstract bool IsInPhase(PhaseShift phaseShift);
-
-    public abstract bool IsSpawned { get; }
 }

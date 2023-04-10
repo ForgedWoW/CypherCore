@@ -9,6 +9,7 @@ using Forged.MapServer.AI;
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Collision.Models;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
@@ -780,9 +781,9 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void CreateModel()
         {
-            Model = GameObjectModel.Create(new GameObjectModelOwnerImpl(this));
+            Model = GameObjectModel.Create(new GameObjectModelOwnerImpl(this), ClassFactory.Resolve<VMapManager>());
 
-            if (Model != null && Model.IsMapObject())
+            if (Model is { IsMapObject: true })
                 SetFlag(GameObjectFlags.MapObject);
         }
 

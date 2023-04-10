@@ -6,6 +6,6 @@ namespace Forged.MapServer.Collision.Management;
 public enum VMAPLoadResult
 {
     Error,
-    OK,
+    Ok,
     Ignored
 }

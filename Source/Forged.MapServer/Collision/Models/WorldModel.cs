@@ -11,7 +11,7 @@ using Framework.GameMath;
 
 namespace Forged.MapServer.Collision.Models;
 
-public class WorldModel : IModel
+public class WorldModel : Model
 {
     public uint Flags;
     private readonly List<GroupModel> _groupModels = new();
@@ -51,18 +51,16 @@ public class WorldModel : IModel
         WModelAreaCallback callback = new(_groupModels, down);
         _groupTree.IntersectPoint(p, callback);
 
-        if (callback.Hit != null)
-        {
-            info.RootId = (int)_rootWmoid;
-            info.GroupId = (int)callback.Hit.GetWmoID();
-            info.Flags = callback.Hit.GetMogpFlags();
-            info.Result = true;
-            dist = callback.ZDist;
+        if (callback.Hit == null)
+            return false;
 
-            return true;
-        }
+        info.RootId = (int)_rootWmoid;
+        info.GroupId = (int)callback.Hit.WmoID;
+        info.Flags = callback.Hit.MogpFlags;
+        info.Result = true;
+        dist = callback.ZDist;
 
-        return false;
+        return true;
     }
 
     public override bool IntersectRay(Ray ray, ref float distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags)
@@ -83,6 +81,7 @@ public class WorldModel : IModel
 
         return isc.Hit;
     }
+
     public bool ReadFile(string filename)
     {
         if (!File.Exists(filename))

@@ -11,18 +11,14 @@ public class MapRayCallback : WorkerCallback
 {
     private readonly ModelIgnoreFlags _flags;
     private readonly ModelInstance[] _prims;
-    private bool _hit;
+
+    public bool DidHit { get; private set; }
 
     public MapRayCallback(ModelInstance[] val, ModelIgnoreFlags ignoreFlags)
     {
         _prims = val;
-        _hit = false;
+        DidHit = false;
         _flags = ignoreFlags;
-    }
-
-    public bool DidHit()
-    {
-        return _hit;
     }
 
     public override bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit = true)
@@ -33,7 +29,7 @@ public class MapRayCallback : WorkerCallback
         var result = _prims[entry].IntersectRay(ray, ref distance, pStopAtFirstHit, _flags);
 
         if (result)
-            _hit = true;
+            DidHit = true;
 
         return result;
     }

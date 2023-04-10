@@ -9,18 +9,18 @@ using Framework.GameMath;
 
 namespace Forged.MapServer.Collision;
 
-public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, new()
+public class RegularGrid2D<T, TNode> where T : Model where TNode : BIHWrap<T>, new()
 {
     public const int CELL_NUMBER = 64;
     public const float CELL_SIZE = HGRID_MAP_SIZE / CELL_NUMBER;
     public const float HGRID_MAP_SIZE = (533.33333f * 64.0f); // shouldn't be changed
-    private readonly MultiMap<T, Node> _memberTable = new();
-    private readonly Node[][] _nodes = new Node[CELL_NUMBER][];
+    private readonly MultiMap<T, TNode> _memberTable = new();
+    private readonly TNode[][] _nodes = new TNode[CELL_NUMBER][];
 
     public RegularGrid2D()
     {
         for (var x = 0; x < CELL_NUMBER; ++x)
-            _nodes[x] = new Node[CELL_NUMBER];
+            _nodes[x] = new TNode[CELL_NUMBER];
     }
 
     public virtual void Balance()
@@ -56,13 +56,13 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
     {
         lock (_memberTable)
         {
-            var bounds = value.GetBounds();
+            var bounds = value.Bounds;
             var low = Cell.ComputeCell(bounds.Lo.X, bounds.Lo.Y);
             var high = Cell.ComputeCell(bounds.Hi.X, bounds.Hi.Y);
 
-            for (var x = low.x; x <= high.x; ++x)
+            for (var x = low.X; x <= high.X; ++x)
             {
-                for (var y = low.y; y <= high.y; ++y)
+                for (var y = low.Y; y <= high.Y; ++y)
                 {
                     var node = GetGrid(x, y);
                     node.Insert(value);
@@ -79,103 +79,103 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
         if (!cell.IsValid())
             return;
 
-        var node = _nodes[cell.x][cell.y];
+        var node = _nodes[cell.X][cell.Y];
 
         node?.IntersectPoint(point, intersectCallback);
     }
 
-    public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float max_dist)
+    public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float maxDist)
     {
-        IntersectRay(ray, intersectCallback, ref max_dist, ray.Origin + ray.Direction * max_dist);
+        IntersectRay(ray, intersectCallback, ref maxDist, ray.Origin + ray.Direction * maxDist);
     }
 
-    public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float max_dist, Vector3 end)
+    public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float maxDist, Vector3 end)
     {
         var cell = Cell.ComputeCell(ray.Origin.X, ray.Origin.Y);
 
         if (!cell.IsValid())
             return;
 
-        var last_cell = Cell.ComputeCell(end.X, end.Y);
+        var lastCell = Cell.ComputeCell(end.X, end.Y);
 
-        if (cell == last_cell)
+        if (cell == lastCell)
         {
-            var node = _nodes[cell.x][cell.y];
+            var node = _nodes[cell.X][cell.Y];
 
-            node?.IntersectRay(ray, intersectCallback, ref max_dist);
+            node?.IntersectRay(ray, intersectCallback, ref maxDist);
 
             return;
         }
 
         var voxel = CELL_SIZE;
-        float kx_inv = ray.invDirection().X, bx = ray.Origin.X;
-        float ky_inv = ray.invDirection().Y, by = ray.Origin.Y;
+        float kxInv = ray.invDirection().X, bx = ray.Origin.X;
+        float kyInv = ray.invDirection().Y, by = ray.Origin.Y;
 
         int stepX, stepY;
         float tMaxX, tMaxY;
 
-        if (kx_inv >= 0)
+        if (kxInv >= 0)
         {
             stepX = 1;
-            var x_border = (cell.x + 1) * voxel;
-            tMaxX = (x_border - bx) * kx_inv;
+            var xBorder = (cell.X + 1) * voxel;
+            tMaxX = (xBorder - bx) * kxInv;
         }
         else
         {
             stepX = -1;
-            var x_border = (cell.x - 1) * voxel;
-            tMaxX = (x_border - bx) * kx_inv;
+            var xBorder = (cell.X - 1) * voxel;
+            tMaxX = (xBorder - bx) * kxInv;
         }
 
-        if (ky_inv >= 0)
+        if (kyInv >= 0)
         {
             stepY = 1;
-            var y_border = (cell.y + 1) * voxel;
-            tMaxY = (y_border - by) * ky_inv;
+            var yBorder = (cell.Y + 1) * voxel;
+            tMaxY = (yBorder - by) * kyInv;
         }
         else
         {
             stepY = -1;
-            var y_border = (cell.y - 1) * voxel;
-            tMaxY = (y_border - by) * ky_inv;
+            var yBorder = (cell.Y - 1) * voxel;
+            tMaxY = (yBorder - by) * kyInv;
         }
 
-        var tDeltaX = voxel * Math.Abs(kx_inv);
-        var tDeltaY = voxel * Math.Abs(ky_inv);
+        var tDeltaX = voxel * Math.Abs(kxInv);
+        var tDeltaY = voxel * Math.Abs(kyInv);
 
         do
         {
-            var node = _nodes[cell.x][cell.y];
+            var node = _nodes[cell.X][cell.Y];
 
-            node?.IntersectRay(ray, intersectCallback, ref max_dist);
+            node?.IntersectRay(ray, intersectCallback, ref maxDist);
 
-            if (cell == last_cell)
+            if (cell == lastCell)
                 break;
 
             if (tMaxX < tMaxY)
             {
                 tMaxX += tDeltaX;
-                cell.x += stepX;
+                cell.X += stepX;
             }
             else
             {
                 tMaxY += tDeltaY;
-                cell.y += stepY;
+                cell.Y += stepY;
             }
         } while (cell.IsValid());
     }
 
     // Optimized verson of intersectRay function for rays with vertical directions
-    public void IntersectZAllignedRay(Ray ray, WorkerCallback intersectCallback, ref float max_dist)
+    public void IntersectZAllignedRay(Ray ray, WorkerCallback intersectCallback, ref float maxDist)
     {
         var cell = Cell.ComputeCell(ray.Origin.X, ray.Origin.Y);
 
         if (!cell.IsValid())
             return;
 
-        var node = _nodes[cell.x][cell.y];
+        var node = _nodes[cell.X][cell.Y];
 
-        node?.IntersectRay(ray, intersectCallback, ref max_dist);
+        node?.IntersectRay(ray, intersectCallback, ref maxDist);
     }
 
     public virtual void Remove(T value)
@@ -187,24 +187,25 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
             _memberTable.Remove(value);
         }
     }
-    private Node GetGrid(int x, int y)
+
+    private TNode GetGrid(int x, int y)
     {
         if (_nodes[x][y] == null)
-            _nodes[x][y] = new Node();
+            _nodes[x][y] = new TNode();
 
         return _nodes[x][y];
     }
 
     public struct Cell
     {
-        public int x, y;
+        public int X, Y;
 
         public static Cell ComputeCell(float fx, float fy)
         {
             Cell c = new()
             {
-                x = (int)(fx * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f)),
-                y = (int)(fy * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f))
+                X = (int)(fx * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f)),
+                Y = (int)(fy * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f))
             };
 
             return c;
@@ -217,8 +218,9 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 
         public static bool operator ==(Cell c1, Cell c2)
         {
-            return c1.x == c2.x && c1.y == c2.y;
+            return c1.X == c2.X && c1.Y == c2.Y;
         }
+
         public override bool Equals(object obj)
         {
             return base.Equals(obj);
@@ -226,11 +228,12 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 
         public override int GetHashCode()
         {
-            return x.GetHashCode() ^ y.GetHashCode();
+            return X.GetHashCode() ^ Y.GetHashCode();
         }
+
         public bool IsValid()
         {
-            return x is >= 0 and < CELL_NUMBER && y is >= 0 and < CELL_NUMBER;
+            return X is >= 0 and < CELL_NUMBER && Y is >= 0 and < CELL_NUMBER;
         }
     }
 }

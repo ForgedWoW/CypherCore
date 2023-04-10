@@ -10,28 +10,20 @@ namespace Forged.MapServer.Collision;
 
 public class DynamicTreeLocationInfoCallback : WorkerCallback
 {
-    private readonly LocationInfo _locationInfo = new();
     private readonly PhaseShift _phaseShift;
-    private GameObjectModel _hitModel = new();
+
+    public GameObjectModel HitModel { get; private set; } = new();
+
+    public LocationInfo LocationInfo { get; } = new();
 
     public DynamicTreeLocationInfoCallback(PhaseShift phaseShift)
     {
         _phaseShift = phaseShift;
     }
 
-    public GameObjectModel GetHitModel()
-    {
-        return _hitModel;
-    }
-
-    public LocationInfo GetLocationInfo()
-    {
-        return _locationInfo;
-    }
-
     public override void Invoke(Vector3 p, GameObjectModel obj)
     {
-        if (obj.GetLocationInfo(p, _locationInfo, _phaseShift))
-            _hitModel = obj;
+        if (obj.GetLocationInfo(p, LocationInfo, _phaseShift))
+            HitModel = obj;
     }
 }

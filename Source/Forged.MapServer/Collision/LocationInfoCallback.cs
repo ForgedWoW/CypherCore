@@ -13,6 +13,7 @@ public class LocationInfoCallback : WorkerCallback
 
     private readonly LocationInfo _locInfo;
     private readonly ModelInstance[] _prims;
+
     public LocationInfoCallback(ModelInstance[] val, LocationInfo info)
     {
         _prims = val;

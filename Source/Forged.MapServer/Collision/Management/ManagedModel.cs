@@ -9,6 +9,7 @@ public class ManagedModel
 {
     private int _count;
     private WorldModel _model;
+
     public ManagedModel()
     {
         _model = new WorldModel();

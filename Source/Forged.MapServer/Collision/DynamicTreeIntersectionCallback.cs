@@ -12,23 +12,18 @@ public class DynamicTreeIntersectionCallback : WorkerCallback
 {
     private readonly PhaseShift _phaseShift;
 
-    private bool _didHit;
+    public bool DidHit { get; private set; }
 
     public DynamicTreeIntersectionCallback(PhaseShift phaseShift)
     {
-        _didHit = false;
+        DidHit = false;
         _phaseShift = phaseShift;
     }
 
-    public bool DidHit()
+    public override bool Invoke(Ray r, Model obj, ref float distance)
     {
-        return _didHit;
-    }
+        DidHit = obj.IntersectRay(r, ref distance, true, _phaseShift, ModelIgnoreFlags.Nothing);
 
-    public override bool Invoke(Ray r, IModel obj, ref float distance)
-    {
-        _didHit = obj.IntersectRay(r, ref distance, true, _phaseShift, ModelIgnoreFlags.Nothing);
-
-        return _didHit;
+        return DidHit;
     }
 }

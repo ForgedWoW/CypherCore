@@ -25,11 +25,13 @@ public class WModelAreaCallback : WorkerCallback
 
     public override void Invoke(Vector3 point, int entry)
     {
-        if (_prims[entry].IsInsideObject(point, _zVec, out var group_Z))
-            if (group_Z < ZDist)
-            {
-                ZDist = group_Z;
-                Hit = _prims[entry];
-            }
+        if (!_prims[entry].IsInsideObject(point, _zVec, out var groupZ))
+            return;
+
+        if (!(groupZ < ZDist))
+            return;
+
+        ZDist = groupZ;
+        Hit = _prims[entry];
     }
 }

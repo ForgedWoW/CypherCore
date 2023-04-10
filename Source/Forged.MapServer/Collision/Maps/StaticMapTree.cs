@@ -22,6 +22,7 @@ public class StaticMapTree
     private readonly BIH _tree = new();
     private uint _nTreeValues;
     private ModelInstance[] _treeValues;
+
     public StaticMapTree(uint mapId)
     {
         _mapId = mapId;
@@ -316,6 +317,7 @@ public class StaticMapTree
             _loadedTiles.Clear();
         }
     }
+
     public void UnloadMapTile(int tileX, int tileY, VMapManager vm)
     {
         lock (_loadedTiles)
@@ -367,6 +369,7 @@ public class StaticMapTree
             _loadedTiles.TryRemove(tileID, out _);
         }
     }
+
     private static TileFileOpenResult OpenMapTileFile(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
     {
         TileFileOpenResult result = new()
@@ -406,15 +409,16 @@ public class StaticMapTree
     {
         return (uint)(tileX << 16 | tileY);
     }
+
     private bool GetIntersectionTime(Ray pRay, ref float pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags)
     {
         var distance = pMaxDist;
         MapRayCallback intersectionCallBack = new(_treeValues, ignoreFlags);
         _tree.IntersectRay(pRay, intersectionCallBack, ref distance, pStopAtFirstHit);
 
-        if (intersectionCallBack.DidHit())
+        if (intersectionCallBack.DidHit)
             pMaxDist = distance;
 
-        return intersectionCallBack.DidHit();
+        return intersectionCallBack.DidHit;
     }
 }

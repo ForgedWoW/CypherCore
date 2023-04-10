@@ -17,7 +17,7 @@ public class WorkerCallback
         return false;
     }
 
-    public virtual bool Invoke(Ray r, IModel obj, ref float distance)
+    public virtual bool Invoke(Ray r, Model obj, ref float distance)
     {
         return false;
     }

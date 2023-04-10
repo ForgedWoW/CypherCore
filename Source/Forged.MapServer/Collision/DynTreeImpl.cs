@@ -33,6 +33,7 @@ public class DynTreeImpl : RegularGrid2D<GameObjectModel, BIHWrap<GameObjectMode
         base.Remove(mdl);
         ++_unbalancedTimes;
     }
+
     public void Update(uint difftime)
     {
         if (Empty())
@@ -40,12 +41,12 @@ public class DynTreeImpl : RegularGrid2D<GameObjectModel, BIHWrap<GameObjectMode
 
         _rebalanceTimer.Update(difftime);
 
-        if (_rebalanceTimer.Passed)
-        {
-            _rebalanceTimer.Reset(200);
+        if (!_rebalanceTimer.Passed)
+            return;
 
-            if (_unbalancedTimes > 0)
-                Balance();
-        }
+        _rebalanceTimer.Reset(200);
+
+        if (_unbalancedTimes > 0)
+            Balance();
     }
 }

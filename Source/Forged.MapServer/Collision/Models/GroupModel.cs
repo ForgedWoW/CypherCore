@@ -9,15 +9,22 @@ using Framework.GameMath;
 
 namespace Forged.MapServer.Collision.Models;
 
-public class GroupModel : IModel
+public class GroupModel : Model
 {
     private readonly BIH _meshTree = new();
     private readonly List<MeshTriangle> _triangles = new();
     private readonly List<Vector3> _vertices = new();
     private AxisAlignedBox _iBound;
-    private uint _iGroupWmoid;
     private WmoLiquid _iLiquid;
-    private uint _iMogpFlags;
+
+    public override AxisAlignedBox Bounds => _iBound;
+
+    public uint LiquidType => _iLiquid?.GetLiquidType() ?? 0;
+
+    public uint MogpFlags { get; private set; }
+
+    public uint WmoID { get; private set; }
+
     public GroupModel()
     {
         _iLiquid = null;
@@ -26,8 +33,8 @@ public class GroupModel : IModel
     public GroupModel(GroupModel other)
     {
         _iBound = other._iBound;
-        _iMogpFlags = other._iMogpFlags;
-        _iGroupWmoid = other._iGroupWmoid;
+        MogpFlags = other.MogpFlags;
+        WmoID = other.WmoID;
         _vertices = other._vertices;
         _triangles = other._triangles;
         _meshTree = other._meshTree;
@@ -37,17 +44,12 @@ public class GroupModel : IModel
             _iLiquid = new WmoLiquid(other._iLiquid);
     }
 
-    public GroupModel(uint mogpFlags, uint groupWMOID, AxisAlignedBox bound)
+    public GroupModel(uint mogpFlags, uint groupWmoid, AxisAlignedBox bound)
     {
         _iBound = bound;
-        _iMogpFlags = mogpFlags;
-        _iGroupWmoid = groupWMOID;
+        MogpFlags = mogpFlags;
+        WmoID = groupWmoid;
         _iLiquid = null;
-    }
-
-    public override AxisAlignedBox GetBounds()
-    {
-        return _iBound;
     }
 
     public bool GetLiquidLevel(Vector3 pos, out float liqHeight)
@@ -58,24 +60,6 @@ public class GroupModel : IModel
             return _iLiquid.GetLiquidHeight(pos, out liqHeight);
 
         return false;
-    }
-
-    public uint GetLiquidType()
-    {
-        if (_iLiquid != null)
-            return _iLiquid.GetLiquidType();
-
-        return 0;
-    }
-
-    public uint GetMogpFlags()
-    {
-        return _iMogpFlags;
-    }
-
-    public uint GetWmoID()
-    {
-        return _iGroupWmoid;
     }
 
     public override bool IntersectRay(Ray ray, ref float distance, bool stopAtFirstHit)
@@ -89,9 +73,9 @@ public class GroupModel : IModel
         return callback.Hit;
     }
 
-    public bool IsInsideObject(Vector3 pos, Vector3 down, out float z_dist)
+    public bool IsInsideObject(Vector3 pos, Vector3 down, out float zDist)
     {
-        z_dist = 0f;
+        zDist = 0f;
 
         if (_triangles.Empty() || !_iBound.contains(pos))
             return false;
@@ -102,7 +86,7 @@ public class GroupModel : IModel
         var hit = IntersectRay(ray, ref dist, false);
 
         if (hit)
-            z_dist = dist - 0.1f;
+            zDist = dist - 0.1f;
 
         return hit;
     }
@@ -116,8 +100,8 @@ public class GroupModel : IModel
         var lo = reader.Read<Vector3>();
         var hi = reader.Read<Vector3>();
         _iBound = new AxisAlignedBox(lo, hi);
-        _iMogpFlags = reader.ReadUInt32();
-        _iGroupWmoid = reader.ReadUInt32();
+        MogpFlags = reader.ReadUInt32();
+        WmoID = reader.ReadUInt32();
 
         // read vertices
         if (reader.ReadStringFromChars(4) != "VERT")

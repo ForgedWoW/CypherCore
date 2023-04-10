@@ -7,7 +7,7 @@ namespace Forged.MapServer.Collision.Maps;
 
 internal class TileFileOpenResult
 {
-    public FileStream File;
-    public string Name;
-    public uint UsedMapId;
+    public FileStream File { get; set; }
+    public string Name { get; set; }
+    public uint UsedMapId { get; set; }
 }

@@ -7,6 +7,6 @@ namespace Forged.MapServer.Collision.Maps;
 
 public class GroupLocationInfo
 {
-    public GroupModel HitModel;
-    public int RootId = -1;
+    public GroupModel HitModel { get; set; }
+    public int RootId { get; set; } = -1;
 }

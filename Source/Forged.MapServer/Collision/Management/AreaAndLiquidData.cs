@@ -17,6 +17,7 @@ public class AreaAndLiquidData
         public int GroupId;
         public uint MogpFlags;
         public int RootId;
+
         public AreaInfoModel(int adtId, int rootId, int groupId, uint flags)
         {
             AdtId = adtId;
@@ -30,6 +31,7 @@ public class AreaAndLiquidData
     {
         public float Level;
         public uint LiquidType;
+
         public LiquidInfoModel(uint type, float level)
         {
             LiquidType = type;

@@ -18,12 +18,13 @@ public class BIH
     private AxisAlignedBox _bounds;
     private int[] _objects;
     private uint[] _tree;
+
     public BIH()
     {
         InitEmpty();
     }
 
-    public void Build<T>(List<T> primitives, uint leafSize = 3, bool printStats = false) where T : IModel
+    public void Build<T>(List<T> primitives, uint leafSize = 3, bool printStats = false) where T : Model
     {
         if (primitives.Count == 0)
         {
@@ -32,28 +33,28 @@ public class BIH
             return;
         }
 
-        buildData dat;
-        dat.maxPrims = (int)leafSize;
-        dat.numPrims = (uint)primitives.Count;
-        dat.indices = new int[dat.numPrims];
-        dat.primBound = new AxisAlignedBox[dat.numPrims];
-        _bounds = primitives[0].GetBounds();
+        BuildData dat;
+        dat.MaxPrims = (int)leafSize;
+        dat.NumPrims = (uint)primitives.Count;
+        dat.Indices = new int[dat.NumPrims];
+        dat.PrimBound = new AxisAlignedBox[dat.NumPrims];
+        _bounds = primitives[0].Bounds;
 
-        for (var i = 0; i < dat.numPrims; ++i)
+        for (var i = 0; i < dat.NumPrims; ++i)
         {
-            dat.indices[i] = i;
-            dat.primBound[i] = primitives[i].GetBounds();
-            _bounds.merge(dat.primBound[i]);
+            dat.Indices[i] = i;
+            dat.PrimBound[i] = primitives[i].Bounds;
+            _bounds.merge(dat.PrimBound[i]);
         }
 
         List<uint> tempTree = new();
         BuildStats stats = new();
         BuildHierarchy(tempTree, dat, stats);
 
-        _objects = new int[dat.numPrims];
+        _objects = new int[dat.NumPrims];
 
-        for (var i = 0; i < dat.numPrims; ++i)
-            _objects[i] = dat.indices[i];
+        for (var i = 0; i < dat.NumPrims; ++i)
+            _objects[i] = dat.Indices[i];
 
         _tree = tempTree.ToArray();
     }
@@ -73,10 +74,10 @@ public class BIH
             {
                 var tn = _tree[node];
                 var axis = (uint)(tn & (3 << 30)) >> 30;
-                var BVH2 = Convert.ToBoolean(tn & (1 << 29));
+                var bvh2 = Convert.ToBoolean(tn & (1 << 29));
                 var offset = (int)(tn & ~(7 << 29));
 
-                if (!BVH2)
+                if (!bvh2)
                 {
                     if (axis < 3)
                     {
@@ -103,10 +104,8 @@ public class BIH
 
                         // point is in both nodes
                         // push back right node
-                        stack[stackPos].node = (uint)right;
+                        stack[stackPos].Node = (uint)right;
                         stackPos++;
-
-                        continue;
                     }
                     else
                     {
@@ -134,8 +133,6 @@ public class BIH
 
                     if (tl > p.GetAt(axis) || tr < p.GetAt(axis))
                         break;
-
-                    continue;
                 }
             } // traversal loop
 
@@ -145,7 +142,7 @@ public class BIH
 
             // move back up the stack
             stackPos--;
-            node = (int)stack[stackPos].node;
+            node = (int)stack[stackPos].Node;
         }
     }
 
@@ -164,7 +161,7 @@ public class BIH
                 var t2 = (_bounds.Hi.GetAt(i) - org.GetAt(i)) * invDir.GetAt(i);
 
                 if (t1 > t2)
-                    MathFunctions.Swap<float>(ref t1, ref t2);
+                    MathFunctions.Swap(ref t1, ref t2);
 
                 if (t1 > intervalMin)
                     intervalMin = t1;
@@ -212,10 +209,10 @@ public class BIH
             {
                 var tn = _tree[node];
                 var axis = (uint)(tn & (3 << 30)) >> 30;
-                var BVH2 = Convert.ToBoolean(tn & (1 << 29));
+                var bvh2 = Convert.ToBoolean(tn & (1 << 29));
                 var offset = (int)(tn & ~(7 << 29));
 
-                if (!BVH2)
+                if (!bvh2)
                 {
                     if (axis < 3)
                     {
@@ -250,14 +247,12 @@ public class BIH
 
                         // ray passes through both nodes
                         // push back node
-                        stack[stackPos].node = (uint)back;
-                        stack[stackPos].tnear = (tb >= intervalMin) ? tb : intervalMin;
-                        stack[stackPos].tfar = intervalMax;
+                        stack[stackPos].Node = (uint)back;
+                        stack[stackPos].Tnear = (tb >= intervalMin) ? tb : intervalMin;
+                        stack[stackPos].Tfar = intervalMax;
                         stackPos++;
                         // update ray interval for front node
                         intervalMax = (tf <= intervalMax) ? tf : intervalMax;
-
-                        continue;
                     }
                     else
                     {
@@ -291,8 +286,6 @@ public class BIH
 
                     if (intervalMin > intervalMax)
                         break;
-
-                    continue;
                 }
             } // traversal loop
 
@@ -304,13 +297,13 @@ public class BIH
 
                 // move back up the stack
                 stackPos--;
-                intervalMin = stack[stackPos].tnear;
+                intervalMin = stack[stackPos].Tnear;
 
                 if (maxDist < intervalMin)
                     continue;
 
-                node = (int)stack[stackPos].node;
-                intervalMax = stack[stackPos].tfar;
+                node = (int)stack[stackPos].Node;
+                intervalMax = stack[stackPos].Tfar;
 
                 break;
             } while (true);
@@ -336,7 +329,8 @@ public class BIH
 
         return true;
     }
-    private void BuildHierarchy(List<uint> tempTree, buildData dat, BuildStats stats)
+
+    private void BuildHierarchy(List<uint> tempTree, BuildData dat, BuildStats stats)
     {
         // create space for the first node
         tempTree.Add(3u << 30); // dummy leaf
@@ -344,7 +338,7 @@ public class BIH
         tempTree.Add(0);
 
         // seed bbox
-        AABound gridBox = new()
+        AaBound gridBox = new()
         {
             Lo = _bounds.Lo,
             Hi = _bounds.Hi
@@ -352,7 +346,7 @@ public class BIH
 
         var nodeBox = gridBox;
         // seed subdivide function
-        Subdivide(0, (int)(dat.numPrims - 1), tempTree, dat, gridBox, nodeBox, 0, 1, stats);
+        Subdivide(0, (int)(dat.NumPrims - 1), tempTree, dat, gridBox, nodeBox, 0, 1, stats);
     }
 
     private void CreateNode(List<uint> tempTree, int nodeIndex, int left, int right)
@@ -379,6 +373,7 @@ public class BIH
         // create space for the first node
         _tree[0] = (3u << 30); // dummy leaf
     }
+
     private float IntBitsToFloat(uint i)
     {
         FloatToIntConverter converter = new()
@@ -389,9 +384,9 @@ public class BIH
         return converter.FloatValue;
     }
 
-    private void Subdivide(int left, int right, List<uint> tempTree, buildData dat, AABound gridBox, AABound nodeBox, int nodeIndex, int depth, BuildStats stats)
+    private void Subdivide(int left, int right, List<uint> tempTree, BuildData dat, AaBound gridBox, AaBound nodeBox, int nodeIndex, int depth, BuildStats stats)
     {
-        if ((right - left + 1) <= dat.maxPrims || depth >= 64)
+        if ((right - left + 1) <= dat.MaxPrims || depth >= 64)
         {
             // write leaf node
             stats.UpdateLeaf(depth, right - left + 1);
@@ -429,9 +424,9 @@ public class BIH
 
             for (var i = left; i <= right;)
             {
-                var obj = dat.indices[i];
-                var minb = dat.primBound[obj].Lo.GetAt(axis);
-                var maxb = dat.primBound[obj].Hi.GetAt(axis);
+                var obj = dat.Indices[i];
+                var minb = dat.PrimBound[obj].Lo.GetAt(axis);
+                var maxb = dat.PrimBound[obj].Hi.GetAt(axis);
                 var center = (minb + maxb) * 0.5f;
 
                 if (center <= split)
@@ -445,9 +440,9 @@ public class BIH
                 else
                 {
                     // move to the right most
-                    var t = dat.indices[i];
-                    dat.indices[i] = dat.indices[right];
-                    dat.indices[right] = t;
+                    var t = dat.Indices[i];
+                    dat.Indices[i] = dat.Indices[right];
+                    dat.Indices[right] = t;
                     right--;
 
                     if (clipR > minb)
@@ -467,7 +462,7 @@ public class BIH
                 // node box is too big compare to space occupied by primitives?
                 if (1.3f * nodeNewW < nodeBoxW)
                 {
-                    stats.UpdateBVH2();
+                    stats.UpdateBvh2();
                     var nextIndex1 = tempTree.Count;
                     // allocate child
                     tempTree.Add(0);
@@ -635,6 +630,7 @@ public class BIH
         else
             stats.UpdateLeaf(depth + 1, 0);
     }
+
     [StructLayout(LayoutKind.Explicit)]
     public struct FloatToIntConverter
     {
@@ -642,70 +638,71 @@ public class BIH
         [FieldOffset(0)] public float FloatValue;
     }
 
-    private struct buildData
+    private struct BuildData
     {
-        public int[] indices;
-        public int maxPrims;
-        public uint numPrims;
-        public AxisAlignedBox[] primBound;
+        public int[] Indices;
+        public int MaxPrims;
+        public uint NumPrims;
+        public AxisAlignedBox[] PrimBound;
     }
 
     private struct StackNode
     {
-        public uint node;
-        public float tfar;
-        public float tnear;
+        public uint Node;
+        public float Tfar;
+        public float Tnear;
     }
 
     public class BuildStats
     {
-        public int maxDepth;
-        public int maxObjects;
-        public int minDepth;
-        public int minObjects;
-        public int numLeaves;
-        public int numNodes;
-        public int sumDepth;
-        public int sumObjects;
-        private readonly int[] numLeavesN = new int[6];
-        private int numBVH2;
+        public int MaxDepth;
+        public int MaxObjects;
+        public int MinDepth;
+        public int MinObjects;
+        public int NumLeaves;
+        public int NumNodes;
+        public int SumDepth;
+        public int SumObjects;
+        private readonly int[] _numLeavesN = new int[6];
+        private int _numBvh2;
 
         public BuildStats()
         {
-            numNodes = 0;
-            numLeaves = 0;
-            sumObjects = 0;
-            minObjects = 0x0FFFFFFF;
-            maxObjects = -1;
-            sumDepth = 0;
-            minDepth = 0x0FFFFFFF;
-            maxDepth = -1;
-            numBVH2 = 0;
+            NumNodes = 0;
+            NumLeaves = 0;
+            SumObjects = 0;
+            MinObjects = 0x0FFFFFFF;
+            MaxObjects = -1;
+            SumDepth = 0;
+            MinDepth = 0x0FFFFFFF;
+            MaxDepth = -1;
+            _numBvh2 = 0;
 
             for (var i = 0; i < 6; ++i)
-                numLeavesN[i] = 0;
+                _numLeavesN[i] = 0;
         }
 
-        public void UpdateBVH2()
+        public void UpdateBvh2()
         {
-            numBVH2++;
+            _numBvh2++;
         }
 
         public void UpdateInner()
         {
-            numNodes++;
+            NumNodes++;
         }
+
         public void UpdateLeaf(int depth, int n)
         {
-            numLeaves++;
-            minDepth = Math.Min(depth, minDepth);
-            maxDepth = Math.Max(depth, maxDepth);
-            sumDepth += depth;
-            minObjects = Math.Min(n, minObjects);
-            maxObjects = Math.Max(n, maxObjects);
-            sumObjects += n;
+            NumLeaves++;
+            MinDepth = Math.Min(depth, MinDepth);
+            MaxDepth = Math.Max(depth, MaxDepth);
+            SumDepth += depth;
+            MinObjects = Math.Min(n, MinObjects);
+            MaxObjects = Math.Max(n, MaxObjects);
+            SumObjects += n;
             var nl = Math.Min(n, 5);
-            ++numLeavesN[nl];
+            ++_numLeavesN[nl];
         }
     }
 }

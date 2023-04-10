@@ -106,16 +106,16 @@ public class WmoLiquid
         }
 
         liqHeight = 0f;
-        var tx_f = (pos.X - _corner.X) / MapConst.LiquidTileSize;
-        var tx = (uint)tx_f;
+        var txF = (pos.X - _corner.X) / MapConst.LiquidTileSize;
+        var tx = (uint)txF;
 
-        if (tx_f < 0.0f || tx >= _tilesX)
+        if (txF < 0.0f || tx >= _tilesX)
             return false;
 
-        var ty_f = (pos.Y - _corner.Y) / MapConst.LiquidTileSize;
-        var ty = (uint)ty_f;
+        var tyF = (pos.Y - _corner.Y) / MapConst.LiquidTileSize;
+        var ty = (uint)tyF;
 
-        if (ty_f < 0.0f || ty >= _tilesY)
+        if (tyF < 0.0f || ty >= _tilesY)
             return false;
 
         // check if tile shall be used for liquid level
@@ -124,8 +124,8 @@ public class WmoLiquid
             return false;
 
         // (dx, dy) coordinates inside tile, in [0, 1]^2
-        var dx = tx_f - tx;
-        var dy = ty_f - ty;
+        var dx = txF - tx;
+        var dy = tyF - ty;
 
         var rowOffset = _tilesX + 1;
 
@@ -144,6 +144,7 @@ public class WmoLiquid
 
         return true;
     }
+
     public uint GetLiquidType()
     {
         return _type;

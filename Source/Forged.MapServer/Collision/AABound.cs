@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.Collision;
 
-public struct AABound
+public struct AaBound
 {
     public Vector3 Lo, Hi;
 }
