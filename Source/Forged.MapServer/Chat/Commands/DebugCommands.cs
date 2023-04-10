@@ -120,15 +120,15 @@ internal class DebugCommands
         if (!target)
             target = handler.Player;
 
-        handler.SendSysMessage($"Combat refs: (Combat state: {target.IsInCombat} | Manager state: {target.GetCombatManager().HasCombat})");
+        handler.SendSysMessage($"Combat refs: (Combat state: {target.IsInCombat} | Manager state: {target.CombatManager.HasCombat})");
 
-        foreach (var refe in target.GetCombatManager().PvPCombatRefs)
+        foreach (var refe in target.CombatManager.PvPCombatRefs)
         {
             var unit = refe.Value.GetOther(target);
             handler.SendSysMessage($"[PvP] {unit.GetName()} (SpawnID {(unit.IsCreature ? unit.AsCreature.SpawnId : 0)})");
         }
 
-        foreach (var refe in target.GetCombatManager().PvECombatRefs)
+        foreach (var refe in target.CombatManager.PvECombatRefs)
         {
             var unit = refe.Value.GetOther(target);
             handler.SendSysMessage($"[PvE] {unit.GetName()} (SpawnID {(unit.IsCreature ? unit.AsCreature.SpawnId : 0)})");
@@ -1047,7 +1047,7 @@ internal class DebugCommands
 
         // _singleSchoolModifiers
         {
-            var mods = mgr._singleSchoolModifiers;
+            var mods = mgr.SingleSchoolModifiers;
             handler.SendSysMessage(" - Single-school threat modifiers:");
             handler.SendSysMessage($" |-- Physical: {mods[(int)SpellSchools.Normal] * 100.0f:0.##}");
             handler.SendSysMessage($" |-- Holy    : {mods[(int)SpellSchools.Holy] * 100.0f:0.##}");
@@ -1060,7 +1060,7 @@ internal class DebugCommands
 
         // _multiSchoolModifiers
         {
-            var mods = mgr._multiSchoolModifiers;
+            var mods = mgr.MultiSchoolModifiers;
             handler.SendSysMessage($"- Multi-school threat modifiers ({mods.Count} entries):");
 
             foreach (var pair in mods)
@@ -1069,7 +1069,7 @@ internal class DebugCommands
 
         // _redirectInfo
         {
-            var redirectInfo = mgr._redirectInfo;
+            var redirectInfo = mgr.RedirectInfo;
 
             if (redirectInfo.Empty())
             {
@@ -1089,7 +1089,7 @@ internal class DebugCommands
 
         // _redirectRegistry
         {
-            var redirectRegistry = mgr._redirectRegistry;
+            var redirectRegistry = mgr.RedirectRegistry;
 
             if (redirectRegistry.Empty())
             {

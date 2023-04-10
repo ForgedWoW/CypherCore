@@ -188,7 +188,7 @@ public partial class Unit
             LastCharmerGuid = Charmer.GUID;
 
         Charmer.SetCharm(this, false);
-        _combatManager.RevalidateCombat();
+        CombatManager.RevalidateCombat();
 
         var playerCharmer = Charmer.AsPlayer;
 

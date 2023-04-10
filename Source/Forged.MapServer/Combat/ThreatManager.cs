@@ -15,34 +15,28 @@ namespace Forged.MapServer.Combat;
 
 public class ThreatManager
 {
-    public static uint THREAT_UPDATE_INTERVAL = 1000u;
+    public static uint ThreatUpdateInterval = 1000u;
 
-    public volatile Dictionary<SpellSchoolMask, double> _multiSchoolModifiers = new();
-    public Unit _owner;
-
-    public List<Tuple<ObjectGuid, uint>> _redirectInfo = new();
-    // current redirection targets and percentages (updated from registry in ThreatManager::UpdateRedirectInfo)
-    public Dictionary<uint, Dictionary<ObjectGuid, uint>> _redirectRegistry = new();
-
-    public double[] _singleSchoolModifiers = new double[(int)SpellSchools.Max];
+    public volatile Dictionary<SpellSchoolMask, double> MultiSchoolModifiers = new();
     public bool NeedClientUpdate;
-    // most spells are single school - we pre-calculate these and store them
-    // these are calculated on demand
+
+    public List<Tuple<ObjectGuid, uint>> RedirectInfo = new();
+
+    // current redirection targets and percentages (updated from registry in ThreatManager::UpdateRedirectInfo)
+    public Dictionary<uint, Dictionary<ObjectGuid, uint>> RedirectRegistry = new();
+
+    public double[] SingleSchoolModifiers = new double[(int)SpellSchools.Max];
 
     // spellid . (victim . pct); all redirection effects on us (removal individually managed by spell scripts because blizzard is dumb)
     private readonly Dictionary<ObjectGuid, ThreatReference> _myThreatListEntries = new();
+
+    // most spells are single school - we pre-calculate these and store them
+    // these are calculated on demand
     private readonly List<ThreatReference> _needsAIUpdate = new();
+
     private ThreatReference _currentVictimRef;
     private ThreatReference _fixateRef;
     private uint _updateTimer;
-    public ThreatManager(Unit owner)
-    {
-        _owner = owner;
-        _updateTimer = THREAT_UPDATE_INTERVAL;
-
-        for (var i = 0; i < (int)SpellSchools.Max; ++i)
-            _singleSchoolModifiers[i] = 1.0f;
-    }
 
     public bool CanHaveThreatList { get; private set; }
 
@@ -57,19 +51,8 @@ public class ThreatManager
         }
     }
 
-    public Unit LastVictim
-    {
-        get
-        {
-            if (_currentVictimRef is { ShouldBeOffline: false })
-                return _currentVictimRef.Victim;
-
-            return null;
-        }
-    }
-
-    public Unit Owner => _owner;
-
+    public Unit LastVictim => _currentVictimRef is { ShouldBeOffline: false } ? _currentVictimRef.Victim : null;
+    public Unit Owner { get; set; }
     public List<ThreatReference> SortedThreatList { get; } = new();
 
     // fastest of the three threat list getters - gets the threat list in "arbitrary" order
@@ -78,12 +61,22 @@ public class ThreatManager
     // can our owner have a threat list?
     // identical to ThreatManager::CanHaveThreatList(GetOwner())
     public int ThreatListSize => SortedThreatList.Count;
+
+    public ThreatManager(Unit owner)
+    {
+        Owner = owner;
+        _updateTimer = ThreatUpdateInterval;
+
+        for (var i = 0; i < (int)SpellSchools.Max; ++i)
+            SingleSchoolModifiers[i] = 1.0f;
+    }
+
     public static double CalculateModifiedThreat(double threat, Unit victim, SpellInfo spell)
     {
         // modifiers by spell
         if (spell != null)
         {
-            var threatEntry = Global.SpellMgr.GetSpellThreatEntry(spell.Id);
+            var threatEntry = victim.SpellManager.GetSpellThreatEntry(spell.Id);
 
             if (threatEntry != null)
                 if (threatEntry.PctMod != 1.0f) // flat/AP modifiers handled in Spell::HandleThreatSpells
@@ -101,36 +94,36 @@ public class ThreatManager
         switch (mask)
         {
             case SpellSchoolMask.Normal:
-                threat *= victimMgr._singleSchoolModifiers[(int)SpellSchools.Normal];
+                threat *= victimMgr.SingleSchoolModifiers[(int)SpellSchools.Normal];
 
                 break;
             case SpellSchoolMask.Holy:
-                threat *= victimMgr._singleSchoolModifiers[(int)SpellSchools.Holy];
+                threat *= victimMgr.SingleSchoolModifiers[(int)SpellSchools.Holy];
 
                 break;
             case SpellSchoolMask.Fire:
-                threat *= victimMgr._singleSchoolModifiers[(int)SpellSchools.Fire];
+                threat *= victimMgr.SingleSchoolModifiers[(int)SpellSchools.Fire];
 
                 break;
             case SpellSchoolMask.Nature:
-                threat *= victimMgr._singleSchoolModifiers[(int)SpellSchools.Nature];
+                threat *= victimMgr.SingleSchoolModifiers[(int)SpellSchools.Nature];
 
                 break;
             case SpellSchoolMask.Frost:
-                threat *= victimMgr._singleSchoolModifiers[(int)SpellSchools.Frost];
+                threat *= victimMgr.SingleSchoolModifiers[(int)SpellSchools.Frost];
 
                 break;
             case SpellSchoolMask.Shadow:
-                threat *= victimMgr._singleSchoolModifiers[(int)SpellSchools.Shadow];
+                threat *= victimMgr.SingleSchoolModifiers[(int)SpellSchools.Shadow];
 
                 break;
             case SpellSchoolMask.Arcane:
-                threat *= victimMgr._singleSchoolModifiers[(int)SpellSchools.Arcane];
+                threat *= victimMgr.SingleSchoolModifiers[(int)SpellSchools.Arcane];
 
                 break;
             default:
             {
-                if (victimMgr._multiSchoolModifiers.TryGetValue(mask, out var value))
+                if (victimMgr.MultiSchoolModifiers.TryGetValue(mask, out var value))
                 {
                     threat *= value;
 
@@ -138,7 +131,7 @@ public class ThreatManager
                 }
 
                 var mod = victim.GetTotalAuraMultiplierByMiscMask(AuraType.ModThreat, (uint)mask);
-                victimMgr._multiSchoolModifiers[mask] = mod;
+                victimMgr.MultiSchoolModifiers[mask] = mod;
                 threat *= mod;
 
                 break;
@@ -175,7 +168,7 @@ public class ThreatManager
     }
 
     // returns true if a is LOWER on the threat list than b
-    public static bool CompareReferencesLT(ThreatReference a, ThreatReference b, float aWeight)
+    public static bool CompareReferencesLt(ThreatReference a, ThreatReference b, float aWeight)
     {
         if (a.OnlineState != b.OnlineState) // online state precedence (ONLINE > SUPPRESSED > OFFLINE)
             return a.OnlineState < b.OnlineState;
@@ -194,7 +187,7 @@ public class ThreatManager
             if (spell.HasAttribute(SpellAttr1.NoThreat))
                 return;
 
-            if (!_owner.IsEngaged && spell.HasAttribute(SpellAttr2.NoInitialThreat))
+            if (!Owner.IsEngaged && spell.HasAttribute(SpellAttr2.NoInitialThreat))
                 return;
         }
 
@@ -214,7 +207,7 @@ public class ThreatManager
         // If victim is personal spawn, redirect all aggro to summoner
         if (target.IsPrivateObject && (!Owner.IsPrivateObject || !Owner.Visibility.CheckPrivateObjectOwnerVisibility(target)))
         {
-            var privateObjectOwner = Global.ObjAccessor.GetUnit(Owner, target.PrivateObjectOwner);
+            var privateObjectOwner = Owner.ObjectAccessor.GetUnit(Owner, target.PrivateObjectOwner);
 
             if (privateObjectOwner != null)
             {
@@ -226,19 +219,17 @@ public class ThreatManager
         // if we cannot actually have a threat list, we instead just set combat state and avoid creating threat refs altogether
         if (!CanHaveThreatList)
         {
-            var combatMgr = _owner.GetCombatManager();
-
-            if (!combatMgr.SetInCombatWith(target))
+            if (!Owner.CombatManager.SetInCombatWith(target))
                 return;
 
             // traverse redirects and put them in combat, too
-            foreach (var pair in target.GetThreatManager()._redirectInfo)
-                if (!combatMgr.IsInCombatWith(pair.Item1))
+            foreach (var pair in target.GetThreatManager().RedirectInfo)
+                if (!Owner.CombatManager.IsInCombatWith(pair.Item1))
                 {
-                    var redirTarget = Global.ObjAccessor.GetUnit(_owner, pair.Item1);
+                    var redirTarget = Owner.ObjectAccessor.GetUnit(Owner, pair.Item1);
 
                     if (redirTarget != null)
-                        combatMgr.SetInCombatWith(redirTarget);
+                        Owner.CombatManager.SetInCombatWith(redirTarget);
                 }
 
             return;
@@ -251,38 +242,32 @@ public class ThreatManager
         // if we're increasing threat, send some/all of it to redirection targets instead if applicable
         if (!ignoreRedirects && amount > 0.0f)
         {
-            var redirInfo = target.GetThreatManager()._redirectInfo;
+            var redirInfo = target.GetThreatManager().RedirectInfo;
 
             if (!redirInfo.Empty())
             {
                 var origAmount = amount;
 
                 // intentional iteration by index - there's a nested AddThreat call further down that might cause AI calls which might modify redirect info through spells
-                for (var i = 0; i < redirInfo.Count; ++i)
+                foreach (var pair in redirInfo)
                 {
-                    var pair = redirInfo[i]; // (victim,pct)
-                    Unit redirTarget;
-
                     var refe = _myThreatListEntries.LookupByKey(pair.Item1); // try to look it up in our threat list first (faster)
 
-                    if (refe != null)
-                        redirTarget = refe.Victim;
-                    else
-                        redirTarget = Global.ObjAccessor.GetUnit(_owner, pair.Item1);
+                    var redirTarget = refe != null ? refe.Victim : Owner.ObjectAccessor.GetUnit(Owner, pair.Item1);
 
-                    if (redirTarget)
-                    {
-                        var amountRedirected = MathFunctions.CalculatePct(origAmount, pair.Item2);
-                        AddThreat(redirTarget, amountRedirected, spell, true, true);
-                        amount -= amountRedirected;
-                    }
+                    if (!redirTarget)
+                        continue;
+
+                    var amountRedirected = MathFunctions.CalculatePct(origAmount, pair.Item2);
+                    AddThreat(redirTarget, amountRedirected, spell, true, true);
+                    amount -= amountRedirected;
                 }
             }
         }
 
         // ensure we're in combat (threat implies combat!)
-        if (!_owner.GetCombatManager().SetInCombatWith(target)) // if this returns false, we're not actually in combat, and thus cannot have threat!
-            return;                                             // typical causes: bad scripts trying to add threat to GMs, dead targets etc
+        if (!Owner.CombatManager.SetInCombatWith(target)) // if this returns false, we're not actually in combat, and thus cannot have threat!
+            return;                                       // typical causes: bad scripts trying to add threat to GMs, dead targets etc
 
         // ok, now we actually apply threat
         // check if we already have an entry - if we do, just increase threat for that entry and we're done
@@ -307,7 +292,7 @@ public class ThreatManager
         // ok, we're now in combat - create the threat list reference and push it to the respective managers
         ThreatReference newRefe = new(this, target);
         PutThreatListRef(target.GUID, newRefe);
-        target.GetThreatManager().PutThreatenedByMeRef(_owner.GUID, newRefe);
+        target.GetThreatManager().PutThreatenedByMeRef(Owner.GUID, newRefe);
 
         // afterwards, we evaluate whether this is an online reference (it might not be an acceptable target, but we need to add it to our threat list before we check!)
         newRefe.UpdateOffline();
@@ -456,7 +441,7 @@ public class ThreatManager
 
     public void Initialize()
     {
-        CanHaveThreatList = CanHaveThreatListForUnit(_owner);
+        CanHaveThreatList = CanHaveThreatListForUnit(Owner);
     }
 
     public bool IsThreatenedBy(ObjectGuid who, bool includeOffline = false)
@@ -577,10 +562,10 @@ public class ThreatManager
 
     public void RegisterRedirectThreat(uint spellId, ObjectGuid victim, uint pct)
     {
-        if (!_redirectRegistry.ContainsKey(spellId))
-            _redirectRegistry[spellId] = new Dictionary<ObjectGuid, uint>();
+        if (!RedirectRegistry.ContainsKey(spellId))
+            RedirectRegistry[spellId] = new Dictionary<ObjectGuid, uint>();
 
-        _redirectRegistry[spellId][victim] = pct;
+        RedirectRegistry[spellId][victim] = pct;
         UpdateRedirectInfo();
     }
 
@@ -589,7 +574,7 @@ public class ThreatManager
         while (!ThreatenedByMeList.Empty())
         {
             var refe = ThreatenedByMeList.FirstOrDefault().Value;
-            refe.ThreatManager.ClearThreat(_owner);
+            refe.ThreatManager.ClearThreat(Owner);
         }
     }
 
@@ -609,16 +594,16 @@ public class ThreatManager
     {
         ThreatRemove threatRemove = new()
         {
-            UnitGUID = _owner.GUID,
+            UnitGUID = Owner.GUID,
             AboutGUID = victim.GUID
         };
 
-        _owner.SendMessageToSet(threatRemove, false);
+        Owner.SendMessageToSet(threatRemove, false);
     }
 
     public void TauntUpdate()
     {
-        var tauntEffects = _owner.GetAuraEffectsByType(AuraType.ModTaunt);
+        var tauntEffects = Owner.GetAuraEffectsByType(AuraType.ModTaunt);
         var state = TauntState.Taunt;
         Dictionary<ObjectGuid, TauntState> tauntStates = new();
 
@@ -638,7 +623,7 @@ public class ThreatManager
 
     public void UnregisterRedirectThreat(uint spellId)
     {
-        if (_redirectRegistry.Remove(spellId))
+        if (RedirectRegistry.Remove(spellId))
             UpdateRedirectInfo();
     }
 
@@ -650,26 +635,27 @@ public class ThreatManager
         if (_updateTimer <= tdiff)
         {
             UpdateVictim();
-            _updateTimer = THREAT_UPDATE_INTERVAL;
+            _updateTimer = ThreatUpdateInterval;
         }
         else
         {
             _updateTimer -= tdiff;
         }
     }
+
     public void UpdateMySpellSchoolModifiers()
     {
         for (byte i = 0; i < (int)SpellSchools.Max; ++i)
-            _singleSchoolModifiers[i] = _owner.GetTotalAuraMultiplierByMiscMask(AuraType.ModThreat, 1u << i);
+            SingleSchoolModifiers[i] = Owner.GetTotalAuraMultiplierByMiscMask(AuraType.ModThreat, 1u << i);
 
-        _multiSchoolModifiers.Clear();
+        MultiSchoolModifiers.Clear();
     }
 
     public void UpdateMyTempModifiers()
     {
         double mod = 0;
 
-        foreach (var eff in _owner.GetAuraEffectsByType(AuraType.ModTotalThreat))
+        foreach (var eff in Owner.GetAuraEffectsByType(AuraType.ModTotalThreat))
             mod += eff.Amount;
 
         if (ThreatenedByMeList.Empty())
@@ -681,9 +667,10 @@ public class ThreatManager
             pair.Value.ListNotifyChanged();
         }
     }
+
     private void ProcessAIUpdates()
     {
-        var ai = _owner.AsCreature.AI;
+        var ai = Owner.AsCreature.AI;
         List<ThreatReference> v = new(_needsAIUpdate); // _needClientUpdate is now empty in case this triggers a recursive call
 
         if (ai == null)
@@ -735,15 +722,15 @@ public class ThreatManager
             return highest;
 
         // if highest threat doesn't break 110% of old victim, nothing below it is going to do so either; new victim = old victim and done
-        if (!CompareReferencesLT(oldVictimRef, highest, 1.1f))
+        if (!CompareReferencesLt(oldVictimRef, highest, 1.1f))
             return oldVictimRef;
 
         // if highest threat breaks 130%, it's our new target regardless of range (and we're done)
-        if (CompareReferencesLT(oldVictimRef, highest, 1.3f))
+        if (CompareReferencesLt(oldVictimRef, highest, 1.3f))
             return highest;
 
         // if it doesn't break 130%, we need to check if it's melee - if yes, it breaks 110% (we checked earlier) and is our new target
-        if (_owner.IsWithinMeleeRange(highest.Victim))
+        if (Owner.IsWithinMeleeRange(highest.Victim))
             return highest;
 
         // If we get here, highest threat is ranged, but below 130% of current - there might be a melee that breaks 110% below us somewhere, so now we need to actually look at the next highest element
@@ -755,11 +742,11 @@ public class ThreatManager
                 return next;
 
             // if next isn't above 110% threat, then nothing below it can be either - we're done, old victim stays
-            if (!CompareReferencesLT(oldVictimRef, next, 1.1f))
+            if (!CompareReferencesLt(oldVictimRef, next, 1.1f))
                 return oldVictimRef;
 
             // if next is melee, he's above 110% and our new victim
-            if (_owner.IsWithinMeleeRange(next.Victim))
+            if (Owner.IsWithinMeleeRange(next.Victim))
                 return next;
 
             // otherwise the next highest target may still be a melee above 110% and we need to look further
@@ -779,17 +766,17 @@ public class ThreatManager
     {
         ThreatClear threatClear = new()
         {
-            UnitGUID = _owner.GUID
+            UnitGUID = Owner.GUID
         };
 
-        _owner.SendMessageToSet(threatClear, false);
+        Owner.SendMessageToSet(threatClear, false);
     }
 
     private void SendThreatListToClients(bool newHighest)
     {
-        void fillSharedPacketDataAndSend(dynamic packet)
+        void FillSharedPacketDataAndSend(dynamic packet)
         {
-            packet.UnitGUID = _owner.GUID;
+            packet.UnitGUID = Owner.GUID;
 
             foreach (var refe in SortedThreatList)
             {
@@ -805,7 +792,7 @@ public class ThreatManager
                 packet.ThreatList.Add(threatInfo);
             }
 
-            _owner.SendMessageToSet(packet, false);
+            Owner.SendMessageToSet(packet, false);
         }
 
         if (newHighest)
@@ -815,18 +802,18 @@ public class ThreatManager
                 HighestThreatGUID = _currentVictimRef.Victim.GUID
             };
 
-            fillSharedPacketDataAndSend(highestThreatUpdate);
+            FillSharedPacketDataAndSend(highestThreatUpdate);
         }
         else
         {
             ThreatUpdate threatUpdate = new();
-            fillSharedPacketDataAndSend(threatUpdate);
+            FillSharedPacketDataAndSend(threatUpdate);
         }
     }
 
     private void UnregisterRedirectThreat(uint spellId, ObjectGuid victim)
     {
-        var victimMap = _redirectRegistry.LookupByKey(spellId);
+        var victimMap = RedirectRegistry.LookupByKey(spellId);
 
         if (victimMap == null)
             return;
@@ -837,10 +824,10 @@ public class ThreatManager
 
     private void UpdateRedirectInfo()
     {
-        _redirectInfo.Clear();
+        RedirectInfo.Clear();
         uint totalPct = 0;
 
-        foreach (var pair in _redirectRegistry) // (spellid, victim . pct)
+        foreach (var pair in RedirectRegistry) // (spellid, victim . pct)
         {
             foreach (var victimPair in pair.Value) // (victim,pct)
             {
@@ -848,7 +835,7 @@ public class ThreatManager
 
                 if (thisPct > 0)
                 {
-                    _redirectInfo.Add(Tuple.Create(victimPair.Key, thisPct));
+                    RedirectInfo.Add(Tuple.Create(victimPair.Key, thisPct));
                     totalPct += thisPct;
 
                     if (totalPct == 100)

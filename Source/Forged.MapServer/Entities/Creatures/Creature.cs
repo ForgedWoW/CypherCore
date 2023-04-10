@@ -283,7 +283,7 @@ public partial class Creature : Unit
             target = GetThreatManager().GetAnyTarget();
 
         if (target == null)
-            target = GetCombatManager().GetAnyTarget();
+            target = CombatManager.GetAnyTarget();
 
         if (target == null)
         {

@@ -674,7 +674,7 @@ public class Map : IDisposable
             // Handle updates for creatures in combat with player and are more than 60 yards away
             if (player.IsInCombat)
             {
-                foreach (var pair in player.GetCombatManager().PvECombatRefs)
+                foreach (var pair in player.CombatManager.PvECombatRefs)
                 {
                     var unit = pair.Value.GetOther(player).AsCreature;
 

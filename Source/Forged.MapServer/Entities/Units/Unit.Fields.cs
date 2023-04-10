@@ -39,7 +39,6 @@ public partial class Unit
     private readonly uint[] _baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
 
     // Threat+combat management
-    private readonly CombatManager _combatManager;
 
     private readonly DiminishingReturn[] _diminishing = new DiminishingReturn[(int)DiminishingGroup.Max];
     private readonly Dictionary<ObjectGuid, uint> _extraAttacksTargets = new();
@@ -172,6 +171,7 @@ public partial class Unit
     }
 
     public uint ClassMask => (uint)(1 << ((int)Class - 1));
+    public CombatManager CombatManager { get; }
 
     public float CollisionHeight
     {

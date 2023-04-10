@@ -10,19 +10,14 @@ namespace Forged.MapServer.Combat;
 
 public class ThreatReference : IComparable<ThreatReference>
 {
-    public ThreatManager ThreatManager;
     public OnlineState Online;
-    public int TempModifier; // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers
+    public int TempModifier;
+
+    public ThreatManager ThreatManager;
+
+    // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers
     private double _baseAmount;
     private TauntState _taunted;
-
-    public ThreatReference(ThreatManager threatManager, Unit victim)
-    {
-        Owner = threatManager._owner as Creature;
-        ThreatManager = threatManager;
-        Victim = victim;
-        Online = OnlineState.Offline;
-    }
 
     public bool IsAvailable => Online > OnlineState.Offline;
 
@@ -67,9 +62,24 @@ public class ThreatReference : IComparable<ThreatReference>
             return Victim.HasAuraType(AuraType.ModConfuse) || Victim.HasBreakableByDamageAuraType(AuraType.ModStun);
         }
     }
+
     public TauntState TauntState => IsTaunting ? TauntState.Taunt : _taunted;
     public double Threat => Math.Max(_baseAmount + TempModifier, 0.0f);
     public Unit Victim { get; }
+
+    public ThreatReference(ThreatManager threatManager, Unit victim)
+    {
+        Owner = threatManager.Owner.AsCreature;
+        ThreatManager = threatManager;
+        Victim = victim;
+        Online = OnlineState.Offline;
+    }
+
+    public int CompareTo(ThreatReference other)
+    {
+        return ThreatManager.CompareReferencesLt(this, other, 1.0f) ? 1 : -1;
+    }
+
     public static bool FlagsAllowFighting(Unit a, Unit b)
     {
         if (a.IsCreature && a.AsCreature.IsTrigger)
@@ -104,10 +114,6 @@ public class ThreatReference : IComparable<ThreatReference>
         ThreatManager.ClearThreat(this);
     }
 
-    public int CompareTo(ThreatReference other)
-    {
-        return ThreatManager.CompareReferencesLT(this, other, 1.0f) ? 1 : -1;
-    }
     public void ListNotifyChanged()
     {
         ThreatManager.ListNotifyChanged();
@@ -161,6 +167,7 @@ public class ThreatReference : IComparable<ThreatReference>
             ThreatManager.RegisterForAIUpdate(this);
         }
     }
+
     public void UpdateTauntState(TauntState state = TauntState.None)
     {
         // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)

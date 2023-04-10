@@ -160,7 +160,7 @@ public class BossAI : ScriptedAI
 
     public void TeleportCheaters()
     {
-        foreach (var pair in Me.GetCombatManager().PvECombatRefs)
+        foreach (var pair in Me.CombatManager.PvECombatRefs)
         {
             var target = pair.Value.GetOther(Me);
 

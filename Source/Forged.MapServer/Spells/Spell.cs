@@ -1843,7 +1843,7 @@ public partial class Spell : IDisposable
             var plrCaster = Caster.AsPlayer;
 
             if (plrCaster != null)
-                if (plrCaster.GetComboPoints() == 0)
+                if (plrCaster.GetPower(PowerType.ComboPoints) == 0)
                     return SpellCastResult.NoComboPoints;
         }
 
@@ -3089,8 +3089,8 @@ public partial class Spell : IDisposable
 
                 if (OriginalCaster && unit.IsInCombat && SpellInfo.HasInitialAggro)
                 {
-                    if (OriginalCaster.HasUnitFlag(UnitFlags.PlayerControlled))          // only do explicit combat forwarding for PvP enabled units
-                        OriginalCaster.GetCombatManager().InheritCombatStatesFrom(unit); // for creature v creature combat, the threat forward does it for us
+                    if (OriginalCaster.HasUnitFlag(UnitFlags.PlayerControlled))     // only do explicit combat forwarding for PvP enabled units
+                        OriginalCaster.CombatManager.InheritCombatStatesFrom(unit); // for creature v creature combat, the threat forward does it for us
 
                     unit.GetThreatManager().ForwardThreatForAssistingMe(OriginalCaster, 0.0f, null, true);
                 }

@@ -624,7 +624,7 @@ public class SpellEffectInfo
             // bonus amount from combo points
             if (comboDamage != 0)
             {
-                var comboPoints = casterUnit.GetComboPoints();
+                var comboPoints = casterUnit.GetPower(PowerType.ComboPoints);
 
                 if (comboPoints != 0)
                     value += comboDamage * comboPoints;

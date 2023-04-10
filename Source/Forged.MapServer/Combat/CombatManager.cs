@@ -11,16 +11,17 @@ namespace Forged.MapServer.Combat;
 
 public class CombatManager
 {
-    public CombatManager(Unit owner)
-    {
-        Owner = owner;
-    }
-
     public bool HasCombat => HasPvECombat() || HasPvPCombat();
     public Unit Owner { get; }
     public Dictionary<ObjectGuid, CombatReference> PvECombatRefs { get; } = new();
 
     public Dictionary<ObjectGuid, PvPCombatReference> PvPCombatRefs { get; } = new();
+
+    public CombatManager(Unit owner)
+    {
+        Owner = owner;
+    }
+
     public static bool CanBeginCombat(Unit a, Unit b)
     {
         // Checks combat validity before initial reference creation.
@@ -179,7 +180,7 @@ public class CombatManager
 
     public void InheritCombatStatesFrom(Unit who)
     {
-        var mgr = who.GetCombatManager();
+        var mgr = who.CombatManager;
 
         lock (PvECombatRefs)
         {
@@ -295,11 +296,11 @@ public class CombatManager
 
         // ...and insert it into both managers
         PutReference(who.GUID, refe);
-        who.GetCombatManager().PutReference(Owner.GUID, refe);
+        who.CombatManager.PutReference(Owner.GUID, refe);
 
         // now, sequencing is important - first we update the combat state, which will set both units in combat and do non-AI combat start stuff
         var needSelfAI = UpdateOwnerCombatState();
-        var needOtherAI = who.GetCombatManager().UpdateOwnerCombatState();
+        var needOtherAI = who.CombatManager.UpdateOwnerCombatState();
 
         // then, we finally notify the AI (if necessary) and let it safely do whatever it feels like
         if (needSelfAI)
@@ -340,6 +341,7 @@ public class CombatManager
             }
         }
     }
+
     public bool UpdateOwnerCombatState()
     {
         var combatState = HasCombat;
@@ -370,6 +372,7 @@ public class CombatManager
 
         return true;
     }
+
     private void EndAllPvPCombat()
     {
         lock (PvECombatRefs)

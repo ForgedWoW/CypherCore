@@ -637,7 +637,7 @@ public partial class Player
             SetPvpFlag(UnitPVPStateFlags.Sanctuary);
             PvpInfo.IsInNoPvPArea = true;
 
-            if (Duel == null && GetCombatManager().HasPvPCombat())
+            if (Duel == null && CombatManager.HasPvPCombat())
                 CombatStopWithPets();
         }
         else

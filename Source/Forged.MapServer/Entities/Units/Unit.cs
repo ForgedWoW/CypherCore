@@ -53,7 +53,7 @@ public partial class Unit : WorldObject
         SmartAIManager = classFactory.Resolve<SmartAIManager>();
         MoveSpline = new MoveSpline(DB2Manager);
         MotionMaster = new MotionMaster(this);
-        _combatManager = new CombatManager(this);
+        CombatManager = new CombatManager(this);
         _threatManager = new ThreatManager(this);
         SpellHistory = new SpellHistory(this);
 
@@ -680,16 +680,6 @@ public partial class Unit : WorldObject
         return 30.0f;
     }
 
-    public CombatManager GetCombatManager()
-    {
-        return _combatManager;
-    }
-
-    public uint GetComboPoints()
-    {
-        return (uint)GetPower(PowerType.ComboPoints);
-    }
-
     public Player GetControllingPlayer()
     {
         var guid = CharmerOrOwnerGUID;
@@ -755,17 +745,17 @@ public partial class Unit : WorldObject
     {
         var petGUID = PetGUID;
 
-        if (!petGUID.IsEmpty)
-        {
-            var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(this, petGUID);
+        if (petGUID.IsEmpty)
+            return null;
 
-            if (pet != null)
-                if (pet.HasUnitTypeMask(UnitTypeMask.Guardian))
-                    return (Guardian)pet;
+        var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(this, petGUID);
 
-            Log.Logger.Fatal("Unit:GetGuardianPet: Guardian {0} not exist.", petGUID);
-            PetGUID = ObjectGuid.Empty;
-        }
+        if (pet != null)
+            if (pet.HasUnitTypeMask(UnitTypeMask.Guardian))
+                return (Guardian)pet;
+
+        Log.Logger.Fatal("Unit:GetGuardianPet: Guardian {0} not exist.", petGUID);
+        PetGUID = ObjectGuid.Empty;
 
         return null;
     }
@@ -923,13 +913,13 @@ public partial class Unit : WorldObject
         if (TypeId != TypeId.Player)
             return formEntry.CreatureDisplayID[0];
 
-        if (Player.TeamForRace(Race) == TeamFaction.Alliance)
+        if (Player.TeamForRace(Race, CliDB) == TeamFaction.Alliance)
             modelid = formEntry.CreatureDisplayID[0];
         else
             modelid = formEntry.CreatureDisplayID[1];
 
         // If the player is horde but there are no values for the horde modelid - take the alliance modelid
-        if (modelid == 0 && Player.TeamForRace(Race) == TeamFaction.Horde)
+        if (modelid == 0 && Player.TeamForRace(Race, CliDB) == TeamFaction.Horde)
             modelid = formEntry.CreatureDisplayID[0];
 
         return modelid;
@@ -2428,7 +2418,7 @@ public partial class Unit : WorldObject
             ValidateAttackersAndOwnTarget();
 
             if (!keepCombat)
-                _combatManager.EndAllCombat();
+                CombatManager.EndAllCombat();
         }
         else
         {
@@ -2452,11 +2442,11 @@ public partial class Unit : WorldObject
             {
                 List<CombatReference> toEnd = new();
 
-                foreach (var pair in _combatManager.PvECombatRefs)
+                foreach (var pair in CombatManager.PvECombatRefs)
                     if (!pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
                         toEnd.Add(pair.Value);
 
-                foreach (var pair in _combatManager.PvPCombatRefs)
+                foreach (var pair in CombatManager.PvPCombatRefs)
                     if (!pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
                         toEnd.Add(pair.Value);
 
@@ -2486,11 +2476,11 @@ public partial class Unit : WorldObject
             {
                 List<CombatReference> toEnd = new();
 
-                foreach (var pair in _combatManager.PvECombatRefs)
+                foreach (var pair in CombatManager.PvECombatRefs)
                     if (pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
                         toEnd.Add(pair.Value);
 
-                foreach (var pair in _combatManager.PvPCombatRefs)
+                foreach (var pair in CombatManager.PvPCombatRefs)
                     if (pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
                         toEnd.Add(pair.Value);
 
@@ -2785,7 +2775,7 @@ public partial class Unit : WorldObject
         // If this is set during update SetCantProc(false) call is missing somewhere in the code
         // Having this would prevent spells from being proced, so let's crash
 
-        _combatManager.Update(diff);
+        CombatManager.Update(diff);
 
         LastDamagedTargetGuid = ObjectGuid.Empty;
 

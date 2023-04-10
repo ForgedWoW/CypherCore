@@ -705,7 +705,7 @@ public partial class Player
         if (IsInAreaThatActivatesPvpTalents())
             return;
 
-        if (!GetCombatManager().HasPvPCombat())
+        if (!CombatManager.HasPvPCombat())
         {
             RemoveAura(PlayerConst.SpellPvpRulesEnabled);
             UpdateItemLevelAreaBasedScaling();

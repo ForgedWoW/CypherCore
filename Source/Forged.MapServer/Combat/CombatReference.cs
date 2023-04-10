@@ -7,11 +7,12 @@ namespace Forged.MapServer.Combat;
 
 public class CombatReference
 {
-    public Unit First;
-    public bool IsPvP;
-    public Unit Second;
     private bool _suppressFirst;
     private bool _suppressSecond;
+
+    public Unit First { get; set; }
+    public bool IsPvP { get; set; }
+    public Unit Second { get; set; }
 
     public CombatReference(Unit a, Unit b, bool pvp = false)
     {
@@ -29,12 +30,12 @@ public class CombatReference
         Second.GetThreatManager().ClearThreat(First);
 
         // ...then, remove the references from both managers...
-        First.GetCombatManager().PurgeReference(Second.GUID, IsPvP);
-        Second.GetCombatManager().PurgeReference(First.GUID, IsPvP);
+        First.CombatManager.PurgeReference(Second.GUID, IsPvP);
+        Second.CombatManager.PurgeReference(First.GUID, IsPvP);
 
         // ...update the combat state, which will potentially remove IN_COMBAT...
-        var needFirstAI = First.GetCombatManager().UpdateOwnerCombatState();
-        var needSecondAI = Second.GetCombatManager().UpdateOwnerCombatState();
+        var needFirstAI = First.CombatManager.UpdateOwnerCombatState();
+        var needSecondAI = Second.CombatManager.UpdateOwnerCombatState();
 
         // ...and if that happened, also notify the AI of it...
         if (needFirstAI)
@@ -44,12 +45,12 @@ public class CombatReference
             firstAI?.JustExitedCombat();
         }
 
-        if (needSecondAI)
-        {
-            var secondAI = Second.AI;
+        if (!needSecondAI)
+            return;
 
-            secondAI?.JustExitedCombat();
-        }
+        var secondAI = Second.AI;
+
+        secondAI?.JustExitedCombat();
     }
 
     public Unit GetOther(Unit me)
@@ -71,13 +72,13 @@ public class CombatReference
         if (_suppressFirst)
         {
             _suppressFirst = false;
-            needFirstAI = First.GetCombatManager().UpdateOwnerCombatState();
+            needFirstAI = First.CombatManager.UpdateOwnerCombatState();
         }
 
         if (_suppressSecond)
         {
             _suppressSecond = false;
-            needSecondAI = Second.GetCombatManager().UpdateOwnerCombatState();
+            needSecondAI = Second.CombatManager.UpdateOwnerCombatState();
         }
 
         if (needFirstAI)
@@ -99,11 +100,11 @@ public class CombatReference
     {
         Suppress(who);
 
-        if (who.GetCombatManager().UpdateOwnerCombatState())
-        {
-            var ai = who.AI;
+        if (!who.CombatManager.UpdateOwnerCombatState())
+            return;
 
-            ai?.JustExitedCombat();
-        }
+        var ai = who.AI;
+
+        ai?.JustExitedCombat();
     }
 }

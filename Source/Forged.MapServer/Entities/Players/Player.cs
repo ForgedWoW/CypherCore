@@ -5888,7 +5888,7 @@ public partial class Player : Unit
 
         UpdateAfkReport(now);
 
-        if (GetCombatManager().HasPvPCombat()) // Only set when in pvp combat
+        if (CombatManager.HasPvPCombat()) // Only set when in pvp combat
         {
             var aura = GetAura(PlayerConst.SpellPvpRulesEnabled);
 
@@ -6155,7 +6155,7 @@ public partial class Player : Unit
                 _hostileReferenceCheckTimer = 15 * Time.IN_MILLISECONDS;
 
                 if (!Location.Map.IsDungeon)
-                    GetCombatManager().EndCombatBeyondRange(Visibility.VisibilityRange, true);
+                    CombatManager.EndCombatBeyondRange(Visibility.VisibilityRange, true);
             }
             else
             {

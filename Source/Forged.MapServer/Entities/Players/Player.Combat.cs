@@ -88,7 +88,7 @@ public partial class Player
     {
         base.AtEnterCombat();
 
-        if (GetCombatManager().HasPvPCombat())
+        if (CombatManager.HasPvPCombat())
             EnablePvpRules(true);
     }
 

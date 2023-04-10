@@ -438,7 +438,7 @@ public partial class Unit
 
     public void ClearInCombat()
     {
-        _combatManager.EndAllCombat();
+        CombatManager.EndAllCombat();
     }
 
     public void ClearInPetCombat()
@@ -467,8 +467,8 @@ public partial class Unit
         else
         {
             // vanish and brethren are weird
-            _combatManager.EndAllPvECombat();
-            _combatManager.SuppressPvPCombat();
+            CombatManager.EndAllPvECombat();
+            CombatManager.SuppressPvPCombat();
         }
     }
 
@@ -536,21 +536,21 @@ public partial class Unit
             if ((!IsPet && PlayerMovingMe1 == null) || IsInCombatWith(victim))
                 return victim;
 
-        var mgr = GetCombatManager();
+        var mgr = CombatManager;
         // pick arbitrary targets; our pvp combat > owner's pvp combat > our pve combat > owner's pve combat
         var owner = CharmerOrOwner;
 
         if (mgr.HasPvPCombat())
             return mgr.PvPCombatRefs.First().Value.GetOther(this);
 
-        if (owner && (owner.GetCombatManager().HasPvPCombat()))
-            return owner.GetCombatManager().PvPCombatRefs.First().Value.GetOther(owner);
+        if (owner && (owner.CombatManager.HasPvPCombat()))
+            return owner.CombatManager.PvPCombatRefs.First().Value.GetOther(owner);
 
         if (mgr.HasPvECombat())
             return mgr.PvECombatRefs.First().Value.GetOther(this);
 
-        if (owner && (owner.GetCombatManager().HasPvECombat()))
-            return owner.GetCombatManager().PvECombatRefs.First().Value.GetOther(owner);
+        if (owner && (owner.CombatManager.HasPvECombat()))
+            return owner.CombatManager.PvECombatRefs.First().Value.GetOther(owner);
 
         return null;
     }
@@ -664,7 +664,7 @@ public partial class Unit
 
     public bool IsInCombatWith(Unit who)
     {
-        return who != null && _combatManager.IsInCombatWith(who);
+        return who != null && CombatManager.IsInCombatWith(who);
     }
 
     public bool IsSilenced(uint schoolMask)
@@ -864,7 +864,7 @@ public partial class Unit
     public void SetInCombatWith(Unit enemy, bool addSecondUnitSuppressed = false)
     {
         if (enemy != null)
-            _combatManager.SetInCombatWith(enemy, addSecondUnitSuppressed);
+            CombatManager.SetInCombatWith(enemy, addSecondUnitSuppressed);
     }
 
     public void SetInCombatWithZone()
@@ -956,7 +956,7 @@ public partial class Unit
 
         List<CombatReference> refsToEnd = new();
 
-        foreach (var pair in _combatManager.PvECombatRefs)
+        foreach (var pair in CombatManager.PvECombatRefs)
             if (pair.Value.GetOther(this).WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
                 refsToEnd.Add(pair.Value);
 
