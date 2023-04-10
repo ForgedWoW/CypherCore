@@ -5,6 +5,6 @@ namespace Forged.MapServer.DataStorage;
 
 public class ConversationActorNoObjectTemplate
 {
-    public uint CreatureDisplayInfoId;
-    public uint CreatureId;
+    public uint CreatureDisplayInfoId { get; set; }
+    public uint CreatureId { get; set; }
 }

@@ -9,13 +9,12 @@ public class GameTable<T> where T : new()
 {
     private List<T> _data = new();
 
+    public int TableRowCount => _data.Count;
+
     public T GetRow(uint row)
     {
         return row >= _data.Count ? default : _data[(int)row];
     }
-
-    public int TableRowCount => _data.Count;
-
     public void SetData(List<T> data)
     {
         _data = data;

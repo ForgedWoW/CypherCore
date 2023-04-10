@@ -8,13 +8,6 @@ namespace Forged.MapServer.DataStorage;
 
 internal class UiMapAssignmentStatus
 {
-    public sbyte AreaPriority;
-    public InsideStruct Inside;
-    public sbyte MapPriority;
-    public OutsideStruct Outside;
-    public UiMapAssignmentRecord UiMapAssignment;
-    public sbyte WmoPriority;
-
     public UiMapAssignmentStatus()
     {
         Inside = new InsideStruct();
@@ -24,6 +17,12 @@ internal class UiMapAssignmentStatus
         WmoPriority = 3;
     }
 
+    public sbyte AreaPriority { get; set; }
+    public InsideStruct Inside { get; set; }
+    public sbyte MapPriority { get; set; }
+    public OutsideStruct Outside { get; set; }
+    public UiMapAssignmentRecord UiMapAssignment { get; set; }
+    public sbyte WmoPriority { get; set; }
     public static bool operator <(UiMapAssignmentStatus left, UiMapAssignmentStatus right)
     {
         var leftInside = left.IsInside();
@@ -150,15 +149,15 @@ internal class UiMapAssignmentStatus
     // distances if inside
     public class InsideStruct
     {
-        public float DistanceToRegionBottom = float.MaxValue;
-        public float DistanceToRegionCenterSquared = float.MaxValue;
+        public float DistanceToRegionBottom { get; set; } = float.MaxValue;
+        public float DistanceToRegionCenterSquared { get; set; } = float.MaxValue;
     }
 
     // distances if outside
     public class OutsideStruct
     {
-        public float DistanceToRegionBottom = float.MaxValue;
-        public float DistanceToRegionEdgeSquared = float.MaxValue;
-        public float DistanceToRegionTop = float.MaxValue;
+        public float DistanceToRegionBottom { get; set; } = float.MaxValue;
+        public float DistanceToRegionEdgeSquared { get; set; } = float.MaxValue;
+        public float DistanceToRegionTop { get; set; } = float.MaxValue;
     }
 }

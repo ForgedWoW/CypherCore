@@ -164,10 +164,7 @@ public class DB2Manager
 
     public float EvaluateExpectedStat(ExpectedStatType stat, uint level, int expansion, uint contentTuningId, PlayerClass unitClass)
     {
-        var expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, expansion));
-
-        if (expectedStatRecord == null)
-            expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, -2));
+        var expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, expansion)) ?? _expectedStatsByLevel.LookupByKey(Tuple.Create(level, -2));
 
         if (expectedStatRecord == null)
             return 1.0f;
@@ -348,10 +345,7 @@ public class DB2Manager
     {
         var azeriteEmpoweredItem = GetAzeriteEmpoweredItem(itemId);
 
-        if (azeriteEmpoweredItem != null)
-            return _azeritePowers.LookupByKey(azeriteEmpoweredItem.AzeritePowerSetID);
-
-        return null;
+        return azeriteEmpoweredItem != null ? _azeritePowers.LookupByKey(azeriteEmpoweredItem.AzeritePowerSetID) : null;
     }
 
     public PvpDifficultyRecord GetBattlegroundBracketById(uint mapid, BattlegroundBracketId id)
@@ -394,16 +388,10 @@ public class DB2Manager
     {
         if (gender is Gender.Female or Gender.None && (forceGender || broadcastText.Text1.HasString()))
         {
-            if (broadcastText.Text1.HasString(locale))
-                return broadcastText.Text1[locale];
-
-            return broadcastText.Text1[SharedConst.DefaultLocale];
+            return broadcastText.Text1.HasString(locale) ? broadcastText.Text1[locale] : broadcastText.Text1[SharedConst.DefaultLocale];
         }
 
-        if (broadcastText.Text.HasString(locale))
-            return broadcastText.Text[locale];
-
-        return broadcastText.Text[SharedConst.DefaultLocale];
+        return broadcastText.Text.HasString(locale) ? broadcastText.Text[locale] : broadcastText.Text[SharedConst.DefaultLocale];
     }
 
     public ChrModelRecord GetChrModel(Race race, Gender gender)
@@ -418,10 +406,7 @@ public class DB2Manager
         if (raceEntry == null)
             return "";
 
-        if (raceEntry.Name[locale][0] != '\0')
-            return raceEntry.Name[locale];
-
-        return raceEntry.Name[Locale.enUS];
+        return raceEntry.Name[locale][0] != '\0' ? raceEntry.Name[locale] : raceEntry.Name[Locale.enUS];
     }
 
     public ChrSpecializationRecord GetChrSpecializationByIndex(PlayerClass playerClass, uint index)
@@ -436,10 +421,7 @@ public class DB2Manager
         if (classEntry == null)
             return "";
 
-        if (classEntry.Name[locale][0] != '\0')
-            return classEntry.Name[locale];
-
-        return classEntry.Name[Locale.enUS];
+        return classEntry.Name[locale][0] != '\0' ? classEntry.Name[locale] : classEntry.Name[Locale.enUS];
     }
 
     public ContentTuningLevels? GetContentTuningData(uint contentTuningId, uint replacementConditionMask, bool forItem = false)

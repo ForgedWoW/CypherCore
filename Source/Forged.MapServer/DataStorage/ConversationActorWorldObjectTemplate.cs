@@ -5,5 +5,5 @@ namespace Forged.MapServer.DataStorage;
 
 public class ConversationActorWorldObjectTemplate
 {
-    public ulong SpawnId;
+    public ulong SpawnId { get; set; }
 }
