@@ -7,6 +7,6 @@ namespace Forged.MapServer.Globals;
 
 public class RaceClassAvailability
 {
-    public List<ClassAvailability> Classes = new();
-    public byte RaceID;
+    public List<ClassAvailability> Classes { get; set; } = new();
+    public byte RaceID { get; set; }
 }

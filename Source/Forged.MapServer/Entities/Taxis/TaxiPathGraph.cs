@@ -70,9 +70,7 @@ public class TaxiPathGraph
                 if (!dest.Flags.HasAnyFlag(requireFlag))
                     continue;
 
-                var condition = _cliDB.PlayerConditionStorage.LookupByKey(dest.ConditionID);
-
-                if (condition != null)
+                if (_cliDB.PlayerConditionStorage.TryGetValue(dest.ConditionID, out var condition))
                     if (!_conditionManager.IsPlayerMeetingCondition(player, condition))
                         continue;
 
@@ -90,9 +88,7 @@ public class TaxiPathGraph
                                  GetVertexIDFromNodeID(from),
                                  vertex =>
                                  {
-                                     var taxiNode = _cliDB.TaxiNodesStorage.LookupByKey(GetNodeIDFromVertexID(vertex));
-
-                                     if (taxiNode != null)
+                                     if (_cliDB.TaxiNodesStorage.TryGetValue(GetNodeIDFromVertexID(vertex), out var taxiNode))
                                          mask[(taxiNode.Id - 1) / 8] |= (byte)(1 << (int)((taxiNode.Id - 1) % 8));
                                  });
     }

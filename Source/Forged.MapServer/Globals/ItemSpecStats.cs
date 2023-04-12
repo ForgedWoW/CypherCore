@@ -139,9 +139,7 @@ internal class ItemSpecStats
         else if (item.ClassID == ItemClass.Gem)
         {
             ItemType = 7;
-            var gem = CliDB.GemPropertiesStorage.LookupByKey(sparse.GemProperties);
-
-            if (gem != null)
+            if (CliDB.GemPropertiesStorage.TryGetValue(sparse.GemProperties, out var gem))
             {
                 if (gem.Type.HasAnyFlag(SocketColor.RelicIron))
                     AddStat(ItemSpecStat.RelicIron);

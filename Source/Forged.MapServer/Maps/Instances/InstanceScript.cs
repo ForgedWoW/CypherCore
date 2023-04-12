@@ -80,9 +80,7 @@ public class InstanceScript : ZoneScript
 
     public virtual void AddDoor(GameObject door, bool add)
     {
-        var range = _doors.LookupByKey(door.Entry);
-
-        if (range.Empty())
+        if (_doors.TryGetValue(door.Entry, out var range))
             return;
 
         foreach (var data in range)
@@ -97,9 +95,7 @@ public class InstanceScript : ZoneScript
 
     public void AddMinion(Creature minion, bool add)
     {
-        var minionInfo = _minions.LookupByKey(minion.Entry);
-
-        if (minionInfo == null)
+        if (!_minions.TryGetValue(minion.Entry, out var minionInfo))
             return;
 
         if (add)
@@ -880,9 +876,7 @@ public class InstanceScript : ZoneScript
 
     public virtual void UpdateDoorState(GameObject door)
     {
-        var range = _doors.LookupByKey(door.Entry);
-
-        if (range.Empty())
+        if (_doors.TryGetValue(door.Entry, out var range))
             return;
 
         var open = true;

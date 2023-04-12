@@ -60,9 +60,7 @@ public class AchievementGlobalMgr
 
     public bool IsRealmCompleted(AchievementRecord achievement)
     {
-        var time = _allCompletedAchievements.LookupByKey(achievement.Id);
-
-        if (time == default)
+        if (!_allCompletedAchievements.TryGetValue(achievement.Id, out var time))
             return false;
 
         if (time == DateTime.MinValue)
@@ -104,9 +102,7 @@ public class AchievementGlobalMgr
         }
 
         // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-        var achievement1 = _cliDB.AchievementStorage.LookupByKey(4539u);
-
-        if (achievement1 != null)
+        if (_cliDB.AchievementStorage.TryGetValue(4539u, out var achievement1))
             achievement1.InstanceID = 631; // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
 
         Log.Logger.Information("Loaded {0} achievement references in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -132,9 +128,7 @@ public class AchievementGlobalMgr
             var achievementId = result.Read<uint>(0);
             var scriptName = result.Read<string>(1);
 
-            var achievement = _cliDB.AchievementStorage.LookupByKey(achievementId);
-
-            if (achievement == null)
+            if (!_cliDB.AchievementStorage.ContainsKey(achievementId))
             {
                 Log.Logger.Error($"Table `achievement_scripts` contains non-existing Achievement (ID: {achievementId}), skipped.");
 
@@ -169,9 +163,7 @@ public class AchievementGlobalMgr
         do
         {
             var achievementId = result.Read<uint>(0);
-            var achievement = _cliDB.AchievementStorage.LookupByKey(achievementId);
-
-            if (achievement == null)
+            if (!_cliDB.AchievementStorage.TryGetValue(achievementId, out var achievement))
             {
                 // Remove non-existing achievements from all characters
                 Log.Logger.Error("Non-existing achievement {0} data has been removed from the table `character_achievement`.", achievementId);
@@ -251,9 +243,7 @@ public class AchievementGlobalMgr
         do
         {
             var id = result.Read<uint>(0);
-            var achievement = _cliDB.AchievementStorage.LookupByKey(id);
-
-            if (achievement == null)
+            if (!_cliDB.AchievementStorage.TryGetValue(id, out var achievement))
             {
                 Log.Logger.Error($"Table `achievement_reward` contains a wrong achievement ID ({id}), ignored.");
 
@@ -287,9 +277,7 @@ public class AchievementGlobalMgr
 
             if (reward.TitleId[0] != 0)
             {
-                var titleEntry = _cliDB.CharTitlesStorage.LookupByKey(reward.TitleId[0]);
-
-                if (titleEntry == null)
+                if (!_cliDB.CharTitlesStorage.ContainsKey(reward.TitleId[0]))
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[0]}) in `title_A`, set to 0");
                     reward.TitleId[0] = 0;
@@ -298,9 +286,7 @@ public class AchievementGlobalMgr
 
             if (reward.TitleId[1] != 0)
             {
-                var titleEntry = _cliDB.CharTitlesStorage.LookupByKey(reward.TitleId[1]);
-
-                if (titleEntry == null)
+                if (!_cliDB.CharTitlesStorage.ContainsKey(reward.TitleId[1]))
                 {
                     Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[1]}) in `title_H`, set to 0");
                     reward.TitleId[1] = 0;

@@ -7,9 +7,9 @@ namespace Forged.MapServer.Globals;
 
 public class SceneTemplate
 {
-    public bool Encrypted;
-    public SceneFlags PlaybackFlags;
-    public uint SceneId;
-    public uint ScenePackageId;
-    public uint ScriptId;
+    public bool Encrypted { get; set; }
+    public SceneFlags PlaybackFlags { get; set; }
+    public uint SceneId { get; set; }
+    public uint ScenePackageId { get; set; }
+    public uint ScriptId { get; set; }
 }

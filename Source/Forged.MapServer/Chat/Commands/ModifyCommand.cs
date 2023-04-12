@@ -692,9 +692,7 @@ internal class ModifyCommand
         if (factionId == 0 || !int.TryParse(rankTxt, out var amount))
             return false;
 
-        var factionEntry = handler.CliDB.FactionStorage.LookupByKey(factionId);
-
-        if (factionEntry == null)
+        if (!handler.CliDB.FactionStorage.TryGetValue(factionId, out var factionEntry))
         {
             handler.SendSysMessage(CypherStrings.CommandFactionUnknown, factionId);
 

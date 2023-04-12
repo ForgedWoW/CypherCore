@@ -343,9 +343,7 @@ public class Condition
             case ConditionTypes.ReputationRank:
                 if (player != null)
                 {
-                    var faction = _cliDB.FactionStorage.LookupByKey(ConditionValue1);
-
-                    if (faction != null)
+                    if (_cliDB.FactionStorage.TryGetValue(ConditionValue1, out var faction))
                         condMeets = Convert.ToBoolean(ConditionValue2 & (1 << (int)player.ReputationMgr.GetRank(faction)));
                 }
 
@@ -666,9 +664,7 @@ public class Condition
             {
                 if (player != null)
                 {
-                    var playerCondition = _cliDB.PlayerConditionStorage.LookupByKey(ConditionValue1);
-
-                    if (playerCondition != null)
+                    if (_cliDB.PlayerConditionStorage.TryGetValue(ConditionValue1, out var playerCondition))
                         condMeets = _conditionManager.IsPlayerMeetingCondition(player, playerCondition);
                 }
 

@@ -166,9 +166,7 @@ public class SceneMgr
         if (sceneTemplate == null)
             return 0;
 
-        var entry = _sceneScriptPackageRecords.LookupByKey(sceneTemplate.ScenePackageId);
-
-        if (entry == null)
+        if (!_sceneScriptPackageRecords.ContainsKey(sceneTemplate.ScenePackageId))
             return 0;
 
         // By default, take player position
@@ -247,9 +245,7 @@ public class SceneMgr
 
     private bool HasScene(uint sceneInstanceId, uint sceneScriptPackageId = 0)
     {
-        var sceneTempalte = _scenesByInstance.LookupByKey(sceneInstanceId);
-
-        if (sceneTempalte != null)
+        if (_scenesByInstance.TryGetValue(sceneInstanceId, out var sceneTempalte))
             return sceneScriptPackageId == 0 || sceneScriptPackageId == sceneTempalte.ScenePackageId;
 
         return false;

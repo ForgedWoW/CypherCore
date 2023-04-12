@@ -27,9 +27,7 @@ internal class TitleCommands
         if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
             return false;
 
-        var titleInfo = handler.CliDB.CharTitlesStorage.LookupByKey(titleId);
-
-        if (titleInfo == null)
+        if (!handler.CliDB.CharTitlesStorage.TryGetValue(titleId, out var titleInfo))
         {
             handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
 
@@ -62,9 +60,7 @@ internal class TitleCommands
         if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
             return false;
 
-        var titleInfo = handler.CliDB.CharTitlesStorage.LookupByKey(titleId);
-
-        if (titleInfo == null)
+        if (!handler.CliDB.CharTitlesStorage.TryGetValue(titleId, out var titleInfo))
         {
             handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
 
@@ -98,9 +94,7 @@ internal class TitleCommands
         if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
             return false;
 
-        var titleInfo = handler.CliDB.CharTitlesStorage.LookupByKey(titleId);
-
-        if (titleInfo == null)
+        if (!handler.CliDB.CharTitlesStorage.TryGetValue(titleId, out var titleInfo))
         {
             handler.SendSysMessage(CypherStrings.InvalidTitleId, titleId);
 

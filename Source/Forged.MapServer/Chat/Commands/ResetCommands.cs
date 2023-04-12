@@ -165,9 +165,7 @@ internal class ResetCommands
 
     private static bool HandleResetStatsOrLevelHelper(Player player)
     {
-        var classEntry = player.CliDB.ChrClassesStorage.LookupByKey(player.Class);
-
-        if (classEntry == null)
+        if (!player.CliDB.ChrClassesStorage.TryGetValue(player.Class, out var classEntry))
         {
             Log.Logger.Error("Class {0} not found in DBC (Wrong DBC files?)", player.Class);
 

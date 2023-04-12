@@ -35,8 +35,8 @@ public class ItemMod
 
     public override bool Equals(object obj)
     {
-        if (obj is ItemMod)
-            return (ItemMod)obj == this;
+        if (obj is ItemMod mod)
+            return mod == this;
 
         return false;
     }

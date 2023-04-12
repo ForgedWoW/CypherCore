@@ -43,9 +43,7 @@ internal class ItemAdditionalLoadInfo
                     PurchasedRank = artifactResult.Read<byte>(5)
                 };
 
-                var artifactPower = CliDB.ArtifactPowerStorage.LookupByKey(artifactPowerData.ArtifactPowerId);
-
-                if (artifactPower != null)
+                if (CliDB.ArtifactPowerStorage.TryGetValue(artifactPowerData.ArtifactPowerId, out var artifactPower))
                 {
                     uint maxRank = artifactPower.MaxPurchasableRank;
 

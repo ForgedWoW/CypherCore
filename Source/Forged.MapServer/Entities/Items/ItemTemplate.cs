@@ -179,9 +179,7 @@ public class ItemTemplate
         if (Class != ItemClass.Armor || SubClass != (uint)ItemSubClassArmor.Shield)
         {
             var armorQuality = CliDB.ItemArmorQualityStorage.LookupByKey(itemLevel);
-            var armorTotal = CliDB.ItemArmorTotalStorage.LookupByKey(itemLevel);
-
-            if (armorQuality == null || armorTotal == null)
+            if (!CliDB.ItemArmorTotalStorage.TryGetValue(itemLevel, out var armorTotal))
                 return 0;
 
             var inventoryType = InventoryType;
@@ -189,9 +187,7 @@ public class ItemTemplate
             if (inventoryType == InventoryType.Robe)
                 inventoryType = InventoryType.Chest;
 
-            var location = CliDB.ArmorLocationStorage.LookupByKey(inventoryType);
-
-            if (location == null)
+            if (!CliDB.ArmorLocationStorage.TryGetValue(inventoryType, out var location))
                 return 0;
 
             if (SubClass is < (uint)ItemSubClassArmor.Cloth or > (uint)ItemSubClassArmor.Plate)
@@ -229,9 +225,7 @@ public class ItemTemplate
         }
 
         // shields
-        var shield = CliDB.ItemArmorShieldStorage.LookupByKey(itemLevel);
-
-        if (shield == null)
+        if (!CliDB.ItemArmorShieldStorage.TryGetValue(itemLevel, out var shield))
             return 0;
 
         return (uint)(shield.Quality[(int)quality] + 0.5f);
@@ -403,9 +397,7 @@ public class ItemTemplate
         if (spec == 0)
             spec = player.GetDefaultSpecId();
 
-        var chrSpecialization = CliDB.ChrSpecializationStorage.LookupByKey(spec);
-
-        if (chrSpecialization == null)
+        if (!CliDB.ChrSpecializationStorage.TryGetValue(spec, out var chrSpecialization))
             return false;
 
         var levelIndex = player.Level switch

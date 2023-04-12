@@ -184,9 +184,7 @@ public class PlayerComputators
                         do
                         {
                             var mailId = resultItems.Read<ulong>(52);
-                            var mailItem = _LoadMailedItem(playerGuid, null, mailId, null, resultItems.GetFields(), additionalData.LookupByKey(resultItems.Read<ulong>(0)));
-
-                            if (mailItem != null)
+                            if (_LoadMailedItem(playerGuid, null, mailId, null, resultItems.GetFields(), additionalData.TryGetValue(resultItems.Read<ulong>(0)), out var mailItem))
                                 itemsByMail.Add(mailId, mailItem);
                         } while (resultItems.NextRow());
                     }
@@ -226,9 +224,7 @@ public class PlayerComputators
                         if (mailTemplateId != 0)
                             draft = new MailDraft(mailTemplateId, false); // items are already included
 
-                        var itemsList = itemsByMail.LookupByKey(mailID);
-
-                        if (itemsList != null)
+                        if (itemsByMail.TryGetValue(mailID, out var itemsList))
                         {
                             foreach (var item in itemsList)
                                 draft.AddItem(item);
@@ -517,7 +513,7 @@ public class PlayerComputators
 
                 Corpse.DeleteFromDB(playerGuid, trans);
 
-                Garrison.DeleteFromDB(guid, trans);
+                Garrison.DeleteFromDB(guid, trans, _characterDatabase);
 
                 stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_TRAIT_ENTRIES_BY_CHAR);
                 stmt.AddValue(0, guid);
@@ -626,13 +622,9 @@ public class PlayerComputators
 
     public byte GetFactionGroupForRace(Race race)
     {
-        var rEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)race);
-
-        if (rEntry != null)
+        if (_cliDB.ChrRacesStorage.TryGetValue((uint)race, out var rEntry))
         {
-            var faction = _cliDB.FactionTemplateStorage.LookupByKey(rEntry.FactionID);
-
-            if (faction != null)
+            if (_cliDB.FactionTemplateStorage.TryGetValue(rEntry.FactionID, out var faction))
                 return faction.FactionGroup;
         }
 

@@ -127,10 +127,8 @@ public class Map : IDisposable
     {
         get
         {
-            var difficulty = CliDB.DifficultyStorage.LookupByKey(DifficultyID);
-
-            if (difficulty != null)
-                return Extensions.HasAnyFlag(difficulty.Flags, DifficultyFlags.Heroic);
+            if (CliDB.DifficultyStorage.TryGetValue(DifficultyID, out var difficulty))
+                return difficulty.Flags.HasAnyFlag(DifficultyFlags.Heroic);
 
             return false;
         }
@@ -1403,9 +1401,7 @@ public class Map : IDisposable
 
     public static TransferAbortParams PlayerCannotEnter(uint mapid, Player player)
     {
-        var entry = CliDB.MapStorage.LookupByKey(mapid);
-
-        if (entry == null)
+        if (!CliDB.MapStorage.TryGetValue(mapid, out var entry))
             return new TransferAbortParams(TransferAbortReason.MapNotAllowed);
 
         if (!entry.IsDungeon())
@@ -2325,9 +2321,7 @@ public class Map : IDisposable
 
     public void SendZoneDynamicInfo(uint zoneId, Player player)
     {
-        var zoneInfo = _zoneDynamicInfo.LookupByKey(zoneId);
-
-        if (zoneInfo == null)
+        if (!_zoneDynamicInfo.TryGetValue(zoneId, out var zoneInfo))
             return;
 
         var music = zoneInfo.MusicId;
@@ -2354,9 +2348,7 @@ public class Map : IDisposable
     {
         if (!player.HasAuraType(AuraType.ForceWeather))
         {
-            var zoneInfo = _zoneDynamicInfo.LookupByKey(zoneId);
-
-            if (zoneInfo == null)
+            if (!_zoneDynamicInfo.TryGetValue(zoneId, out var zoneInfo))
                 return;
 
             SendZoneWeather(zoneInfo, player);
@@ -2406,9 +2398,7 @@ public class Map : IDisposable
 
     public WeatherState GetZoneWeather(uint zoneId)
     {
-        var zoneDynamicInfo = _zoneDynamicInfo.LookupByKey(zoneId);
-
-        if (zoneDynamicInfo != null)
+        if (_zoneDynamicInfo.TryGetValue(zoneId, out var zoneDynamicInfo))
         {
             if (zoneDynamicInfo.WeatherId != 0)
                 return zoneDynamicInfo.WeatherId;
@@ -2536,9 +2526,7 @@ public class Map : IDisposable
         if (mapDifficulty != null && mapDifficulty.ItemContext != 0)
             return (ItemContext)mapDifficulty.ItemContext;
 
-        var difficulty = CliDB.DifficultyStorage.LookupByKey(DifficultyID);
-
-        if (difficulty != null)
+        if (CliDB.DifficultyStorage.TryGetValue(DifficultyID, out var difficulty))
             return (ItemContext)difficulty.ItemContext;
 
         return ItemContext.None;
@@ -2699,9 +2687,7 @@ public class Map : IDisposable
 
     public Creature GetCreatureBySpawnId(ulong spawnId)
     {
-        var bounds = CreatureBySpawnIdStore.LookupByKey(spawnId);
-
-        if (bounds.Empty())
+        if (CreatureBySpawnIdStore.TryGetValue(spawnId, out var bounds))
             return null;
 
         var foundCreature = bounds.Find(creature => creature.IsAlive);
@@ -2711,9 +2697,7 @@ public class Map : IDisposable
 
     public GameObject GetGameObjectBySpawnId(ulong spawnId)
     {
-        var bounds = GameObjectBySpawnIdStore.LookupByKey(spawnId);
-
-        if (bounds.Empty())
+        if (GameObjectBySpawnIdStore.TryGetValue(spawnId, out var bounds))
             return null;
 
         var foundGameObject = bounds.Find(gameobject => gameobject.IsSpawned);
@@ -2723,9 +2707,7 @@ public class Map : IDisposable
 
     public AreaTrigger GetAreaTriggerBySpawnId(ulong spawnId)
     {
-        var bounds = AreaTriggerBySpawnIdStore.LookupByKey(spawnId);
-
-        if (bounds.Empty())
+        if (AreaTriggerBySpawnIdStore.TryGetValue(spawnId, out var bounds))
             return null;
 
         return bounds.FirstOrDefault();
@@ -2932,11 +2914,6 @@ public class Map : IDisposable
         {
             _updateObjects.Remove(obj);
         }
-    }
-
-    public static implicit operator bool(Map map)
-    {
-        return map != null;
     }
 
     private void SwitchGridContainers(WorldObject obj, bool on)
@@ -3781,9 +3758,7 @@ public class Map : IDisposable
         // check if we already have the maximum possible number of respawns scheduled
         if (SpawnMetadata.TypeHasData(info.ObjectType))
         {
-            var existing = bySpawnIdMap.LookupByKey(info.SpawnId);
-
-            if (existing != null) // spawnid already has a respawn scheduled
+            if (bySpawnIdMap.TryGetValue(info.SpawnId, out var existing)) // spawnid already has a respawn scheduled
             {
                 if (info.RespawnTime <= existing.RespawnTime) // delete existing in this case
                     DeleteRespawnInfo(existing);
@@ -3835,7 +3810,7 @@ public class Map : IDisposable
         if (spawnMap == null)
             return;
 
-        var respawnInfo = spawnMap.LookupByKey(info.SpawnId);
+        spawnMap.LookupByKey(info.SpawnId);
         spawnMap.Remove(info.SpawnId);
 
         // respawn heap
@@ -4262,9 +4237,7 @@ public class Map : IDisposable
         var scripts = Global.ObjectMgr.GetScriptsMapByType(scriptsType);
 
         // Find the script map
-        var list = scripts.LookupByKey(id);
-
-        if (list == null)
+        if (!scripts.TryGetValue(id, out var list))
             return;
 
         // prepare static data
@@ -4621,9 +4594,7 @@ public class Map : IDisposable
 
     private GameObject FindGameObject(WorldObject searchObject, ulong guid)
     {
-        var bounds = searchObject.Location.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
-
-        if (bounds.Empty())
+        if (searchObject.Location.Map.GameObjectBySpawnIdStore.TryGetValue(guid, out var bounds))
             return null;
 
         return bounds[0];
@@ -5137,7 +5108,7 @@ public class Map : IDisposable
                                             ? step.Script.CastSpell.CreatureEntry.HasAnyFlag((int)eScriptFlags.CastspellTriggered)
                                             : step.Script.CastSpell.CreatureEntry < 0;
 
-                        uSource.CastSpell(uTarget, step.Script.CastSpell.SpellID, triggered);
+                        uSource.SpellFactory.CastSpell(uTarget, step.Script.CastSpell.SpellID, triggered);
 
                         break;
                     }
@@ -5243,9 +5214,7 @@ public class Map : IDisposable
                         }
 
                         Creature cTarget = null;
-                        var creatureBounds = CreatureBySpawnIdStore.LookupByKey(step.Script.CallScript.CreatureEntry);
-
-                        if (!creatureBounds.Empty())
+                        if (CreatureBySpawnIdStore.TryGetValue(step.Script.CallScript.CreatureEntry, out var creatureBounds))
                         {
                             // Prefer alive (last respawned) creature
                             var foundCreature = creatureBounds.Find(creature => creature.IsAlive);

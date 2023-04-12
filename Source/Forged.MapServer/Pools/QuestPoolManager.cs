@@ -87,9 +87,7 @@ public class QuestPoolManager
 
     public bool IsQuestActive(uint questId)
     {
-        var it = _poolLookup.LookupByKey(questId);
-
-        if (it == null) // not pooled
+        if (!_poolLookup.TryGetValue(questId, out var it)) // not pooled
             return true;
 
         return it.ActiveQuests.Contains(questId);
@@ -184,9 +182,7 @@ public class QuestPoolManager
                     var poolId = result.Read<uint>(0);
                     var questId = result.Read<uint>(1);
 
-                    var it = lookup.LookupByKey(poolId);
-
-                    if (it == null || it.Item1 == null)
+                    if (!lookup.TryGetValue(poolId, out var it))
                     {
                         Log.Logger.Error("Table `pool_quest_save` contains reference to non-existant quest pool {0}. Deleted.", poolId);
                         unknownPoolIds.Add(poolId);

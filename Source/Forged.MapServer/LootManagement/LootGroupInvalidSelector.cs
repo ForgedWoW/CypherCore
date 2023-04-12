@@ -31,18 +31,15 @@ public struct LootGroupInvalidSelector
         if ((item.Lootmode & _lootMode) == 0)
             return true;
 
-        if (_personalLooter &&
-            !LootItem.AllowedForPlayer(_personalLooter,
-                                       null,
-                                       item.Itemid,
-                                       item.NeedsQuest,
-                                       !item.NeedsQuest || _objectManager.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
-                                       true,
-                                       item.Conditions,
-                                       _objectManager,
-                                       _conditionManager))
-            return true;
-
-        return false;
+        return _personalLooter &&
+               !LootItem.AllowedForPlayer(_personalLooter,
+                                          null,
+                                          item.Itemid,
+                                          item.NeedsQuest,
+                                          !item.NeedsQuest || _objectManager.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
+                                          true,
+                                          item.Conditions,
+                                          _objectManager,
+                                          _conditionManager);
     }
 }

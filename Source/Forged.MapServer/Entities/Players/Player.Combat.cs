@@ -45,9 +45,7 @@ public partial class Player
             SetBaseWeaponDamage(attType, WeaponDamageRange.MaxDamage, damage);
         }
 
-        var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)ShapeshiftForm);
-
-        if (proto.Delay != 0 && !(shapeshift != null && shapeshift.CombatRoundTime != 0))
+        if (CliDB.SpellShapeshiftFormStorage.ContainsKey((uint)ShapeshiftForm)))
             SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
 
         var weaponBasedAttackPower = apply ? (int)(proto.GetDPS(itemLevel) * 6.0f) : 0;

@@ -267,9 +267,7 @@ public class Quest
 
             if (questLevels.HasValue)
             {
-                var money = CliDB.QuestMoneyRewardStorage.LookupByKey(questLevels.Value.MaxLevel);
-
-                if (money != null)
+                if (CliDB.QuestMoneyRewardStorage.TryGetValue(questLevels.Value.MaxLevel, out var money))
                     value = (uint)(money.Difficulty[RewardMoneyDifficulty] * RewardMoneyMultiplier);
             }
 
@@ -286,9 +284,7 @@ public class Quest
     {
         get
         {
-            var questInfo = CliDB.QuestInfoStorage.LookupByKey(QuestInfoID);
-
-            if (questInfo != null)
+            if (CliDB.QuestInfoStorage.TryGetValue(QuestInfoID, out var questInfo))
                 return (QuestTagType)questInfo.Type;
 
             return null;
@@ -558,9 +554,7 @@ public class Quest
 
         foreach (var displaySpell in RewardDisplaySpell)
         {
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(displaySpell.PlayerConditionId);
-
-            if (playerCondition != null)
+            if (CliDB.PlayerConditionStorage.TryGetValue(displaySpell.PlayerConditionId, out var playerCondition))
                 if (!ConditionManager.IsPlayerMeetingCondition(player, playerCondition))
                     continue;
 
@@ -843,9 +837,7 @@ public class Quest
     }
     public uint MoneyValue(Player player)
     {
-        var money = CliDB.QuestMoneyRewardStorage.LookupByKey(player.GetQuestLevel(this));
-
-        if (money != null)
+        if (CliDB.QuestMoneyRewardStorage.TryGetValue(player.GetQuestLevel(this), out var money))
             return (uint)(money.Difficulty[RewardMoneyDifficulty] * RewardMoneyMultiplier);
         else
             return 0;

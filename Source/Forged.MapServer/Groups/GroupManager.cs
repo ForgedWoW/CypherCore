@@ -138,7 +138,7 @@ public class GroupManager
             {
                 var group = GetGroupByDbStoreId(result.Read<uint>(0));
 
-                if (group)
+                if (group != null)
                     group.LoadMemberFromDB(result.Read<uint>(1), result.Read<byte>(2), result.Read<byte>(3), (LfgRoles)result.Read<byte>(4));
                 else
                     Log.Logger.Error("GroupMgr:LoadGroups: Consistency failed, can't find group (storage id: {0})", result.Read<uint>(0));

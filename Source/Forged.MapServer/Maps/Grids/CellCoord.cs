@@ -52,8 +52,8 @@ public class CellCoord : ICoord
 
     public override bool Equals(object obj)
     {
-        if (obj is CellCoord)
-            return (CellCoord)obj == this;
+        if (obj is CellCoord coord)
+            return coord == this;
 
         return false;
     }

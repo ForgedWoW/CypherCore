@@ -109,18 +109,14 @@ public class GridMap
         var idx = (x_int >> 3) * 16 + (y_int >> 3);
         var type = _liquidFlags != null ? (LiquidHeaderTypeFlags)_liquidFlags[idx] : _liquidGlobalFlags;
         uint entry = _liquidEntry != null ? _liquidEntry[idx] : _liquidGlobalEntry;
-        var liquidEntry = CliDB.LiquidTypeStorage.LookupByKey(entry);
-
-        if (liquidEntry != null)
+        if (CliDB.LiquidTypeStorage.TryGetValue(entry, out var liquidEntry))
         {
             type &= LiquidHeaderTypeFlags.DarkWater;
             uint liqTypeIdx = liquidEntry.SoundBank;
 
             if (entry < 21)
             {
-                var area = CliDB.AreaTableStorage.LookupByKey(GetArea(x, y));
-
-                if (area != null)
+                if (CliDB.AreaTableStorage.TryGetValue(GetArea(x, y), out var area))
                 {
                     uint overrideLiquid = area.LiquidTypeID[liquidEntry.SoundBank];
 
@@ -132,9 +128,7 @@ public class GridMap
                             overrideLiquid = area.LiquidTypeID[liquidEntry.SoundBank];
                     }
 
-                    var liq = CliDB.LiquidTypeStorage.LookupByKey(overrideLiquid);
-
-                    if (liq != null)
+                    if (CliDB.LiquidTypeStorage.TryGetValue(overrideLiquid, out var liq))
                     {
                         entry = overrideLiquid;
                         liqTypeIdx = liq.SoundBank;
@@ -601,7 +595,7 @@ public class GridMap
 
         if (mapHeader.flags.HasAnyFlag(HeightHeaderFlags.HasFlightBounds))
         {
-            var maxHeights = reader.ReadArray<short>(3 * 3);
+            reader.ReadArray<short>(3 * 3);
             var minHeights = reader.ReadArray<short>(3 * 3);
 
             uint[][] indices =

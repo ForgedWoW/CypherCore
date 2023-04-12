@@ -337,9 +337,7 @@ internal class LearnCommands
         [Command("trainer", CypherStrings.CommandLearnMyTrainerHelp, RBACPermissions.CommandLearnAllMySpells)]
         private static bool HandleLearnMySpellsCommand(CommandHandler handler)
         {
-            var classEntry = handler.CliDB.ChrClassesStorage.LookupByKey(handler.Player.Class);
-
-            if (classEntry == null)
+            if (!handler.CliDB.ChrClassesStorage.TryGetValue(handler.Player.Class, out var classEntry))
                 return true;
 
             uint family = classEntry.SpellClassSet;

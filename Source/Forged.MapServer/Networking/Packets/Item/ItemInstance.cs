@@ -115,8 +115,8 @@ public class ItemInstance
 
     public override bool Equals(object obj)
     {
-        if (obj is ItemInstance)
-            return (ItemInstance)obj == this;
+        if (obj is ItemInstance instance)
+            return instance == this;
 
         return false;
     }

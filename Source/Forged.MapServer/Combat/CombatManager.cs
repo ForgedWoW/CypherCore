@@ -258,9 +258,7 @@ public class CombatManager
         // Are we already in combat? If yes, refresh pvp combat
         lock (PvECombatRefs)
         {
-            var existingPvpRef = PvPCombatRefs.LookupByKey(who.GUID);
-
-            if (existingPvpRef != null)
+            if (PvPCombatRefs.TryGetValue(who.GUID, out var existingPvpRef))
             {
                 existingPvpRef.RefreshTimer();
                 existingPvpRef.Refresh();
@@ -269,9 +267,7 @@ public class CombatManager
             }
 
 
-            var existingPveRef = PvECombatRefs.LookupByKey(who.GUID);
-
-            if (existingPveRef != null)
+            if (PvECombatRefs.TryGetValue(who.GUID, out var existingPveRef))
             {
                 existingPveRef.Refresh();
 

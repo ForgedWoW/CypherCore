@@ -5,10 +5,10 @@ namespace Forged.MapServer.Globals;
 
 public class AreaTriggerStruct
 {
-    public uint PortLocId;
-    public uint TargetMapId;
-    public float TargetOrientation;
-    public float TargetX;
-    public float TargetY;
-    public float TargetZ;
+    public uint PortLocId { get; set; }
+    public uint TargetMapId { get; set; }
+    public float TargetOrientation { get; set; }
+    public float TargetX { get; set; }
+    public float TargetY { get; set; }
+    public float TargetZ { get; set; }
 }

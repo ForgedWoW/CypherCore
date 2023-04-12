@@ -136,7 +136,7 @@ public class WorldSession : IDisposable
         BattlePetMgr = _classFactory.Resolve<BattlePetMgr>(new PositionalParameter(0, this));
         CollectionMgr = _classFactory.Resolve<CollectionMgr>(new PositionalParameter(0, this));
         BattlePayMgr = _classFactory.Resolve<BattlepayManager>(new PositionalParameter(0, this));
-        CommandHandler = new CommandHandler(this);
+        CommandHandler = _classFactory.Resolve<CommandHandler>(new PositionalParameter(0, this));
 
         _recvQueue = new ActionBlock<WorldPacket>(ProcessQueue,
                                                   new ExecutionDataflowBlockOptions()
@@ -197,10 +197,6 @@ public class WorldSession : IDisposable
     public Locale SessionDbLocaleIndex { get; }
     public WorldSocket Socket { get; set; }
     private bool IsConnectionIdle => _timeOutTime < GameTime.CurrentTime && !_inQueue;
-    public static implicit operator bool(WorldSession session)
-    {
-        return session != null;
-    }
 
     public SQLQueryHolderCallback<TR> AddQueryHolderCallback<TR>(SQLQueryHolderCallback<TR> callback)
     {
@@ -233,7 +229,7 @@ public class WorldSession : IDisposable
         _cancellationToken.Cancel();
 
         // unload player if not unloaded
-        if (Player)
+        if (Player != null)
             LogoutPlayer(true);
 
         // - If have unclosed socket, close it
@@ -273,7 +269,7 @@ public class WorldSession : IDisposable
             var go = player.Location.Map.GetGameObject(lguid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-            if (!go || ((go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
+            if (go == null || ((go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
                 return;
 
             if (loot.IsLooted() || go.GoType is GameObjectTypes.FishingNode or GameObjectTypes.FishingHole)
@@ -309,7 +305,7 @@ public class WorldSession : IDisposable
         {
             var corpse = ObjectAccessor.GetCorpse(player, lguid);
 
-            if (!corpse || !corpse.Location.IsWithinDistInMap(player, SharedConst.InteractionDistance))
+            if (corpse == null || !corpse.Location.IsWithinDistInMap(player, SharedConst.InteractionDistance))
                 return;
 
             if (loot.IsLooted())
@@ -322,7 +318,7 @@ public class WorldSession : IDisposable
         {
             var pItem = player.GetItemByGuid(lguid);
 
-            if (!pItem)
+            if (pItem == null)
                 return;
 
             var proto = pItem.Template;
@@ -397,7 +393,7 @@ public class WorldSession : IDisposable
 
         if (!_playerLoading.IsEmpty)
             ss.Append($"Logging in: {_playerLoading.ToString()}, ");
-        else if (Player)
+        else if (Player != null)
             ss.Append($"{Player.GetName()} {Player.GUID.ToString()}, ");
 
         ss.Append($"Account: {AccountId}]");
@@ -476,7 +472,7 @@ public class WorldSession : IDisposable
 
     public void KickPlayer(string reason)
     {
-        Log.Logger.Information($"Account: {AccountId} Character: '{(Player ? Player.GetName() : "<none>")}' {(Player ? Player.GUID : "")} kicked with reason: {reason}");
+        Log.Logger.Information($"Account: {AccountId} Character: '{(Player != null ? Player.GetName() : "<none>")}' {(Player != null ? Player.GUID : "")} kicked with reason: {reason}");
 
         if (Socket == null)
             return;
@@ -535,13 +531,13 @@ public class WorldSession : IDisposable
             return;
 
         // finish pending transfers before starting the logout
-        while (Player && Player.IsBeingTeleportedFar)
+        while (Player != null && Player.IsBeingTeleportedFar)
             HandleMoveWorldportAck();
 
         PlayerLogout = true;
         _playerSave = save;
 
-        if (Player)
+        if (Player != null)
         {
             if (!Player.GetLootGUID().IsEmpty)
                 DoLootReleaseAll();
@@ -571,7 +567,7 @@ public class WorldSession : IDisposable
             //drop a Id if player is carrying it
             var bg = Player.Battleground;
 
-            if (bg)
+            if (bg != null)
                 bg.EventPlayerLoggedOut(Player);
 
             // Teleport to home if the player is in an invalid instance
@@ -600,7 +596,7 @@ public class WorldSession : IDisposable
             // If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
             var guild = _guildManager.GetGuildById(Player.GuildId);
 
-            if (guild)
+            if (guild != null)
                 guild.HandleMemberLogout(this);
 
             // Remove pet
@@ -697,7 +693,7 @@ public class WorldSession : IDisposable
 
     public void ResetTimeOutTime(bool onlyActive)
     {
-        if (Player)
+        if (Player != null)
             _timeOutTime = GameTime.CurrentTime + _configuration.GetDefaultValue("SocketTimeOutTimeActive", 60);
         else if (!onlyActive)
             _timeOutTime = GameTime.CurrentTime + _configuration.GetDefaultValue("SocketTimeOutTime", 900);
@@ -999,7 +995,7 @@ public class WorldSession : IDisposable
 
             _expireTime -= _expireTime > diff ? diff : _expireTime;
 
-            if (_expireTime < diff || _forceExit || !Player)
+            if (_expireTime < diff || _forceExit || Player == null)
                 if (Socket != null)
                 {
                     Socket.CloseSocket();
@@ -1035,12 +1031,11 @@ public class WorldSession : IDisposable
                 switch (handler.SessionStatus)
                 {
                     case SessionStatus.Loggedin:
-                        if (!Player)
+                        if (Player == null)
                         {
                             if (!PlayerRecentlyLoggedOut)
                             {
-                                if (firstDelayedPacket == null)
-                                    firstDelayedPacket = packet;
+                                firstDelayedPacket ??= packet;
 
                                 QueuePacket(packet);
                                 Log.Logger.Debug("Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. Player is currently not in world yet.", (ClientOpcodes)packet.Opcode);
@@ -1054,14 +1049,14 @@ public class WorldSession : IDisposable
 
                         break;
                     case SessionStatus.LoggedinOrRecentlyLogout:
-                        if (!Player && !PlayerRecentlyLoggedOut && !PlayerLogout)
+                        if (Player == null && !PlayerRecentlyLoggedOut && !PlayerLogout)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player has not logged in yet and not recently logout");
                         else if (_antiDos.EvaluateOpcode(packet, currentTime))
                             handler.Invoke(this, packet);
 
                         break;
                     case SessionStatus.Transfer:
-                        if (!Player)
+                        if (Player == null)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player has not logged in yet");
                         else if (Player.Location.IsInWorld)
                             LogUnexpectedOpcode(packet, handler.SessionStatus, "the player is still in world");
@@ -1197,7 +1192,7 @@ public class WorldSession : IDisposable
 
         if (!player.Location.Map.AddPlayerToMap(player, !seamlessTeleport))
         {
-            Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.MapName : "Unknown")}) because of unknown reason!");
+            Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap != null ? newMap.MapName : "Unknown")}) because of unknown reason!");
             player.Location.ResetMap();
             player.Location.Map = oldMap;
             player.TeleportTo(player.Homebind);
@@ -1218,14 +1213,8 @@ public class WorldSession : IDisposable
                 player.SetBgTeam(0);
             }
             // join to bg case
-            else
-            {
-                var bg = player.Battleground;
-
-                if (bg)
-                    if (player.IsInvitedForBattlegroundInstance(player.BattlegroundId))
-                        bg.AddPlayer(player);
-            }
+            else if (player.Battleground != null && player.IsInvitedForBattlegroundInstance(player.BattlegroundId))
+                player.Battleground.AddPlayer(player);
         }
 
         if (!seamlessTeleport)
@@ -1245,12 +1234,12 @@ public class WorldSession : IDisposable
         {
             if (!player.InBattleground)
             {
-                if (!seamlessTeleport)
-                {
-                    // short preparations to continue flight
-                    var movementGenerator = player.MotionMaster.GetCurrentMovementGenerator();
-                    movementGenerator.Initialize(player);
-                }
+                if (seamlessTeleport)
+                    return;
+
+                // short preparations to continue flight
+                var movementGenerator = player.MotionMaster.GetCurrentMovementGenerator();
+                movementGenerator.Initialize(player);
 
                 return;
             }

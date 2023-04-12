@@ -27,7 +27,7 @@ internal struct QuotedString
             return ChatCommandResult.FromErrorMessage("");
 
         if ((args[0] != '"') && (args[0] != '\''))
-            return CommandArgs.TryConsume(out var str, typeof(string), handler, args);
+            return CommandArgs.TryConsume(out _, typeof(string), handler, args);
 
         var QUOTE = args[0];
 

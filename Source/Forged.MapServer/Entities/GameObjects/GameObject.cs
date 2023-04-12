@@ -1004,9 +1004,7 @@ namespace Forged.MapServer.Entities.GameObjects
             switch (GoType)
             {
                 case GameObjectTypes.DestructibleBuilding:
-                    var modelData = CliDB.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
-
-                    if (modelData != null)
+                    if (CliDB.DestructibleModelDataStorage.TryGetValue(GoInfoProtected.DestructibleBuilding.DestructibleModelRec, out var modelData))
                         switch (DestructibleState)
                         {
                             case GameObjectDestructibleState.Intact:
@@ -1035,7 +1033,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public List<uint> GetPauseTimes()
         {
-            var transport = _goTypeImpl as Transport;
+            var transport = _goTypeImpl as TransportGameObject;
 
             return transport?.GetPauseTimes();
         }
@@ -1055,9 +1053,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (lockId == 0)
                 return null;
 
-            var lockEntry = CliDB.LockStorage.LookupByKey(lockId);
-
-            if (lockEntry == null)
+            if (!CliDB.LockStorage.TryGetValue(lockId, out var lockEntry))
                 return null;
 
             for (byte i = 0; i < SharedConst.MaxLockCase; ++i)
@@ -1172,9 +1168,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public bool IsInRange(float x, float y, float z, float radius)
         {
-            var info = CliDB.GameObjectDisplayInfoStorage.LookupByKey(GoInfoProtected.displayId);
-
-            if (info == null)
+            if (!CliDB.GameObjectDisplayInfoStorage.TryGetValue(GoInfoProtected.displayId, out var info))
                 return Location.IsWithinDist3d(x, y, z, radius);
 
             var sinA = (float)Math.Sin(Location.Orientation);
@@ -1329,9 +1323,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (GoInfoProtected.GetConditionID1() == 0)
                 return true;
 
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(GoInfoProtected.GetConditionID1());
-
-            if (playerCondition != null)
+            if (CliDB.PlayerConditionStorage.TryGetValue(GoInfoProtected.GetConditionID1(), out var playerCondition))
                 if (!ConditionManager.IsPlayerMeetingCondition(user, playerCondition))
                     return false;
 
@@ -1693,9 +1685,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     SetFlag(GameObjectFlags.Damaged);
 
                     var modelId = GoInfoProtected.displayId;
-                    var modelData = CliDB.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
-
-                    if (modelData != null)
+                    if (CliDB.DestructibleModelDataStorage.TryGetValue(GoInfoProtected.DestructibleBuilding.DestructibleModelRec, out var modelData))
                         if (modelData.State1Wmo != 0)
                             modelId = modelData.State1Wmo;
 
@@ -1735,9 +1725,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     SetFlag(GameObjectFlags.Destroyed);
 
                     var modelId = GoInfoProtected.displayId;
-                    var modelData = CliDB.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
-
-                    if (modelData != null)
+                    if (CliDB.DestructibleModelDataStorage.TryGetValue(GoInfoProtected.DestructibleBuilding.DestructibleModelRec, out var modelData))
                         if (modelData.State2Wmo != 0)
                             modelId = modelData.State2Wmo;
 
@@ -1761,9 +1749,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     RemoveFlag(GameObjectFlags.Damaged | GameObjectFlags.Destroyed);
 
                     var modelId = GoInfoProtected.displayId;
-                    var modelData = CliDB.DestructibleModelDataStorage.LookupByKey(GoInfoProtected.DestructibleBuilding.DestructibleModelRec);
-
-                    if (modelData != null)
+                    if (CliDB.DestructibleModelDataStorage.TryGetValue(GoInfoProtected.DestructibleBuilding.DestructibleModelRec, out var modelData))
                         if (modelData.State3Wmo != 0)
                             modelId = modelData.State3Wmo;
 
@@ -1946,7 +1932,7 @@ namespace Forged.MapServer.Entities.GameObjects
             switch (GoType)
             {
                 case GameObjectTypes.Transport:
-                    return (Transport)_goTypeImpl;
+                    return (TransportGameObject)_goTypeImpl;
                 case GameObjectTypes.MapObjTransport:
                     return (Entities.Transport)this;
                 
@@ -2776,9 +2762,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     if (foundFreeSlot)
                     {
-                        var guid = _chairListSlots.LookupByKey(nearestSlot);
-
-                        if (guid.IsEmpty)
+                        if (!_chairListSlots.ContainsKey(nearestSlot))
                         {
                             _chairListSlots[nearestSlot] = user.GUID; //this slot in now used by player
                             user.NearTeleportTo(xLowest, yLowest, Location.Z, Location.Orientation);
@@ -3322,9 +3306,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         return;
 
                     var player = user.AsPlayer;
-                    var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(info.ItemForge.conditionID1);
-
-                    if (playerCondition != null)
+                    if (CliDB.PlayerConditionStorage.TryGetValue(info.ItemForge.conditionID1, out var playerCondition))
                         if (!ConditionManager.IsPlayerMeetingCondition(player, playerCondition))
                             return;
 
@@ -3442,9 +3424,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                         if (info.GatheringNode.xpDifficulty != 0 && info.GatheringNode.xpDifficulty < 10)
                         {
-                            var questXp = CliDB.QuestXPStorage.LookupByKey(player.Level);
-
-                            if (questXp != null)
+                            if (CliDB.QuestXPStorage.TryGetValue(player.Level, out var questXp))
                             {
                                 var xp = Quest.Quest.RoundXPValue(questXp.Difficulty[info.GatheringNode.xpDifficulty]);
 
@@ -3665,7 +3645,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     break;
                 case GameObjectTypes.Transport:
-                    _goTypeImpl = new Transport(this);
+                    _goTypeImpl = new TransportGameObject(this);
 
                     if (goInfo.Transport.startOpen != 0)
                         SetGoState(GameObjectState.TransportStopped);
@@ -3807,9 +3787,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         private bool IsAtInteractDistance(Position pos, float radius)
         {
-            var displayInfo = CliDB.GameObjectDisplayInfoStorage.LookupByKey(Template.displayId);
-
-            if (displayInfo == null)
+            if (!CliDB.GameObjectDisplayInfoStorage.TryGetValue(Template.displayId, out var displayInfo))
                 return Location.GetExactDist(pos) <= radius;
 
             var scale = ObjectScale;

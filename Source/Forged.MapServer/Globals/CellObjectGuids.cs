@@ -9,8 +9,8 @@ namespace Forged.MapServer.Globals;
 
 public class CellObjectGuids
 {
-    public SortedSet<ulong> Creatures = new();
-    public SortedSet<ulong> Gameobjects = new();
+    public SortedSet<ulong> Creatures { get; set; } = new();
+    public SortedSet<ulong> Gameobjects { get; set; } = new();
 
     public void AddSpawn(SpawnData data)
     {

@@ -133,9 +133,7 @@ public class GuildAchievementMgr : AchievementManager
                 var achievementid = achievementResult.Read<uint>(0);
 
                 // must not happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
-                var achievement = CliDB.AchievementStorage.LookupByKey(achievementid);
-
-                if (achievement == null)
+                if (!CliDB.AchievementStorage.TryGetValue(achievementid, out var achievement))
                     continue;
 
                 if (CompletedAchievements.TryGetValue(achievementid, out var ca))
@@ -270,9 +268,7 @@ public class GuildAchievementMgr : AchievementManager
     public void SendAchievementInfo(Player receiver, uint achievementId = 0)
     {
         GuildCriteriaUpdate guildCriteriaUpdate = new();
-        var achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
-
-        if (achievement != null)
+        if (CliDB.AchievementStorage.TryGetValue(achievementId, out var achievement))
         {
             var tree = CriteriaManager.GetCriteriaTree(achievement.CriteriaTree);
 
@@ -283,9 +279,7 @@ public class GuildAchievementMgr : AchievementManager
                                                      if (node.Criteria == null)
                                                          return;
 
-                                                     var progress = CriteriaProgress.LookupByKey(node.Criteria.Id);
-
-                                                     if (progress == null)
+                                                     if (!CriteriaProgress.TryGetValue(node.Criteria.Id, out var progress))
                                                          return;
 
                                                      GuildCriteriaProgress guildCriteriaProgress = new()
@@ -308,9 +302,7 @@ public class GuildAchievementMgr : AchievementManager
 
     public void SendAchievementMembers(Player receiver, uint achievementId)
     {
-        var achievementData = CompletedAchievements.LookupByKey(achievementId);
-
-        if (achievementData != null)
+        if (CompletedAchievements.TryGetValue(achievementId, out var achievementData))
         {
             GuildAchievementMembers guildAchievementMembers = new()
             {
@@ -354,9 +346,7 @@ public class GuildAchievementMgr : AchievementManager
 
         foreach (var criteriaId in trackedCriterias)
         {
-            var progress = CriteriaProgress.LookupByKey(criteriaId);
-
-            if (progress == null)
+            if (!CriteriaProgress.TryGetValue(criteriaId, out var progress))
                 continue;
 
             GuildCriteriaProgress guildCriteriaProgress = new()

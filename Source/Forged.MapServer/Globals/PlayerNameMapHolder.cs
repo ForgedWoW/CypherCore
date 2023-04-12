@@ -8,23 +8,26 @@ namespace Forged.MapServer.Globals;
 
 internal class PlayerNameMapHolder
 {
-    private static readonly Dictionary<string, Player> PlayerNameMap = new();
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly Dictionary<string, Player> _playerNameMap = new();
 
-    public static Player Find(string name)
+    public PlayerNameMapHolder(GameObjectManager gameObjectManager)
     {
-        if (!GameObjectManager.NormalizePlayerName(ref name))
-            return null;
-
-        return PlayerNameMap.LookupByKey(name);
+        _gameObjectManager = gameObjectManager;
     }
 
-    public static void Insert(Player p)
+    public Player Find(string name)
     {
-        PlayerNameMap[p.GetName()] = p;
+        return !_gameObjectManager.NormalizePlayerName(ref name) ? null : _playerNameMap.LookupByKey(name);
     }
 
-    public static void Remove(Player p)
+    public void Insert(Player p)
     {
-        PlayerNameMap.Remove(p.GetName());
+        _playerNameMap[p.GetName()] = p;
+    }
+
+    public void Remove(Player p)
+    {
+        _playerNameMap.Remove(p.GetName());
     }
 }

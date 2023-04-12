@@ -413,9 +413,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
         do
         {
             var index = 0;
-            var obj = this.LookupByKey(result.Read<uint>(index++));
-
-            if (obj == null)
+            if (!this.TryGetValue(result.Read<uint>(index++), out var obj))
                 continue;
 
             foreach (var f in typeof(T).GetFields())

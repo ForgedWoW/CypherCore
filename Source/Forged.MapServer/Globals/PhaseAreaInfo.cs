@@ -8,11 +8,12 @@ namespace Forged.MapServer.Globals;
 
 public class PhaseAreaInfo
 {
-    public List<Condition> Conditions = new();
-    public PhaseInfoStruct PhaseInfo;
-    public List<uint> SubAreaExclusions = new();
     public PhaseAreaInfo(PhaseInfoStruct phaseInfo)
     {
         PhaseInfo = phaseInfo;
     }
+
+    public List<Condition> Conditions { get; set; } = new();
+    public PhaseInfoStruct PhaseInfo { get; set; }
+    public List<uint> SubAreaExclusions { get; set; } = new();
 }

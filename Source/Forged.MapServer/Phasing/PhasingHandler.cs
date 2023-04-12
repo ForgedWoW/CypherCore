@@ -109,9 +109,7 @@ public class PhasingHandler
 
     public static PhaseFlags GetPhaseFlags(uint phaseId)
     {
-        var phase = CliDB.PhaseStorage.LookupByKey(phaseId);
-
-        if (phase != null)
+        if (CliDB.PhaseStorage.TryGetValue(phaseId, out var phase))
         {
             if (phase.Flags.HasAnyFlag(PhaseEntryFlags.Cosmetic))
                 return PhaseFlags.Cosmetic;
@@ -206,9 +204,7 @@ public class PhasingHandler
 
     public static bool IsPersonalPhase(uint phaseId)
     {
-        var phase = CliDB.PhaseStorage.LookupByKey(phaseId);
-
-        if (phase != null)
+        if (CliDB.PhaseStorage.TryGetValue(phaseId, out var phase))
             return phase.Flags.HasFlag(PhaseEntryFlags.Personal);
 
         return false;

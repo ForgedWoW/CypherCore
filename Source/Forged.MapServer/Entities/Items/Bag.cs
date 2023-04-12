@@ -293,26 +293,4 @@ public class Bag : Item
     {
         SetUpdateFieldValue(ref Values.ModifyValue(m_containerData).ModifyValue(m_containerData.Slots, slot), guid);
     }
-
-    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-    {
-        private readonly ContainerData ContainerMask = new();
-        private readonly ItemData ItemMask = new();
-        private readonly ObjectFieldData ObjectMask = new();
-        private readonly Bag Owner;
-        public ValuesUpdateForPlayerWithMaskSender(Bag owner)
-        {
-            Owner = owner;
-        }
-
-        public void Invoke(Player player)
-        {
-            UpdateData udata = new(Owner.Location.MapId);
-
-            Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), ContainerMask.GetUpdateMask(), player);
-
-            udata.BuildPacket(out var packet);
-            player.SendPacket(packet);
-        }
-    }
 }

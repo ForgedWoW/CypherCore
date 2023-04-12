@@ -64,16 +64,12 @@ public class ChannelManager
 
         if (channelId != 0) // builtin
         {
-            var channel = _channels.LookupByKey(CreateBuiltinChannelGuid(channelId, zoneEntry));
-
-            if (channel != null)
+            if (_channels.TryGetValue(CreateBuiltinChannelGuid(channelId, zoneEntry), out var channel))
                 result = channel;
         }
         else // custom
         {
-            var channel = _customChannels.LookupByKey(name.ToLower());
-
-            if (channel != null)
+            if (_customChannels.TryGetValue(name.ToLower(), out var channel))
                 result = channel;
         }
 
@@ -114,9 +110,7 @@ public class ChannelManager
     public Channel GetSystemChannel(uint channelId, AreaTableRecord zoneEntry = null)
     {
         var channelGuid = CreateBuiltinChannelGuid(channelId, zoneEntry);
-        var currentChannel = _channels.LookupByKey(channelGuid);
-
-        if (currentChannel != null)
+        if (_channels.TryGetValue(channelGuid, out var currentChannel))
             return currentChannel;
 
         var newChannel = _classFactory.Resolve<Channel>(new PositionalParameter(0, channelGuid),
@@ -132,9 +126,7 @@ public class ChannelManager
     public void LeftChannel(uint channelId, AreaTableRecord zoneEntry)
     {
         var guid = CreateBuiltinChannelGuid(channelId, zoneEntry);
-        var channel = _channels.LookupByKey(guid);
-
-        if (channel == null)
+        if (!_channels.TryGetValue(guid, out var channel))
             return;
 
         if (channel.NumPlayers == 0)

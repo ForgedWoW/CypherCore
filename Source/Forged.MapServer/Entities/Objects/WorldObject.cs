@@ -266,11 +266,6 @@ public abstract class WorldObject : IDisposable
     public ZoneScript ZoneScript { get; set; }
     protected TypeId ObjectTypeId { get; set; }
 
-    public static implicit operator bool(WorldObject obj)
-    {
-        return obj != null;
-    }
-
     public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         return Location._IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
@@ -366,7 +361,7 @@ public abstract class WorldObject : IDisposable
 
     public virtual void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
     {
-        if (!target)
+        if (target == null)
             return;
 
         var updateType = _isNewObject ? UpdateType.CreateObject2 : UpdateType.CreateObject;
@@ -391,11 +386,11 @@ public abstract class WorldObject : IDisposable
 
         var unit = AsUnit;
 
-        if (unit)
+        if (unit != null)
         {
             flags.PlayHoverAnim = unit.IsPlayingHoverAnim;
 
-            if (unit.Victim)
+            if (unit.Victim != null)
                 flags.CombatVictim = true;
         }
 
@@ -427,7 +422,7 @@ public abstract class WorldObject : IDisposable
         List<uint> pauseTimes = null;
         var go = AsGameObject;
 
-        if (go)
+        if (go != null)
             pauseTimes = go.GetPauseTimes();
 
         data.WriteBit(flags.NoBirthAnim);
@@ -985,7 +980,7 @@ public abstract class WorldObject : IDisposable
     public virtual void Dispose()
     {
         // this may happen because there are many !create/delete
-        if (IsWorldObject() && Location.Map)
+        if (IsWorldObject() && Location.Map != null)
         {
             if (IsTypeId(TypeId.Corpse))
                 Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
@@ -1536,7 +1531,7 @@ public abstract class WorldObject : IDisposable
             return;
         }
 
-        list = data.Select(tempSummonData => SummonCreature(tempSummonData.entry, tempSummonData.pos, tempSummonData.type, TimeSpan.FromMilliseconds(tempSummonData.time))).Where(summon => summon).ToList();
+        list = data.Select(tempSummonData => SummonCreature(tempSummonData.entry, tempSummonData.pos, tempSummonData.type, TimeSpan.FromMilliseconds(tempSummonData.time))).Where(summon => summon != null).ToList();
     }
 
     public GameObject SummonGameObject(uint entry, float x, float y, float z, float ang, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)

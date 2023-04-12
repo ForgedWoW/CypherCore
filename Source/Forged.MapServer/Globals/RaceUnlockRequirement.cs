@@ -5,6 +5,6 @@ namespace Forged.MapServer.Globals;
 
 public class RaceUnlockRequirement
 {
-    public uint AchievementId;
-    public byte Expansion;
+    public uint AchievementId { get; set; }
+    public byte Expansion { get; set; }
 }

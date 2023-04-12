@@ -65,9 +65,7 @@ public class MiscHandler : IWorldSessionHandler
             return;
         }
 
-        var atEntry = CliDB.AreaTriggerStorage.LookupByKey(packet.AreaTriggerID);
-
-        if (atEntry == null)
+        if (!CliDB.AreaTriggerStorage.TryGetValue(packet.AreaTriggerID, out var atEntry))
         {
             Log.Logger.Debug("HandleAreaTrigger: Player '{0}' (GUID: {1}) send unknown (by DBC) Area Trigger ID:{2}",
                              player.GetName(),
@@ -310,7 +308,7 @@ public class MiscHandler : IWorldSessionHandler
             }
 
             if (entranceLocation != null)
-                player.TeleportTo(entranceLocation.Loc, TeleportToOptions.NotLeaveTransport);
+                player.TeleportTo(entranceLocation.Location, TeleportToOptions.NotLeaveTransport);
             else
                 player.TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, at.target_Orientation, TeleportToOptions.NotLeaveTransport);
         }
@@ -480,9 +478,7 @@ public class MiscHandler : IWorldSessionHandler
 
         foreach (var itr in CliDB.UISplashScreenStorage.Values)
         {
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(itr.CharLevelConditionID);
-
-            if (playerCondition != null)
+            if (CliDB.PlayerConditionStorage.TryGetValue(itr.CharLevelConditionID, out var playerCondition))
                 if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
                     continue;
 

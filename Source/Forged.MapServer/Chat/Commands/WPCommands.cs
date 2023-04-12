@@ -812,7 +812,7 @@ internal class WpCommands
             var x = result.Read<float>(0);
             var y = result.Read<float>(1);
             var z = result.Read<float>(2);
-            var o = result.Read<float>(3);
+            result.Read<float>(3);
 
             var chr = handler.Session.Player;
             var map = chr.Location.Map;

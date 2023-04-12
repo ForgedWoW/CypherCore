@@ -781,9 +781,7 @@ public class WorldLocation : Position
     {
         Zone = Area = data.AreaId;
 
-        var area = _worldObject.CliDB.AreaTableStorage.LookupByKey(Area);
-
-        if (area != null)
+        if (_worldObject.CliDB.AreaTableStorage.TryGetValue(Area, out var area))
             if (area.ParentAreaID != 0)
                 Zone = area.ParentAreaID;
 

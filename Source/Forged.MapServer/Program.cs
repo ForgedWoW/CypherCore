@@ -14,6 +14,7 @@ using Forged.MapServer.Arenas;
 using Forged.MapServer.AuctionHouse;
 using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Battlepay;
 using Forged.MapServer.BattlePets;
 using Forged.MapServer.BlackMarket;
 using Forged.MapServer.Cache;
@@ -121,7 +122,7 @@ void InitializeServer()
     worldManager.SetEventInterval(eventManager.StartSystem());
     container.Resolve<PlayerComputators>().DeleteOldCharacters();
     eventManager.StartArenaSeason();
-    worldManager.Initialize(container.Resolve<AccountManager>(), container.Resolve<CharacterCache>(), container.Resolve<ObjectAccessor>(),
+    worldManager.Inject(container.Resolve<AccountManager>(), container.Resolve<CharacterCache>(), container.Resolve<ObjectAccessor>(),
                             container.Resolve<QuestPoolManager>(), container.Resolve<CalendarManager>(), container.Resolve<GuildManager>(),
                             container.Resolve<WorldStateManager>(), eventManager);
 
@@ -199,6 +200,7 @@ void RegisterManagers()
     builder.RegisterType<GarrisonManager>().SingleInstance().OnActivated(g => g.Instance.Initialize());
     builder.RegisterType<GameObjectManager>().SingleInstance().OnActivated(o =>
     {
+        o.Instance.Inject(o.Context.Resolve<DB2Manager>());
         o.Instance.SetHighestGuids();
 
         if (!o.Instance.LoadCypherStrings())
@@ -422,6 +424,8 @@ void RegisterManagers()
     builder.RegisterType<UnitCombatHelpers>().SingleInstance();
     builder.RegisterType<PlayerComputators>().SingleInstance();
     builder.RegisterType<CommandManager>().SingleInstance();
+    builder.RegisterType<ObjectAccessor>().SingleInstance();
+    builder.RegisterType<PlayerNameMapHolder>().SingleInstance();
 }
 
 void RegisterFactories()
@@ -434,6 +438,7 @@ void RegisterFactories()
     // ReSharper disable once AccessToModifiedClosure
     builder.RegisterType<ClassFactory>().SingleInstance().OnActivated(c => c.Instance.Initialize(container));
     builder.RegisterType<CreatureFactory>().SingleInstance();
+    builder.RegisterType<BattlePayDataStoreMgr>().SingleInstance();
 }
 
 void RegisterInstanced()
@@ -458,10 +463,14 @@ void RegisterInstanced()
     builder.RegisterType<QuestMenu>();
     builder.RegisterType<GameObject>();
     builder.RegisterType<BattlePet>();
+    builder.RegisterType<Creature>();
     builder.RegisterType<BlackMarketEntry>();
     builder.RegisterType<ObjectGuidGenerator>();
     builder.RegisterType<Channel>();
     builder.RegisterType<Condition>();
+    builder.RegisterType<Garrison>();
+    builder.RegisterType<Garrison.Building>();
+    builder.RegisterType<Garrison.Plot>();
 }
 
 void RegisterHandlers()

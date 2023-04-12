@@ -12,16 +12,19 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps;
 using Framework.Constants;
-using Transport = Forged.MapServer.Entities.Transport;
 
 namespace Forged.MapServer.Globals;
 
-public class ObjectAccessor : Singleton<ObjectAccessor>
+public class ObjectAccessor
 {
     private readonly object _lockObject = new();
+    private readonly PlayerNameMapHolder _playerNameMapHolder;
     private readonly Dictionary<ObjectGuid, Player> _players = new();
 
-    private ObjectAccessor() { }
+    private ObjectAccessor(PlayerNameMapHolder playerNameMapHolder)
+    {
+        _playerNameMapHolder = playerNameMapHolder;
+    }
 
     public static Conversation GetConversation(WorldObject u, ObjectGuid guid)
     {
@@ -43,10 +46,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
         if (guid.IsPet)
             return GetPet(u, guid);
 
-        if (guid.IsCreatureOrVehicle)
-            return GetCreature(u, guid);
-
-        return null;
+        return guid.IsCreatureOrVehicle ? GetCreature(u, guid) : null;
     }
 
     public static GameObject GetGameObject(WorldObject u, ObjectGuid guid)
@@ -68,7 +68,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
     {
         lock (_lockObject)
         {
-            PlayerNameMapHolder.Insert(obj);
+            _playerNameMapHolder.Insert(obj);
             _players[obj.GUID] = obj;
         }
     }
@@ -84,7 +84,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public Player FindConnectedPlayerByName(string name)
     {
-        return PlayerNameMapHolder.Find(name);
+        return _playerNameMapHolder.Find(name);
     }
 
     // these functions return objects if found in whole world
@@ -93,7 +93,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
     {
         var player = FindConnectedPlayer(guid);
 
-        return player && player.Location.IsInWorld ? player : null;
+        return player != null && player.Location.IsInWorld ? player : null;
     }
 
     public Player FindPlayerByLowGUID(ulong lowguid)
@@ -105,9 +105,9 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public Player FindPlayerByName(string name)
     {
-        var player = PlayerNameMapHolder.Find(name);
+        var player = _playerNameMapHolder.Find(name);
 
-        if (!player || !player.Location.IsInWorld)
+        if (player == null || !player.Location.IsInWorld)
             return null;
 
         return player;
@@ -175,9 +175,8 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
     {
         var player = _players.LookupByKey(guid);
 
-        if (player)
-            if (player.Location.IsInWorld && player.Location.Map == m)
-                return player;
+        if (player != null && player.Location.IsInWorld && player.Location.Map == m)
+            return player;
 
         return null;
     }
@@ -228,7 +227,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
     {
         lock (_lockObject)
         {
-            PlayerNameMapHolder.Remove(obj);
+            _playerNameMapHolder.Remove(obj);
             _players.Remove(obj.GUID);
         }
     }

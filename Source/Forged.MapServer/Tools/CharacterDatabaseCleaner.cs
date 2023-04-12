@@ -158,9 +158,7 @@ internal class CharacterDatabaseCleaner
     }
     private bool TalentCheck(uint talentID)
     {
-        var talentInfo = _cliDB.TalentStorage.LookupByKey(talentID);
-
-        if (talentInfo == null)
+        if (!_cliDB.TalentStorage.TryGetValue(talentID, out var talentInfo))
             return false;
 
         return _cliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);

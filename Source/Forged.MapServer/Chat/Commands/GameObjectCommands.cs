@@ -199,9 +199,7 @@ internal class GameObjectCommands
         if (ai != null)
             handler.SendSysMessage(CypherStrings.ObjectinfoAiType, nameof(ai));
 
-        var modelInfo = handler.CliDB.GameObjectDisplayInfoStorage.LookupByKey(displayId);
-
-        if (modelInfo != null)
+        if (handler.CliDB.GameObjectDisplayInfoStorage.TryGetValue(displayId, out var modelInfo))
             handler.SendSysMessage(CypherStrings.GoinfoModel, modelInfo.GeoBoxMax.X, modelInfo.GeoBoxMax.Y, modelInfo.GeoBoxMax.Z, modelInfo.GeoBoxMin.X, modelInfo.GeoBoxMin.Y, modelInfo.GeoBoxMin.Z);
 
         return true;

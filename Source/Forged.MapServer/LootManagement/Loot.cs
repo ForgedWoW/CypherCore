@@ -360,9 +360,7 @@ public class Loot
             if (!lootItem.IsLooted && !lootItem.FollowLootRules && lootItem.GetAllowedLooters().Contains(player.GUID))
                 return true;
 
-        var ffaItems = GetPlayerFFAItems().LookupByKey(player.GUID);
-
-        if (ffaItems != null)
+        if (GetPlayerFFAItems().TryGetValue(player.GUID, out var ffaItems))
         {
             var hasFfaItem = ffaItems.Any(ffaItem => !ffaItem.IsLooted);
 
@@ -419,9 +417,7 @@ public class Loot
 
         if (item.Freeforall)
         {
-            var itemList = _playerFFAItems.LookupByKey(player.GUID);
-
-            if (itemList != null)
+            if (_playerFFAItems.TryGetValue(player.GUID, out var itemList))
                 foreach (var notNormalLootItem in itemList)
                     if (notNormalLootItem.LootListId == lootListId)
                     {

@@ -44,9 +44,7 @@ public class ArtifactHandler : IWorldSessionHandler
         if (artifactPower == null)
             return;
 
-        var artifactPowerEntry = CliDB.ArtifactPowerStorage.LookupByKey(artifactPower.ArtifactPowerId);
-
-        if (artifactPowerEntry == null)
+        if (!CliDB.ArtifactPowerStorage.TryGetValue(artifactPower.ArtifactPowerId, out var artifactPowerEntry))
             return;
 
         if (artifactPowerEntry.Tier > currentArtifactTier)
@@ -76,9 +74,7 @@ public class ArtifactHandler : IWorldSessionHandler
 
                 foreach (var artifactPowerLinkId in artifactPowerLinks)
                 {
-                    var artifactPowerLink = CliDB.ArtifactPowerStorage.LookupByKey(artifactPowerLinkId);
-
-                    if (artifactPowerLink == null)
+                    if (!CliDB.ArtifactPowerStorage.TryGetValue(artifactPowerLinkId, out var artifactPowerLink))
                         continue;
 
                     var artifactPowerLinkLearned = artifact.GetArtifactPower(artifactPowerLinkId);
@@ -166,9 +162,7 @@ public class ArtifactHandler : IWorldSessionHandler
         if (!_player.GetGameObjectIfCanInteractWith(artifactSetAppearance.ForgeGUID, GameObjectTypes.ItemForge))
             return;
 
-        var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifactSetAppearance.ArtifactAppearanceID);
-
-        if (artifactAppearance == null)
+        if (!CliDB.ArtifactAppearanceStorage.TryGetValue(artifactSetAppearance.ArtifactAppearanceID, out var artifactAppearance))
             return;
 
         var artifact = _player.GetItemByGuid(artifactSetAppearance.ArtifactGUID);
@@ -181,9 +175,7 @@ public class ArtifactHandler : IWorldSessionHandler
         if (artifactAppearanceSet == null || artifactAppearanceSet.ArtifactID != artifact.Template.ArtifactID)
             return;
 
-        var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactAppearance.UnlockPlayerConditionID);
-
-        if (playerCondition != null)
+        if (CliDB.PlayerConditionStorage.TryGetValue(artifactAppearance.UnlockPlayerConditionID, out var playerCondition))
             if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
                 return;
 

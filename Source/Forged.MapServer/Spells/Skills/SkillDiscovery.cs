@@ -33,9 +33,7 @@ public class SkillDiscovery
     {
         // explicit discovery spell chances (always success if case exist)
         // in this case we have both skill and spell
-        var tab = _skillDiscoveryStorage.LookupByKey((int)spellId);
-
-        if (tab.Empty())
+        if (_skillDiscoveryStorage.TryGetValue((int)spellId, out var tab))
             return 0;
 
         var bounds = _spellManager.GetSkillLineAbilityMapBounds(spellId);
@@ -77,9 +75,7 @@ public class SkillDiscovery
         var skillvalue = skillId != 0 ? (uint)player.GetSkillValue((SkillType)skillId) : 0;
 
         // check spell case
-        var tab = _skillDiscoveryStorage.LookupByKey((int)spellId);
-
-        if (!tab.Empty())
+        if (_skillDiscoveryStorage.TryGetValue((int)spellId, out var tab))
         {
             foreach (var itemIter in tab)
                 if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
@@ -112,9 +108,7 @@ public class SkillDiscovery
 
     public bool HasDiscoveredAllSpells(uint spellId, Player player)
     {
-        var tab = _skillDiscoveryStorage.LookupByKey((int)spellId);
-
-        if (tab.Empty())
+        if (_skillDiscoveryStorage.TryGetValue((int)spellId, out var tab))
             return true;
 
         foreach (var itemIter in tab)
@@ -126,9 +120,7 @@ public class SkillDiscovery
 
     public bool HasDiscoveredAnySpell(uint spellId, Player player)
     {
-        var tab = _skillDiscoveryStorage.LookupByKey((int)spellId);
-
-        if (tab.Empty())
+        if (_skillDiscoveryStorage.TryGetValue((int)spellId, out var tab))
             return false;
 
         foreach (var itemIter in tab)

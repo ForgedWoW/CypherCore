@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Forged.MapServer.Extendability;
 
@@ -11,9 +12,8 @@ public static class Extentions
     {
         var newSet = new HashSet<int>();
 
-        foreach (var i in maxValues)
-            if ((mask & (1 << i)) != 0)
-                newSet.Add(i);
+        foreach (var i in maxValues.Where(i => (mask & (1 << i)) != 0))
+            newSet.Add(i);
 
         return newSet;
     }
@@ -27,9 +27,8 @@ public static class Extentions
     {
         var newSet = new HashSet<int>();
 
-        foreach (var i in maxValues)
-            if ((mask & (1 << i)) != 0)
-                newSet.Add(i);
+        foreach (var i in maxValues.Where(i => (mask & (1 << i)) != 0))
+            newSet.Add(i);
 
         return newSet;
     }

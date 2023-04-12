@@ -66,9 +66,7 @@ public class NPCHandler : IWorldSessionHandler
 
             VendorItemPkt item = new();
 
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(vendorItem.PlayerConditionId);
-
-            if (playerCondition != null)
+            if (CliDB.PlayerConditionStorage.TryGetValue(vendorItem.PlayerConditionId, out var playerCondition))
                 if (!ConditionManager.IsPlayerMeetingCondition(_player, playerCondition))
                     item.PlayerConditionFailed = (int)playerCondition.Id;
 
@@ -131,9 +129,7 @@ public class NPCHandler : IWorldSessionHandler
             }
             else if (vendorItem.Type == ItemVendorType.Currency)
             {
-                var currencyTemplate = CliDB.CurrencyTypesStorage.LookupByKey(vendorItem.Item);
-
-                if (currencyTemplate == null)
+                if (!CliDB.CurrencyTypesStorage.ContainsKey(vendorItem.Item))
                     continue;
 
                 if (vendorItem.ExtendedCost == 0)
@@ -280,9 +276,7 @@ public class NPCHandler : IWorldSessionHandler
         }
 
         // set faction visible if needed
-        var factionTemplateEntry = CliDB.FactionTemplateStorage.LookupByKey(unit.Faction);
-
-        if (factionTemplateEntry != null)
+        if (CliDB.FactionTemplateStorage.TryGetValue(unit.Faction, out var factionTemplateEntry))
             Player.ReputationMgr.SetVisible(factionTemplateEntry);
 
         Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
@@ -765,7 +759,7 @@ public class NPCHandler : IWorldSessionHandler
             var ghostGrave = Global.ObjectMgr.GetClosestGraveYard(Player.Location, Player.Team, Player);
 
             if (corpseGrave != ghostGrave)
-                Player.TeleportTo(corpseGrave.Loc);
+                Player.TeleportTo(corpseGrave.Location);
         }
     }
 

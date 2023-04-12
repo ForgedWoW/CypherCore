@@ -47,9 +47,7 @@ public class ScenarioManager
             _                => 0
         };
 
-        var scenarioData = _scenarioData.LookupByKey(scenarioID);
-
-        if (scenarioData == null)
+        if (!_scenarioData.TryGetValue(scenarioID, out var scenarioData))
         {
             Log.Logger.Error("Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
                              scenarioID,
@@ -213,13 +211,9 @@ public class ScenarioManager
             if (_criteriaManager.GetCriteriaTree(criteriaTreeID) == null)
                 Log.Logger.Error($"`scenario_poi` CriteriaTreeID ({criteriaTreeID}) Idx1 ({idx1}) does not correspond to a valid criteria tree");
 
-            var blobs = allPoints.LookupByKey(criteriaTreeID);
-
-            if (blobs != null)
+            if (allPoints.TryGetValue(criteriaTreeID, out var blobs))
             {
-                var points = blobs.LookupByKey(idx1);
-
-                if (!points.Empty())
+                if (blobs.TryGetValue(idx1, out var points))
                 {
                     _scenarioPOIStore.Add(criteriaTreeID, new ScenarioPOI(blobIndex, mapID, uiMapID, priority, flags, worldEffectID, playerConditionID, navigationPlayerConditionID, points));
                     ++count;

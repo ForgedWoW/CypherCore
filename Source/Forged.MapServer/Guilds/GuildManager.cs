@@ -62,30 +62,19 @@ public sealed class GuildManager
 
     public Guild GetGuildByLeader(ObjectGuid guid)
     {
-        foreach (var guild in _guildStore.Values)
-            if (guild.GetLeaderGUID() == guid)
-                return guild;
-
-        return null;
+        return _guildStore.Values.FirstOrDefault(guild => guild.GetLeaderGUID() == guid);
     }
 
     public Guild GetGuildByName(string guildName)
     {
-        foreach (var guild in _guildStore.Values)
-            if (guildName == guild.GetName())
-                return guild;
-
-        return null;
+        return _guildStore.Values.FirstOrDefault(guild => guildName == guild.GetName());
     }
 
     public string GetGuildNameById(uint guildId)
     {
         var guild = GetGuildById(guildId);
 
-        if (guild != null)
-            return guild.GetName();
-
-        return "";
+        return guild != null ? guild.GetName() : "";
     }
 
     public List<GuildReward> GetGuildRewards()
@@ -219,8 +208,7 @@ public sealed class GuildManager
                     var guildId = result.Read<uint>(0);
                     var guild = GetGuildById(guildId);
 
-                    if (guild)
-                        guild.LoadRankFromDB(result.GetFields());
+                    guild?.LoadRankFromDB(result.GetFields());
 
                     ++count;
                 } while (result.NextRow());
@@ -259,8 +247,7 @@ public sealed class GuildManager
                     var guildId = result.Read<uint>(0);
                     var guild = GetGuildById(guildId);
 
-                    if (guild)
-                        guild.LoadMemberFromDB(result.GetFields());
+                    guild?.LoadMemberFromDB(result.GetFields());
 
                     ++count;
                 } while (result.NextRow());
@@ -294,8 +281,7 @@ public sealed class GuildManager
                     var guildId = result.Read<uint>(0);
                     var guild = GetGuildById(guildId);
 
-                    if (guild)
-                        guild.LoadBankRightFromDB(result.GetFields());
+                    guild?.LoadBankRightFromDB(result.GetFields());
 
                     ++count;
                 } while (result.NextRow());
@@ -328,8 +314,7 @@ public sealed class GuildManager
                     var guildId = result.Read<uint>(0);
                     var guild = GetGuildById(guildId);
 
-                    if (guild)
-                        guild.LoadEventLogFromDB(result.GetFields());
+                    guild?.LoadEventLogFromDB(result.GetFields());
 
                     ++count;
                 } while (result.NextRow());
@@ -363,8 +348,7 @@ public sealed class GuildManager
                     var guildId = result.Read<uint>(0);
                     var guild = GetGuildById(guildId);
 
-                    if (guild)
-                        guild.LoadBankEventLogFromDB(result.GetFields());
+                    guild?.LoadBankEventLogFromDB(result.GetFields());
 
                     ++count;
                 } while (result.NextRow());
@@ -397,8 +381,7 @@ public sealed class GuildManager
                     var guildId = result.Read<uint>(0);
                     var guild = GetGuildById(guildId);
 
-                    if (guild)
-                        guild.LoadGuildNewsLogFromDB(result.GetFields());
+                    guild?.LoadGuildNewsLogFromDB(result.GetFields());
 
                     ++count;
                 } while (result.NextRow());
@@ -432,8 +415,7 @@ public sealed class GuildManager
                     var guildId = result.Read<uint>(0);
                     var guild = GetGuildById(guildId);
 
-                    if (guild)
-                        guild.LoadBankTabFromDB(result.GetFields());
+                    guild?.LoadBankTabFromDB(result.GetFields());
 
                     ++count;
                 } while (result.NextRow());
@@ -466,8 +448,7 @@ public sealed class GuildManager
                     var guildId = result.Read<ulong>(51);
                     var guild = GetGuildById(guildId);
 
-                    if (guild)
-                        guild.LoadBankItemFromDB(result.GetFields());
+                    guild?.LoadBankItemFromDB(result.GetFields());
 
                     ++count;
                 } while (result.NextRow());

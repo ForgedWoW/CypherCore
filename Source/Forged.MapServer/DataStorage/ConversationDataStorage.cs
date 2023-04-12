@@ -171,16 +171,12 @@ public class ConversationDataStorage
                     conversationTemplate.FirstLineId = correctedFirstLineId;
                 }
 
-                var currentConversationLine = _cliDB.ConversationLineStorage.LookupByKey(conversationTemplate.FirstLineId);
-
-                if (currentConversationLine == null)
+                if (!_cliDB.ConversationLineStorage.TryGetValue(conversationTemplate.FirstLineId, out var currentConversationLine))
                     Log.Logger.Error("Table `conversation_template` references an invalid line (ID: {0}) for Conversation {1}, skipped", conversationTemplate.FirstLineId, conversationTemplate.Id);
 
                 while (currentConversationLine != null)
                 {
-                    var conversationLineTemplate = _conversationLineTemplateStorage.LookupByKey(currentConversationLine.Id);
-
-                    if (conversationLineTemplate != null)
+                    if (_conversationLineTemplateStorage.TryGetValue(currentConversationLine.Id, out var conversationLineTemplate))
                         conversationTemplate.Lines.Add(conversationLineTemplate);
                     else
                         Log.Logger.Error("Table `conversation_line_template` has missing template for line (ID: {0}) in Conversation {1}, skipped", currentConversationLine.Id, conversationTemplate.Id);

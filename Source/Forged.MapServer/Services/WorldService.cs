@@ -73,9 +73,7 @@ public class WorldService
     }
     private BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
     {
-        var realmAddress = Params.LookupByKey("Param_RealmAddress");
-
-        if (realmAddress != null)
+        if (Params.TryGetValue("Param_RealmAddress", out var realmAddress))
             return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue,
                                              Global.WorldMgr.Realm.Build,
                                              System.Net.IPAddress.Parse((string)RemoteAddress),
@@ -91,9 +89,7 @@ public class WorldService
     private BattlenetRpcErrorCode HandleRealmListRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
     {
         var subRegionId = "";
-        var subRegion = Params.LookupByKey("Command_RealmListRequest_v1");
-
-        if (subRegion != null)
+        if (Params.TryGetValue("Command_RealmListRequest_v1", out var subRegion))
             subRegionId = subRegion.StringValue;
 
         var compressed = Global.RealmMgr.GetRealmList(Global.WorldMgr.Realm.Build, subRegionId);

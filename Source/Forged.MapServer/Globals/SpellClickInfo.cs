@@ -8,9 +8,9 @@ namespace Forged.MapServer.Globals;
 
 public class SpellClickInfo
 {
-    public byte CastFlags;
-    public uint SpellId;
-    public SpellClickUserTypes UserType;
+    public byte CastFlags { get; set; }
+    public uint SpellId { get; set; }
+    public SpellClickUserTypes UserType { get; set; }
 
     // helpers
     public bool IsFitToRequirements(Unit clicker, Unit clickee)

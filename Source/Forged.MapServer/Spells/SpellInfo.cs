@@ -109,9 +109,7 @@ public class SpellInfo
             ProcCooldown = options.ProcCategoryRecovery;
             StackAmount = options.CumulativeAura;
 
-            var _ppm = CliDB.SpellProcsPerMinuteStorage.LookupByKey(options.SpellProcsPerMinuteID);
-
-            if (_ppm != null)
+            if (CliDB.SpellProcsPerMinuteStorage.TryGetValue(options.SpellProcsPerMinuteID, out var _ppm))
             {
                 ProcBasePpm = _ppm.BaseProcRate;
                 _procPpmMods = Global.DB2Mgr.GetSpellProcsPerMinuteMods(_ppm.Id);
@@ -1611,9 +1609,7 @@ public class SpellInfo
         if (HasAttribute(SpellAttr4.WeaponSpeedCostScaling))
         {
             uint speed = 0;
-            var ss = CliDB.SpellShapeshiftFormStorage.LookupByKey(unitCaster.ShapeshiftForm);
-
-            if (ss != null)
+            if (CliDB.SpellShapeshiftFormStorage.TryGetValue(unitCaster.ShapeshiftForm, out var ss))
             {
                 speed = ss.CombatRoundTime;
             }
@@ -1958,9 +1954,7 @@ public class SpellInfo
             }
             else
             {
-                var areaTable = CliDB.AreaTableStorage.LookupByKey(area_id);
-
-                if (areaTable != null)
+                if (CliDB.AreaTableStorage.TryGetValue(area_id, out var areaTable))
                     mountFlags = areaTable.MountFlags;
             }
 
@@ -1970,9 +1964,7 @@ public class SpellInfo
             if (player)
             {
                 var mapToCheck = map_id;
-                var mapEntry1 = CliDB.MapStorage.LookupByKey(map_id);
-
-                if (mapEntry1 != null)
+                if (CliDB.MapStorage.TryGetValue(map_id, out var mapEntry1))
                     mapToCheck = (uint)mapEntry1.CosmeticParentMapID;
 
                 if (mapToCheck is 1116 or 1464 && !player.HasSpell(191645)) // Draenor Pathfinder
@@ -2072,9 +2064,7 @@ public class SpellInfo
                 {
                     case AuraType.ModShapeshift:
                     {
-                        var spellShapeshiftForm = CliDB.SpellShapeshiftFormStorage.LookupByKey(effectInfo.MiscValue);
-
-                        if (spellShapeshiftForm != null)
+                        if (CliDB.SpellShapeshiftFormStorage.TryGetValue(effectInfo.MiscValue, out var spellShapeshiftForm))
                         {
                             uint mountType = spellShapeshiftForm.MountTypeID;
 
@@ -2621,9 +2611,7 @@ public class SpellInfo
 
     public uint GetSpellVisual(WorldObject caster = null, WorldObject viewer = null)
     {
-        var visual = CliDB.SpellXSpellVisualStorage.LookupByKey(GetSpellXSpellVisualId(caster, viewer));
-
-        if (visual != null)
+        if (CliDB.SpellXSpellVisualStorage.TryGetValue(GetSpellXSpellVisualId(caster, viewer), out var visual))
             //if (visual.LowViolenceSpellVisualID && forPlayer.GetViolenceLevel() operator 2)
             //    return visual.LowViolenceSpellVisualID;
             return visual.SpellVisualID;
@@ -2635,15 +2623,11 @@ public class SpellInfo
     {
         foreach (var visual in SpellVisuals)
         {
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(visual.CasterPlayerConditionID);
-
-            if (playerCondition != null)
+            if (CliDB.PlayerConditionStorage.TryGetValue(visual.CasterPlayerConditionID, out var playerCondition))
                 if (!caster || !caster.IsPlayer || !ConditionManager.IsPlayerMeetingCondition(caster.AsPlayer, playerCondition))
                     continue;
 
-            var unitCondition = CliDB.UnitConditionStorage.LookupByKey(visual.CasterUnitConditionID);
-
-            if (unitCondition != null)
+            if (CliDB.UnitConditionStorage.TryGetValue(visual.CasterUnitConditionID, out var unitCondition))
                 if (!caster || !caster.IsUnit || !ConditionManager.IsUnitMeetingCondition(caster.AsUnit, viewer?.AsUnit, unitCondition))
                     continue;
 

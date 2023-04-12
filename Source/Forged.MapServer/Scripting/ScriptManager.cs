@@ -521,9 +521,7 @@ public class ScriptManager
                 var posX = resultWp.Read<float>(4);
                 var posY = resultWp.Read<float>(5);
                 var posZ = resultWp.Read<float>(6);
-                var chain = _mSplineChainsMap.LookupByKey(Tuple.Create(entry, chainId));
-
-                if (chain == null)
+                if (!_mSplineChainsMap.TryGetValue(Tuple.Create(entry, chainId), out var chain))
                 {
                     Log.Logger.Warning("Creature #{0} has waypoint _data for spline chain {1}. No such chain exists - entry skipped.", entry, chainId);
 

@@ -223,8 +223,8 @@ public partial class Player
         var extraFlags = (PlayerExtraFlags)result.Read<ushort>(fieldIndex++);
         var summonedPetNumber = result.Read<uint>(fieldIndex++);
         var atLogin = result.Read<ushort>(fieldIndex++);
-        var zone = result.Read<ushort>(fieldIndex++);
-        var online = result.Read<byte>(fieldIndex++);
+        result.Read<ushort>(fieldIndex++);
+        result.Read<byte>(fieldIndex++);
         var deathExpireTime = result.Read<long>(fieldIndex++);
         var taxiPath = result.Read<string>(fieldIndex++);
         var dungeonDifficulty = (Difficulty)result.Read<byte>(fieldIndex++);
@@ -738,9 +738,7 @@ public partial class Player
         if (primarySpec == null || primarySpec.ClassID != (byte)Class || GetActiveTalentGroup() >= PlayerConst.MaxSpecializations)
             ResetTalentSpecialization();
 
-        var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(lootSpecId);
-
-        if (chrSpec != null)
+        if (CliDB.ChrSpecializationStorage.TryGetValue(lootSpecId, out var chrSpec))
             if (chrSpec.ClassID == (uint)Class)
                 SetLootSpecId(lootSpecId);
 
@@ -992,9 +990,7 @@ public partial class Player
             if (Session.CollectionMgr.HasTransmogIllusion(transmogIllusion.Id))
                 continue;
 
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(transmogIllusion.UnlockConditionID);
-
-            if (playerCondition != null)
+            if (CliDB.PlayerConditionStorage.TryGetValue(transmogIllusion.UnlockConditionID, out var playerCondition))
                 if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                     continue;
 
@@ -1176,9 +1172,7 @@ public partial class Player
                 if (item != null)
                 {
                     ss.Append($"{(uint)item.Template.InventoryType} {item.GetDisplayId(this)} ");
-                    var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(item.GetVisibleEnchantmentId(this));
-
-                    if (enchant != null)
+                    if (CliDB.SpellItemEnchantmentStorage.TryGetValue(item.GetVisibleEnchantmentId(this), out var enchant))
                         ss.Append(enchant.ItemVisual);
                     else
                         ss.Append('0');
@@ -1316,7 +1310,7 @@ public partial class Player
             for (; storedPowers < (int)PowerType.MaxPerClass; ++storedPowers)
                 stmt.AddValue(index++, 0);
 
-            stmt.AddValue((int)index++, (uint)Session.Latency);
+            stmt.AddValue(index++, Session.Latency);
             stmt.AddValue(index++, GetActiveTalentGroup());
             stmt.AddValue(index++, GetLootSpecId());
 
@@ -1337,14 +1331,12 @@ public partial class Player
                 if (item != null)
                 {
                     ss.Append($"{(uint)item.Template.InventoryType} {item.GetDisplayId(this)} ");
-                    var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(item.GetVisibleEnchantmentId(this));
-
-                    if (enchant != null)
+                    if (CliDB.SpellItemEnchantmentStorage.TryGetValue(item.GetVisibleEnchantmentId(this), out var enchant))
                         ss.Append(enchant.ItemVisual);
                     else
                         ss.Append('0');
 
-                    ss.Append($" {(uint)CliDB.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {(uint)item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
+                    ss.Append($" {(uint)CliDB.ItemStorage.LookupByKey(item.GetVisibleEntry(this)).SubclassID} {item.GetVisibleSecondaryModifiedAppearanceId(this)} ");
                 }
                 else
                 {
@@ -1433,13 +1425,13 @@ public partial class Player
         Session.CollectionMgr.SaveAccountTransmogIllusions(loginTransaction);
 
         stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_LAST_PLAYER_CHARACTERS);
-        stmt.AddValue((int)0, (uint)Session.AccountId);
+        stmt.AddValue(0, Session.AccountId);
         stmt.AddValue(1, WorldManager.Realm.Id.Region);
         stmt.AddValue(2, WorldManager.Realm.Id.Site);
         loginTransaction.Append(stmt);
 
         stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_LAST_PLAYER_CHARACTERS);
-        stmt.AddValue((int)0, (uint)Session.AccountId);
+        stmt.AddValue(0, Session.AccountId);
         stmt.AddValue(1, WorldManager.Realm.Id.Region);
         stmt.AddValue(2, WorldManager.Realm.Id.Site);
         stmt.AddValue(3, WorldManager.Realm.Id.Index);
@@ -1684,9 +1676,7 @@ public partial class Player
         {
             var currencyID = result.Read<ushort>(0);
 
-            var currency = CliDB.CurrencyTypesStorage.LookupByKey(currencyID);
-
-            if (currency == null)
+            if (!CliDB.CurrencyTypesStorage.ContainsKey(currencyID))
                 continue;
 
             PlayerCurrency cur = new()
@@ -1918,8 +1908,8 @@ public partial class Player
             if (loc == null)
                 loc = ObjectManager.GetWorldSafeLoc(1); // Stormwind, Default GY
 
-            Homebind.WorldRelocate(loc.Loc);
-            _homebindAreaId = TerrainManager.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);
+            Homebind.WorldRelocate(loc.Location);
+            _homebindAreaId = TerrainManager.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Location);
 
             SaveHomebindToDb();
         }
@@ -1962,9 +1952,7 @@ public partial class Player
 
                 if (item != null)
                 {
-                    var addionalData = additionalData.LookupByKey(item.GUID.Counter);
-
-                    if (addionalData != null)
+                    if (additionalData.TryGetValue(item.GUID.Counter, out var addionalData))
                     {
                         if (item.Template.ArtifactID != 0 && addionalData.Artifact != null)
                             item.LoadArtifactData(this, addionalData.Artifact.Xp, addionalData.Artifact.ArtifactAppearanceId, addionalData.Artifact.ArtifactTierId, addionalData.Artifact.ArtifactPowers);
@@ -2063,9 +2051,7 @@ public partial class Player
                     {
                         item.SetSlot(ItemConst.NullSlot);
                         // Item is in the bag, find the bag
-                        var bag = bagMap.LookupByKey(bagGuid);
-
-                        if (bag != null)
+                        if (bagMap.TryGetValue(bagGuid, out var bag))
                         {
                             List<ItemPosCount> dest = new();
                             err = CanStoreItem(bag.Slot, slot, dest, item);
@@ -2400,9 +2386,7 @@ public partial class Player
         {
             for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
             {
-                var talent = CliDB.PvpTalentStorage.LookupByKey(result.Read<uint>(slot));
-
-                if (talent != null)
+                if (CliDB.PvpTalentStorage.TryGetValue(result.Read<uint>(slot), out var talent))
                     AddPvpTalent(talent, result.Read<byte>(4), slot);
             }
         } while (result.NextRow());
@@ -2504,9 +2488,7 @@ public partial class Player
 
                 var quest = ObjectManager.GetQuestTemplate(questID);
 
-                var questStatusData = _mQuestStatus.LookupByKey(questID);
-
-                if (questStatusData is { Slot: < SharedConst.MaxQuestLogSize } && quest != null)
+                if (_mQuestStatus.TryGetValue(questID, out var questStatusData))
                 {
                     var storageIndex = result.Read<byte>(1);
 
@@ -2550,9 +2532,7 @@ public partial class Player
                     // set rewarded title if any
                     if (quest.RewardTitleId != 0)
                     {
-                        var titleEntry = CliDB.CharTitlesStorage.LookupByKey(quest.RewardTitleId);
-
-                        if (titleEntry != null)
+                        if (CliDB.CharTitlesStorage.TryGetValue(quest.RewardTitleId, out var titleEntry))
                             SetTitle(titleEntry);
                     }
 
@@ -2686,9 +2666,7 @@ public partial class Player
                 var skillStatusData = _skillStatus[skill];
                 ushort step = 0;
 
-                var skillLine = CliDB.SkillLineStorage.LookupByKey(rcEntry.SkillID);
-
-                if (skillLine != null)
+                if (CliDB.SkillLineStorage.TryGetValue(rcEntry.SkillID, out var skillLine))
                 {
                     if (skillLine.CategoryID == SkillCategory.Secondary)
                         step = (ushort)(max / 75);
@@ -2765,9 +2743,7 @@ public partial class Player
         if (!favoritesResult.IsEmpty())
             do
             {
-                var spell = _spells.LookupByKey(favoritesResult.Read<uint>(0));
-
-                if (spell != null)
+                if (_spells.TryGetValue(favoritesResult.Read<uint>(0), out var spell))
                     spell.Favorite = true;
             } while (favoritesResult.NextRow());
     }
@@ -2819,9 +2795,7 @@ public partial class Player
 
         do
         {
-            var talent = CliDB.TalentStorage.LookupByKey(result.Read<uint>(0));
-
-            if (talent != null)
+            if (CliDB.TalentStorage.TryGetValue(result.Read<uint>(0), out var talent))
                 AddTalent(talent, result.Read<byte>(1), false);
         } while (result.NextRow());
     }
@@ -3251,9 +3225,7 @@ public partial class Player
 
         foreach (var (id, currency) in _currencyStorage)
         {
-            var entry = CliDB.CurrencyTypesStorage.LookupByKey(id);
-
-            if (entry == null) // should never happen
+            if (!CliDB.CurrencyTypesStorage.ContainsKey(id)) // should never happen
                 continue;
 
             switch (currency.State)

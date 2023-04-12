@@ -852,9 +852,7 @@ internal class MiscCommands
             return false;
         }
 
-        var area = handler.CliDB.AreaTableStorage.LookupByKey(areaId);
-
-        if (area == null)
+        if (!handler.CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
         {
             handler.SendSysMessage(CypherStrings.BadValue);
 
@@ -967,9 +965,7 @@ internal class MiscCommands
 
         var zoneId = player.Location.Zone;
 
-        var areaEntry = handler.CliDB.AreaTableStorage.LookupByKey(zoneId);
-
-        if (areaEntry == null || areaEntry.ParentAreaID != 0)
+        if (handler.CliDB.AreaTableStorage.ContainsKey(zoneId))
         {
             handler.SendSysMessage(CypherStrings.CommandGraveyardwrongzone, graveyardId, zoneId);
 
@@ -1648,15 +1644,11 @@ internal class MiscCommands
 
         // Position data
         var map = handler.CliDB.MapStorage.LookupByKey(mapId);
-        var area = handler.CliDB.AreaTableStorage.LookupByKey(areaId);
-
-        if (area != null)
+        if (handler.CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
         {
             zoneName = area.AreaName[locale];
 
-            var zone = handler.CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
-
-            if (zone != null)
+            if (handler.CliDB.AreaTableStorage.TryGetValue(area.ParentAreaID, out var zone))
             {
                 areaName = zoneName;
                 zoneName = zone.AreaName[locale];
@@ -1932,9 +1924,7 @@ internal class MiscCommands
             return false;
         }
 
-        var area = handler.CliDB.AreaTableStorage.LookupByKey(areaId);
-
-        if (area == null)
+        if (!handler.CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
         {
             handler.SendSysMessage(CypherStrings.BadValue);
 

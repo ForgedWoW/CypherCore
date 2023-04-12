@@ -183,9 +183,7 @@ public class CollectionMgr
 
         foreach (var item in items)
         {
-            var itemModifiedAppearance = _cliDB.ItemModifiedAppearanceStorage.LookupByKey(item.ItemModifiedAppearanceID);
-
-            if (itemModifiedAppearance == null)
+            if (!_cliDB.ItemModifiedAppearanceStorage.TryGetValue(item.ItemModifiedAppearanceID, out var itemModifiedAppearance))
                 continue;
 
             AddItemAppearance(itemModifiedAppearance);
@@ -204,9 +202,7 @@ public class CollectionMgr
 
         if (heirloom != null)
         {
-            var data = _heirlooms.LookupByKey(item.Entry);
-
-            if (data == null)
+            if (!_heirlooms.TryGetValue(item.Entry, out var data))
                 return;
 
             // Check for heirloom pairs (normal - heroic, heroic - mythic)
@@ -286,9 +282,7 @@ public class CollectionMgr
 
     public uint GetHeirloomBonus(uint itemId)
     {
-        var data = _heirlooms.LookupByKey(itemId);
-
-        if (data != null)
+        if (_heirlooms.TryGetValue(itemId, out var data))
             return data.BonusId;
 
         return 0;
@@ -527,9 +521,7 @@ public class CollectionMgr
         if (itemModifiedAppearance == null)
             return;
 
-        var guid = _temporaryAppearances.LookupByKey(itemModifiedAppearance.Id).ToList();
-
-        if (guid.Empty())
+        if (_temporaryAppearances.TryGetValue(itemModifiedAppearance.Id).ToList(, out var guid))
             return;
 
         guid.Remove(item.GUID);
@@ -726,9 +718,7 @@ public class CollectionMgr
         if (heirloom == null)
             return;
 
-        var data = _heirlooms.LookupByKey(itemId);
-
-        if (data == null)
+        if (!_heirlooms.TryGetValue(itemId, out var data))
             return;
 
         var flags = data.Flags;
@@ -779,9 +769,7 @@ public class CollectionMgr
             _temporaryAppearances.Remove(itemModifiedAppearance.Id);
         }
 
-        var item = _cliDB.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
-
-        if (item != null)
+        if (_cliDB.ItemStorage.TryGetValue(itemModifiedAppearance.ItemID, out var item))
         {
             var transmogSlot = Item.ItemTransmogrificationSlots[(int)item.inventoryType];
 
@@ -922,14 +910,10 @@ public class CollectionMgr
 
         foreach (var transmogSetItem in transmogSetItems)
         {
-            var itemModifiedAppearance = _cliDB.ItemModifiedAppearanceStorage.LookupByKey(transmogSetItem.ItemModifiedAppearanceID);
-
-            if (itemModifiedAppearance == null)
+            if (!_cliDB.ItemModifiedAppearanceStorage.TryGetValue(transmogSetItem.ItemModifiedAppearanceID, out var itemModifiedAppearance))
                 continue;
 
-            var item = _cliDB.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
-
-            if (item == null)
+            if (!_cliDB.ItemStorage.TryGetValue(itemModifiedAppearance.ItemID, out var item))
                 continue;
 
             var transmogSlot = Item.ItemTransmogrificationSlots[(int)item.inventoryType];

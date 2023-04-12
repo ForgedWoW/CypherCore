@@ -456,7 +456,7 @@ public class WorldManager
         MaxPlayerCount = Math.Max(MaxPlayerCount, PlayerCount);
     }
 
-    public void Initialize(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor,
+    public void Inject(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor,
                                                                                    QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
                            WorldStateManager worldStateManager, GameEventManager eventManager)
     {
@@ -1447,9 +1447,7 @@ public class WorldManager
         // if session already exist, prepare to it deleting at next world update
         // NOTE - KickPlayer() should be called on "old" in RemoveSession()
         {
-            var old = _sessions.LookupByKey(s.AccountId);
-
-            if (old != null)
+            if (_sessions.TryGetValue(s.AccountId, out var old))
             {
                 // prevent decrease sessions count if session queued
                 if (RemoveQueuedPlayer(old))
@@ -1776,9 +1774,7 @@ public class WorldManager
     private bool RemoveSession(uint id)
     {
         // Find the session, kick the user, but we can't delete session at this moment to prevent iterator invalidation
-        var session = _sessions.LookupByKey(id);
-
-        if (session != null)
+        if (_sessions.TryGetValue(id, out var session))
         {
             if (session.PlayerLoading)
                 return false;
@@ -1926,13 +1922,9 @@ public class WorldManager
             {
                 var race = result.Read<byte>(0);
 
-                var raceEntry = _cliDB.ChrRacesStorage.LookupByKey(race);
-
-                if (raceEntry != null)
+                if (_cliDB.ChrRacesStorage.TryGetValue(race, out var raceEntry))
                 {
-                    var raceFaction = _cliDB.FactionTemplateStorage.LookupByKey((uint)raceEntry.FactionID);
-
-                    if (raceFaction != null)
+                    if (_cliDB.FactionTemplateStorage.TryGetValue((uint)raceEntry.FactionID, out var raceFaction))
                     {
                         if ((raceFaction.FactionGroup & (byte)FactionMasks.Alliance) != 0)
                             warModeEnabledFaction[TeamIds.Alliance] += result.Read<long>(1);

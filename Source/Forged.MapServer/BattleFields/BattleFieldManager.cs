@@ -108,9 +108,7 @@ public class BattleFieldManager
 
     public BattleField GetBattlefieldToZoneId(Map map, uint zoneId)
     {
-        var bf = _battlefieldsByZone.LookupByKey((map, zoneId));
-
-        if (bf == null)
+        if (!_battlefieldsByZone.TryGetValue((map, zoneId), out var bf))
             // no handle for this zone, return
             return null;
 
@@ -122,9 +120,7 @@ public class BattleFieldManager
 
     public void HandlePlayerEnterZone(Player player, uint zoneId)
     {
-        var bf = _battlefieldsByZone.LookupByKey((player.Location.Map, zoneId));
-
-        if (bf == null)
+        if (!_battlefieldsByZone.TryGetValue((player.Location.Map, zoneId), out var bf))
             return;
 
         if (!bf.IsEnabled || bf.HasPlayer(player))
@@ -136,9 +132,7 @@ public class BattleFieldManager
 
     public void HandlePlayerLeaveZone(Player player, uint zoneId)
     {
-        var bf = _battlefieldsByZone.LookupByKey((player.Location.Map, zoneId));
-
-        if (bf == null)
+        if (!_battlefieldsByZone.TryGetValue((player.Location.Map, zoneId), out var bf))
             return;
 
         // teleport: remove once in removefromworld, once in updatezone
@@ -186,7 +180,7 @@ public class BattleFieldManager
 
         if (_updateTimer > 1000)
         {
-            foreach (var (map, battlefield) in _battlefieldsByMap.KeyValueList)
+            foreach (var (_, battlefield) in _battlefieldsByMap.KeyValueList)
                 if (battlefield.IsEnabled)
                     _threadTaskManager.Schedule(() => battlefield.Update(_updateTimer));
 

@@ -17,9 +17,7 @@ public class SmoothPhasing
 
     public void DisableReplacementForSeer(ObjectGuid seer)
     {
-        var smoothPhasingInfo = _smoothPhasingInfoViewerDependent.LookupByKey(seer);
-
-        if (smoothPhasingInfo != null)
+        if (_smoothPhasingInfoViewerDependent.TryGetValue(seer, out var smoothPhasingInfo))
             smoothPhasingInfo.Disabled = true;
     }
 
@@ -33,9 +31,7 @@ public class SmoothPhasing
 
     public bool IsBeingReplacedForSeer(ObjectGuid seer)
     {
-        var smoothPhasingInfo = _smoothPhasingInfoViewerDependent.LookupByKey(seer);
-
-        if (smoothPhasingInfo != null)
+        if (_smoothPhasingInfoViewerDependent.TryGetValue(seer, out var smoothPhasingInfo))
             return !smoothPhasingInfo.Disabled;
 
         return false;

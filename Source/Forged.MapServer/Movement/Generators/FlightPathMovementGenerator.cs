@@ -58,9 +58,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
             // when client side flight end early in comparison server side
             owner.StopMoving();
             // When the player reaches the last flight point, teleport to destination taxi node location
-            var node = owner.CliDB.TaxiNodesStorage.LookupByKey(taxiNodeId);
-
-            if (node != null)
+            if (owner.CliDB.TaxiNodesStorage.TryGetValue(taxiNodeId, out var node))
             {
                 owner.SetFallInformation(0, node.Pos.Z);
                 owner.TeleportTo(node.ContinentID, node.Pos.X, node.Pos.Y, node.Pos.Z, owner.Location.Orientation);

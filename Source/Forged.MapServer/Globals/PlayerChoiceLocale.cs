@@ -9,6 +9,6 @@ namespace Forged.MapServer.Globals;
 
 public class PlayerChoiceLocale
 {
-    public StringArray Question = new((int)Locale.Total);
-    public Dictionary<int /*ResponseId*/, PlayerChoiceResponseLocale> Responses = new();
+    public StringArray Question { get; set; } = new((int)Locale.Total);
+    public Dictionary<int /*ResponseId*/, PlayerChoiceResponseLocale> Responses { get; set; } = new();
 }

@@ -758,7 +758,7 @@ public class AreaTrigger : WorldObject
                     var safeLoc = ObjectManager.GetWorldSafeLoc(action.Param);
 
                     if (safeLoc != null && caster.TryGetAsPlayer(out var player))
-                        player.TeleportTo(safeLoc.Loc);
+                        player.TeleportTo(safeLoc.Location);
 
                     break;
             }

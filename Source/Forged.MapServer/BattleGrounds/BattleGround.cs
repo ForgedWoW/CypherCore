@@ -84,11 +84,6 @@ public class Battleground : ZoneScript, IDisposable
         return team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
     }
 
-    public static implicit operator bool(Battleground bg)
-    {
-        return bg != null;
-    }
-
     public Player _GetPlayer(ObjectGuid guid, bool offlineRemove, string context)
     {
         Player player = null;
@@ -1041,9 +1036,7 @@ public class Battleground : ZoneScript, IDisposable
     // Used in same faction arena matches mainly
     public TeamFaction GetPlayerTeam(ObjectGuid guid)
     {
-        var player = m_Players.LookupByKey(guid);
-
-        if (player != null)
+        if (m_Players.TryGetValue(guid, out var player))
             return player.Team;
 
         return 0;
@@ -1237,9 +1230,7 @@ public class Battleground : ZoneScript, IDisposable
 
     public bool IsPlayerMercenaryInBattleground(ObjectGuid guid)
     {
-        var player = m_Players.LookupByKey(guid);
-
-        if (player != null)
+        if (m_Players.TryGetValue(guid, out var player))
             return player.Mercenary;
 
         return false;
@@ -1294,7 +1285,7 @@ public class Battleground : ZoneScript, IDisposable
                     closestGrave = GetClosestGraveYard(player);
 
                 if (closestGrave != null)
-                    player.TeleportTo(closestGrave.Loc);
+                    player.TeleportTo(closestGrave.Location);
             }
 
             ghostList.Clear();
@@ -1318,9 +1309,7 @@ public class Battleground : ZoneScript, IDisposable
         var team = GetPlayerTeam(guid);
         var participant = false;
         // Remove from lists/maps
-        var bgPlayer = m_Players.LookupByKey(guid);
-
-        if (bgPlayer != null)
+        if (m_Players.ContainsKey(guid))
         {
             UpdatePlayersCountByTeam(team, true); // -1 player
             m_Players.Remove(guid);
@@ -1493,9 +1482,7 @@ public class Battleground : ZoneScript, IDisposable
 
     public void RewardReputationToTeam(uint faction_id, uint Reputation, TeamFaction team)
     {
-        var factionEntry = CliDB.FactionStorage.LookupByKey(faction_id);
-
-        if (factionEntry == null)
+        if (!CliDB.FactionStorage.TryGetValue(faction_id, out var factionEntry))
             return;
 
         foreach (var pair in m_Players)
@@ -1719,7 +1706,7 @@ public class Battleground : ZoneScript, IDisposable
         var loc = GetExploitTeleportLocation(player.GetBgTeam());
 
         if (loc != null)
-            player.TeleportTo(loc.Loc);
+            player.TeleportTo(loc.Location);
     }
 
     public bool ToBeDeleted()
@@ -1820,9 +1807,7 @@ public class Battleground : ZoneScript, IDisposable
 
     public virtual bool UpdatePlayerScore(Player player, ScoreType type, uint value, bool doAddHonor = true)
     {
-        var bgScore = PlayerScores.LookupByKey(player.GUID);
-
-        if (bgScore == null) // player not found...
+        if (!PlayerScores.TryGetValue(player.GUID, out var bgScore)) // player not found...
             return false;
 
         if (type == ScoreType.BonusHonor && doAddHonor && IsBattleground())
@@ -1868,10 +1853,10 @@ public class Battleground : ZoneScript, IDisposable
                     Position pos = player.Location;
                     var startPos = GetTeamStartPosition(GetTeamIndexByTeamId(player.GetBgTeam()));
 
-                    if (pos.GetExactDistSq(startPos.Loc) > maxDist)
+                    if (pos.GetExactDistSq(startPos.Location) > maxDist)
                     {
                         Log.Logger.Debug($"Battleground: Sending {player.GetName()} back to start location (map: {GetMapId()}) (possible exploit)");
-                        player.TeleportTo(startPos.Loc);
+                        player.TeleportTo(startPos.Location);
                     }
                 }
             }
@@ -2082,9 +2067,7 @@ public class Battleground : ZoneScript, IDisposable
         if (!m_OfflineQueue.Empty())
         {
             var guid = m_OfflineQueue.FirstOrDefault();
-            var bgPlayer = m_Players.LookupByKey(guid);
-
-            if (bgPlayer != null)
+            if (m_Players.TryGetValue(guid, out var bgPlayer))
                 if (bgPlayer.OfflineRemoveTime <= GameTime.CurrentTime)
                 {
                     RemovePlayerAtLeave(guid, true, true); // remove player from BG

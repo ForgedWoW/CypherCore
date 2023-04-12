@@ -43,7 +43,7 @@ public class LootItem
         _conditionManager = conditionManager;
     }
 
-    public LootItem(GameObjectManager objectManager, ConditionManager conditionManager, LootStoreItem li) : this(objectManager, conditionManager)
+    public LootItem(GameObjectManager objectManager, ConditionManager conditionManager, LootStoreItem li, ItemEnchantmentManager itemEnchantmentManager) : this(objectManager, conditionManager)
     {
         Itemid = li.Itemid;
         Conditions = li.Conditions;
@@ -54,7 +54,7 @@ public class LootItem
 
         NeedsQuest = li.NeedsQuest;
 
-        RandomBonusListId = ItemEnchantmentManager.GenerateItemRandomBonusListId(Itemid);
+        RandomBonusListId = itemEnchantmentManager.GenerateItemRandomBonusListId(Itemid);
     }
 
     public static bool AllowedForPlayer(Player player, Loot loot, uint itemid, bool needsQuest, bool followLootRules, bool strictUsabilityCheck, List<Condition> conditions, GameObjectManager objectManager, ConditionManager conditionManager)
@@ -99,16 +99,13 @@ public class LootItem
         if (!pProto.FlagsCu.HasAnyFlag(ItemFlagsCustom.IgnoreQuestStatus) && ((needsQuest || (pProto.StartQuest != 0 && player.GetQuestStatus(pProto.StartQuest) != QuestStatus.None)) && !player.HasQuestForItem(itemid)))
             return false;
 
-        if (strictUsabilityCheck)
-        {
-            if ((pProto.IsWeapon || pProto.IsArmor) && !pProto.IsUsableByLootSpecialization(player, true))
-                return false;
+        if (!strictUsabilityCheck)
+            return true;
 
-            if (player.CanRollNeedForItem(pProto, null, false) != InventoryResult.Ok)
-                return false;
-        }
+        if ((pProto.IsWeapon || pProto.IsArmor) && !pProto.IsUsableByLootSpecialization(player, true))
+            return false;
 
-        return true;
+        return player.CanRollNeedForItem(pProto, null, false) == InventoryResult.Ok;
     }
 
     public void AddAllowedLooter(Player player)
@@ -164,15 +161,14 @@ public class LootItem
 
                 return LootSlotType.AllowLoot;
             case LootMethod.MasterLoot:
-                if (IsUnderthreshold)
-                {
-                    if (!loot.RoundRobinPlayer.IsEmpty && loot.RoundRobinPlayer != player.GUID)
-                        return null;
+                if (!IsUnderthreshold)
+                    return loot.GetLootMasterGuid() == player.GUID ? LootSlotType.Master : LootSlotType.Locked;
 
-                    return LootSlotType.AllowLoot;
-                }
+                if (!loot.RoundRobinPlayer.IsEmpty && loot.RoundRobinPlayer != player.GUID)
+                    return null;
 
-                return loot.GetLootMasterGuid() == player.GUID ? LootSlotType.Master : LootSlotType.Locked;
+                return LootSlotType.AllowLoot;
+
             case LootMethod.GroupLoot:
             case LootMethod.NeedBeforeGreed:
                 if (IsUnderthreshold)

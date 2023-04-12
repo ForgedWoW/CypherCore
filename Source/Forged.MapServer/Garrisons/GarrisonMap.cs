@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Framework.Constants;
+using Game.Common;
 
 namespace Forged.MapServer.Garrisons;
 
@@ -14,7 +15,7 @@ internal class GarrisonMap : Map
     private readonly ObjectGuid _owner;
     private Player _loadingPlayer; // @workaround Player is not registered in ObjectAccessor during login
 
-    public GarrisonMap(uint id, long expiry, uint instanceId, ObjectGuid owner) : base(id, expiry, instanceId, Difficulty.Normal)
+    public GarrisonMap(uint id, long expiry, uint instanceId, ObjectGuid owner, ClassFactory classFactory) : base(id, expiry, instanceId, Difficulty.Normal, classFactory)
     {
         _owner = owner;
         InitVisibilityDistance();

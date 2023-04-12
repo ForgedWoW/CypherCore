@@ -57,9 +57,7 @@ public class TraitHandler : IWorldSessionHandler
 
         foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _player))
         {
-            var newEntry = classTalentsRequestNewConfig.Config.Entries.LookupByKey(grantedEntry.TraitNodeID)?.LookupByKey(grantedEntry.TraitNodeEntryID);
-
-            if (newEntry == null)
+            if (!classTalentsRequestNewConfig.Config.Entries.LookupByKey(grantedEntry.TraitNodeID)?.TryGetValue(grantedEntry.TraitNodeEntryID, out var newEntry))
             {
                 newEntry = new TraitEntryPacket();
                 classTalentsRequestNewConfig.Config.AddEntry(newEntry);
@@ -70,9 +68,7 @@ public class TraitHandler : IWorldSessionHandler
             newEntry.Rank = grantedEntry.Rank;
             newEntry.GrantedRanks = grantedEntry.GrantedRanks;
 
-            var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(grantedEntry.TraitNodeEntryID);
-
-            if (traitNodeEntry != null)
+            if (CliDB.TraitNodeEntryStorage.TryGetValue(grantedEntry.TraitNodeEntryID, out var traitNodeEntry))
                 if (newEntry.Rank + newEntry.GrantedRanks > traitNodeEntry.MaxRanks)
                     newEntry.Rank = Math.Max(0, traitNodeEntry.MaxRanks - newEntry.GrantedRanks);
         }
@@ -161,9 +157,7 @@ public class TraitHandler : IWorldSessionHandler
         foreach (var kvp in traitsCommitConfig.Config.Entries.Values)
             foreach (var newEntry in kvp.Values)
             {
-                var traitEntry = newConfigState.Entries.LookupByKey(newEntry.TraitNodeID)?.LookupByKey(newEntry.TraitNodeEntryID);
-
-                if (traitEntry == null)
+                if (!newConfigState.Entries.LookupByKey(newEntry.TraitNodeID)?.TryGetValue(newEntry.TraitNodeEntryID, out var traitEntry))
                 {
                     newConfigState.AddEntry(newEntry);
 
@@ -172,18 +166,14 @@ public class TraitHandler : IWorldSessionHandler
 
                 if (traitEntry.Rank > newEntry.Rank)
                 {
-                    var traitNode = CliDB.TraitNodeStorage.LookupByKey(newEntry.TraitNodeID);
-
-                    if (traitNode == null)
+                    if (!CliDB.TraitNodeStorage.TryGetValue(newEntry.TraitNodeID, out var traitNode))
                     {
                         SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
                         return;
                     }
 
-                    var traitTree = CliDB.TraitTreeStorage.LookupByKey(traitNode.TraitTreeID);
-
-                    if (traitTree == null)
+                    if (!CliDB.TraitTreeStorage.TryGetValue(traitNode.TraitTreeID, out var traitTree))
                     {
                         SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
@@ -197,18 +187,14 @@ public class TraitHandler : IWorldSessionHandler
                         return;
                     }
 
-                    var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(newEntry.TraitNodeEntryID);
-
-                    if (traitNodeEntry == null)
+                    if (!CliDB.TraitNodeEntryStorage.TryGetValue(newEntry.TraitNodeEntryID, out var traitNodeEntry))
                     {
                         SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 
                         return;
                     }
 
-                    var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitNodeEntry.TraitDefinitionID);
-
-                    if (traitDefinition == null)
+                    if (!CliDB.TraitDefinitionStorage.TryGetValue(traitNodeEntry.TraitDefinitionID, out var traitDefinition))
                     {
                         SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedUnknown));
 

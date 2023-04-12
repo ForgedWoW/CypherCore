@@ -159,7 +159,7 @@ public class TerrainInfo
 
             if (mapMagic == MapConst.MapMagic && versionMagic == MapConst.MapVersionMagic)
             {
-                var build = reader.ReadUInt32();
+                reader.ReadUInt32();
                 var tilesData = reader.ReadArray<byte>(MapConst.MaxGrids * MapConst.MaxGrids);
                 Array.Reverse(tilesData);
 
@@ -184,7 +184,7 @@ public class TerrainInfo
     public uint GetAreaId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
     {
         var vmapZ = z;
-        var hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, vmapZ, out var mogpFlags, out var adtId, out var rootId, out var groupId, dynamicMapTree);
+        var hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, vmapZ, out _, out var adtId, out var rootId, out var groupId, dynamicMapTree);
 
         uint gridAreaId = 0;
         var gridMapHeight = MapConst.InvalidHeight;
@@ -371,9 +371,7 @@ public class TerrainInfo
         {
             data.Outdoors = true;
             data.AreaId = gridAreaId;
-            var areaEntry1 = CliDB.AreaTableStorage.LookupByKey(data.AreaId);
-
-            if (areaEntry1 != null)
+            if (CliDB.AreaTableStorage.TryGetValue(data.AreaId, out var areaEntry1))
                 data.Outdoors = ((AreaFlags)areaEntry1.Flags[0] & (AreaFlags.Inside | AreaFlags.Outside)) != AreaFlags.Inside;
         }
 
@@ -393,9 +391,7 @@ public class TerrainInfo
                 liquidType = 15;
 
             uint liquidFlagType = 0;
-            var liquidData = CliDB.LiquidTypeStorage.LookupByKey(liquidType);
-
-            if (liquidData != null)
+            if (CliDB.LiquidTypeStorage.TryGetValue(liquidType, out var liquidData))
                 liquidFlagType = liquidData.SoundBank;
 
             if (liquidType != 0 && liquidType < 21 && areaEntry != null)
@@ -404,15 +400,11 @@ public class TerrainInfo
 
                 if (overrideLiquid == 0 && areaEntry.ParentAreaID != 0)
                 {
-                    var zoneEntry = CliDB.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID);
-
-                    if (zoneEntry != null)
+                    if (CliDB.AreaTableStorage.TryGetValue(areaEntry.ParentAreaID, out var zoneEntry))
                         overrideLiquid = zoneEntry.LiquidTypeID[liquidFlagType];
                 }
 
-                var overrideData = CliDB.LiquidTypeStorage.LookupByKey(overrideLiquid);
-
-                if (overrideData != null)
+                if (CliDB.LiquidTypeStorage.TryGetValue(overrideLiquid, out var overrideData))
                 {
                     liquidType = overrideLiquid;
                     liquidFlagType = overrideData.SoundBank;
@@ -526,16 +518,12 @@ public class TerrainInfo
                     liquid_type = 15;
 
                 uint liquidFlagType = 0;
-                var liq = CliDB.LiquidTypeStorage.LookupByKey(liquid_type);
-
-                if (liq != null)
+                if (CliDB.LiquidTypeStorage.TryGetValue(liquid_type, out var liq))
                     liquidFlagType = liq.SoundBank;
 
                 if (liquid_type != 0 && liquid_type < 21)
                 {
-                    var area = CliDB.AreaTableStorage.LookupByKey(GetAreaId(phaseShift, mapId, x, y, z));
-
-                    if (area != null)
+                    if (CliDB.AreaTableStorage.TryGetValue(GetAreaId(phaseShift, mapId, x, y, z), out var area))
                     {
                         uint overrideLiquid = area.LiquidTypeID[liquidFlagType];
 
@@ -547,9 +535,7 @@ public class TerrainInfo
                                 overrideLiquid = area.LiquidTypeID[liquidFlagType];
                         }
 
-                        var liq1 = CliDB.LiquidTypeStorage.LookupByKey(overrideLiquid);
-
-                        if (liq1 != null)
+                        if (CliDB.LiquidTypeStorage.TryGetValue(overrideLiquid, out var liq1))
                         {
                             liquid_type = overrideLiquid;
                             liquidFlagType = liq1.SoundBank;
@@ -706,9 +692,7 @@ public class TerrainInfo
     public void GetZoneAndAreaId(PhaseShift phaseShift, uint mapId, out uint zoneid, out uint areaid, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
     {
         areaid = zoneid = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
-        var area = CliDB.AreaTableStorage.LookupByKey(areaid);
-
-        if (area != null)
+        if (CliDB.AreaTableStorage.TryGetValue(areaid, out var area))
             if (area.ParentAreaID != 0)
                 zoneid = area.ParentAreaID;
     }
@@ -721,9 +705,7 @@ public class TerrainInfo
     public uint GetZoneId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
     {
         var areaId = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
-        var area = CliDB.AreaTableStorage.LookupByKey(areaId);
-
-        if (area != null)
+        if (CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
             if (area.ParentAreaID != 0)
                 return area.ParentAreaID;
 

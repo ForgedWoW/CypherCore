@@ -504,9 +504,7 @@ public partial class Spell
 
         player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeGlyph);
 
-        var glyphProperties = CliDB.GlyphPropertiesStorage.LookupByKey(glyphId);
-
-        if (glyphProperties != null)
+        if (CliDB.GlyphPropertiesStorage.TryGetValue(glyphId, out var glyphProperties))
             player.CastSpell(player, glyphProperties.SpellID, new CastSpellExtraArgs(this));
 
         ActiveGlyphs activeGlyphs = new();
@@ -643,10 +641,10 @@ public partial class Spell
         if (target == null)
             return;
 
-        if (CustomArg is not TraitConfigPacket)
+        if (CustomArg is not TraitConfigPacket arg)
             return;
 
-        target.UpdateTraitConfig(CustomArg as TraitConfigPacket, (int)Damage, false);
+        target.UpdateTraitConfig(arg, (int)Damage, false);
     }
 
     [SpellEffectHandler(SpellEffectName.ChangeBattlepetQuality)]
@@ -1543,9 +1541,7 @@ public partial class Spell
             if (SpellInfo.Id == 14792) // Venomhide Poison
                 duration = 5 * Time.MINUTE * Time.IN_MILLISECONDS;
 
-            var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
-
-            if (pEnchant == null)
+            if (!CliDB.SpellItemEnchantmentStorage.ContainsKey(enchant_id))
                 return;
 
             // Always go to temp enchantment slot
@@ -1599,9 +1595,7 @@ public partial class Spell
             if (enchant_id == 0)
                 return;
 
-            var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
-
-            if (pEnchant == null)
+            if (!CliDB.SpellItemEnchantmentStorage.ContainsKey(enchant_id))
                 return;
 
             // item can be in trade slot and have owner diff. from caster
@@ -1652,9 +1646,7 @@ public partial class Spell
         if (enchantId == 0)
             return;
 
-        var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantId);
-
-        if (enchant == null)
+        if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantId, out var enchant))
             return;
 
         // support only enchantings with add socket in this slot
@@ -1731,9 +1723,7 @@ public partial class Spell
             return;
         }
 
-        var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
-
-        if (pEnchant == null)
+        if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchant_id, out var pEnchant))
         {
             Log.Logger.Error("Spell {0} Effect {1} (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have not existed enchanting id {2}", SpellInfo.Id, EffectInfo.EffectIndex, enchant_id);
 
@@ -3756,9 +3746,7 @@ public partial class Spell
         if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
             return;
 
-        var talent = CliDB.TalentStorage.LookupByKey(SpellMisc.TalentId);
-
-        if (talent == null)
+        if (!CliDB.TalentStorage.TryGetValue(SpellMisc.TalentId, out var talent))
             return;
 
         var player = UnitTarget ? UnitTarget.AsPlayer : null;
@@ -3800,9 +3788,7 @@ public partial class Spell
 
         var factionId = EffectInfo.MiscValue;
 
-        var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
-
-        if (factionEntry == null)
+        if (!CliDB.FactionStorage.TryGetValue(factionId, out var factionEntry))
             return;
 
         repChange = player.CalculateReputationGain(ReputationSource.Spell, 0, repChange, factionId);
@@ -4945,9 +4931,7 @@ public partial class Spell
 
         if (owner == null)
         {
-            var properties = CliDB.SummonPropertiesStorage.LookupByKey(67);
-
-            if (properties != null)
+            if (CliDB.SummonPropertiesStorage.TryGetValue(67, out var properties))
                 SummonGuardian(EffectInfo, petentry, properties, 1, ObjectGuid.Empty);
 
             return;
@@ -5058,9 +5042,7 @@ public partial class Spell
         if (entry == 0)
             return;
 
-        var properties = CliDB.SummonPropertiesStorage.LookupByKey(EffectInfo.MiscValueB);
-
-        if (properties == null)
+        if (!CliDB.SummonPropertiesStorage.TryGetValue(EffectInfo.MiscValueB, out var properties))
         {
             Log.Logger.Error("EffectSummonType: Unhandled summon type {0}", EffectInfo.MiscValueB);
 
@@ -5961,9 +5943,7 @@ public partial class Spell
         var level = (ushort)CastItem.GetModifier(ItemModifier.BattlePetLevel);
         var displayId = CastItem.GetModifier(ItemModifier.BattlePetDisplayId);
 
-        var speciesEntry = CliDB.BattlePetSpeciesStorage.LookupByKey(speciesId);
-
-        if (speciesEntry == null)
+        if (!CliDB.BattlePetSpeciesStorage.TryGetValue(speciesId, out var speciesEntry))
             return;
 
         var player = Caster.AsPlayer;

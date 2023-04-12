@@ -58,9 +58,7 @@ public class LanguageManager
         // Load languages from Languages.db2. Just the id, we don't need the name
         foreach (var langEntry in _cliDB.LanguagesStorage.Values)
         {
-            var spellsRange = _langsMap.LookupByKey(langEntry.Id);
-
-            if (spellsRange.Empty())
+            if (_langsMap.TryGetValue(langEntry.Id, out var spellsRange))
             {
                 _langsMap.Add(langEntry.Id, new LanguageDesc());
             }

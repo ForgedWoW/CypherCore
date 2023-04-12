@@ -7,6 +7,6 @@ namespace Forged.MapServer.Globals;
 
 public class SkillTiersEntry
 {
-    public uint Id;
-    public uint[] Value = new uint[SkillConst.MaxSkillStep];
+    public uint Id { get; set; }
+    public uint[] Value { get; set; } = new uint[SkillConst.MaxSkillStep];
 }

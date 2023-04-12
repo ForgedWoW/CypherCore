@@ -451,9 +451,7 @@ public class SpellEffectInfo
 
                     if (Scaling.Class is -8 or -9)
                     {
-                        var randPropPoints = CliDB.RandPropPointsStorage.LookupByKey(effectiveItemLevel);
-
-                        if (randPropPoints == null)
+                        if (!CliDB.RandPropPointsStorage.TryGetValue(effectiveItemLevel, out var randPropPoints))
                             randPropPoints = CliDB.RandPropPointsStorage.LookupByKey(CliDB.RandPropPointsStorage.GetNumRows() - 1);
 
                         tempValue = Scaling.Class == -8 ? randPropPoints.DamageReplaceStatF : randPropPoints.DamageSecondaryF;
@@ -474,9 +472,7 @@ public class SpellEffectInfo
 
                     if (ratingMult != null)
                     {
-                        var itemSparse = CliDB.ItemSparseStorage.LookupByKey(itemId);
-
-                        if (itemSparse != null)
+                        if (CliDB.ItemSparseStorage.TryGetValue(itemId, out var itemSparse))
                             tempValue *= CliDB.GetIlvlStatMultiplier(ratingMult, itemSparse.inventoryType);
                     }
                 }
@@ -487,9 +483,7 @@ public class SpellEffectInfo
 
                     if (staminaMult != null)
                     {
-                        var itemSparse = CliDB.ItemSparseStorage.LookupByKey(itemId);
-
-                        if (itemSparse != null)
+                        if (CliDB.ItemSparseStorage.TryGetValue(itemId, out var itemSparse))
                             tempValue *= CliDB.GetIlvlStatMultiplier(staminaMult, itemSparse.inventoryType);
                     }
                 }
@@ -515,9 +509,7 @@ public class SpellEffectInfo
                 // TODO - add expansion and content tuning id args?
                 var contentTuningId = _spellInfo.ContentTuningId; // content tuning should be passed as arg, the one stored in SpellInfo is fallback
                 var expansion = -2;
-                var contentTuning = CliDB.ContentTuningStorage.LookupByKey(contentTuningId);
-
-                if (contentTuning != null)
+                if (CliDB.ContentTuningStorage.TryGetValue(contentTuningId, out var contentTuning))
                     expansion = contentTuning.ExpansionID;
 
                 var level = caster is { IsUnit: true } ? caster.AsUnit.Level : 1;

@@ -50,9 +50,7 @@ internal class GoCommands
     [Command("areatrigger", RBACPermissions.CommandGo)]
     private static bool HandleGoAreaTriggerCommand(CommandHandler handler, uint areaTriggerId)
     {
-        var at = handler.CliDB.AreaTriggerStorage.LookupByKey(areaTriggerId);
-
-        if (at == null)
+        if (!handler.CliDB.AreaTriggerStorage.TryGetValue(areaTriggerId, out var at))
         {
             handler.SendSysMessage(CypherStrings.CommandGoareatrnotfound, areaTriggerId);
 
@@ -197,9 +195,9 @@ internal class GoCommands
             return false;
         }
 
-        if (!GridDefines.IsValidMapCoord(gy.Loc))
+        if (!GridDefines.IsValidMapCoord(gy.Location))
         {
-            handler.SendSysMessage(CypherStrings.InvalidTargetCoord, gy.Loc.X, gy.Loc.Y, gy.Loc.MapId);
+            handler.SendSysMessage(CypherStrings.InvalidTargetCoord, gy.Location.X, gy.Location.Y, gy.Location.MapId);
 
             return false;
         }
@@ -212,7 +210,7 @@ internal class GoCommands
         else
             player.SaveRecallPosition(); // save only in non-flight case
 
-        player.TeleportTo(gy.Loc);
+        player.TeleportTo(gy.Location);
 
         return true;
     }
@@ -425,9 +423,7 @@ internal class GoCommands
     [Command("taxinode", RBACPermissions.CommandGo)]
     private static bool HandleGoTaxinodeCommand(CommandHandler handler, uint nodeId)
     {
-        var node = handler.CliDB.TaxiNodesStorage.LookupByKey(nodeId);
-
-        if (node == null)
+        if (!handler.CliDB.TaxiNodesStorage.TryGetValue(nodeId, out var node))
         {
             handler.SendSysMessage(CypherStrings.CommandGotaxinodenotfound, nodeId);
 
@@ -501,9 +497,7 @@ internal class GoCommands
 
         var areaId = areaIdArg ?? player.Location.Zone;
 
-        var areaEntry = handler.CliDB.AreaTableStorage.LookupByKey(areaId);
-
-        if (x is < 0 or > 100 || y is < 0 or > 100 || areaEntry == null)
+        if (!handler.CliDB.AreaTableStorage.TryGetValue(areaId, out var areaEntry))
         {
             handler.SendSysMessage(CypherStrings.InvalidZoneCoord, x, y, areaId);
 

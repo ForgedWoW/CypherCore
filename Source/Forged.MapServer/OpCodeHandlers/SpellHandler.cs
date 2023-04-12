@@ -289,9 +289,7 @@ public class SpellHandler : IWorldSessionHandler
         if (!player.HasAuraTypeWithMiscvalue(AuraType.KeyboundOverride, keyboundOverride.OverrideID))
             return;
 
-        var spellKeyboundOverride = CliDB.SpellKeyboundOverrideStorage.LookupByKey(keyboundOverride.OverrideID);
-
-        if (spellKeyboundOverride == null)
+        if (!CliDB.SpellKeyboundOverrideStorage.TryGetValue(keyboundOverride.OverrideID, out var spellKeyboundOverride))
             return;
 
         player.CastSpell(player, spellKeyboundOverride.Data);
@@ -453,9 +451,7 @@ public class SpellHandler : IWorldSessionHandler
 
         if (lockId != 0)
         {
-            var lockInfo = CliDB.LockStorage.LookupByKey(lockId);
-
-            if (lockInfo == null)
+            if (!CliDB.LockStorage.ContainsKey(lockId))
             {
                 player.SendEquipError(InventoryResult.ItemLocked, item);
                 Log.Logger.Error("WORLD:OpenItem: item [guid = {0}] has an unknown lockId: {1}!", item.GUID.ToString(), lockId);

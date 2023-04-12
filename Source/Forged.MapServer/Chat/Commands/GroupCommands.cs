@@ -237,13 +237,9 @@ internal class GroupCommands
                 onlineState = "online";
                 phases = PhasingHandler.FormatPhases(p.Location.PhaseShift);
 
-                var area = handler.CliDB.AreaTableStorage.LookupByKey(p.Location.Area);
-
-                if (area != null)
+                if (handler.CliDB.AreaTableStorage.TryGetValue(p.Location.Area, out var area))
                 {
-                    var zone = handler.CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
-
-                    if (zone != null)
+                    if (handler.CliDB.AreaTableStorage.TryGetValue(area.ParentAreaID, out var zone))
                         zoneName = zone.AreaName[handler.SessionDbcLocale];
                 }
             }

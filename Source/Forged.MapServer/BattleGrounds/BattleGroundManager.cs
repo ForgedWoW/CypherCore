@@ -287,9 +287,7 @@ public class BattlegroundManager
 
     public bool IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
     {
-        var battlemasterList = _cliDB.BattlemasterListStorage.LookupByKey(bgQueueTypeId.BattlemasterListId);
-
-        if (battlemasterList == null)
+        if (!_cliDB.BattlemasterListStorage.TryGetValue(bgQueueTypeId.BattlemasterListId, out var battlemasterList))
             return false;
 
         switch ((BattlegroundQueueIdType)bgQueueTypeId.BgType)
@@ -364,9 +362,7 @@ public class BattlegroundManager
                 continue;
 
             // can be overwrite by values from DB
-            var bl = _cliDB.BattlemasterListStorage.LookupByKey((uint)bgTypeId);
-
-            if (bl == null)
+            if (!_cliDB.BattlemasterListStorage.TryGetValue((uint)bgTypeId, out var bl))
             {
                 Log.Logger.Error("Battleground ID {0} not found in BattlemasterList.dbc. Battleground not created.", bgTypeId);
 
@@ -577,8 +573,8 @@ public class BattlegroundManager
             var team = player.GetBgTeam();
 
             var pos = bg.GetTeamStartPosition(Battleground.GetTeamIndexByTeamId(team));
-            Log.Logger.Debug($"BattlegroundMgr.SendToBattleground: Sending {player.GetName()} to map {mapid}, {pos.Loc} (bgType {bgTypeId})");
-            player.TeleportTo(pos.Loc);
+            Log.Logger.Debug($"BattlegroundMgr.SendToBattleground: Sending {player.GetName()} to map {mapid}, {pos.Location} (bgType {bgTypeId})");
+            player.TeleportTo(pos.Location);
         }
         else
         {

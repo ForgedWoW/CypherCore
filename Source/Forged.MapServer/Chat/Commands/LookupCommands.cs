@@ -949,9 +949,7 @@ internal class LookupCommands
         [Command("id", RBACPermissions.CommandLookupMapId, true)]
         private static bool HandleLookupMapIdCommand(CommandHandler handler, uint id)
         {
-            var mapInfo = handler.CliDB.MapStorage.LookupByKey(id);
-
-            if (mapInfo != null)
+            if (handler.CliDB.MapStorage.TryGetValue(id, out var mapInfo))
             {
                 var locale = handler.Session ? handler.Session.SessionDbcLocale : handler.WorldManager.DefaultDbcLocale;
                 var name = mapInfo.MapName[locale];
@@ -1163,9 +1161,7 @@ internal class LookupCommands
                                     maxLevel = questLevels.Value.MaxLevel;
 
                                 var scalingFactionGroup = 0;
-                                var contentTuning = handler.CliDB.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
-
-                                if (contentTuning != null)
+                                if (handler.CliDB.ContentTuningStorage.TryGetValue(qInfo.ContentTuningId, out var contentTuning))
                                     scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
                                 handler.SendSysMessage(CypherStrings.QuestListChat,
@@ -1239,9 +1235,7 @@ internal class LookupCommands
                             maxLevel = questLevels.Value.MaxLevel;
 
                         var scalingFactionGroup = 0;
-                        var contentTuning = handler.CliDB.ContentTuningStorage.LookupByKey(qInfo.ContentTuningId);
-
-                        if (contentTuning != null)
+                        if (handler.CliDB.ContentTuningStorage.TryGetValue(qInfo.ContentTuningId, out var contentTuning))
                             scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
                         handler.SendSysMessage(CypherStrings.QuestListChat,
@@ -1320,9 +1314,7 @@ internal class LookupCommands
                         maxLevel = questLevels.Value.MaxLevel;
 
                     var scalingFactionGroup = 0;
-                    var contentTuning = handler.CliDB.ContentTuningStorage.LookupByKey(quest.ContentTuningId);
-
-                    if (contentTuning != null)
+                    if (handler.CliDB.ContentTuningStorage.TryGetValue(quest.ContentTuningId, out var contentTuning))
                         scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
                     handler.SendSysMessage(CypherStrings.QuestListChat,

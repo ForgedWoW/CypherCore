@@ -138,9 +138,7 @@ public class ReputationMgr
 
     public int GetReputation(uint factionID)
     {
-        var factionEntry = _cliDB.FactionStorage.LookupByKey(factionID);
-
-        if (factionEntry == null)
+        if (!_cliDB.FactionStorage.TryGetValue(factionID, out var factionEntry))
         {
             Log.Logger.Error("ReputationMgr.GetReputation: Can't get reputation of {0} for unknown faction (faction id) #{1}.", _player.GetName(), factionID);
 
@@ -181,9 +179,7 @@ public class ReputationMgr
 
     public bool IsAtWar(uint factionId)
     {
-        var factionEntry = _cliDB.FactionStorage.LookupByKey(factionId);
-
-        if (factionEntry == null)
+        if (!_cliDB.FactionStorage.TryGetValue(factionId, out var factionEntry))
             return false;
 
         return IsAtWar(factionEntry);
@@ -214,9 +210,7 @@ public class ReputationMgr
 
                 if (factionEntry != null && factionEntry.CanHaveReputation())
                 {
-                    var faction = StateList.LookupByKey((uint)factionEntry.ReputationIndex);
-
-                    if (faction == null)
+                    if (!StateList.TryGetValue((uint)factionEntry.ReputationIndex, out var faction))
                         continue;
 
                     // update standing to current
@@ -367,9 +361,7 @@ public class ReputationMgr
 
     public void SetAtWar(uint repListID, bool on)
     {
-        var factionState = StateList.LookupByKey(repListID);
-
-        if (factionState == null)
+        if (!StateList.TryGetValue(repListID, out var factionState))
             return;
 
         // always invisible or hidden faction can't change war state
@@ -381,9 +373,7 @@ public class ReputationMgr
 
     public void SetInactive(uint repListID, bool on)
     {
-        var factionState = StateList.LookupByKey(repListID);
-
-        if (factionState == null)
+        if (!StateList.TryGetValue(repListID, out var factionState))
             return;
 
         SetInactive(factionState, on);
@@ -391,9 +381,7 @@ public class ReputationMgr
 
     public bool SetOneFactionReputation(FactionRecord factionEntry, int standing, bool incremental)
     {
-        var factionState = StateList.LookupByKey((uint)factionEntry.ReputationIndex);
-
-        if (factionState != null)
+        if (StateList.TryGetValue((uint)factionEntry.ReputationIndex, out var factionState))
         {
             // Ignore renown reputation already raised to the maximum level
             if (HasMaximumRenownReputation(factionEntry) && standing > 0)
@@ -449,9 +437,7 @@ public class ReputationMgr
             }
             else
             {
-                var currency = _cliDB.CurrencyTypesStorage.LookupByKey((uint)factionEntry.RenownCurrencyID);
-
-                if (currency != null)
+                if (_cliDB.CurrencyTypesStorage.TryGetValue((uint)factionEntry.RenownCurrencyID, out var currency))
                 {
                     var renownLevelThreshold = GetRenownLevelThreshold(factionEntry);
                     var oldRenownLevel = GetRenownLevel(factionEntry);
@@ -551,9 +537,7 @@ public class ReputationMgr
                 if (flist == null && factionEntry.ParentFactionID != 0 && factionEntry.ParentFactionMod[1] != 0.0f)
                 {
                     spillOverRepOut *= factionEntry.ParentFactionMod[1];
-                    var parent = _cliDB.FactionStorage.LookupByKey(factionEntry.ParentFactionID);
-
-                    if (parent != null)
+                    if (_cliDB.FactionStorage.TryGetValue(factionEntry.ParentFactionID, out var parent))
                     {
                         var parentState = StateList.LookupByKey((uint)parent.ReputationIndex);
 
@@ -569,9 +553,7 @@ public class ReputationMgr
                     // Spillover to affiliated factions
                     foreach (var id in flist)
                     {
-                        var factionEntryCalc = _cliDB.FactionStorage.LookupByKey(id);
-
-                        if (factionEntryCalc != null)
+                        if (_cliDB.FactionStorage.TryGetValue(id, out var factionEntryCalc))
                         {
                             if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > (ReputationRank)factionEntryCalc.ParentFactionMod[0])
                                 continue;
@@ -586,9 +568,7 @@ public class ReputationMgr
         }
 
         // spillover done, update faction itself
-        var faction = StateList.LookupByKey((uint)factionEntry.ReputationIndex);
-
-        if (faction != null)
+        if (StateList.TryGetValue((uint)factionEntry.ReputationIndex, out var faction))
         {
             var primaryFactionToModify = factionEntry;
 
@@ -617,9 +597,7 @@ public class ReputationMgr
         if (factionTemplateEntry.Faction == 0)
             return;
 
-        var factionEntry = _cliDB.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
-
-        if (factionEntry.Id != 0)
+        if (_cliDB.FactionStorage.TryGetValue(factionTemplateEntry.Faction, out var factionEntry))
             // Never show factions of the opposing team
             if (!Convert.ToBoolean(factionEntry.ReputationRaceMask[1] & SharedConst.GetMaskForRace(_player.Race)) && factionEntry.ReputationBase[1] == SharedConst.ReputationBottom)
                 SetVisible(factionEntry);
@@ -630,9 +608,7 @@ public class ReputationMgr
         if (!factionEntry.CanHaveReputation())
             return;
 
-        var factionState = StateList.LookupByKey((uint)factionEntry.ReputationIndex);
-
-        if (factionState == null)
+        if (!StateList.TryGetValue((uint)factionEntry.ReputationIndex, out var factionState))
             return;
 
         SetVisible(factionState);
@@ -761,9 +737,7 @@ public class ReputationMgr
         if (renownFactionEntry == null)
             return 0;
 
-        var currency = _cliDB.CurrencyTypesStorage.LookupByKey((uint)renownFactionEntry.RenownCurrencyID);
-
-        if (currency != null)
+        if (_cliDB.CurrencyTypesStorage.TryGetValue((uint)renownFactionEntry.RenownCurrencyID, out var currency))
             return (int)_player.GetCurrencyQuantity(currency.Id);
 
         return 0;
@@ -784,9 +758,7 @@ public class ReputationMgr
         if (renownFactionEntry == null)
             return 0;
 
-        var currency = _cliDB.CurrencyTypesStorage.LookupByKey((uint)renownFactionEntry.RenownCurrencyID);
-
-        if (currency != null)
+        if (_cliDB.CurrencyTypesStorage.TryGetValue((uint)renownFactionEntry.RenownCurrencyID, out var currency))
             return (int)_player.GetCurrencyMaxQuantity(currency);
 
         return 0;

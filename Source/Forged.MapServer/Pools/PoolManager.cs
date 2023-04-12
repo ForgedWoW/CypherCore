@@ -90,9 +90,7 @@ public class PoolManager
     public SpawnedPoolData InitPoolsForMap(Map map)
     {
         SpawnedPoolData spawnedPoolData = new(map);
-        var poolIds = _autoSpawnPoolsPerMap.LookupByKey(spawnedPoolData.Map.Id);
-
-        if (poolIds != null)
+        if (_autoSpawnPoolsPerMap.TryGetValue(spawnedPoolData.Map.Id, out var poolIds))
             foreach (var poolId in poolIds)
                 SpawnPool(spawnedPoolData, poolId);
 
@@ -451,7 +449,7 @@ public class PoolManager
             }
         }
 
-        foreach (var (poolId, templateData) in _poolTemplate)
+        foreach (var (poolId, _) in _poolTemplate)
             if (IsEmpty(poolId))
             {
                 Log.Logger.Error($"Pool Id {poolId} is empty (has no creatures and no gameobects and either no child pools or child pools are all empty. The pool will not be spawned");

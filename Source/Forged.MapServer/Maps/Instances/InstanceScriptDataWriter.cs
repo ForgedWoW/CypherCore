@@ -40,8 +40,8 @@ internal class InstanceScriptDataWriter
                 {
                     var data = additionalValue.CreateEvent();
 
-                    if (data.Value is double)
-                        moreData.Add(data.Key, (double)data.Value);
+                    if (data.Value is double value)
+                        moreData.Add(data.Key, value);
                     else
                         moreData.Add(data.Key, (long)data.Value);
                 }
@@ -81,8 +81,8 @@ internal class InstanceScriptDataWriter
     {
         var jObject = _doc["AdditionalData"].AsObject();
 
-        if (data.Value is double)
-            jObject[data.Key] = (double)data.Value;
+        if (data.Value is double value)
+            jObject[data.Key] = value;
         else
             jObject[data.Key] = (long)data.Value;
     }

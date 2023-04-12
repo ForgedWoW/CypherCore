@@ -86,9 +86,7 @@ public class BattlePetMgrData
 
     public ushort RollPetBreed(uint species)
     {
-        var list = _availableBreedsPerSpecies.LookupByKey(species);
-
-        if (list.Empty())
+        if (_availableBreedsPerSpecies.TryGetValue(species, out var list))
             return 3; // default B/B
 
         return list.SelectRandom();
@@ -161,9 +159,7 @@ public class BattlePetMgrData
             var speciesId = result.Read<uint>(0);
             var quality = (BattlePetBreedQuality)result.Read<byte>(1);
 
-            var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(speciesId);
-
-            if (battlePetSpecies == null)
+            if (!_cliDB.BattlePetSpeciesStorage.TryGetValue(speciesId, out var battlePetSpecies))
             {
                 Log.Logger.Error($"Non-existing BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` by row ({speciesId}, {quality}).");
 

@@ -15,7 +15,7 @@ public class CreateCharacter : ClientPacket
     {
         CreateInfo = new CharacterCreateInfo();
         var nameLength = WorldPacket.ReadBits<uint>(6);
-        var hasTemplateSet = WorldPacket.HasBit();
+        WorldPacket.HasBit();
         CreateInfo.IsTrialBoost = WorldPacket.HasBit();
         CreateInfo.UseNPE = WorldPacket.HasBit();
 

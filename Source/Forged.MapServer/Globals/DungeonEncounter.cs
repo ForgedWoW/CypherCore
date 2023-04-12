@@ -8,11 +8,6 @@ namespace Forged.MapServer.Globals;
 
 public class DungeonEncounter
 {
-    public uint CreditEntry;
-    public EncounterCreditType CreditType;
-    public DungeonEncounterRecord DBCEntry;
-    public uint LastEncounterDungeon;
-
     public DungeonEncounter(DungeonEncounterRecord dbcEntry, EncounterCreditType creditType, uint creditEntry, uint lastEncounterDungeon)
     {
         DBCEntry = dbcEntry;
@@ -20,4 +15,9 @@ public class DungeonEncounter
         CreditEntry = creditEntry;
         LastEncounterDungeon = lastEncounterDungeon;
     }
+
+    public uint CreditEntry { get; set; }
+    public EncounterCreditType CreditType { get; set; }
+    public DungeonEncounterRecord DBCEntry { get; set; }
+    public uint LastEncounterDungeon { get; set; }
 }

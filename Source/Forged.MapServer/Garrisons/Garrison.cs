@@ -13,11 +13,13 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.Garrison;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Garrisons;
@@ -29,31 +31,39 @@ public class Garrison
     private readonly GarrisonType _garrisonType;
     private readonly List<uint> _knownBuildings = new();
     private readonly Player _owner;
+    private readonly GarrisonManager _garrisonManager;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CliDB _cliDB;
+    private readonly MapManager _mapManager;
     private readonly Dictionary<uint, Plot> _plots = new();
     private uint _followerActivationsRemainingToday;
     private GarrSiteLevelRecord _siteLevel;
 
-    public Garrison(Player owner)
+    public Garrison(Player owner, GarrisonManager garrisonManager, CharacterDatabase characterDatabase, CliDB cliDB, MapManager mapManager)
     {
         _owner = owner;
+        _garrisonManager = garrisonManager;
+        _characterDatabase = characterDatabase;
+        _cliDB = cliDB;
+        _mapManager = mapManager;
         _followerActivationsRemainingToday = 1;
     }
 
-    public static void DeleteFromDB(ulong ownerGuid, SQLTransaction trans)
+    public static void DeleteFromDB(ulong ownerGuid, SQLTransaction trans, CharacterDatabase characterDatabase)
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON);
+        var stmt = characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON);
         stmt.AddValue(0, ownerGuid);
         trans.Append(stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_BLUEPRINTS);
+        stmt = characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_BLUEPRINTS);
         stmt.AddValue(0, ownerGuid);
         trans.Append(stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_BUILDINGS);
+        stmt = characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_BUILDINGS);
         stmt.AddValue(0, ownerGuid);
         trans.Append(stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_FOLLOWERS);
+        stmt = characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_FOLLOWERS);
         stmt.AddValue(0, ownerGuid);
         trans.Append(stmt);
     }
@@ -62,30 +72,32 @@ public class Garrison
     {
         var plot = GetPlot(garrPlotInstanceId);
 
-        if (plot != null)
-            if (plot.BuildingInfo.CanActivate() && plot.BuildingInfo.PacketInfo is { Active: false })
-            {
-                plot.BuildingInfo.PacketInfo.Active = true;
-                var map = FindMap();
+        if (plot == null)
+            return;
 
-                if (map)
-                {
-                    plot.DeleteGameObject(map);
-                    var go = plot.CreateGameObject(map, GetFaction());
+        if (!plot.BuildingInfo.CanActivate() || plot.BuildingInfo.PacketInfo is not { Active: false })
+            return;
 
-                    if (go)
-                        map.AddToMap(go);
-                }
+        plot.BuildingInfo.PacketInfo.Active = true;
+        var map = FindMap();
 
-                GarrisonBuildingActivated buildingActivated = new()
-                {
-                    GarrPlotInstanceID = garrPlotInstanceId
-                };
+        if (map)
+        {
+            plot.DeleteGameObject(map);
+            var go = plot.CreateGameObject(map, GetFaction());
 
-                _owner.SendPacket(buildingActivated);
+            if (go)
+                map.AddToMap(go);
+        }
 
-                _owner.UpdateCriteria(CriteriaType.ActivateAnyGarrisonBuilding, plot.BuildingInfo.PacketInfo.GarrBuildingID);
-            }
+        GarrisonBuildingActivated buildingActivated = new()
+        {
+            GarrPlotInstanceID = garrPlotInstanceId
+        };
+
+        _owner.SendPacket(buildingActivated);
+
+        _owner.UpdateCriteria(CriteriaType.ActivateAnyGarrisonBuilding, plot.BuildingInfo.PacketInfo.GarrBuildingID);
     }
 
     public void AddFollower(uint garrFollowerId)
@@ -95,9 +107,7 @@ public class Garrison
             GarrTypeID = GetGarrisonType()
         };
 
-        var followerEntry = CliDB.GarrFollowerStorage.LookupByKey(garrFollowerId);
-
-        if (_followerIds.Contains(garrFollowerId) || followerEntry == null)
+        if (!_cliDB.GarrFollowerStorage.TryGetValue(garrFollowerId, out var followerEntry))
         {
             addFollowerResult.Result = GarrisonError.FollowerExists;
             _owner.SendPacket(addFollowerResult);
@@ -106,7 +116,7 @@ public class Garrison
         }
 
         _followerIds.Add(garrFollowerId);
-        var dbId = Global.GarrisonMgr.GenerateFollowerDbId();
+        var dbId = _garrisonManager.GenerateFollowerDbId();
 
         Follower follower = new()
         {
@@ -124,7 +134,7 @@ public class Garrison
             }
         };
 
-        follower.PacketInfo.AbilityID = Global.GarrisonMgr.RollFollowerAbilities(garrFollowerId, followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
+        follower.PacketInfo.AbilityID = _garrisonManager.RollFollowerAbilities(garrFollowerId, followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
         follower.PacketInfo.FollowerStatus = 0;
 
         _followers[dbId] = follower;
@@ -157,7 +167,7 @@ public class Garrison
             plot.ClearBuildingInfo(GetGarrisonType(), _owner);
             _owner.SendPacket(buildingRemoved);
 
-            var constructing = CliDB.GarrBuildingStorage.LookupByKey(buildingRemoved.GarrBuildingID);
+            var constructing = _cliDB.GarrBuildingStorage.LookupByKey(buildingRemoved.GarrBuildingID);
             // Refund construction/upgrade cost
             _owner.AddCurrency(constructing.CurrencyTypeID, (uint)constructing.CurrencyQty, CurrencyGainSource.GarrisonBuildingRefund);
             _owner.ModifyMoney(constructing.GoldCost * MoneyConstants.Gold, false);
@@ -165,7 +175,7 @@ public class Garrison
             if (constructing.UpgradeLevel > 1)
             {
                 // Restore previous level building
-                var restored = Global.GarrisonMgr.GetPreviousLevelBuilding((byte)constructing.BuildingType, constructing.UpgradeLevel);
+                var restored = _garrisonManager.GetPreviousLevelBuilding((byte)constructing.BuildingType, constructing.UpgradeLevel);
 
                 GarrisonPlaceBuildingResult placeBuildingResult = new()
                 {
@@ -211,7 +221,7 @@ public class Garrison
 
     public bool Create(uint garrSiteId)
     {
-        var siteLevel = Global.GarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
+        var siteLevel = _garrisonManager.GetGarrSiteLevelEntry(garrSiteId, 1);
 
         if (siteLevel == null)
             return false;
@@ -235,8 +245,8 @@ public class Garrison
     public void Delete()
     {
         SQLTransaction trans = new();
-        DeleteFromDB(_owner.GUID.Counter, trans);
-        DB.Characters.CommitTransaction(trans);
+        DeleteFromDB(_owner.GUID.Counter, trans, _characterDatabase);
+        _characterDatabase.CommitTransaction(trans);
 
         GarrisonDeleteResult garrisonDelete = new()
         {
@@ -291,7 +301,7 @@ public class Garrison
             Result = GarrisonError.Success
         };
 
-        if (!CliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
+        if (!_cliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
             learnBlueprintResult.Result = GarrisonError.InvalidBuildingId;
         else if (HasBlueprint(garrBuildingId))
             learnBlueprintResult.Result = GarrisonError.BlueprintExists;
@@ -306,7 +316,7 @@ public class Garrison
         if (garrison.IsEmpty())
             return false;
 
-        _siteLevel = CliDB.GarrSiteLevelStorage.LookupByKey(garrison.Read<uint>(0));
+        _siteLevel = _cliDB.GarrSiteLevelStorage.LookupByKey(garrison.Read<uint>(0));
         _followerActivationsRemainingToday = garrison.Read<uint>(1);
 
         if (_siteLevel == null)
@@ -317,9 +327,7 @@ public class Garrison
         if (!blueprints.IsEmpty())
             do
             {
-                var building = CliDB.GarrBuildingStorage.LookupByKey(blueprints.Read<uint>(0));
-
-                if (building != null)
+                if (_cliDB.GarrBuildingStorage.TryGetValue(blueprints.Read<uint>(0), out var building))
                     _knownBuildings.Add(building.Id);
             } while (blueprints.NextRow());
 
@@ -336,7 +344,7 @@ public class Garrison
                 if (plot == null)
                     continue;
 
-                if (!CliDB.GarrBuildingStorage.ContainsKey(buildingId))
+                if (!_cliDB.GarrBuildingStorage.ContainsKey(buildingId))
                     continue;
 
                 plot.BuildingInfo.PacketInfo = new GarrisonBuildingInfo
@@ -355,7 +363,7 @@ public class Garrison
                 var dbId = followers.Read<ulong>(0);
                 var followerId = followers.Read<uint>(1);
 
-                if (!CliDB.GarrFollowerStorage.ContainsKey(followerId))
+                if (!_cliDB.GarrFollowerStorage.ContainsKey(followerId))
                     continue;
 
                 _followerIds.Add(followerId);
@@ -377,7 +385,7 @@ public class Garrison
                     }
                 };
 
-                if (!CliDB.GarrBuildingStorage.ContainsKey(follower.PacketInfo.CurrentBuildingID))
+                if (!_cliDB.GarrBuildingStorage.ContainsKey(follower.PacketInfo.CurrentBuildingID))
                     follower.PacketInfo.CurrentBuildingID = 0;
 
                 //if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
@@ -389,9 +397,7 @@ public class Garrison
                 do
                 {
                     var dbId = abilities.Read<ulong>(0);
-                    var ability = CliDB.GarrAbilityStorage.LookupByKey(abilities.Read<uint>(1));
-
-                    if (ability == null)
+                    if (!_cliDB.GarrAbilityStorage.TryGetValue(abilities.Read<uint>(1), out var ability))
                         continue;
 
                     var garrisonFollower = _followers.LookupByKey(dbId);
@@ -420,7 +426,7 @@ public class Garrison
             var plot = GetPlot(garrPlotInstanceId);
             uint oldBuildingId = 0;
             var map = FindMap();
-            var building = CliDB.GarrBuildingStorage.LookupByKey(garrBuildingId);
+            var building = _cliDB.GarrBuildingStorage.LookupByKey(garrBuildingId);
 
             if (map)
                 plot.DeleteGameObject(map);
@@ -429,7 +435,7 @@ public class Garrison
             {
                 oldBuildingId = plot.BuildingInfo.PacketInfo.GarrBuildingID;
 
-                if (CliDB.GarrBuildingStorage.LookupByKey(oldBuildingId).BuildingType != building.BuildingType)
+                if (_cliDB.GarrBuildingStorage.LookupByKey(oldBuildingId).BuildingType != building.BuildingType)
                     plot.ClearBuildingInfo(GetGarrisonType(), _owner);
             }
 
@@ -472,9 +478,9 @@ public class Garrison
 
     public void SaveToDB(SQLTransaction trans)
     {
-        DeleteFromDB(_owner.GUID.Counter, trans);
+        DeleteFromDB(_owner.GUID.Counter, trans, _characterDatabase);
 
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON);
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON);
         stmt.AddValue(0, _owner.GUID.Counter);
         stmt.AddValue(1, (int)_garrisonType);
         stmt.AddValue(2, _siteLevel.Id);
@@ -483,7 +489,7 @@ public class Garrison
 
         foreach (var building in _knownBuildings)
         {
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BLUEPRINTS);
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BLUEPRINTS);
             stmt.AddValue(0, _owner.GUID.Counter);
             stmt.AddValue(1, (int)_garrisonType);
             stmt.AddValue(2, building);
@@ -493,7 +499,7 @@ public class Garrison
         foreach (var plot in _plots.Values)
             if (plot.BuildingInfo.PacketInfo != null)
             {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BUILDINGS);
+                stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BUILDINGS);
                 stmt.AddValue(0, _owner.GUID.Counter);
                 stmt.AddValue(1, (int)_garrisonType);
                 stmt.AddValue(2, plot.BuildingInfo.PacketInfo.GarrPlotInstanceID);
@@ -506,7 +512,7 @@ public class Garrison
         foreach (var follower in _followers.Values)
         {
             byte index = 0;
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWERS);
+            stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWERS);
             stmt.AddValue(index++, follower.PacketInfo.DbID);
             stmt.AddValue(index++, _owner.GUID.Counter);
             stmt.AddValue(index++, (int)_garrisonType);
@@ -525,7 +531,7 @@ public class Garrison
 
             foreach (var ability in follower.PacketInfo.AbilityID)
             {
-                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWER_ABILITIES);
+                stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWER_ABILITIES);
                 stmt.AddValue(0, follower.PacketInfo.DbID);
                 stmt.AddValue(1, ability.Id);
                 stmt.AddValue(2, slot++);
@@ -583,7 +589,7 @@ public class Garrison
         foreach (var plot in _plots.Values)
             if (plot.BuildingInfo.PacketInfo != null)
             {
-                var garrBuildingPlotInstId = Global.GarrisonMgr.GetGarrBuildingPlotInst(plot.BuildingInfo.PacketInfo.GarrBuildingID, plot.GarrSiteLevelPlotInstId);
+                var garrBuildingPlotInstId = _garrisonManager.GetGarrBuildingPlotInst(plot.BuildingInfo.PacketInfo.GarrBuildingID, plot.GarrSiteLevelPlotInstId);
 
                 if (garrBuildingPlotInstId != 0)
                     mapData.Buildings.Add(new GarrisonBuildingMapData(garrBuildingPlotInstId, plot.PacketInfo.PlotPos));
@@ -594,7 +600,7 @@ public class Garrison
 
     public void SendRemoteInfo()
     {
-        var garrisonMap = CliDB.MapStorage.LookupByKey(_siteLevel.MapID);
+        var garrisonMap = _cliDB.MapStorage.LookupByKey(_siteLevel.MapID);
 
         if (garrisonMap == null || _owner.Location.MapId != garrisonMap.ParentMapID)
             return;
@@ -616,18 +622,16 @@ public class Garrison
 
     private GarrisonError CheckBuildingPlacement(uint garrPlotInstanceId, uint garrBuildingId)
     {
-        var plotInstance = CliDB.GarrPlotInstanceStorage.LookupByKey(garrPlotInstanceId);
+        var plotInstance = _cliDB.GarrPlotInstanceStorage.LookupByKey(garrPlotInstanceId);
         var plot = GetPlot(garrPlotInstanceId);
 
         if (plotInstance == null || plot == null)
             return GarrisonError.InvalidPlotInstanceId;
 
-        var building = CliDB.GarrBuildingStorage.LookupByKey(garrBuildingId);
-
-        if (building == null)
+        if (!_cliDB.GarrBuildingStorage.TryGetValue(garrBuildingId, out var building))
             return GarrisonError.InvalidBuildingId;
 
-        if (!Global.GarrisonMgr.IsPlotMatchingBuilding(plotInstance.GarrPlotID, garrBuildingId))
+        if (!_garrisonManager.IsPlotMatchingBuilding(plotInstance.GarrPlotID, garrBuildingId))
             return GarrisonError.InvalidPlotBuilding;
 
         // Cannot place buldings of higher level than garrison level
@@ -650,7 +654,7 @@ public class Garrison
         foreach (var p in _plots)
             if (p.Value.BuildingInfo.PacketInfo != null)
             {
-                existingBuilding = CliDB.GarrBuildingStorage.LookupByKey(p.Value.BuildingInfo.PacketInfo.GarrBuildingID);
+                existingBuilding = _cliDB.GarrBuildingStorage.LookupByKey(p.Value.BuildingInfo.PacketInfo.GarrBuildingID);
 
                 if (existingBuilding.BuildingType == building.BuildingType)
                     if (p.Key != garrPlotInstanceId || existingBuilding.UpgradeLevel + 1 != building.UpgradeLevel) // check if its an upgrade in same plot
@@ -695,47 +699,42 @@ public class Garrison
 
     private Map FindMap()
     {
-        return Global.MapMgr.FindMap(_siteLevel.MapID, (uint)_owner.GUID.Counter);
+        return _mapManager.FindMap(_siteLevel.MapID, (uint)_owner.GUID.Counter);
     }
 
     private void InitializePlots()
     {
-        var plots = Global.GarrisonMgr.GetGarrPlotInstForSiteLevel(_siteLevel.Id);
+        var plots = _garrisonManager.GetGarrPlotInstForSiteLevel(_siteLevel.Id);
 
-        for (var i = 0; i < plots.Count; ++i)
+        foreach (var p in plots)
         {
-            uint garrPlotInstanceId = plots[i].GarrPlotInstanceID;
-            var plotInstance = CliDB.GarrPlotInstanceStorage.LookupByKey(garrPlotInstanceId);
-            var gameObject = Global.GarrisonMgr.GetPlotGameObject(_siteLevel.MapID, garrPlotInstanceId);
+            var plotInstance = _cliDB.GarrPlotInstanceStorage.LookupByKey(p.GarrPlotInstanceID);
+            var gameObject = _garrisonManager.GetPlotGameObject(_siteLevel.MapID, p.GarrPlotInstanceID);
 
             if (plotInstance == null || gameObject == null)
                 continue;
 
-            var plot = CliDB.GarrPlotStorage.LookupByKey(plotInstance.GarrPlotID);
-
-            if (plot == null)
+            if (!_cliDB.GarrPlotStorage.TryGetValue(plotInstance.GarrPlotID, out var plot))
                 continue;
 
-            var plotInfo = _plots[garrPlotInstanceId];
-            plotInfo.PacketInfo.GarrPlotInstanceID = garrPlotInstanceId;
+            var plotInfo = _plots[p.GarrPlotInstanceID];
+            plotInfo.PacketInfo.GarrPlotInstanceID = p.GarrPlotInstanceID;
             plotInfo.PacketInfo.PlotPos.Relocate(gameObject.Pos.X, gameObject.Pos.Y, gameObject.Pos.Z, 2 * (float)Math.Acos(gameObject.Rot[3]));
             plotInfo.PacketInfo.PlotType = plot.PlotType;
             plotInfo.Rotation = new Quaternion(gameObject.Rot[0], gameObject.Rot[1], gameObject.Rot[2], gameObject.Rot[3]);
             plotInfo.EmptyGameObjectId = gameObject.Id;
-            plotInfo.GarrSiteLevelPlotInstId = plots[i].Id;
+            plotInfo.GarrSiteLevelPlotInstId = p.Id;
         }
     }
 
     private void Leave()
     {
-        var map = CliDB.MapStorage.LookupByKey(_siteLevel.MapID);
+        if (!_cliDB.MapStorage.TryGetValue(_siteLevel.MapID, out var map))
+            return;
 
-        if (map != null)
-        {
-            WorldLocation loc = new((uint)map.ParentMapID);
-            loc.Relocate(_owner.Location);
-            _owner.TeleportTo(loc, TeleportToOptions.Seamless);
-        }
+        WorldLocation loc = new((uint)map.ParentMapID);
+        loc.Relocate(_owner.Location);
+        _owner.TeleportTo(loc, TeleportToOptions.Seamless);
     }
 
     private void UnlearnBlueprint(uint garrBuildingId)
@@ -747,7 +746,7 @@ public class Garrison
             Result = GarrisonError.Success
         };
 
-        if (!CliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
+        if (!_cliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
             unlearnBlueprintResult.Result = GarrisonError.InvalidBuildingId;
         else if (HasBlueprint(garrBuildingId))
             unlearnBlueprintResult.Result = GarrisonError.RequiresBlueprint;
@@ -761,21 +760,24 @@ public class Garrison
 
     public class Building
     {
+        private readonly CliDB _cliDB;
         public ObjectGuid Guid;
         public GarrisonBuildingInfo PacketInfo;
         public List<ObjectGuid> Spawns = new();
 
+        public Building(CliDB cliDB)
+        {
+            _cliDB = cliDB;
+        }
+
         public bool CanActivate()
         {
-            if (PacketInfo != null)
-            {
-                var building = CliDB.GarrBuildingStorage.LookupByKey(PacketInfo.GarrBuildingID);
+            if (PacketInfo == null)
+                return false;
 
-                if (PacketInfo.TimeBuilt + building.BuildSeconds <= GameTime.CurrentTime)
-                    return true;
-            }
+            var building = _cliDB.GarrBuildingStorage.LookupByKey(PacketInfo.GarrBuildingID);
 
-            return false;
+            return PacketInfo.TimeBuilt + building.BuildSeconds <= GameTime.CurrentTime;
         }
     }
 
@@ -790,17 +792,31 @@ public class Garrison
 
         public bool HasAbility(uint garrAbilityId)
         {
-            return PacketInfo.AbilityID.Any(garrAbility => { return garrAbility.Id == garrAbilityId; });
+            return PacketInfo.AbilityID.Any(garrAbility => garrAbility.Id == garrAbilityId);
         }
     }
 
     public class Plot
     {
+        private readonly CliDB _cliDB;
+        private readonly GarrisonManager _garrisonManager;
+        private readonly GameObjectManager _gameObjectManager;
+        private readonly GameObjectFactory _gameObjectFactory;
+        private readonly ClassFactory _classFactory;
         public Building BuildingInfo;
         public uint EmptyGameObjectId;
         public uint GarrSiteLevelPlotInstId;
         public GarrisonPlotInfo PacketInfo;
         public Quaternion Rotation;
+
+        public Plot(CliDB cliDB, GarrisonManager garrisonManager, GameObjectManager gameObjectManager, GameObjectFactory gameObjectFactory, ClassFactory classFactory)
+        {
+            _cliDB = cliDB;
+            _garrisonManager = garrisonManager;
+            _gameObjectManager = gameObjectManager;
+            _gameObjectFactory = gameObjectFactory;
+            _classFactory = classFactory;
+        }
 
         public void ClearBuildingInfo(GarrisonType garrisonType, Player owner)
         {
@@ -821,9 +837,9 @@ public class Garrison
 
             if (BuildingInfo.PacketInfo != null)
             {
-                var plotInstance = CliDB.GarrPlotInstanceStorage.LookupByKey(PacketInfo.GarrPlotInstanceID);
-                var plot = CliDB.GarrPlotStorage.LookupByKey(plotInstance.GarrPlotID);
-                var building = CliDB.GarrBuildingStorage.LookupByKey(BuildingInfo.PacketInfo.GarrBuildingID);
+                var plotInstance = _cliDB.GarrPlotInstanceStorage.LookupByKey(PacketInfo.GarrPlotInstanceID);
+                var plot = _cliDB.GarrPlotStorage.LookupByKey(plotInstance.GarrPlotID);
+                var building = _cliDB.GarrBuildingStorage.LookupByKey(BuildingInfo.PacketInfo.GarrBuildingID);
 
                 entry = faction == GarrisonFactionIndex.Horde ? plot.HordeConstructObjID : plot.AllianceConstructObjID;
 
@@ -831,26 +847,26 @@ public class Garrison
                     entry = faction == GarrisonFactionIndex.Horde ? building.HordeGameObjectID : building.AllianceGameObjectID;
             }
 
-            if (Global.ObjectMgr.GetGameObjectTemplate(entry) == null)
+            if (_gameObjectManager.GetGameObjectTemplate(entry) == null)
             {
                 Log.Logger.Error("Garrison attempted to spawn gameobject whose template doesn't exist ({0})", entry);
 
                 return null;
             }
 
-            var go = GameObjectFactory.CreateGameObject(entry, map, PacketInfo.PlotPos, Rotation, 255, GameObjectState.Ready);
+            var go = _gameObjectFactory.CreateGameObject(entry, map, PacketInfo.PlotPos, Rotation, 255, GameObjectState.Ready);
 
             if (!go)
                 return null;
 
             if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo is { Active: false })
             {
-                var finalizeInfo = Global.GarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID);
+                var finalizeInfo = _garrisonManager.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID);
 
                 if (finalizeInfo != null)
                 {
-                    var pos2 = finalizeInfo.factionInfo[faction].Pos;
-                    var finalizer = GameObjectFactory.CreateGameObject(finalizeInfo.factionInfo[faction].GameObjectId, map, pos2, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos2.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
+                    var pos2 = finalizeInfo.FactionInfo[faction].Pos;
+                    var finalizer = _gameObjectFactory.CreateGameObject(finalizeInfo.FactionInfo[faction].GameObjectId, map, pos2, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos2.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
 
                     if (finalizer)
                     {
@@ -860,7 +876,7 @@ public class Garrison
 
                         finalizer.SetRespawnTime(0);
 
-                        var animKit = finalizeInfo.factionInfo[faction].AnimKitId;
+                        var animKit = finalizeInfo.FactionInfo[faction].AnimKitId;
 
                         if (animKit != 0)
                             finalizer.SetAnimKitId(animKit, false);
@@ -871,19 +887,19 @@ public class Garrison
             }
 
             if (go.GoType == GameObjectTypes.GarrisonBuilding && go.Template.GarrisonBuilding.SpawnMap != 0)
-                foreach (var cellGuids in Global.ObjectMgr.GetMapObjectGuids((uint)go.Template.GarrisonBuilding.SpawnMap, map.DifficultyID))
+                foreach (var cellGuids in _gameObjectManager.GetMapObjectGuids((uint)go.Template.GarrisonBuilding.SpawnMap, map.DifficultyID))
                 {
-                    foreach (var spawnId in cellGuids.Value.creatures)
+                    foreach (var spawnId in cellGuids.Value.Creatures)
                     {
-                        var spawn = BuildingSpawnHelper<Creature>(go, spawnId, map);
+                        var spawn = BuildingSpawnHelper(_classFactory.Resolve<Creature>(), go, spawnId, map);
 
                         if (spawn)
                             BuildingInfo.Spawns.Add(spawn.GUID);
                     }
 
-                    foreach (var spawnId in cellGuids.Value.gameobjects)
+                    foreach (var spawnId in cellGuids.Value.Gameobjects)
                     {
-                        var spawn = BuildingSpawnHelper<GameObject>(go, spawnId, map);
+                        var spawn = BuildingSpawnHelper(_classFactory.Resolve<GameObject>(), go, spawnId, map);
 
                         if (spawn)
                             BuildingInfo.Spawns.Add(spawn.GUID);
@@ -947,10 +963,8 @@ public class Garrison
             BuildingInfo.PacketInfo = buildingInfo;
         }
 
-        private T BuildingSpawnHelper<T>(GameObject building, ulong spawnId, Map map) where T : WorldObject, new()
+        private T BuildingSpawnHelper<T>(T spawn, GameObject building, ulong spawnId, Map map) where T : WorldObject
         {
-            T spawn = new();
-
             if (!spawn.LoadFromDB(spawnId, map, false, false))
                 return null;
 
@@ -974,10 +988,7 @@ public class Garrison
             if (!spawn.Location.IsPositionValid)
                 return null;
 
-            if (!map.AddToMap(spawn))
-                return null;
-
-            return spawn;
+            return !map.AddToMap(spawn) ? null : spawn;
         }
     }
 }

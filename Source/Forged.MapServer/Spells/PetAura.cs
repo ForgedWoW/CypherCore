@@ -31,9 +31,7 @@ public class PetAura
 
     public uint GetAura(uint petEntry)
     {
-        var auraId = _auras.LookupByKey(petEntry);
-
-        if (auraId != 0)
+        if (_auras.TryGetValue(petEntry, out var auraId))
             return auraId;
 
         auraId = _auras.LookupByKey(0);

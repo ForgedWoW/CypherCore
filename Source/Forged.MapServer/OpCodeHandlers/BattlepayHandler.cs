@@ -4,7 +4,6 @@
 using System.Linq;
 using Forged.MapServer.Battlepay;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Globals;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Bpay;
 using Forged.MapServer.Server;

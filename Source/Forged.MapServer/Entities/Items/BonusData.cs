@@ -234,9 +234,7 @@ public class BonusData
                 break;
 
             case ItemBonusType.ItemEffectId:
-                var itemEffect = CliDB.ItemEffectStorage.LookupByKey(values[0]);
-
-                if (itemEffect != null)
+                if (CliDB.ItemEffectStorage.TryGetValue(values[0], out var itemEffect))
                     Effects[EffectCount++] = itemEffect;
 
                 break;

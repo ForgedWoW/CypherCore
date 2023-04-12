@@ -2268,9 +2268,7 @@ public class SmartAIManager
             }
             case SmartActions.OverrideLight:
             {
-                var areaEntry = _cliDB.AreaTableStorage.LookupByKey(e.Action.overrideLight.ZoneId);
-
-                if (areaEntry == null)
+                if (!_cliDB.AreaTableStorage.TryGetValue(e.Action.overrideLight.ZoneId, out var areaEntry))
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} uses non-existent zoneId {e.Action.overrideLight.ZoneId}, skipped.");
 
@@ -2302,9 +2300,7 @@ public class SmartAIManager
             }
             case SmartActions.OverrideWeather:
             {
-                var areaEntry = _cliDB.AreaTableStorage.LookupByKey(e.Action.overrideWeather.ZoneId);
-
-                if (areaEntry == null)
+                if (!_cliDB.AreaTableStorage.TryGetValue(e.Action.overrideWeather.ZoneId, out var areaEntry))
                 {
                     Log.Logger.Error($"SmartAIMgr: {e} uses non-existent zoneId {e.Action.overrideWeather.ZoneId}, skipped.");
 

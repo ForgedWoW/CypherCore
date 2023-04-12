@@ -17,9 +17,7 @@ internal class PlayerPersonalPhasesTracker
 
     public bool IsGridLoadedForPhase(uint gridId, uint phaseId)
     {
-        var spawns = _spawns.LookupByKey(phaseId);
-
-        if (spawns != null)
+        if (_spawns.TryGetValue(phaseId, out var spawns))
             return spawns.Grids.Contains((ushort)gridId);
 
         return false;
@@ -43,9 +41,7 @@ internal class PlayerPersonalPhasesTracker
         // loop over all owner phases. If any exist and marked for deletion - reset delete
         foreach (var phaseRef in phaseShift.Phases)
         {
-            var spawns = _spawns.LookupByKey(phaseRef.Key);
-
-            if (spawns != null)
+            if (_spawns.TryGetValue(phaseRef.Key, out var spawns))
                 spawns.DurationRemaining = null;
         }
     }

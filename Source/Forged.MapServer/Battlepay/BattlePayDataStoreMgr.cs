@@ -2,20 +2,32 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Bpay;
 using Framework.Collections;
+using Framework.Database;
 using Serilog;
 
-namespace Forged.MapServer.Globals;
+namespace Forged.MapServer.Battlepay;
 
-public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
+public class BattlePayDataStoreMgr
 {
-    public SortedDictionary<uint, BpayDisplayInfo> DisplayInfos { get; private set; } = new();
-    public SortedDictionary<uint, ProductAddon> ProductAddons { get; private set; } = new();
-    public List<BpayGroup> ProductGroups { get; private set; } = new();
-    public SortedDictionary<uint, BpayProductInfo> ProductInfos { get; private set; } = new();
-    public SortedDictionary<uint, BpayProduct> Products { get; private set; } = new();
-    public List<BpayShop> ShopEntries { get; private set; } = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _gameObjectManager;
+    public SortedDictionary<uint, BpayDisplayInfo> DisplayInfos { get; } = new();
+    public SortedDictionary<uint, ProductAddon> ProductAddons { get; } = new();
+    public List<BpayGroup> ProductGroups { get; } = new();
+    public SortedDictionary<uint, BpayProductInfo> ProductInfos { get; } = new();
+    public SortedDictionary<uint, BpayProduct> Products { get; } = new();
+    public List<BpayShop> ShopEntries { get; } = new();
+
+    public BattlePayDataStoreMgr(WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
+    {
+        _worldDatabase = worldDatabase;
+        _gameObjectManager = gameObjectManager;
+    }
+
     public bool DisplayInfoExist(uint displayInfoEntry)
     {
         if (DisplayInfos.ContainsKey(displayInfoEntry))
@@ -33,9 +45,8 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 
     public List<BpayProductItem> GetItemsOfProduct(uint productID)
     {
-        foreach (var product in Products)
-            if (product.Value.ProductId == productID)
-                return product.Value.Items;
+        foreach (var product in Products.Where(product => product.Value.ProductId == productID))
+            return product.Value.Items;
 
         Log.Logger.Information("GetItemsOfProduct failed for productid {}", productID);
 
@@ -55,29 +66,23 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 
     public uint GetProductGroupId(uint productId)
     {
-        foreach (var shop in ShopEntries)
-            if (shop.ProductID == productId)
-                return shop.GroupID;
-
-        return 0;
+        return (from shop in ShopEntries where shop.ProductID == productId select shop.GroupID).FirstOrDefault();
     }
 
     // This awesome function returns back the productinfo for all the two types of productid!
     public BpayProductInfo GetProductInfoForProduct(uint productID)
     {
         // Find product by subproduct id (_productInfos.productids) if not found find it by shop productid (_productInfos.productid)
-        if (!ProductInfos.TryGetValue(productID, out var prod))
-        {
-            foreach (var productInfo in ProductInfos)
-                if (productInfo.Value.ProductId == productID)
-                    return productInfo.Value;
+        if (ProductInfos.TryGetValue(productID, out var prod))
+            return prod;
 
-            Log.Logger.Information("GetProductInfoForProduct failed for productID {}", productID);
+        foreach (var productInfo in ProductInfos.Where(productInfo => productInfo.Value.ProductId == productID))
+            return productInfo.Value;
 
-            return null;
-        }
+        Log.Logger.Information("GetProductInfoForProduct failed for productID {}", productID);
 
-        return prod;
+        return null;
+
     }
 
     public List<BpayProduct> GetProductsOfProductInfo(uint productInfoEntry)
@@ -122,7 +127,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         Log.Logger.Information("Loading Battlepay display info ...");
         DisplayInfos.Clear();
 
-        var result = DB.World.Query("SELECT Entry, CreatureDisplayID, VisualID, Name1, Name2, Name3, Name4, Name5, Name6, Name7, Flags, Unk1, Unk2, Unk3, UnkInt1, UnkInt2, UnkInt3 FROM battlepay_displayinfo");
+        var result = _worldDatabase.Query("SELECT Entry, CreatureDisplayID, VisualID, Name1, Name2, Name3, Name4, Name5, Name6, Name7, Flags, Unk1, Unk2, Unk3, UnkInt1, UnkInt2, UnkInt3 FROM battlepay_displayinfo");
 
         if (result == null)
             return;
@@ -155,7 +160,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
             DisplayInfos.Add(fields.Read<uint>(0), displayInfo);
         } while (result.NextRow());
 
-        result = DB.World.Query("SELECT Entry, DisplayId, VisualId, Unk, Name, DisplayInfoEntry FROM battlepay_visual");
+        result = _worldDatabase.Query("SELECT Entry, DisplayId, VisualId, Unk, Name, DisplayInfoEntry FROM battlepay_visual");
 
         if (result == null)
             return;
@@ -194,7 +199,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         ProductInfos.Clear();
 
         // Product Info
-        var result = DB.World.Query("SELECT Entry, ProductId, NormalPriceFixedPoint, CurrentPriceFixedPoint, ProductIds, Unk1, Unk2, UnkInts, Unk3, ChoiceType FROM battlepay_productinfo");
+        var result = _worldDatabase.Query("SELECT Entry, ProductId, NormalPriceFixedPoint, CurrentPriceFixedPoint, ProductIds, Unk1, Unk2, UnkInts, Unk3, ChoiceType FROM battlepay_productinfo");
 
         if (result == null)
             return;
@@ -211,9 +216,9 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
                 CurrentPriceFixedPoint = fields.Read<uint>(3)
             };
 
-            var subproducts_stream = new StringArray(fields.Read<string>(4), ',');
+            var subproductsStream = new StringArray(fields.Read<string>(4), ',');
 
-            foreach (string subproduct in subproducts_stream)
+            foreach (string subproduct in subproductsStream)
                 if (uint.TryParse(subproduct, out var productId))
                     productInfo.ProductIds.Add(productId); // another cool flux stuff: multiple subproducts can be added in one column
 
@@ -229,7 +234,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         } while (result.NextRow());
 
         // Product
-        result = DB.World.Query("SELECT Entry, ProductId, Type, Flags, Unk1, DisplayId, ItemId, Unk4, Unk5, Unk6, Unk7, Unk8, Unk9, UnkString, UnkBit, UnkBits, Name FROM battlepay_product");
+        result = _worldDatabase.Query("SELECT Entry, ProductId, Type, Flags, Unk1, DisplayId, ItemId, Unk4, Unk5, Unk6, Unk7, Unk8, Unk9, UnkString, UnkBit, UnkBits, Name FROM battlepay_product");
 
         if (result == null)
             return;
@@ -263,7 +268,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         } while (result.NextRow());
 
         // Product Items
-        result = DB.World.Query("SELECT ID, UnkByte, ItemID, Quantity, UnkInt1, UnkInt2, IsPet, PetResult, Display FROM battlepay_item");
+        result = _worldDatabase.Query("SELECT ID, UnkByte, ItemID, Quantity, UnkInt1, UnkInt2, IsPet, PetResult, Display FROM battlepay_item");
 
         if (result == null)
             return;
@@ -282,7 +287,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
                 ItemID = fields.Read<uint>(2)
             };
 
-            if (Global.ObjectMgr.GetItemTemplate(productItem.ItemID) != null)
+            if (_gameObjectManager.GetItemTemplate(productItem.ItemID) != null)
                 continue;
 
             productItem.Entry = fields.Read<uint>(0);
@@ -305,7 +310,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         Log.Logger.Information("Loading Battlepay display info addons ...");
         ProductAddons.Clear();
 
-        var result = DB.World.Query("SELECT DisplayInfoEntry, DisableListing, DisableBuy, NameColorIndex, ScriptName, Comment FROM battlepay_addon");
+        var result = _worldDatabase.Query("SELECT DisplayInfoEntry, DisableListing, DisableBuy, NameColorIndex, ScriptName, Comment FROM battlepay_addon");
 
         if (result == null)
             return;
@@ -335,7 +340,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         Log.Logger.Information("Loading Battlepay product groups ...");
         ProductGroups.Clear();
 
-        var result = DB.World.Query("SELECT Entry, GroupId, IconFileDataID, DisplayType, Ordering, Unk, Name, Description FROM battlepay_group");
+        var result = _worldDatabase.Query("SELECT Entry, GroupId, IconFileDataID, DisplayType, Ordering, Unk, Name, Description FROM battlepay_group");
 
         if (result == null)
             return;
@@ -366,7 +371,7 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
         Log.Logger.Information("Loading Battlepay shop entries ...");
         ShopEntries.Clear();
 
-        var result = DB.World.Query("SELECT Entry, EntryID, GroupID, ProductID, Ordering, VasServiceType, StoreDeliveryType FROM battlepay_shop");
+        var result = _worldDatabase.Query("SELECT Entry, EntryID, GroupID, ProductID, Ordering, VasServiceType, StoreDeliveryType FROM battlepay_shop");
 
         if (result == null)
             return;

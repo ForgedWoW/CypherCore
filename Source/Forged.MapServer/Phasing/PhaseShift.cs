@@ -215,9 +215,7 @@ public class PhaseShift
 
     public bool RemovePhase(uint phaseId)
     {
-        var phaseRef = Phases.LookupByKey(phaseId);
-
-        if (phaseRef != null)
+        if (Phases.TryGetValue(phaseId, out var phaseRef))
         {
             ModifyPhasesReferences(phaseId, phaseRef, -1);
 

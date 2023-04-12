@@ -134,9 +134,7 @@ public partial class Player
 
         MathFunctions.AddPct(ref versaDmgMod, GetRatingBonusValue(CombatRating.VersatilityDamageDone) + (float)GetTotalAuraModifier(AuraType.ModVersatility));
 
-        var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
-
-        if (shapeshift != null && shapeshift.CombatRoundTime != 0)
+        if (CliDB.SpellShapeshiftFormStorage.TryGetValue(ShapeshiftForm, out var shapeshift))
         {
             weaponMinDamage = weaponMinDamage * shapeshift.CombatRoundTime / 1000.0f / attackPowerMod;
             weaponMaxDamage = weaponMaxDamage * shapeshift.CombatRoundTime / 1000.0f / attackPowerMod;
@@ -495,9 +493,7 @@ public partial class Player
         value += GetRatingBonusValue(CombatRating.Mastery);
         SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Mastery), (float)value);
 
-        var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
-
-        if (chrSpec == null)
+        if (!CliDB.ChrSpecializationStorage.TryGetValue(GetPrimarySpecialization(), out var chrSpec))
             return;
 
         foreach (var masterySpellId in chrSpec.MasterySpellID)
@@ -1008,9 +1004,7 @@ public partial class Player
     private Stats GetPrimaryStat()
     {
         byte primaryStatPriority;
-        var specialization = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
-
-        if (specialization != null)
+        if (CliDB.ChrSpecializationStorage.TryGetValue(GetPrimarySpecialization(), out var specialization))
             primaryStatPriority = (byte)specialization.PrimaryStatPriority;
         else
             primaryStatPriority = CliDB.ChrClassesStorage.LookupByKey(Class).PrimaryStatPriority;
@@ -1051,9 +1045,7 @@ public partial class Player
                 continue;
             }
 
-            var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(corruptionEffect.PlayerConditionID);
-
-            if (playerCondition != null)
+            if (CliDB.PlayerConditionStorage.TryGetValue(corruptionEffect.PlayerConditionID, out var playerCondition))
                 if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                 {
                     RemoveAura(corruptionEffect.Aura);

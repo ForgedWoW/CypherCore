@@ -8,6 +8,6 @@ namespace Forged.MapServer.Globals;
 
 public class GossipMenuItemsLocale
 {
-    public StringArray BoxText = new((int)Locale.Total);
-    public StringArray OptionText = new((int)Locale.Total);
+    public StringArray BoxText { get; set; } = new((int)Locale.Total);
+    public StringArray OptionText { get; set; } = new((int)Locale.Total);
 }

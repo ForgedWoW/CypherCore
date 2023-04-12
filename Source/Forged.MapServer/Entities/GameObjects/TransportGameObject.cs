@@ -13,7 +13,7 @@ using Serilog;
 
 namespace Forged.MapServer.Entities.GameObjects;
 
-internal class Transport : GameObjectTypeBase, ITransport
+internal class TransportGameObject : GameObjectTypeBase, ITransport
 {
     private static readonly TimeSpan PositionUpdateInterval = TimeSpan.FromMilliseconds(50);
     private readonly TransportAnimation _animationInfo;
@@ -24,7 +24,8 @@ internal class Transport : GameObjectTypeBase, ITransport
     private uint _pathProgress;
     private uint _stateChangeProgress;
     private uint _stateChangeTime;
-    public Transport(GameObject owner) : base(owner)
+
+    public TransportGameObject(GameObject owner) : base(owner)
     {
         _animationInfo = Global.TransportMgr.GetTransportAnimInfo(owner.Template.entry);
         _pathProgress = GameTime.CurrentTimeMS % GetTransportPeriod();

@@ -76,9 +76,7 @@ public class DisableManager
         if (!_disableMap.ContainsKey(type) || _disableMap[type].Empty())
             return false;
 
-        var data = _disableMap[type].LookupByKey(entry);
-
-        if (data == null) // not disabled
+        if (!_disableMap[type].TryGetValue(entry, out var data)) // not disabled
             return false;
 
         switch (type)
@@ -283,9 +281,7 @@ public class DisableManager
                 case DisableType.Map:
                 case DisableType.LFGMap:
                 {
-                    var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
-
-                    if (mapEntry == null)
+                    if (!_cliDB.MapStorage.TryGetValue(entry, out var mapEntry))
                     {
                         Log.Logger.Error("Map entry {0} from `disables` doesn't exist in dbc, skipped.", entry);
 
@@ -370,9 +366,7 @@ public class DisableManager
                     break;
                 case DisableType.VMAP:
                 {
-                    var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
-
-                    if (mapEntry == null)
+                    if (!_cliDB.MapStorage.TryGetValue(entry, out var mapEntry))
                     {
                         Log.Logger.Error("Map entry {0} from `disables` doesn't exist in dbc, skipped.", entry);
 
@@ -420,9 +414,7 @@ public class DisableManager
                 }
                 case DisableType.MMAP:
                 {
-                    var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
-
-                    if (mapEntry == null)
+                    if (!_cliDB.MapStorage.TryGetValue(entry, out var mapEntry))
                     {
                         Log.Logger.Error("Map entry {0} from `disables` doesn't exist in dbc, skipped.", entry);
 

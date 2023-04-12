@@ -111,9 +111,7 @@ public class PlayerAchievementMgr : AchievementManager
 
         if (titleId != 0)
         {
-            var titleEntry = CliDB.CharTitlesStorage.LookupByKey(titleId);
-
-            if (titleEntry != null)
+            if (CliDB.CharTitlesStorage.TryGetValue(titleId, out var titleEntry))
                 _owner.SetTitle(titleEntry);
         }
 
@@ -195,9 +193,7 @@ public class PlayerAchievementMgr : AchievementManager
                 var achievementid = achievementResult.Read<uint>(0);
 
                 // must not happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
-                var achievement = CliDB.AchievementStorage.LookupByKey(achievementid);
-
-                if (achievement == null)
+                if (!CliDB.AchievementStorage.TryGetValue(achievementid, out var achievement))
                     continue;
 
                 CompletedAchievementData ca = new()
@@ -217,9 +213,7 @@ public class PlayerAchievementMgr : AchievementManager
 
                     if (titleId != 0)
                     {
-                        var titleEntry = CliDB.CharTitlesStorage.LookupByKey(titleId);
-
-                        if (titleEntry != null)
+                        if (CliDB.CharTitlesStorage.TryGetValue(titleId, out var titleEntry))
                             _owner.SetTitle(titleEntry);
                     }
                 }

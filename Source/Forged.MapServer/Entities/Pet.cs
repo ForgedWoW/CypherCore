@@ -281,9 +281,7 @@ public class Pet : Guardian
         }
 
         SetDisplayId(creature.DisplayId);
-        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
-
-        if (cFamily != null)
+        if (CliDB.CreatureFamilyStorage.TryGetValue(cinfo.Family, out var cFamily))
             SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
         else
             SetName(creature.GetName(Global.WorldMgr.DefaultDbcLocale));
@@ -296,9 +294,7 @@ public class Pet : Guardian
         if (!CreateBaseAtTamed(cinfo, owner.Location.Map))
             return false;
 
-        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
-
-        if (cFamily != null)
+        if (CliDB.CreatureFamilyStorage.TryGetValue(cinfo.Family, out var cFamily))
             SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
 
         Location.Relocate(owner.Location);
@@ -418,9 +414,7 @@ public class Pet : Guardian
         if (cInfo == null)
             return false;
 
-        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cInfo.Family);
-
-        if (cFamily == null)
+        if (!CliDB.CreatureFamilyStorage.TryGetValue(cInfo.Family, out var cFamily))
             return false;
 
         uint diet = cFamily.PetFoodMask;
@@ -716,9 +710,7 @@ public class Pet : Guardian
                  Log.Logger.Debug($"New Pet has {GUID}");
 
                  var specId = specializationId;
-                 var petSpec = CliDB.ChrSpecializationStorage.LookupByKey(specId);
-
-                 if (petSpec != null)
+                 if (CliDB.ChrSpecializationStorage.TryGetValue(specId, out var petSpec))
                      specId = (ushort)Global.DB2Mgr.GetChrSpecializationByIndex(owner.HasAuraType(AuraType.OverridePetSpecs) ? PlayerClass.Max : 0, petSpec.OrderIndex).Id;
 
                  SetSpecialization(specId);
@@ -772,9 +764,7 @@ public class Pet : Guardian
     }
     public bool RemoveSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
     {
-        var petSpell = Spells.LookupByKey(spellId);
-
-        if (petSpell == null)
+        if (!Spells.TryGetValue(spellId, out var petSpell))
             return false;
 
         if (petSpell.State == PetSpellState.Removed)
@@ -1020,9 +1010,7 @@ public class Pet : Guardian
         if (!spellInfo.IsAutocastable)
             return;
 
-        var petSpell = Spells.LookupByKey(spellInfo.Id);
-
-        if (petSpell == null)
+        if (!Spells.TryGetValue(spellInfo.Id, out var petSpell))
             return;
 
         var hasSpell = _autospells.Contains(spellInfo.Id);
@@ -1388,9 +1376,7 @@ public class Pet : Guardian
             return false;
         }
 
-        var petSpell = Spells.LookupByKey(spellId);
-
-        if (petSpell != null)
+        if (Spells.TryGetValue(spellId, out var petSpell))
         {
             if (petSpell.State == PetSpellState.Removed)
             {
@@ -1605,14 +1591,10 @@ public class Pet : Guardian
         if (cInfo == null)
             return;
 
-        var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cInfo.Family);
-
-        if (cFamily == null)
+        if (!CliDB.CreatureFamilyStorage.ContainsKey(cInfo.Family))
             return;
 
-        var petStore = Global.SpellMgr.PetFamilySpellsStorage.LookupByKey(cInfo.Family);
-
-        if (petStore != null)
+        if (Global.SpellMgr.PetFamilySpellsStorage.TryGetValue(cInfo.Family, out var petStore))
             // For general hunter pets skill 270
             // Passive 01~10, Passive 00 (20782, not used), Ferocious Inspiration (34457)
             // Scale 01~03 (34902~34904, bonus from owner, not used)

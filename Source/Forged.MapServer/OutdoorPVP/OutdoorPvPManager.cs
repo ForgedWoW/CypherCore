@@ -109,9 +109,7 @@ public class OutdoorPvPManager
 
     public string GetDefenseMessage(uint zoneId, uint id, Locale locale)
     {
-        var bct = _cliDB.BroadcastTextStorage.LookupByKey(id);
-
-        if (bct != null)
+        if (_cliDB.BroadcastTextStorage.TryGetValue(id, out var bct))
             return _db2Manager.GetBroadcastTextValue(bct, locale);
 
         Log.Logger.Error("Can not find DefenseMessage (Zone: {0}, Id: {1}). BroadcastText (Id: {2}) does not exist.", zoneId, id, id);

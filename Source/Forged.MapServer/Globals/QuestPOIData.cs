@@ -8,9 +8,6 @@ namespace Forged.MapServer.Globals;
 
 public class QuestPOIData
 {
-    public List<QuestPOIBlobData> Blobs;
-    public ByteBuffer QueryDataBuffer;
-    public uint QuestID;
     public QuestPOIData(uint questId)
     {
         QuestID = questId;
@@ -18,6 +15,9 @@ public class QuestPOIData
         QueryDataBuffer = new ByteBuffer();
     }
 
+    public List<QuestPOIBlobData> Blobs { get; set; }
+    public ByteBuffer QueryDataBuffer { get; set; }
+    public uint QuestID { get; set; }
     public void InitializeQueryData()
     {
         Write(QueryDataBuffer);

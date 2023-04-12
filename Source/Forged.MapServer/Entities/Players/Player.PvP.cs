@@ -606,7 +606,7 @@ public partial class Player
                 var entry = ObjectManager.GetClosestGraveYard(Location, Team, this);
 
                 if (entry != null)
-                    _bgData.JoinPos = entry.Loc;
+                    _bgData.JoinPos = entry.Location;
                 else
                     Log.Logger.Error("SetBattlegroundEntryPoint: Dungeon map {0} has no linked graveyard, setting home location as entry point.", Location.MapId);
             }
@@ -728,9 +728,7 @@ public partial class Player
         if (InBattleground)
             return true;
 
-        var area = CliDB.AreaTableStorage.LookupByKey(areaId);
-
-        if (area != null)
+        if (CliDB.AreaTableStorage.TryGetValue(areaId, out var area))
             do
             {
                 if (area.IsSanctuary())
@@ -763,9 +761,7 @@ public partial class Player
         if (rewardPackEntry == null)
             return;
 
-        var charTitlesEntry = CliDB.CharTitlesStorage.LookupByKey(rewardPackEntry.CharTitleID);
-
-        if (charTitlesEntry != null)
+        if (CliDB.CharTitlesStorage.TryGetValue(rewardPackEntry.CharTitleID, out var charTitlesEntry))
             SetTitle(charTitlesEntry);
 
         ModifyMoney(rewardPackEntry.Money);

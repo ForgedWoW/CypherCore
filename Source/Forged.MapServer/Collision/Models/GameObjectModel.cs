@@ -204,9 +204,7 @@ public class GameObjectModel : Model
         if (_iModel == null)
             return false;
 
-        var it = StaticModelList.Models.LookupByKey(_owner.DisplayId);
-
-        if (it == null)
+        if (!StaticModelList.Models.TryGetValue(_owner.DisplayId, out var it))
             return false;
 
         AxisAlignedBox mdlBox = new(it.Bound);
@@ -237,9 +235,7 @@ public class GameObjectModel : Model
 
     private bool Initialize(GameObjectModelOwnerBase modelOwner, VMapManager vMapManager)
     {
-        var modelData = StaticModelList.Models.LookupByKey(modelOwner.DisplayId);
-
-        if (modelData == null)
+        if (!StaticModelList.Models.TryGetValue(modelOwner.DisplayId, out var modelData))
             return false;
 
         AxisAlignedBox mdlBox = new(modelData.Bound);

@@ -805,9 +805,7 @@ public class ItemHandler : IWorldSessionHandler
 
             if (iGemProto.ItemLimitCategory != 0)
             {
-                var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(iGemProto.ItemLimitCategory);
-
-                if (limitEntry != null)
+                if (CliDB.ItemLimitCategoryStorage.TryGetValue(iGemProto.ItemLimitCategory, out var limitEntry))
                 {
                     // NOTE: limitEntry.mode is not checked because if item has limit then it is applied in equip case
                     for (var j = 0; j < ItemConst.MaxGemSockets; ++j)

@@ -5,8 +5,8 @@ namespace Forged.MapServer.Globals;
 
 public class ClassAvailability
 {
-    public byte AccountExpansionLevel;
-    public byte ActiveExpansionLevel;
-    public byte ClassID;
-    public byte MinActiveExpansionLevel;
+    public byte AccountExpansionLevel { get; set; }
+    public byte ActiveExpansionLevel { get; set; }
+    public byte ClassID { get; set; }
+    public byte MinActiveExpansionLevel { get; set; }
 }

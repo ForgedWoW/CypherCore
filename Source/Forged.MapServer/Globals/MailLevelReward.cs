@@ -5,14 +5,14 @@ namespace Forged.MapServer.Globals;
 
 public class MailLevelReward
 {
-    public uint MailTemplateId;
-    public ulong RaceMask;
-    public uint SenderEntry;
-
     public MailLevelReward(ulong raceMask = 0, uint mailTemplateId = 0, uint senderEntry = 0)
     {
         RaceMask = raceMask;
         MailTemplateId = mailTemplateId;
         SenderEntry = senderEntry;
     }
+
+    public uint MailTemplateId { get; set; }
+    public ulong RaceMask { get; set; }
+    public uint SenderEntry { get; set; }
 }

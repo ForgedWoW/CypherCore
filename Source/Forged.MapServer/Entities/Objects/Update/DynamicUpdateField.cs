@@ -178,7 +178,7 @@ public class DynamicUpdateField<T> where T : new()
     }
     private void MarkAllUpdateMaskFields(T value)
     {
-        if (value is IHasChangesMask)
-            ((IHasChangesMask)value).GetUpdateMask().SetAll();
+        if (value is IHasChangesMask mask)
+            mask.GetUpdateMask().SetAll();
     }
 }

@@ -231,9 +231,7 @@ public class InstanceLockManager
 
                 if (new MapDb2Entries(mapId, difficulty).IsInstanceIdBound())
                 {
-                    var sharedData = instanceLockDataById.LookupByKey(instanceId);
-
-                    if (sharedData == null)
+                    if (!instanceLockDataById.TryGetValue(instanceId, out var sharedData))
                     {
                         Log.Logger.Error($"Missing instance data for instance id based lock (id {instanceId})");
                         _characterDatabase.Execute($"DELETE FROM character_instance_lock WHERE instanceId = {instanceId}");
@@ -279,9 +277,7 @@ public class InstanceLockManager
     /// <param name="locksFailedToReset"> Locks that could not be reset because they are used by existing instance map </param>
     public void ResetInstanceLocksForPlayer(ObjectGuid playerGuid, uint? mapId, Difficulty? difficulty, List<InstanceLock> locksReset, List<InstanceLock> locksFailedToReset)
     {
-        var playerLocks = _instanceLocksByPlayer.LookupByKey(playerGuid);
-
-        if (playerLocks == null)
+        if (!_instanceLocksByPlayer.TryGetValue(playerGuid, out var playerLocks))
             return;
 
         foreach (var playerLockPair in playerLocks)
@@ -368,9 +364,7 @@ public class InstanceLockManager
                 // player can still change his mind, exit instance and reactivate old lock
                 var playerLocks = _temporaryInstanceLocksByPlayer.LookupByKey(playerGuid);
 
-                var playerInstanceLock = playerLocks?.LookupByKey(entries.GetKey());
-
-                if (playerInstanceLock != null)
+                if (playerLocks?.TryGetValue(entries.GetKey(), out var playerInstanceLock))
                 {
                     instanceLock = playerInstanceLock;
                     _instanceLocksByPlayer[playerGuid][entries.GetKey()] = instanceLock;

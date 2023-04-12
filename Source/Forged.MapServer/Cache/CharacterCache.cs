@@ -117,9 +117,7 @@ public class CharacterCache
         name = "Unknown";
         _class = 0;
 
-        var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
-
-        if (characterCacheEntry == null)
+        if (!_characterCacheStore.TryGetValue(guid, out var characterCacheEntry))
             return false;
 
         name = characterCacheEntry.Name;
@@ -131,9 +129,7 @@ public class CharacterCache
     public bool GetCharacterNameByGuid(ObjectGuid guid, out string name)
     {
         name = "Unknown";
-        var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
-
-        if (characterCacheEntry == null)
+        if (!_characterCacheStore.TryGetValue(guid, out var characterCacheEntry))
             return false;
 
         name = characterCacheEntry.Name;
@@ -192,9 +188,7 @@ public class CharacterCache
 
     public void UpdateCharacterData(ObjectGuid guid, string name, byte? gender = null, byte? race = null)
     {
-        var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
-
-        if (characterCacheEntry == null)
+        if (!_characterCacheStore.TryGetValue(guid, out var characterCacheEntry))
             return;
 
         var oldName = characterCacheEntry.Name;

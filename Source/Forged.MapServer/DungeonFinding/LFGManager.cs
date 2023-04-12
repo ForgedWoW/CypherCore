@@ -656,9 +656,7 @@ public class LFGManager
     public long GetQueueJoinTime(ObjectGuid guid)
     {
         var queueId = GetQueueId(guid);
-        var lfgQueue = _queuesStore.LookupByKey(queueId);
-
-        if (lfgQueue != null)
+        if (_queuesStore.TryGetValue(queueId, out var lfgQueue))
             return lfgQueue.GetJoinTime(guid);
 
         return 0;
@@ -1182,9 +1180,7 @@ public class LFGManager
                 foreach (var test in _proposalsStore)
                 {
                     it = test;
-                    var itPlayer = it.Value.Players.LookupByKey(pguid);
-
-                    if (itPlayer != null)
+                    if (it.Value.Players.TryGetValue(pguid, out var itPlayer))
                     {
                         // Mark the player/leader of group who left as didn't accept the proposal
                         itPlayer.Accept = LfgAnswer.Deny;
@@ -1363,9 +1359,7 @@ public class LFGManager
     public void RemoveGroupData(ObjectGuid guid)
     {
         Log.Logger.Debug("RemoveGroupData: [{0}]", guid);
-        var it = _groupsStore.LookupByKey(guid);
-
-        if (it == null)
+        if (!_groupsStore.TryGetValue(guid, out var it))
             return;
 
         var state = GetState(guid);
@@ -1745,9 +1739,7 @@ public class LFGManager
         if (gguid.IsEmpty)
             return;
 
-        var boot = _bootsStore.LookupByKey(gguid);
-
-        if (boot == null)
+        if (!_bootsStore.TryGetValue(gguid, out var boot))
             return;
 
         if (boot.Votes[guid] != LfgAnswer.Pending) // Cheat check: Player can't vote twice
@@ -1809,9 +1801,7 @@ public class LFGManager
         var proposal = _proposalsStore.LookupByKey(proposalId);
 
         // Check if proposal have the current player
-        var player = proposal?.Players.LookupByKey(guid);
-
-        if (player == null)
+        if (!proposal?.Players.TryGetValue(guid, out var player))
             return;
 
         player.Accept = (LfgAnswer)Convert.ToInt32(accept);
@@ -1921,9 +1911,7 @@ public class LFGManager
             return;
 
         Dictionary<ObjectGuid, LfgRoles> checkRoles;
-        var roleCheck = _roleChecksStore.LookupByKey(gguid);
-
-        if (roleCheck == null)
+        if (!_roleChecksStore.TryGetValue(gguid, out var roleCheck))
             return;
 
         // Sanitize input roles

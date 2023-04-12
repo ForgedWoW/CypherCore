@@ -28,9 +28,7 @@ public class FormationMgr
     {
         var map = creature.Location.Map;
 
-        var creatureGroup = map.CreatureGroupHolder.LookupByKey(leaderSpawnId);
-
-        if (creatureGroup != null)
+        if (map.CreatureGroupHolder.TryGetValue(leaderSpawnId, out var creatureGroup))
         {
             //Add member to an existing group
             Log.Logger.Debug("Group found: {0}, inserting creature GUID: {1}, Group InstanceID {2}", leaderSpawnId, creature.GUID.ToString(), creature.InstanceId);

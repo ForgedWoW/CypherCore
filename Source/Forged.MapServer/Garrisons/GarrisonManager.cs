@@ -98,9 +98,7 @@ public class GarrisonManager
 
     public uint GetPreviousLevelBuilding(uint buildingType, uint currentLevel)
     {
-        var list = _garrisonBuildingsByType.LookupByKey(buildingType);
-
-        if (!list.Empty())
+        if (_garrisonBuildingsByType.TryGetValue(buildingType, out var list))
             foreach (var buildingId in list)
                 if (_cliDB.GarrBuildingStorage.LookupByKey(buildingId).UpgradeLevel == currentLevel - 1)
                     return buildingId;
@@ -136,9 +134,7 @@ public class GarrisonManager
 
         foreach (var followerAbility in _cliDB.GarrFollowerXAbilityStorage.Values)
         {
-            var ability = _cliDB.GarrAbilityStorage.LookupByKey(followerAbility.GarrAbilityID);
-
-            if (ability == null)
+            if (!_cliDB.GarrAbilityStorage.TryGetValue(followerAbility.GarrAbilityID, out var ability))
                 continue;
 
             if (ability.GarrFollowerTypeID != (uint)GarrisonFollowerType.Garrison)
@@ -168,9 +164,7 @@ public class GarrisonManager
 
     public bool IsPlotMatchingBuilding(uint garrPlotId, uint garrBuildingId)
     {
-        var plotList = _garrisonBuildingsByPlot.LookupByKey(garrPlotId);
-
-        if (!plotList.Empty())
+        if (_garrisonBuildingsByPlot.TryGetValue(garrPlotId, out var plotList))
             return plotList.Contains(garrBuildingId);
 
         return false;
@@ -188,9 +182,7 @@ public class GarrisonManager
         };
 
         GarrAbilities garrAbilities = null;
-        var abilities = _garrisonFollowerAbilities[faction].LookupByKey(garrFollowerId);
-
-        if (abilities != null)
+        if (_garrisonFollowerAbilities[faction].TryGetValue(garrFollowerId, out var abilities))
             garrAbilities = abilities;
 
         List<GarrAbilityRecord> abilityList = new();
@@ -342,9 +334,7 @@ public class GarrisonManager
         if (!_cliDB.GarrClassSpecStorage.ContainsKey(classSpecId))
             return abilities;
 
-        var garrAbility = _garrisonFollowerClassSpecAbilities.LookupByKey(classSpecId);
-
-        if (!garrAbility.Empty())
+        if (_garrisonFollowerClassSpecAbilities.TryGetValue(classSpecId, out var garrAbility))
             abilities = garrAbility;
 
         return abilities;
@@ -384,9 +374,7 @@ public class GarrisonManager
                 continue;
             }
 
-            var ability = _cliDB.GarrAbilityStorage.LookupByKey(abilityId);
-
-            if (ability == null)
+            if (!_cliDB.GarrAbilityStorage.TryGetValue(abilityId, out var ability))
             {
                 Log.Logger.Error("Non-existing GarrAbility.db2 entry {0} was referenced in `garrison_follower_class_spec_abilities` by row ({1}, {2}).", abilityId, classSpecId, abilityId);
 

@@ -7,12 +7,13 @@ namespace Forged.MapServer.Globals;
 
 public class TerrainSwapInfo
 {
-    public uint Id;
-    public List<uint> UiMapPhaseIDs = new();
     public TerrainSwapInfo() { }
 
     public TerrainSwapInfo(uint id)
     {
         Id = id;
     }
+
+    public uint Id { get; set; }
+    public List<uint> UiMapPhaseIDs { get; set; } = new();
 }

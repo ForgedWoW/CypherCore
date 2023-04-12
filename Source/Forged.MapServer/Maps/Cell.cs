@@ -102,7 +102,7 @@ public class Cell
 
     public override bool Equals(object obj)
     {
-        return obj is Cell && this == (Cell)obj;
+        return obj is Cell cell && this == cell;
     }
 
     public CellCoord GetCellCoord()

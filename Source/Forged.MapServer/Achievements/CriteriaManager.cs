@@ -282,9 +282,7 @@ public class CriteriaManager
 
         foreach (var criteriaEntry in _cliDB.CriteriaStorage.Values)
         {
-            var treeList = _criteriaTreeByCriteria.LookupByKey(criteriaEntry.Id);
-
-            if (treeList.Empty())
+            if (_criteriaTreeByCriteria.TryGetValue(criteriaEntry.Id, out var treeList))
                 continue;
 
             Criteria criteria = new()
@@ -337,9 +335,7 @@ public class CriteriaManager
                     }
                     else
                     {
-                        var worldOverlayEntry = _cliDB.WorldMapOverlayStorage.LookupByKey(criteriaEntry.Asset);
-
-                        if (worldOverlayEntry == null)
+                        if (!_cliDB.WorldMapOverlayStorage.TryGetValue(criteriaEntry.Asset, out var worldOverlayEntry))
                             break;
 
                         for (byte j = 0; j < SharedConst.MaxWorldMapOverlayArea; ++j)

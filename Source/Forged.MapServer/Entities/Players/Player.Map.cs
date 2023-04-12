@@ -155,9 +155,7 @@ public partial class Player
 
     public bool IsLockedToDungeonEncounter(uint dungeonEncounterId)
     {
-        var dungeonEncounter = CliDB.DungeonEncounterStorage.LookupByKey(dungeonEncounterId);
-
-        if (dungeonEncounter == null)
+        if (!CliDB.DungeonEncounterStorage.TryGetValue(dungeonEncounterId, out var dungeonEncounter))
             return false;
 
         var instanceLock = InstanceLockManager.FindActiveInstanceLock(GUID, new MapDb2Entries(Location.Map.Entry, Location.Map.MapDifficulty));
@@ -250,9 +248,7 @@ public partial class Player
             uint missingQuest = 0;
             uint missingAchievement = 0;
 
-            var mapEntry = CliDB.MapStorage.LookupByKey(targetMap);
-
-            if (mapEntry == null)
+            if (!CliDB.MapStorage.TryGetValue(targetMap, out var mapEntry))
                 return false;
 
             var targetDifficulty = GetDifficultyId(mapEntry);
@@ -543,9 +539,7 @@ public partial class Player
         // zone changed, so area changed as well, update it
         UpdateArea(newArea);
 
-        var zone = CliDB.AreaTableStorage.LookupByKey(newZone);
-
-        if (zone == null)
+        if (!CliDB.AreaTableStorage.TryGetValue(newZone, out var zone))
             return;
 
         if (Configuration.GetDefaultValue("ActivateWeather", true))

@@ -54,9 +54,7 @@ public class WorldObjectCombat
 
             if (target.IsUnit && !target.AsUnit.HasUnitFlag2(UnitFlags2.IgnoreReputation))
             {
-                var factionEntry = _worldObject.CliDB.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
-
-                if (factionEntry != null)
+                if (_worldObject.CliDB.FactionStorage.TryGetValue(factionTemplateEntry.Faction, out var factionEntry))
                     if (factionEntry.CanHaveReputation())
                     {
                         // CvP case - check reputation, don't allow state higher than neutral when at war
@@ -90,9 +88,7 @@ public class WorldObjectCombat
     public FactionTemplateRecord GetFactionTemplateEntry()
     {
         var factionId = _worldObject.Faction;
-        var entry = _worldObject.CliDB.FactionTemplateStorage.LookupByKey(factionId);
-
-        if (entry == null)
+        if (!_worldObject.CliDB.FactionTemplateStorage.TryGetValue(factionId, out var entry))
             switch (_worldObject.TypeId)
             {
                 case TypeId.Player:
@@ -257,9 +253,7 @@ public class WorldObjectCombat
 
                         if (!selfPlayerOwner.HasUnitFlag2(UnitFlags2.IgnoreReputation))
                         {
-                            var targetFactionEntry = _worldObject.CliDB.FactionStorage.LookupByKey(targetFactionTemplateEntry.Faction);
-
-                            if (targetFactionEntry != null)
+                            if (_worldObject.CliDB.FactionStorage.TryGetValue(targetFactionTemplateEntry.Faction, out var targetFactionEntry))
                                 if (targetFactionEntry.CanHaveReputation())
                                 {
                                     // check contested flags
@@ -554,9 +548,7 @@ public class WorldObjectCombat
 
                 if (factionTemplate != null && player != null && player.ReputationMgr.GetForcedRankIfAny(factionTemplate) == ReputationRank.None)
                 {
-                    var factionEntry = _worldObject.CliDB.FactionStorage.LookupByKey(factionTemplate.Faction);
-
-                    if (factionEntry != null)
+                    if (_worldObject.CliDB.FactionStorage.TryGetValue(factionTemplate.Faction, out var factionEntry))
                     {
                         var repState = player.ReputationMgr.GetState(factionEntry);
 

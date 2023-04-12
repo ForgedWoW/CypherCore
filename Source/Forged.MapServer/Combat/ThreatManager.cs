@@ -271,9 +271,7 @@ public class ThreatManager
 
         // ok, now we actually apply threat
         // check if we already have an entry - if we do, just increase threat for that entry and we're done
-        var targetRefe = _myThreatListEntries.LookupByKey(target.GUID);
-
-        if (targetRefe != null)
+        if (_myThreatListEntries.TryGetValue(target.GUID, out var targetRefe))
         {
             // SUPPRESSED threat states don't go back to ONLINE until threat is caused by them (retail behavior)
             if (targetRefe.OnlineState == OnlineState.Suppressed)
@@ -326,9 +324,7 @@ public class ThreatManager
 
     public void ClearThreat(Unit target)
     {
-        var refe = _myThreatListEntries.LookupByKey(target.GUID);
-
-        if (refe != null)
+        if (_myThreatListEntries.TryGetValue(target.GUID, out var refe))
             ClearThreat(refe);
     }
 
@@ -364,9 +360,7 @@ public class ThreatManager
     {
         if (target)
         {
-            var it = _myThreatListEntries.LookupByKey(target.GUID);
-
-            if (it != null)
+            if (_myThreatListEntries.TryGetValue(target.GUID, out var it))
             {
                 _fixateRef = it;
 
@@ -431,9 +425,7 @@ public class ThreatManager
 
     public double GetThreat(Unit who, bool includeOffline = false)
     {
-        var refe = _myThreatListEntries.LookupByKey(who.GUID);
-
-        if (refe == null)
+        if (!_myThreatListEntries.TryGetValue(who.GUID, out var refe))
             return 0.0f;
 
         return (includeOffline || refe.IsAvailable) ? refe.Threat : 0.0f;
@@ -446,9 +438,7 @@ public class ThreatManager
 
     public bool IsThreatenedBy(ObjectGuid who, bool includeOffline = false)
     {
-        var refe = _myThreatListEntries.LookupByKey(who);
-
-        if (refe == null)
+        if (!_myThreatListEntries.TryGetValue(who, out var refe))
             return false;
 
         return (includeOffline || refe.IsAvailable);
@@ -473,9 +463,7 @@ public class ThreatManager
 
     public bool IsThreateningTo(ObjectGuid who, bool includeOffline = false)
     {
-        var refe = ThreatenedByMeList.LookupByKey(who);
-
-        if (refe == null)
+        if (!ThreatenedByMeList.TryGetValue(who, out var refe))
             return false;
 
         return (includeOffline || refe.IsAvailable);
@@ -540,9 +528,7 @@ public class ThreatManager
 
     public void PurgeThreatListRef(ObjectGuid guid)
     {
-        var refe = _myThreatListEntries.LookupByKey(guid);
-
-        if (refe == null)
+        if (!_myThreatListEntries.TryGetValue(guid, out var refe))
             return;
 
         _myThreatListEntries.Remove(guid);
@@ -813,9 +799,7 @@ public class ThreatManager
 
     private void UnregisterRedirectThreat(uint spellId, ObjectGuid victim)
     {
-        var victimMap = RedirectRegistry.LookupByKey(spellId);
-
-        if (victimMap == null)
+        if (!RedirectRegistry.TryGetValue(spellId, out var victimMap))
             return;
 
         if (victimMap.Remove(victim))

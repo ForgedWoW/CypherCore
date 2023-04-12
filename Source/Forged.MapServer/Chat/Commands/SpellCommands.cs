@@ -96,9 +96,7 @@ internal class SpellCommands
             return false;
         }
 
-        var skillLine = handler.CliDB.SkillLineStorage.LookupByKey(skillId);
-
-        if (skillLine == null)
+        if (!handler.CliDB.SkillLineStorage.TryGetValue(skillId, out var skillLine))
         {
             handler.SendSysMessage(CypherStrings.InvalidSkillId, skillId);
 

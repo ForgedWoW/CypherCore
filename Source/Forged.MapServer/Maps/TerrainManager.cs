@@ -121,9 +121,7 @@ public class TerrainManager
 
     public TerrainInfo LoadTerrain(uint mapId)
     {
-        var entry = _cliDB.MapStorage.LookupByKey(mapId);
-
-        if (entry == null)
+        if (!_cliDB.MapStorage.TryGetValue(mapId, out var entry))
             return null;
 
         while (entry.ParentMapID != -1 || entry.CosmeticParentMapID != -1)
@@ -137,9 +135,7 @@ public class TerrainManager
             mapId = parentMapId;
         }
 
-        var terrain = _terrainMaps.LookupByKey(mapId);
-
-        if (terrain != null)
+        if (_terrainMaps.TryGetValue(mapId, out var terrain))
             return terrain;
 
         var terrainInfo = LoadTerrainImpl(mapId);

@@ -7,6 +7,6 @@ namespace Forged.MapServer.Globals;
 
 public class WorldSafeLocsEntry
 {
-    public uint Id;
-    public WorldLocation Loc;
+    public uint Id { get; set; }
+    public WorldLocation Location { get; set; }
 }

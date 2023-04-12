@@ -336,9 +336,7 @@ public class AreaTriggerDataStorage
             {
                 var areaTriggerCreatePropertiesId = circularMovementInfos.Read<uint>(0);
 
-                var createProperties = _areaTriggerCreateProperties.LookupByKey(areaTriggerCreatePropertiesId);
-
-                if (createProperties == null)
+                if (!_areaTriggerCreateProperties.TryGetValue(areaTriggerCreatePropertiesId, out var createProperties))
                 {
                     Log.Logger.Error($"Table `areatrigger_create_properties_orbit` reference invalid AreaTriggerCreatePropertiesId {areaTriggerCreatePropertiesId}");
 

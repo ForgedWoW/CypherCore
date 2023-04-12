@@ -43,9 +43,7 @@ public class SocialManager
         if (!target)
             return;
 
-        var playerFriendInfo = player.Social.PlayerSocialMap.LookupByKey(friendGuid);
-
-        if (playerFriendInfo != null)
+        if (player.Social.PlayerSocialMap.TryGetValue(friendGuid, out var playerFriendInfo))
             friendInfo.Note = playerFriendInfo.Note;
 
         // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters

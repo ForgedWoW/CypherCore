@@ -5,6 +5,6 @@ namespace Forged.MapServer.Globals;
 
 public class GraveYardData
 {
-    public uint SafeLocId;
-    public uint Team;
+    public uint SafeLocId { get; set; }
+    public uint Team { get; set; }
 }

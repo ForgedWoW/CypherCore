@@ -17,6 +17,7 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Threading;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -33,6 +34,7 @@ public class MapManager
     private readonly LoopSafeDoubleDictionary<uint, uint, Map> _maps = new();
     private readonly object _mapsLock = new();
     private readonly ScenarioManager _scenarioManager;
+    private readonly ClassFactory _classFactory;
     private readonly IntervalTimer _timer = new();
     private readonly LimitedThreadTaskManager _updater;
     private uint _gridCleanUpDelay;
@@ -40,7 +42,7 @@ public class MapManager
     private uint _scheduledScripts;
 
     public MapManager(IConfiguration configuration, CliDB cliDB, InstanceLockManager instanceLockManager, DB2Manager db2Manager,
-                      CharacterDatabase characterDatabase, ScenarioManager scenarioManager)
+                      CharacterDatabase characterDatabase, ScenarioManager scenarioManager, ClassFactory classFactory)
     {
         _configuration = configuration;
         _cliDB = cliDB;
@@ -48,6 +50,7 @@ public class MapManager
         _db2Manager = db2Manager;
         _characterDatabase = characterDatabase;
         _scenarioManager = scenarioManager;
+        _classFactory = classFactory;
         _gridCleanUpDelay = (uint)configuration.GetDefaultValue("GridCleanUpDelay", 5 * Time.MINUTE * Time.IN_MILLISECONDS);
         _timer.Interval = configuration.GetDefaultValue("MapUpdateInterval", 10);
         var numThreads = configuration.GetDefaultValue("MapUpdate.Threads", 10);
@@ -67,9 +70,7 @@ public class MapManager
         if (!player)
             return null;
 
-        var entry = _cliDB.MapStorage.LookupByKey(mapId);
-
-        if (entry == null)
+        if (!_cliDB.MapStorage.TryGetValue(mapId, out var entry))
             return null;
 
         lock (_mapsLock)
@@ -216,9 +217,7 @@ public class MapManager
 
     public uint FindInstanceIdForPlayer(uint mapId, Player player)
     {
-        var entry = _cliDB.MapStorage.LookupByKey(mapId);
-
-        if (entry == null)
+        if (!_cliDB.MapStorage.TryGetValue(mapId, out var entry))
             return 0;
 
         if (entry.IsBattlegroundOrArena())
@@ -489,7 +488,7 @@ public class MapManager
 
     private GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
     {
-        var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
+        var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID, _classFactory);
 
         return map;
     }
@@ -497,9 +496,7 @@ public class MapManager
     private InstanceMap CreateInstance(uint mapId, uint instanceId, InstanceLock instanceLock, Difficulty difficulty, int team, PlayerGroup group)
     {
         // make sure we have a valid map id
-        var entry = _cliDB.MapStorage.LookupByKey(mapId);
-
-        if (entry == null)
+        if (!_cliDB.MapStorage.ContainsKey(mapId))
         {
             Log.Logger.Error($"CreateInstance: no entry for map {mapId}");
 
@@ -531,7 +528,7 @@ public class MapManager
 
     private Map CreateWorldMap(uint mapId, uint instanceId)
     {
-        var map = new Map(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
+        var map = new Map(mapId, _gridCleanUpDelay, instanceId, Difficulty.None, _classFactory);
         map.LoadRespawnTimes();
         map.LoadCorpseData();
 

@@ -155,9 +155,7 @@ public class TaxiHandler : IWorldSessionHandler
             return;
 
         var from = CliDB.TaxiNodesStorage.LookupByKey(curloc);
-        var to = CliDB.TaxiNodesStorage.LookupByKey(activateTaxi.Node);
-
-        if (to == null)
+        if (!CliDB.TaxiNodesStorage.TryGetValue(activateTaxi.Node, out var to))
             return;
 
         if (!Player.IsTaxiCheater)
@@ -169,9 +167,7 @@ public class TaxiHandler : IWorldSessionHandler
             }
 
         uint preferredMountDisplay = 0;
-        var mount = CliDB.MountStorage.LookupByKey(activateTaxi.FlyingMountID);
-
-        if (mount != null)
+        if (CliDB.MountStorage.TryGetValue(activateTaxi.FlyingMountID, out var mount))
             if (Player.HasSpell(mount.SourceSpellID))
             {
                 var mountDisplays = Global.DB2Mgr.GetMountDisplays(mount.Id);
@@ -180,9 +176,7 @@ public class TaxiHandler : IWorldSessionHandler
                 {
                     var usableDisplays = mountDisplays.Where(mountDisplay =>
                                                       {
-                                                          var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(mountDisplay.PlayerConditionID);
-
-                                                          if (playerCondition != null)
+                                                          if (CliDB.PlayerConditionStorage.TryGetValue(mountDisplay.PlayerConditionID, out var playerCondition))
                                                               return ConditionManager.IsPlayerMeetingCondition(Player, playerCondition);
 
                                                           return true;

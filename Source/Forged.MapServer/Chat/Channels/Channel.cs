@@ -572,9 +572,7 @@ public class Channel
 
     public void SetInvisible(Player player, bool on)
     {
-        var playerInfo = _playersStore.LookupByKey(player.GUID);
-
-        if (playerInfo == null)
+        if (!_playersStore.TryGetValue(player.GUID, out var playerInfo))
             return;
 
         playerInfo.SetInvisible(on);

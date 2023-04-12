@@ -638,9 +638,7 @@ public class SmartScript
 
     private Creature FindCreatureNear(WorldObject searchObject, ulong guid)
     {
-        var bounds = searchObject.Location.Map.CreatureBySpawnIdStore.LookupByKey(guid);
-
-        if (bounds.Empty())
+        if (searchObject.Location.Map.CreatureBySpawnIdStore.TryGetValue(guid, out var bounds))
             return null;
 
         var foundCreature = bounds.Find(creature => creature.IsAlive);
@@ -650,9 +648,7 @@ public class SmartScript
 
     private GameObject FindGameObjectNear(WorldObject searchObject, ulong guid)
     {
-        var bounds = searchObject.Location.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
-
-        if (bounds.Empty())
+        if (searchObject.Location.Map.GameObjectBySpawnIdStore.TryGetValue(guid, out var bounds))
             return null;
 
         return bounds[0];

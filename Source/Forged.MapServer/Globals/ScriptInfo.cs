@@ -69,7 +69,7 @@ public struct ScriptInfo
 
     [FieldOffset(16)] public playanimkit PlayAnimKit;
 
-    public string GetDebugInfo()
+    public readonly string GetDebugInfo()
     {
         return $"{command} ('{Global.ObjectMgr.GetScriptsTableNameByType(type)}' script id: {id})";
     }

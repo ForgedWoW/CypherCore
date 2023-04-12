@@ -304,11 +304,6 @@ public partial class Spell : IDisposable
         return spellEvent?.Spell;
     }
 
-    public static implicit operator bool(Spell spell)
-    {
-        return spell != null;
-    }
-
     public static void SendCastResult(Player caster, SpellInfo spellInfo, SpellCastVisual spellVisual, ObjectGuid castCount, SpellCastResult result, SpellCustomErrors customError = SpellCustomErrors.None, int? param1 = null, int? param2 = null)
     {
         if (result == SpellCastResult.SpellCastOk)
@@ -1046,9 +1041,7 @@ public partial class Spell : IDisposable
 
                     if (glyphId != 0)
                     {
-                        var glyphProperties = CliDB.GlyphPropertiesStorage.LookupByKey(glyphId);
-
-                        if (glyphProperties == null)
+                        if (!CliDB.GlyphPropertiesStorage.TryGetValue(glyphId, out var glyphProperties))
                             return SpellCastResult.InvalidGlyph;
 
                         var glyphBindableSpells = Global.DB2Mgr.GetGlyphBindableSpells(glyphId);
@@ -1288,9 +1281,7 @@ public partial class Spell : IDisposable
                     if (unitCaster == null)
                         break;
 
-                    var SummonProperties = CliDB.SummonPropertiesStorage.LookupByKey(spellEffectInfo.MiscValueB);
-
-                    if (SummonProperties == null)
+                    if (!CliDB.SummonPropertiesStorage.TryGetValue(spellEffectInfo.MiscValueB, out var SummonProperties))
                         break;
 
                     switch (SummonProperties.Control)
@@ -1557,9 +1548,7 @@ public partial class Spell : IDisposable
                     if (playerCaster == null)
                         return SpellCastResult.BadTargets;
 
-                    var talent = CliDB.TalentStorage.LookupByKey(SpellMisc.TalentId);
-
-                    if (talent == null)
+                    if (!CliDB.TalentStorage.TryGetValue(SpellMisc.TalentId, out var talent))
                         return SpellCastResult.DontReport;
 
                     if (playerCaster.SpellHistory.HasCooldown(talent.SpellID))
@@ -1627,9 +1616,7 @@ public partial class Spell : IDisposable
 
                         if (battlePet != null)
                         {
-                            var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(battlePet.PacketInfo.Species);
-
-                            if (battlePetSpecies != null)
+                            if (CliDB.BattlePetSpeciesStorage.TryGetValue(battlePet.PacketInfo.Species, out var battlePetSpecies))
                             {
                                 var battlePetType = (uint)spellEffectInfo.MiscValue;
 
@@ -1771,9 +1758,7 @@ public partial class Spell : IDisposable
                     if (OriginalCaster != null && OriginalCaster.IsTypeId(TypeId.Player) && OriginalCaster.IsAlive)
                     {
                         var Bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(OriginalCaster.Location.Map, OriginalCaster.Location.Zone);
-                        var area = CliDB.AreaTableStorage.LookupByKey(OriginalCaster.Location.Area);
-
-                        if (area != null)
+                        if (CliDB.AreaTableStorage.TryGetValue(OriginalCaster.Location.Area, out var area))
                             if (area.HasFlag(AreaFlags.NoFlyZone) || (Bf != null && !Bf.CanFlyIn()))
                                 return SpellCastResult.NotHere;
                     }
@@ -2341,8 +2326,8 @@ public partial class Spell : IDisposable
         {
             // on failure (or manual cancel) send TraitConfigCommitFailed to revert talent UI saved config selection
             if (Caster.IsPlayer && SpellInfo.HasEffect(SpellEffectName.ChangeActiveCombatTraitConfig))
-                if (CustomArg is TraitConfig)
-                    Caster.AsPlayer.SendPacket(new TraitConfigCommitFailed((CustomArg as TraitConfig).ID));
+                if (CustomArg is TraitConfig config)
+                    Caster.AsPlayer.SendPacket(new TraitConfigCommitFailed(config.ID));
 
             return;
         }
@@ -2416,9 +2401,7 @@ public partial class Spell : IDisposable
 
     public SpellLogEffect GetExecuteLogEffect(SpellEffectName effect)
     {
-        var spellLogEffect = _executeLogEffects.LookupByKey(effect);
-
-        if (spellLogEffect != null)
+        if (_executeLogEffects.TryGetValue(effect, out var spellLogEffect))
             return spellLogEffect;
 
         SpellLogEffect executeLogEffect = new();
@@ -4786,9 +4769,7 @@ public partial class Spell : IDisposable
             return SpellCastResult.BadTargets;
 
         // Get LockInfo
-        var lockInfo = CliDB.LockStorage.LookupByKey(lockId);
-
-        if (lockInfo == null)
+        if (!CliDB.LockStorage.TryGetValue(lockId, out var lockInfo))
             return SpellCastResult.BadTargets;
 
         var reqKey = false; // some locks not have reqs
@@ -5558,9 +5539,7 @@ public partial class Spell : IDisposable
                     if (item.OwnerUnit != player)
                     {
                         var enchant_id = spellEffectInfo.MiscValue;
-                        var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
-
-                        if (enchantEntry == null)
+                        if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchant_id, out var enchantEntry))
                             return SpellCastResult.Error;
 
                         if (enchantEntry.GetFlags().HasFlag(SpellItemEnchantmentFlags.Soulbound))
@@ -8499,7 +8478,7 @@ public partial class Spell : IDisposable
             {
                 // float casts ensure the division is performed on floats as we need float result
                 var baseCd = (float)player.GetRuneBaseCooldown();
-                runeData.Cooldowns.Add((byte)((baseCd - (float)player.GetRuneCooldown(i)) / baseCd * 255)); // rune cooldown passed
+                runeData.Cooldowns.Add((byte)((baseCd - player.GetRuneCooldown(i)) / baseCd * 255)); // rune cooldown passed
             }
         }
 

@@ -67,9 +67,7 @@ public class LootStore
 
     public bool HaveQuestLootFor(uint lootID)
     {
-        var lootTemplate = _lootTemplates.LookupByKey(lootID);
-
-        if (lootTemplate == null)
+        if (!_lootTemplates.TryGetValue(lootID, out var lootTemplate))
             return false;
 
         // scan loot for quest items
@@ -78,9 +76,7 @@ public class LootStore
 
     public bool HaveQuestLootForPlayer(uint lootID, Player player)
     {
-        var tab = _lootTemplates.LookupByKey(lootID);
-
-        if (tab != null)
+        if (_lootTemplates.TryGetValue(lootID, out var tab))
             if (tab.HasQuestDropForPlayer(_lootTemplates, player))
                 return true;
 

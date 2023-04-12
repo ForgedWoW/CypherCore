@@ -85,9 +85,7 @@ public class BattleGroundHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.BattlefieldList)]
     private void HandleBattlefieldList(BattlefieldListRequest battlefieldList)
     {
-        var bl = CliDB.BattlemasterListStorage.LookupByKey(battlefieldList.ListID);
-
-        if (bl == null)
+        if (!CliDB.BattlemasterListStorage.ContainsKey(battlefieldList.ListID))
         {
             Log.Logger.Debug("BattlegroundHandler: invalid bgtype ({0}) with player (Name: {1}, GUID: {2}) received.", battlefieldList.ListID, Player.GetName(), Player.GUID.ToString());
 
@@ -759,7 +757,7 @@ public class BattleGroundHandler : IWorldSessionHandler
                 return;
             }
 
-            err = grp.CanJoinBattlegroundQueue(bg, bgQueueTypeId, 0, bg.GetMaxPlayersPerTeam(), false, 0, out var errorGuid);
+            err = grp.CanJoinBattlegroundQueue(bg, bgQueueTypeId, 0, bg.GetMaxPlayersPerTeam(), false, 0, out _);
 
             var bgQueue = BattlegroundManager.Instance.GetBattlegroundQueue(bgQueueTypeId);
             GroupQueueInfo ginfo = null;

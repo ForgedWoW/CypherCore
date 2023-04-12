@@ -22,9 +22,7 @@ public class PlayerSocial
         if (GetNumberOfSocialsWithFlag(flag) >= (((flag & SocialFlag.Friend) != 0) ? SocialManager.FRIEND_LIMIT_MAX : SocialManager.IGNORE_LIMIT))
             return false;
 
-        var friendInfo = PlayerSocialMap.LookupByKey(friendGuid);
-
-        if (friendInfo != null)
+        if (PlayerSocialMap.TryGetValue(friendGuid, out var friendInfo))
         {
             friendInfo.Flags |= flag;
             friendInfo.WowAccountGuid = accountGuid;
@@ -67,9 +65,7 @@ public class PlayerSocial
 
     public void RemoveFromSocialList(ObjectGuid friendGuid, SocialFlag flag)
     {
-        var friendInfo = PlayerSocialMap.LookupByKey(friendGuid);
-
-        if (friendInfo == null) // not exist
+        if (!PlayerSocialMap.TryGetValue(friendGuid, out var friendInfo)) // not exist
             return;
 
         friendInfo.Flags &= ~flag;
@@ -161,9 +157,7 @@ public class PlayerSocial
 
     private bool _HasContact(ObjectGuid guid, SocialFlag flags)
     {
-        var friendInfo = PlayerSocialMap.LookupByKey(guid);
-
-        if (friendInfo != null)
+        if (PlayerSocialMap.TryGetValue(guid, out var friendInfo))
             return friendInfo.Flags.HasAnyFlag(flags);
 
         return false;

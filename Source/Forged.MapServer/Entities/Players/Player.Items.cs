@@ -648,9 +648,7 @@ public partial class Player
         if (type != AzeriteItemMilestoneType.BonusStamina)
             return;
 
-        var azeritePower = CliDB.AzeritePowerStorage.LookupByKey(azeriteItemMilestonePower.AzeritePowerID);
-
-        if (azeritePower == null)
+        if (!CliDB.AzeritePowerStorage.TryGetValue(azeriteItemMilestonePower.AzeritePowerID, out var azeritePower))
             return;
 
         if (apply)
@@ -768,9 +766,7 @@ public partial class Player
         if (!IsAlive)
             return false;
 
-        var proto = CliDB.CurrencyTypesStorage.LookupByKey(currency);
-
-        if (proto == null)
+        if (!CliDB.CurrencyTypesStorage.ContainsKey(currency))
         {
             SendBuyError(BuyResult.CantFindItem, null, currency);
 
@@ -847,9 +843,7 @@ public partial class Player
                 if (iece.CurrencyID[i] == 0)
                     continue;
 
-                var entry = CliDB.CurrencyTypesStorage.LookupByKey(iece.CurrencyID[i]);
-
-                if (entry == null)
+                if (!CliDB.CurrencyTypesStorage.ContainsKey(iece.CurrencyID[i]))
                 {
                     SendBuyError(BuyResult.CantFindItem, creature, currency); // Find correct error
 
@@ -1008,9 +1002,7 @@ public partial class Player
             return false;
         }
 
-        var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(crItem.PlayerConditionId);
-
-        if (playerCondition != null)
+        if (CliDB.PlayerConditionStorage.TryGetValue(crItem.PlayerConditionId, out var playerCondition))
             if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
             {
                 SendEquipError(InventoryResult.ItemLocked);
@@ -1045,9 +1037,7 @@ public partial class Player
             }
 
             var stacks = count / pProto.BuyCount;
-            var iece = CliDB.ItemExtendedCostStorage.LookupByKey(crItem.ExtendedCost);
-
-            if (iece == null)
+            if (!CliDB.ItemExtendedCostStorage.TryGetValue(crItem.ExtendedCost, out var iece))
             {
                 Log.Logger.Error("Item {0} have wrong ExtendedCost field value {1}", pProto.Id, crItem.ExtendedCost);
 
@@ -1067,9 +1057,7 @@ public partial class Player
                 if (iece.CurrencyID[i] == 0)
                     continue;
 
-                var entry = CliDB.CurrencyTypesStorage.LookupByKey(iece.CurrencyID[i]);
-
-                if (entry == null)
+                if (!CliDB.CurrencyTypesStorage.ContainsKey(iece.CurrencyID[i]))
                 {
                     SendBuyError(BuyResult.CantFindItem, creature, item);
 
@@ -1700,9 +1688,7 @@ public partial class Player
         // check unique-equipped limit
         if (itemProto.ItemLimitCategory != 0)
         {
-            var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(itemProto.ItemLimitCategory);
-
-            if (limitEntry == null)
+            if (!CliDB.ItemLimitCategoryStorage.TryGetValue(itemProto.ItemLimitCategory, out var limitEntry))
                 return InventoryResult.NotEquippable;
 
             // NOTE: limitEntry.mode not checked because if item have have-limit then it applied and to equip case
@@ -2165,9 +2151,7 @@ public partial class Player
                 if (HasSpell((uint)proto.Effects[1].SpellID))
                     return InventoryResult.InternalBagError;
 
-        var artifact = CliDB.ArtifactStorage.LookupByKey(proto.ArtifactID);
-
-        if (artifact != null)
+        if (CliDB.ArtifactStorage.TryGetValue(proto.ArtifactID, out var artifact))
             if (artifact.ChrSpecializationID != GetPrimarySpecialization())
                 return InventoryResult.CantUseItem;
 
@@ -4090,9 +4074,7 @@ public partial class Player
             return;
         }
 
-        var iece = CliDB.ItemExtendedCostStorage.LookupByKey(item.PaidExtendedCost);
-
-        if (iece == null)
+        if (!CliDB.ItemExtendedCostStorage.TryGetValue(item.PaidExtendedCost, out var iece))
         {
             Log.Logger.Debug("Item refund: cannot find extendedcost data.");
 
@@ -4151,7 +4133,7 @@ public partial class Player
                 continue;
 
             List<ItemPosCount> dest = new();
-            var msg = CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemid, count);
+            CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemid, count);
             var it = StoreNewItem(dest, itemid, true);
             SendNewItem(it, count, true, false, true);
         }
@@ -4639,9 +4621,7 @@ public partial class Player
             return;
         }
 
-        var iece = CliDB.ItemExtendedCostStorage.LookupByKey(item.PaidExtendedCost);
-
-        if (iece == null)
+        if (!CliDB.ItemExtendedCostStorage.TryGetValue(item.PaidExtendedCost, out var iece))
         {
             Log.Logger.Debug("Item refund: cannot find extendedcost data.");
 
@@ -5610,9 +5590,7 @@ public partial class Player
                 if (enchantID == 0) //if no enchant go to next enchant(slot)
                     continue;
 
-                var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
-
-                if (enchantEntry == null)
+                if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var enchantEntry))
                     continue;
 
                 //only metagems to be (de)activated, so only enchants with condition
@@ -6054,9 +6032,7 @@ public partial class Player
             ApplyArtifactPowerRank(item, artifactPowerRank, apply);
         }
 
-        var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(item.GetModifier(ItemModifier.ArtifactAppearanceId));
-
-        if (artifactAppearance != null)
+        if (CliDB.ArtifactAppearanceStorage.TryGetValue(item.GetModifier(ItemModifier.ArtifactAppearanceId), out var artifactAppearance))
             if (artifactAppearance.OverrideShapeshiftDisplayID != 0 && ShapeshiftForm == (ShapeShiftForm)artifactAppearance.OverrideShapeshiftFormID)
                 RestoreDisplayId();
     }
@@ -6133,9 +6109,7 @@ public partial class Player
 
             for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
             {
-                var azeritePower = CliDB.AzeritePowerStorage.LookupByKey(azeriteEmpoweredItem.GetSelectedAzeritePower(i));
-
-                if (azeritePower != null)
+                if (CliDB.AzeritePowerStorage.TryGetValue(azeriteEmpoweredItem.GetSelectedAzeritePower(i), out var azeritePower))
                     ApplyAzeritePower(azeriteEmpoweredItem, azeritePower, apply);
             }
         }
@@ -6913,9 +6887,7 @@ public partial class Player
         // check unique-equipped limit
         if (pProto.ItemLimitCategory != 0)
         {
-            var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(pProto.ItemLimitCategory);
-
-            if (limitEntry == null)
+            if (!CliDB.ItemLimitCategoryStorage.TryGetValue(pProto.ItemLimitCategory, out var limitEntry))
             {
                 noSpaceCount = count;
 

@@ -32,9 +32,7 @@ public class LootHandler : IWorldSessionHandler
         // @todo Implement looting by LootObject guid
         foreach (var req in packet.Loot)
         {
-            var loot = player.GetAELootView().LookupByKey(req.Object);
-
-            if (loot == null)
+            if (!player.GetAELootView().TryGetValue(req.Object, out var loot))
             {
                 player.SendLootRelease(ObjectGuid.Empty);
 
@@ -329,9 +327,7 @@ public class LootHandler : IWorldSessionHandler
     {
         if (packet.SpecID != 0)
         {
-            var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(packet.SpecID);
-
-            if (chrSpec != null)
+            if (CliDB.ChrSpecializationStorage.TryGetValue(packet.SpecID, out var chrSpec))
                 if (chrSpec.ClassID == (uint)Player.Class)
                     Player.SetLootSpecId(packet.SpecID);
         }

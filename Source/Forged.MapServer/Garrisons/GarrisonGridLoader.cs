@@ -13,72 +13,72 @@ namespace Forged.MapServer.Garrisons;
 
 internal class GarrisonGridLoader : IGridNotifierGameObject
 {
-    private readonly Cell i_cell;
-    private readonly uint i_creatures;
-    private readonly Garrison i_garrison;
-    private readonly Grid i_grid;
-    private readonly GarrisonMap i_map;
-    private uint i_gameObjects;
+    private readonly Cell _cell;
+    private readonly uint _creatures;
+    private readonly Garrison _garrison;
+    private readonly Grid _grid;
+    private readonly GarrisonMap _map;
+    private uint _gameObjects;
 
     public GridType GridType { get; set; }
 
     public GarrisonGridLoader(Grid grid, GarrisonMap map, Cell cell, GridType gridType = GridType.Grid)
     {
-        i_cell = cell;
-        i_grid = grid;
-        i_map = map;
-        i_garrison = map.GetGarrison();
+        _cell = cell;
+        _grid = grid;
+        _map = map;
+        _garrison = map.GetGarrison();
         GridType = gridType;
     }
 
     public void Visit(IList<GameObject> objs)
     {
-        var plots = i_garrison.GetPlots();
+        var plots = _garrison.GetPlots();
 
-        if (!plots.Empty())
+        if (plots.Empty())
+            return;
+
+        var cellCoord = _cell.GetCellCoord();
+
+        foreach (var plot in plots)
         {
-            var cellCoord = i_cell.GetCellCoord();
+            var spawn = plot.PacketInfo.PlotPos;
 
-            foreach (var plot in plots)
-            {
-                var spawn = plot.PacketInfo.PlotPos;
+            if (cellCoord != GridDefines.ComputeCellCoord(spawn.X, spawn.Y))
+                continue;
 
-                if (cellCoord != GridDefines.ComputeCellCoord(spawn.X, spawn.Y))
-                    continue;
+            var go = plot.CreateGameObject(_map, _garrison.GetFaction());
 
-                var go = plot.CreateGameObject(i_map, i_garrison.GetFaction());
+            if (!go)
+                continue;
 
-                if (!go)
-                    continue;
-
-                var cell = new Cell(cellCoord);
-                i_map.AddToGrid(go, cell);
-                go.AddToWorld();
-                ++i_gameObjects;
-            }
+            var cell = new Cell(cellCoord);
+            _map.AddToGrid(go, cell);
+            go.AddToWorld();
+            ++_gameObjects;
         }
     }
 
     public void LoadN()
     {
-        if (i_garrison != null)
+        if (_garrison != null)
         {
-            i_cell.Data.Celly = 0;
+            _cell.Data.Celly = 0;
 
             for (uint x = 0; x < MapConst.MaxCells; ++x)
             {
-                i_cell.Data.Cellx = x;
+                _cell.Data.Cellx = x;
 
                 for (uint y = 0; y < MapConst.MaxCells; ++y)
                 {
-                    i_cell.Data.Celly = y;
+                    _cell.Data.Celly = y;
 
                     //Load creatures and GameInfo objects
-                    i_grid.VisitGrid(x, y, this);
+                    _grid.VisitGrid(x, y, this);
                 }
             }
         }
 
-        Log.Logger.Debug("{0} GameObjects and {1} Creatures loaded for grid {2} on map {3}", i_gameObjects, i_creatures, i_grid.GetGridId(), i_map.Id);
+        Log.Logger.Debug("{0} GameObjects and {1} Creatures loaded for grid {2} on map {3}", _gameObjects, _creatures, _grid.GetGridId(), _map.Id);
     }
 }

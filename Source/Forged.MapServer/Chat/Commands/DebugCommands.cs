@@ -808,10 +808,10 @@ internal class DebugCommands
             {
                 var worldSafe = pair.Value;
 
-                if (worldSafe.Loc.MapId != player.Location.MapId)
+                if (worldSafe.Location.MapId != player.Location.MapId)
                     continue;
 
-                var dist = (worldSafe.Loc.X - x) * (worldSafe.Loc.X - x) + (worldSafe.Loc.Y - y) * (worldSafe.Loc.Y - y) + (worldSafe.Loc.Z - z) * (worldSafe.Loc.Z - z);
+                var dist = (worldSafe.Location.X - x) * (worldSafe.Location.X - x) + (worldSafe.Location.Y - y) * (worldSafe.Location.Y - y) + (worldSafe.Location.Z - z) * (worldSafe.Location.Z - z);
 
                 if (!(dist < distNearest))
                     continue;
@@ -822,7 +822,7 @@ internal class DebugCommands
         }
 
         if (nearestLoc != null)
-            handler.SendSysMessage(CypherStrings.CommandNearGraveyard, nearestLoc.Id, nearestLoc.Loc.X, nearestLoc.Loc.Y, nearestLoc.Loc.Z);
+            handler.SendSysMessage(CypherStrings.CommandNearGraveyard, nearestLoc.Id, nearestLoc.Location.X, nearestLoc.Location.Y, nearestLoc.Location.Z);
         else
             handler.SendSysMessage(CypherStrings.CommandNearGraveyardNotfound);
 
@@ -911,8 +911,6 @@ internal class DebugCommands
         else
             return false;
 
-        var now = GameTime.CurrentTime;
-
         if (daily)
         {
             handler.WorldManager.DailyReset();
@@ -937,9 +935,7 @@ internal class DebugCommands
     [Command("raidreset", RBACPermissions.CommandDebug)]
     private static bool HandleDebugRaidResetCommand(CommandHandler handler, uint mapId, uint difficulty)
     {
-        var mEntry = handler.CliDB.MapStorage.LookupByKey(mapId);
-
-        if (mEntry == null)
+        if (!handler.CliDB.MapStorage.TryGetValue(mapId, out var mEntry))
         {
             handler.SendSysMessage("Invalid map specified.");
 
@@ -1012,9 +1008,7 @@ internal class DebugCommands
         if (creatureTemplate == null)
             return false;
 
-        var vehicleRecord = handler.CliDB.VehicleStorage.LookupByKey(id);
-
-        if (vehicleRecord == null)
+        if (!handler.CliDB.VehicleStorage.ContainsKey(id))
             return false;
 
         var map = handler.Player.Location.Map;
@@ -1308,9 +1302,7 @@ internal class DebugCommands
             return false;
         }
 
-        var wsExpressionEntry = handler.CliDB.WorldStateExpressionStorage.LookupByKey(expressionId);
-
-        if (wsExpressionEntry == null)
+        if (!handler.CliDB.WorldStateExpressionStorage.TryGetValue(expressionId, out var wsExpressionEntry))
             return false;
 
         handler.SendSysMessage(handler.ClassFactory.Resolve<ConditionManager>().IsPlayerMeetingExpression(target, wsExpressionEntry) ? $"Expression {expressionId} meet" : $"Expression {expressionId} not meet");
@@ -1352,9 +1344,7 @@ internal class DebugCommands
         [Command("cinematic", RBACPermissions.CommandDebug)]
         private static bool HandleDebugPlayCinematicCommand(CommandHandler handler, uint cinematicId)
         {
-            var cineSeq = handler.CliDB.CinematicSequencesStorage.LookupByKey(cinematicId);
-
-            if (cineSeq == null)
+            if (!handler.CliDB.CinematicSequencesStorage.TryGetValue(cinematicId, out var cineSeq))
             {
                 handler.SendSysMessage(CypherStrings.CinematicNotExist, cinematicId);
 

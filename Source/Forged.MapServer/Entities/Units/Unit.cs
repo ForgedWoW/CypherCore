@@ -833,9 +833,7 @@ public partial class Unit : WorldObject
 
                 if (artifact != null)
                 {
-                    var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
-
-                    if (artifactAppearance != null)
+                    if (CliDB.ArtifactAppearanceStorage.TryGetValue(artifact.GetModifier(ItemModifier.ArtifactAppearanceId), out var artifactAppearance))
                         if ((ShapeShiftForm)artifactAppearance.OverrideShapeshiftFormID == form)
                             return artifactAppearance.OverrideShapeshiftDisplayID;
                 }
@@ -1177,9 +1175,7 @@ public partial class Unit : WorldObject
             EmoteID = (uint)emoteId
         };
 
-        var emotesEntry = CliDB.EmotesStorage.LookupByKey((uint)emoteId);
-
-        if (emotesEntry != null && spellVisualKitIds != null)
+        if (CliDB.EmotesStorage.TryGetValue((uint)emoteId, out var emotesEntry))
             if (emotesEntry.AnimId == (uint)Anim.MountSpecial || emotesEntry.AnimId == (uint)Anim.MountSelfSpecial)
                 packet.SpellVisualKitIDs.AddRange(spellVisualKitIds);
 
@@ -1335,9 +1331,7 @@ public partial class Unit : WorldObject
 
         if (form != 0)
         {
-            var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)form);
-
-            if (shapeshift == null)
+            if (!CliDB.SpellShapeshiftFormStorage.TryGetValue((uint)form, out var shapeshift))
                 return true;
 
             if (!shapeshift.Flags.HasAnyFlag(SpellShapeshiftFormFlags.Stance))
@@ -1347,14 +1341,10 @@ public partial class Unit : WorldObject
         if (displayId == NativeDisplayId)
             return false;
 
-        var display = CliDB.CreatureDisplayInfoStorage.LookupByKey(displayId);
-
-        if (display == null)
+        if (!CliDB.CreatureDisplayInfoStorage.TryGetValue(displayId, out var display))
             return true;
 
-        var displayExtra = CliDB.CreatureDisplayInfoExtraStorage.LookupByKey((uint)display.ExtendedDisplayInfoID);
-
-        if (displayExtra == null)
+        if (!CliDB.CreatureDisplayInfoExtraStorage.TryGetValue((uint)display.ExtendedDisplayInfoID, out var displayExtra))
             return true;
 
         var model = CliDB.CreatureModelDataStorage.LookupByKey(display.ModelID);
@@ -2950,9 +2940,7 @@ public partial class Unit : WorldObject
 
                             if (vehicle)
                             {
-                                var powerDisplay = CliDB.PowerDisplayStorage.LookupByKey(vehicle.GetVehicleInfo().PowerDisplayID[0]);
-
-                                if (powerDisplay != null)
+                                if (CliDB.PowerDisplayStorage.TryGetValue(vehicle.GetVehicleInfo().PowerDisplayID[0], out var powerDisplay))
                                     displayPower = (PowerType)powerDisplay.ActualType;
                                 else if (Class == PlayerClass.Rogue)
                                     displayPower = PowerType.Energy;
@@ -3019,9 +3007,7 @@ public partial class Unit : WorldObject
         if (!target)
             return;
 
-        var bct = CliDB.BroadcastTextStorage.LookupByKey(textId);
-
-        if (bct == null)
+        if (!CliDB.BroadcastTextStorage.TryGetValue(textId, out var bct))
         {
             Log.Logger.Error("Unit.Whisper: `broadcast_text` was not {0} found", textId);
 

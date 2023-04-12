@@ -22,9 +22,7 @@ public class SkillExtraItems
     public bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)
     {
         // get the info for the specified spell
-        var specEntry = _skillExtraItemStorage.LookupByKey(spellId);
-
-        if (specEntry == null)
+        if (!_skillExtraItemStorage.TryGetValue(spellId, out var specEntry))
             return false;
 
         // the player doesn't have the required specialization, return false

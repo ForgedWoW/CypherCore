@@ -491,9 +491,7 @@ public class BattlegroundQueue
     public bool GetPlayerGroupInfoData(ObjectGuid guid, out GroupQueueInfo ginfo)
     {
         ginfo = null;
-        var playerQueueInfo = _queuedPlayers.LookupByKey(guid);
-
-        if (playerQueueInfo == null)
+        if (!_queuedPlayers.TryGetValue(guid, out var playerQueueInfo))
             return false;
 
         ginfo = playerQueueInfo.GroupInfo;
@@ -520,9 +518,7 @@ public class BattlegroundQueue
         var bracketID = -1; // signed for proper for-loop finish
 
         //remove player from map, if he's there
-        var playerQueueInfo = _queuedPlayers.LookupByKey(guid);
-
-        if (playerQueueInfo == null)
+        if (!_queuedPlayers.TryGetValue(guid, out var playerQueueInfo))
         {
             var playerName = "Unknown";
             var player = _objectAccessor.FindPlayer(guid);

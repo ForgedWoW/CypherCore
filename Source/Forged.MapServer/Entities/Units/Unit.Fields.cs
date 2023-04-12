@@ -181,13 +181,9 @@ public partial class Unit
 
             if (IsMounted)
             {
-                var mountDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(MountDisplayId);
-
-                if (mountDisplayInfo != null)
+                if (CliDB.CreatureDisplayInfoStorage.TryGetValue(MountDisplayId, out var mountDisplayInfo))
                 {
-                    var mountModelData = CliDB.CreatureModelDataStorage.LookupByKey(mountDisplayInfo.ModelID);
-
-                    if (mountModelData != null)
+                    if (CliDB.CreatureModelDataStorage.TryGetValue(mountDisplayInfo.ModelID, out var mountModelData))
                     {
                         var displayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
                         var modelData = CliDB.CreatureModelDataStorage.LookupByKey(displayInfo.ModelID);

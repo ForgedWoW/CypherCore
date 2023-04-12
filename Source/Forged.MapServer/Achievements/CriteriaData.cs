@@ -600,9 +600,7 @@ public class CriteriaData
 
             case CriteriaDataType.SKnownTitle:
             {
-                var titleInfo = _cliDB.CharTitlesStorage.LookupByKey(KnownTitle.Id);
-
-                if (titleInfo != null)
+                if (_cliDB.CharTitlesStorage.TryGetValue(KnownTitle.Id, out var titleInfo))
                     return source && source.HasTitle(titleInfo.MaskID);
 
                 return false;

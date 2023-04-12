@@ -312,19 +312,7 @@ public class CriteriaHandler
             if (trees.Empty())
                 return;
 
-            var hasTreeForTimed = false;
-
-            foreach (var tree in trees)
-            {
-                var timedIter = TimeCriteriaTrees.LookupByKey(tree.Id);
-
-                if (timedIter != 0)
-                {
-                    hasTreeForTimed = true;
-
-                    break;
-                }
-            }
+            var hasTreeForTimed = trees.Any(tree => TimeCriteriaTrees.ContainsKey(tree.Id));
 
             if (!hasTreeForTimed)
                 return;
@@ -380,7 +368,7 @@ public class CriteriaHandler
 
         progress.Changed = true;
         progress.Date = GameTime.CurrentTime; // set the date to the latest update.
-        progress.PlayerGUID = referencePlayer ? referencePlayer.GUID : ObjectGuid.Empty;
+        progress.PlayerGUID = referencePlayer?.GUID ?? ObjectGuid.Empty;
         CriteriaProgress[criteria.Id] = progress;
 
         var timeElapsed = TimeSpan.Zero;
@@ -994,7 +982,7 @@ public class CriteriaHandler
                 break;
 
             case CriteriaFailEvent.ModifyPartyStatus:
-                if (referencePlayer.Group)
+                if (referencePlayer.Group != null)
                     return false;
 
                 break;
@@ -1254,13 +1242,13 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.TargetToPlayerLevelDeltaGreaterThan: // 22
-                if (!refe || !refe.IsUnit || referencePlayer.Level + reqValue < refe.AsUnit.Level)
+                if (refe is not { IsUnit: true } || referencePlayer.Level + reqValue < refe.AsUnit.Level)
                     return false;
 
                 break;
 
             case ModifierTreeType.PlayerLevelEqualTargetLevel: // 23
-                if (!refe || !refe.IsUnit || referencePlayer.Level != refe.AsUnit.Level)
+                if (refe is not { IsUnit: true } || referencePlayer.Level != refe.AsUnit.Level)
                     return false;
 
                 break;
@@ -1269,7 +1257,7 @@ public class CriteriaHandler
             {
                 var bg = referencePlayer.Battleground;
 
-                if (!bg || !bg.IsArena() || bg.GetArenaType() != (ArenaTypes)reqValue)
+                if (bg == null || !bg.IsArena() || bg.GetArenaType() != (ArenaTypes)reqValue)
                     return false;
 
                 break;
@@ -1299,7 +1287,7 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.LessThanTappers: // 29
-                if (referencePlayer.Group && referencePlayer.Group.MembersCount >= reqValue)
+                if (referencePlayer.Group != null && referencePlayer.Group.MembersCount >= reqValue)
                     return false;
 
                 break;
@@ -1316,7 +1304,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.CreatureFamily: // 31
             {
-                if (!refe)
+                if (refe == null)
                     return false;
 
                 if (!refe.IsCreature || refe.AsCreature.Template.Family != (CreatureFamily)reqValue)
@@ -1337,20 +1325,19 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.BattlePetTeamLevel: // 34
-                foreach (var slot in referencePlayer.Session.BattlePetMgr.Slots)
-                    if (slot.Pet.Level < reqValue)
-                        return false;
+                if (referencePlayer.Session.BattlePetMgr.Slots.Any(slot => slot.Pet.Level < reqValue))
+                    return false;
 
                 break;
 
             case ModifierTreeType.PlayerIsNotInParty: // 35
-                if (referencePlayer.Group)
+                if (referencePlayer.Group != null)
                     return false;
 
                 break;
 
             case ModifierTreeType.PlayerIsInParty: // 36
-                if (!referencePlayer.Group)
+                if (referencePlayer.Group == null)
                     return false;
 
                 break;
@@ -1382,9 +1369,7 @@ public class CriteriaHandler
             case ModifierTreeType.PlayerIsInZone: // 41
             {
                 var zoneId = referencePlayer.Location.Area;
-                var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
-
-                if (areaEntry != null)
+                if (CliDB.AreaTableStorage.TryGetValue(zoneId, out var areaEntry))
                     if (areaEntry.HasFlag(AreaFlags.Unk9))
                         zoneId = areaEntry.ParentAreaID;
 
@@ -1395,13 +1380,11 @@ public class CriteriaHandler
             }
             case ModifierTreeType.TargetIsInZone: // 42
             {
-                if (!refe)
+                if (refe == null)
                     return false;
 
                 var zoneId = refe.Location.Area;
-                var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
-
-                if (areaEntry != null)
+                if (CliDB.AreaTableStorage.TryGetValue(zoneId, out var areaEntry))
                     if (areaEntry.HasFlag(AreaFlags.Unk9))
                         zoneId = areaEntry.ParentAreaID;
 
@@ -1435,13 +1418,13 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.TargetHealthAbovePercent: // 47
-                if (!refe || !refe.IsUnit || refe.AsUnit.HealthPct < reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.HealthPct < reqValue)
                     return false;
 
                 break;
 
             case ModifierTreeType.TargetHealthEqualsPercent: // 48
-                if (!refe || !refe.IsUnit || refe.AsUnit.HealthPct != reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.HealthPct != reqValue)
                     return false;
 
                 break;
@@ -1465,19 +1448,19 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.TargetHealthBelowValue: // 52
-                if (!refe || !refe.IsUnit || refe.AsUnit.Health > reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.Health > reqValue)
                     return false;
 
                 break;
 
             case ModifierTreeType.TargetHealthAboveValue: // 53
-                if (!refe || !refe.IsUnit || refe.AsUnit.Health < reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.Health < reqValue)
                     return false;
 
                 break;
 
             case ModifierTreeType.TargetHealthEqualsValue: // 54
-                if (!refe || !refe.IsUnit || refe.AsUnit.Health != reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.Health != reqValue)
                     return false;
 
                 break;
@@ -1556,12 +1539,7 @@ public class CriteriaHandler
                 return false;
 
             case ModifierTreeType.WorldStateExpression: // 67
-                var worldStateExpression = CliDB.WorldStateExpressionStorage.LookupByKey(reqValue);
-
-                if (worldStateExpression != null)
-                    return ConditionManager.IsPlayerMeetingExpression(referencePlayer, worldStateExpression);
-
-                return false;
+                return CliDB.WorldStateExpressionStorage.TryGetValue(reqValue, out var worldStateExpression) && ConditionManager.IsPlayerMeetingExpression(referencePlayer, worldStateExpression);
 
             case ModifierTreeType.DungeonDifficulty: // 68
                 if (referencePlayer.Location.Map.DifficultyID != (Difficulty)reqValue)
@@ -1576,7 +1554,7 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.TargetLevelEqualOrGreaterThan: // 70
-                if (!refe || !refe.IsUnit || refe.AsUnit.Level < reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.Level < reqValue)
                     return false;
 
                 break;
@@ -1588,7 +1566,7 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.TargetLevelEqualOrLessThan: // 72
-                if (!refe || !refe.IsUnit || refe.AsUnit.Level > reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.Level > reqValue)
                     return false;
 
                 break;
@@ -1596,10 +1574,7 @@ public class CriteriaHandler
             case ModifierTreeType.ModifierTree: // 73
                 var nextModifierTree = CriteriaManager.GetModifierTree(reqValue);
 
-                if (nextModifierTree != null)
-                    return ModifierTreeSatisfied(nextModifierTree, miscValue1, miscValue2, refe, referencePlayer);
-
-                return false;
+                return nextModifierTree != null && ModifierTreeSatisfied(nextModifierTree, miscValue1, miscValue2, refe, referencePlayer);
 
             case ModifierTreeType.PlayerScenario: // 74
             {
@@ -1750,14 +1725,10 @@ public class CriteriaHandler
 
             case ModifierTreeType.FriendshipRepReactionIsMet: // 94
             {
-                var friendshipRepReaction = CliDB.FriendshipRepReactionStorage.LookupByKey(reqValue);
-
-                if (friendshipRepReaction == null)
+                if (!CliDB.FriendshipRepReactionStorage.TryGetValue(reqValue, out var friendshipRepReaction))
                     return false;
 
-                var friendshipReputation = CliDB.FriendshipReputationStorage.LookupByKey(friendshipRepReaction.FriendshipRepID);
-
-                if (friendshipReputation == null)
+                if (!CliDB.FriendshipReputationStorage.TryGetValue(friendshipRepReaction.FriendshipRepID, out var friendshipReputation))
                     return false;
 
                 if (referencePlayer.GetReputation((uint)friendshipReputation.FactionID) < friendshipRepReaction.ReactionThreshold)
@@ -1901,9 +1872,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.PlayerHasExploredArea: // 113
             {
-                var areaTable = CliDB.AreaTableStorage.LookupByKey(reqValue);
-
-                if (areaTable == null)
+                if (!CliDB.AreaTableStorage.TryGetValue(reqValue, out var areaTable))
                     return false;
 
                 if (areaTable.AreaBit <= 0)
@@ -1933,14 +1902,10 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerFaction: // 116
             {
-                var race = CliDB.ChrRacesStorage.LookupByKey((uint)referencePlayer.Race);
-
-                if (race == null)
+                if (!CliDB.ChrRacesStorage.TryGetValue((uint)referencePlayer.Race, out var race))
                     return false;
 
-                var faction = CliDB.FactionTemplateStorage.LookupByKey((uint)race.FactionID);
-
-                if (faction == null)
+                if (!CliDB.FactionTemplateStorage.TryGetValue((uint)race.FactionID, out var faction))
                     return false;
 
                 var factionIndex = -1;
@@ -2116,9 +2081,7 @@ public class CriteriaHandler
 
                 var followerCount = garrison.CountFollowers(follower =>
                 {
-                    var followerBuilding = CliDB.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
-
-                    if (followerBuilding == null)
+                    if (!CliDB.GarrBuildingStorage.TryGetValue(follower.PacketInfo.CurrentBuildingID, out var followerBuilding))
                         return false;
 
                     return followerBuilding.BuildingType == secondaryAsset && follower.HasAbility(reqValue);
@@ -2143,9 +2106,7 @@ public class CriteriaHandler
 
                 var followerCount = garrison.CountFollowers(follower =>
                 {
-                    var followerBuilding = CliDB.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
-
-                    if (followerBuilding == null)
+                    if (!CliDB.GarrBuildingStorage.TryGetValue(follower.PacketInfo.CurrentBuildingID, out var followerBuilding))
                         return false;
 
                     return followerBuilding.BuildingType == secondaryAsset && follower.HasAbility(reqValue);
@@ -2168,9 +2129,7 @@ public class CriteriaHandler
                     if (follower.PacketInfo.FollowerLevel < reqValue)
                         return false;
 
-                    var followerBuilding = CliDB.GarrBuildingStorage.LookupByKey(follower.PacketInfo.CurrentBuildingID);
-
-                    if (followerBuilding == null)
+                    if (!CliDB.GarrBuildingStorage.TryGetValue(follower.PacketInfo.CurrentBuildingID, out var followerBuilding))
                         return false;
 
                     return followerBuilding.BuildingType == secondaryAsset;
@@ -2241,9 +2200,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.GarrisonBuildingIsUnderConstruction: // 140
             {
-                var building = CliDB.GarrBuildingStorage.LookupByKey(reqValue);
-
-                if (building == null)
+                if (!CliDB.GarrBuildingStorage.ContainsKey(reqValue))
                     return false;
 
                 var garrison = referencePlayer.Garrison;
@@ -2305,7 +2262,7 @@ public class CriteriaHandler
                 }
                 else
                 {
-                    var followerCount = garrison.CountFollowers(follower => { return follower.HasAbility(reqValue); });
+                    var followerCount = garrison.CountFollowers(follower => follower.HasAbility(reqValue));
 
                     if (followerCount < 1)
                         return false;
@@ -2334,7 +2291,7 @@ public class CriteriaHandler
                 }
                 else
                 {
-                    var followerCount = garrison.CountFollowers(follower => { return follower.HasAbility(reqValue); });
+                    var followerCount = garrison.CountFollowers(follower => follower.HasAbility(reqValue));
 
                     if (followerCount < 1)
                         return false;
@@ -2358,7 +2315,7 @@ public class CriteriaHandler
                 }
                 else
                 {
-                    var followerCount = garrison.CountFollowers(follower => { return follower.PacketInfo.Quality >= reqValue; });
+                    var followerCount = garrison.CountFollowers(follower => follower.PacketInfo.Quality >= reqValue);
 
                     if (followerCount < 1)
                         return false;
@@ -2382,7 +2339,7 @@ public class CriteriaHandler
                 }
                 else
                 {
-                    var followerCount = garrison.CountFollowers(follower => { return follower.PacketInfo.FollowerLevel == reqValue; });
+                    var followerCount = garrison.CountFollowers(follower => follower.PacketInfo.FollowerLevel == reqValue);
 
                     if (followerCount < 1)
                         return false;
@@ -2435,11 +2392,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.BattlePetTeamWithSpeciesEqualOrGreaterThan: // 151
             {
-                uint count = 0;
-
-                foreach (var slot in referencePlayer.Session.BattlePetMgr.Slots)
-                    if (slot.Pet.Species == secondaryAsset)
-                        ++count;
+                var count = referencePlayer.Session.BattlePetMgr.Slots.Count(slot => slot.Pet.Species == secondaryAsset);
 
                 if (count < reqValue)
                     return false;
@@ -2452,11 +2405,11 @@ public class CriteriaHandler
 
                 foreach (var slot in referencePlayer.Session.BattlePetMgr.Slots)
                 {
-                    var species = CliDB.BattlePetSpeciesStorage.LookupByKey(slot.Pet.Species);
+                    if (!CliDB.BattlePetSpeciesStorage.TryGetValue(slot.Pet.Species, out var species))
+                        continue;
 
-                    if (species != null)
-                        if (species.PetTypeEnum == secondaryAsset)
-                            ++count;
+                    if (species.PetTypeEnum == secondaryAsset)
+                        ++count;
                 }
 
                 if (count < reqValue)
@@ -2490,7 +2443,7 @@ public class CriteriaHandler
                 if (garrison == null)
                     return false;
 
-                var followerCount = garrison.CountFollowers(follower => { return follower.PacketInfo.GarrFollowerID == reqValue; });
+                var followerCount = garrison.CountFollowers(follower => follower.PacketInfo.GarrFollowerID == reqValue);
 
                 if (followerCount < 1)
                     return false;
@@ -2569,7 +2522,7 @@ public class CriteriaHandler
                 if (garrison == null)
                     return false;
 
-                var followerCount = garrison.CountFollowers(follower => { return follower.PacketInfo.GarrFollowerID == miscValue1 && follower.GetItemLevel() >= reqValue; });
+                var followerCount = garrison.CountFollowers(follower => follower.PacketInfo.GarrFollowerID == miscValue1 && follower.GetItemLevel() >= reqValue);
 
                 if (followerCount < 1)
                     return false;
@@ -2660,7 +2613,7 @@ public class CriteriaHandler
                 if (garrison == null)
                     return false;
 
-                var followerCount = garrison.CountFollowers(follower => { return follower.PacketInfo.GarrFollowerID == reqValue && follower.PacketInfo.CurrentBuildingID == secondaryAsset; });
+                var followerCount = garrison.CountFollowers(follower => follower.PacketInfo.GarrFollowerID == reqValue && follower.PacketInfo.CurrentBuildingID == secondaryAsset);
 
                 if (followerCount < 1)
                     return false;
@@ -2744,9 +2697,7 @@ public class CriteriaHandler
 
                 var followerCount = garrison.CountFollowers(follower =>
                 {
-                    var garrFollower = CliDB.GarrFollowerStorage.LookupByKey(follower.PacketInfo.GarrFollowerID);
-
-                    if (garrFollower == null)
+                    if (!CliDB.GarrFollowerStorage.TryGetValue(follower.PacketInfo.GarrFollowerID, out var garrFollower))
                         return false;
 
                     return follower.GetItemLevel() >= secondaryAsset && garrFollower.GarrFollowerTypeID == tertiaryAsset;
@@ -2877,9 +2828,7 @@ public class CriteriaHandler
 
                     if (artifact != null)
                     {
-                        var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
-
-                        if (artifactAppearance != null)
+                        if (CliDB.ArtifactAppearanceStorage.TryGetValue(artifact.GetModifier(ItemModifier.ArtifactAppearanceId), out var artifactAppearance))
                             if (artifactAppearance.ArtifactAppearanceSetID == reqValue)
                                 break;
                     }
@@ -2957,18 +2906,14 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerIsInPvpBrawl: // 220
             {
-                var bg = CliDB.BattlemasterListStorage.LookupByKey((uint)referencePlayer.BattlegroundTypeId);
-
-                if (bg == null || !bg.Flags.HasFlag(BattlemasterListFlags.Brawl))
+                if (!CliDB.BattlemasterListStorage.TryGetValue((uint)referencePlayer.BattlegroundTypeId, out var bg) || !bg.Flags.HasFlag(BattlemasterListFlags.Brawl))
                     return false;
 
                 break;
             }
             case ModifierTreeType.ParagonReputationLevelWithFactionEqualOrGreaterThan: // 221
             {
-                var faction = CliDB.FactionStorage.LookupByKey((uint)secondaryAsset);
-
-                if (faction == null)
+                if (!CliDB.FactionStorage.TryGetValue((uint)secondaryAsset, out var faction))
                     return false;
 
                 if (referencePlayer.ReputationMgr.GetParagonLevel(faction.ParagonFactionID) < reqValue)
@@ -3014,7 +2959,7 @@ public class CriteriaHandler
 
                 var artifact = referencePlayer.GetItemByGuid(artifactAura.CastItemGuid);
 
-                if (!artifact)
+                if (artifact == null)
                     return false;
 
                 var artifactPower = artifact.GetArtifactPower((uint)secondaryAsset);
@@ -3127,9 +3072,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.PlayerPvpTier: // 234
             {
-                var pvpTier = CliDB.PvpTierStorage.LookupByKey(reqValue);
-
-                if (pvpTier == null)
+                if (!CliDB.PvpTierStorage.TryGetValue(reqValue, out var pvpTier))
                     return false;
 
                 var pvpInfo = referencePlayer.GetPvpInfoForBracket((byte)pvpTier.BracketID);
@@ -3146,7 +3089,7 @@ public class CriteriaHandler
             {
                 var heartOfAzeroth = referencePlayer.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-                if (!heartOfAzeroth || heartOfAzeroth.AsAzeriteItem.GetLevel() < reqValue)
+                if (heartOfAzeroth == null || heartOfAzeroth.AsAzeriteItem.GetLevel() < reqValue)
                     return false;
 
                 break;
@@ -3182,9 +3125,7 @@ public class CriteriaHandler
                 if (pvpInfo == null)
                     return false;
 
-                var pvpTier = CliDB.PvpTierStorage.LookupByKey(pvpInfo.PvpTierID);
-
-                if (pvpTier == null)
+                if (!CliDB.PvpTierStorage.TryGetValue(pvpInfo.PvpTierID, out var pvpTier))
                     return false;
 
                 if (pvpTier.Rank < reqValue)
@@ -3221,9 +3162,10 @@ public class CriteriaHandler
                 if (questLineQuests.Empty())
                     return false;
 
-                foreach (var questLineQuest in questLineQuests)
-                    if (!referencePlayer.GetQuestRewardStatus(questLineQuest.QuestID))
-                        return false;
+                if (questLineQuests.Any(questLineQuest => !referencePlayer.GetQuestRewardStatus(questLineQuest.QuestID)))
+                {
+                    return false;
+                }
 
                 break;
             }
@@ -3234,11 +3176,7 @@ public class CriteriaHandler
                 if (questLineQuests.Empty())
                     return false;
 
-                uint completedQuests = 0;
-
-                foreach (var questLineQuest in questLineQuests)
-                    if (referencePlayer.GetQuestRewardStatus(questLineQuest.QuestID))
-                        ++completedQuests;
+                var completedQuests = questLineQuests.Count(questLineQuest => referencePlayer.GetQuestRewardStatus(questLineQuest.QuestID));
 
                 if (completedQuests < reqValue)
                     return false;
@@ -3252,11 +3190,7 @@ public class CriteriaHandler
                 if (questLineQuests.Empty())
                     return false;
 
-                var completedQuests = 0;
-
-                foreach (var questLineQuest in questLineQuests)
-                    if (referencePlayer.GetQuestRewardStatus(questLineQuest.QuestID))
-                        ++completedQuests;
+                var completedQuests = questLineQuests.Count(questLineQuest => referencePlayer.GetQuestRewardStatus(questLineQuest.QuestID));
 
                 if (MathFunctions.GetPctOf(completedQuests, questLineQuests.Count) < reqValue)
                     return false;
@@ -3290,14 +3224,10 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerVisibleRace: // 252
             {
-                var creatureDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(referencePlayer.DisplayId);
-
-                if (creatureDisplayInfo == null)
+                if (!CliDB.CreatureDisplayInfoStorage.TryGetValue(referencePlayer.DisplayId, out var creatureDisplayInfo))
                     return false;
 
-                var creatureDisplayInfoExtra = CliDB.CreatureDisplayInfoExtraStorage.LookupByKey((uint)creatureDisplayInfo.ExtendedDisplayInfoID);
-
-                if (creatureDisplayInfoExtra == null)
+                if (!CliDB.CreatureDisplayInfoExtraStorage.TryGetValue((uint)creatureDisplayInfo.ExtendedDisplayInfoID, out var creatureDisplayInfoExtra))
                     return false;
 
                 if (creatureDisplayInfoExtra.DisplayRaceID != reqValue)
@@ -3310,14 +3240,10 @@ public class CriteriaHandler
                 if (refe is not { IsUnit: true })
                     return false;
 
-                var creatureDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(refe.AsUnit.DisplayId);
-
-                if (creatureDisplayInfo == null)
+                if (!CliDB.CreatureDisplayInfoStorage.TryGetValue(refe.AsUnit.DisplayId, out var creatureDisplayInfo))
                     return false;
 
-                var creatureDisplayInfoExtra = CliDB.CreatureDisplayInfoExtraStorage.LookupByKey((uint)creatureDisplayInfo.ExtendedDisplayInfoID);
-
-                if (creatureDisplayInfoExtra == null)
+                if (!CliDB.CreatureDisplayInfoExtraStorage.TryGetValue((uint)creatureDisplayInfo.ExtendedDisplayInfoID, out var creatureDisplayInfoExtra))
                     return false;
 
                 if (creatureDisplayInfoExtra.DisplayRaceID != reqValue)
@@ -3327,14 +3253,10 @@ public class CriteriaHandler
             }
             case ModifierTreeType.FriendshipRepReactionEqual: // 254
             {
-                var friendshipRepReaction = CliDB.FriendshipRepReactionStorage.LookupByKey(reqValue);
-
-                if (friendshipRepReaction == null)
+                if (!CliDB.FriendshipRepReactionStorage.TryGetValue(reqValue, out var friendshipRepReaction))
                     return false;
 
-                var friendshipReputation = CliDB.FriendshipReputationStorage.LookupByKey(friendshipRepReaction.FriendshipRepID);
-
-                if (friendshipReputation == null)
+                if (!CliDB.FriendshipReputationStorage.TryGetValue(friendshipRepReaction.FriendshipRepID, out var friendshipReputation))
                     return false;
 
                 var friendshipReactions = DB2Manager.GetFriendshipRepReactions(reqValue);
@@ -3359,7 +3281,7 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.TargetAuraStackCountEqual: // 256
-                if (!refe || !refe.IsUnit || refe.AsUnit.GetAuraCount((uint)secondaryAsset) != reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.GetAuraCount((uint)secondaryAsset) != reqValue)
                     return false;
 
                 break;
@@ -3371,7 +3293,7 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.TargetAuraStackCountEqualOrGreaterThan: // 258
-                if (!refe || !refe.IsUnit || refe.AsUnit.GetAuraCount((uint)secondaryAsset) < reqValue)
+                if (refe is not { IsUnit: true } || refe.AsUnit.GetAuraCount((uint)secondaryAsset) < reqValue)
                     return false;
 
                 break;
@@ -3382,10 +3304,12 @@ public class CriteriaHandler
 
                 var azeriteItem = heartOfAzeroth?.AsAzeriteItem;
 
-                if (azeriteItem != null)
-                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                        if (essence.AzeriteEssenceID == reqValue && essence.Rank < secondaryAsset)
-                            return true;
+                if (azeriteItem == null)
+                    return false;
+
+                foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                    if (essence.AzeriteEssenceID == reqValue && essence.Rank < secondaryAsset)
+                        return true;
 
                 return false;
             }
@@ -3395,10 +3319,12 @@ public class CriteriaHandler
 
                 var azeriteItem = heartOfAzeroth?.AsAzeriteItem;
 
-                if (azeriteItem != null)
-                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                        if (essence.AzeriteEssenceID == reqValue && essence.Rank == secondaryAsset)
-                            return true;
+                if (azeriteItem == null)
+                    return false;
+
+                foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                    if (essence.AzeriteEssenceID == reqValue && essence.Rank == secondaryAsset)
+                        return true;
 
                 return false;
             }
@@ -3408,10 +3334,12 @@ public class CriteriaHandler
 
                 var azeriteItem = heartOfAzeroth?.AsAzeriteItem;
 
-                if (azeriteItem != null)
-                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                        if (essence.AzeriteEssenceID == reqValue && essence.Rank > secondaryAsset)
-                            return true;
+                if (azeriteItem == null)
+                    return false;
+
+                foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                    if (essence.AzeriteEssenceID == reqValue && essence.Rank > secondaryAsset)
+                        return true;
 
                 return false;
             }
@@ -3438,9 +3366,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.TransmogSource: // 265
             {
-                var itemModifiedAppearance = CliDB.ItemModifiedAppearanceStorage.LookupByKey((uint)miscValue2);
-
-                if (itemModifiedAppearance == null)
+                if (!CliDB.ItemModifiedAppearanceStorage.TryGetValue((uint)miscValue2, out var itemModifiedAppearance))
                     return false;
 
                 if (itemModifiedAppearance.TransmogSourceTypeEnum != reqValue)
@@ -3456,10 +3382,12 @@ public class CriteriaHandler
 
                 var selectedEssences = azeriteItem?.GetSelectedAzeriteEssences();
 
-                if (selectedEssences != null)
-                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                        if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank < secondaryAsset)
-                            return true;
+                if (selectedEssences == null)
+                    return false;
+
+                foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                    if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank < secondaryAsset)
+                        return true;
 
                 return false;
             }
@@ -3471,10 +3399,12 @@ public class CriteriaHandler
 
                 var selectedEssences = azeriteItem?.GetSelectedAzeriteEssences();
 
-                if (selectedEssences != null)
-                    foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
-                        if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank > secondaryAsset)
-                            return true;
+                if (selectedEssences == null)
+                    return false;
+
+                foreach (var essence in azeriteItem.AzeriteItemData.UnlockedEssences)
+                    if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank > secondaryAsset)
+                        return true;
 
                 return false;
             }
@@ -3483,33 +3413,31 @@ public class CriteriaHandler
                 var level = referencePlayer.Level;
                 var levels = DB2Manager.GetContentTuningData(reqValue, 0);
 
-                if (levels.HasValue)
-                {
-                    if (secondaryAsset != 0)
-                        return level >= levels.Value.MinLevelWithDelta && level <= levels.Value.MaxLevelWithDelta;
+                if (!levels.HasValue)
+                    return false;
 
-                    return level >= levels.Value.MinLevel && level <= levels.Value.MaxLevel;
-                }
+                if (secondaryAsset != 0)
+                    return level >= levels.Value.MinLevelWithDelta && level <= levels.Value.MaxLevelWithDelta;
 
-                return false;
+                return level >= levels.Value.MinLevel && level <= levels.Value.MaxLevel;
+
             }
             case ModifierTreeType.TargetLevelWithinContentTuning: // 269
             {
-                if (!refe || !refe.IsUnit)
+                if (refe is not { IsUnit: true })
                     return false;
 
                 var level = refe.AsUnit.Level;
                 var levels = DB2Manager.GetContentTuningData(reqValue, 0);
 
-                if (levels.HasValue)
-                {
-                    if (secondaryAsset != 0)
-                        return level >= levels.Value.MinLevelWithDelta && level <= levels.Value.MaxLevelWithDelta;
+                if (!levels.HasValue)
+                    return false;
 
-                    return level >= levels.Value.MinLevel && level <= levels.Value.MaxLevel;
-                }
+                if (secondaryAsset != 0)
+                    return level >= levels.Value.MinLevelWithDelta && level <= levels.Value.MaxLevelWithDelta;
 
-                return false;
+                return level >= levels.Value.MinLevel && level <= levels.Value.MaxLevel;
+
             }
             case ModifierTreeType.PlayerIsScenarioInitiator: // 270 NYI
                 return false;
@@ -3535,7 +3463,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.TargetLevelWithinOrAboveContentTuning: // 273
             {
-                if (!refe || !refe.IsUnit)
+                if (refe is not { IsUnit: true })
                     return false;
 
                 var level = refe.AsUnit.Level;
@@ -3674,29 +3602,20 @@ public class CriteriaHandler
             case ModifierTreeType.PlayerIsInAreaGroup: // 298
             {
                 var areas = DB2Manager.GetAreasForGroup(reqValue);
-                var area = CliDB.AreaTableStorage.LookupByKey(referencePlayer.Location.Area);
 
-                if (area != null)
-                    foreach (var areaInGroup in areas)
-                        if (areaInGroup == area.Id || areaInGroup == area.ParentAreaID)
-                            return true;
+                if (!CliDB.AreaTableStorage.TryGetValue(referencePlayer.Location.Area, out var area))
+                    return false;
 
-                return false;
+                return areas.Any(areaInGroup => areaInGroup == area.Id || areaInGroup == area.ParentAreaID);
             }
             case ModifierTreeType.TargetIsInAreaGroup: // 299
             {
-                if (!refe)
+                if (refe == null)
                     return false;
 
                 var areas = DB2Manager.GetAreasForGroup(reqValue);
-                var area = CliDB.AreaTableStorage.LookupByKey(refe.Location.Area);
 
-                if (area != null)
-                    foreach (var areaInGroup in areas)
-                        if (areaInGroup == area.Id || areaInGroup == area.ParentAreaID)
-                            return true;
-
-                return false;
+                return CliDB.AreaTableStorage.TryGetValue(refe.Location.Area, out var area) && areas.Any(areaInGroup => areaInGroup == area.Id || areaInGroup == area.ParentAreaID);
             }
             case ModifierTreeType.PlayerIsInChromieTime: // 300
                 if (referencePlayer.ActivePlayerData.UiChromieTimeExpansionID != reqValue)
@@ -3767,7 +3686,7 @@ public class CriteriaHandler
                     return false;
 
                 var formChoice = referencePlayer.GetCustomizationChoice(formModelData.OptionID);
-                var choiceIndex = formModelData.Choices.FindIndex(choice => { return choice.Id == formChoice; });
+                var choiceIndex = formModelData.Choices.FindIndex(choice => choice.Id == formChoice);
 
                 if (choiceIndex == -1)
                     return false;
@@ -3808,7 +3727,7 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.TargetCovenant: // 314
-                if (!refe || !refe.IsPlayer)
+                if (refe is not { IsPlayer: true })
                     return false;
 
                 if (refe.AsPlayer.PlayerData.CovenantID != reqValue)
@@ -3830,7 +3749,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerHasCustomizationChoice: // 323
             {
-                var customizationChoiceIndex = referencePlayer.PlayerData.Customizations.FindIndexIf(choice => { return choice.ChrCustomizationChoiceID == reqValue; });
+                var customizationChoiceIndex = referencePlayer.PlayerData.Customizations.FindIndexIf(choice => choice.ChrCustomizationChoiceID == reqValue);
 
                 if (customizationChoiceIndex < 0)
                     return false;
@@ -3839,9 +3758,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.PlayerBestWeeklyWinPvpTier: // 324
             {
-                var pvpTier = CliDB.PvpTierStorage.LookupByKey(reqValue);
-
-                if (pvpTier == null)
+                if (!CliDB.PvpTierStorage.TryGetValue(reqValue, out var pvpTier))
                     return false;
 
                 var pvpInfo = referencePlayer.GetPvpInfoForBracket((byte)pvpTier.BracketID);
@@ -3861,9 +3778,7 @@ public class CriteriaHandler
                 if (pvpInfo == null)
                     return false;
 
-                var pvpTier = CliDB.PvpTierStorage.LookupByKey(pvpInfo.WeeklyBestWinPvpTierID);
-
-                if (pvpTier == null)
+                if (!CliDB.PvpTierStorage.TryGetValue(pvpInfo.WeeklyBestWinPvpTierID, out var pvpTier))
                     return false;
 
                 if (pvpTier.Rank < reqValue)
@@ -3882,10 +3797,7 @@ public class CriteriaHandler
                                                                         if (item.Entry != reqValue)
                                                                             return true;
 
-                                                                        if (item.GetModifier(ItemModifier.ChallengeKeystoneLevel) < secondaryAsset)
-                                                                            return true;
-
-                                                                        return false;
+                                                                        return item.GetModifier(ItemModifier.ChallengeKeystoneLevel) < secondaryAsset;
                                                                     });
 
                 if (bagScanReachedEnd)
@@ -4146,7 +4058,7 @@ public class CriteriaHandler
 
                 var map = referencePlayer.Location.IsInWorld ? referencePlayer.Location.Map : MapManager.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId);
 
-                if (!map || !map.IsDungeon)
+                if (map is not { IsDungeon: true })
                     return false;
 
                 //FIXME: work only for instances where max == min for players
@@ -4156,7 +4068,7 @@ public class CriteriaHandler
                 break;
             }
             case CriteriaType.KilledByPlayer:
-                if (miscValue1 == 0 || !refe || !refe.IsTypeId(TypeId.Player))
+                if (miscValue1 == 0 || refe == null || !refe.IsTypeId(TypeId.Player))
                     return false;
 
                 break;
@@ -4232,18 +4144,14 @@ public class CriteriaHandler
 
             case CriteriaType.RevealWorldMapOverlay:
             {
-                var worldOverlayEntry = CliDB.WorldMapOverlayStorage.LookupByKey(criteria.Entry.Asset);
-
-                if (worldOverlayEntry == null)
+                if (!CliDB.WorldMapOverlayStorage.TryGetValue(criteria.Entry.Asset, out var worldOverlayEntry))
                     break;
 
                 var matchFound = false;
 
                 for (var j = 0; j < SharedConst.MaxWorldMapOverlayArea; ++j)
                 {
-                    var area = CliDB.AreaTableStorage.LookupByKey(worldOverlayEntry.AreaID[j]);
-
-                    if (area == null)
+                    if (!CliDB.AreaTableStorage.TryGetValue(worldOverlayEntry.AreaID[j], out var area))
                         break;
 
                     if (area.AreaBit < 0)
@@ -4256,12 +4164,12 @@ public class CriteriaHandler
 
                     var mask = 1ul << (int)((uint)area.AreaBit % ActivePlayerData.ExploredZonesBits);
 
-                    if (Convert.ToBoolean(referencePlayer.ActivePlayerData.ExploredZones[playerIndexOffset] & mask))
-                    {
-                        matchFound = true;
+                    if (!Convert.ToBoolean(referencePlayer.ActivePlayerData.ExploredZones[playerIndexOffset] & mask))
+                        continue;
 
-                        break;
-                    }
+                    matchFound = true;
+
+                    break;
                 }
 
                 if (!matchFound)
@@ -4314,7 +4222,7 @@ public class CriteriaHandler
                         return false;
 
                     // map specific case (BG in fact) expected player targeted damage/heal
-                    if (!refe || !refe.IsTypeId(TypeId.Player))
+                    if (refe == null || !refe.IsTypeId(TypeId.Player))
                         return false;
                 }
 

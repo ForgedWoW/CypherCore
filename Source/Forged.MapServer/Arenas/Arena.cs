@@ -275,9 +275,7 @@ public class Arena : Battleground
     {
         if (IsRated() && GetStatus() == BattlegroundStatus.InProgress)
         {
-            var bgPlayer = GetPlayers().LookupByKey(guid);
-
-            if (bgPlayer != null) // check if the player was a participant of the match, or only entered through gm command (appear)
+            if (GetPlayers().TryGetValue(guid, out var bgPlayer)) // check if the player was a participant of the match, or only entered through gm command (appear)
             {
                 // if the player was a match participant, calculate rating
 

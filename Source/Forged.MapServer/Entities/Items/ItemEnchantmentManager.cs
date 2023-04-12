@@ -36,9 +36,7 @@ public class ItemEnchantmentManager
         if (itemProto.RandomBonusListTemplateId == 0)
             return 0;
 
-        var tab = _storage.LookupByKey(itemProto.RandomBonusListTemplateId);
-
-        if (tab != null)
+        if (_storage.TryGetValue(itemProto.RandomBonusListTemplateId, out var tab))
             return tab.BonusListIDs.SelectRandomElementByWeight(x => (float)tab.Chances[tab.BonusListIDs.IndexOf(x)]);
 
         Log.Logger.Error($"Item RandomBonusListTemplateId id {itemProto.RandomBonusListTemplateId} used in `item_template_addon` but it does not have records in `item_random_bonus_list_template` table.");
@@ -103,9 +101,7 @@ public class ItemEnchantmentManager
                 return 0;
         }
 
-        var randPropPointsEntry = _cliDB.RandPropPointsStorage.LookupByKey(itemLevel);
-
-        if (randPropPointsEntry == null)
+        if (!_cliDB.RandPropPointsStorage.TryGetValue(itemLevel, out var randPropPointsEntry))
             return 0;
 
         return quality switch

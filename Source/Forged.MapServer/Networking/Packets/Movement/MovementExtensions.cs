@@ -33,7 +33,7 @@ public static class MovementExtensions
 
         var removeMovementForcesCount = data.ReadUInt32();
 
-        var moveIndex = data.ReadUInt32();
+        data.ReadUInt32();
 
         for (uint i = 0; i < removeMovementForcesCount; ++i)
             data.ReadPackedGuid();
@@ -42,7 +42,7 @@ public static class MovementExtensions
 
         var hasTransport = data.HasBit();
         var hasFall = data.HasBit();
-        var hasSpline = data.HasBit(); // todo 6.x read this infos
+        data.HasBit();
 
         data.ReadBit(); // HeightChangeFailed
         data.ReadBit(); // RemoteTimeValid

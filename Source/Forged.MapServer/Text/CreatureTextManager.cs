@@ -46,14 +46,10 @@ public sealed class CreatureTextManager
 
     public string GetLocalizedChatString(uint entry, Gender gender, byte textGroup, uint id, Locale locale = Locale.enUS)
     {
-        var multiMap = _textMap.LookupByKey(entry);
-
-        if (multiMap == null)
+        if (!_textMap.TryGetValue(entry, out var multiMap))
             return "";
 
-        var creatureTextEntryList = multiMap.LookupByKey(textGroup);
-
-        if (creatureTextEntryList.Empty())
+        if (multiMap.TryGetValue(textGroup, out var creatureTextEntryList))
             return "";
 
         CreatureTextEntry creatureTextEntry = null;
@@ -73,18 +69,14 @@ public sealed class CreatureTextManager
             locale = Locale.enUS;
 
         string baseText;
-        var bct = _cliDB.BroadcastTextStorage.LookupByKey(creatureTextEntry.BroadcastTextId);
-
-        if (bct != null)
+        if (_cliDB.BroadcastTextStorage.TryGetValue(creatureTextEntry.BroadcastTextId, out var bct))
             baseText = _db2Manager.GetBroadcastTextValue(bct, locale, gender);
         else
             baseText = creatureTextEntry.text;
 
         if (locale != Locale.enUS && bct == null)
         {
-            var creatureTextLocale = _localeTextMap.LookupByKey(new CreatureTextId(entry, textGroup, id));
-
-            if (creatureTextLocale != null)
+            if (_localeTextMap.TryGetValue(new CreatureTextId(entry, textGroup, id), out var creatureTextLocale))
                 GameObjectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
         }
 
@@ -268,18 +260,14 @@ public sealed class CreatureTextManager
         if (source == null)
             return 0;
 
-        var sList = _textMap.LookupByKey(source.Entry);
-
-        if (sList == null)
+        if (!_textMap.TryGetValue(source.Entry, out var sList))
         {
             Log.Logger.Error("GossipManager: Could not find Text for Creature({0}) Entry {1} in 'creature_text' table. Ignoring.", source.GetName(), source.Entry);
 
             return 0;
         }
 
-        var textGroupContainer = sList.LookupByKey(textGroup);
-
-        if (textGroupContainer.Empty())
+        if (sList.TryGetValue(textGroup, out var textGroupContainer))
         {
             Log.Logger.Error("GossipManager: Could not find TextGroup {0} for Creature({1}) GuidLow {2} Entry {3}. Ignoring.", textGroup, source.GetName(), source.GUID.ToString(), source.Entry);
 
@@ -313,9 +301,7 @@ public sealed class CreatureTextManager
         }
         else
         {
-            var bct = _cliDB.BroadcastTextStorage.LookupByKey(textEntry.BroadcastTextId);
-
-            if (bct != null)
+            if (_cliDB.BroadcastTextStorage.TryGetValue(textEntry.BroadcastTextId, out var bct))
             {
                 var broadcastTextSoundId = bct.SoundKitID[source.Gender == Gender.Female ? 1 : 0];
 
@@ -481,18 +467,14 @@ public sealed class CreatureTextManager
         if (sourceEntry == 0)
             return false;
 
-        var textHolder = _textMap.LookupByKey(sourceEntry);
-
-        if (textHolder == null)
+        if (!_textMap.TryGetValue(sourceEntry, out var textHolder))
         {
             Log.Logger.Debug("CreatureTextMgr.TextExist: Could not find Text for Creature (entry {0}) in 'creature_text' table.", sourceEntry);
 
             return false;
         }
 
-        var textEntryList = textHolder.LookupByKey(textGroup);
-
-        if (textEntryList.Empty())
+        if (textHolder.ContainsKey(textGroup))
         {
             Log.Logger.Debug("CreatureTextMgr.TextExist: Could not find TextGroup {0} for Creature (entry {1}).", textGroup, sourceEntry);
 

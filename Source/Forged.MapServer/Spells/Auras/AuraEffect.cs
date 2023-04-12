@@ -2545,9 +2545,7 @@ public class AuraEffect
         if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
             return;
 
-        var powerDisplay = CliDB.PowerDisplayStorage.LookupByKey(MiscValue);
-
-        if (powerDisplay == null)
+        if (!CliDB.PowerDisplayStorage.TryGetValue(MiscValue, out var powerDisplay))
             return;
 
         var target = aurApp.Target;
@@ -3083,7 +3081,7 @@ public class AuraEffect
             {
                 if (spellGroupVal != 0)
                 {
-                    target.HandleStatFlatModifier((UnitMods.StatStart + (int)i), UnitModifierFlatType.Total, (double)spellGroupVal, !apply);
+                    target.HandleStatFlatModifier((UnitMods.StatStart + (int)i), UnitModifierFlatType.Total, spellGroupVal, !apply);
 
                     if (target.IsTypeId(TypeId.Player) || target.IsPet)
                         target.UpdateStatBuffMod(i);
@@ -3222,9 +3220,7 @@ public class AuraEffect
 
                                                                   if (playerTarget != null)
                                                                   {
-                                                                      var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(mountDisplay.PlayerConditionID);
-
-                                                                      if (playerCondition != null)
+                                                                      if (CliDB.PlayerConditionStorage.TryGetValue(mountDisplay.PlayerConditionID, out var playerCondition))
                                                                           return ConditionManager.IsPlayerMeetingCondition(playerTarget, playerCondition);
                                                                   }
 
@@ -3266,9 +3262,7 @@ public class AuraEffect
             // cast speed aura
             if (mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
             {
-                var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(Amount);
-
-                if (mountCapability != null)
+                if (CliDB.MountCapabilityStorage.TryGetValue(Amount, out var mountCapability))
                     target.CastSpell(target, mountCapability.ModSpellAuraID, new CastSpellExtraArgs(this));
             }
         }
@@ -3286,9 +3280,7 @@ public class AuraEffect
             if (mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
             {
                 // remove speed aura
-                var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(Amount);
-
-                if (mountCapability != null)
+                if (CliDB.MountCapabilityStorage.TryGetValue(Amount, out var mountCapability))
                     target.RemoveAurasDueToSpell(mountCapability.ModSpellAuraID, target.GUID);
             }
         }
@@ -3327,9 +3319,7 @@ public class AuraEffect
         if (apply)
         {
             target.SetOverrideSpellsId(overrideId);
-            var overrideSpells = CliDB.OverrideSpellDataStorage.LookupByKey(overrideId);
-
-            if (overrideSpells != null)
+            if (CliDB.OverrideSpellDataStorage.TryGetValue(overrideId, out var overrideSpells))
                 for (byte i = 0; i < SharedConst.MaxOverrideSpell; ++i)
                 {
                     var spellId = overrideSpells.Spells[i];
@@ -3341,9 +3331,7 @@ public class AuraEffect
         else
         {
             target.SetOverrideSpellsId(0);
-            var overrideSpells = CliDB.OverrideSpellDataStorage.LookupByKey(overrideId);
-
-            if (overrideSpells != null)
+            if (CliDB.OverrideSpellDataStorage.TryGetValue(overrideId, out var overrideSpells))
                 for (byte i = 0; i < SharedConst.MaxOverrideSpell; ++i)
                 {
                     var spellId = overrideSpells.Spells[i];
@@ -3981,9 +3969,7 @@ public class AuraEffect
             return;
 
         var altPowerId = MiscValue;
-        var powerEntry = CliDB.UnitPowerBarStorage.LookupByKey(altPowerId);
-
-        if (powerEntry == null)
+        if (!CliDB.UnitPowerBarStorage.TryGetValue(altPowerId, out var powerEntry))
             return;
 
         if (apply)
@@ -5405,9 +5391,7 @@ public class AuraEffect
         if (!pet)
             return;
 
-        var currSpec = CliDB.ChrSpecializationStorage.LookupByKey(pet.Specialization);
-
-        if (currSpec == null)
+        if (!CliDB.ChrSpecializationStorage.TryGetValue(pet.Specialization, out var currSpec))
             return;
 
         pet.SetSpecialization(Global.DB2Mgr.GetChrSpecializationByIndex(apply ? PlayerClass.Max : 0, currSpec.OrderIndex).Id);

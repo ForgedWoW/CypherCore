@@ -167,9 +167,7 @@ public class WorldStateManager
                         continue;
                     }
 
-                    var areaTableEntry = _cliDB.AreaTableStorage.LookupByKey(areaId);
-
-                    if (areaTableEntry == null)
+                    if (!_cliDB.AreaTableStorage.TryGetValue(areaId, out var areaTableEntry))
                     {
                         Log.Logger.Error($"Table `world_state` contains a world state {id} with invalid AreaID ({areaId}), area ignored");
 
@@ -225,9 +223,7 @@ public class WorldStateManager
             do
             {
                 var worldStateId = result.Read<int>(0);
-                var worldState = _worldStateTemplates.LookupByKey(worldStateId);
-
-                if (worldState == null)
+                if (!_worldStateTemplates.TryGetValue(worldStateId, out var worldState))
                 {
                     Log.Logger.Error($"Table `world_state_value` contains a value for unknown world state {worldStateId}, ignored");
 

@@ -196,9 +196,7 @@ public class LFGQueue
 
     public long GetJoinTime(ObjectGuid guid)
     {
-        var queueData = _queueDataStore.LookupByKey(guid);
-
-        if (queueData != null)
+        if (_queueDataStore.TryGetValue(guid, out var queueData))
             return queueData.JoinTime;
 
         return 0;
@@ -418,9 +416,7 @@ public class LFGQueue
             if (!(numLfgGroups < 2) && !(numPlayers <= MapConst.MaxGroupSize))
                 break;
 
-            var itQueue = _queueDataStore.LookupByKey(playerGuid);
-
-            if (itQueue == null)
+            if (!_queueDataStore.TryGetValue(playerGuid, out var itQueue))
             {
                 Log.Logger.Error("CheckCompatibility: [{0}] is not queued but listed as queued!", playerGuid);
                 RemoveFromQueue(playerGuid);
@@ -703,9 +699,7 @@ public class LFGQueue
 
     private LfgCompatibility GetCompatibles(string key)
     {
-        var compatibilityData = _compatibleMapStore.LookupByKey(key);
-
-        if (compatibilityData != null)
+        if (_compatibleMapStore.TryGetValue(key, out var compatibilityData))
             return compatibilityData.Compatibility;
 
         return LfgCompatibility.Pending;

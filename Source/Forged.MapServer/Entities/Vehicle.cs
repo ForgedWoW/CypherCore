@@ -46,9 +46,7 @@ public class Vehicle : ITransport
 
             if (seatId != 0)
             {
-                var veSeat = CliDB.VehicleSeatStorage.LookupByKey(seatId);
-
-                if (veSeat != null)
+                if (CliDB.VehicleSeatStorage.TryGetValue(seatId, out var veSeat))
                 {
                     var addon = Global.ObjectMgr.GetVehicleSeatAddon(seatId);
                     Seats.Add((sbyte)i, new VehicleSeat(veSeat, addon));
@@ -75,11 +73,6 @@ public class Vehicle : ITransport
         UnInstalling,
     }
     //< DBC data for vehicle
-
-    public static implicit operator bool(Vehicle vehicle)
-    {
-        return vehicle != null;
-    }
 
     public void AddPassenger(WorldObject passenger)
     {
@@ -242,9 +235,7 @@ public class Vehicle : ITransport
 
     public VehicleSeat GetNextEmptySeat(sbyte seatId, bool next)
     {
-        var seat = Seats.LookupByKey(seatId);
-
-        if (seat == null)
+        if (!Seats.TryGetValue(seatId, out var seat))
             return null;
 
         var newSeatId = seatId;
@@ -276,9 +267,7 @@ public class Vehicle : ITransport
 
     public Unit GetPassenger(sbyte seatId)
     {
-        var seat = Seats.LookupByKey(seatId);
-
-        if (seat == null)
+        if (!Seats.TryGetValue(seatId, out var seat))
             return null;
 
         return Global.ObjAccessor.GetUnit(GetBase(), seat.Passenger.Guid);
@@ -324,9 +313,7 @@ public class Vehicle : ITransport
 
     public bool HasEmptySeat(sbyte seatId)
     {
-        var seat = Seats.LookupByKey(seatId);
-
-        if (seat == null)
+        if (!Seats.TryGetValue(seatId, out var seat))
             return false;
 
         return seat.IsEmpty();

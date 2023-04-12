@@ -42,7 +42,7 @@ public class AuraKey : IEquatable<AuraKey>
     }
     public override bool Equals(object obj)
     {
-        return obj is AuraKey && Equals((AuraKey)obj);
+        return obj is AuraKey key && Equals(key);
     }
 
     public override int GetHashCode()

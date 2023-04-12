@@ -34,11 +34,6 @@ public class Guild
             m_bankEventLog[i] = new LogHolder<BankEventLogEntry>();
     }
 
-    public static implicit operator bool(Guild guild)
-    {
-        return guild != null;
-    }
-
     public static void SendCommandResult(WorldSession session, GuildCommandType type, GuildCommandError errCode, string param = "")
     {
         GuildCommandResult resultPacket = new()
@@ -1037,9 +1032,7 @@ public class Guild
 
             foreach (var achievementId in achievementIds)
             {
-                var achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
-
-                if (achievement != null)
+                if (CliDB.AchievementStorage.TryGetValue(achievementId, out var achievement))
                 {
                     var tree = Global.CriteriaMgr.GetCriteriaTree(achievement.CriteriaTree);
 

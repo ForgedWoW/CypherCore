@@ -7,7 +7,6 @@ using System.Linq;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Bpay;
 using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Server;
@@ -90,7 +89,7 @@ public class BattlepayManager
 
         _session.SendPacket(upgrade);
 
-        var assignResponse = new BattlePayStartDistributionAssignToTargetResponse
+        new BattlePayStartDistributionAssignToTargetResponse
         {
             DistributionID = distributionId,
             unkint1 = 0,

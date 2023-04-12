@@ -14,7 +14,7 @@ internal class ScriptNameContainer
     {
         // We insert an empty placeholder here so we can use the
         // script id 0 as dummy for "no script found".
-        var id = Insert("", false);
+        Insert("", false);
     }
 
     public Entry Find(uint index)
@@ -25,10 +25,7 @@ internal class ScriptNameContainer
     public Entry Find(string name)
     {
         // assume "" is the first element
-        if (name.IsEmpty())
-            return null;
-
-        return _nameToIndex.LookupByKey(name);
+        return name.IsEmpty() ? null : _nameToIndex.LookupByKey(name);
     }
 
     public List<string> GetAllDBScriptNames()
@@ -57,17 +54,18 @@ internal class ScriptNameContainer
 
         return _nameToIndex[scriptName].Id;
     }
+
     public class Entry
     {
-        public uint Id;
-        public bool IsScriptDatabaseBound;
-        public string Name;
-
         public Entry(uint id, bool isScriptDatabaseBound, string name)
         {
             Id = id;
             IsScriptDatabaseBound = isScriptDatabaseBound;
             Name = name;
         }
+
+        public uint Id { get; set; }
+        public bool IsScriptDatabaseBound { get; set; }
+        public string Name { get; set; }
     }
 }

@@ -62,9 +62,7 @@ public class BattlePetMgr
 
     public void AddPet(uint species, uint display, ushort breed, BattlePetBreedQuality quality, ushort level = 1)
     {
-        var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(species);
-
-        if (battlePetSpecies == null) // should never happen
+        if (!_cliDB.BattlePetSpeciesStorage.TryGetValue(species, out var battlePetSpecies)) // should never happen
             return;
 
         if (!battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.WellKnown)) // Not learnable
@@ -123,9 +121,7 @@ public class BattlePetMgr
         if (pet == null)
             return;
 
-        var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
-
-        if (battlePetSpecies != null)
+        if (_cliDB.BattlePetSpeciesStorage.TryGetValue(pet.PacketInfo.Species, out var battlePetSpecies))
             if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotTradable))
                 return;
 
@@ -188,9 +184,7 @@ public class BattlePetMgr
         if (quality > BattlePetBreedQuality.Rare)
             return;
 
-        var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
-
-        if (battlePetSpecies != null)
+        if (_cliDB.BattlePetSpeciesStorage.TryGetValue(pet.PacketInfo.Species, out var battlePetSpecies))
             if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
                 return;
 
@@ -300,9 +294,7 @@ public class BattlePetMgr
         if (xp <= 0 || xpSource >= BattlePetXpSource.Count)
             return;
 
-        var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
-
-        if (battlePetSpecies != null)
+        if (_cliDB.BattlePetSpeciesStorage.TryGetValue(pet.PacketInfo.Species, out var battlePetSpecies))
             if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
                 return;
 
@@ -367,9 +359,7 @@ public class BattlePetMgr
         if (pet == null)
             return;
 
-        var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
-
-        if (battlePetSpecies != null)
+        if (_cliDB.BattlePetSpeciesStorage.TryGetValue(pet.PacketInfo.Species, out var battlePetSpecies))
             if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
                 return;
 
@@ -441,9 +431,7 @@ public class BattlePetMgr
                 var species = petsResult.Read<uint>(1);
                 var ownerGuid = !petsResult.IsNull(11) ? ObjectGuid.Create(HighGuid.Player, petsResult.Read<ulong>(11)) : ObjectGuid.Empty;
 
-                var speciesEntry = _cliDB.BattlePetSpeciesStorage.LookupByKey(species);
-
-                if (speciesEntry != null)
+                if (_cliDB.BattlePetSpeciesStorage.TryGetValue(species, out var speciesEntry))
                 {
                     if (speciesEntry.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
                     {
@@ -521,9 +509,7 @@ public class BattlePetMgr
             do
             {
                 Slots[i].Index = slotsResult.Read<byte>(0);
-                var battlePet = _pets.LookupByKey(slotsResult.Read<ulong>(1));
-
-                if (battlePet != null)
+                if (_pets.TryGetValue(slotsResult.Read<ulong>(1), out var battlePet))
                     Slots[i].Pet = battlePet.PacketInfo;
 
                 Slots[i].Locked = slotsResult.Read<bool>(2);
@@ -733,9 +719,7 @@ public class BattlePetMgr
         if (pet == null)
             return;
 
-        var speciesEntry = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
-
-        if (speciesEntry == null)
+        if (!_cliDB.BattlePetSpeciesStorage.TryGetValue(pet.PacketInfo.Species, out var speciesEntry))
             return;
 
         var player = Owner.Player;

@@ -60,7 +60,7 @@ public class GridCoord : ICoord
 
     public override bool Equals(object obj)
     {
-        return obj is ObjectGuid && Equals((ObjectGuid)obj);
+        return obj is ObjectGuid guid && Equals(guid);
     }
 
     public bool Equals(GridCoord other)

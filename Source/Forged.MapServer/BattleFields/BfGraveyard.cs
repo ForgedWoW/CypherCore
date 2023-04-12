@@ -13,14 +13,14 @@ namespace Forged.MapServer.BattleFields;
 
 public class BfGraveyard
 {
-    protected BattleField Bf;
+    protected BattleField BattleField;
     private readonly ObjectAccessor _objectAccessor;
     private readonly List<ObjectGuid> _resurrectQueue = new();
     private readonly ObjectGuid[] _spiritGuide = new ObjectGuid[SharedConst.PvpTeamsCount];
 
     public BfGraveyard(BattleField battlefield, ObjectAccessor objectAccessor)
     {
-        Bf = battlefield;
+        BattleField = battlefield;
         _objectAccessor = objectAccessor;
         GraveyardId = 0;
         ControlTeamId = TeamIds.Neutral;
@@ -40,15 +40,14 @@ public class BfGraveyard
         _resurrectQueue.Add(playerGuid);
         var player = _objectAccessor.FindPlayer(playerGuid);
 
-        if (player)
-            player.SpellFactory.CastSpell(player, BattlegroundConst.SpellWaitingForResurrect, true);
+        player?.SpellFactory.CastSpell(player, BattlegroundConst.SpellWaitingForResurrect, true);
     }
 
     public float GetDistance(Player player)
     {
         var safeLoc = player.ObjectManager.GetWorldSafeLoc(GraveyardId);
 
-        return player.Location.GetDistance2d(safeLoc.Loc.X, safeLoc.Loc.Y);
+        return player.Location.GetDistance2d(safeLoc.Location.X, safeLoc.Location.Y);
     }
 
     // Get the graveyard's ID.
@@ -72,8 +71,8 @@ public class BfGraveyard
         if (_spiritGuide[TeamIds.Alliance].IsEmpty || _spiritGuide[TeamIds.Horde].IsEmpty)
             return false;
 
-        if (!Bf.GetCreature(_spiritGuide[TeamIds.Alliance]) ||
-            !Bf.GetCreature(_spiritGuide[TeamIds.Horde]))
+        if (BattleField.GetCreature(_spiritGuide[TeamIds.Alliance]) == null ||
+            BattleField.GetCreature(_spiritGuide[TeamIds.Horde]) == null)
             return false;
 
         return (_spiritGuide[TeamIds.Alliance] == guid || _spiritGuide[TeamIds.Horde] == guid);
@@ -97,8 +96,7 @@ public class BfGraveyard
 
         var player = _objectAccessor.FindPlayer(playerGuid);
 
-        if (player)
-            player.RemoveAura(BattlegroundConst.SpellWaitingForResurrect);
+        player?.RemoveAura(BattlegroundConst.SpellWaitingForResurrect);
     }
 
     public void Resurrect()
@@ -111,16 +109,15 @@ public class BfGraveyard
             // Get player object from his guid
             var player = _objectAccessor.FindPlayer(guid);
 
-            if (!player)
+            if (player == null)
                 continue;
 
             // Check  if the player is in world and on the good graveyard
             if (player.Location.IsInWorld)
             {
-                var spirit = Bf.GetCreature(_spiritGuide[ControlTeamId]);
+                var spirit = BattleField.GetCreature(_spiritGuide[ControlTeamId]);
 
-                if (spirit)
-                    spirit.SpellFactory.CastSpell(spirit, BattlegroundConst.SpellSpiritHeal, true);
+                spirit?.SpellFactory.CastSpell(spirit, BattlegroundConst.SpellSpiritHeal, true);
             }
 
             // Resurect player
@@ -137,7 +134,7 @@ public class BfGraveyard
 
     public void SetSpirit(Creature spirit, int teamIndex)
     {
-        if (!spirit)
+        if (spirit == null)
         {
             Log.Logger.Error("BfGraveyard:SetSpirit: Invalid Spirit.");
 
@@ -156,19 +153,19 @@ public class BfGraveyard
         {
             var player = _objectAccessor.FindPlayer(guid);
 
-            if (!player)
+            if (player == null)
                 continue;
 
             if (closestGrave != null)
             {
-                player.TeleportTo(closestGrave.Loc);
+                player.TeleportTo(closestGrave.Location);
             }
             else
             {
-                closestGrave = Bf.GetClosestGraveYard(player);
+                closestGrave = BattleField.GetClosestGraveYard(player);
 
                 if (closestGrave != null)
-                    player.TeleportTo(closestGrave.Loc);
+                    player.TeleportTo(closestGrave.Location);
             }
         }
     }

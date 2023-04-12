@@ -7,16 +7,17 @@ namespace Forged.MapServer.Globals;
 
 public class PlayerChoice
 {
-    public int ChoiceId;
-    public uint CloseSoundKitId;
-    public long Duration;
-    public bool HideWarboardHeader;
-    public bool KeepOpenAfterChoice;
-    public string PendingChoiceText;
-    public string Question;
-    public List<PlayerChoiceResponse> Responses = new();
-    public uint SoundKitId;
-    public int UiTextureKitId;
+    public int ChoiceId { get; set; }
+    public uint CloseSoundKitId { get; set; }
+    public long Duration { get; set; }
+    public bool HideWarboardHeader { get; set; }
+    public bool KeepOpenAfterChoice { get; set; }
+    public string PendingChoiceText { get; set; }
+    public string Question { get; set; }
+    public List<PlayerChoiceResponse> Responses { get; set; } = new();
+    public uint SoundKitId { get; set; }
+    public int UiTextureKitId { get; set; }
+
     public PlayerChoiceResponse GetResponse(int responseId)
     {
         return Responses.Find(playerChoiceResponse => playerChoiceResponse.ResponseId == responseId);

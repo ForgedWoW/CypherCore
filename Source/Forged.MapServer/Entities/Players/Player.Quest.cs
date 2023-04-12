@@ -96,9 +96,7 @@ public partial class Player
             {
                 case QuestObjectiveType.MinReputation:
                 case QuestObjectiveType.MaxReputation:
-                    var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
-
-                    if (factionEntry != null)
+                    if (CliDB.FactionStorage.TryGetValue(obj.ObjectID, out var factionEntry))
                         ReputationMgr.SetVisible(factionEntry);
 
                     break;
@@ -247,9 +245,7 @@ public partial class Player
     {
         if (questId != 0)
         {
-            var status = _mQuestStatus.LookupByKey(questId);
-
-            if (status != null)
+            if (_mQuestStatus.TryGetValue(questId, out var status))
                 // Dont complete failed quest
                 if (!status.Explored && status.Status != QuestStatus.Failed)
                 {
@@ -308,9 +304,7 @@ public partial class Player
             if (qInfo.IsAutoComplete && CanTakeQuest(qInfo, false))
                 return true;
 
-            var qStatus = _mQuestStatus.LookupByKey(questId);
-
-            if (qStatus == null)
+            if (!_mQuestStatus.TryGetValue(questId, out var qStatus))
                 return false;
 
             if (qStatus.Status == QuestStatus.Incomplete)
@@ -582,9 +576,7 @@ public partial class Player
         {
             SetQuestStatus(questID, QuestStatus.Complete);
 
-            var questStatus = _mQuestStatus.LookupByKey(questID);
-
-            if (questStatus != null)
+            if (_mQuestStatus.TryGetValue(questID, out var questStatus))
                 SetQuestSlotState(questStatus.Slot, QuestSlotStateMask.Complete);
 
             var qInfo = ObjectManager.GetQuestTemplate(questID);
@@ -982,9 +974,7 @@ public partial class Player
     {
         if (questId != 0)
         {
-            var questStatusData = _mQuestStatus.LookupByKey(questId);
-
-            if (questStatusData != null)
+            if (_mQuestStatus.TryGetValue(questId, out var questStatusData))
                 return questStatusData.Status;
 
             if (GetQuestRewardStatus(questId))
@@ -1596,9 +1586,7 @@ public partial class Player
 
     public void RemoveActiveQuest(uint questId, bool update = true)
     {
-        var questStatus = _mQuestStatus.LookupByKey(questId);
-
-        if (questStatus != null)
+        if (_mQuestStatus.TryGetValue(questId, out var questStatus))
         {
             _questObjectiveStatus.RemoveIfMatching((objective) => objective.Value.QuestStatusPair.Status == questStatus);
             _mQuestStatus.Remove(questId);
@@ -1681,9 +1669,7 @@ public partial class Player
         // DB data deleted in caller
         _seasonalQuestChanged = false;
 
-        var eventList = _seasonalquests.LookupByKey(eventID);
-
-        if (eventList == null)
+        if (!_seasonalquests.TryGetValue(eventID, out var eventList))
             return;
 
         foreach (var (questId, completedTime) in eventList.ToList())
@@ -1858,9 +1844,7 @@ public partial class Player
         // title reward
         if (quest.RewardTitleId != 0)
         {
-            var titleEntry = CliDB.CharTitlesStorage.LookupByKey(quest.RewardTitleId);
-
-            if (titleEntry != null)
+            if (CliDB.CharTitlesStorage.TryGetValue(quest.RewardTitleId, out var titleEntry))
                 SetTitle(titleEntry);
         }
 
@@ -1933,9 +1917,7 @@ public partial class Player
         {
             foreach (var displaySpell in quest.RewardDisplaySpell)
             {
-                var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(displaySpell.PlayerConditionId);
-
-                if (playerCondition != null)
+                if (CliDB.PlayerConditionStorage.TryGetValue(displaySpell.PlayerConditionId, out var playerCondition))
                     if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                         continue;
 
@@ -2349,9 +2331,7 @@ public partial class Player
         if (!qInfo.IsSeasonal || _seasonalquests.Empty())
             return true;
 
-        var list = _seasonalquests.LookupByKey(qInfo.EventIdForQuest);
-
-        if (list == null || list.Empty())
+        if (_seasonalquests.TryGetValue(qInfo.EventIdForQuest, out var list))
             return true;
 
         // if not found in cooldown list
@@ -2718,9 +2698,7 @@ public partial class Player
             return;
         }
 
-        var status = _mQuestStatus.LookupByKey(objective.QuestID);
-
-        if (status == null)
+        if (!_mQuestStatus.TryGetValue(objective.QuestID, out var status))
         {
             Log.Logger.Error($"Player.SetQuestObjectiveData: player '{GetName()}' ({GUID}) doesn't have quest status data (QuestID: {objective.QuestID})");
 

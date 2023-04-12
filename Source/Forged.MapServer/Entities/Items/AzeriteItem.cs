@@ -115,9 +115,7 @@ public class AzeriteItem : Item
 
     public bool CanUseEssences()
     {
-        var condition = CliDB.PlayerConditionStorage.LookupByKey(PlayerConst.PlayerConditionIdUnlockedAzeriteEssences);
-
-        if (condition != null)
+        if (CliDB.PlayerConditionStorage.TryGetValue(PlayerConst.PlayerConditionIdUnlockedAzeriteEssences, out var condition))
             return ConditionManager.IsPlayerMeetingCondition(OwnerUnit, condition);
 
         return false;

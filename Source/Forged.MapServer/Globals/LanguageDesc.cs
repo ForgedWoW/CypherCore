@@ -5,8 +5,6 @@ namespace Forged.MapServer.Globals;
 
 public class LanguageDesc
 {
-    public uint SkillId;
-    public uint SpellId;
     public LanguageDesc() { }
 
     public LanguageDesc(uint spellId, uint skillId)
@@ -15,6 +13,8 @@ public class LanguageDesc
         SkillId = skillId;
     }
 
+    public uint SkillId { get; set; }
+    public uint SpellId { get; set; }
     public static bool operator !=(LanguageDesc left, LanguageDesc right)
     {
         return !(left == right);
@@ -27,8 +27,8 @@ public class LanguageDesc
 
     public override bool Equals(object obj)
     {
-        if (obj is LanguageDesc)
-            return (LanguageDesc)obj == this;
+        if (obj is LanguageDesc desc)
+            return desc == this;
 
         return false;
     }

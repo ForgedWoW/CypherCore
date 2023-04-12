@@ -170,9 +170,7 @@ public class AuctionManager
                     break; // everlook, Blackwater Auction House
                 default:   // default
                 {
-                    var uEntry = _cliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
-
-                    if (uEntry == null)
+                    if (!_cliDB.FactionTemplateStorage.TryGetValue(factionTemplateId, out var uEntry))
                         houseid = 1; // Auction House
                     else if ((uEntry.FactionGroup & (int)FactionMasks.Alliance) != 0)
                         houseid = 2; // Alliance Auction House
@@ -218,9 +216,7 @@ public class AuctionManager
             return _neutralAuctions;
 
         // teams have linked auction houses
-        var uEntry = _cliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
-
-        if (uEntry == null)
+        if (!_cliDB.FactionTemplateStorage.TryGetValue(factionTemplateId, out var uEntry))
             return _neutralAuctions;
         else if (uEntry.FactionGroup.HasAnyFlag((byte)FactionMasks.Alliance))
             return _allianceAuctions;
@@ -401,9 +397,7 @@ public class AuctionManager
 
     public int PendingAuctionCount(Player player)
     {
-        var itr = _pendingAuctionsByPlayer.LookupByKey(player.GUID);
-
-        if (itr != null)
+        if (_pendingAuctionsByPlayer.TryGetValue(player.GUID, out var itr))
             return itr.Auctions.Count;
 
         return 0;
@@ -411,9 +405,7 @@ public class AuctionManager
 
     public void PendingAuctionProcess(Player player)
     {
-        var playerPendingAuctions = _pendingAuctionsByPlayer.LookupByKey(player.GUID);
-
-        if (playerPendingAuctions == null)
+        if (!_pendingAuctionsByPlayer.TryGetValue(player.GUID, out var playerPendingAuctions))
             return;
 
         ulong totaldeposit = 0;
@@ -458,9 +450,7 @@ public class AuctionManager
 
     public bool RemoveAItem(ObjectGuid guid, bool deleteItem = false, SQLTransaction trans = null)
     {
-        var item = _itemsByGuid.LookupByKey(guid);
-
-        if (item == null)
+        if (!_itemsByGuid.TryGetValue(guid, out var item))
             return false;
 
         if (deleteItem)

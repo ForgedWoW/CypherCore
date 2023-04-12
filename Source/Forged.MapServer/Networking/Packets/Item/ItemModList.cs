@@ -26,8 +26,8 @@ public class ItemModList
 
     public override bool Equals(object obj)
     {
-        if (obj is ItemModList)
-            return (ItemModList)obj == this;
+        if (obj is ItemModList list)
+            return list == this;
 
         return false;
     }

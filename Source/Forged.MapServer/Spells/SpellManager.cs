@@ -251,9 +251,7 @@ public sealed class SpellManager
         // Find group with SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT if it belongs to one
         foreach (var group in spellGroupList)
         {
-            var found = _spellSameEffectStack.LookupByKey(group);
-
-            if (found != null)
+            if (_spellSameEffectStack.TryGetValue(group, out var found))
             {
                 // check auraTypes
                 if (!found.Any(p => p == auraType))
@@ -325,9 +323,7 @@ public sealed class SpellManager
 
         foreach (var group in groups)
         {
-            var found = _spellGroupStack.LookupByKey(group);
-
-            if (found != 0)
+            if (_spellGroupStack.TryGetValue(group, out var found))
                 rule = found;
 
             if (rule != 0)
@@ -455,9 +451,7 @@ public sealed class SpellManager
 
     public SkillRangeType GetSkillRangeType(SkillRaceClassInfoRecord rcEntry)
     {
-        var skill = _cliDB.SkillLineStorage.LookupByKey(rcEntry.SkillID);
-
-        if (skill == null)
+        if (!_cliDB.SkillLineStorage.TryGetValue(rcEntry.SkillID, out var skill))
             return SkillRangeType.None;
 
         if (_objectManager.GetSkillTier(rcEntry.SkillTierID) != null)
@@ -545,9 +539,7 @@ public sealed class SpellManager
 
         if (diffDict != null)
         {
-            var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey((uint)difficulty);
-
-            if (difficultyEntry != null)
+            if (_cliDB.DifficultyStorage.TryGetValue((uint)difficulty, out var difficultyEntry))
                 do
                 {
                     if (diffDict.TryGetValue((Difficulty)difficultyEntry.FallbackDifficultyID, out spellInfo))
@@ -580,9 +572,7 @@ public sealed class SpellManager
         if (_spellProcMap.TryGetValue(spellInfo.Id, out var diffdict) && diffdict.TryGetValue(spellInfo.Difficulty, out var procEntry))
             return procEntry;
 
-        var difficulty = _cliDB.DifficultyStorage.LookupByKey((uint)spellInfo.Difficulty);
-
-        if (difficulty != null && diffdict != null)
+        if (_cliDB.DifficultyStorage.TryGetValue((uint)spellInfo.Difficulty, out var difficulty))
             do
             {
                 if (diffdict.TryGetValue((Difficulty)difficulty.FallbackDifficultyID, out procEntry))
@@ -626,9 +616,7 @@ public sealed class SpellManager
 
     public SpellThreatEntry GetSpellThreatEntry(uint spellID)
     {
-        var spellthreat = _spellThreatMap.LookupByKey(spellID);
-
-        if (spellthreat != null)
+        if (_spellThreatMap.TryGetValue(spellID, out var spellthreat))
         {
             return spellthreat;
         }
@@ -665,9 +653,7 @@ public sealed class SpellManager
 
     public bool IsArenaAllowedEnchancment(uint enchID)
     {
-        var enchantment = _cliDB.SpellItemEnchantmentStorage.LookupByKey(enchID);
-
-        if (enchantment != null)
+        if (_cliDB.SpellItemEnchantmentStorage.TryGetValue(enchID, out var enchantment))
             return enchantment.GetFlags().HasFlag(SpellItemEnchantmentFlags.AllowEnteringArena);
 
         return false;
@@ -1070,9 +1056,7 @@ public sealed class SpellManager
             if (spellInfo == null)
                 continue;
 
-            var levels = levelsBySpell.LookupByKey(skillLine.Spell);
-
-            if (levels != null && levels.SpellLevel != 0)
+            if (levelsBySpell.ContainsKey(skillLine.Spell))
                 continue;
 
             if (spellInfo.IsPassive)
@@ -1396,9 +1380,7 @@ public sealed class SpellManager
         {
             var enchantId = result.Read<uint>(0);
 
-            var ench = _cliDB.SpellItemEnchantmentStorage.LookupByKey(enchantId);
-
-            if (ench == null)
+            if (!_cliDB.SpellItemEnchantmentStorage.ContainsKey(enchantId))
             {
                 Log.Logger.Error("Enchancment {0} listed in `spell_enchant_proc_data` does not exist", enchantId);
 
@@ -3244,9 +3226,7 @@ public sealed class SpellManager
                     spellInfo.MaxAffectedTargets = 1;
             }
 
-        var properties = _cliDB.SummonPropertiesStorage.LookupByKey(121u);
-
-        if (properties != null)
+        if (_cliDB.SummonPropertiesStorage.TryGetValue(121u, out var properties))
             properties.Title = SummonTitle.Totem;
 
         properties = _cliDB.SummonPropertiesStorage.LookupByKey(647u); // 52893
@@ -3416,9 +3396,7 @@ public sealed class SpellManager
                             if (IsPartOfSkillLine(SkillType.Enchanting, spellInfo.Id))
                             {
                                 var enchantId = (uint)spellEffectInfo.MiscValue;
-                                var enchant = _cliDB.SpellItemEnchantmentStorage.LookupByKey(enchantId);
-
-                                if (enchant == null)
+                                if (!_cliDB.SpellItemEnchantmentStorage.TryGetValue(enchantId, out var enchant))
                                     break;
 
                                 for (var s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
@@ -3559,9 +3537,7 @@ public sealed class SpellManager
                 {
                     bool VisualNeedsAmmo(SpellXSpellVisualRecord spellXspellVisual)
                     {
-                        var spellVisual = _cliDB.SpellVisualStorage.LookupByKey(spellXspellVisual.SpellVisualID);
-
-                        if (spellVisual == null)
+                        if (!_cliDB.SpellVisualStorage.TryGetValue(spellXspellVisual.SpellVisualID, out var spellVisual))
                             return false;
 
                         var spellVisualMissiles = _db2Manager.GetSpellVisualMissiles(spellVisual.SpellVisualMissileSetID);
@@ -3571,9 +3547,7 @@ public sealed class SpellManager
 
                         foreach (var spellVisualMissile in spellVisualMissiles)
                         {
-                            var spellVisualEffectName = _cliDB.SpellVisualEffectNameStorage.LookupByKey(spellVisualMissile.SpellVisualEffectNameID);
-
-                            if (spellVisualEffectName == null)
+                            if (!_cliDB.SpellVisualEffectNameStorage.TryGetValue(spellVisualMissile.SpellVisualEffectNameID, out var spellVisualEffectName))
                                 continue;
 
                             var type = (SpellVisualEffectNameType)spellVisualEffectName.Type;
@@ -3963,14 +3937,10 @@ public sealed class SpellManager
 
             if (effect.Effect == (int)SpellEffectName.Summon)
             {
-                var summonProperties = _cliDB.SummonPropertiesStorage.LookupByKey((uint)effect.EffectMiscValue[1]);
-
-                if (summonProperties != null)
+                if (_cliDB.SummonPropertiesStorage.TryGetValue((uint)effect.EffectMiscValue[1], out var summonProperties))
                     if (summonProperties.Slot == (int)SummonSlot.MiniPet && summonProperties.GetFlags().HasFlag(SummonPropertiesFlags.SummonFromBattlePetJournal))
                     {
-                        var battlePetSpecies = battlePetSpeciesByCreature.LookupByKey((uint)effect.EffectMiscValue[0]);
-
-                        if (battlePetSpecies != null)
+                        if (battlePetSpeciesByCreature.TryGetValue((uint)effect.EffectMiscValue[0], out var battlePetSpecies))
                             BattlePetMgr.AddBattlePetSpeciesBySpell(effect.SpellID, battlePetSpecies);
                     }
             }
@@ -4018,9 +3988,7 @@ public sealed class SpellManager
             uint difficulty = 0;
             var index = power.OrderIndex;
 
-            var powerDifficulty = _cliDB.SpellPowerDifficultyStorage.LookupByKey(power.Id);
-
-            if (powerDifficulty != null)
+            if (_cliDB.SpellPowerDifficultyStorage.TryGetValue(power.Id, out var powerDifficulty))
             {
                 difficulty = powerDifficulty.DifficultyID;
                 index = powerDifficulty.OrderIndex;
@@ -4065,20 +4033,14 @@ public sealed class SpellManager
 
         foreach (var data in loadData)
         {
-            var spellNameEntry = _cliDB.SpellNameStorage.LookupByKey(data.Key.Id);
-
-            if (spellNameEntry == null)
+            if (!_cliDB.SpellNameStorage.TryGetValue(data.Key.Id, out var spellNameEntry))
                 continue;
 
             // fill blanks
-            var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey((uint)data.Key.difficulty);
-
-            if (difficultyEntry != null)
+            if (_cliDB.DifficultyStorage.TryGetValue((uint)data.Key.difficulty, out var difficultyEntry))
                 do
                 {
-                    var fallbackData = loadData.LookupByKey((data.Key.Id, (Difficulty)difficultyEntry.FallbackDifficultyID));
-
-                    if (fallbackData != null)
+                    if (loadData.TryGetValue((data.Key.Id, (Difficulty)difficultyEntry.FallbackDifficultyID), out var fallbackData))
                     {
                         if (data.Value.AuraOptions == null)
                             data.Value.AuraOptions = fallbackData.AuraOptions;
@@ -5034,9 +4996,7 @@ public sealed class SpellManager
                 Z = result.Read<float>(5)
             };
 
-            var mapEntry = _cliDB.MapStorage.LookupByKey(st.TargetMapId);
-
-            if (mapEntry == null)
+            if (!_cliDB.MapStorage.ContainsKey(st.TargetMapId))
             {
                 Log.Logger.Error("Spell (ID: {0}, EffectIndex: {1}) is using a non-existant MapID (ID: {2})", spellId, effIndex, st.TargetMapId);
 

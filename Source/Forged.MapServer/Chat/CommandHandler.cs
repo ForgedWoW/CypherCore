@@ -381,9 +381,7 @@ public class CommandHandler
             case 1:
             {
                 // talent
-                var talentEntry = CliDB.TalentStorage.LookupByKey(id);
-
-                if (talentEntry == null)
+                if (!CliDB.TalentStorage.TryGetValue(id, out var talentEntry))
                     return 0;
 
                 return talentEntry.SpellID;
@@ -396,9 +394,7 @@ public class CommandHandler
                 if (!uint.TryParse(param1Str, out var glyph_prop_id))
                     glyph_prop_id = 0;
 
-                var glyphPropEntry = CliDB.GlyphPropertiesStorage.LookupByKey(glyph_prop_id);
-
-                if (glyphPropEntry == null)
+                if (!CliDB.GlyphPropertiesStorage.TryGetValue(glyph_prop_id, out var glyphPropEntry))
                     return 0;
 
                 return glyphPropEntry.SpellID;

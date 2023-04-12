@@ -91,9 +91,7 @@ public class SpellHistory
         if (chargeRecovery > 0 && GetMaxCharges(chargeCategoryId) > 0)
         {
             DateTime recoveryStart;
-            var charges = _categoryCharges.LookupByKey(chargeCategoryId);
-
-            if (charges.Empty())
+            if (_categoryCharges.TryGetValue(chargeCategoryId, out var charges))
                 recoveryStart = GameTime.SystemTime;
             else
                 recoveryStart = charges.Last().RechargeEnd;
@@ -141,9 +139,7 @@ public class SpellHistory
 
     public int GetChargeRecoveryTime(uint chargeCategoryId)
     {
-        var chargeCategoryEntry = CliDB.SpellCategoryStorage.LookupByKey(chargeCategoryId);
-
-        if (chargeCategoryEntry == null)
+        if (!CliDB.SpellCategoryStorage.TryGetValue(chargeCategoryId, out var chargeCategoryEntry))
             return 0;
 
         double recoveryTime = chargeCategoryEntry.ChargeRecoveryTime;
@@ -163,9 +159,7 @@ public class SpellHistory
 
     public int GetMaxCharges(uint chargeCategoryId)
     {
-        var chargeCategoryEntry = CliDB.SpellCategoryStorage.LookupByKey(chargeCategoryId);
-
-        if (chargeCategoryEntry == null)
+        if (!CliDB.SpellCategoryStorage.TryGetValue(chargeCategoryId, out var chargeCategoryEntry))
             return 0;
 
         uint charges = chargeCategoryEntry.MaxCharges;
@@ -182,9 +176,7 @@ public class SpellHistory
     public TimeSpan GetRemainingCategoryCooldown(uint categoryId)
     {
         DateTime end;
-        var cooldownEntry = _categoryCooldowns.LookupByKey(categoryId);
-
-        if (cooldownEntry == null)
+        if (!_categoryCooldowns.TryGetValue(categoryId, out var cooldownEntry))
             return TimeSpan.Zero;
 
         end = cooldownEntry.CategoryEnd;
@@ -207,17 +199,13 @@ public class SpellHistory
     public TimeSpan GetRemainingCooldown(SpellInfo spellInfo)
     {
         DateTime end;
-        var entry = _spellCooldowns.LookupByKey(spellInfo.Id);
-
-        if (entry != null)
+        if (_spellCooldowns.TryGetValue(spellInfo.Id, out var entry))
         {
             end = entry.CooldownEnd;
         }
         else
         {
-            var cooldownEntry = _categoryCooldowns.LookupByKey(spellInfo.Category);
-
-            if (cooldownEntry == null)
+            if (!_categoryCooldowns.TryGetValue(spellInfo.Category, out var cooldownEntry))
                 return TimeSpan.Zero;
 
             end = cooldownEntry.CategoryEnd;
@@ -491,9 +479,7 @@ public class SpellHistory
 
     public void ModifySpellCooldown(uint spellId, TimeSpan cooldownMod, bool withoutCategoryCooldown)
     {
-        var cooldownEntry = _spellCooldowns.LookupByKey(spellId);
-
-        if (cooldownMod.TotalMilliseconds == 0 || cooldownEntry == null)
+        if (!_spellCooldowns.TryGetValue(spellId, out var cooldownEntry))
             return;
 
         ModifySpellCooldown(cooldownEntry, cooldownMod, withoutCategoryCooldown);
@@ -536,9 +522,7 @@ public class SpellHistory
 
     public void ResetCharges(uint chargeCategoryId)
     {
-        var chargeList = _categoryCharges.LookupByKey(chargeCategoryId);
-
-        if (!chargeList.Empty())
+        if (_categoryCharges.ContainsKey(chargeCategoryId))
         {
             _categoryCharges.Remove(chargeCategoryId);
 
@@ -559,9 +543,7 @@ public class SpellHistory
 
     public void ResetCooldown(uint spellId, bool update = false)
     {
-        var entry = _spellCooldowns.LookupByKey(spellId);
-
-        if (entry == null)
+        if (!_spellCooldowns.TryGetValue(spellId, out var entry))
             return;
 
         if (update)
@@ -602,9 +584,7 @@ public class SpellHistory
 
     public void RestoreCharge(uint chargeCategoryId)
     {
-        var chargeList = _categoryCharges.LookupByKey(chargeCategoryId);
-
-        if (!chargeList.Empty())
+        if (_categoryCharges.TryGetValue(chargeCategoryId, out var chargeList))
         {
             chargeList.RemoveAt(chargeList.Count - 1);
 
@@ -1111,14 +1091,10 @@ public class SpellHistory
 
     private void ModifyChargeRecoveryTime(uint chargeCategoryId, TimeSpan cooldownMod)
     {
-        var chargeCategoryEntry = CliDB.SpellCategoryStorage.LookupByKey(chargeCategoryId);
-
-        if (chargeCategoryEntry == null)
+        if (!CliDB.SpellCategoryStorage.ContainsKey(chargeCategoryId))
             return;
 
-        var chargeList = _categoryCharges.LookupByKey(chargeCategoryId);
-
-        if (chargeList == null || chargeList.Empty())
+        if (_categoryCharges.TryGetValue(chargeCategoryId, out var chargeList))
             return;
 
         var now = GameTime.SystemTime;

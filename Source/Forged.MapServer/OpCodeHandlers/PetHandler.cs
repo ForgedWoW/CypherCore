@@ -232,8 +232,8 @@ public class PetHandler : IWorldSessionHandler
 
                                 var AI = pet.AsCreature.AI;
 
-                                if (AI is PetAI)
-                                    ((PetAI)AI)._AttackStart(TargetUnit); // force target switch
+                                if (AI is PetAI ai)
+                                    ai._AttackStart(TargetUnit); // force target switch
                                 else
                                     AI.AttackStart(TargetUnit);
 

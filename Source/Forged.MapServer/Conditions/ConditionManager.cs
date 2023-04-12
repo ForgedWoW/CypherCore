@@ -118,14 +118,10 @@ public sealed class ConditionManager
 
     public List<Condition> GetConditionsForSpellClickEvent(uint creatureId, uint spellId)
     {
-        var multiMap = _spellClickEventConditionStorage.LookupByKey(creatureId);
-
-        if (multiMap == null)
+        if (!_spellClickEventConditionStorage.TryGetValue(creatureId, out var multiMap))
             return null;
 
-        var conditions = multiMap.LookupByKey(spellId);
-
-        if (conditions.Empty())
+        if (multiMap.TryGetValue(spellId, out var conditions))
             return null;
 
         Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
@@ -241,9 +237,7 @@ public sealed class ConditionManager
     {
         if (sourceType is > ConditionSourceType.None and < ConditionSourceType.Max)
         {
-            var conditions = _conditionStorage[sourceType].LookupByKey(entry);
-
-            if (!conditions.Empty())
+            if (_conditionStorage[sourceType].TryGetValue(entry, out var conditions))
             {
                 Log.Logger.Debug("GetConditionsForNotGroupedEntry: found conditions for type {0} and entry {1}", sourceType, entry);
 
@@ -263,14 +257,10 @@ public sealed class ConditionManager
 
     public bool IsObjectMeetingSmartEventConditions(long entryOrGuid, uint eventId, SmartScriptType sourceType, Unit unit, WorldObject baseObject)
     {
-        var multiMap = _smartEventConditionStorage.LookupByKey(Tuple.Create((int)entryOrGuid, (uint)sourceType));
-
-        if (multiMap == null)
+        if (!_smartEventConditionStorage.TryGetValue(Tuple.Create((int)entryOrGuid, (uint)sourceType), out var multiMap))
             return true;
 
-        var conditions = multiMap.LookupByKey(eventId + 1);
-
-        if (conditions.Empty())
+        if (multiMap.TryGetValue(eventId + 1, out var conditions))
             return true;
 
         Log.Logger.Debug("GetConditionsForSmartEvent: found conditions for Smart Event entry or guid {0} eventId {1}", entryOrGuid, eventId);
@@ -281,14 +271,10 @@ public sealed class ConditionManager
 
     public bool IsObjectMeetingSpellClickConditions(uint creatureId, uint spellId, WorldObject clicker, WorldObject target)
     {
-        var multiMap = _spellClickEventConditionStorage.LookupByKey(creatureId);
-
-        if (multiMap == null)
+        if (!_spellClickEventConditionStorage.TryGetValue(creatureId, out var multiMap))
             return true;
 
-        var conditions = multiMap.LookupByKey(spellId);
-
-        if (conditions.Empty())
+        if (multiMap.TryGetValue(spellId, out var conditions))
             return true;
 
         Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
@@ -299,13 +285,9 @@ public sealed class ConditionManager
 
     public bool IsObjectMeetingTrainerSpellConditions(uint trainerId, uint spellId, Player player)
     {
-        var multiMap = _trainerSpellConditionContainerStorage.LookupByKey(trainerId);
-
-        if (multiMap != null)
+        if (_trainerSpellConditionContainerStorage.TryGetValue(trainerId, out var multiMap))
         {
-            var conditionList = multiMap.LookupByKey(spellId);
-
-            if (!conditionList.Empty())
+            if (multiMap.TryGetValue(spellId, out var conditionList))
             {
                 Log.Logger.Debug($"GetConditionsForTrainerSpell: found conditions for trainer id {trainerId} spell {spellId}");
 
@@ -318,14 +300,10 @@ public sealed class ConditionManager
 
     public bool IsObjectMeetingVehicleSpellConditions(uint creatureId, uint spellId, Player player, Unit vehicle)
     {
-        var multiMap = _vehicleSpellConditionStorage.LookupByKey(creatureId);
-
-        if (multiMap == null)
+        if (!_vehicleSpellConditionStorage.TryGetValue(creatureId, out var multiMap))
             return true;
 
-        var conditions = multiMap.LookupByKey(spellId);
-
-        if (conditions.Empty())
+        if (multiMap.TryGetValue(spellId, out var conditions))
             return true;
 
         Log.Logger.Debug("GetConditionsForVehicleSpell: found conditions for Vehicle entry {0} spell {1}", creatureId, spellId);
@@ -336,14 +314,10 @@ public sealed class ConditionManager
 
     public bool IsObjectMeetingVendorItemConditions(uint creatureId, uint itemId, Player player, Creature vendor)
     {
-        var multiMap = _npcVendorConditionContainerStorage.LookupByKey(creatureId);
-
-        if (multiMap == null)
+        if (!_npcVendorConditionContainerStorage.TryGetValue(creatureId, out var multiMap))
             return true;
 
-        var conditions = multiMap.LookupByKey(itemId);
-
-        if (conditions.Empty())
+        if (multiMap.TryGetValue(itemId, out var conditions))
             return true;
 
         Log.Logger.Debug("GetConditionsForNpcVendor: found conditions for creature entry {0} item {1}", creatureId, itemId);
@@ -354,9 +328,7 @@ public sealed class ConditionManager
 
     public bool IsObjectMeetingVisibilityByObjectIdConditions(uint objectType, uint entry, WorldObject seer)
     {
-        var conditions = _objectVisibilityConditionStorage.LookupByKey((objectType, entry));
-
-        if (conditions != null)
+        if (_objectVisibilityConditionStorage.TryGetValue((objectType, entry), out var conditions))
         {
             Log.Logger.Debug($"IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType {objectType} entry {entry}");
 
@@ -386,9 +358,7 @@ public sealed class ConditionManager
 
                 if (condition.ReferenceId != 0) //handle reference
                 {
-                    var refe = _conditionReferenceStorage.LookupByKey(condition.ReferenceId);
-
-                    if (!refe.Empty())
+                    if (_conditionReferenceStorage.TryGetValue(condition.ReferenceId, out var refe))
                     {
                         if (!IsObjectMeetToConditionList(sourceInfo, refe))
                             elseGroupStore[condition.ElseGroup] = false;
@@ -486,9 +456,7 @@ public sealed class ConditionManager
 
         if (condition.ChrSpecializationIndex >= 0 || condition.ChrSpecializationRole >= 0)
         {
-            var spec = _cliDB.ChrSpecializationStorage.LookupByKey(player.GetPrimarySpecialization());
-
-            if (spec != null)
+            if (_cliDB.ChrSpecializationStorage.TryGetValue(player.GetPrimarySpecialization(), out var spec))
             {
                 if (condition.ChrSpecializationIndex >= 0 && spec.OrderIndex != condition.ChrSpecializationIndex)
                     return false;
@@ -746,9 +714,7 @@ public sealed class ConditionManager
         if (condition.Explored[0] != 0 || condition.Explored[1] != 0)
             foreach (var explortedArea in condition.Explored)
             {
-                var area = _cliDB.AreaTableStorage.LookupByKey(explortedArea);
-
-                if (area == null)
+                if (!_cliDB.AreaTableStorage.TryGetValue(explortedArea, out var area))
                     continue;
 
                 if (area.AreaBit != -1 && !Convert.ToBoolean(player.ActivePlayerData.ExploredZones[area.AreaBit / ActivePlayerData.ExploredZonesBits] & (1ul << (area.AreaBit % ActivePlayerData.ExploredZonesBits))))
@@ -786,9 +752,7 @@ public sealed class ConditionManager
 
         if (condition.WorldStateExpressionID != 0)
         {
-            var worldStateExpression = _cliDB.WorldStateExpressionStorage.LookupByKey(condition.WorldStateExpressionID);
-
-            if (worldStateExpression == null)
+            if (!_cliDB.WorldStateExpressionStorage.TryGetValue(condition.WorldStateExpressionID, out var worldStateExpression))
                 return false;
 
             if (!IsPlayerMeetingExpression(player, worldStateExpression))
@@ -2020,9 +1984,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.Zoneid:
             {
-                var areaEntry = _cliDB.AreaTableStorage.LookupByKey(cond.ConditionValue1);
-
-                if (areaEntry == null)
+                if (!_cliDB.AreaTableStorage.TryGetValue(cond.ConditionValue1, out var areaEntry))
                 {
                     Log.Logger.Debug("{0} Area ({1}) does not exist, skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2062,9 +2024,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.Skill:
             {
-                var pSkill = _cliDB.SkillLineStorage.LookupByKey(cond.ConditionValue1);
-
-                if (pSkill == null)
+                if (!_cliDB.SkillLineStorage.ContainsKey(cond.ConditionValue1))
                 {
                     Log.Logger.Debug("{0} specifies non-existing skill ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2126,9 +2086,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.Achievement:
             {
-                var achievement = _cliDB.AchievementStorage.LookupByKey(cond.ConditionValue1);
-
-                if (achievement == null)
+                if (!_cliDB.AchievementStorage.ContainsKey(cond.ConditionValue1))
                 {
                     Log.Logger.Debug("{0} has non existing achivement id ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2172,9 +2130,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.Mapid:
             {
-                var me = _cliDB.MapStorage.LookupByKey(cond.ConditionValue1);
-
-                if (me == null)
+                if (!_cliDB.MapStorage.ContainsKey(cond.ConditionValue1))
                 {
                     Log.Logger.Debug("{0} has non existing map ({1}), skipped", cond.ToString(true), cond.ConditionValue1);
 
@@ -2458,9 +2414,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.Title:
             {
-                var titleEntry = _cliDB.CharTitlesStorage.LookupByKey(cond.ConditionValue1);
-
-                if (titleEntry == null)
+                if (!_cliDB.CharTitlesStorage.ContainsKey(cond.ConditionValue1))
                 {
                     Log.Logger.Debug("{0} has non existing title in value1 ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2499,9 +2453,7 @@ public sealed class ConditionManager
             }
             case ConditionTypes.RealmAchievement:
             {
-                var achievement = _cliDB.AchievementStorage.LookupByKey(cond.ConditionValue1);
-
-                if (achievement == null)
+                if (!_cliDB.AchievementStorage.ContainsKey(cond.ConditionValue1))
                 {
                     Log.Logger.Debug("{0} has non existing realm first achivement id ({1}), skipped.", cond.ToString(), cond.ConditionValue1);
 
@@ -3280,9 +3232,7 @@ public sealed class ConditionManager
 
                 return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
             case WorldStateExpressionFunctions.OldDifficultyId:
-                var difficulty = _cliDB.DifficultyStorage.LookupByKey((uint)player.Location.Map.DifficultyID);
-
-                if (difficulty != null)
+                if (_cliDB.DifficultyStorage.TryGetValue((uint)player.Location.Map.DifficultyID, out var difficulty))
                     return difficulty.OldEnumValue;
 
                 return -1;
@@ -3293,9 +3243,7 @@ public sealed class ConditionManager
             case WorldStateExpressionFunctions.WeekNumber:
                 var now = GameTime.CurrentTime;
                 uint raidOrigin = 1135695600;
-                var region = _cliDB.CfgRegionsStorage.LookupByKey(WorldManager.Realm.Id.Region);
-
-                if (region != null)
+                if (_cliDB.CfgRegionsStorage.TryGetValue(WorldManager.Realm.Id.Region, out var region))
                     raidOrigin = region.Raidorigin;
 
                 return (int)(now - raidOrigin) / Time.WEEK;
@@ -3304,9 +3252,7 @@ public sealed class ConditionManager
             case WorldStateExpressionFunctions.WarModeActive:
                 return player.HasPlayerFlag(PlayerFlags.WarModeActive) ? 1 : 0;
             case WorldStateExpressionFunctions.WorldStateExpression:
-                var worldStateExpression = _cliDB.WorldStateExpressionStorage.LookupByKey((uint)arg1);
-
-                if (worldStateExpression != null)
+                if (_cliDB.WorldStateExpressionStorage.TryGetValue((uint)arg1, out var worldStateExpression))
                     return IsPlayerMeetingExpression(player, worldStateExpression) ? 1 : 0;
 
                 return 0;

@@ -164,9 +164,7 @@ public class DB2Manager
 
     public float EvaluateExpectedStat(ExpectedStatType stat, uint level, int expansion, uint contentTuningId, PlayerClass unitClass)
     {
-        var expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, expansion)) ?? _expectedStatsByLevel.LookupByKey(Tuple.Create(level, -2));
-
-        if (expectedStatRecord == null)
+        if (!_expectedStatsByLevel.LookupByKey(Tuple.Create(level, expansion)) ?? _expectedStatsByLevel.TryGetValue(Tuple.Create(level, -2), out var expectedStatRecord))
             return 1.0f;
 
         var classMod = unitClass switch
@@ -401,9 +399,7 @@ public class DB2Manager
 
     public string GetChrRaceName(Race race, Locale locale = Locale.enUS)
     {
-        var raceEntry = _cliDB.ChrRacesStorage.LookupByKey((uint)race);
-
-        if (raceEntry == null)
+        if (!_cliDB.ChrRacesStorage.TryGetValue((uint)race, out var raceEntry))
             return "";
 
         return raceEntry.Name[locale][0] != '\0' ? raceEntry.Name[locale] : raceEntry.Name[Locale.enUS];
@@ -416,9 +412,7 @@ public class DB2Manager
 
     public string GetClassName(PlayerClass playerClass, Locale locale = Locale.enUS)
     {
-        var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)playerClass);
-
-        if (classEntry == null)
+        if (!_cliDB.ChrClassesStorage.TryGetValue((uint)playerClass, out var classEntry))
             return "";
 
         return classEntry.Name[locale][0] != '\0' ? classEntry.Name[locale] : classEntry.Name[Locale.enUS];
@@ -426,9 +420,7 @@ public class DB2Manager
 
     public ContentTuningLevels? GetContentTuningData(uint contentTuningId, uint replacementConditionMask, bool forItem = false)
     {
-        var contentTuning = _cliDB.ContentTuningStorage.LookupByKey(contentTuningId);
-
-        if (contentTuning == null)
+        if (!_cliDB.ContentTuningStorage.TryGetValue(contentTuningId, out var contentTuning))
             return null;
 
         if (forItem && contentTuning.GetFlags().HasFlag(ContentTuningFlag.DisabledForItem))
@@ -472,9 +464,7 @@ public class DB2Manager
         if (petfamily == CreatureFamily.None)
             return null;
 
-        var petFamily = _cliDB.CreatureFamilyStorage.LookupByKey((uint)petfamily);
-
-        if (petFamily == null)
+        if (!_cliDB.CreatureFamilyStorage.TryGetValue((uint)petfamily, out var petFamily))
             return "";
 
         return petFamily.Name[locale][0] != '\0' ? petFamily.Name[locale] : "";
@@ -491,9 +481,7 @@ public class DB2Manager
 
     public float GetCurveValueAt(uint curveId, float x)
     {
-        var points = _curvePoints.LookupByKey(curveId);
-
-        if (points.Empty())
+        if (_curvePoints.TryGetValue(curveId, out var points))
             return 0.0f;
 
         var curve = _cliDB.CurveStorage.LookupByKey(curveId);
@@ -625,9 +613,7 @@ public class DB2Manager
 
     public Tuple<float, float> GetCurveXAxisRange(uint curveId)
     {
-        var points = _curvePoints.LookupByKey(curveId);
-
-        if (!points.Empty())
+        if (_curvePoints.TryGetValue(curveId, out var points))
             return Tuple.Create(points.First().Pos.X, points.Last().Pos.X);
 
         return Tuple.Create(0.0f, 0.0f);
@@ -652,14 +638,10 @@ public class DB2Manager
     {
         List<uint> bonusListIDs = new();
 
-        var proto = _cliDB.ItemSparseStorage.LookupByKey(itemId);
-
-        if (proto == null)
+        if (!_cliDB.ItemSparseStorage.TryGetValue(itemId, out var proto))
             return bonusListIDs;
 
-        var itemIdRange = _itemToBonusTree.LookupByKey(itemId);
-
-        if (itemIdRange == null)
+        if (!_itemToBonusTree.TryGetValue(itemId, out var itemIdRange))
             return bonusListIDs;
 
         ushort itemLevelSelectorId = 0;
@@ -695,9 +677,7 @@ public class DB2Manager
                                });
         }
 
-        var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(itemLevelSelectorId);
-
-        if (selector != null)
+        if (_cliDB.ItemLevelSelectorStorage.TryGetValue(itemLevelSelectorId, out var selector))
         {
             var delta = (short)(selector.MinItemLevel - proto.ItemLevel);
 
@@ -706,13 +686,9 @@ public class DB2Manager
             if (bonus != 0)
                 bonusListIDs.Add(bonus);
 
-            var selectorQualitySet = _cliDB.ItemLevelSelectorQualitySetStorage.LookupByKey(selector.ItemLevelSelectorQualitySetID);
-
-            if (selectorQualitySet != null)
+            if (_cliDB.ItemLevelSelectorQualitySetStorage.TryGetValue(selector.ItemLevelSelectorQualitySetID, out var selectorQualitySet))
             {
-                var itemSelectorQualities = _itemLevelQualitySelectorQualities.LookupByKey(selector.ItemLevelSelectorQualitySetID);
-
-                if (itemSelectorQualities != null)
+                if (_itemLevelQualitySelectorQualities.TryGetValue(selector.ItemLevelSelectorQualitySetID, out var itemSelectorQualities))
                 {
                     var quality = ItemQuality.Uncommon;
 
@@ -728,9 +704,7 @@ public class DB2Manager
                 }
             }
 
-            var azeriteUnlockMapping = _azeriteUnlockMappings.LookupByKey((proto.Id, itemContext));
-
-            if (azeriteUnlockMapping != null)
+            if (_azeriteUnlockMappings.TryGetValue((proto.Id, itemContext), out var azeriteUnlockMapping))
                 switch (proto.inventoryType)
                 {
                     case InventoryType.Head:
@@ -766,9 +740,7 @@ public class DB2Manager
 
     public MapDifficultyRecord GetDefaultMapDifficulty(uint mapId, ref Difficulty difficulty)
     {
-        var dicMapDiff = _mapDifficulties.LookupByKey(mapId);
-
-        if (dicMapDiff == null)
+        if (!_mapDifficulties.TryGetValue(mapId, out var dicMapDiff))
             return null;
 
         if (dicMapDiff.Empty())
@@ -776,9 +748,7 @@ public class DB2Manager
 
         foreach (var pair in dicMapDiff)
         {
-            var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(pair.Key);
-
-            if (difficultyEntry == null)
+            if (!_cliDB.DifficultyStorage.TryGetValue(pair.Key, out var difficultyEntry))
                 continue;
 
             if (difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Default))
@@ -805,9 +775,7 @@ public class DB2Manager
 
     public MapDifficultyRecord GetDownscaledMapDifficultyData(uint mapId, ref Difficulty difficulty)
     {
-        var diffEntry = _cliDB.DifficultyStorage.LookupByKey((uint)difficulty);
-
-        if (diffEntry == null)
+        if (!_cliDB.DifficultyStorage.TryGetValue((uint)difficulty, out var diffEntry))
             return GetDefaultMapDifficulty(mapId, ref difficulty);
 
         var tmpDiff = difficulty;
@@ -920,9 +888,7 @@ public class DB2Manager
 
         if (modifiedAppearance != null)
         {
-            var itemAppearance = _cliDB.ItemAppearanceStorage.LookupByKey((uint)modifiedAppearance.ItemAppearanceID);
-
-            if (itemAppearance != null)
+            if (_cliDB.ItemAppearanceStorage.TryGetValue((uint)modifiedAppearance.ItemAppearanceID, out var itemAppearance))
                 return itemAppearance.ItemDisplayInfoID;
         }
 
@@ -936,9 +902,7 @@ public class DB2Manager
 
     public ItemModifiedAppearanceRecord GetItemModifiedAppearance(uint itemId, uint appearanceModId)
     {
-        var itemModifiedAppearance = _itemModifiedAppearancesByItem.LookupByKey(itemId | (appearanceModId << 24));
-
-        if (itemModifiedAppearance != null)
+        if (_itemModifiedAppearancesByItem.TryGetValue(itemId | (appearanceModId << 24), out var itemModifiedAppearance))
             return itemModifiedAppearance;
 
         // Fall back to unmodified appearance
@@ -982,9 +946,7 @@ public class DB2Manager
 
     public uint GetLiquidFlags(uint liquidType)
     {
-        var liq = _cliDB.LiquidTypeStorage.LookupByKey(liquidType);
-
-        if (liq != null)
+        if (_cliDB.LiquidTypeStorage.TryGetValue(liquidType, out var liq))
             return 1u << liq.SoundBank;
 
         return 0;
@@ -1031,9 +993,7 @@ public class DB2Manager
 
     public string GetNameGenEntry(uint race, uint gender)
     {
-        var listNameGen = _nameGenData.LookupByKey(race);
-
-        if (listNameGen == null)
+        if (!_nameGenData.TryGetValue(race, out var listNameGen))
             return "";
 
         if (listNameGen[gender].Empty())
@@ -1044,9 +1004,7 @@ public class DB2Manager
 
     public uint GetNumTalentsAtLevel(uint level, PlayerClass playerClass)
     {
-        var numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LookupByKey(level);
-
-        if (numTalentsAtLevel == null)
+        if (!_cliDB.NumTalentsAtLevelStorage.TryGetValue(level, out var numTalentsAtLevel))
             numTalentsAtLevel = _cliDB.NumTalentsAtLevelStorage.LastOrDefault().Value;
 
         if (numTalentsAtLevel != null)
@@ -1137,9 +1095,7 @@ public class DB2Manager
 
     public uint GetQuestUniqueBitFlag(uint questId)
     {
-        var v2 = _cliDB.QuestV2Storage.LookupByKey(questId);
-
-        if (v2 == null)
+        if (!_cliDB.QuestV2Storage.TryGetValue(questId, out var v2))
             return 0;
 
         return v2.UniqueBitFlag;
@@ -1148,9 +1104,7 @@ public class DB2Manager
     public uint GetRequiredAzeriteLevelForAzeritePowerTier(uint azeriteUnlockSetId, ItemContext context, uint tier)
     {
         //ASSERT(tier < MAX_AZERITE_EMPOWERED_TIER);
-        var levels = _azeriteTierUnlockLevels.LookupByKey((azeriteUnlockSetId, context));
-
-        if (levels != null)
+        if (_azeriteTierUnlockLevels.TryGetValue((azeriteUnlockSetId, context), out var levels))
             return levels[tier];
 
         var azeriteTierUnlockSet = _cliDB.AzeriteTierUnlockSetStorage.LookupByKey(azeriteUnlockSetId);
@@ -1266,9 +1220,7 @@ public class DB2Manager
 
     public EmotesTextSoundRecord GetTextSoundEmoteFor(uint emote, Race race, Gender gender, PlayerClass playerClass)
     {
-        var emoteTextSound = _emoteTextSounds.LookupByKey(Tuple.Create(emote, (byte)race, (byte)gender, (byte)playerClass));
-
-        if (emoteTextSound != null)
+        if (_emoteTextSounds.TryGetValue(Tuple.Create(emote, (byte)race, (byte)gender, (byte)playerClass), out var emoteTextSound))
             return emoteTextSound;
 
         if (_emoteTextSounds.TryGetValue(Tuple.Create(emote, (byte)race, (byte)gender, (byte)0), out emoteTextSound))
@@ -1361,9 +1313,7 @@ public class DB2Manager
             if (objectAreaId == areaId)
                 return true;
 
-            var objectArea = _cliDB.AreaTableStorage.LookupByKey(objectAreaId);
-
-            if (objectArea == null)
+            if (!_cliDB.AreaTableStorage.TryGetValue(objectAreaId, out var objectArea))
                 break;
 
             objectAreaId = objectArea.ParentAreaID;
@@ -1385,14 +1335,10 @@ public class DB2Manager
         if (itemTotemCategoryId == 0)
             return false;
 
-        var itemEntry = _cliDB.TotemCategoryStorage.LookupByKey(itemTotemCategoryId);
-
-        if (itemEntry == null)
+        if (!_cliDB.TotemCategoryStorage.TryGetValue(itemTotemCategoryId, out var itemEntry))
             return false;
 
-        var reqEntry = _cliDB.TotemCategoryStorage.LookupByKey(requiredTotemCategoryId);
-
-        if (reqEntry == null)
+        if (!_cliDB.TotemCategoryStorage.TryGetValue(requiredTotemCategoryId, out var reqEntry))
             return false;
 
         if (itemEntry.TotemCategoryType != reqEntry.TotemCategoryType)
@@ -1437,9 +1383,7 @@ public class DB2Manager
             var recordId = result.Read<int>(1);
             var localeName = result.Read<string>(2);
 
-            var storeItr = Storage.LookupByKey(tableHash);
-
-            if (storeItr != null)
+            if (Storage.TryGetValue(tableHash, out var storeItr))
             {
                 Log.Logger.Warning($"Table hash 0x{tableHash:X}({tableHash}) points to a loaded DB2 store {storeItr.GetName()} {recordId}:{localeName}, fill related table instead of hotfix_blob");
 
@@ -1546,9 +1490,7 @@ public class DB2Manager
         do
         {
             var tableHash = result.Read<uint>(0);
-            var allowedHotfixes = _allowedHotfixOptionalData.LookupByKey(tableHash);
-
-            if (allowedHotfixes.Empty())
+            if (_allowedHotfixOptionalData.TryGetValue(tableHash, out var allowedHotfixes))
             {
                 Log.Logger.Error($"Table `hotfix_optional_data` references DB2 store by hash 0x{tableHash:X} that is not allowed to have optional data");
 
@@ -1556,9 +1498,7 @@ public class DB2Manager
             }
 
             var recordId = result.Read<uint>(1);
-            var db2Storage = Storage.LookupByKey(tableHash);
-
-            if (db2Storage == null)
+            if (!Storage.ContainsKey(tableHash))
             {
                 Log.Logger.Error($"Table `hotfix_optional_data` references unknown DB2 store by hash 0x{tableHash:X} with RecordID: {recordId}");
 
@@ -1725,18 +1665,12 @@ public class DB2Manager
         // build shapeshift form model lookup
         foreach (var customizationElement in _cliDB.ChrCustomizationElementStorage.Values)
         {
-            var customizationDisplayInfo = _cliDB.ChrCustomizationDisplayInfoStorage.LookupByKey((uint)customizationElement.ChrCustomizationDisplayInfoID);
-
-            if (customizationDisplayInfo != null)
+            if (_cliDB.ChrCustomizationDisplayInfoStorage.TryGetValue((uint)customizationElement.ChrCustomizationDisplayInfoID, out var customizationDisplayInfo))
             {
-                var customizationChoice = _cliDB.ChrCustomizationChoiceStorage.LookupByKey(customizationElement.ChrCustomizationChoiceID);
-
-                if (customizationChoice != null)
+                if (_cliDB.ChrCustomizationChoiceStorage.TryGetValue(customizationElement.ChrCustomizationChoiceID, out var customizationChoice))
                 {
                     displayInfoByCustomizationChoice[customizationElement.ChrCustomizationChoiceID] = customizationDisplayInfo;
-                    var customizationOption = _cliDB.ChrCustomizationOptionStorage.LookupByKey(customizationChoice.ChrCustomizationOptionID);
-
-                    if (customizationOption != null)
+                    if (_cliDB.ChrCustomizationOptionStorage.TryGetValue(customizationChoice.ChrCustomizationOptionID, out var customizationOption))
                         shapeshiftFormByModel.Add(customizationOption.ChrModelID, Tuple.Create(customizationOption.Id, (byte)customizationDisplayInfo.ShapeshiftFormID));
                 }
             }
@@ -1749,9 +1683,7 @@ public class DB2Manager
 
         foreach (var reqChoice in _cliDB.ChrCustomizationReqChoiceStorage.Values)
         {
-            var customizationChoice = _cliDB.ChrCustomizationChoiceStorage.LookupByKey(reqChoice.ChrCustomizationChoiceID);
-
-            if (customizationChoice != null)
+            if (_cliDB.ChrCustomizationChoiceStorage.TryGetValue(reqChoice.ChrCustomizationChoiceID, out var customizationChoice))
             {
                 if (!_chrCustomizationRequiredChoices.ContainsKey(reqChoice.ChrCustomizationReqID))
                     _chrCustomizationRequiredChoices[reqChoice.ChrCustomizationReqID] = new MultiMap<uint, uint>();
@@ -1768,21 +1700,15 @@ public class DB2Manager
 
         foreach (var raceModel in _cliDB.ChrRaceXChrModelStorage.Values)
         {
-            var model = _cliDB.ChrModelStorage.LookupByKey((uint)raceModel.ChrModelID);
-
-            if (model != null)
+            if (_cliDB.ChrModelStorage.TryGetValue((uint)raceModel.ChrModelID, out var model))
             {
                 _chrModelsByRaceAndGender[Tuple.Create((byte)raceModel.ChrRacesID, (byte)raceModel.Sex)] = model;
 
-                var customizationOptionsForModel = customizationOptionsByModel.LookupByKey(model.Id);
-
-                if (customizationOptionsForModel != null)
+                if (customizationOptionsByModel.TryGetValue(model.Id, out var customizationOptionsForModel))
                 {
                     _chrCustomizationOptionsByRaceAndGender.AddRange(Tuple.Create((byte)raceModel.ChrRacesID, (byte)raceModel.Sex), customizationOptionsForModel);
 
-                    var parentRace = parentRaces.LookupByKey((uint)raceModel.ChrRacesID);
-
-                    if (parentRace != 0)
+                    if (parentRaces.TryGetValue((uint)raceModel.ChrRacesID, out var parentRace))
                         _chrCustomizationOptionsByRaceAndGender.AddRange(Tuple.Create((byte)parentRace, (byte)raceModel.Sex), customizationOptionsForModel);
                 }
 
@@ -1935,9 +1861,7 @@ public class DB2Manager
 
         foreach (var mapDifficultyCondition in mapDifficultyConditions)
         {
-            var playerCondition = _cliDB.PlayerConditionStorage.LookupByKey(mapDifficultyCondition.PlayerConditionID);
-
-            if (playerCondition != null)
+            if (_cliDB.PlayerConditionStorage.TryGetValue(mapDifficultyCondition.PlayerConditionID, out var playerCondition))
                 _mapDifficultyConditions.Add(mapDifficultyCondition.MapDifficultyID, Tuple.Create(mapDifficultyCondition.Id, playerCondition));
         }
 
@@ -1997,9 +1921,7 @@ public class DB2Manager
 
         foreach (var group in _cliDB.PhaseXPhaseGroupStorage.Values)
         {
-            var phase = _cliDB.PhaseStorage.LookupByKey(group.PhaseId);
-
-            if (phase != null)
+            if (_cliDB.PhaseStorage.TryGetValue(group.PhaseId, out var phase))
                 _phasesByGroup.Add(group.PhaseGroupID, phase.Id);
         }
 
@@ -2097,9 +2019,7 @@ public class DB2Manager
 
         foreach (var transmogSetItem in _cliDB.TransmogSetItemStorage.Values)
         {
-            var set = _cliDB.TransmogSetStorage.LookupByKey(transmogSetItem.TransmogSetID);
-
-            if (set == null)
+            if (!_cliDB.TransmogSetStorage.TryGetValue(transmogSetItem.TransmogSetID, out var set))
                 continue;
 
             _transmogSetsByItemModifiedAppearance.Add(transmogSetItem.ItemModifiedAppearanceID, set);
@@ -2119,9 +2039,7 @@ public class DB2Manager
         foreach (var uiMapAssignment in _cliDB.UiMapAssignmentStorage.Values)
         {
             uiMapAssignmentByUiMap.Add(uiMapAssignment.UiMapID, uiMapAssignment);
-            var uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMapAssignment.UiMapID);
-
-            if (uiMap != null)
+            if (_cliDB.UiMapStorage.TryGetValue((uint)uiMapAssignment.UiMapID, out var uiMap))
             {
                 //ASSERT(uiMap.System < MAX_UI_MAP_SYSTEM, $"MAX_TALENT_TIERS must be at least {uiMap.System + 1}");
                 if (uiMapAssignment.MapID >= 0)
@@ -2146,9 +2064,7 @@ public class DB2Manager
         foreach (var uiMap in _cliDB.UiMapStorage.Values)
         {
             UiMapBounds bounds = new();
-            var parentUiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
-
-            if (parentUiMap != null)
+            if (_cliDB.UiMapStorage.TryGetValue((uint)uiMap.ParentUiMapID, out var parentUiMap))
             {
                 if (parentUiMap.GetFlags().HasAnyFlag(UiMapFlag.NoWorldPositions))
                     continue;
@@ -2203,9 +2119,7 @@ public class DB2Manager
                 }
             }
 
-            var uiMapLink = uiMapLinks.LookupByKey(Tuple.Create(uiMap.ParentUiMapID, uiMap.Id));
-
-            if (uiMapLink != null)
+            if (uiMapLinks.TryGetValue(Tuple.Create(uiMap.ParentUiMapID, uiMap.Id), out var uiMapLink))
             {
                 bounds.IsUiAssignment = false;
                 bounds.IsUiLink = true;
@@ -2258,9 +2172,7 @@ public class DB2Manager
     }
     public bool Zone2MapCoordinates(uint areaId, ref float x, ref float y)
     {
-        var areaEntry = _cliDB.AreaTableStorage.LookupByKey(areaId);
-
-        if (areaEntry == null)
+        if (!_cliDB.AreaTableStorage.TryGetValue(areaId, out var areaEntry))
             return false;
 
         foreach (var assignment in _uiMapAssignmentByArea[(int)UiMapSystem.World].LookupByKey(areaId))
@@ -2395,9 +2307,7 @@ public class DB2Manager
 
             while (areaId != uiMapAssignment.AreaID)
             {
-                var areaEntry = _cliDB.AreaTableStorage.LookupByKey((uint)areaId);
-
-                if (areaEntry != null)
+                if (_cliDB.AreaTableStorage.TryGetValue((uint)areaId, out var areaEntry))
                 {
                     areaId = areaEntry.ParentAreaID;
                     ++areaPriority;
@@ -2415,9 +2325,7 @@ public class DB2Manager
         {
             if (mapId != uiMapAssignment.MapID)
             {
-                var mapEntry = _cliDB.MapStorage.LookupByKey((uint)mapId);
-
-                if (mapEntry != null)
+                if (_cliDB.MapStorage.TryGetValue((uint)mapId, out var mapEntry))
                 {
                     if (mapEntry.ParentMapID == uiMapAssignment.MapID)
                         status.MapPriority = 1;
@@ -2528,9 +2436,7 @@ public class DB2Manager
 
         if (mapId > 0)
         {
-            var mapEntry = _cliDB.MapStorage.LookupByKey((uint)mapId);
-
-            if (mapEntry != null)
+            if (_cliDB.MapStorage.TryGetValue((uint)mapId, out var mapEntry))
             {
                 iterateUiMapAssignments(_uiMapAssignmentByMap[(int)system], (int)mapEntry.Id);
 
@@ -2547,9 +2453,7 @@ public class DB2Manager
 
     private void LoadAzeriteEmpoweredItemUnlockMappings(MultiMap<uint, AzeriteUnlockMappingRecord> azeriteUnlockMappingsBySet, uint itemId)
     {
-        var itemIdRange = _itemToBonusTree.LookupByKey(itemId);
-
-        if (itemIdRange == null)
+        if (!_itemToBonusTree.TryGetValue(itemId, out var itemIdRange))
             return;
 
         foreach (var itemTreeItr in itemIdRange)
@@ -2559,14 +2463,10 @@ public class DB2Manager
                                {
                                    if (bonusTreeNode.ChildItemBonusListID == 0 && bonusTreeNode.ChildItemLevelSelectorID != 0)
                                    {
-                                       var selector = _cliDB.ItemLevelSelectorStorage.LookupByKey(bonusTreeNode.ChildItemLevelSelectorID);
-
-                                       if (selector == null)
+                                       if (!_cliDB.ItemLevelSelectorStorage.TryGetValue(bonusTreeNode.ChildItemLevelSelectorID, out var selector))
                                            return;
 
-                                       var azeriteUnlockMappings = azeriteUnlockMappingsBySet.LookupByKey(selector.AzeriteUnlockMappingSet);
-
-                                       if (azeriteUnlockMappings != null)
+                                       if (azeriteUnlockMappingsBySet.TryGetValue(selector.AzeriteUnlockMappingSet, out var azeriteUnlockMappings))
                                        {
                                            AzeriteUnlockMappingRecord selectedAzeriteUnlockMapping = null;
 
@@ -2588,9 +2488,7 @@ public class DB2Manager
 
     private void VisitItemBonusTree(uint itemBonusTreeId, bool visitChildren, Action<ItemBonusTreeNodeRecord> visitor)
     {
-        var bonusTreeNodeList = _itemBonusTrees.LookupByKey(itemBonusTreeId);
-
-        if (bonusTreeNodeList.Empty())
+        if (_itemBonusTrees.TryGetValue(itemBonusTreeId, out var bonusTreeNodeList))
             return;
 
         foreach (var bonusTreeNode in bonusTreeNodeList)

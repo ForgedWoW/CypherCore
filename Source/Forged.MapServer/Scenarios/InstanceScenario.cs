@@ -77,9 +77,7 @@ public class InstanceScenario : Scenario
                 foreach (var criteria in killCreatureCriteria)
                 {
                     // count creatures in despawned spawn groups
-                    var progress = despawnedCreatureCountsById.LookupByKey(criteria.Entry.Asset);
-
-                    if (progress != 0)
+                    if (despawnedCreatureCountsById.TryGetValue(criteria.Entry.Asset, out var progress))
                     {
                         SetCriteriaProgress(criteria, progress, null);
                         var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);

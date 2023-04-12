@@ -121,9 +121,7 @@ public class MailHandler : IWorldSessionHandler
         // in mail template case we need create new item text
         if (m.mailTemplateId != 0)
         {
-            var mailTemplateEntry = CliDB.MailTemplateStorage.LookupByKey(m.mailTemplateId);
-
-            if (mailTemplateEntry == null)
+            if (!CliDB.MailTemplateStorage.TryGetValue(m.mailTemplateId, out var mailTemplateEntry))
             {
                 player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.InternalError);
 

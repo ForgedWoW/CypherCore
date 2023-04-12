@@ -154,9 +154,7 @@ public class LootTemplate
         foreach (var item in _entries)
             if (item.Reference > 0) // References
             {
-                var referenced = store.LookupByKey(item.Reference);
-
-                if (referenced == null)
+                if (!store.TryGetValue(item.Reference, out var referenced))
                     continue; // Error message [should be] already printed at loading stage
 
                 if (referenced.HasQuestDrop(store, item.Groupid))
@@ -192,9 +190,7 @@ public class LootTemplate
         foreach (var item in _entries)
             if (item.Reference > 0) // References processing
             {
-                var referenced = store.LookupByKey(item.Reference);
-
-                if (referenced == null)
+                if (!store.TryGetValue(item.Reference, out var referenced))
                     continue; // Error message already printed at loading stage
 
                 if (referenced.HasQuestDropForPlayer(store, player, item.Groupid))

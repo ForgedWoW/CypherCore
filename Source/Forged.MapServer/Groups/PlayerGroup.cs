@@ -102,10 +102,6 @@ public class PlayerGroup
             return true;
         }
     }
-    public static implicit operator bool(PlayerGroup group)
-    {
-        return group != null;
-    }
 
     public bool AddInvite(Player player)
     {
@@ -367,9 +363,7 @@ public class PlayerGroup
         if (IsLFGGroup)
             return GroupJoinBattlegroundResult.LfgCantUseBattleground;
 
-        var bgEntry = CliDB.BattlemasterListStorage.LookupByKey(bgOrTemplate.GetTypeID());
-
-        if (bgEntry == null)
+        if (!CliDB.BattlemasterListStorage.TryGetValue(bgOrTemplate.GetTypeID(), out var bgEntry))
             return GroupJoinBattlegroundResult.BattlegroundJoinFailed; // shouldn't happen
 
         // check for min / max count

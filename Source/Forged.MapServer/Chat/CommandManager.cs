@@ -64,9 +64,7 @@ public class CommandManager
 
                 foreach (var key in name.Split(' ', StringSplitOptions.RemoveEmptyEntries))
                 {
-                    var it = map.LookupByKey(key);
-
-                    if (it != null)
+                    if (map.TryGetValue(key, out var it))
                     {
                         cmd = it;
                         map = cmd.SubCommands;

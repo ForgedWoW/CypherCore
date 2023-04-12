@@ -7,16 +7,16 @@ namespace Forged.MapServer.Globals;
 
 public class PlayerChoiceResponseReward
 {
-    public uint ArenaPointCount;
-    public List<PlayerChoiceResponseRewardEntry> Currency = new();
-    public List<PlayerChoiceResponseRewardEntry> Faction = new();
-    public uint HonorPointCount;
-    public List<PlayerChoiceResponseRewardItem> ItemChoices = new();
-    public List<PlayerChoiceResponseRewardItem> Items = new();
-    public ulong Money;
-    public int PackageId;
-    public int SkillLineId;
-    public uint SkillPointCount;
-    public int TitleId;
-    public uint Xp;
+    public uint ArenaPointCount { get; set; }
+    public List<PlayerChoiceResponseRewardEntry> Currency { get; set; } = new();
+    public List<PlayerChoiceResponseRewardEntry> Faction { get; set; } = new();
+    public uint HonorPointCount { get; set; }
+    public List<PlayerChoiceResponseRewardItem> ItemChoices { get; set; } = new();
+    public List<PlayerChoiceResponseRewardItem> Items { get; set; } = new();
+    public ulong Money { get; set; }
+    public int PackageId { get; set; }
+    public int SkillLineId { get; set; }
+    public uint SkillPointCount { get; set; }
+    public int TitleId { get; set; }
+    public uint Xp { get; set; }
 }

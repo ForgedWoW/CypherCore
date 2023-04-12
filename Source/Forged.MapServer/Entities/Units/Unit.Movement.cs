@@ -53,9 +53,7 @@ public partial class Unit
 
     public bool CreateVehicleKit(uint id, uint creatureEntry, bool loading = false)
     {
-        var vehInfo = CliDB.VehicleStorage.LookupByKey(id);
-
-        if (vehInfo == null)
+        if (!CliDB.VehicleStorage.TryGetValue(id, out var vehInfo))
             return false;
 
         VehicleKit = new Vehicle(this, vehInfo, creatureEntry);
@@ -155,9 +153,7 @@ public partial class Unit
         }
         else
         {
-            var areaTable = CliDB.AreaTableStorage.LookupByKey(areaId);
-
-            if (areaTable != null)
+            if (CliDB.AreaTableStorage.TryGetValue(areaId, out var areaTable))
                 mountFlags = (AreaMountFlags)areaTable.MountFlags;
         }
 
@@ -167,9 +163,7 @@ public partial class Unit
 
         foreach (var mountTypeXCapability in capabilities)
         {
-            var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(mountTypeXCapability.MountCapabilityID);
-
-            if (mountCapability == null)
+            if (!CliDB.MountCapabilityStorage.TryGetValue(mountTypeXCapability.MountCapabilityID, out var mountCapability))
                 continue;
 
             if (ridingSkill < mountCapability.ReqRidingSkill)
@@ -233,9 +227,7 @@ public partial class Unit
 
             if (thisPlayer != null)
             {
-                var playerCondition = CliDB.PlayerConditionStorage.LookupByKey((uint)mountCapability.PlayerConditionID);
-
-                if (playerCondition != null)
+                if (CliDB.PlayerConditionStorage.TryGetValue((uint)mountCapability.PlayerConditionID, out var playerCondition))
                     if (!ConditionManager.IsPlayerMeetingCondition(thisPlayer, playerCondition))
                         continue;
             }
@@ -1489,9 +1481,7 @@ public partial class Unit
             }
             else
             {
-                var capability = CliDB.MountCapabilityStorage.LookupByKey((uint)aurEff.Amount);
-
-                if (capability != null) // aura may get removed by interrupt Id, reapply
+                if (CliDB.MountCapabilityStorage.TryGetValue((uint)aurEff.Amount, out var capability)) // aura may get removed by interrupt Id, reapply
                     if (!HasAura(capability.ModSpellAuraID))
                         SpellFactory.CastSpell(this, capability.ModSpellAuraID, new CastSpellExtraArgs(aurEff));
             }

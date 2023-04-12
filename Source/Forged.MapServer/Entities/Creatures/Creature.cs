@@ -2853,9 +2853,7 @@ public partial class Creature : Unit
         }
 
         // checked and error show at loading templates
-        var factionTemplate = CliDB.FactionTemplateStorage.LookupByKey(cInfo.Faction);
-
-        if (factionTemplate != null)
+        if (CliDB.FactionTemplateStorage.TryGetValue(cInfo.Faction, out var factionTemplate))
             SetPvP(factionTemplate.Flags.HasAnyFlag((ushort)FactionTemplateFlags.PVP));
 
         // updates spell bars for vehicles and set player's faction - should be called here, to overwrite faction that is set from the new template

@@ -174,9 +174,7 @@ public partial class Player
         if (enchantID == 0)
             return;
 
-        var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
-
-        if (pEnchant == null)
+        if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var pEnchant))
             return;
 
         if (!ignoreCondition && pEnchant.ConditionID != 0 && !EnchantmentFitsRequirements(pEnchant.ConditionID, -1))
@@ -687,9 +685,7 @@ public partial class Player
 
     public bool CanUseMastery()
     {
-        var chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
-
-        if (chrSpec != null)
+        if (CliDB.ChrSpecializationStorage.TryGetValue(GetPrimarySpecialization(), out var chrSpec))
             return HasSpell(chrSpec.MasterySpellID[0]) || HasSpell(chrSpec.MasterySpellID[1]);
 
         return false;
@@ -785,9 +781,7 @@ public partial class Player
         for (byte eSlot = 0; eSlot < (byte)EnchantmentSlot.Max; ++eSlot)
         {
             var enchantID = item.GetEnchantmentId((EnchantmentSlot)eSlot);
-            var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
-
-            if (pEnchant == null)
+            if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var pEnchant))
                 continue;
 
             for (byte s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
@@ -919,9 +913,7 @@ public partial class Player
         for (EnchantmentSlot eSlot = 0; eSlot < EnchantmentSlot.Max; ++eSlot)
         {
             var enchantID = item.GetEnchantmentId(eSlot);
-            var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
-
-            if (pEnchant == null)
+            if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var pEnchant))
                 continue;
 
             for (byte s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
@@ -994,9 +986,7 @@ public partial class Player
 
     public override SpellInfo GetCastSpellInfo(SpellInfo spellInfo)
     {
-        var overrides = _overrideSpells.LookupByKey(spellInfo.Id);
-
-        if (!overrides.Empty())
+        if (_overrideSpells.TryGetValue(spellInfo.Id, out var overrides))
             foreach (var spellId in overrides)
             {
                 var newInfo = SpellManager.GetSpellInfo(spellId, Location.Map.DifficultyID);
@@ -1025,9 +1015,7 @@ public partial class Player
 
     public int GetProfessionSlotFor(uint skillId)
     {
-        var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
-
-        if (skillEntry == null)
+        if (!CliDB.SkillLineStorage.TryGetValue(skillId, out var skillEntry))
             return -1;
 
         if (skillEntry.ParentSkillLineID == 0 || skillEntry.CategoryID != SkillCategory.Profession)
@@ -1380,9 +1368,7 @@ public partial class Player
 
     public bool HasActiveSpell(uint spellId)
     {
-        var spell = _spells.LookupByKey(spellId);
-
-        if (spell != null)
+        if (_spells.TryGetValue(spellId, out var spell))
             return spell.State != PlayerSpellState.Removed && spell.Active && !spell.Disabled;
 
         return false;
@@ -1490,9 +1476,7 @@ public partial class Player
 
     public override bool HasSpell(uint spellId)
     {
-        var spell = _spells.LookupByKey(spellId);
-
-        if (spell != null)
+        if (_spells.TryGetValue(spellId, out var spell))
             return spell.State != PlayerSpellState.Removed && !spell.Disabled;
 
         return false;
@@ -1906,9 +1890,7 @@ public partial class Player
 
     public void RemoveSpell(uint spellId, bool disabled = false, bool learnLowRank = true, bool suppressMessaging = false)
     {
-        var pSpell = _spells.LookupByKey(spellId);
-
-        if (pSpell == null)
+        if (!_spells.TryGetValue(spellId, out var pSpell))
             return;
 
         if (pSpell.State == PlayerSpellState.Removed || (disabled && pSpell.Disabled) || pSpell.State == PlayerSpellState.Temporary)
@@ -2041,9 +2023,7 @@ public partial class Player
             if (curActive && spellInfo.IsRanked)
             {
                 // need manually update dependence state (learn spell ignore like attempts)
-                var prevSpell = _spells.LookupByKey(prevID);
-
-                if (prevSpell != null)
+                if (_spells.TryGetValue(prevID, out var prevSpell))
                 {
                     if (prevSpell.Dependent != curDependent)
                     {
@@ -2092,9 +2072,7 @@ public partial class Player
 
     public void RemoveStoredAuraTeleportLocation(uint spellId)
     {
-        var storedLocation = _storedAuraTeleportLocations.LookupByKey(spellId);
-
-        if (storedLocation != null)
+        if (_storedAuraTeleportLocations.TryGetValue(spellId, out var storedLocation))
             storedLocation.CurrentState = StoredAuraTeleportLocation.State.Deleted;
     }
 
@@ -2190,9 +2168,7 @@ public partial class Player
 
     public void SetSkill(uint id, uint step, uint newVal, uint maxVal)
     {
-        var skillEntry = CliDB.SkillLineStorage.LookupByKey(id);
-
-        if (skillEntry == null)
+        if (!CliDB.SkillLineStorage.TryGetValue(id, out var skillEntry))
         {
             Log.Logger.Error($"Player.Spells.SetSkill: Skillid: {id} not found in SkillLineStorage for player {GetName()} ({GUID})");
 
@@ -2463,9 +2439,7 @@ public partial class Player
 
     public void SetSpellFavorite(uint spellId, bool favorite)
     {
-        var spell = _spells.LookupByKey(spellId);
-
-        if (spell == null)
+        if (!_spells.TryGetValue(spellId, out var spell))
             return;
 
         spell.Favorite = favorite;
@@ -2986,9 +2960,7 @@ public partial class Player
             {
                 if (playerSpell.TraitDefinitionId.HasValue)
                 {
-                    var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(playerSpell.TraitDefinitionId.Value);
-
-                    if (traitDefinition != null)
+                    if (CliDB.TraitDefinitionStorage.TryGetValue(playerSpell.TraitDefinitionId.Value, out var traitDefinition))
                         RemoveOverrideSpell(traitDefinition.OverridesSpellID, spellId);
                 }
 
@@ -3202,9 +3174,7 @@ public partial class Player
 
         if (traitDefinitionId.HasValue)
         {
-            var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitDefinitionId.Value);
-
-            if (traitDefinition != null)
+            if (CliDB.TraitDefinitionStorage.TryGetValue(traitDefinitionId.Value, out var traitDefinition))
                 AddOverrideSpell(traitDefinition.OverridesSpellID, spellId);
         }
 
@@ -3243,9 +3213,7 @@ public partial class Player
             // not ranked skills
             foreach (var spellIdx in skillBounds)
             {
-                var pSkill = CliDB.SkillLineStorage.LookupByKey(spellIdx.SkillLine);
-
-                if (pSkill == null)
+                if (!CliDB.SkillLineStorage.ContainsKey(spellIdx.SkillLine))
                     continue;
 
                 if (spellIdx.SkillLine == fromSkill)
@@ -3382,9 +3350,7 @@ public partial class Player
                 if (enchantID == 0)
                     continue;
 
-                var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantID);
-
-                if (enchantEntry == null)
+                if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantID, out var enchantEntry))
                     continue;
 
                 uint condition = enchantEntry.ConditionID;
@@ -3409,9 +3375,7 @@ public partial class Player
         if (enchantmentcondition == 0)
             return true;
 
-        var condition = CliDB.SpellItemEnchantmentConditionStorage.LookupByKey(enchantmentcondition);
-
-        if (condition == null)
+        if (!CliDB.SpellItemEnchantmentConditionStorage.TryGetValue(enchantmentcondition, out var condition))
             return true;
 
         byte[] curcount =
@@ -3435,9 +3399,7 @@ public partial class Player
                     if (gemProto == null)
                         continue;
 
-                    var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
-
-                    if (gemProperty == null)
+                    if (!CliDB.GemPropertiesStorage.TryGetValue(gemProto.GemProperties, out var gemProperty))
                         continue;
 
                     var gemColor = (uint)gemProperty.Type;
@@ -3486,9 +3448,7 @@ public partial class Player
 
     private int FindEmptyProfessionSlotFor(uint skillId)
     {
-        var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
-
-        if (skillEntry == null)
+        if (!CliDB.SkillLineStorage.TryGetValue(skillId, out var skillEntry))
             return -1;
 
         if (skillEntry.ParentSkillLineID != 0 || skillEntry.CategoryID != SkillCategory.Profession)
@@ -3937,9 +3897,7 @@ public partial class Player
                     if (enchID == 0)
                         continue;
 
-                    var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchID);
-
-                    if (enchant == null)
+                    if (!CliDB.SpellItemEnchantmentStorage.TryGetValue(enchID, out var enchant))
                         return;
 
                     if (enchant.RequiredSkillID == skillID)

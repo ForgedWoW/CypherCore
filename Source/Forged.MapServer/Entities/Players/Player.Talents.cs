@@ -140,9 +140,7 @@ public partial class Player
 
         for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
         {
-            var talentInfo = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
-
-            if (talentInfo == null)
+            if (!CliDB.PvpTalentStorage.TryGetValue(GetPvpTalentMap(GetActiveTalentGroup())[slot], out var talentInfo))
                 continue;
 
             if (talentInfo.SpellID == 0)
@@ -292,9 +290,7 @@ public partial class Player
 
         foreach (var grantedEntry in TraitMgr.GetGrantedTraitEntriesForConfig(traitConfig, this))
         {
-            var entryIndex = traitConfig.Entries.LookupByKey(grantedEntry.TraitNodeID)?.LookupByKey(grantedEntry.TraitNodeEntryID);
-
-            if (entryIndex == null)
+            if (!traitConfig.Entries.LookupByKey(grantedEntry.TraitNodeID)?.ContainsKey(grantedEntry.TraitNodeEntryID))
             {
                 TraitConfig value = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, traitConfigIndex);
                 AddDynamicUpdateFieldValue(value.ModifyValue(value.Entries), grantedEntry);
@@ -432,9 +428,7 @@ public partial class Player
             {
                 for (var slot = DB2Manager.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
                 {
-                    var pvpTalent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(spec)[slot]);
-
-                    if (pvpTalent != null)
+                    if (CliDB.PvpTalentStorage.TryGetValue(GetPvpTalentMap(spec)[slot], out var pvpTalent))
                         RemovePvpTalent(pvpTalent, spec);
                 }
             }
@@ -453,9 +447,7 @@ public partial class Player
         if (IsDead)
             return TalentLearnResult.FailedCantDoThatRightNow;
 
-        var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentID);
-
-        if (talentInfo == null)
+        if (!CliDB.PvpTalentStorage.TryGetValue(talentID, out var talentInfo))
             return TalentLearnResult.FailedUnknown;
 
         if (talentInfo.SpecID != GetPrimarySpecialization())
@@ -467,9 +459,7 @@ public partial class Player
         if (DB2Manager.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
             return TalentLearnResult.FailedUnknown;
 
-        var talentCategory = CliDB.PvpTalentCategoryStorage.LookupByKey(talentInfo.PvpTalentCategoryID);
-
-        if (talentCategory != null)
+        if (CliDB.PvpTalentCategoryStorage.TryGetValue(talentInfo.PvpTalentCategoryID, out var talentCategory))
             if (!Convert.ToBoolean(talentCategory.TalentSlotMask & (1 << slot)))
                 return TalentLearnResult.FailedUnknown;
 
@@ -477,15 +467,11 @@ public partial class Player
         if (HasPvpTalent(talentID, GetActiveTalentGroup()))
             return TalentLearnResult.FailedUnknown;
 
-        var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(talentInfo.PlayerConditionID);
-
-        if (playerCondition != null)
+        if (CliDB.PlayerConditionStorage.TryGetValue(talentInfo.PlayerConditionID, out var playerCondition))
             if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
                 return TalentLearnResult.FailedCantDoThatRightNow;
 
-        var talent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
-
-        if (talent != null)
+        if (CliDB.PvpTalentStorage.TryGetValue(GetPvpTalentMap(GetActiveTalentGroup())[slot], out var talent))
         {
             if (!HasPlayerFlag(PlayerFlags.Resting) && !HasUnitFlag2(UnitFlags2.AllowChangingTalents))
                 return TalentLearnResult.FailedRestArea;
@@ -517,9 +503,7 @@ public partial class Player
         if (GetPrimarySpecialization() == 0)
             return TalentLearnResult.FailedNoPrimaryTreeSelected;
 
-        var talentInfo = CliDB.TalentStorage.LookupByKey(talentId);
-
-        if (talentInfo == null)
+        if (!CliDB.TalentStorage.TryGetValue(talentId, out var talentInfo))
             return TalentLearnResult.FailedUnknown;
 
         if (talentInfo.SpecID != 0 && talentInfo.SpecID != GetPrimarySpecialization())
@@ -764,9 +748,7 @@ public partial class Player
                 if (pair.Value == PlayerSpellState.Removed)
                     continue;
 
-                var talentInfo = CliDB.TalentStorage.LookupByKey(pair.Key);
-
-                if (talentInfo == null)
+                if (!CliDB.TalentStorage.TryGetValue(pair.Key, out var talentInfo))
                 {
                     Log.Logger.Error("Player {0} has unknown talent id: {1}", GetName(), pair.Key);
 
@@ -790,9 +772,7 @@ public partial class Player
                 if (pvpTalents[slot] == 0)
                     continue;
 
-                var talentInfo = CliDB.PvpTalentStorage.LookupByKey(pvpTalents[slot]);
-
-                if (talentInfo == null)
+                if (!CliDB.PvpTalentStorage.TryGetValue(pvpTalents[slot], out var talentInfo))
                 {
                     Log.Logger.Error($"Player.SendTalentsInfoData: Player '{GetName()}' ({GUID}) has unknown pvp talent id: {pvpTalents[slot]}");
 
@@ -903,9 +883,7 @@ public partial class Player
 
         foreach (var pvpTalentId in pvpTalents)
         {
-            var pvpTalentInfo = CliDB.PvpTalentStorage.LookupByKey(pvpTalentId);
-
-            if (pvpTalentInfo != null)
+            if (CliDB.PvpTalentStorage.TryGetValue(pvpTalentId, out var pvpTalentInfo))
             {
                 if (enable)
                 {
@@ -1056,14 +1034,10 @@ public partial class Player
 
     private void ApplyTraitEntry(int traitNodeEntryId, bool apply)
     {
-        var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(traitNodeEntryId);
-
-        if (traitNodeEntry == null)
+        if (!CliDB.TraitNodeEntryStorage.TryGetValue(traitNodeEntryId, out var traitNodeEntry))
             return;
 
-        var traitDefinition = CliDB.TraitDefinitionStorage.LookupByKey(traitNodeEntry.TraitDefinitionID);
-
-        if (traitDefinition == null)
+        if (!CliDB.TraitDefinitionStorage.TryGetValue(traitNodeEntry.TraitDefinitionID, out var traitDefinition))
             return;
 
         if (traitDefinition.SpellID == 0)
@@ -1090,9 +1064,7 @@ public partial class Player
         for (var i = 0; i < editedConfig.Entries.Size(); ++i)
         {
             var oldEntry = editedConfig.Entries[i];
-            var entryItr = newConfig.Entries.LookupByKey(oldEntry.TraitNodeID)?.LookupByKey(oldEntry.TraitNodeEntryID);
-
-            if (entryItr != null)
+            if (newConfig.Entries.LookupByKey(oldEntry.TraitNodeID)?.ContainsKey(oldEntry.TraitNodeEntryID))
                 continue;
 
             if (applyTraits)
@@ -1164,9 +1136,7 @@ public partial class Player
 
             foreach (var (traitCurrencyId, amount) in currencies)
             {
-                var traitCurrency = CliDB.TraitCurrencyStorage.LookupByKey(traitCurrencyId);
-
-                if (traitCurrency == null)
+                if (!CliDB.TraitCurrencyStorage.TryGetValue(traitCurrencyId, out var traitCurrency))
                     continue;
 
                 switch (traitCurrency.GetCurrencyType())
@@ -1232,9 +1202,7 @@ public partial class Player
         for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
             foreach (var talentId in GetPvpTalentMap(spec))
             {
-                var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentId);
-
-                if (talentInfo != null)
+                if (CliDB.PvpTalentStorage.TryGetValue(talentId, out var talentInfo))
                     RemovePvpTalent(talentInfo, spec);
             }
     }

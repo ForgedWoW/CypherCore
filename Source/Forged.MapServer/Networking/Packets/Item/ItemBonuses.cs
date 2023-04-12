@@ -35,8 +35,8 @@ public class ItemBonuses
 
     public override bool Equals(object obj)
     {
-        if (obj is ItemBonuses)
-            return (ItemBonuses)obj == this;
+        if (obj is ItemBonuses bonuses)
+            return bonuses == this;
 
         return false;
     }

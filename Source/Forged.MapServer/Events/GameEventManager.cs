@@ -99,58 +99,60 @@ public class GameEventManager
         var questToEvent = _questToEventConditionNums.LookupByKey(questID);
 
         // quest is registered
-        if (questToEvent != null)
-        {
-            var eventID = questToEvent.EventID;
-            var condition = questToEvent.Condition;
-            var num = questToEvent.Num;
+        if (questToEvent == null)
+            return;
 
-            // the event is not active, so return, don't increase condition finishes
-            if (!IsActiveEvent(eventID))
-                return;
+        var eventID = questToEvent.EventID;
+        var condition = questToEvent.Condition;
+        var num = questToEvent.Num;
 
-            // not in correct phase, return
-            if (_gameEvent[eventID].State != GameEventState.WorldConditions)
-                return;
+        // the event is not active, so return, don't increase condition finishes
+        if (!IsActiveEvent(eventID))
+            return;
 
-            var eventFinishCond = _gameEvent[eventID].Conditions.LookupByKey(condition);
+        // not in correct phase, return
+        if (_gameEvent[eventID].State != GameEventState.WorldConditions)
+            return;
 
-            // condition is registered
-            if (eventFinishCond != null)
-                // increase the done count, only if less then the req
-                if (eventFinishCond.Done < eventFinishCond.ReqNum)
-                {
-                    eventFinishCond.Done += num;
+        var eventFinishCond = _gameEvent[eventID].Conditions.LookupByKey(condition);
 
-                    // check max limit
-                    if (eventFinishCond.Done > eventFinishCond.ReqNum)
-                        eventFinishCond.Done = eventFinishCond.ReqNum;
+        // condition is registered
+        if (eventFinishCond == null)
+            return;
 
-                    // save the change to db
-                    SQLTransaction trans = new();
+        // increase the done count, only if less then the req
+        if (!(eventFinishCond.Done < eventFinishCond.ReqNum))
+            return;
 
-                    var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_CONDITION_SAVE);
-                    stmt.AddValue(0, eventID);
-                    stmt.AddValue(1, condition);
-                    trans.Append(stmt);
+        eventFinishCond.Done += num;
 
-                    stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GAME_EVENT_CONDITION_SAVE);
-                    stmt.AddValue(0, eventID);
-                    stmt.AddValue(1, condition);
-                    stmt.AddValue(2, eventFinishCond.Done);
-                    trans.Append(stmt);
-                    _characterDatabase.CommitTransaction(trans);
+        // check max limit
+        if (eventFinishCond.Done > eventFinishCond.ReqNum)
+            eventFinishCond.Done = eventFinishCond.ReqNum;
 
-                    // check if all conditions are met, if so, update the event state
-                    if (CheckOneGameEventConditions(eventID))
-                    {
-                        // changed, save to DB the gameevent state
-                        SaveWorldEventStateToDB(eventID);
-                        // force update events to set timer
-                        _worldManager.ForceGameEventUpdate();
-                    }
-                }
-        }
+        // save the change to db
+        SQLTransaction trans = new();
+
+        var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_CONDITION_SAVE);
+        stmt.AddValue(0, eventID);
+        stmt.AddValue(1, condition);
+        trans.Append(stmt);
+
+        stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GAME_EVENT_CONDITION_SAVE);
+        stmt.AddValue(0, eventID);
+        stmt.AddValue(1, condition);
+        stmt.AddValue(2, eventFinishCond.Done);
+        trans.Append(stmt);
+        _characterDatabase.CommitTransaction(trans);
+
+        // check if all conditions are met, if so, update the event state
+        if (!CheckOneGameEventConditions(eventID))
+            return;
+
+        // changed, save to DB the gameevent state
+        SaveWorldEventStateToDB(eventID);
+        // force update events to set timer
+        _worldManager.ForceGameEventUpdate();
     }
 
     public void Initialize()
@@ -1870,7 +1872,7 @@ public class GameEventManager
     {
         foreach (var pair in _gameEventCreatureQuests[eventId])
         {
-            var creatureQuestMap = _objectManager.GetCreatureQuestRelationMapHACK();
+            var creatureQuestMap = _objectManager.GetCreatureQuestRelationMapHack();
 
             if (activate) // Add the pair(id, quest) to the multimap
             {
@@ -1886,7 +1888,7 @@ public class GameEventManager
 
         foreach (var pair in _gameEventGameObjectQuests[eventId])
         {
-            var gameObjectQuestMap = _objectManager.GetGOQuestRelationMapHACK();
+            var gameObjectQuestMap = _objectManager.GetGOQuestRelationMapHack();
 
             if (activate) // Add the pair(id, quest) to the multimap
             {
@@ -1913,9 +1915,7 @@ public class GameEventManager
         if (bgTypeId == BattlegroundTypeId.None)
             return;
 
-        var bl = _cliDB.BattlemasterListStorage.LookupByKey((uint)_battlegroundManager.WeekendHolidayIdToBGType(ev.HolidayID));
-
-        if (bl == null)
+        if (!_cliDB.BattlemasterListStorage.TryGetValue((uint)_battlegroundManager.WeekendHolidayIdToBGType(ev.HolidayID), out var bl))
             return;
 
         if (bl.HolidayWorldState != 0)

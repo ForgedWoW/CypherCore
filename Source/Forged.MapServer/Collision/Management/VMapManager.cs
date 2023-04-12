@@ -46,9 +46,7 @@ public class VMapManager
         lock (_loadedModelFilesLock)
         {
             filename = filename.TrimEnd('\0');
-            var model = _loadedModelFiles.LookupByKey(filename);
-
-            if (model == null)
+            if (!_loadedModelFiles.TryGetValue(filename, out var model))
             {
                 model = new ManagedModel();
 
@@ -90,9 +88,7 @@ public class VMapManager
             return data;
         }
 
-        var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-        if (instanceTree != null)
+        if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
         {
             LocationInfo info = new();
             var pos = ConvertPositionToInternalRep(x, y, z);
@@ -124,9 +120,7 @@ public class VMapManager
 
         if (!_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapAreaFlag))
         {
-            var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-            if (instanceTree != null)
+            if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
             {
                 var pos = ConvertPositionToInternalRep(x, y, z);
                 var result = instanceTree.GetAreaInfo(ref pos, out flags, out adtId, out rootId, out groupId);
@@ -144,9 +138,7 @@ public class VMapManager
     {
         if (IsHeightCalcEnabled && !_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapHeight))
         {
-            var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-            if (instanceTree != null)
+            if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
             {
                 var pos = ConvertPositionToInternalRep(x, y, z);
                 var height = instanceTree.GetHeight(pos, maxSearchDist);
@@ -165,9 +157,7 @@ public class VMapManager
     {
         if (!_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
         {
-            var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-            if (instanceTree != null)
+            if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
             {
                 LocationInfo info = new();
                 var pos = ConvertPositionToInternalRep(x, y, z);
@@ -194,9 +184,7 @@ public class VMapManager
     {
         if (IsLineOfSightCalcEnabled && !_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
         {
-            var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-            if (instanceTree != null)
+            if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
             {
                 var pos1 = ConvertPositionToInternalRep(x1, y1, z1);
                 var pos2 = ConvertPositionToInternalRep(x2, y2, z2);
@@ -236,9 +224,7 @@ public class VMapManager
         if (!IsLineOfSightCalcEnabled || _disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
             return true;
 
-        var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-        if (instanceTree != null)
+        if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
         {
             var pos1 = ConvertPositionToInternalRep(x1, y1, z1);
             var pos2 = ConvertPositionToInternalRep(x2, y2, z2);
@@ -255,9 +241,7 @@ public class VMapManager
         if (!IsMapLoadingEnabled)
             return LoadResult.DisabledInConfig;
 
-        var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-        if (instanceTree == null)
+        if (!_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
         {
             var filename = VMapPath + GetMapFileName(mapId);
             StaticMapTree newTree = new(mapId);
@@ -279,9 +263,7 @@ public class VMapManager
         lock (_loadedModelFilesLock)
         {
             filename = filename.TrimEnd('\0');
-            var model = _loadedModelFiles.LookupByKey(filename);
-
-            if (model == null)
+            if (!_loadedModelFiles.TryGetValue(filename, out var model))
             {
                 Log.Logger.Error("VMapManager: trying to unload non-loaded file '{0}'", filename);
 
@@ -308,9 +290,7 @@ public class VMapManager
 
     public void UnloadMap(uint mapId, int x, int y)
     {
-        var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-        if (instanceTree != null)
+        if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
         {
             instanceTree.UnloadMapTile(x, y, this);
 
@@ -321,9 +301,7 @@ public class VMapManager
 
     public void UnloadMap(uint mapId)
     {
-        var instanceTree = _instanceMapTrees.LookupByKey(mapId);
-
-        if (instanceTree != null)
+        if (_instanceMapTrees.TryGetValue(mapId, out var instanceTree))
         {
             instanceTree.UnloadMap(this);
 

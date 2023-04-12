@@ -13,9 +13,7 @@ public class AELootResult
     private readonly List<ResultValue> _byOrder = new();
     public void Add(Item item, byte count, LootType lootType, uint dungeonEncounterId)
     {
-        var id = _byItem.LookupByKey(item);
-
-        if (id != 0)
+        if (_byItem.TryGetValue(item, out var id))
         {
             var resultValue = _byOrder[id];
             resultValue.Count += count;

@@ -63,7 +63,7 @@ internal class CastCommands
         if (!triggerFlags.HasValue)
             return false;
 
-        caster.SpellFactory.CastSpell((WorldObject)handler.Session.Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+        caster.SpellFactory.CastSpell(handler.Session.Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
         return true;
     }

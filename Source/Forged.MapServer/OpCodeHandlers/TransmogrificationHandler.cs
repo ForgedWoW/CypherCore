@@ -50,9 +50,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
 
         bool validateAndStoreTransmogItem(Item itemTransmogrified, uint itemModifiedAppearanceId, bool isSecondary)
         {
-            var itemModifiedAppearance = CliDB.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
-
-            if (itemModifiedAppearance == null)
+            if (!CliDB.ItemModifiedAppearanceStorage.TryGetValue(itemModifiedAppearanceId, out var itemModifiedAppearance))
             {
                 Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using invalid appearance ({itemModifiedAppearanceId}).");
 
@@ -163,9 +161,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
                     return;
                 }
 
-                var condition = CliDB.PlayerConditionStorage.LookupByKey(illusion.UnlockConditionID);
-
-                if (condition != null)
+                if (CliDB.PlayerConditionStorage.TryGetValue(illusion.UnlockConditionID, out var condition))
                     if (!ConditionManager.IsPlayerMeetingCondition(player, condition))
                     {
                         Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using not allowed enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);

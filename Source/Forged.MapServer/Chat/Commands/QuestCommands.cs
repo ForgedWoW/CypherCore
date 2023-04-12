@@ -59,9 +59,7 @@ internal class QuestCommands
 
                 if (curRep < obj.Amount)
                 {
-                    var factionEntry = player.CliDB.FactionStorage.LookupByKey(obj.ObjectID);
-
-                    if (factionEntry != null)
+                    if (player.CliDB.FactionStorage.TryGetValue(obj.ObjectID, out var factionEntry))
                         player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
                 }
 
@@ -73,9 +71,7 @@ internal class QuestCommands
 
                 if (curRep > obj.Amount)
                 {
-                    var factionEntry = player.CliDB.FactionStorage.LookupByKey(obj.ObjectID);
-
-                    if (factionEntry != null)
+                    if (player.CliDB.FactionStorage.TryGetValue(obj.ObjectID, out var factionEntry))
                         player.ReputationMgr.SetReputation(factionEntry, obj.Amount);
                 }
 

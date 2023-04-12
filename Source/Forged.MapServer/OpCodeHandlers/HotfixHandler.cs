@@ -60,9 +60,7 @@ public class HotfixHandler : IWorldSessionHandler
 
         foreach (var hotfixId in hotfixQuery.Hotfixes)
         {
-            var hotfixRecords = hotfixes.LookupByKey(hotfixId);
-
-            if (hotfixRecords != null)
+            if (hotfixes.TryGetValue(hotfixId, out var hotfixRecords))
                 foreach (var hotfixRecord in hotfixRecords)
                 {
                     HotfixConnect.HotfixData hotfixData = new()

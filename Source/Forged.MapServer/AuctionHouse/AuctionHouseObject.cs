@@ -83,9 +83,7 @@ public class AuctionHouseObject
     {
         var key = AuctionsBucketKey.ForItem(auction.Items[0]);
 
-        var bucket = _buckets.LookupByKey(key);
-
-        if (bucket == null)
+        if (!_buckets.TryGetValue(key, out var bucket))
         {
             // we don't have any item for this key yet, create new bucket
             bucket = new AuctionsBucketData
@@ -230,9 +228,7 @@ public class AuctionHouseObject
     public void BuildListAuctionItems(AuctionListItemsResult listItemsResult, Player player, AuctionsBucketKey bucketKey, uint offset, AuctionSortDef[] sorts, int sortCount)
     {
         listItemsResult.TotalCount = 0;
-        var bucket = _buckets.LookupByKey(bucketKey);
-
-        if (bucket != null)
+        if (_buckets.TryGetValue(bucketKey, out var bucket))
         {
             var sorter = new AuctionPosting.Sorter(player.Session.SessionDbcLocale, sorts, sortCount);
             var builder = new AuctionsResultBuilder<AuctionPosting>(offset, sorter, AuctionHouseResultLimits.Items);
@@ -262,9 +258,7 @@ public class AuctionHouseObject
         var builder = new AuctionsResultBuilder<AuctionPosting>(offset, sorter, AuctionHouseResultLimits.Items);
 
         listItemsResult.TotalCount = 0;
-        var bucketData = _buckets.LookupByKey(new AuctionsBucketKey(itemId, 0, 0, 0));
-
-        if (bucketData != null)
+        if (_buckets.TryGetValue(new AuctionsBucketKey(itemId, 0, 0, 0), out var bucketData))
             foreach (var auction in bucketData.Auctions)
             {
                 builder.AddItem(auction);
@@ -296,9 +290,7 @@ public class AuctionHouseObject
 
         foreach (var auctionId in _playerBidderAuctions.LookupByKey(player.GUID))
         {
-            var auction = _itemsByAuctionId.LookupByKey(auctionId);
-
-            if (auction != null)
+            if (_itemsByAuctionId.TryGetValue(auctionId, out var auction))
                 auctions.Add(auction);
         }
 
@@ -386,9 +378,7 @@ public class AuctionHouseObject
 
                     foreach (var bucketAppearance in bucketData.ItemModifiedAppearanceId)
                     {
-                        var itemModifiedAppearance = _cliDB.ItemModifiedAppearanceStorage.LookupByKey(bucketAppearance.Item1);
-
-                        if (itemModifiedAppearance != null)
+                        if (_cliDB.ItemModifiedAppearanceStorage.TryGetValue(bucketAppearance.Item1, out var itemModifiedAppearance))
                             if (!knownAppearanceIds.Contains((uint)itemModifiedAppearance.ItemAppearanceID))
                             {
                                 hasAll = false;
@@ -470,9 +460,7 @@ public class AuctionHouseObject
 
         for (var i = 0; i < keysCount; ++i)
         {
-            var bucketData = _buckets.LookupByKey(new AuctionsBucketKey(keys[i]));
-
-            if (bucketData != null)
+            if (_buckets.TryGetValue(new AuctionsBucketKey(keys[i]), out var bucketData))
                 buckets.Add(bucketData);
         }
 
@@ -496,9 +484,7 @@ public class AuctionHouseObject
 
         foreach (var auctionId in _playerOwnedAuctions.LookupByKey(player.GUID))
         {
-            var auction = _itemsByAuctionId.LookupByKey(auctionId);
-
-            if (auction != null)
+            if (_itemsByAuctionId.TryGetValue(auctionId, out var auction))
                 auctions.Add(auction);
         }
 
@@ -519,9 +505,7 @@ public class AuctionHouseObject
     {
         var curTime = GameTime.Now;
 
-        var throttleData = _replicateThrottleMap.LookupByKey(player.GUID);
-
-        if (throttleData == null)
+        if (!_replicateThrottleMap.TryGetValue(player.GUID, out var throttleData))
         {
             throttleData = new PlayerReplicateThrottleData
             {
@@ -566,18 +550,14 @@ public class AuctionHouseObject
         if (itemTemplate == null)
             return false;
 
-        var bucketItr = _buckets.LookupByKey(AuctionsBucketKey.ForCommodity(itemTemplate));
-
-        if (bucketItr == null)
+        if (!_buckets.TryGetValue(AuctionsBucketKey.ForCommodity(itemTemplate), out var bucketItr))
         {
             player.Session.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
 
             return false;
         }
 
-        var quote = _commodityQuotes.LookupByKey(player.GUID);
-
-        if (quote == null)
+        if (!_commodityQuotes.TryGetValue(player.GUID, out var quote))
         {
             player.Session.SendAuctionCommandResult(0, AuctionCommand.PlaceBid, AuctionResult.CommodityPurchaseFailed, delayForNextAction);
 
@@ -786,9 +766,7 @@ public class AuctionHouseObject
         if (itemTemplate == null)
             return null;
 
-        var bucketData = _buckets.LookupByKey(AuctionsBucketKey.ForCommodity(itemTemplate));
-
-        if (bucketData == null)
+        if (!_buckets.TryGetValue(AuctionsBucketKey.ForCommodity(itemTemplate), out var bucketData))
             return null;
 
         ulong totalPrice = 0;

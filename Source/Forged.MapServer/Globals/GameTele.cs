@@ -5,11 +5,11 @@ namespace Forged.MapServer.Globals;
 
 public class GameTele
 {
-    public uint MapId;
-    public string Name;
-    public string NameLow;
-    public float Orientation;
-    public float PosX;
-    public float PosY;
-    public float PosZ;
+    public uint MapId { get; set; }
+    public string Name { get; set; }
+    public string NameLow { get; set; }
+    public float Orientation { get; set; }
+    public float PosX { get; set; }
+    public float PosY { get; set; }
+    public float PosZ { get; set; }
 }

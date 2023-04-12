@@ -7,9 +7,6 @@ namespace Forged.MapServer.Globals;
 
 public class PlayerChoiceResponseRewardItem
 {
-    public List<uint> BonusListIDs = new();
-    public uint Id;
-    public int Quantity;
     public PlayerChoiceResponseRewardItem() { }
 
     public PlayerChoiceResponseRewardItem(uint id, List<uint> bonusListIDs, int quantity)
@@ -18,4 +15,8 @@ public class PlayerChoiceResponseRewardItem
         BonusListIDs = bonusListIDs;
         Quantity = quantity;
     }
+
+    public List<uint> BonusListIDs { get; set; } = new();
+    public uint Id { get; set; }
+    public int Quantity { get; set; }
 }

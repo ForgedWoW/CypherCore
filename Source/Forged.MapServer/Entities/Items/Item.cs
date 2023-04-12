@@ -179,9 +179,7 @@ public class Item : WorldObject
         var proto = item.Template;
         var setid = proto.ItemSet;
 
-        var set = CliDB.ItemSetStorage.LookupByKey(setid);
-
-        if (set == null)
+        if (!CliDB.ItemSetStorage.TryGetValue(setid, out var set))
         {
             Log.Logger.Error("Item set {0} for item (id {1}) not found, mods not applied.", setid, proto.Id);
 
@@ -424,9 +422,7 @@ public class Item : WorldObject
             return 1;
 
         var itemLevel = itemTemplate.BaseItemLevel;
-        var azeriteLevelInfo = CliDB.AzeriteLevelInfoStorage.LookupByKey(azeriteLevel);
-
-        if (azeriteLevelInfo != null)
+        if (CliDB.AzeriteLevelInfoStorage.TryGetValue(azeriteLevel, out var azeriteLevelInfo))
             itemLevel = azeriteLevelInfo.ItemLevel;
 
         if (bonusData.PlayerLevelToItemLevelCurveId != 0)
@@ -631,9 +627,7 @@ public class Item : WorldObject
     {
         var setid = item.Template.ItemSet;
 
-        var set = CliDB.ItemSetStorage.LookupByKey(setid);
-
-        if (set == null)
+        if (!CliDB.ItemSetStorage.ContainsKey(setid))
         {
             Log.Logger.Error($"Item set {setid} for item {item.Entry} not found, mods not removed.");
 
@@ -789,15 +783,11 @@ public class Item : WorldObject
 
         var itemTemplate = Template;
 
-        var durabilityCost = CliDB.DurabilityCostsStorage.LookupByKey(GetItemLevel(OwnerUnit));
-
-        if (durabilityCost == null)
+        if (!CliDB.DurabilityCostsStorage.TryGetValue(GetItemLevel(OwnerUnit), out var durabilityCost))
             return 0;
 
         var durabilityQualityEntryId = ((uint)Quality + 1) * 2;
-        var durabilityQualityEntry = CliDB.DurabilityQualityStorage.LookupByKey(durabilityQualityEntryId);
-
-        if (durabilityQualityEntry == null)
+        if (!CliDB.DurabilityQualityStorage.TryGetValue(durabilityQualityEntryId, out var durabilityQualityEntry))
             return 0;
 
         uint dmultiplier = itemTemplate.Class switch
@@ -999,16 +989,12 @@ public class Item : WorldObject
 
             foreach (var artifactAppearance in CliDB.ArtifactAppearanceStorage.Values)
             {
-                var artifactAppearanceSet = CliDB.ArtifactAppearanceSetStorage.LookupByKey(artifactAppearance.ArtifactAppearanceSetID);
-
-                if (artifactAppearanceSet != null)
+                if (CliDB.ArtifactAppearanceSetStorage.TryGetValue(artifactAppearance.ArtifactAppearanceSetID, out var artifactAppearanceSet))
                 {
                     if (itemProto.ArtifactID != artifactAppearanceSet.ArtifactID)
                         continue;
 
-                    var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactAppearance.UnlockPlayerConditionID);
-
-                    if (playerCondition != null)
+                    if (CliDB.PlayerConditionStorage.TryGetValue(artifactAppearance.UnlockPlayerConditionID, out var playerCondition))
                         if (!owner || !ConditionManager.IsPlayerMeetingCondition(owner, playerCondition))
                             continue;
 
@@ -1072,9 +1058,7 @@ public class Item : WorldObject
 
             if (gemProto != null)
             {
-                var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
-
-                if (gemProperty != null)
+                if (CliDB.GemPropertiesStorage.TryGetValue(gemProto.GemProperties, out var gemProperty))
                     GemColor = gemProperty.Type;
             }
 
@@ -1087,9 +1071,7 @@ public class Item : WorldObject
 
     public ArtifactPower GetArtifactPower(uint artifactPowerId)
     {
-        var index = _artifactPowerIdToIndex.LookupByKey(artifactPowerId);
-
-        if (index != 0)
+        if (_artifactPowerIdToIndex.TryGetValue(artifactPowerId, out var index))
             return ItemData.ArtifactPowers[index];
 
         return null;
@@ -1125,13 +1107,9 @@ public class Item : WorldObject
         if (itemModifiedAppearanceId == 0)
             itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
 
-        var transmog = CliDB.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
-
-        if (transmog != null)
+        if (CliDB.ItemModifiedAppearanceStorage.TryGetValue(itemModifiedAppearanceId, out var transmog))
         {
-            var itemAppearance = CliDB.ItemAppearanceStorage.LookupByKey(transmog.ItemAppearanceID);
-
-            if (itemAppearance != null)
+            if (CliDB.ItemAppearanceStorage.TryGetValue(transmog.ItemAppearanceID, out var itemAppearance))
                 return itemAppearance.ItemDisplayInfoID;
         }
 
@@ -1261,9 +1239,7 @@ public class Item : WorldObject
     public override string GetName(Locale locale = Locale.enUS)
     {
         var itemTemplate = Template;
-        var suffix = CliDB.ItemNameDescriptionStorage.LookupByKey(BonusData.Suffix);
-
-        if (suffix != null)
+        if (CliDB.ItemNameDescriptionStorage.TryGetValue(BonusData.Suffix, out var suffix))
             return $"{itemTemplate.GetName(locale)} {suffix.Description[locale]}";
 
         return itemTemplate.GetName(locale);
@@ -1350,9 +1326,7 @@ public class Item : WorldObject
         if (itemModifiedAppearanceId == 0)
             itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
 
-        var transmog = CliDB.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
-
-        if (transmog != null)
+        if (CliDB.ItemModifiedAppearanceStorage.TryGetValue(itemModifiedAppearanceId, out var transmog))
             return (ushort)transmog.ItemAppearanceModifierID;
 
         return (ushort)AppearanceModId;
@@ -1378,9 +1352,7 @@ public class Item : WorldObject
         if (itemModifiedAppearanceId == 0)
             itemModifiedAppearanceId = GetModifier(ItemModifier.TransmogAppearanceAllSpecs);
 
-        var transmog = CliDB.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
-
-        if (transmog != null)
+        if (CliDB.ItemModifiedAppearanceStorage.TryGetValue(itemModifiedAppearanceId, out var transmog))
             return transmog.ItemID;
 
         return Entry;
@@ -1388,9 +1360,7 @@ public class Item : WorldObject
 
     public ushort GetVisibleItemVisual(Player owner)
     {
-        var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(GetVisibleEnchantmentId(owner));
-
-        if (enchant != null)
+        if (CliDB.SpellItemEnchantmentStorage.TryGetValue(GetVisibleEnchantmentId(owner), out var enchant))
             return enchant.ItemVisual;
 
         return 0;
@@ -1490,9 +1460,7 @@ public class Item : WorldObject
 
     public bool IsArtifactDisabled()
     {
-        var artifact = CliDB.ArtifactStorage.LookupByKey(Template.ArtifactID);
-
-        if (artifact != null)
+        if (CliDB.ArtifactStorage.TryGetValue(Template.ArtifactID, out var artifact))
             return artifact.ArtifactCategoryID != 2; // fishing artifact
 
         return true;
@@ -1570,9 +1538,7 @@ public class Item : WorldObject
         SetModifier(ItemModifier.ArtifactAppearanceId, artifactAppearanceId);
         SetModifier(ItemModifier.ArtifactTier, artifactTier);
 
-        var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifactAppearanceId);
-
-        if (artifactAppearance != null)
+        if (CliDB.ArtifactAppearanceStorage.TryGetValue(artifactAppearanceId, out var artifactAppearance))
             SetAppearanceModId(artifactAppearance.ItemAppearanceModifierID);
 
         byte totalPurchasedRanks = 0;
@@ -1586,9 +1552,7 @@ public class Item : WorldObject
 
             for (var e = EnchantmentSlot.Sock1; e <= EnchantmentSlot.Sock3; ++e)
             {
-                var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(e));
-
-                if (enchant != null)
+                if (CliDB.SpellItemEnchantmentStorage.TryGetValue(GetEnchantmentId(e), out var enchant))
                     for (uint i = 0; i < ItemConst.MaxItemEnchantmentEffects; ++i)
                         switch (enchant.Effect[i])
                         {
@@ -1605,9 +1569,7 @@ public class Item : WorldObject
                             case ItemEnchantmentType.ArtifactPowerBonusRankPicker:
                                 if (BonusData.GemRelicType[e - EnchantmentSlot.Sock1] != -1)
                                 {
-                                    var artifactPowerPicker = CliDB.ArtifactPowerPickerStorage.LookupByKey(enchant.EffectArg[i]);
-
-                                    if (artifactPowerPicker != null)
+                                    if (CliDB.ArtifactPowerPickerStorage.TryGetValue(enchant.EffectArg[i], out var artifactPowerPicker))
                                     {
                                         var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactPowerPicker.PlayerConditionID);
 
@@ -2130,9 +2092,7 @@ public class Item : WorldObject
 
     public void SetArtifactPower(ushort artifactPowerId, byte purchasedRank, byte currentRankWithBonus)
     {
-        var foundIndex = _artifactPowerIdToIndex.LookupByKey(artifactPowerId);
-
-        if (foundIndex != 0)
+        if (_artifactPowerIdToIndex.TryGetValue(artifactPowerId, out var foundIndex))
         {
             ArtifactPower artifactPower = Values.ModifyValue(ItemData).ModifyValue(ItemData.ArtifactPowers, foundIndex);
             SetUpdateFieldValue(ref artifactPower.PurchasedRank, purchasedRank);
@@ -2304,13 +2264,9 @@ public class Item : WorldObject
 
         if (gemTemplate != null)
         {
-            var gemProperties = CliDB.GemPropertiesStorage.LookupByKey(gemTemplate.GemProperties);
-
-            if (gemProperties != null)
+            if (CliDB.GemPropertiesStorage.TryGetValue(gemTemplate.GemProperties, out var gemProperties))
             {
-                var gemEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(gemProperties.EnchantId);
-
-                if (gemEnchant != null)
+                if (CliDB.SpellItemEnchantmentStorage.TryGetValue(gemProperties.EnchantId, out var gemEnchant))
                 {
                     BonusData gemBonus = new(gemTemplate);
 
@@ -2627,14 +2583,10 @@ public class Item : WorldObject
         if (proto.HasFlag(ItemFlags2.OverrideGoldCost))
             return proto.BuyPrice;
 
-        var qualityPrice = CliDB.ImportPriceQualityStorage.LookupByKey(quality + 1);
-
-        if (qualityPrice == null)
+        if (!CliDB.ImportPriceQualityStorage.TryGetValue(quality + 1, out var qualityPrice))
             return 0;
 
-        var basePrice = CliDB.ItemPriceBaseStorage.LookupByKey(proto.BaseItemLevel);
-
-        if (basePrice == null)
+        if (!CliDB.ItemPriceBaseStorage.TryGetValue(proto.BaseItemLevel, out var basePrice))
             return 0;
 
         var qualityFactor = qualityPrice.Data;
@@ -2676,9 +2628,7 @@ public class Item : WorldObject
             case InventoryType.Cloak:
             case InventoryType.Holdable:
             {
-                var armorPrice = CliDB.ImportPriceArmorStorage.LookupByKey(inventoryType);
-
-                if (armorPrice == null)
+                if (!CliDB.ImportPriceArmorStorage.TryGetValue(inventoryType, out var armorPrice))
                     return 0;
 
                 typeFactor = (ItemSubClassArmor)proto.SubClass switch
@@ -2732,9 +2682,7 @@ public class Item : WorldObject
 
         if (weapType != -1)
         {
-            var weaponPrice = CliDB.ImportPriceWeaponStorage.LookupByKey(weapType + 1);
-
-            if (weaponPrice == null)
+            if (!CliDB.ImportPriceWeaponStorage.TryGetValue(weapType + 1, out var weaponPrice))
                 return 0;
 
             typeFactor = weaponPrice.Data;
@@ -2801,9 +2749,7 @@ public class Item : WorldObject
 
     private void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint enchantId, bool apply, Player owner)
     {
-        var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantId);
-
-        if (enchant != null)
+        if (CliDB.SpellItemEnchantmentStorage.TryGetValue(enchantId, out var enchant))
             for (uint i = 0; i < ItemConst.MaxItemEnchantmentEffects; ++i)
                 switch (enchant.Effect[i])
                 {
@@ -2839,9 +2785,7 @@ public class Item : WorldObject
                     break;
                     case ItemEnchantmentType.ArtifactPowerBonusRankByID:
                     {
-                        var artifactPowerIndex = _artifactPowerIdToIndex.LookupByKey(enchant.EffectArg[i]);
-
-                        if (artifactPowerIndex != 0)
+                        if (_artifactPowerIdToIndex.TryGetValue(enchant.EffectArg[i], out var artifactPowerIndex))
                         {
                             var newRank = ItemData.ArtifactPowers[artifactPowerIndex].CurrentRankWithBonus;
 
@@ -2867,9 +2811,7 @@ public class Item : WorldObject
                     case ItemEnchantmentType.ArtifactPowerBonusRankPicker:
                         if (slot is >= EnchantmentSlot.Sock1 and <= EnchantmentSlot.Sock3 && BonusData.GemRelicType[slot - EnchantmentSlot.Sock1] != -1)
                         {
-                            var artifactPowerPicker = CliDB.ArtifactPowerPickerStorage.LookupByKey(enchant.EffectArg[i]);
-
-                            if (artifactPowerPicker != null)
+                            if (CliDB.ArtifactPowerPickerStorage.TryGetValue(enchant.EffectArg[i], out var artifactPowerPicker))
                             {
                                 var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactPowerPicker.PlayerConditionID);
 
@@ -2954,9 +2896,7 @@ public class Item : WorldObject
 
             if (enchant_id != 0)
             {
-                var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
-
-                if (enchantEntry != null)
+                if (CliDB.SpellItemEnchantmentStorage.TryGetValue(enchant_id, out var enchantEntry))
                     if (enchantEntry.MinLevel > level)
                         level = enchantEntry.MinLevel;
             }
@@ -2974,9 +2914,7 @@ public class Item : WorldObject
 
             if (enchant_id != 0)
             {
-                var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
-
-                if (enchantEntry != null)
+                if (CliDB.SpellItemEnchantmentStorage.TryGetValue(enchant_id, out var enchantEntry))
                     if (enchantEntry.RequiredSkillID != 0 && player.GetSkillValue((SkillType)enchantEntry.RequiredSkillID) < enchantEntry.RequiredSkillRank)
                         return false;
             }
@@ -3005,9 +2943,7 @@ public class Item : WorldObject
 
             if (enchant_id != 0)
             {
-                var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
-
-                if (enchantEntry != null)
+                if (CliDB.SpellItemEnchantmentStorage.TryGetValue(enchant_id, out var enchantEntry))
                     if (enchantEntry.GetFlags().HasFlag(SpellItemEnchantmentFlags.Soulbound))
                         return true;
             }
