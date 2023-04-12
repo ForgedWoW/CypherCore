@@ -16,6 +16,7 @@ public class GroupManager
     private readonly Dictionary<ulong, PlayerGroup> _groupStore = new();
     private uint _nextGroupDbStoreId;
     private ulong _nextGroupId;
+
     public GroupManager(CharacterDatabase characterDatabase)
     {
         _characterDatabase = characterDatabase;
@@ -154,6 +155,7 @@ public class GroupManager
     {
         _groupDbStore[storageId] = group;
     }
+
     public void RemoveGroup(PlayerGroup group)
     {
         _groupStore.Remove(group.GUID.Counter);

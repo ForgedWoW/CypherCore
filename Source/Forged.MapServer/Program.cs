@@ -471,6 +471,7 @@ void RegisterInstanced()
     builder.RegisterType<Garrison>();
     builder.RegisterType<Garrison.Building>();
     builder.RegisterType<Garrison.Plot>();
+    builder.RegisterType<PlayerGroup>();
 }
 
 void RegisterHandlers()

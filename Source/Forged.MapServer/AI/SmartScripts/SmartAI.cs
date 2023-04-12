@@ -919,7 +919,7 @@ public class SmartAI : CreatureAI
         if (Me.HasReactState(ReactStates.Passive) || !IsAIControlled())
             return false;
 
-        if (who == null || who.Victim == null)
+        if (who?.Victim == null)
             return false;
 
         //experimental (unknown) Id not present

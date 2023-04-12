@@ -440,9 +440,7 @@ public class BIH
                 else
                 {
                     // move to the right most
-                    var t = dat.Indices[i];
-                    dat.Indices[i] = dat.Indices[right];
-                    dat.Indices[right] = t;
+                    (dat.Indices[i], dat.Indices[right]) = (dat.Indices[right], dat.Indices[i]);
                     right--;
 
                     if (clipR > minb)

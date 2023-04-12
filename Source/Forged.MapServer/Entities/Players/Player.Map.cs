@@ -66,7 +66,7 @@ public partial class Player
             if (group == null || group.IsRaidGroup)
                 return false;
 
-        if (group)
+        if (group != null)
         {
             // check if player's group is bound to this instance
             if (group != instance.GetOwningGroup())
@@ -82,44 +82,6 @@ public partial class Player
         return true;
     }
 
-    public Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
-    {
-        var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
-
-        if (difficultyEntry is not { InstanceType: MapTypes.Instance })
-            return Difficulty.Normal;
-
-        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
-            return Difficulty.Normal;
-
-        return difficulty;
-    }
-
-    public Difficulty CheckLoadedLegacyRaidDifficultyId(Difficulty difficulty)
-    {
-        var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
-
-        if (difficultyEntry is not { InstanceType: MapTypes.Raid })
-            return Difficulty.Raid10N;
-
-        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
-            return Difficulty.Raid10N;
-
-        return difficulty;
-    }
-
-    public Difficulty CheckLoadedRaidDifficultyId(Difficulty difficulty)
-    {
-        var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
-
-        if (difficultyEntry is not { InstanceType: MapTypes.Raid })
-            return Difficulty.NormalRaid;
-
-        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
-            return Difficulty.NormalRaid;
-
-        return difficulty;
-    }
     public void ConfirmPendingBind()
     {
         var map = Location.Map.ToInstanceMap;

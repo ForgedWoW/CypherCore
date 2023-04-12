@@ -168,7 +168,7 @@ public class WorldObjectCombat
 
             var tempSummon = me.ToTempSummon();
 
-            if (tempSummon == null || tempSummon.SummonPropertiesRecord == null)
+            if (tempSummon?.SummonPropertiesRecord == null)
                 return false;
 
             if (tempSummon.SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.AttackableBySummoner) && targetGuid == tempSummon.SummonerGUID)

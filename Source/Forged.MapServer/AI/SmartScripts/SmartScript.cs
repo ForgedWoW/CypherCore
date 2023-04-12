@@ -4228,7 +4228,7 @@ public class SmartScript
             }
             case SmartEvents.TargetBuffed:
             {
-                if (_me == null || _me.Victim == null)
+                if (_me?.Victim == null)
                     return;
 
                 var count = _me.Victim.GetAuraCount(e.Event.aura.Spell);

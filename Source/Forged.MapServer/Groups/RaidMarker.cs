@@ -7,12 +7,12 @@ namespace Forged.MapServer.Groups;
 
 public class RaidMarker
 {
-    public WorldLocation Location { get; set; }
-    public ObjectGuid TransportGUID { get; set; }
-
     public RaidMarker(uint mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = default)
     {
         Location = new WorldLocation(mapId, positionX, positionY, positionZ);
         TransportGUID = transportGuid;
     }
+
+    public WorldLocation Location { get; set; }
+    public ObjectGuid TransportGUID { get; set; }
 }

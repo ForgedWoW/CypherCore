@@ -5734,9 +5734,7 @@ public sealed class GameObjectManager
                 if (minMoneyLoot > maxMoneyLoot)
                 {
                     Log.Logger.Error("Minimum money loot specified in `itemtemplateaddon` for item {0} was greater than maximum amount, swapping.", itemId);
-                    var temp = minMoneyLoot;
-                    minMoneyLoot = maxMoneyLoot;
-                    maxMoneyLoot = temp;
+                    (minMoneyLoot, maxMoneyLoot) = (maxMoneyLoot, minMoneyLoot);
                 }
 
                 itemTemplate.FlagsCu = (ItemFlagsCustom)result.Read<uint>(1);

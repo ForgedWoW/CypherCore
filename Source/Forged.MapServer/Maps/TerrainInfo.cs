@@ -468,7 +468,7 @@ public class TerrainInfo
         {
             var childMap = _childTerrain.Find(childTerrain => childTerrain.GetId() == mapId);
 
-            if (childMap != null && childMap._gridMap[gx][gy] != null)
+            if (childMap?._gridMap[gx][gy] != null)
                 grid = childMap.GetGrid(mapId, x, y, false);
         }
 

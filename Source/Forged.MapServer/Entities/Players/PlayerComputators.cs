@@ -796,6 +796,43 @@ public class PlayerComputators
         return Convert.ToBoolean((ulong)SharedConst.GetMaskForRace(race) & SharedConst.RaceMaskAllPlayable);
     }
 
+
+    public Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
+    {
+        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
+
+        if (difficultyEntry is not { InstanceType: MapTypes.Instance })
+            return Difficulty.Normal;
+
+        return !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) ? Difficulty.Normal : difficulty;
+    }
+
+    public Difficulty CheckLoadedLegacyRaidDifficultyId(Difficulty difficulty)
+    {
+        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
+
+        if (difficultyEntry is not { InstanceType: MapTypes.Raid })
+            return Difficulty.Raid10N;
+
+        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
+            return Difficulty.Raid10N;
+
+        return difficulty;
+    }
+
+    public Difficulty CheckLoadedRaidDifficultyId(Difficulty difficulty)
+    {
+        var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(difficulty);
+
+        if (difficultyEntry is not { InstanceType: MapTypes.Raid })
+            return Difficulty.NormalRaid;
+
+        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
+            return Difficulty.NormalRaid;
+
+        return difficulty;
+    }
+
     public void LeaveAllArenaTeams(ObjectGuid guid)
     {
         var characterInfo = _characterCache.GetCharacterCacheByGuid(guid);

@@ -170,7 +170,7 @@ public class Guild
 
     public void BroadcastAddonToGuild(WorldSession session, bool officerOnly, string msg, string prefix, bool isLogged)
     {
-        if (session != null && session.Player != null && _HasRankRight(session.Player, officerOnly ? GuildRankRights.OffChatSpeak : GuildRankRights.GChatSpeak))
+        if (session?.Player != null && _HasRankRight(session.Player, officerOnly ? GuildRankRights.OffChatSpeak : GuildRankRights.GChatSpeak))
         {
             ChatPkt data = new();
             data.Initialize(officerOnly ? ChatMsg.Officer : ChatMsg.Guild, isLogged ? Language.AddonLogged : Language.Addon, session.Player, null, msg, 0, "", Locale.enUS, prefix);
@@ -224,7 +224,7 @@ public class Guild
 
     public void BroadcastToGuild(WorldSession session, bool officerOnly, string msg, Language language)
     {
-        if (session != null && session.Player != null && _HasRankRight(session.Player, officerOnly ? GuildRankRights.OffChatSpeak : GuildRankRights.GChatSpeak))
+        if (session?.Player != null && _HasRankRight(session.Player, officerOnly ? GuildRankRights.OffChatSpeak : GuildRankRights.GChatSpeak))
         {
             ChatPkt data = new();
             data.Initialize(officerOnly ? ChatMsg.Officer : ChatMsg.Guild, language, session.Player, null, msg);
