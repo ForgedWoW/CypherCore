@@ -2639,7 +2639,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 var loot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
                                 _personalLoot[player.GUID] = loot;
 
-                                loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
+                                loot.DungeonEncounterId = info.Chest.DungeonEncounter;
                                 loot.FillLoot(info.Chest.chestPersonalLoot, _lootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
 
                                 if (LootMode > 0 && addon != null)

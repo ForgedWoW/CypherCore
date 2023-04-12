@@ -417,10 +417,10 @@ internal class NPCCommands
                 if (!item.IsLooted && !item.Freeforall && item.Conditions.Empty())
                     _ShowLootEntry(handler, item.Itemid, item.Count);
 
-            if (!loot.GetPlayerFFAItems().Empty())
+            if (!loot.PlayerFFAItems.Empty())
             {
                 handler.SendSysMessage(CypherStrings.CommandNpcShowlootLabel2, "FFA items per allowed player");
-                _IterateNotNormalLootMap(handler, loot.GetPlayerFFAItems(), loot.Items);
+                _IterateNotNormalLootMap(handler, loot.PlayerFFAItems, loot.Items);
             }
         }
 

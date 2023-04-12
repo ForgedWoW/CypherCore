@@ -21,6 +21,7 @@ public class LootItemStorage
     private readonly ConcurrentDictionary<ulong, StoredLootContainer> _lootItemStorage = new();
     private readonly LootStoreBox _lootStorage;
     private readonly GameObjectManager _objectManager;
+
     public LootItemStorage(CharacterDatabase characterDatabase, GameObjectManager objectManager, ConditionManager conditionManager, LootFactory lootFactory, LootStoreBox lootStorage)
     {
         _characterDatabase = characterDatabase;

@@ -78,7 +78,7 @@ public class UnitCombatHelpers
 
     public void CalcAbsorbResist(DamageInfo damageInfo, Spell spell = null)
     {
-        if (!damageInfo.Victim || !damageInfo.Victim.IsAlive || damageInfo.Damage == 0)
+        if (damageInfo.Victim == null || !damageInfo.Victim.IsAlive || damageInfo.Damage == 0)
             return;
 
         var resistedDamage = CalcSpellResistedDamage(damageInfo.Attacker, damageInfo.Victim, damageInfo.Damage, damageInfo.SchoolMask, damageInfo.SpellInfo);
@@ -292,7 +292,7 @@ public class UnitCombatHelpers
                 // Damage can be splitted only if aura has an alive caster
                 var caster = itr.Caster;
 
-                if (!caster || (caster == damageInfo.Victim) || !caster.Location.IsInWorld || !caster.IsAlive)
+                if (caster == null || (caster == damageInfo.Victim) || !caster.Location.IsInWorld || !caster.IsAlive)
                     continue;
 
                 var splitDamage = MathFunctions.CalculatePct(damageInfo.Damage, itr.Amount);
@@ -468,52 +468,55 @@ public class UnitCombatHelpers
                 }
             }
 
-            if (currentAbsorb != 0)
-            {
-                SpellHealAbsorbLog absorbLog = new()
-                {
-                    Healer = healInfo.Healer ? healInfo.Healer.GUID : ObjectGuid.Empty,
-                    Target = healInfo.Target.GUID,
-                    AbsorbCaster = absorbAurEff.Base.CasterGuid,
-                    AbsorbedSpellID = (int)(healInfo.SpellInfo?.Id ?? 0),
-                    AbsorbSpellID = (int)absorbAurEff.Id,
-                    Absorbed = (int)currentAbsorb,
-                    OriginalHeal = (int)healInfo.OriginalHeal
-                };
+            if (currentAbsorb == 0)
+                continue;
 
-                healInfo.Target.SendMessageToSet(absorbLog, true);
-            }
+            SpellHealAbsorbLog absorbLog = new()
+            {
+                Healer = healInfo.Healer?.GUID ?? ObjectGuid.Empty,
+                Target = healInfo.Target.GUID,
+                AbsorbCaster = absorbAurEff.Base.CasterGuid,
+                AbsorbedSpellID = (int)(healInfo.SpellInfo?.Id ?? 0),
+                AbsorbSpellID = (int)absorbAurEff.Id,
+                Absorbed = (int)currentAbsorb,
+                OriginalHeal = (int)healInfo.OriginalHeal
+            };
+
+            healInfo.Target.SendMessageToSet(absorbLog, true);
         }
 
         // Remove all expired absorb auras
-        if (existExpired)
+        if (!existExpired)
+            return;
+
+        {
             for (var i = 0; i < vHealAbsorb.Count;)
             {
                 var auraEff = vHealAbsorb[i];
                 ++i;
 
-                if (auraEff.Amount <= 0)
-                {
-                    var removedAuras = healInfo.Target.RemovedAurasCount;
-                    auraEff.Base.Remove(AuraRemoveMode.EnemySpell);
+                if (!(auraEff.Amount <= 0))
+                    continue;
 
-                    if (removedAuras + 1 < healInfo.Target.RemovedAurasCount)
-                        i = 0;
-                }
+                var removedAuras = healInfo.Target.RemovedAurasCount;
+                auraEff.Base.Remove(AuraRemoveMode.EnemySpell);
+
+                if (removedAuras + 1 < healInfo.Target.RemovedAurasCount)
+                    i = 0;
             }
+        }
     }
 
     public bool CheckEvade(Unit attacker, Unit victim, ref double damage, ref double absorb)
     {
-        if (victim == null || !victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsEvadingAttacks))
-        {
-            absorb += damage;
-            damage = 0;
+        if (victim is { IsAlive: true } && !victim.HasUnitState(UnitState.InFlight) && (!victim.IsTypeId(TypeId.Unit) || !victim.AsCreature.IsEvadingAttacks))
+            return false;
 
-            return true;
-        }
+        absorb += damage;
+        damage = 0;
 
-        return false;
+        return true;
+
     }
 
     public ProcFlagsHit CreateProcHitMask(SpellNonMeleeDamage damageInfo, SpellMissInfo missCondition)
@@ -626,7 +629,7 @@ public class UnitCombatHelpers
             // if any script modified damage, we need to also apply the same modification to unscaled damage value
             if (tmpDamage != damageTaken)
             {
-                if (attacker)
+                if (attacker != null)
                     damageDone = (uint)(tmpDamage * victim.GetHealthMultiplierForTarget(attacker));
                 else
                     damageDone = tmpDamage;
@@ -726,7 +729,7 @@ public class UnitCombatHelpers
 
         if (victim.IsPlayer && victim.AsPlayer.Duel != null && damageTaken >= (health - 1))
         {
-            if (!attacker)
+            if (attacker == null)
                 return 0;
 
             // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
@@ -745,7 +748,7 @@ public class UnitCombatHelpers
 
             if (victimRider is { Duel: { IsMounted: true } })
             {
-                if (!attacker)
+                if (attacker == null)
                     return 0;
 
                 // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
@@ -1040,8 +1043,7 @@ public class UnitCombatHelpers
         {
             var bg = bgPlayer.Battleground;
 
-            if (bg)
-                bg.UpdatePlayerScore(bgPlayer, ScoreType.HealingDone, gain);
+            bg?.UpdatePlayerScore(bgPlayer, ScoreType.HealingDone, gain);
 
             // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
             if (gain != 0)
@@ -1110,7 +1112,7 @@ public class UnitCombatHelpers
         }
 
         // Exploit fix
-        if (creature && creature.IsPet && creature.OwnerGUID.IsPlayer)
+        if (creature is { IsPet: true, OwnerGUID.IsPlayer: true })
             isRewardAllowed = false;
 
         // Reward player, his pets, and group/raid members
@@ -1129,7 +1131,7 @@ public class UnitCombatHelpers
                     {
                         PartyKillLog partyKillLog = new()
                         {
-                            Player = player && tapperGroup.IsMember(player.GUID) ? player.GUID : tapper.GUID,
+                            Player = player != null && tapperGroup.IsMember(player.GUID) ? player.GUID : tapper.GUID,
                             Victim = victim.GUID
                         };
 
@@ -1137,7 +1139,7 @@ public class UnitCombatHelpers
 
                         tapperGroup.BroadcastPacket(partyKillLog, tapperGroup.GetMemberGroup(tapper.GUID) != 0);
 
-                        if (creature)
+                        if (creature != null)
                             tapperGroup.UpdateLooterGuid(creature, true);
                     }
                 }
@@ -1154,7 +1156,7 @@ public class UnitCombatHelpers
             }
 
             // Generate loot before updating looter
-            if (creature)
+            if (creature != null)
             {
                 DungeonEncounterRecord dungeonEncounter = null;
                 var instance = creature.Location.InstanceScript;
@@ -1180,7 +1182,7 @@ public class UnitCombatHelpers
                     else if (!tappers.Empty())
                     {
                         var group = !groups.Empty() ? groups.First() : null;
-                        var looter = group ? _objectAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
+                        var looter = group != null ? _objectAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
 
                         var loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
@@ -1192,7 +1194,7 @@ public class UnitCombatHelpers
                         if (creature.GetLootMode() > 0)
                             loot.GenerateMoneyLoot(creature.Template.MinGold, creature.Template.MaxGold);
 
-                        if (group)
+                        if (group != null)
                             loot.NotifyLootList(creature.Location.Map);
 
                         if (loot != null)
@@ -1211,7 +1213,7 @@ public class UnitCombatHelpers
                         var loot = _lootFactory.GenerateLoot(creature.Location.Map, creature.GUID, LootType.Corpse);
 
                         if (dungeonEncounter != null)
-                            loot.SetDungeonEncounterId(dungeonEncounter.Id);
+                            loot.DungeonEncounterId = dungeonEncounter.Id;
 
                         var lootid = creature.LootId;
 
@@ -1372,11 +1374,11 @@ public class UnitCombatHelpers
         {
             var bg = player.Battleground;
 
-            if (bg)
+            if (bg != null)
             {
                 var playerVictim = victim.AsPlayer;
 
-                if (playerVictim)
+                if (playerVictim != null)
                     bg.HandleKillPlayer(playerVictim, player);
                 else
                     bg.HandleKillUnit(victim.AsCreature, player);
@@ -1434,7 +1436,7 @@ public class UnitCombatHelpers
         if (typeMaskActor && actor != null)
             actor.ProcSkillsAndReactives(false, actionTarget, typeMaskActor, hitMask, attType);
 
-        if (typeMaskActionTarget && actionTarget)
+        if (typeMaskActionTarget != null && actionTarget != null)
             actionTarget.ProcSkillsAndReactives(true, actor, typeMaskActionTarget, hitMask, attType);
 
         actor?.TriggerAurasProcOnEvent(null, null, actionTarget, typeMaskActor, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
@@ -1451,24 +1453,25 @@ public class UnitCombatHelpers
         var critBonus = damage * 2;
         double critMod = 0.0f;
 
-        if (caster != null)
-        {
-            critMod += (caster.GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellProto.GetSchoolMask()) - 1.0f) * 100;
+        if (caster == null)
+            return critBonus;
 
-            if (critBonus != 0)
-                MathFunctions.AddPct(ref critBonus, critMod);
+        critMod += (caster.GetTotalAuraMultiplierByMiscMask(AuraType.ModCritDamageBonus, (uint)spellProto.GetSchoolMask()) - 1.0f) * 100;
 
-            MathFunctions.AddPct(ref critBonus, victim.GetTotalAuraModifier(AuraType.ModCriticalDamageTakenFromCaster, aurEff => { return aurEff.CasterGuid == caster.GUID; }));
+        if (critBonus != 0)
+            MathFunctions.AddPct(ref critBonus, critMod);
 
-            critBonus -= damage;
+        if (victim != null)
+            MathFunctions.AddPct(ref critBonus, victim.GetTotalAuraModifier(AuraType.ModCriticalDamageTakenFromCaster, aurEff => aurEff.CasterGuid == caster.GUID));
 
-            // adds additional damage to critBonus (from talents)
-            var modOwner = caster.SpellModOwner;
+        critBonus -= damage;
 
-            modOwner?.ApplySpellMod(spellProto, SpellModOp.CritDamageAndHealing, ref critBonus);
+        // adds additional damage to critBonus (from talents)
+        var modOwner = caster.SpellModOwner;
 
-            critBonus += damage;
-        }
+        modOwner?.ApplySpellMod(spellProto, SpellModOp.CritDamageAndHealing, ref critBonus);
+
+        critBonus += damage;
 
         return critBonus;
     }
@@ -1593,7 +1596,7 @@ public class UnitCombatHelpers
 
         uint bossLevel = 83;
         var bossResistanceConstant = 510.0f;
-        var level = caster ? victim.GetLevelForTarget(caster) : victim.Level;
+        var level = caster != null ? victim.GetLevelForTarget(caster) : victim.Level;
         float resistanceConstant;
 
         if (level == bossLevel)

@@ -30,6 +30,7 @@ public class LootRoll
     private LootItem _lootItem;
     private Map _map;
     private RollMask _voteMask;
+
     public LootRoll(GameObjectManager objectManager, ObjectAccessor objectAccessor, LootFactory lootFactory)
     {
         _objectManager = objectManager;
@@ -47,18 +48,13 @@ public class LootRoll
             if (roll.Vote != RollVote.NotEmitedYet)
                 continue;
 
-            var player = _objectAccessor.GetPlayer(_map, playerGuid);
-
-            if (!player)
-                continue;
-
-            player.RemoveLootRoll(this);
+            _objectAccessor.GetPlayer(_map, playerGuid)?.RemoveLootRoll(this);
         }
     }
 
     public bool IsLootItem(ObjectGuid lootObject, uint lootListId)
     {
-        return _loot.GetGuid() == lootObject && _lootItem.LootListId == lootListId;
+        return _loot.Guid == lootObject && _lootItem.LootListId == lootListId;
     }
 
     // Add vote from playerGuid
@@ -114,76 +110,77 @@ public class LootRoll
     // If this method return false the roll have to be removed from the container to avoid any problem
     public bool TryToStart(Map map, Loot loot, uint lootListId, ushort enchantingSkill)
     {
-        if (!_isStarted)
+        if (_isStarted)
+            return false;
+
+        if (lootListId >= loot.Items.Count)
+            return false;
+
+        _map = map;
+
+        // initialize the data needed for the roll
+        _lootItem = loot.Items[(int)lootListId];
+
+        _loot = loot;
+        _lootItem.IsBlocked = true; // block the item while rolling
+
+        uint playerCount = 0;
+
+        foreach (var allowedLooter in _lootItem.GetAllowedLooters())
         {
-            if (lootListId >= loot.Items.Count)
-                return false;
+            var plr = _objectAccessor.GetPlayer(_map, allowedLooter);
 
-            _map = map;
-
-            // initialize the data needed for the roll
-            _lootItem = loot.Items[(int)lootListId];
-
-            _loot = loot;
-            _lootItem.IsBlocked = true; // block the item while rolling
-
-            uint playerCount = 0;
-
-            foreach (var allowedLooter in _lootItem.GetAllowedLooters())
+            if (!_rollVoteMap.TryGetValue(allowedLooter, out var voter))
             {
-                var plr = _objectAccessor.GetPlayer(_map, allowedLooter);
-
-                if (!_rollVoteMap.TryGetValue(allowedLooter, out var voter))
-                {
-                    voter = new PlayerRollVote();
-                    _rollVoteMap.Add(allowedLooter, voter);
-                }
-
-                if (!plr || !_lootItem.HasAllowedLooter(plr.GUID)) // check if player meet the condition to be able to roll this item
-                {
-                    voter.Vote = RollVote.NotValid;
-
-                    continue;
-                }
-
-                // initialize player vote map
-                voter.Vote = plr.PassOnGroupLoot ? RollVote.Pass : RollVote.NotEmitedYet;
-
-                if (!plr.PassOnGroupLoot)
-                    plr.AddLootRoll(this);
-
-                ++playerCount;
+                voter = new PlayerRollVote();
+                _rollVoteMap.Add(allowedLooter, voter);
             }
 
-            // initialize item prototype and check enchant possibilities for this group
-            var itemTemplate = _objectManager.GetItemTemplate(_lootItem.Itemid);
-            _voteMask = RollMask.AllMask;
-
-            if (itemTemplate.HasFlag(ItemFlags2.CanOnlyRollGreed))
-                _voteMask = _voteMask & ~RollMask.Need;
-
-            var disenchant = GetItemDisenchantLoot();
-
-            if (disenchant == null || disenchant.SkillRequired > enchantingSkill)
-                _voteMask = _voteMask & ~RollMask.Disenchant;
-
-            if (playerCount > 1) // check if more than one player can loot this item
+            if (plr == null || !_lootItem.HasAllowedLooter(plr.GUID)) // check if player meet the condition to be able to roll this item
             {
-                // start the roll
-                SendStartRoll();
-                _endTime = GameTime.Now + LootRollTimeout;
-                _isStarted = true;
+                voter.Vote = RollVote.NotValid;
 
-                return true;
+                continue;
             }
 
-            // no need to start roll if one or less player can loot this item so place it under threshold
-            _lootItem.IsUnderthreshold = true;
-            _lootItem.IsBlocked = false;
+            // initialize player vote map
+            voter.Vote = plr.PassOnGroupLoot ? RollVote.Pass : RollVote.NotEmitedYet;
+
+            if (!plr.PassOnGroupLoot)
+                plr.AddLootRoll(this);
+
+            ++playerCount;
         }
+
+        // initialize item prototype and check enchant possibilities for this group
+        var itemTemplate = _objectManager.GetItemTemplate(_lootItem.Itemid);
+        _voteMask = RollMask.AllMask;
+
+        if (itemTemplate.HasFlag(ItemFlags2.CanOnlyRollGreed))
+            _voteMask = _voteMask & ~RollMask.Need;
+
+        var disenchant = GetItemDisenchantLoot();
+
+        if (disenchant == null || disenchant.SkillRequired > enchantingSkill)
+            _voteMask = _voteMask & ~RollMask.Disenchant;
+
+        if (playerCount > 1) // check if more than one player can loot this item
+        {
+            // start the roll
+            SendStartRoll();
+            _endTime = GameTime.Now + LootRollTimeout;
+            _isStarted = true;
+
+            return true;
+        }
+
+        // no need to start roll if one or less player can loot this item so place it under threshold
+        _lootItem.IsUnderthreshold = true;
+        _lootItem.IsBlocked = false;
 
         return false;
     }
+
     // check if we can found a winner for this roll or if timer is expired
     public bool UpdateRoll()
     {
@@ -198,6 +195,7 @@ public class LootRoll
 
         return false;
     }
+
     private bool AllPlayerVoted(ref KeyValuePair<ObjectGuid, PlayerRollVote> winnerPair)
     {
         uint notVoted = 0;
@@ -270,7 +268,7 @@ public class LootRoll
                 if (winnerPair.Value.Vote == RollVote.Disenchant)
                 {
                     var disenchant = GetItemDisenchantLoot();
-                    var loot = _lootFactory.GenerateLoot(_map, _loot.GetOwnerGuid(), LootType.Disenchanting, disenchant.Id, LootStorageType.Disenchant, player, true);
+                    var loot = _lootFactory.GenerateLoot(_map, _loot.OwnerGuid, LootType.Disenchanting, disenchant.Id, LootStorageType.Disenchant, player, true);
 
                     if (!loot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot, true))
                         for (uint i = 0; i < loot.Items.Count; ++i)
@@ -285,7 +283,7 @@ public class LootRoll
                 }
                 else
                 {
-                    player.StoreLootItem(_loot.GetOwnerGuid(), (byte)_lootItem.LootListId, _loot);
+                    player.StoreLootItem(_loot.OwnerGuid, (byte)_lootItem.LootListId, _loot);
                 }
             }
         }
@@ -313,7 +311,7 @@ public class LootRoll
     {
         LootAllPassed lootAllPassed = new()
         {
-            LootObj = _loot.GetGuid()
+            LootObj = _loot.Guid
         };
 
         FillPacket(lootAllPassed.Item);
@@ -353,7 +351,7 @@ public class LootRoll
 
         LootRollWon lootRollWon = new()
         {
-            LootObj = _loot.GetGuid(),
+            LootObj = _loot.Guid,
             Winner = targetGuid,
             Roll = rollNumber,
             RollType = rollType
@@ -379,12 +377,12 @@ public class LootRoll
 
         var player = _objectAccessor.GetPlayer(_map, targetGuid);
 
-        if (player != null)
-        {
-            lootRollWon.Item.UIType = LootSlotType.AllowLoot;
-            lootRollWon.Clear();
-            player.SendPacket(lootRollWon);
-        }
+        if (player == null)
+            return;
+
+        lootRollWon.Item.UIType = LootSlotType.AllowLoot;
+        lootRollWon.Clear();
+        player.SendPacket(lootRollWon);
     }
 
     // Send roll of targetGuid to the whole group (included targuetGuid)
@@ -392,7 +390,7 @@ public class LootRoll
     {
         LootRollBroadcast lootRoll = new()
         {
-            LootObj = _loot.GetGuid(),
+            LootObj = _loot.Guid,
             Player = targetGuid,
             Roll = rollNumber,
             RollType = rollType,
@@ -416,16 +414,18 @@ public class LootRoll
             player?.SendPacket(lootRoll);
         }
 
-        if (rollWinner.HasValue)
+        if (!rollWinner.HasValue)
+            return;
+
         {
             var player = _objectAccessor.GetPlayer(_map, rollWinner.Value);
 
-            if (player != null)
-            {
-                lootRoll.Item.UIType = LootSlotType.AllowLoot;
-                lootRoll.Clear();
-                player.SendPacket(lootRoll);
-            }
+            if (player == null)
+                return;
+
+            lootRoll.Item.UIType = LootSlotType.AllowLoot;
+            lootRoll.Clear();
+            player.SendPacket(lootRoll);
         }
     }
 
@@ -446,15 +446,15 @@ public class LootRoll
 
             StartLootRoll startLootRoll = new()
             {
-                LootObj = _loot.GetGuid(),
+                LootObj = _loot.Guid,
                 MapID = (int)_map.Id,
                 RollTime = (uint)LootRollTimeout.TotalMilliseconds,
-                Method = _loot.GetLootMethod(),
+                Method = _loot.LootMethod,
                 ValidRolls = _voteMask
             };
 
             // In NEED_BEFORE_GREED need disabled for non-usable item for player
-            if (_loot.GetLootMethod() == LootMethod.NeedBeforeGreed && player.CanRollNeedForItem(itemTemplate, _map, true) != InventoryResult.Ok)
+            if (_loot.LootMethod == LootMethod.NeedBeforeGreed && player.CanRollNeedForItem(itemTemplate, _map, true) != InventoryResult.Ok)
                 startLootRoll.ValidRolls &= ~RollMask.Need;
 
             FillPacket(startLootRoll.Item);
@@ -472,9 +472,4 @@ public class LootRoll
             SendRoll(playerGuid, -1, RollVote.Pass, null);
         }
     }
-    /**
-     * \brief Check if all player have voted and return true in that case. Also return current winner.
-     * \param winnerItr > will be different than m_rollCoteMap.end() if winner exist. (Someone voted greed or need)
-     * \returns true if all players voted
-     */
 }

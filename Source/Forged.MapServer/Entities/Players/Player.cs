@@ -2522,7 +2522,7 @@ public partial class Player : Unit
         if (!loot.HasAllowedLooter(GUID) || (!loot.HasItemForAll() && !loot.HasItemFor(this))) // no loot in creature for this player
             return false;
 
-        switch (loot.GetLootMethod())
+        switch (loot.LootMethod)
         {
             case LootMethod.PersonalLoot:
             case LootMethod.FreeForAll:

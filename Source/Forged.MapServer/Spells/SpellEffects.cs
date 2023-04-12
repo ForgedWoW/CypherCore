@@ -3259,7 +3259,7 @@ public partial class Spell
         else if (creature.Loot != null)
         {
             if (creature.Loot.LootType == LootType.Pickpocketing && creature.Loot.IsLooted())
-                player.SendLootError(creature.Loot.GetGuid(), creature.GUID, LootError.AlreadPickPocketed);
+                player.SendLootError(creature.Loot.Guid, creature.GUID, LootError.AlreadPickPocketed);
 
             return;
         }

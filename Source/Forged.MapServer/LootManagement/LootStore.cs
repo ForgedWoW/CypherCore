@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
@@ -18,11 +19,10 @@ public class LootStore
     private readonly IConfiguration _configuration;
     private readonly string _entryName;
     private readonly Dictionary<uint, LootTemplate> _lootTemplates = new();
-    private readonly string _name;
     private readonly GameObjectManager _objectManager;
-    private readonly bool _ratesAllowed;
     private readonly LootStoreBox _storage;
     private readonly WorldDatabase _worldDatabase;
+
     public LootStore(IConfiguration configuration, WorldDatabase worldDatabase, ConditionManager conditionManager, GameObjectManager objectManager, LootStoreBox storage, string name, string entryName, bool ratesAllowed = true)
     {
         _configuration = configuration;
@@ -30,11 +30,13 @@ public class LootStore
         _conditionManager = conditionManager;
         _objectManager = objectManager;
         _storage = storage;
-        _name = name;
+        Name = name;
         _entryName = entryName;
-        _ratesAllowed = ratesAllowed;
+        IsRatesAllowed = ratesAllowed;
     }
 
+    public bool IsRatesAllowed { get; }
+    public string Name { get; }
     public void CheckLootRefs(List<uint> refSet = null)
     {
         foreach (var pair in _lootTemplates)
@@ -43,21 +45,12 @@ public class LootStore
 
     public LootTemplate GetLootFor(uint lootID)
     {
-        var tab = _lootTemplates.LookupByKey(lootID);
-
-        return tab;
+        return _lootTemplates.LookupByKey(lootID);
     }
 
     public LootTemplate GetLootForConditionFill(uint lootID)
     {
-        var tab = _lootTemplates.LookupByKey(lootID);
-
-        return tab;
-    }
-
-    public string GetName()
-    {
-        return _name;
+        return _lootTemplates.LookupByKey(lootID);
     }
 
     public bool HaveLootFor(uint lootID)
@@ -67,40 +60,25 @@ public class LootStore
 
     public bool HaveQuestLootFor(uint lootID)
     {
-        if (!_lootTemplates.TryGetValue(lootID, out var lootTemplate))
-            return false;
-
-        // scan loot for quest items
-        return lootTemplate.HasQuestDrop(_lootTemplates);
+        return _lootTemplates.TryGetValue(lootID, out var lootTemplate) && lootTemplate.HasQuestDrop(_lootTemplates);
     }
 
     public bool HaveQuestLootForPlayer(uint lootID, Player player)
     {
-        if (_lootTemplates.TryGetValue(lootID, out var tab))
-            if (tab.HasQuestDropForPlayer(_lootTemplates, player))
-                return true;
-
-        return false;
-    }
-
-    public bool IsRatesAllowed()
-    {
-        return _ratesAllowed;
+        return _lootTemplates.TryGetValue(lootID, out var tab) && tab.HasQuestDropForPlayer(_lootTemplates, player);
     }
 
     public uint LoadAndCollectLootIds(out List<uint> lootIdSet)
     {
         var count = LoadLootTable();
-        lootIdSet = new List<uint>();
-
-        foreach (var tab in _lootTemplates)
-            lootIdSet.Add(tab.Key);
+        lootIdSet = _lootTemplates.Select(tab => tab.Key).ToList();
 
         return count;
     }
+
     public void ReportNonExistingId(uint lootId, uint ownerId)
     {
-        Log.Logger.Debug("Table '{0}' Entry {1} does not exist but it is used by {2} {3}", GetName(), lootId, GetEntryName(), ownerId);
+        Log.Logger.Debug("Table '{0}' Entry {1} does not exist but it is used by {2} {3}", Name, lootId, GetEntryName(), ownerId);
     }
 
     public void ReportUnusedIds(List<uint> lootIdSet)
@@ -108,10 +86,11 @@ public class LootStore
         // all still listed ids isn't referenced
         foreach (var id in lootIdSet)
             if (_configuration.GetDefaultValue("load.autoclean", false))
-                _worldDatabase.Execute($"DELETE FROM {GetName()} WHERE Entry = {id}");
+                _worldDatabase.Execute($"DELETE FROM {Name} WHERE Entry = {id}");
             else
-                Log.Logger.Error("Table '{0}' entry {1} isn't {2} and not referenced from loot, and then useless.", GetName(), id, GetEntryName());
+                Log.Logger.Error("Table '{0}' entry {1} isn't {2} and not referenced from loot, and then useless.", Name, id, GetEntryName());
     }
+
     public void ResetConditions()
     {
         foreach (var pair in _lootTemplates)
@@ -120,6 +99,7 @@ public class LootStore
             pair.Value.CopyConditions(empty);
         }
     }
+
     private void Clear()
     {
         _lootTemplates.Clear();
@@ -136,7 +116,7 @@ public class LootStore
         Clear();
 
         //                                            0     1      2        3         4             5          6        7         8
-        var result = _worldDatabase.Query("SELECT Entry, Item, Reference, Chance, QuestRequired, LootMode, GroupId, MinCount, MaxCount FROM {0}", GetName());
+        var result = _worldDatabase.Query("SELECT Entry, Item, Reference, Chance, QuestRequired, LootMode, GroupId, MinCount, MaxCount FROM {0}", Name);
 
         if (result.IsEmpty())
             return 0;
@@ -157,7 +137,7 @@ public class LootStore
 
             if (groupid >= 1 << 7) // it stored in 7 bit field
             {
-                Log.Logger.Error("Table '{0}' entry {1} item {2}: group ({3}) must be less {4} - skipped", GetName(), entry, item, groupid, 1 << 7);
+                Log.Logger.Error("Table '{0}' entry {1} item {2}: group ({3}) must be less {4} - skipped", Name, entry, item, groupid, 1 << 7);
 
                 return 0;
             }

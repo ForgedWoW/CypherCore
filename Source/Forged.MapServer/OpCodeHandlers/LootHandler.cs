@@ -80,7 +80,7 @@ public class LootHandler : IWorldSessionHandler
         }
 
         if (aeResult != null)
-            foreach (var resultValue in aeResult.GetByOrder())
+            foreach (var resultValue in aeResult.ByOrder)
             {
                 player.SendNewItem(resultValue.Item, resultValue.Count, false, false, true, resultValue.DungeonEncounterId);
                 player.UpdateCriteria(CriteriaType.LootItem, resultValue.Item.Entry, resultValue.Count);
@@ -219,7 +219,7 @@ public class LootHandler : IWorldSessionHandler
             --loot.unlootedCount;
         }
 
-        foreach (var resultValue in aeResult.GetByOrder())
+        foreach (var resultValue in aeResult.ByOrder)
         {
             target.SendNewItem(resultValue.Item, resultValue.Count, false, false, true);
             target.UpdateCriteria(CriteriaType.LootItem, resultValue.Item.Entry, resultValue.Count);

@@ -27,8 +27,10 @@ public class LootStoreItem
     public float Chance;
     public List<Condition> Conditions;
     public byte Groupid;
-    public uint Itemid;    // id of the item
-                           // chance to drop for both quest and non-quest items, chance to be used for refs
+
+    public uint Itemid; // id of the item
+
+    // chance to drop for both quest and non-quest items, chance to be used for refs
     public ushort Lootmode;
 
     public byte Maxcount;
@@ -64,7 +66,7 @@ public class LootStoreItem
     {
         if (Mincount == 0)
         {
-            Log.Logger.Error("Table '{0}' entry {1} item {2}: wrong mincount ({3}) - skipped", store.GetName(), entry, Itemid, Reference);
+            Log.Logger.Error("Table '{0}' entry {1} item {2}: wrong mincount ({3}) - skipped", store.Name, entry, Itemid, Reference);
 
             return false;
         }
@@ -76,16 +78,16 @@ public class LootStoreItem
             if (proto == null)
             {
                 if (_configuration.GetDefaultValue("load.autoclean", false))
-                    _worldDatabase.Execute($"DELETE FROM {store.GetName()} WHERE Entry = {Itemid}");
+                    _worldDatabase.Execute($"DELETE FROM {store.Name} WHERE Entry = {Itemid}");
                 else
-                    Log.Logger.Error("Table '{0}' entry {1} item {2}: item does not exist - skipped", store.GetName(), entry, Itemid);
+                    Log.Logger.Error("Table '{0}' entry {1} item {2}: item does not exist - skipped", store.Name, entry, Itemid);
 
                 return false;
             }
 
             if (Chance == 0 && Groupid == 0) // Zero chance is allowed for grouped entries only
             {
-                Log.Logger.Error("Table '{0}' entry {1} item {2}: equal-chanced grouped entry, but group not defined - skipped", store.GetName(), entry, Itemid);
+                Log.Logger.Error("Table '{0}' entry {1} item {2}: equal-chanced grouped entry, but group not defined - skipped", store.Name, entry, Itemid);
 
                 return false;
             }
@@ -93,7 +95,7 @@ public class LootStoreItem
             if (Chance != 0 && Chance < 0.000001f) // loot with low chance
             {
                 Log.Logger.Error("Table '{0}' entry {1} item {2}: low chance ({3}) - skipped",
-                                 store.GetName(),
+                                 store.Name,
                                  entry,
                                  Itemid,
                                  Chance);
@@ -101,22 +103,22 @@ public class LootStoreItem
                 return false;
             }
 
-            if (Maxcount < Mincount) // wrong max count
-            {
-                Log.Logger.Error("Table '{0}' entry {1} item {2}: max count ({3}) less that min count ({4}) - skipped", store.GetName(), entry, Itemid, Maxcount, Reference);
+            if (Maxcount >= Mincount) // wrong max count
+                return true;          // Referenced template existence is checked at whole store level
 
-                return false;
-            }
+            Log.Logger.Error("Table '{0}' entry {1} item {2}: max count ({3}) less that min count ({4}) - skipped", store.Name, entry, Itemid, Maxcount, Reference);
+
+            return false;
         }
         else // mincountOrRef < 0
         {
             if (NeedsQuest)
             {
-                Log.Logger.Error("Table '{0}' entry {1} item {2}: quest chance will be treated as non-quest chance", store.GetName(), entry, Itemid);
+                Log.Logger.Error("Table '{0}' entry {1} item {2}: quest chance will be treated as non-quest chance", store.Name, entry, Itemid);
             }
             else if (Chance == 0) // no chance for the reference
             {
-                Log.Logger.Error("Table '{0}' entry {1} item {2}: zero chance is specified for a reference, skipped", store.GetName(), entry, Itemid);
+                Log.Logger.Error("Table '{0}' entry {1} item {2}: zero chance is specified for a reference, skipped", store.Name, entry, Itemid);
 
                 return false;
             }

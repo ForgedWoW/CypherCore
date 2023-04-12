@@ -31,7 +31,7 @@ public class LootFactory
     public Loot GenerateLoot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, uint dugeonEncounterId, uint lootId, LootStorageType store, Player lootOwner, bool personal, bool noEmptyError = false, LootModes lootMode = LootModes.Default, ItemContext context = 0)
     {
         var loot = _classFactory.Resolve<Loot>(new PositionalParameter(0, map), new PositionalParameter(1, owner), new PositionalParameter(2, type), new PositionalParameter(3, group));
-        loot.SetDungeonEncounterId(dugeonEncounterId);
+        loot.DungeonEncounterId = dugeonEncounterId;
         loot.FillLoot(lootId, store, lootOwner, personal, noEmptyError, lootMode, context);
 
         return loot;

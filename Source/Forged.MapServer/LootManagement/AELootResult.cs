@@ -10,29 +10,26 @@ namespace Forged.MapServer.LootManagement;
 public class AELootResult
 {
     private readonly Dictionary<Item, int> _byItem = new();
-    private readonly List<ResultValue> _byOrder = new();
+
+    public List<ResultValue> ByOrder { get; } = new();
+
     public void Add(Item item, byte count, LootType lootType, uint dungeonEncounterId)
     {
         if (_byItem.TryGetValue(item, out var id))
         {
-            var resultValue = _byOrder[id];
+            var resultValue = ByOrder[id];
             resultValue.Count += count;
         }
         else
         {
-            _byItem[item] = _byOrder.Count;
+            _byItem[item] = ByOrder.Count;
             ResultValue value;
             value.Item = item;
             value.Count = count;
             value.LootType = lootType;
             value.DungeonEncounterId = dungeonEncounterId;
-            _byOrder.Add(value);
+            ByOrder.Add(value);
         }
-    }
-
-    public List<ResultValue> GetByOrder()
-    {
-        return _byOrder;
     }
 
     public struct ResultValue

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
@@ -21,13 +22,16 @@ public class LootManager : LootStoreBox
     private readonly ConditionManager _conditionManager;
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
+    private readonly ItemEnchantmentManager _itemEnchantmentManager;
+    private readonly LootFactory _lootFactory;
     private readonly LootStoreBox _lootStorage;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GameObjectManager _objectManager;
     private readonly SpellManager _spellManager;
     private readonly WorldDatabase _worldDatabase;
+
     public LootManager(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, ConditionManager conditionManager, IConfiguration configuration, WorldDatabase worldDatabase,
-                       DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage)
+                       DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStoreBox lootStorage, ItemEnchantmentManager itemEnchantmentManager, LootFactory lootFactory)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -38,6 +42,8 @@ public class LootManager : LootStoreBox
         _db2Manager = db2Manager;
         _objectAccessor = objectAccessor;
         _lootStorage = lootStorage;
+        _itemEnchantmentManager = itemEnchantmentManager;
+        _lootFactory = lootFactory;
     }
 
     public Dictionary<ObjectGuid, Loot> GenerateDungeonEncounterPersonalLoot(uint dungeonEncounterId, uint lootId, LootStore store,
@@ -50,9 +56,12 @@ public class LootManager : LootStoreBox
             if (tapper.IsLockedToDungeonEncounter(dungeonEncounterId))
                 continue;
 
-            Loot loot = new(lootOwner.Location.Map, lootOwner.GUID, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration);
-            loot.SetItemContext(context);
-            loot.SetDungeonEncounterId(dungeonEncounterId);
+            Loot loot = new(lootOwner.Location.Map, lootOwner.GUID, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration, _lootFactory, _itemEnchantmentManager)
+            {
+                ItemContext = context,
+                DungeonEncounterId = dungeonEncounterId
+            };
+
             loot.GenerateMoneyLoot(minMoney, maxMoney);
 
             tempLoot[tapper] = loot;
@@ -60,7 +69,7 @@ public class LootManager : LootStoreBox
 
         var tab = store.GetLootFor(lootId);
 
-        tab?.ProcessPersonalLoot(tempLoot, store.IsRatesAllowed(), lootMode);
+        tab?.ProcessPersonalLoot(tempLoot, store.IsRatesAllowed, lootMode);
 
         Dictionary<ObjectGuid, Loot> personalLoot = new();
 
@@ -94,6 +103,7 @@ public class LootManager : LootStoreBox
 
         LoadLootTemplates_Reference();
     }
+
     public void LoadLootTemplates_Creature()
     {
         Log.Logger.Information("Loading creature loot templates...");
@@ -376,6 +386,7 @@ public class LootManager : LootStoreBox
         else
             Log.Logger.Information("Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
     }
+
     public void LoadLootTemplates_Reference()
     {
         Log.Logger.Information("Loading reference loot templates...");
@@ -482,6 +493,7 @@ public class LootManager : LootStoreBox
         else
             Log.Logger.Information("Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
     }
+
     private void Initialize()
     {
         Creature = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "creature_loot_template", "creature entry");

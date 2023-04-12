@@ -247,7 +247,7 @@ public class WorldSession : IDisposable
 
     public void DoLootRelease(LootManagement.Loot loot)
     {
-        var lguid = loot.GetOwnerGuid();
+        var lguid = loot.OwnerGuid;
         var player = Player;
 
         if (player.GetLootGUID() == lguid)
@@ -256,7 +256,7 @@ public class WorldSession : IDisposable
         //Player is not looking at loot list, he doesn't need to see updates on the loot list
         loot.RemoveLooter(player.GUID);
         player.SendLootRelease(lguid);
-        player.GetAELootView().Remove(loot.GetGuid());
+        player.GetAELootView().Remove(loot.Guid);
 
         if (player.GetAELootView().Empty())
             player.RemoveUnitFlag(UnitFlags.Looting);

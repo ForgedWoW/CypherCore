@@ -3737,7 +3737,7 @@ public partial class Player
 
     public Loot GetLootByWorldObjectGUID(ObjectGuid lootWorldObjectGuid)
     {
-        return _aeLootView.FirstOrDefault(pair => pair.Value.GetOwnerGuid() == lootWorldObjectGuid).Value;
+        return _aeLootView.FirstOrDefault(pair => pair.Value.OwnerGuid == lootWorldObjectGuid).Value;
     }
 
     //Loot
@@ -4487,16 +4487,16 @@ public partial class Player
         if (!GetLootGUID().IsEmpty && !aeLooting)
             Session.DoLootReleaseAll();
 
-        Log.Logger.Debug($"Player::SendLoot: Player: '{GetName()}' ({GUID}), Loot: {loot.GetOwnerGuid()}");
+        Log.Logger.Debug($"Player::SendLoot: Player: '{GetName()}' ({GUID}), Loot: {loot.OwnerGuid}");
 
-        if (!loot.GetOwnerGuid().IsItem && !aeLooting)
-            SetLootGUID(loot.GetOwnerGuid());
+        if (!loot.OwnerGuid.IsItem && !aeLooting)
+            SetLootGUID(loot.OwnerGuid);
 
         LootResponse packet = new()
         {
-            Owner = loot.GetOwnerGuid(),
-            LootObj = loot.GetGuid(),
-            LootMethod = loot.GetLootMethod(),
+            Owner = loot.OwnerGuid,
+            LootObj = loot.Guid,
+            LootMethod = loot.LootMethod,
             AcquireReason = (byte)SharedConst.GetLootTypeForClient(loot.LootType),
             Acquired = true, // false == No Loot (this too^^)
             AELooting = aeLooting
@@ -4507,9 +4507,9 @@ public partial class Player
 
         // add 'this' player as one of the players that are looting 'loot'
         loot.OnLootOpened(Location.Map, GUID);
-        _aeLootView[loot.GetGuid()] = loot;
+        _aeLootView[loot.Guid] = loot;
 
-        if (loot.LootType == LootType.Corpse && !loot.GetOwnerGuid().IsItem)
+        if (loot.LootType == LootType.Corpse && !loot.OwnerGuid.IsItem)
             SetUnitFlag(UnitFlags.Looting);
     }
 
@@ -4988,7 +4988,7 @@ public partial class Player
             {
                 //freeforall case, notify only one player of the removal
                 ffaItem.IsLooted = true;
-                SendNotifyLootItemRemoved(loot.GetGuid(), loot.GetOwnerGuid(), lootSlot);
+                SendNotifyLootItemRemoved(loot.Guid, loot.OwnerGuid, lootSlot);
             }
             else //not freeforall, notify everyone
             {
@@ -5013,14 +5013,14 @@ public partial class Player
             // if aeLooting then we must delay sending out item so that it appears properly stacked in chat
             if (aeResult == null)
             {
-                SendNewItem(newitem, item.Count, false, false, true, loot.GetDungeonEncounterId());
+                SendNewItem(newitem, item.Count, false, false, true, loot.DungeonEncounterId);
                 UpdateCriteria(CriteriaType.LootItem, item.Itemid, item.Count);
                 UpdateCriteria(CriteriaType.GetLootByType, item.Itemid, item.Count, (uint)SharedConst.GetLootTypeForClient(loot.LootType));
                 UpdateCriteria(CriteriaType.LootAnyItem, item.Itemid, item.Count);
             }
             else
             {
-                aeResult.Add(newitem, item.Count, SharedConst.GetLootTypeForClient(loot.LootType), loot.GetDungeonEncounterId());
+                aeResult.Add(newitem, item.Count, SharedConst.GetLootTypeForClient(loot.LootType), loot.DungeonEncounterId);
             }
 
             // LootItem is being removed (looted) from the container, delete it from the DB.

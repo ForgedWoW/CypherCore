@@ -23,20 +23,25 @@ public class LootItem
     public bool Freeforall;
     public bool IsBlocked;
     public bool IsCounted;
+
     public bool IsLooted;
+
     // free for all
     public bool IsUnderthreshold;
 
     public uint Itemid;
     public uint LootListId;
     public bool NeedsQuest;
+
     public uint RandomBonusListId;
+
     // additional loot condition
     public ObjectGuid RollWinnerGuid; // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
     private readonly ConditionManager _conditionManager;
 
     // quest drop
     private readonly GameObjectManager _objectManager;
+
     public LootItem(GameObjectManager objectManager, ConditionManager conditionManager)
     {
         _objectManager = objectManager;
@@ -76,7 +81,7 @@ public class LootItem
             return false;
 
         // Master looter can see all items even if the character can't loot them
-        if (loot != null && loot.GetLootMethod() == LootMethod.MasterLoot && followLootRules && loot.GetLootMasterGuid() == player.GUID)
+        if (loot != null && loot.LootMethod == LootMethod.MasterLoot && followLootRules && loot.LootMasterGuid == player.GUID)
             return true;
 
         // Don't allow loot for players without profession or those who already know the recipe
@@ -123,6 +128,7 @@ public class LootItem
     {
         return AllowedForPlayer(player, loot, Itemid, NeedsQuest, FollowLootRules, false, Conditions, _objectManager, _conditionManager);
     }
+
     public List<ObjectGuid> GetAllowedLooters()
     {
         return AllowedGuiDs;
@@ -138,20 +144,20 @@ public class LootItem
 
         if (Freeforall)
         {
-            var ffaItems = loot.GetPlayerFFAItems().LookupByKey(player.GUID);
+            var ffaItems = loot.PlayerFFAItems.LookupByKey(player.GUID);
 
             var ffaItemItr = ffaItems?.Find(ffaItem => ffaItem.LootListId == LootListId);
 
             if (ffaItemItr is { IsLooted: false })
-                return loot.GetLootMethod() == LootMethod.FreeForAll ? LootSlotType.Owner : LootSlotType.AllowLoot;
+                return loot.LootMethod == LootMethod.FreeForAll ? LootSlotType.Owner : LootSlotType.AllowLoot;
 
             return null;
         }
 
         if (NeedsQuest && !FollowLootRules)
-            return loot.GetLootMethod() == LootMethod.FreeForAll ? LootSlotType.Owner : LootSlotType.AllowLoot;
+            return loot.LootMethod == LootMethod.FreeForAll ? LootSlotType.Owner : LootSlotType.AllowLoot;
 
-        switch (loot.GetLootMethod())
+        switch (loot.LootMethod)
         {
             case LootMethod.FreeForAll:
                 return LootSlotType.Owner;
@@ -162,7 +168,7 @@ public class LootItem
                 return LootSlotType.AllowLoot;
             case LootMethod.MasterLoot:
                 if (!IsUnderthreshold)
-                    return loot.GetLootMasterGuid() == player.GUID ? LootSlotType.Master : LootSlotType.Locked;
+                    return loot.LootMasterGuid == player.GUID ? LootSlotType.Master : LootSlotType.Locked;
 
                 if (!loot.RoundRobinPlayer.IsEmpty && loot.RoundRobinPlayer != player.GUID)
                     return null;

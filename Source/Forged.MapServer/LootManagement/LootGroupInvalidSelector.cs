@@ -31,7 +31,7 @@ public struct LootGroupInvalidSelector
         if ((item.Lootmode & _lootMode) == 0)
             return true;
 
-        return _personalLooter &&
+        return _personalLooter != null &&
                !LootItem.AllowedForPlayer(_personalLooter,
                                           null,
                                           item.Itemid,

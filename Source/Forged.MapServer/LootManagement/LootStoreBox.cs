@@ -8,16 +8,16 @@ namespace Forged.MapServer.LootManagement;
 
 public class LootStoreBox
 {
-    public LootStore Creature;
-    public LootStore Disenchant;
-    public LootStore Fishing;
-    public LootStore Gameobject;
-    public LootStore Items;
-    public LootStore Mail;
-    public LootStore Milling;
-    public LootStore Pickpocketing;
-    public LootStore Prospecting;
-    public LootStore Reference;
-    public LootStore Skinning;
-    public LootStore Spell;
+    public LootStore Creature { get; set; }
+    public LootStore Disenchant { get; set; }
+    public LootStore Fishing { get; set; }
+    public LootStore Gameobject { get; set; }
+    public LootStore Items { get; set; }
+    public LootStore Mail { get; set; }
+    public LootStore Milling { get; set; }
+    public LootStore Pickpocketing { get; set; }
+    public LootStore Prospecting { get; set; }
+    public LootStore Reference { get; set; }
+    public LootStore Skinning { get; set; }
+    public LootStore Spell { get; set; }
 }

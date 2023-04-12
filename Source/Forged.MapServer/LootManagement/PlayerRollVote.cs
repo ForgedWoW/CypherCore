@@ -7,11 +7,12 @@ namespace Forged.MapServer.LootManagement;
 
 public class PlayerRollVote
 {
-    public byte RollNumber;
-    public RollVote Vote;
     public PlayerRollVote()
     {
         Vote = RollVote.NotValid;
         RollNumber = 0;
     }
+
+    public byte RollNumber { get; set; }
+    public RollVote Vote { get; set; }
 }
