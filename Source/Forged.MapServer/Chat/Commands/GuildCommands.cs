@@ -111,7 +111,7 @@ internal class GuildCommands
         handler.SendSysMessage(CypherStrings.GuildInfoMemberCount, guild.GetMembersCount());             // Number of Members
         handler.SendSysMessage(CypherStrings.GuildInfoBankGold, guild.GetBankMoney() / 100 / 100);       // Bank Gold (in gold coins)
         handler.SendSysMessage(CypherStrings.GuildInfoLevel, guild.GetLevel());                          // Level
-        handler.SendSysMessage(CypherStrings.GuildInfoMotd, guild.GetMOTD());                            // Message of the Day
+        handler.SendSysMessage(CypherStrings.GuildInfoMotd, guild.GetMotd());                            // Message of the Day
         handler.SendSysMessage(CypherStrings.GuildInfoExtraInfo, guild.GetInfo());                       // Extra Information
 
         return true;

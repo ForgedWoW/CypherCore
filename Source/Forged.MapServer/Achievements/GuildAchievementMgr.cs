@@ -54,10 +54,7 @@ public class GuildAchievementMgr : AchievementManager
 
         if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowInGuildNews))
         {
-            var guild = referencePlayer.Guild;
-
-            if (guild)
-                guild.AddGuildNews(GuildNews.Achievement, ObjectGuid.Empty, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
+            referencePlayer.Guild?.AddGuildNews(GuildNews.Achievement, ObjectGuid.Empty, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
         }
 
         SendAchievementEarned(achievement);
@@ -72,17 +69,17 @@ public class GuildAchievementMgr : AchievementManager
         {
             if (referencePlayer.GuildId == _owner.GetId())
                 ca.CompletingPlayers.Add(referencePlayer.GUID);
-
-            var group = referencePlayer.Group;
-
-            if (group)
-                for (var refe = group.FirstMember; refe != null; refe = refe.Next())
+            
+            if (referencePlayer.Group != null)
+                for (var refe = referencePlayer.Group.FirstMember; refe != null; refe = refe.Next())
                 {
                     var groupMember = refe.Source;
 
-                    if (groupMember)
-                        if (groupMember.GuildId == _owner.GetId())
-                            ca.CompletingPlayers.Add(groupMember.GUID);
+                    if (groupMember == null)
+                        continue;
+
+                    if (groupMember.GuildId == _owner.GetId())
+                        ca.CompletingPlayers.Add(groupMember.GUID);
                 }
         }
 

@@ -8,6 +8,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Guilds;
@@ -15,6 +16,7 @@ namespace Forged.MapServer.Guilds;
 public sealed class GuildManager
 {
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly List<GuildReward> _guildRewards = new();
     private readonly Dictionary<ulong, Guild> _guildStore = new();
@@ -22,12 +24,13 @@ public sealed class GuildManager
     private readonly WorldDatabase _worldDatabase;
     private uint _nextGuildId;
 
-    public GuildManager(CliDB cliDB, GameObjectManager objectManager, CharacterDatabase characterDatabase, WorldDatabase worldDatabase)
+    public GuildManager(CliDB cliDB, GameObjectManager objectManager, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, ClassFactory classFactory)
     {
         _cliDB = cliDB;
         _objectManager = objectManager;
         _characterDatabase = characterDatabase;
         _worldDatabase = worldDatabase;
+        _classFactory = classFactory;
     }
 
     public void AddGuild(Guild guild)
@@ -172,7 +175,7 @@ public sealed class GuildManager
 
             do
             {
-                Guild guild = new();
+                var guild = _classFactory.Resolve<Guild>();
 
                 if (!guild.LoadFromDB(result.GetFields()))
                     continue;
@@ -511,6 +514,7 @@ public sealed class GuildManager
         foreach (var guild in _guildStore.Values)
             guild.SaveToDB();
     }
+
     public void SetNextGuildId(uint id)
     {
         _nextGuildId = id;

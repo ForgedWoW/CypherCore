@@ -284,30 +284,30 @@ public class PlayerGroup
 
                 var existingMember = refe.Source;
 
-                if (existingMember != null)
-                {
-                    if (player.HaveAtClient(existingMember))
-                        existingMember.BuildValuesUpdateBlockForPlayerWithFlag(groupData, UpdateFieldFlag.PartyMember, player);
+                if (existingMember == null)
+                    continue;
 
-                    if (existingMember.HaveAtClient(player))
-                    {
-                        UpdateData newData = new(player.Location.MapId);
-                        player.BuildValuesUpdateBlockForPlayerWithFlag(newData, UpdateFieldFlag.PartyMember, existingMember);
+                if (player.HaveAtClient(existingMember))
+                    existingMember.BuildValuesUpdateBlockForPlayerWithFlag(groupData, UpdateFieldFlag.PartyMember, player);
 
-                        if (newData.HasData())
-                        {
-                            newData.BuildPacket(out var newDataPacket);
-                            existingMember.SendPacket(newDataPacket);
-                        }
-                    }
-                }
+                if (!existingMember.HaveAtClient(player))
+                    continue;
+
+                UpdateData newData = new(player.Location.MapId);
+                player.BuildValuesUpdateBlockForPlayerWithFlag(newData, UpdateFieldFlag.PartyMember, existingMember);
+
+                if (!newData.HasData())
+                    continue;
+
+                newData.BuildPacket(out var newDataPacket);
+                existingMember.SendPacket(newDataPacket);
             }
 
-            if (groupData.HasData())
-            {
-                groupData.BuildPacket(out var groupDataPacket);
-                player.SendPacket(groupDataPacket);
-            }
+            if (!groupData.HasData())
+                return true;
+
+            groupData.BuildPacket(out var groupDataPacket);
+            player.SendPacket(groupDataPacket);
         }
 
         return true;
@@ -332,9 +332,11 @@ public class PlayerGroup
             if (player == null || (!ignore.IsEmpty && player.GUID == ignore) || (ignorePlayersInBGRaid && player.Group != this))
                 continue;
 
-            if ((group == -1 || refe.SubGroup == group))
-                if (player.Session.IsAddonRegistered(prefix))
-                    player.SendPacket(packet);
+            if ((group != -1 && refe.SubGroup != group))
+                continue;
+
+            if (player.Session.IsAddonRegistered(prefix))
+                player.SendPacket(packet);
         }
     }
 
@@ -493,11 +495,10 @@ public class PlayerGroup
 
         if (!IsBGGroup && !IsBfGroup)
         {
-            PreparedStatement stmt;
             SQLTransaction trans = new();
 
             // Update the group leader
-            stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_LEADER);
+            var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_LEADER);
 
             stmt.AddValue(0, newLeader.GUID.Counter);
             stmt.AddValue(1, DbStoreId);
@@ -604,10 +605,8 @@ public class PlayerGroup
         SendUpdate();
 
         // update quest related GO states (quest activity dependent from raid membership)
-        foreach (var member in MemberSlots)
+        foreach (var player in MemberSlots.Select(member => _objectAccessor.FindPlayer(member.Guid)))
         {
-            var player = _objectAccessor.FindPlayer(member.Guid);
-
             player?.UpdateVisibleGameobjectsOrSpellClicks();
         }
     }
@@ -652,10 +651,7 @@ public class PlayerGroup
         // update quest related GO states (quest activity dependent from raid membership)
         foreach (var member in MemberSlots)
         {
-            var player = _objectAccessor.FindPlayer(member.Guid);
-
-            if (player != null)
-                player.UpdateVisibleGameobjectsOrSpellClicks();
+            _objectAccessor.FindPlayer(member.Guid)?.UpdateVisibleGameobjectsOrSpellClicks();
         }
     }
 
@@ -754,11 +750,9 @@ public class PlayerGroup
     {
         _scriptManager.ForEach<IGroupOnDisband>(p => p.OnDisband(this));
 
-        Player player;
-
         foreach (var member in MemberSlots)
         {
-            player = _objectAccessor.FindPlayer(member.Guid);
+            var player = _objectAccessor.FindPlayer(member.Guid);
 
             if (player == null)
                 continue;
@@ -840,40 +834,22 @@ public class PlayerGroup
 
     public Player GetInvited(ObjectGuid guid)
     {
-        foreach (var pl in _invitees)
-            if (pl != null && pl.GUID == guid)
-                return pl;
-
-        return null;
+        return _invitees.FirstOrDefault(pl => pl != null && pl.GUID == guid);
     }
 
     public Player GetInvited(string name)
     {
-        foreach (var pl in _invitees)
-            if (pl != null && pl.GetName() == name)
-                return pl;
-
-        return null;
+        return _invitees.FirstOrDefault(pl => pl != null && pl.GetName() == name);
     }
 
     public LfgRoles GetLfgRoles(ObjectGuid guid)
     {
-        var slot = _getMemberSlot(guid);
-
-        if (slot == null)
-            return 0;
-
-        return slot.Roles;
+        return _getMemberSlot(guid)?.Roles ?? 0;
     }
 
     public GroupMemberFlags GetMemberFlags(ObjectGuid guid)
     {
-        var mslot = _getMemberSlot(guid);
-
-        if (mslot == null)
-            return 0;
-
-        return mslot.Flags;
+        return _getMemberSlot(guid)?.Flags ?? 0;
     }
 
     public byte GetMemberGroup(ObjectGuid guid)

@@ -472,6 +472,8 @@ void RegisterInstanced()
     builder.RegisterType<Garrison.Building>();
     builder.RegisterType<Garrison.Plot>();
     builder.RegisterType<PlayerGroup>();
+    builder.RegisterType<Guild>();
+    builder.RegisterType<GuildAchievementMgr>();
 }
 
 void RegisterHandlers()

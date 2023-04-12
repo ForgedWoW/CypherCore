@@ -8342,7 +8342,7 @@ public partial class Spell : IDisposable
 
         {
             ResurrectOffererGUID = Caster.GUID,
-            ResurrectOffererVirtualRealmAddress = WorldManager.Realm.Id.GetAddress(),
+            ResurrectOffererVirtualRealmAddress = WorldManager.Realm.Id.VirtualRealmAddress,
             Name = sentName,
             Sickness = Caster.IsUnit && !Caster.IsTypeId(TypeId.Player), // "you'll be afflicted with resurrection sickness"
             UseTimer = !SpellInfo.HasAttribute(SpellAttr3.NoResTimer)

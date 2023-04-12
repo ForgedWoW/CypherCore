@@ -24,7 +24,7 @@ public class FriendStatusPkt : ServerPacket
 
     public void Initialize(ObjectGuid guid, FriendsResult result, FriendInfo friendInfo)
     {
-        VirtualRealmAddress = WorldManager.Realm.Id.GetAddress();
+        VirtualRealmAddress = WorldManager.Realm.Id.VirtualRealmAddress;
         Notes = friendInfo.Note;
         ClassID = friendInfo.Class;
         Status = friendInfo.Status;
