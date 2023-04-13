@@ -75,7 +75,7 @@ public class BfGraveyard
             BattleField.GetCreature(_spiritGuide[TeamIds.Horde]) == null)
             return false;
 
-        return (_spiritGuide[TeamIds.Alliance] == guid || _spiritGuide[TeamIds.Horde] == guid);
+        return _spiritGuide[TeamIds.Alliance] == guid || _spiritGuide[TeamIds.Horde] == guid;
     }
 
     // Check if a player is in this graveyard's ressurect queue

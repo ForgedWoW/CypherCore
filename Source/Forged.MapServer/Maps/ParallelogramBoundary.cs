@@ -32,12 +32,12 @@ public class ParallelogramBoundary : AreaBoundary
     public override bool IsWithinBoundaryArea(Position pos)
     {
         // half-plane signs
-        var sign1 = ((-_b.GetDoublePositionX() + pos.X) * _aby - (-_b.GetDoublePositionY() + pos.Y) * _abx) < 0;
-        var sign2 = ((-_a.GetDoublePositionX() + pos.X) * _day - (-_a.GetDoublePositionY() + pos.Y) * _dax) < 0;
-        var sign3 = ((-_d.GetDoublePositionY() + pos.Y) * _abx - (-_d.GetDoublePositionX() + pos.X) * _aby) < 0; // AB = -CD
-        var sign4 = ((-_c.GetDoublePositionY() + pos.Y) * _dax - (-_c.GetDoublePositionX() + pos.X) * _day) < 0; // DA = -BC
+        var sign1 = (-_b.GetDoublePositionX() + pos.X) * _aby - (-_b.GetDoublePositionY() + pos.Y) * _abx < 0;
+        var sign2 = (-_a.GetDoublePositionX() + pos.X) * _day - (-_a.GetDoublePositionY() + pos.Y) * _dax < 0;
+        var sign3 = (-_d.GetDoublePositionY() + pos.Y) * _abx - (-_d.GetDoublePositionX() + pos.X) * _aby < 0; // AB = -CD
+        var sign4 = (-_c.GetDoublePositionY() + pos.Y) * _dax - (-_c.GetDoublePositionX() + pos.X) * _day < 0; // DA = -BC
 
         // if all signs are equal, the point is inside
-        return ((sign1 == sign2) && (sign2 == sign3) && (sign3 == sign4));
+        return sign1 == sign2 && sign2 == sign3 && sign3 == sign4;
     }
 }

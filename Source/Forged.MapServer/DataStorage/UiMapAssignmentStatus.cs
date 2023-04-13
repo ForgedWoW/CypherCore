@@ -51,8 +51,8 @@ internal class UiMapAssignmentStatus
             if (left.Inside.DistanceToRegionBottom != right.Inside.DistanceToRegionBottom)
                 return left.Inside.DistanceToRegionBottom < right.Inside.DistanceToRegionBottom;
 
-            var leftUiSizeX = left.UiMapAssignment != null ? (left.UiMapAssignment.UiMax.X - left.UiMapAssignment.UiMin.X) : 0.0f;
-            var rightUiSizeX = right.UiMapAssignment != null ? (right.UiMapAssignment.UiMax.X - right.UiMapAssignment.UiMin.X) : 0.0f;
+            var leftUiSizeX = left.UiMapAssignment != null ? left.UiMapAssignment.UiMax.X - left.UiMapAssignment.UiMin.X : 0.0f;
+            var rightUiSizeX = right.UiMapAssignment != null ? right.UiMapAssignment.UiMax.X - right.UiMapAssignment.UiMin.X : 0.0f;
 
             if (leftUiSizeX > float.Epsilon && rightUiSizeX > float.Epsilon)
             {
@@ -109,8 +109,8 @@ internal class UiMapAssignmentStatus
             if (left.Inside.DistanceToRegionBottom != right.Inside.DistanceToRegionBottom)
                 return left.Inside.DistanceToRegionBottom > right.Inside.DistanceToRegionBottom;
 
-            var leftUiSizeX = left.UiMapAssignment != null ? (left.UiMapAssignment.UiMax.X - left.UiMapAssignment.UiMin.X) : 0.0f;
-            var rightUiSizeX = right.UiMapAssignment != null ? (right.UiMapAssignment.UiMax.X - right.UiMapAssignment.UiMin.X) : 0.0f;
+            var leftUiSizeX = left.UiMapAssignment != null ? left.UiMapAssignment.UiMax.X - left.UiMapAssignment.UiMin.X : 0.0f;
+            var rightUiSizeX = right.UiMapAssignment != null ? right.UiMapAssignment.UiMax.X - right.UiMapAssignment.UiMin.X : 0.0f;
 
             if (leftUiSizeX > float.Epsilon && rightUiSizeX > float.Epsilon)
             {

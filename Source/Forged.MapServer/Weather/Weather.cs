@@ -106,20 +106,20 @@ public class Weather
 
         Log.Logger.Verbose("Generating a change in {0} weather for zone {1}.", seasonName[season], Zone);
 
-        if ((u < 60) && (_intensity < 0.33333334f)) // Get fair
+        if (u < 60 && _intensity < 0.33333334f) // Get fair
         {
             _type = WeatherType.Fine;
             _intensity = 0.0f;
         }
 
-        if ((u < 60) && (_type != WeatherType.Fine)) // Get better
+        if (u < 60 && _type != WeatherType.Fine) // Get better
         {
             _intensity -= 0.33333334f;
 
             return true;
         }
 
-        if ((u < 90) && (_type != WeatherType.Fine)) // Get worse
+        if (u < 90 && _type != WeatherType.Fine) // Get worse
         {
             _intensity += 0.33333334f;
 

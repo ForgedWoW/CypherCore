@@ -404,7 +404,7 @@ public class WorldObjectVisibility
 
             // When checking for alert state, look 8% further, and then 1.5 yards more than that.
             if (checkAlert)
-                visibilityRange += (visibilityRange * 0.08f) + 1.5f;
+                visibilityRange += visibilityRange * 0.08f + 1.5f;
 
             // If checking for alert, and creature's visibility range is greater than aggro distance, No alert
             var tunit = obj.AsUnit;

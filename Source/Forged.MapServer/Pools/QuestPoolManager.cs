@@ -229,7 +229,7 @@ public class QuestPoolManager
                 List<uint> accountedFor = new();
                 uint activeCount = 0;
 
-                for (var i = (uint)pool.Members.Count; (i--) != 0;)
+                for (var i = (uint)pool.Members.Count; i-- != 0;)
                 {
                     var member = pool.Members[i];
 

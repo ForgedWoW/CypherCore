@@ -28,6 +28,7 @@ using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -36,19 +37,21 @@ namespace Forged.MapServer.Achievements;
 public class PlayerAchievementMgr : AchievementManager
 {
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private readonly GuildManager _guildManager;
     private readonly Player _owner;
     private readonly ScriptManager _scriptManager;
 
-    public PlayerAchievementMgr(Player owner, GuildManager guildManager, ScriptManager scriptManager, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager objectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
+    public PlayerAchievementMgr(Player owner, GuildManager guildManager, ScriptManager scriptManager, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                                 DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
-                                LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
-        base(criteriaManager, worldManager, objectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
+                                LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, ClassFactory classFactory) :
+        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
     {
         _owner = owner;
         _guildManager = guildManager;
         _scriptManager = scriptManager;
         _characterDatabase = characterDatabase;
+        _classFactory = classFactory;
     }
 
     public override void CompletedAchievement(AchievementRecord achievement, Player referencePlayer)
@@ -65,12 +68,7 @@ public class PlayerAchievementMgr : AchievementManager
             return;
 
         if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowInGuildNews))
-        {
-            var guild = referencePlayer.Guild;
-
-            if (guild)
-                guild.AddGuildNews(GuildNews.PlayerAchievement, referencePlayer.GUID, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
-        }
+            referencePlayer.Guild?.AddGuildNews(GuildNews.PlayerAchievement, referencePlayer.GUID, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
 
         if (!_owner.Session.PlayerLoading)
             SendAchievementEarned(achievement);
@@ -107,7 +105,7 @@ public class PlayerAchievementMgr : AchievementManager
         //! Since no common attributes were found, (not even in titleRewardFlags field)
         //! we explicitly check by ID. Maybe in the future we could move the achievement_reward
         //! condition fields to the condition system.
-        var titleId = reward.TitleId[achievement.Id == 1793 ? (int)_owner.NativeGender : (_owner.Team == TeamFaction.Alliance ? 0 : 1)];
+        var titleId = reward.TitleId[achievement.Id == 1793 ? (int)_owner.NativeGender : _owner.Team == TeamFaction.Alliance ? 0 : 1];
 
         if (titleId != 0)
         {
@@ -116,48 +114,48 @@ public class PlayerAchievementMgr : AchievementManager
         }
 
         // mail
-        if (reward.SenderCreatureId != 0)
+        if (reward.SenderCreatureId == 0)
+            return;
+
+        var draft = _classFactory.ResolvePositional<MailDraft>(reward.MailTemplateId, true);
+
+        if (reward.MailTemplateId == 0)
         {
-            MailDraft draft = new(reward.MailTemplateId);
+            // subject and text
+            var subject = reward.Subject;
+            var text = reward.Body;
 
-            if (reward.MailTemplateId == 0)
+            var localeConstant = _owner.Session.SessionDbLocaleIndex;
+
+            if (localeConstant != Locale.enUS)
             {
-                // subject and text
-                var subject = reward.Subject;
-                var text = reward.Body;
+                var loc = AchievementManager.GetAchievementRewardLocale(achievement);
 
-                var localeConstant = _owner.Session.SessionDbLocaleIndex;
-
-                if (localeConstant != Locale.enUS)
+                if (loc != null)
                 {
-                    var loc = AchievementManager.GetAchievementRewardLocale(achievement);
-
-                    if (loc != null)
-                    {
-                        GameObjectManager.GetLocaleString(loc.Subject, localeConstant, ref subject);
-                        GameObjectManager.GetLocaleString(loc.Body, localeConstant, ref text);
-                    }
+                    GameObjectManager.GetLocaleString(loc.Subject, localeConstant, ref subject);
+                    GameObjectManager.GetLocaleString(loc.Body, localeConstant, ref text);
                 }
-
-                draft = new MailDraft(subject, text);
             }
 
-            SQLTransaction trans = new();
-
-            var item = reward.ItemId != 0 ? Item.CreateItem(reward.ItemId, 1, ItemContext.None, _owner) : null;
-
-            if (item != null)
-            {
-                // save new item before send
-                item.SaveToDB(trans); // save for prevent lost at next mail load, if send fail then item will deleted
-
-                // item
-                draft.AddItem(item);
-            }
-
-            draft.SendMailTo(trans, _owner, new MailSender(MailMessageType.Creature, reward.SenderCreatureId));
-            _characterDatabase.CommitTransaction(trans);
+            draft = _classFactory.ResolvePositional<MailDraft>(subject, text);
         }
+
+        SQLTransaction trans = new();
+
+        var item = reward.ItemId != 0 ? Item.CreateItem(reward.ItemId, 1, ItemContext.None, _owner) : null;
+
+        if (item != null)
+        {
+            // save new item before send
+            item.SaveToDB(trans); // save for prevent lost at next mail load, if send fail then item will deleted
+
+            // item
+            draft.AddItem(item);
+        }
+
+        draft.SendMailTo(trans, _owner, new MailSender(MailMessageType.Creature, reward.SenderCreatureId));
+        _characterDatabase.CommitTransaction(trans);
     }
 
     public void DeleteFromDB(ObjectGuid guid)
@@ -245,7 +243,7 @@ public class PlayerAchievementMgr : AchievementManager
                     continue;
                 }
 
-                if (criteria.Entry.StartTimer != 0 && (date + criteria.Entry.StartTimer) < now)
+                if (criteria.Entry.StartTimer != 0 && date + criteria.Entry.StartTimer < now)
                     continue;
 
                 CriteriaProgress progress = new()

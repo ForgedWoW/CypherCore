@@ -175,7 +175,7 @@ internal class MMapsCommands
         var pointPath = path.GetPath();
         handler.SendSysMessage("{0}'s path to {1}:", target.GetName(), player.GetName());
         handler.SendSysMessage("Building: {0}", useStraightPath ? "StraightPath" : useRaycast ? "Raycast" : "SmoothPath");
-        handler.SendSysMessage("Result: {0} - Length: {1} - Type: {2}", (result ? "true" : "false"), pointPath.Length, path.GetPathType());
+        handler.SendSysMessage("Result: {0} - Length: {1} - Type: {2}", result ? "true" : "false", pointPath.Length, path.GetPathType());
 
         var start = path.GetStartPosition();
         var end = path.GetEndPosition();

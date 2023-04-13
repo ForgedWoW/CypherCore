@@ -155,7 +155,7 @@ public class WorldManager
             {
                 var lvl = _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
-                _maxSkill = (uint)(lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5);
+                _maxSkill = (uint)(lvl > 60 ? 300 + (lvl - 60) * 75 / 10 : lvl * 5);
             }
 
             return _maxSkill;
@@ -533,9 +533,9 @@ public class WorldManager
         // @todo Get rid of magic numbers
         var localTime = Time.UnixTimeToDateTime(GameTime.CurrentTime).ToLocalTime();
         var cleanOldMailsTime = _configuration.GetDefaultValue("CleanOldMailTime", 4u);
-        _mailTimer = ((((localTime.Hour + (24 - cleanOldMailsTime)) % 24) * Time.HOUR * Time.IN_MILLISECONDS) / _timers[WorldTimers.Auctions].Interval);
+        _mailTimer = (localTime.Hour + (24 - cleanOldMailsTime)) % 24 * Time.HOUR * Time.IN_MILLISECONDS / _timers[WorldTimers.Auctions].Interval;
         //1440
-        _timerExpires = ((Time.DAY * Time.IN_MILLISECONDS) / (_timers[(int)WorldTimers.Auctions].Interval));
+        _timerExpires = Time.DAY * Time.IN_MILLISECONDS / _timers[(int)WorldTimers.Auctions].Interval;
         Log.Logger.Information("Mail timer set to: {0}, mail return is called every {1} minutes", _mailTimer, _timerExpires);
 
         _loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate"); // One-time query
@@ -1079,7 +1079,7 @@ public class WorldManager
         _exitCode = (byte)ShutdownExitCode.Shutdown; // to default value
         SendServerMessage(msgid);
 
-        Log.Logger.Debug("Server {0} cancelled.", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shutdown"));
+        Log.Logger.Debug("Server {0} cancelled.", _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shutdown");
 
         _scriptManager.ForEach<IWorldOnShutdownCancel>(p => p.OnShutdownCancel());
 
@@ -1094,11 +1094,11 @@ public class WorldManager
 
         // Display a message every 12 hours, hours, 5 minutes, minute, 5 seconds and finally seconds
         if (show ||
-            (ShutDownTimeLeft < 5 * Time.MINUTE && (ShutDownTimeLeft % 15) == 0) ||                 // < 5 min; every 15 sec
-            (ShutDownTimeLeft < 15 * Time.MINUTE && (ShutDownTimeLeft % Time.MINUTE) == 0) ||       // < 15 min ; every 1 min
-            (ShutDownTimeLeft < 30 * Time.MINUTE && (ShutDownTimeLeft % (5 * Time.MINUTE)) == 0) || // < 30 min ; every 5 min
-            (ShutDownTimeLeft < 12 * Time.HOUR && (ShutDownTimeLeft % Time.HOUR) == 0) ||           // < 12 h ; every 1 h
-            (ShutDownTimeLeft > 12 * Time.HOUR && (ShutDownTimeLeft % (12 * Time.HOUR)) == 0))      // > 12 h ; every 12 h
+            (ShutDownTimeLeft < 5 * Time.MINUTE && ShutDownTimeLeft % 15 == 0) ||                 // < 5 min; every 15 sec
+            (ShutDownTimeLeft < 15 * Time.MINUTE && ShutDownTimeLeft % Time.MINUTE == 0) ||       // < 15 min ; every 1 min
+            (ShutDownTimeLeft < 30 * Time.MINUTE && ShutDownTimeLeft % (5 * Time.MINUTE) == 0) || // < 30 min ; every 5 min
+            (ShutDownTimeLeft < 12 * Time.HOUR && ShutDownTimeLeft % Time.HOUR == 0) ||           // < 12 h ; every 1 h
+            (ShutDownTimeLeft > 12 * Time.HOUR && ShutDownTimeLeft % (12 * Time.HOUR) == 0))      // > 12 h ; every 12 h
         {
             var str = Time.SecsToTimeString(ShutDownTimeLeft, TimeFormat.Numeric);
 
@@ -1108,7 +1108,7 @@ public class WorldManager
             var msgid = _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? ServerMessageType.RestartTime : ServerMessageType.ShutdownTime;
 
             SendServerMessage(msgid, str, player);
-            Log.Logger.Debug("Server is {0} in {1}", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shuttingdown"), str);
+            Log.Logger.Debug("Server is {0} in {1}", _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shuttingdown", str);
         }
     }
 
@@ -1159,7 +1159,7 @@ public class WorldManager
         lock (_guidAlertLock)
         {
             var gameTime = GameTime.CurrentTime;
-            var today = (gameTime / Time.DAY) * Time.DAY;
+            var today = gameTime / Time.DAY * Time.DAY;
 
             // Check if our window to restart today has passed. 5 mins until quiet time
             while (gameTime >= Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn.RestartQuietTime", 3u)) - 1810u)
@@ -1258,7 +1258,7 @@ public class WorldManager
             _loginDatabase.DirectExecute("UPDATE realmlist SET population = {0} WHERE id = '{1}'", ActiveSessionCount, Global.WorldMgr.Realm.Id.Index);
 
             //- Update blackmarket, refresh auctions if necessary
-            if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _configuration.GetDefaultValue("BlackMarket.UpdatePeriod", 24) * Time.HOUR * Time.IN_MILLISECONDS) || _blackmarketTimer == 0)
+            if (_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _configuration.GetDefaultValue("BlackMarket.UpdatePeriod", 24) * Time.HOUR * Time.IN_MILLISECONDS || _blackmarketTimer == 0)
             {
                 _taskManager.Schedule(Global.BlackMarketMgr.RefreshAuctions);
                 _blackmarketTimer = 1; // timer is 0 on startup
@@ -1560,7 +1560,7 @@ public class WorldManager
         if (target < wday)
             wday -= 7;
 
-        t += (Time.DAY * (target - wday));
+        t += Time.DAY * (target - wday);
 
         return t;
     }
@@ -1587,7 +1587,7 @@ public class WorldManager
 
         if (tolerance != 0)
             foreach (var disconnect in _disconnects)
-                if ((disconnect.Value - GameTime.CurrentTime) < tolerance)
+                if (disconnect.Value - GameTime.CurrentTime < tolerance)
                 {
                     if (disconnect.Key == session.AccountId)
                         return true;

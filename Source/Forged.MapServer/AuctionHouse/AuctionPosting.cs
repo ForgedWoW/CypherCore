@@ -176,8 +176,8 @@ public class AuctionPosting
             {
                 case AuctionHouseSortOrder.Price:
                 {
-                    var leftPrice = left.BuyoutOrUnitPrice != 0 ? left.BuyoutOrUnitPrice : (left.BidAmount != 0 ? left.BidAmount : left.MinBid);
-                    var rightPrice = right.BuyoutOrUnitPrice != 0 ? right.BuyoutOrUnitPrice : (right.BidAmount != 0 ? right.BidAmount : right.MinBid);
+                    var leftPrice = left.BuyoutOrUnitPrice != 0   ? left.BuyoutOrUnitPrice : left.BidAmount != 0   ? left.BidAmount : left.MinBid;
+                    var rightPrice = right.BuyoutOrUnitPrice != 0 ? right.BuyoutOrUnitPrice : right.BidAmount != 0 ? right.BidAmount : right.MinBid;
 
                     return (long)(leftPrice - rightPrice);
                 }

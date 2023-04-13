@@ -147,7 +147,7 @@ internal class ArenaCommands
         handler.SendSysMessage(CypherStrings.ArenaInfoHeader, arena.GetName(), arena.GetId(), arena.GetRating(), arena.GetArenaType(), arena.GetArenaType());
 
         foreach (var member in arena.GetMembers())
-            handler.SendSysMessage(CypherStrings.ArenaInfoMembers, member.Name, member.Guid, member.PersonalRating, (arena.GetCaptain() == member.Guid ? "- Captain" : ""));
+            handler.SendSysMessage(CypherStrings.ArenaInfoMembers, member.Name, member.Guid, member.PersonalRating, arena.GetCaptain() == member.Guid ? "- Captain" : "");
 
         return true;
     }

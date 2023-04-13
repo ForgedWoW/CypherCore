@@ -122,7 +122,7 @@ public class CharmInfo
 
     public bool HasCommandState(CommandStates state)
     {
-        return (_commandState == state);
+        return _commandState == state;
     }
 
     public void InitCharmCreateSpells()

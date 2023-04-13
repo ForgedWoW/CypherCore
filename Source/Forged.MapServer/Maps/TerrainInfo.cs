@@ -575,7 +575,7 @@ public class TerrainInfo
                 var map_result = gmap.GetLiquidStatus(x, y, z, ReqLiquidType, map_data, collisionHeight);
 
                 // Not override LIQUID_MAP_ABOVE_WATER with LIQUID_MAP_NO_WATER:
-                if (map_result != ZLiquidStatus.NoWater && (map_data.level > ground_level))
+                if (map_result != ZLiquidStatus.NoWater && map_data.level > ground_level)
                 {
                     // hardcoded in client like this
                     if (GetId() == 530 && map_data.entry == 2)

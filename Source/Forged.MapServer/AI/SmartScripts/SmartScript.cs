@@ -703,7 +703,7 @@ public class SmartScript
 
         if (_me != null)
         {
-            e = _smartAIManager.GetScript(-((int)_me.SpawnId), _scriptType);
+            e = _smartAIManager.GetScript(-(int)_me.SpawnId, _scriptType);
 
             if (e.Empty())
                 e = _smartAIManager.GetScript((int)_me.Entry, _scriptType);
@@ -712,7 +712,7 @@ public class SmartScript
         }
         else if (_go != null)
         {
-            e = _smartAIManager.GetScript(-((int)_go.SpawnId), _scriptType);
+            e = _smartAIManager.GetScript(-(int)_go.SpawnId, _scriptType);
 
             if (e.Empty())
                 e = _smartAIManager.GetScript((int)_go.Entry, _scriptType);
@@ -1768,7 +1768,7 @@ public class SmartScript
                                 _me.InterruptNonMeleeSpells(false);
 
                             var result = _me.SpellFactory.CastSpell(target.AsUnit, e.Action.cast.Spell, new CastSpellExtraArgs(triggerFlag));
-                            var spellCastFailed = (result != SpellCastResult.SpellCastOk && result != SpellCastResult.SpellInProgress);
+                            var spellCastFailed = result != SpellCastResult.SpellCastOk && result != SpellCastResult.SpellInProgress;
 
                             if (e.Action.cast.CastFlags.HasAnyFlag((uint)SmartCastFlags.CombatMove))
                                 ((SmartAI)_me.AI).SetCombatMove(spellCastFailed, true);
@@ -2114,7 +2114,7 @@ public class SmartScript
                 foreach (var target in targets)
                     if (IsUnit(target))
                     {
-                        var angle = e.Action.follow.Angle > 6 ? (e.Action.follow.Angle * (float)Math.PI / 180.0f) : e.Action.follow.Angle;
+                        var angle = e.Action.follow.Angle > 6 ? e.Action.follow.Angle * (float)Math.PI / 180.0f : e.Action.follow.Angle;
                         ((SmartAI)_me.AI).SetFollow(target.AsUnit, e.Action.follow.Dist + 0.1f, angle, e.Action.follow.Credit, e.Action.follow.Entry, e.Action.follow.CreditType);
 
                         Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_FOLLOW: Creature {0} following target {1}",
@@ -2490,8 +2490,8 @@ public class SmartScript
 
                     // Use forward/backward/left/right cartesian plane movement
                     var o = pos.Orientation;
-                    var x = (float)(pos.X + (Math.Cos(o - (Math.PI / 2)) * e.Target.x) + (Math.Cos(o) * e.Target.y));
-                    var y = (float)(pos.Y + (Math.Sin(o - (Math.PI / 2)) * e.Target.x) + (Math.Sin(o) * e.Target.y));
+                    var x = (float)(pos.X + Math.Cos(o - Math.PI / 2) * e.Target.x + Math.Cos(o) * e.Target.y);
+                    var y = (float)(pos.Y + Math.Sin(o - Math.PI / 2) * e.Target.x + Math.Sin(o) * e.Target.y);
                     var z = pos.Z + e.Target.z;
                     target.AsCreature.MotionMaster.MovePoint(e.Action.moveOffset.PointId, x, y, z);
                 }
@@ -3056,7 +3056,7 @@ public class SmartScript
                         if (!IsUnit(target))
                             continue;
 
-                        if (!(e.Action.crossCast.CastFlags.HasAnyFlag((uint)SmartCastFlags.AuraNotPresent)) || !target.AsUnit.HasAura(e.Action.crossCast.Spell))
+                        if (!e.Action.crossCast.CastFlags.HasAnyFlag((uint)SmartCastFlags.AuraNotPresent) || !target.AsUnit.HasAura(e.Action.crossCast.Spell))
                         {
                             if (!interruptedSpell && e.Action.crossCast.CastFlags.HasAnyFlag((uint)SmartCastFlags.InterruptPrevious))
                             {
@@ -3601,8 +3601,8 @@ public class SmartScript
             {
                 if (e.Action.groupSpawn is { MinDelay: 0, MaxDelay: 0 })
                 {
-                    var ignoreRespawn = ((e.Action.groupSpawn.Spawnflags & (uint)SmartAiSpawnFlags.IgnoreRespawn) != 0);
-                    var force = ((e.Action.groupSpawn.Spawnflags & (uint)SmartAiSpawnFlags.ForceSpawn) != 0);
+                    var ignoreRespawn = (e.Action.groupSpawn.Spawnflags & (uint)SmartAiSpawnFlags.IgnoreRespawn) != 0;
+                    var force = (e.Action.groupSpawn.Spawnflags & (uint)SmartAiSpawnFlags.ForceSpawn) != 0;
 
                     // Instant spawn
                     GetBaseObject().Location
@@ -3656,7 +3656,7 @@ public class SmartScript
             {
                 if (e.Action.groupSpawn is { MinDelay: 0, MaxDelay: 0 })
                 {
-                    var deleteRespawnTimes = ((e.Action.groupSpawn.Spawnflags & (uint)SmartAiSpawnFlags.NosaveRespawn) != 0);
+                    var deleteRespawnTimes = (e.Action.groupSpawn.Spawnflags & (uint)SmartAiSpawnFlags.NosaveRespawn) != 0;
 
                     // Instant spawn
                     GetBaseObject().Location
@@ -4258,7 +4258,7 @@ public class SmartScript
             }
             case SmartEvents.QuestObjCompletion:
             {
-                if (var0 == (e.Event.questObjective.ID))
+                if (var0 == e.Event.questObjective.ID)
                     ProcessAction(e, unit);
 
                 break;
@@ -4378,7 +4378,7 @@ public class SmartScript
                     var hostilityMode = (LOSHostilityMode)e.Event.los.HostilityMode;
 
                     //if friendly event&&who is not hostile OR hostile event&&who is hostile
-                    if ((hostilityMode == LOSHostilityMode.Any) || (hostilityMode == LOSHostilityMode.NotHostile && !_me.WorldObjectCombat.IsHostileTo(unit)) || (hostilityMode == LOSHostilityMode.Hostile && _me.WorldObjectCombat.IsHostileTo(unit)))
+                    if (hostilityMode == LOSHostilityMode.Any || (hostilityMode == LOSHostilityMode.NotHostile && !_me.WorldObjectCombat.IsHostileTo(unit)) || (hostilityMode == LOSHostilityMode.Hostile && _me.WorldObjectCombat.IsHostileTo(unit)))
                     {
                         if (unit != null && e.Event.los.PlayerOnly != 0 && !unit.IsTypeId(TypeId.Player))
                             return;
@@ -4404,7 +4404,7 @@ public class SmartScript
                     var hostilityMode = (LOSHostilityMode)e.Event.los.HostilityMode;
 
                     //if friendly event&&who is not hostile OR hostile event&&who is hostile
-                    if ((hostilityMode == LOSHostilityMode.Any) || (hostilityMode == LOSHostilityMode.NotHostile && !_me.WorldObjectCombat.IsHostileTo(unit)) || (hostilityMode == LOSHostilityMode.Hostile && _me.WorldObjectCombat.IsHostileTo(unit)))
+                    if (hostilityMode == LOSHostilityMode.Any || (hostilityMode == LOSHostilityMode.NotHostile && !_me.WorldObjectCombat.IsHostileTo(unit)) || (hostilityMode == LOSHostilityMode.Hostile && _me.WorldObjectCombat.IsHostileTo(unit)))
                     {
                         if (unit != null && e.Event.los.PlayerOnly != 0 && !unit.IsTypeId(TypeId.Player))
                             return;

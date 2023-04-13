@@ -308,7 +308,7 @@ public class Loot
 
         if (maxAmount <= minAmount)
             Gold = (uint)(maxAmount * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f));
-        else if ((maxAmount - minAmount) < 32700)
+        else if (maxAmount - minAmount < 32700)
             Gold = (uint)(RandomHelper.URand(minAmount, maxAmount) * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f));
         else
             Gold = (uint)(RandomHelper.URand(minAmount >> 8, maxAmount >> 8) * _configuration.GetDefaultValue("Rate.Drop.Money", 1.0f)) << 8;

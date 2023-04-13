@@ -11,8 +11,8 @@ internal struct EotSMisc
     public const uint EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3773;
     public const uint EXPLOIT_TELEPORT_LOCATION_HORDE = 3772;
     public const uint EY_WEEKEND_HONOR_TICKS = 160;
-    public const int FLAG_RESPAWN_TIME = (8 * Time.IN_MILLISECONDS);
-    public const int F_POINTS_TICK_TIME = (2 * Time.IN_MILLISECONDS);
+    public const int FLAG_RESPAWN_TIME = 8 * Time.IN_MILLISECONDS;
+    public const int F_POINTS_TICK_TIME = 2 * Time.IN_MILLISECONDS;
 
     public const uint NOT_EY_WEEKEND_HONOR_TICKS = 260;
     public const uint OBJECTIVE_CAPTURE_FLAG = 183;

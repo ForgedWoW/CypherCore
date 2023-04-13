@@ -467,7 +467,7 @@ internal class ModifyCommand
                 _                             => moneyToAdd
             };
 
-            moneyToAdd = (long)Math.Min((ulong)moneyToAdd, (PlayerConst.MaxMoneyAmount - targetMoney));
+            moneyToAdd = (long)Math.Min((ulong)moneyToAdd, PlayerConst.MaxMoneyAmount - targetMoney);
 
             target.ModifyMoney(moneyToAdd);
         }
@@ -707,7 +707,7 @@ internal class ModifyCommand
         }
 
         // try to find rank by name
-        if ((amount == 0) && !(amount < 0) && !rankTxt.IsNumber())
+        if (amount == 0 && !(amount < 0) && !rankTxt.IsNumber())
         {
             var rankStr = rankTxt.ToLower();
 

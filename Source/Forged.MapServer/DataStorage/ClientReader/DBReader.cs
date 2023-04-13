@@ -189,9 +189,9 @@ internal class DBReader
                 var hasRef = refData.Entries.TryGetValue(i, out var refId);
 
                 var recordIndex = i + previousRecordCount;
-                var recordOffset = (recordIndex * Header.RecordSize) - (Header.RecordCount * Header.RecordSize);
+                var recordOffset = recordIndex * Header.RecordSize - Header.RecordCount * Header.RecordSize;
 
-                var rec = new WDC3Row(this, bitReader, (int)recordOffset, Header.HasIndexTable() ? (isIndexEmpty ? i : indexData[i]) : -1, hasRef ? refId : -1, stringsTable);
+                var rec = new WDC3Row(this, bitReader, (int)recordOffset, Header.HasIndexTable() ? isIndexEmpty ? i : indexData[i] : -1, hasRef ? refId : -1, stringsTable);
                 Records.Add(rec.Id, rec);
             }
 

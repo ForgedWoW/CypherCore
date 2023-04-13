@@ -95,18 +95,18 @@ public class PlayerAI : UnitAI
 
     public uint GetSpec(Player who = null)
     {
-        return (who == null || who == Me) ? _selfSpec : who.GetPrimarySpecialization();
+        return who == null || who == Me ? _selfSpec : who.GetPrimarySpecialization();
     }
 
     // helper functions to determine player info
     public bool IsHealer(Player who = null)
     {
-        return (!who || who == Me) ? _isSelfHealer : IsPlayerHealer(who);
+        return !who || who == Me ? _isSelfHealer : IsPlayerHealer(who);
     }
 
     public bool IsRangedAttacker(Player who = null)
     {
-        return (!who || who == Me) ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who);
+        return !who || who == Me ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who);
     }
 
     public virtual Unit SelectAttackTarget()

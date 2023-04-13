@@ -73,7 +73,7 @@ public class AchievementGlobalMgr
         // it may allow more than one group to achieve it (highly unlikely)
         // but apparently this is how blizz handles it as well
         if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstKill))
-            return (DateTime.Now - time) > TimeSpan.FromMinutes(1);
+            return DateTime.Now - time > TimeSpan.FromMinutes(1);
 
         return true;
     }
@@ -272,7 +272,7 @@ public class AchievementGlobalMgr
                 continue;
             }
 
-            if (achievement.Faction == AchievementFaction.Any && (reward.TitleId[0] == 0 ^ reward.TitleId[1] == 0))
+            if (achievement.Faction == AchievementFaction.Any && reward.TitleId[0] == 0 ^ reward.TitleId[1] == 0)
                 Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains the title (A: {reward.TitleId[0]} H: {reward.TitleId[1]}) for only one team.");
 
             if (reward.TitleId[0] != 0)

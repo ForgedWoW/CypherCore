@@ -337,7 +337,7 @@ public class Battleground : ZoneScript, IDisposable
                 StartTimer timer = new()
                 {
                     Type = TimerType.Pvp,
-                    TimeLeft = countdownMaxForBGType - (GetElapsedTime() / 1000),
+                    TimeLeft = countdownMaxForBGType - GetElapsedTime() / 1000,
                     TotalTime = countdownMaxForBGType
                 };
 
@@ -890,7 +890,7 @@ public class Battleground : ZoneScript, IDisposable
     {
         // if BG is starting and WorldCfg.BattlegroundInvitationType == BattlegroundQueueInvitationTypeB.NoBalance, invite anyone
         if (GetStatus() == BattlegroundStatus.WaitJoin && GetDefaultValue("Battleground.InvitationType", 0) == (int)BattlegroundQueueInvitationType.NoBalance)
-            return (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
+            return GetInvitedCount(Team) < GetMaxPlayersPerTeam() ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
 
         // if BG is already started or WorldCfg.BattlegroundInvitationType != BattlegroundQueueInvitationType.NoBalance, do not allow to join too much players of one faction
         uint otherTeamInvitedCount;
@@ -927,7 +927,7 @@ public class Battleground : ZoneScript, IDisposable
                 diff = otherTeamInvitedCount - thisTeamInvitedCount;
 
             // difference based on max players per team (don't allow inviting more)
-            var diff2 = (thisTeamInvitedCount < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - thisTeamInvitedCount : 0;
+            var diff2 = thisTeamInvitedCount < GetMaxPlayersPerTeam() ? GetMaxPlayersPerTeam() - thisTeamInvitedCount : 0;
             // difference based on players who already entered
             // default: allow 0
             uint diff3 = 0;
@@ -1912,7 +1912,7 @@ public class Battleground : ZoneScript, IDisposable
             StartTimer timer = new()
             {
                 Type = TimerType.Pvp,
-                TimeLeft = countdownMaxForBGType - (GetElapsedTime() / 1000),
+                TimeLeft = countdownMaxForBGType - GetElapsedTime() / 1000,
                 TotalTime = countdownMaxForBGType
             };
 
@@ -2124,7 +2124,7 @@ public class Battleground : ZoneScript, IDisposable
             var newtime = m_PrematureCountDownTimer - diff;
 
             // announce every Time.Minute
-            if (newtime > (Time.MINUTE * Time.IN_MILLISECONDS))
+            if (newtime > Time.MINUTE * Time.IN_MILLISECONDS)
             {
                 if (newtime / (Time.MINUTE * Time.IN_MILLISECONDS) != m_PrematureCountDownTimer / (Time.MINUTE * Time.IN_MILLISECONDS))
                     SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarning, ChatMsg.System, null, m_PrematureCountDownTimer / (Time.MINUTE * Time.IN_MILLISECONDS));
@@ -2255,7 +2255,7 @@ public class Battleground : ZoneScript, IDisposable
 
     private uint GetInvitedCount(TeamFaction team)
     {
-        return (team == TeamFaction.Alliance) ? m_InvitedAlliance : m_InvitedHorde;
+        return team == TeamFaction.Alliance ? m_InvitedAlliance : m_InvitedHorde;
     }
 
     private uint GetMaxPlayers()
@@ -2311,7 +2311,7 @@ public class Battleground : ZoneScript, IDisposable
 
     private byte GetUniqueBracketId()
     {
-        return (byte)((GetMinLevel() / 5) - 1); // 10 - 1, 15 - 2, 20 - 3, etc.
+        return (byte)(GetMinLevel() / 5 - 1); // 10 - 1, 15 - 2, 20 - 3, etc.
     }
 
     private PvPTeamId GetWinner()

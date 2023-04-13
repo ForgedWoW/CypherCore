@@ -181,7 +181,7 @@ public partial class Spell : IDisposable
                 Stage = stage.Value.Stage,
             };
 
-        Caster = (info.HasAttribute(SpellAttr6.OriginateFromController) && caster.CharmerOrOwner != null ? caster.CharmerOrOwner : caster);
+        Caster = info.HasAttribute(SpellAttr6.OriginateFromController) && caster.CharmerOrOwner != null ? caster.CharmerOrOwner : caster;
         SpellValue = new SpellValue(SpellInfo, caster);
         NeedComboPoints = SpellInfo.NeedsComboPoints;
 
@@ -391,7 +391,7 @@ public partial class Spell : IDisposable
     public bool CanAutoCast(Unit target)
     {
         if (!target)
-            return (CheckPetCast(target) == SpellCastResult.SpellCastOk);
+            return CheckPetCast(target) == SpellCastResult.SpellCastOk;
 
         var targetguid = target.GUID;
 
@@ -1681,7 +1681,7 @@ public partial class Spell : IDisposable
                 case AuraType.ModCharm:
                 case AuraType.AoeCharm:
                 {
-                    var unitCaster1 = (OriginalCaster ? OriginalCaster : Caster.AsUnit);
+                    var unitCaster1 = OriginalCaster ? OriginalCaster : Caster.AsUnit;
 
                     if (unitCaster1 == null)
                         return SpellCastResult.BadTargets;
@@ -2026,7 +2026,7 @@ public partial class Spell : IDisposable
 
         //check pushback reduce
         // should be affected by modifiers, not take the dbc duration.
-        var duration = ((_channeledDuration > 0) ? _channeledDuration : SpellInfo.Duration);
+        var duration = _channeledDuration > 0 ? _channeledDuration : SpellInfo.Duration;
 
         var delaytime = MathFunctions.CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
         double delayReduce = 100;                                 // must be initialized to 100 for percent modifiers
@@ -2055,7 +2055,7 @@ public partial class Spell : IDisposable
         foreach (var ihit in UniqueTargetInfo)
             if (ihit.MissCondition == SpellMissInfo.None)
             {
-                var unit = (unitCaster.GUID == ihit.TargetGuid) ? unitCaster : Global.ObjAccessor.GetUnit(unitCaster, ihit.TargetGuid);
+                var unit = unitCaster.GUID == ihit.TargetGuid ? unitCaster : Global.ObjAccessor.GetUnit(unitCaster, ihit.TargetGuid);
 
                 unit?.DelayOwnedAuras(SpellInfo.Id, _originalCasterGuid, delaytime);
             }
@@ -2104,7 +2104,7 @@ public partial class Spell : IDisposable
                 // delayed spells with multiple targets need to create a new aura object, otherwise we'll access a deleted aura
                 if (hitInfo.HitAura == null)
                 {
-                    var resetPeriodicTimer = (SpellInfo.StackAmount < 2) && !_triggeredCastFlags.HasFlag(TriggerCastFlags.DontResetPeriodicTimer);
+                    var resetPeriodicTimer = SpellInfo.StackAmount < 2 && !_triggeredCastFlags.HasFlag(TriggerCastFlags.DontResetPeriodicTimer);
                     var allAuraEffectMask = Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffects, unit);
 
                     AuraCreateInfo createInfo = new(CastId, SpellInfo, CastDifficulty, allAuraEffectMask, unit);
@@ -2525,7 +2525,7 @@ public partial class Spell : IDisposable
 
                 next_time = DelayMoment;
 
-                if ((UniqueTargetInfo.Count > 2 || (UniqueTargetInfo.Count == 1 && UniqueTargetInfo[0].TargetGuid == Caster.GUID)) || !_uniqueGoTargetInfo.Empty())
+                if (UniqueTargetInfo.Count > 2 || (UniqueTargetInfo.Count == 1 && UniqueTargetInfo[0].TargetGuid == Caster.GUID) || !_uniqueGoTargetInfo.Empty())
                     offset = 0; // if LaunchDelay was present then the only target that has timeDelay = 0 is m_caster - and that is the only target we want to process now
             }
         }
@@ -2726,7 +2726,7 @@ public partial class Spell : IDisposable
 
     public bool IsTriggeredByAura(SpellInfo auraSpellInfo)
     {
-        return (auraSpellInfo == TriggeredByAuraSpell);
+        return auraSpellInfo == TriggeredByAuraSpell;
     }
 
     public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, int effIndex)
@@ -4494,18 +4494,18 @@ public partial class Spell : IDisposable
                 var speed = Targets.SpeedXY;
 
                 if (speed > 0.0f)
-                    return (ulong)(Math.Floor((Targets.Dist2d / speed + launchDelay) * 1000.0f));
+                    return (ulong)Math.Floor((Targets.Dist2d / speed + launchDelay) * 1000.0f);
             }
             else if (SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
             {
-                return (ulong)(Math.Floor((SpellInfo.Speed + launchDelay) * 1000.0f));
+                return (ulong)Math.Floor((SpellInfo.Speed + launchDelay) * 1000.0f);
             }
             else if (SpellInfo.Speed > 0.0f)
             {
                 // We should not subtract caster size from dist calculation (fixes execution time desync with animation on client, eg. Malleable Goo cast by PP)
                 var dist = Caster.Location.GetExactDist(Targets.DstPos);
 
-                return (ulong)(Math.Floor((dist / SpellInfo.Speed + launchDelay) * 1000.0f));
+                return (ulong)Math.Floor((dist / SpellInfo.Speed + launchDelay) * 1000.0f);
             }
 
             return (ulong)Math.Floor(launchDelay * 1000.0f);
@@ -4868,7 +4868,7 @@ public partial class Spell : IDisposable
 
     private SpellCastResult CheckCasterAuras(ref int paramOne)
     {
-        var unitCaster = (OriginalCaster ? OriginalCaster : Caster.AsUnit);
+        var unitCaster = OriginalCaster ? OriginalCaster : Caster.AsUnit;
 
         if (unitCaster == null)
             return SpellCastResult.SpellCastOk;
@@ -5012,7 +5012,7 @@ public partial class Spell : IDisposable
 
         // Attr must make Id drop spell totally immune from all effects
         if (result != SpellCastResult.SpellCastOk)
-            return (paramOne != 0) ? SpellCastResult.PreventedByMechanic : result;
+            return paramOne != 0 ? SpellCastResult.PreventedByMechanic : result;
 
         return SpellCastResult.SpellCastOk;
     }
@@ -5419,7 +5419,7 @@ public partial class Spell : IDisposable
                                 else
                                 {
                                     // Conjure Food/Water/Refreshment spells
-                                    if (SpellInfo.SpellFamilyName != SpellFamilyNames.Mage || (!SpellInfo.SpellFamilyFlags[0].HasAnyFlag(0x40000000u)))
+                                    if (SpellInfo.SpellFamilyName != SpellFamilyNames.Mage || !SpellInfo.SpellFamilyFlags[0].HasAnyFlag(0x40000000u))
                                     {
                                         return SpellCastResult.TooManyOfItem;
                                     }
@@ -5857,7 +5857,7 @@ public partial class Spell : IDisposable
                 return SpellCastResult.OutOfRange;
 
             if (Caster.IsTypeId(TypeId.Player) &&
-                ((SpellInfo.FacingCasterFlags.HasAnyFlag(1u) && !Caster.Location.HasInArc((float)Math.PI, target.Location)) && !Caster.AsPlayer.IsWithinBoundaryRadius(target)))
+                SpellInfo.FacingCasterFlags.HasAnyFlag(1u) && !Caster.Location.HasInArc((float)Math.PI, target.Location) && !Caster.AsPlayer.IsWithinBoundaryRadius(target))
                 return SpellCastResult.UnitNotInfront;
         }
 
@@ -5931,7 +5931,7 @@ public partial class Spell : IDisposable
 
     private bool CheckSpellCancelsAuraEffect(AuraType auraType, ref int param1)
     {
-        var unitCaster = (OriginalCaster ? OriginalCaster : Caster.AsUnit);
+        var unitCaster = OriginalCaster ? OriginalCaster : Caster.AsUnit;
 
         if (unitCaster == null)
             return false;
@@ -6358,7 +6358,7 @@ public partial class Spell : IDisposable
     private void HandleThreatSpells()
     {
         // wild GameObject spells don't cause threat
-        var unitCaster = (OriginalCaster ? OriginalCaster : Caster.AsUnit);
+        var unitCaster = OriginalCaster ? OriginalCaster : Caster.AsUnit;
 
         if (unitCaster == null)
             return;
@@ -6597,7 +6597,7 @@ public partial class Spell : IDisposable
         if (OriginalCaster && targetInfo.MissCondition != SpellMissInfo.Evade && !OriginalCaster.WorldObjectCombat.IsFriendlyTo(targetUnit) && (!SpellInfo.IsPositive || SpellInfo.HasEffect(SpellEffectName.Dispel)) && (SpellInfo.HasInitialAggro || targetUnit.IsEngaged))
             OriginalCaster.SetInCombatWith(targetUnit, true);
 
-        Unit unit = targetInfo.MissCondition switch
+        var unit = targetInfo.MissCondition switch
         {
             // In case spell hit target, do all effect on that target
             SpellMissInfo.None => targetUnit,
@@ -7111,7 +7111,7 @@ public partial class Spell : IDisposable
                     
                 }
 
-                if (redirect != null && (redirect != target))
+                if (redirect != null && redirect != target)
                     Targets.UnitTarget = redirect;
             }
     }
@@ -7361,28 +7361,28 @@ public partial class Spell : IDisposable
                             break;
                         case MovementFlag.StrafeLeft:
                         case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft:
-                            angle = (MathF.PI / 2);
+                            angle = MathF.PI / 2;
 
                             break;
                         case MovementFlag.Forward | MovementFlag.StrafeLeft:
-                            angle = (MathF.PI / 4);
+                            angle = MathF.PI / 4;
 
                             break;
                         case MovementFlag.Backward | MovementFlag.StrafeLeft:
-                            angle = (3 * MathF.PI / 4);
+                            angle = 3 * MathF.PI / 4;
 
                             break;
                         case MovementFlag.StrafeRight:
                         case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeRight:
-                            angle = (-MathF.PI / 2);
+                            angle = -MathF.PI / 2;
 
                             break;
                         case MovementFlag.Forward | MovementFlag.StrafeRight:
-                            angle = (-MathF.PI / 4);
+                            angle = -MathF.PI / 4;
 
                             break;
                         case MovementFlag.Backward | MovementFlag.StrafeRight:
-                            angle = (-3 * MathF.PI / 4);
+                            angle = -3 * MathF.PI / 4;
 
                             break;
                         default:
@@ -8154,7 +8154,7 @@ public partial class Spell : IDisposable
             var dz = obj.Location.Z - srcPos.Z;
 
             var horizontalDistToTraj = (float)Math.Abs(objDist2d * Math.Sin(srcPos.GetRelativeAngle(obj.Location)));
-            var sizeFactor = (float)Math.Cos((horizontalDistToTraj / size) * (Math.PI / 2.0f));
+            var sizeFactor = (float)Math.Cos(horizontalDistToTraj / size * (Math.PI / 2.0f));
             var distToHitPoint = (float)Math.Max(objDist2d * Math.Cos(srcPos.GetRelativeAngle(obj.Location)) - size * sizeFactor, 0.0f);
             var height = distToHitPoint * (a * distToHitPoint + b);
 
@@ -8710,7 +8710,7 @@ public partial class Spell : IDisposable
                 }
 
                 // all charges used
-                withoutCharges = (charges == 0);
+                withoutCharges = charges == 0;
             }
         }
 
@@ -8923,7 +8923,7 @@ public partial class Spell : IDisposable
                                        SpellInfo.HasAttribute(SpellAttr0.IsAbility);
 
             // Apply haste rating
-            if (gcd > MinGCD && (SpellInfo.StartRecoveryCategory == 133 && !isMeleeOrRangedSpell))
+            if (gcd > MinGCD && SpellInfo.StartRecoveryCategory == 133 && !isMeleeOrRangedSpell)
             {
                 gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * Caster.AsUnit.UnitData.ModSpellHaste);
                 var intGcd = (int)gcd.TotalMilliseconds;

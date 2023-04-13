@@ -176,7 +176,7 @@ public class ThreatManager
         if (a.TauntState != b.TauntState) // taunt state precedence (TAUNT > NONE > DETAUNT)
             return a.TauntState < b.TauntState;
 
-        return (a.Threat * aWeight < b.Threat);
+        return a.Threat * aWeight < b.Threat;
     }
 
     public void AddThreat(Unit target, double amount, SpellInfo spell = null, bool ignoreModifiers = false, bool ignoreRedirects = false)
@@ -428,7 +428,7 @@ public class ThreatManager
         if (!_myThreatListEntries.TryGetValue(who.GUID, out var refe))
             return 0.0f;
 
-        return (includeOffline || refe.IsAvailable) ? refe.Threat : 0.0f;
+        return includeOffline || refe.IsAvailable ? refe.Threat : 0.0f;
     }
 
     public void Initialize()
@@ -441,7 +441,7 @@ public class ThreatManager
         if (!_myThreatListEntries.TryGetValue(who, out var refe))
             return false;
 
-        return (includeOffline || refe.IsAvailable);
+        return includeOffline || refe.IsAvailable;
     }
 
     public bool IsThreatenedBy(Unit who, bool includeOffline = false)
@@ -466,7 +466,7 @@ public class ThreatManager
         if (!ThreatenedByMeList.TryGetValue(who, out var refe))
             return false;
 
-        return (includeOffline || refe.IsAvailable);
+        return includeOffline || refe.IsAvailable;
     }
 
     public bool IsThreateningTo(Unit who, bool includeOffline = false)
@@ -503,7 +503,7 @@ public class ThreatManager
         if (!highest.IsAvailable)
             return;
 
-        if (highest.IsTaunting && (++index) != SortedThreatList.Count - 1) // might need to skip this - max threat could be the preceding element (there is only one taunt element)
+        if (highest.IsTaunting && ++index != SortedThreatList.Count - 1) // might need to skip this - max threat could be the preceding element (there is only one taunt element)
         {
             var a = SortedThreatList[index];
 
@@ -832,7 +832,7 @@ public class ThreatManager
     private void UpdateVictim()
     {
         var newVictim = ReselectVictim();
-        var newHighest = newVictim != null && (newVictim != _currentVictimRef);
+        var newHighest = newVictim != null && newVictim != _currentVictimRef;
 
         _currentVictimRef = newVictim;
 

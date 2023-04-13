@@ -18,7 +18,7 @@ public struct FieldMetaData
         {
             var value = (32 - Bits) >> 3;
 
-            return (value < 0 ? Math.Abs(value) + 4 : value);
+            return value < 0 ? Math.Abs(value) + 4 : value;
         }
     }
 
@@ -29,7 +29,7 @@ public struct FieldMetaData
             var bitSize = 32 - Bits;
 
             if (bitSize < 0)
-                bitSize = (bitSize * -1) + 32;
+                bitSize = bitSize * -1 + 32;
 
             return bitSize;
         }

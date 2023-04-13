@@ -227,7 +227,7 @@ public class ChatCommandNode
 
     public void ResolveNames(string name)
     {
-        if (_methodInfo != null && (HelpText.IsEmpty() && HelpString == 0))
+        if (_methodInfo != null && HelpText.IsEmpty() && HelpString == 0)
             Log.Logger.Warning($"Table `command` is missing help text for command '{name}'.");
 
         Name = name;

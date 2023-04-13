@@ -352,7 +352,7 @@ public class TargetInfo : TargetInfoBase
         if (unit.IsAlive != IsAlive)
             return;
 
-        if (spell.State == SpellState.Delayed && !spell.IsPositive && (GameTime.CurrentTimeMS - TimeDelay) <= unit.LastSanctuaryTime)
+        if (spell.State == SpellState.Delayed && !spell.IsPositive && GameTime.CurrentTimeMS - TimeDelay <= unit.LastSanctuaryTime)
             return; // No missinfo in that case
 
         if (_spellHitTarget)

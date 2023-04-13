@@ -46,7 +46,7 @@ public class LFGGroupData
     public uint GetDungeon(bool asId = true)
     {
         if (asId)
-            return (_mDungeon & 0x00FFFFFF);
+            return _mDungeon & 0x00FFFFFF;
         else
             return _mDungeon;
     }

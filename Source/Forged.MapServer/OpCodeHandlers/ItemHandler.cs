@@ -694,7 +694,7 @@ public class ItemHandler : IWorldSessionHandler
 
         //cheat . tried to socket same gem multiple times
         if ((!socketGems.GemItem[0].IsEmpty && (socketGems.GemItem[0] == socketGems.GemItem[1] || socketGems.GemItem[0] == socketGems.GemItem[2])) ||
-            (!socketGems.GemItem[1].IsEmpty && (socketGems.GemItem[1] == socketGems.GemItem[2])))
+            (!socketGems.GemItem[1].IsEmpty && socketGems.GemItem[1] == socketGems.GemItem[2]))
             return;
 
         var itemTarget = Player.GetItemByGuid(socketGems.ItemGuid);

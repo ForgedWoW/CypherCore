@@ -246,7 +246,7 @@ internal class TransportGameObject : GameObjectTypeBase, ITransport
             if (Owner.GoState == GameObjectState.TransportActive)
                 stopTargetTime = 0;
             else
-                stopTargetTime = (int)(_stopFrames[Owner.GoState - GameObjectState.TransportStopped]);
+                stopTargetTime = (int)_stopFrames[Owner.GoState - GameObjectState.TransportStopped];
 
             if (now < Owner.GameObjectFieldData.Level)
             {

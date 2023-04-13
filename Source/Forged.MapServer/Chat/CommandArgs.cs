@@ -173,9 +173,9 @@ internal class CommandArgs
                 }
                 else
                 {
-                    if ((token == "1") || token.Equals("y", StringComparison.OrdinalIgnoreCase) || token.Equals("on", StringComparison.OrdinalIgnoreCase) || token.Equals("yes", StringComparison.OrdinalIgnoreCase))
+                    if (token == "1" || token.Equals("y", StringComparison.OrdinalIgnoreCase) || token.Equals("on", StringComparison.OrdinalIgnoreCase) || token.Equals("yes", StringComparison.OrdinalIgnoreCase))
                         val = true;
-                    else if ((token == "0") || token.Equals("n", StringComparison.OrdinalIgnoreCase) || token.Equals("off", StringComparison.OrdinalIgnoreCase) || token.Equals("no", StringComparison.OrdinalIgnoreCase))
+                    else if (token == "0" || token.Equals("n", StringComparison.OrdinalIgnoreCase) || token.Equals("off", StringComparison.OrdinalIgnoreCase) || token.Equals("no", StringComparison.OrdinalIgnoreCase))
                         val = false;
                     else
                         return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserStringValueInvalid, token, Type.GetTypeCode(type)));
@@ -276,7 +276,7 @@ internal class CommandArgs
     {
         var result = TryAtIndex(out val, types, 0, handler, args);
 
-        if (result.HasErrorMessage && (result.ErrorMessage.IndexOf('\n') != -1))
+        if (result.HasErrorMessage && result.ErrorMessage.IndexOf('\n') != -1)
             return ChatCommandResult.FromErrorMessage($"{handler.GetCypherString(CypherStrings.CmdparserEither)} {result.ErrorMessage}");
 
         return result;

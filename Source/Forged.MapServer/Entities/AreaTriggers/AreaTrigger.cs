@@ -461,8 +461,8 @@ public class AreaTrigger : WorldObject
             pathProgress *= -1;
 
         var angle = cmi.InitialAngle + 2.0f * (float)Math.PI * pathProgress;
-        var x = centerPos.X + (radius * (float)Math.Cos(angle));
-        var y = centerPos.Y + (radius * (float)Math.Sin(angle));
+        var x = centerPos.X + radius * (float)Math.Cos(angle);
+        var y = centerPos.Y + radius * (float)Math.Sin(angle);
         var z = centerPos.Z + cmi.ZOffset;
 
         return new Position(x, y, z, angle);
@@ -481,7 +481,7 @@ public class AreaTrigger : WorldObject
             int nextVertex;
 
             //repeat loop for all sets of points
-            if (vertex == (_polygonVertices.Count - 1))
+            if (vertex == _polygonVertices.Count - 1)
                 //if i is the last vertex, let j be the first vertex
                 nextVertex = 0;
             else
@@ -517,7 +517,7 @@ public class AreaTrigger : WorldObject
                 var slopeOfLine = (vertXj - vertXi) / (vertYj - vertYi);
 
                 // this looks up the x-coord of a point lying on the above line, given its y-coord
-                var pointOnLine = (slopeOfLine * (testY - vertYi)) + vertXi;
+                var pointOnLine = slopeOfLine * (testY - vertYi) + vertXi;
 
                 //checks to see if x-coord of testPoint is smaller than the point on the line with the same y-coord
                 var isLeftToLine = testX < pointOnLine;

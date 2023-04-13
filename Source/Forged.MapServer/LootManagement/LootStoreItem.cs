@@ -24,28 +24,14 @@ public class LootStoreItem
         "Rate.Drop.Item.Artifact",  // ITEM_QUALITY_ARTIFACT
     };
 
-    public float Chance;
-    public List<Condition> Conditions;
-    public byte Groupid;
-
-    public uint Itemid; // id of the item
-
-    // chance to drop for both quest and non-quest items, chance to be used for refs
-    public ushort Lootmode;
-
-    public byte Maxcount;
-    public byte Mincount;
-    public bool NeedsQuest;
-    public uint Reference; // referenced TemplateleId
     private readonly IConfiguration _configuration;
-
     // quest drop (negative ChanceOrQuestChance in DB)
     // mincount for drop items
     // max drop count for the item mincount or Ref multiplicator
     // additional loot condition
     private readonly GameObjectManager _objectManager;
-    private readonly WorldDatabase _worldDatabase;
 
+    private readonly WorldDatabase _worldDatabase;
     public LootStoreItem(uint itemid, uint reference, float chance, bool needsQuest, ushort lootmode, byte groupid, byte mincount, byte maxcount, GameObjectManager objectManager, IConfiguration configuration, WorldDatabase worldDatabase)
     {
         Itemid = itemid;
@@ -62,6 +48,19 @@ public class LootStoreItem
         Conditions = new List<Condition>();
     }
 
+    public float Chance { get; set; }
+    public List<Condition> Conditions { get; set; }
+    public byte Groupid { get; set; }
+
+    public uint Itemid { get; set; } // id of the item
+
+    // chance to drop for both quest and non-quest items, chance to be used for refs
+    public ushort Lootmode { get; set; }
+
+    public byte Maxcount { get; set; }
+    public byte Mincount { get; set; }
+    public bool NeedsQuest { get; set; }
+    public uint Reference { get; set; } // referenced TemplateleId
     public bool IsValid(LootStore store, uint entry)
     {
         if (Mincount == 0)

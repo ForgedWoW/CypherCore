@@ -141,7 +141,7 @@ public class DynamicUpdateField<T> where T : new()
             MarkAllUpdateMaskFields(Values[i]);
         }
 
-        if ((Values.Count % 32) != 0)
+        if (Values.Count % 32 != 0)
             UpdateMask[Update.UpdateMask.GetBlockIndex(Values.Count)] &= (uint)~Update.UpdateMask.GetBlockFlag(Values.Count);
         else
             UpdateMask.RemoveAt(UpdateMask.Count - 1);
@@ -173,7 +173,7 @@ public class DynamicUpdateField<T> where T : new()
             return;
         }
 
-        if ((Values.Count % 32) != 0)
+        if (Values.Count % 32 != 0)
             data.WriteBits(UpdateMask.Last(), Values.Count % 32);
     }
     private void MarkAllUpdateMaskFields(T value)

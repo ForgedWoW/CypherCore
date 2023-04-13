@@ -272,7 +272,7 @@ public class InstanceMap : Map
 
         // if last player set unload timer
         if (UnloadTimer == 0 && Players.Count == 1)
-            UnloadTimer = (InstanceLock != null && InstanceLock.IsExpired()) ? 1 : Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.MINUTE * Time.IN_MILLISECONDS), 1);
+            UnloadTimer = InstanceLock != null && InstanceLock.IsExpired() ? 1 : Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.MINUTE * Time.IN_MILLISECONDS), 1);
 
         InstanceScenario?.OnPlayerExit(player);
 

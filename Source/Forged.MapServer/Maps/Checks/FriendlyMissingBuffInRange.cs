@@ -26,7 +26,7 @@ public class FriendlyMissingBuffInRange : ICheck<Creature>
             u.IsInCombat &&
             !_obj.WorldObjectCombat.IsHostileTo(u) &&
             _obj.Location.IsWithinDist(u, _range) &&
-            !(u.HasAura(_spell)))
+            !u.HasAura(_spell))
             return true;
 
         return false;

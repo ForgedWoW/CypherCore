@@ -105,7 +105,7 @@ public class UnitCombatHelpers
         vSchoolAbsorbCopy.Sort(new AbsorbAuraOrderPred());
 
         // absorb without mana cost
-        for (var i = 0; i < vSchoolAbsorbCopy.Count && (damageInfo.Damage > 0); ++i)
+        for (var i = 0; i < vSchoolAbsorbCopy.Count && damageInfo.Damage > 0; ++i)
         {
             var absorbAurEff = vSchoolAbsorbCopy[i];
 
@@ -229,7 +229,7 @@ public class UnitCombatHelpers
                 var manaTaken = -damageInfo.Victim.ModifyPower(PowerType.Mana, -manaReduction);
 
                 // take case when mana has ended up into account
-                currentAbsorb = currentAbsorb != 0 ? (currentAbsorb * (manaTaken / manaReduction)) : 0;
+                currentAbsorb = currentAbsorb != 0 ? currentAbsorb * (manaTaken / manaReduction) : 0;
 
                 damageInfo.AbsorbDamage((uint)currentAbsorb);
 
@@ -241,7 +241,7 @@ public class UnitCombatHelpers
                 {
                     absorbAurEff.ChangeAmount(absorbAurEff.Amount - currentAbsorb);
 
-                    if ((absorbAurEff.Amount <= 0))
+                    if (absorbAurEff.Amount <= 0)
                         absorbAurEff.Base.Remove(AuraRemoveMode.EnemySpell);
                 }
             }
@@ -292,7 +292,7 @@ public class UnitCombatHelpers
                 // Damage can be splitted only if aura has an alive caster
                 var caster = itr.Caster;
 
-                if (caster == null || (caster == damageInfo.Victim) || !caster.Location.IsInWorld || !caster.IsAlive)
+                if (caster == null || caster == damageInfo.Victim || !caster.Location.IsInWorld || !caster.IsAlive)
                     continue;
 
                 var splitDamage = MathFunctions.CalculatePct(damageInfo.Damage, itr.Amount);
@@ -401,7 +401,7 @@ public class UnitCombatHelpers
         // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
         var armorConstant = _db2Manager.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, attackerClass);
 
-        if ((armor + armorConstant) == 0)
+        if (armor + armorConstant == 0)
             return damage;
 
         var mitigation = Math.Min(armor / (armor + armorConstant), 0.85f);
@@ -613,7 +613,7 @@ public class UnitCombatHelpers
         var damageTaken = damage;
 
         if (attacker != null)
-            damageTaken = (damage / victim.GetHealthMultiplierForTarget(attacker));
+            damageTaken = damage / victim.GetHealthMultiplierForTarget(attacker);
 
         // call script hooks
         {
@@ -727,7 +727,7 @@ public class UnitCombatHelpers
         var duelHasEnded = false;
         var duelWasMounted = false;
 
-        if (victim.IsPlayer && victim.AsPlayer.Duel != null && damageTaken >= (health - 1))
+        if (victim.IsPlayer && victim.AsPlayer.Duel != null && damageTaken >= health - 1)
         {
             if (attacker == null)
                 return 0;
@@ -742,7 +742,7 @@ public class UnitCombatHelpers
         {
             damageTaken = health - 1;
         }
-        else if (victim.IsVehicle && damageTaken >= (health - 1) && victim.Charmer != null && victim.Charmer.IsTypeId(TypeId.Player))
+        else if (victim.IsVehicle && damageTaken >= health - 1 && victim.Charmer != null && victim.Charmer.IsTypeId(TypeId.Player))
         {
             var victimRider = victim.Charmer.AsPlayer;
 
@@ -1295,7 +1295,7 @@ public class UnitCombatHelpers
             if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && _configuration.GetDefaultValue("DurabilityLoss.InPvP", false)))
             {
                 double baseLoss = _configuration.GetDefaultValue("DurabilityLoss.OnDeath", 10.0f) / 100;
-                var loss = (uint)(baseLoss - (baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss)));
+                var loss = (uint)(baseLoss - baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss));
                 Log.Logger.Debug("We are dead, losing {0} percent durability", loss);
                 // Durability loss is calculated more accurately again for each item in Player.DurabilityLoss
                 plrVictim.DurabilityLossAll(baseLoss, false);

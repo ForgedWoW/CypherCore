@@ -160,7 +160,7 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
             return;
         }
 
-        if ((size % 32) != 0)
+        if (size % 32 != 0)
             data.WriteBits(0xFFFFFFFFu, size % 32);
     }
 }

@@ -62,7 +62,7 @@ public partial class Player
         var group = Group;
 
         // raid instances require the player to be in a raid group to be valid
-        if (map.IsRaid && !Configuration.GetDefaultValue("Instance.IgnoreRaid", false) && (map.Entry.Expansion() >= (Expansion)Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)))
+        if (map.IsRaid && !Configuration.GetDefaultValue("Instance.IgnoreRaid", false) && map.Entry.Expansion() >= (Expansion)Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight))
             if (group == null || group.IsRaidGroup)
                 return false;
 
@@ -603,7 +603,7 @@ public partial class Player
             RemovePvpFlag(UnitPVPStateFlags.Sanctuary);
         }
 
-        var areaRestFlag = (Team == TeamFaction.Alliance) ? AreaFlags.RestZoneAlliance : AreaFlags.RestZoneHorde;
+        var areaRestFlag = Team == TeamFaction.Alliance ? AreaFlags.RestZoneAlliance : AreaFlags.RestZoneHorde;
 
         if (area != null && area.HasFlag(areaRestFlag))
             RestMgr.SetRestFlag(RestFlag.FactionArea);

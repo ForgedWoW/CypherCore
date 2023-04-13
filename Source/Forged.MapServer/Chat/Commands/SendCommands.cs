@@ -79,22 +79,22 @@ internal class SendCommands
         }
 
         // from console show not existed sender
-        MailSender sender = new(MailMessageType.Normal, handler.Session ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
+        MailSender sender = new(MailMessageType.Normal, handler.Session != null ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
 
         // fill mail
-        MailDraft draft = new(subject, text);
+        var draft = handler.ClassFactory.ResolvePositional<MailDraft>(subject, text);
 
         SQLTransaction trans = new();
 
         foreach (var pair in items)
         {
-            var item = Item.CreateItem(pair.Key, pair.Value, ItemContext.None, handler.Session ? handler.Session.Player : null);
+            var item = Item.CreateItem(pair.Key, pair.Value, ItemContext.None, handler.Session?.Player);
 
-            if (item)
-            {
-                item.SaveToDB(trans); // save for prevent lost at next mail load, if send fail then item will deleted
-                draft.AddItem(item);
-            }
+            if (item == null)
+                continue;
+
+            item.SaveToDB(trans); // save for prevent lost at next mail load, if send fail then item will deleted
+            draft.AddItem(item);
         }
 
         draft.SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
@@ -123,13 +123,13 @@ internal class SendCommands
             return false;
 
         // from console show not existed sender
-        MailSender sender = new(MailMessageType.Normal, handler.Session ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
+        MailSender sender = new(MailMessageType.Normal, handler.Session != null ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
 
         // @todo Fix poor design
         SQLTransaction trans = new();
 
-        new MailDraft(subject, text)
-            .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
+        handler.ClassFactory.ResolvePositional<MailDraft>(subject, text)
+                     .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
         handler.ClassFactory.Resolve<CharacterDatabase>().CommitTransaction(trans);
 
@@ -198,13 +198,13 @@ internal class SendCommands
             return false;
 
         // from console show not existed sender
-        MailSender sender = new(MailMessageType.Normal, handler.Session ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
+        MailSender sender = new(MailMessageType.Normal, handler.Session != null ? handler.Session.Player.GUID.Counter : 0, MailStationery.Gm);
 
         SQLTransaction trans = new();
 
-        new MailDraft(subject, text)
-            .AddMoney((uint)money)
-            .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
+        handler.ClassFactory.ResolvePositional<MailDraft>(subject, text)
+                     .AddMoney((uint)money)
+                     .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
         handler.ClassFactory.Resolve<CharacterDatabase>().CommitTransaction(trans);
 

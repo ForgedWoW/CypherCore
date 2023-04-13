@@ -113,7 +113,7 @@ public class PathGenerator
 
     public bool IsInvalidDestinationZ(WorldObject target)
     {
-        return (target.Location.Z - GetActualEndPosition().Z) > 5.0f;
+        return target.Location.Z - GetActualEndPosition().Z > 5.0f;
     }
 
     public void SetPathLengthLimit(float distance)
@@ -300,7 +300,7 @@ public class PathGenerator
                 BuildShortcut();
             }
 
-            _pathType = (PathType.Normal | PathType.NotUsingPath);
+            _pathType = PathType.Normal | PathType.NotUsingPath;
         }
 
         Log.Logger.Debug("PathGenerator.BuildPointPath path type {0} size {1} poly-size {2}\n", _pathType, pointCount, _polyLength);
@@ -379,7 +379,7 @@ public class PathGenerator
             Log.Logger.Debug("++ BuildPolyPath . farFromPoly distToStartPoly={0:F3} distToEndPoly={1:F3}\n", distToStartPoly, distToEndPoly);
 
             var buildShotrcut = false;
-            var p = (distToStartPoly > 7.0f) ? startPos : endPos;
+            var p = distToStartPoly > 7.0f ? startPos : endPos;
 
             if (_source.Location.Map.IsUnderWater(_source.Location.PhaseShift, p.X, p.Y, p.Z))
             {
@@ -588,7 +588,7 @@ public class PathGenerator
             Log.Logger.Debug("m_polyLength={0} prefixPolyLength={1} suffixPolyLength={2} \n", _polyLength, prefixPolyLength, suffixPolyLength);
 
             for (var i = 0; i < _pathPolyRefs.Length - (prefixPolyLength - 1); ++i)
-                _pathPolyRefs[(prefixPolyLength - 1) + i] = tempPolyRefs[i];
+                _pathPolyRefs[prefixPolyLength - 1 + i] = tempPolyRefs[i];
 
             // new path = prefix + suffix - overlap
             _polyLength = prefixPolyLength + suffixPolyLength - 1;
@@ -752,11 +752,11 @@ public class PathGenerator
 
             // creatures don't take environmental damage
             if (creature.CanEnterWater)
-                includeFlags |= (NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
+                includeFlags |= NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime;
         }
         else
         {
-            includeFlags = (NavTerrainFlag.Ground | NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
+            includeFlags = NavTerrainFlag.Ground | NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime;
         }
 
         _filter.setIncludeFlags((ushort)includeFlags);
@@ -944,7 +944,7 @@ public class PathGenerator
 
         // Adjust beginning of the buffer to include the visited.
         var req = (uint)(nvisited - furthestVisited);
-        var orig = (uint)((furthestPath + 1) < npath ? furthestPath + 1 : (int)npath);
+        var orig = (uint)(furthestPath + 1 < npath ? furthestPath + 1 : (int)npath);
         var size = npath > orig ? npath - orig : 0;
 
         if (req + size > maxPath)
@@ -955,7 +955,7 @@ public class PathGenerator
 
         // Store visited
         for (uint i = 0; i < req; ++i)
-            path[i] = visited[(nvisited - 1) - i];
+            path[i] = visited[nvisited - 1 - i];
 
         return req + size;
     }
@@ -1009,7 +1009,7 @@ public class PathGenerator
 
         distance = (float)Math.Sqrt(minDist);
 
-        return (minDist < 3.0f) ? nearestPoly : 0u;
+        return minDist < 3.0f ? nearestPoly : 0u;
     }
 
     private ulong GetPolyByLocation(float[] point, ref float distance)
@@ -1083,8 +1083,8 @@ public class PathGenerator
             Span<float> span = steerPath;
 
             // Stop at Off-Mesh link or when point is further than slop away.
-            if ((steerPathFlags[ns].HasAnyFlag((byte)Detour.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
-                 !InRangeYzx(span[((int)ns * 3)..].ToArray(), startPos, minTargetDist, 1000.0f)))
+            if (steerPathFlags[ns].HasAnyFlag((byte)Detour.dtStraightPathFlags.DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
+                !InRangeYzx(span[((int)ns * 3)..].ToArray(), startPos, minTargetDist, 1000.0f))
                 break;
 
             ns++;
@@ -1119,14 +1119,14 @@ public class PathGenerator
         if (tx < 0 || ty < 0)
             return false;
 
-        return (_navMesh.getTileAt(tx, ty, 0) != null);
+        return _navMesh.getTileAt(tx, ty, 0) != null;
     }
 
     private bool InRange(Vector3 p1, Vector3 p2, float r, float h)
     {
         var d = p1 - p2;
 
-        return (d.X * d.X + d.Y * d.Y) < r * r && Math.Abs(d.Z) < h;
+        return d.X * d.X + d.Y * d.Y < r * r && Math.Abs(d.Z) < h;
     }
 
     private bool InRangeYzx(float[] v1, float[] v2, float r, float h)
@@ -1135,7 +1135,7 @@ public class PathGenerator
         var dy = v2[1] - v1[1]; // elevation
         var dz = v2[2] - v1[2];
 
-        return (dx * dx + dz * dz) < r * r && Math.Abs(dy) < h;
+        return dx * dx + dz * dz < r * r && Math.Abs(dy) < h;
     }
 
     private void NormalizePath()

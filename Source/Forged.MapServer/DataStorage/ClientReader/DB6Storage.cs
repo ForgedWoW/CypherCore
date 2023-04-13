@@ -293,7 +293,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
                                 var vectors = new Vector3[array.Length];
 
                                 for (var i = 0; i < array.Length; ++i)
-                                    vectors[i] = new Vector3(values[(i * 3)..(3 + (i * 3))]);
+                                    vectors[i] = new Vector3(values[(i * 3)..(3 + i * 3)]);
 
                                 f.SetValue(obj, vectors);
 

@@ -159,7 +159,7 @@ public class CinematicManager : IDisposable
         var workDiff = (int)CinematicDiff;
 
         // Modify result based on camera direction (Humans for example, have the camera point behind)
-        workDiff += (int)((2 * Time.IN_MILLISECONDS) * Math.Cos(angle));
+        workDiff += (int)(2 * Time.IN_MILLISECONDS * Math.Cos(angle));
 
         // Get an iterator to the last entry in the cameras, to make sure we don't go beyond the end
         var endItr = CinematicCamera.LastOrDefault();
@@ -197,10 +197,10 @@ public class CinematicManager : IDisposable
         var yDiff = nextPosition.Y - lastPosition.Y;
         var zDiff = nextPosition.Z - lastPosition.Z;
 
-        Position interPosition = new(lastPosition.X + (xDiff * ((float)interDiff / timeDiff)),
+        Position interPosition = new(lastPosition.X + xDiff * ((float)interDiff / timeDiff),
                                      lastPosition.Y +
-                                     (yDiff * ((float)interDiff / timeDiff)),
-                                     lastPosition.Z + (zDiff * ((float)interDiff / timeDiff)));
+                                     yDiff * ((float)interDiff / timeDiff),
+                                     lastPosition.Z + zDiff * ((float)interDiff / timeDiff));
 
         // Advance (at speed) to this position. The remote sight object is used
         // to send update information to player in cinematic

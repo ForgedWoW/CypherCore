@@ -24,5 +24,14 @@ namespace Game.Common
         {
             return Container.Resolve<T>(parameters);
         }
+
+        public T ResolvePositional<T>(params object[] parameters)
+        {
+            var positionalParameters = new Parameter[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
+                positionalParameters[i] = new PositionalParameter(i, parameters[i]);
+
+            return Container.Resolve<T>(positionalParameters);
+        }
     }
 }

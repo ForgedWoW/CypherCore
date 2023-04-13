@@ -99,7 +99,7 @@ public partial class Player
 
     public void ApplyRatingMod(CombatRating combatRating, int value, bool apply)
     {
-        _baseRatingValue[(int)combatRating] += (apply ? value : -value);
+        _baseRatingValue[(int)combatRating] += apply ? value : -value;
 
         UpdateRating(combatRating);
     }
@@ -235,7 +235,7 @@ public partial class Player
                              aurEff =>
                              {
                                  var miscValue = aurEff.MiscValue;
-                                 var stat = (miscValue != -2) ? (Stats)miscValue : GetPrimaryStat();
+                                 var stat = miscValue != -2 ? (Stats)miscValue : GetPrimaryStat();
 
                                  value += MathFunctions.CalculatePct(GetStat(stat), aurEff.Amount);
 
@@ -270,8 +270,8 @@ public partial class Player
         {
             if (!ranged)
             {
-                var strengthValue = Math.Max((GetStat(Stats.Strength)) * entry.AttackPowerPerStrength, 0.0f);
-                var agilityValue = Math.Max((GetStat(Stats.Agility)) * entry.AttackPowerPerAgility, 0.0f);
+                var strengthValue = Math.Max(GetStat(Stats.Strength) * entry.AttackPowerPerStrength, 0.0f);
+                var agilityValue = Math.Max(GetStat(Stats.Agility) * entry.AttackPowerPerAgility, 0.0f);
 
                 var form = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)ShapeshiftForm);
 

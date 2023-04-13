@@ -343,7 +343,7 @@ public class SpellInfo
             if (DurationEntry == null)
                 return IsPassive ? -1 : 0;
 
-            return (DurationEntry.Duration == -1) ? -1 : Math.Abs(DurationEntry.Duration);
+            return DurationEntry.Duration == -1 ? -1 : Math.Abs(DurationEntry.Duration);
         }
     }
 
@@ -589,7 +589,7 @@ public class SpellInfo
             if (DurationEntry == null)
                 return IsPassive ? -1 : 0;
 
-            return (DurationEntry.MaxDuration == -1) ? -1 : Math.Abs(DurationEntry.MaxDuration);
+            return DurationEntry.MaxDuration == -1 ? -1 : Math.Abs(DurationEntry.MaxDuration);
         }
     }
 
@@ -726,7 +726,7 @@ public class SpellInfo
         _auraState = SpellFamilyName switch
         {
             // Swiftmend state on Regrowth, Rejuvenation, Wild Growth
-            SpellFamilyNames.Druid when (SpellFamilyFlags[0].HasAnyFlag(0x50u) || SpellFamilyFlags[1].HasAnyFlag(0x4000000u)) => AuraStateType.DruidPeriodicHeal,
+            SpellFamilyNames.Druid when SpellFamilyFlags[0].HasAnyFlag(0x50u) || SpellFamilyFlags[1].HasAnyFlag(0x4000000u) => AuraStateType.DruidPeriodicHeal,
             // Deadly poison aura state
             SpellFamilyNames.Rogue when SpellFamilyFlags[0].HasAnyFlag(0x10000u) => AuraStateType.RoguePoisoned,
             _                                                                    => _auraState
@@ -1096,13 +1096,13 @@ public class SpellInfo
                 case 49039: // Lichborne, don't allow normal stuns
                     break;
                 default:
-                    AllowedMechanicMask |= (1 << (int)Mechanics.Stun);
+                    AllowedMechanicMask |= 1 << (int)Mechanics.Stun;
 
                     break;
             }
 
         if (HasAttribute(SpellAttr5.AllowWhileConfused))
-            AllowedMechanicMask |= (1 << (int)Mechanics.Disoriented);
+            AllowedMechanicMask |= 1 << (int)Mechanics.Disoriented;
 
         if (HasAttribute(SpellAttr5.AllowWhileFleeing))
             AllowedMechanicMask |= Id switch
@@ -1111,7 +1111,7 @@ public class SpellInfo
                     (1 << (int)Mechanics.Fear) | (1 << (int)Mechanics.Horror),
                 47585 => // Dispersion
                     (1 << (int)Mechanics.Fear) | (1 << (int)Mechanics.Horror),
-                _ => (1 << (int)Mechanics.Fear)
+                _ => 1 << (int)Mechanics.Fear
             };
     }
 
@@ -1339,11 +1339,11 @@ public class SpellInfo
                 {
                     var auraSpellInfo = aurApp.Base.SpellInfo;
 
-                    return (((uint)auraSpellInfo.GetSchoolMask() & schoolImmunity) != 0 && // Check for school mask
-                            CanDispelAura(auraSpellInfo) &&
-                            (IsPositive != aurApp.IsPositive) && // Check spell vs aura possitivity
-                            !auraSpellInfo.IsPassive &&          // Don't remove passive auras
-                            auraSpellInfo.Id != Id);             // Don't remove self
+                    return ((uint)auraSpellInfo.GetSchoolMask() & schoolImmunity) != 0 && // Check for school mask
+                           CanDispelAura(auraSpellInfo) &&
+                           IsPositive != aurApp.IsPositive && // Check spell vs aura possitivity
+                           !auraSpellInfo.IsPassive &&          // Don't remove passive auras
+                           auraSpellInfo.Id != Id;              // Don't remove self
                 });
 
             if (apply && (schoolImmunity & (uint)SpellSchoolMask.Normal) != 0)
@@ -1443,10 +1443,10 @@ public class SpellInfo
 
         spell?.Caster.WorldObjectCombat.ModSpellCastTime(this, ref castTime, spell);
 
-        if (HasAttribute(SpellAttr0.UsesRangedSlot) && (!IsAutoRepeatRangedSpell) && !HasAttribute(SpellAttr9.AimedShot))
+        if (HasAttribute(SpellAttr0.UsesRangedSlot) && !IsAutoRepeatRangedSpell && !HasAttribute(SpellAttr9.AimedShot))
             castTime += 500;
 
-        return (castTime > 0) ? castTime : 0;
+        return castTime > 0 ? castTime : 0;
     }
 
     public int CalcDuration(WorldObject caster = null)
@@ -1690,7 +1690,7 @@ public class SpellInfo
                     double flatMod = 0;
                     double pctMod = 1.0f;
                     modOwner.GetSpellModValues(this, mod, spell, powerCost, ref flatMod, ref pctMod);
-                    powerCost = (powerCost * pctMod);
+                    powerCost = powerCost * pctMod;
                 }
             }
         }
@@ -1709,7 +1709,7 @@ public class SpellInfo
             powerCost = (int)(powerCost * (1.0f + unitCaster.UnitData.ManaCostMultiplier));
 
         // power cost cannot become negative if initially positive
-        if (initiallyNegative != (powerCost < 0))
+        if (initiallyNegative != powerCost < 0)
             powerCost = 0;
 
         cost.Power = power.PowerType;
@@ -2106,7 +2106,7 @@ public class SpellInfo
         //if (HasAttribute(SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT))
         //    return SPELL_CAST_OK;
 
-        var stanceMask = (form != 0 ? 1ul << ((int)form - 1) : 0);
+        var stanceMask = form != 0 ? 1ul << ((int)form - 1) : 0;
 
         if (Convert.ToBoolean(stanceMask & StancesNot)) // can explicitly not be casted in this stance
             return SpellCastResult.NotShapeshift;
@@ -2481,7 +2481,7 @@ public class SpellInfo
 
         for (var nextSpellInfo = this; nextSpellInfo != null; nextSpellInfo = nextSpellInfo.GetPrevRankSpell())
             // if found appropriate level
-            if ((level + 10) >= nextSpellInfo.SpellLevel)
+            if (level + 10 >= nextSpellInfo.SpellLevel)
                 return nextSpellInfo;
 
         // one rank less then
@@ -2563,10 +2563,10 @@ public class SpellInfo
         if (CanBeInterrupted(null, caster, true))
         {
             if ((casterMechanicImmunityMask & (1 << (int)Mechanics.Silence)) != 0)
-                mechanicImmunityMask |= (1 << (int)Mechanics.Silence);
+                mechanicImmunityMask |= 1 << (int)Mechanics.Silence;
 
             if ((casterMechanicImmunityMask & (1 << (int)Mechanics.Interrupt)) != 0)
-                mechanicImmunityMask |= (1 << (int)Mechanics.Interrupt);
+                mechanicImmunityMask |= 1 << (int)Mechanics.Interrupt;
         }
 
         return mechanicImmunityMask;
@@ -3162,7 +3162,7 @@ public class SpellInfo
         if (itemLevelPoints == basePoints)
             return 0.0f;
 
-        return ((itemLevelPoints / basePoints) - 1.0f) * mod.Coeff;
+        return (itemLevelPoints / basePoints - 1.0f) * mod.Coeff;
     }
 
     private bool CanSpellProvideImmunityAgainstAura(SpellInfo auraSpellInfo)

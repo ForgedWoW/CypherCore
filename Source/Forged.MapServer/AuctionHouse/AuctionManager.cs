@@ -128,7 +128,7 @@ public class AuctionManager
             return new AuctionThrottleResult(TimeSpan.Zero, true);
         }
 
-        if ((--throttleObject.QueriesRemaining) == 0)
+        if (--throttleObject.QueriesRemaining == 0)
             return new AuctionThrottleResult(throttleObject.PeriodEnd - now, false);
         else
             return new AuctionThrottleResult(TimeSpan.FromMilliseconds(_configuration.GetDefaultValue(addonTainted ? "Auction.TaintedSearchDelay" : "Auction.SearchDelay", 300)), false);
@@ -230,14 +230,14 @@ public class AuctionManager
     {
         var sellPrice = item.SellPrice;
 
-        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MinAuctionTime / Time.MINUTE)));
+        return (ulong)(Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver * (time.Minutes / (MinAuctionTime / Time.MINUTE)));
     }
 
     public ulong GetItemAuctionDeposit(Player player, Item item, TimeSpan time)
     {
         var sellPrice = item.GetSellPrice(player);
 
-        return (ulong)((Math.Ceiling(Math.Floor(Math.Max(sellPrice * 0.15, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MinAuctionTime / Time.MINUTE)));
+        return (ulong)(Math.Ceiling(Math.Floor(Math.Max(sellPrice * 0.15, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver * (time.Minutes / (MinAuctionTime / Time.MINUTE)));
     }
 
     public void LoadAuctions()

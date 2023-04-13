@@ -1044,11 +1044,11 @@ public class GameEventManager
         uint delay;
 
         // in event, we return the end of it
-        if ((((currenttime - _gameEvent[entry].Start) % (_gameEvent[entry].Occurence * 60)) < (_gameEvent[entry].Length * 60)))
+        if ((currenttime - _gameEvent[entry].Start) % (_gameEvent[entry].Occurence * 60) < _gameEvent[entry].Length * 60)
             // we return the delay before it ends
-            delay = (uint)((_gameEvent[entry].Length * Time.MINUTE) - ((currenttime - _gameEvent[entry].Start) % (_gameEvent[entry].Occurence * Time.MINUTE)));
+            delay = (uint)(_gameEvent[entry].Length * Time.MINUTE - (currenttime - _gameEvent[entry].Start) % (_gameEvent[entry].Occurence * Time.MINUTE));
         else // not in window, we return the delay before next start
-            delay = (uint)((_gameEvent[entry].Occurence * Time.MINUTE) - ((currenttime - _gameEvent[entry].Start) % (_gameEvent[entry].Occurence * Time.MINUTE)));
+            delay = (uint)(_gameEvent[entry].Occurence * Time.MINUTE - (currenttime - _gameEvent[entry].Start) % (_gameEvent[entry].Occurence * Time.MINUTE));
 
         // In case the end is before next check
         if (_gameEvent[entry].End < currenttime + delay)
@@ -1394,7 +1394,7 @@ public class GameEventManager
 
                 // all prerequisite events are met
                 // but if there are no prerequisites, this can be only activated through gm command
-                return !(_gameEvent[entry].PrerequisiteEvents.Empty());
+                return !_gameEvent[entry].PrerequisiteEvents.Empty();
             }
         }
     }

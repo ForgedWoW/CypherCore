@@ -25,6 +25,7 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -47,6 +48,7 @@ public class AuctionHouseObject
     private readonly DB2Manager _db2Manager;
     private readonly SortedList<uint, AuctionPosting> _itemsByAuctionId = new();
     private readonly ObjectAccessor _objectAccessor;
+    private readonly ClassFactory _classFactory;
     private readonly GameObjectManager _objectManager;
 
     // ordered for replicate
@@ -63,7 +65,7 @@ public class AuctionHouseObject
 
     public AuctionHouseObject(uint auctionHouseId, CliDB cliDB, CharacterDatabase characterDatabase, AuctionManager auctionManager, IConfiguration configuration,
                               ScriptManager scriptManager, DB2Manager db2Manager, GameObjectManager objectManager, BattlePetMgrData battlePetMgr, CharacterCache characterCache,
-                              WorldManager worldManager, ObjectAccessor objectAccessor)
+                              WorldManager worldManager, ObjectAccessor objectAccessor, ClassFactory classFactory)
     {
         _cliDB = cliDB;
         _characterDatabase = characterDatabase;
@@ -76,6 +78,7 @@ public class AuctionHouseObject
         _characterCache = characterCache;
         _worldManager = worldManager;
         _objectAccessor = objectAccessor;
+        _classFactory = classFactory;
         _auctionHouse = _cliDB.AuctionHouseStorage.LookupByKey(auctionHouseId);
     }
 
@@ -687,7 +690,7 @@ public class AuctionHouseObject
             }
 
             var auctionHouseCut = CalculateAuctionHouseCut(auction.BuyoutOrUnitPrice * boughtFromAuction);
-            var depositPart = _auctionManager.GetCommodityAuctionDeposit(items[0].Items[0].Template, (auction.EndTime - auction.StartTime), boughtFromAuction);
+            var depositPart = _auctionManager.GetCommodityAuctionDeposit(items[0].Items[0].Template, auction.EndTime - auction.StartTime, boughtFromAuction);
             var profit = auction.BuyoutOrUnitPrice * boughtFromAuction + depositPart - auctionHouseCut;
 
             var owner = _objectAccessor.FindConnectedPlayer(auction.Owner);
@@ -699,10 +702,10 @@ public class AuctionHouseObject
                 owner.Session.SendAuctionClosedNotification(auction, _configuration.GetDefaultValue("MailDeliveryDelay", Time.FHOUR), true);
             }
 
-            new MailDraft(_auctionManager.BuildCommodityAuctionMailSubject(AuctionMailType.Sold, itemId, boughtFromAuction),
-                          _auctionManager.BuildAuctionSoldMailBody(player.GUID, auction.BuyoutOrUnitPrice * boughtFromAuction, boughtFromAuction, (uint)depositPart, auctionHouseCut))
-                .AddMoney(profit)
-                .SendMailTo(trans, new MailReceiver(_objectAccessor.FindConnectedPlayer(auction.Owner), auction.Owner), new MailSender(this), MailCheckMask.Copied, _configuration.GetDefaultValue("MailDeliveryDelay", Time.UHOUR));
+            _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildCommodityAuctionMailSubject(AuctionMailType.Sold, itemId, boughtFromAuction),
+                                                       _auctionManager.BuildAuctionSoldMailBody(player.GUID, auction.BuyoutOrUnitPrice * boughtFromAuction, boughtFromAuction, (uint)depositPart, auctionHouseCut))
+                         .AddMoney(profit)
+                         .SendMailTo(trans, new MailReceiver(_objectAccessor.FindConnectedPlayer(auction.Owner), auction.Owner), new MailSender(this), MailCheckMask.Copied, _configuration.GetDefaultValue("MailDeliveryDelay", Time.UHOUR));
         }
 
         player.ModifyMoney(-(long)totalPrice);
@@ -710,8 +713,8 @@ public class AuctionHouseObject
 
         foreach (var batch in items)
         {
-            MailDraft mail = new(_auctionManager.BuildCommodityAuctionMailSubject(AuctionMailType.Won, itemId, batch.Quantity),
-                                 _auctionManager.BuildAuctionWonMailBody(uniqueSeller.Value, batch.TotalPrice, batch.Quantity));
+            var mail = _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildCommodityAuctionMailSubject(AuctionMailType.Won, itemId, batch.Quantity),
+                                                                  _auctionManager.BuildAuctionWonMailBody(uniqueSeller.Value, batch.TotalPrice, batch.Quantity));
 
             for (var i = 0; i < batch.ItemsCount; ++i)
             {
@@ -911,8 +914,8 @@ public class AuctionHouseObject
         var bidder = _objectAccessor.FindConnectedPlayer(auction.Bidder);
 
         // bidder exist
-        if ((bidder || _characterCache.HasCharacterCacheEntry(auction.Bidder))) // && !sAuctionBotConfig.IsBotChar(auction.Bidder))
-            new MailDraft(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Removed, auction), "")
+        if (bidder != null || _characterCache.HasCharacterCacheEntry(auction.Bidder)) // && !sAuctionBotConfig.IsBotChar(auction.Bidder))
+            _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Removed, auction), "")
                 .AddMoney(auction.BidAmount)
                 .SendMailTo(trans, new MailReceiver(bidder, auction.Bidder), new MailSender(this), MailCheckMask.Copied);
     }
@@ -922,16 +925,16 @@ public class AuctionHouseObject
         var owner = _objectAccessor.FindConnectedPlayer(auction.Owner);
 
         // owner exist
-        if ((owner || _characterCache.HasCharacterCacheEntry(auction.Owner))) // && !sAuctionBotConfig.IsBotChar(auction.Owner))
+        if (owner != null || _characterCache.HasCharacterCacheEntry(auction.Owner)) // && !sAuctionBotConfig.IsBotChar(auction.Owner))
         {
-            if (owner)
+            if (owner != null)
                 owner.Session.SendAuctionClosedNotification(auction, 0.0f, false);
 
             var itemIndex = 0;
 
             while (itemIndex < auction.Items.Count)
             {
-                MailDraft mail = new(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Expired, auction), "");
+                var mail = _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Expired, auction), "");
 
                 for (var i = 0; i < SharedConst.MaxMailItems && itemIndex < auction.Items.Count; ++i, ++itemIndex)
                     mail.AddItem(auction.Items[itemIndex]);
@@ -949,26 +952,25 @@ public class AuctionHouseObject
 
     public void SendAuctionInvoice(AuctionPosting auction, Player owner, SQLTransaction trans)
     {
-        if (!owner)
-            owner = _objectAccessor.FindConnectedPlayer(auction.Owner);
+        owner ??= _objectAccessor.FindConnectedPlayer(auction.Owner);
 
         // owner exist (online or offline)
-        if ((owner || _characterCache.HasCharacterCacheEntry(auction.Owner))) // && !sAuctionBotConfig.IsBotChar(auction.Owner))
-        {
-            ByteBuffer tempBuffer = new();
-            tempBuffer.WritePackedTime(GameTime.CurrentTime + _configuration.GetDefaultValue("MailDeliveryDelay", Time.HOUR));
-            var eta = tempBuffer.ReadUInt32();
+        if (owner == null && !_characterCache.HasCharacterCacheEntry(auction.Owner)) // && !sAuctionBotConfig.IsBotChar(auction.Owner))
+            return;
 
-            new MailDraft(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Invoice, auction),
-                          _auctionManager.BuildAuctionInvoiceMailBody(auction.Bidder,
-                                                                             auction.BidAmount,
-                                                                             auction.BuyoutOrUnitPrice,
-                                                                             (uint)auction.Deposit,
-                                                                             CalculateAuctionHouseCut(auction.BidAmount),
-                                                                             _configuration.GetDefaultValue("MailDeliveryDelay", Time.UHOUR),
-                                                                             eta))
-                .SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied);
-        }
+        ByteBuffer tempBuffer = new();
+        tempBuffer.WritePackedTime(GameTime.CurrentTime + _configuration.GetDefaultValue("MailDeliveryDelay", Time.HOUR));
+        var eta = tempBuffer.ReadUInt32();
+
+        _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Invoice, auction),
+                                                   _auctionManager.BuildAuctionInvoiceMailBody(auction.Bidder,
+                                                                                               auction.BidAmount,
+                                                                                               auction.BuyoutOrUnitPrice,
+                                                                                               (uint)auction.Deposit,
+                                                                                               CalculateAuctionHouseCut(auction.BidAmount),
+                                                                                               _configuration.GetDefaultValue("MailDeliveryDelay", Time.UHOUR),
+                                                                                               eta))
+                     .SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied);
     }
 
     // this function notified old bidder that his bid is no longer highest
@@ -977,9 +979,9 @@ public class AuctionHouseObject
         var oldBidder = _objectAccessor.FindConnectedPlayer(auction.Bidder);
 
         // old bidder exist
-        if ((oldBidder || _characterCache.HasCharacterCacheEntry(auction.Bidder))) // && !sAuctionBotConfig.IsBotChar(auction.Bidder))
+        if (oldBidder != null || _characterCache.HasCharacterCacheEntry(auction.Bidder)) // && !sAuctionBotConfig.IsBotChar(auction.Bidder))
         {
-            if (oldBidder)
+            if (oldBidder != null)
             {
                 AuctionOutbidNotification packet = new()
                 {
@@ -993,9 +995,9 @@ public class AuctionHouseObject
                 oldBidder.SendPacket(packet);
             }
 
-            new MailDraft(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Outbid, auction), "")
-                .AddMoney(auction.BidAmount)
-                .SendMailTo(trans, new MailReceiver(oldBidder, auction.Bidder), new MailSender(this), MailCheckMask.Copied);
+            _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Outbid, auction), "")
+                         .AddMoney(auction.BidAmount)
+                         .SendMailTo(trans, new MailReceiver(oldBidder, auction.Bidder), new MailSender(this), MailCheckMask.Copied);
         }
     }
 
@@ -1005,7 +1007,7 @@ public class AuctionHouseObject
 
         while (itemIndex < auction.Items.Count)
         {
-            MailDraft draft = new(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Cancelled, auction), "");
+            var draft = _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Cancelled, auction), "");
 
             for (var i = 0; i < SharedConst.MaxMailItems && itemIndex < auction.Items.Count; ++i, ++itemIndex)
                 draft.AddItem(auction.Items[itemIndex]);
@@ -1017,45 +1019,42 @@ public class AuctionHouseObject
     //call this method to send mail to auction owner, when auction is successful, it does not clear ram
     public void SendAuctionSold(AuctionPosting auction, Player owner, SQLTransaction trans)
     {
-        if (!owner)
-            owner = _objectAccessor.FindConnectedPlayer(auction.Owner);
+        owner ??= _objectAccessor.FindConnectedPlayer(auction.Owner);
 
         // owner exist
-        if ((owner || _characterCache.HasCharacterCacheEntry(auction.Owner))) // && !sAuctionBotConfig.IsBotChar(auction.Owner))
+        if (owner == null && !_characterCache.HasCharacterCacheEntry(auction.Owner)) // && !sAuctionBotConfig.IsBotChar(auction.Owner))
+            return;
+
+        var auctionHouseCut = CalculateAuctionHouseCut(auction.BidAmount);
+        var profit = auction.BidAmount + auction.Deposit - auctionHouseCut;
+
+        //FIXME: what do if owner offline
+        if (owner != null)
         {
-            var auctionHouseCut = CalculateAuctionHouseCut(auction.BidAmount);
-            var profit = auction.BidAmount + auction.Deposit - auctionHouseCut;
+            owner.UpdateCriteria(CriteriaType.MoneyEarnedFromAuctions, profit);
+            owner.UpdateCriteria(CriteriaType.HighestAuctionSale, auction.BidAmount);
 
-            //FIXME: what do if owner offline
-            if (owner)
-            {
-                owner.UpdateCriteria(CriteriaType.MoneyEarnedFromAuctions, profit);
-                owner.UpdateCriteria(CriteriaType.HighestAuctionSale, auction.BidAmount);
-
-                //send auction owner notification, bidder must be current!
-                owner. //send auction owner notification, bidder must be current!
-                    Session.SendAuctionClosedNotification(auction, _configuration.GetDefaultValue("MailDeliveryDelay", Time.FHOUR), true);
-            }
-
-            new MailDraft(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Sold, auction),
-                          _auctionManager.BuildAuctionSoldMailBody(auction.Bidder, auction.BidAmount, auction.BuyoutOrUnitPrice, (uint)auction.Deposit, auctionHouseCut))
-                .AddMoney(profit)
-                .SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied, _configuration.GetDefaultValue("MailDeliveryDelay", Time.UHOUR));
+            //send auction owner notification, bidder must be current!
+            owner. //send auction owner notification, bidder must be current!
+                Session.SendAuctionClosedNotification(auction, _configuration.GetDefaultValue("MailDeliveryDelay", Time.FHOUR), true);
         }
+
+        _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Sold, auction),
+                                                   _auctionManager.BuildAuctionSoldMailBody(auction.Bidder, auction.BidAmount, auction.BuyoutOrUnitPrice, (uint)auction.Deposit, auctionHouseCut))
+            .AddMoney(profit)
+            .SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied, _configuration.GetDefaultValue("MailDeliveryDelay", Time.UHOUR));
     }
 
     public void SendAuctionWon(AuctionPosting auction, Player bidder, SQLTransaction trans)
     {
         uint bidderAccId;
-
-        if (!bidder)
-            bidder = _objectAccessor.FindConnectedPlayer(auction.Bidder); // try lookup bidder when called from .Update
+        bidder ??= _objectAccessor.FindConnectedPlayer(auction.Bidder); // try lookup bidder when called from .Update
 
         // data for gm.log
         var bidderName = "";
         var logGmTrade = auction.ServerFlags.HasFlag(AuctionPostingServerFlag.GmLogBuyer);
 
-        if (bidder)
+        if (bidder != null)
         {
             bidderAccId = bidder.Session.AccountId;
             bidderName = bidder.GetName();
@@ -1080,10 +1079,10 @@ public class AuctionHouseObject
         }
 
         // receiver exist
-        if ((bidder != null || bidderAccId != 0)) // && !sAuctionBotConfig.IsBotChar(auction.Bidder))
+        if (bidder != null || bidderAccId != 0) // && !sAuctionBotConfig.IsBotChar(auction.Bidder))
         {
-            MailDraft mail = new(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Won, auction),
-                                 _auctionManager.BuildAuctionWonMailBody(auction.Owner, auction.BidAmount, auction.BuyoutOrUnitPrice));
+            var mail = _classFactory.ResolvePositional<MailDraft>(_auctionManager.BuildItemAuctionMailSubject(AuctionMailType.Won, auction),
+                                                                        _auctionManager.BuildAuctionWonMailBody(auction.Owner, auction.BidAmount, auction.BuyoutOrUnitPrice));
 
             // set owner to bidder (to prevent delete item with sender char deleting)
             // owner in `data` will set at mail receive and item extracting

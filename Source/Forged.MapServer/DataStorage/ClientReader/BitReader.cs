@@ -47,7 +47,7 @@ public class BitReader
     {
         var result = Unsafe.As<byte, ulong>(ref Data[Offset + (Position >> 3)]) << (64 - numBits - (Position & 7)) >> (64 - numBits);
         Position += numBits;
-        var signedShift = (1UL << (numBits - 1));
+        var signedShift = 1UL << (numBits - 1);
         result = (signedShift ^ result) - signedShift;
 
         return Unsafe.As<ulong, T>(ref result);

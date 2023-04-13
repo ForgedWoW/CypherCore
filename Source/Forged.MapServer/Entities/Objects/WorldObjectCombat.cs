@@ -430,7 +430,7 @@ public class WorldObjectCombat
                     var creatureTarget = target.AsCreature;
 
                     if (creatureTarget != null)
-                        return (creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist));
+                        return creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist);
                 }
         }
 

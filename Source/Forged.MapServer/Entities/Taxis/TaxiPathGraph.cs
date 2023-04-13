@@ -65,7 +65,7 @@ public class TaxiPathGraph
             {
                 //todo  test me No clue about this....
                 var dest = _nodesByVertex[(int)edge.To];
-                var requireFlag = (player.Team == TeamFaction.Alliance) ? TaxiNodeFlags.Alliance : TaxiNodeFlags.Horde;
+                var requireFlag = player.Team == TeamFaction.Alliance ? TaxiNodeFlags.Alliance : TaxiNodeFlags.Horde;
 
                 if (!dest.Flags.HasAnyFlag(requireFlag))
                     continue;

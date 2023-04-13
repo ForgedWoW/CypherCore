@@ -543,13 +543,13 @@ public partial class Unit
         if (mgr.HasPvPCombat())
             return mgr.PvPCombatRefs.First().Value.GetOther(this);
 
-        if (owner && (owner.CombatManager.HasPvPCombat()))
+        if (owner && owner.CombatManager.HasPvPCombat())
             return owner.CombatManager.PvPCombatRefs.First().Value.GetOther(owner);
 
         if (mgr.HasPvECombat())
             return mgr.PvECombatRefs.First().Value.GetOther(this);
 
-        if (owner && (owner.CombatManager.HasPvECombat()))
+        if (owner && owner.CombatManager.HasPvECombat())
             return owner.CombatManager.PvECombatRefs.First().Value.GetOther(owner);
 
         return null;
@@ -709,7 +709,7 @@ public partial class Unit
         var dx = pos.X - obj.Location.X;
         var dy = pos.Y - obj.Location.Y;
         var dz = pos.Z - obj.Location.Z;
-        var distsq = (dx * dx) + (dy * dy) + (dz * dz);
+        var distsq = dx * dx + dy * dy + dz * dz;
 
         var maxdist = GetMeleeRange(obj) + GetTotalAuraModifier(AuraType.ModAutoAttackRange);
 
@@ -787,7 +787,7 @@ public partial class Unit
         };
 
         var overkill = (int)(damageInfo.Damage - damageInfo.Target.Health);
-        packet.OverDamage = (overkill < 0 ? -1 : overkill);
+        packet.OverDamage = overkill < 0 ? -1 : overkill;
 
         SubDamage subDmg = new()
         {
@@ -829,12 +829,12 @@ public partial class Unit
 
         if (victim != null)
             Log.Logger.Information("{0} {1} stopped attacking {2} {3}",
-                                   (IsTypeId(TypeId.Player) ? "Player" : "Creature"),
+                                   IsTypeId(TypeId.Player) ? "Player" : "Creature",
                                    GUID.ToString(),
-                                   (victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
+                                   victim.IsTypeId(TypeId.Player) ? "player" : "creature",
                                    victim.GUID.ToString());
         else
-            Log.Logger.Information("{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GUID.ToString());
+            Log.Logger.Information("{0} {1} stopped attacking", IsTypeId(TypeId.Player) ? "Player" : "Creature", GUID.ToString());
     }
 
     public void SetAttackTimer(WeaponAttackType type, uint time)
@@ -1160,7 +1160,7 @@ public partial class Unit
 
                 damageInfo.OriginalDamage = damageInfo.Damage;
                 var reducePercent = 1.0f - leveldif * 0.1f;
-                damageInfo.CleanDamage += damageInfo.Damage - (reducePercent * damageInfo.Damage);
+                damageInfo.CleanDamage += damageInfo.Damage - reducePercent * damageInfo.Damage;
                 damageInfo.Damage = reducePercent * damageInfo.Damage;
 
                 break;
@@ -1168,7 +1168,7 @@ public partial class Unit
                 damageInfo.HitInfo |= HitInfo.Crushing;
                 damageInfo.TargetState = VictimState.Hit;
                 // 150% normal damage
-                damageInfo.Damage += (damageInfo.Damage / 2);
+                damageInfo.Damage += damageInfo.Damage / 2;
                 damageInfo.OriginalDamage = damageInfo.Damage;
 
                 break;
@@ -1198,10 +1198,10 @@ public partial class Unit
             damageInfo.Resist = dmgInfo.Resist;
 
             if (damageInfo.Absorb != 0)
-                damageInfo.HitInfo |= (damageInfo.Damage - damageInfo.Absorb == 0 ? HitInfo.FullAbsorb : HitInfo.PartialAbsorb);
+                damageInfo.HitInfo |= damageInfo.Damage - damageInfo.Absorb == 0 ? HitInfo.FullAbsorb : HitInfo.PartialAbsorb;
 
             if (damageInfo.Resist != 0)
-                damageInfo.HitInfo |= (damageInfo.Damage - damageInfo.Resist == 0 ? HitInfo.FullResist : HitInfo.PartialResist);
+                damageInfo.HitInfo |= damageInfo.Damage - damageInfo.Resist == 0 ? HitInfo.FullResist : HitInfo.PartialResist;
 
             damageInfo.Damage = dmgInfo.Damage;
         }

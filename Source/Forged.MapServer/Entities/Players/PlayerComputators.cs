@@ -21,6 +21,7 @@ using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -29,6 +30,7 @@ namespace Forged.MapServer.Entities.Players;
 public class PlayerComputators
 {
     private readonly ArenaTeamManager _arenaTeamManager;
+    private readonly ClassFactory _classFactory;
     private readonly CharacterCache _characterCache;
     private readonly CharacterDatabase _characterDatabase;
     private readonly CliDB _cliDB;
@@ -45,7 +47,7 @@ public class PlayerComputators
     public PlayerComputators(CliDB cliDB, IConfiguration configuration, CharacterCache characterCache, GuildManager guildManager,
                              CharacterDatabase characterDatabase, GroupManager groupManager, ObjectAccessor objectAccessor, SocialManager socialManager,
                              LoginDatabase loginDatabase, WorldManager worldManager, TerrainManager terrainManager, PetitionManager petitionManager,
-                             GameObjectManager gameObjectManager, ArenaTeamManager arenaTeamManager)
+                             GameObjectManager gameObjectManager, ArenaTeamManager arenaTeamManager, ClassFactory classFactory)
     {
         _cliDB = cliDB;
         _configuration = configuration;
@@ -61,14 +63,12 @@ public class PlayerComputators
         _petitionManager = petitionManager;
         _gameObjectManager = gameObjectManager;
         _arenaTeamManager = arenaTeamManager;
+        _classFactory = classFactory;
     }
 
     public static void RemoveFromGroup(PlayerGroup group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
     {
-        if (!group)
-            return;
-
-        group.RemoveMember(guid, method, kicker, reason);
+        group?.RemoveMember(guid, method, kicker, reason);
     }
 
     public void DeleteFromDB(ObjectGuid playerGuid, uint accountId, bool updateRealmChars = true, bool deleteFinally = false)
@@ -94,7 +94,7 @@ public class PlayerComputators
         {
             // Define the required variables
 
-            uint charDeleteMinLvl = characterInfo.ClassId switch
+            var charDeleteMinLvl = characterInfo.ClassId switch
             {
                 PlayerClass.Deathknight => _configuration.GetDefaultValue("CharDelete.DeathKnight.MinLevel", 0u),
                 PlayerClass.DemonHunter => _configuration.GetDefaultValue("CharDelete.DemonHunter.MinLevel", 0u),
@@ -113,12 +113,7 @@ public class PlayerComputators
         var guildId = _characterCache.GetCharacterGuildIdByGuid(playerGuid);
 
         if (guildId != 0)
-        {
-            var guild = _guildManager.GetGuildById(guildId);
-
-            if (guild)
-                guild.DeleteMember(trans, playerGuid, false, false, true);
-        }
+            _guildManager.GetGuildById(guildId).DeleteMember(trans, playerGuid, false, false, true);
 
         // remove from arena teams
         LeaveAllArenaTeams(playerGuid);
@@ -129,12 +124,7 @@ public class PlayerComputators
         var resultGroup = _characterDatabase.Query(stmt);
 
         if (!resultGroup.IsEmpty())
-        {
-            var group = _groupManager.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
-
-            if (group)
-                RemoveFromGroup(group, playerGuid);
-        }
+            RemoveFromGroup(_groupManager.GetGroupByDbStoreId(resultGroup.Read<uint>(0)), playerGuid);
 
         // Remove signs from petitions (also remove petitions if owner);
         RemovePetitionsAndSigns(playerGuid);
@@ -184,7 +174,8 @@ public class PlayerComputators
                         do
                         {
                             var mailId = resultItems.Read<ulong>(52);
-                            if (_LoadMailedItem(playerGuid, null, mailId, null, resultItems.GetFields(), additionalData.TryGetValue(resultItems.Read<ulong>(0)), out var mailItem))
+                            var mailItem = LoadMailedItem(playerGuid, null, mailId, null, resultItems.GetFields(), additionalData.LookupByKey(resultItems.Read<ulong>(0)));
+                            if (mailItem != null)
                                 itemsByMail.Add(mailId, mailItem);
                         } while (resultItems.NextRow());
                     }
@@ -219,10 +210,10 @@ public class PlayerComputators
                             continue;
                         }
 
-                        MailDraft draft = new(subject, body);
+                        var draft = _classFactory.ResolvePositional<MailDraft>(subject, body);
 
                         if (mailTemplateId != 0)
-                            draft = new MailDraft(mailTemplateId, false); // items are already included
+                            draft = _classFactory.ResolvePositional<MailDraft>(mailTemplateId, false); // items are already included
 
                         if (itemsByMail.TryGetValue(mailID, out var itemsList))
                         {
@@ -269,7 +260,7 @@ public class PlayerComputators
                     {
                         var playerFriend = _objectAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, resultFriends.Read<ulong>(0)));
 
-                        if (!playerFriend)
+                        if (playerFriend == null)
                             continue;
 
                         playerFriend.Social.RemoveFromSocialList(playerGuid, SocialFlag.All);
@@ -624,7 +615,7 @@ public class PlayerComputators
     {
         if (_cliDB.ChrRacesStorage.TryGetValue((uint)race, out var rEntry))
         {
-            if (_cliDB.FactionTemplateStorage.TryGetValue(rEntry.FactionID, out var faction))
+            if (_cliDB.FactionTemplateStorage.TryGetValue((uint)rEntry.FactionID, out var faction))
                 return faction.FactionGroup;
         }
 
@@ -733,7 +724,7 @@ public class PlayerComputators
 
     public bool IsEquipmentPos(byte bag, byte slot)
     {
-        if (bag == InventorySlots.Bag0 && (slot < EquipmentSlot.End))
+        if (bag == InventorySlots.Bag0 && slot < EquipmentSlot.End)
             return true;
 
         if (bag == InventorySlots.Bag0 && slot is >= ProfessionSlots.Start and < ProfessionSlots.End)
@@ -921,7 +912,7 @@ public class PlayerComputators
         _characterDatabase.ExecuteOrAppend(trans, stmt);
     }
 
-    private Item _LoadMailedItem(ObjectGuid playerGuid, Player player, ulong mailId, Mail mail, SQLFields fields, ItemAdditionalLoadInfo addionalData)
+    private Item LoadMailedItem(ObjectGuid playerGuid, Player player, ulong mailId, Mail mail, SQLFields fields, ItemAdditionalLoadInfo addionalData)
     {
         var itemGuid = fields.Read<ulong>(0);
         var itemEntry = fields.Read<uint>(1);

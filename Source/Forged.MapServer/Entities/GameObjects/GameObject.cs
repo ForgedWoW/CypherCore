@@ -121,7 +121,7 @@ namespace Forged.MapServer.Entities.GameObjects
             }
         }
 
-        public Entities.Transport AsTransport => Template.type == GameObjectTypes.MapObjTransport ? (this as Entities.Transport) : null;
+        public Entities.Transport AsTransport => Template.type == GameObjectTypes.MapObjTransport ? this as Entities.Transport : null;
 
         public uint DisplayId
         {
@@ -549,7 +549,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     Location.Map.GameObjectBySpawnIdStore.Add(SpawnId, this);
 
                 // The state can be changed after GameObject.Create but before GameObject.AddToWorld
-                var toggledState = GoType == GameObjectTypes.Chest ? LootState == LootState.Ready : (GoState == GameObjectState.Ready || IsTransport);
+                var toggledState = GoType == GameObjectTypes.Chest ? LootState == LootState.Ready : GoState == GameObjectState.Ready || IsTransport;
 
                 if (Model != null)
                 {
@@ -827,7 +827,7 @@ namespace Forged.MapServer.Entities.GameObjects
             {
                 if (GameObjectData != null)
                 {
-                    var respawnDelay = (uint)((forceRespawnTime > TimeSpan.Zero) ? forceRespawnTime.TotalSeconds : RespawnDelay);
+                    var respawnDelay = (uint)(forceRespawnTime > TimeSpan.Zero ? forceRespawnTime.TotalSeconds : RespawnDelay);
                     SaveRespawnTime(respawnDelay);
                 }
 
@@ -1266,7 +1266,7 @@ namespace Forged.MapServer.Entities.GameObjects
             var artKit = data.ArtKit;
 
             SpawnId = spawnId;
-            RespawnCompatibilityMode = ((data.SpawnGroupData.Flags & SpawnGroupFlags.CompatibilityMode) != 0);
+            RespawnCompatibilityMode = (data.SpawnGroupData.Flags & SpawnGroupFlags.CompatibilityMode) != 0;
 
             if (!Create(entry, map, data.SpawnPoint, data.Rotation, animprogress, goState, artKit, !RespawnCompatibilityMode, spawnId))
                 return false;
@@ -2724,7 +2724,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     foreach (var (slot, sittingUnit) in _chairListSlots.ToList())
                     {
                         // the distance between this slot and the center of the go - imagine a 1D space
-                        var relativeDistance = (info.size * slot) - (info.size * (info.Chair.chairslots - 1) / 2.0f);
+                        var relativeDistance = info.size * slot - info.size * (info.Chair.chairslots - 1) / 2.0f;
 
                         var xI = (float)(Location.X + relativeDistance * Math.Cos(orthogonalOrientation));
                         var yI = (float)(Location.Y + relativeDistance * Math.Sin(orthogonalOrientation));
@@ -3023,7 +3023,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     }
                     else
                     {
-                        if (player != _ritualOwner && (info.Ritual.castersGrouped != 0 && !player.IsInSameRaidWith(_ritualOwner)))
+                        if (player != _ritualOwner && info.Ritual.castersGrouped != 0 && !player.IsInSameRaidWith(_ritualOwner))
                             return;
 
                         spellCaster = player;
@@ -3276,8 +3276,8 @@ namespace Forged.MapServer.Entities.GameObjects
                     player.SendPacket(new EnableBarberShop());
 
                     // fallback, will always work
-                    player.TeleportTo(Location.MapId, Location.X, Location.Y, Location.Z, Location.Orientation, (TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet));
-                    player.SetStandState((UnitStandStateType.SitLowChair + (byte)info.BarberChair.chairheight), info.BarberChair.SitAnimKit);
+                    player.TeleportTo(Location.MapId, Location.X, Location.Y, Location.Z, Location.Orientation, TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet);
+                    player.SetStandState(UnitStandStateType.SitLowChair + (byte)info.BarberChair.chairheight, info.BarberChair.SitAnimKit);
 
                     return;
                 }
@@ -3407,7 +3407,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     {
                         if (info.GatheringNode.chestLoot != 0)
                         {
-                            Loot newLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
+                            var newLoot = _lootFactory.GenerateLoot(Location.Map, GUID, LootType.Chest);
                             _personalLoot[player.GUID] = newLoot;
 
                             newLoot.FillLoot(info.GatheringNode.chestLoot, _lootStoreBox.Gameobject, player, true, false, LootMode, Location.Map.GetDifficultyLootItemContext());
@@ -3637,7 +3637,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                     break;
                 case GameObjectTypes.DestructibleBuilding:
-                    GoValueProtected.Building.Health = (Template.DestructibleBuilding.InteriorVisible != 0 ? Template.DestructibleBuilding.InteriorVisible : 20000);
+                    GoValueProtected.Building.Health = Template.DestructibleBuilding.InteriorVisible != 0 ? Template.DestructibleBuilding.InteriorVisible : 20000;
                     GoValueProtected.Building.MaxHealth = GoValueProtected.Building.Health;
                     SetGoAnimProgress(255);
                     // yes, even after the updatefield rewrite this garbage hack is still in client

@@ -89,7 +89,7 @@ public class PlayerTaxi
     {
         lock (TaxiLock)
         {
-            Taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
+            Taximask = new byte[(CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8 + 1];
 
             // class specific initial known nodes
             if (chrClass == PlayerClass.Deathknight)
@@ -218,7 +218,7 @@ public class PlayerTaxi
     {
         lock (TaxiLock)
         {
-            Taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
+            Taximask = new byte[(CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8 + 1];
 
             var split = new StringArray(data, ' ');
 

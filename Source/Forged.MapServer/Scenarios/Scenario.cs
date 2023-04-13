@@ -34,10 +34,10 @@ public class Scenario : CriteriaHandler
     private readonly Dictionary<ScenarioStepRecord, ScenarioStepState> _stepStates = new();
     private ScenarioStepRecord _currentstep;
 
-    public Scenario(ScenarioData scenarioData, ObjectAccessor objectAccessor, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager objectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
+    public Scenario(ScenarioData scenarioData, ObjectAccessor objectAccessor, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                     DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
                     LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
-        base(criteriaManager, worldManager, objectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
+        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
     {
         Data = scenarioData;
         _objectAccessor = objectAccessor;
@@ -135,7 +135,7 @@ public class Scenario : CriteriaHandler
 
     public virtual void CompleteStep(ScenarioStepRecord step)
     {
-        var quest = ObjectManager.GetQuestTemplate(step.RewardQuestID);
+        var quest = GameObjectManager.GetQuestTemplate(step.RewardQuestID);
 
         if (quest != null)
             foreach (var guid in _players)

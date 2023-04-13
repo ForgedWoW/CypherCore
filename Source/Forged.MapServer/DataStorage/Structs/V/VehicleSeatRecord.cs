@@ -73,9 +73,9 @@ public sealed class VehicleSeatRecord
     public sbyte VehicleRideAnimLoopBone;
     public bool CanEnterOrExit()
     {
-        return (HasFlag(VehicleSeatFlags.CanEnterOrExit) ||
-                //If it has anmation for enter/ride, means it can be entered/exited by logic
-                HasFlag(VehicleSeatFlags.HasLowerAnimForEnter | VehicleSeatFlags.HasLowerAnimForRide));
+        return HasFlag(VehicleSeatFlags.CanEnterOrExit) ||
+               //If it has anmation for enter/ride, means it can be entered/exited by logic
+               HasFlag(VehicleSeatFlags.HasLowerAnimForEnter | VehicleSeatFlags.HasLowerAnimForRide);
     }
 
     public bool CanSwitchFromSeat()

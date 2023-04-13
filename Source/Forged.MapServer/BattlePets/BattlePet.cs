@@ -65,8 +65,8 @@ public class BattlePet
 
         // set stats
         // round, ceil or floor? verify this
-        PacketInfo.MaxHealth = (uint)((Math.Round(health / 20) + 100));
-        PacketInfo.Power = (uint)(Math.Round(power / 100));
-        PacketInfo.Speed = (uint)(Math.Round(speed / 100));
+        PacketInfo.MaxHealth = (uint)(Math.Round(health / 20) + 100);
+        PacketInfo.Power = (uint)Math.Round(power / 100);
+        PacketInfo.Speed = (uint)Math.Round(speed / 100);
     }
 }

@@ -56,7 +56,7 @@ public class MotionMaster
 
     public static bool IsStatic(MovementGenerator movement)
     {
-        return (movement == GetIdleMovementGenerator());
+        return movement == GetIdleMovementGenerator();
     }
 
     public void AddToWorld()

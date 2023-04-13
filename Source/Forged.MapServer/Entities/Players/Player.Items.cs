@@ -499,7 +499,7 @@ public partial class Player
 
             _items[slot] = pItem;
             var time = GameTime.CurrentTime;
-            var etime = (uint)(time - _logintime + (30 * 3600));
+            var etime = (uint)(time - _logintime + 30 * 3600);
             var eslot = slot - InventorySlots.BuyBackStart;
 
             SetInvSlot(slot, pItem.GUID);
@@ -3346,7 +3346,7 @@ public partial class Player
         if (toBeMailedCurrentEquipment.Count > 0)
         {
             var trans = new SQLTransaction();
-            var draft = new MailDraft("Inventory Full: Old Equipment.", "To equip your new gear, your old gear had to be unequiped. You did not have enough free bag space, the items that could not be added to your bag you can find in this mail.");
+            var draft = ClassFactory.ResolvePositional<MailDraft>("Inventory Full: Old Equipment.", "To equip your new gear, your old gear had to be unequiped. You did not have enough free bag space, the items that could not be added to your bag you can find in this mail.");
 
             foreach (var currentEquiped in toBeMailedCurrentEquipment)
             {
@@ -3375,20 +3375,20 @@ public partial class Player
         if (toBeMailedNewItems.Count > 0)
         {
             var trans = new SQLTransaction();
-            var draft = new MailDraft("Inventory Full: New Gear.", "You did not have enough free bag space to add all your complementary new gear to your bags, those that did not fit you can find in this mail.");
+            var draft = ClassFactory.ResolvePositional<MailDraft>("Inventory Full: New Gear.", "You did not have enough free bag space to add all your complementary new gear to your bags, those that did not fit you can find in this mail.");
 
             foreach (var item in toBeMailedNewItems)
             {
                 var pItem = Item.CreateItem(item, 1, ItemContext.None, this);
 
-                if (pItem != null)
-                {
-                    foreach (var bonus in bonusListIDs)
-                        pItem.AddBonuses(bonus);
+                if (pItem == null)
+                    continue;
 
-                    pItem.SaveToDB(trans);
-                    draft.AddItem(pItem);
-                }
+                foreach (var bonus in bonusListIDs)
+                    pItem.AddBonuses(bonus);
+
+                pItem.SaveToDB(trans);
+                draft.AddItem(pItem);
             }
 
             draft.SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied | MailCheckMask.Returned);
@@ -4358,23 +4358,22 @@ public partial class Player
     public void SendABunchOfItemsInMail(List<uint> bunchOfItems, string mailSubject, List<uint> bonusListIDs = default)
     {
         var trans = new SQLTransaction();
-        var subject = mailSubject;
-        var draft = new MailDraft(subject, "This is a system message. Do not answer! Don't forget to take out the items! :)");
+        var draft = ClassFactory.ResolvePositional<MailDraft>(mailSubject, "This is a system message. Do not answer! Don't forget to take out the items! :)");
 
         foreach (var item in bunchOfItems)
         {
             Log.Logger.Information("[BunchOfItems]: {}.", item);
             var pItem = Item.CreateItem(item, 1, ItemContext.None, this);
 
-            if (pItem != null)
-            {
-                if (bonusListIDs != null)
-                    foreach (var bonus in bonusListIDs)
-                        pItem.AddBonuses(bonus);
+            if (pItem == null)
+                continue;
 
-                pItem.SaveToDB(trans);
-                draft.AddItem(pItem);
-            }
+            if (bonusListIDs != null)
+                foreach (var bonus in bonusListIDs)
+                    pItem.AddBonuses(bonus);
+
+            pItem.SaveToDB(trans);
+            draft.AddItem(pItem);
         }
 
         draft.SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied | MailCheckMask.Returned);

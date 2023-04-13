@@ -8,40 +8,40 @@ namespace Forged.MapServer.Mails;
 
 public class MailReceiver
 {
-    private readonly Player m_receiver;
-    private readonly ulong m_receiver_lowguid;
+    private readonly Player _receiver;
+    private readonly ulong _receiverLowguid;
 
-    public MailReceiver(ulong receiver_lowguid)
+    public MailReceiver(ulong receiverLowguid)
     {
-        m_receiver = null;
-        m_receiver_lowguid = receiver_lowguid;
+        _receiver = null;
+        _receiverLowguid = receiverLowguid;
     }
 
     public MailReceiver(Player receiver)
     {
-        m_receiver = receiver;
-        m_receiver_lowguid = receiver.GUID.Counter;
+        _receiver = receiver;
+        _receiverLowguid = receiver.GUID.Counter;
     }
 
-    public MailReceiver(Player receiver, ulong receiver_lowguid)
+    public MailReceiver(Player receiver, ulong receiverLowguid)
     {
-        m_receiver = receiver;
-        m_receiver_lowguid = receiver_lowguid;
+        _receiver = receiver;
+        _receiverLowguid = receiverLowguid;
     }
 
     public MailReceiver(Player receiver, ObjectGuid receiverGuid)
     {
-        m_receiver = receiver;
-        m_receiver_lowguid = receiverGuid.Counter;
+        _receiver = receiver;
+        _receiverLowguid = receiverGuid.Counter;
     }
 
     public Player GetPlayer()
     {
-        return m_receiver;
+        return _receiver;
     }
 
     public ulong GetPlayerGUIDLow()
     {
-        return m_receiver_lowguid;
+        return _receiverLowguid;
     }
 }

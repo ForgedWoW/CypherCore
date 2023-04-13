@@ -691,7 +691,7 @@ public class Guild
 
         GuildPartyState partyStateResponse = new()
         {
-            InGuildParty = (session.Player.Location.Map.GetOwnerGuildId(session.Player.Team) == GetId()),
+            InGuildParty = session.Player.Location.Map.GetOwnerGuildId(session.Player.Team) == GetId(),
             NumMembers = 0,
             NumRequired = 0,
             GuildXPEarnedMult = 0.0f
@@ -1452,14 +1452,14 @@ public class Guild
             {
                 // Allow to promote only to lower rank than member's rank
                 // memberMe.GetRankId() + 1 is the highest rank that current player can promote to
-                if ((oldRank.Order - 1) <= myRank.Order)
+                if (oldRank.Order - 1 <= myRank.Order)
                 {
                     SendCommandResult(session, type, GuildCommandError.RankTooHigh_S, name);
 
                     return;
                 }
 
-                newRankId = GetRankInfo((oldRank.Order - 1)).Id;
+                newRankId = GetRankInfo(oldRank.Order - 1).Id;
             }
 
             member.ChangeRank(null, newRankId);
@@ -1476,7 +1476,7 @@ public class Guild
     public bool LoadBankEventLogFromDB(SQLFields field)
     {
         var dbTabId = field.Read<byte>(1);
-        var isMoneyTab = (dbTabId == GuildConst.BankMoneyLogsTab);
+        var isMoneyTab = dbTabId == GuildConst.BankMoneyLogsTab;
 
         if (dbTabId < GetPurchasedTabsSize() || isMoneyTab)
         {
@@ -1927,7 +1927,7 @@ public class Guild
                 RankID = (byte)rankInfo.Id,
                 RankOrder = (byte)rankInfo.Order,
                 Flags = (uint)rankInfo.AccessRights,
-                WithdrawGoldLimit = (rankInfo.Id == GuildRankId.GuildMaster ? uint.MaxValue : (rankInfo.BankMoneyPerDay / MoneyConstants.Gold)),
+                WithdrawGoldLimit = rankInfo.Id == GuildRankId.GuildMaster ? uint.MaxValue : rankInfo.BankMoneyPerDay / MoneyConstants.Gold,
                 RankName = rankInfo.Name
             };
 
@@ -2341,7 +2341,7 @@ public class Guild
     private InventoryResult DoItemsMove(GuildMoveItemData pSrc, GuildMoveItemData pDest, bool sendError, uint splitedAmount = 0)
     {
         var pDestItem = pDest.GetItem();
-        var swap = (pDestItem != null);
+        var swap = pDestItem != null;
 
         var pSrcItem = pSrc.GetItem(splitedAmount != 0);
         // 1. Can store source item in destination
@@ -2420,7 +2420,7 @@ public class Guild
 
         if ((GetRankRights(rankId) & (GuildRankRights.WithdrawRepair | GuildRankRights.WithdrawGold)) != 0)
         {
-            var remaining = (long)((GetRankBankMoneyPerDay(rankId) * MoneyConstants.Gold) - member.BankMoneyWithdrawValue);
+            var remaining = (long)(GetRankBankMoneyPerDay(rankId) * MoneyConstants.Gold - member.BankMoneyWithdrawValue);
 
             if (remaining > 0)
                 return remaining;
@@ -2777,7 +2777,7 @@ public class Guild
             Officer = setterGuid,
             Other = targetGuid,
             RankID = (byte)rank,
-            Promote = (rank < member.RankId)
+            Promote = rank < member.RankId
         };
 
         BroadcastPacket(rankChange);

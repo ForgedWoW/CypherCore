@@ -609,7 +609,7 @@ public class Quest
     {
         // Dungeon Finder/Daily/Repeatable (if not weekly, monthly or seasonal) quests are never considered rewarded serverside.
         // This affects counters and client requests for completed quests.
-        return (!IsDFQuest && !IsDaily && (!IsRepeatable || IsWeekly || IsMonthly || IsSeasonal));
+        return !IsDFQuest && !IsDaily && (!IsRepeatable || IsWeekly || IsMonthly || IsSeasonal);
     }
 
     public uint GetRewMoneyMaxLevel()

@@ -402,7 +402,7 @@ internal class BgEyeofStorm : Battleground
         _mPointAddingTimer = 0;
         _mTowerCapCheckTimer = 0;
         var isBGWeekend = Global.BattlegroundMgr.IsBGWeekend(GetTypeID());
-        _mHonorTics = (isBGWeekend) ? EotSMisc.EY_WEEKEND_HONOR_TICKS : EotSMisc.NOT_EY_WEEKEND_HONOR_TICKS;
+        _mHonorTics = isBGWeekend ? EotSMisc.EY_WEEKEND_HONOR_TICKS : EotSMisc.NOT_EY_WEEKEND_HONOR_TICKS;
 
         for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
@@ -946,7 +946,7 @@ internal class BgEyeofStorm : Battleground
                     //point is fully horde's
                     _mPointBarStatus[point] = EotSProgressBarConsts.ProgressBarHordeControlled;
 
-                uint pointOwnerTeamId = _mPointBarStatus[point] switch
+                var pointOwnerTeamId = _mPointBarStatus[point] switch
                 {
                     //find which team should own this point
                     <= EotSProgressBarConsts.ProgressBarNeutralLow  => (uint)TeamFaction.Horde,
@@ -988,8 +988,8 @@ internal class BgEyeofStorm : Battleground
 
             if (_mLastPointCaptureStatus[point] != captureStatus)
             {
-                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.AllianceControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.AllianceCapturing ? 1 : 0));
-                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.HordeControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus.HordeCapturing ? 1 : 0));
+                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.AllianceControlled ? 2 : captureStatus == BattlegroundPointCaptureStatus.AllianceCapturing ? 1 : 0);
+                UpdateWorldState(EotSMisc.MPointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus.HordeControlled       ? 2 : captureStatus == BattlegroundPointCaptureStatus.HordeCapturing    ? 1 : 0);
                 _mLastPointCaptureStatus[point] = captureStatus;
             }
         }

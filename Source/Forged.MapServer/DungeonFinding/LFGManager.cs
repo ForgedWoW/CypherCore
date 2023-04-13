@@ -247,7 +247,7 @@ public class LFGManager
             }
         }
 
-        return (tank + healer + damage) == (byte)groles.Count;
+        return tank + healer + damage == (byte)groles.Count;
     }
 
     // Only for debugging purposes
@@ -1766,7 +1766,7 @@ public class LFGManager
             }
 
         // if we don't have enough votes (agree or deny) do nothing
-        if (agreeNum < SharedConst.LFGKickVotesNeeded && (boot.Votes.Count - denyNum) >= SharedConst.LFGKickVotesNeeded)
+        if (agreeNum < SharedConst.LFGKickVotesNeeded && boot.Votes.Count - denyNum >= SharedConst.LFGKickVotesNeeded)
             return;
 
         // Send update info to all players
@@ -2056,7 +2056,7 @@ public class LFGManager
             var specialization = _db2Manager.GetChrSpecializationByIndex(player.Class, i);
 
             if (specialization != null)
-                allowedRoles |= (1u << (specialization.Role + 1));
+                allowedRoles |= 1u << (specialization.Role + 1);
         }
 
         return roles & (LfgRoles)allowedRoles;
@@ -2081,7 +2081,7 @@ public class LFGManager
                 if (dungeons.Empty())
                     break;
 
-                var dungeonId = (it2.Key & 0x00FFFFFF); // Compare dungeon ids
+                var dungeonId = it2.Key & 0x00FFFFFF; // Compare dungeon ids
 
                 if (dungeons.Contains(dungeonId))
                 {

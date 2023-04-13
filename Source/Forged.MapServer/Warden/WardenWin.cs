@@ -350,7 +350,7 @@ internal class WardenWin : Warden
         {
             var thisSize = GetCheckPacketSize(Global.WardenCheckMgr.GetCheckData(id));
 
-            if ((expectedSize + thisSize) > 450) // warden packets are truncated to 512 bytes clientside
+            if (expectedSize + thisSize > 450) // warden packets are truncated to 512 bytes clientside
                 return true;
 
             expectedSize += thisSize;
@@ -512,7 +512,7 @@ internal class WardenWin : Warden
         var size = 1 + GetCheckPacketBaseSize(check.Type); // 1 byte check type
 
         if (!check.Str.IsEmpty())
-            size += (check.Str.Length + 1); // 1 byte string length
+            size += check.Str.Length + 1; // 1 byte string length
 
         if (!check.Data.Empty())
             size += check.Data.Length;

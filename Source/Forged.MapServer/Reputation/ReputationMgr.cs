@@ -87,7 +87,7 @@ public class ReputationMgr
             return 0;
 
         var raceMask = SharedConst.GetMaskForRace(race);
-        var classMask = (1u << ((int)playerClass - 1));
+        var classMask = 1u << ((int)playerClass - 1);
 
         for (var i = 0; i < 4; i++)
             if ((factionEntry.ReputationClassMask[i] == 0 || factionEntry.ReputationClassMask[i].HasAnyFlag((short)classMask)) && (factionEntry.ReputationRaceMask[i] == 0 || factionEntry.ReputationRaceMask[i].HasAnyFlag(raceMask)))
@@ -398,7 +398,7 @@ public class ReputationMgr
             if (incremental || IsRenownReputation(factionEntry))
             {
                 // int32 *= float cause one point loss?
-                standing = (int)(Math.Floor(standing * _configuration.GetDefaultValue("Rate.Reputation.Gain", 1.0f) + 0.5f));
+                standing = (int)Math.Floor(standing * _configuration.GetDefaultValue("Rate.Reputation.Gain", 1.0f) + 0.5f);
                 standing += oldStanding;
             }
 
@@ -442,14 +442,14 @@ public class ReputationMgr
                     var renownLevelThreshold = GetRenownLevelThreshold(factionEntry);
                     var oldRenownLevel = GetRenownLevel(factionEntry);
 
-                    var totalReputation = (oldRenownLevel * renownLevelThreshold) + (standing - baseRep);
+                    var totalReputation = oldRenownLevel * renownLevelThreshold + (standing - baseRep);
                     var newRenownLevel = totalReputation / renownLevelThreshold;
                     newStanding = totalReputation % renownLevelThreshold;
 
                     if (newRenownLevel >= GetRenownMaxLevel(factionEntry))
                     {
                         newStanding = 0;
-                        reputationChange += (GetRenownMaxLevel(factionEntry) * renownLevelThreshold) - totalReputation;
+                        reputationChange += GetRenownMaxLevel(factionEntry) * renownLevelThreshold - totalReputation;
                     }
 
                     factionState.VisualStandingIncrease = reputationChange;

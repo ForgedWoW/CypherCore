@@ -55,14 +55,14 @@ public class CombatReference
 
     public Unit GetOther(Unit me)
     {
-        return (First == me) ? Second : First;
+        return First == me ? Second : First;
     }
 
     // suppressed combat refs do not generate a combat state for one side of the relation
     // (used by: vanish, feign death)
     public bool IsSuppressedFor(Unit who)
     {
-        return (who == First) ? _suppressFirst : _suppressSecond;
+        return who == First ? _suppressFirst : _suppressSecond;
     }
 
     public void Refresh()

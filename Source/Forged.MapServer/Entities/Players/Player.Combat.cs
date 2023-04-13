@@ -127,8 +127,8 @@ public partial class Player
         {
             DuelWinner duelWinner = new()
             {
-                BeatenName = (type == DuelCompleteType.Won ? opponent.GetName() : GetName()),
-                WinnerName = (type == DuelCompleteType.Won ? GetName() : opponent.GetName()),
+                BeatenName = type == DuelCompleteType.Won ? opponent.GetName() : GetName(),
+                WinnerName = type == DuelCompleteType.Won ? GetName() : opponent.GetName(),
                 BeatenVirtualRealmAddress = WorldManager.Realm.Id.VirtualRealmAddress,
                 WinnerVirtualRealmAddress = WorldManager.Realm.Id.VirtualRealmAddress,
                 Fled = type != DuelCompleteType.Won
@@ -220,7 +220,7 @@ public partial class Player
         var blockArmor = (float)ActivePlayerData.ShieldBlock;
         var armorConstant = DB2Manager.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, PlayerClass.None);
 
-        if ((blockArmor + armorConstant) == 0)
+        if (blockArmor + armorConstant == 0)
             return 0;
 
         return Math.Min(blockArmor / (blockArmor + armorConstant), 0.85f);
@@ -431,7 +431,7 @@ public partial class Player
         if (!IsPvP)
             return;
 
-        if (PvpInfo.EndTimer == 0 || (currTime < PvpInfo.EndTimer + 300) || PvpInfo.IsHostile)
+        if (PvpInfo.EndTimer == 0 || currTime < PvpInfo.EndTimer + 300 || PvpInfo.IsHostile)
             return;
 
         if (PvpInfo.EndTimer <= currTime)

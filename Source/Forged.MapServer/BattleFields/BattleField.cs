@@ -299,7 +299,7 @@ public class BattleField : ZoneScript
 
     public int GetOtherTeam(int teamIndex)
     {
-        return (teamIndex == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde);
+        return teamIndex == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde;
     }
 
     // Called when a Unit is kill in battlefield zone

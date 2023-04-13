@@ -80,7 +80,7 @@ internal class BanInfoCommands
             var unbanDate = result.Read<long>(3);
             var active = result.Read<bool>(2) && (result.Read<long>(1) == 0L || unbanDate >= GameTime.CurrentTime);
 
-            var permanent = (result.Read<long>(1) == 0L);
+            var permanent = result.Read<long>(1) == 0L;
             var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.SecsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
 
             handler.SendSysMessage(CypherStrings.BaninfoHistoryentry,
@@ -112,7 +112,7 @@ internal class BanInfoCommands
             long unbanDate = result.Read<uint>(3);
             var active = result.Read<bool>(2) && (result.Read<ulong>(1) == 0 || unbanDate >= GameTime.CurrentTime);
 
-            var permanent = (result.Read<ulong>(1) == 0);
+            var permanent = result.Read<ulong>(1) == 0;
             var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.SecsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
 
             handler.SendSysMessage(CypherStrings.BaninfoHistoryentry,

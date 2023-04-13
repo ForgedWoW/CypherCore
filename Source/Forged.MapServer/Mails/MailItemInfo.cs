@@ -5,6 +5,6 @@ namespace Forged.MapServer.Mails;
 
 public class MailItemInfo
 {
-    public ulong item_guid;
-    public uint item_template;
+    public ulong ItemGUID { get; set; }
+    public uint ItemTemplate { get; set; }
 }

@@ -57,10 +57,10 @@ public partial class Unit
 
     public double CalculateAoeAvoidance(double damage, uint schoolMask, ObjectGuid casterGuid)
     {
-        damage = (damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModAoeDamageAvoidance, schoolMask));
+        damage = damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModAoeDamageAvoidance, schoolMask);
 
         if (casterGuid.IsAnyTypeCreature)
-            damage = (damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModCreatureAoeDamageAvoidance, schoolMask));
+            damage = damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModCreatureAoeDamageAvoidance, schoolMask);
 
         return damage;
     }
@@ -417,7 +417,7 @@ public partial class Unit
 
         var curPower = GetPower(power);
 
-        var val = (dVal + curPower);
+        var val = dVal + curPower;
 
         if (val <= GetMinPower(power))
         {
@@ -1029,7 +1029,7 @@ public partial class Unit
         }
         else
         {
-            if (!victim.IsTotem && !(victim.AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoBlock)))
+            if (!victim.IsTotem && !victim.AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoBlock))
             {
                 chance = 3.0f;
                 chance += victim.GetTotalAuraModifier(AuraType.ModBlockPercent);

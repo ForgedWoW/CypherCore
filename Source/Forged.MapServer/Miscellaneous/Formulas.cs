@@ -35,7 +35,7 @@ public class Formulas
             if (mob_level > gray_level)
             {
                 var ZD = GetZeroDifference(pl_level);
-                baseGain = (uint)Math.Round(xpMob.PerKill * ((1 - ((pl_level - mob_level) / ZD)) * (xpMob.Divisor / xpPlayer.Divisor)));
+                baseGain = (uint)Math.Round(xpMob.PerKill * ((1 - (pl_level - mob_level) / ZD) * (xpMob.Divisor / xpPlayer.Divisor)));
             }
             else
             {
@@ -58,7 +58,7 @@ public class Formulas
     public static uint BgConquestRatingCalculator(uint rate)
     {
         // WowWiki: Battlegroundratings receive a bonus of 22.2% to the cap they generate
-        return (uint)((ConquestRatingCalculator(rate) * 1.222f) + 0.5f);
+        return (uint)(ConquestRatingCalculator(rate) * 1.222f + 0.5f);
     }
 
     public static uint ConquestRatingCalculator(uint rate)
@@ -69,7 +69,7 @@ public class Formulas
             rate = 3000;
 
         // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
-        return (uint)(1.4326 * ((1511.26 / (1 + 1639.28 / Math.Exp(0.00412 * rate))) + 850.15));
+        return (uint)(1.4326 * (1511.26 / (1 + 1639.28 / Math.Exp(0.00412 * rate)) + 850.15));
     }
 
     public static XPColorChar GetColorCode(uint pl_level, uint mob_level)
@@ -108,7 +108,7 @@ public class Formulas
                 if (i % 5 == 0)
                     ++count;
 
-            level = (uint)((pl_level - 7) - (count - 1));
+            level = (uint)(pl_level - 7 - (count - 1));
         }
         else
         {
@@ -169,7 +169,7 @@ public class Formulas
             if (gain != 0 && creature)
             {
                 // Players get only 10% xp for killing creatures of lower expansion levels than himself
-                if (ConfigMgr.GetDefaultValue("player.lowerExpInLowerExpansions", true) && (creature.Template.GetHealthScalingExpansion() < (int)GetExpansionForLevel(player.Level)))
+                if (ConfigMgr.GetDefaultValue("player.lowerExpInLowerExpansions", true) && creature.Template.GetHealthScalingExpansion() < (int)GetExpansionForLevel(player.Level))
                     gain = (uint)Math.Round(gain / 10.0f);
 
                 if (creature.IsElite)

@@ -14,17 +14,17 @@ public class UnitActionBarEntry
 
     public static uint MAKE_UNIT_ACTION_BUTTON(uint action, uint type)
     {
-        return (action | (type << 24));
+        return action | (type << 24);
     }
 
     public static uint UNIT_ACTION_BUTTON_ACTION(uint packedData)
     {
-        return (packedData & 0x00FFFFFF);
+        return packedData & 0x00FFFFFF;
     }
 
     public static uint UNIT_ACTION_BUTTON_TYPE(uint packedData)
     {
-        return ((packedData & 0xFF000000) >> 24);
+        return (packedData & 0xFF000000) >> 24;
     }
 
     public uint GetAction()

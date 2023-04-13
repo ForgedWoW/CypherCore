@@ -133,7 +133,7 @@ public class RestMgr
         if (restBonus > restBonusMax)
             restBonus = restBonusMax;
 
-        var oldBonus = (uint)(_restBonus[(int)restType]);
+        var oldBonus = (uint)_restBonus[(int)restType];
         _restBonus[(int)restType] = restBonus;
 
         var oldRestState = (PlayerRestState)(int)_player.ActivePlayerData.RestInfo[(int)restType].StateID;

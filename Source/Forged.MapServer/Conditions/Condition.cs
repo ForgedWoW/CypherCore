@@ -387,7 +387,7 @@ public class Condition
                 if (player != null)
                 {
                     var status = player.GetQuestStatus(ConditionValue1);
-                    condMeets = (status == QuestStatus.Incomplete);
+                    condMeets = status == QuestStatus.Incomplete;
                 }
 
                 break;
@@ -395,7 +395,7 @@ public class Condition
                 if (player != null)
                 {
                     var status = player.GetQuestStatus(ConditionValue1);
-                    condMeets = (status == QuestStatus.Complete && !player.GetQuestRewardStatus(ConditionValue1));
+                    condMeets = status == QuestStatus.Complete && !player.GetQuestRewardStatus(ConditionValue1);
                 }
 
                 break;
@@ -403,7 +403,7 @@ public class Condition
                 if (player != null)
                 {
                     var status = player.GetQuestStatus(ConditionValue1);
-                    condMeets = (status == QuestStatus.None);
+                    condMeets = status == QuestStatus.None;
                 }
 
                 break;
@@ -440,7 +440,7 @@ public class Condition
             case ConditionTypes.ObjectEntryGuid:
                 if (obj != null && (uint)obj.TypeId == ConditionValue1)
                 {
-                    condMeets = ConditionValue2 == 0 || (obj.Entry == ConditionValue2);
+                    condMeets = ConditionValue2 == 0 || obj.Entry == ConditionValue2;
 
                     if (ConditionValue3 != 0)
                         switch (obj.TypeId)
@@ -559,7 +559,7 @@ public class Condition
                 if (unit != null)
                 {
                     if (ConditionValue1 == 0)
-                        condMeets = (unit.StandState == (UnitStandStateType)ConditionValue2);
+                        condMeets = unit.StandState == (UnitStandStateType)ConditionValue2;
                     else
                         condMeets = ConditionValue2 switch
                         {
@@ -590,7 +590,7 @@ public class Condition
                 var pet = player?.CurrentPet;
 
                 if (pet != null)
-                    condMeets = (((1 << (int)pet.PetType) & ConditionValue1) != 0);
+                    condMeets = ((1 << (int)pet.PetType) & ConditionValue1) != 0;
 
                 break;
             }
@@ -605,10 +605,10 @@ public class Condition
             {
                 if (player != null)
                     if (
-                        (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.None)) && (player.GetQuestStatus(ConditionValue1) == QuestStatus.None)) ||
-                        (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.Complete)) && (player.GetQuestStatus(ConditionValue1) == QuestStatus.Complete)) ||
-                        (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.Incomplete)) && (player.GetQuestStatus(ConditionValue1) == QuestStatus.Incomplete)) ||
-                        (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.Failed)) && (player.GetQuestStatus(ConditionValue1) == QuestStatus.Failed)) ||
+                        (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.None)) && player.GetQuestStatus(ConditionValue1) == QuestStatus.None) ||
+                        (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.Complete)) && player.GetQuestStatus(ConditionValue1) == QuestStatus.Complete) ||
+                        (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.Incomplete)) && player.GetQuestStatus(ConditionValue1) == QuestStatus.Incomplete) ||
+                        (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.Failed)) && player.GetQuestStatus(ConditionValue1) == QuestStatus.Failed) ||
                         (Convert.ToBoolean(ConditionValue2 & (1 << (int)QuestStatus.Rewarded)) && player.GetQuestRewardStatus(ConditionValue1))
                     )
                         condMeets = true;

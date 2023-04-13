@@ -230,7 +230,7 @@ public class BIH
                         // ray passes through far node only
                         if (tf < intervalMin)
                         {
-                            intervalMin = (tb >= intervalMin) ? tb : intervalMin;
+                            intervalMin = tb >= intervalMin ? tb : intervalMin;
 
                             continue;
                         }
@@ -240,7 +240,7 @@ public class BIH
                         // ray passes through near node only
                         if (tb > intervalMax)
                         {
-                            intervalMax = (tf <= intervalMax) ? tf : intervalMax;
+                            intervalMax = tf <= intervalMax ? tf : intervalMax;
 
                             continue;
                         }
@@ -248,11 +248,11 @@ public class BIH
                         // ray passes through both nodes
                         // push back node
                         stack[stackPos].Node = (uint)back;
-                        stack[stackPos].Tnear = (tb >= intervalMin) ? tb : intervalMin;
+                        stack[stackPos].Tnear = tb >= intervalMin ? tb : intervalMin;
                         stack[stackPos].Tfar = intervalMax;
                         stackPos++;
                         // update ray interval for front node
-                        intervalMax = (tf <= intervalMax) ? tf : intervalMax;
+                        intervalMax = tf <= intervalMax ? tf : intervalMax;
                     }
                     else
                     {
@@ -281,8 +281,8 @@ public class BIH
                     var tf = (IntBitsToFloat(_tree[(int)(node + offsetFront[axis])]) - org.GetAt(axis)) * invDir.GetAt(axis);
                     var tb = (IntBitsToFloat(_tree[(int)(node + offsetBack[axis])]) - org.GetAt(axis)) * invDir.GetAt(axis);
                     node = offset;
-                    intervalMin = (tf >= intervalMin) ? tf : intervalMin;
-                    intervalMax = (tb <= intervalMax) ? tb : intervalMax;
+                    intervalMin = tf >= intervalMin ? tf : intervalMin;
+                    intervalMax = tb <= intervalMax ? tb : intervalMax;
 
                     if (intervalMin > intervalMax)
                         break;
@@ -371,7 +371,7 @@ public class BIH
         _tree = new uint[3];
         _objects = Array.Empty<int>();
         // create space for the first node
-        _tree[0] = (3u << 30); // dummy leaf
+        _tree[0] = 3u << 30; // dummy leaf
     }
 
     private float IntBitsToFloat(uint i)
@@ -386,7 +386,7 @@ public class BIH
 
     private void Subdivide(int left, int right, List<uint> tempTree, BuildData dat, AaBound gridBox, AaBound nodeBox, int nodeIndex, int depth, BuildStats stats)
     {
-        if ((right - left + 1) <= dat.MaxPrims || depth >= 64)
+        if (right - left + 1 <= dat.MaxPrims || depth >= 64)
         {
             // write leaf node
             stats.UpdateLeaf(depth, right - left + 1);

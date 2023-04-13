@@ -125,7 +125,7 @@ public class Item : WorldObject
     public bool IsPotion => Template.IsPotion;
     public bool IsRangedWeapon => Template.IsRangedWeapon;
     public bool IsRefundable => HasItemFlag(ItemFieldFlags.Refundable);
-    public bool IsRefundExpired => (PlayedTime > 2 * Time.HOUR);
+    public bool IsRefundExpired => PlayedTime > 2 * Time.HOUR;
     public bool IsSoulBound => HasItemFlag(ItemFieldFlags.Soulbound);
     public bool IsVellum => Template.IsVellum;
     public bool IsWrapped => HasItemFlag(ItemFieldFlags.Wrapped);
@@ -828,7 +828,7 @@ public class Item : WorldObject
         if (LootGenerated)
             return false;
 
-        if ((!mail || !IsBoundAccountWide) && (IsSoulBound && (!IsBOPTradeable || !trade)))
+        if ((!mail || !IsBoundAccountWide) && IsSoulBound && (!IsBOPTradeable || !trade))
             return false;
 
         if (IsBag && (PlayerComputators.IsBagPos(Pos) || !AsBag.IsEmpty()))
@@ -1526,7 +1526,7 @@ public class Item : WorldObject
 
         return proto != null &&
                ((proto.Map != 0 && proto.Map != cur_mapId) ||
-                ((proto.GetArea(0) != 0 && proto.GetArea(0) != cur_zoneId) && (proto.GetArea(1) != 0 && proto.GetArea(1) != cur_zoneId)));
+                (proto.GetArea(0) != 0 && proto.GetArea(0) != cur_zoneId && proto.GetArea(1) != 0 && proto.GetArea(1) != cur_zoneId));
     }
 
     public void LoadArtifactData(Player owner, ulong xp, uint artifactAppearanceId, uint artifactTier, List<ArtifactPowerData> powers)
@@ -1874,7 +1874,7 @@ public class Item : WorldObject
 
                 DB.Characters.Execute(stmt);
 
-                if ((State == ItemUpdateState.Changed) && IsWrapped)
+                if (State == ItemUpdateState.Changed && IsWrapped)
                 {
                     stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GIFT_OWNER);
                     stmt.AddValue(0, OwnerGUID.Counter);
@@ -2190,7 +2190,7 @@ public class Item : WorldObject
     public void SetEnchantment(EnchantmentSlot slot, uint id, uint duration, uint charges, ObjectGuid caster = default)
     {
         // Better lost small time at check in comparison lost time at item save to DB.
-        if ((GetEnchantmentId(slot) == id) && (GetEnchantmentDuration(slot) == duration) && (GetEnchantmentCharges(slot) == charges))
+        if (GetEnchantmentId(slot) == id && GetEnchantmentDuration(slot) == duration && GetEnchantmentCharges(slot) == charges)
             return;
 
         var owner = OwnerUnit;

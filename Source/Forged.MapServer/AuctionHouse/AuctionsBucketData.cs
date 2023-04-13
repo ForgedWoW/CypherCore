@@ -47,7 +47,7 @@ public class AuctionsBucketData
                     var breedData = item.GetModifier(ItemModifier.BattlePetBreedData);
                     var breedId = breedData & 0xFFFFFF;
                     var quality = (byte)((breedData >> 24) & 0xFF);
-                    var level = (byte)(item.GetModifier(ItemModifier.BattlePetLevel));
+                    var level = (byte)item.GetModifier(ItemModifier.BattlePetLevel);
 
                     bucketInfo.MaxBattlePetQuality = bucketInfo.MaxBattlePetQuality.HasValue ? Math.Max(bucketInfo.MaxBattlePetQuality.Value, quality) : quality;
                     bucketInfo.MaxBattlePetLevel = bucketInfo.MaxBattlePetLevel.HasValue ? Math.Max(bucketInfo.MaxBattlePetLevel.Value, level) : level;

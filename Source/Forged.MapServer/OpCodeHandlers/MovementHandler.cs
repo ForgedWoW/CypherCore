@@ -52,7 +52,7 @@ public class MovementHandler : IWorldSessionHandler
 
         if (sampleSizeAfterFiltering != 0)
         {
-            var meanClockDelta = (long)(Math.Round(clockDeltasAfterFiltering.Average()));
+            var meanClockDelta = (long)Math.Round(clockDeltasAfterFiltering.Average());
 
             if (Math.Abs(meanClockDelta - _timeSyncClockDelta) > 25)
                 _timeSyncClockDelta = meanClockDelta;
@@ -291,7 +291,7 @@ public class MovementHandler : IWorldSessionHandler
             return;
 
         // stop some emotes at player move
-        if (plrMover && (plrMover.EmoteState != 0))
+        if (plrMover && plrMover.EmoteState != 0)
             plrMover.EmoteState = Emote.OneshotNone;
 
         //handle special cases

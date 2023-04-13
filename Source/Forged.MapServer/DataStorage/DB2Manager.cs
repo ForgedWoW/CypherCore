@@ -506,7 +506,7 @@ public class DB2Manager
                 if (xDiff == 0.0)
                     return points[pointIndex].Pos.Y;
 
-                return (((x - points[pointIndex - 1].Pos.X) / xDiff) * (points[pointIndex].Pos.Y - points[pointIndex - 1].Pos.Y)) + points[pointIndex - 1].Pos.Y;
+                return (x - points[pointIndex - 1].Pos.X) / xDiff * (points[pointIndex].Pos.Y - points[pointIndex - 1].Pos.Y) + points[pointIndex - 1].Pos.Y;
             }
             case CurveInterpolationMode.Cosine:
             {
@@ -563,7 +563,7 @@ public class DB2Manager
 
                 var mu = (x - points[0].Pos.X) / xDiff;
 
-                return ((1.0f - mu) * (1.0f - mu) * points[0].Pos.Y) + (1.0f - mu) * 2.0f * mu * points[1].Pos.Y + mu * mu * points[2].Pos.Y;
+                return (1.0f - mu) * (1.0f - mu) * points[0].Pos.Y + (1.0f - mu) * 2.0f * mu * points[1].Pos.Y + mu * mu * points[2].Pos.Y;
             }
             case CurveInterpolationMode.Bezier4:
             {
@@ -1281,7 +1281,7 @@ public class DB2Manager
             relativePosition.Y = (y - uiMapAssignment.Region[0].Y) / regionSize.Y;
 
         // x any y are swapped
-        Vector2 uiPosition = new(((1.0f - (1.0f - relativePosition.Y)) * uiMapAssignment.UiMin.X) + ((1.0f - relativePosition.Y) * uiMapAssignment.UiMax.X), ((1.0f - (1.0f - relativePosition.X)) * uiMapAssignment.UiMin.Y) + ((1.0f - relativePosition.X) * uiMapAssignment.UiMax.Y));
+        Vector2 uiPosition = new((1.0f - (1.0f - relativePosition.Y)) * uiMapAssignment.UiMin.X + (1.0f - relativePosition.Y) * uiMapAssignment.UiMax.X, (1.0f - (1.0f - relativePosition.X)) * uiMapAssignment.UiMin.Y + (1.0f - relativePosition.X) * uiMapAssignment.UiMax.Y);
 
         if (!local)
             uiPosition = CalculateGlobalUiMapPosition(uiMapAssignment.UiMapID, uiPosition);
@@ -2101,15 +2101,15 @@ public class DB2Manager
                 var parentXsize = parentUiMapAssignment.Region[1].X - parentUiMapAssignment.Region[0].X;
                 var parentYsize = parentUiMapAssignment.Region[1].Y - parentUiMapAssignment.Region[0].Y;
                 var bound0Scale = (uiMapAssignment.Region[1].X - parentUiMapAssignment.Region[0].X) / parentXsize;
-                var bound0 = ((1.0f - bound0Scale) * parentUiMapAssignment.UiMax.Y) + (bound0Scale * parentUiMapAssignment.UiMin.Y);
+                var bound0 = (1.0f - bound0Scale) * parentUiMapAssignment.UiMax.Y + bound0Scale * parentUiMapAssignment.UiMin.Y;
                 var bound2Scale = (uiMapAssignment.Region[0].X - parentUiMapAssignment.Region[0].X) / parentXsize;
-                var bound2 = ((1.0f - bound2Scale) * parentUiMapAssignment.UiMax.Y) + (bound2Scale * parentUiMapAssignment.UiMin.Y);
+                var bound2 = (1.0f - bound2Scale) * parentUiMapAssignment.UiMax.Y + bound2Scale * parentUiMapAssignment.UiMin.Y;
                 var bound1Scale = (uiMapAssignment.Region[1].Y - parentUiMapAssignment.Region[0].Y) / parentYsize;
-                var bound1 = ((1.0f - bound1Scale) * parentUiMapAssignment.UiMax.X) + (bound1Scale * parentUiMapAssignment.UiMin.X);
+                var bound1 = (1.0f - bound1Scale) * parentUiMapAssignment.UiMax.X + bound1Scale * parentUiMapAssignment.UiMin.X;
                 var bound3Scale = (uiMapAssignment.Region[0].Y - parentUiMapAssignment.Region[0].Y) / parentYsize;
-                var bound3 = ((1.0f - bound3Scale) * parentUiMapAssignment.UiMax.X) + (bound3Scale * parentUiMapAssignment.UiMin.X);
+                var bound3 = (1.0f - bound3Scale) * parentUiMapAssignment.UiMax.X + bound3Scale * parentUiMapAssignment.UiMin.X;
 
-                if ((bound3 - bound1) > 0.0f || (bound2 - bound0) > 0.0f)
+                if (bound3 - bound1 > 0.0f || bound2 - bound0 > 0.0f)
                 {
                     bounds.Bounds[0] = bound0;
                     bounds.Bounds[1] = bound1;
@@ -2226,8 +2226,8 @@ public class DB2Manager
             if (!_uiMapBounds.TryGetValue((int)uiMap.Id, out var bounds) || !bounds.IsUiAssignment)
                 break;
 
-            uiPosition.X = ((1.0f - uiPosition.X) * bounds.Bounds[1]) + (bounds.Bounds[3] * uiPosition.X);
-            uiPosition.Y = ((1.0f - uiPosition.Y) * bounds.Bounds[0]) + (bounds.Bounds[2] * uiPosition.Y);
+            uiPosition.X = (1.0f - uiPosition.X) * bounds.Bounds[1] + bounds.Bounds[3] * uiPosition.X;
+            uiPosition.Y = (1.0f - uiPosition.Y) * bounds.Bounds[0] + bounds.Bounds[2] * uiPosition.Y;
 
             uiMap = _cliDB.UiMapStorage.LookupByKey((uint)uiMap.ParentUiMapID);
         }

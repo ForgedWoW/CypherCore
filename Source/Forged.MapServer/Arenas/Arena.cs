@@ -153,7 +153,7 @@ public class Arena : Battleground
                                                  GetArenaType(),
                                                  player.GetName(),
                                                  score.Key,
-                                                 player.GetArenaTeamId((byte)(GetArenaType() == ArenaTypes.Team5v5 ? 2 : (GetArenaType() == ArenaTypes.Team3v3 ? 1 : 0))),
+                                                 player.GetArenaTeamId((byte)(GetArenaType() == ArenaTypes.Team5v5 ? 2 : GetArenaType() == ArenaTypes.Team3v3 ? 1 : 0)),
                                                  player.Session.RemoteAddress,
                                                  score.Value.ToString());
                         }

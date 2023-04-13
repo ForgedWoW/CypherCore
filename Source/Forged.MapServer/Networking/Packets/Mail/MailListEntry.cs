@@ -27,36 +27,36 @@ public class MailListEntry
     public string Subject = "";
     public MailListEntry(Mails.Mail mail, Player player)
     {
-        MailID = mail.messageID;
-        SenderType = (byte)mail.messageType;
+        MailID = mail.MessageID;
+        SenderType = (byte)mail.MessageType;
 
-        switch (mail.messageType)
+        switch (mail.MessageType)
         {
             case MailMessageType.Normal:
-                SenderCharacter = ObjectGuid.Create(HighGuid.Player, mail.sender);
+                SenderCharacter = ObjectGuid.Create(HighGuid.Player, mail.Sender);
 
                 break;
             case MailMessageType.Creature:
             case MailMessageType.Gameobject:
             case MailMessageType.Auction:
             case MailMessageType.Calendar:
-                AltSenderID = (uint)mail.sender;
+                AltSenderID = (uint)mail.Sender;
 
                 break;
         }
 
-        Cod = mail.COD;
-        StationeryID = (int)mail.stationery;
-        SentMoney = mail.money;
-        Flags = (int)mail.checkMask;
-        DaysLeft = (float)(mail.expire_time - GameTime.CurrentTime) / Time.DAY;
-        MailTemplateID = (int)mail.mailTemplateId;
-        Subject = mail.subject;
-        Body = mail.body;
+        Cod = mail.Cod;
+        StationeryID = (int)mail.Stationery;
+        SentMoney = mail.Money;
+        Flags = (int)mail.CheckMask;
+        DaysLeft = (float)(mail.ExpireTime - GameTime.CurrentTime) / Time.DAY;
+        MailTemplateID = (int)mail.MailTemplateId;
+        Subject = mail.Subject;
+        Body = mail.Body;
 
-        for (byte i = 0; i < mail.items.Count; i++)
+        for (byte i = 0; i < mail.Items.Count; i++)
         {
-            var item = player.GetMItem(mail.items[i].item_guid);
+            var item = player.GetMItem(mail.Items[i].ItemGUID);
 
             if (item)
                 Attachments.Add(new MailAttachedItem(item, i));

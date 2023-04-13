@@ -174,7 +174,7 @@ internal class ServerCommands
         return exitCode switch
         {
             // Handle atoi() errors
-            0 when (exitCodeStr[0] != '0' || (exitCodeStr.Length > 1 && exitCodeStr[1] != '\0')) => false,
+            0 when exitCodeStr[0] != '0' || (exitCodeStr.Length > 1 && exitCodeStr[1] != '\0') => false,
             // Exit code should be in range of 0-125, 126-255 is used
             // in many shells for their own return codes and code > 255
             // is not supported in many others

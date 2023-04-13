@@ -1392,7 +1392,7 @@ public partial class Spell
         target.SendPacket(packet);
 
         // create duel-info
-        var isMounted = (SpellInfo.Id == 62875);
+        var isMounted = SpellInfo.Id == 62875;
         caster.Duel = new DuelInfo(target, caster, isMounted);
         target.Duel = new DuelInfo(caster, caster, isMounted);
 
@@ -1443,7 +1443,7 @@ public partial class Spell
         // -1 means all player equipped items and -2 all items
         if (slot < 0)
         {
-            UnitTarget.AsPlayer.DurabilityPointsLossAll(Damage, (slot < -1));
+            UnitTarget.AsPlayer.DurabilityPointsLossAll(Damage, slot < -1);
             ExecuteLogEffectDurabilityDamage(EffectInfo.Effect, UnitTarget, -1, -1);
 
             return;
@@ -1477,7 +1477,7 @@ public partial class Spell
         // Possibly its mean -1 all player equipped items and -2 all items
         if (slot < 0)
         {
-            UnitTarget.AsPlayer.DurabilityLossAll(Damage / 100.0f, (slot < -1));
+            UnitTarget.AsPlayer.DurabilityLossAll(Damage / 100.0f, slot < -1);
 
             return;
         }
@@ -2230,13 +2230,13 @@ public partial class Spell
         else
         {
             var bonus = unitCaster.SpellHealingBonusDone(UnitTarget, SpellInfo, addhealth, DamageEffectType.Heal, EffectInfo, 1, this);
-            addhealth = (bonus + (bonus * Variance));
+            addhealth = bonus + bonus * Variance;
         }
 
         addhealth = (int)UnitTarget.SpellHealingBonusTaken(unitCaster, SpellInfo, addhealth, DamageEffectType.Heal);
 
         // Remove Grievious bite if fully healed
-        if (UnitTarget.HasAura(48920) && ((UnitTarget.Health + addhealth) >= UnitTarget.MaxHealth))
+        if (UnitTarget.HasAura(48920) && UnitTarget.Health + addhealth >= UnitTarget.MaxHealth)
             UnitTarget.RemoveAura(48920);
 
         HealingInEffects += addhealth;
@@ -2339,7 +2339,7 @@ public partial class Spell
 
         unitCaster?.SpellDamageBonusDone(UnitTarget, SpellInfo, Damage, DamageEffectType.SpellDirect, EffectInfo, 1, this);
 
-        Damage = bonus + (bonus * Variance);
+        Damage = bonus + bonus * Variance;
 
         if (unitCaster != null)
             Damage = UnitTarget.SpellDamageBonusTaken(unitCaster, SpellInfo, Damage, DamageEffectType.SpellDirect);
@@ -2356,7 +2356,7 @@ public partial class Spell
         Damage -= absorb;
 
         // get max possible damage, don't count overkill for heal
-        var healthGain = (-UnitTarget.GetHealthGain(-Damage) * healMultiplier);
+        var healthGain = -UnitTarget.GetHealthGain(-Damage) * healMultiplier;
 
         if (unitCaster is { IsAlive: true })
         {
@@ -2981,7 +2981,7 @@ public partial class Spell
                                             [bitIndex / 32] = 1u << (bitIndex % 32)
                                         };
 
-                                        return (spellOnCooldown.SpellFamilyFlags & reqFlag);
+                                        return spellOnCooldown.SpellFamilyFlags & reqFlag;
                                     },
                                     TimeSpan.FromMilliseconds(Damage));
     }
@@ -3378,7 +3378,7 @@ public partial class Spell
         if (UnitTarget == null || !UnitTarget.IsAlive || UnitTarget.DisplayPowerType != powerType || Damage < 0)
             return;
 
-        double newDamage = -(UnitTarget.ModifyPower(powerType, -Damage));
+        double newDamage = -UnitTarget.ModifyPower(powerType, -Damage);
 
         // NO - Not a typo - EffectPowerBurn uses effect value multiplier - not effect damage multiplier
         var dmgMultiplier = EffectInfo.CalcValueMultiplier(UnitCasterForEffectHandlers, this);
@@ -3411,11 +3411,11 @@ public partial class Spell
         if (unitCaster != null)
         {
             var bonus = unitCaster.SpellDamageBonusDone(UnitTarget, SpellInfo, Damage, DamageEffectType.SpellDirect, EffectInfo, 1, this);
-            Damage = bonus + (bonus * Variance);
+            Damage = bonus + bonus * Variance;
             Damage = UnitTarget.SpellDamageBonusTaken(unitCaster, SpellInfo, Damage, DamageEffectType.SpellDirect);
         }
 
-        double newDamage = -(UnitTarget.ModifyPower(powerType, -Damage));
+        double newDamage = -UnitTarget.ModifyPower(powerType, -Damage);
 
         // Don't restore from self drain
         double gainMultiplier = 0.0f;
@@ -4004,7 +4004,7 @@ public partial class Spell
             if (unitCaster != null)
             {
                 var bonus = unitCaster.SpellDamageBonusDone(UnitTarget, SpellInfo, Damage, DamageEffectType.SpellDirect, EffectInfo, 1, this);
-                Damage = bonus + (bonus * Variance);
+                Damage = bonus + bonus * Variance;
                 Damage = UnitTarget.SpellDamageBonusTaken(unitCaster, SpellInfo, Damage, DamageEffectType.SpellDirect);
             }
 
@@ -5170,7 +5170,7 @@ public partial class Spell
                     {
                         var radius = EffectInfo.CalcRadius();
 
-                        var summonType = (duration == 0) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
+                        var summonType = duration == 0 ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
 
                         for (uint count = 0; count < numSummons; ++count)
                         {
@@ -5293,7 +5293,7 @@ public partial class Spell
         // "kill" original creature
         creatureTarget.DespawnOrUnsummon();
 
-        var level = (creatureTarget.GetLevelForTarget(Caster) < (Caster.GetLevelForTarget(creatureTarget) - 5)) ? (Caster.GetLevelForTarget(creatureTarget) - 5) : creatureTarget.GetLevelForTarget(Caster);
+        var level = creatureTarget.GetLevelForTarget(Caster) < Caster.GetLevelForTarget(creatureTarget) - 5 ? Caster.GetLevelForTarget(creatureTarget) - 5 : creatureTarget.GetLevelForTarget(Caster);
 
         // prepare visual effect for levelup
         pet.SetLevel(level - 1);

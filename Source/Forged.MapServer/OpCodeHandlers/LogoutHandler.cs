@@ -45,9 +45,9 @@ public class LogoutHandler : IWorldSessionHandler
         if (!Player.GetLootGUID().IsEmpty)
             Player.SendLootReleaseAll();
 
-        var instantLogout = (pl.HasPlayerFlag(PlayerFlags.Resting) && !pl.IsInCombat ||
-                             pl.IsInFlight ||
-                             HasPermission(RBACPermissions.InstantLogout));
+        var instantLogout = pl.HasPlayerFlag(PlayerFlags.Resting) && !pl.IsInCombat ||
+                            pl.IsInFlight ||
+                            HasPermission(RBACPermissions.InstantLogout);
 
         var canLogoutInCombat = pl.HasPlayerFlag(PlayerFlags.Resting);
 

@@ -123,16 +123,16 @@ public class UpdateMask
         for (var i = 0; i < _blockCount; ++i)
             _blocks[i] = 0xFFFFFFFF;
 
-        if ((_blocksMaskCount % 32) != 0)
+        if (_blocksMaskCount % 32 != 0)
         {
-            var unused = 32 - (_blocksMaskCount % 32);
-            _blocksMask[_blocksMaskCount - 1] &= (0xFFFFFFFF >> unused);
+            var unused = 32 - _blocksMaskCount % 32;
+            _blocksMask[_blocksMaskCount - 1] &= 0xFFFFFFFF >> unused;
         }
 
-        if ((_blockCount % 32) != 0)
+        if (_blockCount % 32 != 0)
         {
-            var unused = 32 - (_blockCount % 32);
-            _blocks[_blockCount - 1] &= (0xFFFFFFFF >> unused);
+            var unused = 32 - _blockCount % 32;
+            _blocks[_blockCount - 1] &= 0xFFFFFFFF >> unused;
         }
     }
 }

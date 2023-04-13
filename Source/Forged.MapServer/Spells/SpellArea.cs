@@ -49,11 +49,11 @@ public class SpellArea
                 return false;
 
         if (QuestStart != 0) // not in expected required quest state
-            if (player == null || (((1 << (int)player.GetQuestStatus(QuestStart)) & QuestStartStatus) == 0))
+            if (player == null || ((1 << (int)player.GetQuestStatus(QuestStart)) & QuestStartStatus) == 0)
                 return false;
 
         if (QuestEnd != 0) // not in expected forbidden quest state
-            if (player == null || (((1 << (int)player.GetQuestStatus(QuestEnd)) & QuestEndStatus) == 0))
+            if (player == null || ((1 << (int)player.GetQuestStatus(QuestEnd)) & QuestEndStatus) == 0)
                 return false;
 
         if (AuraSpell != 0) // not have expected aura
@@ -113,7 +113,7 @@ public class SpellArea
                 var battlefieldWG = Global.BattleFieldMgr.GetBattlefieldByBattleId(player.Location.Map, 1);
 
                 if (battlefieldWG != null)
-                    return battlefieldWG.IsEnabled() && (player.TeamId == battlefieldWG.GetDefenderTeam()) && !battlefieldWG.IsWarTime();
+                    return battlefieldWG.IsEnabled() && player.TeamId == battlefieldWG.GetDefenderTeam() && !battlefieldWG.IsWarTime();
 
                 break;
             }

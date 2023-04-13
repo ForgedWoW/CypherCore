@@ -187,7 +187,7 @@ public partial class Unit
                     {
                         var displayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
                         var modelData = CliDB.CreatureModelDataStorage.LookupByKey(displayInfo.ModelID);
-                        var collisionHeight = scaleMod * ((mountModelData.MountHeight * mountDisplayInfo.CreatureModelScale) + (modelData.CollisionHeight * modelData.ModelScale * displayInfo.CreatureModelScale * 0.5f));
+                        var collisionHeight = scaleMod * (mountModelData.MountHeight * mountDisplayInfo.CreatureModelScale + modelData.CollisionHeight * modelData.ModelScale * displayInfo.CreatureModelScale * 0.5f);
 
                         return collisionHeight == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight;
                     }
@@ -239,7 +239,7 @@ public partial class Unit
         {
             var creatureType = (uint)CreatureType;
 
-            return (uint)(creatureType >= 1 ? (1 << (int)(creatureType - 1)) : 0);
+            return (uint)(creatureType >= 1 ? 1 << (int)(creatureType - 1) : 0);
         }
     }
 
@@ -296,7 +296,7 @@ public partial class Unit
 
     public bool HasStealthAura => HasAuraType(AuraType.ModStealth);
     public float HoverOffset => HasUnitMovementFlag(MovementFlag.Hover) ? UnitData.HoverHeight : 0.0f;
-    public virtual bool IsAffectedByDiminishingReturns => (CharmerOrOwnerPlayerOrPlayerItself != null);
+    public virtual bool IsAffectedByDiminishingReturns => CharmerOrOwnerPlayerOrPlayerItself != null;
     public bool IsAIEnabled => Ai != null;
     public bool IsAlive => DeathState == DeathState.Alive;
     public bool IsArmorer => HasNpcFlag(NPCFlags.Repair);
@@ -470,7 +470,7 @@ public partial class Unit
             var mechanicList = _spellImmune[SpellImmunity.Mechanic];
 
             foreach (var pair in mechanicList.KeyValueList)
-                mask |= (1ul << (int)pair.Value);
+                mask |= 1ul << (int)pair.Value;
 
             return mask;
         }

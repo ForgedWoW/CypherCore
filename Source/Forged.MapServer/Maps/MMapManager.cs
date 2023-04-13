@@ -189,8 +189,8 @@ public class MMapManager
 
         foreach (var i in mmap.loadedTileRefs)
         {
-            var x = (i.Key >> 16);
-            var y = (i.Key & 0x0000FFFF);
+            var x = i.Key >> 16;
+            var y = i.Key & 0x0000FFFF;
 
             if (Detour.dtStatusFailed(mmap.navMesh.removeTile(i.Value, out _)))
             {

@@ -105,7 +105,7 @@ public class AuraEffect
                 if (SpellInfo.ProcFlags == null)
                     break;
 
-                amount = (int)(Base.OwnerAsUnit.CountPctFromMaxHealth(10));
+                amount = (int)Base.OwnerAsUnit.CountPctFromMaxHealth(10);
 
                 break;
             case AuraType.SchoolAbsorb:

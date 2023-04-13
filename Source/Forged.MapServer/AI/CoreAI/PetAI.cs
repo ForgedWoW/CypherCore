@@ -33,7 +33,7 @@ public class PetAI : CreatureAI
             return;
 
         // Only chase if not commanded to stay or if stay but commanded to attack
-        DoAttack(target, (!Me.GetCharmInfo().HasCommandState(CommandStates.Stay) || Me.GetCharmInfo().IsCommandAttack()));
+        DoAttack(target, !Me.GetCharmInfo().HasCommandState(CommandStates.Stay) || Me.GetCharmInfo().IsCommandAttack());
     }
 
     public override void AttackStart(Unit target)
@@ -85,7 +85,7 @@ public class PetAI : CreatureAI
 
         // Stay - can attack if target is within range or commanded to
         if (Me.GetCharmInfo().HasCommandState(CommandStates.Stay))
-            return (Me.IsWithinMeleeRange(victim) || Me.GetCharmInfo().IsCommandAttack());
+            return Me.IsWithinMeleeRange(victim) || Me.GetCharmInfo().IsCommandAttack();
 
         //  Pets attacking something (or chasing) should only switch targets if owner tells them to
         if (Me.Victim && Me.Victim != victim)
@@ -100,7 +100,7 @@ public class PetAI : CreatureAI
                 ownerTarget = Me.CharmerOrOwner.Victim;
 
             if (ownerTarget && Me.GetCharmInfo().IsCommandAttack())
-                return (victim.GUID == ownerTarget.GUID);
+                return victim.GUID == ownerTarget.GUID;
         }
 
         // Follow
@@ -523,7 +523,7 @@ public class PetAI : CreatureAI
                 // Pets with ranged attacks should not care about the chase angle at all.
                 var chaseDistance = Me.GetPetChaseDistance();
                 var angle = chaseDistance == 0.0f ? MathF.PI : 0.0f;
-                var tolerance = chaseDistance == 0.0f ? MathFunctions.PI_OVER4 : (MathF.PI * 2);
+                var tolerance = chaseDistance == 0.0f ? MathFunctions.PI_OVER4 : MathF.PI * 2;
                 Me.MotionMaster.MoveChase(target, new ChaseRange(0.0f, chaseDistance), new ChaseAngle(angle, tolerance));
             }
             else
@@ -598,7 +598,7 @@ public class PetAI : CreatureAI
         var owner = Me.CharmerOrOwner;
 
         if (owner)
-            if (owner.Location.GetExactDist(Me.Location) >= (owner.Visibility.VisibilityRange - 10.0f))
+            if (owner.Location.GetExactDist(Me.Location) >= owner.Visibility.VisibilityRange - 10.0f)
                 return true;
 
         return !Me.WorldObjectCombat.IsValidAttackTarget(Me.Victim);

@@ -161,9 +161,9 @@ public class Map : IDisposable
 
     public ConcurrentMultiMap<ulong, AreaTrigger> AreaTriggerBySpawnIdStore { get; } = new();
 
-    public InstanceMap ToInstanceMap => IsDungeon ? (this as InstanceMap) : null;
+    public InstanceMap ToInstanceMap => IsDungeon ? this as InstanceMap : null;
 
-    public BattlegroundMap ToBattlegroundMap => IsBattlegroundOrArena ? (this as BattlegroundMap) : null;
+    public BattlegroundMap ToBattlegroundMap => IsBattlegroundOrArena ? this as BattlegroundMap : null;
 
     public MultiPersonalPhaseTracker MultiPersonalPhaseTracker { get; } = new();
 
@@ -574,12 +574,12 @@ public class Map : IDisposable
 
     public bool IsGridLoaded(uint x, uint y)
     {
-        return (GetGrid(x, y) != null && IsGridObjectDataLoaded(x, y));
+        return GetGrid(x, y) != null && IsGridObjectDataLoaded(x, y);
     }
 
     public bool IsGridLoaded(GridCoord p)
     {
-        return (GetGrid(p.X_Coord, p.Y_Coord) != null && IsGridObjectDataLoaded(p.X_Coord, p.Y_Coord));
+        return GetGrid(p.X_Coord, p.Y_Coord) != null && IsGridObjectDataLoaded(p.X_Coord, p.Y_Coord);
     }
 
     public void UpdatePlayerZoneStats(uint oldZone, uint newZone)
@@ -1192,8 +1192,8 @@ public class Map : IDisposable
             Grids.Remove(x, y);
         }
 
-        var gx = (int)((MapConst.MaxGrids - 1) - x);
-        var gy = (int)((MapConst.MaxGrids - 1) - y);
+        var gx = (int)(MapConst.MaxGrids - 1 - x);
+        var gy = (int)(MapConst.MaxGrids - 1 - y);
 
         Terrain.UnloadMap(gx, gy);
 
@@ -1650,7 +1650,7 @@ public class Map : IDisposable
                     var obj = GetWorldObjectBySpawnId(data.Type, data.SpawnId);
 
                     if (obj != null)
-                        if ((data.Type != SpawnObjectType.Creature) || obj.AsCreature.IsAlive)
+                        if (data.Type != SpawnObjectType.Creature || obj.AsCreature.IsAlive)
                             continue;
                 }
 
@@ -1910,8 +1910,8 @@ public class Map : IDisposable
         {
             var p = GridDefines.ComputeCellCoord(pl.Location.X, pl.Location.Y);
 
-            if ((cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord) &&
-                (cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord))
+            if (cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord &&
+                cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord)
                 return true;
         }
 
@@ -1919,8 +1919,8 @@ public class Map : IDisposable
         {
             var p = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
 
-            if ((cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord) &&
-                (cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord))
+            if (cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord &&
+                cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord)
                 return true;
         }
 
@@ -2994,8 +2994,8 @@ public class Map : IDisposable
                 SetGrid(grid, p.X_Coord, p.Y_Coord);
 
                 //z coord
-                var gx = (int)((MapConst.MaxGrids - 1) - p.X_Coord);
-                var gy = (int)((MapConst.MaxGrids - 1) - p.Y_Coord);
+                var gx = (int)(MapConst.MaxGrids - 1 - p.X_Coord);
+                var gy = (int)(MapConst.MaxGrids - 1 - p.Y_Coord);
 
                 if (gx > -1 && gy > -1)
                     Terrain.LoadMapAndVMap(gx, gy);
@@ -3053,8 +3053,8 @@ public class Map : IDisposable
     private void GridMarkNoUnload(uint x, uint y)
     {
         // First make sure this grid is loaded
-        var gX = ((x - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids) + (MapConst.CenterGridOffset * 2);
-        var gY = ((y - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids) + (MapConst.CenterGridOffset * 2);
+        var gX = (x - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids + MapConst.CenterGridOffset * 2;
+        var gY = (y - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids + MapConst.CenterGridOffset * 2;
         Cell cell = new(gX, gY);
         EnsureGridLoaded(cell);
 
@@ -3096,7 +3096,7 @@ public class Map : IDisposable
             {
                 // marked cells are those that have been visited
                 // don't visit the same cell twice
-                var cell_id = (y * MapConst.TotalCellsPerMap) + x;
+                var cell_id = y * MapConst.TotalCellsPerMap + x;
 
                 if (IsCellMarked(cell_id))
                     continue;
@@ -3142,7 +3142,7 @@ public class Map : IDisposable
                 {
                     for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
                     {
-                        var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
+                        var cell_id = yy * MapConst.TotalCellsPerMap + xx;
 
                         if (!IsCellMarked(cell_id))
                             continue;
@@ -3190,7 +3190,7 @@ public class Map : IDisposable
                 {
                     for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
                     {
-                        var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
+                        var cell_id = yy * MapConst.TotalCellsPerMap + xx;
 
                         if (!IsCellMarked(cell_id))
                             continue;
@@ -4243,7 +4243,7 @@ public class Map : IDisposable
         // prepare static data
         var sourceGUID = source?.GUID ?? ObjectGuid.Empty; //some script commands doesn't have source
         var targetGUID = target?.GUID ?? ObjectGuid.Empty;
-        var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
+        var ownerGUID = source != null && source.IsTypeMask(TypeMask.Item) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
 
         // Schedule script execution for all scripts in the script map
         var immedScript = false;
@@ -4279,7 +4279,7 @@ public class Map : IDisposable
         // prepare static data
         var sourceGUID = source?.GUID ?? ObjectGuid.Empty;
         var targetGUID = target?.GUID ?? ObjectGuid.Empty;
-        var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
+        var ownerGUID = source != null && source.IsTypeMask(TypeMask.Item) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
 
         var sa = new ScriptAction
         {
@@ -5104,7 +5104,7 @@ public class Map : IDisposable
                             break;
                         }
 
-                        var triggered = ((int)step.Script.CastSpell.Flags != 4)
+                        var triggered = (int)step.Script.CastSpell.Flags != 4
                                             ? step.Script.CastSpell.CreatureEntry.HasAnyFlag((int)eScriptFlags.CastspellTriggered)
                                             : step.Script.CastSpell.CreatureEntry < 0;
 

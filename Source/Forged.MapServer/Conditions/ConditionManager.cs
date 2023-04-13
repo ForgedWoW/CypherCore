@@ -108,7 +108,7 @@ public sealed class ConditionManager
 
     public bool CanHaveSourceIdSet(ConditionSourceType sourceType)
     {
-        return (sourceType == ConditionSourceType.SmartEvent);
+        return sourceType == ConditionSourceType.SmartEvent;
     }
 
     public List<Condition> GetConditionsForAreaTrigger(uint areaTriggerId, bool isServerSide)
@@ -1458,7 +1458,7 @@ public sealed class ConditionManager
                                                      foreach (var effectMask in sharedMasks)
                                                      {
                                                          // some effect indexes should have same data
-                                                         var commonMask = (effectMask & conditionEffMask);
+                                                         var commonMask = effectMask & conditionEffMask;
 
                                                          if (commonMask != 0)
                                                          {
@@ -1638,24 +1638,24 @@ public sealed class ConditionManager
             case UnitConditionVariable.IsSelf:
                 return unit == otherUnit ? 1 : 0;
             case UnitConditionVariable.IsMyPet:
-                return (otherUnit != null && unit.CharmerOrOwnerGUID == otherUnit.GUID) ? 1 : 0;
+                return otherUnit != null && unit.CharmerOrOwnerGUID == otherUnit.GUID ? 1 : 0;
             case UnitConditionVariable.IsMaster:
-                return (otherUnit && otherUnit.CharmerOrOwnerGUID == unit.GUID) ? 1 : 0;
+                return otherUnit && otherUnit.CharmerOrOwnerGUID == unit.GUID ? 1 : 0;
             case UnitConditionVariable.IsTarget:
-                return (otherUnit && otherUnit.Target == unit.GUID) ? 1 : 0;
+                return otherUnit && otherUnit.Target == unit.GUID ? 1 : 0;
             case UnitConditionVariable.CanAssist:
-                return (otherUnit && unit.WorldObjectCombat.IsValidAssistTarget(otherUnit)) ? 1 : 0;
+                return otherUnit && unit.WorldObjectCombat.IsValidAssistTarget(otherUnit) ? 1 : 0;
             case UnitConditionVariable.CanAttack:
-                return (otherUnit && unit.WorldObjectCombat.IsValidAttackTarget(otherUnit)) ? 1 : 0;
+                return otherUnit && unit.WorldObjectCombat.IsValidAttackTarget(otherUnit) ? 1 : 0;
             case UnitConditionVariable.HasPet:
-                return (!unit.CharmedGUID.IsEmpty || !unit.MinionGUID.IsEmpty) ? 1 : 0;
+                return !unit.CharmedGUID.IsEmpty || !unit.MinionGUID.IsEmpty ? 1 : 0;
             case UnitConditionVariable.HasWeapon:
                 var player = unit.AsPlayer;
 
                 if (player != null)
-                    return (player.GetWeaponForAttack(WeaponAttackType.BaseAttack) || player.GetWeaponForAttack(WeaponAttackType.OffAttack)) ? 1 : 0;
+                    return player.GetWeaponForAttack(WeaponAttackType.BaseAttack) || player.GetWeaponForAttack(WeaponAttackType.OffAttack) ? 1 : 0;
 
-                return (unit.GetVirtualItemId(0) != 0 || unit.GetVirtualItemId(1) != 0) ? 1 : 0;
+                return unit.GetVirtualItemId(0) != 0 || unit.GetVirtualItemId(1) != 0 ? 1 : 0;
             case UnitConditionVariable.HealthPct:
                 return (int)unit.HealthPct;
             case UnitConditionVariable.ManaPct:
@@ -1757,7 +1757,7 @@ public sealed class ConditionManager
                     return unit.Location.GetExactDistSq(attacker.Location) < distance * distance;
                 });
             case UnitConditionVariable.IsAttackingMe:
-                return (otherUnit != null && unit.Target == otherUnit.GUID) ? 1 : 0;
+                return otherUnit != null && unit.Target == otherUnit.GUID ? 1 : 0;
             case UnitConditionVariable.Range:
                 return otherUnit ? (int)unit.Location.GetExactDist(otherUnit.Location) : 0;
             case UnitConditionVariable.InMeleeRange:
@@ -1768,7 +1768,7 @@ public sealed class ConditionManager
                     if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || otherUnit.HasUnitFlag(UnitFlags.PlayerControlled))
                         distance += 1.0f;
 
-                    return (unit.Location.GetExactDistSq(otherUnit.Location) < distance * distance) ? 1 : 0;
+                    return unit.Location.GetExactDistSq(otherUnit.Location) < distance * distance ? 1 : 0;
                 }
 
                 return 0;
@@ -1823,7 +1823,7 @@ public sealed class ConditionManager
                     if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || target.HasUnitFlag(UnitFlags.PlayerControlled))
                         distance += 1.0f;
 
-                    return (unit.Location.GetExactDistSq(target.Location) < distance * distance) ? 1 : 0;
+                    return unit.Location.GetExactDistSq(target.Location) < distance * distance ? 1 : 0;
                 }
 
                 return 0;
@@ -1839,7 +1839,7 @@ public sealed class ConditionManager
                     if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || target.HasUnitFlag(UnitFlags.PlayerControlled))
                         distance += 1.0f;
 
-                    return (unit.Location.GetExactDistSq(target.Location) >= distance * distance) ? 1 : 0;
+                    return unit.Location.GetExactDistSq(target.Location) >= distance * distance ? 1 : 0;
                 }
 
                 return 0;
@@ -1849,7 +1849,7 @@ public sealed class ConditionManager
             case UnitConditionVariable.SpellKnown:
                 return unit.HasSpell((uint)value) ? value : 0;
             case UnitConditionVariable.HasHarmfulAuraEffect:
-                return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
+                return value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative)) ? 1 : 0;
             case UnitConditionVariable.IsImmuneToAreaOfEffect:
                 break;
             case UnitConditionVariable.IsPlayer:
@@ -1881,15 +1881,15 @@ public sealed class ConditionManager
             case UnitConditionVariable.HasAura:
                 return unit.HasAura((uint)value) ? value : 0;
             case UnitConditionVariable.IsEnemy:
-                return (otherUnit && unit.WorldObjectCombat.GetReactionTo(otherUnit) <= ReputationRank.Hostile) ? 1 : 0;
+                return otherUnit && unit.WorldObjectCombat.GetReactionTo(otherUnit) <= ReputationRank.Hostile ? 1 : 0;
             case UnitConditionVariable.IsSpecMelee:
-                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee)) ? 1 : 0;
+                return unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee) ? 1 : 0;
             case UnitConditionVariable.IsSpecTank:
-                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 0) ? 1 : 0;
+                return unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 0 ? 1 : 0;
             case UnitConditionVariable.IsSpecRanged:
-                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Ranged)) ? 1 : 0;
+                return unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Ranged) ? 1 : 0;
             case UnitConditionVariable.IsSpecHealer:
-                return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 1) ? 1 : 0;
+                return unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 1 ? 1 : 0;
             case UnitConditionVariable.IsPlayerControlledNPC:
                 return unit.IsCreature && unit.HasUnitFlag(UnitFlags.PlayerControlled) ? 1 : 0;
             case UnitConditionVariable.IsDying:
@@ -1901,11 +1901,11 @@ public sealed class ConditionManager
             case UnitConditionVariable.Label:
                 break;
             case UnitConditionVariable.IsMySummon:
-                return (otherUnit && (otherUnit.CharmerGUID == unit.GUID || otherUnit.CreatorGUID == unit.GUID)) ? 1 : 0;
+                return otherUnit && (otherUnit.CharmerGUID == unit.GUID || otherUnit.CreatorGUID == unit.GUID) ? 1 : 0;
             case UnitConditionVariable.IsSummoner:
-                return (otherUnit && (unit.CharmerGUID == otherUnit.GUID || unit.CreatorGUID == otherUnit.GUID)) ? 1 : 0;
+                return otherUnit && (unit.CharmerGUID == otherUnit.GUID || unit.CreatorGUID == otherUnit.GUID) ? 1 : 0;
             case UnitConditionVariable.IsMyTarget:
-                return (otherUnit && unit.Target == otherUnit.GUID) ? 1 : 0;
+                return otherUnit && unit.Target == otherUnit.GUID ? 1 : 0;
             case UnitConditionVariable.Sex:
                 return (int)unit.Gender;
             case UnitConditionVariable.LevelWithinContentTuning:
@@ -1920,7 +1920,7 @@ public sealed class ConditionManager
             case UnitConditionVariable.IsHovering:
                 return unit.IsHovering ? 1 : 0;
             case UnitConditionVariable.HasHelpfulAuraEffect:
-                return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
+                return value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative)) ? 1 : 0;
             case UnitConditionVariable.HasHelpfulAuraSchool:
                 return unit.GetAppliedAurasQuery()
                            .HasNegitiveFlag()
@@ -2041,7 +2041,7 @@ public sealed class ConditionManager
                 break;
             }
             case ConditionTypes.Queststate:
-                if (cond.ConditionValue2 >= (1 << (int)QuestStatus.Max))
+                if (cond.ConditionValue2 >= 1 << (int)QuestStatus.Max)
                 {
                     Log.Logger.Debug("{0} has invalid state mask ({1}), skipped.", cond.ToString(true), cond.ConditionValue2);
 
@@ -2503,7 +2503,7 @@ public sealed class ConditionManager
                 break;
             }
             case ConditionTypes.PetType:
-                if (cond.ConditionValue1 >= (1 << (int)PetType.Max))
+                if (cond.ConditionValue1 >= 1 << (int)PetType.Max)
                 {
                     Log.Logger.Debug("{0} has non-existing pet type {1}, skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -3230,7 +3230,7 @@ public sealed class ConditionManager
             case WorldStateExpressionFunctions.ClockHour:
                 var currentHour = GameTime.DateAndTime.Hour + 1;
 
-                return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
+                return currentHour <= 12 ? currentHour != 0 ? currentHour : 12 : currentHour - 12;
             case WorldStateExpressionFunctions.OldDifficultyId:
                 if (_cliDB.DifficultyStorage.TryGetValue((uint)player.Location.Map.DifficultyID, out var difficulty))
                     return difficulty.OldEnumValue;

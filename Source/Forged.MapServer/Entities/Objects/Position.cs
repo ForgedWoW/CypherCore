@@ -70,7 +70,7 @@ public class Position
         if (o < 0)
         {
             var mod = o * -1;
-            mod %= (2.0f * MathFunctions.PI);
+            mod %= 2.0f * MathFunctions.PI;
             mod = -mod + 2.0f * MathFunctions.PI;
 
             return mod;
@@ -199,9 +199,9 @@ public class Position
             angle -= 2.0f * MathFunctions.PI;
 
         var lborder = -1 * (arc / border); // in range -pi..0
-        var rborder = (arc / border);      // in range 0..pi
+        var rborder = arc / border;        // in range 0..pi
 
-        return ((angle >= lborder) && (angle <= rborder));
+        return angle >= lborder && angle <= rborder;
     }
 
     public bool HasInLine(Position pos, float objSize, float width)
@@ -256,7 +256,7 @@ public class Position
         var dx = rotX - center.X;
         var dy = rotY - center.Y;
 
-        if ((Math.Abs(dx) > xradius) || (Math.Abs(dy) > yradius) || (Math.Abs(dz) > zradius))
+        if (Math.Abs(dx) > xradius || Math.Abs(dy) > yradius || Math.Abs(dz) > zradius)
             return false;
 
         return true;

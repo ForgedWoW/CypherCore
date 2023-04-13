@@ -155,7 +155,7 @@ internal class WDC3Row
                             var vectors = new Vector3[atr.Length];
 
                             for (var i = 0; i < atr.Length; ++i)
-                                vectors[i] = new Vector3(pos[i * 3], pos[(i * 3) + 1], pos[(i * 3) + 2]);
+                                vectors[i] = new Vector3(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]);
 
                             f.SetValue(obj, vectors);
                         }

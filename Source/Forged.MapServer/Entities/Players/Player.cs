@@ -618,7 +618,7 @@ public partial class Player : Unit
             offItem.SaveToDB(trans);              // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
             var subject = ObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
-            new MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
+            ClassFactory.ResolvePositional<MailDraft>(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
 
             CharacterDatabase.CommitTransaction(trans);
         }
@@ -1180,7 +1180,7 @@ public partial class Player : Unit
         SetWatchedFactionIndex(0xFFFFFFFF);
 
         SetCustomizations(createInfo.Customizations);
-        SetRestState(RestTypes.XP, ((Session.IsARecruiter || Session.RecruiterId != 0) ? PlayerRestState.RAFLinked : PlayerRestState.Normal));
+        SetRestState(RestTypes.XP, Session.IsARecruiter || Session.RecruiterId != 0 ? PlayerRestState.RAFLinked : PlayerRestState.Normal);
         SetRestState(RestTypes.Honor, PlayerRestState.Normal);
         NativeGender = createInfo.Sex;
         SetInventorySlotCount(InventorySlots.DefaultSize);
@@ -1497,7 +1497,7 @@ public partial class Player : Unit
         var now = GameTime.CurrentTime;
         // 0..2 full period
         // should be ceil(x)-1 but not floor(x)
-        var count = (ulong)((now < _deathExpireTime - 1) ? (_deathExpireTime - 1 - now) / PlayerConst.DeathExpireStep : 0);
+        var count = (ulong)(now < _deathExpireTime - 1 ? (_deathExpireTime - 1 - now) / PlayerConst.DeathExpireStep : 0);
 
         return PlayerConst.copseReclaimDelay[count];
     }
@@ -1610,7 +1610,7 @@ public partial class Player : Unit
 
     public Mail GetMail(ulong id)
     {
-        return Mails.Find(p => p.messageID == id);
+        return Mails.Find(p => p.MessageID == id);
     }
 
     public Item GetMItem(ulong id)
@@ -1742,8 +1742,8 @@ public partial class Player : Unit
                         continue;
             }
 
-            var aRecruitedB = (player.Session.RecruiterId == Session.AccountId);
-            var bRecruitedA = (Session.RecruiterId == player.Session.AccountId);
+            var aRecruitedB = player.Session.RecruiterId == Session.AccountId;
+            var bRecruitedA = Session.RecruiterId == player.Session.AccountId;
 
             if (aRecruitedB || bRecruitedA)
             {
@@ -1849,7 +1849,7 @@ public partial class Player : Unit
         if (item == null || item.Template.Class != ItemClass.Weapon)
             return null;
 
-        if ((attackType == WeaponAttackType.RangedAttack) != item.Template.IsRangedWeapon)
+        if (attackType == WeaponAttackType.RangedAttack != item.Template.IsRangedWeapon)
             return null;
 
         if (!useable)
@@ -1974,7 +1974,7 @@ public partial class Player : Unit
         {
             //- TODO: Poor design of mail system
             SQLTransaction trans = new();
-            new MailDraft(mailReward.MailTemplateId).SendMailTo(trans, this, new MailSender(MailMessageType.Creature, mailReward.SenderEntry));
+            ClassFactory.ResolvePositional<MailDraft>(mailReward.MailTemplateId, true).SendMailTo(trans, this, new MailSender(MailMessageType.Creature, mailReward.SenderEntry));
             CharacterDatabase.CommitTransaction(trans);
         }
 
@@ -2138,7 +2138,7 @@ public partial class Player : Unit
     public bool HasEnoughMoney(long amount)
     {
         if (amount > 0)
-            return (Money >= (ulong)amount);
+            return Money >= (ulong)amount;
 
         return true;
     }
@@ -2217,7 +2217,7 @@ public partial class Player : Unit
         {
             var maxQuantity = GetCurrencyMaxQuantity(currency);
 
-            if ((maxQuantity + amount) > PlayerConst.CurrencyMaxCapAncientMana)
+            if (maxQuantity + amount > PlayerConst.CurrencyMaxCapAncientMana)
                 amount = PlayerConst.CurrencyMaxCapAncientMana - maxQuantity;
         }
 
@@ -2860,14 +2860,14 @@ public partial class Player : Unit
         // Weekly cap
         var weeklyCap = GetCurrencyWeeklyCap(currency);
 
-        if (weeklyCap != 0 && amount > 0 && (playerCurrency.WeeklyQuantity + amount) > weeklyCap)
+        if (weeklyCap != 0 && amount > 0 && playerCurrency.WeeklyQuantity + amount > weeklyCap)
             if (!isGainOnRefund) // Ignore weekly cap for refund
                 amount = (int)(weeklyCap - playerCurrency.WeeklyQuantity);
 
         // Max cap
         var maxCap = GetCurrencyMaxQuantity(currency, false, gainSource == CurrencyGainSource.UpdatingVersion);
 
-        if (maxCap != 0 && amount > 0 && (playerCurrency.Quantity + amount) > maxCap)
+        if (maxCap != 0 && amount > 0 && playerCurrency.Quantity + amount > maxCap)
             amount = (int)(maxCap - playerCurrency.Quantity);
 
         // Underflow protection
@@ -2905,7 +2905,7 @@ public partial class Player : Unit
             Flags = CurrencyGainFlags.None // TODO: Check when flags are applied
         };
 
-        if ((playerCurrency.WeeklyQuantity / currency.GetScaler()) > 0)
+        if (playerCurrency.WeeklyQuantity / currency.GetScaler() > 0)
             packet.WeeklyQuantity = (int)playerCurrency.WeeklyQuantity;
 
         if (currency.HasMaxQuantity(false, gainSource == CurrencyGainSource.UpdatingVersion))
@@ -2939,7 +2939,7 @@ public partial class Player : Unit
         }
         else
         {
-            if (Money <= (PlayerConst.MaxMoneyAmount - (ulong)amount))
+            if (Money <= PlayerConst.MaxMoneyAmount - (ulong)amount)
             {
                 Money = Money + (ulong)amount;
             }
@@ -3486,7 +3486,7 @@ public partial class Player : Unit
     public void RemoveMail(ulong id)
     {
         foreach (var mail in Mails)
-            if (mail.messageID == id)
+            if (mail.MessageID == id)
             {
                 //do not delete item, because Player.removeMail() is called when returning mail to sender.
                 Mails.Remove(mail);
@@ -3763,7 +3763,7 @@ public partial class Player : Unit
         RemoveAura(20584); // speed bonuses
         RemoveAura(8326);  // SPELL_AURA_GHOST
 
-        if (Session.IsARecruiter || (Session.RecruiterId != 0))
+        if (Session.IsARecruiter || Session.RecruiterId != 0)
             SetDynamicFlag(UnitDynFlags.ReferAFriend);
 
         SetDeathState(DeathState.Alive);
@@ -4661,7 +4661,7 @@ public partial class Player : Unit
     public void SetClientControl(Unit target, bool allowMove)
     {
         // don't allow possession to be overridden
-        if (target.HasUnitState(UnitState.Charmed) && (GUID != target.CharmerGUID))
+        if (target.HasUnitState(UnitState.Charmed) && GUID != target.CharmerGUID)
         {
             // this should never happen, otherwise m_unitBeingMoved might be left dangling!
             Log.Logger.Error($"Player '{GetName()}' attempt to client control '{target.GetName()}', which is charmed by GUID {target.CharmerGUID}");
@@ -5147,7 +5147,7 @@ public partial class Player : Unit
 
     public void SetTitle(CharTitlesRecord title, bool lost = false)
     {
-        var fieldIndexOffset = (title.MaskID / 64);
+        var fieldIndexOffset = title.MaskID / 64;
         var flag = 1ul << (title.MaskID % 64);
 
         if (lost)
@@ -5241,7 +5241,7 @@ public partial class Player : Unit
     {
         // Only allow to toggle on when in stormwind/orgrimmar, and to toggle off in any rested place.
         // Also disallow when in combat
-        if ((enabled == IsWarModeDesired) || IsInCombat || !HasPlayerFlag(PlayerFlags.Resting))
+        if (enabled == IsWarModeDesired || IsInCombat || !HasPlayerFlag(PlayerFlags.Resting))
             return;
 
         if (enabled && !CanEnableWarModeInArea())
@@ -5635,9 +5635,9 @@ public partial class Player : Unit
 
             // Seamless teleport can happen only if cosmetic maps match
             if (oldmap != null &&
-                (oldmap.Entry.CosmeticParentMapID != mapid &&
-                 Location.MapId != mEntry.CosmeticParentMapID &&
-                 !((oldmap.Entry.CosmeticParentMapID != -1) ^ (oldmap.Entry.CosmeticParentMapID != mEntry.CosmeticParentMapID))))
+                oldmap.Entry.CosmeticParentMapID != mapid &&
+                Location.MapId != mEntry.CosmeticParentMapID &&
+                !((oldmap.Entry.CosmeticParentMapID != -1) ^ (oldmap.Entry.CosmeticParentMapID != mEntry.CosmeticParentMapID)))
                 options &= ~TeleportToOptions.Seamless;
 
             //lets reset near teleport Id if it wasn't reset during chained teleports
@@ -6206,12 +6206,12 @@ public partial class Player : Unit
         UnReadMails = 0;
 
         foreach (var mail in Mails)
-            if (mail.deliver_time > cTime)
+            if (mail.DeliverTime > cTime)
             {
-                if (_nextMailDelivereTime == 0 || _nextMailDelivereTime > mail.deliver_time)
-                    _nextMailDelivereTime = mail.deliver_time;
+                if (_nextMailDelivereTime == 0 || _nextMailDelivereTime > mail.DeliverTime)
+                    _nextMailDelivereTime = mail.DeliverTime;
             }
-            else if ((mail.checkMask & MailCheckMask.Read) == 0)
+            else if ((mail.CheckMask & MailCheckMask.Read) == 0)
             {
                 ++UnReadMails;
             }
@@ -6584,7 +6584,7 @@ public partial class Player : Unit
     private double GetBaseModValue(BaseModGroup modGroup, BaseModType modType)
     {
         if (modGroup < BaseModGroup.End && modType < BaseModType.End)
-            return (modType == BaseModType.FlatMod ? _auraBaseFlatMod[(int)modGroup] : _auraBasePctMod[(int)modGroup]);
+            return modType == BaseModType.FlatMod ? _auraBaseFlatMod[(int)modGroup] : _auraBasePctMod[(int)modGroup];
 
         Log.Logger.Error($"Player.GetBaseModValue: Invalid BaseModGroup/BaseModType ({modGroup}/{modType}) for player '{GetName()}' ({GUID})");
 
@@ -6925,7 +6925,7 @@ public partial class Player : Unit
     private bool IsImmuneToEnvironmentalDamage()
     {
         // check for GM and death state included in isAttackableByAOE
-        return (!IsTargetableForAttack(false));
+        return !IsTargetableForAttack(false);
     }
 
     private void LeaveLFGChannel()
@@ -6994,7 +6994,7 @@ public partial class Player : Unit
         if (power != PowerType.Mana)
         {
             addvalue *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)power);
-            addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * ((power != PowerType.Energy) ? _regenTimerCount : RegenTimer) / (5 * Time.IN_MILLISECONDS);
+            addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * (power != PowerType.Energy ? _regenTimerCount : RegenTimer) / (5 * Time.IN_MILLISECONDS);
         }
 
         var minPower = powerType.MinPower;
@@ -7178,9 +7178,9 @@ public partial class Player : Unit
             if (!IsInCombat)
             {
                 if (Level < 15)
-                    addValue = (0.20f * (MaxHealth) / Level * healthIncreaseRate);
+                    addValue = 0.20f * MaxHealth / Level * healthIncreaseRate;
                 else
-                    addValue = 0.015f * (MaxHealth) * healthIncreaseRate;
+                    addValue = 0.015f * MaxHealth * healthIncreaseRate;
 
                 addValue *= GetTotalAuraMultiplier(AuraType.ModHealthRegenPercent);
                 addValue += GetTotalAuraModifier(AuraType.ModRegen) * 2 * Time.IN_MILLISECONDS / (5 * Time.IN_MILLISECONDS);
@@ -7249,7 +7249,7 @@ public partial class Player : Unit
             }
             else
             {
-                var row = (uint)((quest.RewardFactionValue[i] < 0) ? 1 : 0) + 1;
+                var row = (uint)(quest.RewardFactionValue[i] < 0 ? 1 : 0) + 1;
                 if (CliDB.QuestFactionRewardStorage.TryGetValue(row, out var questFactionRewEntry))
                 {
                     var field = (uint)Math.Abs(quest.RewardFactionValue[i]);
@@ -7720,7 +7720,7 @@ public partial class Player : Unit
     {
         SendPacket(new SellResponse()
         {
-            VendorGUID = (creature ? creature.GUID : ObjectGuid.Empty),
+            VendorGUID = creature ? creature.GUID : ObjectGuid.Empty,
             ItemGUID = guid,
             Reason = msg
         });
@@ -8015,7 +8015,7 @@ public partial class Player : Unit
             }
             else if (diff > 5)
             {
-                var explorationPercent = 100 - ((diff - 5) * 5);
+                var explorationPercent = 100 - (diff - 5) * 5;
 
                 if (explorationPercent < 0)
                     explorationPercent = 0;

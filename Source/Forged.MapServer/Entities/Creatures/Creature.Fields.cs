@@ -128,7 +128,7 @@ public partial class Creature
 
     public override bool IsAffectedByDiminishingReturns => base.IsAffectedByDiminishingReturns || Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.AllDiminish);
     public bool IsCivilian => Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Civilian);
-    public bool IsDungeonBoss => (Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss));
+    public bool IsDungeonBoss => Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss);
 
     public bool IsElite
     {

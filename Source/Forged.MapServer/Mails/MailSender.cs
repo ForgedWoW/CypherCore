@@ -13,41 +13,37 @@ namespace Forged.MapServer.Mails;
 
 public class MailSender
 {
-    private readonly MailMessageType m_messageType;
-    private readonly ulong m_senderId; // player low guid or other object entry
-    private readonly MailStationery m_stationery;
-
-    public MailSender(MailMessageType messageType, ulong sender_guidlow_or_entry, MailStationery stationery = MailStationery.Default)
+    public MailSender(MailMessageType messageType, ulong senderGuidlowOrEntry, MailStationery stationery = MailStationery.Default)
     {
-        m_messageType = messageType;
-        m_senderId = sender_guidlow_or_entry;
-        m_stationery = stationery;
+        MailMessageType = messageType;
+        SenderId = senderGuidlowOrEntry;
+        Stationery = stationery;
     }
 
     public MailSender(WorldObject sender, MailStationery stationery = MailStationery.Default)
     {
-        m_stationery = stationery;
+        Stationery = stationery;
 
         switch (sender.TypeId)
         {
             case TypeId.Unit:
-                m_messageType = MailMessageType.Creature;
-                m_senderId = sender.Entry;
+                MailMessageType = MailMessageType.Creature;
+                SenderId = sender.Entry;
 
                 break;
             case TypeId.GameObject:
-                m_messageType = MailMessageType.Gameobject;
-                m_senderId = sender.Entry;
+                MailMessageType = MailMessageType.Gameobject;
+                SenderId = sender.Entry;
 
                 break;
             case TypeId.Player:
-                m_messageType = MailMessageType.Normal;
-                m_senderId = sender.GUID.Counter;
+                MailMessageType = MailMessageType.Normal;
+                SenderId = sender.GUID.Counter;
 
                 break;
             default:
-                m_messageType = MailMessageType.Normal;
-                m_senderId = 0; // will show mail from not existed player
+                MailMessageType = MailMessageType.Normal;
+                SenderId = 0; // will show mail from not existed player
                 Log.Logger.Error("MailSender:MailSender - Mail have unexpected sender typeid ({0})", sender.TypeId);
 
                 break;
@@ -56,51 +52,42 @@ public class MailSender
 
     public MailSender(CalendarEvent sender)
     {
-        m_messageType = MailMessageType.Calendar;
-        m_senderId = (uint)sender.EventId;
-        m_stationery = MailStationery.Default;
+        MailMessageType = MailMessageType.Calendar;
+        SenderId = (uint)sender.EventId;
+        Stationery = MailStationery.Default;
     }
 
     public MailSender(AuctionHouseObject sender)
     {
-        m_messageType = MailMessageType.Auction;
-        m_senderId = sender.GetAuctionHouseId();
-        m_stationery = MailStationery.Auction;
+        MailMessageType = MailMessageType.Auction;
+        SenderId = sender.GetAuctionHouseId();
+        Stationery = MailStationery.Auction;
     }
 
     public MailSender(BlackMarketEntry sender)
     {
-        m_messageType = MailMessageType.Blackmarket;
-        m_senderId = sender.GetTemplate().SellerNPC;
-        m_stationery = MailStationery.Auction;
+        MailMessageType = MailMessageType.Blackmarket;
+        SenderId = sender.GetTemplate().SellerNPC;
+        Stationery = MailStationery.Auction;
     }
 
     public MailSender(Player sender)
     {
-        m_messageType = MailMessageType.Normal;
-        m_stationery = sender.IsGameMaster ? MailStationery.Gm : MailStationery.Default;
-        m_senderId = sender.GUID.Counter;
+        MailMessageType = MailMessageType.Normal;
+        Stationery = sender.IsGameMaster ? MailStationery.Gm : MailStationery.Default;
+        SenderId = sender.GUID.Counter;
     }
 
     public MailSender(uint senderEntry)
     {
-        m_messageType = MailMessageType.Creature;
-        m_senderId = senderEntry;
-        m_stationery = MailStationery.Default;
+        MailMessageType = MailMessageType.Creature;
+        SenderId = senderEntry;
+        Stationery = MailStationery.Default;
     }
 
-    public MailMessageType GetMailMessageType()
-    {
-        return m_messageType;
-    }
+    public MailMessageType MailMessageType { get; }
 
-    public ulong GetSenderId()
-    {
-        return m_senderId;
-    }
+    public ulong SenderId { get; }
 
-    public MailStationery GetStationery()
-    {
-        return m_stationery;
-    }
+    public MailStationery Stationery { get; }
 }

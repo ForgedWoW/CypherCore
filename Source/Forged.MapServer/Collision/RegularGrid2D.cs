@@ -13,7 +13,7 @@ public class RegularGrid2D<T, TNode> where T : Model where TNode : BIHWrap<T>, n
 {
     public const int CELL_NUMBER = 64;
     public const float CELL_SIZE = HGRID_MAP_SIZE / CELL_NUMBER;
-    public const float HGRID_MAP_SIZE = (533.33333f * 64.0f); // shouldn't be changed
+    public const float HGRID_MAP_SIZE = 533.33333f * 64.0f; // shouldn't be changed
     private readonly MultiMap<T, TNode> _memberTable = new();
     private readonly TNode[][] _nodes = new TNode[CELL_NUMBER][];
 
@@ -204,8 +204,8 @@ public class RegularGrid2D<T, TNode> where T : Model where TNode : BIHWrap<T>, n
         {
             Cell c = new()
             {
-                X = (int)(fx * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f)),
-                Y = (int)(fy * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f))
+                X = (int)(fx * (1.0f / CELL_SIZE) + CELL_NUMBER / 2f),
+                Y = (int)(fy * (1.0f / CELL_SIZE) + CELL_NUMBER / 2f)
             };
 
             return c;

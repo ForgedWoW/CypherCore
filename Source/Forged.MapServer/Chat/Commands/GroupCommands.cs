@@ -196,7 +196,7 @@ internal class GroupCommands
         var members = groupTarget.MemberSlots;
 
         // To avoid a cluster fuck, namely trying multiple queries to simply get a group member count...
-        handler.SendSysMessage(CypherStrings.GroupType, (groupTarget.IsRaidGroup ? "raid" : "party"), members.Count);
+        handler.SendSysMessage(CypherStrings.GroupType, groupTarget.IsRaidGroup ? "raid" : "party", members.Count);
         // ... we simply move the group type and member count print after retrieving the slots and simply output it's size.
 
         // While rather dirty codestyle-wise, it saves space (if only a little). For each member, we look several informations up.
@@ -383,7 +383,7 @@ internal class GroupCommands
         {
             var groupLeader = handler.ObjectAccessor.GetPlayer(gmMap, group.LeaderGUID);
 
-            if (!groupLeader || (groupLeader.Location.MapId != gmMap.Id) || (groupLeader.InstanceId != gmMap.InstanceId))
+            if (!groupLeader || groupLeader.Location.MapId != gmMap.Id || groupLeader.InstanceId != gmMap.InstanceId)
             {
                 handler.SendSysMessage(CypherStrings.PartialGroupSummon);
                 onlyLocalSummon = true;
@@ -415,7 +415,7 @@ internal class GroupCommands
                 var playerMap = player.Location.Map;
 
                 if ((onlyLocalSummon || (playerMap.Instanceable && playerMap.Id == gmMap.Id)) && // either no far summon allowed or we're in the same map as player (no map switch)
-                    ((playerMap.Id != gmMap.Id) || (playerMap.InstanceId != gmMap.InstanceId)))  // so we need to be in the same map and instance of the map, otherwise skip
+                    (playerMap.Id != gmMap.Id || playerMap.InstanceId != gmMap.InstanceId))      // so we need to be in the same map and instance of the map, otherwise skip
                 {
                     // cannot summon from instance to instance
                     handler.SendSysMessage(CypherStrings.CannotSummonInstInst, plNameLink);

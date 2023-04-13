@@ -42,7 +42,7 @@ public class GuildBankMoveItemData : GuildMoveItemData
             var pItemDest = Guild.GetItem(Container, SlotId);
 
             // Ignore swapped item (this slot will be empty after move)
-            if ((pItemDest == pItem) || swap)
+            if (pItemDest == pItem || swap)
                 pItemDest = null;
 
             if (!ReserveSpace(SlotId, pItem, pItemDest, ref count))
@@ -96,7 +96,7 @@ public class GuildBankMoveItemData : GuildMoveItemData
     {
         Item = Guild.GetItem(Container, SlotId);
 
-        return (Item != null);
+        return Item != null;
     }
 
     public override bool IsBank()
@@ -189,7 +189,7 @@ public class GuildBankMoveItemData : GuildMoveItemData
 
     private void CanStoreItemInTab(Item pItem, byte skipSlotId, bool merge, ref uint count)
     {
-        for (byte slotId = 0; (slotId < GuildConst.MaxBankSlots) && (count > 0); ++slotId)
+        for (byte slotId = 0; slotId < GuildConst.MaxBankSlots && count > 0; ++slotId)
         {
             // Skip slot already processed in CanStore (when destination slot was specified)
             if (slotId == skipSlotId)
@@ -201,7 +201,7 @@ public class GuildBankMoveItemData : GuildMoveItemData
                 pItemDest = null;
 
             // If merge skip empty, if not merge skip non-empty
-            if ((pItemDest != null) != merge)
+            if (pItemDest != null != merge)
                 continue;
 
             ReserveSpace(slotId, pItem, pItemDest, ref count);

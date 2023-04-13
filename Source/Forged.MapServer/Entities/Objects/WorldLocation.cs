@@ -404,7 +404,7 @@ public class WorldLocation : Position
         var sizefactor = _worldObject.CombatReach + obj.CombatReach;
         var dist = dz - sizefactor;
 
-        return (dist > 0 ? dist : 0);
+        return dist > 0 ? dist : 0;
     }
 
     public void GetEnemiesWithinRange(List<Unit> unitList, float maxSearchRange)
@@ -962,7 +962,7 @@ public class WorldLocation : Position
         var dist = GetExactDist2d(pos1);
 
         // not using sqrt() for performance
-        if ((dist * dist) >= pos1.GetExactDist2dSq(pos2))
+        if (dist * dist >= pos1.GetExactDist2dSq(pos2))
             return false;
 
         if (size == 0)
@@ -971,6 +971,6 @@ public class WorldLocation : Position
         var angle = pos1.GetAbsoluteAngle(pos2);
 
         // not using sqrt() for performance
-        return (size * size) >= GetExactDist2dSq(pos1.X + (float)Math.Cos(angle) * dist, pos1.Y + (float)Math.Sin(angle) * dist);
+        return size * size >= GetExactDist2dSq(pos1.X + (float)Math.Cos(angle) * dist, pos1.Y + (float)Math.Sin(angle) * dist);
     }
 }

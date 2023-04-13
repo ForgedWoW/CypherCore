@@ -73,7 +73,7 @@ public class CalendarEvent
     public string BuildCalendarMailBody()
     {
         var now = Time.UnixTimeToDateTime(Date);
-        var time = Convert.ToUInt32(((now.Year - 1900) - 100) << 24 | (now.Month - 1) << 20 | (now.Day - 1) << 14 | (int)now.DayOfWeek << 11 | now.Hour << 6 | now.Minute);
+        var time = Convert.ToUInt32((now.Year - 1900 - 100) << 24 | (now.Month - 1) << 20 | (now.Day - 1) << 14 | (int)now.DayOfWeek << 11 | now.Hour << 6 | now.Minute);
 
         return time.ToString();
     }

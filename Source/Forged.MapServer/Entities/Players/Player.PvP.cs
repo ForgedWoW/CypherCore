@@ -38,9 +38,9 @@ public partial class Player
     public WorldLocation BattlegroundEntryPoint => _bgData.JoinPos;
     public uint BattlegroundId => _bgData.BgInstanceId;
     public BattlegroundTypeId BattlegroundTypeId => _bgData.BgTypeId;
-    public bool CanCaptureTowerPoint => (!HasStealthAura &&      // not stealthed
-                                         !HasInvisibilityAura && // not invisible
-                                         IsAlive);
+    public bool CanCaptureTowerPoint => !HasStealthAura &&      // not stealthed
+                                        !HasInvisibilityAura && // not invisible
+                                        IsAlive;
 
     public bool HasFreeBattlegroundQueueId
     {
@@ -133,9 +133,9 @@ public partial class Player
 
         // BUG: sometimes when player clicks on Id in AB - client won't send gameobject_use, only gameobject_report_use packet
         // Note: Mount, stealth and invisibility will be removed when used
-        return (!IsTotalImmune &&                                       // Damage immune
-                !HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held Id debuff
-                IsAlive);                                               // Alive
+        return !IsTotalImmune &&                                       // Damage immune
+               !HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held Id debuff
+               IsAlive;                                                // Alive
     }
 
     public void ClearAfkReports()
@@ -663,7 +663,7 @@ public partial class Player
     {
         // called when rewarding honor and at each save
         var now = GameTime.CurrentTime;
-        var today = (GameTime.CurrentTime / Time.DAY) * Time.DAY;
+        var today = GameTime.CurrentTime / Time.DAY * Time.DAY;
 
         if (_lastHonorUpdateTime < today)
         {

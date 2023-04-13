@@ -66,8 +66,8 @@ internal class PartyMemberFullState : ServerPacket
         // Position
         MemberStats.ZoneID = (ushort)player.Location.Zone;
         MemberStats.PositionX = (short)player.Location.X;
-        MemberStats.PositionY = (short)(player.Location.Y);
-        MemberStats.PositionZ = (short)(player.Location.Z);
+        MemberStats.PositionY = (short)player.Location.Y;
+        MemberStats.PositionZ = (short)player.Location.Z;
 
         MemberStats.SpecID = (ushort)player.GetPrimarySpecialization();
         MemberStats.PartyType[0] = (sbyte)(player.PlayerData.PartyType & 0xF);

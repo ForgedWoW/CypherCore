@@ -16,7 +16,7 @@ public class AreaBoundary
 
     public bool IsWithinBoundary(Position pos)
     {
-        return pos != null && (IsWithinBoundaryArea(pos) != _isInvertedBoundary);
+        return pos != null && IsWithinBoundaryArea(pos) != _isInvertedBoundary;
     }
 
     public virtual bool IsWithinBoundaryArea(Position pos)
@@ -51,7 +51,7 @@ public class AreaBoundary
             var offX = GetDoublePositionX() - pos.GetDoublePositionX();
             var offY = GetDoublePositionY() - pos.GetDoublePositionY();
 
-            return (offX * offX) + (offY * offY);
+            return offX * offX + offY * offY;
         }
 
         public double GetDoublePositionX()

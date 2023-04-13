@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Autofac;
-using Forged.MapServer;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.AI.SmartScripts;
@@ -66,6 +65,7 @@ using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Forged.MapServer.OpCodeHandlers;
+using Forged.MapServer.Mails;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -474,6 +474,7 @@ void RegisterInstanced()
     builder.RegisterType<PlayerGroup>();
     builder.RegisterType<Guild>();
     builder.RegisterType<GuildAchievementMgr>();
+    builder.RegisterType<MailDraft>();
 }
 
 void RegisterHandlers()

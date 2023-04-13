@@ -477,7 +477,7 @@ public partial class Creature : Unit
         if (who.IsTypeId(TypeId.Unit) && who.CreatureType == CreatureType.NonCombatPet)
             return false;
 
-        if (!CanFly && (Location.GetDistanceZ(who) > SharedConst.CreatureAttackRangeZ + CombatDistance))
+        if (!CanFly && Location.GetDistanceZ(who) > SharedConst.CreatureAttackRangeZ + CombatDistance)
             return false;
 
         if (!force)
@@ -754,7 +754,7 @@ public partial class Creature : Unit
             if (aggroRadius < 10)
                 aggroRadius = 10;
 
-            return (float)(aggroRadius);
+            return (float)aggroRadius;
         }
 
         // Default
@@ -805,7 +805,7 @@ public partial class Creature : Unit
         double aggroRadius = baseAggroDistance + levelDifference;
 
         // detect range auras
-        if ((creatureLevel + 5) <= Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+        if (creatureLevel + 5 <= Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
         {
             aggroRadius += GetTotalAuraModifier(AuraType.ModDetectRange);
             aggroRadius += player.GetTotalAuraModifier(AuraType.ModDetectedRange);
@@ -823,7 +823,7 @@ public partial class Creature : Unit
         else if (aggroRadius < minRadius)
             aggroRadius = minRadius;
 
-        return (aggroRadius * aggroRate);
+        return aggroRadius * aggroRate;
     }
 
     public float GetBaseDamageForLevel(uint level)
@@ -1068,7 +1068,7 @@ public partial class Creature : Unit
 
         var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
-        if ((vCount.Count + diff * pProto.BuyCount) >= vItem.Maxcount)
+        if (vCount.Count + diff * pProto.BuyCount >= vItem.Maxcount)
         {
             _vendorItemCounts.Remove(vCount.ItemId);
 
@@ -1098,7 +1098,7 @@ public partial class Creature : Unit
 
     public bool HasReactState(ReactStates state)
     {
-        return (ReactState == state);
+        return ReactState == state;
     }
 
     public override bool HasSpell(uint spellId)
@@ -2028,7 +2028,7 @@ public partial class Creature : Unit
         var minMaxLevels = cInfo.GetMinMaxLevel();
         var minlevel = Math.Min(minMaxLevels[0], minMaxLevels[1]);
         var maxlevel = Math.Max(minMaxLevels[0], minMaxLevels[1]);
-        var level = (minlevel == maxlevel ? minlevel : RandomHelper.IRand(minlevel, maxlevel));
+        var level = minlevel == maxlevel ? minlevel : RandomHelper.IRand(minlevel, maxlevel);
         SetLevel((uint)level);
 
         ApplyLevelScaling();
@@ -2170,7 +2170,7 @@ public partial class Creature : Unit
             AreaID = (int)Location.Area
         };
 
-        WorldManager.SendGlobalMessage(packet, null, (enemyTeam == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance));
+        WorldManager.SendGlobalMessage(packet, null, enemyTeam == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance);
     }
 
     public override void SetCanDualWield(bool value)
@@ -2430,7 +2430,7 @@ public partial class Creature : Unit
             return;
 
         // instant non-channeled casts and non-target spells don't need facing updates
-        if (target == null && (focusSpell.CastTime == 0 && !spellInfo.IsChanneled))
+        if (target == null && focusSpell.CastTime == 0 && !spellInfo.IsChanneled)
             return;
 
         // store pre-cast values for target and orientation (used to later restore)
@@ -2450,7 +2450,7 @@ public partial class Creature : Unit
         var noTurnDuringCast = spellInfo.HasAttribute(SpellAttr5.AiDoesntFaceTarget);
         var turnDisabled = HasUnitFlag2(UnitFlags2.CannotTurn);
         // set target, then force send update packet to players if it changed to provide appropriate facing
-        var newTarget = (target != null && !noTurnDuringCast && !turnDisabled) ? target.GUID : ObjectGuid.Empty;
+        var newTarget = target != null && !noTurnDuringCast && !turnDisabled ? target.GUID : ObjectGuid.Empty;
 
         if (Target != newTarget)
             SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Target), newTarget);
@@ -2967,7 +2967,7 @@ public partial class Creature : Unit
         var ground = Location.FloorZ;
 
         var canHover = CanHover;
-        var isInAir = (MathFunctions.fuzzyGt(Location.Z, ground + (canHover ? UnitData.HoverHeight : 0.0f) + MapConst.GroundHeightTolerance) || MathFunctions.fuzzyLt(Location.Z, ground - MapConst.GroundHeightTolerance)); // Can be underground too, prevent the falling
+        var isInAir = MathFunctions.fuzzyGt(Location.Z, ground + (canHover ? UnitData.HoverHeight : 0.0f) + MapConst.GroundHeightTolerance) || MathFunctions.fuzzyLt(Location.Z, ground - MapConst.GroundHeightTolerance); // Can be underground too, prevent the falling
 
         if (MovementTemplate.IsFlightAllowed && (isInAir || !MovementTemplate.IsGroundAllowed) && !IsFalling)
         {
@@ -3015,7 +3015,7 @@ public partial class Creature : Unit
 
             var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
-            if ((vCount.Count + diff * pProto.BuyCount) < vItem.Maxcount)
+            if (vCount.Count + diff * pProto.BuyCount < vItem.Maxcount)
                 vCount.Count += diff * pProto.BuyCount;
             else
                 vCount.Count = vItem.Maxcount;

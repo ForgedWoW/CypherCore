@@ -14,31 +14,7 @@ namespace Forged.MapServer.LootManagement;
 
 public class LootItem
 {
-    public List<ObjectGuid> AllowedGuiDs = new();
-    public List<uint> BonusListIDs = new();
-    public List<Condition> Conditions = new();
-    public ItemContext Context;
-    public byte Count;
-    public bool FollowLootRules;
-    public bool Freeforall;
-    public bool IsBlocked;
-    public bool IsCounted;
-
-    public bool IsLooted;
-
-    // free for all
-    public bool IsUnderthreshold;
-
-    public uint Itemid;
-    public uint LootListId;
-    public bool NeedsQuest;
-
-    public uint RandomBonusListId;
-
-    // additional loot condition
-    public ObjectGuid RollWinnerGuid; // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
     private readonly ConditionManager _conditionManager;
-
     // quest drop
     private readonly GameObjectManager _objectManager;
 
@@ -62,6 +38,29 @@ public class LootItem
         RandomBonusListId = itemEnchantmentManager.GenerateItemRandomBonusListId(Itemid);
     }
 
+    public List<ObjectGuid> AllowedGuiDs { get; set; } = new();
+    public List<uint> BonusListIDs { get; set; } = new();
+    public List<Condition> Conditions { get; set; } = new();
+    public ItemContext Context { get; set; }
+    public byte Count { get; set; }
+    public bool FollowLootRules { get; set; }
+    public bool Freeforall { get; set; }
+    public bool IsBlocked { get; set; }
+    public bool IsCounted { get; set; }
+
+    public bool IsLooted { get; set; }
+
+    // free for all
+    public bool IsUnderthreshold { get; set; }
+
+    public uint Itemid { get; set; }
+    public uint LootListId { get; set; }
+    public bool NeedsQuest { get; set; }
+
+    public uint RandomBonusListId { get; set; }
+
+    // additional loot condition
+    public ObjectGuid RollWinnerGuid { get; set; } // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
     public static bool AllowedForPlayer(Player player, Loot loot, uint itemid, bool needsQuest, bool followLootRules, bool strictUsabilityCheck, List<Condition> conditions, GameObjectManager objectManager, ConditionManager conditionManager)
     {
         // DB conditions check
@@ -101,7 +100,7 @@ public class LootItem
         }
 
         // check quest requirements
-        if (!pProto.FlagsCu.HasAnyFlag(ItemFlagsCustom.IgnoreQuestStatus) && ((needsQuest || (pProto.StartQuest != 0 && player.GetQuestStatus(pProto.StartQuest) != QuestStatus.None)) && !player.HasQuestForItem(itemid)))
+        if (!pProto.FlagsCu.HasAnyFlag(ItemFlagsCustom.IgnoreQuestStatus) && (needsQuest || (pProto.StartQuest != 0 && player.GetQuestStatus(pProto.StartQuest) != QuestStatus.None)) && !player.HasQuestForItem(itemid))
             return false;
 
         if (!strictUsabilityCheck)

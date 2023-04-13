@@ -235,7 +235,7 @@ public class Transport : GameObject, ITransport
 
         if (!enabled)
         {
-            _requestStopTimestamp = (_pathProgress / GetTransportPeriod()) * GetTransportPeriod() + _transportInfo.GetNextPauseWaypointTimestamp(_pathProgress);
+            _requestStopTimestamp = _pathProgress / GetTransportPeriod() * GetTransportPeriod() + _transportInfo.GetNextPauseWaypointTimestamp(_pathProgress);
         }
         else
         {

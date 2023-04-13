@@ -99,7 +99,7 @@ public class Vehicle : ITransport
                          _me.Entry,
                          _vehicleInfo.Id,
                          _me.GUID.ToString(),
-                         (_me.IsTypeId(TypeId.Unit) ? _me.AsCreature.SpawnId : 0),
+                         _me.IsTypeId(TypeId.Unit) ? _me.AsCreature.SpawnId : 0,
                          seatId);
 
         // The seat selection code may kick other passengers off the vehicle.

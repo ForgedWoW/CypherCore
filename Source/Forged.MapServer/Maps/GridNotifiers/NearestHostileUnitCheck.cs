@@ -19,7 +19,7 @@ public class NearestHostileUnitCheck : ICheck<Unit>
         _me = creature;
         _playerOnly = playerOnly;
 
-        _range = (dist == 0 ? 9999 : dist);
+        _range = dist == 0 ? 9999 : dist;
     }
 
     public bool Invoke(Unit u)

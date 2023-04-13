@@ -79,7 +79,7 @@ public class TempSummon : Creature
         _lifetime = duration;
 
         if (SummonType == TempSummonType.ManualDespawn)
-            SummonType = (duration == 0) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
+            SummonType = duration == 0 ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
 
         var owner = GetSummonerUnit();
 

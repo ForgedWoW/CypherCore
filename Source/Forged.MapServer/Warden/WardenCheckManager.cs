@@ -116,7 +116,7 @@ public class WardenCheckManager
                 continue;
             }
 
-            if ((checkType == WardenCheckType.LuaEval) && (id > 9999))
+            if (checkType == WardenCheckType.LuaEval && id > 9999)
             {
                 Log.Logger.Error($"Warden Lua check with id {id} found in `warden_checks`. Lua checks may have four-digit IDs at most. Skipped.");
 

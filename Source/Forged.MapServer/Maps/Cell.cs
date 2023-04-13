@@ -90,14 +90,14 @@ public class Cell
 
     public bool DiffCell(Cell cell)
     {
-        return (Data.Cellx != cell.Data.Cellx ||
-                Data.Celly != cell.Data.Celly);
+        return Data.Cellx != cell.Data.Cellx ||
+               Data.Celly != cell.Data.Celly;
     }
 
     public bool DiffGrid(Cell cell)
     {
-        return (Data.Gridx != cell.Data.Gridx ||
-                Data.Gridy != cell.Data.Gridy);
+        return Data.Gridx != cell.Data.Gridx ||
+               Data.Gridy != cell.Data.Gridy;
     }
 
     public override bool Equals(object obj)
@@ -199,7 +199,7 @@ public class Cell
         //if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
         //currently this technique works with MAX_NUMBER_OF_CELLS 16 and higher, with lower values
         //there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
-        if ((area.HighBound.X_Coord > (area.LowBound.X_Coord + 4)) && (area.HighBound.Y_Coord > (area.LowBound.Y_Coord + 4)))
+        if (area.HighBound.X_Coord > area.LowBound.X_Coord + 4 && area.HighBound.Y_Coord > area.LowBound.Y_Coord + 4)
         {
             VisitCircle(visitor, map, area.LowBound, area.HighBound);
 
@@ -256,7 +256,7 @@ public class Cell
         var y_end = begin_cell.Y_Coord;
 
         //now we are visiting borders of an octagon...
-        for (uint step = 1; step <= (x_start - begin_cell.X_Coord); ++step)
+        for (uint step = 1; step <= x_start - begin_cell.X_Coord; ++step)
         {
             //each step reduces strip height by 2 cells...
             y_end += 1;

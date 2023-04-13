@@ -46,7 +46,7 @@ public class LootHandler : IWorldSessionHandler
                 var go = player.Map.GetGameObject(lguid);
 
                 // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-                if (!go || ((go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
+                if (!go || (go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole && !go.IsWithinDistInMap(player)))
                 {
                     player.SendLootRelease(lguid);
 

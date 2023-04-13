@@ -78,7 +78,7 @@ public class AuraApplication
             return;
         }
 
-        if (HasEffect(effIndex) != (!apply))
+        if (HasEffect(effIndex) != !apply)
         {
             Log.Logger.Error("Aura {0} has effect at effectIndex {1}(has effect: {2}) but _HandleEffect with {3} was called", Base.SpellInfo.Id, effIndex, HasEffect(effIndex), apply);
 
@@ -248,7 +248,7 @@ public class AuraApplication
     private void _InitFlags(Unit caster, HashSet<int> effMask)
     {
         // mark as selfcasted if needed
-        Flags |= (Base.CasterGuid == Target.GUID) ? AuraFlags.NoCaster : AuraFlags.None;
+        Flags |= Base.CasterGuid == Target.GUID ? AuraFlags.NoCaster : AuraFlags.None;
 
         // aura is casted by self or an enemy
         // one negative effect and we know aura is negative

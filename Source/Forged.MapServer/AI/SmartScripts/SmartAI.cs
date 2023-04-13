@@ -127,7 +127,7 @@ public class SmartAI : CreatureAI
         if (!IsAIControlled()) // don't allow players to use unkillable units
             return;
 
-        if (_invincibilityHpLevel != 0 && (damage >= Me.Health - _invincibilityHpLevel))
+        if (_invincibilityHpLevel != 0 && damage >= Me.Health - _invincibilityHpLevel)
             damage = (uint)(Me.Health - _invincibilityHpLevel); // damage should not be nullified, because of player damage req.
     }
 

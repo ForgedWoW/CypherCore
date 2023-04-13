@@ -471,7 +471,7 @@ public class BattleGroundHandler : IWorldSessionHandler
                 return;
 
             err = grp.CanJoinBattlegroundQueue(bg, bgQueueTypeId, 0, bg.GetMaxPlayersPerTeam(), false, 0, out var errorGuid);
-            isPremade = (grp.MembersCount >= bg.GetMinPlayersPerTeam());
+            isPremade = grp.MembersCount >= bg.GetMinPlayersPerTeam();
 
             var bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
             GroupQueueInfo ginfo = null;
@@ -656,7 +656,7 @@ public class BattleGroundHandler : IWorldSessionHandler
         var isPremade = false;
         PlayerGroup grp = null;
 
-        var arenatype = (packet.Bracket == BracketType.SKIRMISH_3 ? ArenaTypes.Team3v3 : ArenaTypes.Team2v2);
+        var arenatype = packet.Bracket == BracketType.SKIRMISH_3 ? ArenaTypes.Team3v3 : ArenaTypes.Team2v2;
 
         var bg = BattlegroundManager.Instance.GetBattlegroundTemplate(BattlegroundTypeId.AA);
 

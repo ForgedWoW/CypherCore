@@ -21,6 +21,6 @@ public class HeightDifferenceCheck : ICheck<WorldObject>
 
     public bool Invoke(WorldObject unit)
     {
-        return (unit.Location.Z - _baseObject.Location.Z > _difference) != _reverse;
+        return unit.Location.Z - _baseObject.Location.Z > _difference != _reverse;
     }
 }

@@ -106,12 +106,12 @@ public class BattlepayManager
 
     public ulong GenerateNewDistributionId()
     {
-        return (0x1E77800000000000 | ++_distributionIDCount);
+        return 0x1E77800000000000 | ++_distributionIDCount;
     }
 
     public ulong GenerateNewPurchaseID()
     {
-        return (0x1E77800000000000 | ++_purchaseIDCount);
+        return 0x1E77800000000000 | ++_purchaseIDCount;
     }
 
     public uint GetBattlePayCredits()

@@ -245,7 +245,7 @@ internal class CharacterCommands
             charDB.Execute(stmt);
         }
 
-        if (!handler.Session || (handler.Session.Player != player.GetConnectedPlayer())) // including chr == NULL
+        if (!handler.Session || handler.Session.Player != player.GetConnectedPlayer()) // including chr == NULL
             handler.SendSysMessage(CypherStrings.YouChangeLvl, handler.PlayerLink(player.GetName()), newlevel);
 
         return true;

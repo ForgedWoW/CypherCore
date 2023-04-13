@@ -94,7 +94,7 @@ public class BlackMarketManager
 
             item.CurrentBid = pair.Value.CurrentBid;
             item.SecondsRemaining = pair.Value.GetSecondsRemaining();
-            item.HighBid = (pair.Value.Bidder == player.GUID.Counter);
+            item.HighBid = pair.Value.Bidder == player.GUID.Counter;
             item.NumBids = pair.Value.NumBids;
 
             packet.Items.Add(item);
@@ -238,19 +238,19 @@ public class BlackMarketManager
 
         uint oldBidderAccId = 0;
 
-        if (!oldBidder)
+        if (oldBidder == null)
             oldBidderAccId = _characterCache.GetCharacterAccountIdByGuid(oldBidderGuid);
 
         // old bidder exist
-        if (!oldBidder && oldBidderAccId == 0)
+        if (oldBidder == null && oldBidderAccId == 0)
             return;
 
-        if (oldBidder)
+        if (oldBidder != null)
             SendBlackMarketOutbidNotification(oldBidder.Session, entry.GetTemplate());
 
-        new MailDraft(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Outbid), entry.BuildAuctionMailBody())
-            .AddMoney(entry.CurrentBid)
-            .SendMailTo(trans, new MailReceiver(oldBidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
+        _classFactory.ResolvePositional<MailDraft>(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Outbid), entry.BuildAuctionMailBody())
+                     .AddMoney(entry.CurrentBid)
+                     .SendMailTo(trans, new MailReceiver(oldBidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
     }
 
     public void SendAuctionWonMail(BlackMarketEntry entry, SQLTransaction trans)
@@ -266,7 +266,7 @@ public class BlackMarketManager
         var bidderName = "";
         bool logGmTrade;
 
-        if (bidder)
+        if (bidder != null)
         {
             bidderAccId = bidder.Session.AccountId;
             bidderName = bidder.GetName();
@@ -289,7 +289,7 @@ public class BlackMarketManager
         var templ = entry.GetTemplate();
         var item = Item.CreateItem(templ.Item.ItemID, templ.Quantity, ItemContext.BlackMarket);
 
-        if (!item)
+        if (item == null)
             return;
 
         if (templ.Item.ItemBonus != null)
@@ -311,10 +311,10 @@ public class BlackMarketManager
                             item.Count,
                             entry.CurrentBid / MoneyConstants.Gold);
 
-        if (bidder)
+        if (bidder != null)
             SendBlackMarketWonNotification(bidder.Session, entry, item);
 
-        new MailDraft(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Won), entry.BuildAuctionMailBody())
+        _classFactory.ResolvePositional<MailDraft>(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Won), entry.BuildAuctionMailBody())
             .AddItem(item)
             .SendMailTo(trans, new MailReceiver(bidder, entry.Bidder), new MailSender(entry), MailCheckMask.Copied);
 

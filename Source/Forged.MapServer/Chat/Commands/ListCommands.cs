@@ -643,15 +643,15 @@ internal class ListCommands
 
                 handler.SendSysMessage(CypherStrings.CommandTargetAuradetail,
                                        aura.Id,
-                                       (handler.Session != null ? ssName : name),
+                                       handler.Session != null ? ssName : name,
                                        aurApp.EffectMask.ToMask(),
                                        aura.Charges,
                                        aura.StackAmount,
                                        aurApp.Slot,
                                        aura.Duration,
                                        aura.MaxDuration,
-                                       (aura.IsPassive ? passiveStr : ""),
-                                       (talent ? talentStr : ""),
+                                       aura.IsPassive ? passiveStr : "",
+                                       talent ? talentStr : "",
                                        aura.CasterGuid.IsPlayer ? "player" : "creature",
                                        aura.CasterGuid.ToString());
             }

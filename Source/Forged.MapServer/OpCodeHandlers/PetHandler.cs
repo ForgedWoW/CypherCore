@@ -401,7 +401,7 @@ public class PetHandler : IWorldSessionHandler
 
                     //10% chance to play special pet attack talk, else growl
                     //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                    if (pet.IsPet && (pet.AsPet.PetType == PetType.Summon) && (pet != unit_target) && (RandomHelper.IRand(0, 100) < 10))
+                    if (pet.IsPet && pet.AsPet.PetType == PetType.Summon && pet != unit_target && RandomHelper.IRand(0, 100) < 10)
                         pet.SendPetTalk(PetTalk.SpecialSpell);
                     else
                         pet.SendPetAIReaction(guid1);
@@ -524,7 +524,7 @@ public class PetHandler : IWorldSessionHandler
                 {
                     // 10% chance to play special pet attack talk, else growl
                     // actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                    if (pet.PetType == PetType.Summon && (RandomHelper.IRand(0, 100) < 10))
+                    if (pet.PetType == PetType.Summon && RandomHelper.IRand(0, 100) < 10)
                         pet.SendPetTalk(PetTalk.SpecialSpell);
                     else
                         pet.SendPetAIReaction(petCastSpell.PetGUID);

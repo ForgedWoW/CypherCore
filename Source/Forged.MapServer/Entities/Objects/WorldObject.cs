@@ -342,7 +342,7 @@ public abstract class WorldObject : IDisposable
         if (percent == -100.0f)
             percent = -99.99f;
 
-        value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
+        value *= apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent);
 
         SetUpdateFieldValue(updateField, (T)value);
     }
@@ -354,7 +354,7 @@ public abstract class WorldObject : IDisposable
         if (percent == -100.0f)
             percent = -99.99f;
 
-        value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
+        value *= apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent);
 
         SetUpdateFieldValue(ref oldValue, (T)value);
     }
@@ -957,7 +957,7 @@ public abstract class WorldObject : IDisposable
             if (!player.HaveAtClient(this))
                 continue;
 
-            if (IsTypeMask(TypeMask.Unit) && (AsUnit.CharmerGUID == player.GUID)) // @todo this is for puppet
+            if (IsTypeMask(TypeMask.Unit) && AsUnit.CharmerGUID == player.GUID) // @todo this is for puppet
                 continue;
 
             DestroyForPlayer(player);
@@ -1595,7 +1595,7 @@ public abstract class WorldObject : IDisposable
 
     public Creature SummonTrigger(Position pos, TimeSpan despawnTime, CreatureAI ai = null)
     {
-        var summonType = (despawnTime == TimeSpan.Zero) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
+        var summonType = despawnTime == TimeSpan.Zero ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
         Creature summon = SummonCreature(SharedConst.WorldTrigger, pos, summonType, despawnTime);
 
         if (summon == null)

@@ -176,8 +176,8 @@ public class M2Storage
                         var timeDiffThis = posTimestamps[i] - lastTarget.TimeStamp;
                         var xDiff = nextTarget.Locations.X - lastTarget.Locations.X;
                         var yDiff = nextTarget.Locations.Y - lastTarget.Locations.Y;
-                        x = lastTarget.Locations.X + (xDiff * ((float)timeDiffThis / timeDiffTarget));
-                        y = lastTarget.Locations.Y + (yDiff * ((float)timeDiffThis / timeDiffTarget));
+                        x = lastTarget.Locations.X + xDiff * ((float)timeDiffThis / timeDiffTarget);
+                        y = lastTarget.Locations.Y + yDiff * ((float)timeDiffThis / timeDiffTarget);
                     }
 
                     var xDiff1 = x - thisCam.Locations.X;
@@ -202,14 +202,14 @@ public class M2Storage
         var x = basePosition.X + splineVector.X;
         var y = basePosition.Y + splineVector.Y;
         var z = basePosition.Z + splineVector.Z;
-        var distance = (float)Math.Sqrt((x * x) + (y * y));
+        var distance = (float)Math.Sqrt(x * x + y * y);
         var angle = (float)Math.Atan2(x, y) - dbcLocation.W;
 
         if (angle < 0)
             angle += 2 * MathFunctions.PI;
 
-        work.X = dbcLocation.X + (distance * (float)Math.Sin(angle));
-        work.Y = dbcLocation.Y + (distance * (float)Math.Cos(angle));
+        work.X = dbcLocation.X + distance * (float)Math.Sin(angle);
+        work.Y = dbcLocation.Y + distance * (float)Math.Cos(angle);
         work.Z = dbcLocation.Z + z;
 
         return work;

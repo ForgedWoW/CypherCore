@@ -235,7 +235,7 @@ public class PhaseShift
         {
             var value = UiMapPhaseIds[uiWorldMapAreaId];
 
-            if ((--value.References) == 0)
+            if (--value.References == 0)
             {
                 UiMapPhaseIds.Remove(uiWorldMapAreaId);
 
@@ -252,7 +252,7 @@ public class PhaseShift
         {
             var mapIdRef = VisibleMapIds[visibleMapId];
 
-            if ((--mapIdRef.References) == 0)
+            if (--mapIdRef.References == 0)
             {
                 VisibleMapIds.Remove(visibleMapId);
 

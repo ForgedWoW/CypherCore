@@ -85,7 +85,7 @@ internal class WpCommands
         PreparedStatement stmt;
 
         // Check
-        if ((subCommand != "add") && (subCommand != "mod") && (subCommand != "del") && (subCommand != "listid"))
+        if (subCommand != "add" && subCommand != "mod" && subCommand != "del" && subCommand != "listid")
             return false;
 
         if (subCommand == "add")
@@ -224,7 +224,7 @@ internal class WpCommands
                 return true;
             }
 
-            if ((arg != "setid") && (arg != "delay") && (arg != "command") && (arg != "datalong") && (arg != "datalong2") && (arg != "dataint") && (arg != "posx") && (arg != "posy") && (arg != "posz") && (arg != "orientation"))
+            if (arg != "setid" && arg != "delay" && arg != "command" && arg != "datalong" && arg != "datalong2" && arg != "dataint" && arg != "posx" && arg != "posy" && arg != "posz" && arg != "orientation")
             {
                 handler.SendSysMessage("|cffff33ffERROR: No valid argument present.|r");
 
@@ -421,7 +421,7 @@ internal class WpCommands
 
         // Check
         // Remember: "show" must also be the name of a column!
-        if ((subCommand != "delay") && (subCommand != "action") && (subCommand != "action_chance") && (subCommand != "move_flag") && (subCommand != "del") && (subCommand != "move"))
+        if (subCommand != "delay" && subCommand != "action" && subCommand != "action_chance" && subCommand != "move_flag" && subCommand != "del" && subCommand != "move")
             return false;
 
         // Did user provide a GUID

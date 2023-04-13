@@ -889,15 +889,15 @@ public class InstanceScript : ZoneScript
             switch (info.Type)
             {
                 case DoorType.Room:
-                    open = (info.BossInfo.State != EncounterState.InProgress);
+                    open = info.BossInfo.State != EncounterState.InProgress;
 
                     break;
                 case DoorType.Passage:
-                    open = (info.BossInfo.State == EncounterState.Done);
+                    open = info.BossInfo.State == EncounterState.Done;
 
                     break;
                 case DoorType.SpawnHole:
-                    open = (info.BossInfo.State == EncounterState.InProgress);
+                    open = info.BossInfo.State == EncounterState.InProgress;
 
                     break;
                 
@@ -1032,7 +1032,7 @@ public class InstanceScript : ZoneScript
         foreach (var encounter in encounters)
             if (encounter.creditType == type && encounter.creditEntry == creditEntry)
             {
-                _completedEncounters |= (1u << encounter.dbcEntry.Bit);
+                _completedEncounters |= 1u << encounter.dbcEntry.Bit;
 
                 if (encounter.dbcEntry.CompleteWorldStateID != 0)
                     DoUpdateWorldState((uint)encounter.dbcEntry.CompleteWorldStateID, 1);
@@ -1114,7 +1114,7 @@ public class InstanceScript : ZoneScript
             if (((1 << (int)GetBossState(info.BossStateId)) & info.BossStates) == 0)
                 continue;
 
-            if (((Instance.TeamIdInInstance == TeamIds.Alliance) && info.Flags.HasFlag(InstanceSpawnGroupFlags.HordeOnly)) || ((Instance.TeamIdInInstance == TeamIds.Horde) && info.Flags.HasFlag(InstanceSpawnGroupFlags.AllianceOnly)))
+            if ((Instance.TeamIdInInstance == TeamIds.Alliance && info.Flags.HasFlag(InstanceSpawnGroupFlags.HordeOnly)) || (Instance.TeamIdInInstance == TeamIds.Horde && info.Flags.HasFlag(InstanceSpawnGroupFlags.AllianceOnly)))
                 continue;
 
             if (info.Flags.HasAnyFlag(InstanceSpawnGroupFlags.BlockSpawn))

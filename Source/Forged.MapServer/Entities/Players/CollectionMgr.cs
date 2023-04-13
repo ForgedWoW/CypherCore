@@ -923,7 +923,7 @@ public class CollectionMgr
 
             var (hasAppearance, isTemporary) = HasItemAppearance(transmogSetItem.ItemModifiedAppearanceID);
 
-            knownPieces[transmogSlot] = (hasAppearance && !isTemporary) ? 1 : 0;
+            knownPieces[transmogSlot] = hasAppearance && !isTemporary ? 1 : 0;
         }
 
         return !knownPieces.Contains(0);

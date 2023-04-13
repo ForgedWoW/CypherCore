@@ -465,7 +465,7 @@ public partial class Unit
         if (IsTypeId(TypeId.Player))
         {
             WorldLocation target = new(Location.MapId, pos);
-            AsPlayer.TeleportTo(target, (TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet | (casting ? TeleportToOptions.Spell : 0)));
+            AsPlayer.TeleportTo(target, TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet | (casting ? TeleportToOptions.Spell : 0));
         }
         else
         {
@@ -1547,10 +1547,10 @@ public partial class Unit
         var turn = MathFunctions.fuzzyGt((float)Math.PI - Math.Abs(Math.Abs(Location.Orientation - orientation) - (float)Math.PI), 0.0f);
 
         // G3D::fuzzyEq won't help here, in some cases magnitudes differ by a little more than G3D::eps, but should be considered equal
-        var relocated = (teleport ||
-                         Math.Abs(Location.X - x) > 0.001f ||
-                         Math.Abs(Location.Y - y) > 0.001f ||
-                         Math.Abs(Location.Z - z) > 0.001f);
+        var relocated = teleport ||
+                        Math.Abs(Location.X - x) > 0.001f ||
+                        Math.Abs(Location.Y - y) > 0.001f ||
+                        Math.Abs(Location.Z - z) > 0.001f;
 
         if (relocated)
         {
@@ -1576,7 +1576,7 @@ public partial class Unit
         if (isInWater)
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.Swimming);
 
-        return (relocated || turn);
+        return relocated || turn;
     }
 
     public void UpdateSpeed(UnitMoveType mtype)

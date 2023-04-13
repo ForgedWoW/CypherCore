@@ -147,12 +147,12 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
                 if (_currentNode == _preloadTargetNode)
                     PreloadEndGrid(owner);
 
-                _currentNode += (departureEvent ? 1 : 0);
+                _currentNode += departureEvent ? 1 : 0;
                 departureEvent = !departureEvent;
             } while (_currentNode < _path.Count - 1);
         }
 
-        if (_currentNode >= (_path.Count - 1))
+        if (_currentNode >= _path.Count - 1)
         {
             AddFlag(MovementGeneratorFlags.InformEnabled);
 
@@ -315,7 +315,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
     private bool IsNodeIncludedInShortenedPath(TaxiPathNodeRecord p1, TaxiPathNodeRecord p2)
     {
-        return p1.ContinentID != p2.ContinentID || Math.Pow(p1.Loc.X - p2.Loc.X, 2) + Math.Pow(p1.Loc.Y - p2.Loc.Y, 2) > (40.0f * 40.0f);
+        return p1.ContinentID != p2.ContinentID || Math.Pow(p1.Loc.X - p2.Loc.X, 2) + Math.Pow(p1.Loc.Y - p2.Loc.Y, 2) > 40.0f * 40.0f;
     }
 
     private void PreloadEndGrid(Player owner)

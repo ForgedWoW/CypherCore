@@ -68,8 +68,8 @@ public class Aura
         IsRemoved = false;
         IsSingleTarget = false;
         IsUsingCharges = false;
-        _lastProcAttemptTime = (DateTime.Now - TimeSpan.FromSeconds(10));
-        _lastProcSuccessTime = (DateTime.Now - TimeSpan.FromSeconds(120));
+        _lastProcAttemptTime = DateTime.Now - TimeSpan.FromSeconds(10);
+        _lastProcSuccessTime = DateTime.Now - TimeSpan.FromSeconds(120);
 
         foreach (var power in SpellInfo.PowerCosts)
             if (power != null && (power.ManaPerSecond != 0 || power.PowerPctPerSecond > 0.0f))
@@ -88,7 +88,7 @@ public class Aura
     public Dictionary<ObjectGuid, AuraApplication> ApplicationMap { get; } = new();
     public long ApplyTime { get; }
     public Dictionary<int, AuraEffect> AuraEffects { get; private set; }
-    public AuraObjectType AuraObjType => (Owner.TypeId == TypeId.DynamicObject) ? AuraObjectType.DynObj : AuraObjectType.Unit;
+    public AuraObjectType AuraObjType => Owner.TypeId == TypeId.DynamicObject ? AuraObjectType.DynObj : AuraObjectType.Unit;
     public Difficulty CastDifficulty { get; }
     public Unit Caster
     {
@@ -202,7 +202,7 @@ public class Aura
         int duration;
 
         if (comboPoints != 0 && minduration != -1 && minduration != maxduration)
-            duration = minduration + ((maxduration - minduration) * comboPoints / maxComboPoints);
+            duration = minduration + (maxduration - minduration) * comboPoints / maxComboPoints;
         else
             duration = minduration;
 
@@ -532,7 +532,7 @@ public class Aura
         var secondsSinceLastAttempt = Math.Min((float)(currentTime - _lastProcAttemptTime).TotalSeconds, 10.0f);
         var secondsSinceLastProc = Math.Min((float)(currentTime - _lastProcSuccessTime).TotalSeconds, 1000.0f);
 
-        var chance = Math.Max(1.0f, 1.0f + ((secondsSinceLastProc / averageProcInterval - 1.5f) * 3.0f)) * ppm * secondsSinceLastAttempt / 60.0f;
+        var chance = Math.Max(1.0f, 1.0f + (secondsSinceLastProc / averageProcInterval - 1.5f) * 3.0f) * ppm * secondsSinceLastAttempt / 60.0f;
         MathFunctions.RoundToInterval(ref chance, 0.0f, 1.0f);
 
         return chance * 100.0f;
@@ -1393,7 +1393,7 @@ public class Aura
             int maxCharges = CalcMaxCharges();
 
             // limit charges (only on charges increase, charges may be changed manually)
-            if ((num > 0) && (charges > maxCharges))
+            if (num > 0 && charges > maxCharges)
             {
                 charges = maxCharges;
             }
@@ -1441,7 +1441,7 @@ public class Aura
         var maxStackAmount = CalcMaxStackAmount();
 
         // limit the stack amount (only on stack increase, stack amount may be changed manually)
-        if ((num > 0) && (stackAmount > maxStackAmount))
+        if (num > 0 && stackAmount > maxStackAmount)
         {
             // not stackable aura - set stack amount to 1
             if (SpellInfo.StackAmount == 0)
@@ -1950,7 +1950,7 @@ public class Aura
 
         // proc chance is reduced by an additional 3.333% per level past 60
         if (procEntry.AttributesMask.HasAnyFlag(ProcAttributes.ReduceProc60) && eventInfo.Actor.Level > 60)
-            chance = Math.Max(0.0f, (1.0f - ((eventInfo.Actor.Level - 60) * 1.0f / 30.0f)) * chance);
+            chance = Math.Max(0.0f, (1.0f - (eventInfo.Actor.Level - 60) * 1.0f / 30.0f) * chance);
 
         return chance;
     }

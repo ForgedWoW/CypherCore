@@ -46,31 +46,31 @@ public partial class Player
             {
                 Mail m = new()
                 {
-                    messageID = mailsResult.Read<ulong>(0),
-                    messageType = (MailMessageType)mailsResult.Read<byte>(1),
-                    sender = mailsResult.Read<uint>(2),
-                    receiver = mailsResult.Read<uint>(3),
-                    subject = mailsResult.Read<string>(4),
-                    body = mailsResult.Read<string>(5),
-                    expire_time = mailsResult.Read<long>(6),
-                    deliver_time = mailsResult.Read<long>(7),
-                    money = mailsResult.Read<ulong>(8),
-                    COD = mailsResult.Read<ulong>(9),
-                    checkMask = (MailCheckMask)mailsResult.Read<byte>(10),
-                    stationery = (MailStationery)mailsResult.Read<byte>(11),
-                    mailTemplateId = mailsResult.Read<ushort>(12)
+                    MessageID = mailsResult.Read<ulong>(0),
+                    MessageType = (MailMessageType)mailsResult.Read<byte>(1),
+                    Sender = mailsResult.Read<uint>(2),
+                    Receiver = mailsResult.Read<uint>(3),
+                    Subject = mailsResult.Read<string>(4),
+                    Body = mailsResult.Read<string>(5),
+                    ExpireTime = mailsResult.Read<long>(6),
+                    DeliverTime = mailsResult.Read<long>(7),
+                    Money = mailsResult.Read<ulong>(8),
+                    Cod = mailsResult.Read<ulong>(9),
+                    CheckMask = (MailCheckMask)mailsResult.Read<byte>(10),
+                    Stationery = (MailStationery)mailsResult.Read<byte>(11),
+                    MailTemplateId = mailsResult.Read<ushort>(12)
                 };
 
-                if (m.mailTemplateId != 0 && !CliDB.MailTemplateStorage.ContainsKey(m.mailTemplateId))
+                if (m.MailTemplateId != 0 && !CliDB.MailTemplateStorage.ContainsKey(m.MailTemplateId))
                 {
-                    Log.Logger.Error($"Player:_LoadMail - Mail ({m.messageID}) have not existed MailTemplateId ({m.mailTemplateId}), remove at load");
-                    m.mailTemplateId = 0;
+                    Log.Logger.Error($"Player:_LoadMail - Mail ({m.MessageID}) have not existed MailTemplateId ({m.MailTemplateId}), remove at load");
+                    m.MailTemplateId = 0;
                 }
 
-                m.state = MailState.Unchanged;
+                m.State = MailState.Unchanged;
 
                 Mails.Add(m);
-                mailById[m.messageID] = m;
+                mailById[m.MessageID] = m;
             } while (mailsResult.NextRow());
 
         if (!mailItemsResult.IsEmpty())
@@ -93,55 +93,55 @@ public partial class Player
         PreparedStatement stmt;
 
         foreach (var m in Mails)
-            if (m.state == MailState.Changed)
+            if (m.State == MailState.Changed)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_MAIL);
                 stmt.AddValue(0, m.HasItems() ? 1 : 0);
-                stmt.AddValue(1, m.expire_time);
-                stmt.AddValue(2, m.deliver_time);
-                stmt.AddValue(3, m.money);
-                stmt.AddValue(4, m.COD);
-                stmt.AddValue(5, (byte)m.checkMask);
-                stmt.AddValue(6, m.messageID);
+                stmt.AddValue(1, m.ExpireTime);
+                stmt.AddValue(2, m.DeliverTime);
+                stmt.AddValue(3, m.Money);
+                stmt.AddValue(4, m.Cod);
+                stmt.AddValue(5, (byte)m.CheckMask);
+                stmt.AddValue(6, m.MessageID);
 
                 trans.Append(stmt);
 
-                if (!m.removedItems.Empty())
+                if (!m.RemovedItems.Empty())
                 {
-                    foreach (var id in m.removedItems)
+                    foreach (var id in m.RemovedItems)
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM);
                         stmt.AddValue(0, id);
                         trans.Append(stmt);
                     }
 
-                    m.removedItems.Clear();
+                    m.RemovedItems.Clear();
                 }
 
-                m.state = MailState.Unchanged;
+                m.State = MailState.Unchanged;
             }
-            else if (m.state == MailState.Deleted)
+            else if (m.State == MailState.Deleted)
             {
                 if (m.HasItems())
-                    foreach (var mailItemInfo in m.items)
+                    foreach (var mailItemInfo in m.Items)
                     {
-                        Item.DeleteFromDB(trans, mailItemInfo.item_guid);
-                        AzeriteItem.DeleteFromDB(trans, mailItemInfo.item_guid);
-                        AzeriteEmpoweredItem.DeleteFromDB(trans, mailItemInfo.item_guid);
+                        Item.DeleteFromDB(trans, mailItemInfo.ItemGUID);
+                        AzeriteItem.DeleteFromDB(trans, mailItemInfo.ItemGUID);
+                        AzeriteEmpoweredItem.DeleteFromDB(trans, mailItemInfo.ItemGUID);
                     }
 
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
-                stmt.AddValue(0, m.messageID);
+                stmt.AddValue(0, m.MessageID);
                 trans.Append(stmt);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
-                stmt.AddValue(0, m.messageID);
+                stmt.AddValue(0, m.MessageID);
                 trans.Append(stmt);
             }
 
         //deallocate deleted mails...
         foreach (var m in Mails.ToList())
-            if (m.state == MailState.Deleted)
+            if (m.State == MailState.Deleted)
                 Mails.Remove(m);
 
         MailsUpdated = false;
@@ -320,13 +320,13 @@ public partial class Player
         StringArray exploredZonesStrings = new(exploredZones, ' ');
 
         for (var i = 0; i < exploredZonesStrings.Length && i / 2 < ActivePlayerData.ExploredZonesSize; ++i)
-            SetUpdateFieldFlagValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ExploredZones, i / 2), (ulong)((long.Parse(exploredZonesStrings[i])) << (32 * (i % 2))));
+            SetUpdateFieldFlagValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ExploredZones, i / 2), (ulong)(long.Parse(exploredZonesStrings[i]) << (32 * (i % 2))));
 
         StringArray knownTitlesStrings = new(knownTitles, ' ');
 
-        if ((knownTitlesStrings.Length % 2) == 0)
+        if (knownTitlesStrings.Length % 2 == 0)
             for (var i = 0; i < knownTitlesStrings.Length; ++i)
-                SetUpdateFieldFlagValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.KnownTitles, i / 2), (ulong)((long.Parse(knownTitlesStrings[i])) << (32 * (i % 2))));
+                SetUpdateFieldFlagValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.KnownTitles, i / 2), (ulong)(long.Parse(knownTitlesStrings[i]) << (32 * (i % 2))));
 
         ObjectScale = 1.0f;
         SetHoverHeight(1.0f);
@@ -936,7 +936,7 @@ public partial class Player
         InitPvP();
 
         // RaF stuff.
-        if (Session.IsARecruiter || (Session.RecruiterId != 0))
+        if (Session.IsARecruiter || Session.RecruiterId != 0)
             SetDynamicFlag(UnitDynFlags.ReferAFriend);
 
         _LoadDeclinedNames(holder.GetResult(PlayerLoginQueryLoad.DeclinedNames));
@@ -1114,7 +1114,7 @@ public partial class Player
             stmt.AddValue(index++, LevelPlayedTime);
             stmt.AddValue(index++, FiniteAlways((float)RestMgr.GetRestBonus(RestTypes.XP)));
             stmt.AddValue(index++, GameTime.CurrentTime);
-            stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
+            stmt.AddValue(index++, HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0);
             //save, far from tavern/city
             //save, but in tavern/city
             stmt.AddValue(index++, GetTalentResetCost());
@@ -1265,7 +1265,7 @@ public partial class Player
             stmt.AddValue(index++, LevelPlayedTime);
             stmt.AddValue(index++, FiniteAlways((float)RestMgr.GetRestBonus(RestTypes.XP)));
             stmt.AddValue(index++, GameTime.CurrentTime);
-            stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
+            stmt.AddValue(index++, HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0);
             //save, far from tavern/city
             //save, but in tavern/city
             stmt.AddValue(index++, GetTalentResetCost());
@@ -2170,7 +2170,7 @@ public partial class Player
 
                 if (item.IsRefundable)
                 {
-                    if (item.PlayedTime > (2 * Time.HOUR))
+                    if (item.PlayedTime > 2 * Time.HOUR)
                     {
                         Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
                                          "efundable Id.",

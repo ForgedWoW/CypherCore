@@ -249,7 +249,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
     private bool ComputeNextNode()
     {
-        if ((_currentNode == _path.Nodes.Count - 1) && !_repeating)
+        if (_currentNode == _path.Nodes.Count - 1 && !_repeating)
             return false;
 
         _currentNode = (_currentNode + 1) % _path.Nodes.Count;

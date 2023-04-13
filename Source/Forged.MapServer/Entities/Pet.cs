@@ -888,7 +888,7 @@ public class Pet : Guardian
             stmt.AddValue(4, Level);
             stmt.AddValue(5, UnitData.PetExperience);
             stmt.AddValue(6, (byte)ReactState);
-            stmt.AddValue(7, (owner.PetStable1.GetCurrentActivePetIndex().HasValue ? (short)owner.PetStable1.GetCurrentActivePetIndex().Value : (short)PetSaveMode.NotInSlot));
+            stmt.AddValue(7, owner.PetStable1.GetCurrentActivePetIndex().HasValue ? (short)owner.PetStable1.GetCurrentActivePetIndex().Value : (short)PetSaveMode.NotInSlot);
             stmt.AddValue(8, GetName());
             stmt.AddValue(9, HasPetFlag(UnitPetFlags.CanBeRenamed) ? 0 : 1);
             stmt.AddValue(10, curhealth);

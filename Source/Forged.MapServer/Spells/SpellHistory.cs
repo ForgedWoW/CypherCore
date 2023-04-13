@@ -786,8 +786,8 @@ public class SpellHistory
         if (onHold)
         {
             // use +MONTH as infinite cooldown marker
-            catrecTime = categoryCooldown > TimeSpan.Zero ? (curTime + PlayerConst.InfinityCooldownDelay) : curTime;
-            recTime = cooldown > TimeSpan.Zero ? (curTime + PlayerConst.InfinityCooldownDelay) : catrecTime;
+            catrecTime = categoryCooldown > TimeSpan.Zero ? curTime + PlayerConst.InfinityCooldownDelay : curTime;
+            recTime = cooldown > TimeSpan.Zero ? curTime + PlayerConst.InfinityCooldownDelay : catrecTime;
         }
         else
         {

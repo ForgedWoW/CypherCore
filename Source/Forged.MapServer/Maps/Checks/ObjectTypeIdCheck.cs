@@ -19,6 +19,6 @@ public class ObjectTypeIdCheck : ICheck<WorldObject>
 
     public bool Invoke(WorldObject obj)
     {
-        return (obj.TypeId == _typeId) == _equals;
+        return obj.TypeId == _typeId == _equals;
     }
 }

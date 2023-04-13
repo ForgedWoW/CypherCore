@@ -119,7 +119,7 @@ internal class GoCommands
         var maxCount = keyValueList.Last().Key;
 
         for (var i = keyValueList.Count; i > 0;)
-            if ((++i) != 0 && keyValueList[i].Key == maxCount)
+            if (++i != 0 && keyValueList[i].Key == maxCount)
             {
                 handler.SendSysMessage(CypherStrings.CommandMultipleBossesMatch);
                 --i;
@@ -127,7 +127,7 @@ internal class GoCommands
                 do
                 {
                     handler.SendSysMessage(CypherStrings.CommandMultipleBossesEntry, keyValueList[i].Value.Entry, keyValueList[i].Value.Name, handler.ObjectManager.GetScriptName(keyValueList[i].Value.ScriptID));
-                } while (((++i) != 0) && (keyValueList[i].Key == maxCount));
+                } while (++i != 0 && keyValueList[i].Key == maxCount);
 
                 return false;
             }
@@ -280,7 +280,7 @@ internal class GoCommands
         var maxCount = keyValueList.Last().Key;
 
         for (var i = keyValueList.Count; i > 0;)
-            if ((++i) != 0 && keyValueList[i].Key == maxCount)
+            if (++i != 0 && keyValueList[i].Key == maxCount)
             {
                 handler.SendSysMessage(CypherStrings.CommandMultipleInstancesMatch);
                 --i;
@@ -288,7 +288,7 @@ internal class GoCommands
                 do
                 {
                     handler.SendSysMessage(CypherStrings.CommandMultipleInstancesEntry, keyValueList[i].Value.Item2, keyValueList[i].Value.Item1, keyValueList[i].Value.Item3);
-                } while (((++i) != 0) && (keyValueList[i].Key == maxCount));
+                } while (++i != 0 && keyValueList[i].Key == maxCount);
 
                 return false;
             }

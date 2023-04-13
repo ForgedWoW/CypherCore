@@ -289,8 +289,8 @@ public sealed class CreatureTextManager
 
         var textEntry = tempGroup.SelectRandomElementByWeight(t => t.probability);
 
-        var finalType = (msgType == ChatMsg.Addon) ? textEntry.type : msgType;
-        var finalLang = (language == Language.Addon) ? textEntry.lang : language;
+        var finalType = msgType == ChatMsg.Addon ? textEntry.type : msgType;
+        var finalLang = language == Language.Addon ? textEntry.lang : language;
         var finalSound = textEntry.sound;
         var finalPlayType = textEntry.SoundPlayType;
 

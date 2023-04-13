@@ -18,7 +18,7 @@ public class ActionButton
     public ulong PackedData { get; set; }
     public ulong GetAction()
     {
-        return (PackedData & 0x00FFFFFFFFFFFFFF);
+        return PackedData & 0x00FFFFFFFFFFFFFF;
     }
 
     public ActionButtonType GetButtonType()

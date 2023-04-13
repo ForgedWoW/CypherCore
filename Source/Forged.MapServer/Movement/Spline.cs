@@ -274,7 +274,7 @@ public class Spline<T>
 
     private void InitCatmullRom(Span<Vector3> controls, int count, bool cyclic, int cyclicPoint)
     {
-        var realSize = count + (cyclic ? (1 + 2) : (1 + 1));
+        var realSize = count + (cyclic ? 1 + 2 : 1 + 1);
 
         _points = new Vector3[realSize];
 

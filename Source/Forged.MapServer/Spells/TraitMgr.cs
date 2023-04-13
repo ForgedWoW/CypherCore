@@ -673,14 +673,14 @@ public class TraitMgr
                 {
                     var traitEntry = GetNodeEntry(node.Data.Id, nodeEntry.Data.Id);
 
-                    return traitEntry != null && (traitEntry.Rank + traitEntry.GrantedRanks) == nodeEntry.Data.MaxRanks;
+                    return traitEntry != null && traitEntry.Rank + traitEntry.GrantedRanks == nodeEntry.Data.MaxRanks;
                 });
 
             return node.Entries.All(nodeEntry =>
             {
                 var traitEntry = GetNodeEntry(node.Data.Id, nodeEntry.Data.Id);
 
-                return traitEntry != null && (traitEntry.Rank + traitEntry.GrantedRanks) == nodeEntry.Data.MaxRanks;
+                return traitEntry != null && traitEntry.Rank + traitEntry.GrantedRanks == nodeEntry.Data.MaxRanks;
             });
         }
 

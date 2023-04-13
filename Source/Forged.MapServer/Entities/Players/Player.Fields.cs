@@ -250,7 +250,7 @@ public partial class Player
     public DeclinedName DeclinedNames { get; private set; }
     public byte DrunkValue => PlayerData.Inebriation;
     public DuelInfo Duel { get; set; }
-    public TeamFaction EffectiveTeam => HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode) ? (Team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance) : Team;
+    public TeamFaction EffectiveTeam => HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode) ? Team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance : Team;
     public int EffectiveTeamId => EffectiveTeam == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
     public float EmpoweredSpellMinHoldPct { get; set; }
     public byte[] ForcedSpeedChanges { get; set; } = new byte[(int)UnitMoveType.Max];
@@ -470,7 +470,7 @@ public partial class Player
             var playerLevelDelta = 0;
 
             // If XP < 50%, player should see scaling creature with -1 level except for level max
-            if (Level < SharedConst.MaxLevel && value < (ActivePlayerData.NextLevelXP / 2))
+            if (Level < SharedConst.MaxLevel && value < ActivePlayerData.NextLevelXP / 2)
                 playerLevelDelta = -1;
 
             SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ScalingPlayerLevelDelta), playerLevelDelta);

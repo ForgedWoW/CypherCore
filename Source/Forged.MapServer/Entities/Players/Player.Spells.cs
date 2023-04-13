@@ -49,7 +49,7 @@ public partial class Player
             case SpellModType.Pct:
                 if (!IsLoading)
                 {
-                    var opcode = (mod.Type == SpellModType.Flat ? ServerOpcodes.SetFlatSpellModifier : ServerOpcodes.SetPctSpellModifier);
+                    var opcode = mod.Type == SpellModType.Flat ? ServerOpcodes.SetFlatSpellModifier : ServerOpcodes.SetPctSpellModifier;
                     SetSpellModifier packet = new(opcode);
 
                     // @todo Implement sending of bulk modifiers instead of single
@@ -858,7 +858,7 @@ public partial class Player
                         var lvlDifference = (int)target.GetLevelForTarget(this) - 60;
                         var lvlPenaltyFactor = 4; // 4% lost effectiveness per level
 
-                        var effectPct = Math.Max(0, 100 - (lvlDifference * lvlPenaltyFactor));
+                        var effectPct = Math.Max(0, 100 - lvlDifference * lvlPenaltyFactor);
 
                         foreach (var spellEffectInfo in spellInfo.Effects)
                             if (spellEffectInfo.IsEffect())
@@ -1082,7 +1082,7 @@ public partial class Player
         hastePct += GetTotalAuraModifier(AuraType.ModMeleeHaste2);
         hastePct += GetTotalAuraModifier(AuraType.ModMeleeHaste3);
 
-        cooldown *= 1.0f - (hastePct / 100.0f);
+        cooldown *= 1.0f - hastePct / 100.0f;
 
         return (uint)cooldown;
     }
@@ -2154,7 +2154,7 @@ public partial class Player
     public void SetRuneCooldown(byte index, uint cooldown)
     {
         _runes.Cooldown[index] = cooldown;
-        _runes.SetRuneState(index, (cooldown == 0));
+        _runes.SetRuneState(index, cooldown == 0);
         var activeRunes = _runes.Cooldown.Count(p => p == 0);
 
         if (activeRunes != GetPower(PowerType.Runes))
@@ -3220,7 +3220,7 @@ public partial class Player
                     continue;
 
                 // Runeforging special case
-                if ((spellIdx.AcquireMethod == AbilityLearnType.OnSkillLearn && !HasSkill((SkillType)spellIdx.SkillLine)) || ((spellIdx.SkillLine == (int)SkillType.Runeforging) && spellIdx.TrivialSkillLineRankHigh == 0))
+                if ((spellIdx.AcquireMethod == AbilityLearnType.OnSkillLearn && !HasSkill((SkillType)spellIdx.SkillLine)) || (spellIdx.SkillLine == (int)SkillType.Runeforging && spellIdx.TrivialSkillLineRankHigh == 0))
                 {
                     var rcInfo = DB2Manager.GetSkillRaceClassInfo(spellIdx.SkillLine, Race, Class);
 
@@ -3425,17 +3425,17 @@ public partial class Player
             switch (condition.Operator[i])
             {
                 case 2: // requires less <color> than (<value> || <comparecolor>) gems
-                    activate &= (curGem < cmpGem);
+                    activate &= curGem < cmpGem;
 
                     break;
 
                 case 3: // requires more <color> than (<value> || <comparecolor>) gems
-                    activate &= (curGem > cmpGem);
+                    activate &= curGem > cmpGem;
 
                     break;
 
                 case 5: // requires at least <color> than (<value> || <comparecolor>) gems
-                    activate &= (curGem >= cmpGem);
+                    activate &= curGem >= cmpGem;
 
                     break;
             }
@@ -3503,10 +3503,10 @@ public partial class Player
         // normalized proc chance for weapon attack speed
         // (odd formula...)
         if (IsAttackReady())
-            return (GetBaseAttackTime(WeaponAttackType.BaseAttack) * 1.8f / 1000.0f);
+            return GetBaseAttackTime(WeaponAttackType.BaseAttack) * 1.8f / 1000.0f;
 
         if (HaveOffhandWeapon() && IsAttackReady(WeaponAttackType.OffAttack))
-            return (GetBaseAttackTime(WeaponAttackType.OffAttack) * 1.6f / 1000.0f);
+            return GetBaseAttackTime(WeaponAttackType.OffAttack) * 1.6f / 1000.0f;
 
         return 0;
     }
@@ -3517,9 +3517,9 @@ public partial class Player
         // talent dependent passives activated at form apply have proper stance data
         var form = ShapeshiftForm;
 
-        var needCast = (spellInfo.Stances == 0 ||
-                        (form != 0 && Convert.ToBoolean(spellInfo.Stances & (1ul << ((int)form - 1)))) ||
-                        (form == 0 && spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm)));
+        var needCast = spellInfo.Stances == 0 ||
+                       (form != 0 && Convert.ToBoolean(spellInfo.Stances & (1ul << ((int)form - 1)))) ||
+                       (form == 0 && spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm));
 
         // Check EquippedItemClass
         // passive spells which apply aura and have an item requirement are to be added manually, instead of casted

@@ -742,12 +742,12 @@ internal class MiscCommands
         var gridCoord = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
 
         // 63? WHY?
-        var gridX = (int)((MapConst.MaxGrids - 1) - gridCoord.X_Coord);
-        var gridY = (int)((MapConst.MaxGrids - 1) - gridCoord.Y_Coord);
+        var gridX = (int)(MapConst.MaxGrids - 1 - gridCoord.X_Coord);
+        var gridY = (int)(MapConst.MaxGrids - 1 - gridCoord.Y_Coord);
 
         var haveMap = TerrainInfo.ExistMap(mapId, gridX, gridY);
         var haveVMap = TerrainInfo.ExistVMap(mapId, gridX, gridY);
-        var haveMMap = (handler.ClassFactory.Resolve<DisableManager>().IsPathfindingEnabled(mapId) && handler.ClassFactory.Resolve<MMapManager>().GetNavMesh(handler.Session.Player.Location.MapId) != null);
+        var haveMMap = handler.ClassFactory.Resolve<DisableManager>().IsPathfindingEnabled(mapId) && handler.ClassFactory.Resolve<MMapManager>().GetNavMesh(handler.Session.Player.Location.MapId) != null;
 
         if (haveVMap)
         {
@@ -765,11 +765,11 @@ internal class MiscCommands
 
         handler.SendSysMessage(CypherStrings.MapPosition,
                                mapId,
-                               (mapEntry != null ? mapEntry.MapName[handler.SessionDbcLocale] : unknown),
+                               mapEntry != null ? mapEntry.MapName[handler.SessionDbcLocale] : unknown,
                                obj.Location.Zone,
-                               (zoneEntry != null ? zoneEntry.AreaName[handler.SessionDbcLocale] : unknown),
+                               zoneEntry != null ? zoneEntry.AreaName[handler.SessionDbcLocale] : unknown,
                                obj.Location.Area,
-                               (areaEntry != null ? areaEntry.AreaName[handler.SessionDbcLocale] : unknown),
+                               areaEntry != null ? areaEntry.AreaName[handler.SessionDbcLocale] : unknown,
                                obj.Location.X,
                                obj.Location.Y,
                                obj.Location.Z,
@@ -929,7 +929,7 @@ internal class MiscCommands
             kickReasonStr = kickReason;
 
         if (handler.Configuration.GetDefaultValue("ShowKickInWorld", false))
-            handler.WorldManager.SendWorldText(CypherStrings.CommandKickmessageWorld, (handler.Session != null ? handler.Session.PlayerName : "Server"), playerName, kickReasonStr);
+            handler.WorldManager.SendWorldText(CypherStrings.CommandKickmessageWorld, handler.Session != null ? handler.Session.PlayerName : "Server", playerName, kickReasonStr);
         else
             handler.SendSysMessage(CypherStrings.CommandKickmessage, playerName);
 
@@ -1042,7 +1042,7 @@ internal class MiscCommands
             return false;
         }
 
-        handler.SendSysMessage(CypherStrings.MovegensList, (unit.IsTypeId(TypeId.Player) ? "Player" : "Creature"), unit.GUID.ToString());
+        handler.SendSysMessage(CypherStrings.MovegensList, unit.IsTypeId(TypeId.Player) ? "Player" : "Creature", unit.GUID.ToString());
 
         if (unit.MotionMaster.Empty())
         {
@@ -1619,13 +1619,13 @@ internal class MiscCommands
 
         // Output X. LANG_PINFO_CHR_LEVEL
         if (level != handler.Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
-            handler.SendSysMessage(CypherStrings.PinfoChrLevelLow, level, xp, xptotal, (xptotal - xp));
+            handler.SendSysMessage(CypherStrings.PinfoChrLevelLow, level, xp, xptotal, xptotal - xp);
         else
             handler.SendSysMessage(CypherStrings.PinfoChrLevelHigh, level);
 
         // Output XI. LANG_PINFO_CHR_RACE
         handler.SendSysMessage(CypherStrings.PinfoChrRace,
-                               (gender == 0 ? handler.GetCypherString(CypherStrings.CharacterGenderMale) : handler.GetCypherString(CypherStrings.CharacterGenderFemale)),
+                               gender == 0 ? handler.GetCypherString(CypherStrings.CharacterGenderMale) : handler.GetCypherString(CypherStrings.CharacterGenderFemale),
                                handler.ClassFactory.Resolve<DB2Manager>().GetChrRaceName(raceid, locale),
                                handler.ClassFactory.Resolve<DB2Manager>().GetClassName(classid, locale));
 
@@ -1638,8 +1638,8 @@ internal class MiscCommands
 
         // Output XIV. LANG_PINFO_CHR_MONEY
         var gold = money / MoneyConstants.Gold;
-        var silv = (money % MoneyConstants.Gold) / MoneyConstants.Silver;
-        var copp = (money % MoneyConstants.Gold) % MoneyConstants.Silver;
+        var silv = money % MoneyConstants.Gold / MoneyConstants.Silver;
+        var copp = money % MoneyConstants.Gold % MoneyConstants.Silver;
         handler.SendSysMessage(CypherStrings.PinfoChrMoney, gold, silv, copp);
 
         // Position data
@@ -1680,7 +1680,7 @@ internal class MiscCommands
         }
 
         // Output XX. LANG_PINFO_CHR_PLAYEDTIME
-        handler.SendSysMessage(CypherStrings.PinfoChrPlayedtime, (Time.SecsToTimeString(totalPlayerTime, TimeFormat.ShortText, true)));
+        handler.SendSysMessage(CypherStrings.PinfoChrPlayedtime, Time.SecsToTimeString(totalPlayerTime, TimeFormat.ShortText, true));
 
         // Mail Data - an own query, because it may or may not be useful.
         // SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
@@ -1743,7 +1743,7 @@ internal class MiscCommands
             {
                 var hordeVictories = result.Read<uint>(1);
 
-                if (!(result.NextRow()))
+                if (!result.NextRow())
                     return false;
 
                 var allianceVictories = result.Read<uint>(1);
@@ -2022,8 +2022,8 @@ internal class MiscCommands
                     targetGroupLeader = handler.ObjectAccessor.GetPlayer(map, targetGroup.LeaderGUID);
 
                 // check if far teleport is allowed
-                if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.Id) || (targetGroupLeader.InstanceId != map.InstanceId))
-                    if ((targetMap.Id != map.Id) || (targetMap.InstanceId != map.InstanceId))
+                if (targetGroupLeader == null || targetGroupLeader.Location.MapId != map.Id || targetGroupLeader.InstanceId != map.InstanceId)
+                    if (targetMap.Id != map.Id || targetMap.InstanceId != map.InstanceId)
                     {
                         handler.SendSysMessage(CypherStrings.CannotSummonToInst);
 
@@ -2031,7 +2031,7 @@ internal class MiscCommands
                     }
 
                 // check if we're already in a different instance of the same map
-                if ((targetMap.Id == map.Id) && (targetMap.InstanceId != map.InstanceId))
+                if (targetMap.Id == map.Id && targetMap.InstanceId != map.InstanceId)
                 {
                     handler.SendSysMessage(CypherStrings.CannotSummonInstInst, nameLink);
 

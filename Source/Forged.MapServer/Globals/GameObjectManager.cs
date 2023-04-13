@@ -554,7 +554,7 @@ public sealed class GameObjectManager
                 Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `RegenHealth`={0} WHERE `entry`={1};", cInfo.RegenHealth, cInfo.DifficultyEntry[diff]);
             }
 
-            var differenceMask = cInfo.MechanicImmuneMask & (~difficultyInfo.MechanicImmuneMask);
+            var differenceMask = cInfo.MechanicImmuneMask & ~difficultyInfo.MechanicImmuneMask;
 
             if (differenceMask != 0)
             {
@@ -568,7 +568,7 @@ public sealed class GameObjectManager
                 Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`|{0} WHERE `entry`={1};", differenceMask, cInfo.DifficultyEntry[diff]);
             }
 
-            differenceMask = (uint)((cInfo.FlagsExtra ^ difficultyInfo.FlagsExtra) & (~CreatureFlagsExtra.InstanceBind));
+            differenceMask = (uint)((cInfo.FlagsExtra ^ difficultyInfo.FlagsExtra) & ~CreatureFlagsExtra.InstanceBind);
 
             if (differenceMask != 0)
             {
@@ -728,7 +728,7 @@ public sealed class GameObjectManager
             cInfo.UnitFlags &= UnitFlags.Allowed;
         }
 
-        var disallowedUnitFlags2 = (cInfo.UnitFlags2 & ~(uint)UnitFlags2.Allowed);
+        var disallowedUnitFlags2 = cInfo.UnitFlags2 & ~(uint)UnitFlags2.Allowed;
 
         if (disallowedUnitFlags2 != 0)
         {
@@ -736,7 +736,7 @@ public sealed class GameObjectManager
             cInfo.UnitFlags2 &= (uint)UnitFlags2.Allowed;
         }
 
-        var disallowedUnitFlags3 = (cInfo.UnitFlags3 & ~(uint)UnitFlags3.Allowed);
+        var disallowedUnitFlags3 = cInfo.UnitFlags3 & ~(uint)UnitFlags3.Allowed;
 
         if (disallowedUnitFlags3 != 0)
         {
@@ -10865,8 +10865,8 @@ public sealed class GameObjectManager
 
             do
             {
-                item.item_guid = result.Read<uint>(0);
-                item.item_template = result.Read<uint>(1);
+                item.ItemGUID = result.Read<uint>(0);
+                item.ItemTemplate = result.Read<uint>(1);
                 var mailId = result.Read<ulong>(2);
                 itemsCache.Add(mailId, item);
             } while (items.NextRow());
@@ -10884,64 +10884,64 @@ public sealed class GameObjectManager
 
             Mail m = new()
             {
-                messageID = result.Read<ulong>(0),
-                messageType = (MailMessageType)result.Read<byte>(1),
-                sender = result.Read<uint>(2),
-                receiver = receiver
+                MessageID = result.Read<ulong>(0),
+                MessageType = (MailMessageType)result.Read<byte>(1),
+                Sender = result.Read<uint>(2),
+                Receiver = receiver
             };
 
             var hasItems = result.Read<bool>(4);
-            m.expire_time = result.Read<long>(5);
-            m.deliver_time = 0;
-            m.COD = result.Read<ulong>(6);
-            m.checkMask = (MailCheckMask)result.Read<byte>(7);
-            m.mailTemplateId = result.Read<ushort>(8);
+            m.ExpireTime = result.Read<long>(5);
+            m.DeliverTime = 0;
+            m.Cod = result.Read<ulong>(6);
+            m.CheckMask = (MailCheckMask)result.Read<byte>(7);
+            m.MailTemplateId = result.Read<ushort>(8);
 
             // Delete or return mail
             if (hasItems)
             {
                 // read items from cache
-                var temp = itemsCache[m.messageID];
-                Extensions.Swap(ref m.items, ref temp);
+                var temp = itemsCache[m.MessageID];
+                Extensions.Swap(ref m.Items, ref temp);
 
                 // if it is mail from non-player, or if it's already return mail, it shouldn't be returned, but deleted
-                if (m.messageType != MailMessageType.Normal || (m.checkMask.HasAnyFlag(MailCheckMask.CodPayment | MailCheckMask.Returned)))
+                if (m.MessageType != MailMessageType.Normal || (m.CheckMask.HasAnyFlag(MailCheckMask.CodPayment | MailCheckMask.Returned)))
                 {
                     // mail open and then not returned
-                    foreach (var itemInfo in m.items)
+                    foreach (var itemInfo in m.Items)
                     {
-                        Item.DeleteFromDB(null, itemInfo.item_guid);
-                        AzeriteItem.DeleteFromDB(null, itemInfo.item_guid);
-                        AzeriteEmpoweredItem.DeleteFromDB(null, itemInfo.item_guid);
+                        Item.DeleteFromDB(null, itemInfo.ItemGUID);
+                        AzeriteItem.DeleteFromDB(null, itemInfo.ItemGUID);
+                        AzeriteEmpoweredItem.DeleteFromDB(null, itemInfo.ItemGUID);
                     }
 
                     stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
-                    stmt.AddValue(0, m.messageID);
+                    stmt.AddValue(0, m.MessageID);
                     _characterDatabase.Execute(stmt);
                 }
                 else
                 {
                     // Mail will be returned
                     stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_MAIL_RETURNED);
-                    stmt.AddValue(0, m.receiver);
-                    stmt.AddValue(1, m.sender);
+                    stmt.AddValue(0, m.Receiver);
+                    stmt.AddValue(1, m.Sender);
                     stmt.AddValue(2, curTime + 30 * Time.DAY);
                     stmt.AddValue(3, curTime);
                     stmt.AddValue(4, (byte)MailCheckMask.Returned);
-                    stmt.AddValue(5, m.messageID);
+                    stmt.AddValue(5, m.MessageID);
                     _characterDatabase.Execute(stmt);
 
-                    foreach (var itemInfo in m.items)
+                    foreach (var itemInfo in m.Items)
                     {
                         // Update receiver in mail items for its proper delivery, and in instance_item for avoid lost item at sender delete
                         stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_MAIL_ITEM_RECEIVER);
-                        stmt.AddValue(0, m.sender);
-                        stmt.AddValue(1, itemInfo.item_guid);
+                        stmt.AddValue(0, m.Sender);
+                        stmt.AddValue(1, itemInfo.ItemGUID);
                         _characterDatabase.Execute(stmt);
 
                         stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
-                        stmt.AddValue(0, m.sender);
-                        stmt.AddValue(1, itemInfo.item_guid);
+                        stmt.AddValue(0, m.Sender);
+                        stmt.AddValue(1, itemInfo.ItemGUID);
                         _characterDatabase.Execute(stmt);
                     }
 
@@ -10952,7 +10952,7 @@ public sealed class GameObjectManager
             }
 
             stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
-            stmt.AddValue(0, m.messageID);
+            stmt.AddValue(0, m.MessageID);
             _characterDatabase.Execute(stmt);
             ++deletedCount;
         } while (result.NextRow());

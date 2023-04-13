@@ -41,24 +41,24 @@ public class MailQueryNextTimeResult : ServerPacket
         public float TimeLeft;
         public MailNextTimeEntry(Mails.Mail mail)
         {
-            switch (mail.messageType)
+            switch (mail.MessageType)
             {
                 case MailMessageType.Normal:
-                    SenderGuid = ObjectGuid.Create(HighGuid.Player, mail.sender);
+                    SenderGuid = ObjectGuid.Create(HighGuid.Player, mail.Sender);
 
                     break;
                 case MailMessageType.Auction:
                 case MailMessageType.Creature:
                 case MailMessageType.Gameobject:
                 case MailMessageType.Calendar:
-                    AltSenderID = (int)mail.sender;
+                    AltSenderID = (int)mail.Sender;
 
                     break;
             }
 
-            TimeLeft = mail.deliver_time - GameTime.CurrentTime;
-            AltSenderType = (sbyte)mail.messageType;
-            StationeryID = (int)mail.stationery;
+            TimeLeft = mail.DeliverTime - GameTime.CurrentTime;
+            AltSenderType = (sbyte)mail.MessageType;
+            StationeryID = (int)mail.Stationery;
         }
     }
 }

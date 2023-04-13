@@ -40,7 +40,7 @@ public class CriteriaHandler
     protected readonly DisableManager DisableManager;
     protected readonly LanguageManager LanguageManager;
     protected readonly MapManager MapManager;
-    protected readonly GameObjectManager ObjectManager;
+    protected readonly GameObjectManager GameObjectManager;
     protected readonly RealmManager RealmManager;
     protected readonly SpellManager SpellManager;
     protected readonly Dictionary<uint, uint /*ms time left*/> TimeCriteriaTrees = new();
@@ -48,7 +48,7 @@ public class CriteriaHandler
     protected readonly WorldStateManager WorldStateManager;
     protected Dictionary<uint, CriteriaProgress> CriteriaProgress = new();
 
-    public CriteriaHandler(CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager objectManager, SpellManager spellManager,
+    public CriteriaHandler(CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager,
                            ArenaTeamManager arenaTeamManager, DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB,
                            ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration, LanguageManager languageManager,
                            DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager)
@@ -56,7 +56,7 @@ public class CriteriaHandler
         AchievementManager = achievementManager;
         CriteriaManager = criteriaManager;
         WorldManager = worldManager;
-        ObjectManager = objectManager;
+        GameObjectManager = gameObjectManager;
         SpellManager = spellManager;
         ArenaTeamManager = arenaTeamManager;
         DisableManager = disableManager;
@@ -382,7 +382,7 @@ public class CriteriaHandler
                     continue;
 
                 // Client expects this in packet
-                timeElapsed = TimeSpan.FromSeconds(criteria.Entry.StartTimer - (timed / Time.IN_MILLISECONDS));
+                timeElapsed = TimeSpan.FromSeconds(criteria.Entry.StartTimer - timed / Time.IN_MILLISECONDS);
 
                 // Remove the timer, we wont need it anymore
                 if (IsCompletedCriteriaTree(tree))
@@ -608,7 +608,7 @@ public class CriteriaHandler
                     if (miscValue1 == 0) // Login case.
                     {
                         // reset if player missed one day.
-                        if (progress != null && progress.Date < (nextDailyResetTime - 2 * Time.DAY))
+                        if (progress != null && progress.Date < nextDailyResetTime - 2 * Time.DAY)
                             SetCriteriaProgress(criteria, 0, referencePlayer);
 
                         continue;
@@ -619,10 +619,10 @@ public class CriteriaHandler
                     if (progress == null)
                         // 1st time. Start count.
                         progressType = ProgressType.Set;
-                    else if (progress.Date < (nextDailyResetTime - 2 * Time.DAY))
+                    else if (progress.Date < nextDailyResetTime - 2 * Time.DAY)
                         // last progress is older than 2 days. Player missed 1 day => Restart count.
                         progressType = ProgressType.Set;
-                    else if (progress.Date < (nextDailyResetTime - Time.DAY))
+                    else if (progress.Date < nextDailyResetTime - Time.DAY)
                         // last progress is between 1 and 2 days. => 1st time of the day.
                         progressType = ProgressType.Accumulate;
                     else
@@ -647,7 +647,7 @@ public class CriteriaHandler
 
                         foreach (var id in rewQuests)
                         {
-                            var quest = ObjectManager.GetQuestTemplate(id);
+                            var quest = GameObjectManager.GetQuestTemplate(id);
 
                             if (quest is { QuestSortID: >= 0 } && quest.QuestSortID == criteria.Entry.Asset)
                                 ++counter;
@@ -1073,7 +1073,7 @@ public class CriteriaHandler
             CriteriaType.PrestigeLevelIncrease            => progress.Counter >= 1,
             CriteriaType.ActivelyReachLevel               => progress.Counter >= 1,
             CriteriaType.CollectTransmogSetFromGroup      => progress.Counter >= 1,
-            CriteriaType.AchieveSkillStep                 => progress.Counter >= (requiredAmount * 75),
+            CriteriaType.AchieveSkillStep                 => progress.Counter >= requiredAmount * 75,
             CriteriaType.EarnAchievementPoints            => progress.Counter >= 9000,
             CriteriaType.WinArena                         => requiredAmount != 0 && progress.Counter >= requiredAmount,
             CriteriaType.Login                            => true,
@@ -1110,7 +1110,7 @@ public class CriteriaHandler
             case ModifierTreeType.MinimumItemLevel: // 3
             {
                 // miscValue1 is itemid
-                var item = ObjectManager.GetItemTemplate((uint)miscValue1);
+                var item = GameObjectManager.GetItemTemplate((uint)miscValue1);
 
                 if (item == null || item.BaseItemLevel < reqValue)
                     return false;
@@ -1180,7 +1180,7 @@ public class CriteriaHandler
             case ModifierTreeType.ItemQualityIsAtLeast: // 14
             {
                 // miscValue1 is itemid
-                var item = ObjectManager.GetItemTemplate((uint)miscValue1);
+                var item = GameObjectManager.GetItemTemplate((uint)miscValue1);
 
                 if (item == null || (uint)item.Quality < reqValue)
                     return false;
@@ -1190,7 +1190,7 @@ public class CriteriaHandler
             case ModifierTreeType.ItemQualityIsExactly: // 15
             {
                 // miscValue1 is itemid
-                var item = ObjectManager.GetItemTemplate((uint)miscValue1);
+                var item = GameObjectManager.GetItemTemplate((uint)miscValue1);
 
                 if (item == null || (uint)item.Quality != reqValue)
                     return false;
@@ -1669,7 +1669,7 @@ public class CriteriaHandler
                 if (scenario == null)
                     return false;
 
-                if (scenario.GetStep().OrderIndex != (reqValue - 1))
+                if (scenario.GetStep().OrderIndex != reqValue - 1)
                     return false;
 
                 break;
@@ -1744,7 +1744,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.ItemClassAndSubclass: // 96
             {
-                var item = ObjectManager.GetItemTemplate((uint)miscValue1);
+                var item = GameObjectManager.GetItemTemplate((uint)miscValue1);
 
                 if (item == null || item.Class != (ItemClass)reqValue || item.SubClass != secondaryAsset)
                     return false;
@@ -1853,12 +1853,12 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerHasCompletedQuestObjective: // 112
             {
-                var objective = ObjectManager.GetQuestObjective(reqValue);
+                var objective = GameObjectManager.GetQuestObjective(reqValue);
 
                 if (objective == null)
                     return false;
 
-                var quest = ObjectManager.GetQuestTemplate(objective.QuestID);
+                var quest = GameObjectManager.GetQuestTemplate(objective.QuestID);
 
                 if (quest == null)
                     return false;
@@ -2452,7 +2452,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.PlayerQuestObjectiveProgressEqual: // 158
             {
-                var objective = ObjectManager.GetQuestObjective(reqValue);
+                var objective = GameObjectManager.GetQuestObjective(reqValue);
 
                 if (objective == null)
                     return false;
@@ -2464,7 +2464,7 @@ public class CriteriaHandler
             }
             case ModifierTreeType.PlayerQuestObjectiveProgressEqualOrGreaterThan: // 159
             {
-                var objective = ObjectManager.GetQuestObjective(reqValue);
+                var objective = GameObjectManager.GetQuestObjective(reqValue);
 
                 if (objective == null)
                     return false;
@@ -2577,7 +2577,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerCanAcceptQuest: // 174
             {
-                var quest = ObjectManager.GetQuestTemplate(reqValue);
+                var quest = GameObjectManager.GetQuestTemplate(reqValue);
 
                 if (quest == null)
                     return false;
@@ -2808,7 +2808,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.QuestHasQuestInfoId: // 206
             {
-                var quest = ObjectManager.GetQuestTemplate((uint)miscValue1);
+                var quest = GameObjectManager.GetQuestTemplate((uint)miscValue1);
 
                 if (quest == null || quest.Id != reqValue)
                     return false;
@@ -3022,7 +3022,7 @@ public class CriteriaHandler
             {
                 var visibleItem = referencePlayer.PlayerData.VisibleItems[EquipmentSlot.MainHand];
                 var itemSubclass = (uint)ItemSubClassWeapon.Fist;
-                var itemTemplate = ObjectManager.GetItemTemplate(visibleItem.ItemID);
+                var itemTemplate = GameObjectManager.GetItemTemplate(visibleItem.ItemID);
 
                 if (itemTemplate is { Class: ItemClass.Weapon })
                 {
@@ -3048,7 +3048,7 @@ public class CriteriaHandler
             {
                 var visibleItem = referencePlayer.PlayerData.VisibleItems[EquipmentSlot.OffHand];
                 var itemSubclass = (uint)ItemSubClassWeapon.Fist;
-                var itemTemplate = ObjectManager.GetItemTemplate(visibleItem.ItemID);
+                var itemTemplate = GameObjectManager.GetItemTemplate(visibleItem.ItemID);
 
                 if (itemTemplate is { Class: ItemClass.Weapon })
                 {
@@ -3142,7 +3142,7 @@ public class CriteriaHandler
 
                 var canTakeQuest = questLineQuests.Any(questLineQuest =>
                 {
-                    var quest = ObjectManager.GetQuestTemplate(questLineQuest.QuestID);
+                    var quest = GameObjectManager.GetQuestTemplate(questLineQuest.QuestID);
 
                     if (quest != null)
                         return referencePlayer.CanTakeQuest(quest, false);
@@ -3904,7 +3904,7 @@ public class CriteriaHandler
 
             case ModifierTreeType.PlayerCanUseItem: // 351
             {
-                var itemTemplate = ObjectManager.GetItemTemplate(reqValue);
+                var itemTemplate = GameObjectManager.GetItemTemplate(reqValue);
 
                 if (itemTemplate == null || referencePlayer.CanUseItem(itemTemplate) != InventoryResult.Ok)
                     return false;
@@ -4036,7 +4036,7 @@ public class CriteriaHandler
             case CriteriaType.CompleteQuestsInZone:
                 if (miscValue1 != 0)
                 {
-                    var quest = ObjectManager.GetQuestTemplate((uint)miscValue1);
+                    var quest = GameObjectManager.GetQuestTemplate((uint)miscValue1);
 
                     if (quest == null || quest.QuestSortID != criteria.Entry.Asset)
                         return false;
@@ -4198,7 +4198,7 @@ public class CriteriaHandler
                 if (miscValue1 == 0 || miscValue2 != criteria.Entry.Asset)
                     return false;
 
-                var proto = ObjectManager.GetItemTemplate((uint)miscValue1);
+                var proto = GameObjectManager.GetItemTemplate((uint)miscValue1);
 
                 if (proto == null)
                     return false;

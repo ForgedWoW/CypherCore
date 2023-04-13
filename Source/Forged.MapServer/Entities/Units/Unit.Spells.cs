@@ -151,7 +151,7 @@ public partial class Unit
 
         if (aState != 0)
         {
-            var aStateMask = (1u << ((int)aState - 1));
+            var aStateMask = 1u << ((int)aState - 1);
 
             // force update so the new caster registers it
             if (aStateMask.HasAnyFlag((uint)AuraStateType.PerCasterAuraStateMask) && (UnitData.AuraState & aStateMask) != 0)
@@ -181,7 +181,7 @@ public partial class Unit
 
         // apply effects of the aura
         foreach (var effect in aurApp.Base.AuraEffects)
-            if (effMask.Contains(effect.Key) && !(aurApp.HasRemoveMode))
+            if (effMask.Contains(effect.Key) && !aurApp.HasRemoveMode)
                 aurApp._HandleEffect(effect.Key, true);
 
         var player = AsPlayer;
@@ -517,10 +517,10 @@ public partial class Unit
         damageInfo.Resist = dmgInfo.Resist;
 
         if (damageInfo.Absorb != 0)
-            damageInfo.HitInfo |= (damageInfo.Damage - damageInfo.Absorb == 0 ? (int)HitInfo.FullAbsorb : (int)HitInfo.PartialAbsorb);
+            damageInfo.HitInfo |= damageInfo.Damage - damageInfo.Absorb == 0 ? (int)HitInfo.FullAbsorb : (int)HitInfo.PartialAbsorb;
 
         if (damageInfo.Resist != 0)
-            damageInfo.HitInfo |= (damageInfo.Damage - damageInfo.Resist == 0 ? (int)HitInfo.FullResist : (int)HitInfo.PartialResist);
+            damageInfo.HitInfo |= damageInfo.Damage - damageInfo.Resist == 0 ? (int)HitInfo.FullResist : (int)HitInfo.PartialResist;
 
         damageInfo.Damage = dmgInfo.Damage;
     }
@@ -1371,7 +1371,7 @@ public partial class Unit
         if (currentChanneledSpell != null)
             excludeAura = currentChanneledSpell.SpellInfo.Id; //Avoid self interrupt of channeled Crowd Control spells like Seduction
 
-        return (HasBreakableByDamageAuraType(AuraType.ModConfuse, excludeAura) || HasBreakableByDamageAuraType(AuraType.ModFear, excludeAura) || HasBreakableByDamageAuraType(AuraType.ModStun, excludeAura) || HasBreakableByDamageAuraType(AuraType.ModRoot, excludeAura) || HasBreakableByDamageAuraType(AuraType.ModRoot2, excludeAura) || HasBreakableByDamageAuraType(AuraType.Transform, excludeAura));
+        return HasBreakableByDamageAuraType(AuraType.ModConfuse, excludeAura) || HasBreakableByDamageAuraType(AuraType.ModFear, excludeAura) || HasBreakableByDamageAuraType(AuraType.ModStun, excludeAura) || HasBreakableByDamageAuraType(AuraType.ModRoot, excludeAura) || HasBreakableByDamageAuraType(AuraType.ModRoot2, excludeAura) || HasBreakableByDamageAuraType(AuraType.Transform, excludeAura);
     }
 
     public bool HasNegativeAuraWithInterruptFlag(SpellAuraInterruptFlags flag, ObjectGuid guid = default)
@@ -1825,7 +1825,7 @@ public partial class Unit
         var currentSpell = GetCurrentSpell(CurrentSpellTypes.Generic);
 
         if (currentSpell &&
-            (currentSpell.State != SpellState.Finished) &&
+            currentSpell.State != SpellState.Finished &&
             (withDelayed || currentSpell.State != SpellState.Delayed))
             if (!skipInstant || currentSpell.CastTime != 0)
                 if (!isAutoshoot || !currentSpell.SpellInfo.HasAttribute(SpellAttr2.DoNotResetCombatTimers))
@@ -1836,7 +1836,7 @@ public partial class Unit
         // channeled spells may be delayed, but they are still considered cast
         if (!skipChanneled &&
             currentSpell &&
-            (currentSpell.State != SpellState.Finished))
+            currentSpell.State != SpellState.Finished)
             if (!isAutoshoot || !currentSpell.SpellInfo.HasAttribute(SpellAttr2.DoNotResetCombatTimers))
                 return true;
 
@@ -3055,7 +3055,7 @@ public partial class Unit
             float overrideSp = thisPlayer.ActivePlayerData.OverrideSpellPowerByAPPercent;
 
             if (overrideSp > 0.0f)
-                return (MathFunctions.CalculatePct(GetTotalAttackPowerValue(WeaponAttackType.BaseAttack), overrideSp) + 0.5f);
+                return MathFunctions.CalculatePct(GetTotalAttackPowerValue(WeaponAttackType.BaseAttack), overrideSp) + 0.5f;
         }
 
         var advertisedBenefit = GetTotalAuraModifier(AuraType.ModHealingDone,
@@ -3083,7 +3083,7 @@ public partial class Unit
             foreach (var i in mHealingDoneOfStatPercent)
             {
                 // stat used dependent from misc value (stat index)
-                var usedStat = (Stats)(i.GetSpellEffectInfo().MiscValue);
+                var usedStat = (Stats)i.GetSpellEffectInfo().MiscValue;
                 advertisedBenefit += MathFunctions.CalculatePct(GetStat(usedStat), i.Amount);
             }
         }
@@ -3287,7 +3287,7 @@ public partial class Unit
 
             var attType = WeaponAttackType.BaseAttack;
 
-            if ((spellProto.IsRangedWeaponSpell && spellProto.DmgClass != SpellDmgClass.Melee))
+            if (spellProto.IsRangedWeaponSpell && spellProto.DmgClass != SpellDmgClass.Melee)
                 attType = WeaponAttackType.RangedAttack;
 
             if (spellProto.HasAttribute(SpellAttr3.RequiresOffHandWeapon) && !spellProto.HasAttribute(SpellAttr3.RequiresMainHandWeapon))
@@ -3320,7 +3320,7 @@ public partial class Unit
                 coeff /= 100.0f;
             }
 
-            doneTotal += (doneAdvertisedBenefit * coeff * stack);
+            doneTotal += doneAdvertisedBenefit * coeff * stack;
         }
 
         var tmpDamage = (pdamage + doneTotal) * doneTotalMod;
@@ -3549,11 +3549,11 @@ public partial class Unit
 
         if (spellEffectInfo.BonusCoefficientFromAp > 0.0f)
         {
-            var attType = (spellProto.IsRangedWeaponSpell && spellProto.DmgClass != SpellDmgClass.Melee) ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack;
+            var attType = spellProto.IsRangedWeaponSpell && spellProto.DmgClass != SpellDmgClass.Melee ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack;
             var aPbonus = victim.GetTotalAuraModifier(attType == WeaponAttackType.BaseAttack ? AuraType.MeleeAttackPowerAttackerBonus : AuraType.RangedAttackPowerAttackerBonus);
             aPbonus += GetTotalAttackPowerValue(attType);
 
-            doneTotal += (spellEffectInfo.BonusCoefficientFromAp * stack * aPbonus);
+            doneTotal += spellEffectInfo.BonusCoefficientFromAp * stack * aPbonus;
         }
         else if (coeff <= 0.0f) // no AP and no SP coefs, skip
         {
@@ -3906,7 +3906,7 @@ public partial class Unit
             else
             {
                 // update for casters, some shouldn't 'see' the aura state
-                var aStateMask = (1u << ((int)auraState - 1));
+                var aStateMask = 1u << ((int)auraState - 1);
 
                 if ((aStateMask & (uint)AuraStateType.PerCasterAuraStateMask) != 0)
                 {

@@ -19,7 +19,7 @@ public class PlayerSocial
     public bool AddToSocialList(ObjectGuid friendGuid, ObjectGuid accountGuid, SocialFlag flag)
     {
         // check client limits
-        if (GetNumberOfSocialsWithFlag(flag) >= (((flag & SocialFlag.Friend) != 0) ? SocialManager.FRIEND_LIMIT_MAX : SocialManager.IGNORE_LIMIT))
+        if (GetNumberOfSocialsWithFlag(flag) >= ((flag & SocialFlag.Friend) != 0 ? SocialManager.FRIEND_LIMIT_MAX : SocialManager.IGNORE_LIMIT))
             return false;
 
         if (PlayerSocialMap.TryGetValue(friendGuid, out var friendInfo))

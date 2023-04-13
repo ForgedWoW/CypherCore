@@ -190,7 +190,7 @@ internal class FollowerAI : ScriptedAI
                 }
 
                 var maxRangeExceeded = true;
-                var questAbandoned = (_questForFollow != 0);
+                var questAbandoned = _questForFollow != 0;
 
                 var player = GetLeaderForFollower();
 

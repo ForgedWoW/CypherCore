@@ -30,10 +30,10 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
     private readonly List<uint> _completedObjectives = new();
     private readonly Player _owner;
 
-    public QuestObjectiveCriteriaManager(Player owner, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager objectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
+    public QuestObjectiveCriteriaManager(Player owner, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager,
                                          DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration,
                                          LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager) :
-        base(criteriaManager, worldManager, objectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
+        base(criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
     {
         _owner = owner;
         _characterDatabase = characterDatabase;
@@ -70,7 +70,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
             return false;
         }
 
-        var quest = ObjectManager.GetQuestTemplate(objective.QuestID);
+        var quest = GameObjectManager.GetQuestTemplate(objective.QuestID);
 
         if (_owner.Group && _owner.Group.IsRaidGroup && !quest.IsAllowedInRaid(referencePlayer.Location.Map.DifficultyID))
         {
@@ -145,7 +145,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
             {
                 var objectiveId = objectiveResult.Read<uint>(0);
 
-                var objective = ObjectManager.GetQuestObjective(objectiveId);
+                var objective = GameObjectManager.GetQuestObjective(objectiveId);
 
                 if (objective == null)
                     continue;

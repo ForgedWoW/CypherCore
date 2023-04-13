@@ -120,7 +120,7 @@ public class VoidStorageHandler : IWorldSessionHandler
             return;
         }
 
-        if (!player.HasEnoughMoney((voidStorageTransfer.Deposits.Length * SharedConst.VoidStorageStoreItemCost)))
+        if (!player.HasEnoughMoney(voidStorageTransfer.Deposits.Length * SharedConst.VoidStorageStoreItemCost))
         {
             SendVoidStorageTransferResult(VoidTransferError.NotEnoughMoney);
 

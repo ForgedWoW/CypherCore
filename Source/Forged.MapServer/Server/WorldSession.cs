@@ -269,7 +269,7 @@ public class WorldSession : IDisposable
             var go = player.Location.Map.GetGameObject(lguid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-            if (go == null || ((go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
+            if (go == null || (go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole && !go.IsWithinDistInMap(player)))
                 return;
 
             if (loot.IsLooted() || go.GoType is GameObjectTypes.FishingNode or GameObjectTypes.FishingHole)
@@ -1022,7 +1022,7 @@ public class WorldSession : IDisposable
         var currentTime = GameTime.CurrentTime;
 
         //Check for any packets they was not recived yet.
-        while (Socket != null && !queue.IsEmpty && (queue.TryPeek(out var packet) && packet != firstDelayedPacket) && queue.TryDequeue(out packet))
+        while (Socket != null && !queue.IsEmpty && queue.TryPeek(out var packet) && packet != firstDelayedPacket && queue.TryDequeue(out packet))
         {
             try
             {
@@ -1445,6 +1445,6 @@ public class WorldSession : IDisposable
 
     private bool ShouldLogOut(long currTime)
     {
-        return (_logoutTime > 0 && currTime >= _logoutTime + 20);
+        return _logoutTime > 0 && currTime >= _logoutTime + 20;
     }
 }

@@ -17,6 +17,7 @@ using Forged.MapServer.Networking.Packets.Mail;
 using Forged.MapServer.Networking.Packets.NPC;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common;
 using Game.Common.Handlers;
 using Serilog;
 
@@ -171,14 +172,14 @@ public class MailHandler : IWorldSessionHandler
         if (m != null)
         {
             // delete shouldn't show up for COD mails
-            if (m.COD != 0)
+            if (m.Cod != 0)
             {
                 player.SendMailResult(mailDelete.MailID, MailResponseType.Deleted, MailResponseResult.InternalError);
 
                 return;
             }
 
-            m.state = MailState.Deleted;
+            m.State = MailState.Deleted;
         }
 
         player.SendMailResult(mailDelete.MailID, MailResponseType.Deleted, MailResponseResult.Ok);
@@ -237,10 +238,10 @@ public class MailHandler : IWorldSessionHandler
         // only return mail if the player exists (and delete if not existing)
         if (m.messageType == MailMessageType.Normal && m.sender != 0)
         {
-            MailDraft draft = new(m.subject, m.body);
+            var draft = _classFactory.ResolvePositional<MailDraft>(m.subject, m.body);
 
             if (m.mailTemplateId != 0)
-                draft = new MailDraft(m.mailTemplateId, false); // items already included
+                draft = _classFactory.ResolvePositional<MailDraft>(m.mailTemplateId, false); // items already included
 
             if (m.HasItems())
                 foreach (var itemInfo in m.items)
@@ -282,7 +283,7 @@ public class MailHandler : IWorldSessionHandler
         }
 
         // verify that the mail has the item to avoid cheaters taking COD items without paying
-        if (!Enumerable.Any<MailItemInfo>(m.items, p => p.item_guid == AttachID))
+        if (!Enumerable.Any<MailItemInfo>(m.items, p => p.ItemGUID == AttachID))
         {
             player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.InternalError);
 
@@ -351,9 +352,9 @@ public class MailHandler : IWorldSessionHandler
 
                 // check player existence
                 if (receiver || sender_accId != 0)
-                    new MailDraft(m.subject, "")
-                        .AddMoney(m.COD)
-                        .SendMailTo(trans, new MailReceiver(receiver, m.sender), new MailSender(MailMessageType.Normal, m.receiver), MailCheckMask.CodPayment);
+                    _classFactory.ResolvePositional<MailDraft>(m.subject, "")
+                                 .AddMoney(m.COD)
+                                 .SendMailTo(trans, new MailReceiver(receiver, m.sender), new MailSender(MailMessageType.Normal, m.receiver), MailCheckMask.CodPayment);
 
                 player.ModifyMoney(-(long)m.COD);
             }
@@ -389,7 +390,7 @@ public class MailHandler : IWorldSessionHandler
 
         var m = player.GetMail(takeMoney.MailID);
 
-        if ((m == null || m.state == MailState.Deleted || m.deliver_time > GameTime.CurrentTime) ||
+        if (m == null || m.state == MailState.Deleted || m.deliver_time > GameTime.CurrentTime ||
             (takeMoney.Money > 0 && m.money != takeMoney.Money))
         {
             player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.InternalError);
@@ -431,20 +432,20 @@ public class MailHandler : IWorldSessionHandler
 
             foreach (var mail in Player.Mails)
             {
-                if (Extensions.HasAnyFlag(mail.checkMask, MailCheckMask.Read))
+                if (Extensions.HasAnyFlag(mail.CheckMask, MailCheckMask.Read))
                     continue;
 
                 // and already delivered
-                if (now < mail.deliver_time)
+                if (now < mail.DeliverTime)
                     continue;
 
                 // only send each mail sender once
-                if (sentSenders.Any(p => p == mail.sender))
+                if (sentSenders.Any(p => p == mail.Sender))
                     continue;
 
                 result.Next.Add(new MailQueryNextTimeResult.MailNextTimeEntry(mail));
 
-                sentSenders.Add(mail.sender);
+                sentSenders.Add(mail.Sender);
 
                 // do not send more than 2 mails
                 if (sentSenders.Count > 2)
@@ -740,7 +741,7 @@ public class MailHandler : IWorldSessionHandler
 
             // will delete item or place to receiver mail list
             draft.AddMoney((ulong)sendMail.Info.SendMoney)
-                 .AddCOD((uint)sendMail.Info.Cod)
+                 .AddCod((uint)sendMail.Info.Cod)
                  .SendMailTo(trans, new MailReceiver(Global.ObjAccessor.FindConnectedPlayer(receiverGuid), receiverGuid.Counter), new MailSender(player), sendMail.Info.Body.IsEmpty() ? MailCheckMask.Copied : MailCheckMask.HasBody, deliver_delay);
 
             player.SaveInventoryAndGoldToDB(trans);

@@ -53,7 +53,7 @@ public partial class Creature
         var attackPower = GetTotalAttackPowerValue(attType, false);
         var attackSpeedMulti = Math.Max(GetApMultiplier(attType, normalized), 0.25f);
 
-        var baseValue = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + (attackPower / 3.5f) * variance;
+        var baseValue = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base) + attackPower / 3.5f * variance;
         var basePct = GetPctModifierValue(unitMod, UnitModifierPctType.Base) * attackSpeedMulti;
         var totalValue = GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
         var totalPct = addTotalPct ? GetPctModifierValue(unitMod, UnitModifierPctType.Total) : 1.0f;

@@ -269,9 +269,7 @@ internal class ChaseMovementGenerator : MovementGenerator
         if (target.MotionMaster.GetCurrentMovementGeneratorType() != MovementGeneratorType.Chase)
             return false;
 
-        var movement = target.MotionMaster.GetCurrentMovementGenerator() as ChaseMovementGenerator;
-
-        if (movement != null)
+        if (target.MotionMaster.GetCurrentMovementGenerator() is ChaseMovementGenerator movement)
             return movement.GetTarget() == owner;
 
         return false;

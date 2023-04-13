@@ -21,7 +21,7 @@ public struct ChaseAngle
     {
         var diff = Math.Abs(relAngle - RelativeAngle);
 
-        return (Math.Min(diff, (2 * MathF.PI) - diff) <= Tolerance);
+        return Math.Min(diff, 2 * MathF.PI - diff) <= Tolerance;
     }
 
     public float LowerBound()

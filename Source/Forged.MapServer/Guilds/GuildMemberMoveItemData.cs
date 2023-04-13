@@ -24,7 +24,7 @@ public class GuildMemberMoveItemData : GuildMoveItemData
         Item = Player.GetItemByPos(Container, SlotId);
 
         if (Item == null)
-            return (Item != null);
+            return Item != null;
 
         // Anti-WPE protection. Do not move non-empty bags to bank.
         if (Item.IsNotEmptyBag)
@@ -39,7 +39,7 @@ public class GuildMemberMoveItemData : GuildMoveItemData
             Item = null;
         }
 
-        return (Item != null);
+        return Item != null;
     }
 
     public override bool IsBank()

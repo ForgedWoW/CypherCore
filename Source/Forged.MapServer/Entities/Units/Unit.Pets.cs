@@ -31,7 +31,7 @@ public partial class Unit
         if (!pet.CreateBaseAtCreature(creatureTarget))
             return null;
 
-        var level = creatureTarget.GetLevelForTarget(this) + 5 < Level ? (Level - 5) : creatureTarget.GetLevelForTarget(this);
+        var level = creatureTarget.GetLevelForTarget(this) + 5 < Level ? Level - 5 : creatureTarget.GetLevelForTarget(this);
 
         if (!InitTamedPet(pet, level, spellID))
         {

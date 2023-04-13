@@ -180,7 +180,7 @@ internal class RingofValorArena : Arena
             {
                 if (i >= RingofValorObjectTypes.PILAR_COLLISION1)
                 {
-                    var state = ((go.Template.Door.startOpen != 0) == enable) ? GameObjectState.Active : GameObjectState.Ready;
+                    var state = go.Template.Door.startOpen != 0 == enable ? GameObjectState.Active : GameObjectState.Ready;
                     go.SetGoState(state);
                 }
 

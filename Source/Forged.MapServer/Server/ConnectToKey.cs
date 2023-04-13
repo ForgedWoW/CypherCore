@@ -15,12 +15,12 @@ public struct ConnectToKey
 
     public ulong Raw
     {
-        get { return (AccountId | ((ulong)connectionType << 32) | (Key << 33)); }
+        get { return AccountId | ((ulong)connectionType << 32) | (Key << 33); }
         set
         {
             AccountId = (uint)(value & 0xFFFFFFFF);
             connectionType = (ConnectionType)((value >> 32) & 1);
-            Key = (value >> 33);
+            Key = value >> 33;
         }
     }
 }

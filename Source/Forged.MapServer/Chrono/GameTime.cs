@@ -19,7 +19,7 @@ public class GameTime
 
     public static DateTime SystemTime { get; private set; } = DateTime.MinValue;
 
-    public static long Uptime => (CurrentTime - StartTime);
+    public static long Uptime => CurrentTime - StartTime;
 
     public static long GetStartTime()
     {

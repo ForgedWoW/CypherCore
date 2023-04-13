@@ -22,7 +22,7 @@ public class BlackMarketEntry
     public ulong CurrentBid { get; private set; }
     public bool MailSent { get; private set; }
     public uint MarketId { get; private set; }
-    public ulong MinIncrement => CurrentBid / 20 - (CurrentBid / 20) % MoneyConstants.Gold;
+    public ulong MinIncrement => CurrentBid / 20 - CurrentBid / 20 % MoneyConstants.Gold;
     public uint NumBids { get; private set; }
 
     public BlackMarketEntry(CharacterDatabase characterDatabase, BlackMarketManager blackMarketManager, CharacterCache characterCache)

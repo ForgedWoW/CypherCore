@@ -27,6 +27,7 @@ using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
@@ -808,7 +809,7 @@ public partial class Player
             if (!quest.IsAutoComplete || !CanTakeQuest(quest, false) || !quest.IsRepeatable || quest.IsDailyOrWeekly || quest.IsMonthly)
                 continue;
 
-            if (Level <= (GetQuestLevel(quest) + Configuration.GetDefaultValue("Quests.LowLevelHideDiff", 4)))
+            if (Level <= GetQuestLevel(quest) + Configuration.GetDefaultValue("Quests.LowLevelHideDiff", 4))
                 result |= QuestGiverStatus.RepeatableTurnin;
             else
                 result |= QuestGiverStatus.TrivialRepeatableTurnin;
@@ -832,7 +833,7 @@ public partial class Player
 
             if (SatisfyQuestLevel(quest, false))
             {
-                if (Level <= (GetQuestLevel(quest) + Configuration.GetDefaultValue("Quests.LowLevelHideDiff", 4)))
+                if (Level <= GetQuestLevel(quest) + Configuration.GetDefaultValue("Quests.LowLevelHideDiff", 4))
                 {
                     if (quest.QuestTag == QuestTagType.CovenantCalling)
                         result |= QuestGiverStatus.CovenantCallingQuest;
@@ -1858,9 +1859,9 @@ public partial class Player
             var questMailSender = quest.RewardMailSenderEntry;
 
             if (questMailSender != 0)
-                new MailDraft(mailTemplateID).SendMailTo(trans, this, new MailSender(questMailSender), MailCheckMask.HasBody, quest.RewardMailDelay);
+                ClassFactory.ResolvePositional<MailDraft>(mailTemplateID, true).SendMailTo(trans, this, new MailSender(questMailSender), MailCheckMask.HasBody, quest.RewardMailDelay);
             else
-                new MailDraft(mailTemplateID).SendMailTo(trans, this, new MailSender(questGiver), MailCheckMask.HasBody, quest.RewardMailDelay);
+                ClassFactory.ResolvePositional<MailDraft>(mailTemplateID, true).SendMailTo(trans, this, new MailSender(questGiver), MailCheckMask.HasBody, quest.RewardMailDelay);
 
             CharacterDatabase.CommitTransaction(trans);
         }
@@ -2888,7 +2889,7 @@ public partial class Player
 
                     var currentProgress = GetQuestSlotObjectiveData(logSlot, objective);
 
-                    if (addCount > 0 ? (currentProgress < objective.Amount) : (currentProgress > 0))
+                    if (addCount > 0 ? currentProgress < objective.Amount : currentProgress > 0)
                     {
                         var newProgress = (int)Math.Clamp(currentProgress + addCount, 0, objective.Amount);
                         SetQuestObjectiveData(objective, newProgress);
@@ -3063,7 +3064,7 @@ public partial class Player
     private bool GetQuestSlotObjectiveFlag(ushort slot, sbyte objectiveIndex)
     {
         if (objectiveIndex < SharedConst.MaxQuestCounts)
-            return ((PlayerData.QuestLog[slot].ObjectiveFlags) & (1 << objectiveIndex)) != 0;
+            return (PlayerData.QuestLog[slot].ObjectiveFlags & (1 << objectiveIndex)) != 0;
 
         return false;
     }

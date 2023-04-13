@@ -211,7 +211,7 @@ public class Channel
 
     public bool CheckPassword(string password)
     {
-        return _channelPassword.IsEmpty() || (_channelPassword == password);
+        return _channelPassword.IsEmpty() || _channelPassword == password;
     }
 
     public void DeclineInvite(Player player) { }

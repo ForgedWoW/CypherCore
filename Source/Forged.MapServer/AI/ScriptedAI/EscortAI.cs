@@ -425,7 +425,7 @@ public class EscortAI : ScriptedAI
                     var creatureData = Me.CreatureData;
 
                     if (creatureData != null)
-                        isEscort = (Me.Configuration.GetDefaultValue("Respawn.DynamicEscortNPC", false) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
+                        isEscort = Me.Configuration.GetDefaultValue("Respawn.DynamicEscortNPC", false) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc);
 
                     if (_instantRespawn)
                     {

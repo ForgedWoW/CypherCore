@@ -56,13 +56,13 @@ public class GModelRayCallback : WorkerCallback
         var q = Vector3.Cross(s, e1);
         var v = f * Vector3.Dot(ray.Direction, q);
 
-        if ((v < 0.0f) || ((u + v) > 1.0f))
+        if (v < 0.0f || u + v > 1.0f)
             // We hit the plane of the triangle, but outside the triangle
             return false;
 
         var t = f * Vector3.Dot(e2, q);
 
-        if ((!(t > 0.0f)) || (!(t < distance)))
+        if (!(t > 0.0f) || !(t < distance))
             return false;
 
         // This is a new hit, closer than the previous one

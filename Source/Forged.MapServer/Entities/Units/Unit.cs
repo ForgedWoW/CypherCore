@@ -434,7 +434,7 @@ public partial class Unit : WorldObject
         if (seatId == MovementInfo.Transport.Seat)
             return;
 
-        var seat = (seatId < 0 ? Vehicle.GetNextEmptySeat(MovementInfo.Transport.Seat, next) : Vehicle.Seats.LookupByKey(seatId));
+        var seat = seatId < 0 ? Vehicle.GetNextEmptySeat(MovementInfo.Transport.Seat, next) : Vehicle.Seats.LookupByKey(seatId);
 
         // The second part of the check will only return true if seatId >= 0. @Vehicle.GetNextEmptySeat makes sure of that.
         if (seat == null || !seat.IsEmpty())
@@ -1044,7 +1044,7 @@ public partial class Unit : WorldObject
             modOwner?.ApplySpellMod(spellProto, SpellModOp.ProcFrequency, ref ppm);
         }
 
-        return (float)Math.Floor((weaponSpeed * ppm) / 600.0f); // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
+        return (float)Math.Floor(weaponSpeed * ppm / 600.0f); // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
     }
 
     public List<Player> GetSharedVisionList()
@@ -1541,7 +1541,7 @@ public partial class Unit : WorldObject
         else
             takenFlatBenefit += GetTotalAuraModifier(AuraType.ModRangedDamageTaken);
 
-        if ((takenFlatBenefit < 0) && (pdamage < -takenFlatBenefit))
+        if (takenFlatBenefit < 0 && pdamage < -takenFlatBenefit)
             return 0;
 
         // Taken total percent damage auras
@@ -1563,13 +1563,13 @@ public partial class Unit : WorldObject
 
             // Shred, Maul - "Effects which increase Bleed damage also increase Shred damage"
             if (spellProto.SpellFamilyName == SpellFamilyNames.Druid && spellProto.SpellFamilyFlags[0].HasAnyFlag(0x00008800u))
-                mechanicMask |= (1 << (int)Mechanics.Bleed);
+                mechanicMask |= 1 << (int)Mechanics.Bleed;
 
             if (mechanicMask != 0)
                 takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMechanicDamageTakenPercent,
                                                         aurEff =>
                                                         {
-                                                            if ((mechanicMask & (1ul << (aurEff.MiscValue))) != 0)
+                                                            if ((mechanicMask & (1ul << aurEff.MiscValue)) != 0)
                                                                 return true;
 
                                                             return false;
@@ -2709,12 +2709,12 @@ public partial class Unit : WorldObject
 
     public TempSummon ToTempSummon()
     {
-        return IsSummon ? (this as TempSummon) : null;
+        return IsSummon ? this as TempSummon : null;
     }
 
     public Totem ToTotem()
     {
-        return IsTotem ? (this as Totem) : null;
+        return IsTotem ? this as Totem : null;
     }
 
     public bool TryGetAI(out IUnitAI ai)
@@ -2797,17 +2797,17 @@ public partial class Unit : WorldObject
             var baseAtt = GetAttackTimer(WeaponAttackType.BaseAttack);
 
             if (baseAtt != 0)
-                SetAttackTimer(WeaponAttackType.BaseAttack, (diff >= baseAtt ? 0 : baseAtt - diff));
+                SetAttackTimer(WeaponAttackType.BaseAttack, diff >= baseAtt ? 0 : baseAtt - diff);
 
             var rangedAtt = GetAttackTimer(WeaponAttackType.RangedAttack);
 
             if (rangedAtt != 0)
-                SetAttackTimer(WeaponAttackType.RangedAttack, (diff >= rangedAtt ? 0 : rangedAtt - diff));
+                SetAttackTimer(WeaponAttackType.RangedAttack, diff >= rangedAtt ? 0 : rangedAtt - diff);
 
             var offAtt = GetAttackTimer(WeaponAttackType.OffAttack);
 
             if (offAtt != 0)
-                SetAttackTimer(WeaponAttackType.OffAttack, (diff >= offAtt ? 0 : offAtt - diff));
+                SetAttackTimer(WeaponAttackType.OffAttack, diff >= offAtt ? 0 : offAtt - diff);
         }
 
         // update abilities available only for fraction of time

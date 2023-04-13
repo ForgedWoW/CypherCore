@@ -421,7 +421,7 @@ public class SpellEffectInfo
         {
             var level = _spellInfo.SpellLevel;
 
-            if (target && _spellInfo.IsPositiveEffect(EffectIndex) && (Effect == SpellEffectName.ApplyAura))
+            if (target && _spellInfo.IsPositiveEffect(EffectIndex) && Effect == SpellEffectName.ApplyAura)
                 level = target.Level;
             else if (caster is { IsUnit: true })
                 level = caster.AsUnit.Level;

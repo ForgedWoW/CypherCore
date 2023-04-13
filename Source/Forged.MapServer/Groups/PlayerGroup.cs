@@ -100,7 +100,7 @@ public class PlayerGroup
     public bool IsBfGroup => _bfGroup != null;
     public bool IsBGGroup => _bgGroup != null;
     public bool IsCreated => MembersCount > 0;
-    public bool IsFull => IsRaidGroup ? (MemberSlots.Count >= MapConst.MaxRaidSize) : (MemberSlots.Count >= MapConst.MaxGroupSize);
+    public bool IsFull => IsRaidGroup ? MemberSlots.Count >= MapConst.MaxRaidSize : MemberSlots.Count >= MapConst.MaxGroupSize;
     public bool IsLFGGroup => GroupFlags.HasAnyFlag(GroupFlags.Lfg);
     public bool IsRaidGroup => GroupFlags.HasAnyFlag(GroupFlags.Raid);
     public bool IsReadyCheckStarted { get; private set; }
@@ -318,7 +318,7 @@ public class PlayerGroup
         if (markerId >= MapConst.RaidMarkersCount || _markers[markerId] != null)
             return;
 
-        _activeMarkers |= (1u << markerId);
+        _activeMarkers |= 1u << markerId;
         _markers[markerId] = new RaidMarker(mapId, positionX, positionY, positionZ, transportGuid);
         SendRaidMarkersChanged();
     }
@@ -332,7 +332,7 @@ public class PlayerGroup
             if (player == null || (!ignore.IsEmpty && player.GUID == ignore) || (ignorePlayersInBGRaid && player.Group != this))
                 continue;
 
-            if ((group != -1 && refe.SubGroup != group))
+            if (group != -1 && refe.SubGroup != group)
                 continue;
 
             if (player.Session.IsAddonRegistered(prefix))
@@ -613,7 +613,7 @@ public class PlayerGroup
 
     public void ConvertToLFG()
     {
-        GroupFlags = (GroupFlags | GroupFlags.Lfg | GroupFlags.LfgRestricted);
+        GroupFlags = GroupFlags | GroupFlags.Lfg | GroupFlags.LfgRestricted;
         GroupCategory = GroupCategory.Instance;
         LootMethod = LootMethod.PersonalLoot;
 
@@ -882,7 +882,7 @@ public class PlayerGroup
 
     public bool HasFreeSlotSubGroup(byte subgroup)
     {
-        return (_subGroupsCounts != null && _subGroupsCounts[subgroup] < MapConst.MaxGroupSize);
+        return _subGroupsCounts != null && _subGroupsCounts[subgroup] < MapConst.MaxGroupSize;
     }
 
     public bool IsAssistant(ObjectGuid guid)
@@ -1025,7 +1025,7 @@ public class PlayerGroup
             return MemberSlots.Count != 0;
 
         // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
-        if (MembersCount > ((IsBGGroup || IsLFGGroup || IsBfGroup) ? 1 : 2))
+        if (MembersCount > (IsBGGroup || IsLFGGroup || IsBfGroup ? 1 : 2))
         {
             if (player != null)
             {
@@ -1096,7 +1096,7 @@ public class PlayerGroup
                 }
             }
 
-            if (_memberMgr.GetSize() < ((IsLFGGroup || IsBGGroup) ? 1 : 2))
+            if (_memberMgr.GetSize() < (IsLFGGroup || IsBGGroup ? 1 : 2))
                 Disband();
             else if (player != null)
                 // send update to removed player too so party frames are destroyed clientside
@@ -1172,7 +1172,7 @@ public class PlayerGroup
         if (mslot1 == null || slot2 == null)
             return false;
 
-        return (mslot1.Group == slot2.Group);
+        return mslot1.Group == slot2.Group;
     }
 
     public void SendRaidMarkersChanged(WorldSession session = null, sbyte partyIndex = 0)

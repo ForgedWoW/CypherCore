@@ -312,7 +312,7 @@ public class BgStrandOfAncients : Battleground
                     _roundScores[0].Time = SaTimers.ROUND_LENGTH;
                     _totalTime = 0;
                     _status = SaStatus.SecondWarmup;
-                    _attackers = (_attackers == TeamIds.Alliance) ? TeamIds.Horde : TeamIds.Alliance;
+                    _attackers = _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance;
                     _updateWaitTimer = 5000;
                     _signaledRoundTwo = false;
                     _signaledRoundTwoHalfMin = false;
@@ -331,7 +331,7 @@ public class BgStrandOfAncients : Battleground
                     CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
                     CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Horde);
                     _roundScores[1].Time = SaTimers.ROUND_LENGTH;
-                    _roundScores[1].Winner = (uint)((_attackers == TeamIds.Alliance) ? TeamIds.Horde : TeamIds.Alliance);
+                    _roundScores[1].Winner = (uint)(_attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance);
 
                     if (_roundScores[0].Time == _roundScores[1].Time)
                         EndBattleground(0);
@@ -463,7 +463,7 @@ public class BgStrandOfAncients : Battleground
     public override void Reset()
     {
         _totalTime = 0;
-        _attackers = (RandomHelper.URand(0, 1) != 0 ? TeamIds.Alliance : TeamIds.Horde);
+        _attackers = RandomHelper.URand(0, 1) != 0 ? TeamIds.Alliance : TeamIds.Horde;
 
         for (byte i = 0; i <= 5; i++)
             _gateStatus[i] = SaGateState.HordeGateOk;
@@ -556,7 +556,7 @@ public class BgStrandOfAncients : Battleground
                 DelObject(flag);
 
                 AddObject(flag,
-                          (SaMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u)),
+                          SaMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u),
                           SaMiscConst.ObjSpawnlocs[flag],
                           0,
                           0,
@@ -572,7 +572,7 @@ public class BgStrandOfAncients : Battleground
 
                 for (byte j = SaCreatureTypes.DEMOLISHER7; j <= SaCreatureTypes.DEMOLISHER8; j++)
                 {
-                    AddCreature(SaMiscConst.NpcEntries[j], j, SaMiscConst.NpcSpawnlocs[j], (_attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance), 600);
+                    AddCreature(SaMiscConst.NpcEntries[j], j, SaMiscConst.NpcSpawnlocs[j], _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance, 600);
                     var dem = GetBGCreature(j);
 
                     if (dem)
@@ -595,7 +595,7 @@ public class BgStrandOfAncients : Battleground
                 DelObject(flag);
 
                 AddObject(flag,
-                          (SaMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u)),
+                          SaMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u),
                           SaMiscConst.ObjSpawnlocs[flag],
                           0,
                           0,
@@ -635,7 +635,7 @@ public class BgStrandOfAncients : Battleground
                 DelObject(flag);
 
                 AddObject(flag,
-                          (SaMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u)),
+                          SaMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u),
                           SaMiscConst.ObjSpawnlocs[flag],
                           0,
                           0,
@@ -848,7 +848,7 @@ public class BgStrandOfAncients : Battleground
             }
             else
             {
-                _graveyardStatus[i] = ((_attackers == TeamIds.Horde) ? TeamIds.Alliance : TeamIds.Horde);
+                _graveyardStatus[i] = _attackers == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde;
 
                 if (!AddSpiritGuide(i + SaCreatureTypes.MAX, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SaMiscConst.GYOrientation[i], _attackers == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde))
                     Log.Logger.Error($"SOTA: couldn't spawn GY: {i}");
@@ -858,7 +858,7 @@ public class BgStrandOfAncients : Battleground
         //GY capture points
         for (byte i = SaObjectTypes.CENTRAL_FLAG; i <= SaObjectTypes.LEFT_FLAG; i++)
         {
-            if (!AddObject(i, (SaMiscConst.ObjEntries[i] - (_attackers == TeamIds.Alliance ? 1u : 0)), SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
+            if (!AddObject(i, SaMiscConst.ObjEntries[i] - (_attackers == TeamIds.Alliance ? 1u : 0), SaMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
             {
                 Log.Logger.Error($"SOTA: couldn't spawn Central Flag Entry: {SaMiscConst.ObjEntries[i] - (_attackers == TeamIds.Alliance ? 1 : 0)}");
 
@@ -1090,7 +1090,7 @@ public class BgStrandOfAncients : Battleground
                                 player.UpdateCriteria(CriteriaType.BeSpellTarget, 65246);
                     }
 
-                    _attackers = (_attackers == TeamIds.Alliance) ? TeamIds.Horde : TeamIds.Alliance;
+                    _attackers = _attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance;
                     _status = SaStatus.SecondWarmup;
                     _totalTime = 0;
                     ToggleTimer();

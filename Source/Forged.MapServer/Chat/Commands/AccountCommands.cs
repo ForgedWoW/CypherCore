@@ -174,10 +174,10 @@ internal class AccountCommands
         uint pwConfig = 0; // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
 
         handler.SendSysMessage(CypherStrings.AccountSecType,
-                               (pwConfig == 0 ? "Lowest level: No Email input required." :
-                                pwConfig == 1 ? "Highest level: Email input required." :
-                                pwConfig == 2 ? "Special level: Your account may require email input depending on settings. That is the case if another lien is printed." :
-                                                "Unknown security level: Notify technician for details."));
+                               pwConfig == 0 ? "Lowest level: No Email input required." :
+                               pwConfig == 1 ? "Highest level: Email input required." :
+                               pwConfig == 2 ? "Special level: Your account may require email input depending on settings. That is the case if another lien is printed." :
+                                               "Unknown security level: Notify technician for details.");
 
         // RBAC required display - is not displayed for console
         if (pwConfig == 2 && hasRBAC)

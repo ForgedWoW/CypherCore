@@ -198,9 +198,9 @@ public class BattlegroundQueue
                                       qMinLevel,
                                       qMaxLevel,
                                       qAlliance,
-                                      (minPlayers > qAlliance) ? minPlayers - qAlliance : 0,
+                                      minPlayers > qAlliance ? minPlayers - qAlliance : 0,
                                       qHorde,
-                                      (minPlayers > qHorde) ? minPlayers - qHorde : 0);
+                                      minPlayers > qHorde ? minPlayers - qHorde : 0);
             // System message
             else
                 _worldManager.SendWorldText(CypherStrings.BgQueueAnnounceWorld,
@@ -208,9 +208,9 @@ public class BattlegroundQueue
                                             qMinLevel,
                                             qMaxLevel,
                                             qAlliance,
-                                            (minPlayers > qAlliance) ? minPlayers - qAlliance : 0,
+                                            minPlayers > qAlliance ? minPlayers - qAlliance : 0,
                                             qHorde,
-                                            (minPlayers > qHorde) ? minPlayers - qHorde : 0);
+                                            minPlayers > qHorde ? minPlayers - qHorde : 0);
             //release mutex
         }
 
@@ -383,7 +383,7 @@ public class BattlegroundQueue
             }
 
             //set rating range
-            var arenaMinRating = (arenaRating <= _battlegroundManager.GetMaxRatingDifference()) ? 0 : arenaRating - _battlegroundManager.GetMaxRatingDifference();
+            var arenaMinRating = arenaRating <= _battlegroundManager.GetMaxRatingDifference() ? 0 : arenaRating - _battlegroundManager.GetMaxRatingDifference();
             var arenaMaxRating = arenaRating + _battlegroundManager.GetMaxRatingDifference();
             // if max rating difference is set and the time past since server startup is greater than the rating discard time
             // (after what time the ratings aren't taken into account when making teams) then
@@ -482,7 +482,7 @@ public class BattlegroundQueue
 
         //check if there is enought values(we always add values > 0)
         if (_waitTimes[teamIndex][(int)bracketId][SharedConst.CountOfPlayersToAverageWaitTime - 1] != 0)
-            return (_sumOfWaitTimes[teamIndex][(int)bracketId] / SharedConst.CountOfPlayersToAverageWaitTime);
+            return _sumOfWaitTimes[teamIndex][(int)bracketId] / SharedConst.CountOfPlayersToAverageWaitTime;
         else
             //if there aren't enough values return 0 - not available
             return 0;
@@ -509,7 +509,7 @@ public class BattlegroundQueue
     {
         var queueInfo = _queuedPlayers.LookupByKey(plGUID);
 
-        return (queueInfo != null && queueInfo.GroupInfo.IsInvitedToBGInstanceGUID == bgInstanceGuid && queueInfo.GroupInfo.RemoveInviteTime == removeTime);
+        return queueInfo != null && queueInfo.GroupInfo.IsInvitedToBGInstanceGUID == bgInstanceGuid && queueInfo.GroupInfo.RemoveInviteTime == removeTime;
     }
 
     //remove player from queue and from group info, if group info is empty then remove it too
@@ -536,7 +536,7 @@ public class BattlegroundQueue
         // mostly people with the highest levels are in Battlegrounds, thats why
         // we count from MAX_Battleground_QUEUES - 1 to 0
 
-        var index = (group.Team == TeamFaction.Horde) ? BattlegroundConst.BgQueuePremadeHorde : BattlegroundConst.BgQueuePremadeAlliance;
+        var index = group.Team == TeamFaction.Horde ? BattlegroundConst.BgQueuePremadeHorde : BattlegroundConst.BgQueuePremadeAlliance;
 
         for (var bracketIDTmp = (int)BattlegroundBracketId.Max - 1; bracketIDTmp >= 0 && bracketID == -1; --bracketIDTmp)
         {
@@ -684,7 +684,7 @@ public class BattlegroundQueue
         if (_configuration.GetDefaultValue("Battleground.InvitationType", 0) != (int)BattlegroundQueueInvitationType.NoBalance && _selectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers && _selectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers)
         {
             //we will try to invite more groups to team with less players indexed by j
-            ++(teamIndex[j]); //this will not cause a crash, because for cycle above reached break;
+            ++teamIndex[j]; //this will not cause a crash, because for cycle above reached break;
 
             for (; teamIndex[j] != _queuedGroups[(int)bracketID][BattlegroundConst.BgQueueNormalAlliance + j].Count; ++teamIndex[j])
             {
@@ -928,7 +928,7 @@ public class BattlegroundQueue
             {
                 //kick alliance group, add to pool new group if needed
                 if (_selectionPools[TeamIds.Alliance].KickGroup((uint)(diffHorde - diffAli)))
-                    for (; alyIndex < aliCount && _selectionPools[TeamIds.Alliance].AddGroup(_queuedGroups[(int)bracketID][BattlegroundConst.BgQueueNormalAlliance][alyIndex], (uint)((aliFree >= diffHorde) ? aliFree - diffHorde : 0)); alyIndex++)
+                    for (; alyIndex < aliCount && _selectionPools[TeamIds.Alliance].AddGroup(_queuedGroups[(int)bracketID][BattlegroundConst.BgQueueNormalAlliance][alyIndex], (uint)(aliFree >= diffHorde ? aliFree - diffHorde : 0)); alyIndex++)
                         ++alyIndex;
 
                 //if ali selection is already empty, then kick horde group, but if there are less horde than ali in bg - break;
@@ -944,7 +944,7 @@ public class BattlegroundQueue
             {
                 //kick horde group, add to pool new group if needed
                 if (_selectionPools[TeamIds.Horde].KickGroup((uint)(diffAli - diffHorde)))
-                    for (; hordeIndex < hordeCount && _selectionPools[TeamIds.Horde].AddGroup(_queuedGroups[(int)bracketID][BattlegroundConst.BgQueueNormalHorde][hordeIndex], (uint)((hordeFree >= diffAli) ? hordeFree - diffAli : 0)); hordeIndex++)
+                    for (; hordeIndex < hordeCount && _selectionPools[TeamIds.Horde].AddGroup(_queuedGroups[(int)bracketID][BattlegroundConst.BgQueueNormalHorde][hordeIndex], (uint)(hordeFree >= diffAli ? hordeFree - diffAli : 0)); hordeIndex++)
                         ++hordeIndex;
 
                 if (_selectionPools[TeamIds.Horde].GetPlayerCount() == 0)

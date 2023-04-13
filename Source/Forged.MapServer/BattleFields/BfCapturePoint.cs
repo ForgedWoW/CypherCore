@@ -91,7 +91,7 @@ public class BfCapturePoint
             return _activePlayers[player.TeamId].Add(player.GUID);
 
         player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldState1, 1);
-        player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate2, (uint)(Math.Ceiling((_value + _maxValue) / (2 * _maxValue) * 100.0f)));
+        player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate2, (uint)Math.Ceiling((_value + _maxValue) / (2 * _maxValue) * 100.0f));
         player.SendUpdateWorldState(capturePoint.Template.ControlZone.worldstate3, _neutralValuePct);
 
         return _activePlayers[player.TeamId].Add(player.GUID);

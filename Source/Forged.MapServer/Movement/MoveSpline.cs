@@ -193,7 +193,7 @@ public class MoveSpline
             var point = PointIdxOffset + PointIdx - Spline.First() + (Finalized() ? 1 : 0);
 
             if (IsCyclic())
-                point %= (Spline.Last() - Spline.First());
+                point %= Spline.Last() - Spline.First();
 
             return point;
         }
@@ -261,7 +261,7 @@ public class MoveSpline
         EffectStartTime = 0;
         SpellEffectExtra = args.SpellEffectExtra;
         AnimTier = args.AnimTier;
-        SplineIsFacingOnly = args.Path.Count == 2 && args.Facing.Type != MonsterMoveType.Normal && ((args.Path[1] - args.Path[0]).Length() < 0.1f);
+        SplineIsFacingOnly = args.Path.Count == 2 && args.Facing.Type != MonsterMoveType.Normal && (args.Path[1] - args.Path[0]).Length() < 0.1f;
 
         Velocity = args.Velocity;
 

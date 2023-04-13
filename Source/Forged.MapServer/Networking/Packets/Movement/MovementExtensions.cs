@@ -247,9 +247,9 @@ public static class MovementExtensions
                     tmp.Y *= mult;
                     tmp.Z *= mult;
 
-                    var minLengthSquared = (tmp.X * tmp.X * 0.04f) +
-                                           (tmp.Y * tmp.Y * 0.04f) +
-                                           (tmp.Z * tmp.Z * 0.04f);
+                    var minLengthSquared = tmp.X * tmp.X * 0.04f +
+                                           tmp.Y * tmp.Y * 0.04f +
+                                           tmp.Z * tmp.Z * 0.04f;
 
                     if (lengthSquared > minLengthSquared)
                         direction = new Vector3(tmp.X, tmp.Y, tmp.Z);

@@ -818,7 +818,7 @@ public class ArenaTeam
         // 'Chance' calculation - to beat the opponent
         // This is a simulation. Not much info on how it really works
         var chance = GetChanceAgainst(ownRating, opponentRating);
-        var wonMod = (won) ? 1.0f : 0.0f;
+        var wonMod = won ? 1.0f : 0.0f;
         var mod = wonMod - chance;
 
         // Work in progress:
@@ -858,7 +858,7 @@ public class ArenaTeam
                 if (ownRating < 1000)
                     mod = winRatingModifier1 * (1.0f - chance);
                 else
-                    mod = ((winRatingModifier1 / 2.0f) + ((winRatingModifier1 / 2.0f) * (1300.0f - ownRating) / 300.0f)) * (1.0f - chance);
+                    mod = (winRatingModifier1 / 2.0f + winRatingModifier1 / 2.0f * (1300.0f - ownRating) / 300.0f) * (1.0f - chance);
             }
             else
             {
@@ -867,7 +867,7 @@ public class ArenaTeam
         }
         else
         {
-            mod = GetDefaultValue("Arena.ArenaLoseRatingModifier", 24.0f) * (-chance);
+            mod = GetDefaultValue("Arena.ArenaLoseRatingModifier", 24.0f) * -chance;
         }
 
         return (int)Math.Ceiling(mod);

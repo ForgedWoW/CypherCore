@@ -90,7 +90,7 @@ public class ItemTemplate
     public uint MaxDurability { get; set; }
     public uint MaxMoneyLoot { get; set; }
 
-    public uint MaxStackSize => ExtendedData.Stackable is 2147483647 or <= 0 ? (0x7FFFFFFF - 1) : ExtendedData.Stackable;
+    public uint MaxStackSize => ExtendedData.Stackable is 2147483647 or <= 0 ? 0x7FFFFFFF - 1 : ExtendedData.Stackable;
 
     public uint MinMoneyLoot { get; set; }
 

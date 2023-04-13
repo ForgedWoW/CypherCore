@@ -25,7 +25,7 @@ public class ObjectGuidFactory
 
     public static ObjectGuid CreateClubFinder(uint realmId, byte type, uint clubFinderId, ulong dbId)
     {
-        return new ObjectGuid(((ulong)HighGuid.ClubFinder << 58) | (type == 1 ? ((ulong)(GetRealmIdForObjectGuid(realmId) & 0x1FFF) << 42) : 0ul) | ((ulong)(type & 0xFF) << 33) | clubFinderId & 0xFFFFFFFF, dbId);
+        return new ObjectGuid(((ulong)HighGuid.ClubFinder << 58) | (type == 1 ? (ulong)(GetRealmIdForObjectGuid(realmId) & 0x1FFF) << 42 : 0ul) | ((ulong)(type & 0xFF) << 33) | clubFinderId & 0xFFFFFFFF, dbId);
     }
 
     public static ObjectGuid CreateGlobal(HighGuid type, ulong dbIdHigh, ulong dbId)
@@ -40,7 +40,7 @@ public class ObjectGuidFactory
 
     public static ObjectGuid CreateItem(uint realmId, ulong dbId)
     {
-        return new ObjectGuid(((ulong)(HighGuid.Item) << 58) | ((ulong)(GetRealmIdForObjectGuid(realmId)) << 42), dbId);
+        return new ObjectGuid(((ulong)HighGuid.Item << 58) | ((ulong)GetRealmIdForObjectGuid(realmId) << 42), dbId);
     }
 
     public static ObjectGuid CreateLFGList(byte arg1, ulong counter)
@@ -65,7 +65,7 @@ public class ObjectGuidFactory
 
     public static ObjectGuid CreatePlayer(uint realmId, ulong dbId)
     {
-        return new ObjectGuid(((ulong)HighGuid.Player << 58) | ((ulong)(GetRealmIdForObjectGuid(realmId)) << 42), dbId);
+        return new ObjectGuid(((ulong)HighGuid.Player << 58) | ((ulong)GetRealmIdForObjectGuid(realmId) << 42), dbId);
     }
 
     public static ObjectGuid CreateToolsClient(uint mapId, uint serverId, ulong counter)
@@ -94,7 +94,7 @@ public class ObjectGuidFactory
 
     public static ObjectGuid CreateWorldObject(HighGuid type, byte subType, uint realmId, ushort mapId, uint serverId, uint entry, ulong counter)
     {
-        return new ObjectGuid(((ulong)type << 58) | ((ulong)(GetRealmIdForObjectGuid(realmId) & 0x1FFF) << 42) | ((ulong)(mapId & 0x1FFF) << 29) | ((ulong)(entry & 0x7FFFFF) << 6) | ((ulong)(subType) & 0x3F), ((ulong)(serverId & 0xFFFFFF) << 40) | (counter & 0xFFFFFFFFFF));
+        return new ObjectGuid(((ulong)type << 58) | ((ulong)(GetRealmIdForObjectGuid(realmId) & 0x1FFF) << 42) | ((ulong)(mapId & 0x1FFF) << 29) | ((ulong)(entry & 0x7FFFFF) << 6) | ((ulong)subType & 0x3F), ((ulong)(serverId & 0xFFFFFF) << 40) | (counter & 0xFFFFFFFFFF));
     }
     private static uint GetRealmIdForObjectGuid(uint realmId)
     {

@@ -762,8 +762,8 @@ public class TradeHandler : IWorldSessionHandler
         {
             List<ItemPosCount> traderDst = new();
             List<ItemPosCount> playerDst = new();
-            var traderCanTrade = (myItems[i] == null || trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, myItems[i]) == InventoryResult.Ok);
-            var playerCanTrade = (hisItems[i] == null || Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, hisItems[i]) == InventoryResult.Ok);
+            var traderCanTrade = myItems[i] == null || trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, myItems[i]) == InventoryResult.Ok;
+            var playerCanTrade = hisItems[i] == null || Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, hisItems[i]) == InventoryResult.Ok;
 
             if (traderCanTrade && playerCanTrade)
             {

@@ -17,7 +17,7 @@ public class PetStable
 
     public uint? GetCurrentActivePetIndex()
     {
-        return CurrentPetIndex.HasValue && ((CurrentPetIndex & UnslottedPetIndexMask) == 0) ? CurrentPetIndex : null;
+        return CurrentPetIndex.HasValue && (CurrentPetIndex & UnslottedPetIndexMask) == 0 ? CurrentPetIndex : null;
     }
 
     public PetInfo GetCurrentPet()
@@ -49,7 +49,7 @@ public class PetStable
 
     private uint? GetCurrentUnslottedPetIndex()
     {
-        return CurrentPetIndex.HasValue && ((CurrentPetIndex & UnslottedPetIndexMask) != 0) ? (CurrentPetIndex & ~UnslottedPetIndexMask) : null;
+        return CurrentPetIndex.HasValue && (CurrentPetIndex & UnslottedPetIndexMask) != 0 ? CurrentPetIndex & ~UnslottedPetIndexMask : null;
     }
 
     public class PetInfo

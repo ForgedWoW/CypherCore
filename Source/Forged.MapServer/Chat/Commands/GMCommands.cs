@@ -141,7 +141,7 @@ internal class GMCommands
 
                 var size = player.GetName().Length;
                 var security = (byte)playerSec;
-                var max = ((16 - size) / 2);
+                var max = (16 - size) / 2;
                 var max2 = max;
 
                 max2 = (max + max2 + size) switch

@@ -399,7 +399,7 @@ internal class NPCCommands
         }
 
         handler.SendSysMessage(CypherStrings.CommandNpcShowlootHeader, creatureTarget.GetName(), creatureTarget.Entry);
-        handler.SendSysMessage(CypherStrings.CommandNpcShowlootMoney, loot.Gold / MoneyConstants.Gold, (loot.Gold % MoneyConstants.Gold) / MoneyConstants.Silver, loot.Gold % MoneyConstants.Silver);
+        handler.SendSysMessage(CypherStrings.CommandNpcShowlootMoney, loot.Gold / MoneyConstants.Gold, loot.Gold % MoneyConstants.Gold / MoneyConstants.Silver, loot.Gold % MoneyConstants.Silver);
 
         if (all.Equals("all", StringComparison.OrdinalIgnoreCase)) // nonzero from strcmp <. not equal
         {
@@ -1010,7 +1010,7 @@ internal class NPCCommands
             }
 
             creature.AI.SetData(data1, data2);
-            var aIorScript = creature.GetAIName() != "" ? "AI type: " + creature.GetAIName() : (creature.GetScriptName() != "" ? "Script Name: " + creature.GetScriptName() : "No AI or Script Name Set");
+            var aIorScript = creature.GetAIName() != "" ? "AI type: " + creature.GetAIName() : creature.GetScriptName() != "" ? "Script Name: " + creature.GetScriptName() : "No AI or Script Name Set";
             handler.SendSysMessage(CypherStrings.NpcSetdata, creature.GUID, creature.Entry, creature.GetName(), data1, data2, aIorScript);
 
             return true;

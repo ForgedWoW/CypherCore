@@ -338,7 +338,7 @@ public class SpellHandler : IWorldSessionHandler
             }
 
             var guild = player.Guild;
-            mirrorImageComponentedData.GuildGUID = (guild ? guild.GetGUID() : ObjectGuid.Empty);
+            mirrorImageComponentedData.GuildGUID = guild ? guild.GetGUID() : ObjectGuid.Empty;
 
             byte[] itemSlots =
             {

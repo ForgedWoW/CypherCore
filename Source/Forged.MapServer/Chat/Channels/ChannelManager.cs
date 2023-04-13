@@ -227,7 +227,7 @@ public class ChannelManager
         if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly2))
             high |= 1ul << 24; // trade
 
-        high |= (ulong)(zoneId) << 10;
+        high |= (ulong)zoneId << 10;
         high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
 
         ObjectGuid channelGuid = new();

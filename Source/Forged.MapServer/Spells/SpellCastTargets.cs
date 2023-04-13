@@ -277,7 +277,7 @@ public class SpellCastTargets
 
     public void Update(WorldObject caster)
     {
-        ObjectTarget = (_objectTargetGuid == caster.GUID) ? caster : Global.ObjAccessor.GetWorldObject(caster, _objectTargetGuid);
+        ObjectTarget = _objectTargetGuid == caster.GUID ? caster : Global.ObjAccessor.GetWorldObject(caster, _objectTargetGuid);
 
         _itemTarget = null;
 

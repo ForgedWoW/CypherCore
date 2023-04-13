@@ -384,7 +384,7 @@ public class CalendarManager
         };
 
         var guild = _guildManager.GetGuildById(calendarEvent.GuildId);
-        packet.EventGuildID = (guild ? guild.GetGUID() : ObjectGuid.Empty);
+        packet.EventGuildID = guild ? guild.GetGUID() : ObjectGuid.Empty;
 
         foreach (var calendarInvite in eventInviteeList)
         {

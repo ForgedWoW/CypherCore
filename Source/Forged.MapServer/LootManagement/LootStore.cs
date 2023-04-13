@@ -17,7 +17,6 @@ public class LootStore
 {
     private readonly ConditionManager _conditionManager;
     private readonly IConfiguration _configuration;
-    private readonly string _entryName;
     private readonly Dictionary<uint, LootTemplate> _lootTemplates = new();
     private readonly GameObjectManager _objectManager;
     private readonly LootStoreBox _storage;
@@ -31,12 +30,14 @@ public class LootStore
         _objectManager = objectManager;
         _storage = storage;
         Name = name;
-        _entryName = entryName;
+        EntryName = entryName;
         IsRatesAllowed = ratesAllowed;
     }
 
+    public string EntryName { get; }
     public bool IsRatesAllowed { get; }
     public string Name { get; }
+    
     public void CheckLootRefs(List<uint> refSet = null)
     {
         foreach (var pair in _lootTemplates)
@@ -78,7 +79,7 @@ public class LootStore
 
     public void ReportNonExistingId(uint lootId, uint ownerId)
     {
-        Log.Logger.Debug("Table '{0}' Entry {1} does not exist but it is used by {2} {3}", Name, lootId, GetEntryName(), ownerId);
+        Log.Logger.Debug("Table '{0}' Entry {1} does not exist but it is used by {2} {3}", Name, lootId, EntryName, ownerId);
     }
 
     public void ReportUnusedIds(List<uint> lootIdSet)
@@ -88,7 +89,7 @@ public class LootStore
             if (_configuration.GetDefaultValue("load.autoclean", false))
                 _worldDatabase.Execute($"DELETE FROM {Name} WHERE Entry = {id}");
             else
-                Log.Logger.Error("Table '{0}' entry {1} isn't {2} and not referenced from loot, and then useless.", Name, id, GetEntryName());
+                Log.Logger.Error("Table '{0}' entry {1} isn't {2} and not referenced from loot, and then useless.", Name, id, EntryName);
     }
 
     public void ResetConditions()
@@ -104,12 +105,7 @@ public class LootStore
     {
         _lootTemplates.Clear();
     }
-
-    private string GetEntryName()
-    {
-        return _entryName;
-    }
-
+    
     private uint LoadLootTable()
     {
         // Clearing store (for reloading case)

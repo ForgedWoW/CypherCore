@@ -4642,7 +4642,7 @@ public sealed class SpellManager
 
                     if ((procEntry.AttributesMask & ~ProcAttributes.AllAllowed) != 0)
                     {
-                        Log.Logger.Error($"The `spell_proc` table entry for spellId {spellInfo.Id} has `AttributesMask` value specifying invalid attributes 0x{(procEntry.AttributesMask & ~ProcAttributes.AllAllowed):X}.");
+                        Log.Logger.Error($"The `spell_proc` table entry for spellId {spellInfo.Id} has `AttributesMask` value specifying invalid attributes 0x{procEntry.AttributesMask & ~ProcAttributes.AllAllowed:X}.");
                         procEntry.AttributesMask &= ProcAttributes.AllAllowed;
                     }
 
