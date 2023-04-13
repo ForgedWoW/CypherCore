@@ -178,7 +178,7 @@ public class BgStrandOfAncients : Battleground
     public override void HandleAreaTrigger(Player source, uint trigger, bool entered)
     {
         // this is wrong way to implement these things. On official it done by gameobject spell cast.
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
     }
 
@@ -188,25 +188,20 @@ public class BgStrandOfAncients : Battleground
         {
             UpdatePlayerScore(killer, ScoreType.DestroyedDemolisher, 1);
             var worldStateId = _attackers == TeamIds.Horde ? SaWorldStateIds.DESTROYED_HORDE_VEHICLES : SaWorldStateIds.DESTROYED_ALLIANCE_VEHICLES;
-            var currentDestroyedVehicles = Global.WorldStateMgr.GetValue((int)worldStateId, GetBgMap());
+            var currentDestroyedVehicles = Global.WorldStateMgr.GetValue((int)worldStateId, BgMap);
             UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
         }
     }
 
     public override bool IsSpellAllowed(uint spellId, Player player)
     {
-        switch (spellId)
+        return spellId switch
         {
-            case SaSpellIds.ALLIANCE_CONTROL_PHASE_SHIFT:
-                return _attackers == TeamIds.Horde;
-            case SaSpellIds.HORDE_CONTROL_PHASE_SHIFT:
-                return _attackers == TeamIds.Alliance;
-            case BattlegroundConst.SpellPreparation:
-                return _status is SaStatus.Warmup or SaStatus.SecondWarmup;
-            
-        }
-
-        return true;
+            SaSpellIds.ALLIANCE_CONTROL_PHASE_SHIFT => _attackers == TeamIds.Horde,
+            SaSpellIds.HORDE_CONTROL_PHASE_SHIFT    => _attackers == TeamIds.Alliance,
+            BattlegroundConst.SpellPreparation      => _status is SaStatus.Warmup or SaStatus.SecondWarmup,
+            _                                       => true
+        };
     }
 
     public override void PostUpdateImpl(uint diff)
@@ -300,7 +295,7 @@ public class BgStrandOfAncients : Battleground
 
             return;
         }
-        else if (GetStatus() == BattlegroundStatus.InProgress)
+        else if (Status == BattlegroundStatus.InProgress)
         {
             if (_status == SaStatus.RoundOne)
             {
@@ -319,7 +314,7 @@ public class BgStrandOfAncients : Battleground
                     _initSecondRound = true;
                     ToggleTimer();
                     ResetObjs();
-                    GetBgMap().UpdateAreaDependentAuras();
+                    BgMap.UpdateAreaDependentAuras();
 
                     return;
                 }
@@ -757,20 +752,12 @@ public class BgStrandOfAncients : Battleground
 
         for (var i = SaObjectTypes.BOAT_ONE; i <= SaObjectTypes.BOAT_TWO; i++)
         {
-            uint boatid = 0;
-
-            switch (i)
+            uint boatid = i switch
             {
-                case SaObjectTypes.BOAT_ONE:
-                    boatid = _attackers != 0 ? SaGameObjectIds.BOAT_ONE_H : SaGameObjectIds.BOAT_ONE_A;
-
-                    break;
-                case SaObjectTypes.BOAT_TWO:
-                    boatid = _attackers != 0 ? SaGameObjectIds.BOAT_TWO_H : SaGameObjectIds.BOAT_TWO_A;
-
-                    break;
-                
-            }
+                SaObjectTypes.BOAT_ONE => _attackers != 0 ? SaGameObjectIds.BOAT_ONE_H : SaGameObjectIds.BOAT_ONE_A,
+                SaObjectTypes.BOAT_TWO => _attackers != 0 ? SaGameObjectIds.BOAT_TWO_H : SaGameObjectIds.BOAT_TWO_A,
+                _                      => 0
+            };
 
             if (!AddObject(i,
                            boatid,
@@ -1105,7 +1092,7 @@ public class BgStrandOfAncients : Battleground
                     _signaledRoundTwoHalfMin = false;
                     _initSecondRound = true;
                     ResetObjs();
-                    GetBgMap().UpdateAreaDependentAuras();
+                    BgMap.UpdateAreaDependentAuras();
                     CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Alliance);
                     CastSpellOnTeam(SaSpellIds.END_OF_ROUND, TeamFaction.Horde);
                 }

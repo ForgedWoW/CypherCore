@@ -30,14 +30,14 @@ public class MultiPersonalPhaseTracker
             if (!Global.ObjectMgr.HasPersonalSpawns(map.Id, map.DifficultyID, phaseRef.Key))
                 continue;
 
-            if (playerTracker.IsGridLoadedForPhase(grid.GetGridId(), phaseRef.Key))
+            if (playerTracker.IsGridLoadedForPhase(grid.GridId, phaseRef.Key))
                 continue;
 
             Log.Logger.Debug($"Loading personal phase objects (phase {phaseRef.Key}) in {cell} for map {map.Id} instance {map.InstanceId}");
 
             loader.Load(phaseRef.Key);
 
-            playerTracker.SetGridLoadedForPhase(grid.GetGridId(), phaseRef.Key);
+            playerTracker.SetGridLoadedForPhase(grid.GridId, phaseRef.Key);
         }
 
         if (loader.GetLoadedGameObjects() != 0)
@@ -70,7 +70,7 @@ public class MultiPersonalPhaseTracker
     {
         foreach (var itr in _playerData.ToList())
         {
-            itr.Value.SetGridUnloaded(grid.GetGridId());
+            itr.Value.SetGridUnloaded(grid.GridId);
 
             if (itr.Value.IsEmpty)
                 _playerData.Remove(itr.Key);

@@ -1404,32 +1404,17 @@ public class BattlepayManager
             if (productAddon == null)
                 return "|cffffffff";
 
-            switch (_battlePayDataStoreMgr.GetProductAddon(displayInfoOrProductInfoEntry).NameColorIndex)
+            return _battlePayDataStoreMgr.GetProductAddon(displayInfoOrProductInfoEntry).NameColorIndex switch
             {
-                case 0:
-                    return "|cffffffff";
-
-                case 1:
-                    return "|cff1eff00";
-
-                case 2:
-                    return "|cff0070dd";
-
-                case 3:
-                    return "|cffa335ee";
-
-                case 4:
-                    return "|cffff8000";
-
-                case 5:
-                    return "|cffe5cc80";
-
-                case 6:
-                    return "|cffe5cc80";
-
-                default:
-                    return "|cffffffff";
-            }
+                0 => "|cffffffff",
+                1 => "|cff1eff00",
+                2 => "|cff0070dd",
+                3 => "|cffa335ee",
+                4 => "|cffff8000",
+                5 => "|cffe5cc80",
+                6 => "|cffe5cc80",
+                _ => "|cffffffff"
+            };
         };
 
         var info = new BpayDisplayInfo();

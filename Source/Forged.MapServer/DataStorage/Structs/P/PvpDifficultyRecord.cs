@@ -7,14 +7,12 @@ namespace Forged.MapServer.DataStorage.Structs.P;
 
 public sealed class PvpDifficultyRecord
 {
-    public uint Id;
-    public uint MapID;
-    public byte MaxLevel;
-    public byte MinLevel;
-    public byte RangeIndex;
+    public uint Id { get; set; }
+    public uint MapID { get; set; }
+    public byte MaxLevel { get; set; }
+    public byte MinLevel { get; set; }
+    public byte RangeIndex { get; set; }
     // helpers
-    public BattlegroundBracketId GetBracketId()
-    {
-        return (BattlegroundBracketId)RangeIndex;
-    }
+
+    public BattlegroundBracketId BracketId => (BattlegroundBracketId)RangeIndex;
 }

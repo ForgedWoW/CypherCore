@@ -436,21 +436,18 @@ public class Pet : Guardian
 
     public bool IsPermanentPetFor(Player owner)
     {
-        switch (PetType)
+        return PetType switch
         {
-            case PetType.Summon:
-                return owner.Class switch
-                {
-                    PlayerClass.Warlock     => Template.CreatureType == CreatureType.Demon,
-                    PlayerClass.Deathknight => Template.CreatureType == CreatureType.Undead,
-                    PlayerClass.Mage        => Template.CreatureType == CreatureType.Elemental,
-                    _                       => false
-                };
-            case PetType.Hunter:
-                return true;
-            default:
-                return false;
-        }
+            PetType.Summon => owner.Class switch
+            {
+                PlayerClass.Warlock     => Template.CreatureType == CreatureType.Demon,
+                PlayerClass.Deathknight => Template.CreatureType == CreatureType.Undead,
+                PlayerClass.Mage        => Template.CreatureType == CreatureType.Elemental,
+                _                       => false
+            },
+            PetType.Hunter => true,
+            _              => false
+        };
     }
 
     public bool LearnSpell(uint spellId)

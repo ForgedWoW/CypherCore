@@ -43,22 +43,20 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
             return;
 
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var areaTrigger in objs)
         {
-            var areaTrigger = objs[i];
-
             if (!areaTrigger.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(areaTrigger))
-            {
-                _object = areaTrigger;
+            if (!_check.Invoke(areaTrigger))
+                continue;
 
-                return;
-            }
+            _object = areaTrigger;
+
+            return;
         }
     }
 
@@ -68,22 +66,20 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
             return;
 
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var conversation in objs)
         {
-            var conversation = objs[i];
-
             if (!conversation.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(conversation))
-            {
-                _object = conversation;
+            if (!_check.Invoke(conversation))
+                continue;
 
-                return;
-            }
+            _object = conversation;
+
+            return;
         }
     }
 
@@ -93,22 +89,20 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
             return;
 
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var corpse in objs)
         {
-            var corpse = objs[i];
-
             if (!corpse.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(corpse))
-            {
-                _object = corpse;
+            if (!_check.Invoke(corpse))
+                continue;
 
-                return;
-            }
+            _object = corpse;
+
+            return;
         }
     }
 
@@ -118,22 +112,20 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
             return;
 
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
-
             if (!creature.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(creature))
-            {
-                _object = creature;
+            if (!_check.Invoke(creature))
+                continue;
 
-                return;
-            }
+            _object = creature;
+
+            return;
         }
     }
 
@@ -143,22 +135,20 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
             return;
 
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var dynamicObject in objs)
         {
-            var dynamicObject = objs[i];
-
             if (!dynamicObject.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(dynamicObject))
-            {
-                _object = dynamicObject;
+            if (!_check.Invoke(dynamicObject))
+                continue;
 
-                return;
-            }
+            _object = dynamicObject;
+
+            return;
         }
     }
 
@@ -168,22 +158,20 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
             return;
 
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var gameObject in objs)
         {
-            var gameObject = objs[i];
-
             if (!gameObject.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(gameObject))
-            {
-                _object = gameObject;
+            if (!_check.Invoke(gameObject))
+                continue;
 
-                return;
-            }
+            _object = gameObject;
+
+            return;
         }
     }
 
@@ -193,22 +181,20 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
             return;
 
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
-
             if (!player.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(player))
-            {
-                _object = player;
+            if (!_check.Invoke(player))
+                continue;
 
-                return;
-            }
+            _object = player;
+
+            return;
         }
     }
 
@@ -218,22 +204,20 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
             return;
 
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var sceneObject in objs)
         {
-            var sceneObject = objs[i];
-
             if (!sceneObject.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(sceneObject))
-            {
-                _object = sceneObject;
+            if (!_check.Invoke(sceneObject))
+                continue;
 
-                return;
-            }
+            _object = sceneObject;
+
+            return;
         }
     }
 }

@@ -460,15 +460,12 @@ public sealed class SpellManager
         if (rcEntry.SkillID == (uint)SkillType.Runeforging)
             return SkillRangeType.Mono;
 
-        switch (skill.CategoryID)
+        return skill.CategoryID switch
         {
-            case SkillCategory.Armor:
-                return SkillRangeType.Mono;
-            case SkillCategory.Languages:
-                return SkillRangeType.Language;
-        }
-
-        return SkillRangeType.Level;
+            SkillCategory.Armor     => SkillRangeType.Mono,
+            SkillCategory.Languages => SkillRangeType.Language,
+            _                       => SkillRangeType.Level
+        };
     }
 
     public List<SpellArea> GetSpellAreaForAreaMapBounds(uint areaID)
@@ -901,99 +898,92 @@ public sealed class SpellManager
     }
     private ProcFlagsSpellType GetSpellTypeMask(AuraType type)
     {
-        switch (type)
+        return type switch
         {
-            case AuraType.ModStealth:
-                return ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal;
-            case AuraType.ModConfuse:
-            case AuraType.ModFear:
-            case AuraType.ModRoot:
-            case AuraType.ModRoot2:
-            case AuraType.ModStun:
-            case AuraType.Transform:
-            case AuraType.ModInvisibility:
-                return ProcFlagsSpellType.Damage;
-            default:
-                return ProcFlagsSpellType.MaskAll;
-        }
+            AuraType.ModStealth      => ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal,
+            AuraType.ModConfuse      => ProcFlagsSpellType.Damage,
+            AuraType.ModFear         => ProcFlagsSpellType.Damage,
+            AuraType.ModRoot         => ProcFlagsSpellType.Damage,
+            AuraType.ModRoot2        => ProcFlagsSpellType.Damage,
+            AuraType.ModStun         => ProcFlagsSpellType.Damage,
+            AuraType.Transform       => ProcFlagsSpellType.Damage,
+            AuraType.ModInvisibility => ProcFlagsSpellType.Damage,
+            _                        => ProcFlagsSpellType.MaskAll
+        };
     }
 
     private bool IsAlwaysTriggeredAura(AuraType type)
     {
-        switch (type)
+        return type switch
         {
-            case AuraType.OverrideClassScripts:
-            case AuraType.ModStealth:
-            case AuraType.ModConfuse:
-            case AuraType.ModFear:
-            case AuraType.ModRoot:
-            case AuraType.ModStun:
-            case AuraType.Transform:
-            case AuraType.ModInvisibility:
-            case AuraType.SpellMagnet:
-            case AuraType.SchoolAbsorb:
-            case AuraType.ModRoot2:
-                return true;
-        }
-
-        return false;
+            AuraType.OverrideClassScripts => true,
+            AuraType.ModStealth           => true,
+            AuraType.ModConfuse           => true,
+            AuraType.ModFear              => true,
+            AuraType.ModRoot              => true,
+            AuraType.ModStun              => true,
+            AuraType.Transform            => true,
+            AuraType.ModInvisibility      => true,
+            AuraType.SpellMagnet          => true,
+            AuraType.SchoolAbsorb         => true,
+            AuraType.ModRoot2             => true,
+            _                             => false
+        };
     }
 
     private bool IsTriggerAura(AuraType type)
     {
-        switch (type)
+        return type switch
         {
-            case AuraType.Dummy:
-            case AuraType.PeriodicDummy:
-            case AuraType.ModConfuse:
-            case AuraType.ModThreat:
-            case AuraType.ModStun:
-            case AuraType.ModDamageDone:
-            case AuraType.ModDamageTaken:
-            case AuraType.ModResistance:
-            case AuraType.ModStealth:
-            case AuraType.ModFear:
-            case AuraType.ModRoot:
-            case AuraType.Transform:
-            case AuraType.ReflectSpells:
-            case AuraType.DamageImmunity:
-            case AuraType.ProcTriggerSpell:
-            case AuraType.ProcTriggerDamage:
-            case AuraType.ModCastingSpeedNotStack:
-            case AuraType.SchoolAbsorb:
-            case AuraType.ModPowerCostSchoolPct:
-            case AuraType.ModPowerCostSchool:
-            case AuraType.ReflectSpellsSchool:
-            case AuraType.MechanicImmunity:
-            case AuraType.ModDamagePercentTaken:
-            case AuraType.SpellMagnet:
-            case AuraType.ModAttackPower:
-            case AuraType.ModPowerRegenPercent:
-            case AuraType.InterceptMeleeRangedAttacks:
-            case AuraType.OverrideClassScripts:
-            case AuraType.ModMechanicResistance:
-            case AuraType.MeleeAttackPowerAttackerBonus:
-            case AuraType.ModMeleeHaste:
-            case AuraType.ModMeleeHaste3:
-            case AuraType.ModAttackerMeleeHitChance:
-            case AuraType.ProcTriggerSpellWithValue:
-            case AuraType.ModSchoolMaskDamageFromCaster:
-            case AuraType.ModSpellDamageFromCaster:
-            case AuraType.AbilityIgnoreAurastate:
-            case AuraType.ModInvisibility:
-            case AuraType.ForceReaction:
-            case AuraType.ModTaunt:
-            case AuraType.ModDetaunt:
-            case AuraType.ModDamagePercentDone:
-            case AuraType.ModAttackPowerPct:
-            case AuraType.ModHitChance:
-            case AuraType.ModWeaponCritPercent:
-            case AuraType.ModBlockPercent:
-            case AuraType.ModRoot2:
-                return true;
-        }
-
-        return false;
+            AuraType.Dummy                         => true,
+            AuraType.PeriodicDummy                 => true,
+            AuraType.ModConfuse                    => true,
+            AuraType.ModThreat                     => true,
+            AuraType.ModStun                       => true,
+            AuraType.ModDamageDone                 => true,
+            AuraType.ModDamageTaken                => true,
+            AuraType.ModResistance                 => true,
+            AuraType.ModStealth                    => true,
+            AuraType.ModFear                       => true,
+            AuraType.ModRoot                       => true,
+            AuraType.Transform                     => true,
+            AuraType.ReflectSpells                 => true,
+            AuraType.DamageImmunity                => true,
+            AuraType.ProcTriggerSpell              => true,
+            AuraType.ProcTriggerDamage             => true,
+            AuraType.ModCastingSpeedNotStack       => true,
+            AuraType.SchoolAbsorb                  => true,
+            AuraType.ModPowerCostSchoolPct         => true,
+            AuraType.ModPowerCostSchool            => true,
+            AuraType.ReflectSpellsSchool           => true,
+            AuraType.MechanicImmunity              => true,
+            AuraType.ModDamagePercentTaken         => true,
+            AuraType.SpellMagnet                   => true,
+            AuraType.ModAttackPower                => true,
+            AuraType.ModPowerRegenPercent          => true,
+            AuraType.InterceptMeleeRangedAttacks   => true,
+            AuraType.OverrideClassScripts          => true,
+            AuraType.ModMechanicResistance         => true,
+            AuraType.MeleeAttackPowerAttackerBonus => true,
+            AuraType.ModMeleeHaste                 => true,
+            AuraType.ModMeleeHaste3                => true,
+            AuraType.ModAttackerMeleeHitChance     => true,
+            AuraType.ProcTriggerSpellWithValue     => true,
+            AuraType.ModSchoolMaskDamageFromCaster => true,
+            AuraType.ModSpellDamageFromCaster      => true,
+            AuraType.AbilityIgnoreAurastate        => true,
+            AuraType.ModInvisibility               => true,
+            AuraType.ForceReaction                 => true,
+            AuraType.ModTaunt                      => true,
+            AuraType.ModDetaunt                    => true,
+            AuraType.ModDamagePercentDone          => true,
+            AuraType.ModAttackPowerPct             => true,
+            AuraType.ModHitChance                  => true,
+            AuraType.ModWeaponCritPercent          => true,
+            AuraType.ModBlockPercent               => true,
+            AuraType.ModRoot2                      => true,
+            _                                      => false
+        };
     }
     #region Loads
 
@@ -4709,14 +4699,12 @@ public sealed class SpellManager
                     // many proc auras with taken procFlag mask don't have attribute "can proc with triggered"
                     // they should proc nevertheless (example mage armor spells with judgement)
                     if (!addTriggerFlag && spellInfo.ProcFlags.HasFlag(ProcFlags.TakenHitMask))
-                        switch (auraName)
+                        addTriggerFlag = auraName switch
                         {
-                            case AuraType.ProcTriggerSpell:
-                            case AuraType.ProcTriggerDamage:
-                                addTriggerFlag = true;
-
-                                break;
-                        }
+                            AuraType.ProcTriggerSpell  => true,
+                            AuraType.ProcTriggerDamage => true,
+                            _                          => addTriggerFlag
+                        };
                 }
 
                 if (procSpellTypeMask == 0)

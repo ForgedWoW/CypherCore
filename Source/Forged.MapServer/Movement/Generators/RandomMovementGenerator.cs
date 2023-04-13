@@ -200,22 +200,12 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 
         owner.AddUnitState(UnitState.RoamingMove);
 
-        var walk = true;
-
-        switch (owner.MovementTemplate.Random)
+        var walk = owner.MovementTemplate.Random switch
         {
-            case CreatureRandomMovementType.CanRun:
-                walk = owner.IsWalking;
-
-                break;
-
-            case CreatureRandomMovementType.AlwaysRun:
-                walk = false;
-
-                break;
-
-            
-        }
+            CreatureRandomMovementType.CanRun    => owner.IsWalking,
+            CreatureRandomMovementType.AlwaysRun => false,
+            _                                    => true
+        };
 
         MoveSplineInit init = new(owner);
         init.MovebyPath(_path.GetPath());

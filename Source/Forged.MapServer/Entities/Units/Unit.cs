@@ -520,7 +520,7 @@ public partial class Unit : WorldObject
         var bg = target.Battleground;
 
         if (bg != null)
-            if (bg.IsArena())
+            if (bg.IsArena)
             {
                 DestroyArenaUnit destroyArenaUnit = new()
                 {

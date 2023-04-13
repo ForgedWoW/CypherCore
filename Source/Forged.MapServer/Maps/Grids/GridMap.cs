@@ -47,10 +47,10 @@ public class GridMap
     //Area data
     public ushort[] AreaMap { get; set; }
 
-    public byte[] Ubyte_V8 { get; set; }
-    public byte[] Ubyte_V9 { get; set; }
-    public ushort[] Uint16_V8 { get; set; }
-    public ushort[] Uint16_V9 { get; set; }
+    public byte[] UbyteV8 { get; set; }
+    public byte[] UbyteV9 { get; set; }
+    public ushort[] Uint16V8 { get; set; }
+    public ushort[] Uint16V9 { get; set; }
     public float[] V8 { get; set; }
     public float[] V9 { get; set; }
     public ushort GetArea(float x, float y)
@@ -79,16 +79,16 @@ public class GridMap
         x = MapConst.MapResolution * (32 - x / MapConst.SizeofGrids);
         y = MapConst.MapResolution * (32 - y / MapConst.SizeofGrids);
 
-        var cx_int = ((int)x & MapConst.MapResolution - 1) - _liquidOffY;
-        var cy_int = ((int)y & MapConst.MapResolution - 1) - _liquidOffX;
+        var cxInt = ((int)x & MapConst.MapResolution - 1) - _liquidOffY;
+        var cyInt = ((int)y & MapConst.MapResolution - 1) - _liquidOffX;
 
-        if (cx_int < 0 || cx_int >= _liquidHeight)
+        if (cxInt < 0 || cxInt >= _liquidHeight)
             return MapConst.InvalidHeight;
 
-        if (cy_int < 0 || cy_int >= _liquidWidth)
+        if (cyInt < 0 || cyInt >= _liquidWidth)
             return MapConst.InvalidHeight;
 
-        return _liquidMap[cx_int * _liquidWidth + cy_int];
+        return _liquidMap[cxInt * _liquidWidth + cyInt];
     }
 
     // Get water state on map
@@ -102,11 +102,11 @@ public class GridMap
         var cx = MapConst.MapResolution * (32 - x / MapConst.SizeofGrids);
         var cy = MapConst.MapResolution * (32 - y / MapConst.SizeofGrids);
 
-        var x_int = (int)cx & MapConst.MapResolution - 1;
-        var y_int = (int)cy & MapConst.MapResolution - 1;
+        var xInt = (int)cx & MapConst.MapResolution - 1;
+        var yInt = (int)cy & MapConst.MapResolution - 1;
 
         // Check water type in cell
-        var idx = (x_int >> 3) * 16 + (y_int >> 3);
+        var idx = (xInt >> 3) * 16 + (yInt >> 3);
         var type = _liquidFlags != null ? (LiquidHeaderTypeFlags)_liquidFlags[idx] : _liquidGlobalFlags;
         uint entry = _liquidEntry != null ? _liquidEntry[idx] : _liquidGlobalEntry;
         if (CliDB.LiquidTypeStorage.TryGetValue(entry, out var liquidEntry))
@@ -148,35 +148,35 @@ public class GridMap
 
         // Check water level:
         // Check water height map
-        var lx_int = x_int - _liquidOffY;
-        var ly_int = y_int - _liquidOffX;
+        var lxInt = xInt - _liquidOffY;
+        var lyInt = yInt - _liquidOffX;
 
-        if (lx_int < 0 || lx_int >= _liquidHeight)
+        if (lxInt < 0 || lxInt >= _liquidHeight)
             return ZLiquidStatus.NoWater;
 
-        if (ly_int < 0 || ly_int >= _liquidWidth)
+        if (lyInt < 0 || lyInt >= _liquidWidth)
             return ZLiquidStatus.NoWater;
 
         // Get water level
-        var liquid_level = _liquidMap != null ? _liquidMap[lx_int * _liquidWidth + ly_int] : _liquidLevel;
+        var liquidLevel = _liquidMap != null ? _liquidMap[lxInt * _liquidWidth + lyInt] : _liquidLevel;
         // Get ground level (sub 0.2 for fix some errors)
-        var ground_level = GetHeight(x, y);
+        var groundLevel = GetHeight(x, y);
 
         // Check water level and ground level
-        if (liquid_level < ground_level || z < ground_level)
+        if (liquidLevel < groundLevel || z < groundLevel)
             return ZLiquidStatus.NoWater;
 
         // All ok in water . store data
         if (data != null)
         {
-            data.entry = entry;
-            data.type_flags = type;
-            data.level = liquid_level;
-            data.depth_level = ground_level;
+            data.Entry = entry;
+            data.TypeFlags = type;
+            data.Level = liquidLevel;
+            data.DepthLevel = groundLevel;
         }
 
         // For speed check as int values
-        var delta = liquid_level - z;
+        var delta = liquidLevel - z;
 
         if (delta > collisionHeight) // Under water
             return ZLiquidStatus.UnderWater;
@@ -203,8 +203,8 @@ public class GridMap
         var doubleGridX = (int)Math.Floor(-(x - MapConst.MapHalfSize) / MapConst.CenterGridOffset);
         var doubleGridY = (int)Math.Floor(-(y - MapConst.MapHalfSize) / MapConst.CenterGridOffset);
 
-        var gx = x - ((int)gridCoord.X_Coord - MapConst.CenterGridId + 1) * MapConst.SizeofGrids;
-        var gy = y - ((int)gridCoord.Y_Coord - MapConst.CenterGridId + 1) * MapConst.SizeofGrids;
+        var gx = x - ((int)gridCoord.X - MapConst.CenterGridId + 1) * MapConst.SizeofGrids;
+        var gy = y - ((int)gridCoord.Y - MapConst.CenterGridId + 1) * MapConst.SizeofGrids;
 
         uint quarterIndex;
 
@@ -241,35 +241,35 @@ public class GridMap
         using BinaryReader reader = new(new FileStream(filename, FileMode.Open, FileAccess.Read));
         var header = reader.Read<MapFileHeader>();
 
-        if (header.mapMagic != MapConst.MapMagic || header.versionMagic != MapConst.MapVersionMagic && header.versionMagic != MapConst.MapVersionMagic2) // Hack for some different extractors using v2.0 header
+        if (header.MapMagic != MapConst.MapMagic || header.VersionMagic != MapConst.MapVersionMagic && header.VersionMagic != MapConst.MapVersionMagic2) // Hack for some different extractors using v2.0 header
         {
             Log.Logger.Error($"Map file '{filename}' is from an incompatible map version. Please recreate using the mapextractor.");
 
             return LoadResult.ReadFromFileFailed;
         }
 
-        if (header.areaMapOffset != 0 && !LoadAreaData(reader, header.areaMapOffset))
+        if (header.AreaMapOffset != 0 && !LoadAreaData(reader, header.AreaMapOffset))
         {
             Log.Logger.Error("Error loading map area data");
 
             return LoadResult.ReadFromFileFailed;
         }
 
-        if (header.heightMapOffset != 0 && !LoadHeightData(reader, header.heightMapOffset))
+        if (header.HeightMapOffset != 0 && !LoadHeightData(reader, header.HeightMapOffset))
         {
             Log.Logger.Error("Error loading map height data");
 
             return LoadResult.ReadFromFileFailed;
         }
 
-        if (header.liquidMapOffset != 0 && !LoadLiquidData(reader, header.liquidMapOffset))
+        if (header.LiquidMapOffset != 0 && !LoadLiquidData(reader, header.LiquidMapOffset))
         {
             Log.Logger.Error("Error loading map liquids data");
 
             return LoadResult.ReadFromFileFailed;
         }
 
-        if (header.holesSize != 0 && !LoadHolesData(reader, header.holesOffset))
+        if (header.HolesSize != 0 && !LoadHolesData(reader, header.HolesOffset))
         {
             Log.Logger.Error("Error loading map holes data");
 
@@ -296,20 +296,20 @@ public class GridMap
 
     private float GetHeightFromFloat(float x, float y)
     {
-        if (Uint16_V8 == null || Uint16_V9 == null)
+        if (Uint16V8 == null || Uint16V9 == null)
             return _gridHeight;
 
         x = MapConst.MapResolution * (32 - x / MapConst.SizeofGrids);
         y = MapConst.MapResolution * (32 - y / MapConst.SizeofGrids);
 
-        var x_int = (int)x;
-        var y_int = (int)y;
-        x -= x_int;
-        y -= y_int;
-        x_int &= MapConst.MapResolution - 1;
-        y_int &= MapConst.MapResolution - 1;
+        var xInt = (int)x;
+        var yInt = (int)y;
+        x -= xInt;
+        y -= yInt;
+        xInt &= MapConst.MapResolution - 1;
+        yInt &= MapConst.MapResolution - 1;
 
-        if (IsHole(x_int, y_int))
+        if (IsHole(xInt, yInt))
             return MapConst.InvalidHeight;
 
         float a, b, c;
@@ -319,9 +319,9 @@ public class GridMap
             if (x > y)
             {
                 // 1 triangle (h1, h2, h5 points)
-                var h1 = V9[x_int * 129 + y_int];
-                var h2 = V9[(x_int + 1) * 129 + y_int];
-                var h5 = 2 * V8[x_int * 128 + y_int];
+                var h1 = V9[xInt * 129 + yInt];
+                var h2 = V9[(xInt + 1) * 129 + yInt];
+                var h5 = 2 * V8[xInt * 128 + yInt];
                 a = h2 - h1;
                 b = h5 - h1 - h2;
                 c = h1;
@@ -329,9 +329,9 @@ public class GridMap
             else
             {
                 // 2 triangle (h1, h3, h5 points)
-                var h1 = V9[x_int * 129 + y_int];
-                var h3 = V9[x_int * 129 + y_int + 1];
-                var h5 = 2 * V8[x_int * 128 + y_int];
+                var h1 = V9[xInt * 129 + yInt];
+                var h3 = V9[xInt * 129 + yInt + 1];
+                var h5 = 2 * V8[xInt * 128 + yInt];
                 a = h5 - h1 - h3;
                 b = h3 - h1;
                 c = h1;
@@ -342,9 +342,9 @@ public class GridMap
             if (x > y)
             {
                 // 3 triangle (h2, h4, h5 points)
-                var h2 = V9[(x_int + 1) * 129 + y_int];
-                var h4 = V9[(x_int + 1) * 129 + y_int + 1];
-                var h5 = 2 * V8[x_int * 128 + y_int];
+                var h2 = V9[(xInt + 1) * 129 + yInt];
+                var h4 = V9[(xInt + 1) * 129 + yInt + 1];
+                var h5 = 2 * V8[xInt * 128 + yInt];
                 a = h2 + h4 - h5;
                 b = h4 - h2;
                 c = h5 - h4;
@@ -352,9 +352,9 @@ public class GridMap
             else
             {
                 // 4 triangle (h3, h4, h5 points)
-                var h3 = V9[x_int * 129 + y_int + 1];
-                var h4 = V9[(x_int + 1) * 129 + y_int + 1];
-                var h5 = 2 * V8[x_int * 128 + y_int];
+                var h3 = V9[xInt * 129 + yInt + 1];
+                var h4 = V9[(xInt + 1) * 129 + yInt + 1];
+                var h5 = 2 * V8[xInt * 128 + yInt];
                 a = h4 - h3;
                 b = h3 + h4 - h5;
                 c = h5 - h4;
@@ -367,38 +367,38 @@ public class GridMap
 
     private float GetHeightFromUint16(float x, float y)
     {
-        if (Uint16_V8 == null || Uint16_V9 == null)
+        if (Uint16V8 == null || Uint16V9 == null)
             return _gridHeight;
 
         x = MapConst.MapResolution * (MapConst.CenterGridId - x / MapConst.SizeofGrids);
         y = MapConst.MapResolution * (MapConst.CenterGridId - y / MapConst.SizeofGrids);
 
-        var x_int = (int)x;
-        var y_int = (int)y;
-        x -= x_int;
-        y -= y_int;
-        x_int &= MapConst.MapResolution - 1;
-        y_int &= MapConst.MapResolution - 1;
+        var xInt = (int)x;
+        var yInt = (int)y;
+        x -= xInt;
+        y -= yInt;
+        xInt &= MapConst.MapResolution - 1;
+        yInt &= MapConst.MapResolution - 1;
 
-        if (IsHole(x_int, y_int))
+        if (IsHole(xInt, yInt))
             return MapConst.InvalidHeight;
 
         int a, b, c;
 
         unsafe
         {
-            fixed (ushort* V9 = Uint16_V9)
+            fixed (ushort* v9 = Uint16V9)
             {
-                var V9_h1_ptr = &V9[x_int * 128 + x_int + y_int];
+                var v9H1Ptr = &v9[xInt * 128 + xInt + yInt];
 
                 if (x + y < 1)
                 {
                     if (x > y)
                     {
                         // 1 triangle (h1, h2, h5 points)
-                        int h1 = V9_h1_ptr[0];
-                        int h2 = V9_h1_ptr[129];
-                        var h5 = 2 * Uint16_V8[x_int * 128 + y_int];
+                        int h1 = v9H1Ptr[0];
+                        int h2 = v9H1Ptr[129];
+                        var h5 = 2 * Uint16V8[xInt * 128 + yInt];
                         a = h2 - h1;
                         b = h5 - h1 - h2;
                         c = h1;
@@ -406,9 +406,9 @@ public class GridMap
                     else
                     {
                         // 2 triangle (h1, h3, h5 points)
-                        int h1 = V9_h1_ptr[0];
-                        int h3 = V9_h1_ptr[1];
-                        var h5 = 2 * Uint16_V8[x_int * 128 + y_int];
+                        int h1 = v9H1Ptr[0];
+                        int h3 = v9H1Ptr[1];
+                        var h5 = 2 * Uint16V8[xInt * 128 + yInt];
                         a = h5 - h1 - h3;
                         b = h3 - h1;
                         c = h1;
@@ -419,9 +419,9 @@ public class GridMap
                     if (x > y)
                     {
                         // 3 triangle (h2, h4, h5 points)
-                        int h2 = V9_h1_ptr[129];
-                        int h4 = V9_h1_ptr[130];
-                        var h5 = 2 * Uint16_V8[x_int * 128 + y_int];
+                        int h2 = v9H1Ptr[129];
+                        int h4 = v9H1Ptr[130];
+                        var h5 = 2 * Uint16V8[xInt * 128 + yInt];
                         a = h2 + h4 - h5;
                         b = h4 - h2;
                         c = h5 - h4;
@@ -429,9 +429,9 @@ public class GridMap
                     else
                     {
                         // 4 triangle (h3, h4, h5 points)
-                        int h3 = V9_h1_ptr[1];
-                        int h4 = V9_h1_ptr[130];
-                        var h5 = 2 * Uint16_V8[x_int * 128 + y_int];
+                        int h3 = v9H1Ptr[1];
+                        int h4 = v9H1Ptr[130];
+                        var h5 = 2 * Uint16V8[xInt * 128 + yInt];
                         a = h4 - h3;
                         b = h3 + h4 - h5;
                         c = h5 - h4;
@@ -446,38 +446,38 @@ public class GridMap
 
     private float GetHeightFromUint8(float x, float y)
     {
-        if (Ubyte_V8 == null || Ubyte_V9 == null)
+        if (UbyteV8 == null || UbyteV9 == null)
             return _gridHeight;
 
         x = MapConst.MapResolution * (32 - x / MapConst.SizeofGrids);
         y = MapConst.MapResolution * (32 - y / MapConst.SizeofGrids);
 
-        var x_int = (int)x;
-        var y_int = (int)y;
-        x -= x_int;
-        y -= y_int;
-        x_int &= MapConst.MapResolution - 1;
-        y_int &= MapConst.MapResolution - 1;
+        var xInt = (int)x;
+        var yInt = (int)y;
+        x -= xInt;
+        y -= yInt;
+        xInt &= MapConst.MapResolution - 1;
+        yInt &= MapConst.MapResolution - 1;
 
-        if (IsHole(x_int, y_int))
+        if (IsHole(xInt, yInt))
             return MapConst.InvalidHeight;
 
         int a, b, c;
 
         unsafe
         {
-            fixed (byte* V9 = Ubyte_V9)
+            fixed (byte* v9 = UbyteV9)
             {
-                var V9_h1_ptr = &V9[x_int * 128 + x_int + y_int];
+                var v9H1Ptr = &v9[xInt * 128 + xInt + yInt];
 
                 if (x + y < 1)
                 {
                     if (x > y)
                     {
                         // 1 triangle (h1, h2, h5 points)
-                        int h1 = V9_h1_ptr[0];
-                        int h2 = V9_h1_ptr[129];
-                        var h5 = 2 * Ubyte_V8[x_int * 128 + y_int];
+                        int h1 = v9H1Ptr[0];
+                        int h2 = v9H1Ptr[129];
+                        var h5 = 2 * UbyteV8[xInt * 128 + yInt];
                         a = h2 - h1;
                         b = h5 - h1 - h2;
                         c = h1;
@@ -485,9 +485,9 @@ public class GridMap
                     else
                     {
                         // 2 triangle (h1, h3, h5 points)
-                        int h1 = V9_h1_ptr[0];
-                        int h3 = V9_h1_ptr[1];
-                        var h5 = 2 * Ubyte_V8[x_int * 128 + y_int];
+                        int h1 = v9H1Ptr[0];
+                        int h3 = v9H1Ptr[1];
+                        var h5 = 2 * UbyteV8[xInt * 128 + yInt];
                         a = h5 - h1 - h3;
                         b = h3 - h1;
                         c = h1;
@@ -498,9 +498,9 @@ public class GridMap
                     if (x > y)
                     {
                         // 3 triangle (h2, h4, h5 points)
-                        int h2 = V9_h1_ptr[129];
-                        int h4 = V9_h1_ptr[130];
-                        var h5 = 2 * Ubyte_V8[x_int * 128 + y_int];
+                        int h2 = v9H1Ptr[129];
+                        int h4 = v9H1Ptr[130];
+                        var h5 = 2 * UbyteV8[xInt * 128 + yInt];
                         a = h2 + h4 - h5;
                         b = h4 - h2;
                         c = h5 - h4;
@@ -508,9 +508,9 @@ public class GridMap
                     else
                     {
                         // 4 triangle (h3, h4, h5 points)
-                        int h3 = V9_h1_ptr[1];
-                        int h4 = V9_h1_ptr[130];
-                        var h5 = 2 * Ubyte_V8[x_int * 128 + y_int];
+                        int h3 = v9H1Ptr[1];
+                        int h4 = v9H1Ptr[130];
+                        var h5 = 2 * UbyteV8[xInt * 128 + yInt];
                         a = h4 - h3;
                         b = h3 + h4 - h5;
                         c = h5 - h4;
@@ -541,12 +541,12 @@ public class GridMap
         reader.BaseStream.Seek(offset, SeekOrigin.Begin);
         var areaHeader = reader.Read<MapAreaHeader>();
 
-        if (areaHeader.fourcc != MapConst.MapAreaMagic)
+        if (areaHeader.Fourcc != MapConst.MapAreaMagic)
             return false;
 
-        _gridArea = areaHeader.gridArea;
+        _gridArea = areaHeader.GridArea;
 
-        if (!areaHeader.flags.HasAnyFlag(AreaHeaderFlags.NoArea))
+        if (!areaHeader.Flags.HasAnyFlag(AreaHeaderFlags.NoArea))
             AreaMap = reader.ReadArray<ushort>(16 * 16);
 
         return true;
@@ -557,27 +557,27 @@ public class GridMap
         reader.BaseStream.Seek(offset, SeekOrigin.Begin);
         var mapHeader = reader.Read<MapHeightHeader>();
 
-        if (mapHeader.fourcc != MapConst.MapHeightMagic)
+        if (mapHeader.Fourcc != MapConst.MapHeightMagic)
             return false;
 
-        _gridHeight = mapHeader.gridHeight;
-        _flags = (uint)mapHeader.flags;
+        _gridHeight = mapHeader.GridHeight;
+        _flags = (uint)mapHeader.Flags;
 
-        if (!mapHeader.flags.HasAnyFlag(HeightHeaderFlags.NoHeight))
+        if (!mapHeader.Flags.HasAnyFlag(HeightHeaderFlags.NoHeight))
         {
-            if (mapHeader.flags.HasAnyFlag(HeightHeaderFlags.HeightAsInt16))
+            if (mapHeader.Flags.HasAnyFlag(HeightHeaderFlags.HeightAsInt16))
             {
-                Uint16_V9 = reader.ReadArray<ushort>(129 * 129);
-                Uint16_V8 = reader.ReadArray<ushort>(128 * 128);
+                Uint16V9 = reader.ReadArray<ushort>(129 * 129);
+                Uint16V8 = reader.ReadArray<ushort>(128 * 128);
 
-                _gridIntHeightMultiplier = (mapHeader.gridMaxHeight - mapHeader.gridHeight) / 65535;
+                _gridIntHeightMultiplier = (mapHeader.GridMaxHeight - mapHeader.GridHeight) / 65535;
                 _gridGetHeight = GetHeightFromUint16;
             }
-            else if (mapHeader.flags.HasAnyFlag(HeightHeaderFlags.HeightAsInt8))
+            else if (mapHeader.Flags.HasAnyFlag(HeightHeaderFlags.HeightAsInt8))
             {
-                Ubyte_V9 = reader.ReadBytes(129 * 129);
-                Ubyte_V8 = reader.ReadBytes(128 * 128);
-                _gridIntHeightMultiplier = (mapHeader.gridMaxHeight - mapHeader.gridHeight) / 255;
+                UbyteV9 = reader.ReadBytes(129 * 129);
+                UbyteV8 = reader.ReadBytes(128 * 128);
+                _gridIntHeightMultiplier = (mapHeader.GridMaxHeight - mapHeader.GridHeight) / 255;
                 _gridGetHeight = GetHeightFromUint8;
             }
             else
@@ -593,7 +593,7 @@ public class GridMap
             _gridGetHeight = GetHeightFromFlat;
         }
 
-        if (mapHeader.flags.HasAnyFlag(HeightHeaderFlags.HasFlightBounds))
+        if (mapHeader.Flags.HasAnyFlag(HeightHeaderFlags.HasFlightBounds))
         {
             reader.ReadArray<short>(3 * 3);
             var minHeights = reader.ReadArray<short>(3 * 3);
@@ -699,24 +699,24 @@ public class GridMap
         reader.BaseStream.Seek(offset, SeekOrigin.Begin);
         var liquidHeader = reader.Read<MapLiquidHeader>();
 
-        if (liquidHeader.fourcc != MapConst.MapLiquidMagic)
+        if (liquidHeader.Fourcc != MapConst.MapLiquidMagic)
             return false;
 
-        _liquidGlobalEntry = liquidHeader.liquidType;
-        _liquidGlobalFlags = (LiquidHeaderTypeFlags)liquidHeader.liquidFlags;
-        _liquidOffX = liquidHeader.offsetX;
-        _liquidOffY = liquidHeader.offsetY;
-        _liquidWidth = liquidHeader.width;
-        _liquidHeight = liquidHeader.height;
-        _liquidLevel = liquidHeader.liquidLevel;
+        _liquidGlobalEntry = liquidHeader.LiquidType;
+        _liquidGlobalFlags = (LiquidHeaderTypeFlags)liquidHeader.LiquidFlags;
+        _liquidOffX = liquidHeader.OffsetX;
+        _liquidOffY = liquidHeader.OffsetY;
+        _liquidWidth = liquidHeader.Width;
+        _liquidHeight = liquidHeader.Height;
+        _liquidLevel = liquidHeader.LiquidLevel;
 
-        if (!liquidHeader.flags.HasAnyFlag(LiquidHeaderFlags.NoType))
+        if (!liquidHeader.Flags.HasAnyFlag(LiquidHeaderFlags.NoType))
         {
             _liquidEntry = reader.ReadArray<ushort>(16 * 16);
             _liquidFlags = reader.ReadBytes(16 * 16);
         }
 
-        if (!liquidHeader.flags.HasAnyFlag(LiquidHeaderFlags.NoHeight))
+        if (!liquidHeader.Flags.HasAnyFlag(LiquidHeaderFlags.NoHeight))
             _liquidMap = reader.ReadArray<float>((uint)(_liquidWidth * _liquidHeight));
 
         return true;

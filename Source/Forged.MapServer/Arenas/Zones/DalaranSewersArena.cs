@@ -18,7 +18,7 @@ internal class DalaranSewersArena : Arena
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         switch (trigger)
@@ -43,7 +43,7 @@ internal class DalaranSewersArena : Arena
 
     public override void PostUpdateImpl(uint diff)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         _events.ExecuteEvents(eventId =>

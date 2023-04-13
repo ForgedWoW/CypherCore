@@ -7,13 +7,13 @@ namespace Forged.MapServer.Maps.Grids;
 
 public struct MapLiquidHeader
 {
-    public LiquidHeaderFlags flags;
-    public uint fourcc;
-    public byte height;
-    public byte liquidFlags;
-    public float liquidLevel;
-    public ushort liquidType;
-    public byte offsetX;
-    public byte offsetY;
-    public byte width;
+    public LiquidHeaderFlags Flags;
+    public uint Fourcc;
+    public byte Height;
+    public byte LiquidFlags;
+    public float LiquidLevel;
+    public ushort LiquidType;
+    public byte OffsetX;
+    public byte OffsetY;
+    public byte Width;
 }

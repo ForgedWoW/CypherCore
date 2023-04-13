@@ -62,6 +62,7 @@ public abstract class WorldObject : IDisposable
         _name = "";
         IsPermanentWorldObject = isWorldObject;
         ClassFactory = classFactory;
+        GameObjectFactory = classFactory.Resolve<GameObjectFactory>();
         DisableManager = classFactory.Resolve<DisableManager>();
         MMapManager = classFactory.Resolve<MMapManager>();
         VMapManager = classFactory.Resolve<VMapManager>();
@@ -133,6 +134,7 @@ public abstract class WorldObject : IDisposable
     public Unit CharmerOrOwnerOrSelf => CharmerOrOwner ?? AsUnit;
     public Player CharmerOrOwnerPlayerOrPlayerItself => CharmerOrOwnerGUID.IsPlayer ? ObjectAccessor.GetPlayer(this, CharmerOrOwnerGUID) : AsPlayer;
     public ClassFactory ClassFactory { get; }
+    public GameObjectFactory GameObjectFactory { get; }
     public CliDB CliDB { get; }
     public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
     public ConditionManager ConditionManager { get; }
@@ -845,7 +847,7 @@ public abstract class WorldObject : IDisposable
 
     public virtual void BuildUpdate(Dictionary<Player, UpdateData> data)
     {
-        var notifier = new WorldObjectChangeAccumulator(this, data, GridType.World);
+        var notifier = new WorldObjectChangeAccumulator(this, data, GridType.World, ObjectAccessor);
         Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
 
         ClearUpdateMask(false);
@@ -1562,7 +1564,7 @@ public abstract class WorldObject : IDisposable
         var map = Location.Map;
         var go = GameObjectFactory.CreateGameObject(entry, map, pos, rotation, 255, GameObjectState.Ready);
 
-        if (!go)
+        if (go == null)
             return null;
 
         PhasingHandler.InheritPhaseShift(go, this);

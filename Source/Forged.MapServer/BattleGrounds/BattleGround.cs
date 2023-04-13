@@ -35,11 +35,11 @@ public class Battleground : ZoneScript, IDisposable
     public Battleground(BattlegroundTemplate battlegroundTemplate)
     {
         _battlegroundTemplate = battlegroundTemplate;
-        m_RandomTypeID = BattlegroundTypeId.None;
-        m_Status = BattlegroundStatus.None;
+        _randomTypeID = BattlegroundTypeId.None;
+        Status = BattlegroundStatus.None;
         _winnerTeamId = PvPTeamId.Neutral;
 
-        m_HonorMode = BGHonorMode.Normal;
+        MHonorMode = BGHonorMode.Normal;
 
         StartDelayTimes[BattlegroundConst.EventIdFirst] = BattlegroundStartTimeIntervals.Delay2m;
         StartDelayTimes[BattlegroundConst.EventIdSecond] = BattlegroundStartTimeIntervals.Delay1m;
@@ -62,17 +62,17 @@ public class Battleground : ZoneScript, IDisposable
         for (var i = 0; i < BgObjects.Length; ++i)
             DelObject(i);
 
-        Global.BattlegroundMgr.RemoveBattleground(GetTypeID(), GetInstanceID());
+        Global.BattlegroundMgr.RemoveBattleground(GetTypeID(), InstanceID);
 
         // unload map
-        if (m_Map)
+        if (_map)
         {
-            m_Map.UnloadAll(); // unload all objects (they may hold a reference to bg in their ZoneScript pointer)
-            m_Map.SetUnload(); // mark for deletion by MMapManager
+            _map.UnloadAll(); // unload all objects (they may hold a reference to bg in their ZoneScript pointer)
+            _map.SetUnload(); // mark for deletion by MMapManager
 
             //unlink to prevent crash, always unlink all pointer reference before destruction
-            m_Map.SetBG(null);
-            m_Map = null;
+            _map.SetBG(null);
+            _map = null;
         }
 
         // remove from bg free slot queue
@@ -93,7 +93,7 @@ public class Battleground : ZoneScript, IDisposable
             player = Global.ObjAccessor.FindPlayer(guid);
 
             if (!player)
-                Log.Logger.Error($"Battleground.{context}: player ({guid}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+                Log.Logger.Error($"Battleground.{context}: player ({guid}) not found for BG (map: {MapId}, instance id: {_instanceID})!");
         }
 
         return player;
@@ -113,7 +113,7 @@ public class Battleground : ZoneScript, IDisposable
 
         if (Global.ObjectMgr.GetCreatureTemplate(entry) == null)
         {
-            Log.Logger.Error($"Battleground.AddCreature: creature template (entry: {entry}) does not exist for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+            Log.Logger.Error($"Battleground.AddCreature: creature template (entry: {entry}) does not exist for BG (map: {MapId}, instance id: {_instanceID})!");
 
             return null;
         }
@@ -139,7 +139,7 @@ public class Battleground : ZoneScript, IDisposable
 
         if (!creature)
         {
-            Log.Logger.Error($"Battleground.AddCreature: cannot create creature (entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+            Log.Logger.Error($"Battleground.AddCreature: cannot create creature (entry: {entry}) for BG (map: {MapId}, instance id: {_instanceID})!");
 
             return null;
         }
@@ -174,7 +174,7 @@ public class Battleground : ZoneScript, IDisposable
         // Temporally add safety check for bad spawns and send log (object rotations need to be rechecked in sniff)
         if (rotation0 == 0 && rotation1 == 0 && rotation2 == 0 && rotation3 == 0)
         {
-            Log.Logger.Debug($"Battleground.AddObject: gameoobject [entry: {entry}, object type: {type}] for BG (map: {GetMapId()}) has zeroed rotation fields, " +
+            Log.Logger.Debug($"Battleground.AddObject: gameoobject [entry: {entry}, object type: {type}] for BG (map: {MapId}) has zeroed rotation fields, " +
                              "orientation used temporally, but please fix the spawn");
 
             rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(o, 0.0f, 0.0f));
@@ -183,11 +183,11 @@ public class Battleground : ZoneScript, IDisposable
         // Must be created this way, adding to godatamap would add it to the base map of the instance
         // and when loading it (in go.LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
         // So we must create it specific for this instance
-        var go = GameObjectFactory.CreateGameObject(entry, GetBgMap(), new Position(x, y, z, o), rotation, 255, goState);
+        var go = GameObjectFactory.CreateGameObject(entry, BgMap, new Position(x, y, z, o), rotation, 255, goState);
 
         if (!go)
         {
-            Log.Logger.Error($"Battleground.AddObject: cannot create gameobject (entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+            Log.Logger.Error($"Battleground.AddObject: cannot create gameobject (entry: {entry}) for BG (map: {MapId}, instance id: {_instanceID})!");
 
             return false;
         }
@@ -261,7 +261,7 @@ public class Battleground : ZoneScript, IDisposable
 
         var isInBattleground = IsPlayerInBattleground(player.GUID);
         // Add to list/maps
-        m_Players[guid] = bp;
+        _players[guid] = bp;
 
         if (!isInBattleground)
             UpdatePlayersCountByTeam(team, false); // +1 player
@@ -275,52 +275,43 @@ public class Battleground : ZoneScript, IDisposable
 
         PVPMatchInitialize pvpMatchInitialize = new()
         {
-            MapID = GetMapId()
+            MapID = MapId
         };
 
-        switch (GetStatus())
+        pvpMatchInitialize.State = Status switch
         {
-            case BattlegroundStatus.None:
-            case BattlegroundStatus.WaitQueue:
-                pvpMatchInitialize.State = PVPMatchInitialize.MatchState.Inactive;
+            BattlegroundStatus.None       => PVPMatchInitialize.MatchState.Inactive,
+            BattlegroundStatus.WaitQueue  => PVPMatchInitialize.MatchState.Inactive,
+            BattlegroundStatus.WaitJoin   => PVPMatchInitialize.MatchState.InProgress,
+            BattlegroundStatus.InProgress => PVPMatchInitialize.MatchState.InProgress,
+            BattlegroundStatus.WaitLeave  => PVPMatchInitialize.MatchState.Complete,
+            _                             => pvpMatchInitialize.State
+        };
 
-                break;
-            case BattlegroundStatus.WaitJoin:
-            case BattlegroundStatus.InProgress:
-                pvpMatchInitialize.State = PVPMatchInitialize.MatchState.InProgress;
-
-                break;
-            case BattlegroundStatus.WaitLeave:
-                pvpMatchInitialize.State = PVPMatchInitialize.MatchState.Complete;
-
-                break;
-            
-        }
-
-        if (GetElapsedTime() >= (int)BattlegroundStartTimeIntervals.Delay2m)
+        if (ElapsedTime >= (int)BattlegroundStartTimeIntervals.Delay2m)
         {
-            pvpMatchInitialize.Duration = (int)(GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.IN_MILLISECONDS;
+            pvpMatchInitialize.Duration = (int)(ElapsedTime - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.IN_MILLISECONDS;
             pvpMatchInitialize.StartTime = GameTime.CurrentTime - pvpMatchInitialize.Duration;
         }
 
         pvpMatchInitialize.ArenaFaction = (byte)(player.GetBgTeam() == TeamFaction.Horde ? PvPTeamId.Horde : PvPTeamId.Alliance);
         pvpMatchInitialize.BattlemasterListID = (uint)GetTypeID();
         pvpMatchInitialize.Registered = false;
-        pvpMatchInitialize.AffectsRating = IsRated();
+        pvpMatchInitialize.AffectsRating = IsRated;
 
         player.SendPacket(pvpMatchInitialize);
 
         player.RemoveAurasByType(AuraType.Mounted);
 
         // add arena specific auras
-        if (IsArena())
+        if (IsArena)
         {
             player.RemoveArenaEnchantments(EnchantmentSlot.Temp);
 
             player.DestroyConjuredItems(true);
             player.UnsummonPetTemporaryIfAny();
 
-            if (GetStatus() == BattlegroundStatus.WaitJoin) // not started yet
+            if (Status == BattlegroundStatus.WaitJoin) // not started yet
             {
                 player.CastSpell(player, BattlegroundConst.SpellArenaPreparation, true);
                 player.ResetAllPowers();
@@ -328,16 +319,16 @@ public class Battleground : ZoneScript, IDisposable
         }
         else
         {
-            if (GetStatus() == BattlegroundStatus.WaitJoin) // not started yet
+            if (Status == BattlegroundStatus.WaitJoin) // not started yet
             {
                 player.CastSpell(player, BattlegroundConst.SpellPreparation, true); // reduces all mana cost of spells.
 
-                var countdownMaxForBGType = IsArena() ? BattlegroundConst.ArenaCountdownMax : BattlegroundConst.BattlegroundCountdownMax;
+                var countdownMaxForBGType = IsArena ? BattlegroundConst.ArenaCountdownMax : BattlegroundConst.BattlegroundCountdownMax;
 
                 StartTimer timer = new()
                 {
                     Type = TimerType.Pvp,
-                    TimeLeft = countdownMaxForBGType - GetElapsedTime() / 1000,
+                    TimeLeft = countdownMaxForBGType - ElapsedTime / 1000,
                     TotalTime = countdownMaxForBGType
                 };
 
@@ -364,7 +355,7 @@ public class Battleground : ZoneScript, IDisposable
 
         // reset all map criterias on map enter
         if (!isInBattleground)
-            player.ResetCriteria(CriteriaFailEvent.LeaveBattleground, GetMapId(), true);
+            player.ResetCriteria(CriteriaFailEvent.LeaveBattleground, MapId, true);
 
         // setup BG group membership
         PlayerAddedToBGCheckIfBGIsRunning(player);
@@ -376,11 +367,11 @@ public class Battleground : ZoneScript, IDisposable
         _playerPositions.Add(position);
     }
 
-    public void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid)
+    public void AddPlayerToResurrectQueue(ObjectGuid npcGUID, ObjectGuid playerGUID)
     {
-        m_ReviveQueue.Add(npc_guid, player_guid);
+        _reviveQueue.Add(npcGUID, playerGUID);
 
-        var player = Global.ObjAccessor.FindPlayer(player_guid);
+        var player = Global.ObjAccessor.FindPlayer(playerGUID);
 
         if (!player)
             return;
@@ -415,7 +406,7 @@ public class Battleground : ZoneScript, IDisposable
             return true;
         }
 
-        Log.Logger.Error($"Battleground.AddSpiritGuide: cannot create spirit guide (type: {type}, entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+        Log.Logger.Error($"Battleground.AddSpiritGuide: cannot create spirit guide (type: {type}, entry: {entry}) for BG (map: {MapId}, instance id: {_instanceID})!");
         EndNow();
 
         return false;
@@ -434,7 +425,7 @@ public class Battleground : ZoneScript, IDisposable
         {
             score.Value.BuildPvPLogPlayerDataPacket(out var playerData);
 
-            var player = Global.ObjAccessor.GetPlayer(GetBgMap(), playerData.PlayerGUID);
+            var player = Global.ObjAccessor.GetPlayer(BgMap, playerData.PlayerGUID);
 
             if (player)
             {
@@ -458,14 +449,14 @@ public class Battleground : ZoneScript, IDisposable
         return true;
     }
 
-    public void CastSpellOnTeam(uint SpellID, TeamFaction team)
+    public void CastSpellOnTeam(uint spellID, TeamFaction team)
     {
-        foreach (var pair in m_Players)
+        foreach (var pair in _players)
         {
             var player = _GetPlayerForTeam(team, pair, "CastSpellOnTeam");
 
             if (player)
-                player.CastSpell(player, SpellID, true);
+                player.CastSpell(player, spellID, true);
         }
     }
 
@@ -474,9 +465,9 @@ public class Battleground : ZoneScript, IDisposable
     public void DecreaseInvitedCount(TeamFaction team)
     {
         if (team == TeamFaction.Alliance)
-            --m_InvitedAlliance;
+            --_invitedAlliance;
         else
-            --m_InvitedHorde;
+            --_invitedHorde;
     }
 
     public bool DelCreature(int type)
@@ -484,7 +475,7 @@ public class Battleground : ZoneScript, IDisposable
         if (BgCreatures[type].IsEmpty)
             return true;
 
-        var creature = GetBgMap().GetCreature(BgCreatures[type]);
+        var creature = BgMap.GetCreature(BgCreatures[type]);
 
         if (creature)
         {
@@ -494,7 +485,7 @@ public class Battleground : ZoneScript, IDisposable
             return true;
         }
 
-        Log.Logger.Error($"Battleground.DelCreature: creature (type: {type}, {BgCreatures[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+        Log.Logger.Error($"Battleground.DelCreature: creature (type: {type}, {BgCreatures[type]}) not found for BG (map: {MapId}, instance id: {_instanceID})!");
         BgCreatures[type].Clear();
 
         return false;
@@ -505,7 +496,7 @@ public class Battleground : ZoneScript, IDisposable
         if (BgObjects[type].IsEmpty)
             return true;
 
-        var obj = GetBgMap().GetGameObject(BgObjects[type]);
+        var obj = BgMap.GetGameObject(BgObjects[type]);
 
         if (obj)
         {
@@ -516,7 +507,7 @@ public class Battleground : ZoneScript, IDisposable
             return true;
         }
 
-        Log.Logger.Error($"Battleground.DelObject: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+        Log.Logger.Error($"Battleground.DelObject: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {MapId}, instance id: {_instanceID})!");
         BgObjects[type].Clear();
 
         return false;
@@ -531,7 +522,7 @@ public class Battleground : ZoneScript, IDisposable
     // It would be nice to correctly implement GO_ACTIVATED state and open/close doors in gameobject code
     public void DoorClose(int type)
     {
-        var obj = GetBgMap().GetGameObject(BgObjects[type]);
+        var obj = BgMap.GetGameObject(BgObjects[type]);
 
         if (obj)
         {
@@ -544,13 +535,13 @@ public class Battleground : ZoneScript, IDisposable
         }
         else
         {
-            Log.Logger.Error($"Battleground.DoorClose: door gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+            Log.Logger.Error($"Battleground.DoorClose: door gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {MapId}, instance id: {_instanceID})!");
         }
     }
 
     public void DoorOpen(int type)
     {
-        var obj = GetBgMap().GetGameObject(BgObjects[type]);
+        var obj = BgMap.GetGameObject(BgObjects[type]);
 
         if (obj)
         {
@@ -559,7 +550,7 @@ public class Battleground : ZoneScript, IDisposable
         }
         else
         {
-            Log.Logger.Error($"Battleground.DoorOpen: door gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+            Log.Logger.Error($"Battleground.DoorOpen: door gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {MapId}, instance id: {_instanceID})!");
         }
     }
 
@@ -571,7 +562,7 @@ public class Battleground : ZoneScript, IDisposable
 
         if (winner == TeamFaction.Alliance)
         {
-            if (IsBattleground())
+            if (IsBattleground)
                 SendBroadcastText(BattlegroundBroadcastTexts.AllianceWins, ChatMsg.BgSystemNeutral);
 
             PlaySoundToAll((uint)BattlegroundSounds.AllianceWins);
@@ -579,7 +570,7 @@ public class Battleground : ZoneScript, IDisposable
         }
         else if (winner == TeamFaction.Horde)
         {
-            if (IsBattleground())
+            if (IsBattleground)
                 SendBroadcastText(BattlegroundBroadcastTexts.HordeWins, ChatMsg.BgSystemNeutral);
 
             PlaySoundToAll((uint)BattlegroundSounds.HordeWins);
@@ -593,7 +584,7 @@ public class Battleground : ZoneScript, IDisposable
         PreparedStatement stmt;
         ulong battlegroundId = 1;
 
-        if (IsBattleground() && GetDefaultValue("Battleground.StoreStatistics.Enable", false))
+        if (IsBattleground && GetDefaultValue("Battleground.StoreStatistics.Enable", false))
         {
             stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_MAXID);
             var result = DB.Characters.Query(stmt);
@@ -616,13 +607,13 @@ public class Battleground : ZoneScript, IDisposable
         PVPMatchComplete pvpMatchComplete = new()
         {
             Winner = (byte)GetWinner(),
-            Duration = (int)Math.Max(0, (GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.IN_MILLISECONDS)
+            Duration = (int)Math.Max(0, (ElapsedTime - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.IN_MILLISECONDS)
         };
 
         BuildPvPLogDataPacket(out pvpMatchComplete.LogData);
         pvpMatchComplete.Write();
 
-        foreach (var pair in m_Players)
+        foreach (var pair in _players)
         {
             var team = pair.Value.Team;
 
@@ -653,7 +644,7 @@ public class Battleground : ZoneScript, IDisposable
             var winnerKills = player.GetRandomWinner() ? GetDefaultValue("Battleground.RewardWinnerHonorLast", 13500) : GetDefaultValue("Battleground.RewardWinnerHonorFirst", 27000);
             var loserKills = player.GetRandomWinner() ? GetDefaultValue("Battleground.RewardLoserHonorLast", 3500) : GetDefaultValue("Battleground.RewardLoserHonorFirst", 4500);
 
-            if (IsBattleground() && GetDefaultValue("Battleground.StoreStatistics.Enable", false))
+            if (IsBattleground && GetDefaultValue("Battleground.StoreStatistics.Enable", false))
             {
                 stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PVPSTATS_PLAYER);
                 var score = PlayerScores.LookupByKey(player.GUID);
@@ -679,7 +670,7 @@ public class Battleground : ZoneScript, IDisposable
             // Reward winner team
             if (team == winner)
             {
-                if (IsRandom() || Global.BattlegroundMgr.IsBGWeekend(GetTypeID()))
+                if (IsRandom || Global.BattlegroundMgr.IsBGWeekend(GetTypeID()))
                 {
                     UpdatePlayerScore(player, ScoreType.BonusHonor, GetBonusHonorFromKill(winnerKills));
 
@@ -697,7 +688,7 @@ public class Battleground : ZoneScript, IDisposable
                 if (!guildAwarded)
                 {
                     guildAwarded = true;
-                    var guildId = GetBgMap().GetOwnerGuildId(player.GetBgTeam());
+                    var guildId = BgMap.GetOwnerGuildId(player.GetBgTeam());
 
                     if (guildId != 0)
                     {
@@ -710,7 +701,7 @@ public class Battleground : ZoneScript, IDisposable
             }
             else
             {
-                if (IsRandom() || Global.BattlegroundMgr.IsBGWeekend(GetTypeID()))
+                if (IsRandom || Global.BattlegroundMgr.IsBGWeekend(GetTypeID()))
                     UpdatePlayerScore(player, ScoreType.BonusHonor, GetBonusHonorFromKill(loserKills));
             }
 
@@ -725,7 +716,7 @@ public class Battleground : ZoneScript, IDisposable
         }
     }
 
-    public virtual void EventPlayerClickedOnFlag(Player player, GameObject target_obj) { }
+    public virtual void EventPlayerClickedOnFlag(Player player, GameObject targetObj) { }
 
     // Battleground events
     public virtual void EventPlayerDroppedFlag(Player player) { }
@@ -736,15 +727,15 @@ public class Battleground : ZoneScript, IDisposable
         var guid = player.GUID;
 
         // player is correct pointer
-        foreach (var id in m_OfflineQueue)
+        foreach (var id in _offlineQueue)
             if (id == guid)
             {
-                m_OfflineQueue.Remove(id);
+                _offlineQueue.Remove(id);
 
                 break;
             }
 
-        m_Players[guid].OfflineRemoveTime = 0;
+        _players[guid].OfflineRemoveTime = 0;
         PlayerAddedToBGCheckIfBGIsRunning(player);
         // if Battleground is starting, then add preparation aura
         // we don't have to do that, because preparation aura isn't removed when player logs out
@@ -759,27 +750,27 @@ public class Battleground : ZoneScript, IDisposable
             return;
 
         // player is correct pointer, it is checked in WorldSession.LogoutPlayer()
-        m_OfflineQueue.Add(player.GUID);
-        m_Players[guid].OfflineRemoveTime = GameTime.CurrentTime + BattlegroundConst.MaxOfflineTime;
+        _offlineQueue.Add(player.GUID);
+        _players[guid].OfflineRemoveTime = GameTime.CurrentTime + BattlegroundConst.MaxOfflineTime;
 
-        if (GetStatus() == BattlegroundStatus.InProgress)
+        if (Status == BattlegroundStatus.InProgress)
         {
             // drop Id and handle other cleanups
             RemovePlayer(player, guid, GetPlayerTeam(guid));
 
             // 1 player is logging out, if it is the last alive, then end arena!
-            if (IsArena() && player.IsAlive)
+            if (IsArena && player.IsAlive)
                 if (GetAlivePlayersCountByTeam(player.GetBgTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player.GetBgTeam())) != 0)
                     EndBattleground(GetOtherTeam(player.GetBgTeam()));
         }
     }
 
-    public uint GetAlivePlayersCountByTeam(TeamFaction Team)
+    public uint GetAlivePlayersCountByTeam(TeamFaction team)
     {
         uint count = 0;
 
-        foreach (var pair in m_Players)
-            if (pair.Value.Team == Team)
+        foreach (var pair in _players)
+            if (pair.Value.Team == team)
             {
                 var player = Global.ObjAccessor.FindPlayer(pair.Key);
 
@@ -792,51 +783,45 @@ public class Battleground : ZoneScript, IDisposable
 
     public uint GetArenaMatchmakerRating(TeamFaction team)
     {
-        return m_ArenaTeamMMR[GetTeamIndexByTeamId(team)];
+        return _arenaTeamMmr[GetTeamIndexByTeamId(team)];
     }
 
     public uint GetArenaTeamIdByIndex(uint index)
     {
-        return m_ArenaTeamIds[index];
+        return _arenaTeamIds[index];
     }
 
     public uint GetArenaTeamIdForTeam(TeamFaction team)
     {
-        return m_ArenaTeamIds[GetTeamIndexByTeamId(team)];
+        return _arenaTeamIds[GetTeamIndexByTeamId(team)];
     }
 
-    public ArenaTypes GetArenaType()
-    {
-        return m_ArenaType;
-    }
+    public ArenaTypes ArenaType => _arenaType;
 
     public Creature GetBGCreature(int type)
     {
         if (BgCreatures[type].IsEmpty)
             return null;
 
-        var creature = GetBgMap().GetCreature(BgCreatures[type]);
+        var creature = BgMap.GetCreature(BgCreatures[type]);
 
         if (!creature)
-            Log.Logger.Error($"Battleground.GetBGCreature: creature (type: {type}, {BgCreatures[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+            Log.Logger.Error($"Battleground.GetBGCreature: creature (type: {type}, {BgCreatures[type]}) not found for BG (map: {MapId}, instance id: {_instanceID})!");
 
         return creature;
     }
 
-    public BattlegroundMap GetBgMap()
-    {
-        return m_Map;
-    }
+    public BattlegroundMap BgMap => _map;
 
     public GameObject GetBGObject(int type)
     {
         if (BgObjects[type].IsEmpty)
             return null;
 
-        var obj = GetBgMap().GetGameObject(BgObjects[type]);
+        var obj = BgMap.GetGameObject(BgObjects[type]);
 
         if (!obj)
-            Log.Logger.Error($"Battleground.GetBGObject: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+            Log.Logger.Error($"Battleground.GetBGObject: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {MapId}, instance id: {_instanceID})!");
 
         return obj;
     }
@@ -844,20 +829,14 @@ public class Battleground : ZoneScript, IDisposable
     public uint GetBonusHonorFromKill(uint kills)
     {
         //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
-        var maxLevel = Math.Min(GetMaxLevel(), 80U);
+        var maxLevel = Math.Min(MaxLevel, 80U);
 
         return Formulas.HKHonorAtLevel(maxLevel, kills);
     }
 
-    public BattlegroundBracketId GetBracketId()
-    {
-        return _pvpDifficultyEntry.GetBracketId();
-    }
+    public BattlegroundBracketId BracketId => _pvpDifficultyEntry.BracketId;
 
-    public uint GetClientInstanceID()
-    {
-        return m_ClientInstanceID;
-    }
+    public uint ClientInstanceID => _clientInstanceID;
 
     public virtual WorldSafeLocsEntry GetClosestGraveYard(Player player)
     {
@@ -869,10 +848,7 @@ public class Battleground : ZoneScript, IDisposable
         return (Battleground)MemberwiseClone();
     }
 
-    public uint GetElapsedTime()
-    {
-        return m_StartTime;
-    }
+    public uint ElapsedTime => _startTime;
 
     public virtual WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
     {
@@ -886,11 +862,11 @@ public class Battleground : ZoneScript, IDisposable
 
     // get the number of free slots for team
     // returns the number how many players can join Battleground to MaxPlayersPerTeam
-    public uint GetFreeSlotsForTeam(TeamFaction Team)
+    public uint GetFreeSlotsForTeam(TeamFaction team)
     {
         // if BG is starting and WorldCfg.BattlegroundInvitationType == BattlegroundQueueInvitationTypeB.NoBalance, invite anyone
-        if (GetStatus() == BattlegroundStatus.WaitJoin && GetDefaultValue("Battleground.InvitationType", 0) == (int)BattlegroundQueueInvitationType.NoBalance)
-            return GetInvitedCount(Team) < GetMaxPlayersPerTeam() ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
+        if (Status == BattlegroundStatus.WaitJoin && GetDefaultValue("Battleground.InvitationType", 0) == (int)BattlegroundQueueInvitationType.NoBalance)
+            return GetInvitedCount(team) < GetMaxPlayersPerTeam() ? GetMaxPlayersPerTeam() - GetInvitedCount(team) : 0;
 
         // if BG is already started or WorldCfg.BattlegroundInvitationType != BattlegroundQueueInvitationType.NoBalance, do not allow to join too much players of one faction
         uint otherTeamInvitedCount;
@@ -898,7 +874,7 @@ public class Battleground : ZoneScript, IDisposable
         uint otherTeamPlayersCount;
         uint thisTeamPlayersCount;
 
-        if (Team == TeamFaction.Alliance)
+        if (team == TeamFaction.Alliance)
         {
             thisTeamInvitedCount = GetInvitedCount(TeamFaction.Alliance);
             otherTeamInvitedCount = GetInvitedCount(TeamFaction.Horde);
@@ -913,7 +889,7 @@ public class Battleground : ZoneScript, IDisposable
             otherTeamPlayersCount = GetPlayersCountByTeam(TeamFaction.Alliance);
         }
 
-        if (GetStatus() == BattlegroundStatus.InProgress || GetStatus() == BattlegroundStatus.WaitJoin)
+        if (Status == BattlegroundStatus.InProgress || Status == BattlegroundStatus.WaitJoin)
         {
             // difference based on ppl invited (not necessarily entered battle)
             // default: allow 0
@@ -939,8 +915,8 @@ public class Battleground : ZoneScript, IDisposable
             else if (otherTeamPlayersCount > thisTeamPlayersCount)
                 diff3 = otherTeamPlayersCount - thisTeamPlayersCount;
             // or other side has less than minPlayersPerTeam
-            else if (thisTeamInvitedCount <= GetMinPlayersPerTeam())
-                diff3 = GetMinPlayersPerTeam() - thisTeamInvitedCount + 1;
+            else if (thisTeamInvitedCount <= MinPlayersPerTeam)
+                diff3 = MinPlayersPerTeam - thisTeamInvitedCount + 1;
 
             // return the minimum of the 3 differences
 
@@ -954,63 +930,34 @@ public class Battleground : ZoneScript, IDisposable
         return 0;
     }
 
-    public uint GetInstanceID()
+    public uint InstanceID => _instanceID;
+
+    public uint LastResurrectTime => _lastResurrectTime;
+
+    public uint MapId => (uint)_battlegroundTemplate.BattlemasterEntry.MapId[0];
+
+    public uint MaxLevel => _pvpDifficultyEntry?.MaxLevel ?? _battlegroundTemplate.MaxLevel;
+
+    public int GetMaxPlayersPerTeam()
     {
-        return m_InstanceID;
+        if (!IsArena)
+            return _battlegroundTemplate.MaxPlayersPerTeam;
+
+        return ArenaType switch
+        {
+            ArenaTypes.Team2v2 => 2,
+            ArenaTypes.Team3v3 => 3,
+            ArenaTypes.Team5v5 => // removed
+                5,
+            _ => _battlegroundTemplate.MaxPlayersPerTeam
+        };
     }
 
-    public uint GetLastResurrectTime()
-    {
-        return m_LastResurrectTime;
-    }
+    public uint MinLevel => _pvpDifficultyEntry?.MinLevel ?? _battlegroundTemplate.MinLevel;
 
-    public uint GetMapId()
-    {
-        return (uint)_battlegroundTemplate.BattlemasterEntry.MapId[0];
-    }
+    public int MinPlayersPerTeam => _battlegroundTemplate.MinPlayersPerTeam;
 
-    public uint GetMaxLevel()
-    {
-        if (_pvpDifficultyEntry != null)
-            return _pvpDifficultyEntry.MaxLevel;
-
-        return _battlegroundTemplate.GetMaxLevel();
-    }
-
-    public uint GetMaxPlayersPerTeam()
-    {
-        if (IsArena())
-            switch (GetArenaType())
-            {
-                case ArenaTypes.Team2v2:
-                    return 2;
-                case ArenaTypes.Team3v3:
-                    return 3;
-                case ArenaTypes.Team5v5: // removed
-                    return 5;
-                
-            }
-
-        return _battlegroundTemplate.GetMaxPlayersPerTeam();
-    }
-
-    public uint GetMinLevel()
-    {
-        if (_pvpDifficultyEntry != null)
-            return _pvpDifficultyEntry.MinLevel;
-
-        return _battlegroundTemplate.GetMinLevel();
-    }
-
-    public uint GetMinPlayersPerTeam()
-    {
-        return _battlegroundTemplate.GetMinPlayersPerTeam();
-    }
-
-    public string GetName()
-    {
-        return _battlegroundTemplate.BattlemasterEntry.Name[Global.WorldMgr.DefaultDbcLocale];
-    }
+    public string Name => _battlegroundTemplate.BattlemasterEntry.Name[Global.WorldMgr.DefaultDbcLocale];
 
     public TeamFaction GetOtherTeam(TeamFaction teamId)
     {
@@ -1024,19 +971,19 @@ public class Battleground : ZoneScript, IDisposable
 
     public Dictionary<ObjectGuid, BattlegroundPlayer> GetPlayers()
     {
-        return m_Players;
+        return _players;
     }
 
     public uint GetPlayersCountByTeam(TeamFaction team)
     {
-        return m_PlayersCount[GetTeamIndexByTeamId(team)];
+        return _playersCount[GetTeamIndexByTeamId(team)];
     }
 
     // Return the player's team based on Battlegroundplayer info
     // Used in same faction arena matches mainly
     public TeamFaction GetPlayerTeam(ObjectGuid guid)
     {
-        if (m_Players.TryGetValue(guid, out var player))
+        if (_players.TryGetValue(guid, out var player))
             return player.Team;
 
         return 0;
@@ -1046,9 +993,9 @@ public class Battleground : ZoneScript, IDisposable
     {
         TeamFaction winner = 0;
 
-        if (GetPlayersCountByTeam(TeamFaction.Alliance) >= GetMinPlayersPerTeam())
+        if (GetPlayersCountByTeam(TeamFaction.Alliance) >= MinPlayersPerTeam)
             winner = TeamFaction.Alliance;
-        else if (GetPlayersCountByTeam(TeamFaction.Horde) >= GetMinPlayersPerTeam())
+        else if (GetPlayersCountByTeam(TeamFaction.Horde) >= MinPlayersPerTeam)
             winner = TeamFaction.Horde;
 
         return winner;
@@ -1056,23 +1003,17 @@ public class Battleground : ZoneScript, IDisposable
 
     public BattlegroundQueueTypeId GetQueueId()
     {
-        return m_queueId;
+        return _queueId;
     }
 
-    public uint GetRemainingTime()
-    {
-        return (uint)m_EndTime;
-    }
+    public uint RemainingTime => (uint)_endTime;
 
-    public BattlegroundStatus GetStatus()
-    {
-        return m_Status;
-    }
+    public BattlegroundStatus Status { get; private set; }
 
     public uint GetTeamScore(int teamIndex)
     {
         if (teamIndex is TeamIds.Alliance or TeamIds.Horde)
-            return m_TeamScores[teamIndex];
+            return MTeamScores[teamIndex];
 
         Log.Logger.Error("GetTeamScore with wrong Team {0} for BG {1}", teamIndex, GetTypeID());
 
@@ -1086,7 +1027,7 @@ public class Battleground : ZoneScript, IDisposable
 
     public BattlegroundTypeId GetTypeID(bool getRandom = false)
     {
-        return getRandom ? m_RandomTypeID : _battlegroundTemplate.Id;
+        return getRandom ? _randomTypeID : _battlegroundTemplate.Id;
     }
 
     public virtual void HandleAreaTrigger(Player player, uint trigger, bool entered)
@@ -1118,7 +1059,7 @@ public class Battleground : ZoneScript, IDisposable
             UpdatePlayerScore(killer, ScoreType.HonorableKills, 1);
             UpdatePlayerScore(killer, ScoreType.KillingBlows, 1);
 
-            foreach (var (guid, player) in m_Players)
+            foreach (var (guid, player) in _players)
             {
                 var creditedPlayer = Global.ObjAccessor.FindPlayer(guid);
 
@@ -1130,7 +1071,7 @@ public class Battleground : ZoneScript, IDisposable
             }
         }
 
-        if (!IsArena())
+        if (!IsArena)
         {
             // To be able to remove insignia -- ONLY IN Battlegrounds
             victim.SetUnitFlag(UnitFlags.Skinnable);
@@ -1161,7 +1102,7 @@ public class Battleground : ZoneScript, IDisposable
             return;
         }
 
-        var obj = GetBgMap().GetGameObject(goGuid);
+        var obj = BgMap.GetGameObject(goGuid);
 
         if (!obj || obj.GoType != GameObjectTypes.Trap || !obj.IsSpawned)
             return;
@@ -1174,7 +1115,7 @@ public class Battleground : ZoneScript, IDisposable
 
         if (index < 0)
         {
-            Log.Logger.Error($"Battleground.HandleTriggerBuff: cannot find buff gameobject ({goGuid}, entry: {obj.Entry}, type: {obj.GoType}) in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+            Log.Logger.Error($"Battleground.HandleTriggerBuff: cannot find buff gameobject ({goGuid}, entry: {obj.Entry}, type: {obj.GoType}) in internal data for BG (map: {MapId}, instance id: {_instanceID})!");
 
             return;
         }
@@ -1183,14 +1124,14 @@ public class Battleground : ZoneScript, IDisposable
         var buff = RandomHelper.IRand(0, 2);
         var entry = obj.Entry;
 
-        if (m_BuffChange && entry != Buff_Entries[buff])
+        if (MBuffChange && entry != BuffEntries[buff])
         {
             // Despawn current buff
             SpawnBGObject(index, BattlegroundConst.RespawnOneDay);
 
             // Set index for new one
             for (byte currBuffTypeIndex = 0; currBuffTypeIndex < 3; ++currBuffTypeIndex)
-                if (entry == Buff_Entries[currBuffTypeIndex])
+                if (entry == BuffEntries[currBuffTypeIndex])
                 {
                     index -= currBuffTypeIndex;
                     index += buff;
@@ -1200,51 +1141,36 @@ public class Battleground : ZoneScript, IDisposable
         SpawnBGObject(index, BattlegroundConst.BuffRespawnTime);
     }
 
-    public bool HasFreeSlots()
-    {
-        return GetPlayersSize() < GetMaxPlayers();
-    }
+    public bool HasFreeSlots => GetPlayersSize() < GetMaxPlayers();
 
     public void IncreaseInvitedCount(TeamFaction team)
     {
         if (team == TeamFaction.Alliance)
-            ++m_InvitedAlliance;
+            ++_invitedAlliance;
         else
-            ++m_InvitedHorde;
+            ++_invitedHorde;
     }
 
-    public bool IsArena()
-    {
-        return _battlegroundTemplate.IsArena();
-    }
+    public bool IsArena => _battlegroundTemplate.IsArena;
 
-    public bool IsBattleground()
-    {
-        return !IsArena();
-    }
+    public bool IsBattleground => !IsArena;
 
     public bool IsPlayerInBattleground(ObjectGuid guid)
     {
-        return m_Players.ContainsKey(guid);
+        return _players.ContainsKey(guid);
     }
 
     public bool IsPlayerMercenaryInBattleground(ObjectGuid guid)
     {
-        if (m_Players.TryGetValue(guid, out var player))
+        if (_players.TryGetValue(guid, out var player))
             return player.Mercenary;
 
         return false;
     }
 
-    public bool IsRandom()
-    {
-        return m_IsRandom;
-    }
+    public bool IsRandom => _isRandom;
 
-    public bool IsRated()
-    {
-        return m_IsRated;
-    }
+    public bool IsRated => _isRated;
 
     public virtual bool IsSpellAllowed(uint spellId, Player player)
     {
@@ -1268,7 +1194,7 @@ public class Battleground : ZoneScript, IDisposable
     public void RelocateDeadPlayers(ObjectGuid guideGuid)
     {
         // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-        var ghostList = m_ReviveQueue[guideGuid];
+        var ghostList = _reviveQueue[guideGuid];
 
         if (!ghostList.Empty())
         {
@@ -1295,24 +1221,24 @@ public class Battleground : ZoneScript, IDisposable
     // This method removes this Battleground from free queue - it must be called when deleting Battleground
     public void RemoveFromBGFreeSlotQueue()
     {
-        if (m_InBGFreeSlotQueue)
+        if (_inBGFreeSlotQueue)
         {
-            Global.BattlegroundMgr.RemoveFromBGFreeSlotQueue(GetQueueId(), m_InstanceID);
-            m_InBGFreeSlotQueue = false;
+            Global.BattlegroundMgr.RemoveFromBGFreeSlotQueue(GetQueueId(), _instanceID);
+            _inBGFreeSlotQueue = false;
         }
     }
 
     public virtual void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team) { }
 
-    public virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket)
+    public virtual void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
     {
         var team = GetPlayerTeam(guid);
         var participant = false;
         // Remove from lists/maps
-        if (m_Players.ContainsKey(guid))
+        if (_players.ContainsKey(guid))
         {
             UpdatePlayersCountByTeam(team, true); // -1 player
-            m_Players.Remove(guid);
+            _players.Remove(guid);
             // check if the player was a participant of the match, or only entered through gm command (goname)
             participant = true;
         }
@@ -1360,14 +1286,14 @@ public class Battleground : ZoneScript, IDisposable
                 player.ClearAfkReports();
 
                 // if arena, remove the specific arena auras
-                if (IsArena())
+                if (IsArena)
                 {
                     // unsummon current and summon old pet if there was one and there isn't a current pet
                     player.RemovePet(null, PetSaveMode.NotInSlot);
                     player.ResummonPetTemporaryUnSummonedIfAny();
                 }
 
-                if (SendPacket)
+                if (sendPacket)
                 {
                     Global.BattlegroundMgr.BuildBattlegroundStatusNone(out var battlefieldStatus, player, player.GetBattlegroundQueueIndex(bgQueueTypeId), player.GetBattlegroundQueueJoinTime(bgQueueTypeId));
                     player.SendPacket(battlefieldStatus);
@@ -1387,11 +1313,11 @@ public class Battleground : ZoneScript, IDisposable
             DecreaseInvitedCount(team);
 
             //we should update Battleground queue, but only if bg isn't ending
-            if (IsBattleground() && GetStatus() < BattlegroundStatus.WaitLeave)
+            if (IsBattleground && Status < BattlegroundStatus.WaitLeave)
             {
                 // a player has left the Battleground, so there are free slots . add to queue
                 AddToBGFreeSlotQueue();
-                Global.BattlegroundMgr.ScheduleQueueUpdate(0, bgQueueTypeId, GetBracketId());
+                Global.BattlegroundMgr.ScheduleQueueUpdate(0, bgQueueTypeId, BracketId);
             }
 
             // Let others know
@@ -1411,9 +1337,9 @@ public class Battleground : ZoneScript, IDisposable
             player.SetBgTeam(0);
 
             // remove all criterias on bg leave
-            player.ResetCriteria(CriteriaFailEvent.LeaveBattleground, GetMapId(), true);
+            player.ResetCriteria(CriteriaFailEvent.LeaveBattleground, MapId, true);
 
-            if (Transport)
+            if (transport)
                 player.TeleportToBGEntryPoint();
 
             Log.Logger.Debug("Removed player {0} from Battleground.", player.GetName());
@@ -1422,13 +1348,13 @@ public class Battleground : ZoneScript, IDisposable
         //Battleground object will be deleted next Battleground.Update() call
     }
 
-    public void RemovePlayerFromResurrectQueue(ObjectGuid player_guid)
+    public void RemovePlayerFromResurrectQueue(ObjectGuid playerGUID)
     {
-        m_ReviveQueue.RemoveIfMatching((pair) =>
+        _reviveQueue.RemoveIfMatching((pair) =>
         {
-            if (pair.Value == player_guid)
+            if (pair.Value == playerGUID)
             {
-                var player = Global.ObjAccessor.FindPlayer(player_guid);
+                var player = Global.ObjAccessor.FindPlayer(playerGUID);
 
                 if (player)
                     player.RemoveAura(BattlegroundConst.SpellWaitingForResurrect);
@@ -1453,39 +1379,39 @@ public class Battleground : ZoneScript, IDisposable
         SetElapsedTime(0);
         SetRemainingTime(0);
         SetLastResurrectTime(0);
-        m_Events = 0;
+        _battlegroundEventFlags = 0;
 
-        if (m_InvitedAlliance > 0 || m_InvitedHorde > 0)
-            Log.Logger.Error($"Battleground.Reset: one of the counters is not 0 (Team.Alliance: {m_InvitedAlliance}, Team.Horde: {m_InvitedHorde}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+        if (_invitedAlliance > 0 || _invitedHorde > 0)
+            Log.Logger.Error($"Battleground.Reset: one of the counters is not 0 (Team.Alliance: {_invitedAlliance}, Team.Horde: {_invitedHorde}) for BG (map: {MapId}, instance id: {_instanceID})!");
 
-        m_InvitedAlliance = 0;
-        m_InvitedHorde = 0;
-        m_InBGFreeSlotQueue = false;
+        _invitedAlliance = 0;
+        _invitedHorde = 0;
+        _inBGFreeSlotQueue = false;
 
-        m_Players.Clear();
+        _players.Clear();
 
         PlayerScores.Clear();
 
         _playerPositions.Clear();
     }
 
-    public void RewardHonorToTeam(uint Honor, TeamFaction team)
+    public void RewardHonorToTeam(uint honor, TeamFaction team)
     {
-        foreach (var pair in m_Players)
+        foreach (var pair in _players)
         {
             var player = _GetPlayerForTeam(team, pair, "RewardHonorToTeam");
 
             if (player)
-                UpdatePlayerScore(player, ScoreType.BonusHonor, Honor);
+                UpdatePlayerScore(player, ScoreType.BonusHonor, honor);
         }
     }
 
-    public void RewardReputationToTeam(uint faction_id, uint Reputation, TeamFaction team)
+    public void RewardReputationToTeam(uint factionID, uint reputation, TeamFaction team)
     {
-        if (!CliDB.FactionStorage.TryGetValue(faction_id, out var factionEntry))
+        if (!CliDB.FactionStorage.TryGetValue(factionID, out var factionEntry))
             return;
 
-        foreach (var pair in m_Players)
+        foreach (var pair in _players)
         {
             var player = _GetPlayerForTeam(team, pair, "RewardReputationToTeam");
 
@@ -1495,9 +1421,9 @@ public class Battleground : ZoneScript, IDisposable
             if (player.HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode))
                 continue;
 
-            var repGain = Reputation;
+            var repGain = reputation;
             MathFunctions.AddPct(ref repGain, player.GetTotalAuraModifier(AuraType.ModReputationGain));
-            MathFunctions.AddPct(ref repGain, player.GetTotalAuraModifierByMiscValue(AuraType.ModFactionReputationGain, (int)faction_id));
+            MathFunctions.AddPct(ref repGain, player.GetTotalAuraModifierByMiscValue(AuraType.ModFactionReputationGain, (int)factionID));
             player.ReputationMgr.ModifyReputation(factionEntry, (int)repGain);
         }
     }
@@ -1543,7 +1469,7 @@ public class Battleground : ZoneScript, IDisposable
 
     public void SendPacketToAll(ServerPacket packet)
     {
-        foreach (var pair in m_Players)
+        foreach (var pair in _players)
         {
             var player = _GetPlayer(pair, "SendPacketToAll");
 
@@ -1552,24 +1478,24 @@ public class Battleground : ZoneScript, IDisposable
         }
     }
 
-    public void SetArenaMatchmakerRating(TeamFaction team, uint MMR)
+    public void SetArenaMatchmakerRating(TeamFaction team, uint mmr)
     {
-        m_ArenaTeamMMR[GetTeamIndexByTeamId(team)] = MMR;
+        _arenaTeamMmr[GetTeamIndexByTeamId(team)] = mmr;
     }
 
-    public void SetArenaTeamIdForTeam(TeamFaction team, uint ArenaTeamId)
+    public void SetArenaTeamIdForTeam(TeamFaction team, uint arenaTeamId)
     {
-        m_ArenaTeamIds[GetTeamIndexByTeamId(team)] = ArenaTeamId;
+        _arenaTeamIds[GetTeamIndexByTeamId(team)] = arenaTeamId;
     }
 
     public void SetArenaType(ArenaTypes type)
     {
-        m_ArenaType = type;
+        _arenaType = type;
     }
 
     public void SetBgMap(BattlegroundMap map)
     {
-        m_Map = map;
+        _map = map;
     }
 
     public void SetBracket(PvpDifficultyRecord bracketEntry)
@@ -1577,62 +1503,62 @@ public class Battleground : ZoneScript, IDisposable
         _pvpDifficultyEntry = bracketEntry;
     }
 
-    public void SetClientInstanceID(uint InstanceID)
+    public void SetClientInstanceID(uint instanceID)
     {
-        m_ClientInstanceID = InstanceID;
+        _clientInstanceID = instanceID;
     }
 
     public virtual void SetDroppedFlagGUID(ObjectGuid guid, int teamIndex = -1) { }
 
-    public void SetElapsedTime(uint Time)
+    public void SetElapsedTime(uint time)
     {
-        m_StartTime = Time;
+        _startTime = time;
     }
 
-    public void SetHoliday(bool is_holiday)
+    public void SetHoliday(bool isHoliday)
     {
-        m_HonorMode = is_holiday ? BGHonorMode.Holiday : BGHonorMode.Normal;
+        MHonorMode = isHoliday ? BGHonorMode.Holiday : BGHonorMode.Normal;
     }
 
     //here we can count minlevel and maxlevel for players
-    public void SetInstanceID(uint InstanceID)
+    public void SetInstanceID(uint instanceID)
     {
-        m_InstanceID = InstanceID;
+        _instanceID = instanceID;
     }
 
-    public void SetLastResurrectTime(uint Time)
+    public void SetLastResurrectTime(uint time)
     {
-        m_LastResurrectTime = Time;
+        _lastResurrectTime = time;
     }
 
     public void SetQueueId(BattlegroundQueueTypeId queueId)
     {
-        m_queueId = queueId;
+        _queueId = queueId;
     }
 
     public void SetRandom(bool isRandom)
     {
-        m_IsRandom = isRandom;
+        _isRandom = isRandom;
     }
 
-    public void SetRandomTypeID(BattlegroundTypeId TypeID)
+    public void SetRandomTypeID(BattlegroundTypeId typeID)
     {
-        m_RandomTypeID = TypeID;
+        _randomTypeID = typeID;
     }
 
     public void SetRated(bool state)
     {
-        m_IsRated = state;
+        _isRated = state;
     }
 
-    public void SetRemainingTime(uint Time)
+    public void SetRemainingTime(uint time)
     {
-        m_EndTime = (int)Time;
+        _endTime = (int)time;
     }
 
-    public void SetStatus(BattlegroundStatus Status)
+    public void SetStatus(BattlegroundStatus status)
     {
-        m_Status = Status;
+        this.Status = status;
     }
 
     public virtual bool SetupBattleground()
@@ -1693,8 +1619,8 @@ public class Battleground : ZoneScript, IDisposable
         // and it doesn't matter if we call StartBattleground() more times, because m_Battlegrounds is a map and instance id never changes
         Global.BattlegroundMgr.AddBattleground(this);
 
-        if (m_IsRated)
-            Log.Logger.Debug("Arena match type: {0} for Team1Id: {1} - Team2Id: {2} started.", m_ArenaType, m_ArenaTeamIds[TeamIds.Alliance], m_ArenaTeamIds[TeamIds.Horde]);
+        if (_isRated)
+            Log.Logger.Debug("Arena match type: {0} for Team1Id: {1} - Team2Id: {2} started.", _arenaType, _arenaTeamIds[TeamIds.Alliance], _arenaTeamIds[TeamIds.Horde]);
     }
 
     public virtual void StartingEventCloseDoors() { }
@@ -1711,13 +1637,13 @@ public class Battleground : ZoneScript, IDisposable
 
     public bool ToBeDeleted()
     {
-        return m_SetDeleteThis;
+        return _setDeleteThis;
     }
 
     public override void TriggerGameEvent(uint gameEventId, WorldObject source = null, WorldObject target = null)
     {
         ProcessEvent(target, gameEventId, source);
-        GameEvents.TriggerForMap(gameEventId, GetBgMap(), source, target);
+        GameEvents.TriggerForMap(gameEventId, BgMap, source, target);
 
         foreach (var guid in GetPlayers().Keys)
         {
@@ -1746,12 +1672,12 @@ public class Battleground : ZoneScript, IDisposable
             // ]]
             // Battleground Template instance cannot be updated, because it would be deleted
             if (GetInvitedCount(TeamFaction.Horde) == 0 && GetInvitedCount(TeamFaction.Alliance) == 0)
-                m_SetDeleteThis = true;
+                _setDeleteThis = true;
 
             return;
         }
 
-        switch (GetStatus())
+        switch (Status)
         {
             case BattlegroundStatus.WaitJoin:
                 if (GetPlayersSize() != 0)
@@ -1766,9 +1692,9 @@ public class Battleground : ZoneScript, IDisposable
                 _ProcessPlayerPositionBroadcast(diff);
 
                 // after 47 Time.Minutes without one team losing, the arena closes with no winner and no rating change
-                if (IsArena())
+                if (IsArena)
                 {
-                    if (GetElapsedTime() >= 47 * Time.MINUTE * Time.IN_MILLISECONDS)
+                    if (ElapsedTime >= 47 * Time.MINUTE * Time.IN_MILLISECONDS)
                     {
                         EndBattleground(0);
 
@@ -1779,10 +1705,10 @@ public class Battleground : ZoneScript, IDisposable
                 {
                     _ProcessRessurect(diff);
 
-                    if (Global.BattlegroundMgr.GetPrematureFinishTime() != 0 && (GetPlayersCountByTeam(TeamFaction.Alliance) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(TeamFaction.Horde) < GetMinPlayersPerTeam()))
+                    if (Global.BattlegroundMgr.GetPrematureFinishTime() != 0 && (GetPlayersCountByTeam(TeamFaction.Alliance) < MinPlayersPerTeam || GetPlayersCountByTeam(TeamFaction.Horde) < MinPlayersPerTeam))
                         _ProcessProgress(diff);
-                    else if (m_PrematureCountDown)
-                        m_PrematureCountDown = false;
+                    else if (_prematureCountDown)
+                        _prematureCountDown = false;
                 }
 
                 break;
@@ -1794,12 +1720,12 @@ public class Battleground : ZoneScript, IDisposable
         }
 
         // Update start time and reset stats timer
-        SetElapsedTime(GetElapsedTime() + diff);
+        SetElapsedTime(ElapsedTime + diff);
 
-        if (GetStatus() == BattlegroundStatus.WaitJoin)
+        if (Status == BattlegroundStatus.WaitJoin)
         {
-            m_ResetStatTimer += diff;
-            m_CountdownTimer += diff;
+            _resetStatTimer += diff;
+            _countdownTimer += diff;
         }
 
         PostUpdateImpl(diff);
@@ -1810,7 +1736,7 @@ public class Battleground : ZoneScript, IDisposable
         if (!PlayerScores.TryGetValue(player.GUID, out var bgScore)) // player not found...
             return false;
 
-        if (type == ScoreType.BonusHonor && doAddHonor && IsBattleground())
+        if (type == ScoreType.BonusHonor && doAddHonor && IsBattleground)
             player.RewardHonor(null, 1, (int)value);
         else
             bgScore.UpdateScore(type, value);
@@ -1820,12 +1746,12 @@ public class Battleground : ZoneScript, IDisposable
 
     public void UpdateWorldState(int worldStateId, int value, bool hidden = false)
     {
-        Global.WorldStateMgr.SetValue(worldStateId, value, hidden, GetBgMap());
+        Global.WorldStateMgr.SetValue(worldStateId, value, hidden, BgMap);
     }
 
     public void UpdateWorldState(uint worldStateId, int value, bool hidden = false)
     {
-        Global.WorldStateMgr.SetValue((int)worldStateId, value, hidden, GetBgMap());
+        Global.WorldStateMgr.SetValue((int)worldStateId, value, hidden, BgMap);
     }
 
     private void _CheckSafePositions(uint diff)
@@ -1835,11 +1761,11 @@ public class Battleground : ZoneScript, IDisposable
         if (maxDist == 0.0f)
             return;
 
-        m_ValidStartPositionTimer += diff;
+        _validStartPositionTimer += diff;
 
-        if (m_ValidStartPositionTimer >= BattlegroundConst.CheckPlayerPositionInverval)
+        if (_validStartPositionTimer >= BattlegroundConst.CheckPlayerPositionInverval)
         {
-            m_ValidStartPositionTimer = 0;
+            _validStartPositionTimer = 0;
 
             foreach (var guid in GetPlayers().Keys)
             {
@@ -1855,7 +1781,7 @@ public class Battleground : ZoneScript, IDisposable
 
                     if (pos.GetExactDistSq(startPos.Location) > maxDist)
                     {
-                        Log.Logger.Debug($"Battleground: Sending {player.GetName()} back to start location (map: {GetMapId()}) (possible exploit)");
+                        Log.Logger.Debug($"Battleground: Sending {player.GetName()} back to start location (map: {MapId}) (possible exploit)");
                         player.TeleportTo(startPos.Location);
                     }
                 }
@@ -1888,12 +1814,12 @@ public class Battleground : ZoneScript, IDisposable
         // *********************************************************
         ModifyStartDelayTime((int)diff);
 
-        if (!IsArena())
+        if (!IsArena)
             SetRemainingTime(300000);
 
-        if (m_ResetStatTimer > 5000)
+        if (_resetStatTimer > 5000)
         {
-            m_ResetStatTimer = 0;
+            _resetStatTimer = 0;
 
             foreach (var guid in GetPlayers().Keys)
             {
@@ -1905,14 +1831,14 @@ public class Battleground : ZoneScript, IDisposable
         }
 
         // Send packet every 10 seconds until the 2nd field reach 0
-        if (m_CountdownTimer >= 10000)
+        if (_countdownTimer >= 10000)
         {
-            var countdownMaxForBGType = IsArena() ? BattlegroundConst.ArenaCountdownMax : BattlegroundConst.BattlegroundCountdownMax;
+            var countdownMaxForBGType = IsArena ? BattlegroundConst.ArenaCountdownMax : BattlegroundConst.BattlegroundCountdownMax;
 
             StartTimer timer = new()
             {
                 Type = TimerType.Pvp,
-                TimeLeft = countdownMaxForBGType - GetElapsedTime() / 1000,
+                TimeLeft = countdownMaxForBGType - ElapsedTime / 1000,
                 TotalTime = countdownMaxForBGType
             };
 
@@ -1924,16 +1850,16 @@ public class Battleground : ZoneScript, IDisposable
                     player.SendPacket(timer);
             }
 
-            m_CountdownTimer = 0;
+            _countdownTimer = 0;
         }
 
-        if (!m_Events.HasAnyFlag(BattlegroundEventFlags.Event1))
+        if (!_battlegroundEventFlags.HasAnyFlag(BattlegroundEventFlags.Event1))
         {
-            m_Events |= BattlegroundEventFlags.Event1;
+            _battlegroundEventFlags |= BattlegroundEventFlags.Event1;
 
             if (!FindBgMap())
             {
-                Log.Logger.Error($"Battleground._ProcessJoin: map (map id: {GetMapId()}, instance id: {m_InstanceID}) is not created!");
+                Log.Logger.Error($"Battleground._ProcessJoin: map (map id: {MapId}, instance id: {_instanceID}) is not created!");
                 EndNow();
 
                 return;
@@ -1955,25 +1881,25 @@ public class Battleground : ZoneScript, IDisposable
                 SendBroadcastText(StartMessageIds[BattlegroundConst.EventIdFirst], ChatMsg.BgSystemNeutral);
         }
         // After 1 Time.Minute or 30 seconds, warning is signaled
-        else if (GetStartDelayTime() <= (int)StartDelayTimes[BattlegroundConst.EventIdSecond] && !m_Events.HasAnyFlag(BattlegroundEventFlags.Event2))
+        else if (GetStartDelayTime() <= (int)StartDelayTimes[BattlegroundConst.EventIdSecond] && !_battlegroundEventFlags.HasAnyFlag(BattlegroundEventFlags.Event2))
         {
-            m_Events |= BattlegroundEventFlags.Event2;
+            _battlegroundEventFlags |= BattlegroundEventFlags.Event2;
 
             if (StartMessageIds[BattlegroundConst.EventIdSecond] != 0)
                 SendBroadcastText(StartMessageIds[BattlegroundConst.EventIdSecond], ChatMsg.BgSystemNeutral);
         }
         // After 30 or 15 seconds, warning is signaled
-        else if (GetStartDelayTime() <= (int)StartDelayTimes[BattlegroundConst.EventIdThird] && !m_Events.HasAnyFlag(BattlegroundEventFlags.Event3))
+        else if (GetStartDelayTime() <= (int)StartDelayTimes[BattlegroundConst.EventIdThird] && !_battlegroundEventFlags.HasAnyFlag(BattlegroundEventFlags.Event3))
         {
-            m_Events |= BattlegroundEventFlags.Event3;
+            _battlegroundEventFlags |= BattlegroundEventFlags.Event3;
 
             if (StartMessageIds[BattlegroundConst.EventIdThird] != 0)
                 SendBroadcastText(StartMessageIds[BattlegroundConst.EventIdThird], ChatMsg.BgSystemNeutral);
         }
         // Delay expired (after 2 or 1 Time.Minute)
-        else if (GetStartDelayTime() <= 0 && !m_Events.HasAnyFlag(BattlegroundEventFlags.Event4))
+        else if (GetStartDelayTime() <= 0 && !_battlegroundEventFlags.HasAnyFlag(BattlegroundEventFlags.Event4))
         {
-            m_Events |= BattlegroundEventFlags.Event4;
+            _battlegroundEventFlags |= BattlegroundEventFlags.Event4;
 
             StartingEventOpenDoors();
 
@@ -1984,7 +1910,7 @@ public class Battleground : ZoneScript, IDisposable
             SetStartDelayTime(StartDelayTimes[BattlegroundConst.EventIdFourth]);
 
             // Remove preparation
-            if (IsArena())
+            if (IsArena)
             {
                 //todo add arena sound PlaySoundToAll(SOUND_ARENA_START);
                 foreach (var guid in GetPlayers().Keys)
@@ -2035,12 +1961,12 @@ public class Battleground : ZoneScript, IDisposable
 
                 // Announce BG starting
                 if (GetDefaultValue("Battleground.QueueAnnouncer.Enable", false))
-                    Global.WorldMgr.SendWorldText(CypherStrings.BgStartedAnnounceWorld, GetName(), GetMinLevel(), GetMaxLevel());
+                    Global.WorldMgr.SendWorldText(CypherStrings.BgStartedAnnounceWorld, Name, MinLevel, MaxLevel);
             }
         }
 
-        if (GetRemainingTime() > 0 && (m_EndTime -= (int)diff) > 0)
-            SetRemainingTime(GetRemainingTime() - diff);
+        if (RemainingTime > 0 && (_endTime -= (int)diff) > 0)
+            SetRemainingTime(RemainingTime - diff);
     }
 
     private void _ProcessLeave(uint diff)
@@ -2049,13 +1975,13 @@ public class Battleground : ZoneScript, IDisposable
         // ***           Battleground ENDING SYSTEM              ***
         // *********************************************************
         // remove all players from Battleground after 2 Time.Minutes
-        SetRemainingTime(GetRemainingTime() - diff);
+        SetRemainingTime(RemainingTime - diff);
 
-        if (GetRemainingTime() <= 0)
+        if (RemainingTime <= 0)
         {
             SetRemainingTime(0);
 
-            foreach (var guid in m_Players.Keys)
+            foreach (var guid in _players.Keys)
                 RemovePlayerAtLeave(guid, true, true); // remove player from BG
             // do not change any Battleground's private variables
         }
@@ -2064,25 +1990,25 @@ public class Battleground : ZoneScript, IDisposable
     private void _ProcessOfflineQueue()
     {
         // remove offline players from bg after 5 Time.Minutes
-        if (!m_OfflineQueue.Empty())
+        if (!_offlineQueue.Empty())
         {
-            var guid = m_OfflineQueue.FirstOrDefault();
-            if (m_Players.TryGetValue(guid, out var bgPlayer))
+            var guid = _offlineQueue.FirstOrDefault();
+            if (_players.TryGetValue(guid, out var bgPlayer))
                 if (bgPlayer.OfflineRemoveTime <= GameTime.CurrentTime)
                 {
                     RemovePlayerAtLeave(guid, true, true); // remove player from BG
-                    m_OfflineQueue.RemoveAt(0);            // remove from offline queue
+                    _offlineQueue.RemoveAt(0);            // remove from offline queue
                 }
         }
     }
 
     private void _ProcessPlayerPositionBroadcast(uint diff)
     {
-        m_LastPlayerPositionBroadcast += diff;
+        _lastPlayerPositionBroadcast += diff;
 
-        if (m_LastPlayerPositionBroadcast >= BattlegroundConst.PlayerPositionUpdateInterval)
+        if (_lastPlayerPositionBroadcast >= BattlegroundConst.PlayerPositionUpdateInterval)
         {
-            m_LastPlayerPositionBroadcast = 0;
+            _lastPlayerPositionBroadcast = 0;
 
             BattlegroundPlayerPositions playerPositions = new();
 
@@ -2090,7 +2016,7 @@ public class Battleground : ZoneScript, IDisposable
             {
                 var playerPosition = _playerPositions[i];
                 // Update position data if we found player.
-                var player = Global.ObjAccessor.GetPlayer(GetBgMap(), playerPosition.Guid);
+                var player = Global.ObjAccessor.GetPlayer(BgMap, playerPosition.Guid);
 
                 if (player != null)
                     playerPosition.Pos = player.Location;
@@ -2108,35 +2034,35 @@ public class Battleground : ZoneScript, IDisposable
         // ***           Battleground BALLANCE SYSTEM            ***
         // *********************************************************
         // if less then minimum players are in on one side, then start premature finish timer
-        if (!m_PrematureCountDown)
+        if (!_prematureCountDown)
         {
-            m_PrematureCountDown = true;
-            m_PrematureCountDownTimer = Global.BattlegroundMgr.GetPrematureFinishTime();
+            _prematureCountDown = true;
+            _prematureCountDownTimer = Global.BattlegroundMgr.GetPrematureFinishTime();
         }
-        else if (m_PrematureCountDownTimer < diff)
+        else if (_prematureCountDownTimer < diff)
         {
             // time's up!
             EndBattleground(GetPrematureWinner());
-            m_PrematureCountDown = false;
+            _prematureCountDown = false;
         }
         else if (!Global.BattlegroundMgr.IsTesting())
         {
-            var newtime = m_PrematureCountDownTimer - diff;
+            var newtime = _prematureCountDownTimer - diff;
 
             // announce every Time.Minute
             if (newtime > Time.MINUTE * Time.IN_MILLISECONDS)
             {
-                if (newtime / (Time.MINUTE * Time.IN_MILLISECONDS) != m_PrematureCountDownTimer / (Time.MINUTE * Time.IN_MILLISECONDS))
-                    SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarning, ChatMsg.System, null, m_PrematureCountDownTimer / (Time.MINUTE * Time.IN_MILLISECONDS));
+                if (newtime / (Time.MINUTE * Time.IN_MILLISECONDS) != _prematureCountDownTimer / (Time.MINUTE * Time.IN_MILLISECONDS))
+                    SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarning, ChatMsg.System, null, _prematureCountDownTimer / (Time.MINUTE * Time.IN_MILLISECONDS));
             }
             else
             {
                 //announce every 15 seconds
-                if (newtime / (15 * Time.IN_MILLISECONDS) != m_PrematureCountDownTimer / (15 * Time.IN_MILLISECONDS))
-                    SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarningSecs, ChatMsg.System, null, m_PrematureCountDownTimer / Time.IN_MILLISECONDS);
+                if (newtime / (15 * Time.IN_MILLISECONDS) != _prematureCountDownTimer / (15 * Time.IN_MILLISECONDS))
+                    SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarningSecs, ChatMsg.System, null, _prematureCountDownTimer / Time.IN_MILLISECONDS);
             }
 
-            m_PrematureCountDownTimer = newtime;
+            _prematureCountDownTimer = newtime;
         }
     }
 
@@ -2146,15 +2072,15 @@ public class Battleground : ZoneScript, IDisposable
         // ***        Battleground RESSURECTION SYSTEM           ***
         // *********************************************************
         // this should be handled by spell system
-        m_LastResurrectTime += diff;
+        _lastResurrectTime += diff;
 
-        if (m_LastResurrectTime >= BattlegroundConst.ResurrectionInterval)
+        if (_lastResurrectTime >= BattlegroundConst.ResurrectionInterval)
         {
             if (GetReviveQueueSize() != 0)
             {
                 Creature sh = null;
 
-                foreach (var pair in m_ReviveQueue.KeyValueList)
+                foreach (var pair in _reviveQueue.KeyValueList)
                 {
                     var player = Global.ObjAccessor.FindPlayer(pair.Value);
 
@@ -2173,21 +2099,21 @@ public class Battleground : ZoneScript, IDisposable
 
                     // Resurrection visual
                     player.CastSpell(player, BattlegroundConst.SpellResurrectionVisual, true);
-                    m_ResurrectQueue.Add(pair.Value);
+                    _resurrectQueue.Add(pair.Value);
                 }
 
-                m_ReviveQueue.Clear();
-                m_LastResurrectTime = 0;
+                _reviveQueue.Clear();
+                _lastResurrectTime = 0;
             }
             else
                 // queue is clear and time passed, just update last resurrection time
             {
-                m_LastResurrectTime = 0;
+                _lastResurrectTime = 0;
             }
         }
-        else if (m_LastResurrectTime > 500) // Resurrect players only half a second later, to see spirit heal effect on NPC
+        else if (_lastResurrectTime > 500) // Resurrect players only half a second later, to see spirit heal effect on NPC
         {
-            foreach (var guid in m_ResurrectQueue)
+            foreach (var guid in _resurrectQueue)
             {
                 var player = Global.ObjAccessor.FindPlayer(guid);
 
@@ -2200,17 +2126,17 @@ public class Battleground : ZoneScript, IDisposable
                 player.SpawnCorpseBones(false);
             }
 
-            m_ResurrectQueue.Clear();
+            _resurrectQueue.Clear();
         }
     }
 
     // This method should be called only once ... it adds pointer to queue
     private void AddToBGFreeSlotQueue()
     {
-        if (!m_InBGFreeSlotQueue && IsBattleground())
+        if (!_inBGFreeSlotQueue && IsBattleground)
         {
             Global.BattlegroundMgr.AddToBGFreeSlotQueue(GetQueueId(), this);
-            m_InBGFreeSlotQueue = true;
+            _inBGFreeSlotQueue = true;
         }
     }
 
@@ -2220,20 +2146,20 @@ public class Battleground : ZoneScript, IDisposable
         player.SetClientControl(player, false);
     }
 
-    private void BroadcastWorker(IDoWork<Player> _do)
+    private void BroadcastWorker(IDoWork<Player> @do)
     {
-        foreach (var pair in m_Players)
+        foreach (var pair in _players)
         {
             var player = _GetPlayer(pair, "BroadcastWorker");
 
             if (player)
-                _do.Invoke(player);
+                @do.Invoke(player);
         }
     }
 
     private bool CanAwardArenaPoints()
     {
-        return GetMinLevel() >= 71;
+        return MinLevel >= 71;
     }
 
     private void EndNow()
@@ -2245,27 +2171,27 @@ public class Battleground : ZoneScript, IDisposable
 
     private BattlegroundMap FindBgMap()
     {
-        return m_Map;
+        return _map;
     }
 
     private PlayerGroup GetBgRaid(TeamFaction team)
     {
-        return m_BgRaids[GetTeamIndexByTeamId(team)];
+        return _bgRaids[GetTeamIndexByTeamId(team)];
     }
 
-    private uint GetInvitedCount(TeamFaction team)
+    private int GetInvitedCount(TeamFaction team)
     {
-        return team == TeamFaction.Alliance ? m_InvitedAlliance : m_InvitedHorde;
+        return team == TeamFaction.Alliance ? _invitedAlliance : _invitedHorde;
     }
 
-    private uint GetMaxPlayers()
+    private int GetMaxPlayers()
     {
         return GetMaxPlayersPerTeam() * 2;
     }
 
-    private uint GetMinPlayers()
+    private int GetMinPlayers()
     {
-        return GetMinPlayersPerTeam() * 2;
+        return MinPlayersPerTeam * 2;
     }
 
     private int GetObjectType(ObjectGuid guid)
@@ -2274,24 +2200,24 @@ public class Battleground : ZoneScript, IDisposable
             if (BgObjects[i] == guid)
                 return i;
 
-        Log.Logger.Error($"Battleground.GetObjectType: player used gameobject ({guid}) which is not in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID}), cheating?");
+        Log.Logger.Error($"Battleground.GetObjectType: player used gameobject ({guid}) which is not in internal data for BG (map: {MapId}, instance id: {_instanceID}), cheating?");
 
         return -1;
     }
 
-    private uint GetPlayerScoresSize()
+    private int GetPlayerScoresSize()
     {
-        return (uint)PlayerScores.Count;
+        return PlayerScores.Count;
     }
 
-    private uint GetPlayersSize()
+    private int GetPlayersSize()
     {
-        return (uint)m_Players.Count;
+        return _players.Count;
     }
 
-    private uint GetReviveQueueSize()
+    private int GetReviveQueueSize()
     {
-        return (uint)m_ReviveQueue.Count;
+        return _reviveQueue.Count;
     }
 
     private uint GetScriptId()
@@ -2301,7 +2227,7 @@ public class Battleground : ZoneScript, IDisposable
 
     private int GetStartDelayTime()
     {
-        return m_StartDelayTime;
+        return _startDelayTime;
     }
 
     private float GetStartMaxDist()
@@ -2311,7 +2237,7 @@ public class Battleground : ZoneScript, IDisposable
 
     private byte GetUniqueBracketId()
     {
-        return (byte)(GetMinLevel() / 5 - 1); // 10 - 1, 15 - 2, 20 - 3, etc.
+        return (byte)(MinLevel / 5 - 1); // 10 - 1, 15 - 2, 20 - 3, etc.
     }
 
     private PvPTeamId GetWinner()
@@ -2321,12 +2247,12 @@ public class Battleground : ZoneScript, IDisposable
 
     private void ModifyStartDelayTime(int diff)
     {
-        m_StartDelayTime -= diff;
+        _startDelayTime -= diff;
     }
 
     private void PlayerAddedToBGCheckIfBGIsRunning(Player player)
     {
-        if (GetStatus() != BattlegroundStatus.WaitLeave)
+        if (Status != BattlegroundStatus.WaitLeave)
             return;
 
         BlockMovement(player);
@@ -2341,14 +2267,14 @@ public class Battleground : ZoneScript, IDisposable
         SendPacketToTeam(team, new PlaySound(ObjectGuid.Empty, soundID, 0));
     }
 
-    private void RemoveAuraOnTeam(uint SpellID, TeamFaction team)
+    private void RemoveAuraOnTeam(uint spellID, TeamFaction team)
     {
-        foreach (var pair in m_Players)
+        foreach (var pair in _players)
         {
             var player = _GetPlayerForTeam(team, pair, "RemoveAuraOnTeam");
 
             if (player)
-                player.RemoveAura(SpellID);
+                player.RemoveAura(spellID);
         }
     }
 
@@ -2357,7 +2283,7 @@ public class Battleground : ZoneScript, IDisposable
         if (BgObjects[type].IsEmpty)
             return true;
 
-        var obj = GetBgMap().GetGameObject(BgObjects[type]);
+        var obj = BgMap.GetGameObject(BgObjects[type]);
 
         if (obj != null)
         {
@@ -2367,7 +2293,7 @@ public class Battleground : ZoneScript, IDisposable
             return true;
         }
 
-        Log.Logger.Information($"Battleground::RemoveObjectFromWorld: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+        Log.Logger.Information($"Battleground::RemoveObjectFromWorld: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {MapId}, instance id: {_instanceID})!");
 
         return false;
     }
@@ -2385,7 +2311,7 @@ public class Battleground : ZoneScript, IDisposable
 
     private void SendPacketToTeam(TeamFaction team, ServerPacket packet, Player except = null)
     {
-        foreach (var pair in m_Players)
+        foreach (var pair in _players)
         {
             var player = _GetPlayerForTeam(team, pair, "SendPacketToTeam");
 
@@ -2395,47 +2321,45 @@ public class Battleground : ZoneScript, IDisposable
         }
     }
 
-    private void SetBgRaid(TeamFaction team, PlayerGroup bg_raid)
+    private void SetBgRaid(TeamFaction team, PlayerGroup bgRaid)
     {
-        var old_raid = m_BgRaids[GetTeamIndexByTeamId(team)];
+        var oldRaid = _bgRaids[GetTeamIndexByTeamId(team)];
 
-        if (old_raid)
-            old_raid.SetBattlegroundGroup(null);
+        if (oldRaid)
+            oldRaid.SetBattlegroundGroup(null);
 
-        if (bg_raid)
-            bg_raid.SetBattlegroundGroup(this);
+        if (bgRaid)
+            bgRaid.SetBattlegroundGroup(this);
 
-        m_BgRaids[GetTeamIndexByTeamId(team)] = bg_raid;
+        _bgRaids[GetTeamIndexByTeamId(team)] = bgRaid;
     }
 
     private void SetDeleteThis()
     {
-        m_SetDeleteThis = true;
+        _setDeleteThis = true;
     }
 
-    private void SetStartDelayTime(BattlegroundStartTimeIntervals Time)
+    private void SetStartDelayTime(BattlegroundStartTimeIntervals time)
     {
-        m_StartDelayTime = (int)Time;
+        _startDelayTime = (int)time;
     }
 
     private void UpdatePlayersCountByTeam(TeamFaction team, bool remove)
     {
         if (remove)
-            --m_PlayersCount[GetTeamIndexByTeamId(team)];
+            --_playersCount[GetTeamIndexByTeamId(team)];
         else
-            ++m_PlayersCount[GetTeamIndexByTeamId(team)];
+            ++_playersCount[GetTeamIndexByTeamId(team)];
     }
-
-    #region Fields
-
-    public uint[] Buff_Entries =
+    
+    public uint[] BuffEntries =
     {
         BattlegroundConst.SpeedBuff, BattlegroundConst.RegenBuff, BattlegroundConst.BerserkerBuff
     };
 
-    public bool m_BuffChange;
-    public BGHonorMode m_HonorMode;
-    public uint[] m_TeamScores = new uint[SharedConst.PvpTeamsCount];
+    public bool MBuffChange;
+    public BGHonorMode MHonorMode;
+    public uint[] MTeamScores = new uint[SharedConst.PvpTeamsCount];
 
     public BattlegroundStartTimeIntervals[] StartDelayTimes = new BattlegroundStartTimeIntervals[4];
 
@@ -2453,90 +2377,87 @@ public class Battleground : ZoneScript, IDisposable
     private readonly List<BattlegroundPlayerPosition> _playerPositions = new();
 
     // Arena team ids by team
-    private readonly uint[] m_ArenaTeamIds = new uint[SharedConst.PvpTeamsCount];
+    private readonly uint[] _arenaTeamIds = new uint[SharedConst.PvpTeamsCount];
 
-    private readonly uint[] m_ArenaTeamMMR = new uint[SharedConst.PvpTeamsCount];
+    private readonly uint[] _arenaTeamMmr = new uint[SharedConst.PvpTeamsCount];
 
     // Raid Group
-    private readonly PlayerGroup[] m_BgRaids = new PlayerGroup[SharedConst.PvpTeamsCount];
+    private readonly PlayerGroup[] _bgRaids = new PlayerGroup[SharedConst.PvpTeamsCount];
 
-    private readonly List<ObjectGuid> m_OfflineQueue = new();
-    private readonly Dictionary<ObjectGuid, BattlegroundPlayer> m_Players = new();
+    private readonly List<ObjectGuid> _offlineQueue = new();
+    private readonly Dictionary<ObjectGuid, BattlegroundPlayer> _players = new();
 
     // Players count by team
-    private readonly uint[] m_PlayersCount = new uint[SharedConst.PvpTeamsCount];
+    private readonly uint[] _playersCount = new uint[SharedConst.PvpTeamsCount];
 
     // Player lists
-    private readonly List<ObjectGuid> m_ResurrectQueue = new();
+    private readonly List<ObjectGuid> _resurrectQueue = new();
 
     // Spirit Guide guid + Player list GUIDS
-    private readonly MultiMap<ObjectGuid, ObjectGuid> m_ReviveQueue = new();
+    private readonly MultiMap<ObjectGuid, ObjectGuid> _reviveQueue = new();
 
     private PvpDifficultyRecord _pvpDifficultyEntry;
 
     private PvPTeamId _winnerTeamId;
 
-    private ArenaTypes m_ArenaType;
+    private ArenaTypes _arenaType;
 
-    private uint m_ClientInstanceID;
+    private uint _clientInstanceID;
 
-    private uint m_CountdownTimer;
+    private uint _countdownTimer;
 
-    private int m_EndTime;
+    private int _endTime;
 
     // these are important variables used for starting messages
-    private BattlegroundEventFlags m_Events;
+    private BattlegroundEventFlags _battlegroundEventFlags;
 
     // 2=2v2, 3=3v3, 5=5v5
-    private bool m_InBGFreeSlotQueue;
+    private bool _inBGFreeSlotQueue;
 
-    private uint m_InstanceID;
+    private uint _instanceID;
 
     // Invited counters are useful for player invitation to BG - do not allow, if BG is started to one faction to have 2 more players than another faction
     // Invited counters will be changed only when removing already invited player from queue, removing player from Battleground and inviting player to BG
     // Invited players counters
-    private uint m_InvitedAlliance;
+    private uint _invitedAlliance;
 
     // Player GUID
     // Player GUID
-    private uint m_InvitedHorde;
+    private uint _invitedHorde;
 
-    private bool m_IsRandom;
-    private bool m_IsRated;
+    private bool _isRandom;
+    private bool _isRated;
 
-    private uint m_LastPlayerPositionBroadcast;
+    private uint _lastPlayerPositionBroadcast;
 
     // it is set to 120000 when bg is ending and it decreases itself
-    private uint m_LastResurrectTime;
+    private uint _lastResurrectTime;
 
     // 0 - Team.Alliance, 1 - Team.Horde
     // Start location
-    private BattlegroundMap m_Map;
+    private BattlegroundMap _map;
 
     // is this battle rated?
-    private bool m_PrematureCountDown;
+    private bool _prematureCountDown;
 
-    private uint m_PrematureCountDownTimer;
+    private uint _prematureCountDownTimer;
 
     // = new Dictionary<int, ObjectGuid>();
     // = new Dictionary<int, ObjectGuid>();
     // Battleground
-    private BattlegroundQueueTypeId m_queueId;
-    private BattlegroundTypeId m_RandomTypeID;
-    private uint m_ResetStatTimer;
+    private BattlegroundQueueTypeId _queueId;
+    private BattlegroundTypeId _randomTypeID;
+    private uint _resetStatTimer;
 
     // used to make sure that BG is only once inserted into the BattlegroundMgr.BGFreeSlotQueue[bgTypeId] deque
-    private bool m_SetDeleteThis;
+    private bool _setDeleteThis;
 
     // used for safe deletion of the bg after end / all players leave
-    private int m_StartDelayTime;
+    private int _startDelayTime;
 
     // the instance-id which is sent to the client and without any other internal use
-    private uint m_StartTime;
+    private uint _startTime;
 
     // Battleground Instance's GUID!
-    private BattlegroundStatus m_Status;
-    private uint m_ValidStartPositionTimer;
-
-    #endregion
+    private uint _validStartPositionTimer;
 }

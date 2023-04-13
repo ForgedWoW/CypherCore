@@ -745,59 +745,84 @@ public class SpellInfo
                 if (effectInfo.IsAura(AuraType.ModStun) || effectInfo.IsAura(AuraType.ModRoot) || effectInfo.IsAura(AuraType.ModRoot2))
                     _auraState = AuraStateType.Frozen;
 
-        switch (Id)
+        _auraState = Id switch
         {
-            case 1064: // Dazed
-                _auraState = AuraStateType.Dazed;
-
-                break;
-            case 32216: // Victorious
-                _auraState = AuraStateType.Victorious;
-
-                break;
-            case 71465: // Divine Surge
-            case 50241: // Evasive Charges
-                _auraState = AuraStateType.RaidEncounter;
-
-                break;
-            case 6950:   // Faerie Fire
-            case 9806:   // Phantom Strike
-            case 9991:   // Touch of Zanzil
-            case 13424:  // Faerie Fire
-            case 13752:  // Faerie Fire
-            case 16432:  // Plague Mist
-            case 20656:  // Faerie Fire
-            case 25602:  // Faerie Fire
-            case 32129:  // Faerie Fire
-            case 35325:  // Glowing Blood
-            case 35328:  // Lambent Blood
-            case 35329:  // Vibrant Blood
-            case 35331:  // Black Blood
-            case 49163:  // Perpetual Instability
-            case 65863:  // Faerie Fire
-            case 79559:  // Luxscale Light
-            case 82855:  // Dazzling
-            case 102953: // In the Rumpus
-            case 127907: // Phosphorescence
-            case 127913: // Phosphorescence
-            case 129007: // Zijin Sting
-            case 130159: // Fae Touch
-            case 142537: // Spotter Smoke
-            case 168455: // Spotted!
-            case 176905: // Super Sticky Glitter Bomb
-            case 189502: // Marked
-            case 201785: // Intruder Alert!
-            case 201786: // Intruder Alert!
-            case 201935: // Spotted!
-            case 239233: // Smoke Bomb
-            case 319400: // Glitter Burst
-            case 321470: // Dimensional Shifter Mishap
-            case 331134: // Spotted
-                _auraState = AuraStateType.FaerieFire;
-
-                break;
-            
-        }
+            1064 => // Dazed
+                AuraStateType.Dazed,
+            32216 => // Victorious
+                AuraStateType.Victorious,
+            71465 => // Divine Surge
+                AuraStateType.RaidEncounter,
+            50241 => // Evasive Charges
+                AuraStateType.RaidEncounter,
+            6950 => // Faerie Fire
+                AuraStateType.FaerieFire,
+            9806 => // Phantom Strike
+                AuraStateType.FaerieFire,
+            9991 => // Touch of Zanzil
+                AuraStateType.FaerieFire,
+            13424 => // Faerie Fire
+                AuraStateType.FaerieFire,
+            13752 => // Faerie Fire
+                AuraStateType.FaerieFire,
+            16432 => // Plague Mist
+                AuraStateType.FaerieFire,
+            20656 => // Faerie Fire
+                AuraStateType.FaerieFire,
+            25602 => // Faerie Fire
+                AuraStateType.FaerieFire,
+            32129 => // Faerie Fire
+                AuraStateType.FaerieFire,
+            35325 => // Glowing Blood
+                AuraStateType.FaerieFire,
+            35328 => // Lambent Blood
+                AuraStateType.FaerieFire,
+            35329 => // Vibrant Blood
+                AuraStateType.FaerieFire,
+            35331 => // Black Blood
+                AuraStateType.FaerieFire,
+            49163 => // Perpetual Instability
+                AuraStateType.FaerieFire,
+            65863 => // Faerie Fire
+                AuraStateType.FaerieFire,
+            79559 => // Luxscale Light
+                AuraStateType.FaerieFire,
+            82855 => // Dazzling
+                AuraStateType.FaerieFire,
+            102953 => // In the Rumpus
+                AuraStateType.FaerieFire,
+            127907 => // Phosphorescence
+                AuraStateType.FaerieFire,
+            127913 => // Phosphorescence
+                AuraStateType.FaerieFire,
+            129007 => // Zijin Sting
+                AuraStateType.FaerieFire,
+            130159 => // Fae Touch
+                AuraStateType.FaerieFire,
+            142537 => // Spotter Smoke
+                AuraStateType.FaerieFire,
+            168455 => // Spotted!
+                AuraStateType.FaerieFire,
+            176905 => // Super Sticky Glitter Bomb
+                AuraStateType.FaerieFire,
+            189502 => // Marked
+                AuraStateType.FaerieFire,
+            201785 => // Intruder Alert!
+                AuraStateType.FaerieFire,
+            201786 => // Intruder Alert!
+                AuraStateType.FaerieFire,
+            201935 => // Spotted!
+                AuraStateType.FaerieFire,
+            239233 => // Smoke Bomb
+                AuraStateType.FaerieFire,
+            319400 => // Glitter Burst
+                AuraStateType.FaerieFire,
+            321470 => // Dimensional Shifter Mishap
+                AuraStateType.FaerieFire,
+            331134 => // Spotted
+                AuraStateType.FaerieFire,
+            _ => _auraState
+        };
     }
 
     public void _LoadImmunityInfo()
@@ -1270,17 +1295,18 @@ public class SpellInfo
                     _spellSpecific = SpellSpecificType.Hand;
 
                 // only paladin auras have this (for palaldin class family)
-                switch (Id)
+                _spellSpecific = Id switch
                 {
-                    case 465:    // Devotion Aura
-                    case 32223:  // Crusader Aura
-                    case 183435: // Retribution Aura
-                    case 317920: // Concentration Aura
-                        _spellSpecific = SpellSpecificType.Aura;
-
-                        break;
-                    
-                }
+                    465 => // Devotion Aura
+                        SpellSpecificType.Aura,
+                    32223 => // Crusader Aura
+                        SpellSpecificType.Aura,
+                    183435 => // Retribution Aura
+                        SpellSpecificType.Aura,
+                    317920 => // Concentration Aura
+                        SpellSpecificType.Aura,
+                    _ => _spellSpecific
+                };
 
                 break;
             }
@@ -1659,24 +1685,13 @@ public class SpellInfo
 
         if (modOwner != null)
         {
-            var mod = SpellModOp.Max;
-
-            switch (power.OrderIndex)
+            var mod = power.OrderIndex switch
             {
-                case 0:
-                    mod = SpellModOp.PowerCost0;
-
-                    break;
-                case 1:
-                    mod = SpellModOp.PowerCost1;
-
-                    break;
-                case 2:
-                    mod = SpellModOp.PowerCost2;
-
-                    break;
-                
-            }
+                0 => SpellModOp.PowerCost0,
+                1 => SpellModOp.PowerCost1,
+                2 => SpellModOp.PowerCost2,
+                _ => SpellModOp.Max
+            };
 
             if (mod != SpellModOp.Max)
             {
@@ -2026,7 +2041,7 @@ public class SpellInfo
 
                 var bg = player.Battleground;
 
-                return bg && bg.GetStatus() == BattlegroundStatus.WaitJoin ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
+                return bg && bg.Status == BattlegroundStatus.WaitJoin ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
             }
             case 32724: // Gold Team (Alliance)
             case 32725: // Green Team (Alliance)
@@ -2049,7 +2064,7 @@ public class SpellInfo
 
                 var bg = player.Battleground;
 
-                return bg && bg.GetStatus() == BattlegroundStatus.WaitJoin ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
+                return bg && bg.Status == BattlegroundStatus.WaitJoin ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
             }
         }
 
@@ -2873,21 +2888,20 @@ public class SpellInfo
         if (affectSpell == null)
             return false;
 
-        switch (mod.Type)
+        return mod.Type switch
         {
-            case SpellModType.Flat:
-            case SpellModType.Pct:
+            SpellModType.Flat =>
                 // TEMP: dont use IsAffected - !familyName and !familyFlags are not valid options for spell mods
                 // TODO: investigate if the !familyName and !familyFlags conditions are even valid for all other (nonmod) uses of SpellInfo::IsAffected
-                return affectSpell.SpellFamilyName == SpellFamilyName && (mod as SpellModifierByClassMask).Mask & SpellFamilyFlags;
-            case SpellModType.LabelFlat:
-                return HasLabel((uint)(mod as SpellFlatModifierByLabel).Value.LabelID);
-            case SpellModType.LabelPct:
-                return HasLabel((uint)(mod as SpellPctModifierByLabel).Value.LabelID);
-            
-        }
-
-        return false;
+                affectSpell.SpellFamilyName == SpellFamilyName && (mod as SpellModifierByClassMask).Mask & SpellFamilyFlags,
+            SpellModType.Pct =>
+                // TEMP: dont use IsAffected - !familyName and !familyFlags are not valid options for spell mods
+                // TODO: investigate if the !familyName and !familyFlags conditions are even valid for all other (nonmod) uses of SpellInfo::IsAffected
+                affectSpell.SpellFamilyName == SpellFamilyName && (mod as SpellModifierByClassMask).Mask & SpellFamilyFlags,
+            SpellModType.LabelFlat => HasLabel((uint)(mod as SpellFlatModifierByLabel).Value.LabelID),
+            SpellModType.LabelPct  => HasLabel((uint)(mod as SpellPctModifierByLabel).Value.LabelID),
+            _                      => false
+        };
     }
 
     public bool IsAuraExclusiveBySpecificPerCasterWith(SpellInfo spellInfo)
@@ -3110,20 +3124,14 @@ public class SpellInfo
         double rangedCrit = player.ActivePlayerData.RangedCritPercentage;
         double spellCrit = player.ActivePlayerData.SpellCritPercentage;
 
-        switch (mod.Param)
+        return mod.Param switch
         {
-            case 1:
-                return crit * mod.Coeff * 0.01f;
-            case 2:
-                return rangedCrit * mod.Coeff * 0.01f;
-            case 3:
-                return spellCrit * mod.Coeff * 0.01f;
-            case 4:
-                return Math.Min(Math.Min(crit, rangedCrit), spellCrit) * mod.Coeff * 0.01f;
-            
-        }
-
-        return 0.0f;
+            1 => crit * mod.Coeff * 0.01f,
+            2 => rangedCrit * mod.Coeff * 0.01f,
+            3 => spellCrit * mod.Coeff * 0.01f,
+            4 => Math.Min(Math.Min(crit, rangedCrit), spellCrit) * mod.Coeff * 0.01f,
+            _ => 0.0f
+        };
     }
 
     private double CalcPPMHasteMod(SpellProcsPerMinuteModRecord mod, Unit caster)
@@ -3133,22 +3141,15 @@ public class SpellInfo
         double spellHaste = caster.UnitData.ModSpellHaste;
         double regenHaste = caster.UnitData.ModHasteRegen;
 
-        switch (mod.Param)
+        return mod.Param switch
         {
-            case 1:
-                return (1.0f / haste - 1.0f) * mod.Coeff;
-            case 2:
-                return (1.0f / rangedHaste - 1.0f) * mod.Coeff;
-            case 3:
-                return (1.0f / spellHaste - 1.0f) * mod.Coeff;
-            case 4:
-                return (1.0f / regenHaste - 1.0f) * mod.Coeff;
-            case 5:
-                return (1.0f / Math.Min(Math.Min(Math.Min(haste, rangedHaste), spellHaste), regenHaste) - 1.0f) * mod.Coeff;
-            
-        }
-
-        return 0.0f;
+            1 => (1.0f / haste - 1.0f) * mod.Coeff,
+            2 => (1.0f / rangedHaste - 1.0f) * mod.Coeff,
+            3 => (1.0f / spellHaste - 1.0f) * mod.Coeff,
+            4 => (1.0f / regenHaste - 1.0f) * mod.Coeff,
+            5 => (1.0f / Math.Min(Math.Min(Math.Min(haste, rangedHaste), spellHaste), regenHaste) - 1.0f) * mod.Coeff,
+            _ => 0.0f
+        };
     }
 
     private double CalcPPMItemLevelMod(SpellProcsPerMinuteModRecord mod, int itemLevel)

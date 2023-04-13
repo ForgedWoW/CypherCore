@@ -9,35 +9,20 @@ namespace Forged.MapServer.BattleGrounds;
 
 public class BattlegroundTemplate
 {
-    public BattlemasterListRecord BattlemasterEntry;
-    public BattlegroundTypeId Id;
-    public float MaxStartDistSq;
-    public uint ScriptId;
-    public WorldSafeLocsEntry[] StartLocation = new WorldSafeLocsEntry[SharedConst.PvpTeamsCount];
-    public byte Weight;
+    public BattlemasterListRecord BattlemasterEntry { get; set; }
+    public BattlegroundTypeId Id { get; set; }
+    public float MaxStartDistSq { get; set; }
+    public uint ScriptId { get; set; }
+    public WorldSafeLocsEntry[] StartLocation { get; set; } = new WorldSafeLocsEntry[SharedConst.PvpTeamsCount];
+    public byte Weight { get; set; }
 
-    public byte GetMaxLevel()
-    {
-        return BattlemasterEntry.MaxLevel;
-    }
+    public byte MaxLevel => BattlemasterEntry.MaxLevel;
 
-    public ushort GetMaxPlayersPerTeam()
-    {
-        return (ushort)BattlemasterEntry.MaxPlayers;
-    }
+    public ushort MaxPlayersPerTeam => (ushort)BattlemasterEntry.MaxPlayers;
 
-    public byte GetMinLevel()
-    {
-        return BattlemasterEntry.MinLevel;
-    }
+    public byte MinLevel => BattlemasterEntry.MinLevel;
 
-    public ushort GetMinPlayersPerTeam()
-    {
-        return (ushort)BattlemasterEntry.MinPlayers;
-    }
+    public ushort MinPlayersPerTeam => (ushort)BattlemasterEntry.MinPlayers;
 
-    public bool IsArena()
-    {
-        return BattlemasterEntry.InstanceType == (uint)MapTypes.Arena;
-    }
+    public bool IsArena => BattlemasterEntry.InstanceType == (uint)MapTypes.Arena;
 }

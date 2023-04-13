@@ -742,8 +742,8 @@ internal class MiscCommands
         var gridCoord = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
 
         // 63? WHY?
-        var gridX = (int)(MapConst.MaxGrids - 1 - gridCoord.X_Coord);
-        var gridY = (int)(MapConst.MaxGrids - 1 - gridCoord.Y_Coord);
+        var gridX = (int)(MapConst.MaxGrids - 1 - gridCoord.X);
+        var gridY = (int)(MapConst.MaxGrids - 1 - gridCoord.Y);
 
         var haveMap = TerrainInfo.ExistMap(mapId, gridX, gridY);
         var haveVMap = TerrainInfo.ExistVMap(mapId, gridX, gridY);
@@ -805,7 +805,7 @@ internal class MiscCommands
         var status = map.GetLiquidStatus(obj.Location.PhaseShift, obj.Location.X, obj.Location.Y, obj.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out var liquidStatus);
 
         if (liquidStatus != null)
-            handler.SendSysMessage(CypherStrings.LiquidStatus, liquidStatus.level, liquidStatus.depth_level, liquidStatus.entry, liquidStatus.type_flags, status);
+            handler.SendSysMessage(CypherStrings.LiquidStatus, liquidStatus.Level, liquidStatus.DepthLevel, liquidStatus.Entry, liquidStatus.TypeFlags, status);
 
         PhasingHandler.PrintToChat(handler, obj);
 

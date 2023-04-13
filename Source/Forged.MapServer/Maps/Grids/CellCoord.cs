@@ -12,18 +12,18 @@ public class CellCoord : ICoord
 
     public CellCoord(uint x, uint y)
     {
-        X_Coord = x;
-        Y_Coord = y;
+        X = x;
+        Y = y;
     }
 
     public CellCoord(CellCoord obj)
     {
-        X_Coord = obj.X_Coord;
-        Y_Coord = obj.Y_Coord;
+        X = obj.X;
+        Y = obj.Y;
     }
 
-    public uint X_Coord { get; set; }
-    public uint Y_Coord { get; set; }
+    public uint X { get; set; }
+    public uint Y { get; set; }
     public static bool operator !=(CellCoord p1, CellCoord p2)
     {
         return !(p1 == p2);
@@ -31,23 +31,23 @@ public class CellCoord : ICoord
 
     public static bool operator ==(CellCoord p1, CellCoord p2)
     {
-        return p1.X_Coord == p2.X_Coord && p1.Y_Coord == p2.Y_Coord;
+        return p2 != null && p1 != null && p1.X == p2.X && p1.Y == p2.Y;
     }
 
     public void Dec_x(uint val)
     {
-        if (X_Coord > val)
-            X_Coord -= val;
+        if (X > val)
+            X -= val;
         else
-            X_Coord = 0;
+            X = 0;
     }
 
     public void Dec_y(uint val)
     {
-        if (Y_Coord > val)
-            Y_Coord -= val;
+        if (Y > val)
+            Y -= val;
         else
-            Y_Coord = 0;
+            Y = 0;
     }
 
     public override bool Equals(object obj)
@@ -60,39 +60,39 @@ public class CellCoord : ICoord
 
     public override int GetHashCode()
     {
-        return X_Coord.GetHashCode() ^ Y_Coord.GetHashCode();
+        return X.GetHashCode() ^ Y.GetHashCode();
     }
 
     public uint GetId()
     {
-        return Y_Coord * Limit + X_Coord;
+        return Y * Limit + X;
     }
 
     public void Inc_x(uint val)
     {
-        if (X_Coord + val < Limit)
-            X_Coord += val;
+        if (X + val < Limit)
+            X += val;
         else
-            X_Coord = Limit - 1;
+            X = Limit - 1;
     }
 
     public void Inc_y(uint val)
     {
-        if (Y_Coord + val < Limit)
-            Y_Coord += val;
+        if (Y + val < Limit)
+            Y += val;
         else
-            Y_Coord = Limit - 1;
+            Y = Limit - 1;
     }
 
     public bool IsCoordValid()
     {
-        return X_Coord < Limit && Y_Coord < Limit;
+        return X < Limit && Y < Limit;
     }
 
     public ICoord Normalize()
     {
-        X_Coord = Math.Min(X_Coord, Limit - 1);
-        Y_Coord = Math.Min(Y_Coord, Limit - 1);
+        X = Math.Min(X, Limit - 1);
+        Y = Math.Min(Y, Limit - 1);
 
         return this;
     }

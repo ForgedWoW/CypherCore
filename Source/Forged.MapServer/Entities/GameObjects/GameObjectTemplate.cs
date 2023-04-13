@@ -366,40 +366,17 @@ public class GameObjectTemplate
 
     public uint GetAutoCloseTime()
     {
-        uint autoCloseTime = 0;
-
-        switch (type)
+        uint autoCloseTime = type switch
         {
-            case GameObjectTypes.Door:
-                autoCloseTime = Door.autoClose;
-
-                break;
-            case GameObjectTypes.Button:
-                autoCloseTime = Button.autoClose;
-
-                break;
-            case GameObjectTypes.Trap:
-                autoCloseTime = Trap.autoClose;
-
-                break;
-            case GameObjectTypes.Goober:
-                autoCloseTime = Goober.autoClose;
-
-                break;
-            case GameObjectTypes.Transport:
-                autoCloseTime = Transport.autoClose;
-
-                break;
-            case GameObjectTypes.AreaDamage:
-                autoCloseTime = AreaDamage.autoClose;
-
-                break;
-            case GameObjectTypes.TrapDoor:
-                autoCloseTime = TrapDoor.autoClose;
-
-                break;
-            
-        }
+            GameObjectTypes.Door       => Door.autoClose,
+            GameObjectTypes.Button     => Button.autoClose,
+            GameObjectTypes.Trap       => Trap.autoClose,
+            GameObjectTypes.Goober     => Goober.autoClose,
+            GameObjectTypes.Transport  => Transport.autoClose,
+            GameObjectTypes.AreaDamage => AreaDamage.autoClose,
+            GameObjectTypes.TrapDoor   => TrapDoor.autoClose,
+            _                          => 0
+        };
 
         return autoCloseTime; // prior to 3.0.3, conversion was / 0x10000;
     }

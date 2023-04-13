@@ -190,24 +190,14 @@ public class AuctionManager
 
     public AuctionHouseObject GetAuctionsById(uint auctionHouseId)
     {
-        switch (auctionHouseId)
+        return auctionHouseId switch
         {
-            case 1:
-                return _neutralAuctions;
-
-            case 2:
-                return _allianceAuctions;
-
-            case 6:
-                return _hordeAuctions;
-
-            case 7:
-                return _goblinAuctions;
-
-            
-        }
-
-        return _neutralAuctions;
+            1 => _neutralAuctions,
+            2 => _allianceAuctions,
+            6 => _hordeAuctions,
+            7 => _goblinAuctions,
+            _ => _neutralAuctions
+        };
     }
 
     public AuctionHouseObject GetAuctionsMap(uint factionTemplateId)

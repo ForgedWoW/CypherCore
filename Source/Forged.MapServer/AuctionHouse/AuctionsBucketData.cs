@@ -97,20 +97,15 @@ public class AuctionsBucketData
 
         private long CompareColumns(AuctionHouseSortOrder column, AuctionsBucketData left, AuctionsBucketData right)
         {
-            switch (column)
+            return column switch
             {
-                case AuctionHouseSortOrder.Price:
-                case AuctionHouseSortOrder.Bid:
-                case AuctionHouseSortOrder.Buyout:
-                    return (long)(left.MinPrice - right.MinPrice);
-                case AuctionHouseSortOrder.Name:
-                    return left.FullName[(int)_locale].CompareTo(right.FullName[(int)_locale]);
-                case AuctionHouseSortOrder.Level:
-                    return left.SortLevel - right.SortLevel;
-                
-            }
-
-            return 0;
+                AuctionHouseSortOrder.Price  => (long)(left.MinPrice - right.MinPrice),
+                AuctionHouseSortOrder.Bid    => (long)(left.MinPrice - right.MinPrice),
+                AuctionHouseSortOrder.Buyout => (long)(left.MinPrice - right.MinPrice),
+                AuctionHouseSortOrder.Name   => left.FullName[(int)_locale].CompareTo(right.FullName[(int)_locale]),
+                AuctionHouseSortOrder.Level  => left.SortLevel - right.SortLevel,
+                _                            => 0
+            };
         }
     }
 }

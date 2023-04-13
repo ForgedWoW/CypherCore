@@ -886,22 +886,13 @@ public class InstanceScript : ZoneScript
             if (!open)
                 break;
 
-            switch (info.Type)
+            open = info.Type switch
             {
-                case DoorType.Room:
-                    open = info.BossInfo.State != EncounterState.InProgress;
-
-                    break;
-                case DoorType.Passage:
-                    open = info.BossInfo.State == EncounterState.Done;
-
-                    break;
-                case DoorType.SpawnHole:
-                    open = info.BossInfo.State == EncounterState.InProgress;
-
-                    break;
-                
-            }
+                DoorType.Room      => info.BossInfo.State != EncounterState.InProgress,
+                DoorType.Passage   => info.BossInfo.State == EncounterState.Done,
+                DoorType.SpawnHole => info.BossInfo.State == EncounterState.InProgress,
+                _                  => open
+            };
         }
 
         door.SetGoState(open ? GameObjectState.Active : GameObjectState.Ready);

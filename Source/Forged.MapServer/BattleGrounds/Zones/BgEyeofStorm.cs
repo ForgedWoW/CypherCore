@@ -36,7 +36,7 @@ internal class BgEyeofStorm : Battleground
 
     public BgEyeofStorm(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
     {
-        m_BuffChange = true;
+        MBuffChange = true;
         BgObjects = new ObjectGuid[EotSObjectTypes.MAX];
         BgCreatures = new ObjectGuid[EotSCreaturesTypes.MAX];
         _mPointsTrigger[EotSPoints.FEL_REAVER] = EotSPointsTrigger.FEL_REAVER_BUFF;
@@ -100,7 +100,7 @@ internal class BgEyeofStorm : Battleground
 
     public override void EventPlayerClickedOnFlag(Player player, GameObject targetObj)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress || IsFlagPickedup() || !player.Location.IsWithinDistInMap(targetObj, 10))
+        if (Status != BattlegroundStatus.InProgress || IsFlagPickedup() || !player.Location.IsWithinDistInMap(targetObj, 10))
             return;
 
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
@@ -133,7 +133,7 @@ internal class BgEyeofStorm : Battleground
 
     public override void EventPlayerDroppedFlag(Player player)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
         {
             // if not running, do not cast things at the dropper player, neither send unnecessary messages
             // just take off the aura
@@ -256,7 +256,7 @@ internal class BgEyeofStorm : Battleground
         {
             case 4530: // Horde Start
             case 4531: // Alliance Start
-                if (GetStatus() == BattlegroundStatus.WaitJoin && !entered)
+                if (Status == BattlegroundStatus.WaitJoin && !entered)
                     TeleportPlayerToExploitLocation(player);
 
                 break;
@@ -303,7 +303,7 @@ internal class BgEyeofStorm : Battleground
 
     public override void HandleKillPlayer(Player player, Player killer)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         base.HandleKillPlayer(player, killer);
@@ -312,7 +312,7 @@ internal class BgEyeofStorm : Battleground
 
     public override void PostUpdateImpl(uint diff)
     {
-        if (GetStatus() == BattlegroundStatus.InProgress)
+        if (Status == BattlegroundStatus.InProgress)
         {
             _mPointAddingTimer -= (int)diff;
 
@@ -389,8 +389,8 @@ internal class BgEyeofStorm : Battleground
         //call parent's class reset
         base.Reset();
 
-        m_TeamScores[TeamIds.Alliance] = 0;
-        m_TeamScores[TeamIds.Horde] = 0;
+        MTeamScores[TeamIds.Alliance] = 0;
+        MTeamScores[TeamIds.Horde] = 0;
         _mTeamPointsCount[TeamIds.Alliance] = 0;
         _mTeamPointsCount[TeamIds.Horde] = 0;
         _mHonorScoreTics[TeamIds.Alliance] = 0;
@@ -570,7 +570,7 @@ internal class BgEyeofStorm : Battleground
     private void AddPoints(TeamFaction team, uint points)
     {
         var teamIndex = GetTeamIndexByTeamId(team);
-        m_TeamScores[teamIndex] += points;
+        MTeamScores[teamIndex] += points;
         _mHonorScoreTics[teamIndex] += points;
 
         if (_mHonorScoreTics[teamIndex] >= _mHonorTics)
@@ -588,7 +588,7 @@ internal class BgEyeofStorm : Battleground
 
         for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
-            obj = GetBgMap().GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
+            obj = BgMap.GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
 
             if (obj)
             {
@@ -637,7 +637,7 @@ internal class BgEyeofStorm : Battleground
 
         for (byte i = 0; i < EotSPoints.POINTS_MAX; ++i)
         {
-            obj = GetBgMap().GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
+            obj = BgMap.GetGameObject(BgObjects[EotSObjectTypes.TOWER_CAP_FEL_REAVER + i]);
 
             if (obj)
             {
@@ -677,7 +677,7 @@ internal class BgEyeofStorm : Battleground
 
     private void EventPlayerCapturedFlag(Player player, uint bgObjectType)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress || GetFlagPickerGUID() != player.GUID)
+        if (Status != BattlegroundStatus.InProgress || GetFlagPickerGUID() != player.GUID)
             return;
 
         SetFlagPicker(ObjectGuid.Empty);
@@ -717,7 +717,7 @@ internal class BgEyeofStorm : Battleground
 
     private void EventTeamCapturedPoint(Player player, int point)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         var team = GetPlayerTeam(player.GUID);
@@ -787,7 +787,7 @@ internal class BgEyeofStorm : Battleground
 
     private void EventTeamLostPoint(Player player, int point)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         //Natural point
@@ -881,7 +881,7 @@ internal class BgEyeofStorm : Battleground
     {
         RespawnFlag(true);
 
-        var obj = GetBgMap().GetGameObject(GetDroppedFlagGUID());
+        var obj = BgMap.GetGameObject(GetDroppedFlagGUID());
 
         if (obj)
             obj.Delete();

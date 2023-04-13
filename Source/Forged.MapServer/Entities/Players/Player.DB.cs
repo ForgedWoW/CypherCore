@@ -432,9 +432,9 @@ public partial class Player
 
             playerAtBG = currentBg != null && currentBg.IsPlayerInBattleground(GUID);
 
-            if (playerAtBG && currentBg.GetStatus() != BattlegroundStatus.WaitLeave)
+            if (playerAtBG && currentBg.Status != BattlegroundStatus.WaitLeave)
             {
-                map = currentBg.GetBgMap();
+                map = currentBg.BgMap;
 
                 var bgQueueTypeId = currentBg.GetQueueId();
                 AddBattlegroundQueueId(bgQueueTypeId);
@@ -444,7 +444,7 @@ public partial class Player
                 //join player to Battlegroundgroup
                 currentBg.EventPlayerLoggedIn(this);
 
-                SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg.GetInstanceID());
+                SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg.InstanceID);
                 SetMercenaryForBattlegroundQueueType(bgQueueTypeId, currentBg.IsPlayerMercenaryInBattleground(GUID));
             }
             // Bg was not found - go to Entry Point

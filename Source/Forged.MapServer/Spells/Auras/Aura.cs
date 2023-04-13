@@ -277,19 +277,16 @@ public class Aura
 
     public static bool EffectTypeNeedsSendingAmount(AuraType type)
     {
-        switch (type)
+        return type switch
         {
-            case AuraType.OverrideActionbarSpells:
-            case AuraType.OverrideActionbarSpellsTriggered:
-            case AuraType.ModSpellCategoryCooldown:
-            case AuraType.ModMaxCharges:
-            case AuraType.ChargeRecoveryMod:
-            case AuraType.ChargeRecoveryMultiplier:
-                return true;
-            
-        }
-
-        return false;
+            AuraType.OverrideActionbarSpells          => true,
+            AuraType.OverrideActionbarSpellsTriggered => true,
+            AuraType.ModSpellCategoryCooldown         => true,
+            AuraType.ModMaxCharges                    => true,
+            AuraType.ChargeRecoveryMod                => true,
+            AuraType.ChargeRecoveryMultiplier         => true,
+            _                                         => false
+        };
     }
 
     public static Aura TryCreate(AuraCreateInfo createInfo)

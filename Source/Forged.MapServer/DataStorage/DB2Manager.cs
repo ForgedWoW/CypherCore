@@ -349,7 +349,7 @@ public class DB2Manager
     public PvpDifficultyRecord GetBattlegroundBracketById(uint mapid, BattlegroundBracketId id)
     {
         foreach (var entry in _cliDB.PvpDifficultyStorage.Values)
-            if (entry.MapID == mapid && entry.GetBracketId() == id)
+            if (entry.MapID == mapid && entry.BracketId == id)
                 return entry;
 
         return null;
@@ -2192,26 +2192,20 @@ public class DB2Manager
     }
     private static CurveInterpolationMode DetermineCurveType(CurveRecord curve, List<CurvePointRecord> points)
     {
-        switch (curve.Type)
+        return curve.Type switch
         {
-            case 1:
-                return points.Count < 4 ? CurveInterpolationMode.Cosine : CurveInterpolationMode.CatmullRom;
-            case 2:
+            1 => points.Count < 4 ? CurveInterpolationMode.Cosine : CurveInterpolationMode.CatmullRom,
+            2 => points.Count switch
             {
-                return points.Count switch
-                {
-                    1 => CurveInterpolationMode.Constant,
-                    2 => CurveInterpolationMode.Linear,
-                    3 => CurveInterpolationMode.Bezier3,
-                    4 => CurveInterpolationMode.Bezier4,
-                    _ => CurveInterpolationMode.Bezier
-                };
-            }
-            case 3:
-                return CurveInterpolationMode.Cosine;
-        }
-
-        return points.Count != 1 ? CurveInterpolationMode.Linear : CurveInterpolationMode.Constant;
+                1 => CurveInterpolationMode.Constant,
+                2 => CurveInterpolationMode.Linear,
+                3 => CurveInterpolationMode.Bezier3,
+                4 => CurveInterpolationMode.Bezier4,
+                _ => CurveInterpolationMode.Bezier
+            },
+            3 => CurveInterpolationMode.Cosine,
+            _ => points.Count != 1 ? CurveInterpolationMode.Linear : CurveInterpolationMode.Constant
+        };
     }
 
     private Vector2 CalculateGlobalUiMapPosition(int uiMapID, Vector2 uiPosition)

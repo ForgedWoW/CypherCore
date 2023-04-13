@@ -99,17 +99,14 @@ public class Totem : Minion
             spellEffectInfo.TargetA.CheckType != SpellTargetCheckTypes.Entry)
             return true;
 
-        switch (spellEffectInfo.ApplyAuraName)
+        return spellEffectInfo.ApplyAuraName switch
         {
-            case AuraType.PeriodicDamage:
-            case AuraType.PeriodicLeech:
-            case AuraType.ModFear:
-            case AuraType.Transform:
-                return true;
-            
-        }
-
-        return base.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
+            AuraType.PeriodicDamage => true,
+            AuraType.PeriodicLeech  => true,
+            AuraType.ModFear        => true,
+            AuraType.Transform      => true,
+            _                       => base.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute)
+        };
     }
 
     public void SetTotemDuration(uint duration)

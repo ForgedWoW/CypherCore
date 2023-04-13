@@ -75,7 +75,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             var bg = Player.Battleground;
 
             if (bg)
-                if (bg.GetStatus() != BattlegroundStatus.WaitLeave)
+                if (bg.Status != BattlegroundStatus.WaitLeave)
                     return;
         }
 
@@ -801,7 +801,7 @@ public class BattleGroundHandler : IWorldSessionHandler
             return;
 
         // Prevent players from sending BuildPvpLogDataPacket in an arena except for when sent in Battleground.EndBattleground.
-        if (bg.IsArena())
+        if (bg.IsArena)
             return;
 
         PVPMatchStatisticsMessage pvpMatchStatistics = new();
@@ -878,7 +878,7 @@ public class BattleGroundHandler : IWorldSessionHandler
                     continue;
 
                 // expected bracket entry
-                var bracketEntry = Global.DB2Mgr.GetBattlegroundBracketByLevel(bg.GetMapId(), Player.Level);
+                var bracketEntry = Global.DB2Mgr.GetBattlegroundBracketByLevel(bg.MapId, Player.Level);
 
                 if (bracketEntry == null)
                     continue;

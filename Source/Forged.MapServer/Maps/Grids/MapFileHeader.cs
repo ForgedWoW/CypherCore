@@ -5,15 +5,15 @@ namespace Forged.MapServer.Maps.Grids;
 
 public struct MapFileHeader
 {
-    public uint areaMapOffset;
-    public uint areaMapSize;
-    public uint buildMagic;
-    public uint heightMapOffset;
-    public uint heightMapSize;
-    public uint holesOffset;
-    public uint holesSize;
-    public uint liquidMapOffset;
-    public uint liquidMapSize;
-    public uint mapMagic;
-    public uint versionMagic;
+    public uint AreaMapOffset;
+    public uint AreaMapSize;
+    public uint BuildMagic;
+    public uint HeightMapOffset;
+    public uint HeightMapSize;
+    public uint HolesOffset;
+    public uint HolesSize;
+    public uint LiquidMapOffset;
+    public uint LiquidMapSize;
+    public uint MapMagic;
+    public uint VersionMagic;
 }

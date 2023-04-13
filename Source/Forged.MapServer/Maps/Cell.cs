@@ -15,19 +15,19 @@ public class Cell
 
     public Cell(ICoord p)
     {
-        Data.Gridx = p.X_Coord / MapConst.MaxCells;
-        Data.Gridy = p.Y_Coord / MapConst.MaxCells;
-        Data.Cellx = p.X_Coord % MapConst.MaxCells;
-        Data.Celly = p.Y_Coord % MapConst.MaxCells;
+        Data.Gridx = p.X / MapConst.MaxCells;
+        Data.Gridy = p.Y / MapConst.MaxCells;
+        Data.Cellx = p.X % MapConst.MaxCells;
+        Data.Celly = p.Y % MapConst.MaxCells;
     }
 
     public Cell(float x, float y)
     {
         ICoord p = GridDefines.ComputeCellCoord(x, y);
-        Data.Gridx = p.X_Coord / MapConst.MaxCells;
-        Data.Gridy = p.Y_Coord / MapConst.MaxCells;
-        Data.Cellx = p.X_Coord % MapConst.MaxCells;
-        Data.Celly = p.Y_Coord % MapConst.MaxCells;
+        Data.Gridx = p.X / MapConst.MaxCells;
+        Data.Gridy = p.Y / MapConst.MaxCells;
+        Data.Cellx = p.X % MapConst.MaxCells;
+        Data.Celly = p.Y % MapConst.MaxCells;
     }
 
     public Cell(Cell cell)
@@ -199,7 +199,7 @@ public class Cell
         //if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
         //currently this technique works with MAX_NUMBER_OF_CELLS 16 and higher, with lower values
         //there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
-        if (area.HighBound.X_Coord > area.LowBound.X_Coord + 4 && area.HighBound.Y_Coord > area.LowBound.Y_Coord + 4)
+        if (area.HighBound.X > area.LowBound.X + 4 && area.HighBound.Y > area.LowBound.Y + 4)
         {
             VisitCircle(visitor, map, area.LowBound, area.HighBound);
 
@@ -211,9 +211,9 @@ public class Cell
         map.Visit(this, visitor);
 
         // loop the cell range
-        for (var x = area.LowBound.X_Coord; x <= area.HighBound.X_Coord; ++x)
+        for (var x = area.LowBound.X; x <= area.HighBound.X; ++x)
         {
-            for (var y = area.LowBound.Y_Coord; y <= area.HighBound.Y_Coord; ++y)
+            for (var y = area.LowBound.Y; y <= area.HighBound.Y; ++y)
             {
                 CellCoord cellCoord = new(x, y);
 
@@ -230,15 +230,15 @@ public class Cell
     private void VisitCircle(IGridNotifier visitor, Map map, ICoord begin_cell, ICoord end_cell)
     {
         //here is an algorithm for 'filling' circum-squared octagon
-        var x_shift = (uint)Math.Ceiling((end_cell.X_Coord - begin_cell.X_Coord) * 0.3f - 0.5f);
+        var x_shift = (uint)Math.Ceiling((end_cell.X - begin_cell.X) * 0.3f - 0.5f);
         //lets calculate x_start/x_end coords for central strip...
-        var x_start = begin_cell.X_Coord + x_shift;
-        var x_end = end_cell.X_Coord - x_shift;
+        var x_start = begin_cell.X + x_shift;
+        var x_end = end_cell.X - x_shift;
 
         //visit central strip with constant width...
         for (var x = x_start; x <= x_end; ++x)
         {
-            for (var y = begin_cell.Y_Coord; y <= end_cell.Y_Coord; ++y)
+            for (var y = begin_cell.Y; y <= end_cell.Y; ++y)
             {
                 CellCoord cellCoord = new(x, y);
                 Cell r_zone = new(cellCoord);
@@ -252,11 +252,11 @@ public class Cell
         if (x_shift == 0)
             return;
 
-        var y_start = end_cell.Y_Coord;
-        var y_end = begin_cell.Y_Coord;
+        var y_start = end_cell.Y;
+        var y_end = begin_cell.Y;
 
         //now we are visiting borders of an octagon...
-        for (uint step = 1; step <= x_start - begin_cell.X_Coord; ++step)
+        for (uint step = 1; step <= x_start - begin_cell.X; ++step)
         {
             //each step reduces strip height by 2 cells...
             y_end += 1;

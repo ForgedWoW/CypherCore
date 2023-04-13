@@ -5,8 +5,8 @@ namespace Forged.MapServer.Maps.Grids;
 
 public interface ICoord
 {
-    uint X_Coord { get; set; }
-    uint Y_Coord { get; set; }
+    uint X { get; set; }
+    uint Y { get; set; }
     void Dec_x(uint val);
 
     void Dec_y(uint val);

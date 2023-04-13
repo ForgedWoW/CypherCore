@@ -42,7 +42,7 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
             }
         }
 
-        Log.Logger.Debug($"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GetGridId()} on map {i_map.Id}");
+        Log.Logger.Debug($"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GridId} on map {i_map.Id}");
     }
 
     public void Visit(IList<AreaTrigger> objs)

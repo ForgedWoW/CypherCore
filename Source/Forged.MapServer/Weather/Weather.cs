@@ -38,37 +38,31 @@ public class Weather
         if (_intensity < 0.27f)
             return WeatherState.Fine;
 
-        switch (_type)
+        return _type switch
         {
-            case WeatherType.Rain:
-                return _intensity switch
-                {
-                    < 0.40f => WeatherState.LightRain,
-                    < 0.70f => WeatherState.MediumRain,
-                    _       => WeatherState.HeavyRain
-                };
-            case WeatherType.Snow:
-                return _intensity switch
-                {
-                    < 0.40f => WeatherState.LightSnow,
-                    < 0.70f => WeatherState.MediumSnow,
-                    _       => WeatherState.HeavySnow
-                };
-            case WeatherType.Storm:
-                return _intensity switch
-                {
-                    < 0.40f => WeatherState.LightSandstorm,
-                    < 0.70f => WeatherState.MediumSandstorm,
-                    _       => WeatherState.HeavySandstorm
-                };
-            case WeatherType.BlackRain:
-                return WeatherState.BlackRain;
-            case WeatherType.Thunders:
-                return WeatherState.Thunders;
-            case WeatherType.Fine:
-            default:
-                return WeatherState.Fine;
-        }
+            WeatherType.Rain => _intensity switch
+            {
+                < 0.40f => WeatherState.LightRain,
+                < 0.70f => WeatherState.MediumRain,
+                _       => WeatherState.HeavyRain
+            },
+            WeatherType.Snow => _intensity switch
+            {
+                < 0.40f => WeatherState.LightSnow,
+                < 0.70f => WeatherState.MediumSnow,
+                _       => WeatherState.HeavySnow
+            },
+            WeatherType.Storm => _intensity switch
+            {
+                < 0.40f => WeatherState.LightSandstorm,
+                < 0.70f => WeatherState.MediumSandstorm,
+                _       => WeatherState.HeavySandstorm
+            },
+            WeatherType.BlackRain => WeatherState.BlackRain,
+            WeatherType.Thunders  => WeatherState.Thunders,
+            WeatherType.Fine      => WeatherState.Fine,
+            _                     => WeatherState.Fine
+        };
     }
 
     public bool ReGenerate()

@@ -397,7 +397,7 @@ public class PlayerGroup
         if (reference == null)
             return GroupJoinBattlegroundResult.BattlegroundJoinFailed;
 
-        var bracketEntry = _db2Manager.GetBattlegroundBracketByLevel(bgOrTemplate.GetMapId(), reference.Level);
+        var bracketEntry = _db2Manager.GetBattlegroundBracketByLevel(bgOrTemplate.MapId, reference.Level);
 
         if (bracketEntry == null)
             return GroupJoinBattlegroundResult.BattlegroundJoinFailed;
@@ -472,7 +472,7 @@ public class PlayerGroup
         }
 
         // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
-        if (bgOrTemplate.IsArena() && memberscount != minPlayerCount)
+        if (bgOrTemplate.IsArena && memberscount != minPlayerCount)
             return GroupJoinBattlegroundResult.ArenaTeamPartySize;
 
         return GroupJoinBattlegroundResult.None;

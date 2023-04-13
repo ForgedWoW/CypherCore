@@ -87,7 +87,7 @@ internal class BgWarsongGluch : Battleground
 
     public override void EventPlayerClickedOnFlag(Player player, GameObject targetObj)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         var team = GetPlayerTeam(player.GUID);
@@ -211,7 +211,7 @@ internal class BgWarsongGluch : Battleground
     {
         var team = GetPlayerTeam(player.GUID);
 
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
         {
             // if not running, do not cast things at the dropper player (prevent spawning the "dropped" Id), neither send unnecessary messages
             // just take off the aura
@@ -307,14 +307,14 @@ internal class BgWarsongGluch : Battleground
         //and start running around, while the doors are still closed
         if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
         {
-            if (GetStatus() == BattlegroundStatus.InProgress)
+            if (Status == BattlegroundStatus.InProgress)
                 return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_ALLIANCE);
             else
                 return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_ALLIANCE);
         }
         else
         {
-            if (GetStatus() == BattlegroundStatus.InProgress)
+            if (Status == BattlegroundStatus.InProgress)
                 return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.MAIN_HORDE);
             else
                 return Global.ObjectMgr.GetWorldSafeLoc(WsgGraveyards.FLAG_ROOM_HORDE);
@@ -352,7 +352,7 @@ internal class BgWarsongGluch : Battleground
         {
             case 8965: // Horde Start
             case 8966: // Alliance Start
-                if (GetStatus() == BattlegroundStatus.WaitJoin && !entered)
+                if (Status == BattlegroundStatus.WaitJoin && !entered)
                     TeleportPlayerToExploitLocation(player);
 
                 break;
@@ -403,7 +403,7 @@ internal class BgWarsongGluch : Battleground
 
     public override void HandleKillPlayer(Player victim, Player killer)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         EventPlayerDroppedFlag(victim);
@@ -413,9 +413,9 @@ internal class BgWarsongGluch : Battleground
 
     public override void PostUpdateImpl(uint diff)
     {
-        if (GetStatus() == BattlegroundStatus.InProgress)
+        if (Status == BattlegroundStatus.InProgress)
         {
-            if (GetElapsedTime() >= 17 * Time.MINUTE * Time.IN_MILLISECONDS)
+            if (ElapsedTime >= 17 * Time.MINUTE * Time.IN_MILLISECONDS)
             {
                 if (GetTeamScore(TeamIds.Alliance) == 0)
                 {
@@ -600,8 +600,8 @@ internal class BgWarsongGluch : Battleground
         _mDroppedFlagGUID[TeamIds.Horde] = ObjectGuid.Empty;
         _flagState[TeamIds.Alliance] = WsgFlagState.OnBase;
         _flagState[TeamIds.Horde] = WsgFlagState.OnBase;
-        m_TeamScores[TeamIds.Alliance] = 0;
-        m_TeamScores[TeamIds.Horde] = 0;
+        MTeamScores[TeamIds.Alliance] = 0;
+        MTeamScores[TeamIds.Horde] = 0;
 
         if (Global.BattlegroundMgr.IsBGWeekend(GetTypeID()))
         {
@@ -646,12 +646,12 @@ internal class BgWarsongGluch : Battleground
         }
 
         // buffs
-        result &= AddObject(WsgObjectTypes.SPEEDBUFF1, Buff_Entries[0], 1449.93f, 1470.71f, 342.6346f, -1.64061f, 0, 0, 0.7313537f, -0.6819983f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.SPEEDBUFF2, Buff_Entries[0], 1005.171f, 1447.946f, 335.9032f, 1.64061f, 0, 0, 0.7313537f, 0.6819984f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.REGENBUFF1, Buff_Entries[1], 1317.506f, 1550.851f, 313.2344f, -0.2617996f, 0, 0, 0.1305263f, -0.9914448f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.REGENBUFF2, Buff_Entries[1], 1110.451f, 1353.656f, 316.5181f, -0.6806787f, 0, 0, 0.333807f, -0.9426414f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.BERSERKBUFF1, Buff_Entries[2], 1320.09f, 1378.79f, 314.7532f, 1.186824f, 0, 0, 0.5591929f, 0.8290376f, BattlegroundConst.BuffRespawnTime);
-        result &= AddObject(WsgObjectTypes.BERSERKBUFF2, Buff_Entries[2], 1139.688f, 1560.288f, 306.8432f, -2.443461f, 0, 0, 0.9396926f, -0.3420201f, BattlegroundConst.BuffRespawnTime);
+        result &= AddObject(WsgObjectTypes.SPEEDBUFF1, BuffEntries[0], 1449.93f, 1470.71f, 342.6346f, -1.64061f, 0, 0, 0.7313537f, -0.6819983f, BattlegroundConst.BuffRespawnTime);
+        result &= AddObject(WsgObjectTypes.SPEEDBUFF2, BuffEntries[0], 1005.171f, 1447.946f, 335.9032f, 1.64061f, 0, 0, 0.7313537f, 0.6819984f, BattlegroundConst.BuffRespawnTime);
+        result &= AddObject(WsgObjectTypes.REGENBUFF1, BuffEntries[1], 1317.506f, 1550.851f, 313.2344f, -0.2617996f, 0, 0, 0.1305263f, -0.9914448f, BattlegroundConst.BuffRespawnTime);
+        result &= AddObject(WsgObjectTypes.REGENBUFF2, BuffEntries[1], 1110.451f, 1353.656f, 316.5181f, -0.6806787f, 0, 0, 0.333807f, -0.9426414f, BattlegroundConst.BuffRespawnTime);
+        result &= AddObject(WsgObjectTypes.BERSERKBUFF1, BuffEntries[2], 1320.09f, 1378.79f, 314.7532f, 1.186824f, 0, 0, 0.5591929f, 0.8290376f, BattlegroundConst.BuffRespawnTime);
+        result &= AddObject(WsgObjectTypes.BERSERKBUFF2, BuffEntries[2], 1139.688f, 1560.288f, 306.8432f, -2.443461f, 0, 0, 0.9396926f, -0.3420201f, BattlegroundConst.BuffRespawnTime);
 
         if (!result)
         {
@@ -759,12 +759,12 @@ internal class BgWarsongGluch : Battleground
 
     private void AddPoint(TeamFaction team, uint points = 1)
     {
-        m_TeamScores[GetTeamIndexByTeamId(team)] += points;
+        MTeamScores[GetTeamIndexByTeamId(team)] += points;
     }
 
     private void EventPlayerCapturedFlag(Player player)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         TeamFaction winner = 0;
@@ -848,7 +848,7 @@ internal class BgWarsongGluch : Battleground
             UpdateWorldState(WsgWorldStates.FLAG_STATE_HORDE, 1);
             UpdateWorldState(WsgWorldStates.STATE_TIMER_ACTIVE, 0);
 
-            RewardHonorToTeam(_honor[(int)m_HonorMode][(int)WsgRewards.Win], winner);
+            RewardHonorToTeam(_honor[(int)MHonorMode][(int)WsgRewards.Win], winner);
             EndBattleground(winner);
         }
         else
@@ -869,7 +869,7 @@ internal class BgWarsongGluch : Battleground
 
     private void HandleFlagRoomCapturePoint(int team)
     {
-        var flagCarrier = Global.ObjAccessor.GetPlayer(GetBgMap(), GetFlagPickerGUID(team));
+        var flagCarrier = Global.ObjAccessor.GetPlayer(BgMap, GetFlagPickerGUID(team));
         var areaTrigger = team == TeamIds.Alliance ? 3647 : 3646u;
 
         if (flagCarrier != null && flagCarrier.IsInAreaTriggerRadius(CliDB.AreaTriggerStorage.LookupByKey(areaTrigger)))
@@ -913,7 +913,7 @@ internal class BgWarsongGluch : Battleground
 
     private void RespawnFlagAfterDrop(TeamFaction team)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         RespawnFlag(team, false);
@@ -926,7 +926,7 @@ internal class BgWarsongGluch : Battleground
         SendBroadcastText(WsgBroadcastTexts.FLAGS_PLACED, ChatMsg.BgSystemNeutral);
         PlaySoundToAll(WsgSound.FLAGS_RESPAWNED);
 
-        var obj = GetBgMap().GetGameObject(GetDroppedFlagGUID(team));
+        var obj = BgMap.GetGameObject(GetDroppedFlagGUID(team));
 
         if (obj)
             obj.Delete();

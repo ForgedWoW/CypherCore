@@ -1136,21 +1136,13 @@ internal class LookupCommands
                             var statusStr = "";
 
                             if (target)
-                                switch (target.GetQuestStatus(qInfo.Id))
+                                statusStr = target.GetQuestStatus(qInfo.Id) switch
                                 {
-                                    case QuestStatus.Complete:
-                                        statusStr = handler.GetCypherString(CypherStrings.CommandQuestComplete);
-
-                                        break;
-                                    case QuestStatus.Incomplete:
-                                        statusStr = handler.GetCypherString(CypherStrings.CommandQuestActive);
-
-                                        break;
-                                    case QuestStatus.Rewarded:
-                                        statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
-
-                                        break;
-                                }
+                                    QuestStatus.Complete   => handler.GetCypherString(CypherStrings.CommandQuestComplete),
+                                    QuestStatus.Incomplete => handler.GetCypherString(CypherStrings.CommandQuestActive),
+                                    QuestStatus.Rewarded   => handler.GetCypherString(CypherStrings.CommandQuestRewarded),
+                                    _                      => statusStr
+                                };
 
                             if (handler.Session != null)
                             {
@@ -1209,21 +1201,13 @@ internal class LookupCommands
                     {
                         var status = target.GetQuestStatus(qInfo.Id);
 
-                        switch (status)
+                        statusStr = status switch
                         {
-                            case QuestStatus.Complete:
-                                statusStr = handler.GetCypherString(CypherStrings.CommandQuestComplete);
-
-                                break;
-                            case QuestStatus.Incomplete:
-                                statusStr = handler.GetCypherString(CypherStrings.CommandQuestActive);
-
-                                break;
-                            case QuestStatus.Rewarded:
-                                statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
-
-                                break;
-                        }
+                            QuestStatus.Complete   => handler.GetCypherString(CypherStrings.CommandQuestComplete),
+                            QuestStatus.Incomplete => handler.GetCypherString(CypherStrings.CommandQuestActive),
+                            QuestStatus.Rewarded   => handler.GetCypherString(CypherStrings.CommandQuestRewarded),
+                            _                      => statusStr
+                        };
                     }
 
                     if (handler.Session != null)
@@ -1289,21 +1273,13 @@ internal class LookupCommands
                 var statusStr = "";
 
                 if (target)
-                    switch (target.GetQuestStatus(id))
+                    statusStr = target.GetQuestStatus(id) switch
                     {
-                        case QuestStatus.Complete:
-                            statusStr = handler.GetCypherString(CypherStrings.CommandQuestComplete);
-
-                            break;
-                        case QuestStatus.Incomplete:
-                            statusStr = handler.GetCypherString(CypherStrings.CommandQuestActive);
-
-                            break;
-                        case QuestStatus.Rewarded:
-                            statusStr = handler.GetCypherString(CypherStrings.CommandQuestRewarded);
-
-                            break;
-                    }
+                        QuestStatus.Complete   => handler.GetCypherString(CypherStrings.CommandQuestComplete),
+                        QuestStatus.Incomplete => handler.GetCypherString(CypherStrings.CommandQuestActive),
+                        QuestStatus.Rewarded   => handler.GetCypherString(CypherStrings.CommandQuestRewarded),
+                        _                      => statusStr
+                    };
 
                 if (handler.Session)
                 {

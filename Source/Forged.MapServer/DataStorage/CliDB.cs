@@ -902,40 +902,24 @@ public class CliDB
 
     public static float GetGameTableColumnForClass(dynamic row, PlayerClass playerClass)
     {
-        switch (playerClass)
+        return playerClass switch
         {
-            case PlayerClass.Warrior:
-                return row.Warrior;
-            case PlayerClass.Paladin:
-                return row.Paladin;
-            case PlayerClass.Hunter:
-                return row.Hunter;
-            case PlayerClass.Rogue:
-                return row.Rogue;
-            case PlayerClass.Priest:
-                return row.Priest;
-            case PlayerClass.Deathknight:
-                return row.DeathKnight;
-            case PlayerClass.Shaman:
-                return row.Shaman;
-            case PlayerClass.Mage:
-                return row.Mage;
-            case PlayerClass.Warlock:
-                return row.Warlock;
-            case PlayerClass.Monk:
-                return row.Monk;
-            case PlayerClass.Druid:
-                return row.Druid;
-            case PlayerClass.DemonHunter:
-                return row.DemonHunter;
-            case PlayerClass.Evoker:
-                return row.Evoker;
-            case PlayerClass.Adventurer:
-                return row.Adventurer;
-            
-        }
-
-        return 0.0f;
+            PlayerClass.Warrior     => row.Warrior,
+            PlayerClass.Paladin     => row.Paladin,
+            PlayerClass.Hunter      => row.Hunter,
+            PlayerClass.Rogue       => row.Rogue,
+            PlayerClass.Priest      => row.Priest,
+            PlayerClass.Deathknight => row.DeathKnight,
+            PlayerClass.Shaman      => row.Shaman,
+            PlayerClass.Mage        => row.Mage,
+            PlayerClass.Warlock     => row.Warlock,
+            PlayerClass.Monk        => row.Monk,
+            PlayerClass.Druid       => row.Druid,
+            PlayerClass.DemonHunter => row.DemonHunter,
+            PlayerClass.Evoker      => row.Evoker,
+            PlayerClass.Adventurer  => row.Adventurer,
+            _                       => 0.0f
+        };
     }
 
     public static float GetSpellScalingColumnForClass(GtSpellScalingRecord row, int playerClass)

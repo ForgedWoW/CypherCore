@@ -1642,32 +1642,20 @@ public sealed class GameObjectManager
 
     public uint GetMaxLevelForExpansion(Expansion expansion)
     {
-        switch (expansion)
+        return expansion switch
         {
-            case Expansion.Classic:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Classic", 30);
-            case Expansion.BurningCrusade:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BurningCrusade", 30);
-            case Expansion.WrathOfTheLichKing:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WrathOfTheLichKing", 30);
-            case Expansion.Cataclysm:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Cataclysm", 35);
-            case Expansion.MistsOfPandaria:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.MistsOfPandaria", 35);
-            case Expansion.WarlordsOfDraenor:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WarlordsOfDraenor", 40);
-            case Expansion.Legion:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Legion", 45);
-            case Expansion.BattleForAzeroth:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BattleForAzeroth", 50);
-            case Expansion.ShadowLands:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.ShadowLands", 60);
-            case Expansion.Dragonflight:
-                return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Dragonflight", 70);
-
-        }
-
-        return 0;
+            Expansion.Classic            => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Classic", 30),
+            Expansion.BurningCrusade     => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BurningCrusade", 30),
+            Expansion.WrathOfTheLichKing => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WrathOfTheLichKing", 30),
+            Expansion.Cataclysm          => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Cataclysm", 35),
+            Expansion.MistsOfPandaria    => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.MistsOfPandaria", 35),
+            Expansion.WarlordsOfDraenor  => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WarlordsOfDraenor", 40),
+            Expansion.Legion             => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Legion", 45),
+            Expansion.BattleForAzeroth   => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BattleForAzeroth", 50),
+            Expansion.ShadowLands        => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.ShadowLands", 60),
+            Expansion.Dragonflight       => _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Dragonflight", 70),
+            _                            => 0
+        };
     }
 
     public uint GetNearestTaxiNode(float x, float y, float z, uint mapid, TeamFaction team)

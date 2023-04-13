@@ -65,10 +65,10 @@ public class TerrainInfo
             using var reader = new BinaryReader(new FileStream(fileName, FileMode.Open, FileAccess.Read));
             var header = reader.Read<MapFileHeader>();
 
-            if (header.mapMagic != MapConst.MapMagic || (header.versionMagic != MapConst.MapVersionMagic && header.versionMagic != MapConst.MapVersionMagic2)) // Hack for some different extractors using v2.0 header
+            if (header.MapMagic != MapConst.MapMagic || (header.VersionMagic != MapConst.MapVersionMagic && header.VersionMagic != MapConst.MapVersionMagic2)) // Hack for some different extractors using v2.0 header
             {
                 if (log)
-                    Log.Logger.Error($"Map file '{fileName}' is from an incompatible map version ({header.versionMagic}), {MapConst.MapVersionMagic} is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.");
+                    Log.Logger.Error($"Map file '{fileName}' is from an incompatible map version ({header.VersionMagic}), {MapConst.MapVersionMagic} is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.");
             }
             else
             {
@@ -413,10 +413,10 @@ public class TerrainInfo
 
             data.LiquidInfo = new LiquidData
             {
-                level = wmoData.LiquidInfo.Value.Level,
-                depth_level = wmoData.FloorZ,
-                entry = liquidType,
-                type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType)
+                Level = wmoData.LiquidInfo.Value.Level,
+                DepthLevel = wmoData.FloorZ,
+                Entry = liquidType,
+                TypeFlags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType)
             };
 
             var delta = wmoData.LiquidInfo.Value.Level - z;
@@ -438,10 +438,10 @@ public class TerrainInfo
             LiquidData gridMapLiquid = new();
             var gridMapStatus = gmap.GetLiquidStatus(x, y, z, reqLiquidType, gridMapLiquid, collisionHeight);
 
-            if (gridMapStatus != ZLiquidStatus.NoWater && (wmoData == null || gridMapLiquid.level > wmoData.FloorZ))
+            if (gridMapStatus != ZLiquidStatus.NoWater && (wmoData == null || gridMapLiquid.Level > wmoData.FloorZ))
             {
-                if (GetId() == 530 && gridMapLiquid.entry == 2)
-                    gridMapLiquid.entry = 15;
+                if (GetId() == 530 && gridMapLiquid.Entry == 2)
+                    gridMapLiquid.Entry = 15;
 
                 data.LiquidInfo = gridMapLiquid;
                 data.LiquidStatus = gridMapStatus;
@@ -543,11 +543,11 @@ public class TerrainInfo
                     }
                 }
 
-                data.level = liquid_level;
-                data.depth_level = ground_level;
+                data.Level = liquid_level;
+                data.DepthLevel = ground_level;
 
-                data.entry = liquid_type;
-                data.type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType);
+                data.Entry = liquid_type;
+                data.TypeFlags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType);
 
                 var delta = liquid_level - z;
 
@@ -575,11 +575,11 @@ public class TerrainInfo
                 var map_result = gmap.GetLiquidStatus(x, y, z, ReqLiquidType, map_data, collisionHeight);
 
                 // Not override LIQUID_MAP_ABOVE_WATER with LIQUID_MAP_NO_WATER:
-                if (map_result != ZLiquidStatus.NoWater && map_data.level > ground_level)
+                if (map_result != ZLiquidStatus.NoWater && map_data.Level > ground_level)
                 {
                     // hardcoded in client like this
-                    if (GetId() == 530 && map_data.entry == 2)
-                        map_data.entry = 15;
+                    if (GetId() == 530 && map_data.Entry == 2)
+                        map_data.Entry = 15;
 
                     data = map_data;
 
@@ -675,9 +675,9 @@ public class TerrainInfo
 
             return res switch
             {
-                ZLiquidStatus.AboveWater => Math.Max(liquid_status.level, ground_z),
+                ZLiquidStatus.AboveWater => Math.Max(liquid_status.Level, ground_z),
                 ZLiquidStatus.NoWater    => ground_z,
-                _                        => liquid_status.level
+                _                        => liquid_status.Level
             };
         }
 

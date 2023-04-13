@@ -434,7 +434,7 @@ public partial class Unit
                 var bg = AsPlayer.Battleground;
 
                 // don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
-                if (bg && bg.IsArena())
+                if (bg && bg.IsArena)
                     pet.SetUnitFlag(UnitFlags.Stunned);
                 else
                     player.UnsummonPetTemporaryIfAny();
@@ -510,7 +510,7 @@ public partial class Unit
         LiquidTypeRecord curLiquid = null;
 
         if (Location.IsInWater && newLiquidData != null)
-            curLiquid = CliDB.LiquidTypeStorage.LookupByKey(newLiquidData.entry);
+            curLiquid = CliDB.LiquidTypeStorage.LookupByKey(newLiquidData.Entry);
 
         if (curLiquid != LastLiquid)
         {

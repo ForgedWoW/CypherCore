@@ -122,31 +122,15 @@ internal class ServerCommands
 
         var playerAmountLimit = handler.WorldManager.PlayerAmountLimit;
         var allowedAccountType = handler.WorldManager.PlayerSecurityLimit;
-        string secName;
 
-        switch (allowedAccountType)
+        string secName = allowedAccountType switch
         {
-            case AccountTypes.Player:
-                secName = "Player";
-
-                break;
-            case AccountTypes.Moderator:
-                secName = "Moderator";
-
-                break;
-            case AccountTypes.GameMaster:
-                secName = "Gamemaster";
-
-                break;
-            case AccountTypes.Administrator:
-                secName = "Administrator";
-
-                break;
-            default:
-                secName = "<unknown>";
-
-                break;
-        }
+            AccountTypes.Player        => "Player",
+            AccountTypes.Moderator     => "Moderator",
+            AccountTypes.GameMaster    => "Gamemaster",
+            AccountTypes.Administrator => "Administrator",
+            _                          => "<unknown>"
+        };
 
         handler.SendSysMessage("Player limits: amount {0}, min. security level {1}.", playerAmountLimit, secName);
 

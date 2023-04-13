@@ -12,20 +12,15 @@ namespace Forged.MapServer.Maps.Grids;
 public class Grid
 {
     private readonly GridCell[][] _cells = new GridCell[MapConst.MaxCells][];
-    private readonly uint _gridId;
-    private readonly GridInfo _gridInfo;
-    private readonly uint _gridX;
-    private readonly uint _gridY;
-    private bool _gridObjectDataLoaded;
-    private GridState _gridState;
+
     public Grid(uint id, uint x, uint y, long expiry, bool unload = true)
     {
-        _gridId = id;
-        _gridX = x;
-        _gridY = y;
-        _gridInfo = new GridInfo(expiry, unload);
-        _gridState = GridState.Invalid;
-        _gridObjectDataLoaded = false;
+        GridId = id;
+        X = x;
+        Y = y;
+        GridInformation = new GridInfo(expiry, unload);
+        GridState = GridState.Invalid;
+        IsGridObjectDataLoaded = false;
 
         for (uint xx = 0; xx < MapConst.MaxCells; ++xx)
         {
@@ -36,31 +31,25 @@ public class Grid
         }
     }
 
-    public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.GetId(), cell.GetGridX(), cell.GetGridY(), expiry, unload) { }
-
-    public void DecUnloadActiveLock()
+    public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.GetId(), cell.GetGridX(), cell.GetGridY(), expiry, unload)
     {
-        _gridInfo.DecUnloadActiveLock();
     }
+
+    public uint GridId { get; }
+
+    public GridInfo GridInformation { get; }
+
+    public GridState GridState { get; set; }
+
+    public bool IsGridObjectDataLoaded { get; set; }
+
+    public uint X { get; }
+
+    public uint Y { get; }
 
     public GridCell GetGridCell(uint x, uint y)
     {
         return _cells[x][y];
-    }
-
-    public uint GetGridId()
-    {
-        return _gridId;
-    }
-
-    public GridInfo GetGridInfoRef()
-    {
-        return _gridInfo;
-    }
-
-    public GridState GetGridState()
-    {
-        return _gridState;
     }
 
     public uint GetWorldObjectCountInNGrid<T>() where T : WorldObject
@@ -74,63 +63,25 @@ public class Grid
         return count;
     }
 
-    public uint GetX()
-    {
-        return _gridX;
-    }
-
-    public uint GetY()
-    {
-        return _gridY;
-    }
-
-    public void IncUnloadActiveLock()
-    {
-        _gridInfo.IncUnloadActiveLock();
-    }
-
-    public bool IsGridObjectDataLoaded()
-    {
-        return _gridObjectDataLoaded;
-    }
-
-    public void ResetTimeTracker(long interval)
-    {
-        _gridInfo.ResetTimeTracker(interval);
-    }
-
-    public void SetGridObjectDataLoaded(bool pLoaded)
-    {
-        _gridObjectDataLoaded = pLoaded;
-    }
-
-    public void SetGridState(GridState s)
-    {
-        _gridState = s;
-    }
-    public void SetUnloadExplicitLock(bool on)
-    {
-        _gridInfo.SetUnloadExplicitLock(on);
-    }
     public void Update(Map map, uint diff)
     {
-        switch (GetGridState())
+        switch (GridState)
         {
             case GridState.Active:
                 // Only check grid activity every (grid_expiry/10) ms, because it's really useless to do it every cycle
-                GetGridInfoRef().UpdateTimeTracker(diff);
+                GridInformation.UpdateTimeTracker(diff);
 
-                if (GetGridInfoRef().GetTimeTracker().Passed)
+                if (GridInformation.GetTimeTracker().Passed)
                 {
                     if (GetWorldObjectCountInNGrid<Player>() == 0 && !map.ActiveObjectsNearGrid(this))
                     {
                         ObjectGridStoper worker = new(GridType.Grid);
                         VisitAllGrids(worker);
-                        SetGridState(GridState.Idle);
+                        GridState = GridState.Idle;
 
                         Log.Logger.Debug("Grid[{0}, {1}] on map {2} moved to IDLE state",
-                                         GetX(),
-                                         GetY(),
+                                         X,
+                                         Y,
                                          map.Id);
                     }
                     else
@@ -140,27 +91,29 @@ public class Grid
                 }
 
                 break;
+
             case GridState.Idle:
                 map.ResetGridExpiry(this);
-                SetGridState(GridState.Removal);
+                GridState = GridState.Removal;
 
                 Log.Logger.Debug("Grid[{0}, {1}] on map {2} moved to REMOVAL state",
-                                 GetX(),
-                                 GetY(),
+                                 X,
+                                 Y,
                                  map.Id);
 
                 break;
-            case GridState.Removal:
-                if (!GetGridInfoRef().GetUnloadLock())
-                {
-                    GetGridInfoRef().UpdateTimeTracker(diff);
 
-                    if (GetGridInfoRef().GetTimeTracker().Passed)
+            case GridState.Removal:
+                if (!GridInformation.GetUnloadLock())
+                {
+                    GridInformation.UpdateTimeTracker(diff);
+
+                    if (GridInformation.GetTimeTracker().Passed)
                         if (!map.UnloadGrid(this, false))
                         {
                             Log.Logger.Debug("Grid[{0}, {1}] for map {2} differed unloading due to players or active objects nearby",
-                                             GetX(),
-                                             GetY(),
+                                             X,
+                                             Y,
                                              map.Id);
 
                             map.ResetGridExpiry(this);

@@ -129,8 +129,8 @@ public class PhasingHandler
             return phaseShift.VisibleMapIds.First().Key;
 
         var gridCoord = GridDefines.ComputeGridCoord(x, y);
-        var gx = (int)(MapConst.MaxGrids - 1 - gridCoord.X_Coord);
-        var gy = (int)(MapConst.MaxGrids - 1 - gridCoord.Y_Coord);
+        var gx = (int)(MapConst.MaxGrids - 1 - gridCoord.X);
+        var gy = (int)(MapConst.MaxGrids - 1 - gridCoord.Y);
 
         foreach (var visibleMap in phaseShift.VisibleMapIds)
             if (terrain.HasChildTerrainGridFile(visibleMap.Key, gx, gy))

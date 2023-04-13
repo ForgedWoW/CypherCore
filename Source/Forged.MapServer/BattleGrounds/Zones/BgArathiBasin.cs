@@ -155,7 +155,7 @@ internal class BgArathiBasin : Battleground
     public BgArathiBasin(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
     {
         _mIsInformedNearVictory = false;
-        m_BuffChange = true;
+        MBuffChange = true;
         BgObjects = new ObjectGuid[ABObjectTypes.MAX];
         BgCreatures = new ObjectGuid[ABBattlegroundNodes.ALL_COUNT + 5]; //+5 for aura triggers
 
@@ -208,16 +208,16 @@ internal class BgArathiBasin : Battleground
     //Invoked if a player used a banner as a gameobject
     public override void EventPlayerClickedOnFlag(Player source, GameObject targetObj)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         byte node = ABBattlegroundNodes.NODE_STABLES;
-        var obj = GetBgMap().GetGameObject(BgObjects[node * 8 + 7]);
+        var obj = BgMap.GetGameObject(BgObjects[node * 8 + 7]);
 
         while (node < ABBattlegroundNodes.DYNAMIC_NODES_COUNT && (!obj || !source.Location.IsWithinDistInMap(obj, 10)))
         {
             ++node;
-            obj = GetBgMap().GetGameObject(BgObjects[node * 8 + ABObjectTypes.AURA_CONTESTED]);
+            obj = BgMap.GetGameObject(BgObjects[node * 8 + ABObjectTypes.AURA_CONTESTED]);
         }
 
         if (node == ABBattlegroundNodes.DYNAMIC_NODES_COUNT)
@@ -410,7 +410,7 @@ internal class BgArathiBasin : Battleground
         {
             case 6635: // Horde Start
             case 6634: // Alliance Start
-                if (GetStatus() == BattlegroundStatus.WaitJoin && !entered)
+                if (Status == BattlegroundStatus.WaitJoin && !entered)
                     TeleportPlayerToExploitLocation(player);
 
                 break;
@@ -433,7 +433,7 @@ internal class BgArathiBasin : Battleground
 
     public override void PostUpdateImpl(uint diff)
     {
-        if (GetStatus() == BattlegroundStatus.InProgress)
+        if (Status == BattlegroundStatus.InProgress)
         {
             int[] teamPoints =
             {
@@ -509,7 +509,7 @@ internal class BgArathiBasin : Battleground
                 if (_mLastTick[team] > TickIntervals[points])
                 {
                     _mLastTick[team] -= TickIntervals[points];
-                    m_TeamScores[team] += TickPoints[points];
+                    MTeamScores[team] += TickPoints[points];
                     _mHonorScoreTics[team] += TickPoints[points];
                     _mReputationScoreTics[team] += TickPoints[points];
 
@@ -529,7 +529,7 @@ internal class BgArathiBasin : Battleground
                         _mHonorScoreTics[team] -= _mHonorTics;
                     }
 
-                    if (!_mIsInformedNearVictory && m_TeamScores[team] > WARNING_NEAR_VICTORY_SCORE)
+                    if (!_mIsInformedNearVictory && MTeamScores[team] > WARNING_NEAR_VICTORY_SCORE)
                     {
                         if (team == TeamIds.Alliance)
                         {
@@ -545,19 +545,19 @@ internal class BgArathiBasin : Battleground
                         _mIsInformedNearVictory = true;
                     }
 
-                    if (m_TeamScores[team] > MAX_TEAM_SCORE)
-                        m_TeamScores[team] = MAX_TEAM_SCORE;
+                    if (MTeamScores[team] > MAX_TEAM_SCORE)
+                        MTeamScores[team] = MAX_TEAM_SCORE;
 
                     if (team == TeamIds.Alliance)
-                        UpdateWorldState(ABWorldStates.RESOURCES_ALLY, (int)m_TeamScores[team]);
+                        UpdateWorldState(ABWorldStates.RESOURCES_ALLY, (int)MTeamScores[team]);
                     else
-                        UpdateWorldState(ABWorldStates.RESOURCES_HORDE, (int)m_TeamScores[team]);
+                        UpdateWorldState(ABWorldStates.RESOURCES_HORDE, (int)MTeamScores[team]);
 
                     // update achievement flags
                     // we increased m_TeamScores[team] so we just need to check if it is 500 more than other teams resources
                     var otherTeam = (team + 1) % SharedConst.PvpTeamsCount;
 
-                    if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
+                    if (MTeamScores[team] > MTeamScores[otherTeam] + 500)
                     {
                         if (team == TeamIds.Alliance)
                             UpdateWorldState(ABWorldStates.HAD_500DISADVANTAGE_HORDE, 1);
@@ -568,9 +568,9 @@ internal class BgArathiBasin : Battleground
             }
 
             // Test win condition
-            if (m_TeamScores[TeamIds.Alliance] >= MAX_TEAM_SCORE)
+            if (MTeamScores[TeamIds.Alliance] >= MAX_TEAM_SCORE)
                 EndBattleground(TeamFaction.Alliance);
-            else if (m_TeamScores[TeamIds.Horde] >= MAX_TEAM_SCORE)
+            else if (MTeamScores[TeamIds.Horde] >= MAX_TEAM_SCORE)
                 EndBattleground(TeamFaction.Horde);
         }
     }
@@ -584,7 +584,7 @@ internal class BgArathiBasin : Battleground
 
         for (var i = 0; i < SharedConst.PvpTeamsCount; ++i)
         {
-            m_TeamScores[i] = 0;
+            MTeamScores[i] = 0;
             _mLastTick[i] = 0;
             _mHonorScoreTics[i] = 0;
             _mReputationScoreTics[i] = 0;
@@ -640,9 +640,9 @@ internal class BgArathiBasin : Battleground
         //buffs
         for (var i = 0; i < ABBattlegroundNodes.DYNAMIC_NODES_COUNT; ++i)
         {
-            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i, Buff_Entries[0], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
-            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
+            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i, BuffEntries[0], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
+            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i + 1, BuffEntries[1], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
+            result &= AddObject(ABObjectTypes.SPEEDBUFF_STABLES + 3 * i + 2, BuffEntries[2], BuffPositions[i][0], BuffPositions[i][1], BuffPositions[i][2], BuffPositions[i][3], 0, 0, (float)Math.Sin(BuffPositions[i][3] / 2), (float)Math.Cos(BuffPositions[i][3] / 2), BattlegroundConst.RespawnOneDay);
 
             if (!result)
             {

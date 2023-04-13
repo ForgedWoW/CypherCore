@@ -967,9 +967,9 @@ public class PathGenerator
         if (liquidStatus == ZLiquidStatus.NoWater)
             return NavTerrainFlag.Ground;
 
-        data.type_flags &= ~LiquidHeaderTypeFlags.DarkWater;
+        data.TypeFlags &= ~LiquidHeaderTypeFlags.DarkWater;
 
-        return data.type_flags switch
+        return data.TypeFlags switch
         {
             LiquidHeaderTypeFlags.Water => NavTerrainFlag.Water,
             LiquidHeaderTypeFlags.Ocean => NavTerrainFlag.Water,

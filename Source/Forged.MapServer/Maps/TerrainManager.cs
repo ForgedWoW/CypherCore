@@ -35,8 +35,8 @@ public class TerrainManager
     {
         var p = GridDefines.ComputeGridCoord(x, y);
 
-        var gx = (int)(MapConst.MaxGrids - 1 - p.X_Coord);
-        var gy = (int)(MapConst.MaxGrids - 1 - p.Y_Coord);
+        var gx = (int)(MapConst.MaxGrids - 1 - p.X);
+        var gy = (int)(MapConst.MaxGrids - 1 - p.Y);
 
         return TerrainInfo.ExistMap(mapid, gx, gy) && TerrainInfo.ExistVMap(mapid, gx, gy);
     }

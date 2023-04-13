@@ -289,7 +289,7 @@ public class Map : IDisposable
         switch (obj.TypeId)
         {
             case TypeId.Corpse:
-                if (grid.IsGridObjectDataLoaded())
+                if (grid.IsGridObjectDataLoaded)
                 {
                     // Corpses are a special object type - they can be added to grid via a call to AddToMap
                     // or loaded through ObjectGridLoader.
@@ -484,8 +484,8 @@ public class Map : IDisposable
                              obj.GUID,
                              obj.Location.X,
                              obj.Location.Y,
-                             cellCoord.X_Coord,
-                             cellCoord.Y_Coord);
+                             cellCoord.X,
+                             cellCoord.Y);
 
             return false; //Should delete object
         }
@@ -530,8 +530,8 @@ public class Map : IDisposable
                              obj.GUID,
                              obj.Location.X,
                              obj.Location.Y,
-                             cellCoord.X_Coord,
-                             cellCoord.Y_Coord);
+                             cellCoord.X,
+                             cellCoord.Y);
 
             return false; //Should delete object
         }
@@ -579,7 +579,7 @@ public class Map : IDisposable
 
     public bool IsGridLoaded(GridCoord p)
     {
-        return GetGrid(p.X_Coord, p.Y_Coord) != null && IsGridObjectDataLoaded(p.X_Coord, p.Y_Coord);
+        return GetGrid(p.X, p.Y) != null && IsGridObjectDataLoaded(p.X, p.Y);
     }
 
     public void UpdatePlayerZoneStats(uint oldZone, uint newZone)
@@ -1138,8 +1138,8 @@ public class Map : IDisposable
 
     public bool UnloadGrid(Grid grid, bool unloadAll)
     {
-        var x = grid.GetX();
-        var y = grid.GetY();
+        var x = grid.X;
+        var y = grid.Y;
 
         if (!unloadAll)
         {
@@ -1891,11 +1891,11 @@ public class Map : IDisposable
 
     public bool ActiveObjectsNearGrid(Grid grid)
     {
-        var cell_min = new CellCoord(grid.GetX() * MapConst.MaxCells,
-                                     grid.GetY() * MapConst.MaxCells);
+        var cell_min = new CellCoord(grid.X * MapConst.MaxCells,
+                                     grid.Y * MapConst.MaxCells);
 
-        var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
-                                     cell_min.Y_Coord + MapConst.MaxCells);
+        var cell_max = new CellCoord(cell_min.X + MapConst.MaxCells,
+                                     cell_min.Y + MapConst.MaxCells);
 
         //we must find visible range in cells so we unload only non-visible cells...
         var viewDist = VisibilityRange;
@@ -1910,8 +1910,8 @@ public class Map : IDisposable
         {
             var p = GridDefines.ComputeCellCoord(pl.Location.X, pl.Location.Y);
 
-            if (cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord &&
-                cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord)
+            if (cell_min.X <= p.X && p.X <= cell_max.X &&
+                cell_min.Y <= p.Y && p.Y <= cell_max.Y)
                 return true;
         }
 
@@ -1919,8 +1919,8 @@ public class Map : IDisposable
         {
             var p = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
 
-            if (cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord &&
-                cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord)
+            if (cell_min.X <= p.X && p.X <= cell_max.X &&
+                cell_min.Y <= p.Y && p.Y <= cell_max.Y)
                 return true;
         }
 
@@ -1956,14 +1956,14 @@ public class Map : IDisposable
         {
             var p = GridDefines.ComputeGridCoord(respawnLocation.X, respawnLocation.Y);
 
-            if (GetGrid(p.X_Coord, p.Y_Coord) != null)
+            if (GetGrid(p.X, p.Y) != null)
             {
-                GetGrid(p.X_Coord, p.Y_Coord).IncUnloadActiveLock();
+                GetGrid(p.X, p.Y).GridInformation.IncUnloadActiveLock();
             }
             else
             {
                 var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
-                Log.Logger.Error($"Active object {obj.GUID} added to grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
+                Log.Logger.Error($"Active object {obj.GUID} added to grid[{p.X}, {p.Y}] but spawn grid[{p2.X}, {p2.Y}] was not loaded.");
             }
         }
     }
@@ -1997,14 +1997,14 @@ public class Map : IDisposable
         {
             var p = GridDefines.ComputeGridCoord(respawnLocation.X, respawnLocation.Y);
 
-            if (GetGrid(p.X_Coord, p.Y_Coord) != null)
+            if (GetGrid(p.X, p.Y) != null)
             {
-                GetGrid(p.X_Coord, p.Y_Coord).DecUnloadActiveLock();
+                GetGrid(p.X, p.Y).GridInformation.DecUnloadActiveLock();
             }
             else
             {
                 var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
-                Log.Logger.Debug($"Active object {obj.GUID} removed from grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
+                Log.Logger.Debug($"Active object {obj.GUID} removed from grid[{p.X}, {p.Y}] but spawn grid[{p2.X}, {p2.Y}] was not loaded.");
             }
         }
     }
@@ -2505,13 +2505,13 @@ public class Map : IDisposable
     {
         var p = GridDefines.ComputeGridCoord(x, y);
 
-        return GetGrid(p.X_Coord, p.Y_Coord) == null ||
-               GetGrid(p.X_Coord, p.Y_Coord).GetGridState() == GridState.Removal;
+        return GetGrid(p.X, p.Y) == null ||
+               GetGrid(p.X, p.Y).GridState == GridState.Removal;
     }
 
     public void ResetGridExpiry(Grid grid, float factor = 1)
     {
-        grid.ResetTimeTracker((long)(_gridExpiry * factor));
+        grid.GridInformation.ResetTimeTracker((long)(_gridExpiry * factor));
     }
 
     public virtual TransferAbortParams CannotEnter(Player player)
@@ -2929,8 +2929,8 @@ public class Map : IDisposable
                              obj.GUID,
                              obj.Location.X,
                              obj.Location.Y,
-                             p.X_Coord,
-                             p.Y_Coord);
+                             p.X,
+                             p.Y);
 
             return;
         }
@@ -2980,22 +2980,22 @@ public class Map : IDisposable
 
         lock (_locks)
         {
-            lockobj = _locks.GetOrAdd(p.X_Coord, p.Y_Coord, () => new object());
+            lockobj = _locks.GetOrAdd(p.X, p.Y, () => new object());
         }
 
         lock (lockobj)
         {
-            if (GetGrid(p.X_Coord, p.Y_Coord) == null)
+            if (GetGrid(p.X, p.Y) == null)
             {
-                Log.Logger.Debug("Creating grid[{0}, {1}] for map {2} instance {3}", p.X_Coord, p.Y_Coord, Id, InstanceIdInternal);
+                Log.Logger.Debug("Creating grid[{0}, {1}] for map {2} instance {3}", p.X, p.Y, Id, InstanceIdInternal);
 
-                var grid = new Grid(p.X_Coord * MapConst.MaxGrids + p.Y_Coord, p.X_Coord, p.Y_Coord, _gridExpiry, GetDefaultValue("GridUnload", true));
-                grid.SetGridState(GridState.Idle);
-                SetGrid(grid, p.X_Coord, p.Y_Coord);
+                var grid = new Grid(p.X * MapConst.MaxGrids + p.Y, p.X, p.Y, _gridExpiry, GetDefaultValue("GridUnload", true));
+                grid.GridState = GridState.Idle;
+                SetGrid(grid, p.X, p.Y);
 
                 //z coord
-                var gx = (int)(MapConst.MaxGrids - 1 - p.X_Coord);
-                var gy = (int)(MapConst.MaxGrids - 1 - p.Y_Coord);
+                var gx = (int)(MapConst.MaxGrids - 1 - p.X);
+                var gy = (int)(MapConst.MaxGrids - 1 - p.Y);
 
                 if (gx > -1 && gy > -1)
                     Terrain.LoadMapAndVMap(gx, gy);
@@ -3012,7 +3012,7 @@ public class Map : IDisposable
             MultiPersonalPhaseTracker.LoadGrid(obj.Location.PhaseShift, grid, this, cell);
 
         // refresh grid state & timer
-        if (grid.GetGridState() != GridState.Active)
+        if (grid.GridState != GridState.Active)
         {
             Log.Logger.Debug("Active object {0} triggers loading of grid [{1}, {2}] on map {3}",
                              obj.GUID,
@@ -3021,7 +3021,7 @@ public class Map : IDisposable
                              Id);
 
             ResetGridExpiry(grid, 0.1f);
-            grid.SetGridState(GridState.Active);
+            grid.GridState = GridState.Active;
         }
     }
 
@@ -3060,17 +3060,17 @@ public class Map : IDisposable
 
         // Mark as don't unload
         var grid = GetGrid(x, y);
-        grid.SetUnloadExplicitLock(true);
+        grid.GridInformation.SetUnloadExplicitLock(true);
     }
 
     private void GridUnmarkNoUnload(uint x, uint y)
     {
         // If grid is loaded, clear unload lock
-        if (IsGridLoaded(x, y))
-        {
-            var grid = GetGrid(x, y);
-            grid.SetUnloadExplicitLock(false);
-        }
+        if (!IsGridLoaded(x, y))
+            return;
+
+        var grid = GetGrid(x, y);
+        grid.GridInformation.SetUnloadExplicitLock(false);
     }
 
     private void InitializeObject(WorldObject obj)
@@ -3090,9 +3090,9 @@ public class Map : IDisposable
         // Update mobs/objects in ALL visible cells around object!
         var area = Cell.CalculateCellArea(obj.Location.X, obj.Location.Y, obj.GridActivationRange);
 
-        for (var x = area.LowBound.X_Coord; x <= area.HighBound.X_Coord; ++x)
+        for (var x = area.LowBound.X; x <= area.HighBound.X; ++x)
         {
-            for (var y = area.LowBound.Y_Coord; y <= area.HighBound.Y_Coord; ++y)
+            for (var y = area.LowBound.Y; y <= area.HighBound.Y; ++y)
             {
                 // marked cells are those that have been visited
                 // don't visit the same cell twice
@@ -3123,24 +3123,24 @@ public class Map : IDisposable
                 if (grid == null)
                     continue;
 
-                if (grid.GetGridState() != GridState.Active)
+                if (grid.GridState != GridState.Active)
                     continue;
 
-                grid.GetGridInfoRef().GetRelocationTimer().Modify((int)diff);
+                grid.GridInformation.GetRelocationTimer().Modify((int)diff);
 
-                if (!grid.GetGridInfoRef().GetRelocationTimer().Passed())
+                if (!grid.GridInformation.GetRelocationTimer().Passed())
                     continue;
 
-                var gx = grid.GetX();
-                var gy = grid.GetY();
+                var gx = grid.X;
+                var gy = grid.Y;
 
                 var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
-                var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells, cell_min.Y_Coord + MapConst.MaxCells);
+                var cell_max = new CellCoord(cell_min.X + MapConst.MaxCells, cell_min.Y + MapConst.MaxCells);
 
 
-                for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
+                for (var xx = cell_min.X; xx < cell_max.X; ++xx)
                 {
-                    for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
+                    for (var yy = cell_min.Y; yy < cell_max.Y; ++yy)
                     {
                         var cell_id = yy * MapConst.TotalCellsPerMap + xx;
 
@@ -3170,25 +3170,25 @@ public class Map : IDisposable
                 if (grid == null)
                     continue;
 
-                if (grid.GetGridState() != GridState.Active)
+                if (grid.GridState != GridState.Active)
                     continue;
 
-                if (!grid.GetGridInfoRef().GetRelocationTimer().Passed())
+                if (!grid.GridInformation.GetRelocationTimer().Passed())
                     continue;
 
-                grid.GetGridInfoRef().GetRelocationTimer().Reset((int)diff, VisibilityNotifyPeriod);
+                grid.GridInformation.GetRelocationTimer().Reset((int)diff, VisibilityNotifyPeriod);
 
-                var gx = grid.GetX();
-                var gy = grid.GetY();
+                var gx = grid.X;
+                var gy = grid.Y;
 
                 var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
 
-                var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
-                                             cell_min.Y_Coord + MapConst.MaxCells);
+                var cell_max = new CellCoord(cell_min.X + MapConst.MaxCells,
+                                             cell_min.Y + MapConst.MaxCells);
 
-                for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
+                for (var xx = cell_min.X; xx < cell_max.X; ++xx)
                 {
-                    for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
+                    for (var yy = cell_min.Y; yy < cell_max.Y; ++yy)
                     {
                         var cell_id = yy * MapConst.TotalCellsPerMap + xx;
 
@@ -4134,14 +4134,15 @@ public class Map : IDisposable
         if (grid == null)
             return false;
 
-        return grid.IsGridObjectDataLoaded();
+        return grid.IsGridObjectDataLoaded;
     }
 
     private void SetGridObjectDataLoaded(bool pLoaded, uint x, uint y)
     {
         var grid = GetGrid(x, y);
 
-        grid?.SetGridObjectDataLoaded(pLoaded);
+        if (grid != null)
+            grid.IsGridObjectDataLoaded = pLoaded;
     }
 
     private ObjectGuidGenerator GetGuidSequenceGenerator(HighGuid high)

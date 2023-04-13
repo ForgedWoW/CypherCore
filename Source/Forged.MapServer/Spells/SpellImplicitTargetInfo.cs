@@ -227,32 +227,42 @@ public class SpellImplicitTargetInfo
 
                     break;
                 case SpellTargetReferenceTypes.Target:
-                    switch (ObjectType)
+                    targetMask = ObjectType switch
                     {
-                        case SpellTargetObjectTypes.Gobj:
-                            targetMask = SpellCastTargetFlags.Gameobject;
-
-                            break;
-                        case SpellTargetObjectTypes.GobjItem:
-                            targetMask = SpellCastTargetFlags.GameobjectItem;
-
-                            break;
-                        case SpellTargetObjectTypes.UnitAndDest:
-                        case SpellTargetObjectTypes.Unit:
-                        case SpellTargetObjectTypes.Dest:
-                            targetMask = CheckType switch
-                            {
-                                SpellTargetCheckTypes.Enemy     => SpellCastTargetFlags.UnitEnemy,
-                                SpellTargetCheckTypes.Ally      => SpellCastTargetFlags.UnitAlly,
-                                SpellTargetCheckTypes.Party     => SpellCastTargetFlags.UnitParty,
-                                SpellTargetCheckTypes.Raid      => SpellCastTargetFlags.UnitRaid,
-                                SpellTargetCheckTypes.Passenger => SpellCastTargetFlags.UnitPassenger,
-                                SpellTargetCheckTypes.RaidClass => SpellCastTargetFlags.Unit,
-                                _                               => SpellCastTargetFlags.Unit
-                            };
-
-                            break;
-                    }
+                        SpellTargetObjectTypes.Gobj     => SpellCastTargetFlags.Gameobject,
+                        SpellTargetObjectTypes.GobjItem => SpellCastTargetFlags.GameobjectItem,
+                        SpellTargetObjectTypes.UnitAndDest => CheckType switch
+                        {
+                            SpellTargetCheckTypes.Enemy     => SpellCastTargetFlags.UnitEnemy,
+                            SpellTargetCheckTypes.Ally      => SpellCastTargetFlags.UnitAlly,
+                            SpellTargetCheckTypes.Party     => SpellCastTargetFlags.UnitParty,
+                            SpellTargetCheckTypes.Raid      => SpellCastTargetFlags.UnitRaid,
+                            SpellTargetCheckTypes.Passenger => SpellCastTargetFlags.UnitPassenger,
+                            SpellTargetCheckTypes.RaidClass => SpellCastTargetFlags.Unit,
+                            _                               => SpellCastTargetFlags.Unit
+                        },
+                        SpellTargetObjectTypes.Unit => CheckType switch
+                        {
+                            SpellTargetCheckTypes.Enemy     => SpellCastTargetFlags.UnitEnemy,
+                            SpellTargetCheckTypes.Ally      => SpellCastTargetFlags.UnitAlly,
+                            SpellTargetCheckTypes.Party     => SpellCastTargetFlags.UnitParty,
+                            SpellTargetCheckTypes.Raid      => SpellCastTargetFlags.UnitRaid,
+                            SpellTargetCheckTypes.Passenger => SpellCastTargetFlags.UnitPassenger,
+                            SpellTargetCheckTypes.RaidClass => SpellCastTargetFlags.Unit,
+                            _                               => SpellCastTargetFlags.Unit
+                        },
+                        SpellTargetObjectTypes.Dest => CheckType switch
+                        {
+                            SpellTargetCheckTypes.Enemy     => SpellCastTargetFlags.UnitEnemy,
+                            SpellTargetCheckTypes.Ally      => SpellCastTargetFlags.UnitAlly,
+                            SpellTargetCheckTypes.Party     => SpellCastTargetFlags.UnitParty,
+                            SpellTargetCheckTypes.Raid      => SpellCastTargetFlags.UnitRaid,
+                            SpellTargetCheckTypes.Passenger => SpellCastTargetFlags.UnitPassenger,
+                            SpellTargetCheckTypes.RaidClass => SpellCastTargetFlags.Unit,
+                            _                               => SpellCastTargetFlags.Unit
+                        },
+                        _ => targetMask
+                    };
 
                     break;
             }

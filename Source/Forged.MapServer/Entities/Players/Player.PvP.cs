@@ -111,9 +111,9 @@ public partial class Player
     {
         var perm = RBACPermissions.JoinNormalBg;
 
-        if (bg.IsArena())
+        if (bg.IsArena)
             perm = RBACPermissions.JoinArenas;
-        else if (bg.IsRandom())
+        else if (bg.IsRandom)
             perm = RBACPermissions.JoinRandomBg;
 
         return Session.HasPermission(perm);
@@ -224,7 +224,7 @@ public partial class Player
         if (level > Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
             level = (uint)Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
-        return level >= bg.GetMinLevel() && level <= bg.GetMaxLevel();
+        return level >= bg.MinLevel && level <= bg.MaxLevel;
     }
 
     public TeamFaction GetBgTeam()
@@ -323,8 +323,8 @@ public partial class Player
             bg.RemovePlayerAtLeave(GUID, teleportToEntryPoint, true);
 
             // call after remove to be sure that player resurrected for correct cast
-            if (bg.IsBattleground() && !IsGameMaster && Configuration.GetDefaultValue("Battleground.CastDeserter", true))
-                if (bg.GetStatus() == BattlegroundStatus.InProgress || bg.GetStatus() == BattlegroundStatus.WaitJoin)
+            if (bg.IsBattleground && !IsGameMaster && Configuration.GetDefaultValue("Battleground.CastDeserter", true))
+                if (bg.Status == BattlegroundStatus.InProgress || bg.Status == BattlegroundStatus.WaitJoin)
                 {
                     //lets check if player was teleported from BG and schedule delayed Deserter spell cast
                     if (IsBeingTeleportedFar)
@@ -367,7 +367,7 @@ public partial class Player
         var bg = Battleground;
 
         // Battleground also must be in progress!
-        if (!bg || bg != reporter.Battleground || EffectiveTeam != reporter.EffectiveTeam || bg.GetStatus() != BattlegroundStatus.InProgress)
+        if (!bg || bg != reporter.Battleground || EffectiveTeam != reporter.EffectiveTeam || bg.Status != BattlegroundStatus.InProgress)
         {
             reporter.SendPacket(reportAfkResult);
 
@@ -423,7 +423,7 @@ public partial class Player
         UpdateHonorFields();
 
         // do not reward honor in arenas, but return true to enable onkill spellproc
-        if (InBattleground && Battleground && Battleground.IsArena())
+        if (InBattleground && Battleground && Battleground.IsArena)
             return true;
 
         // Promote to float for calculations

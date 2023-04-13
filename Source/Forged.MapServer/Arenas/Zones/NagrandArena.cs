@@ -17,7 +17,7 @@ public class NagrandArena : Arena
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         switch (trigger)
@@ -35,7 +35,7 @@ public class NagrandArena : Arena
 
     public override void PostUpdateImpl(uint diff)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         TaskScheduler.Update(diff);

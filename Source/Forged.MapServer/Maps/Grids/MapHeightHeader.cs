@@ -7,8 +7,8 @@ namespace Forged.MapServer.Maps.Grids;
 
 public struct MapHeightHeader
 {
-    public HeightHeaderFlags flags;
-    public uint fourcc;
-    public float gridHeight;
-    public float gridMaxHeight;
+    public HeightHeaderFlags Flags;
+    public uint Fourcc;
+    public float GridHeight;
+    public float GridMaxHeight;
 }

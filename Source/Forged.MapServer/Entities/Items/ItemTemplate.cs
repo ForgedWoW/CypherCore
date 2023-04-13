@@ -146,20 +146,17 @@ public class ItemTemplate
 
     public bool CanChangeEquipStateInCombat()
     {
-        switch (InventoryType)
+        return InventoryType switch
         {
-            case InventoryType.Relic:
-            case InventoryType.Shield:
-            case InventoryType.Holdable:
-                return true;
-            
-        }
-
-        return Class switch
-        {
-            ItemClass.Weapon     => true,
-            ItemClass.Projectile => true,
-            _                    => false
+            InventoryType.Relic    => true,
+            InventoryType.Shield   => true,
+            InventoryType.Holdable => true,
+            _ => Class switch
+            {
+                ItemClass.Weapon     => true,
+                ItemClass.Projectile => true,
+                _                    => false
+            }
         };
     }
 

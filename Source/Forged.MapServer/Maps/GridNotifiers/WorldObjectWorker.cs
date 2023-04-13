@@ -35,10 +35,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         if (!Mask.HasAnyFlag(GridMapTypeMask.AreaTrigger))
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var areaTrigger in objs)
         {
-            var areaTrigger = objs[i];
-
             if (areaTrigger.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(areaTrigger);
         }
@@ -49,10 +47,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         if (!Mask.HasAnyFlag(GridMapTypeMask.Conversation))
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var conversation in objs)
         {
-            var conversation = objs[i];
-
             if (conversation.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(conversation);
         }
@@ -63,10 +59,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         if (!Mask.HasAnyFlag(GridMapTypeMask.Corpse))
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var corpse in objs)
         {
-            var corpse = objs[i];
-
             if (corpse.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(corpse);
         }
@@ -77,10 +71,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         if (!Mask.HasAnyFlag(GridMapTypeMask.Creature))
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
-
             if (creature.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(creature);
         }
@@ -91,10 +83,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         if (!Mask.HasAnyFlag(GridMapTypeMask.DynamicObject))
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var dynamicObject in objs)
         {
-            var dynamicObject = objs[i];
-
             if (dynamicObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(dynamicObject);
         }
@@ -105,10 +95,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         if (!Mask.HasAnyFlag(GridMapTypeMask.GameObject))
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var gameObject in objs)
         {
-            var gameObject = objs[i];
-
             if (gameObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(gameObject);
         }
@@ -119,10 +107,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         if (!Mask.HasAnyFlag(GridMapTypeMask.Player))
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
-
             if (player.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(player);
         }
@@ -133,10 +119,8 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
         if (!Mask.HasAnyFlag(GridMapTypeMask.SceneObject))
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var sceneObject in objs)
         {
-            var sceneObject = objs[i];
-
             if (sceneObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(sceneObject);
         }

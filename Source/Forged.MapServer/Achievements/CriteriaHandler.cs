@@ -1257,7 +1257,7 @@ public class CriteriaHandler
             {
                 var bg = referencePlayer.Battleground;
 
-                if (bg == null || !bg.IsArena() || bg.GetArenaType() != (ArenaTypes)reqValue)
+                if (bg == null || !bg.IsArena || bg.ArenaType != (ArenaTypes)reqValue)
                     return false;
 
                 break;
@@ -1505,7 +1505,7 @@ public class CriteriaHandler
             {
                 var bg = referencePlayer.Battleground;
 
-                if (bg == null || !bg.IsArena() || !bg.IsRated())
+                if (bg == null || !bg.IsArena || !bg.IsRated)
                     return false;
 
                 break;
@@ -1523,7 +1523,7 @@ public class CriteriaHandler
             {
                 var bg = referencePlayer.Battleground;
 
-                if (bg == null || !bg.IsBattleground() || !bg.IsRated())
+                if (bg == null || !bg.IsBattleground || !bg.IsRated)
                     return false;
 
                 break;

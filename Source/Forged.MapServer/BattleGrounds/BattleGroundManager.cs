@@ -71,7 +71,7 @@ public class BattlegroundManager
     public void AddBattleground(Battleground bg)
     {
         if (bg)
-            _bgDataStore[bg.GetTypeID()].MBattlegrounds[bg.GetInstanceID()] = bg;
+            _bgDataStore[bg.GetTypeID()].MBattlegrounds[bg.InstanceID] = bg;
     }
 
     public void AddToBGFreeSlotQueue(BattlegroundQueueTypeId bgTypeId, Battleground bg)
@@ -88,11 +88,11 @@ public class BattlegroundManager
     {
         battlefieldStatus = new BattlefieldStatusActive();
         BuildBattlegroundStatusHeader(battlefieldStatus.Hdr, bg, player, ticketId, joinTime, bg.GetQueueId(), arenaType);
-        battlefieldStatus.ShutdownTimer = bg.GetRemainingTime();
+        battlefieldStatus.ShutdownTimer = bg.RemainingTime;
         battlefieldStatus.ArenaFaction = (byte)(player.GetBgTeam() == TeamFaction.Horde ? TeamIds.Horde : TeamIds.Alliance);
         battlefieldStatus.LeftEarly = false;
-        battlefieldStatus.StartTimer = bg.GetElapsedTime();
-        battlefieldStatus.Mapid = bg.GetMapId();
+        battlefieldStatus.StartTimer = bg.ElapsedTime;
+        battlefieldStatus.Mapid = bg.MapId;
     }
 
     public void BuildBattlegroundStatusFailed(out BattlefieldStatusFailed battlefieldStatus, BattlegroundQueueTypeId queueId, Player pPlayer, uint ticketId, GroupJoinBattlegroundResult result, ObjectGuid errorGuid = default)
@@ -118,7 +118,7 @@ public class BattlegroundManager
     {
         battlefieldStatus = new BattlefieldStatusNeedConfirmation();
         BuildBattlegroundStatusHeader(battlefieldStatus.Hdr, bg, player, ticketId, joinTime, bg.GetQueueId(), arenaType);
-        battlefieldStatus.Mapid = bg.GetMapId();
+        battlefieldStatus.Mapid = bg.MapId;
         battlefieldStatus.Timeout = timeout;
         battlefieldStatus.Role = 0;
     }
@@ -169,12 +169,12 @@ public class BattlegroundManager
         // create a copy of the BG template
         var bg = bgTemplate.GetCopy();
 
-        var isRandom = bgTypeId != (BattlegroundTypeId)queueId.BattlemasterListId && !bg.IsArena();
+        var isRandom = bgTypeId != (BattlegroundTypeId)queueId.BattlemasterListId && !bg.IsArena;
 
         bg.SetQueueId(queueId);
         bg.SetBracket(bracketEntry);
         bg.SetInstanceID(_mapManager.GenerateInstanceId());
-        bg.SetClientInstanceID(CreateClientVisibleInstanceId((BattlegroundTypeId)queueId.BattlemasterListId, bracketEntry.GetBracketId()));
+        bg.SetClientInstanceID(CreateClientVisibleInstanceId((BattlegroundTypeId)queueId.BattlemasterListId, bracketEntry.BracketId));
         bg.Reset();                                // reset the new bg (set status to status_wait_queue from status_none)
         bg.SetStatus(BattlegroundStatus.WaitJoin); // start the joining of the bg
         bg.SetArenaType((ArenaTypes)queueId.TeamSize);
@@ -500,7 +500,7 @@ public class BattlegroundManager
         var queues = _bgFreeSlotQueue[bgTypeId];
 
         foreach (var bg in queues)
-            if (bg.GetInstanceID() == instanceId)
+            if (bg.InstanceID == instanceId)
             {
                 queues.Remove(bg);
 
@@ -529,7 +529,7 @@ public class BattlegroundManager
 
     public void SendAreaSpiritHealerQuery(Player player, Battleground bg, ObjectGuid guid)
     {
-        var time = 30000 - bg.GetLastResurrectTime(); // resurrect every 30 seconds
+        var time = 30000 - bg.LastResurrectTime; // resurrect every 30 seconds
 
         if (time == 0xFFFFFFFF)
             time = 0;
@@ -554,8 +554,8 @@ public class BattlegroundManager
         {
             BattlemasterGuid = guid,
             BattlemasterListID = (int)bgTypeId,
-            MinLevel = bgTemplate.GetMinLevel(),
-            MaxLevel = bgTemplate.GetMaxLevel(),
+            MinLevel = bgTemplate.MinLevel,
+            MaxLevel = bgTemplate.MaxLevel,
             PvpAnywhere = guid.IsEmpty,
             HasRandomWinToday = player.GetRandomWinner()
         };
@@ -569,7 +569,7 @@ public class BattlegroundManager
 
         if (bg)
         {
-            var mapid = bg.GetMapId();
+            var mapid = bg.MapId;
             var team = player.GetBgTeam();
 
             var pos = bg.GetTeamStartPosition(Battleground.GetTeamIndexByTeamId(team));
@@ -623,10 +623,10 @@ public class BattlegroundManager
                         if (bg.ToBeDeleted())
                         {
                             bgs.Remove(pair.Key);
-                            var clients = data.MClientBattlegroundIds[(int)bg.GetBracketId()];
+                            var clients = data.MClientBattlegroundIds[(int)bg.BracketId];
 
                             if (!clients.Empty())
-                                clients.Remove(bg.GetClientInstanceID());
+                                clients.Remove(bg.ClientInstanceID);
 
                             bg.Dispose();
                         }
@@ -731,11 +731,11 @@ public class BattlegroundManager
         };
 
         header.QueueID.Add(queueId.GetPacked());
-        header.RangeMin = (byte)bg.GetMinLevel();
-        header.RangeMax = (byte)bg.GetMaxLevel();
-        header.TeamSize = (byte)(bg.IsArena() ? arenaType : 0);
-        header.InstanceID = bg.GetClientInstanceID();
-        header.RegisteredMatch = bg.IsRated();
+        header.RangeMin = (byte)bg.MinLevel;
+        header.RangeMax = (byte)bg.MaxLevel;
+        header.TeamSize = (byte)(bg.IsArena ? arenaType : 0);
+        header.InstanceID = bg.ClientInstanceID;
+        header.RegisteredMatch = bg.IsRated;
         header.TournamentRules = false;
     }
 

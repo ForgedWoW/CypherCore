@@ -89,7 +89,7 @@ public class BattlegroundQueue
     // add group or player (grp == null) to bg queue with the given leader and bg specifications
     public GroupQueueInfo AddGroup(Player leader, PlayerGroup group, TeamFaction team, PvpDifficultyRecord bracketEntry, bool isPremade, uint arenaRating, uint matchmakerRating, uint arenateamid = 0)
     {
-        var bracketId = bracketEntry.GetBracketId();
+        var bracketId = bracketEntry.BracketId;
 
         // create new ginfo
         GroupQueueInfo ginfo = new()
@@ -176,8 +176,8 @@ public class BattlegroundQueue
             if (bg == null)
                 return ginfo;
 
-            var bgName = bg.GetName();
-            var minPlayers = bg.GetMinPlayersPerTeam();
+            var bgName = bg.Name;
+            var minPlayers = bg.MinPlayersPerTeam;
             uint qHorde = 0;
             uint qAlliance = 0;
             uint qMinLevel = bracketEntry.MinLevel;
@@ -240,10 +240,10 @@ public class BattlegroundQueue
 
         foreach (var bg in bgQueues)
             // DO NOT allow queue manager to invite new player to rated games
-            if (!bg.IsRated() &&
-                bg.GetBracketId() == bracketID &&
-                bg.GetStatus() > BattlegroundStatus.WaitQueue &&
-                bg.GetStatus() < BattlegroundStatus.WaitLeave)
+            if (!bg.IsRated &&
+                bg.BracketId == bracketID &&
+                bg.Status > BattlegroundStatus.WaitQueue &&
+                bg.Status < BattlegroundStatus.WaitLeave)
             {
                 // clear selection pools
                 _selectionPools[TeamIds.Alliance].Init();
@@ -259,7 +259,7 @@ public class BattlegroundQueue
                 foreach (var queueInfo in _selectionPools[TeamIds.Horde].SelectedGroups)
                     InviteGroupToBG(queueInfo, bg, queueInfo.Team);
 
-                if (!bg.HasFreeSlots())
+                if (!bg.HasFreeSlots)
                     bg.RemoveFromBGFreeSlotQueue();
             }
 
@@ -274,20 +274,20 @@ public class BattlegroundQueue
             return;
         }
 
-        var bracketEntry = _db2Manager.GetBattlegroundBracketById(bgTemplate.GetMapId(), bracketID);
+        var bracketEntry = _db2Manager.GetBattlegroundBracketById(bgTemplate.MapId, bracketID);
 
         if (bracketEntry == null)
         {
-            Log.Logger.Error("Battleground: Update: bg bracket entry not found for map {0} bracket id {1}", bgTemplate.GetMapId(), bracketID);
+            Log.Logger.Error("Battleground: Update: bg bracket entry not found for map {0} bracket id {1}", bgTemplate.MapId, bracketID);
 
             return;
         }
 
         // get the min. players per team, properly for larger arenas as well. (must have full teams for arena matches!)
-        var minPlayersPerTeam = bgTemplate.GetMinPlayersPerTeam();
+        var minPlayersPerTeam = bgTemplate.MinPlayersPerTeam;
         var maxPlayersPerTeam = bgTemplate.GetMaxPlayersPerTeam();
 
-        if (bgTemplate.IsArena())
+        if (bgTemplate.IsArena)
         {
             maxPlayersPerTeam = _queueId.TeamSize;
             minPlayersPerTeam = _battlegroundManager.IsArenaTesting() ? 1u : _queueId.TeamSize;
@@ -300,7 +300,7 @@ public class BattlegroundQueue
         _selectionPools[TeamIds.Alliance].Init();
         _selectionPools[TeamIds.Horde].Init();
 
-        if (bgTemplate.IsBattleground())
+        if (bgTemplate.IsBattleground)
             if (CheckPremadeMatch(bracketID, minPlayersPerTeam, maxPlayersPerTeam))
             {
                 // create new Battleground
@@ -328,7 +328,7 @@ public class BattlegroundQueue
         if (!_queueId.Rated)
         {
             // if there are enough players in pools, start new Battleground or non rated arena
-            if (CheckNormalMatch(bracketID, minPlayersPerTeam, maxPlayersPerTeam) || (bgTemplate.IsArena() && CheckSkirmishForSameFaction(bracketID, minPlayersPerTeam)))
+            if (CheckNormalMatch(bracketID, minPlayersPerTeam, maxPlayersPerTeam) || (bgTemplate.IsArena && CheckSkirmishForSameFaction(bracketID, minPlayersPerTeam)))
             {
                 // we successfully created a pool
                 var bg2 = _battlegroundManager.CreateNewBattleground(_queueId, bracketEntry);
@@ -349,7 +349,7 @@ public class BattlegroundQueue
                 bg2.StartBattleground();
             }
         }
-        else if (bgTemplate.IsArena())
+        else if (bgTemplate.IsArena)
         {
             // found out the minimum and maximum ratings the newly added team should battle against
             // arenaRating is the rating of the latest joined team, or 0
@@ -973,13 +973,13 @@ public class BattlegroundQueue
 
         // not yet invited
         // set invitation
-        ginfo.IsInvitedToBGInstanceGUID = bg.GetInstanceID();
+        ginfo.IsInvitedToBGInstanceGUID = bg.InstanceID;
         var bgTypeId = bg.GetTypeID();
         var bgQueueTypeId = bg.GetQueueId();
-        var bracketID = bg.GetBracketId();
+        var bracketID = bg.BracketId;
 
         // set ArenaTeamId for rated matches
-        if (bg.IsArena() && bg.IsRated())
+        if (bg.IsArena && bg.IsRated)
             bg.SetArenaTeamIdForTeam(ginfo.Team, ginfo.ArenaTeamId);
 
         ginfo.RemoveInviteTime = GameTime.CurrentTimeMS + BattlegroundConst.InviteAcceptWaitTime;
@@ -1014,7 +1014,7 @@ public class BattlegroundQueue
             Log.Logger.Debug("Battleground: invited player {0} ({1}) to BG instance {2} queueindex {3} bgtype {4}",
                              player.GetName(),
                              player.GUID.ToString(),
-                             bg.GetInstanceID(),
+                             bg.InstanceID,
                              queueSlot,
                              bg.GetTypeID());
 

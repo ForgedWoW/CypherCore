@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
 
@@ -16,10 +17,12 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
 {
     private readonly List<ObjectGuid> _plrList = new();
     private readonly Dictionary<Player, UpdateData> _updateData;
+    private readonly ObjectAccessor _objectAccessor;
     private readonly WorldObject _worldObject;
-    public WorldObjectChangeAccumulator(WorldObject obj, Dictionary<Player, UpdateData> d, GridType gridType)
+    public WorldObjectChangeAccumulator(WorldObject obj, Dictionary<Player, UpdateData> d, GridType gridType, ObjectAccessor objectAccessor)
     {
         _updateData = d;
+        _objectAccessor = objectAccessor;
         _worldObject = obj;
         GridType = gridType;
     }
@@ -27,56 +30,57 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
     public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
+            if (creature.GetSharedVisionList().Empty())
+                continue;
 
-            if (!creature.GetSharedVisionList().Empty())
-                foreach (var visionPlayer in creature.GetSharedVisionList())
-                    BuildPacket(visionPlayer);
+            foreach (var visionPlayer in creature.GetSharedVisionList())
+                BuildPacket(visionPlayer);
         }
     }
 
     public void Visit(IList<DynamicObject> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var dynamicObject in objs)
         {
-            var dynamicObject = objs[i];
-
             var guid = dynamicObject.GetCasterGUID();
 
-            if (guid.IsPlayer)
-            {
-                //Caster may be NULL if DynObj is in removelist
-                var caster = Global.ObjAccessor.FindPlayer(guid);
+            if (!guid.IsPlayer)
+                continue;
 
-                if (caster != null)
-                    if (caster.ActivePlayerData.FarsightObject == dynamicObject.GUID)
-                        BuildPacket(caster);
-            }
+            //Caster may be NULL if DynObj is in removelist
+            var caster = _objectAccessor.FindPlayer(guid);
+
+            if (caster == null)
+                continue;
+
+            if (caster.ActivePlayerData.FarsightObject == dynamicObject.GUID)
+                BuildPacket(caster);
         }
     }
 
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
             BuildPacket(player);
 
-            if (!player.GetSharedVisionList().Empty())
-                foreach (var visionPlayer in player.GetSharedVisionList())
-                    BuildPacket(visionPlayer);
+            if (player.GetSharedVisionList().Empty())
+                continue;
+
+            foreach (var visionPlayer in player.GetSharedVisionList())
+                BuildPacket(visionPlayer);
         }
     }
 
     private void BuildPacket(Player player)
     {
         // Only send update once to a player
-        if (!_plrList.Contains(player.GUID) && player.HaveAtClient(_worldObject))
-        {
-            _worldObject.BuildFieldsUpdate(player, _updateData);
-            _plrList.Add(player.GUID);
-        }
+        if (_plrList.Contains(player.GUID) || !player.HaveAtClient(_worldObject))
+            return;
+
+        _worldObject.BuildFieldsUpdate(player, _updateData);
+        _plrList.Add(player.GUID);
     }
 }

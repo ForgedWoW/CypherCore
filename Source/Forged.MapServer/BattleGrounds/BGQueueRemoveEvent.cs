@@ -65,8 +65,8 @@ internal class BGQueueRemoveEvent : BasicEvent
         bgQueue.RemovePlayer(_playerGuid, true);
 
         //update queues if Battleground isn't ended
-        if (bg && bg.IsBattleground() && bg.GetStatus() != BattlegroundStatus.WaitLeave)
-            _battlegroundManager.ScheduleQueueUpdate(0, _bgQueueTypeId, bg.GetBracketId());
+        if (bg && bg.IsBattleground && bg.Status != BattlegroundStatus.WaitLeave)
+            _battlegroundManager.ScheduleQueueUpdate(0, _bgQueueTypeId, bg.BracketId);
 
         _battlegroundManager.BuildBattlegroundStatusNone(out var battlefieldStatus, player, queueSlot, player.GetBattlegroundQueueJoinTime(_bgQueueTypeId));
         player.SendPacket(battlefieldStatus);

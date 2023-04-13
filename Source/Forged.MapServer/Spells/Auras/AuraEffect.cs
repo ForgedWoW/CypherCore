@@ -159,19 +159,13 @@ public class AuraEffect
         {
             var stackAmountForBonuses = !GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
 
-            switch (AuraType)
+            _estimatedAmount = AuraType switch
             {
-                case AuraType.PeriodicDamage:
-                case AuraType.PeriodicLeech:
-                    _estimatedAmount = caster.SpellDamageBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
-
-                    break;
-                case AuraType.PeriodicHeal:
-                    _estimatedAmount = caster.SpellHealingBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
-
-                    break;
-                
-            }
+                AuraType.PeriodicDamage => caster.SpellDamageBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses),
+                AuraType.PeriodicLeech  => caster.SpellDamageBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses),
+                AuraType.PeriodicHeal   => caster.SpellHealingBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses),
+                _                       => _estimatedAmount
+            };
         }
 
         return amount;
@@ -182,27 +176,24 @@ public class AuraEffect
         _period = (int)GetSpellEffectInfo().ApplyAuraPeriod;
 
         // prepare periodics
-        switch (AuraType)
+        _isPeriodic = AuraType switch
         {
-            case AuraType.ObsModPower:
-            case AuraType.PeriodicDamage:
-            case AuraType.PeriodicHeal:
-            case AuraType.ObsModHealth:
-            case AuraType.PeriodicTriggerSpell:
-            case AuraType.PeriodicTriggerSpellFromClient:
-            case AuraType.PeriodicEnergize:
-            case AuraType.PeriodicLeech:
-            case AuraType.PeriodicHealthFunnel:
-            case AuraType.PeriodicManaLeech:
-            case AuraType.PeriodicDamagePercent:
-            case AuraType.PowerBurn:
-            case AuraType.PeriodicDummy:
-            case AuraType.PeriodicTriggerSpellWithValue:
-                _isPeriodic = true;
-
-                break;
-            
-        }
+            AuraType.ObsModPower                    => true,
+            AuraType.PeriodicDamage                 => true,
+            AuraType.PeriodicHeal                   => true,
+            AuraType.ObsModHealth                   => true,
+            AuraType.PeriodicTriggerSpell           => true,
+            AuraType.PeriodicTriggerSpellFromClient => true,
+            AuraType.PeriodicEnergize               => true,
+            AuraType.PeriodicLeech                  => true,
+            AuraType.PeriodicHealthFunnel           => true,
+            AuraType.PeriodicManaLeech              => true,
+            AuraType.PeriodicDamagePercent          => true,
+            AuraType.PowerBurn                      => true,
+            AuraType.PeriodicDummy                  => true,
+            AuraType.PeriodicTriggerSpellWithValue  => true,
+            _                                       => _isPeriodic
+        };
 
         Base.CallScriptEffectCalcPeriodicHandlers(this, ref _isPeriodic, ref _period);
 

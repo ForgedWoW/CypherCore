@@ -5606,23 +5606,14 @@ public partial class Spell
 
                 // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
                 // start time == fish-FISHING_BOBBER_READY_TIME (0..GetDuration(m_spellInfo)-FISHING_BOBBER_READY_TIME)
-                var lastSec = 0;
 
-                switch (RandomHelper.IRand(0, 2))
+                var lastSec = RandomHelper.IRand(0, 2) switch
                 {
-                    case 0:
-                        lastSec = 3;
-
-                        break;
-                    case 1:
-                        lastSec = 7;
-
-                        break;
-                    case 2:
-                        lastSec = 13;
-
-                        break;
-                }
+                    0 => 3,
+                    1 => 7,
+                    2 => 13,
+                    _ => 0
+                };
 
                 // Duration of the fishing bobber can't be higher than the Fishing channeling duration
                 duration = Math.Min(duration, duration - lastSec * Time.IN_MILLISECONDS + 5 * Time.IN_MILLISECONDS);
@@ -6163,24 +6154,13 @@ public partial class Spell
 
         if (addPctMods)
         {
-            UnitMods unitMod;
-
-            switch (AttackType)
+            UnitMods unitMod = AttackType switch
             {
-                default:
-                case WeaponAttackType.BaseAttack:
-                    unitMod = UnitMods.DamageMainHand;
-
-                    break;
-                case WeaponAttackType.OffAttack:
-                    unitMod = UnitMods.DamageOffHand;
-
-                    break;
-                case WeaponAttackType.RangedAttack:
-                    unitMod = UnitMods.DamageRanged;
-
-                    break;
-            }
+                WeaponAttackType.BaseAttack   => UnitMods.DamageMainHand,
+                WeaponAttackType.OffAttack    => UnitMods.DamageOffHand,
+                WeaponAttackType.RangedAttack => UnitMods.DamageRanged,
+                _                             => UnitMods.DamageMainHand
+            };
 
             var weapon_total_pct = unitCaster.GetPctModifierValue(unitMod, UnitModifierPctType.Total);
 

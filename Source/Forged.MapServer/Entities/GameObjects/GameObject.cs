@@ -1929,16 +1929,12 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public ITransport ToTransportBase()
         {
-            switch (GoType)
+            return GoType switch
             {
-                case GameObjectTypes.Transport:
-                    return (TransportGameObject)_goTypeImpl;
-                case GameObjectTypes.MapObjTransport:
-                    return (Entities.Transport)this;
-                
-            }
-
-            return null;
+                GameObjectTypes.Transport       => (TransportGameObject)_goTypeImpl,
+                GameObjectTypes.MapObjTransport => (Entities.Transport)this,
+                _                               => null
+            };
         }
 
         public void TriggeringLinkedGameObject(uint trapEntry, Unit target)
@@ -3369,26 +3365,14 @@ namespace Forged.MapServer.Entities.GameObjects
                         ObjectGUID = GUID
                     };
 
-                    switch (Template.UILink.UILinkType)
+                    gameObjectUiLink.InteractionType = Template.UILink.UILinkType switch
                     {
-                        case 0:
-                            gameObjectUiLink.InteractionType = PlayerInteractionType.AdventureJournal;
-
-                            break;
-                        case 1:
-                            gameObjectUiLink.InteractionType = PlayerInteractionType.ObliterumForge;
-
-                            break;
-                        case 2:
-                            gameObjectUiLink.InteractionType = PlayerInteractionType.ScrappingMachine;
-
-                            break;
-                        case 3:
-                            gameObjectUiLink.InteractionType = PlayerInteractionType.ItemInteraction;
-
-                            break;
-                        
-                    }
+                        0 => PlayerInteractionType.AdventureJournal,
+                        1 => PlayerInteractionType.ObliterumForge,
+                        2 => PlayerInteractionType.ScrappingMachine,
+                        3 => PlayerInteractionType.ItemInteraction,
+                        _ => gameObjectUiLink.InteractionType
+                    };
 
                     player.SendPacket(gameObjectUiLink);
 

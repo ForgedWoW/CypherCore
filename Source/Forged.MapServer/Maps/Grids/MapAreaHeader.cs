@@ -7,7 +7,7 @@ namespace Forged.MapServer.Maps.Grids;
 
 public struct MapAreaHeader
 {
-    public AreaHeaderFlags flags;
-    public uint fourcc;
-    public ushort gridArea;
+    public AreaHeaderFlags Flags;
+    public uint Fourcc;
+    public ushort GridArea;
 }

@@ -139,21 +139,21 @@ public partial class Player
         if (Location.LiquidStatus != 0 && newLiquidData != null)
         {
             // Breath bar state (under water in any liquid type)
-            if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.AllLiquids))
+            if (newLiquidData.TypeFlags.HasAnyFlag(LiquidHeaderTypeFlags.AllLiquids))
                 if (Location.LiquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater))
                     _mirrorTimerFlags |= PlayerUnderwaterState.InWater;
 
             // Fatigue bar state (if not on flight path or transport)
-            if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.DarkWater) && !IsInFlight && Transport == null)
+            if (newLiquidData.TypeFlags.HasAnyFlag(LiquidHeaderTypeFlags.DarkWater) && !IsInFlight && Transport == null)
                 _mirrorTimerFlags |= PlayerUnderwaterState.InDarkWater;
 
             // Lava state (any contact)
-            if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.Magma))
+            if (newLiquidData.TypeFlags.HasAnyFlag(LiquidHeaderTypeFlags.Magma))
                 if (Location.LiquidStatus.HasAnyFlag(ZLiquidStatus.InContact))
                     _mirrorTimerFlags |= PlayerUnderwaterState.InLava;
 
             // Slime state (any contact)
-            if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.Slime))
+            if (newLiquidData.TypeFlags.HasAnyFlag(LiquidHeaderTypeFlags.Slime))
                 if (Location.LiquidStatus.HasAnyFlag(ZLiquidStatus.InContact))
                     _mirrorTimerFlags |= PlayerUnderwaterState.InSlime;
         }

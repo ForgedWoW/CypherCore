@@ -61,7 +61,7 @@ public class Arena : Battleground
     {
         base.BuildPvPLogDataPacket(out pvpLogData);
 
-        if (IsRated())
+        if (IsRated)
         {
             pvpLogData.Ratings = new PVPMatchStatistics.RatingData();
 
@@ -85,7 +85,7 @@ public class Arena : Battleground
     public override void EndBattleground(TeamFaction winner)
     {
         // arena rating calculation
-        if (IsRated())
+        if (IsRated)
         {
             var loserChange = 0;
             var loserMatchmakerChange = 0;
@@ -114,7 +114,7 @@ public class Arena : Battleground
 
                     Log.Logger.Debug("match Type: {0} --- Winner: old rating: {1}, rating gain: {2}, old MMR: {3}, MMR gain: {4} --- Loser: old rating: {5}, " +
                                      "rating loss: {6}, old MMR: {7}, MMR loss: {8} ---",
-                                     GetArenaType(),
+                                     ArenaType,
                                      winnerTeamRating,
                                      winnerChange,
                                      winnerMatchmakerRating,
@@ -136,7 +136,7 @@ public class Arena : Battleground
                     ArenaTeamScores[loserTeam].Assign(loserTeamRating, (uint)(loserTeamRating + loserChange), loserMatchmakerRating, GetArenaMatchmakerRating(GetOtherTeam(winner)));
 
                     Log.Logger.Debug("Arena match Type: {0} for Team1Id: {1} - Team2Id: {2} ended. WinnerTeamId: {3}. Winner rating: +{4}, Loser rating: {5}",
-                                     GetArenaType(),
+                                     ArenaType,
                                      GetArenaTeamIdByIndex(TeamIds.Alliance),
                                      GetArenaTeamIdByIndex(TeamIds.Horde),
                                      winnerArenaTeam.GetId(),
@@ -150,10 +150,10 @@ public class Arena : Battleground
 
                             if (player)
                                 Log.Logger.Debug("Statistics match Type: {0} for {1} (GUID: {2}, Team: {3}, IP: {4}): {5}",
-                                                 GetArenaType(),
+                                                 ArenaType,
                                                  player.GetName(),
                                                  score.Key,
-                                                 player.GetArenaTeamId((byte)(GetArenaType() == ArenaTypes.Team5v5 ? 2 : GetArenaType() == ArenaTypes.Team3v3 ? 1 : 0)),
+                                                 player.GetArenaTeamId((byte)(ArenaType == ArenaTypes.Team5v5 ? 2 : ArenaType == ArenaTypes.Team3v3 ? 1 : 0)),
                                                  player.Session.RemoteAddress,
                                                  score.Value.ToString());
                         }
@@ -203,16 +203,16 @@ public class Arena : Battleground
                         // update achievement BEFORE personal rating update
                         var rating = player.GetArenaPersonalRating(winnerArenaTeam.GetSlot());
                         player.UpdateCriteria(CriteriaType.WinAnyRankedArena, rating != 0 ? rating : 1);
-                        player.UpdateCriteria(CriteriaType.WinArena, GetMapId());
+                        player.UpdateCriteria(CriteriaType.WinArena, MapId);
 
                         // Last standing - Rated 5v5 arena & be solely alive player
-                        if (GetArenaType() == ArenaTypes.Team5v5 && aliveWinners == 1 && player.IsAlive)
+                        if (ArenaType == ArenaTypes.Team5v5 && aliveWinners == 1 && player.IsAlive)
                             player.CastSpell(player, ArenaSpellIds.LastManStanding, true);
 
                         if (!guildAwarded)
                         {
                             guildAwarded = true;
-                            ulong guildId = GetBgMap().GetOwnerGuildId(player.GetBgTeam());
+                            ulong guildId = BgMap.GetOwnerGuildId(player.GetBgTeam());
 
                             if (guildId != 0)
                             {
@@ -253,7 +253,7 @@ public class Arena : Battleground
 
     public override void HandleKillPlayer(Player victim, Player killer)
     {
-        if (GetStatus() != BattlegroundStatus.InProgress)
+        if (Status != BattlegroundStatus.InProgress)
             return;
 
         base.HandleKillPlayer(victim, killer);
@@ -264,7 +264,7 @@ public class Arena : Battleground
 
     public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
     {
-        if (GetStatus() == BattlegroundStatus.WaitLeave)
+        if (Status == BattlegroundStatus.WaitLeave)
             return;
 
         UpdateArenaWorldState();
@@ -273,7 +273,7 @@ public class Arena : Battleground
 
     public override void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
     {
-        if (IsRated() && GetStatus() == BattlegroundStatus.InProgress)
+        if (IsRated && Status == BattlegroundStatus.InProgress)
         {
             if (GetPlayers().TryGetValue(guid, out var bgPlayer)) // check if the player was a participant of the match, or only entered through gm command (appear)
             {
