@@ -24,10 +24,8 @@ public class CreatureWorker : IGridNotifierCreature
     public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
-
             if (creature.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(creature);
         }

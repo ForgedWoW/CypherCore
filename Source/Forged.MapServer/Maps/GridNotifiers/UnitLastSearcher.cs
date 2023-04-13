@@ -33,10 +33,8 @@ public class UnitLastSearcher : IGridNotifierPlayer, IGridNotifierCreature
 
     public void Visit(IList<Creature> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
-
             if (!creature.Location.InSamePhase(_phaseShift))
                 continue;
 
@@ -47,10 +45,8 @@ public class UnitLastSearcher : IGridNotifierPlayer, IGridNotifierCreature
 
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
-
             if (!player.Location.InSamePhase(_phaseShift))
                 continue;
 

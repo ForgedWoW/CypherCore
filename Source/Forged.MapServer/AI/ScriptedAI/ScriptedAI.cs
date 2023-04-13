@@ -131,7 +131,7 @@ public class ScriptedAI : CreatureAI
     //Returns friendly unit with the most amount of hp missing from max hp
     public Unit DoSelectLowestHpFriendly(float range, uint minHpDiff = 1)
     {
-        var uCheck = new MostHPMissingInRange<Unit>(Me, range, minHpDiff);
+        var uCheck = new MostHpMissingInRange<Unit>(Me, range, minHpDiff);
         var searcher = new UnitLastSearcher(Me, uCheck, GridType.All);
         Cell.VisitGrid(Me, searcher, range);
 

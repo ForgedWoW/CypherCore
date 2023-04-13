@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-internal class MostHPPercentMissingInRange : ICheck<Unit>
+internal class MostHpPercentMissingInRange : ICheck<Unit>
 {
     private readonly float _maxHpPct;
     private readonly float _minHpPct;
@@ -14,7 +14,7 @@ internal class MostHPPercentMissingInRange : ICheck<Unit>
     private readonly float _range;
     private float _hpPct;
 
-    public MostHPPercentMissingInRange(Unit obj, float range, uint minHpPct, uint maxHpPct)
+    public MostHpPercentMissingInRange(Unit obj, float range, uint minHpPct, uint maxHpPct)
     {
         _obj = obj;
         _range = range;
@@ -25,13 +25,12 @@ internal class MostHPPercentMissingInRange : ICheck<Unit>
 
     public bool Invoke(Unit u)
     {
-        if (u.IsAlive && u.IsInCombat && !_obj.WorldObjectCombat.IsHostileTo(u) && _obj.Location.IsWithinDist(u, _range) && _minHpPct <= u.HealthPct && u.HealthPct <= _maxHpPct && u.HealthPct < _hpPct)
-        {
-            _hpPct = u.HealthPct;
+        if (!u.IsAlive || !u.IsInCombat || _obj.WorldObjectCombat.IsHostileTo(u) || !_obj.Location.IsWithinDist(u, _range) || !(_minHpPct <= u.HealthPct) || !(u.HealthPct <= _maxHpPct) || !(u.HealthPct < _hpPct))
+            return false;
 
-            return true;
-        }
+        _hpPct = u.HealthPct;
 
-        return false;
+        return true;
+
     }
 }

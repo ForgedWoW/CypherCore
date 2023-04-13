@@ -35,13 +35,13 @@ public class PlayerListSearcher : IGridNotifierPlayer
     public GridType GridType { get; set; }
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
+            if (player == null || !player.Location.InSamePhase(_phaseShift))
+                continue;
 
-            if (player != null && player.Location.InSamePhase(_phaseShift))
-                if (_check.Invoke(player))
-                    _objects.Add(player);
+            if (_check.Invoke(player))
+                _objects.Add(player);
         }
     }
 }

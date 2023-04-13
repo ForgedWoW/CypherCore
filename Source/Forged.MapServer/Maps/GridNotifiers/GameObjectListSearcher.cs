@@ -26,13 +26,13 @@ public class GameObjectListSearcher : IGridNotifierGameObject
     public GridType GridType { get; set; }
     public void Visit(IList<GameObject> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var gameObject in objs)
         {
-            var gameObject = objs[i];
+            if (!gameObject.Location.InSamePhase(_phaseShift))
+                continue;
 
-            if (gameObject.Location.InSamePhase(_phaseShift))
-                if (_check.Invoke(gameObject))
-                    _objects.Add(gameObject);
+            if (_check.Invoke(gameObject))
+                _objects.Add(gameObject);
         }
     }
 }

@@ -21,17 +21,17 @@ public class AnyDeadUnitObjectInRangeCheck<T> : ICheck<T> where T : WorldObject
     {
         var player = obj.AsPlayer;
 
-        if (player)
+        if (player != null)
             return !player.IsAlive && !player.HasAuraType(AuraType.Ghost) && _searchObj.Location.IsWithinDistInMap(player, _range);
 
         var creature = obj.AsCreature;
 
-        if (creature)
+        if (creature != null)
             return !creature.IsAlive && _searchObj.Location.IsWithinDistInMap(creature, _range);
 
         var corpse = obj.AsCorpse;
 
-        if (corpse)
+        if (corpse != null)
             return corpse.GetCorpseType() != CorpseType.Bones && _searchObj.Location.IsWithinDistInMap(corpse, _range);
 
         return false;

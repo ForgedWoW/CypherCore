@@ -9,11 +9,11 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class ObjectGUIDCheck : ICheck<WorldObject>
 {
-    private readonly ObjectGuid _gUID;
+    private readonly ObjectGuid _gUid;
 
-    public ObjectGUIDCheck(ObjectGuid GUID)
+    public ObjectGUIDCheck(ObjectGuid guid)
     {
-        _gUID = GUID;
+        _gUid = guid;
     }
 
     public static implicit operator Predicate<WorldObject>(ObjectGUIDCheck check)
@@ -23,6 +23,6 @@ public class ObjectGUIDCheck : ICheck<WorldObject>
 
     public bool Invoke(WorldObject obj)
     {
-        return obj.GUID == _gUID;
+        return obj.GUID == _gUid;
     }
 }

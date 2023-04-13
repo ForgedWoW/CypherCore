@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Players;
@@ -30,10 +31,8 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
     public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
-
             if (!creature.Location.InSamePhase(_phaseShift))
                 continue;
 
@@ -41,44 +40,39 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
                 continue;
 
             // Send packet to all who are sharing the creature's vision
-            if (creature.HasSharedVision)
-                foreach (var player in creature.GetSharedVisionList())
-                    if (player.SeerView == creature)
-                        SendPacket(player);
+            if (!creature.HasSharedVision)
+                continue;
+
+            foreach (var player in creature.GetSharedVisionList().Where(player => player.SeerView == creature))
+                SendPacket(player);
         }
     }
 
     public void Visit(IList<DynamicObject> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var dynamicObject in objs)
         {
-            var dynamicObject = objs[i];
-
             if (!dynamicObject.Location.InSamePhase(_phaseShift))
                 continue;
 
             if (dynamicObject.Location.GetExactDist2dSq(_source.Location) > _distSq)
                 continue;
 
-            var caster = dynamicObject.GetCaster();
+            var player = dynamicObject.GetCaster()?.AsPlayer;
 
-            if (caster != null)
-            {
-                // Send packet back to the caster if the caster has vision of dynamic object
-                var player = caster.AsPlayer;
+            if (player == null)
+                continue;
 
-                if (player && player.SeerView == dynamicObject)
-                    SendPacket(player);
-            }
+            // Send packet back to the caster if the caster has vision of dynamic object
+            if (player.SeerView == dynamicObject)
+                SendPacket(player);
         }
     }
 
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
-
             if (!player.Location.InSamePhase(_phaseShift))
                 continue;
 
@@ -87,11 +81,10 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 
             // Send packet to all who are sharing the player's vision
             if (player.HasSharedVision)
-                foreach (var visionPlayer in player.GetSharedVisionList())
-                    if (visionPlayer.SeerView == player)
-                        SendPacket(visionPlayer);
+                foreach (var visionPlayer in player.GetSharedVisionList().Where(visionPlayer => visionPlayer.SeerView == player))
+                    SendPacket(visionPlayer);
 
-            if (player.SeerView == player || player.Vehicle)
+            if (player.SeerView == player || player.Vehicle != null)
                 SendPacket(player);
         }
     }

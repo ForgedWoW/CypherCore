@@ -551,7 +551,7 @@ public class SmartScript
         if (_me == null)
             return null;
 
-        MostHPPercentMissingInRange uCheck = new(_me, range, minHpPct, maxHpPct);
+        MostHpPercentMissingInRange uCheck = new(_me, range, minHpPct, maxHpPct);
         UnitLastSearcher searcher = new(_me, uCheck, GridType.Grid);
         Cell.VisitGrid(_me, searcher, range);
 

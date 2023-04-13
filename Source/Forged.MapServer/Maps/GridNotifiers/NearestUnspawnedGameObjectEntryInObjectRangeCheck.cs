@@ -22,13 +22,12 @@ internal class NearestUnspawnedGameObjectEntryInObjectRangeCheck : ICheck<GameOb
 
     public bool Invoke(GameObject go)
     {
-        if (!go.IsSpawned && go.Entry == _entry && go.GUID != _obj.GUID && _obj.Location.IsWithinDist(go, _range))
-        {
-            _range = _obj.Location.GetDistance(go); // use found GO range as new range limit for next check
+        if (go.IsSpawned || go.Entry != _entry || go.GUID == _obj.GUID || !_obj.Location.IsWithinDist(go, _range))
+            return false;
 
-            return true;
-        }
+        _range = _obj.Location.GetDistance(go); // use found GO range as new range limit for next check
 
-        return false;
+        return true;
+
     }
 }

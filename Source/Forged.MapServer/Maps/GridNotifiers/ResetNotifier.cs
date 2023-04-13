@@ -19,19 +19,13 @@ public class ResetNotifier : IGridNotifierPlayer, IGridNotifierCreature
     public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            var creature = objs[i];
+        foreach (var creature in objs)
             creature.ResetAllNotifies();
-        }
     }
 
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            var player = objs[i];
+        foreach (var player in objs)
             player.ResetAllNotifies();
-        }
     }
 }

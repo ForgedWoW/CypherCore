@@ -22,13 +22,10 @@ public class FriendlyMissingBuffInRange : ICheck<Creature>
 
     public bool Invoke(Creature u)
     {
-        if (u.IsAlive &&
-            u.IsInCombat &&
-            !_obj.WorldObjectCombat.IsHostileTo(u) &&
-            _obj.Location.IsWithinDist(u, _range) &&
-            !u.HasAura(_spell))
-            return true;
-
-        return false;
+        return u.IsAlive &&
+               u.IsInCombat &&
+               !_obj.WorldObjectCombat.IsHostileTo(u) &&
+               _obj.Location.IsWithinDist(u, _range) &&
+               !u.HasAura(_spell);
     }
 }

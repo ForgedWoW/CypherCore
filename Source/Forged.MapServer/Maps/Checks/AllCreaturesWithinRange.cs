@@ -19,15 +19,12 @@ public class AllCreaturesWithinRange : ICheck<Creature>
 
     public bool Invoke(Creature creature)
     {
-        if (_fRange != 0f)
-        {
-            if (_fRange > 0.0f && !_pObject.Location.IsWithinDist(creature, _fRange, false))
-                return false;
+        if (_fRange == 0f)
+            return true;
 
-            if (_fRange < 0.0f && _pObject.Location.IsWithinDist(creature, _fRange, false))
-                return false;
-        }
+        if (_fRange > 0.0f && !_pObject.Location.IsWithinDist(creature, _fRange, false))
+            return false;
 
-        return true;
+        return !(_fRange < 0.0f) || !_pObject.Location.IsWithinDist(creature, _fRange, false);
     }
 }

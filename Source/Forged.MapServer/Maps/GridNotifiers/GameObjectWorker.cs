@@ -24,10 +24,8 @@ public class GameObjectWorker : IGridNotifierGameObject
     public GridType GridType { get; set; }
     public void Visit(IList<GameObject> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var gameObject in objs)
         {
-            var gameObject = objs[i];
-
             if (gameObject.Location.InSamePhase(_phaseShift))
                 _doWork.Invoke(gameObject);
         }

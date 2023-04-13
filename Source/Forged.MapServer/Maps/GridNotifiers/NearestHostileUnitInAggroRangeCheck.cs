@@ -34,14 +34,11 @@ internal class NearestHostileUnitInAggroRangeCheck : ICheck<Unit>
             return false;
 
         // pets in aggressive do not attack civilians
-        if (_ignoreCivilians)
-        {
-            var c = u.AsCreature;
+        if (!_ignoreCivilians)
+            return true;
 
-            if (c is { IsCivilian: true })
-                return false;
-        }
+        var c = u.AsCreature;
 
-        return true;
+        return c is not { IsCivilian: true };
     }
 }

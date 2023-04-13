@@ -20,13 +20,12 @@ internal class NearestGameObjectCheck : ICheck<GameObject>
 
     public bool Invoke(GameObject go)
     {
-        if (_obj.Location.IsWithinDist(go, _range))
-        {
-            _range = _obj.Location.GetDistance(go); // use found GO range as new range limit for next check
+        if (!_obj.Location.IsWithinDist(go, _range))
+            return false;
 
-            return true;
-        }
+        _range = _obj.Location.GetDistance(go); // use found GO range as new range limit for next check
 
-        return false;
+        return true;
+
     }
 }

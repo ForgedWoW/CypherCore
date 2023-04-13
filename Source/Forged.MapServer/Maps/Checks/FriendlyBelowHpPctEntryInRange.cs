@@ -27,9 +27,6 @@ public class FriendlyBelowHpPctEntryInRange : ICheck<Unit>
         if (_excludeSelf && _obj.GUID == u.GUID)
             return false;
 
-        if (u.Entry == _entry && u.IsAlive && u.IsInCombat && !_obj.WorldObjectCombat.IsHostileTo(u) && _obj.Location.IsWithinDist(u, _range) && u.HealthBelowPct(_pct))
-            return true;
-
-        return false;
+        return u.Entry == _entry && u.IsAlive && u.IsInCombat && !_obj.WorldObjectCombat.IsHostileTo(u) && _obj.Location.IsWithinDist(u, _range) && u.HealthBelowPct(_pct);
     }
 }

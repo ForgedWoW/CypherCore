@@ -19,16 +19,15 @@ public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IG
     {
         Visit(objs.Cast<WorldObject>().ToList());
 
-        var relocated_for_ai = Player == Player.SeerView;
+        var relocatedForAI = Player == Player.SeerView;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
             VisGuids.Remove(creature.GUID);
 
             Player.UpdateVisibilityOf(creature, Data, VisibleNow);
 
-            if (relocated_for_ai && !creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
+            if (relocatedForAI && !creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
                 NotifierHelpers.CreatureUnitRelocationWorker(creature, Player);
         }
     }
@@ -37,9 +36,8 @@ public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IG
     {
         Visit(objs.Cast<WorldObject>().ToList());
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
             VisGuids.Remove(player.GUID);
 
             Player.UpdateVisibilityOf(player, Data, VisibleNow);

@@ -32,22 +32,20 @@ public class CreatureSearcher : IGridNotifierCreature
     public void Visit(IList<Creature> objs)
     {
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
-
             if (!creature.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(creature))
-            {
-                _object = creature;
+            if (!_check.Invoke(creature))
+                continue;
 
-                return;
-            }
+            _object = creature;
+
+            return;
         }
     }
 }

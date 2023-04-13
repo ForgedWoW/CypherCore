@@ -25,9 +25,8 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
         if (!_creature.IsAlive)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
             NotifierHelpers.CreatureUnitRelocationWorker(_creature, creature);
 
             if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
@@ -37,10 +36,8 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
 
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
-
             if (!player.SeerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
                 player.UpdateVisibilityOf(_creature);
 

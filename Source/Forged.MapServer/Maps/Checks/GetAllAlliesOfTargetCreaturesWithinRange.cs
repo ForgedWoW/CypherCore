@@ -22,15 +22,12 @@ public class GetAllAlliesOfTargetCreaturesWithinRange : ICheck<Creature>
         if (creature.WorldObjectCombat.IsHostileTo(_pObject))
             return false;
 
-        if (_fRange != 0f)
-        {
-            if (_fRange > 0.0f && !_pObject.Location.IsWithinDist(creature, _fRange, false))
-                return false;
+        if (_fRange == 0f)
+            return true;
 
-            if (_fRange < 0.0f && _pObject.Location.IsWithinDist(creature, _fRange, false))
-                return false;
-        }
+        if (_fRange > 0.0f && !_pObject.Location.IsWithinDist(creature, _fRange, false))
+            return false;
 
-        return true;
+        return !(_fRange < 0.0f) || !_pObject.Location.IsWithinDist(creature, _fRange, false);
     }
 }

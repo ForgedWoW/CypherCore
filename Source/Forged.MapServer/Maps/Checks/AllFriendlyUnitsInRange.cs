@@ -27,15 +27,12 @@ internal class AllFriendlyUnitsInRange : ICheck<Unit>
         if (!u.WorldObjectCombat.IsFriendlyTo(_unit))
             return false;
 
-        if (_range != 0f)
-        {
-            if (_range > 0.0f && !_unit.Location.IsWithinDist(u, _range, false))
-                return false;
+        if (_range == 0f)
+            return true;
 
-            if (_range < 0.0f && _unit.Location.IsWithinDist(u, _range, false))
-                return false;
-        }
+        if (_range > 0.0f && !_unit.Location.IsWithinDist(u, _range, false))
+            return false;
 
-        return true;
+        return !(_range < 0.0f) || !_unit.Location.IsWithinDist(u, _range, false);
     }
 }

@@ -31,10 +31,8 @@ public class GameObjectLastSearcher : IGridNotifierGameObject
 
     public void Visit(IList<GameObject> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var gameObject in objs)
         {
-            var gameObject = objs[i];
-
             if (!gameObject.Location.InSamePhase(_phaseShift))
                 continue;
 

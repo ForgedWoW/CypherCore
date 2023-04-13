@@ -32,22 +32,20 @@ public class GameObjectSearcher : IGridNotifierGameObject
     public void Visit(IList<GameObject> objs)
     {
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var gameObject in objs)
         {
-            var gameObject = objs[i];
-
             if (!gameObject.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(gameObject))
-            {
-                _object = gameObject;
+            if (!_check.Invoke(gameObject))
+                continue;
 
-                return;
-            }
+            _object = gameObject;
+
+            return;
         }
     }
 }

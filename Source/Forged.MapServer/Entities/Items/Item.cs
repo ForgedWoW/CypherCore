@@ -2160,7 +2160,7 @@ public class Item : WorldObject
 
         if (player)
         {
-            var tradeData = player.GetTradeData();
+            var tradeData = player.TradeData;
 
             if (tradeData != null)
             {

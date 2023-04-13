@@ -26,6 +26,6 @@ public class UnitAuraCheck<T> : ICheck<T> where T : WorldObject
 
     public bool Invoke(T obj)
     {
-        return obj.AsUnit && obj.AsUnit.HasAura(_spellId, _casterGUID) == _present;
+        return obj.AsUnit != null && obj.AsUnit.HasAura(_spellId, _casterGUID) == _present;
     }
 }

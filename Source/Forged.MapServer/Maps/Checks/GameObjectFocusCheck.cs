@@ -23,11 +23,6 @@ internal class GameObjectFocusCheck : ICheck<GameObject>
         if (go.Template.GetSpellFocusType() != _focusId)
             return false;
 
-        if (!go.IsSpawned)
-            return false;
-
-        float dist = go.Template.GetSpellFocusRadius();
-
-        return go.Location.IsWithinDist(_caster, dist);
+        return go.IsSpawned && go.Location.IsWithinDist(_caster, go.Template.GetSpellFocusRadius());
     }
 }

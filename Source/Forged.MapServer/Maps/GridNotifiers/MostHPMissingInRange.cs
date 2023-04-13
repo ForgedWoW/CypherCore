@@ -6,13 +6,13 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-public class MostHPMissingInRange<T> : ICheck<T> where T : Unit
+public class MostHpMissingInRange<T> : ICheck<T> where T : Unit
 {
     private readonly Unit _obj;
     private readonly float _range;
     private long _hp;
 
-    public MostHPMissingInRange(Unit obj, float range, uint hp)
+    public MostHpMissingInRange(Unit obj, float range, uint hp)
     {
         _obj = obj;
         _range = range;
@@ -21,13 +21,12 @@ public class MostHPMissingInRange<T> : ICheck<T> where T : Unit
 
     public bool Invoke(T u)
     {
-        if (u.IsAlive && u.IsInCombat && !_obj.WorldObjectCombat.IsHostileTo(u) && _obj.Location.IsWithinDist(u, _range) && u.MaxHealth - u.Health > _hp)
-        {
-            _hp = (uint)(u.MaxHealth - u.Health);
+        if (!u.IsAlive || !u.IsInCombat || _obj.WorldObjectCombat.IsHostileTo(u) || !_obj.Location.IsWithinDist(u, _range) || u.MaxHealth - u.Health <= _hp)
+            return false;
 
-            return true;
-        }
+        _hp = (u.MaxHealth - u.Health);
 
-        return false;
+        return true;
+
     }
 }

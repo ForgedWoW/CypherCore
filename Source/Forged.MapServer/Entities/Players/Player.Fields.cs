@@ -9,7 +9,6 @@ using Forged.MapServer.Achievements;
 using Forged.MapServer.AI.PlayerAI;
 using Forged.MapServer.Arenas;
 using Forged.MapServer.BattleGrounds;
-using Forged.MapServer.Cache;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.Chrono;
@@ -75,6 +74,7 @@ public partial class Player
     private readonly List<ObjectGuid> _itemSoulboundTradeable = new();
     private readonly long _logintime;
     private readonly List<LootRoll> _lootRolls = new();
+
     //Mail
     private readonly Dictionary<ulong, Item> _mailItems = new();
 
@@ -82,6 +82,7 @@ public partial class Player
     private readonly List<uint> _monthlyquests = new();
     private readonly Dictionary<uint, QuestStatusData> _mQuestStatus = new();
     private readonly MultiMap<uint, uint> _overrideSpells = new();
+
     // loot rolls waiting for answer
     private readonly double[] _powerFraction = new double[(int)PowerType.MaxPerClass];
 
@@ -97,10 +98,12 @@ public partial class Player
     private readonly Dictionary<uint, Dictionary<uint, long>> _seasonalquests = new();
     private readonly Dictionary<uint, SkillStatusData> _skillStatus = new();
     private readonly List<SpellModifier>[][] _spellModifiers = new List<SpellModifier>[(int)SpellModOp.Max][];
+
     //Spell
     private readonly Dictionary<uint, PlayerSpell> _spells = new();
 
     private readonly Dictionary<uint, StoredAuraTeleportLocation> _storedAuraTeleportLocations = new();
+
     //QuestId
     private readonly List<uint> _timedquests = new();
 
@@ -115,6 +118,7 @@ public partial class Player
     private uint _armorProficiency;
     private uint _baseHealthRegen;
     private uint _baseManaRegen;
+
     //Stats
     private uint _baseSpellPower;
 
@@ -132,6 +136,7 @@ public partial class Player
     private PlayerExtraFlags _extraFlags;
     private byte _fishingSteps;
     private uint _foodEmoteTimerCount;
+
     // variables to save health and mana before duel and restore them after duel
     private ulong _healthBeforeDuel;
 
@@ -155,6 +160,7 @@ public partial class Player
     private uint _pendingBindId;
     private uint _pendingBindTimer;
     private ObjectGuid _playerSharingQuest;
+
     // Recall position
     private uint _recallInstanceId;
 
@@ -165,16 +171,17 @@ public partial class Player
     private uint _sharedQuestId;
     private SpecializationInfo _specializationInfo;
     private int _spellPenetrationItemMod;
+
     // Player summoning
     private long _summonExpire;
 
     private uint _summonInstanceId;
+
     //Pets
     private WorldLocation _summonLocation;
 
     private byte _swingErrorMsg;
     private uint _titanGripPenaltySpellId;
-    private TradeData _trade;
     private uint _weaponChangeTimer;
     private uint _weaponProficiency;
     private bool _weeklyQuestChanged;
@@ -196,6 +203,7 @@ public partial class Player
     public ChannelManagerFactory ChannelManagerFactory { get; }
     public CharacterDatabase CharacterDatabase { get; }
     public CharacterTemplateDataStorage CharacterTemplateDataStorage { get; }
+
     public ChatFlags ChatFlags
     {
         get
@@ -225,6 +233,7 @@ public partial class Player
     public WorldLocation CorpseLocation { get; private set; }
     public PlayerCreateMode CreateMode { get; private set; }
     public byte CufProfilesCount => (byte)_cufProfiles.Count(p => p != null);
+
     public Pet CurrentPet
     {
         get
@@ -262,6 +271,7 @@ public partial class Player
     public GroupManager GroupManager { get; }
     public GroupReference GroupRef { get; } = new();
     public GroupUpdateFlags GroupUpdateFlag { get; private set; }
+
     public Guild Guild
     {
         get
@@ -274,6 +284,7 @@ public partial class Player
 
     public ulong GuildId => ((ObjectGuid)UnitData.GuildGUID).Counter;
     public ulong GuildIdInvited { get; set; }
+
     public uint GuildLevel
     {
         get => PlayerData.GuildLevel;
@@ -284,24 +295,24 @@ public partial class Player
     public string GuildName => GuildId != 0 ? GuildMgr.GetGuildById(GuildId).GetName() : "";
     public uint GuildRank => PlayerData.GuildRankID;
     public bool HasCorpse => CorpseLocation != null && CorpseLocation.MapId != 0xFFFFFFFF;
+
     //Binds
     public bool HasPendingBind => _pendingBindId > 0;
 
     public bool HasSummonPending => _summonExpire >= GameTime.CurrentTime;
     public WorldLocation Homebind { get; } = new();
-    public bool InArena => Battleground && Battleground.IsArena();
+    public bool InArena => Battleground != null && Battleground.IsArena;
+
     public bool InRandomLfgDungeon
     {
         get
         {
-            if (LFGManager.SelectedRandomLfgDungeon(GUID))
-            {
-                var map = Location.Map;
+            if (!LFGManager.SelectedRandomLfgDungeon(GUID))
+                return false;
 
-                return LFGManager.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
-            }
+            var map = Location.Map;
 
-            return false;
+            return LFGManager.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
         }
     }
 
@@ -315,6 +326,7 @@ public partial class Player
     public bool IsBeingTeleportedNear { get; private set; }
     public bool IsBeingTeleportedSeamlessly => IsBeingTeleportedFar && TeleportOptions.HasAnyFlag(TeleportToOptions.Seamless);
     public bool IsDebugAreaTriggers { get; set; }
+
     //GM
     public bool IsDeveloper => HasPlayerFlag(PlayerFlags.Developer);
 
@@ -324,6 +336,7 @@ public partial class Player
     public bool IsGMChat => _extraFlags.HasAnyFlag(PlayerExtraFlags.GMChat);
     public bool IsGMVisible => !_extraFlags.HasAnyFlag(PlayerExtraFlags.GMInvisible);
     public override bool IsLoading => Session.PlayerLoading;
+
     public bool IsMaxLevel
     {
         get
@@ -346,6 +359,7 @@ public partial class Player
     public bool ItemUpdateQueueBlocked { get; set; }
     public List<Channel> JoinedChannels { get; } = new();
     public LanguageManager LanguageManager { get; }
+
     // last used pet number (for BG's)
     public uint LastPetNumber { get; set; }
 
@@ -359,6 +373,7 @@ public partial class Player
     public uint MailSize => (uint)Mails.Count;
     public bool MailsUpdated { get; set; }
     public MapManager MapManager { get; }
+
     //Money
     public ulong Money
     {
@@ -379,6 +394,7 @@ public partial class Player
 
     public byte MovementForceModMagnitudeChanges { get; set; }
     public uint Movie { get; set; }
+
     public override Gender NativeGender
     {
         get => (Gender)(byte)PlayerData.NativeSex;
@@ -386,6 +402,7 @@ public partial class Player
     }
 
     public byte NumRespecs => ActivePlayerData.NumRespecs;
+
     public override float ObjectScale
     {
         get => base.ObjectScale;
@@ -404,15 +421,13 @@ public partial class Player
     public PlayerGroup OriginalGroup => OriginalGroupRef.Target;
     public GroupReference OriginalGroupRef { get; } = new();
     public byte OriginalSubGroup => OriginalGroupRef.SubGroup;
-    public OutdoorPvPManager OutdoorPvPManager { get; }
     public bool OverrideScreenFlash { get; set; }
-
     public bool PassOnGroupLoot { get; set; }
     public List<PetAura> PetAuras { get; set; } = new();
-
     public PetStable PetStable { get; set; } = new();
     public PlayerComputators PlayerComputators { get; }
     public PlayerData PlayerData { get; set; }
+
     //Gossip
     public PlayerMenu PlayerTalkClass { get; set; }
 
@@ -432,6 +447,7 @@ public partial class Player
     public Spell SpellModTakingSpell { get; set; }
     public byte SubGroup => GroupRef.SubGroup;
     public ObjectGuid SummonedBattlePetGUID => ActivePlayerData.SummonedBattlePetGUID;
+
     //Movement
     public PlayerTaxi Taxi { get; set; } = new();
 
@@ -442,11 +458,16 @@ public partial class Player
     public TeleportToOptions TeleportOptions { get; private set; }
     public uint TemporaryUnsummonedPetNumber { get; set; }
     public TerrainManager TerrainManager { get; }
+
     //Misc
     public uint TotalPlayedTime { get; private set; }
 
+    public TradeData TradeData { get; private set; }
+
+    public Player Trader => TradeData?.Trader;
     public TraitMgr TraitMgr { get; }
     public byte UnReadMails { get; set; }
+
     public WorldObject Viewpoint
     {
         get
@@ -460,6 +481,7 @@ public partial class Player
     public List<ObjectGuid> VisibleTransports { get; set; } = new();
     public WorldManager WorldMgr { get; }
     public WorldStateManager WorldStateManager { get; }
+
     public uint XP
     {
         get => ActivePlayerData.XP;

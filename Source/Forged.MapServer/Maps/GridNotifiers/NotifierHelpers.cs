@@ -14,17 +14,17 @@ public static class NotifierHelpers
         if (!u.IsAlive || !c.IsAlive || c == u || u.IsInFlight)
             return;
 
-        if (!c.HasUnitState(UnitState.Sightless))
+        if (c.HasUnitState(UnitState.Sightless))
+            return;
+
+        if (c.IsAIEnabled && c.Visibility.CanSeeOrDetect(u, false, true))
         {
-            if (c.IsAIEnabled && c.Visibility.CanSeeOrDetect(u, false, true))
-            {
-                c.AI.MoveInLineOfSight_Safe(u);
-            }
-            else
-            {
-                if (u.IsTypeId(TypeId.Player) && u.HasStealthAura && c.IsAIEnabled && c.Visibility.CanSeeOrDetect(u, false, true, true))
-                    c.AI.TriggerAlert(u);
-            }
+            c.AI.MoveInLineOfSight_Safe(u);
+        }
+        else
+        {
+            if (u.IsTypeId(TypeId.Player) && u.HasStealthAura && c.IsAIEnabled && c.Visibility.CanSeeOrDetect(u, false, true, true))
+                c.AI.TriggerAlert(u);
         }
     }
 }

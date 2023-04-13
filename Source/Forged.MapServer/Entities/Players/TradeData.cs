@@ -12,61 +12,34 @@ public class TradeData
 {
     private readonly ObjectGuid[] _items = new ObjectGuid[(int)TradeSlots.Count];
     private readonly Player _player;
-    private readonly Player _trader;
-    private bool _accepted;
-    private bool _acceptProccess;
-    private uint _clientStateIndex;
-    private ulong _money;
-    private uint _serverStateIndex;
-    private uint _spell;
     private ObjectGuid _spellCastItem;
     public TradeData(Player player, Player trader)
     {
         _player = player;
-        _trader = trader;
-        _clientStateIndex = 1;
-        _serverStateIndex = 1;
+        Trader = trader;
+        ClientStateIndex = 1;
+        ServerStateIndex = 1;
     }
 
-    public uint GetClientStateIndex()
-    {
-        return _clientStateIndex;
-    }
+    public uint ClientStateIndex { get; private set; }
 
     public Item GetItem(TradeSlots slot)
     {
         return !_items[(int)slot].IsEmpty ? _player.GetItemByGuid(_items[(int)slot]) : null;
     }
 
-    public ulong GetMoney()
-    {
-        return _money;
-    }
+    public ulong Money { get; private set; }
 
-    public uint GetServerStateIndex()
-    {
-        return _serverStateIndex;
-    }
+    public uint ServerStateIndex { get; private set; }
 
-    public uint GetSpell()
-    {
-        return _spell;
-    }
+    public uint Spell { get; private set; }
 
-    public Item GetSpellCastItem()
-    {
-        return !_spellCastItem.IsEmpty ? _player.GetItemByGuid(_spellCastItem) : null;
-    }
+    public Item SpellCastItem => !_spellCastItem.IsEmpty ? _player.GetItemByGuid(_spellCastItem) : null;
 
-    public Player GetTrader()
-    {
-        return _trader;
-    }
+    public Player Trader { get; }
 
-    public TradeData GetTraderData()
-    {
-        return _trader.GetTradeData();
-    }
+    public TradeData TraderData => Trader.TradeData;
+
     public TradeSlots GetTradeSlotForItem(ObjectGuid itemGuid)
     {
         for (TradeSlots i = 0; i < TradeSlots.Count; ++i)
@@ -84,24 +57,16 @@ public class TradeData
 
         return false;
     }
-    public bool HasSpellCastItem()
-    {
-        return !_spellCastItem.IsEmpty;
-    }
 
-    public bool IsAccepted()
-    {
-        return _accepted;
-    }
+    public bool HasSpellCastItem => !_spellCastItem.IsEmpty;
 
-    public bool IsInAcceptProcess()
-    {
-        return _acceptProccess;
-    }
+    public bool IsAccepted { get; private set; }
+
+    public bool IsInAcceptProcess { get; private set; }
 
     public void SetAccepted(bool state, bool crosssend = false)
     {
-        _accepted = state;
+        IsAccepted = state;
 
         if (!state)
         {
@@ -111,7 +76,7 @@ public class TradeData
             };
 
             if (crosssend)
-                _trader.Session.SendTradeStatus(info);
+                Trader.Session.SendTradeStatus(info);
             else
                 _player.Session.SendTradeStatus(info);
         }
@@ -119,12 +84,12 @@ public class TradeData
 
     public void SetInAcceptProcess(bool state)
     {
-        _acceptProccess = state;
+        IsInAcceptProcess = state;
     }
 
     public void SetItem(TradeSlots slot, Item item, bool update = false)
     {
-        var itemGuid = item ? item.GUID : ObjectGuid.Empty;
+        var itemGuid = item?.GUID ?? ObjectGuid.Empty;
 
         if (_items[(int)slot] == itemGuid && !update)
             return;
@@ -132,7 +97,7 @@ public class TradeData
         _items[(int)slot] = itemGuid;
 
         SetAccepted(false);
-        GetTraderData().SetAccepted(false);
+        TraderData.SetAccepted(false);
 
         UpdateServerStateIndex();
 
@@ -140,14 +105,14 @@ public class TradeData
 
         // need remove possible trader spell applied to changed item
         if (slot == TradeSlots.NonTraded)
-            GetTraderData().SetSpell(0);
+            TraderData.SetSpell(0);
 
         // need remove possible player spell applied (possible move reagent)
         SetSpell(0);
     }
     public void SetMoney(ulong money)
     {
-        if (_money == money)
+        if (Money == money)
             return;
 
         if (!_player.HasEnoughMoney(money))
@@ -163,10 +128,10 @@ public class TradeData
             return;
         }
 
-        _money = money;
+        Money = money;
 
         SetAccepted(false);
-        GetTraderData().SetAccepted(false);
+        TraderData.SetAccepted(false);
 
         UpdateServerStateIndex();
 
@@ -177,14 +142,14 @@ public class TradeData
     {
         var itemGuid = castItem ? castItem.GUID : ObjectGuid.Empty;
 
-        if (_spell == spellID && _spellCastItem == itemGuid)
+        if (Spell == spellID && _spellCastItem == itemGuid)
             return;
 
-        _spell = spellID;
+        Spell = spellID;
         _spellCastItem = itemGuid;
 
         SetAccepted(false);
-        GetTraderData().SetAccepted(false);
+        TraderData.SetAccepted(false);
 
         UpdateServerStateIndex();
 
@@ -193,17 +158,17 @@ public class TradeData
     }
     public void UpdateClientStateIndex()
     {
-        ++_clientStateIndex;
+        ++ClientStateIndex;
     }
     public void UpdateServerStateIndex()
     {
-        _serverStateIndex = RandomHelper.Rand32();
+        ServerStateIndex = RandomHelper.Rand32();
     }
 
     private void Update(bool forTarget = true)
     {
         if (forTarget)
-            _trader.Session.SendUpdateTrade(true); // player state for trader
+            Trader.Session.SendUpdateTrade(true); // player state for trader
         else
             _player.Session.SendUpdateTrade(false); // player state for player
     }

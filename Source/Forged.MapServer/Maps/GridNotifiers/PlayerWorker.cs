@@ -25,10 +25,8 @@ public class PlayerWorker : IGridNotifierPlayer
     public GridType GridType { get; set; }
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
-
             if (player.Location.InSamePhase(_phaseShift))
                 _action.Invoke(player);
         }

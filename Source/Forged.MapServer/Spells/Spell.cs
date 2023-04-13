@@ -626,7 +626,7 @@ public partial class Spell : IDisposable
             var bg = Caster.AsPlayer.Battleground;
 
             if (bg)
-                if (bg.GetStatus() == BattlegroundStatus.WaitLeave)
+                if (bg.Status == BattlegroundStatus.WaitLeave)
                     return SpellCastResult.DontReport;
         }
 
@@ -1200,10 +1200,10 @@ public partial class Spell : IDisposable
 
                     if (Convert.ToBoolean(Targets.TargetMask & SpellCastTargetFlags.TradeItem))
                     {
-                        var pTrade = Caster.AsPlayer.GetTradeData();
+                        var pTrade = Caster.AsPlayer.TradeData;
 
                         if (pTrade != null)
-                            pTempItem = pTrade.GetTraderData().GetItem(TradeSlots.NonTraded);
+                            pTempItem = pTrade.TraderData.GetItem(TradeSlots.NonTraded);
                     }
                     else if (Convert.ToBoolean(Targets.TargetMask & SpellCastTargetFlags.Item))
                     {
@@ -1474,7 +1474,7 @@ public partial class Spell : IDisposable
                         var bg = Caster.AsPlayer.Battleground;
 
                         if (bg)
-                            if (bg.GetStatus() != BattlegroundStatus.InProgress)
+                            if (bg.Status != BattlegroundStatus.InProgress)
                                 return SpellCastResult.TryAgain;
                     }
 
@@ -1536,7 +1536,7 @@ public partial class Spell : IDisposable
                     var bg = player.Battleground;
 
                     if (bg)
-                        if (bg.GetStatus() == BattlegroundStatus.InProgress)
+                        if (bg.Status == BattlegroundStatus.InProgress)
                             return SpellCastResult.NotInBattleground;
 
                     break;
@@ -1807,7 +1807,7 @@ public partial class Spell : IDisposable
             if (!Caster.IsTypeId(TypeId.Player))
                 return SpellCastResult.NotTrading;
 
-            var my_trade = Caster.AsPlayer.GetTradeData();
+            var my_trade = Caster.AsPlayer.TradeData;
 
             if (my_trade == null)
                 return SpellCastResult.NotTrading;
@@ -1818,7 +1818,7 @@ public partial class Spell : IDisposable
                 return SpellCastResult.BadTargets;
 
             if (!IsTriggered)
-                if (my_trade.GetSpell() != 0)
+                if (my_trade.Spell != 0)
                     return SpellCastResult.ItemAlreadyEnchanted;
         }
 
@@ -3496,27 +3496,20 @@ public partial class Spell : IDisposable
                     packet.FailedArg1 = (int)param1;
                 else
                     // hardcode areas limitation case
-                    switch (spellInfo.Id)
+                    packet.FailedArg1 = spellInfo.Id switch
                     {
-                        case 41617: // Cenarion Mana Salve
-                        case 41619: // Cenarion Healing Salve
-                            packet.FailedArg1 = 3905;
-
-                            break;
-                        case 41618: // Bottled Nethergon Energy
-                        case 41620: // Bottled Nethergon Vapor
-                            packet.FailedArg1 = 3842;
-
-                            break;
-                        case 45373: // Bloodberry Elixir
-                            packet.FailedArg1 = 4075;
-
-                            break;
-                        default: // default case (don't must be)
-                            packet.FailedArg1 = 0;
-
-                            break;
-                    }
+                        41617 => // Cenarion Mana Salve
+                            3905,
+                        41619 => // Cenarion Healing Salve
+                            3905,
+                        41618 => // Bottled Nethergon Energy
+                            3842,
+                        41620 => // Bottled Nethergon Vapor
+                            3842,
+                        45373 => // Bloodberry Elixir
+                            4075,
+                        _ => 0
+                    };
 
                 break;
             case SpellCastResult.Totems:
@@ -3805,10 +3798,10 @@ public partial class Spell : IDisposable
             if (Convert.ToBoolean(Targets.TargetMask & SpellCastTargetFlags.TradeItem))
                 if (modOwner)
                 {
-                    var my_trade = modOwner.GetTradeData();
+                    var my_trade = modOwner.TradeData;
 
                     if (my_trade != null)
-                        if (!my_trade.IsInAcceptProcess())
+                        if (!my_trade.IsInAcceptProcess)
                         {
                             // Spell will be casted at completing the trade. Silently ignore at this place
                             my_trade.SetSpell(SpellInfo.Id, CastItem);
@@ -4925,19 +4918,14 @@ public partial class Spell : IDisposable
             }
 
             if (foundNotMechanic)
-                switch (auraType)
+                return auraType switch
                 {
-                    case AuraType.ModStun:
-                    case AuraType.ModStunDisableGravity:
-                        return SpellCastResult.Stunned;
-                    case AuraType.ModFear:
-                        return SpellCastResult.Fleeing;
-                    case AuraType.ModConfuse:
-                        return SpellCastResult.Confused;
-                    default:
-                        //ABORT();
-                        return SpellCastResult.NotKnown;
-                }
+                    AuraType.ModStun               => SpellCastResult.Stunned,
+                    AuraType.ModStunDisableGravity => SpellCastResult.Stunned,
+                    AuraType.ModFear               => SpellCastResult.Fleeing,
+                    AuraType.ModConfuse            => SpellCastResult.Confused,
+                    _                              => SpellCastResult.NotKnown
+                };
 
             return SpellCastResult.SpellCastOk;
         }
@@ -7094,22 +7082,17 @@ public partial class Spell : IDisposable
             // check for explicit target redirection, for Grounding Totem for example
             if (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.UnitEnemy) || (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.Unit) && !Caster.WorldObjectCombat.IsFriendlyTo(target)))
             {
-                Unit redirect = null;
-
-                switch (SpellInfo.DmgClass)
+                Unit redirect = SpellInfo.DmgClass switch
                 {
-                    case SpellDmgClass.Magic:
-                        redirect = Caster.WorldObjectCombat.GetMagicHitRedirectTarget(target, SpellInfo);
-
-                        break;
-                    case SpellDmgClass.Melee:
-                    case SpellDmgClass.Ranged:
+                    SpellDmgClass.Magic => Caster.WorldObjectCombat.GetMagicHitRedirectTarget(target, SpellInfo),
+                    SpellDmgClass.Melee =>
                         // should gameobjects cast damagetype melee/ranged spells this needs to be changed
-                        redirect = Caster.AsUnit.GetMeleeHitRedirectTarget(target, SpellInfo);
-
-                        break;
-                    
-                }
+                        Caster.AsUnit.GetMeleeHitRedirectTarget(target, SpellInfo),
+                    SpellDmgClass.Ranged =>
+                        // should gameobjects cast damagetype melee/ranged spells this needs to be changed
+                        Caster.AsUnit.GetMeleeHitRedirectTarget(target, SpellInfo),
+                    _ => null
+                };
 
                 if (redirect != null && redirect != target)
                     Targets.UnitTarget = redirect;
@@ -7151,25 +7134,15 @@ public partial class Spell : IDisposable
         if (referer == null)
             return;
 
-        Position center = Caster.Location;
-
-        switch (targetType.ReferenceType)
+        Position center = targetType.ReferenceType switch
         {
-            case SpellTargetReferenceTypes.Src:
-                center = Targets.SrcPos;
-
-                break;
-            case SpellTargetReferenceTypes.Dest:
-                center = Targets.DstPos;
-
-                break;
-            case SpellTargetReferenceTypes.Caster:
-            case SpellTargetReferenceTypes.Target:
-            case SpellTargetReferenceTypes.Last:
-                center = referer.Location;
-
-                break;
-        }
+            SpellTargetReferenceTypes.Src    => Targets.SrcPos,
+            SpellTargetReferenceTypes.Dest   => Targets.DstPos,
+            SpellTargetReferenceTypes.Caster => referer.Location,
+            SpellTargetReferenceTypes.Target => referer.Location,
+            SpellTargetReferenceTypes.Last   => referer.Location,
+            _                                => Caster.Location
+        };
 
         var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
         List<WorldObject> targets = new();
@@ -7307,7 +7280,7 @@ public partial class Spell : IDisposable
                 var liquidLevel = MapConst.VMAPInvalidHeightValue;
 
                 if (Caster.Location.Map.GetLiquidStatus(Caster.Location.PhaseShift, pos, LiquidHeaderTypeFlags.AllLiquids, out var liquidData, Caster.Location.CollisionHeight) != 0)
-                    liquidLevel = liquidData.level;
+                    liquidLevel = liquidData.Level;
 
                 if (liquidLevel <= ground) // When there is no liquid Map.GetWaterOrGroundLevel returns ground level
                 {
@@ -7343,53 +7316,26 @@ public partial class Spell : IDisposable
                 var angle = targetType.CalcDirectionAngle();
 
                 if (targetType.Target == Framework.Constants.Targets.DestCasterMovementDirection)
-                    switch (Caster.MovementInfo.MovementFlags & (MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight))
+                    angle = (Caster.MovementInfo.MovementFlags & (MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight)) switch
                     {
-                        case MovementFlag.None:
-                        case MovementFlag.Forward:
-                        case MovementFlag.Forward | MovementFlag.Backward:
-                        case MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
-                        case MovementFlag.Forward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
-                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
-                            angle = 0.0f;
-
-                            break;
-                        case MovementFlag.Backward:
-                        case MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight:
-                            angle = MathF.PI;
-
-                            break;
-                        case MovementFlag.StrafeLeft:
-                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft:
-                            angle = MathF.PI / 2;
-
-                            break;
-                        case MovementFlag.Forward | MovementFlag.StrafeLeft:
-                            angle = MathF.PI / 4;
-
-                            break;
-                        case MovementFlag.Backward | MovementFlag.StrafeLeft:
-                            angle = 3 * MathF.PI / 4;
-
-                            break;
-                        case MovementFlag.StrafeRight:
-                        case MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeRight:
-                            angle = -MathF.PI / 2;
-
-                            break;
-                        case MovementFlag.Forward | MovementFlag.StrafeRight:
-                            angle = -MathF.PI / 4;
-
-                            break;
-                        case MovementFlag.Backward | MovementFlag.StrafeRight:
-                            angle = -3 * MathF.PI / 4;
-
-                            break;
-                        default:
-                            angle = 0.0f;
-
-                            break;
-                    }
+                        MovementFlag.None                                                                                 => 0.0f,
+                        MovementFlag.Forward                                                                              => 0.0f,
+                        MovementFlag.Forward | MovementFlag.Backward                                                      => 0.0f,
+                        MovementFlag.StrafeLeft | MovementFlag.StrafeRight                                                => 0.0f,
+                        MovementFlag.Forward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight                         => 0.0f,
+                        MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight => 0.0f,
+                        MovementFlag.Backward                                                                             => MathF.PI,
+                        MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight                        => MathF.PI,
+                        MovementFlag.StrafeLeft                                                                           => MathF.PI / 2,
+                        MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft                            => MathF.PI / 2,
+                        MovementFlag.Forward | MovementFlag.StrafeLeft                                                    => MathF.PI / 4,
+                        MovementFlag.Backward | MovementFlag.StrafeLeft                                                   => 3 * MathF.PI / 4,
+                        MovementFlag.StrafeRight                                                                          => -MathF.PI / 2,
+                        MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeRight                           => -MathF.PI / 2,
+                        MovementFlag.Forward | MovementFlag.StrafeRight                                                   => -MathF.PI / 4,
+                        MovementFlag.Backward | MovementFlag.StrafeRight                                                  => -3 * MathF.PI / 4,
+                        _                                                                                                 => 0.0f
+                    };
 
                 Position pos = new(dest.Position);
 
@@ -7802,27 +7748,14 @@ public partial class Spell : IDisposable
         var objectType = targetType.ObjectType;
         var selectionType = targetType.CheckType;
 
-        Position dst = Caster.Location;
-
-        switch (targetType.ReferenceType)
+        Position dst = targetType.ReferenceType switch
         {
-            case SpellTargetReferenceTypes.Src:
-                dst = Targets.SrcPos;
-
-                break;
-            case SpellTargetReferenceTypes.Dest:
-                dst = Targets.DstPos;
-
-                break;
-            case SpellTargetReferenceTypes.Caster:
-                dst = Caster.Location;
-
-                break;
-            case SpellTargetReferenceTypes.Target:
-                dst = Targets.UnitTarget.Location;
-
-                break;
-        }
+            SpellTargetReferenceTypes.Src    => Targets.SrcPos,
+            SpellTargetReferenceTypes.Dest   => Targets.DstPos,
+            SpellTargetReferenceTypes.Caster => Caster.Location,
+            SpellTargetReferenceTypes.Target => Targets.UnitTarget.Location,
+            _                                => Caster.Location
+        };
 
         var condList = spellEffectInfo.ImplicitTargetConditions;
         var radius = spellEffectInfo.CalcRadius(Caster) * SpellValue.RadiusMod;
@@ -7865,27 +7798,17 @@ public partial class Spell : IDisposable
         if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
             return;
 
-        var range = 0.0f;
-
-        switch (targetType.CheckType)
+        var range = targetType.CheckType switch
         {
-            case SpellTargetCheckTypes.Enemy:
-                range = SpellInfo.GetMaxRange(false, Caster, this);
-
-                break;
-            case SpellTargetCheckTypes.Ally:
-            case SpellTargetCheckTypes.Party:
-            case SpellTargetCheckTypes.Raid:
-            case SpellTargetCheckTypes.RaidClass:
-                range = SpellInfo.GetMaxRange(true, Caster, this);
-
-                break;
-            case SpellTargetCheckTypes.Entry:
-            case SpellTargetCheckTypes.Default:
-                range = SpellInfo.GetMaxRange(IsPositive, Caster, this);
-
-                break;
-        }
+            SpellTargetCheckTypes.Enemy     => SpellInfo.GetMaxRange(false, Caster, this),
+            SpellTargetCheckTypes.Ally      => SpellInfo.GetMaxRange(true, Caster, this),
+            SpellTargetCheckTypes.Party     => SpellInfo.GetMaxRange(true, Caster, this),
+            SpellTargetCheckTypes.Raid      => SpellInfo.GetMaxRange(true, Caster, this),
+            SpellTargetCheckTypes.RaidClass => SpellInfo.GetMaxRange(true, Caster, this),
+            SpellTargetCheckTypes.Entry     => SpellInfo.GetMaxRange(IsPositive, Caster, this),
+            SpellTargetCheckTypes.Default   => SpellInfo.GetMaxRange(IsPositive, Caster, this),
+            _                               => 0.0f
+        };
 
         var condList = spellEffectInfo.ImplicitTargetConditions;
 

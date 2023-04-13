@@ -165,9 +165,12 @@ public class MailDraft
 
             pReceiver.AddMail(m); // to insert new mail to beginning of maillist
 
-            if (!_items.Empty())
-                foreach (var item in _items.Values)
-                    pReceiver.AddMItem(item);
+            if (_items.Empty())
+                return;
+
+            foreach (var item in _items.Values)
+                pReceiver.AddMItem(item);
+        
         }
         else if (!_items.Empty())
         {

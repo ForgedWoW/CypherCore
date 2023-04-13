@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
@@ -24,70 +25,39 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
     public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
-
             if (creature == null) continue;
 
-            foreach (var visionPlayer in creature.GetSharedVisionList())
-                if (visionPlayer.SeerView == creature)
-                    visionPlayer.UpdateVisibilityOf(_objects);
+            foreach (var visionPlayer in creature.GetSharedVisionList().Where(visionPlayer => visionPlayer.SeerView == creature))
+                visionPlayer.UpdateVisibilityOf(_objects);
         }
     }
 
     public void Visit(IList<DynamicObject> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var dynamicObject in objs)
         {
-            var dynamicObject = objs[i];
-            var caster = dynamicObject.GetCaster();
+            var pl = dynamicObject.GetCaster()?.AsPlayer;
 
-            if (caster)
-            {
-                var pl = caster.AsPlayer;
-
-                if (pl && pl.SeerView == dynamicObject)
-                    pl.UpdateVisibilityOf(_objects);
-            }
+            if (pl == null)
+                continue;
+            
+            if (pl.SeerView == dynamicObject)
+                pl.UpdateVisibilityOf(_objects);
         }
     }
 
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
-
             if (player == null) continue;
 
             player.UpdateVisibilityOf(_objects);
 
-            foreach (var visionPlayer in player.GetSharedVisionList())
-                if (visionPlayer.SeerView == player)
-                    visionPlayer.UpdateVisibilityOf(_objects);
+            foreach (var visionPlayer in player.GetSharedVisionList().Where(visionPlayer => visionPlayer.SeerView == player))
+                visionPlayer.UpdateVisibilityOf(_objects);
         }
     }
 }
-
-//Searchers
-
-//Checks
-
-#region Checks
-
-// Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
-
-// Success at unit in range, range update for next check (this can be use with CreatureLastSearcher to find nearest creature)
-
-// Find the nearest Fishing hole and return true only if source object is in range of hole
-
-// Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest GO)
-
-// Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest unspawned GO)
-
-// Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest GO with a certain type)
-
-// CHECK modifiers
-
-#endregion

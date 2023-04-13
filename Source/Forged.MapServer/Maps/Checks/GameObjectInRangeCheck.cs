@@ -23,6 +23,7 @@ internal class GameObjectInRangeCheck : ICheck<GameObject>
     {
         if (_entry == 0 || (go.Template != null && go.Template.entry == _entry))
             return go.IsInRange(_x, _y, _z, _range);
-        else return false;
+
+        return false;
     }
 }

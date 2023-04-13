@@ -290,10 +290,10 @@ public class SpellCastTargets
             else if (TargetMask.HasAnyFlag(SpellCastTargetFlags.TradeItem))
                 if (ItemTargetGuid == ObjectGuid.TradeItem) // here it is not guid but slot. Also prevents hacking slots
                 {
-                    var pTrade = player.GetTradeData();
+                    var pTrade = player.TradeData;
 
                     if (pTrade != null)
-                        _itemTarget = pTrade.GetTraderData().GetItem(TradeSlots.NonTraded);
+                        _itemTarget = pTrade.TraderData.GetItem(TradeSlots.NonTraded);
                 }
 
             if (_itemTarget != null)

@@ -24,9 +24,6 @@ public class AnyUnfriendlyUnitInObjectRangeCheck : ICheck<Unit>
 
     public bool Invoke(Unit u)
     {
-        if (u.IsAlive && _obj.Location.IsWithinDist(u, _range) && !_funit.WorldObjectCombat.IsFriendlyTo(u) && (_additionalCheck == null || _additionalCheck.Invoke(u)))
-            return true;
-        else
-            return false;
+        return u.IsAlive && _obj.Location.IsWithinDist(u, _range) && !_funit.WorldObjectCombat.IsFriendlyTo(u) && (_additionalCheck == null || _additionalCheck.Invoke(u));
     }
 }

@@ -29,10 +29,8 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
     public GridType GridType { get; set; }
     public void Visit(IList<Creature> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var creature in objs)
         {
-            var creature = objs[i];
-
             if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
                 continue;
 
@@ -44,9 +42,8 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
 
     public void Visit(IList<Player> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
             var viewPoint = player.SeerView;
 
             if (!viewPoint.IsNeedNotify(NotifyFlags.VisibilityChanged))

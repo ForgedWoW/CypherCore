@@ -32,22 +32,20 @@ public class PlayerSearcher : IGridNotifierPlayer
     public void Visit(IList<Player> objs)
     {
         // already found
-        if (_object)
+        if (_object != null)
             return;
 
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var player in objs)
         {
-            var player = objs[i];
-
             if (!player.Location.InSamePhase(_phaseShift))
                 continue;
 
-            if (_check.Invoke(player))
-            {
-                _object = player;
+            if (!_check.Invoke(player))
+                continue;
 
-                return;
-            }
+            _object = player;
+
+            return;
         }
     }
 }

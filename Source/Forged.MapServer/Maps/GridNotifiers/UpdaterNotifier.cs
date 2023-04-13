@@ -38,10 +38,8 @@ public class UpdaterNotifier : IGridNotifierWorldObject
 
     public void Visit(IList<WorldObject> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var obj in objs)
         {
-            var obj = objs[i];
-
             if (obj == null || obj.IsTypeId(TypeId.Player) || obj.IsTypeId(TypeId.Corpse))
                 continue;
 

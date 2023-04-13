@@ -169,7 +169,7 @@ public class WorldLocation : Position
         CreatureLastSearcher searcher = new(_worldObject, checker, GridType.All);
 
         if (options.IgnorePhases)
-            searcher._phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
+            searcher.PhaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
 
         Cell.VisitGrid(_worldObject, searcher, range);
 
@@ -321,7 +321,7 @@ public class WorldLocation : Position
         CreatureListSearcher searcher = new(_worldObject, creatureList, check, GridType.Grid);
 
         if (options.IgnorePhases)
-            searcher._phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
+            searcher.PhaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
 
         Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
 
@@ -527,7 +527,7 @@ public class WorldLocation : Position
     {
         var effectiveReach = _worldObject.CombatReach;
 
-        if (searcher)
+        if (searcher != null)
         {
             effectiveReach += searcher.CombatReach;
 
@@ -635,7 +635,7 @@ public class WorldLocation : Position
 
     public bool IsInBetween(WorldObject obj1, WorldObject obj2, float size = 0)
     {
-        return obj1 && obj2 && IsInBetween(obj1.Location, obj2.Location, size);
+        return obj1 != null && obj2 != null && IsInBetween(obj1.Location, obj2.Location, size);
     }
 
     public bool IsInFront(WorldObject target, float arc = MathFunctions.PI)
@@ -714,7 +714,7 @@ public class WorldLocation : Position
 
     public bool IsWithinDistInMap(WorldObject obj, float dist2Compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
     {
-        return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
+        return obj != null && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
     }
 
     public bool IsWithinLOS(Position pos, LineOfSightChecks checks = LineOfSightChecks.All, ModelIgnoreFlags ignoreFlags = ModelIgnoreFlags.Nothing)

@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
 
@@ -14,8 +15,11 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class VisibleNotifier : IGridNotifierWorldObject
 {
-    public VisibleNotifier(Player pl, GridType gridType)
+    private readonly ObjectAccessor _objectAccessor;
+
+    public VisibleNotifier(Player pl, GridType gridType, ObjectAccessor objectAccessor)
     {
+        _objectAccessor = objectAccessor;
         Player = pl;
         Data = new UpdateData(pl.Location.MapId);
         VisGuids = new List<ObjectGuid>(pl.ClientGuiDs);
@@ -34,7 +38,7 @@ public class VisibleNotifier : IGridNotifierWorldObject
         // but exist one case when this possible and object not out of range: transports
         var transport = Player.GetTransport<Transport>();
 
-        if (transport)
+        if (transport != null)
             foreach (var obj in transport.GetPassengers())
                 if (VisGuids.Contains(obj.GUID))
                 {
@@ -74,13 +78,13 @@ public class VisibleNotifier : IGridNotifierWorldObject
             Player.ClientGuiDs.Remove(guid);
             Data.AddOutOfRangeGUID(guid);
 
-            if (guid.IsPlayer)
-            {
-                var pl = Global.ObjAccessor.FindPlayer(guid);
+            if (!guid.IsPlayer)
+                continue;
 
-                if (pl != null && pl.IsInWorld && !pl.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                    pl.UpdateVisibilityOf(Player);
-            }
+            var pl = _objectAccessor.FindPlayer(guid);
+
+            if (pl != null && pl.Location.IsInWorld && !pl.IsNeedNotify(NotifyFlags.VisibilityChanged))
+                pl.UpdateVisibilityOf(Player);
         }
 
         if (!Data.HasData())
@@ -95,10 +99,8 @@ public class VisibleNotifier : IGridNotifierWorldObject
 
     public void Visit(IList<WorldObject> objs)
     {
-        for (var i = 0; i < objs.Count; ++i)
+        foreach (var obj in objs)
         {
-            var obj = objs[i];
-
             VisGuids.Remove(obj.GUID);
             Player.UpdateVisibilityOf(obj, Data, VisibleNow);
         }
