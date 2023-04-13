@@ -33,17 +33,17 @@ class FileAppender : Appender, IDisposable
         _logDir = logDir;
 		_dynamicName = _logFile.Contains("{0}");
 
-        RotateLogs(true);
-
 		if (_dynamicName)
 		{
 			Directory.CreateDirectory(logDir + "/" + _logFile.Substring(0, _logFile.IndexOf('/') + 1));
 
 			return;
-		}
-	}
+        }
 
-	public override void _write(LogMessage message)
+        RotateLogs(true);
+    }
+
+    public override void _write(LogMessage message)
 	{
 		lock (_locker)
 		{
