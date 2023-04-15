@@ -13,7 +13,7 @@ internal class DalaranSewersArena : Arena
 {
     public DalaranSewersArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
     {
-        _events = new EventMap();
+        Events = new EventMap();
     }
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
@@ -30,7 +30,7 @@ internal class DalaranSewersArena : Arena
 
                 // Someone has get back into the pipes and the knockback has already been performed,
                 // so we reset the knockback count for kicking the player again into the arena.
-                _events.ScheduleEvent(DalaranSewersEvents.PIPE_KNOCKBACK, DalaranSewersData.PipeKnockbackDelay);
+                Events.ScheduleEvent(DalaranSewersEvents.PIPE_KNOCKBACK, DalaranSewersData.PipeKnockbackDelay);
 
                 break;
 
@@ -46,22 +46,22 @@ internal class DalaranSewersArena : Arena
         if (Status != BattlegroundStatus.InProgress)
             return;
 
-        _events.ExecuteEvents(eventId =>
+        Events.ExecuteEvents(eventId =>
         {
             switch (eventId)
             {
                 case DalaranSewersEvents.WATERFALL_WARNING:
                     // Add the water
                     DoorClose(DalaranSewersObjectTypes.WATER2);
-                    _events.ScheduleEvent(DalaranSewersEvents.WATERFALL_ON, DalaranSewersData.WaterWarningDuration);
+                    Events.ScheduleEvent(DalaranSewersEvents.WATERFALL_ON, DalaranSewersData.WaterWarningDuration);
 
                     break;
 
                 case DalaranSewersEvents.WATERFALL_ON:
                     // Active collision and start knockback timer
                     DoorClose(DalaranSewersObjectTypes.WATER1);
-                    _events.ScheduleEvent(DalaranSewersEvents.WATERFALL_OFF, DalaranSewersData.WaterfallDuration);
-                    _events.ScheduleEvent(DalaranSewersEvents.WATERFALL_KNOCKBACK, DalaranSewersData.WaterfallKnockbackTimer);
+                    Events.ScheduleEvent(DalaranSewersEvents.WATERFALL_OFF, DalaranSewersData.WaterfallDuration);
+                    Events.ScheduleEvent(DalaranSewersEvents.WATERFALL_KNOCKBACK, DalaranSewersData.WaterfallKnockbackTimer);
 
                     break;
 
@@ -69,8 +69,8 @@ internal class DalaranSewersArena : Arena
                     // Remove collision and water
                     DoorOpen(DalaranSewersObjectTypes.WATER1);
                     DoorOpen(DalaranSewersObjectTypes.WATER2);
-                    _events.CancelEvent(DalaranSewersEvents.WATERFALL_KNOCKBACK);
-                    _events.ScheduleEvent(DalaranSewersEvents.WATERFALL_WARNING, DalaranSewersData.WaterfallTimerMin, DalaranSewersData.WaterfallTimerMax);
+                    Events.CancelEvent(DalaranSewersEvents.WATERFALL_KNOCKBACK);
+                    Events.ScheduleEvent(DalaranSewersEvents.WATERFALL_WARNING, DalaranSewersData.WaterfallTimerMin, DalaranSewersData.WaterfallTimerMax);
 
                     break;
 
@@ -82,7 +82,7 @@ internal class DalaranSewersArena : Arena
                     if (waterSpout)
                         waterSpout.CastSpell(waterSpout, DalaranSewersSpells.WATER_SPOUT, true);
 
-                    _events.ScheduleEvent(eventId, DalaranSewersData.WaterfallKnockbackTimer);
+                    Events.ScheduleEvent(eventId, DalaranSewersData.WaterfallKnockbackTimer);
                 }
 
                 break;
@@ -157,8 +157,8 @@ internal class DalaranSewersArena : Arena
         for (var i = DalaranSewersObjectTypes.BUFF1; i <= DalaranSewersObjectTypes.BUFF2; ++i)
             SpawnBGObject(i, 60);
 
-        _events.ScheduleEvent(DalaranSewersEvents.WATERFALL_WARNING, DalaranSewersData.WaterfallTimerMin, DalaranSewersData.WaterfallTimerMax);
-        _events.ScheduleEvent(DalaranSewersEvents.PIPE_KNOCKBACK, DalaranSewersData.PipeKnockbackFirstDelay);
+        Events.ScheduleEvent(DalaranSewersEvents.WATERFALL_WARNING, DalaranSewersData.WaterfallTimerMin, DalaranSewersData.WaterfallTimerMax);
+        Events.ScheduleEvent(DalaranSewersEvents.PIPE_KNOCKBACK, DalaranSewersData.PipeKnockbackFirstDelay);
 
         SpawnBGObject(DalaranSewersObjectTypes.WATER2, BattlegroundConst.RespawnImmediately);
 

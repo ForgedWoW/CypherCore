@@ -7,15 +7,15 @@ public interface ICoord
 {
     uint X { get; set; }
     uint Y { get; set; }
-    void Dec_x(uint val);
+    void DecX(uint val);
 
-    void Dec_y(uint val);
+    void DecY(uint val);
 
     uint GetId();
 
-    void Inc_x(uint val);
+    void IncX(uint val);
 
-    void Inc_y(uint val);
+    void IncY(uint val);
 
     bool IsCoordValid();
     ICoord Normalize();

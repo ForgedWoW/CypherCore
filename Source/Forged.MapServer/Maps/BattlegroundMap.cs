@@ -12,8 +12,8 @@ public class BattlegroundMap : Map
 {
     public Battleground BG { get; private set; }
 
-    public BattlegroundMap(uint id, uint expiry, uint InstanceId, Difficulty spawnMode)
-        : base(id, expiry, InstanceId, spawnMode)
+    public BattlegroundMap(uint id, uint expiry, uint instanceId, Difficulty spawnMode)
+        : base(id, expiry, instanceId, spawnMode)
     {
         InitVisibilityDistance();
     }

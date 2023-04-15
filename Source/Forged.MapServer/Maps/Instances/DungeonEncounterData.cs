@@ -12,5 +12,5 @@ public class DungeonEncounterData
     }
 
     public uint BossId { get; set; }
-    public uint[] DungeonEncounterId { get; set; } = new uint[4];
+    public uint[] DungeonEncounterId { get; set; }
 }

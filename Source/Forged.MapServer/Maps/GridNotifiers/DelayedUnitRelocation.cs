@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
@@ -16,13 +17,15 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
     private readonly Map _map;
     private readonly CellCoord _p;
     private readonly float _radius;
+    private readonly ObjectAccessor _objectAccessor;
 
-    public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType)
+    public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType, ObjectAccessor objectAccessor)
     {
         _map = map;
         _cell = c;
         _p = pair;
         _radius = radius;
+        _objectAccessor = objectAccessor;
         GridType = gridType;
     }
 
@@ -52,7 +55,7 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
             if (player != viewPoint && !viewPoint.Location.IsPositionValid)
                 continue;
 
-            var relocate = new PlayerRelocationNotifier(player, GridType.All);
+            var relocate = new PlayerRelocationNotifier(player, GridType.All, _objectAccessor);
             Cell.VisitGrid(viewPoint, relocate, _radius, false);
 
             relocate.SendToSelf();

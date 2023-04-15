@@ -22,60 +22,60 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
     public GridType GridType { get; set; }
     public void LoadN()
     {
-        i_creatures = 0;
-        i_gameObjects = 0;
-        i_corpses = 0;
-        i_cell.Data.Celly = 0;
+        ICreatures = 0;
+        IGameObjects = 0;
+        ICorpses = 0;
+        ICell.Data.Celly = 0;
 
         for (uint x = 0; x < MapConst.MaxCells; ++x)
         {
-            i_cell.Data.Cellx = x;
+            ICell.Data.Cellx = x;
 
             for (uint y = 0; y < MapConst.MaxCells; ++y)
             {
-                i_cell.Data.Celly = y;
+                ICell.Data.Celly = y;
 
-                i_grid.VisitGrid(x, y, this);
+                IGrid.VisitGrid(x, y, this);
 
                 ObjectWorldLoader worker = new(this, GridType.World);
-                i_grid.VisitGrid(x, y, worker);
+                IGrid.VisitGrid(x, y, worker);
             }
         }
 
-        Log.Logger.Debug($"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GridId} on map {i_map.Id}");
+        Log.Logger.Debug($"{IGameObjects} GameObjects, {ICreatures} Creatures, {IAreaTriggers} AreaTrriggers and {ICorpses} Corpses/Bones loaded for grid {IGrid.GridId} on map {IMap.Id}");
     }
 
     public void Visit(IList<AreaTrigger> objs)
     {
-        var cellCoord = i_cell.GetCellCoord();
-        var areaTriggers = Global.AreaTriggerDataStorage.GetAreaTriggersForMapAndCell(i_map.Id, cellCoord.GetId());
+        var cellCoord = ICell.GetCellCoord();
+        var areaTriggers = Global.AreaTriggerDataStorage.GetAreaTriggersForMapAndCell(IMap.Id, cellCoord.GetId());
 
         if (areaTriggers == null || areaTriggers.Empty())
             return;
 
-        LoadHelper<AreaTrigger>(areaTriggers, cellCoord, ref i_areaTriggers, i_map);
+        LoadHelper<AreaTrigger>(areaTriggers, cellCoord, ref IAreaTriggers, IMap);
     }
 
     public void Visit(IList<Creature> objs)
     {
-        var cellCoord = i_cell.GetCellCoord();
-        var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.Id, i_map.DifficultyID, cellCoord.GetId());
+        var cellCoord = ICell.GetCellCoord();
+        var cellguids = Global.ObjectMgr.GetCellObjectGuids(IMap.Id, IMap.DifficultyID, cellCoord.GetId());
 
         if (cellguids == null || cellguids.creatures.Empty())
             return;
 
-        LoadHelper<Creature>(cellguids.creatures, cellCoord, ref i_creatures, i_map);
+        LoadHelper<Creature>(cellguids.creatures, cellCoord, ref ICreatures, IMap);
     }
 
     public void Visit(IList<GameObject> objs)
     {
-        var cellCoord = i_cell.GetCellCoord();
-        var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.Id, i_map.DifficultyID, cellCoord.GetId());
+        var cellCoord = ICell.GetCellCoord();
+        var cellguids = Global.ObjectMgr.GetCellObjectGuids(IMap.Id, IMap.DifficultyID, cellCoord.GetId());
 
         if (cellguids == null || cellguids.gameobjects.Empty())
             return;
 
-        LoadHelper<GameObject>(cellguids.gameobjects, cellCoord, ref i_gameObjects, i_map);
+        LoadHelper<GameObject>(cellguids.gameobjects, cellCoord, ref IGameObjects, IMap);
     }
 }
 

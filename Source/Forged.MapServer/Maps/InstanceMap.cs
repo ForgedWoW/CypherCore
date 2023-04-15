@@ -4,41 +4,64 @@
 using System;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.Instance;
 using Forged.MapServer.Scenarios;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IMap;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Maps;
 
 public class InstanceMap : Map
 {
+    private readonly IConfiguration _configuration;
+    private readonly WorldStateManager _worldStateManager;
+    private readonly WorldManager _worldManager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly ScriptManager _scriptManager;
+    private readonly InstanceLockManager _instanceLockManager;
+    private readonly CharacterDatabase _characterDatabase;
     private readonly GroupInstanceReference _owningGroupRef = new();
     private DateTime? _instanceExpireEvent;
 
-    public InstanceMap(uint id, long expiry, uint InstanceId, Difficulty spawnMode, int instanceTeam, InstanceLock instanceLock) : base(id, expiry, InstanceId, spawnMode)
+    public InstanceMap(uint id, long expiry, uint instanceId, Difficulty spawnMode, int instanceTeam, InstanceLock instanceLock, ClassFactory classFactory, IConfiguration configuration,
+                       WorldStateManager worldStateManager, WorldManager worldManager, GameObjectManager gameObjectManager, ScriptManager scriptManager, InstanceLockManager instanceLockManager,
+                       CharacterDatabase characterDatabase) 
+        : base(id, expiry, instanceId, spawnMode, classFactory)
     {
+        _configuration = configuration;
+        _worldStateManager = worldStateManager;
+        _worldManager = worldManager;
+        _gameObjectManager = gameObjectManager;
+        _scriptManager = scriptManager;
+        _instanceLockManager = instanceLockManager;
+        _characterDatabase = characterDatabase;
         InstanceLock = instanceLock;
-
+        
         //lets initialize visibility distance for dungeons
         InitVisibilityDistance();
 
         // the timer is started by default, and stopped when the first player joins
         // this make sure it gets unloaded if for some reason no player joins
-        UnloadTimer = Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.MINUTE * Time.IN_MILLISECONDS), 1);
+        UnloadTimer = Math.Max(_configuration.GetDefaultValue("Instance.UnloadDelay", 30u * Time.MINUTE * Time.IN_MILLISECONDS), 1);
 
-        Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, instanceTeam == TeamIds.Alliance ? 1 : 0, false, this);
-        Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, instanceTeam == TeamIds.Horde ? 1 : 0, false, this);
+        _worldStateManager.SetValue(WorldStates.TeamInInstanceAlliance, instanceTeam == TeamIds.Alliance ? 1 : 0, false, this);
+        _worldStateManager.SetValue(WorldStates.TeamInInstanceHorde, instanceTeam == TeamIds.Horde ? 1 : 0, false, this);
 
-        if (InstanceLock != null)
-        {
-            InstanceLock.SetInUse(true);
-            _instanceExpireEvent = InstanceLock.GetExpiryTime(); // ignore extension state for reset event (will ask players to accept extended save on expiration)
-        }
+        if (InstanceLock == null)
+            return;
+
+        InstanceLock.SetInUse(true);
+        _instanceExpireEvent = InstanceLock.GetExpiryTime(); // ignore extension state for reset event (will ask players to accept extended save on expiration)
     }
 
     ~InstanceMap()
@@ -71,17 +94,15 @@ public class InstanceMap : Map
     {
         get
         {
-            if (Global.WorldStateMgr.GetValue(WorldStates.TeamInInstanceAlliance, this) != 0)
+            if (_worldStateManager.GetValue(WorldStates.TeamInInstanceAlliance, this) != 0)
                 return TeamIds.Alliance;
 
-            if (Global.WorldStateMgr.GetValue(WorldStates.TeamInInstanceHorde, this) != 0)
-                return TeamIds.Horde;
-
-            return TeamIds.Neutral;
+            return _worldStateManager.GetValue(WorldStates.TeamInInstanceHorde, this) != 0 ? TeamIds.Horde : TeamIds.Neutral;
         }
     }
 
     public TeamFaction TeamInInstance => TeamIdInInstance == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde;
+
     public override bool AddPlayerToMap(Player player, bool initPlayer = true)
     {
         // increase current instances (hourly limit)
@@ -92,7 +113,7 @@ public class InstanceMap : Map
         if (entries.MapDifficulty.HasResetSchedule() && InstanceLock != null && InstanceLock.GetData().CompletedEncountersMask != 0)
             if (!entries.MapDifficulty.IsUsingEncounterLocks())
             {
-                var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
+                var playerLock = _instanceLockManager.FindActiveInstanceLock(player.GUID, entries);
 
                 if (playerLock == null ||
                     (playerLock.IsExpired() && playerLock.IsExtended()) ||
@@ -158,16 +179,13 @@ public class InstanceMap : Map
         if (!player.IsLoading && IsRaid && InstanceScript != null && InstanceScript.IsEncounterInProgress())
             return new TransferAbortParams(TransferAbortReason.ZoneInCombat);
 
-        if (InstanceLock != null)
-        {
-            // cannot enter if player is permanent saved to a different instance id
-            var lockError = Global.InstanceLockMgr.CanJoinInstanceLock(player.GUID, new MapDb2Entries(Entry, MapDifficulty), InstanceLock);
+        if (InstanceLock == null)
+            return base.CannotEnter(player);
 
-            if (lockError != TransferAbortReason.None)
-                return new TransferAbortParams(lockError);
-        }
+        // cannot enter if player is permanent saved to a different instance id
+        var lockError = _instanceLockManager.CanJoinInstanceLock(player.GUID, new MapDb2Entries(Entry, MapDifficulty), InstanceLock);
 
-        return base.CannotEnter(player);
+        return lockError != TransferAbortReason.None ? new TransferAbortParams(lockError) : base.CannotEnter(player);
     }
 
     public void CreateInstanceData()
@@ -175,12 +193,12 @@ public class InstanceMap : Map
         if (InstanceScript != null)
             return;
 
-        var mInstance = Global.ObjectMgr.GetInstanceTemplate(Id);
+        var mInstance = _gameObjectManager.GetInstanceTemplate(Id);
 
         if (mInstance != null)
         {
             ScriptId = mInstance.ScriptId;
-            InstanceScript = ScriptManager.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), ScriptId, null);
+            InstanceScript = _scriptManager.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), ScriptId, null);
         }
 
         if (InstanceScript == null)
@@ -208,7 +226,7 @@ public class InstanceMap : Map
 
         if (!lockData.Data.IsEmpty())
         {
-            Log.Logger.Debug($"Loading instance data for `{Global.ObjectMgr.GetScriptName(ScriptId)}` with id {InstanceIdInternal}");
+            Log.Logger.Debug($"Loading instance data for `{_gameObjectManager.GetScriptName(ScriptId)}` with id {InstanceIdInternal}");
             InstanceScript.Load(lockData.Data);
         }
         else
@@ -220,27 +238,27 @@ public class InstanceMap : Map
     public void CreateInstanceLockForPlayer(Player player)
     {
         MapDb2Entries entries = new(Entry, MapDifficulty);
-        var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
+        var playerLock = _instanceLockManager.FindActiveInstanceLock(player.GUID, entries);
 
         var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
         SQLTransaction trans = new();
 
-        var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(InstanceId, InstanceScript.GetSaveData(), InstanceLock.GetData().CompletedEncountersMask, null, null));
+        var newLock = _instanceLockManager.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(InstanceId, InstanceScript.GetSaveData(), InstanceLock.GetData().CompletedEncountersMask, null, null));
 
-        DB.Characters.CommitTransaction(trans);
+        _characterDatabase.CommitTransaction(trans);
 
-        if (isNewLock)
+        if (!isNewLock)
+            return;
+
+        InstanceSaveCreated data = new()
         {
-            InstanceSaveCreated data = new()
-            {
-                Gm = player.IsGameMaster
-            };
+            Gm = player.IsGameMaster
+        };
 
-            player.SendPacket(data);
+        player.SendPacket(data);
 
-            player.Session.SendCalendarRaidLockoutAdded(newLock);
-        }
+        player.Session.SendCalendarRaidLockoutAdded(newLock);
     }
 
     public override string GetDebugInfo()
@@ -255,14 +273,14 @@ public class InstanceMap : Map
 
     public string GetScriptName()
     {
-        return Global.ObjectMgr.GetScriptName(ScriptId);
+        return _gameObjectManager.GetScriptName(ScriptId);
     }
 
     public override void InitVisibilityDistance()
     {
         //init visibility distance for instances
-        VisibleDistance = Global.WorldMgr.MaxVisibleDistanceInInstances;
-        VisibilityNotifyPeriod = Global.WorldMgr.VisibilityNotifyPeriodInInstances;
+        VisibleDistance = _worldManager.MaxVisibleDistanceInInstances;
+        VisibilityNotifyPeriod = _worldManager.VisibilityNotifyPeriodInInstances;
     }
     public override void RemovePlayerFromMap(Player player, bool remove)
     {
@@ -272,7 +290,7 @@ public class InstanceMap : Map
 
         // if last player set unload timer
         if (UnloadTimer == 0 && Players.Count == 1)
-            UnloadTimer = InstanceLock != null && InstanceLock.IsExpired() ? 1 : Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.MINUTE * Time.IN_MILLISECONDS), 1);
+            UnloadTimer = InstanceLock != null && InstanceLock.IsExpired() ? 1 : Math.Max(_configuration.GetDefaultValue("Instance.UnloadDelay", 30u * Time.MINUTE * Time.IN_MILLISECONDS), 1);
 
         InstanceScenario?.OnPlayerExit(player);
 
@@ -367,72 +385,72 @@ public class InstanceMap : Map
 
         InstanceScenario?.Update(diff);
 
-        if (_instanceExpireEvent.HasValue && _instanceExpireEvent.Value < GameTime.SystemTime)
-        {
-            Reset(InstanceResetMethod.Expire);
-            _instanceExpireEvent = Global.InstanceLockMgr.GetNextResetTime(new MapDb2Entries(Entry, MapDifficulty));
-        }
+        if (!_instanceExpireEvent.HasValue || _instanceExpireEvent.Value >= GameTime.SystemTime)
+            return;
+
+        Reset(InstanceResetMethod.Expire);
+        _instanceExpireEvent = _instanceLockManager.GetNextResetTime(new MapDb2Entries(Entry, MapDifficulty));
     }
     public void UpdateInstanceLock(UpdateBossStateSaveDataEvent updateSaveDataEvent)
     {
-        if (InstanceLock != null)
+        if (InstanceLock == null)
+            return;
+
+        var instanceCompletedEncounters = InstanceLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
+
+        MapDb2Entries entries = new(Entry, MapDifficulty);
+
+        SQLTransaction trans = new();
+
+        if (entries.IsInstanceIdBound())
+            _instanceLockManager.UpdateSharedInstanceLock(trans,
+                                                          new InstanceLockUpdateEvent(InstanceId,
+                                                                                      InstanceScript.GetSaveData(),
+                                                                                      instanceCompletedEncounters,
+                                                                                      updateSaveDataEvent.DungeonEncounter,
+                                                                                      InstanceScript.GetEntranceLocationForCompletedEncounters(instanceCompletedEncounters)));
+
+        foreach (var player in Players)
         {
-            var instanceCompletedEncounters = InstanceLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
+            // never instance bind GMs with GM mode enabled
+            if (player.IsGameMaster)
+                continue;
 
-            MapDb2Entries entries = new(Entry, MapDifficulty);
+            var playerLock = _instanceLockManager.FindActiveInstanceLock(player.GUID, entries);
+            var oldData = "";
+            uint playerCompletedEncounters = 0;
 
-            SQLTransaction trans = new();
-
-            if (entries.IsInstanceIdBound())
-                Global.InstanceLockMgr.UpdateSharedInstanceLock(trans,
-                                                                new InstanceLockUpdateEvent(InstanceId,
-                                                                                            InstanceScript.GetSaveData(),
-                                                                                            instanceCompletedEncounters,
-                                                                                            updateSaveDataEvent.DungeonEncounter,
-                                                                                            InstanceScript.GetEntranceLocationForCompletedEncounters(instanceCompletedEncounters)));
-
-            foreach (var player in Players)
+            if (playerLock != null)
             {
-                // never instance bind GMs with GM mode enabled
-                if (player.IsGameMaster)
-                    continue;
-
-                var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
-                var oldData = "";
-                uint playerCompletedEncounters = 0;
-
-                if (playerLock != null)
-                {
-                    oldData = playerLock.GetData().Data;
-                    playerCompletedEncounters = playerLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
-                }
-
-                var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
-
-                var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
-                                                                                 player.GUID,
-                                                                                 entries,
-                                                                                 new InstanceLockUpdateEvent(InstanceId,
-                                                                                                             InstanceScript.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
-                                                                                                             instanceCompletedEncounters,
-                                                                                                             updateSaveDataEvent.DungeonEncounter,
-                                                                                                             InstanceScript.GetEntranceLocationForCompletedEncounters(playerCompletedEncounters)));
-
-                if (isNewLock)
-                {
-                    InstanceSaveCreated data = new()
-                    {
-                        Gm = player.IsGameMaster
-                    };
-
-                    player.SendPacket(data);
-
-                    player.Session.SendCalendarRaidLockoutAdded(newLock);
-                }
+                oldData = playerLock.GetData().Data;
+                playerCompletedEncounters = playerLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
             }
 
-            DB.Characters.CommitTransaction(trans);
+            var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
+
+            var newLock = _instanceLockManager.UpdateInstanceLockForPlayer(trans,
+                                                                           player.GUID,
+                                                                           entries,
+                                                                           new InstanceLockUpdateEvent(InstanceId,
+                                                                                                       InstanceScript.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
+                                                                                                       instanceCompletedEncounters,
+                                                                                                       updateSaveDataEvent.DungeonEncounter,
+                                                                                                       InstanceScript.GetEntranceLocationForCompletedEncounters(playerCompletedEncounters)));
+
+            if (!isNewLock)
+                continue;
+
+            InstanceSaveCreated data = new()
+            {
+                Gm = player.IsGameMaster
+            };
+
+            player.SendPacket(data);
+
+            player.Session.SendCalendarRaidLockoutAdded(newLock);
         }
+
+        _characterDatabase.CommitTransaction(trans);
     }
 
     public void UpdateInstanceLock(UpdateAdditionalSaveDataEvent updateSaveDataEvent)
@@ -446,7 +464,7 @@ public class InstanceMap : Map
             SQLTransaction trans = new();
 
             if (entries.IsInstanceIdBound())
-                Global.InstanceLockMgr.UpdateSharedInstanceLock(trans, new InstanceLockUpdateEvent(InstanceId, InstanceScript.GetSaveData(), instanceCompletedEncounters, null, null));
+                _instanceLockManager.UpdateSharedInstanceLock(trans, new InstanceLockUpdateEvent(InstanceId, InstanceScript.GetSaveData(), instanceCompletedEncounters, null, null));
 
             foreach (var player in Players)
             {
@@ -454,7 +472,7 @@ public class InstanceMap : Map
                 if (player.IsGameMaster)
                     continue;
 
-                var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
+                var playerLock = _instanceLockManager.FindActiveInstanceLock(player.GUID, entries);
                 var oldData = "";
 
                 if (playerLock != null)
@@ -462,7 +480,7 @@ public class InstanceMap : Map
 
                 var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
-                var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
+                var newLock = _instanceLockManager.UpdateInstanceLockForPlayer(trans,
                                                                                  player.GUID,
                                                                                  entries,
                                                                                  new InstanceLockUpdateEvent(InstanceId,
@@ -471,20 +489,20 @@ public class InstanceMap : Map
                                                                                                              null,
                                                                                                              null));
 
-                if (isNewLock)
+                if (!isNewLock)
+                    continue;
+
+                InstanceSaveCreated data = new()
                 {
-                    InstanceSaveCreated data = new()
-                    {
-                        Gm = player.IsGameMaster
-                    };
+                    Gm = player.IsGameMaster
+                };
 
-                    player.SendPacket(data);
+                player.SendPacket(data);
 
-                    player.Session.SendCalendarRaidLockoutAdded(newLock);
-                }
+                player.Session.SendCalendarRaidLockoutAdded(newLock);
             }
 
-            DB.Characters.CommitTransaction(trans);
+            _characterDatabase.CommitTransaction(trans);
         }
     }
 }

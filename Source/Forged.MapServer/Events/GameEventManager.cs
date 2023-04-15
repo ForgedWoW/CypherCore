@@ -441,8 +441,8 @@ public class GameEventManager
                     }
 
                     // Log error for pooled object, but still spawn it
-                    if (data.poolId != 0)
-                        Log.Logger.Error($"`game_event_creature`: GameInfo event id ({eventID}) contains creature ({guid}) which is part of a pool ({data.poolId}). This should be spawned in game_event_pool");
+                    if (data.PoolId != 0)
+                        Log.Logger.Error($"`game_event_creature`: GameInfo event id ({eventID}) contains creature ({guid}) which is part of a pool ({data.PoolId}). This should be spawned in game_event_pool");
 
                     GameEventCreatureGuids[internalEventID].Add(guid);
 
@@ -492,8 +492,8 @@ public class GameEventManager
                     }
 
                     // Log error for pooled object, but still spawn it
-                    if (data.poolId != 0)
-                        Log.Logger.Error($"`game_event_gameobject`: GameInfo event id ({eventID}) contains GameInfo object ({guid}) which is part of a pool ({data.poolId}). This should be spawned in game_event_pool");
+                    if (data.PoolId != 0)
+                        Log.Logger.Error($"`game_event_gameobject`: GameInfo event id ({eventID}) contains GameInfo object ({guid}) which is part of a pool ({data.PoolId}). This should be spawned in game_event_pool");
 
                     GameEventGameobjectGuids[internalEventID].Add(guid);
 

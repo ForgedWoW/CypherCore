@@ -10,42 +10,42 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridLoaderBase
 {
-    internal uint i_areaTriggers;
-    internal Cell i_cell;
-    internal uint i_corpses;
-    internal uint i_creatures;
-    internal uint i_gameObjects;
-    internal Grid i_grid;
-    internal Map i_map;
+    internal uint IAreaTriggers;
+    internal Cell ICell;
+    internal uint ICorpses;
+    internal uint ICreatures;
+    internal uint IGameObjects;
+    internal Grid IGrid;
+    internal Map IMap;
     public ObjectGridLoaderBase(Grid grid, Map map, Cell cell)
     {
-        i_cell = new Cell(cell);
-        i_grid = grid;
-        i_map = map;
+        ICell = new Cell(cell);
+        IGrid = grid;
+        IMap = map;
     }
 
     public uint GetLoadedAreaTriggers()
     {
-        return i_areaTriggers;
+        return IAreaTriggers;
     }
 
     public uint GetLoadedCorpses()
     {
-        return i_corpses;
+        return ICorpses;
     }
 
     public uint GetLoadedCreatures()
     {
-        return i_creatures;
+        return ICreatures;
     }
 
     public uint GetLoadedGameObjects()
     {
-        return i_gameObjects;
+        return IGameObjects;
     }
-    internal void LoadHelper<T>(SortedSet<ulong> guid_set, CellCoord cell, ref uint count, Map map, uint phaseId = 0, ObjectGuid? phaseOwner = null) where T : WorldObject, new()
+    internal void LoadHelper<T>(SortedSet<ulong> guidSet, CellCoord cell, ref uint count, Map map, uint phaseId = 0, ObjectGuid? phaseOwner = null) where T : WorldObject, new()
     {
-        foreach (var guid in guid_set)
+        foreach (var guid in guidSet)
         {
             // Don't spawn at all if there's a respawn timer
             if (!map.ShouldBeSpawnedOnGridLoad<T>(guid))

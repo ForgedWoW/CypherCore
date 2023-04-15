@@ -12,7 +12,7 @@ namespace Forged.MapServer.Maps;
 
 public class ZoneScript
 {
-    protected EventMap _events = new();
+    protected EventMap Events = new();
 
     public virtual uint GetCreatureEntry(ulong guidlow, CreatureData data)
     {
@@ -36,7 +36,7 @@ public class ZoneScript
     }
 
     //All-purpose data storage 64 bit
-    public virtual ObjectGuid GetGuidData(uint DataId)
+    public virtual ObjectGuid GetGuidData(uint dataId)
     {
         return ObjectGuid.Empty;
     }
@@ -57,7 +57,7 @@ public class ZoneScript
 
     public virtual void SetData64(uint dataId, ulong value) { }
 
-    public virtual void SetGuidData(uint DataId, ObjectGuid Value) { }
+    public virtual void SetGuidData(uint dataId, ObjectGuid value) { }
 
     public virtual void TriggerGameEvent(uint gameEventId, WorldObject source = null, WorldObject target = null)
     {

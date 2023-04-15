@@ -66,6 +66,7 @@ using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Mails;
+using Forged.MapServer.Maps.Grids;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -426,6 +427,7 @@ void RegisterManagers()
     builder.RegisterType<CommandManager>().SingleInstance();
     builder.RegisterType<ObjectAccessor>().SingleInstance();
     builder.RegisterType<PlayerNameMapHolder>().SingleInstance();
+    builder.RegisterType<GridDefines>().SingleInstance();
 }
 
 void RegisterFactories()

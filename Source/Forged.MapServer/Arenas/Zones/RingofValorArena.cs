@@ -14,7 +14,7 @@ internal class RingofValorArena : Arena
 {
     public RingofValorArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
     {
-        _events = new EventMap();
+        Events = new EventMap();
     }
 
     public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
@@ -43,9 +43,9 @@ internal class RingofValorArena : Arena
         if (Status != BattlegroundStatus.InProgress)
             return;
 
-        _events.Update(diff);
+        Events.Update(diff);
 
-        _events.ExecuteEvents(eventId =>
+        Events.ExecuteEvents(eventId =>
         {
             switch (eventId)
             {
@@ -54,7 +54,7 @@ internal class RingofValorArena : Arena
                     for (byte i = RingofValorObjectTypes.FIRE1; i <= RingofValorObjectTypes.FIREDOOR2; ++i)
                         DoorOpen(i);
 
-                    _events.ScheduleEvent(RingofValorEvents.CLOSE_FIRE, TimeSpan.FromSeconds(5));
+                    Events.ScheduleEvent(RingofValorEvents.CLOSE_FIRE, TimeSpan.FromSeconds(5));
 
                     break;
 
@@ -63,13 +63,13 @@ internal class RingofValorArena : Arena
                         DoorClose(i);
 
                     // Fire got closed after five seconds, leaves twenty seconds before toggling pillars
-                    _events.ScheduleEvent(RingofValorEvents.SWITCH_PILLARS, TimeSpan.FromSeconds(20));
+                    Events.ScheduleEvent(RingofValorEvents.SWITCH_PILLARS, TimeSpan.FromSeconds(20));
 
                     break;
 
                 case RingofValorEvents.SWITCH_PILLARS:
                     TogglePillarCollision(true);
-                    _events.Repeat(TimeSpan.FromSeconds(25));
+                    Events.Repeat(TimeSpan.FromSeconds(25));
 
                     break;
             }
@@ -151,7 +151,7 @@ internal class RingofValorArena : Arena
         DoorOpen(RingofValorObjectTypes.ELEVATOR1);
         DoorOpen(RingofValorObjectTypes.ELEVATOR2);
 
-        _events.ScheduleEvent(RingofValorEvents.OPEN_FENCES, TimeSpan.FromSeconds(20));
+        Events.ScheduleEvent(RingofValorEvents.OPEN_FENCES, TimeSpan.FromSeconds(20));
 
         // Should be false at first, TogglePillarCollision will do it.
         TogglePillarCollision(true);

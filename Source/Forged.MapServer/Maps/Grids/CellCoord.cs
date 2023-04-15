@@ -34,7 +34,7 @@ public class CellCoord : ICoord
         return p2 != null && p1 != null && p1.X == p2.X && p1.Y == p2.Y;
     }
 
-    public void Dec_x(uint val)
+    public void DecX(uint val)
     {
         if (X > val)
             X -= val;
@@ -42,7 +42,7 @@ public class CellCoord : ICoord
             X = 0;
     }
 
-    public void Dec_y(uint val)
+    public void DecY(uint val)
     {
         if (Y > val)
             Y -= val;
@@ -68,7 +68,7 @@ public class CellCoord : ICoord
         return Y * Limit + X;
     }
 
-    public void Inc_x(uint val)
+    public void IncX(uint val)
     {
         if (X + val < Limit)
             X += val;
@@ -76,7 +76,7 @@ public class CellCoord : ICoord
             X = Limit - 1;
     }
 
-    public void Inc_y(uint val)
+    public void IncY(uint val)
     {
         if (Y + val < Limit)
             Y += val;

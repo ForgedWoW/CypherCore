@@ -5,45 +5,34 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class GridInfo
 {
-    private readonly TimeTracker _timer;
-    private readonly PeriodicTimer _visUpdate;
     private ushort _unloadActiveLockCount; // lock from active object spawn points (prevent clone loading)
     private bool _unloadExplicitLock;      // explicit manual lock or config setting
 
     public GridInfo()
     {
-        _timer = new TimeTracker();
-        _visUpdate = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
+        TimeTracker = new TimeTracker();
+        RelocationTimer = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
         _unloadActiveLockCount = 0;
         _unloadExplicitLock = false;
     }
 
     public GridInfo(long expiry, bool unload = true)
     {
-        _timer = new TimeTracker((uint)expiry);
-        _visUpdate = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
+        TimeTracker = new TimeTracker((uint)expiry);
+        RelocationTimer = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
         _unloadActiveLockCount = 0;
         _unloadExplicitLock = !unload;
     }
 
+    public PeriodicTimer RelocationTimer { get; }
+
+    public TimeTracker TimeTracker { get; }
+
+    public bool UnloadLock => _unloadActiveLockCount != 0 || _unloadExplicitLock;
+
     public void DecUnloadActiveLock()
     {
         if (_unloadActiveLockCount != 0) --_unloadActiveLockCount;
-    }
-
-    public PeriodicTimer GetRelocationTimer()
-    {
-        return _visUpdate;
-    }
-
-    public TimeTracker GetTimeTracker()
-    {
-        return _timer;
-    }
-
-    public bool GetUnloadLock()
-    {
-        return _unloadActiveLockCount != 0 || _unloadExplicitLock;
     }
 
     public void IncUnloadActiveLock()
@@ -51,17 +40,8 @@ public class GridInfo
         ++_unloadActiveLockCount;
     }
 
-    public void ResetTimeTracker(long interval)
-    {
-        _timer.Reset((uint)interval);
-    }
-
     public void SetUnloadExplicitLock(bool on)
     {
         _unloadExplicitLock = on;
-    }
-    public void UpdateTimeTracker(long diff)
-    {
-        _timer.Update((uint)diff);
     }
 }

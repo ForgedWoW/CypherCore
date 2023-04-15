@@ -308,7 +308,7 @@ namespace Forged.MapServer.Entities.GameObjects
         private byte GoAnimProgress => GameObjectFieldData.PercentHealth;
 
         private List<ObjectGuid> TapList { get; } = new();
-        //! Object distance/size - overridden from Object._IsWithinDist. Needs to take in account proper GO size.
+        //! Object distance/size - overridden from Object.IsWithinDist. Needs to take in account proper GO size.
         public override bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
         {
             //! Following check does check 3d distance
@@ -805,7 +805,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (goOverride != null)
                 ReplaceAllFlags(goOverride.Flags);
 
-            var poolid = GameObjectData?.poolId ?? 0;
+            var poolid = GameObjectData?.PoolId ?? 0;
 
             if (RespawnCompatibilityMode && poolid != 0)
                 _poolManager.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);
@@ -1272,9 +1272,9 @@ namespace Forged.MapServer.Entities.GameObjects
                 return false;
 
             PhasingHandler.InitDbPhaseShift(Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-            PhasingHandler.InitDbVisibleMapId(Location.PhaseShift, data.terrainSwapMap);
+            PhasingHandler.InitDbVisibleMapId(Location.PhaseShift, data.TerrainSwapMap);
 
-            if (data.spawntimesecs >= 0)
+            if (data.Spawntimesecs >= 0)
             {
                 IsSpawnedByDefault = true;
 
@@ -1286,7 +1286,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 }
                 else
                 {
-                    RespawnDelay = (uint)data.spawntimesecs;
+                    RespawnDelay = (uint)data.Spawntimesecs;
                     RespawnTime = Location.Map.GetGORespawnTime(SpawnId);
 
                     // ready to respawn
@@ -1306,7 +1306,7 @@ namespace Forged.MapServer.Entities.GameObjects
                 }
 
                 IsSpawnedByDefault = false;
-                RespawnDelay = (uint)-data.spawntimesecs;
+                RespawnDelay = (uint)-data.Spawntimesecs;
                 RespawnTime = 0;
             }
 
@@ -1577,7 +1577,7 @@ namespace Forged.MapServer.Entities.GameObjects
             data.MapId = Location.MapId;
             data.SpawnPoint.Relocate(Location);
             data.Rotation = _localRotation;
-            data.spawntimesecs = (int)(IsSpawnedByDefault ? RespawnDelay : -RespawnDelay);
+            data.Spawntimesecs = (int)(IsSpawnedByDefault ? RespawnDelay : -RespawnDelay);
             data.Animprogress = GoAnimProgress;
             data.GoState = GoState;
             data.SpawnDifficulties = spawnDifficulties;
@@ -2144,7 +2144,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 AI?.Reset();
 
                                 // respawn timer
-                                var poolid = GameObjectData?.poolId ?? 0;
+                                var poolid = GameObjectData?.PoolId ?? 0;
 
                                 if (poolid != 0)
                                     _poolManager.UpdatePool<GameObject>(Location.Map.PoolData, poolid, SpawnId);

@@ -16,17 +16,17 @@ public class SpawnData : SpawnMetadata
     public uint PhaseGroup;
     public uint PhaseId;
     public PhaseUseFlagsValues PhaseUseFlags;
-    public uint poolId;
+    public uint PoolId;
     public uint ScriptId;
     public List<Difficulty> SpawnDifficulties;
     public Position SpawnPoint;
-    public int spawntimesecs;
+    public int Spawntimesecs;
     public string StringId;
-    public int terrainSwapMap;
+    public int TerrainSwapMap;
     public SpawnData(SpawnObjectType t) : base(t)
     {
         SpawnPoint = new Position();
-        terrainSwapMap = -1;
+        TerrainSwapMap = -1;
         SpawnDifficulties = new List<Difficulty>();
     }
 

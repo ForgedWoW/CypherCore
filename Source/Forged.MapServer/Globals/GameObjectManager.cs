@@ -3120,7 +3120,7 @@ public sealed class GameObjectManager
                 SpawnPoint = new Position(result.Read<float>(3), result.Read<float>(4), result.Read<float>(5), result.Read<float>(6)),
                 Displayid = result.Read<uint>(7),
                 EquipmentId = result.Read<sbyte>(8),
-                spawntimesecs = result.Read<int>(9),
+                Spawntimesecs = result.Read<int>(9),
                 WanderDistance = result.Read<float>(10),
                 Currentwaypoint = result.Read<uint>(11),
                 Curhealth = result.Read<uint>(12),
@@ -3130,7 +3130,7 @@ public sealed class GameObjectManager
 
             data.SpawnDifficulties = ParseSpawnDifficulties(result.Read<string>(15), "creature", guid, data.MapId, spawnMasks.LookupByKey(data.MapId));
             var gameEvent = result.Read<short>(16);
-            data.poolId = result.Read<uint>(17);
+            data.PoolId = result.Read<uint>(17);
             data.Npcflag = result.Read<ulong>(18);
             data.UnitFlags = result.Read<uint>(19);
             data.UnitFlags2 = result.Read<uint>(20);
@@ -3139,7 +3139,7 @@ public sealed class GameObjectManager
             data.PhaseUseFlags = (PhaseUseFlagsValues)result.Read<byte>(23);
             data.PhaseId = result.Read<uint>(24);
             data.PhaseGroup = result.Read<uint>(25);
-            data.terrainSwapMap = result.Read<int>(26);
+            data.TerrainSwapMap = result.Read<int>(26);
 
             var scriptId = result.Read<string>(27);
 
@@ -3248,17 +3248,17 @@ public sealed class GameObjectManager
                     data.PhaseGroup = 0;
                 }
 
-            if (data.terrainSwapMap != -1)
+            if (data.TerrainSwapMap != -1)
             {
-                if (!_cliDB.MapStorage.TryGetValue((uint)data.terrainSwapMap, out var terrainSwapEntry))
+                if (!_cliDB.MapStorage.TryGetValue((uint)data.TerrainSwapMap, out var terrainSwapEntry))
                 {
-                    Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} does not exist, set to -1", guid, data.Id, data.terrainSwapMap);
-                    data.terrainSwapMap = -1;
+                    Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} does not exist, set to -1", guid, data.Id, data.TerrainSwapMap);
+                    data.TerrainSwapMap = -1;
                 }
                 else if (terrainSwapEntry.ParentMapID != data.MapId)
                 {
-                    Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} which cannot be used on spawn map, set to -1", guid, data.Id, data.terrainSwapMap);
-                    data.terrainSwapMap = -1;
+                    Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} which cannot be used on spawn map, set to -1", guid, data.Id, data.TerrainSwapMap);
+                    data.TerrainSwapMap = -1;
                 }
             }
 
@@ -3294,7 +3294,7 @@ public sealed class GameObjectManager
 
             if (_configuration.GetDefaultValue("Calculate.Creature.Zone.Area.Data", false))
             {
-                PhasingHandler.InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
+                PhasingHandler.InitDbVisibleMapId(phaseShift, data.TerrainSwapMap);
                 _terrainManager.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
 
                 var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_ZONE_AREA_DATA);
@@ -4546,7 +4546,7 @@ public sealed class GameObjectManager
                     Z = result.Read<float>(9),
                     W = result.Read<float>(10)
                 },
-                spawntimesecs = result.Read<int>(11)
+                Spawntimesecs = result.Read<int>(11)
             };
 
             data.SpawnGroupData = IsTransportMap(data.MapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
@@ -4558,7 +4558,7 @@ public sealed class GameObjectManager
                 continue;
             }
 
-            if (data.spawntimesecs == 0 && gInfo.IsDespawnAtAction())
+            if (data.Spawntimesecs == 0 && gInfo.IsDespawnAtAction())
                 Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.", guid, data.Id);
 
             data.Animprogress = result.Read<uint>(12);
@@ -4586,7 +4586,7 @@ public sealed class GameObjectManager
             }
 
             short gameEvent = result.Read<sbyte>(15);
-            data.poolId = result.Read<uint>(16);
+            data.PoolId = result.Read<uint>(16);
             data.PhaseUseFlags = (PhaseUseFlagsValues)result.Read<byte>(17);
             data.PhaseId = result.Read<uint>(18);
             data.PhaseGroup = result.Read<uint>(19);
@@ -4627,19 +4627,19 @@ public sealed class GameObjectManager
                     data.PhaseGroup = 0;
                 }
 
-            data.terrainSwapMap = result.Read<int>(20);
+            data.TerrainSwapMap = result.Read<int>(20);
 
-            if (data.terrainSwapMap != -1)
+            if (data.TerrainSwapMap != -1)
             {
-                if (!_cliDB.MapStorage.TryGetValue((uint)data.terrainSwapMap, out var terrainSwapEntry))
+                if (!_cliDB.MapStorage.TryGetValue((uint)data.TerrainSwapMap, out var terrainSwapEntry))
                 {
-                    Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} does not exist, set to -1", guid, data.Id, data.terrainSwapMap);
-                    data.terrainSwapMap = -1;
+                    Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} does not exist, set to -1", guid, data.Id, data.TerrainSwapMap);
+                    data.TerrainSwapMap = -1;
                 }
                 else if (terrainSwapEntry.ParentMapID != data.MapId)
                 {
-                    Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} which cannot be used on spawn map, set to -1", guid, data.Id, data.terrainSwapMap);
-                    data.terrainSwapMap = -1;
+                    Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} which cannot be used on spawn map, set to -1", guid, data.Id, data.TerrainSwapMap);
+                    data.TerrainSwapMap = -1;
                 }
             }
 
@@ -4688,7 +4688,7 @@ public sealed class GameObjectManager
 
             if (_configuration.GetDefaultValue("Calculate.Gameoject.Zone.Area.Data", false))
             {
-                PhasingHandler.InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
+                PhasingHandler.InitDbVisibleMapId(phaseShift, data.TerrainSwapMap);
                 _terrainManager.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
 
                 var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.UPD_GAMEOBJECT_ZONE_AREA_DATA);

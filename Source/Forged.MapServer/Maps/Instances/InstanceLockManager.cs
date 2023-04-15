@@ -81,14 +81,14 @@ public class InstanceLockManager
                                                   (Difficulty)entries.MapDifficulty.DifficultyID,
                                                   GetNextResetTime(entries),
                                                   0,
-                                                  sharedData);
+                                                  sharedData, this);
         }
         else
         {
             instanceLock = new InstanceLock(entries.MapDifficulty.MapID,
                                             (Difficulty)entries.MapDifficulty.DifficultyID,
                                             GetNextResetTime(entries),
-                                            0);
+                                            0, this);
         }
 
         if (!_temporaryInstanceLocksByPlayer.ContainsKey(playerGuid))
@@ -239,12 +239,12 @@ public class InstanceLockManager
                         continue;
                     }
 
-                    instanceLock = new SharedInstanceLock(mapId, difficulty, expiryTime, instanceId, sharedData);
+                    instanceLock = new SharedInstanceLock(mapId, difficulty, expiryTime, instanceId, sharedData, this);
                     _instanceLockDataById[instanceId] = sharedData;
                 }
                 else
                 {
-                    instanceLock = new InstanceLock(mapId, difficulty, expiryTime, instanceId);
+                    instanceLock = new InstanceLock(mapId, difficulty, expiryTime, instanceId, this);
                 }
 
                 instanceLock.GetData().Data = lockResult.Read<string>(5);
@@ -364,7 +364,7 @@ public class InstanceLockManager
                 // player can still change his mind, exit instance and reactivate old lock
                 var playerLocks = _temporaryInstanceLocksByPlayer.LookupByKey(playerGuid);
 
-                if (playerLocks?.TryGetValue(entries.GetKey(), out var playerInstanceLock))
+                if (playerLocks?.TryGetValue(entries.GetKey(), out var playerInstanceLock) == true)
                 {
                     instanceLock = playerInstanceLock;
                     _instanceLocksByPlayer[playerGuid][entries.GetKey()] = instanceLock;
@@ -389,14 +389,14 @@ public class InstanceLockManager
                                                       (Difficulty)entries.MapDifficulty.DifficultyID,
                                                       GetNextResetTime(entries),
                                                       updateEvent.InstanceId,
-                                                      sharedDataItr);
+                                                      sharedDataItr, this);
             }
             else
             {
                 instanceLock = new InstanceLock(entries.MapDifficulty.MapID,
                                                 (Difficulty)entries.MapDifficulty.DifficultyID,
                                                 GetNextResetTime(entries),
-                                                updateEvent.InstanceId);
+                                                updateEvent.InstanceId, this);
             }
 
             lock (_lockObject)

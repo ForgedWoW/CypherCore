@@ -5,9 +5,9 @@ namespace Forged.MapServer.Maps.Instances;
 
 internal class MinionInfo
 {
-    public MinionInfo(BossInfo _bossInfo)
+    public MinionInfo(BossInfo bossInfo)
     {
-        BossInfo = _bossInfo;
+        BossInfo = bossInfo;
     }
 
     public BossInfo BossInfo { get; set; }

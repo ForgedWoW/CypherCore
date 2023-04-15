@@ -21,22 +21,22 @@ public class LocalizedDo : IDoWork<Player>
 
     public void Invoke(Player player)
     {
-        var loc_idx = player.Session.SessionDbLocaleIndex;
-        var cache_idx = (int)loc_idx + 1;
+        var locIdx = player.Session.SessionDbLocaleIndex;
+        var cacheIdx = (int)locIdx + 1;
         IDoWork<Player> action;
 
         // create if not cached yet
-        if (_localizedCache.Length < cache_idx + 1 || _localizedCache[cache_idx] == null)
+        if (_localizedCache.Length < cacheIdx + 1 || _localizedCache[cacheIdx] == null)
         {
-            if (_localizedCache.Length < cache_idx + 1)
-                Array.Resize(ref _localizedCache, cache_idx + 1);
+            if (_localizedCache.Length < cacheIdx + 1)
+                Array.Resize(ref _localizedCache, cacheIdx + 1);
 
-            action = _localizer.Invoke(loc_idx);
-            _localizedCache[cache_idx] = action;
+            action = _localizer.Invoke(locIdx);
+            _localizedCache[cacheIdx] = action;
         }
         else
         {
-            action = _localizedCache[cache_idx];
+            action = _localizedCache[cacheIdx];
         }
 
         action.Invoke(player);

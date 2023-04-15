@@ -66,23 +66,23 @@ public class Cell
         return left.Data.Cellx == right.Data.Cellx && left.Data.Celly == right.Data.Celly && left.Data.Gridx == right.Data.Gridx && left.Data.Gridy == right.Data.Gridy;
     }
 
-    public static void VisitGrid(WorldObject center_obj, IGridNotifier visitor, float radius, bool dont_load = true)
+    public static void VisitGrid(WorldObject centerObj, IGridNotifier visitor, float radius, bool dontLoad = true)
     {
-        var p = GridDefines.ComputeCellCoord(center_obj.Location.X, center_obj.Location.Y);
+        var p = GridDefines.ComputeCellCoord(centerObj.Location.X, centerObj.Location.Y);
         Cell cell = new(p);
 
-        if (dont_load)
+        if (dontLoad)
             cell.SetNoCreate();
 
-        cell.Visit(p, visitor, center_obj.Location.Map, center_obj, radius);
+        cell.Visit(p, visitor, centerObj.Location.Map, centerObj, radius);
     }
 
-    public static void VisitGrid(float x, float y, Map map, IGridNotifier visitor, float radius, bool dont_load = true)
+    public static void VisitGrid(float x, float y, Map map, IGridNotifier visitor, float radius, bool dontLoad = true)
     {
         var p = GridDefines.ComputeCellCoord(x, y);
         Cell cell = new(p);
 
-        if (dont_load)
+        if (dontLoad)
             cell.SetNoCreate();
 
         cell.Visit(p, visitor, map, x, y, radius);
@@ -158,16 +158,16 @@ public class Cell
     {
         return $"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
     }
-    public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, WorldObject obj, float radius)
+    public void Visit(CellCoord standingCell, IGridNotifier visitor, Map map, WorldObject obj, float radius)
     {
         //we should increase search radius by object's radius, otherwise
         //we could have problems with huge creatures, which won't attack nearest players etc
-        Visit(standing_cell, visitor, map, obj.Location.X, obj.Location.Y, radius + obj.CombatReach);
+        Visit(standingCell, visitor, map, obj.Location.X, obj.Location.Y, radius + obj.CombatReach);
     }
 
-    public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, float x_off, float y_off, float radius)
+    public void Visit(CellCoord standingCell, IGridNotifier visitor, Map map, float xOff, float yOff, float radius)
     {
-        if (!standing_cell.IsCoordValid())
+        if (!standingCell.IsCoordValid())
             return;
 
         //no jokes here... Actually placing ASSERT() here was good idea, but
@@ -185,7 +185,7 @@ public class Cell
             radius = MapConst.SizeofGrids;
 
         //lets calculate object coord offsets from cell borders.
-        var area = CalculateCellArea(x_off, y_off, radius);
+        var area = CalculateCellArea(xOff, yOff, radius);
 
         //if radius fits inside standing cell
         if (area == null)
@@ -218,64 +218,64 @@ public class Cell
                 CellCoord cellCoord = new(x, y);
 
                 //lets skip standing cell since we already visited it
-                if (cellCoord != standing_cell)
+                if (cellCoord != standingCell)
                 {
-                    Cell r_zone = new(cellCoord);
-                    r_zone.Data.NoCreate = Data.NoCreate;
-                    map.Visit(r_zone, visitor);
+                    Cell rZone = new(cellCoord);
+                    rZone.Data.NoCreate = Data.NoCreate;
+                    map.Visit(rZone, visitor);
                 }
             }
         }
     }
-    private void VisitCircle(IGridNotifier visitor, Map map, ICoord begin_cell, ICoord end_cell)
+    private void VisitCircle(IGridNotifier visitor, Map map, ICoord beginCell, ICoord endCell)
     {
         //here is an algorithm for 'filling' circum-squared octagon
-        var x_shift = (uint)Math.Ceiling((end_cell.X - begin_cell.X) * 0.3f - 0.5f);
+        var xShift = (uint)Math.Ceiling((endCell.X - beginCell.X) * 0.3f - 0.5f);
         //lets calculate x_start/x_end coords for central strip...
-        var x_start = begin_cell.X + x_shift;
-        var x_end = end_cell.X - x_shift;
+        var xStart = beginCell.X + xShift;
+        var xEnd = endCell.X - xShift;
 
         //visit central strip with constant width...
-        for (var x = x_start; x <= x_end; ++x)
+        for (var x = xStart; x <= xEnd; ++x)
         {
-            for (var y = begin_cell.Y; y <= end_cell.Y; ++y)
+            for (var y = beginCell.Y; y <= endCell.Y; ++y)
             {
                 CellCoord cellCoord = new(x, y);
-                Cell r_zone = new(cellCoord);
-                r_zone.Data.NoCreate = Data.NoCreate;
-                map.Visit(r_zone, visitor);
+                Cell rZone = new(cellCoord);
+                rZone.Data.NoCreate = Data.NoCreate;
+                map.Visit(rZone, visitor);
             }
         }
 
         //if x_shift == 0 then we have too small cell area, which were already
         //visited at previous step, so just return from procedure...
-        if (x_shift == 0)
+        if (xShift == 0)
             return;
 
-        var y_start = end_cell.Y;
-        var y_end = begin_cell.Y;
+        var yStart = endCell.Y;
+        var yEnd = beginCell.Y;
 
         //now we are visiting borders of an octagon...
-        for (uint step = 1; step <= x_start - begin_cell.X; ++step)
+        for (uint step = 1; step <= xStart - beginCell.X; ++step)
         {
             //each step reduces strip height by 2 cells...
-            y_end += 1;
-            y_start -= 1;
+            yEnd += 1;
+            yStart -= 1;
 
-            for (var y = y_start; y >= y_end; --y)
+            for (var y = yStart; y >= yEnd; --y)
             {
                 //we visit cells symmetrically from both sides, heading from center to sides and from up to bottom
                 //e.g. filling 2 trapezoids after filling central cell strip...
-                CellCoord cellCoord_left = new(x_start - step, y);
-                Cell r_zone_left = new(cellCoord_left);
-                r_zone_left.Data.NoCreate = Data.NoCreate;
-                map.Visit(r_zone_left, visitor);
+                CellCoord cellCoordLeft = new(xStart - step, y);
+                Cell rZoneLeft = new(cellCoordLeft);
+                rZoneLeft.Data.NoCreate = Data.NoCreate;
+                map.Visit(rZoneLeft, visitor);
 
                 //right trapezoid cell visit
-                CellCoord cellCoord_right = new(x_end + step, y);
-                Cell r_zone_right = new(cellCoord_right);
-                r_zone_right.Data.NoCreate = Data.NoCreate;
-                map.Visit(r_zone_right, visitor);
+                CellCoord cellCoordRight = new(xEnd + step, y);
+                Cell rZoneRight = new(cellCoordRight);
+                rZoneRight.Data.NoCreate = Data.NoCreate;
+                map.Visit(rZoneRight, visitor);
             }
         }
     }

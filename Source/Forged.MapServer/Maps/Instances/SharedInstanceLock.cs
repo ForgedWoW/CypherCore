@@ -15,7 +15,7 @@ internal class SharedInstanceLock : InstanceLock
     /// </summary>
     private readonly SharedInstanceLockData _sharedData;
 
-    public SharedInstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, SharedInstanceLockData sharedData) : base(mapId, difficultyId, expiryTime, instanceId)
+    public SharedInstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, SharedInstanceLockData sharedData, InstanceLockManager instanceLockManager) : base(mapId, difficultyId, expiryTime, instanceId, instanceLockManager)
     {
         _sharedData = sharedData;
     }

@@ -5,35 +5,35 @@ namespace Forged.MapServer.Maps.Instances;
 
 public class PersistentInstanceScriptValueBase
 {
-    protected InstanceScript _instance;
-    protected string _name;
-    protected object _value;
+    protected InstanceScript Instance;
+    protected string Name;
+    protected object Value;
 
     protected PersistentInstanceScriptValueBase(InstanceScript instance, string name, object value)
     {
-        _instance = instance;
-        _name = name;
-        _value = value;
+        Instance = instance;
+        Name = name;
+        Value = value;
 
-        _instance.RegisterPersistentScriptValue(this);
+        Instance.RegisterPersistentScriptValue(this);
     }
 
     public UpdateAdditionalSaveDataEvent CreateEvent()
     {
-        return new UpdateAdditionalSaveDataEvent(_name, _value);
+        return new UpdateAdditionalSaveDataEvent(Name, Value);
     }
 
     public string GetName()
     {
-        return _name;
+        return Name;
     }
     public void LoadValue(long value)
     {
-        _value = value;
+        Value = value;
     }
 
     public void LoadValue(double value)
     {
-        _value = value;
+        Value = value;
     }
 }

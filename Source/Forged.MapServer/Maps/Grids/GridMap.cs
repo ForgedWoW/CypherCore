@@ -15,6 +15,8 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class GridMap
 {
+    private readonly CliDB _cliDB;
+    private readonly GridDefines _gridDefines;
     private uint _flags;
     private ushort _gridArea;
     private Func<float, float, float> _gridGetHeight;
@@ -34,8 +36,10 @@ public class GridMap
     private byte _liquidOffY;
     private byte _liquidWidth;
     private Plane[] _minHeightPlanes;
-    public GridMap()
+    public GridMap(CliDB cliDB, GridDefines gridDefines)
     {
+        _cliDB = cliDB;
+        _gridDefines = gridDefines;
         // Height level data
         _gridHeight = MapConst.InvalidHeight;
         _gridGetHeight = GetHeightFromFlat;
@@ -109,26 +113,26 @@ public class GridMap
         var idx = (xInt >> 3) * 16 + (yInt >> 3);
         var type = _liquidFlags != null ? (LiquidHeaderTypeFlags)_liquidFlags[idx] : _liquidGlobalFlags;
         uint entry = _liquidEntry != null ? _liquidEntry[idx] : _liquidGlobalEntry;
-        if (CliDB.LiquidTypeStorage.TryGetValue(entry, out var liquidEntry))
+        if (_cliDB.LiquidTypeStorage.TryGetValue(entry, out var liquidEntry))
         {
             type &= LiquidHeaderTypeFlags.DarkWater;
             uint liqTypeIdx = liquidEntry.SoundBank;
 
             if (entry < 21)
             {
-                if (CliDB.AreaTableStorage.TryGetValue(GetArea(x, y), out var area))
+                if (_cliDB.AreaTableStorage.TryGetValue(GetArea(x, y), out var area))
                 {
                     uint overrideLiquid = area.LiquidTypeID[liquidEntry.SoundBank];
 
                     if (overrideLiquid == 0 && area.ParentAreaID == 0)
                     {
-                        area = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
+                        area = _cliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
 
                         if (area != null)
                             overrideLiquid = area.LiquidTypeID[liquidEntry.SoundBank];
                     }
 
-                    if (CliDB.LiquidTypeStorage.TryGetValue(overrideLiquid, out var liq))
+                    if (_cliDB.LiquidTypeStorage.TryGetValue(overrideLiquid, out var liq))
                     {
                         entry = overrideLiquid;
                         liqTypeIdx = liq.SoundBank;
@@ -198,7 +202,7 @@ public class GridMap
         if (_minHeightPlanes == null)
             return -500.0f;
 
-        var gridCoord = GridDefines.ComputeGridCoordSimple(x, y);
+        var gridCoord = _gridDefines.ComputeGridCoordSimple(x, y);
 
         var doubleGridX = (int)Math.Floor(-(x - MapConst.MapHalfSize) / MapConst.CenterGridOffset);
         var doubleGridY = (int)Math.Floor(-(y - MapConst.MapHalfSize) / MapConst.CenterGridOffset);
@@ -269,14 +273,13 @@ public class GridMap
             return LoadResult.ReadFromFileFailed;
         }
 
-        if (header.HolesSize != 0 && !LoadHolesData(reader, header.HolesOffset))
-        {
-            Log.Logger.Error("Error loading map holes data");
+        if (header.HolesSize == 0 || LoadHolesData(reader, header.HolesOffset))
+            return LoadResult.Success;
 
-            return LoadResult.ReadFromFileFailed;
-        }
+        Log.Logger.Error("Error loading map holes data");
 
-        return LoadResult.Success;
+        return LoadResult.ReadFromFileFailed;
+
     }
 
     public void UnloadData()
@@ -383,13 +386,15 @@ public class GridMap
         if (IsHole(xInt, yInt))
             return MapConst.InvalidHeight;
 
-        int a, b, c;
-
         unsafe
         {
             fixed (ushort* v9 = Uint16V9)
             {
                 var v9H1Ptr = &v9[xInt * 128 + xInt + yInt];
+
+                int a;
+                int b;
+                int c;
 
                 if (x + y < 1)
                 {
@@ -462,13 +467,13 @@ public class GridMap
         if (IsHole(xInt, yInt))
             return MapConst.InvalidHeight;
 
-        int a, b, c;
-
+        
         unsafe
         {
             fixed (byte* v9 = UbyteV9)
             {
                 var v9H1Ptr = &v9[xInt * 128 + xInt + yInt];
+                int a, b, c;
 
                 if (x + y < 1)
                 {
@@ -593,94 +598,94 @@ public class GridMap
             _gridGetHeight = GetHeightFromFlat;
         }
 
-        if (mapHeader.Flags.HasAnyFlag(HeightHeaderFlags.HasFlightBounds))
+        if (!mapHeader.Flags.HasAnyFlag(HeightHeaderFlags.HasFlightBounds))
+            return true;
+
+        reader.ReadArray<short>(3 * 3);
+        var minHeights = reader.ReadArray<short>(3 * 3);
+
+        uint[][] indices =
         {
-            reader.ReadArray<short>(3 * 3);
-            var minHeights = reader.ReadArray<short>(3 * 3);
-
-            uint[][] indices =
+            new uint[]
             {
-                new uint[]
-                {
-                    3, 0, 4
-                },
-                new uint[]
-                {
-                    0, 1, 4
-                },
-                new uint[]
-                {
-                    1, 2, 4
-                },
-                new uint[]
-                {
-                    2, 5, 4
-                },
-                new uint[]
-                {
-                    5, 8, 4
-                },
-                new uint[]
-                {
-                    8, 7, 4
-                },
-                new uint[]
-                {
-                    7, 6, 4
-                },
-                new uint[]
-                {
-                    6, 3, 4
-                }
-            };
-
-            float[][] boundGridCoords =
+                3, 0, 4
+            },
+            new uint[]
             {
-                new[]
-                {
-                    0.0f, 0.0f
-                },
-                new[]
-                {
-                    0.0f, -266.66666f
-                },
-                new[]
-                {
-                    0.0f, -533.33331f
-                },
-                new[]
-                {
-                    -266.66666f, 0.0f
-                },
-                new[]
-                {
-                    -266.66666f, -266.66666f
-                },
-                new[]
-                {
-                    -266.66666f, -533.33331f
-                },
-                new[]
-                {
-                    -533.33331f, 0.0f
-                },
-                new[]
-                {
-                    -533.33331f, -266.66666f
-                },
-                new[]
-                {
-                    -533.33331f, -533.33331f
-                }
-            };
+                0, 1, 4
+            },
+            new uint[]
+            {
+                1, 2, 4
+            },
+            new uint[]
+            {
+                2, 5, 4
+            },
+            new uint[]
+            {
+                5, 8, 4
+            },
+            new uint[]
+            {
+                8, 7, 4
+            },
+            new uint[]
+            {
+                7, 6, 4
+            },
+            new uint[]
+            {
+                6, 3, 4
+            }
+        };
 
-            _minHeightPlanes = new Plane[8];
+        float[][] boundGridCoords =
+        {
+            new[]
+            {
+                0.0f, 0.0f
+            },
+            new[]
+            {
+                0.0f, -266.66666f
+            },
+            new[]
+            {
+                0.0f, -533.33331f
+            },
+            new[]
+            {
+                -266.66666f, 0.0f
+            },
+            new[]
+            {
+                -266.66666f, -266.66666f
+            },
+            new[]
+            {
+                -266.66666f, -533.33331f
+            },
+            new[]
+            {
+                -533.33331f, 0.0f
+            },
+            new[]
+            {
+                -533.33331f, -266.66666f
+            },
+            new[]
+            {
+                -533.33331f, -533.33331f
+            }
+        };
 
-            for (uint quarterIndex = 0; quarterIndex < 8; ++quarterIndex)
-                _minHeightPlanes[quarterIndex] = Plane.CreateFromVertices(new Vector3(boundGridCoords[indices[quarterIndex][0]][0], boundGridCoords[indices[quarterIndex][0]][1], minHeights[indices[quarterIndex][0]]),
-                                                                          new Vector3(boundGridCoords[indices[quarterIndex][1]][0], boundGridCoords[indices[quarterIndex][1]][1], minHeights[indices[quarterIndex][1]]),
-                                                                          new Vector3(boundGridCoords[indices[quarterIndex][2]][0], boundGridCoords[indices[quarterIndex][2]][1], minHeights[indices[quarterIndex][2]]));
-        }
+        _minHeightPlanes = new Plane[8];
+
+        for (uint quarterIndex = 0; quarterIndex < 8; ++quarterIndex)
+            _minHeightPlanes[quarterIndex] = Plane.CreateFromVertices(new Vector3(boundGridCoords[indices[quarterIndex][0]][0], boundGridCoords[indices[quarterIndex][0]][1], minHeights[indices[quarterIndex][0]]),
+                                                                      new Vector3(boundGridCoords[indices[quarterIndex][1]][0], boundGridCoords[indices[quarterIndex][1]][1], minHeights[indices[quarterIndex][1]]),
+                                                                      new Vector3(boundGridCoords[indices[quarterIndex][2]][0], boundGridCoords[indices[quarterIndex][2]][1], minHeights[indices[quarterIndex][2]]));
 
         return true;
     }

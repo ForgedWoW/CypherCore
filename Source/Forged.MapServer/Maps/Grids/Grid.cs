@@ -69,9 +69,9 @@ public class Grid
         {
             case GridState.Active:
                 // Only check grid activity every (grid_expiry/10) ms, because it's really useless to do it every cycle
-                GridInformation.UpdateTimeTracker(diff);
+                GridInformation.TimeTracker.Update(diff);
 
-                if (GridInformation.GetTimeTracker().Passed)
+                if (GridInformation.TimeTracker.Passed)
                 {
                     if (GetWorldObjectCountInNGrid<Player>() == 0 && !map.ActiveObjectsNearGrid(this))
                     {
@@ -104,11 +104,11 @@ public class Grid
                 break;
 
             case GridState.Removal:
-                if (!GridInformation.GetUnloadLock())
+                if (!GridInformation.UnloadLock)
                 {
-                    GridInformation.UpdateTimeTracker(diff);
+                    GridInformation.TimeTracker.Update(diff);
 
-                    if (GridInformation.GetTimeTracker().Passed)
+                    if (GridInformation.TimeTracker.Passed)
                         if (!map.UnloadGrid(this, false))
                         {
                             Log.Logger.Debug("Grid[{0}, {1}] for map {2} differed unloading due to players or active objects nearby",

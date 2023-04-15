@@ -207,7 +207,7 @@ public class Transport : GameObject, ITransport
         }
 
         PhasingHandler.InitDbPhaseShift(creature.Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-        PhasingHandler.InitDbVisibleMapId(creature.Location.PhaseShift, data.terrainSwapMap);
+        PhasingHandler.InitDbVisibleMapId(creature.Location.PhaseShift, data.TerrainSwapMap);
 
         if (!map.AddToMap(creature))
             return null;
@@ -605,7 +605,7 @@ public class Transport : GameObject, ITransport
         }
 
         PhasingHandler.InitDbPhaseShift(go.Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-        PhasingHandler.InitDbVisibleMapId(go.Location.PhaseShift, data.terrainSwapMap);
+        PhasingHandler.InitDbVisibleMapId(go.Location.PhaseShift, data.TerrainSwapMap);
 
         if (!map.AddToMap(go))
             return null;

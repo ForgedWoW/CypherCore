@@ -10,11 +10,11 @@ public class DoorData
     public DoorData(uint entry, uint bossid, DoorType doorType)
     {
         Entry = entry;
-        bossId = bossid;
+        BossId = bossid;
         Type = doorType;
     }
 
-    public uint bossId { get; set; }
+    public uint BossId { get; set; }
     public uint Entry { get; set; }
     public DoorType Type { get; set; }
 }

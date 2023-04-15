@@ -9,7 +9,7 @@ internal class PersistentInstanceScriptValue<T> : PersistentInstanceScriptValueB
 
     public PersistentInstanceScriptValue<T> SetValue(T value)
     {
-        _value = value;
+        Value = value;
         NotifyValueChanged();
 
         return this;
@@ -17,11 +17,11 @@ internal class PersistentInstanceScriptValue<T> : PersistentInstanceScriptValueB
 
     private void LoadValue(T value)
     {
-        _value = value;
+        Value = value;
     }
 
     private void NotifyValueChanged()
     {
-        _instance.Instance.UpdateInstanceLock(CreateEvent());
+        Instance.Instance.UpdateInstanceLock(CreateEvent());
     }
 }

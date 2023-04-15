@@ -115,7 +115,7 @@ public class WorldLocation : Position
         return a != null && b != null && a.Location.InSamePhase(b);
     }
 
-    public virtual bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
+    public virtual bool IsWithinDist(WorldObject obj, float dist2Compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
     {
         float sizefactor = 0;
         sizefactor += incOwnRadius ? _worldObject.CombatReach : 0.0f;
@@ -219,30 +219,29 @@ public class WorldLocation : Position
     {
         var map = Map;
 
-        if (map != null)
-        {
-            var instanceMap = map.ToInstanceMap;
+        if (map == null)
+            return null;
 
-            if (instanceMap != null)
-                return instanceMap.InstanceScript;
+        var instanceMap = map.ToInstanceMap;
 
-            var bgMap = map.ToBattlegroundMap;
+        if (instanceMap != null)
+            return instanceMap.InstanceScript;
 
-            if (bgMap != null)
-                return bgMap.BG;
+        var bgMap = map.ToBattlegroundMap;
 
-            if (!map.IsBattlegroundOrArena)
-            {
-                var bf = _worldObject.BattleFieldManager.GetBattlefieldToZoneId(map, Zone);
+        if (bgMap != null)
+            return bgMap.BG;
 
-                if (bf != null)
-                    return bf;
+        if (map.IsBattlegroundOrArena)
+            return null;
 
-                return _worldObject.OutdoorPvPManager.GetOutdoorPvPToZoneId(map, Zone);
-            }
-        }
+        var bf = _worldObject.BattleFieldManager.GetBattlefieldToZoneId(map, Zone);
 
-        return null;
+        if (bf != null)
+            return bf;
+
+        return _worldObject.OutdoorPvPManager.GetOutdoorPvPToZoneId(map, Zone);
+
     }
 
     public void GetAlliesWithinRange(List<Unit> unitList, float maxSearchRange, bool includeSelf = true)
@@ -687,11 +686,6 @@ public class WorldLocation : Position
         return IsInMap(obj);
     }
 
-    public bool IsWithinDist(WorldObject obj, float dist2Compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
-    {
-        return obj != null && _IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
-    }
-
     public bool IsWithinDist2d(float x, float y, float dist)
     {
         return IsInDist2d(x, y, dist + _worldObject.CombatReach);
@@ -714,7 +708,7 @@ public class WorldLocation : Position
 
     public bool IsWithinDistInMap(WorldObject obj, float dist2Compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
     {
-        return obj != null && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
+        return obj != null && IsInMap(obj) && InSamePhase(obj) && IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
     }
 
     public bool IsWithinLOS(Position pos, LineOfSightChecks checks = LineOfSightChecks.All, ModelIgnoreFlags ignoreFlags = ModelIgnoreFlags.Nothing)

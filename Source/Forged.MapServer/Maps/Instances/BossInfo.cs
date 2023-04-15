@@ -26,6 +26,6 @@ public class BossInfo
     public EncounterState State { get; set; }
     public DungeonEncounterRecord GetDungeonEncounterForDifficulty(Difficulty difficulty)
     {
-        return DungeonEncounters.FirstOrDefault(dungeonEncounter => dungeonEncounter?.DifficultyID == 0 || (Difficulty)dungeonEncounter?.DifficultyID == difficulty);
+        return DungeonEncounters.FirstOrDefault(dungeonEncounter => dungeonEncounter?.DifficultyID != null && (dungeonEncounter?.DifficultyID == 0 || (Difficulty)dungeonEncounter.DifficultyID == difficulty));
     }
 }

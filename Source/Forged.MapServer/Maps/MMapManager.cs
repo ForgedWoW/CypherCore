@@ -34,7 +34,7 @@ public class MMapManager
         if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
             return null;
 
-        return mmap.navMesh;
+        return mmap.NavMesh;
     }
 
     public Detour.dtNavMeshQuery GetNavMeshQuery(uint mapId, uint instanceId)
@@ -42,7 +42,7 @@ public class MMapManager
         if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
             return null;
 
-        return mmap.navMeshQueries.LookupByKey(instanceId);
+        return mmap.NavMeshQueries.LookupByKey(instanceId);
     }
 
     public void Initialize(MultiMap<uint, uint> mapData)
@@ -63,7 +63,7 @@ public class MMapManager
         // check if we already have this tile loaded
         var packedGridPos = PackTileID(x, y);
 
-        if (mmap.loadedTileRefs.ContainsKey(packedGridPos))
+        if (mmap.LoadedTileRefs.ContainsKey(packedGridPos))
             return false;
 
         // load this tile . mmaps/MMMXXYY.mmtile
@@ -83,35 +83,35 @@ public class MMapManager
         using BinaryReader reader = new(new FileStream(fileName, FileMode.Open, FileAccess.Read));
         var fileHeader = reader.Read<MmapTileHeader>();
 
-        if (fileHeader.mmapMagic != MapConst.mmapMagic)
+        if (fileHeader.MMAPMagic != MapConst.mmapMagic)
         {
             Log.Logger.Error("MMAP:loadMap: Bad header in mmap {0:D4}{1:D2}{2:D2}.mmtile", mapId, x, y);
 
             return false;
         }
 
-        if (fileHeader.mmapVersion != MapConst.mmapVersion)
+        if (fileHeader.MMAPVersion != MapConst.mmapVersion)
         {
             Log.Logger.Error("MMAP:loadMap: {0:D4}{1:D2}{2:D2}.mmtile was built with generator v{3}, expected v{4}",
                              mapId,
                              x,
                              y,
-                             fileHeader.mmapVersion,
+                             fileHeader.MMAPVersion,
                              MapConst.mmapVersion);
 
             return false;
         }
 
-        var bytes = reader.ReadBytes((int)fileHeader.size);
+        var bytes = reader.ReadBytes((int)fileHeader.Size);
         Detour.dtRawTileData data = new();
         data.FromBytes(bytes, 0);
 
         ulong tileRef = 0;
 
         // memory allocated for data is now managed by detour, and will be deallocated when the tile is removed
-        if (Detour.dtStatusSucceed(mmap.navMesh.addTile(data, 1, 0, ref tileRef)))
+        if (Detour.dtStatusSucceed(mmap.NavMesh.addTile(data, 1, 0, ref tileRef)))
         {
-            mmap.loadedTileRefs.Add(packedGridPos, tileRef);
+            mmap.LoadedTileRefs.Add(packedGridPos, tileRef);
             ++_loadedTiles;
             Log.Logger.Information("MMAP:loadMap: Loaded mmtile {0:D4}[{1:D2}, {2:D2}]", mapId, x, y);
 
@@ -130,13 +130,13 @@ public class MMapManager
 
         var mmap = _loadedMMaps[mapId];
 
-        if (mmap.navMeshQueries.ContainsKey(instanceId))
+        if (mmap.NavMeshQueries.ContainsKey(instanceId))
             return true;
 
         // allocate mesh query
         Detour.dtNavMeshQuery query = new();
 
-        if (Detour.dtStatusFailed(query.init(mmap.navMesh, 1024)))
+        if (Detour.dtStatusFailed(query.init(mmap.NavMesh, 1024)))
         {
             Log.Logger.Error("MMAP.GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId {0:D4} instanceId {1}", mapId, instanceId);
 
@@ -144,7 +144,7 @@ public class MMapManager
         }
 
         Log.Logger.Debug("MMAP.GetNavMeshQuery: created dtNavMeshQuery for mapId {0:D4} instanceId {1}", mapId, instanceId);
-        mmap.navMeshQueries.Add(instanceId, query);
+        mmap.NavMeshQueries.Add(instanceId, query);
 
         return true;
     }
@@ -158,13 +158,13 @@ public class MMapManager
         // check if we have this tile loaded
         var packedGridPos = PackTileID(x, y);
 
-        if (!mmap.loadedTileRefs.TryGetValue(packedGridPos, out var tileRef))
+        if (!mmap.LoadedTileRefs.TryGetValue(packedGridPos, out var tileRef))
             return false;
 
         // unload, and mark as non loaded
-        if (!Detour.dtStatusFailed(mmap.navMesh.removeTile(tileRef, out _)))
+        if (!Detour.dtStatusFailed(mmap.NavMesh.removeTile(tileRef, out _)))
         {
-            mmap.loadedTileRefs.Remove(packedGridPos);
+            mmap.LoadedTileRefs.Remove(packedGridPos);
             --_loadedTiles;
             Log.Logger.Information("MMAP:unloadMap: Unloaded mmtile {0:D4}[{1:D2}, {2:D2}] from {3:D4}", mapId, x, y, mapId);
 
@@ -187,12 +187,12 @@ public class MMapManager
         // unload all tiles from given map
         var mmap = _loadedMMaps.LookupByKey(mapId);
 
-        foreach (var i in mmap.loadedTileRefs)
+        foreach (var i in mmap.LoadedTileRefs)
         {
             var x = i.Key >> 16;
             var y = i.Key & 0x0000FFFF;
 
-            if (Detour.dtStatusFailed(mmap.navMesh.removeTile(i.Value, out _)))
+            if (Detour.dtStatusFailed(mmap.NavMesh.removeTile(i.Value, out _)))
             {
                 Log.Logger.Error("MMAP:unloadMap: Could not unload {0:D4}{1:D2}{2:D2}.mmtile from navmesh", mapId, x, y);
             }
@@ -220,14 +220,14 @@ public class MMapManager
             return false;
         }
 
-        if (!mmap.navMeshQueries.ContainsKey(instanceId))
+        if (!mmap.NavMeshQueries.ContainsKey(instanceId))
         {
             Log.Logger.Debug("MMAP:unloadMapInstance: Asked to unload not loaded dtNavMeshQuery mapId {0} instanceId {1}", mapId, instanceId);
 
             return false;
         }
 
-        mmap.navMeshQueries.Remove(instanceId);
+        mmap.NavMeshQueries.Remove(instanceId);
         Log.Logger.Information("MMAP:unloadMapInstance: Unloaded mapId {0} instanceId {1}", mapId, instanceId);
 
         return true;
@@ -255,7 +255,7 @@ public class MMapManager
 
         using BinaryReader reader = new(new FileStream(filename, FileMode.Open, FileAccess.Read), Encoding.UTF8);
 
-        Detour.dtNavMeshParams Params = new()
+        Detour.dtNavMeshParams @params = new()
         {
             orig =
             {
@@ -271,7 +271,7 @@ public class MMapManager
 
         Detour.dtNavMesh mesh = new();
 
-        if (Detour.dtStatusFailed(mesh.init(Params)))
+        if (Detour.dtStatusFailed(mesh.init(@params)))
         {
             Log.Logger.Error("MMAP:loadMapData: Failed to initialize dtNavMesh for mmap {0:D4} from file {1}", mapId, filename);
 

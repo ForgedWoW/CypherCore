@@ -6,6 +6,7 @@ using System.Linq;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
 
@@ -13,7 +14,7 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IGridNotifierCreature
 {
-    public PlayerRelocationNotifier(Player player, GridType gridType) : base(player, gridType) { }
+    public PlayerRelocationNotifier(Player player, GridType gridType, ObjectAccessor objectAccessor) : base(player, gridType, objectAccessor) { }
 
     public void Visit(IList<Creature> objs)
     {

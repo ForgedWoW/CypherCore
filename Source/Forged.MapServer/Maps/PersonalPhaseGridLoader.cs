@@ -27,37 +27,37 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
     public void Load(uint phaseId)
     {
         _phaseId = phaseId;
-        i_cell.Data.Celly = 0;
+        ICell.Data.Celly = 0;
 
         for (uint x = 0; x < MapConst.MaxCells; ++x)
         {
-            i_cell.Data.Cellx = x;
+            ICell.Data.Cellx = x;
 
             for (uint y = 0; y < MapConst.MaxCells; ++y)
             {
-                i_cell.Data.Celly = y;
+                ICell.Data.Celly = y;
 
                 //Load creatures and GameInfo objects
-                i_grid.VisitGrid(x, y, this);
+                IGrid.VisitGrid(x, y, this);
             }
         }
     }
 
     public void Visit(IList<Creature> objs)
     {
-        var cellCoord = i_cell.GetCellCoord();
-        var cell_guids = Global.ObjectMgr.GetCellPersonalObjectGuids(i_map.Id, i_map.DifficultyID, _phaseId, cellCoord.GetId());
+        var cellCoord = ICell.GetCellCoord();
+        var cellGuids = Global.ObjectMgr.GetCellPersonalObjectGuids(IMap.Id, IMap.DifficultyID, _phaseId, cellCoord.GetId());
 
-        if (cell_guids != null)
-            LoadHelper<Creature>(cell_guids.creatures, cellCoord, ref i_creatures, i_map, _phaseId, _phaseOwner);
+        if (cellGuids != null)
+            LoadHelper<Creature>(cellGuids.creatures, cellCoord, ref ICreatures, IMap, _phaseId, _phaseOwner);
     }
 
     public void Visit(IList<GameObject> objs)
     {
-        var cellCoord = i_cell.GetCellCoord();
-        var cell_guids = Global.ObjectMgr.GetCellPersonalObjectGuids(i_map.Id, i_map.DifficultyID, _phaseId, cellCoord.GetId());
+        var cellCoord = ICell.GetCellCoord();
+        var cellGuids = Global.ObjectMgr.GetCellPersonalObjectGuids(IMap.Id, IMap.DifficultyID, _phaseId, cellCoord.GetId());
 
-        if (cell_guids != null)
-            LoadHelper<GameObject>(cell_guids.gameobjects, cellCoord, ref i_gameObjects, i_map, _phaseId, _phaseOwner);
+        if (cellGuids != null)
+            LoadHelper<GameObject>(cellGuids.gameobjects, cellCoord, ref IGameObjects, IMap, _phaseId, _phaseOwner);
     }
 }

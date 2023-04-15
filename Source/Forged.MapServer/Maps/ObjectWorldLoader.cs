@@ -11,35 +11,35 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectWorldLoader : IGridNotifierCorpse
 {
-    public uint i_corpses;
+    public uint ICorpses;
 
-    private readonly Cell i_cell;
-    private readonly Grid i_grid;
-    private readonly Map i_map;
+    private readonly Cell _iCell;
+    private readonly Grid _iGrid;
+    private readonly Map _iMap;
     public ObjectWorldLoader(ObjectGridLoaderBase gloader, GridType gridType)
     {
-        i_cell = gloader.i_cell;
-        i_map = gloader.i_map;
-        i_grid = gloader.i_grid;
-        i_corpses = gloader.i_corpses;
+        _iCell = gloader.ICell;
+        _iMap = gloader.IMap;
+        _iGrid = gloader.IGrid;
+        ICorpses = gloader.ICorpses;
         GridType = gridType;
     }
 
     public GridType GridType { get; set; }
     public void Visit(IList<Corpse> objs)
     {
-        var cellCoord = i_cell.GetCellCoord();
-        var corpses = i_map.GetCorpsesInCell(cellCoord.GetId());
+        var cellCoord = _iCell.GetCellCoord();
+        var corpses = _iMap.GetCorpsesInCell(cellCoord.GetId());
 
         if (corpses != null)
             foreach (var corpse in corpses)
             {
                 corpse.AddToWorld();
-                var cell = i_grid.GetGridCell(i_cell.GetCellX(), i_cell.GetCellY());
+                var cell = _iGrid.GetGridCell(_iCell.GetCellX(), _iCell.GetCellY());
 
                 if (corpse.IsWorldObject())
                 {
-                    i_map.AddToGrid(corpse, new Cell(cellCoord));
+                    _iMap.AddToGrid(corpse, new Cell(cellCoord));
                     cell.AddWorldObject(corpse);
                 }
                 else
@@ -47,7 +47,7 @@ internal class ObjectWorldLoader : IGridNotifierCorpse
                     cell.AddGridObject(corpse);
                 }
 
-                ++i_corpses;
+                ++ICorpses;
             }
     }
 }

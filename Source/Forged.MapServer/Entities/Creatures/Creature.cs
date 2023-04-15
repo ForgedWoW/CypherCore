@@ -510,7 +510,7 @@ public partial class Creature : Unit
         if (data != null)
         {
             PhasingHandler.InitDbPhaseShift(Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-            PhasingHandler.InitDbVisibleMapId(Location.PhaseShift, data.terrainSwapMap);
+            PhasingHandler.InitDbVisibleMapId(Location.PhaseShift, data.TerrainSwapMap);
         }
 
         // Set if this creature can handle dynamic spawns
@@ -1448,7 +1448,7 @@ public partial class Creature : Unit
         RespawnCompatibilityMode = data.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.CompatibilityMode);
         CreatureData = data;
         WanderDistance = data.WanderDistance;
-        RespawnDelay = (uint)data.spawntimesecs;
+        RespawnDelay = (uint)data.Spawntimesecs;
 
         if (!Create(map.GenerateLowGuid(HighGuid.Creature), map, data.Id, data.SpawnPoint, data, 0, !RespawnCompatibilityMode))
             return false;
@@ -1464,7 +1464,7 @@ public partial class Creature : Unit
         {
             if (!RespawnCompatibilityMode)
                 // @todo pools need fixing! this is just a temporary thing, but they violate dynspawn principles
-                if (data.poolId == 0)
+                if (data.PoolId == 0)
                 {
                     Log.Logger.Error($"Creature (SpawnID {spawnId}) trying to load in inactive spawn group '{data.SpawnGroupData.Name}':\n{GetDebugInfo()}");
 
@@ -1479,7 +1479,7 @@ public partial class Creature : Unit
             if (!RespawnCompatibilityMode)
             {
                 // @todo same as above
-                if (data.poolId == 0)
+                if (data.PoolId == 0)
                 {
                     Log.Logger.Error($"Creature (SpawnID {spawnId}) trying to load despite a respawn timer in progress:\n{GetDebugInfo()}");
 
@@ -1821,7 +1821,7 @@ public partial class Creature : Unit
 
                 _triggerJustAppeared = true;
 
-                var poolid = CreatureData?.poolId ?? 0;
+                var poolid = CreatureData?.PoolId ?? 0;
 
                 if (poolid != 0)
                     PoolManager.UpdatePool<Creature>(Location.Map.PoolData, poolid, SpawnId);
@@ -1942,7 +1942,7 @@ public partial class Creature : Unit
             data.SpawnPoint.Relocate(MovementInfo.Transport.Pos.X, MovementInfo.Transport.Pos.Y, MovementInfo.Transport.Pos.Z, MovementInfo.Transport.Pos.Orientation);
         }
 
-        data.spawntimesecs = (int)RespawnDelay;
+        data.Spawntimesecs = (int)RespawnDelay;
         // prevent add data integrity problems
         data.WanderDistance = GetDefaultMovementType() == MovementGeneratorType.Idle ? 0.0f : WanderDistance;
         data.Currentwaypoint = 0;

@@ -15,13 +15,15 @@ public class InstanceLock
     private DateTime _expiryTime;
     private bool _extended;
     private uint _instanceId;
+    private readonly InstanceLockManager _instanceLockManager;
     private bool _isInUse;
 
-    public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId)
+    public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, InstanceLockManager instanceLockManager)
     {
         _mapId = mapId;
         _difficultyId = difficultyId;
         _instanceId = instanceId;
+        _instanceLockManager = instanceLockManager;
         _expiryTime = expiryTime;
         _extended = false;
     }
@@ -45,7 +47,7 @@ public class InstanceLock
 
         // return next reset time
         if (IsExpired())
-            return Global.InstanceLockMgr.GetNextResetTime(entries);
+            return _instanceLockManager.GetNextResetTime(entries);
 
         // if not expired, return expiration time + 1 reset period
         return GetExpiryTime() + TimeSpan.FromSeconds(entries.MapDifficulty.GetRaidDuration());

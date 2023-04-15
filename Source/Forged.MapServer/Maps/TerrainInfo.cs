@@ -18,7 +18,7 @@ namespace Forged.MapServer.Maps;
 
 public class TerrainInfo
 {
-    private static readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan CleanupInterval = TimeSpan.FromMinutes(1);
     private readonly List<TerrainInfo> _childTerrain = new();
     // global garbage collection timer
     private readonly TimeTracker _cleanupTimer;
@@ -37,7 +37,7 @@ public class TerrainInfo
     {
         _mapId = mapId;
         _keepLoaded = keeLoaded;
-        _cleanupTimer = new TimeTracker(RandomHelper.RandTime(_cleanupInterval / 2, _cleanupInterval));
+        _cleanupTimer = new TimeTracker(RandomHelper.RandTime(CleanupInterval / 2, CleanupInterval));
 
         for (var i = 0; i < MapConst.MaxGrids; ++i)
         {
@@ -143,7 +143,7 @@ public class TerrainInfo
                 if (_loadedGrids[GetBitsetIndex(x, y)] && _referenceCountFromMap[x][y] == 0)
                     UnloadMapImpl(x, y);
 
-        _cleanupTimer.Reset(_cleanupInterval);
+        _cleanupTimer.Reset(CleanupInterval);
     }
 
     public void DiscoverGridMapFiles()
@@ -228,9 +228,9 @@ public class TerrainInfo
         rootId = 0;
         groupId = 0;
 
-        var vmap_z = z;
-        var dynamic_z = z;
-        var check_z = z;
+        var vmapZ = z;
+        var dynamicZ = z;
+        var checkZ = z;
         var terrainMapId = PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y);
 
         uint dflags = 0;
@@ -238,14 +238,14 @@ public class TerrainInfo
         var drootId = 0;
         var dgroupId = 0;
 
-        var hasVmapAreaInfo = Global.VMapMgr.GetAreaInfo(terrainMapId, x, y, ref vmap_z, out var vflags, out var vadtId, out var vrootId, out var vgroupId);
-        var hasDynamicAreaInfo = dynamicMapTree?.GetAreaInfo(x, y, ref dynamic_z, phaseShift, out dflags, out dadtId, out drootId, out dgroupId) ?? false;
+        var hasVmapAreaInfo = Global.VMapMgr.GetAreaInfo(terrainMapId, x, y, ref vmapZ, out var vflags, out var vadtId, out var vrootId, out var vgroupId);
+        var hasDynamicAreaInfo = dynamicMapTree?.GetAreaInfo(x, y, ref dynamicZ, phaseShift, out dflags, out dadtId, out drootId, out dgroupId) ?? false;
 
         if (hasVmapAreaInfo)
         {
-            if (hasDynamicAreaInfo && dynamic_z > vmap_z)
+            if (hasDynamicAreaInfo && dynamicZ > vmapZ)
             {
-                check_z = dynamic_z;
+                checkZ = dynamicZ;
                 mogpflags = dflags;
                 adtId = dadtId;
                 rootId = drootId;
@@ -253,7 +253,7 @@ public class TerrainInfo
             }
             else
             {
-                check_z = vmap_z;
+                checkZ = vmapZ;
                 mogpflags = vflags;
                 adtId = vadtId;
                 rootId = vrootId;
@@ -262,7 +262,7 @@ public class TerrainInfo
         }
         else if (hasDynamicAreaInfo)
         {
-            check_z = dynamic_z;
+            checkZ = dynamicZ;
             mogpflags = dflags;
             adtId = dadtId;
             rootId = drootId;
@@ -279,7 +279,7 @@ public class TerrainInfo
                 var mapHeight = gmap.GetHeight(x, y);
 
                 // z + 2.0f condition taken from GetHeight(), not sure if it's such a great choice...
-                if (z + 2.0f > mapHeight && mapHeight > check_z)
+                if (z + 2.0f > mapHeight && mapHeight > checkZ)
                     return false;
             }
 
@@ -490,38 +490,38 @@ public class TerrainInfo
         return _mapId;
     }
 
-    public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, uint mapId, float x, float y, float z, LiquidHeaderTypeFlags ReqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
+    public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, uint mapId, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
     {
         data = null;
 
         var result = ZLiquidStatus.NoWater;
-        var liquid_level = MapConst.InvalidHeight;
-        var ground_level = MapConst.InvalidHeight;
-        uint liquid_type = 0;
+        var liquidLevel = MapConst.InvalidHeight;
+        var groundLevel = MapConst.InvalidHeight;
+        uint liquidType = 0;
         uint mogpFlags = 0;
         var useGridLiquid = true;
         var terrainMapId = PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y);
 
-        if (Global.VMapMgr.GetLiquidLevel(terrainMapId, x, y, z, (byte)ReqLiquidType, ref liquid_level, ref ground_level, ref liquid_type, ref mogpFlags))
+        if (Global.VMapMgr.GetLiquidLevel(terrainMapId, x, y, z, (byte)reqLiquidType, ref liquidLevel, ref groundLevel, ref liquidType, ref mogpFlags))
         {
             useGridLiquid = !IsInWMOInterior(mogpFlags);
-            Log.Logger.Debug($"GetLiquidStatus(): vmap liquid level: {liquid_level} ground: {ground_level} type: {liquid_type}");
+            Log.Logger.Debug($"GetLiquidStatus(): vmap liquid level: {liquidLevel} ground: {groundLevel} type: {liquidType}");
 
             // Check water level and ground level
-            if (liquid_level > ground_level && MathFunctions.fuzzyGe(z, ground_level - MapConst.GroundHeightTolerance))
+            if (liquidLevel > groundLevel && MathFunctions.fuzzyGe(z, groundLevel - MapConst.GroundHeightTolerance))
             {
                 // All ok in water . store data
                 data = new LiquidData();
 
                 // hardcoded in client like this
-                if (GetId() == 530 && liquid_type == 2)
-                    liquid_type = 15;
+                if (GetId() == 530 && liquidType == 2)
+                    liquidType = 15;
 
                 uint liquidFlagType = 0;
-                if (CliDB.LiquidTypeStorage.TryGetValue(liquid_type, out var liq))
+                if (CliDB.LiquidTypeStorage.TryGetValue(liquidType, out var liq))
                     liquidFlagType = liq.SoundBank;
 
-                if (liquid_type != 0 && liquid_type < 21)
+                if (liquidType != 0 && liquidType < 21)
                 {
                     if (CliDB.AreaTableStorage.TryGetValue(GetAreaId(phaseShift, mapId, x, y, z), out var area))
                     {
@@ -537,19 +537,19 @@ public class TerrainInfo
 
                         if (CliDB.LiquidTypeStorage.TryGetValue(overrideLiquid, out var liq1))
                         {
-                            liquid_type = overrideLiquid;
+                            liquidType = overrideLiquid;
                             liquidFlagType = liq1.SoundBank;
                         }
                     }
                 }
 
-                data.Level = liquid_level;
-                data.DepthLevel = ground_level;
+                data.Level = liquidLevel;
+                data.DepthLevel = groundLevel;
 
-                data.Entry = liquid_type;
+                data.Entry = liquidType;
                 data.TypeFlags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType);
 
-                var delta = liquid_level - z;
+                var delta = liquidLevel - z;
 
                 // Get position delta
                 if (delta > collisionHeight) // Under water
@@ -571,19 +571,19 @@ public class TerrainInfo
 
             if (gmap != null)
             {
-                LiquidData map_data = new();
-                var map_result = gmap.GetLiquidStatus(x, y, z, ReqLiquidType, map_data, collisionHeight);
+                LiquidData mapData = new();
+                var mapResult = gmap.GetLiquidStatus(x, y, z, reqLiquidType, mapData, collisionHeight);
 
                 // Not override LIQUID_MAP_ABOVE_WATER with LIQUID_MAP_NO_WATER:
-                if (map_result != ZLiquidStatus.NoWater && map_data.Level > ground_level)
+                if (mapResult != ZLiquidStatus.NoWater && mapData.Level > groundLevel)
                 {
                     // hardcoded in client like this
-                    if (GetId() == 530 && map_data.Entry == 2)
-                        map_data.Entry = 15;
+                    if (GetId() == 530 && mapData.Entry == 2)
+                        mapData.Entry = 15;
 
-                    data = map_data;
+                    data = mapData;
 
-                    return map_result;
+                    return mapResult;
                 }
             }
         }
@@ -664,20 +664,20 @@ public class TerrainInfo
         if (GetGrid(PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y), x, y) != null)
         {
             // we need ground level (including grid height version) for proper return water level in point
-            var ground_z = GetStaticHeight(phaseShift, mapId, x, y, z + MapConst.ZOffsetFindHeight);
+            var groundZ = GetStaticHeight(phaseShift, mapId, x, y, z + MapConst.ZOffsetFindHeight);
 
             if (dynamicMapTree != null)
-                ground_z = Math.Max(ground_z, dynamicMapTree.GetHeight(x, y, z + MapConst.ZOffsetFindHeight, 50.0f, phaseShift));
+                groundZ = Math.Max(groundZ, dynamicMapTree.GetHeight(x, y, z + MapConst.ZOffsetFindHeight, 50.0f, phaseShift));
 
-            ground = ground_z;
+            ground = groundZ;
 
-            var res = GetLiquidStatus(phaseShift, mapId, x, y, ground_z, LiquidHeaderTypeFlags.AllLiquids, out var liquid_status, collisionHeight);
+            var res = GetLiquidStatus(phaseShift, mapId, x, y, groundZ, LiquidHeaderTypeFlags.AllLiquids, out var liquidStatus, collisionHeight);
 
             return res switch
             {
-                ZLiquidStatus.AboveWater => Math.Max(liquid_status.Level, ground_z),
-                ZLiquidStatus.NoWater    => ground_z,
-                _                        => liquid_status.Level
+                ZLiquidStatus.AboveWater => Math.Max(liquidStatus.Level, groundZ),
+                ZLiquidStatus.NoWater    => groundZ,
+                _                        => liquidStatus.Level
             };
         }
 

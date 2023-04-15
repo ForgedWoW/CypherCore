@@ -58,9 +58,9 @@ public class InstanceScript : ZoneScript
     };
 
     public InstanceMap Instance { get; set; }
-    public bool _SkipCheckRequiredBosses(Player player = null)
+    public bool SkipCheckRequiredBosses(Player player = null)
     {
-        return player && player.Session.HasPermission(RBACPermissions.SkipCheckInstanceRequiredBosses);
+        return player != null && player.Session.HasPermission(RBACPermissions.SkipCheckInstanceRequiredBosses);
     }
 
     public void AddCombatResurrectionCharge()
@@ -107,11 +107,11 @@ public class InstanceScript : ZoneScript
     // Override this function to validate all additional data loads
     public virtual void AfterDataLoad() { }
 
-    public virtual bool CheckAchievementCriteriaMeet(uint criteria_id, Player source, Unit target = null, uint miscvalue1 = 0)
+    public virtual bool CheckAchievementCriteriaMeet(uint criteriaID, Player source, Unit target = null, uint miscvalue1 = 0)
     {
         Log.Logger.Error("Achievement system call CheckAchievementCriteriaMeet but instance script for map {0} not have implementation for achievement criteria {1}",
                          Instance.Id,
-                         criteria_id);
+                         criteriaID);
 
         return false;
     }
@@ -136,10 +136,10 @@ public class InstanceScript : ZoneScript
 
     public void DoCastSpellOnPlayer(Player player, uint spell, bool includePets = false, bool includeControlled = false)
     {
-        if (!player)
+        if (player == null)
             return;
 
-        player.CastSpell(player, spell, true);
+        player.SpellFactory.CastSpell(player, spell, true);
 
         if (!includePets)
             return;
@@ -148,25 +148,23 @@ public class InstanceScript : ZoneScript
         {
             var summonGUID = player.SummonSlot[i];
 
-            if (!summonGUID.IsEmpty)
-            {
-                var summon = Instance.GetCreature(summonGUID);
+            if (summonGUID.IsEmpty)
+                continue;
+            
 
-                if (summon != null)
-                    summon.CastSpell(player, spell, true);
-            }
+            Instance.GetCreature(summonGUID)?.SpellFactory.CastSpell(player, spell, true);
         }
 
         if (!includeControlled)
             return;
 
-        for (var i = 0; i < player.Controlled.Count; ++i)
+        foreach (var controlled in player.Controlled)
         {
-            var controlled = player.Controlled[i];
+            if (controlled == null)
+                continue;
 
-            if (controlled != null)
-                if (controlled.Location.IsInWorld && controlled.IsCreature)
-                    controlled.CastSpell(player, spell, true);
+            if (controlled.Location.IsInWorld && controlled.IsCreature)
+                controlled.SpellFactory.CastSpell(player, spell, true);
         }
     }
 
@@ -178,7 +176,7 @@ public class InstanceScript : ZoneScript
 
     public void DoRemoveAurasDueToSpellOnPlayer(Player player, uint spell, bool includePets = false, bool includeControlled = false)
     {
-        if (!player)
+        if (player == null)
             return;
 
         player.RemoveAura(spell);
@@ -190,12 +188,10 @@ public class InstanceScript : ZoneScript
         {
             var summonGUID = player.SummonSlot[i];
 
-            if (!summonGUID.IsEmpty)
-            {
-                var summon = Instance.GetCreature(summonGUID);
-
-                summon?.RemoveAura(spell);
-            }
+            if (summonGUID.IsEmpty)
+                continue;
+            
+            Instance.GetCreature(summonGUID)?.RemoveAura(spell);
         }
 
         if (!includeControlled)
@@ -505,8 +501,8 @@ public class InstanceScript : ZoneScript
             if (door.Entry == 0)
                 continue;
 
-            if (door.bossId < _bosses.Count)
-                _doors.Add(door.Entry, new DoorInfo(_bosses[door.bossId], door.Type));
+            if (door.BossId < _bosses.Count)
+                _doors.Add(door.Entry, new DoorInfo(_bosses[door.BossId], door.Type));
         }
 
         Log.Logger.Debug("InstanceScript.LoadDoorData: {0} doors loaded.", _doors.Count);
@@ -718,9 +714,11 @@ public class InstanceScript : ZoneScript
                     {
                         var minion = Instance.GetCreature(guid);
 
-                        if (minion)
-                            if (minion.IsWorldBoss && minion.IsAlive)
-                                return false;
+                        if (minion == null)
+                            continue;
+
+                        if (minion.IsWorldBoss && minion.IsAlive)
+                            return false;
                     }
 
                 DungeonEncounterRecord dungeonEncounter = null;
@@ -772,7 +770,7 @@ public class InstanceScript : ZoneScript
                 {
                     var door = Instance.GetGameObject(guid);
 
-                    if (door)
+                    if (door != null)
                         UpdateDoorState(door);
                 }
 
@@ -780,7 +778,7 @@ public class InstanceScript : ZoneScript
             {
                 var minion = Instance.GetCreature(guid);
 
-                if (minion)
+                if (minion != null)
                     UpdateMinionState(minion, state);
             }
 
@@ -946,7 +944,7 @@ public class InstanceScript : ZoneScript
 
         var go = Instance.GetGameObject(guid);
 
-        if (go)
+        if (go != null)
         {
             if (go.GoType is GameObjectTypes.Door or GameObjectTypes.Button)
             {

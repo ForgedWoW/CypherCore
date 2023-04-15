@@ -467,9 +467,8 @@ public class MapManager
 
             _maps.ExecuteRemove();
 
-            foreach (var kvp in _maps.Values)
-                foreach (var map in kvp.Values)
-                    _updater.Stage(() => map.DelayedUpdate(time));
+            foreach (var map in _maps.Values.SelectMany(kvp => kvp.Values))
+                _updater.Stage(() => map.DelayedUpdate(time));
         }
 
         _updater.Wait();
@@ -509,7 +508,7 @@ public class MapManager
 
         Log.Logger.Debug($"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
 
-        var map = new InstanceMap(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
+        var map = _classFactory.ResolvePositional<InstanceMap>(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
 
         map.LoadRespawnTimes();
         map.LoadCorpseData();

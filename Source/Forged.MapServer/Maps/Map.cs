@@ -48,7 +48,7 @@ namespace Forged.MapServer.Maps;
 
 public class Map : IDisposable
 {
-    private readonly ClassFactory _classFactory;
+    public ClassFactory ClassFactory { get; }
     private readonly LimitedThreadTaskManager _threadManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
     private readonly ActionBlock<uint> _processRelocationQueue;
     private readonly LimitedThreadTaskManager _processTransportaionQueue = new(1);
@@ -171,7 +171,7 @@ public class Map : IDisposable
 
     public Map(uint id, long expiry, uint instanceId, Difficulty spawnmode, ClassFactory classFactory)
     {
-        _classFactory = classFactory;
+        ClassFactory = classFactory;
 
         try
         {
@@ -265,14 +265,14 @@ public class Map : IDisposable
 
     public void LoadAllCells()
     {
-        var _manager = new LimitedThreadTaskManager(50);
+        var manager = new LimitedThreadTaskManager(50);
 
         for (uint cellX = 0; cellX < MapConst.TotalCellsPerMap; cellX++)
             for (uint cellY = 0; cellY < MapConst.TotalCellsPerMap; cellY++)
-                _manager.Schedule(() =>
+                manager.Schedule(() =>
                                       LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells));
 
-        _manager.Wait();
+        manager.Wait();
     }
 
     public virtual void InitVisibilityDistance()
@@ -943,15 +943,15 @@ public class Map : IDisposable
 
     public void CreatureRelocation(Creature creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true)
     {
-        var new_cell = new Cell(x, y);
+        var newCell = new Cell(x, y);
 
-        if (!respawnRelocationOnFail && GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
+        if (!respawnRelocationOnFail && GetGrid(newCell.GetGridX(), newCell.GetGridY()) == null)
             return;
 
-        var old_cell = creature.Location.GetCurrentCell();
+        var oldCell = creature.Location.GetCurrentCell();
 
         // delay creature move for grid/cell to grid/cell moves
-        if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
+        if (oldCell.DiffCell(newCell) || oldCell.DiffGrid(newCell))
         {
             AddCreatureToMoveList(creature, x, y, z, ang);
             // in diffcell/diffgrid case notifiers called at finishing move creature in MoveAllCreaturesInMoveList
@@ -976,27 +976,27 @@ public class Map : IDisposable
 
     public void GameObjectRelocation(GameObject go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true)
     {
-        var new_cell = new Cell(x, y);
+        var newCell = new Cell(x, y);
 
-        if (!respawnRelocationOnFail && GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
+        if (!respawnRelocationOnFail && GetGrid(newCell.GetGridX(), newCell.GetGridY()) == null)
             return;
 
-        var old_cell = go.Location.GetCurrentCell();
+        var oldCell = go.Location.GetCurrentCell();
 
         // delay creature move for grid/cell to grid/cell moves
-        if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
+        if (oldCell.DiffCell(newCell) || oldCell.DiffGrid(newCell))
         {
             Log.Logger.Debug("GameObject (GUID: {0} Entry: {1}) added to moving list from grid[{2}, {3}]cell[{4}, {5}] to grid[{6}, {7}]cell[{8}, {9}].",
                              go.GUID.ToString(),
                              go.Entry,
-                             old_cell.GetGridX(),
-                             old_cell.GetGridY(),
-                             old_cell.GetCellX(),
-                             old_cell.GetCellY(),
-                             new_cell.GetGridX(),
-                             new_cell.GetGridY(),
-                             new_cell.GetCellX(),
-                             new_cell.GetCellY());
+                             oldCell.GetGridX(),
+                             oldCell.GetGridY(),
+                             oldCell.GetCellX(),
+                             oldCell.GetCellY(),
+                             newCell.GetGridX(),
+                             newCell.GetGridY(),
+                             newCell.GetCellX(),
+                             newCell.GetCellY());
 
             AddGameObjectToMoveList(go, x, y, z, orientation);
             // in diffcell/diffgrid case notifiers called at finishing move go in Map.MoveAllGameObjectsInMoveList
@@ -1016,26 +1016,26 @@ public class Map : IDisposable
 
     public void DynamicObjectRelocation(DynamicObject dynObj, float x, float y, float z, float orientation)
     {
-        Cell new_cell = new(x, y);
+        Cell newCell = new(x, y);
 
-        if (GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
+        if (GetGrid(newCell.GetGridX(), newCell.GetGridY()) == null)
             return;
 
-        var old_cell = dynObj.Location.GetCurrentCell();
+        var oldCell = dynObj.Location.GetCurrentCell();
 
         // delay creature move for grid/cell to grid/cell moves
-        if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
+        if (oldCell.DiffCell(newCell) || oldCell.DiffGrid(newCell))
         {
             Log.Logger.Debug("DynamicObject (GUID: {0}) added to moving list from grid[{1}, {2}]cell[{3}, {4}] to grid[{5}, {6}]cell[{7}, {8}].",
                              dynObj.GUID.ToString(),
-                             old_cell.GetGridX(),
-                             old_cell.GetGridY(),
-                             old_cell.GetCellX(),
-                             old_cell.GetCellY(),
-                             new_cell.GetGridX(),
-                             new_cell.GetGridY(),
-                             new_cell.GetCellX(),
-                             new_cell.GetCellY());
+                             oldCell.GetGridX(),
+                             oldCell.GetGridY(),
+                             oldCell.GetCellX(),
+                             oldCell.GetCellY(),
+                             newCell.GetGridX(),
+                             newCell.GetGridY(),
+                             newCell.GetCellX(),
+                             newCell.GetCellY());
 
             AddDynamicObjectToMoveList(dynObj, x, y, z, orientation);
             // in diffcell/diffgrid case notifiers called at finishing move dynObj in Map.MoveAllGameObjectsInMoveList
@@ -1056,17 +1056,17 @@ public class Map : IDisposable
 
     public void AreaTriggerRelocation(AreaTrigger at, float x, float y, float z, float orientation)
     {
-        Cell new_cell = new(x, y);
+        Cell newCell = new(x, y);
 
-        if (GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
+        if (GetGrid(newCell.GetGridX(), newCell.GetGridY()) == null)
             return;
 
-        var old_cell = at.Location.GetCurrentCell();
+        var oldCell = at.Location.GetCurrentCell();
 
         // delay areatrigger move for grid/cell to grid/cell moves
-        if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
+        if (oldCell.DiffCell(newCell) || oldCell.DiffGrid(newCell))
         {
-            Log.Logger.Debug("AreaTrigger ({0}) added to moving list from {1} to {2}.", at.GUID.ToString(), old_cell.ToString(), new_cell.ToString());
+            Log.Logger.Debug("AreaTrigger ({0}) added to moving list from {1} to {2}.", at.GUID.ToString(), oldCell.ToString(), newCell.ToString());
 
             AddAreaTriggerToMoveList(at, x, y, z, orientation);
             // in diffcell/diffgrid case notifiers called at finishing move at in Map::MoveAllAreaTriggersInMoveList
@@ -1083,17 +1083,17 @@ public class Map : IDisposable
     public bool CreatureRespawnRelocation(Creature c, bool diffGridOnly)
     {
         var respPos = c.RespawnPosition;
-        var resp_cell = new Cell(respPos.X, respPos.Y);
+        var respCell = new Cell(respPos.X, respPos.Y);
 
         //creature will be unloaded with grid
-        if (diffGridOnly && !c.Location.GetCurrentCell().DiffGrid(resp_cell))
+        if (diffGridOnly && !c.Location.GetCurrentCell().DiffGrid(respCell))
             return true;
 
         c.CombatStop();
         c.MotionMaster.Clear();
 
         // teleport it to respawn point (like normal respawn if player see)
-        if (CreatureCellRelocation(c, resp_cell))
+        if (CreatureCellRelocation(c, respCell))
         {
             c.Location.Relocate(respPos);
             c.MotionMaster.Initialize(); // prevent possible problems with default move generators
@@ -1109,10 +1109,10 @@ public class Map : IDisposable
     public bool GameObjectRespawnRelocation(GameObject go, bool diffGridOnly)
     {
         var respawnPos = go.GetRespawnPosition();
-        var resp_cell = new Cell(respawnPos.X, respawnPos.Y);
+        var respCell = new Cell(respawnPos.X, respawnPos.Y);
 
         //GameObject will be unloaded with grid
-        if (diffGridOnly && !go.Location.GetCurrentCell().DiffGrid(resp_cell))
+        if (diffGridOnly && !go.Location.GetCurrentCell().DiffGrid(respCell))
             return true;
 
         Log.Logger.Debug("GameObject (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to respawn grid[{4}, {5}].",
@@ -1120,11 +1120,11 @@ public class Map : IDisposable
                          go.Entry,
                          go.Location.GetCurrentCell().GetGridX(),
                          go.Location.GetCurrentCell().GetGridY(),
-                         resp_cell.GetGridX(),
-                         resp_cell.GetGridY());
+                         respCell.GetGridX(),
+                         respCell.GetGridY());
 
         // teleport it to respawn point (like normal respawn if player see)
-        if (GameObjectCellRelocation(go, resp_cell))
+        if (GameObjectCellRelocation(go, respCell))
         {
             go.Location.Relocate(respawnPos);
             go.Location.UpdatePositionData();
@@ -1891,27 +1891,27 @@ public class Map : IDisposable
 
     public bool ActiveObjectsNearGrid(Grid grid)
     {
-        var cell_min = new CellCoord(grid.X * MapConst.MaxCells,
+        var cellMin = new CellCoord(grid.X * MapConst.MaxCells,
                                      grid.Y * MapConst.MaxCells);
 
-        var cell_max = new CellCoord(cell_min.X + MapConst.MaxCells,
-                                     cell_min.Y + MapConst.MaxCells);
+        var cellMax = new CellCoord(cellMin.X + MapConst.MaxCells,
+                                     cellMin.Y + MapConst.MaxCells);
 
         //we must find visible range in cells so we unload only non-visible cells...
         var viewDist = VisibilityRange;
-        var cell_range = (uint)Math.Ceiling(viewDist / MapConst.SizeofCells) + 1;
+        var cellRange = (uint)Math.Ceiling(viewDist / MapConst.SizeofCells) + 1;
 
-        cell_min.Dec_x(cell_range);
-        cell_min.Dec_y(cell_range);
-        cell_max.Inc_x(cell_range);
-        cell_max.Inc_y(cell_range);
+        cellMin.DecX(cellRange);
+        cellMin.DecY(cellRange);
+        cellMax.IncX(cellRange);
+        cellMax.IncY(cellRange);
 
         foreach (var pl in ActivePlayers)
         {
             var p = GridDefines.ComputeCellCoord(pl.Location.X, pl.Location.Y);
 
-            if (cell_min.X <= p.X && p.X <= cell_max.X &&
-                cell_min.Y <= p.Y && p.Y <= cell_max.Y)
+            if (cellMin.X <= p.X && p.X <= cellMax.X &&
+                cellMin.Y <= p.Y && p.Y <= cellMax.Y)
                 return true;
         }
 
@@ -1919,8 +1919,8 @@ public class Map : IDisposable
         {
             var p = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
 
-            if (cell_min.X <= p.X && p.X <= cell_max.X &&
-                cell_min.Y <= p.Y && p.Y <= cell_max.Y)
+            if (cellMin.X <= p.X && p.X <= cellMax.X &&
+                cellMin.Y <= p.Y && p.Y <= cellMax.Y)
                 return true;
         }
 
@@ -2511,7 +2511,7 @@ public class Map : IDisposable
 
     public void ResetGridExpiry(Grid grid, float factor = 1)
     {
-        grid.GridInformation.ResetTimeTracker((long)(_gridExpiry * factor));
+        grid.GridInformation.TimeTracker.Reset((uint)(_gridExpiry * factor));
     }
 
     public virtual TransferAbortParams CannotEnter(Player player)
@@ -2728,13 +2728,13 @@ public class Map : IDisposable
     {
         var x = cell.GetGridX();
         var y = cell.GetGridY();
-        var cell_x = cell.GetCellX();
-        var cell_y = cell.GetCellY();
+        var cellX = cell.GetCellX();
+        var cellY = cell.GetCellY();
 
         if (!cell.NoCreate() || IsGridLoaded(x, y))
         {
             EnsureGridLoaded(cell);
-            GetGrid(x, y).VisitGrid(cell_x, cell_y, visitor);
+            GetGrid(x, y).VisitGrid(cellX, cellY, visitor);
         }
     }
 
@@ -3096,12 +3096,12 @@ public class Map : IDisposable
             {
                 // marked cells are those that have been visited
                 // don't visit the same cell twice
-                var cell_id = y * MapConst.TotalCellsPerMap + x;
+                var cellID = y * MapConst.TotalCellsPerMap + x;
 
-                if (IsCellMarked(cell_id))
+                if (IsCellMarked(cellID))
                     continue;
 
-                MarkCell(cell_id);
+                MarkCell(cellID);
                 var pair = new CellCoord(x, y);
                 var cell = new Cell(pair);
                 cell.SetNoCreate();
@@ -3126,34 +3126,34 @@ public class Map : IDisposable
                 if (grid.GridState != GridState.Active)
                     continue;
 
-                grid.GridInformation.GetRelocationTimer().Modify((int)diff);
+                grid.GridInformation.RelocationTimer.Modify((int)diff);
 
-                if (!grid.GridInformation.GetRelocationTimer().Passed())
+                if (!grid.GridInformation.RelocationTimer.Passed())
                     continue;
 
                 var gx = grid.X;
                 var gy = grid.Y;
 
-                var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
-                var cell_max = new CellCoord(cell_min.X + MapConst.MaxCells, cell_min.Y + MapConst.MaxCells);
+                var cellMin = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
+                var cellMax = new CellCoord(cellMin.X + MapConst.MaxCells, cellMin.Y + MapConst.MaxCells);
 
 
-                for (var xx = cell_min.X; xx < cell_max.X; ++xx)
+                for (var xx = cellMin.X; xx < cellMax.X; ++xx)
                 {
-                    for (var yy = cell_min.Y; yy < cell_max.Y; ++yy)
+                    for (var yy = cellMin.Y; yy < cellMax.Y; ++yy)
                     {
-                        var cell_id = yy * MapConst.TotalCellsPerMap + xx;
+                        var cellID = yy * MapConst.TotalCellsPerMap + xx;
 
-                        if (!IsCellMarked(cell_id))
+                        if (!IsCellMarked(cellID))
                             continue;
 
                         var pair = new CellCoord(xx, yy);
                         var cell = new Cell(pair);
                         cell.SetNoCreate();
 
-                        var cell_relocation = new DelayedUnitRelocation(cell, pair, this, SharedConst.MaxVisibilityDistance, GridType.All);
+                        var cellRelocation = new DelayedUnitRelocation(cell, pair, this, SharedConst.MaxVisibilityDistance, GridType.All);
 
-                        Visit(cell, cell_relocation);
+                        Visit(cell, cellRelocation);
                     }
                 }
             }
@@ -3173,26 +3173,26 @@ public class Map : IDisposable
                 if (grid.GridState != GridState.Active)
                     continue;
 
-                if (!grid.GridInformation.GetRelocationTimer().Passed())
+                if (!grid.GridInformation.RelocationTimer.Passed())
                     continue;
 
-                grid.GridInformation.GetRelocationTimer().Reset((int)diff, VisibilityNotifyPeriod);
+                grid.GridInformation.RelocationTimer.Reset((int)diff, VisibilityNotifyPeriod);
 
                 var gx = grid.X;
                 var gy = grid.Y;
 
-                var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
+                var cellMin = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
 
-                var cell_max = new CellCoord(cell_min.X + MapConst.MaxCells,
-                                             cell_min.Y + MapConst.MaxCells);
+                var cellMax = new CellCoord(cellMin.X + MapConst.MaxCells,
+                                             cellMin.Y + MapConst.MaxCells);
 
-                for (var xx = cell_min.X; xx < cell_max.X; ++xx)
+                for (var xx = cellMin.X; xx < cellMax.X; ++xx)
                 {
-                    for (var yy = cell_min.Y; yy < cell_max.Y; ++yy)
+                    for (var yy = cellMin.Y; yy < cellMax.Y; ++yy)
                     {
-                        var cell_id = yy * MapConst.TotalCellsPerMap + xx;
+                        var cellID = yy * MapConst.TotalCellsPerMap + xx;
 
-                        if (!IsCellMarked(cell_id))
+                        if (!IsCellMarked(cellID))
                             continue;
 
                         var pair = new CellCoord(xx, yy);
@@ -3207,13 +3207,13 @@ public class Map : IDisposable
 
     private bool CheckGridIntegrity<T>(T obj, bool moved) where T : WorldObject
     {
-        var cur_cell = obj.Location.GetCurrentCell();
-        Cell xy_cell = new(obj.Location.X, obj.Location.Y);
+        var curCell = obj.Location.GetCurrentCell();
+        Cell xyCell = new(obj.Location.X, obj.Location.Y);
 
-        if (xy_cell != cur_cell)
+        if (xyCell != curCell)
         {
             //$"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
-            Log.Logger.Debug($"{obj.TypeId} ({obj.GUID}) X: {obj.Location.X} Y: {obj.Location.Y} ({(moved ? "final" : "original")}) is in {cur_cell} instead of {xy_cell}");
+            Log.Logger.Debug($"{obj.TypeId} ({obj.GUID}) X: {obj.Location.X} Y: {obj.Location.Y} ({(moved ? "final" : "original")}) is in {curCell} instead of {xyCell}");
 
             return true; // not crash at error, just output error in debug mode
         }
@@ -3486,17 +3486,17 @@ public class Map : IDisposable
         }
     }
 
-    private bool MapObjectCellRelocation<T>(T obj, Cell new_cell) where T : WorldObject
+    private bool MapObjectCellRelocation<T>(T obj, Cell newCell) where T : WorldObject
     {
-        var old_cell = obj.Location.GetCurrentCell();
+        var oldCell = obj.Location.GetCurrentCell();
 
-        if (!old_cell.DiffGrid(new_cell)) // in same grid
+        if (!oldCell.DiffGrid(newCell)) // in same grid
         {
             // if in same cell then none do
-            if (old_cell.DiffCell(new_cell))
+            if (oldCell.DiffCell(newCell))
             {
-                RemoveFromGrid(obj, old_cell);
-                AddToGrid(obj, new_cell);
+                RemoveFromGrid(obj, oldCell);
+                AddToGrid(obj, newCell);
             }
 
             return true;
@@ -3505,18 +3505,18 @@ public class Map : IDisposable
         // in diff. grids but active creature
         if (obj.IsActive)
         {
-            EnsureGridLoadedForActiveObject(new_cell, obj);
+            EnsureGridLoadedForActiveObject(newCell, obj);
 
             Log.Logger.Debug("Active creature (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to grid[{4}, {5}].",
                              obj.GUID.ToString(),
                              obj.Entry,
-                             old_cell.GetGridX(),
-                             old_cell.GetGridY(),
-                             new_cell.GetGridX(),
-                             new_cell.GetGridY());
+                             oldCell.GetGridX(),
+                             oldCell.GetGridY(),
+                             newCell.GetGridX(),
+                             newCell.GetGridY());
 
-            RemoveFromGrid(obj, old_cell);
-            AddToGrid(obj, new_cell);
+            RemoveFromGrid(obj, oldCell);
+            AddToGrid(obj, newCell);
 
             return true;
         }
@@ -3524,16 +3524,16 @@ public class Map : IDisposable
         var c = obj.AsCreature;
 
         if (c is { CharmerOrOwnerGUID.IsPlayer: true })
-            EnsureGridLoaded(new_cell);
+            EnsureGridLoaded(newCell);
 
         // in diff. loaded grid normal creature
-        var grid = new GridCoord(new_cell.GetGridX(), new_cell.GetGridY());
+        var grid = new GridCoord(newCell.GetGridX(), newCell.GetGridY());
 
         if (IsGridLoaded(grid))
         {
-            RemoveFromGrid(obj, old_cell);
+            RemoveFromGrid(obj, oldCell);
             EnsureGridCreated(grid);
-            AddToGrid(obj, new_cell);
+            AddToGrid(obj, newCell);
 
             return true;
         }
@@ -3542,24 +3542,24 @@ public class Map : IDisposable
         return false;
     }
 
-    private bool CreatureCellRelocation(Creature c, Cell new_cell)
+    private bool CreatureCellRelocation(Creature c, Cell newCell)
     {
-        return MapObjectCellRelocation(c, new_cell);
+        return MapObjectCellRelocation(c, newCell);
     }
 
-    private bool GameObjectCellRelocation(GameObject go, Cell new_cell)
+    private bool GameObjectCellRelocation(GameObject go, Cell newCell)
     {
-        return MapObjectCellRelocation(go, new_cell);
+        return MapObjectCellRelocation(go, newCell);
     }
 
-    private bool DynamicObjectCellRelocation(DynamicObject go, Cell new_cell)
+    private bool DynamicObjectCellRelocation(DynamicObject go, Cell newCell)
     {
-        return MapObjectCellRelocation(go, new_cell);
+        return MapObjectCellRelocation(go, newCell);
     }
 
-    private bool AreaTriggerCellRelocation(AreaTrigger at, Cell new_cell)
+    private bool AreaTriggerCellRelocation(AreaTrigger at, Cell newCell)
     {
-        return MapObjectCellRelocation(at, new_cell);
+        return MapObjectCellRelocation(at, newCell);
     }
 
     private bool GetAreaInfo(PhaseShift phaseShift, float x, float y, float z, out uint mogpflags, out int adtId, out int rootId, out int groupId)
@@ -3614,7 +3614,7 @@ public class Map : IDisposable
 
     private void SendObjectUpdates()
     {
-        Dictionary<Player, UpdateData> update_players = new();
+        Dictionary<Player, UpdateData> updatePlayers = new();
 
         lock (_updateObjects)
         {
@@ -3622,11 +3622,11 @@ public class Map : IDisposable
             {
                 var obj = _updateObjects[0];
                 _updateObjects.RemoveAt(0);
-                obj.BuildUpdate(update_players);
+                obj.BuildUpdate(updatePlayers);
             }
         }
 
-        foreach (var iter in update_players)
+        foreach (var iter in updatePlayers)
         {
             iter.Value.BuildPacket(out var packet);
             iter.Key.SendPacket(packet);
@@ -4148,7 +4148,7 @@ public class Map : IDisposable
     private ObjectGuidGenerator GetGuidSequenceGenerator(HighGuid high)
     {
         if (!_guidGenerators.ContainsKey(high))
-            _guidGenerators[high] = _classFactory.Resolve<ObjectGuidGenerator>(new PositionalParameter(0, high), new PositionalParameter(1, 1));
+            _guidGenerators[high] = ClassFactory.Resolve<ObjectGuidGenerator>(new PositionalParameter(0, high), new PositionalParameter(1, 1));
 
         return _guidGenerators[high];
     }
