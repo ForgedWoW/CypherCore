@@ -11,11 +11,11 @@ public class InstanceLock
 {
     private readonly InstanceLockData _data = new();
     private readonly Difficulty _difficultyId;
+    private readonly InstanceLockManager _instanceLockManager;
     private readonly uint _mapId;
     private DateTime _expiryTime;
     private bool _extended;
     private uint _instanceId;
-    private readonly InstanceLockManager _instanceLockManager;
     private bool _isInUse;
 
     public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, InstanceLockManager instanceLockManager)

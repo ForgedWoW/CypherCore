@@ -19,10 +19,7 @@ public class TransportAnimation
         if (Path.Empty())
             return null;
 
-        if (Path.TryGetValue(time, out var record))
-            return record;
-
-        return Path.FirstOrDefault().Value;
+        return Path.TryGetValue(time, out var record) ? record : Path.FirstOrDefault().Value;
     }
 
     public TransportRotationRecord GetNextAnimRotation(uint time)
@@ -30,10 +27,7 @@ public class TransportAnimation
         if (Rotations.Empty())
             return null;
 
-        if (Rotations.TryGetValue(time, out var record))
-            return record;
-
-        return Rotations.FirstOrDefault().Value;
+        return Rotations.TryGetValue(time, out var record) ? record : Rotations.FirstOrDefault().Value;
     }
 
     public TransportAnimationRecord GetPrevAnimNode(uint time)
@@ -41,8 +35,7 @@ public class TransportAnimation
         if (Path.Empty())
             return null;
 
-        if (_path == null)
-            _path = Path.Keys.ToList();
+        _path ??= Path.Keys.ToList();
 
         var reqIndex = _path.IndexOf(time) - 1;
 
@@ -57,8 +50,7 @@ public class TransportAnimation
         if (Rotations.Empty())
             return null;
 
-        if (_rotation == null)
-            _rotation = Rotations.Keys.ToList();
+        _rotation ??= Rotations.Keys.ToList();
 
         var reqIndex = _rotation.IndexOf(time) - 1; // indexof returns -1 if index is not found, - 1 from that is -2
 

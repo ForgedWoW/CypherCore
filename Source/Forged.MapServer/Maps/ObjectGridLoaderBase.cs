@@ -10,48 +10,49 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridLoaderBase
 {
-    internal uint IAreaTriggers;
-    internal Cell ICell;
-    internal uint ICorpses;
-    internal uint ICreatures;
-    internal uint IGameObjects;
-    internal Grid IGrid;
-    internal Map IMap;
     public ObjectGridLoaderBase(Grid grid, Map map, Cell cell)
     {
-        ICell = new Cell(cell);
-        IGrid = grid;
-        IMap = map;
+        Cell = new Cell(cell, map.GridDefines);
+        Grid = grid;
+        Map = map;
     }
 
+    internal uint AreaTriggers { get; set; }
+    internal Cell Cell { get; set; }
+    internal uint Corpses { get; set; }
+    internal uint Creatures { get; set; }
+    internal uint GameObjects { get; set; }
+    internal Grid Grid { get; set; }
+    internal Map Map { get; set; }
     public uint GetLoadedAreaTriggers()
     {
-        return IAreaTriggers;
+        return AreaTriggers;
     }
 
     public uint GetLoadedCorpses()
     {
-        return ICorpses;
+        return Corpses;
     }
 
     public uint GetLoadedCreatures()
     {
-        return ICreatures;
+        return Creatures;
     }
 
     public uint GetLoadedGameObjects()
     {
-        return IGameObjects;
+        return GameObjects;
     }
-    internal void LoadHelper<T>(SortedSet<ulong> guidSet, CellCoord cell, ref uint count, Map map, uint phaseId = 0, ObjectGuid? phaseOwner = null) where T : WorldObject, new()
+    internal uint LoadHelper<T>(SortedSet<ulong> guidSet, CellCoord cell, Map map, uint phaseId = 0, ObjectGuid? phaseOwner = null) where T : WorldObject
     {
+        var count = 0u;
         foreach (var guid in guidSet)
         {
             // Don't spawn at all if there's a respawn timer
             if (!map.ShouldBeSpawnedOnGridLoad<T>(guid))
                 continue;
 
-            T obj = new();
+            var obj = Map.ClassFactory.Resolve<T>();
 
             if (!obj.LoadFromDB(guid, map, false, phaseOwner.HasValue /*allowDuplicate*/))
             {
@@ -66,20 +67,24 @@ internal class ObjectGridLoaderBase
                 map.MultiPersonalPhaseTracker.RegisterTrackedObject(phaseId, phaseOwner.Value, obj);
             }
 
-            AddObjectHelper(cell, ref count, map, obj);
+            count += AddObjectHelper(cell, map, obj);
         }
+
+        return count;
     }
 
-    private void AddObjectHelper<T>(CellCoord cellCoord, ref uint count, Map map, T obj) where T : WorldObject
+    private uint AddObjectHelper<T>(CellCoord cellCoord, Map map, T obj) where T : WorldObject
     {
-        var cell = new Cell(cellCoord);
+        var cell = new Cell(cellCoord, Map.GridDefines);
         map.AddToGrid(obj, cell);
         obj.AddToWorld();
 
-        if (obj.IsCreature)
-            if (obj.IsActive)
-                map.AddToActive(obj);
+        if (!obj.IsCreature)
+            return 1;
 
-        ++count;
+        if (obj.IsActive)
+            map.AddToActive(obj);
+
+        return  1;
     }
 }

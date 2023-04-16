@@ -26,6 +26,7 @@ namespace Forged.MapServer.Maps;
 public class MapManager
 {
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
@@ -34,7 +35,6 @@ public class MapManager
     private readonly LoopSafeDoubleDictionary<uint, uint, Map> _maps = new();
     private readonly object _mapsLock = new();
     private readonly ScenarioManager _scenarioManager;
-    private readonly ClassFactory _classFactory;
     private readonly IntervalTimer _timer = new();
     private readonly LimitedThreadTaskManager _updater;
     private uint _gridCleanUpDelay;
@@ -249,17 +249,15 @@ public class MapManager
 
             return newInstanceId;
         }
-        else if (entry.IsGarrison())
+
+        if (entry.IsGarrison())
         {
             return (uint)player.GUID.Counter;
         }
-        else
-        {
-            if (entry.IsSplitByFaction())
-                return (uint)player.TeamId;
+        if (entry.IsSplitByFaction())
+            return (uint)player.TeamId;
 
-            return 0;
-        }
+        return 0;
     }
 
     public Map FindMap(uint mapId, uint instanceId)

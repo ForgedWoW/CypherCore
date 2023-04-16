@@ -23,14 +23,14 @@ namespace Forged.MapServer.Maps;
 
 public class InstanceMap : Map
 {
-    private readonly IConfiguration _configuration;
-    private readonly WorldStateManager _worldStateManager;
-    private readonly WorldManager _worldManager;
-    private readonly GameObjectManager _gameObjectManager;
-    private readonly ScriptManager _scriptManager;
-    private readonly InstanceLockManager _instanceLockManager;
     private readonly CharacterDatabase _characterDatabase;
+    private readonly IConfiguration _configuration;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly InstanceLockManager _instanceLockManager;
     private readonly GroupInstanceReference _owningGroupRef = new();
+    private readonly ScriptManager _scriptManager;
+    private readonly WorldManager _worldManager;
+    private readonly WorldStateManager _worldStateManager;
     private DateTime? _instanceExpireEvent;
 
     public InstanceMap(uint id, long expiry, uint instanceId, Difficulty spawnMode, int instanceTeam, InstanceLock instanceLock, ClassFactory classFactory, IConfiguration configuration,
@@ -353,11 +353,9 @@ public class InstanceMap : Map
 
             return InstanceResetResult.NotEmpty;
         }
-        else
-        {
-            // unloaded at next update
-            UnloadTimer = 1;
-        }
+
+        // unloaded at next update
+        UnloadTimer = 1;
 
         return InstanceResetResult.Success;
     }

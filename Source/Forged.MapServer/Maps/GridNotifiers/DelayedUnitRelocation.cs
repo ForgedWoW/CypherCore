@@ -15,10 +15,9 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
 {
     private readonly Cell _cell;
     private readonly Map _map;
+    private readonly ObjectAccessor _objectAccessor;
     private readonly CellCoord _p;
     private readonly float _radius;
-    private readonly ObjectAccessor _objectAccessor;
-
     public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType, ObjectAccessor objectAccessor)
     {
         _map = map;

@@ -12,17 +12,6 @@ namespace Forged.MapServer.Maps;
 
 public class SpawnData : SpawnMetadata
 {
-    public uint Id; // entry in respective _template table
-    public uint PhaseGroup;
-    public uint PhaseId;
-    public PhaseUseFlagsValues PhaseUseFlags;
-    public uint PoolId;
-    public uint ScriptId;
-    public List<Difficulty> SpawnDifficulties;
-    public Position SpawnPoint;
-    public int Spawntimesecs;
-    public string StringId;
-    public int TerrainSwapMap;
     public SpawnData(SpawnObjectType t) : base(t)
     {
         SpawnPoint = new Position();
@@ -30,6 +19,17 @@ public class SpawnData : SpawnMetadata
         SpawnDifficulties = new List<Difficulty>();
     }
 
+    public uint Id { get; set; } // entry in respective _template table
+    public uint PhaseGroup { get; set; }
+    public uint PhaseId { get; set; }
+    public PhaseUseFlagsValues PhaseUseFlags { get; set; }
+    public uint PoolId { get; set; }
+    public uint ScriptId { get; set; }
+    public List<Difficulty> SpawnDifficulties { get; set; }
+    public Position SpawnPoint { get; set; }
+    public int Spawntimesecs { get; set; }
+    public string StringId { get; set; }
+    public int TerrainSwapMap { get; set; }
     public static SpawnObjectType TypeFor<T>()
     {
         return typeof(T).Name switch

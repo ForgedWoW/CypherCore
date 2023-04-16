@@ -4859,9 +4859,11 @@ public class Map : IDisposable
         // check if the object is part of a spawn group
         var spawnGroup = spawnData.SpawnGroupData;
 
-        if (!spawnGroup.Flags.HasFlag(SpawnGroupFlags.System))
-            if (!IsSpawnGroupActive(spawnGroup.GroupId))
-                return false;
+        if (spawnGroup.Flags.HasFlag(SpawnGroupFlags.System))
+            return spawnData.ToSpawnData().PoolId == 0 || PoolData.IsSpawnedObject(type, spawnId);
+
+        if (!IsSpawnGroupActive(spawnGroup.GroupId))
+            return false;
 
         return spawnData.ToSpawnData().PoolId == 0 || PoolData.IsSpawnedObject(type, spawnId);
     }

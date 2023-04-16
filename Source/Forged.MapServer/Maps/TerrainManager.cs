@@ -17,6 +17,7 @@ namespace Forged.MapServer.Maps;
 public class TerrainManager
 {
     private readonly CliDB _cliDB;
+    private readonly GridDefines _gridDefines;
     private readonly HashSet<uint> _keepLoaded = new();
     private readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
     private readonly LimitedThreadTaskManager _threadTaskManager;
@@ -24,16 +25,17 @@ public class TerrainManager
     // parent map links
     private MultiMap<uint, uint> _parentMapData = new();
 
-    public TerrainManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB)
+    public TerrainManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, GridDefines gridDefines)
     {
         _worldDatabase = worldDatabase;
         _cliDB = cliDB;
+        _gridDefines = gridDefines;
         _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map:ParellelUpdateTasks", 20));
     }
 
-    public static bool ExistMapAndVMap(uint mapid, float x, float y)
+    public bool ExistMapAndVMap(uint mapid, float x, float y)
     {
-        var p = GridDefines.ComputeGridCoord(x, y);
+        var p = _gridDefines.ComputeGridCoord(x, y);
 
         var gx = (int)(MapConst.MaxGrids - 1 - p.X);
         var gy = (int)(MapConst.MaxGrids - 1 - p.Y);
@@ -95,10 +97,7 @@ public class TerrainManager
     {
         var terrain = LoadTerrain(mapId);
 
-        if (terrain != null)
-            return terrain.GetZoneId(phaseShift, mapId, x, y, z);
-
-        return 0;
+        return terrain?.GetZoneId(phaseShift, mapId, x, y, z) ?? 0;
     }
 
     public void InitializeParentMapData(MultiMap<uint, uint> mapData)
@@ -107,11 +106,13 @@ public class TerrainManager
 
         var result = _worldDatabase.Query("SELECT mapid FROM map_keeploaded");
 
-        if (!result.IsEmpty())
-            do
-            {
-                _keepLoaded.Add(result.Read<uint>(0));
-            } while (result.NextRow());
+        if (result.IsEmpty())
+            return;
+
+        do
+        {
+            _keepLoaded.Add(result.Read<uint>(0));
+        } while (result.NextRow());
     }
 
     public bool KeepMapLoaded(uint mapid)

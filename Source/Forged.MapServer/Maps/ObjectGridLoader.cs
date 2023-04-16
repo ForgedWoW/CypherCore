@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
@@ -14,75 +15,69 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierAreaTrigger
 {
+    private readonly AreaTriggerDataStorage _areaTriggerDataStorage;
     public ObjectGridLoader(Grid grid, Map map, Cell cell, GridType gridType) : base(grid, map, cell)
     {
         GridType = gridType;
+        _areaTriggerDataStorage = map.ClassFactory.Resolve<AreaTriggerDataStorage>();
     }
 
     public GridType GridType { get; set; }
     public void LoadN()
     {
-        ICreatures = 0;
-        IGameObjects = 0;
-        ICorpses = 0;
-        ICell.Data.CellY = 0;
+        Creatures = 0;
+        GameObjects = 0;
+        Corpses = 0;
+        Cell.Data.CellY = 0;
 
         for (uint x = 0; x < MapConst.MaxCells; ++x)
         {
-            ICell.Data.CellX = x;
+            Cell.Data.CellX = x;
 
             for (uint y = 0; y < MapConst.MaxCells; ++y)
             {
-                ICell.Data.CellY = y;
+                Cell.Data.CellY = y;
 
-                IGrid.VisitGrid(x, y, this);
+                Grid.VisitGrid(x, y, this);
 
                 ObjectWorldLoader worker = new(this, GridType.World);
-                IGrid.VisitGrid(x, y, worker);
+                Grid.VisitGrid(x, y, worker);
             }
         }
 
-        Log.Logger.Debug($"{IGameObjects} GameObjects, {ICreatures} Creatures, {IAreaTriggers} AreaTrriggers and {ICorpses} Corpses/Bones loaded for grid {IGrid.GridId} on map {IMap.Id}");
+        Log.Logger.Debug($"{GameObjects} GameObjects, {Creatures} Creatures, {AreaTriggers} AreaTrriggers and {Corpses} Corpses/Bones loaded for grid {Grid.GridId} on map {Map.Id}");
     }
 
     public void Visit(IList<AreaTrigger> objs)
     {
-        var cellCoord = ICell.CellCoord;
-        var areaTriggers = Global.AreaTriggerDataStorage.GetAreaTriggersForMapAndCell(IMap.Id, cellCoord.GetId());
+        var cellCoord = Cell.CellCoord;
+        var areaTriggers = _areaTriggerDataStorage.GetAreaTriggersForMapAndCell(Map.Id, cellCoord.GetId());
 
         if (areaTriggers == null || areaTriggers.Empty())
             return;
 
-        LoadHelper<AreaTrigger>(areaTriggers, cellCoord, ref IAreaTriggers, IMap);
+        AreaTriggers = LoadHelper<AreaTrigger>(areaTriggers, cellCoord, Map);
     }
 
     public void Visit(IList<Creature> objs)
     {
-        var cellCoord = ICell.CellCoord;
-        var cellguids = Global.ObjectMgr.GetCellObjectGuids(IMap.Id, IMap.DifficultyID, cellCoord.GetId());
+        var cellCoord = Cell.CellCoord;
+        var cellguids = Map.GameObjectManager.GetCellObjectGuids(Map.Id, Map.DifficultyID, cellCoord.GetId());
 
-        if (cellguids == null || cellguids.creatures.Empty())
+        if (cellguids == null || cellguids.Creatures.Empty())
             return;
 
-        LoadHelper<Creature>(cellguids.creatures, cellCoord, ref ICreatures, IMap);
+        Creatures = LoadHelper<Creature>(cellguids.Creatures, cellCoord, Map);
     }
 
     public void Visit(IList<GameObject> objs)
     {
-        var cellCoord = ICell.CellCoord;
-        var cellguids = Global.ObjectMgr.GetCellObjectGuids(IMap.Id, IMap.DifficultyID, cellCoord.GetId());
+        var cellCoord = Cell.CellCoord;
+        var cellguids = Map.GameObjectManager.GetCellObjectGuids(Map.Id, Map.DifficultyID, cellCoord.GetId());
 
-        if (cellguids == null || cellguids.gameobjects.Empty())
+        if (cellguids == null || cellguids.Gameobjects.Empty())
             return;
 
-        LoadHelper<GameObject>(cellguids.gameobjects, cellCoord, ref IGameObjects, IMap);
+        GameObjects = LoadHelper<GameObject>(cellguids.Gameobjects, cellCoord, Map);
     }
 }
-
-//Stop the creatures before unloading the NGrid
-
-//Move the foreign creatures back to respawn positions before unloading the NGrid
-
-//Clean up and remove from world
-
-//Delete objects before deleting NGrid

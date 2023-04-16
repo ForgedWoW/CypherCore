@@ -18,6 +18,7 @@ public class TransportTemplate
     public List<TransportPathLeg> PathLegs { get; set; } = new();
     public double Speed { get; set; }
     public uint TotalPathTime { get; set; }
+
     public Position ComputePosition(uint time, out TransportMovementState moveState, out int legIndex)
     {
         moveState = TransportMovementState.Moving;
@@ -112,39 +113,32 @@ public class TransportTemplate
     {
         if (isFirstSegment)
         {
-            if (!isLastSegment)
+            if (isLastSegment)
+                return timePassedInSegment * Speed;
+
+            var accelerationTime = Math.Min(AccelerationTime, segmentDuration);
+            var segmentTimeAtFullSpeed = segmentDuration - accelerationTime;
+
+            if (timePassedInSegment <= segmentTimeAtFullSpeed)
             {
-                var accelerationTime = Math.Min(AccelerationTime, segmentDuration);
-                var segmentTimeAtFullSpeed = segmentDuration - accelerationTime;
-
-                if (timePassedInSegment <= segmentTimeAtFullSpeed)
-                {
-                    return timePassedInSegment * Speed;
-                }
-                else
-                {
-                    var segmentAccelerationTime = timePassedInSegment - segmentTimeAtFullSpeed;
-                    var segmentAccelerationDistance = AccelerationRate * accelerationTime;
-                    var segmentDistanceAtFullSpeed = segmentTimeAtFullSpeed * Speed;
-
-                    return (2.0 * segmentAccelerationDistance - segmentAccelerationTime * AccelerationRate) * 0.5 * segmentAccelerationTime + segmentDistanceAtFullSpeed;
-                }
+                return timePassedInSegment * Speed;
             }
 
-            return timePassedInSegment * Speed;
+            var segmentAccelerationTime = timePassedInSegment - segmentTimeAtFullSpeed;
+            var segmentAccelerationDistance = AccelerationRate * accelerationTime;
+            var segmentDistanceAtFullSpeed = segmentTimeAtFullSpeed * Speed;
+
+            return (2.0 * segmentAccelerationDistance - segmentAccelerationTime * AccelerationRate) * 0.5 * segmentAccelerationTime + segmentDistanceAtFullSpeed;
+
         }
 
         if (isLastSegment)
         {
-            if (!isFirstSegment)
-            {
-                if (timePassedInSegment <= Math.Min(AccelerationTime, segmentDuration))
-                    return AccelerationRate * timePassedInSegment * 0.5 * timePassedInSegment;
-                else
-                    return (timePassedInSegment - AccelerationTime) * Speed + AccelerationDistance;
-            }
+            if (timePassedInSegment <= Math.Min(AccelerationTime, segmentDuration))
+                return AccelerationRate * timePassedInSegment * 0.5 * timePassedInSegment;
 
-            return timePassedInSegment * Speed;
+            return (timePassedInSegment - AccelerationTime) * Speed + AccelerationDistance;
+
         }
 
         var accelerationTime1 = Math.Min(segmentDuration * 0.5, AccelerationTime);
@@ -153,14 +147,12 @@ public class TransportTemplate
         {
             if (timePassedInSegment <= accelerationTime1)
                 return AccelerationRate * timePassedInSegment * 0.5 * timePassedInSegment;
-            else
-                return (timePassedInSegment - AccelerationTime) * Speed + AccelerationDistance;
-        }
-        else
-        {
-            var segmentTimeSpentAccelerating = timePassedInSegment - (segmentDuration - accelerationTime1);
 
-            return (segmentDuration - 2 * accelerationTime1) * Speed + AccelerationRate * accelerationTime1 * 0.5 * accelerationTime1 + (2.0 * AccelerationRate * accelerationTime1 - segmentTimeSpentAccelerating * AccelerationRate) * 0.5 * segmentTimeSpentAccelerating;
+            return (timePassedInSegment - AccelerationTime) * Speed + AccelerationDistance;
         }
+
+        var segmentTimeSpentAccelerating = timePassedInSegment - (segmentDuration - accelerationTime1);
+
+        return (segmentDuration - 2 * accelerationTime1) * Speed + AccelerationRate * accelerationTime1 * 0.5 * accelerationTime1 + (2.0 * AccelerationRate * accelerationTime1 - segmentTimeSpentAccelerating * AccelerationRate) * 0.5 * segmentTimeSpentAccelerating;
     }
 }

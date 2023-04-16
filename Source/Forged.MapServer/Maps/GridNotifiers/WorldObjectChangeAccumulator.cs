@@ -15,9 +15,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCreature, IGridNotifierDynamicObject
 {
+    private readonly ObjectAccessor _objectAccessor;
     private readonly List<ObjectGuid> _plrList = new();
     private readonly Dictionary<Player, UpdateData> _updateData;
-    private readonly ObjectAccessor _objectAccessor;
     private readonly WorldObject _worldObject;
     public WorldObjectChangeAccumulator(WorldObject obj, Dictionary<Player, UpdateData> d, GridType gridType, ObjectAccessor objectAccessor)
     {

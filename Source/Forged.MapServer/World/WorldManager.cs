@@ -100,7 +100,7 @@ public class WorldManager
     private WorldStateManager _worldStateManager;
     public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager,
                         WorldDatabase worldDatabase, CharacterDatabase characterDatabase, SupportManager supportManager,
-                        VMapManager vMapManager, MapManager mapManager, CliDB cliDB, Realm realm)
+                        VMapManager vMapManager, MapManager mapManager, CliDB cliDB, Realm realm, TerrainManager terrainManager)
     {
         _configuration = configuration;
         _loginDatabase = loginDatabase;
@@ -119,7 +119,7 @@ public class WorldManager
 
         _allowedSecurityLevel = AccountTypes.Player;
 
-        WorldUpdateTime = new WorldUpdateTime();
+        WorldUpdateTime = new WorldUpdateTime(configuration);
         _warnShutdownTime = GameTime.CurrentTime;
 
         LoadRealmInfo();
@@ -129,13 +129,13 @@ public class WorldManager
         // Initialize Allowed Security Level
         LoadDBAllowedSecurityLevel();
 
-        if (TerrainManager.ExistMapAndVMap(0, -6240.32f, 331.033f) &&
-            TerrainManager.ExistMapAndVMap(0, -8949.95f, -132.493f) &&
-            TerrainManager.ExistMapAndVMap(1, -618.518f, -4251.67f) &&
-            TerrainManager.ExistMapAndVMap(0, 1676.35f, 1677.45f) &&
-            TerrainManager.ExistMapAndVMap(1, 10311.3f, 832.463f) &&
-            TerrainManager.ExistMapAndVMap(1, -2917.58f, -257.98f) &&
-            (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) == 0 || (TerrainManager.ExistMapAndVMap(530, 10349.6f, -6357.29f) && TerrainManager.ExistMapAndVMap(530, -3961.64f, -13931.2f))))
+        if (terrainManager.ExistMapAndVMap(0, -6240.32f, 331.033f) &&
+            terrainManager.ExistMapAndVMap(0, -8949.95f, -132.493f) &&
+            terrainManager.ExistMapAndVMap(1, -618.518f, -4251.67f) &&
+            terrainManager.ExistMapAndVMap(0, 1676.35f, 1677.45f) &&
+            terrainManager.ExistMapAndVMap(1, 10311.3f, 832.463f) &&
+            terrainManager.ExistMapAndVMap(1, -2917.58f, -257.98f) &&
+            (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) == 0 || (terrainManager.ExistMapAndVMap(530, 10349.6f, -6357.29f) && terrainManager.ExistMapAndVMap(530, -3961.64f, -13931.2f))))
             return;
 
         Log.Logger.Error("Unable to load map and vmap data for starting zones - server shutting down!");
@@ -308,9 +308,11 @@ public class WorldManager
 
             var sess = FindSession(account);
 
-            if (sess)
-                if (sess.PlayerName != author)
-                    sess.KickPlayer("World::BanAccount Banning account");
+            if (sess == null)
+                continue;
+
+            if (sess.PlayerName != author)
+                sess.KickPlayer("World::BanAccount Banning account");
         } while (resultAccounts.NextRow());
 
         _loginDatabase.CommitTransaction(trans);
@@ -332,7 +334,7 @@ public class WorldManager
         ObjectGuid guid;
 
         // Pick a player to ban if not online
-        if (!pBanned)
+        if (pBanned == null)
         {
             guid = _characterCache.GetCharacterGuidByName(name);
 
@@ -360,8 +362,7 @@ public class WorldManager
         trans.Append(stmt);
         _characterDatabase.CommitTransaction(trans);
 
-        if (pBanned)
-            pBanned.Session.KickPlayer("World::BanCharacter Banning character");
+        pBanned?.Session.KickPlayer("World::BanCharacter Banning character");
 
         return BanReturn.Success;
     }
@@ -827,7 +828,7 @@ public class WorldManager
         ObjectGuid guid;
 
         // Pick a player to ban if not online
-        if (!pBanned)
+        if (pBanned == null)
         {
             guid = _characterCache.GetCharacterGuidByName(name);
 
@@ -960,7 +961,7 @@ public class WorldManager
             // Player should be in world
             var player = session.Player;
 
-            if (!player || !player.Location.IsInWorld)
+            if (player == null || !player.Location.IsInWorld)
                 continue;
 
             wtDo.Invoke(player);
@@ -991,7 +992,7 @@ public class WorldManager
 
         foreach (var session in _sessions.Values)
         {
-            if (session == null || !session.Player || !session.Player.Location.IsInWorld)
+            if (session?.Player == null || !session.Player.Location.IsInWorld)
                 continue;
 
             wtDo.Invoke(session.Player);
@@ -1004,8 +1005,7 @@ public class WorldManager
         var foundPlayerToSend = false;
 
         foreach (var session in _sessions.Values)
-            if (session != null &&
-                session.Player &&
+            if (session is { Player: { } } &&
                 session.Player.Location.IsInWorld &&
                 session.Player.Location.Zone == zone &&
                 session != self &&
@@ -1818,8 +1818,7 @@ public class WorldManager
         _characterDatabase.Execute(stmt);
 
         foreach (var session in _sessions.Values)
-            if (session.Player)
-                session.Player.SetRandomWinner(false);
+            session.Player?.SetRandomWinner(false);
 
         _nextRandomBgReset += Time.DAY;
         SetPersistentWorldVariable(NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID, (int)_nextRandomBgReset);

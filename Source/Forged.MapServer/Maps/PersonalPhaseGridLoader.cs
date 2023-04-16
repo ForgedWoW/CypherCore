@@ -27,37 +27,37 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
     public void Load(uint phaseId)
     {
         _phaseId = phaseId;
-        ICell.Data.CellY = 0;
+        Cell.Data.CellY = 0;
 
         for (uint x = 0; x < MapConst.MaxCells; ++x)
         {
-            ICell.Data.CellX = x;
+            Cell.Data.CellX = x;
 
             for (uint y = 0; y < MapConst.MaxCells; ++y)
             {
-                ICell.Data.CellY = y;
+                Cell.Data.CellY = y;
 
                 //Load creatures and GameInfo objects
-                IGrid.VisitGrid(x, y, this);
+                Grid.VisitGrid(x, y, this);
             }
         }
     }
 
     public void Visit(IList<Creature> objs)
     {
-        var cellCoord = ICell.CellCoord;
-        var cellGuids = Global.ObjectMgr.GetCellPersonalObjectGuids(IMap.Id, IMap.DifficultyID, _phaseId, cellCoord.GetId());
+        var cellCoord = Cell.CellCoord;
+        var cellGuids = Map.GameObjectManager.GetCellPersonalObjectGuids(Map.Id, Map.DifficultyID, _phaseId, cellCoord.GetId());
 
         if (cellGuids != null)
-            LoadHelper<Creature>(cellGuids.creatures, cellCoord, ref ICreatures, IMap, _phaseId, _phaseOwner);
+            Creatures = LoadHelper<Creature>(cellGuids.Creatures, cellCoord, Map, _phaseId, _phaseOwner);
     }
 
     public void Visit(IList<GameObject> objs)
     {
-        var cellCoord = ICell.CellCoord;
-        var cellGuids = Global.ObjectMgr.GetCellPersonalObjectGuids(IMap.Id, IMap.DifficultyID, _phaseId, cellCoord.GetId());
+        var cellCoord = Cell.CellCoord;
+        var cellGuids = Map.GameObjectManager.GetCellPersonalObjectGuids(Map.Id, Map.DifficultyID, _phaseId, cellCoord.GetId());
 
         if (cellGuids != null)
-            LoadHelper<GameObject>(cellGuids.gameobjects, cellCoord, ref IGameObjects, IMap, _phaseId, _phaseOwner);
+            GameObjects = LoadHelper<GameObject>(cellGuids.Gameobjects, cellCoord, Map, _phaseId, _phaseOwner);
     }
 }

@@ -28,6 +28,7 @@ public class TransportManager
     private readonly Dictionary<ulong, TransportSpawn> _transportSpawns = new();
     private readonly Dictionary<uint, TransportTemplate> _transportTemplates = new();
     private readonly WorldDatabase _worldDatabase;
+
     public TransportManager(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, DB2Manager db2Manager)
     {
         _worldDatabase = worldDatabase;
@@ -314,8 +315,8 @@ public class TransportManager
 
             if (accelDist >= dist * 0.5)
                 return (uint)(Math.Sqrt(dist / accel) * 2000.0);
-            else
-                return (uint)((dist - (accelDist + accelDist)) / speed * 1000.0 + speed / accel * 2000.0);
+
+            return (uint)((dist - (accelDist + accelDist)) / speed * 1000.0 + speed / accel * 2000.0);
         }
 
         uint LegTimeAccel(double dist)
@@ -326,8 +327,8 @@ public class TransportManager
 
             if (accelDist >= dist)
                 return (uint)(Math.Sqrt((dist + dist) / accel) * 1000.0);
-            else
-                return (uint)(((dist - accelDist) / speed + speed / accel) * 1000.0);
+
+            return (uint)(((dist - accelDist) / speed + speed / accel) * 1000.0);
         }
 
         // Init segments
@@ -352,12 +353,8 @@ public class TransportManager
                         break;
 
                     double eventLength = leg.Spline.Length(eventPointIndex) - splineLengthToPreviousNode;
-                    uint eventSplineTime;
 
-                    if (pauseItr != 0)
-                        eventSplineTime = LegTimeAccelDecel(eventLength);
-                    else
-                        eventSplineTime = LegTimeAccel(eventLength);
+                    var eventSplineTime = pauseItr != 0 ? LegTimeAccelDecel(eventLength) : LegTimeAccel(eventLength);
 
                     if (pathPoints[eventPointIndex].ArrivalEventID != 0)
                     {
@@ -370,26 +367,22 @@ public class TransportManager
                         outEvents.Add(ev);
                     }
 
-                    if (pathPoints[eventPointIndex].DepartureEventID != 0)
-                    {
-                        TransportPathEvent tEvent = new()
-                        {
-                            Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum + (pausePointIndex == eventPointIndex ? pathPoints[eventPointIndex].Delay * Time.IN_MILLISECONDS : 0),
-                            EventId = pathPoints[eventPointIndex].DepartureEventID
-                        };
+                    if (pathPoints[eventPointIndex].DepartureEventID == 0)
+                        continue;
 
-                        outEvents.Add(tEvent);
-                    }
+                    TransportPathEvent tEvent = new()
+                    {
+                        Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum + (pausePointIndex == eventPointIndex ? pathPoints[eventPointIndex].Delay * Time.IN_MILLISECONDS : 0),
+                        EventId = pathPoints[eventPointIndex].DepartureEventID
+                    };
+
+                    outEvents.Add(tEvent);
                 }
 
                 double splineLengthToCurrentNode = leg.Spline.Length(pausePointIndex);
                 var length1 = splineLengthToCurrentNode - splineLengthToPreviousNode;
-                uint movementTime;
 
-                if (pauseItr != 0)
-                    movementTime = LegTimeAccelDecel(length1);
-                else
-                    movementTime = LegTimeAccel(length1);
+                var movementTime = pauseItr != 0 ? LegTimeAccelDecel(length1) : LegTimeAccel(length1);
 
                 leg.Duration += movementTime;
 
@@ -432,16 +425,14 @@ public class TransportManager
                 outEvents.Add(tEvent);
             }
 
-            if (pathPoints[eventPointIndex].DepartureEventID != 0)
-            {
-                TransportPathEvent tEvent = new()
-                {
-                    Timestamp = totalTime + eventSplineTime + leg.Duration,
-                    EventId = pathPoints[eventPointIndex].DepartureEventID
-                };
+            if (pathPoints[eventPointIndex].DepartureEventID == 0)
+                continue;
 
-                outEvents.Add(tEvent);
-            }
+            outEvents.Add(new TransportPathEvent
+            {
+                Timestamp = totalTime + eventSplineTime + leg.Duration,
+                EventId = pathPoints[eventPointIndex].DepartureEventID
+            });
         }
 
         // Add segment after last pause
@@ -466,8 +457,8 @@ public class TransportManager
         leg.Segments.Add(pauseSegment);
         totalTime += leg.Segments[pauseItr].SegmentEndArrivalTimestamp + leg.Segments[pauseItr].Delay;
 
-        for (var i = 0; i < leg.Segments.Count; ++i)
-            leg.Segments[i].SegmentEndArrivalTimestamp += leg.StartTimestamp;
+        foreach (var segment in leg.Segments)
+            segment.SegmentEndArrivalTimestamp += leg.StartTimestamp;
     }
 
     private void GeneratePath(GameObjectTemplate goInfo, TransportTemplate transport)

@@ -11,20 +11,19 @@ namespace Forged.MapServer.Maps;
 
 internal class ObjectWorldLoader : IGridNotifierCorpse
 {
-    public uint ICorpses;
-
     private readonly Cell _iCell;
     private readonly Grid _iGrid;
     private readonly Map _iMap;
     public ObjectWorldLoader(ObjectGridLoaderBase gloader, GridType gridType)
     {
-        _iCell = gloader.ICell;
-        _iMap = gloader.IMap;
-        _iGrid = gloader.IGrid;
-        ICorpses = gloader.ICorpses;
+        _iCell = gloader.Cell;
+        _iMap = gloader.Map;
+        _iGrid = gloader.Grid;
+        Corpses = gloader.Corpses;
         GridType = gridType;
     }
 
+    public uint Corpses { get; set; }
     public GridType GridType { get; set; }
     public void Visit(IList<Corpse> objs)
     {
@@ -49,7 +48,7 @@ internal class ObjectWorldLoader : IGridNotifierCorpse
                 cell.AddGridObject(corpse);
             }
 
-            ++ICorpses;
+            ++Corpses;
         }
     }
 }

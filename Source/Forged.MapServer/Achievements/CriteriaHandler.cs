@@ -2484,7 +2484,7 @@ public class CriteriaHandler
             case ModifierTreeType.PlayerCountIsValidToStartGarrisonInvasion: // 164
                 return true;                                                 // Only 1 player is required and referencePlayer.GetMap() will ALWAYS have at least the referencePlayer on it
             case ModifierTreeType.InstancePlayerCountEqualOrLessThan:        // 165
-                if (referencePlayer.Location.Map.GetPlayersCountExceptGMs() > reqValue)
+                if (referencePlayer.Location.Map.PlayersCountExceptGMs > reqValue)
                     return false;
 
                 break;

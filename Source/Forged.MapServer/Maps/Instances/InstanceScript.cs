@@ -710,73 +710,71 @@ public class InstanceScript : ZoneScript
 
                 return false;
             }
-            else
+
+            if (bossInfo.State == state)
+                return false;
+
+            if (bossInfo.State == EncounterState.Done)
             {
-                if (bossInfo.State == state)
-                    return false;
+                Log.Logger.Error($"InstanceScript: Tried to set instance boss {id} state from {bossInfo.State} back to {state} for map {Instance.Id}, instance id {Instance.InstanceId}. Blocked!");
 
-                if (bossInfo.State == EncounterState.Done)
-                {
-                    Log.Logger.Error($"InstanceScript: Tried to set instance boss {id} state from {bossInfo.State} back to {state} for map {Instance.Id}, instance id {Instance.InstanceId}. Blocked!");
-
-                    return false;
-                }
-
-                if (state == EncounterState.Done)
-                    foreach (var guid in bossInfo.Minion)
-                    {
-                        var minion = Instance.GetCreature(guid);
-
-                        if (minion == null)
-                            continue;
-
-                        if (minion.IsWorldBoss && minion.IsAlive)
-                            return false;
-                    }
-
-                DungeonEncounterRecord dungeonEncounter = null;
-
-                switch (state)
-                {
-                    case EncounterState.InProgress:
-                    {
-                        var resInterval = GetCombatResurrectionChargeInterval();
-                        InitializeCombatResurrections(1, resInterval);
-                        SendEncounterStart(1, 9, resInterval, resInterval);
-
-                        Instance.DoOnPlayers(player =>
-                        {
-                            if (player.IsAlive)
-                                _unitCombatHelpers.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.EncounterStart), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
-                        });
-
-                        break;
-                    }
-                    case EncounterState.Fail:
-                        ResetCombatResurrections();
-                        SendEncounterEnd();
-
-                        break;
-
-                    case EncounterState.Done:
-                        ResetCombatResurrections();
-                        SendEncounterEnd();
-                        dungeonEncounter = bossInfo.GetDungeonEncounterForDifficulty(Instance.DifficultyID);
-
-                        if (dungeonEncounter != null)
-                        {
-                            DoUpdateCriteria(CriteriaType.DefeatDungeonEncounter, dungeonEncounter.Id);
-                            SendBossKillCredit(dungeonEncounter.Id);
-                        }
-
-                        break;
-                }
-
-                bossInfo.State = state;
-
-                if (dungeonEncounter != null)
-                    Instance.UpdateInstanceLock(new UpdateBossStateSaveDataEvent(dungeonEncounter, id, state));
+                return false;
             }
+
+            if (state == EncounterState.Done)
+                foreach (var guid in bossInfo.Minion)
+                {
+                    var minion = Instance.GetCreature(guid);
+
+                    if (minion == null)
+                        continue;
+
+                    if (minion.IsWorldBoss && minion.IsAlive)
+                        return false;
+                }
+
+            DungeonEncounterRecord dungeonEncounter = null;
+
+            switch (state)
+            {
+                case EncounterState.InProgress:
+                {
+                    var resInterval = GetCombatResurrectionChargeInterval();
+                    InitializeCombatResurrections(1, resInterval);
+                    SendEncounterStart(1, 9, resInterval, resInterval);
+
+                    Instance.DoOnPlayers(player =>
+                    {
+                        if (player.IsAlive)
+                            _unitCombatHelpers.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.EncounterStart), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+                    });
+
+                    break;
+                }
+                case EncounterState.Fail:
+                    ResetCombatResurrections();
+                    SendEncounterEnd();
+
+                    break;
+
+                case EncounterState.Done:
+                    ResetCombatResurrections();
+                    SendEncounterEnd();
+                    dungeonEncounter = bossInfo.GetDungeonEncounterForDifficulty(Instance.DifficultyID);
+
+                    if (dungeonEncounter != null)
+                    {
+                        DoUpdateCriteria(CriteriaType.DefeatDungeonEncounter, dungeonEncounter.Id);
+                        SendBossKillCredit(dungeonEncounter.Id);
+                    }
+
+                    break;
+            }
+
+            bossInfo.State = state;
+
+            if (dungeonEncounter != null)
+                Instance.UpdateInstanceLock(new UpdateBossStateSaveDataEvent(dungeonEncounter, id, state));
 
             for (uint type = 0; type < (int)DoorType.Max; ++type)
                 foreach (var guid in bossInfo.Door[type])

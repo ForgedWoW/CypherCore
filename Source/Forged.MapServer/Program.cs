@@ -482,6 +482,7 @@ void RegisterInstanced()
     builder.RegisterType<Cell>();
     builder.RegisterType<Map>();
     builder.RegisterType<DynamicMapTree>();
+    builder.RegisterType<TerrainInfo>();
 }
 
 void RegisterHandlers()
