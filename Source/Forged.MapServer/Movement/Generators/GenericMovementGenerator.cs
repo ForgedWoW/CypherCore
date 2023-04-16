@@ -75,21 +75,20 @@ internal class GenericMovementGenerator : MovementGenerator
 
     public override bool Update(Unit owner, uint diff)
     {
-        if (!owner || HasFlag(MovementGeneratorFlags.Finalized))
+        if (owner == null || HasFlag(MovementGeneratorFlags.Finalized))
             return false;
 
         // Cyclic splines never expire, so update the duration only if it's not cyclic
-        if (!owner.MoveSpline.IsCyclic())
+        if (!owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Cyclic))
             _duration.Update(diff);
 
-        if (_duration.Passed || owner.MoveSpline.Finalized())
-        {
-            AddFlag(MovementGeneratorFlags.InformEnabled);
+        if (!_duration.Passed && !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
+            return true;
 
-            return false;
-        }
+        AddFlag(MovementGeneratorFlags.InformEnabled);
 
-        return true;
+        return false;
+
     }
 
     private void MovementInform(Unit owner)

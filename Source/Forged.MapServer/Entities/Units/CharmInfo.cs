@@ -342,7 +342,7 @@ public class CharmInfo
     public void SaveStayPosition()
     {
         //! At this point a new spline destination is enabled because of Unit.StopMoving()
-        var stayPos = new Position(_unit.MoveSpline.FinalDestination());
+        var stayPos = new Position(_unit.MoveSpline.FinalDestination);
 
         if (_unit.MoveSpline.OnTransport)
         {

@@ -655,7 +655,7 @@ internal class AccountCommands
                 handler.SendSysMessage(CypherStrings.TwoFASecretInvalid);
                 return false;
             }
-            if (128 < (decoded.Length + 12 + 12))
+            if (128 < (decoded.SectionLength + 12 + 12))
             {
                 handler.SendSysMessage(CypherStrings.TwoFASecretTooLong);
                 return false;

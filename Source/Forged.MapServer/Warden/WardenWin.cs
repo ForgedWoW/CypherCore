@@ -442,7 +442,7 @@ internal class WardenWin : Warden
                     buff << uint8(index++);
                     buff << uint8(index++);
                     buff << uint32(wd.Address);
-                    buff << uint8(wd.Length);
+                    buff << uint8(wd.SectionLength);
                     break;
                 }*/
                  // Should never happen

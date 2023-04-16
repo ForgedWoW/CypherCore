@@ -57,7 +57,7 @@ public class FollowMovementGenerator : MovementGenerator
 
     public Unit GetTarget()
     {
-        return _abstractFollower.GetTarget();
+        return _abstractFollower.Target;
     }
 
     public override void Initialize(Unit owner)
@@ -85,11 +85,11 @@ public class FollowMovementGenerator : MovementGenerator
     public override bool Update(Unit owner, uint diff)
     {
         // owner might be dead or gone
-        if (owner == null || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return false;
 
         // our target might have gone away
-        var target = _abstractFollower.GetTarget();
+        var target = _abstractFollower.Target;
 
         if (target == null || !target.Location.IsInWorld)
             return false;
@@ -121,7 +121,7 @@ public class FollowMovementGenerator : MovementGenerator
             }
         }
 
-        if (owner.HasUnitState(UnitState.FollowMove) && owner.MoveSpline.Finalized())
+        if (owner.HasUnitState(UnitState.FollowMove) && owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
         {
             RemoveFlag(MovementGeneratorFlags.InformEnabled);
             _path = null;
@@ -173,7 +173,7 @@ public class FollowMovementGenerator : MovementGenerator
 
                 var success = _path.CalculatePath(newPos, allowShortcut);
 
-                if (!success || _path.GetPathType().HasFlag(PathType.NoPath))
+                if (!success || _path.PathType.HasFlag(PathType.NoPath))
                 {
                     owner.StopMoving();
 
@@ -184,7 +184,7 @@ public class FollowMovementGenerator : MovementGenerator
                 AddFlag(MovementGeneratorFlags.InformEnabled);
 
                 MoveSplineInit init = new(owner);
-                init.MovebyPath(_path.GetPath());
+                init.MovebyPath(_path.Path);
                 init.SetWalk(target.IsWalking);
                 init.SetFacing(target.Location.Orientation);
                 init.Launch();
@@ -216,12 +216,14 @@ public class FollowMovementGenerator : MovementGenerator
     {
         var oPet = owner.AsPet;
 
-        if (oPet != null)
-            if (!_abstractFollower.GetTarget() || _abstractFollower.GetTarget().GUID == owner.OwnerGUID)
-            {
-                oPet.UpdateSpeed(UnitMoveType.Run);
-                oPet.UpdateSpeed(UnitMoveType.Walk);
-                oPet.UpdateSpeed(UnitMoveType.Swim);
-            }
+        if (oPet == null)
+            return;
+
+        if (_abstractFollower.Target != null && _abstractFollower.Target.GUID != owner.OwnerGUID)
+            return;
+
+        oPet.UpdateSpeed(UnitMoveType.Run);
+        oPet.UpdateSpeed(UnitMoveType.Walk);
+        oPet.UpdateSpeed(UnitMoveType.Swim);
     }
 }

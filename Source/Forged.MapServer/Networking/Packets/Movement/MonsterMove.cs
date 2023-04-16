@@ -21,11 +21,11 @@ public class MonsterMove : ServerPacket
 
     public void InitializeSplineData(MoveSpline moveSpline)
     {
-        SplineData.Id = moveSpline.GetId();
+        SplineData.Id = moveSpline.Id;
         var movementSpline = SplineData.Move;
 
         var splineFlags = moveSpline.Splineflags;
-        splineFlags.SetUnsetFlag(SplineFlag.Cyclic, moveSpline.IsCyclic());
+        splineFlags.SetUnsetFlag(SplineFlag.Cyclic, moveSpline.Splineflags.HasFlag(SplineFlag.Cyclic));
         movementSpline.Flags = (uint)(splineFlags.Flags & ~SplineFlag.MaskNoMonsterMove);
         movementSpline.Face = moveSpline.Facing.Type;
         movementSpline.FaceDirection = moveSpline.Facing.Angle;
@@ -44,7 +44,7 @@ public class MonsterMove : ServerPacket
             movementSpline.AnimTierTransition = animTierTransition;
         }
 
-        movementSpline.MoveTime = (uint)moveSpline.Duration();
+        movementSpline.MoveTime = (uint)moveSpline.Spline.Length;
 
         if (splineFlags.HasFlag(SplineFlag.Parabolic) && (moveSpline.SpellEffectExtra == null || moveSpline.EffectStartTime != 0))
         {
@@ -77,20 +77,20 @@ public class MonsterMove : ServerPacket
         lock (moveSpline.Spline)
         {
             var spline = moveSpline.Spline;
-            var array = spline.GetPoints();
+            var array = spline.Points;
 
             if (splineFlags.HasFlag(SplineFlag.UncompressedPath))
             {
                 if (!splineFlags.HasFlag(SplineFlag.Cyclic))
                 {
-                    var count = spline.GetPointCount() - 3;
+                    var count = spline.PointCount - 3;
 
                     for (uint i = 0; i < count; ++i)
                         movementSpline.Points.Add(array[i + 2]);
                 }
                 else
                 {
-                    var count = spline.GetPointCount() - 3;
+                    var count = spline.PointCount - 3;
                     movementSpline.Points.Add(array[1]);
 
                     for (uint i = 0; i < count; ++i)
@@ -99,8 +99,8 @@ public class MonsterMove : ServerPacket
             }
             else
             {
-                var lastIdx = spline.GetPointCount() - 3;
-                var realPath = new Span<Vector3>(spline.GetPoints()).Slice(1);
+                var lastIdx = spline.PointCount - 3;
+                var realPath = new Span<Vector3>(spline.Points).Slice(1);
 
                 movementSpline.Points.Add(realPath[lastIdx]);
 

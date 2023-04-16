@@ -61,7 +61,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
         RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
         AddFlag(MovementGeneratorFlags.Initialized);
 
-        if (owner == null || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return;
 
         // TODO: UNIT_FIELD_FLAGS should not be handled by generators
@@ -78,7 +78,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 
     public override bool DoUpdate(T owner, uint diff)
     {
-        if (owner == null || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return false;
 
         if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
@@ -89,14 +89,12 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 
             return true;
         }
-        else
-        {
-            RemoveFlag(MovementGeneratorFlags.Interrupted);
-        }
+
+        RemoveFlag(MovementGeneratorFlags.Interrupted);
 
         _timer.Update(diff);
 
-        if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed && owner.MoveSpline.Finalized()))
+        if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)) || (_timer.Passed && owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
         {
             RemoveFlag(MovementGeneratorFlags.Transitory);
             SetTargetLocation(owner);
@@ -155,7 +153,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 
     private void SetTargetLocation(T owner)
     {
-        if (owner == null || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return;
 
         if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
@@ -186,7 +184,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 
         var result = _path.CalculatePath(destination);
 
-        if (!result || _path.GetPathType().HasFlag(PathType.NoPath) || _path.GetPathType().HasFlag(PathType.Shortcut) || _path.GetPathType().HasFlag(PathType.FarFromPoly))
+        if (!result || _path.PathType.HasFlag(PathType.NoPath) || _path.PathType.HasFlag(PathType.Shortcut) || _path.PathType.HasFlag(PathType.FarFromPoly))
         {
             _timer.Reset(100);
 
@@ -196,7 +194,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
         owner.AddUnitState(UnitState.FleeingMove);
 
         MoveSplineInit init = new(owner);
-        init.MovebyPath(_path.GetPath());
+        init.MovebyPath(_path.Path);
         init.SetWalk(false);
         var traveltime = (uint)init.Launch();
         _timer.Reset(traveltime + RandomHelper.URand(800, 1500));

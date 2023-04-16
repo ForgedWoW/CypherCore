@@ -57,7 +57,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
         RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated | MovementGeneratorFlags.Paused);
         AddFlag(MovementGeneratorFlags.Initialized);
 
-        if (owner == null || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return;
 
         _reference = owner.Location;
@@ -81,7 +81,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 
     public override bool DoUpdate(Creature owner, uint diff)
     {
-        if (!owner || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return true;
 
         if (HasFlag(MovementGeneratorFlags.Finalized | MovementGeneratorFlags.Paused))
@@ -95,16 +95,14 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 
             return true;
         }
-        else
-        {
-            RemoveFlag(MovementGeneratorFlags.Interrupted);
-        }
+
+        RemoveFlag(MovementGeneratorFlags.Interrupted);
 
         lock (_reference)
         {
             _timer.Update(diff);
 
-            if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed && owner.MoveSpline.Finalized()))
+            if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)) || (_timer.Passed && owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
                 SetRandomLocation(owner);
         }
 
@@ -189,7 +187,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
         var result = _path.CalculatePath(position);
 
         // PATHFIND_FARFROMPOLY shouldn't be checked as creatures in water are most likely far from poly
-        if (!result || _path.GetPathType().HasFlag(PathType.NoPath) || _path.GetPathType().HasFlag(PathType.Shortcut)) // || _path.GetPathType().HasFlag(PathType.FarFromPoly))
+        if (!result || _path.PathType.HasFlag(PathType.NoPath) || _path.PathType.HasFlag(PathType.Shortcut)) // || _path.GetPathType().HasFlag(PathType.FarFromPoly))
         {
             _timer.Reset(100);
 
@@ -208,7 +206,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
         };
 
         MoveSplineInit init = new(owner);
-        init.MovebyPath(_path.GetPath());
+        init.MovebyPath(_path.Path);
         init.SetWalk(walk);
         var splineDuration = (uint)init.Launch();
 

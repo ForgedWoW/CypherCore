@@ -352,7 +352,7 @@ public class TransportManager
                     if (eventPointIndex > pausePointIndex)
                         break;
 
-                    double eventLength = leg.Spline.Length(eventPointIndex) - splineLengthToPreviousNode;
+                    double eventLength = leg.Spline.SectionLength(eventPointIndex) - splineLengthToPreviousNode;
 
                     var eventSplineTime = pauseItr != 0 ? LegTimeAccelDecel(eventLength) : LegTimeAccel(eventLength);
 
@@ -379,7 +379,7 @@ public class TransportManager
                     outEvents.Add(tEvent);
                 }
 
-                double splineLengthToCurrentNode = leg.Spline.Length(pausePointIndex);
+                double splineLengthToCurrentNode = leg.Spline.SectionLength(pausePointIndex);
                 var length1 = splineLengthToCurrentNode - splineLengthToPreviousNode;
 
                 var movementTime = pauseItr != 0 ? LegTimeAccelDecel(length1) : LegTimeAccel(length1);
@@ -406,7 +406,7 @@ public class TransportManager
             if (eventPointIndex == -1) // last point is a "fake" spline node, events cannot happen there
                 break;
 
-            double eventLength = leg.Spline.Length(eventPointIndex) - splineLengthToPreviousNode;
+            double eventLength = leg.Spline.SectionLength(eventPointIndex) - splineLengthToPreviousNode;
             uint eventSplineTime;
 
             if (pauseItr != 0)
@@ -436,7 +436,7 @@ public class TransportManager
         }
 
         // Add segment after last pause
-        double length = leg.Spline.Length() - splineLengthToPreviousNode;
+        double length = leg.Spline.Length - splineLengthToPreviousNode;
         uint splineTime;
 
         if (pauseItr != 0)
@@ -451,7 +451,7 @@ public class TransportManager
         {
             SegmentEndArrivalTimestamp = leg.Duration,
             Delay = 0,
-            DistanceFromLegStartAtEnd = leg.Spline.Length()
+            DistanceFromLegStartAtEnd = leg.Spline.Length
         };
 
         leg.Segments.Add(pauseSegment);

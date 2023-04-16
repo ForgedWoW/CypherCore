@@ -8,11 +8,6 @@ namespace Forged.MapServer.Movement;
 
 public class SplineChainLink
 {
-    public uint ExpectedDuration { get; set; }
-    public List<Vector3> Points { get; set; } = new();
-    public uint TimeToNext { get; set; }
-    public float Velocity { get; set; }
-
     public SplineChainLink(Vector3[] points, uint expectedDuration, uint msToNext, float velocity)
     {
         Points.AddRange(points);
@@ -27,4 +22,9 @@ public class SplineChainLink
         TimeToNext = msToNext;
         Velocity = velocity;
     }
+
+    public uint ExpectedDuration { get; set; }
+    public List<Vector3> Points { get; set; } = new();
+    public uint TimeToNext { get; set; }
+    public float Velocity { get; set; }
 }

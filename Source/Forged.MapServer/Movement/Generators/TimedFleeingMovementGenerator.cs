@@ -34,13 +34,13 @@ public class TimedFleeingMovementGenerator : FleeingMovementGenerator<Creature>
                 owner.AsCreature.AI.AttackStart(victim);
             }
 
-        if (movementInform)
-        {
-            var ownerCreature = owner.AsCreature;
-            var ai = ownerCreature?.AI;
+        if (!movementInform)
+            return;
 
-            ai?.MovementInform(MovementGeneratorType.TimedFleeing, 0);
-        }
+        var ownerCreature = owner.AsCreature;
+        var ai = ownerCreature?.AI;
+
+        ai?.MovementInform(MovementGeneratorType.TimedFleeing, 0);
     }
 
     public override MovementGeneratorType GetMovementGeneratorType()
@@ -50,14 +50,11 @@ public class TimedFleeingMovementGenerator : FleeingMovementGenerator<Creature>
 
     public override bool Update(Unit owner, uint diff)
     {
-        if (owner == null || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return false;
 
         _totalFleeTime.Update(diff);
 
-        if (_totalFleeTime.Passed)
-            return false;
-
-        return DoUpdate(owner.AsCreature, diff);
+        return !_totalFleeTime.Passed && DoUpdate(owner.AsCreature, diff);
     }
 }

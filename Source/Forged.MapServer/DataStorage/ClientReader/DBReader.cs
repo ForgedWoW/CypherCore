@@ -170,7 +170,7 @@ internal class DBReader
                 var sparseIndexData = reader.ReadArray<int>((uint)sections[sectionIndex].NumSparseRecords);
 
                 if (Header.HasIndexTable() && indexData.Length != sparseIndexData.Length)
-                    throw new Exception("indexData.Length != sparseIndexData.Length");
+                    throw new Exception("indexData.SectionLength != sparseIndexData.SectionLength");
 
                 indexData = sparseIndexData;
             }

@@ -1147,9 +1147,9 @@ public partial class Spell : IDisposable
                         // first try with raycast, if it fails fall back to normal path
                         var result = _preGeneratedPath.CalculatePath(target.Location, false);
 
-                        if (_preGeneratedPath.GetPathType().HasAnyFlag(PathType.Short))
+                        if (_preGeneratedPath.PathType.HasAnyFlag(PathType.Short))
                             return SpellCastResult.NoPath;
-                        else if (!result || _preGeneratedPath.GetPathType().HasAnyFlag(PathType.NoPath | PathType.Incomplete))
+                        else if (!result || _preGeneratedPath.PathType.HasAnyFlag(PathType.NoPath | PathType.Incomplete))
                             return SpellCastResult.NoPath;
                         else if (_preGeneratedPath.IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
                             return SpellCastResult.NoPath;

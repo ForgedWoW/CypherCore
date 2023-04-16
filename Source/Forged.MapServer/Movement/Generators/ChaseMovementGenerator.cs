@@ -64,7 +64,7 @@ internal class ChaseMovementGenerator : MovementGenerator
 
     public Unit GetTarget()
     {
-        return _abstractFollower.GetTarget();
+        return _abstractFollower.Target;
     }
 
     public override void Initialize(Unit owner)
@@ -94,7 +94,7 @@ internal class ChaseMovementGenerator : MovementGenerator
             return false;
 
         // our target might have gone away
-        var target = _abstractFollower.GetTarget();
+        var target = _abstractFollower.Target;
 
         if (target == null || !target.Location.IsInWorld)
             return false;
@@ -148,7 +148,7 @@ internal class ChaseMovementGenerator : MovementGenerator
         }
 
         // if we're done moving, we want to clean up
-        if (owner.HasUnitState(UnitState.ChaseMove) && owner.MoveSpline.Finalized())
+        if (owner.HasUnitState(UnitState.ChaseMove) && owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
         {
             RemoveFlag(MovementGeneratorFlags.InformEnabled);
             _path = null;
@@ -210,7 +210,7 @@ internal class ChaseMovementGenerator : MovementGenerator
 
                 var success = _path.CalculatePath(pos, owner.CanFly);
 
-                if (!success || _path.GetPathType().HasAnyFlag(PathType.NoPath))
+                if (!success || _path.PathType.HasAnyFlag(PathType.NoPath))
                 {
                     cOwner?.SetCannotReachTarget(true);
 
@@ -238,7 +238,7 @@ internal class ChaseMovementGenerator : MovementGenerator
                 AddFlag(MovementGeneratorFlags.InformEnabled);
 
                 MoveSplineInit init = new(owner);
-                init.MovebyPath(_path.GetPath());
+                init.MovebyPath(_path.Path);
                 init.SetWalk(walk);
                 init.SetFacing(target);
                 init.Launch();

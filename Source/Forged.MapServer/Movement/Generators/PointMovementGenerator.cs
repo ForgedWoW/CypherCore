@@ -90,12 +90,12 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
 
             var result = path.CalculatePath(_destination);
 
-            if (result && (path.GetPathType() & PathType.NoPath) == 0)
+            if (result && (path.PathType & PathType.NoPath) == 0)
             {
                 if (_closeEnoughDistance.HasValue)
                     path.ShortenPathUntilDist(_destination, _closeEnoughDistance.Value);
 
-                init.MovebyPath(path.GetPath());
+                init.MovebyPath(path.Path);
 
                 return;
             }
@@ -110,7 +110,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
         if (_speed.HasValue)
             init.SetVelocity(_speed.Value);
 
-        if (_faceTarget)
+        if (_faceTarget != null)
             init.SetFacing(_faceTarget);
 
         if (_spellEffectExtra != null)
@@ -121,7 +121,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
 
         switch (_speedSelectionMode)
         {
-            case MovementWalkRunSpeedSelectionMode.
+            case MovementWalkRunSpeedSelectionMode.Default:
             case MovementWalkRunSpeedSelectionMode.ForceRun:
                 init.SetWalk(false);
 
@@ -155,7 +155,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
 
         if (_movementId == EventId.ChargePrepath)
         {
-            if (owner.MoveSpline.Finalized())
+            if (owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
             {
                 AddFlag(MovementGeneratorFlags.InformEnabled);
 
@@ -173,7 +173,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
             return true;
         }
 
-        if ((HasFlag(MovementGeneratorFlags.Interrupted) && owner.MoveSpline.Finalized()) || (HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()))
+        if ((HasFlag(MovementGeneratorFlags.Interrupted) && owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)) || (HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
         {
             RemoveFlag(MovementGeneratorFlags.Interrupted | MovementGeneratorFlags.SpeedUpdatePending);
 
@@ -193,7 +193,7 @@ public class PointMovementGenerator : MovementGeneratorMedium<Unit>
             creature?.SignalFormationMovement();
         }
 
-        if (owner.MoveSpline.Finalized())
+        if (owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
         {
             RemoveFlag(MovementGeneratorFlags.Transitory);
             AddFlag(MovementGeneratorFlags.InformEnabled);

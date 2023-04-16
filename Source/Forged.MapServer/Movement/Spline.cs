@@ -26,6 +26,20 @@ public class Spline<T>
     // client's value is 20, blizzs use 2-3 steps to compute length
     private int _stepsPerSegment = 3;
 
+    public int First => _indexLo;
+
+    public bool IsCyclic => _cyclic;
+
+    public bool IsEmpty => _indexLo == _indexHi;
+
+    public int Last => _indexHi;
+
+    public dynamic Length => _lengths.Length == 0 ? default(dynamic) : _lengths[_indexHi];
+
+    public int PointCount => _points.Length;
+
+    public Vector3[] Points => _points;
+
     public void Clear()
     {
         Array.Clear(_points, 0, _points.Length);
@@ -34,20 +48,62 @@ public class Spline<T>
     public void ComputeIndex(float t, ref int index, ref float u)
     {
         //ASSERT(t >= 0.f && t <= 1.f);
-        var length = (T)(t * Length());
+        var length = (T)(t * Length);
         index = ComputeIndexInBounds(length);
         //ASSERT(index < index_hi);
-        u = (float)(length - Length(index)) / (float)Length(index, index + 1);
+        u = (float)(length - SectionLength(index)) / (float)SectionLength(index, index + 1);
     }
 
-    public bool Empty()
+    public void Evaluate_Derivative(int idx, float u, out Vector3 hermite)
     {
-        return _indexLo == _indexHi;
+        switch (MMode)
+        {
+            case EvaluationMode.Linear:
+                EvaluateDerivativeLinear(idx, out hermite);
+
+                break;
+
+            case EvaluationMode.Catmullrom:
+                EvaluateDerivativeCatmullRom(idx, u, out hermite);
+
+                break;
+
+            case EvaluationMode.Bezier3Unused:
+                EvaluateDerivativeBezier3(idx, u, out hermite);
+
+                break;
+
+            default:
+                hermite = new Vector3();
+
+                break;
+        }
     }
 
-    public int First()
+    public void Evaluate_Percent(int idx, float u, out Vector3 c)
     {
-        return _indexLo;
+        switch (MMode)
+        {
+            case EvaluationMode.Linear:
+                EvaluateLinear(idx, u, out c);
+
+                break;
+
+            case EvaluationMode.Catmullrom:
+                EvaluateCatmullRom(idx, u, out c);
+
+                break;
+
+            case EvaluationMode.Bezier3Unused:
+                EvaluateBezier3(idx, u, out c);
+
+                break;
+
+            default:
+                c = new Vector3();
+
+                break;
+        }
     }
 
     public Vector3 GetPoint(int i)
@@ -55,14 +111,12 @@ public class Spline<T>
         return _points[i];
     }
 
-    public int GetPointCount()
+    public void InitCyclicSpline(Vector3[] controls, int count, EvaluationMode m, int cyclicPoint, float orientation = 0f)
     {
-        return _points.Length;
-    }
+        MMode = m;
+        _cyclic = true;
 
-    public Vector3[] GetPoints()
-    {
-        return _points;
+        InitSpline(controls, count, m, orientation);
     }
 
     public void InitLengths(IInitializer<T> cacher)
@@ -94,32 +148,51 @@ public class Spline<T>
         }
     }
 
-    public bool IsCyclic()
+    public void InitSpline(Span<Vector3> controls, int count, EvaluationMode m, float orientation = 0f)
     {
-        return _cyclic;
+        MMode = m;
+        _cyclic = false;
+        _initialOrientation = orientation;
+
+        switch (MMode)
+        {
+            case EvaluationMode.Linear:
+            case EvaluationMode.Catmullrom:
+                InitCatmullRom(controls, count, _cyclic, 0);
+
+                break;
+
+            case EvaluationMode.Bezier3Unused:
+                InitBezier3(controls, count);
+
+                break;
+        }
     }
 
-    public int Last()
+    public void InitSplineCustom(SplineRawInitializer initializer)
     {
-        return _indexHi;
+        initializer.Initialize(ref MMode, ref _cyclic, ref _points, ref _indexLo, ref _indexHi);
     }
 
-    public dynamic Length()
-    {
-        if (_lengths.Length == 0)
-            return default;
-
-        return _lengths[_indexHi];
-    }
-
-    public dynamic Length(int first, int last)
+    public dynamic SectionLength(int first, int last)
     {
         return _lengths[last] - (dynamic)_lengths[first];
     }
 
-    public dynamic Length(int idx)
+    public dynamic SectionLength(int idx)
     {
         return _lengths[idx];
+    }
+
+    public float SegLength(int i)
+    {
+        return MMode switch
+        {
+            EvaluationMode.Linear => SegLengthLinear(i),
+            EvaluationMode.Catmullrom => SegLengthCatmullRom(i),
+            EvaluationMode.Bezier3Unused => SegLengthBezier3(i),
+            _ => 0
+        };
     }
 
     public void Set_length(int i, T length)
@@ -176,34 +249,6 @@ public class Spline<T>
         return i;
     }
 
-    #region Evaluate
-
-    public void Evaluate_Percent(int idx, float u, out Vector3 c)
-    {
-        switch (MMode)
-        {
-            case EvaluationMode.Linear:
-                EvaluateLinear(idx, u, out c);
-
-                break;
-
-            case EvaluationMode.Catmullrom:
-                EvaluateCatmullRom(idx, u, out c);
-
-                break;
-
-            case EvaluationMode.Bezier3Unused:
-                EvaluateBezier3(idx, u, out c);
-
-                break;
-
-            default:
-                c = new Vector3();
-
-                break;
-        }
-    }
-
     private void EvaluateBezier3(int index, float t, out Vector3 result)
     {
         index *= (int)3u;
@@ -217,47 +262,27 @@ public class Spline<T>
         C_Evaluate(span[(index - 1)..], t, SCatmullRomCoeffs, out result);
     }
 
+    private void EvaluateDerivativeBezier3(int index, float t, out Vector3 result)
+    {
+        index *= (int)3u;
+        Span<Vector3> span = _points;
+        C_Evaluate_Derivative(span[index..], t, SBezier3Coeffs, out result);
+    }
+
+    private void EvaluateDerivativeCatmullRom(int index, float t, out Vector3 result)
+    {
+        Span<Vector3> span = _points;
+        C_Evaluate_Derivative(span[(index - 1)..], t, SCatmullRomCoeffs, out result);
+    }
+
+    private void EvaluateDerivativeLinear(int index, out Vector3 result)
+    {
+        result = _points[index + 1] - _points[index];
+    }
+
     private void EvaluateLinear(int index, float u, out Vector3 result)
     {
         result = _points[index] + (_points[index + 1] - _points[index]) * u;
-    }
-
-    #endregion Evaluate
-
-    #region Init
-
-    public void InitCyclicSpline(Vector3[] controls, int count, EvaluationMode m, int cyclicPoint, float orientation = 0f)
-    {
-        MMode = m;
-        _cyclic = true;
-
-        InitSpline(controls, count, m, orientation);
-    }
-
-    public void InitSpline(Span<Vector3> controls, int count, EvaluationMode m, float orientation = 0f)
-    {
-        MMode = m;
-        _cyclic = false;
-        _initialOrientation = orientation;
-
-        switch (MMode)
-        {
-            case EvaluationMode.Linear:
-            case EvaluationMode.Catmullrom:
-                InitCatmullRom(controls, count, _cyclic, 0);
-
-                break;
-
-            case EvaluationMode.Bezier3Unused:
-                InitBezier3(controls, count);
-
-                break;
-        }
-    }
-
-    public void InitSplineCustom(SplineRawInitializer initializer)
-    {
-        initializer.Initialize(ref MMode, ref _cyclic, ref _points, ref _indexLo, ref _indexHi);
     }
 
     private void InitBezier3(Span<Vector3> controls, int count)
@@ -303,69 +328,6 @@ public class Spline<T>
 
         _indexLo = loIndex;
         _indexHi = highIndex + (cyclic ? 1 : 0);
-    }
-
-    #endregion Init
-
-    #region EvaluateDerivative
-
-    public void Evaluate_Derivative(int idx, float u, out Vector3 hermite)
-    {
-        switch (MMode)
-        {
-            case EvaluationMode.Linear:
-                EvaluateDerivativeLinear(idx, out hermite);
-
-                break;
-
-            case EvaluationMode.Catmullrom:
-                EvaluateDerivativeCatmullRom(idx, u, out hermite);
-
-                break;
-
-            case EvaluationMode.Bezier3Unused:
-                EvaluateDerivativeBezier3(idx, u, out hermite);
-
-                break;
-
-            default:
-                hermite = new Vector3();
-
-                break;
-        }
-    }
-
-    private void EvaluateDerivativeBezier3(int index, float t, out Vector3 result)
-    {
-        index *= (int)3u;
-        Span<Vector3> span = _points;
-        C_Evaluate_Derivative(span[index..], t, SBezier3Coeffs, out result);
-    }
-
-    private void EvaluateDerivativeCatmullRom(int index, float t, out Vector3 result)
-    {
-        Span<Vector3> span = _points;
-        C_Evaluate_Derivative(span[(index - 1)..], t, SCatmullRomCoeffs, out result);
-    }
-
-    private void EvaluateDerivativeLinear(int index, out Vector3 result)
-    {
-        result = _points[index + 1] - _points[index];
-    }
-
-    #endregion EvaluateDerivative
-
-    #region SegLength
-
-    public float SegLength(int i)
-    {
-        return MMode switch
-        {
-            EvaluationMode.Linear        => SegLengthLinear(i),
-            EvaluationMode.Catmullrom    => SegLengthCatmullRom(i),
-            EvaluationMode.Bezier3Unused => SegLengthBezier3(i),
-            _                            => 0
-        };
     }
 
     private float SegLengthBezier3(int index)
@@ -414,6 +376,4 @@ public class Spline<T>
     {
         return (_points[index] - _points[index + 1]).Length();
     }
-
-    #endregion SegLength
 }

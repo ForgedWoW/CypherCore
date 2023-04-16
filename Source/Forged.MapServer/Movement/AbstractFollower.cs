@@ -7,29 +7,22 @@ namespace Forged.MapServer.Movement;
 
 public class AbstractFollower
 {
-    private Unit _target;
-
     public AbstractFollower(Unit target = null)
     {
         SetTarget(target);
     }
 
-    public Unit GetTarget()
-    {
-        return _target;
-    }
+    public Unit Target { get; private set; }
 
     public void SetTarget(Unit unit)
     {
-        if (unit == _target)
+        if (unit == Target)
             return;
 
-        if (_target)
-            _target.FollowerRemoved(this);
+        Target?.FollowerRemoved(this);
 
-        _target = unit;
+        Target = unit;
 
-        if (_target)
-            _target.FollowerAdded(this);
+        Target?.FollowerAdded(this);
     }
 }

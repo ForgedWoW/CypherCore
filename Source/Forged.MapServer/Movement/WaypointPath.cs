@@ -7,9 +7,6 @@ namespace Forged.MapServer.Movement;
 
 public class WaypointPath
 {
-    public uint ID { get; set; }
-    public List<WaypointNode> Nodes { get; set; } = new();
-
     public WaypointPath() { }
 
     public WaypointPath(uint id, List<WaypointNode> nodes)
@@ -17,4 +14,7 @@ public class WaypointPath
         ID = id;
         Nodes = nodes;
     }
+
+    public uint ID { get; set; }
+    public List<WaypointNode> Nodes { get; set; } = new();
 }

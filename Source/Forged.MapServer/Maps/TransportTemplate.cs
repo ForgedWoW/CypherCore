@@ -67,7 +67,7 @@ public class TransportTemplate
 
         var splineIndex = 0;
         float splinePointProgress = 0;
-        leg.Spline.ComputeIndex((float)Math.Min(distanceMoved / leg.Spline.Length(), 1.0), ref splineIndex, ref splinePointProgress);
+        leg.Spline.ComputeIndex((float)Math.Min(distanceMoved / leg.Spline.Length, 1.0), ref splineIndex, ref splinePointProgress);
 
         leg.Spline.Evaluate_Percent(splineIndex, splinePointProgress, out var pos);
         leg.Spline.Evaluate_Derivative(splineIndex, splinePointProgress, out var dir);

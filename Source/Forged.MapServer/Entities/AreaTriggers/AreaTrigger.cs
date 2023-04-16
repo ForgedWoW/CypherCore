@@ -90,7 +90,7 @@ public class AreaTrigger : WorldObject
         }
     }
 
-    public bool HasSplines => !Spline.Empty();
+    public bool HasSplines => !Spline.IsEmpty;
     public HashSet<ObjectGuid> InsideUnits { get; } = new();
     public bool IsRemoved { get; private set; }
     public bool IsServerSide => _areaTriggerTemplate.Id.IsServerSide;
@@ -333,10 +333,10 @@ public class AreaTrigger : WorldObject
         var path = new PathGenerator(startingObject ?? GetCaster());
         var result = path.CalculatePath(targetPos ?? Location, true);
 
-        if (!result || (path.GetPathType() & PathType.NoPath) != 0)
+        if (!result || (path.PathType & PathType.NoPath) != 0)
             return false;
 
-        InitSplines(path.GetPath().ToList(), timeToTarget);
+        InitSplines(path.Path.ToList(), timeToTarget);
 
         return true;
     }
@@ -1075,7 +1075,7 @@ public class AreaTrigger : WorldObject
         if (_movementTime >= TimeToTarget)
         {
             _reachedDestination = true;
-            _lastSplineIndex = Spline.Last();
+            _lastSplineIndex = Spline.Last;
 
             var lastSplinePosition = Spline.GetPoint(_lastSplineIndex);
             Location.Map.AreaTriggerRelocation(this, lastSplinePosition.X, lastSplinePosition.Y, lastSplinePosition.Z, Location.Orientation);

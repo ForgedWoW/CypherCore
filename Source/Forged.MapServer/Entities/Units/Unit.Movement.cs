@@ -974,7 +974,7 @@ public partial class Unit
     public void SetFacingTo(float ori, bool force = true)
     {
         // do not face when already moving
-        if (!force && (!IsStopped || !MoveSpline.Finalized()))
+        if (!force && (!IsStopped || !MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
             return;
 
         MoveSplineInit init = new(this);
@@ -992,7 +992,7 @@ public partial class Unit
     public void SetFacingToObject(WorldObject obj, bool force = true)
     {
         // do not face when already moving
-        if (!force && (!IsStopped || !MoveSpline.Finalized()))
+        if (!force && (!IsStopped || !MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
             return;
 
         // @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
@@ -1007,7 +1007,7 @@ public partial class Unit
     public void SetFacingToUnit(Unit unit, bool force = true)
     {
         // do not face when already moving
-        if (!force && (!IsStopped || !MoveSpline.Finalized()))
+        if (!force && (!IsStopped || !MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
             return;
 
         // @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
@@ -1457,11 +1457,11 @@ public partial class Unit
         ClearUnitState(UnitState.Moving);
 
         // not need send any packets if not in world or not moving
-        if (!Location.IsInWorld || MoveSpline.Finalized())
+        if (!Location.IsInWorld || MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
             return;
 
         // Update position now since Stop does not start a new movement that can be updated later
-        if (MoveSpline.HasStarted())
+        if (MoveSpline.HasStarted)
             UpdateSplinePosition();
 
         MoveSplineInit init = new(this);
@@ -1944,13 +1944,13 @@ public partial class Unit
     }
     private void UpdateSplineMovement(uint diff)
     {
-        if (MoveSpline.Finalized())
+        if (MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
             return;
 
         MoveSpline.UpdateState((int)diff);
-        var arrived = MoveSpline.Finalized();
+        var arrived = MoveSpline.Splineflags.HasFlag(SplineFlag.Done);
 
-        if (MoveSpline.IsCyclic())
+        if (MoveSpline.Splineflags.HasFlag(SplineFlag.Cyclic))
         {
             _splineSyncTimer.Update(diff);
 
@@ -1961,7 +1961,7 @@ public partial class Unit
                 FlightSplineSync flightSplineSync = new()
                 {
                     Guid = GUID,
-                    SplineDist = (float)MoveSpline.TimePassed / MoveSpline.Duration()
+                    SplineDist = (float)MoveSpline.TimePassed / MoveSpline.Spline.Length
                 };
 
                 SendMessageToSet(flightSplineSync, true);
@@ -1972,7 +1972,7 @@ public partial class Unit
         {
             DisableSpline();
 
-            var animTier = MoveSpline.GetAnimation();
+            var animTier = MoveSpline.Animation;
 
             if (animTier.HasValue)
                 SetAnimTier(animTier.Value);

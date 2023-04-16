@@ -82,7 +82,7 @@ public struct M2Header
     // Used for playing sounds when dying and a lot else.
     public uint ofsLights;
 
-    // Length of the model's name including the trailing \0
+    // SectionLength of the model's name including the trailing \0
     public uint ofsName;
 
     public uint ofsParticleEmitters;

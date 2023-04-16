@@ -23,7 +23,6 @@ namespace Forged.MapServer.Entities.Objects;
 public class WorldLocation : Position
 {
     private readonly CellCalculator _cellCalculator;
-    private readonly GridDefines _gridDefines;
     private readonly WorldObject _worldObject;
     private Cell _currentCell;
     private uint _instanceId;
@@ -36,14 +35,14 @@ public class WorldLocation : Position
     {
         _worldObject = obj;
         _cellCalculator = obj.ClassFactory.Resolve<CellCalculator>();
-        _gridDefines = obj.ClassFactory.Resolve<GridDefines>();
+        GridDefines = obj.ClassFactory.Resolve<GridDefines>();
     }
 
     public WorldLocation(WorldObject obj, Map map, Position pos)
     {
         _worldObject = obj;
         _cellCalculator = obj.ClassFactory.Resolve<CellCalculator>();
-        _gridDefines = obj.ClassFactory.Resolve<GridDefines>();
+        GridDefines = obj.ClassFactory.Resolve<GridDefines>();
         Map = map;
         Relocate(pos);
     }
@@ -77,6 +76,7 @@ public class WorldLocation : Position
     public float CollisionHeight => 0.0f;
     public int DBPhase { get; set; }
     public float FloorZ => !IsInWorld ? _staticFloorZ : Math.Max(_staticFloorZ, Map.GetGameObjectFloor(PhaseShift, X, Y, Z + MapConst.ZOffsetFindHeight));
+    public GridDefines GridDefines { get; }
 
     public uint InstanceId
     {
@@ -223,7 +223,7 @@ public class WorldLocation : Position
     public void GetAlliesWithinRange(List<Unit> unitList, float maxSearchRange, bool includeSelf = true)
     {
         var pair = new CellCoord((uint)X, (uint)Y);
-        var cell = new Cell(pair, _gridDefines);
+        var cell = new Cell(pair, GridDefines);
         cell.Data.NoCreate = true;
 
         var check = new AnyFriendlyUnitInObjectRangeCheck(_worldObject, _worldObject.AsUnit, maxSearchRange);
@@ -257,7 +257,7 @@ public class WorldLocation : Position
     public void GetCreatureListInGrid(List<Creature> creatureList, float maxSearchRange)
     {
         var pair = new CellCoord((uint)X, (uint)Y);
-        var cell = new Cell(pair, _gridDefines);
+        var cell = new Cell(pair, GridDefines);
         cell.Data.NoCreate = true;
 
         var check = new AllCreaturesWithinRange(_worldObject, maxSearchRange);
@@ -531,8 +531,8 @@ public class WorldLocation : Position
         x = X + (effectiveReach + distance2d) * MathF.Cos(absAngle);
         y = Y + (effectiveReach + distance2d) * MathF.Sin(absAngle);
 
-        x = _gridDefines.NormalizeMapCoord(x);
-        y = _gridDefines.NormalizeMapCoord(y);
+        x = GridDefines.NormalizeMapCoord(x);
+        y = GridDefines.NormalizeMapCoord(y);
     }
 
     public Position GetNearPosition(float dist, float angle)
@@ -581,8 +581,8 @@ public class WorldLocation : Position
         randY = (float)(pos.Y + newDist * Math.Sin(angle));
         randZ = pos.Z;
 
-        randX = _gridDefines.NormalizeMapCoord(randX);
-        randY = _gridDefines.NormalizeMapCoord(randY);
+        randX = GridDefines.NormalizeMapCoord(randX);
+        randY = GridDefines.NormalizeMapCoord(randY);
         randZ = UpdateGroundPositionZ(randX, randY, randZ); // update to LOS height if available
     }
 

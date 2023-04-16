@@ -55,13 +55,13 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
     {
         AddFlag(MovementGeneratorFlags.Finalized);
 
-        if (active)
-        {
-            owner.ClearUnitState(UnitState.RoamingMove);
+        if (!active)
+            return;
 
-            // TODO: Research if this modification is needed, which most likely isnt
-            owner.SetWalk(false);
-        }
+        owner.ClearUnitState(UnitState.RoamingMove);
+
+        // TODO: Research if this modification is needed, which most likely isnt
+        owner.SetWalk(false);
     }
 
     public override void DoInitialize(Creature owner)
@@ -100,7 +100,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
     public override bool DoUpdate(Creature owner, uint diff)
     {
-        if (!owner || !owner.IsAlive)
+        if (owner is not { IsAlive: true })
             return true;
 
         if (HasFlag(MovementGeneratorFlags.Finalized | MovementGeneratorFlags.Paused) || _path == null || _path.Nodes.Empty())
@@ -137,7 +137,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
         }
 
         // if it's moving
-        if (!owner.MoveSpline.Finalized())
+        if (!owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
         {
             // set home position at place (every MotionMaster::UpdateMotion)
             if (owner.GetTransGUID().IsEmpty)
@@ -157,7 +157,8 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
                     return true;
                 }
-                else if (!HasFlag(MovementGeneratorFlags.InformEnabled)) // timer set before node was reached, resume now
+
+                if (!HasFlag(MovementGeneratorFlags.InformEnabled)) // timer set before node was reached, resume now
                 {
                     StartMove(owner, true);
 
@@ -292,7 +293,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
     private void StartMove(Creature owner, bool relaunch = false)
     {
         // sanity checks
-        if (owner == null || !owner.IsAlive || HasFlag(MovementGeneratorFlags.Finalized) || _path == null || _path.Nodes.Empty() || (relaunch && (HasFlag(MovementGeneratorFlags.InformEnabled) || !HasFlag(MovementGeneratorFlags.Initialized))))
+        if (owner is not { IsAlive: true } || HasFlag(MovementGeneratorFlags.Finalized) || _path == null || _path.Nodes.Empty() || (relaunch && (HasFlag(MovementGeneratorFlags.InformEnabled) || !HasFlag(MovementGeneratorFlags.Initialized))))
             return;
 
         if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting() || (owner.IsFormationLeader && !owner.IsFormationLeaderMoveAllowed)) // if cannot move OR cannot move because of formation
@@ -409,13 +410,12 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
     {
         _nextMoveTime.Update(diff);
 
-        if (_nextMoveTime.Passed)
-        {
-            _nextMoveTime.Reset(0);
+        if (!_nextMoveTime.Passed)
+            return false;
 
-            return true;
-        }
+        _nextMoveTime.Reset(0);
 
-        return false;
+        return true;
+
     }
 }

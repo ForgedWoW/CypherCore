@@ -321,7 +321,7 @@ public class AuctionHouseObject
             knownAppearanceIds = player.Session.CollectionMgr.GetAppearanceIds();
 
         //todo fix me
-        //if (knownPetSpecies.Length < _cliDB.BattlePetSpeciesStorage.GetNumRows())
+        //if (knownPetSpecies.SectionLength < _cliDB.BattlePetSpeciesStorage.GetNumRows())
         //knownPetSpecies.resize(_cliDB.BattlePetSpeciesStorage.GetNumRows());
         var sorter = new AuctionsBucketData.Sorter(player.Session.SessionDbcLocale, sorts, sortCount);
         var builder = new AuctionsResultBuilder<AuctionsBucketData>(offset, sorter, AuctionHouseResultLimits.Browse);

@@ -90,15 +90,13 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
 
             return true;
         }
-        else
-        {
-            RemoveFlag(MovementGeneratorFlags.Interrupted);
-        }
+
+        RemoveFlag(MovementGeneratorFlags.Interrupted);
 
         // waiting for next move
         _timer.Update(diff);
 
-        if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed && owner.MoveSpline.Finalized()))
+        if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)) || (_timer.Passed && owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done)))
         {
             RemoveFlag(MovementGeneratorFlags.Transitory);
 
@@ -124,7 +122,7 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
 
             var result = _path.CalculatePath(destination);
 
-            if (!result || _path.GetPathType().HasFlag(PathType.NoPath) || _path.GetPathType().HasFlag(PathType.Shortcut) || _path.GetPathType().HasFlag(PathType.FarFromPoly))
+            if (!result || _path.PathType.HasFlag(PathType.NoPath) || _path.PathType.HasFlag(PathType.Shortcut) || _path.PathType.HasFlag(PathType.FarFromPoly))
             {
                 _timer.Reset(100);
 
@@ -134,7 +132,7 @@ public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T :
             owner.AddUnitState(UnitState.ConfusedMove);
 
             MoveSplineInit init = new(owner);
-            init.MovebyPath(_path.GetPath());
+            init.MovebyPath(_path.Path);
             init.SetWalk(true);
             var traveltime = (uint)init.Launch();
             _timer.Reset(traveltime + RandomHelper.URand(800, 1500));

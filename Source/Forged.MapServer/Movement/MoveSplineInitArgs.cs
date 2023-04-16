@@ -11,22 +11,6 @@ namespace Forged.MapServer.Movement;
 
 public class MoveSplineInitArgs
 {
-    public AnimTierTransition AnimTier;
-    public FacingInfo Facing = new();
-    public MoveSplineFlag Flags = new();
-    public bool HasVelocity;
-    public float InitialOrientation;
-    public float ParabolicAmplitude;
-    public List<Vector3> Path = new();
-    public int PathIdxOffset;
-    public SpellEffectExtraData SpellEffectExtra;
-    public uint SplineId;
-    public float TimePerc;
-    public bool TransformForTransport;
-    public float Velocity;
-    public float VerticalAcceleration;
-    public bool Walk;
-
     public MoveSplineInitArgs(int pathCapacity = 16)
     {
         PathIdxOffset = 0;
@@ -39,22 +23,33 @@ public class MoveSplineInitArgs
         TransformForTransport = true;
     }
 
+    public AnimTierTransition AnimTier { get; set; }
+    public FacingInfo Facing { get; set; } = new();
+    public MoveSplineFlag Flags { get; set; } = new();
+    public bool HasVelocity { get; set; }
+    public float InitialOrientation { get; set; }
+    public float ParabolicAmplitude { get; set; }
+    public List<Vector3> Path { get; set; } = new();
+    public int PathIdxOffset { get; set; }
+    public SpellEffectExtraData SpellEffectExtra { get; set; }
+    public uint SplineId { get; set; }
+    public float TimePerc { get; set; }
+    public bool TransformForTransport { get; set; }
+    public float Velocity { get; set; }
+    public float VerticalAcceleration { get; set; }
+    public bool Walk { get; set; }
     // Returns true to show that the arguments were configured correctly and MoveSpline initialization will succeed.
     public bool Validate(Unit unit)
     {
         bool Check(bool exp, bool verbose)
         {
-            if (!exp)
-            {
-                if (unit)
-                    Log.Logger.Error($"MoveSplineInitArgs::Validate: expression '{exp}' failed for {(verbose ? unit.GetDebugInfo() : unit.GUID.ToString())}");
-                else
-                    Log.Logger.Error($"MoveSplineInitArgs::Validate: expression '{exp}' failed for cyclic spline continuation");
+            if (exp)
+                return true;
 
-                return false;
-            }
+            Log.Logger.Error(unit != null ? $"MoveSplineInitArgs::Validate: expression '{false}' failed for {(verbose ? unit.GetDebugInfo() : unit.GUID.ToString())}" : $"MoveSplineInitArgs::Validate: expression '{false}' failed for cyclic spline continuation");
 
-            return true;
+            return false;
+
         }
 
         if (!Check(Path.Count > 1, true))
@@ -69,30 +64,27 @@ public class MoveSplineInitArgs
         if (!Check(_checkPathLengths(), false))
             return false;
 
-        if (SpellEffectExtra != null)
-        {
-            if (!Check(SpellEffectExtra.ProgressCurveId == 0 || CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ProgressCurveId), false))
-                return false;
+        if (SpellEffectExtra == null)
+            return true;
 
-            if (!Check(SpellEffectExtra.ParabolicCurveId == 0 || CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ParabolicCurveId), false))
-                return false;
+        if (!Check(SpellEffectExtra.ProgressCurveId == 0 || unit.CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ProgressCurveId), false))
+            return false;
 
-            if (!Check(SpellEffectExtra.ProgressCurveId == 0 || CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ProgressCurveId), true))
-                return false;
+        if (!Check(SpellEffectExtra.ParabolicCurveId == 0 || unit.CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ParabolicCurveId), false))
+            return false;
 
-            if (!Check(SpellEffectExtra.ParabolicCurveId == 0 || CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ParabolicCurveId), true))
-                return false;
-        }
-
-        return true;
+        return Check(SpellEffectExtra.ProgressCurveId == 0 || unit.CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ProgressCurveId), true) && 
+               Check(SpellEffectExtra.ParabolicCurveId == 0 || unit.CliDB.CurveStorage.ContainsKey(SpellEffectExtra.ParabolicCurveId), true);
     }
 
     private bool _checkPathLengths()
     {
-        if (Path.Count > 2 || Facing.Type == Framework.Constants.MonsterMoveType.Normal)
-            for (var i = 0; i < Path.Count - 1; ++i)
-                if ((Path[i + 1] - Path[i]).Length() < 0.1f)
-                    return false;
+        if (Path.Count <= 2 && Facing.Type != Framework.Constants.MonsterMoveType.Normal)
+            return true;
+
+        for (var i = 0; i < Path.Count - 1; ++i)
+            if ((Path[i + 1] - Path[i]).Length() < 0.1f)
+                return false;
 
         return true;
     }

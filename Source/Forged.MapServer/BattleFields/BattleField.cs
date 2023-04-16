@@ -49,7 +49,7 @@ public class BattleField : ZoneScript
 
     // Minimum number of player for Battlefield start
     // Required level to participate at Battlefield
-    // Length of a battle
+    // SectionLength of a battle
     public uint NoWarBattleTime;
 
     // Players info maps

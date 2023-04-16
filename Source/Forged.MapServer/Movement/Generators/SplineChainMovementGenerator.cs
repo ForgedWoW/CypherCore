@@ -68,12 +68,12 @@ public class SplineChainMovementGenerator : MovementGenerator
         if (active)
             owner.ClearUnitState(UnitState.RoamingMove);
 
-        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
-        {
-            var ai = owner.AsCreature.AI;
+        if (!movementInform || !HasFlag(MovementGeneratorFlags.InformEnabled))
+            return;
 
-            ai?.MovementInform(MovementGeneratorType.SplineChain, _id);
-        }
+        var ai = owner.AsCreature.AI;
+
+        ai?.MovementInform(MovementGeneratorType.SplineChain, _id);
     }
 
     public uint GetId()
@@ -162,14 +162,13 @@ public class SplineChainMovementGenerator : MovementGenerator
         // _msToNext being zero here means we're on the final spline
         if (_msToNext == 0)
         {
-            if (owner.MoveSpline.Finalized())
-            {
-                AddFlag(MovementGeneratorFlags.InformEnabled);
+            if (!owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
+                return true;
 
-                return false;
-            }
+            AddFlag(MovementGeneratorFlags.InformEnabled);
 
-            return true;
+            return false;
+
         }
 
         if (_msToNext <= diff)
@@ -180,33 +179,18 @@ public class SplineChainMovementGenerator : MovementGenerator
             SendSplineFor(owner, _nextIndex, ref _msToNext);
             ++_nextIndex;
 
-            if (_nextIndex >= _chainSize)
-            {
-                // We have reached the final spline, once it finalizes we should also finalize the movegen (start checking on next update)
-                _msToNext = 0;
-
+            if (_nextIndex < _chainSize)
                 return true;
-            }
+
+            // We have reached the final spline, once it finalizes we should also finalize the movegen (start checking on next update)
+            _msToNext = 0;
+
+            return true;
         }
-        else
-        {
-            _msToNext -= diff;
-        }
+
+        _msToNext -= diff;
 
         return true;
-    }
-
-    private SplineChainResumeInfo GetResumeInfo(Unit owner)
-    {
-        if (_nextIndex == 0)
-            return new SplineChainResumeInfo(_id, _chain, _walk, 0, 0, _msToNext);
-
-        if (owner.MoveSpline.Finalized())
-        {
-            return _nextIndex < _chainSize ? new SplineChainResumeInfo(_id, _chain, _walk, _nextIndex, 0, 1u) : new SplineChainResumeInfo();
-        }
-
-        return new SplineChainResumeInfo(_id, _chain, _walk, (byte)(_nextIndex - 1), (byte)owner.MoveSpline.CurrentSplineIdx(), _msToNext);
     }
 
     private uint SendPathSpline(Unit owner, float velocity, Span<Vector3> path)

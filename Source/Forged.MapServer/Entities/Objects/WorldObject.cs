@@ -1195,11 +1195,11 @@ public abstract class WorldObject : IDisposable
         path.CalculatePath(new Position(destx, desty, destz));
 
         // We have a invalid path result. Skip further processing.
-        if (!path.GetPathType().HasFlag(PathType.NotUsingPath))
-            if ((path.GetPathType() & ~(PathType.Normal | PathType.Shortcut | PathType.Incomplete | PathType.FarFromPoly)) != 0)
+        if (!path.PathType.HasFlag(PathType.NotUsingPath))
+            if ((path.PathType & ~(PathType.Normal | PathType.Shortcut | PathType.Incomplete | PathType.FarFromPoly)) != 0)
                 return;
 
-        var result = path.GetPath()[path.GetPath().Length - 1];
+        var result = path.Path[path.Path.Length - 1];
         destx = result.X;
         desty = result.Y;
         destz = result.Z;
@@ -1209,7 +1209,7 @@ public abstract class WorldObject : IDisposable
         bool col;
 
         // Unit is flying, check for potential collision via vmaps
-        if (path.GetPathType().HasFlag(PathType.NotUsingPath))
+        if (path.PathType.HasFlag(PathType.NotUsingPath))
         {
             col = VMapManager.GetObjectHitPos(PhasingHandler.GetTerrainMapId(Location.PhaseShift, Location.MapId, Location.Map.Terrain, pos.X, pos.Y),
                                               pos.X,

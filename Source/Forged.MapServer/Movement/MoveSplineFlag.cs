@@ -8,9 +8,6 @@ namespace Forged.MapServer.Movement;
 
 public class MoveSplineFlag
 {
-    public byte AnimTier { get; set; }
-    public SplineFlag Flags { get; set; }
-
     public MoveSplineFlag() { }
 
     public MoveSplineFlag(SplineFlag f)
@@ -23,6 +20,8 @@ public class MoveSplineFlag
         Flags = f.Flags;
     }
 
+    public byte AnimTier { get; set; }
+    public SplineFlag Flags { get; set; }
     public void EnableAnimation()
     {
         Flags = (Flags & ~(SplineFlag.Falling | SplineFlag.Parabolic | SplineFlag.FallingSlow | SplineFlag.FadeObject)) | SplineFlag.Animation;

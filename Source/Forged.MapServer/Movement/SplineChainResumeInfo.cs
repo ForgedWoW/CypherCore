@@ -7,13 +7,6 @@ namespace Forged.MapServer.Movement;
 
 public class SplineChainResumeInfo
 {
-    public List<SplineChainLink> Chain { get; set; } = new();
-    public bool IsWalkMode { get; set; }
-    public uint PointID { get; set; }
-    public byte PointIndex { get; set; }
-    public byte SplineIndex { get; set; }
-    public uint TimeToNext { get; set; }
-
     public SplineChainResumeInfo() { }
 
     public SplineChainResumeInfo(uint id, List<SplineChainLink> chain, bool walk, byte splineIndex, byte wpIndex, uint msToNext)
@@ -26,6 +19,12 @@ public class SplineChainResumeInfo
         TimeToNext = msToNext;
     }
 
+    public List<SplineChainLink> Chain { get; set; } = new();
+    public bool IsWalkMode { get; set; }
+    public uint PointID { get; set; }
+    public byte PointIndex { get; set; }
+    public byte SplineIndex { get; set; }
+    public uint TimeToNext { get; set; }
     public void Clear()
     {
         Chain.Clear();

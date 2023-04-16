@@ -731,7 +731,7 @@ public partial class Spell
             {
                 if (MathFunctions.fuzzyGt(SpellInfo.Speed, 0.0f) && SpellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
                 {
-                    var pos = _preGeneratedPath.GetActualEndPosition();
+                    var pos = _preGeneratedPath.ActualEndPosition;
                     speed = new Position(pos.X, pos.Y, pos.Z).GetExactDist(Caster.Location) / speed;
                 }
 

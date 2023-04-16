@@ -20,11 +20,13 @@ internal class MovementGeneratorComparator : IComparer<MovementGenerator>
         {
             return 1;
         }
-        else if (a.Mode == b.Mode)
+
+        if (a.Mode == b.Mode)
         {
             if ((int)a.Priority < (int)b.Priority)
                 return 1;
-            else if (a.Priority == b.Priority)
+
+            if (a.Priority == b.Priority)
                 return 0;
         }
 

@@ -172,14 +172,14 @@ internal class MMapsCommands
         path.SetUseRaycast(useRaycast);
         var result = path.CalculatePath(pos);
 
-        var pointPath = path.GetPath();
+        var pointPath = path.Path;
         handler.SendSysMessage("{0}'s path to {1}:", target.GetName(), player.GetName());
         handler.SendSysMessage("Building: {0}", useStraightPath ? "StraightPath" : useRaycast ? "Raycast" : "SmoothPath");
-        handler.SendSysMessage("Result: {0} - Length: {1} - Type: {2}", result ? "true" : "false", pointPath.Length, path.GetPathType());
+        handler.SendSysMessage("Result: {0} - SectionLength: {1} - Type: {2}", result ? "true" : "false", pointPath.Length, path.PathType);
 
-        var start = path.GetStartPosition();
-        var end = path.GetEndPosition();
-        var actualEnd = path.GetActualEndPosition();
+        var start = path.StartPosition;
+        var end = path.EndPosition;
+        var actualEnd = path.ActualEndPosition;
 
         handler.SendSysMessage("StartPosition     ({0:F3}, {1:F3}, {2:F3})", start.X, start.Y, start.Z);
         handler.SendSysMessage("EndPosition       ({0:F3}, {1:F3}, {2:F3})", end.X, end.Y, end.Z);

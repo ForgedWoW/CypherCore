@@ -287,7 +287,7 @@ public class MovementHandler : IWorldSessionHandler
             return;
 
 
-        if (!mover.MoveSpline.Finalized())
+        if (!mover.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
             return;
 
         // stop some emotes at player move
@@ -511,13 +511,11 @@ public class MovementHandler : IWorldSessionHandler
             // far teleport case
             if (curDestNode != null && curDestNode.ContinentID != Player.Location.MapId && Player.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Flight)
             {
-                var flight = Player.MotionMaster.GetCurrentMovementGenerator() as FlightPathMovementGenerator;
-
-                if (flight != null)
+                if (Player.MotionMaster.GetCurrentMovementGenerator() is FlightPathMovementGenerator flight)
                 {
                     // short preparations to continue flight
                     flight.SetCurrentNodeAfterTeleport();
-                    var node = flight.GetPath()[(int)flight.GetCurrentNode()];
+                    var node = flight.Path[(int)flight.GetCurrentNode()];
                     flight.SkipCurrentNode();
 
                     Player.TeleportTo(curDestNode.ContinentID, node.Loc.X, node.Loc.Y, node.Loc.Z, Player.Location.Orientation);

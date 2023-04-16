@@ -117,110 +117,107 @@ public static class MovementExtensions
 
     public static void WriteCreateObjectAreaTriggerSpline(Spline<int> spline, WorldPacket data)
     {
-        data.WriteBits(spline.GetPoints().Length, 16);
+        data.WriteBits(spline.Points.Length, 16);
 
-        foreach (var point in spline.GetPoints())
+        foreach (var point in spline.Points)
             data.WriteVector3(point);
     }
 
     public static void WriteCreateObjectSplineDataBlock(MoveSpline moveSpline, WorldPacket data)
     {
-        data.WriteUInt32(moveSpline.GetId()); // ID
+        data.WriteUInt32(moveSpline.Id); // ID
 
-        if (!moveSpline.IsCyclic()) // Destination
-            data.WriteVector3(moveSpline.FinalDestination());
-        else
-            data.WriteVector3(Vector3.Zero);
+        data.WriteVector3(!moveSpline.Splineflags.HasFlag(SplineFlag.Cyclic) ? moveSpline.FinalDestination : Vector3.Zero); // Destination
 
-        var hasSplineMove = data.WriteBit(!moveSpline.Finalized() && !moveSpline.SplineIsFacingOnly);
+        var hasSplineMove = data.WriteBit(!moveSpline.Splineflags.HasFlag(SplineFlag.Done) && !moveSpline.SplineIsFacingOnly);
         data.FlushBits();
 
-        if (hasSplineMove)
+        if (!hasSplineMove)
+            return;
+
+        data.WriteUInt32((uint)moveSpline.Splineflags.Flags); // SplineFlags
+        data.WriteInt32(moveSpline.TimePassed);               // Elapsed
+        data.WriteInt32(moveSpline.Spline.Length);            // Duration
+        data.WriteFloat(1.0f);                                // DurationModifier
+        data.WriteFloat(1.0f);                                // NextDurationModifier
+        data.WriteBits((byte)moveSpline.Facing.Type, 2);      // Face
+        var hasFadeObjectTime = data.WriteBit(moveSpline.Splineflags.HasFlag(SplineFlag.FadeObject) && moveSpline.EffectStartTime < moveSpline.Spline.Length);
+        data.WriteBits(moveSpline.Spline.Points.Length, 16);
+        data.WriteBit(false);                               // HasSplineFilter
+        data.WriteBit(moveSpline.SpellEffectExtra != null); // HasSpellEffectExtraData
+        var hasJumpExtraData = data.WriteBit(moveSpline.Splineflags.HasFlag(SplineFlag.Parabolic) && (moveSpline.SpellEffectExtra == null || moveSpline.EffectStartTime != 0));
+        data.WriteBit(moveSpline.AnimTier != null); // HasAnimTierTransition
+        data.WriteBit(false);                       // HasUnknown901
+        data.FlushBits();
+
+        //if (HasSplineFilterKey)
+        //{
+        //    data << uint32(FilterKeysCount);
+        //    for (var i = 0; i < FilterKeysCount; ++i)
+        //    {
+        //        data << float(In);
+        //        data << float(Out);
+        //    }
+
+        //    data.WriteBits(FilterFlags, 2);
+        //    data.FlushBits();
+        //}
+
+        switch (moveSpline.Facing.Type)
         {
-            data.WriteUInt32((uint)moveSpline.Splineflags.Flags); // SplineFlags
-            data.WriteInt32(moveSpline.TimePassed);              // Elapsed
-            data.WriteInt32(moveSpline.Duration());               // Duration
-            data.WriteFloat(1.0f);                                // DurationModifier
-            data.WriteFloat(1.0f);                                // NextDurationModifier
-            data.WriteBits((byte)moveSpline.Facing.Type, 2);      // Face
-            var hasFadeObjectTime = data.WriteBit(moveSpline.Splineflags.HasFlag(SplineFlag.FadeObject) && moveSpline.EffectStartTime < moveSpline.Duration());
-            data.WriteBits(moveSpline.GetPath().Length, 16);
-            data.WriteBit(false);                                 // HasSplineFilter
-            data.WriteBit(moveSpline.SpellEffectExtra != null); // HasSpellEffectExtraData
-            var hasJumpExtraData = data.WriteBit(moveSpline.Splineflags.HasFlag(SplineFlag.Parabolic) && (moveSpline.SpellEffectExtra == null || moveSpline.EffectStartTime != 0));
-            data.WriteBit(moveSpline.AnimTier != null); // HasAnimTierTransition
-            data.WriteBit(false);                        // HasUnknown901
-            data.FlushBits();
+            case MonsterMoveType.FacingSpot:
+                data.WriteVector3(moveSpline.Facing.F); // FaceSpot
 
-            //if (HasSplineFilterKey)
-            //{
-            //    data << uint32(FilterKeysCount);
-            //    for (var i = 0; i < FilterKeysCount; ++i)
-            //    {
-            //        data << float(In);
-            //        data << float(Out);
-            //    }
+                break;
+            case MonsterMoveType.FacingTarget:
+                data.WritePackedGuid(moveSpline.Facing.Target); // FaceGUID
 
-            //    data.WriteBits(FilterFlags, 2);
-            //    data.FlushBits();
-            //}
+                break;
+            case MonsterMoveType.FacingAngle:
+                data.WriteFloat(moveSpline.Facing.Angle); // FaceDirection
 
-            switch (moveSpline.Facing.Type)
-            {
-                case MonsterMoveType.FacingSpot:
-                    data.WriteVector3(moveSpline.Facing.F); // FaceSpot
-
-                    break;
-                case MonsterMoveType.FacingTarget:
-                    data.WritePackedGuid(moveSpline.Facing.Target); // FaceGUID
-
-                    break;
-                case MonsterMoveType.FacingAngle:
-                    data.WriteFloat(moveSpline.Facing.Angle); // FaceDirection
-
-                    break;
-            }
-
-            if (hasFadeObjectTime)
-                data.WriteInt32(moveSpline.EffectStartTime); // FadeObjectTime
-
-            foreach (var vec in moveSpline.GetPath())
-                data.WriteVector3(vec);
-
-            if (moveSpline.SpellEffectExtra != null)
-            {
-                data.WritePackedGuid(moveSpline.SpellEffectExtra.Target);
-                data.WriteUInt32(moveSpline.SpellEffectExtra.SpellVisualId);
-                data.WriteUInt32(moveSpline.SpellEffectExtra.ProgressCurveId);
-                data.WriteUInt32(moveSpline.SpellEffectExtra.ParabolicCurveId);
-            }
-
-            if (hasJumpExtraData)
-            {
-                data.WriteFloat(moveSpline.VerticalAcceleration);
-                data.WriteInt32(moveSpline.EffectStartTime);
-                data.WriteUInt32(0); // Duration (override)
-            }
-
-            if (moveSpline.AnimTier != null)
-            {
-                data.WriteUInt32(moveSpline.AnimTier.TierTransitionId);
-                data.WriteInt32(moveSpline.EffectStartTime);
-                data.WriteUInt32(0);
-                data.WriteUInt8(moveSpline.AnimTier.AnimTier);
-            }
-
-            //if (HasUnknown901)
-            //{
-            //    for (WorldPackets::Movement::MonsterSplineUnknown901::Inner const& unkInner : unk.Data) size = 16
-            //    {
-            //        data << int32(unkInner.Unknown_1);
-            //        data << int32(unkInner.Unknown_2);
-            //        data << int32(unkInner.Unknown_3);
-            //        data << uint32(unkInner.Unknown_4);
-            //    }
-            //}
+                break;
         }
+
+        if (hasFadeObjectTime)
+            data.WriteInt32(moveSpline.EffectStartTime); // FadeObjectTime
+
+        foreach (var vec in moveSpline.Spline.Points)
+            data.WriteVector3(vec);
+
+        if (moveSpline.SpellEffectExtra != null)
+        {
+            data.WritePackedGuid(moveSpline.SpellEffectExtra.Target);
+            data.WriteUInt32(moveSpline.SpellEffectExtra.SpellVisualId);
+            data.WriteUInt32(moveSpline.SpellEffectExtra.ProgressCurveId);
+            data.WriteUInt32(moveSpline.SpellEffectExtra.ParabolicCurveId);
+        }
+
+        if (hasJumpExtraData)
+        {
+            data.WriteFloat(moveSpline.VerticalAcceleration);
+            data.WriteInt32(moveSpline.EffectStartTime);
+            data.WriteUInt32(0); // Duration (override)
+        }
+
+        if (moveSpline.AnimTier != null)
+        {
+            data.WriteUInt32(moveSpline.AnimTier.TierTransitionId);
+            data.WriteInt32(moveSpline.EffectStartTime);
+            data.WriteUInt32(0);
+            data.WriteUInt8(moveSpline.AnimTier.AnimTier);
+        }
+
+        //if (HasUnknown901)
+        //{
+        //    for (WorldPackets::Movement::MonsterSplineUnknown901::Inner const& unkInner : unk.Data) size = 16
+        //    {
+        //        data << int32(unkInner.Unknown_1);
+        //        data << int32(unkInner.Unknown_2);
+        //        data << int32(unkInner.Unknown_3);
+        //        data << uint32(unkInner.Unknown_4);
+        //    }
+        //}
     }
 
     public static void WriteMovementForceWithDirection(MovementForce movementForce, WorldPacket data, Position objectPosition = null)

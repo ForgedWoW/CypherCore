@@ -321,7 +321,7 @@ public partial class Unit
     // - when the creature has no targets left, but the AI has not yet ceased engaged logic
     public virtual bool IsEngaged => IsInCombat;
 
-    public bool IsFalling => MovementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar) || MoveSpline.IsFalling();
+    public bool IsFalling => MovementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar) || MoveSpline.Splineflags.HasFlag(SplineFlag.Falling);
     public bool IsFeared => HasAuraType(AuraType.ModFear);
     public bool IsFFAPvP => HasPvpFlag(UnitPVPStateFlags.FFAPvp);
     public bool IsFlying => MovementInfo.HasMovementFlag(MovementFlag.Flying | MovementFlag.DisableGravity);
@@ -440,7 +440,7 @@ public partial class Unit
     public bool IsSpiritService => HasNpcFlag(NPCFlags.SpiritHealer | NPCFlags.SpiritGuide);
 
     //Spline
-    public bool IsSplineEnabled => MoveSpline.Initialized() && !MoveSpline.Finalized();
+    public bool IsSplineEnabled => MoveSpline.Initialized && !MoveSpline.Splineflags.HasFlag(SplineFlag.Done);
 
     public bool IsStandState => !IsSitState && StandState != UnitStandStateType.Sleep && StandState != UnitStandStateType.Kneel;
     public bool IsStopped => !HasUnitState(UnitState.Moving);

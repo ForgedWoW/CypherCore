@@ -236,12 +236,10 @@ public class TaxiHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.TaxiRequestEarlyLanding, Processing = PacketProcessing.ThreadSafe)]
     private void HandleTaxiRequestEarlyLanding(TaxiRequestEarlyLanding taxiRequestEarlyLanding)
     {
-        var flight = Player.MotionMaster.GetCurrentMovementGenerator() as FlightPathMovementGenerator;
-
-        if (flight != null)
+        if (Player.MotionMaster.GetCurrentMovementGenerator() is FlightPathMovementGenerator flight)
             if (Player.Taxi.RequestEarlyLanding())
             {
-                flight.LoadPath(Player, (uint)flight.GetPath()[(int)flight.GetCurrentNode()].NodeIndex);
+                flight.LoadPath(Player, (uint)flight.Path[(int)flight.GetCurrentNode()].NodeIndex);
                 flight.Reset(Player);
             }
     }

@@ -32,21 +32,21 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
         if (active)
             owner.ClearUnitState(UnitState.RoamingMove | UnitState.Evade);
 
-        if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
-        {
-            if (!owner.HasCanSwimFlagOutOfCombat)
-                owner.RemoveUnitFlag(UnitFlags.CanSwim);
+        if (!movementInform || !HasFlag(MovementGeneratorFlags.InformEnabled))
+            return;
 
-            owner.SetSpawnHealth();
-            owner.LoadCreaturesAddon();
+        if (!owner.HasCanSwimFlagOutOfCombat)
+            owner.RemoveUnitFlag(UnitFlags.CanSwim);
 
-            if (owner.IsVehicle)
-                owner.VehicleKit.Reset(true);
+        owner.SetSpawnHealth();
+        owner.LoadCreaturesAddon();
 
-            var ai = owner.AI;
+        if (owner.IsVehicle)
+            owner.VehicleKit.Reset(true);
 
-            ai?.JustReachedHome();
-        }
+        var ai = owner.AI;
+
+        ai?.JustReachedHome();
     }
 
     public override void DoInitialize(T owner)
@@ -67,14 +67,13 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
 
     public override bool DoUpdate(T owner, uint diff)
     {
-        if (HasFlag(MovementGeneratorFlags.Interrupted) || owner.MoveSpline.Finalized())
-        {
-            AddFlag(MovementGeneratorFlags.InformEnabled);
+        if (!HasFlag(MovementGeneratorFlags.Interrupted) && !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
+            return true;
 
-            return false;
-        }
+        AddFlag(MovementGeneratorFlags.InformEnabled);
 
-        return true;
+        return false;
+
     }
 
     public override MovementGeneratorType GetMovementGeneratorType()

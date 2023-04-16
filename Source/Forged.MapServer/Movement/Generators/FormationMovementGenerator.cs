@@ -78,7 +78,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 
     public override bool DoUpdate(Creature owner, uint diff)
     {
-        var target = _abstractFollower.GetTarget();
+        var target = _abstractFollower.Target;
 
         if (owner == null || target == null)
             return false;
@@ -96,7 +96,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 
         // Update home position
         // If target is not moving and destination has been predicted and if we are on the same spline, we stop as well
-        if (target.MoveSpline.Finalized() && target.MoveSpline.GetId() == _lastLeaderSplineID && _hasPredictedDestination)
+        if (target.MoveSpline.Splineflags.HasFlag(SplineFlag.Done) && target.MoveSpline.Id == _lastLeaderSplineID && _hasPredictedDestination)
         {
             AddFlag(MovementGeneratorFlags.Interrupted);
             owner.StopMoving();
@@ -106,12 +106,12 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
             return true;
         }
 
-        if (!owner.MoveSpline.Finalized())
+        if (!owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
             owner.HomePosition = owner.Location;
 
         // Formation leader has launched a new spline, launch a new one for our member as well
         // This action does not reset the regular movement launch cycle interval
-        if (!target.MoveSpline.Finalized() && target.MoveSpline.GetId() != _lastLeaderSplineID)
+        if (!target.MoveSpline.Splineflags.HasFlag(SplineFlag.Done) && target.MoveSpline.Id != _lastLeaderSplineID)
         {
             // Update formation angle
             if (_point1 != 0 && target.IsCreature)
@@ -130,7 +130,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
             }
 
             LaunchMovement(owner, target);
-            _lastLeaderSplineID = target.MoveSpline.GetId();
+            _lastLeaderSplineID = target.MoveSpline.Id;
 
             return true;
         }
@@ -151,12 +151,12 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
         }
 
         // We have reached our destination before launching a new movement. Alling facing with leader
-        if (owner.HasUnitState(UnitState.FollowFormationMove) && owner.MoveSpline.Finalized())
-        {
-            owner.ClearUnitState(UnitState.FollowFormationMove);
-            owner.SetFacingTo(target.Location.Orientation);
-            MovementInform(owner);
-        }
+        if (!owner.HasUnitState(UnitState.FollowFormationMove) || !owner.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
+            return true;
+
+        owner.ClearUnitState(UnitState.FollowFormationMove);
+        owner.SetFacingTo(target.Location.Orientation);
+        MovementInform(owner);
 
         return true;
     }
@@ -176,8 +176,8 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
         var relativeAngle = 0.0f;
 
         // Determine our relative angle to our current spline destination point
-        if (!target.MoveSpline.Finalized())
-            relativeAngle = target.Location.GetRelativeAngle(new Position(target.MoveSpline.CurrentDestination()));
+        if (!target.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
+            relativeAngle = target.Location.GetRelativeAngle(new Position(target.MoveSpline.CurrentDestination));
 
         // Destination calculation
         /*
@@ -190,7 +190,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
         var velocity = 0.0f;
 
         // Formation leader is moving. Predict our destination
-        if (!target.MoveSpline.Finalized())
+        if (!target.MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
         {
             // Pick up leader's spline velocity
             velocity = target.MoveSpline.Velocity;

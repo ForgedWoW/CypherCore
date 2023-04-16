@@ -10,12 +10,13 @@ namespace Forged.MapServer.Movement;
 
 public sealed class WaypointManager
 {
+    private readonly GridDefines _gridDefines;
     private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
     private readonly WorldDatabase _worldDatabase;
-
-    public WaypointManager(WorldDatabase worldDatabase)
+    public WaypointManager(WorldDatabase worldDatabase, GridDefines gridDefines)
     {
         _worldDatabase = worldDatabase;
+        _gridDefines = gridDefines;
     }
 
     public WaypointPath GetPath(uint id)
@@ -51,8 +52,8 @@ public sealed class WaypointManager
             if (!result.IsNull(5))
                 o = result.Read<float>(5);
 
-            x = GridDefines.NormalizeMapCoord(x);
-            y = GridDefines.NormalizeMapCoord(y);
+            x = _gridDefines.NormalizeMapCoord(x);
+            y = _gridDefines.NormalizeMapCoord(y);
 
             WaypointNode waypoint = new()
             {
@@ -111,8 +112,8 @@ public sealed class WaypointManager
             if (!result.IsNull(4))
                 o = result.Read<float>(4);
 
-            x = GridDefines.NormalizeMapCoord(x);
-            y = GridDefines.NormalizeMapCoord(y);
+            x = _gridDefines.NormalizeMapCoord(x);
+            y = _gridDefines.NormalizeMapCoord(y);
 
             WaypointNode waypoint = new()
             {

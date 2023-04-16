@@ -16,8 +16,6 @@ public class MoveSplineInit
 {
     private readonly Unit _unit;
 
-    public MoveSplineInitArgs Args { get; set; } = new();
-
     public MoveSplineInit(Unit m)
     {
         _unit = m;
@@ -33,6 +31,7 @@ public class MoveSplineInit
         Args.Flags.SetUnsetFlag(SplineFlag.Steering, _unit.HasNpcFlag2(NPCFlags2.Steering));
     }
 
+    public MoveSplineInitArgs Args { get; set; } = new();
     public void DisableTransportPathTransformations()
     {
         Args.TransformForTransport = false;
@@ -48,18 +47,13 @@ public class MoveSplineInit
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        if (!moveSpline.Finalized() && moveSpline.OnTransport == transport)
+        if (!moveSpline.Splineflags.HasFlag(SplineFlag.Done) && moveSpline.OnTransport == transport)
         {
             realPosition = moveSpline.ComputePosition();
         }
         else
         {
-            Position pos;
-
-            if (!transport)
-                pos = _unit.Location;
-            else
-                pos = _unit.MovementInfo.Transport.Pos;
+            var pos = !transport ? _unit.Location : _unit.MovementInfo.Transport.Pos;
 
             realPosition.X = pos.X;
             realPosition.Y = pos.Y;
@@ -143,7 +137,7 @@ public class MoveSplineInit
 
         _unit.SendMessageToSet(packet, true);
 
-        return moveSpline.Duration();
+        return moveSpline.Spline.Length;
     }
 
     public void MovebyPath(Vector3[] controls, int pathOffset = 0)
@@ -151,8 +145,8 @@ public class MoveSplineInit
         Args.PathIdxOffset = pathOffset;
         TransportPathTransform transform = new(_unit, Args.TransformForTransport);
 
-        for (var i = 0; i < controls.Length; i++)
-            Args.Path.Add(transform.Calc(controls[i]));
+        foreach (var control in controls)
+            Args.Path.Add(transform.Calc(control));
     }
 
     public void MoveTo(Vector3 dest, bool generatePath = true, bool forceDestination = false)
@@ -162,9 +156,9 @@ public class MoveSplineInit
             PathGenerator path = new(_unit);
             var result = path.CalculatePath(new Position(dest), forceDestination);
 
-            if (result && !Convert.ToBoolean(path.GetPathType() & PathType.NoPath))
+            if (result && !Convert.ToBoolean(path.PathType & PathType.NoPath))
             {
-                MovebyPath(path.GetPath());
+                MovebyPath(path.Path);
 
                 return;
             }
@@ -229,7 +223,7 @@ public class MoveSplineInit
             }
         }
 
-        Args.Facing.Angle = MathFunctions.wrap(angle, 0.0f, MathFunctions.TwoPi);
+        Args.Facing.Angle = MathFunctions.wrap(angle, 0.0f, MathFunctions.TWO_PI);
         Args.Facing.Type = MonsterMoveType.FacingAngle;
     }
 
@@ -324,7 +318,7 @@ public class MoveSplineInit
         var moveSpline = _unit.MoveSpline;
 
         // No need to stop if we are not moving
-        if (moveSpline.Finalized())
+        if (moveSpline.Splineflags.HasFlag(SplineFlag.Done))
             return;
 
         var transport = !_unit.GetTransGUID().IsEmpty;
@@ -336,12 +330,7 @@ public class MoveSplineInit
         }
         else
         {
-            Position pos;
-
-            if (!transport)
-                pos = _unit.Location;
-            else
-                pos = _unit.MovementInfo.Transport.Pos;
+            var pos = !transport ? _unit.Location : _unit.MovementInfo.Transport.Pos;
 
             loc.X = pos.X;
             loc.Y = pos.Y;
@@ -361,7 +350,7 @@ public class MoveSplineInit
             SplineData =
             {
                 StopDistanceTolerance = 2,
-                Id = moveSpline.GetId()
+                Id = moveSpline.Id
             }
         };
 
@@ -378,30 +367,22 @@ public class MoveSplineInit
     {
         if (moveFlags.HasAnyFlag(MovementFlag.Flying))
         {
-            if (moveFlags.HasAnyFlag(MovementFlag.Backward))
-                return UnitMoveType.FlightBack;
-            else
-                return UnitMoveType.Flight;
+            return moveFlags.HasAnyFlag(MovementFlag.Backward) ? UnitMoveType.FlightBack : UnitMoveType.Flight;
         }
-        else if (moveFlags.HasAnyFlag(MovementFlag.Swimming))
+
+        if (moveFlags.HasAnyFlag(MovementFlag.Swimming))
         {
-            if (moveFlags.HasAnyFlag(MovementFlag.Backward))
-                return UnitMoveType.SwimBack;
-            else
-                return UnitMoveType.Swim;
+            return moveFlags.HasAnyFlag(MovementFlag.Backward) ? UnitMoveType.SwimBack : UnitMoveType.Swim;
         }
-        else if (moveFlags.HasAnyFlag(MovementFlag.Walking))
+        if (moveFlags.HasAnyFlag(MovementFlag.Walking))
         {
             return UnitMoveType.Walk;
         }
-        else if (moveFlags.HasAnyFlag(MovementFlag.Backward))
-        {
-            return UnitMoveType.RunBack;
-        }
 
-        // Flying creatures use MOVEMENTFLAG_CAN_FLY or MOVEMENTFLAG_DISABLE_GRAVITY
-        // Run speed is their default flight speed.
-        return UnitMoveType.Run;
+        return moveFlags.HasAnyFlag(MovementFlag.Backward) ? UnitMoveType.RunBack :
+                   // Flying creatures use MOVEMENTFLAG_CAN_FLY or MOVEMENTFLAG_DISABLE_GRAVITY
+                   // Run speed is their default flight speed.
+                   UnitMoveType.Run;
     }
 
     private void SetBackward()

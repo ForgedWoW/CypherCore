@@ -2830,7 +2830,7 @@ public partial class Unit : WorldObject
         // Wait with the aura interrupts until we have updated our movement generators and position
         if (IsPlayer)
             InterruptMovementBasedAuras();
-        else if (!MoveSpline.Finalized())
+        else if (!MoveSpline.Splineflags.HasFlag(SplineFlag.Done))
             InterruptMovementBasedAuras();
 
         // All position info based actions have been executed, reset info
