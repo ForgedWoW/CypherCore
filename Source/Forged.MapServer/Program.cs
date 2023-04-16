@@ -69,6 +69,7 @@ using Forged.MapServer.Mails;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Collision;
 using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Phasing;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -432,6 +433,7 @@ void RegisterManagers()
     builder.RegisterType<GridDefines>().SingleInstance();
     builder.RegisterType<CellCalculator>().SingleInstance();
     builder.RegisterType<Formulas>().SingleInstance();
+    builder.RegisterType<PhasingHandler>().SingleInstance();
 }
 
 void RegisterFactories()

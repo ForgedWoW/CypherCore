@@ -26,7 +26,7 @@ internal class PlayerPersonalPhasesTracker
     public void MarkAllPhasesForDeletion()
     {
         foreach (var spawns in _spawns.Values)
-            spawns.DurationRemaining = PersonalPhaseSpawns.DELETE_TIME_DEFAULT;
+            spawns.DurationRemaining = PersonalPhaseSpawns.DeleteTimeDefault;
     }
 
     public void OnOwnerPhasesChanged(WorldObject owner)
@@ -36,7 +36,7 @@ internal class PlayerPersonalPhasesTracker
         // Loop over all our tracked phases. If any don't exist - delete them
         foreach (var (phaseId, spawns) in _spawns)
             if (!spawns.DurationRemaining.HasValue && !phaseShift.HasPhase(phaseId))
-                spawns.DurationRemaining = PersonalPhaseSpawns.DELETE_TIME_DEFAULT;
+                spawns.DurationRemaining = PersonalPhaseSpawns.DeleteTimeDefault;
 
         // loop over all owner phases. If any exist and marked for deletion - reset delete
         foreach (var phaseRef in phaseShift.Phases)

@@ -27,7 +27,7 @@ public class MultiPersonalPhaseTracker
             if (!phaseRef.Value.IsPersonal())
                 continue;
 
-            if (!Global.ObjectMgr.HasPersonalSpawns(map.Id, map.DifficultyID, phaseRef.Key))
+            if (!map.GameObjectManager.HasPersonalSpawns(map.Id, map.DifficultyID, phaseRef.Key))
                 continue;
 
             if (playerTracker.IsGridLoadedForPhase(grid.GridId, phaseRef.Key))
@@ -78,10 +78,9 @@ public class MultiPersonalPhaseTracker
     }
     public void UnregisterTrackedObject(WorldObject obj)
     {
-        var playerTracker = _playerData.LookupByKey(obj.Location.PhaseShift.PersonalGuid);
-
-        playerTracker?.UnregisterTrackedObject(obj);
+        _playerData.LookupByKey(obj.Location.PhaseShift.PersonalGuid)?.UnregisterTrackedObject(obj);
     }
+
     public void Update(Map map, uint diff)
     {
         foreach (var itr in _playerData.ToList())

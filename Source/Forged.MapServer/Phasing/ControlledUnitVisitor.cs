@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
@@ -20,32 +21,35 @@ internal class ControlledUnitVisitor
 
     public void VisitControlledOf(Unit unit, Action<Unit> func)
     {
-        foreach (var controlled in unit.Controlled)
-            // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
-            if (!controlled.IsPlayer && controlled.Vehicle == null)
-                if (_visited.Add(controlled))
-                    func(controlled);
+        foreach (var controlled in unit.Controlled.Where(controlled => !controlled.IsPlayer && controlled.Vehicle == null).Where(controlled => _visited.Add(controlled)))
+            func(controlled);
 
         foreach (var summonGuid in unit.SummonSlot)
             if (!summonGuid.IsEmpty)
             {
                 var summon = ObjectAccessor.GetCreature(unit, summonGuid);
 
-                if (summon != null)
-                    if (_visited.Add(summon))
-                        func(summon);
+                if (summon == null)
+                    continue;
+
+                if (_visited.Add(summon))
+                    func(summon);
             }
 
         var vehicle = unit.VehicleKit;
 
-        if (vehicle != null)
-            foreach (var seatPair in vehicle.Seats)
-            {
-                var passenger = Global.ObjAccessor.GetUnit(unit, seatPair.Value.Passenger.Guid);
+        if (vehicle == null)
+            return;
 
-                if (passenger != null && passenger != unit)
-                    if (_visited.Add(passenger))
-                        func(passenger);
-            }
+        foreach (var seatPair in vehicle.Seats)
+        {
+            var passenger = unit.ObjectAccessor.GetUnit(unit, seatPair.Value.Passenger.Guid);
+
+            if (passenger == null || passenger == unit)
+                continue;
+
+            if (_visited.Add(passenger))
+                func(passenger);
+        }
     }
 }
