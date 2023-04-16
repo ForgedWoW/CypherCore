@@ -5,18 +5,27 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Globals;
 using Framework.Constants;
 
 namespace Forged.MapServer.Pools;
 
 public class PoolGroup<T>
 {
+    private readonly PoolManager _poolManager;
+    private readonly GameObjectManager _objectManager;
+    private readonly CreatureFactory _creatureFactory;
+    private readonly GameObjectFactory _gameObjectFactory;
     private readonly List<PoolObject> _equalChanced = new();
     private readonly List<PoolObject> _explicitlyChanced = new();
     private uint _poolId;
 
-    public PoolGroup()
+    public PoolGroup(PoolManager poolManager, GameObjectManager objectManager, CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory)
     {
+        _poolManager = poolManager;
+        _objectManager = objectManager;
+        _creatureFactory = creatureFactory;
+        _gameObjectFactory = gameObjectFactory;
         _poolId = 0;
     }
 
@@ -30,50 +39,40 @@ public class PoolGroup<T>
 
     public bool CheckPool()
     {
-        if (_equalChanced.Empty())
-        {
-            float chance = 0;
+        if (!_equalChanced.Empty())
+            return true;
 
-            for (var i = 0; i < _explicitlyChanced.Count; ++i)
-                chance += _explicitlyChanced[i].Chance;
-
-            if (chance != 100 && chance != 0)
-                return false;
-        }
-
-        return true;
+        return _explicitlyChanced.Sum(t => t.Chance) is 100 or 0;
     }
 
     public void DespawnObject(SpawnedPoolData spawns, ulong guid = 0, bool alwaysDeleteRespawnTime = false)
     {
-        for (var i = 0; i < _equalChanced.Count; ++i)
-            // if spawned
-            if (spawns.IsSpawnedObject<T>(_equalChanced[i].Guid))
+        foreach (var obj in _equalChanced)
+            if (spawns.IsSpawnedObject<T>(obj.Guid))
             {
-                if (guid == 0 || _equalChanced[i].Guid == guid)
-                {
-                    Despawn1Object(spawns, _equalChanced[i].Guid, alwaysDeleteRespawnTime);
-                    spawns.RemoveSpawn<T>(_equalChanced[i].Guid, _poolId);
-                }
+                if (guid != 0 && obj.Guid != guid)
+                    continue;
+
+                Despawn1Object(spawns, obj.Guid, alwaysDeleteRespawnTime);
+                spawns.RemoveSpawn<T>(obj.Guid, _poolId);
             }
             else if (alwaysDeleteRespawnTime)
             {
-                RemoveRespawnTimeFromDB(spawns, _equalChanced[i].Guid);
+                RemoveRespawnTimeFromDB(spawns, obj.Guid);
             }
 
-        for (var i = 0; i < _explicitlyChanced.Count; ++i)
-            // spawned
-            if (spawns.IsSpawnedObject<T>(_explicitlyChanced[i].Guid))
+        foreach (var obj in _explicitlyChanced)
+            if (spawns.IsSpawnedObject<T>(obj.Guid))
             {
-                if (guid == 0 || _explicitlyChanced[i].Guid == guid)
-                {
-                    Despawn1Object(spawns, _explicitlyChanced[i].Guid, alwaysDeleteRespawnTime);
-                    spawns.RemoveSpawn<T>(_explicitlyChanced[i].Guid, _poolId);
-                }
+                if (guid != 0 && obj.Guid != guid)
+                    continue;
+
+                Despawn1Object(spawns, obj.Guid, alwaysDeleteRespawnTime);
+                spawns.RemoveSpawn<T>(obj.Guid, _poolId);
             }
             else if (alwaysDeleteRespawnTime)
             {
-                RemoveRespawnTimeFromDB(spawns, _explicitlyChanced[i].Guid);
+                RemoveRespawnTimeFromDB(spawns, obj.Guid);
             }
     }
 
@@ -92,23 +91,16 @@ public class PoolGroup<T>
         if (typeof(T).Name != "Pool")
             return IsEmpty();
 
-        foreach (var explicitlyChanced in _explicitlyChanced)
-            if (!Global.PoolMgr.IsEmpty((uint)explicitlyChanced.Guid))
-                return false;
-
-        foreach (var equalChanced in _equalChanced)
-            if (!Global.PoolMgr.IsEmpty((uint)equalChanced.Guid))
-                return false;
-
-        return true;
+        return _explicitlyChanced.All(explicitlyChanced => _poolManager.IsEmpty((uint)explicitlyChanced.Guid)) && 
+               _equalChanced.All(equalChanced => _poolManager.IsEmpty((uint)equalChanced.Guid));
     }
-    public void RemoveOneRelation(uint child_pool_id)
+    public void RemoveOneRelation(uint childPoolID)
     {
         if (typeof(T).Name != "Pool")
             return;
 
         foreach (var poolObject in _explicitlyChanced)
-            if (poolObject.Guid == child_pool_id)
+            if (poolObject.Guid == childPoolID)
             {
                 _explicitlyChanced.Remove(poolObject);
 
@@ -116,7 +108,7 @@ public class PoolGroup<T>
             }
 
         foreach (var poolObject in _equalChanced)
-            if (poolObject.Guid == child_pool_id)
+            if (poolObject.Guid == childPoolID)
             {
                 _equalChanced.Remove(poolObject);
 
@@ -124,9 +116,9 @@ public class PoolGroup<T>
             }
     }
 
-    public void SetPoolId(uint pool_id)
+    public void SetPoolId(uint poolID)
     {
-        _poolId = pool_id;
+        _poolId = poolID;
     }
 
     public void SpawnObject(SpawnedPoolData spawns, uint limit, ulong triggerFrom)
@@ -232,7 +224,7 @@ public class PoolGroup<T>
                 break;
             }
             case "Pool":
-                Global.PoolMgr.DespawnPool(spawns, (uint)guid, alwaysDeleteRespawnTime);
+                _poolManager.DespawnPool(spawns, (uint)guid, alwaysDeleteRespawnTime);
 
                 break;
         }
@@ -272,28 +264,28 @@ public class PoolGroup<T>
         {
             case "Creature":
             {
-                var data = Global.ObjectMgr.GetCreatureData(obj.Guid);
+                var data = _objectManager.GetCreatureData(obj.Guid);
 
                 if (data != null)
                     // Spawn if necessary (loaded grids only)
                     // We use spawn coords to spawn
                     if (spawns.Map.IsGridLoaded(data.SpawnPoint))
-                        CreatureFactory.CreateCreatureFromDB(obj.Guid, spawns.Map);
+                        _creatureFactory.CreateCreatureFromDB(obj.Guid, spawns.Map);
             }
 
                 break;
             case "GameObject":
             {
-                var data = Global.ObjectMgr.GetGameObjectData(obj.Guid);
+                var data = _objectManager.GetGameObjectData(obj.Guid);
 
                 if (data != null)
                     // Spawn if necessary (loaded grids only)
                     // We use current coords to unspawn, not spawn coords since creature can have changed grid
                     if (spawns.Map.IsGridLoaded(data.SpawnPoint))
                     {
-                        var go = GameObjectFactory.CreateGameObjectFromDb(obj.Guid, spawns.Map, false);
+                        var go = _gameObjectFactory.CreateGameObjectFromDb(obj.Guid, spawns.Map, false);
 
-                        if (go && go.IsSpawnedByDefault)
+                        if (go is { IsSpawnedByDefault: true })
                             if (!spawns.Map.AddToMap(go))
                                 go.Dispose();
                     }
@@ -301,7 +293,7 @@ public class PoolGroup<T>
 
                 break;
             case "Pool":
-                Global.PoolMgr.SpawnPool(spawns, (uint)obj.Guid);
+                _poolManager.SpawnPool(spawns, (uint)obj.Guid);
 
                 break;
         }

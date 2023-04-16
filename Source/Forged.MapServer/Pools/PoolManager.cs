@@ -25,6 +25,8 @@ public class PoolManager
     private readonly Dictionary<ulong, uint> _gameobjectSearchMap = new();
 
     private readonly GameObjectManager _objectManager;
+    private readonly CreatureFactory _creatureFactory;
+    private readonly GameObjectFactory _gameObjectFactory;
 
     private readonly Dictionary<uint, PoolGroup<Creature>> _poolCreatureGroups = new();
 
@@ -38,10 +40,12 @@ public class PoolManager
 
     private readonly WorldDatabase _worldDatabase;
 
-    public PoolManager(WorldDatabase worldDatabase, GameObjectManager objectManager)
+    public PoolManager(WorldDatabase worldDatabase, GameObjectManager objectManager, CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory)
     {
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
+        _creatureFactory = creatureFactory;
+        _gameObjectFactory = gameObjectFactory;
     }
 
     public enum QuestTypes
@@ -242,7 +246,7 @@ public class PoolManager
                     PoolObject plObject = new(guid, chance);
 
                     if (!_poolCreatureGroups.ContainsKey(poolID))
-                        _poolCreatureGroups[poolID] = new PoolGroup<Creature>();
+                        _poolCreatureGroups[poolID] = new PoolGroup<Creature>(this, _objectManager, _creatureFactory, _gameObjectFactory);
 
                     var cregroup = _poolCreatureGroups[poolID];
                     cregroup.SetPoolId(poolID);
@@ -318,7 +322,7 @@ public class PoolManager
                     PoolObject plObject = new(guid, chance);
 
                     if (!_poolGameobjectGroups.ContainsKey(poolID))
-                        _poolGameobjectGroups[poolID] = new PoolGroup<GameObject>();
+                        _poolGameobjectGroups[poolID] = new PoolGroup<GameObject>(this, _objectManager, _creatureFactory, _gameObjectFactory);
 
                     var gogroup = _poolGameobjectGroups[poolID];
                     gogroup.SetPoolId(poolID);
@@ -388,7 +392,7 @@ public class PoolManager
                     PoolObject plObject = new(childPoolID, chance);
 
                     if (!_poolPoolGroups.ContainsKey(motherPoolID))
-                        _poolPoolGroups[motherPoolID] = new PoolGroup<Pool>();
+                        _poolPoolGroups[motherPoolID] = new PoolGroup<Pool>(this, _objectManager, _creatureFactory, _gameObjectFactory);
 
                     var plgroup = _poolPoolGroups[motherPoolID];
                     plgroup.SetPoolId(motherPoolID);

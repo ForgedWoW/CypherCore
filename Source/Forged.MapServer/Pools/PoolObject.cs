@@ -7,8 +7,8 @@ namespace Forged.MapServer.Pools;
 
 public class PoolObject
 {
-    public float Chance;
-    public ulong Guid;
+    public float Chance { get; set; }
+    public ulong Guid { get; set; }
     public PoolObject(ulong guid, float chance)
     {
         Guid = guid;
