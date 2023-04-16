@@ -831,7 +831,7 @@ public class Battleground : ZoneScript, IDisposable
         //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
         var maxLevel = Math.Min(MaxLevel, 80U);
 
-        return Formulas.HKHonorAtLevel(maxLevel, kills);
+        return Formulas.HkHonorAtLevel(maxLevel, kills);
     }
 
     public BattlegroundBracketId BracketId => _pvpDifficultyEntry.BracketId;

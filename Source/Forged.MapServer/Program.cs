@@ -430,6 +430,7 @@ void RegisterManagers()
     builder.RegisterType<PlayerNameMapHolder>().SingleInstance();
     builder.RegisterType<GridDefines>().SingleInstance();
     builder.RegisterType<CellCalculator>().SingleInstance();
+    builder.RegisterType<Formulas>().SingleInstance();
 }
 
 void RegisterFactories()

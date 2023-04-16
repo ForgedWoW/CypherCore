@@ -5,23 +5,36 @@ using System;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IFormula;
 using Framework.Constants;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Miscellaneous;
 
 public class Formulas
 {
-    public static uint BaseGain(uint pl_level, uint mob_level)
+    private readonly CliDB _cliDB;
+    private readonly ScriptManager _scriptManager;
+    private readonly IConfiguration _configuration;
+
+    public Formulas(CliDB cliDB, ScriptManager scriptManager, IConfiguration configuration)
+    {
+        _cliDB = cliDB;
+        _scriptManager = scriptManager;
+        _configuration = configuration;
+    }
+    public uint BaseGain(uint plLevel, uint mobLevel)
     {
         uint baseGain;
 
-        var xpPlayer = CliDB.XpGameTable.GetRow(pl_level);
-        var xpMob = CliDB.XpGameTable.GetRow(mob_level);
+        var xpPlayer = _cliDB.XpGameTable.GetRow(plLevel);
+        var xpMob = _cliDB.XpGameTable.GetRow(mobLevel);
 
-        if (mob_level >= pl_level)
+        if (mobLevel >= plLevel)
         {
-            var nLevelDiff = mob_level - pl_level;
+            var nLevelDiff = mobLevel - plLevel;
 
             if (nLevelDiff > 4)
                 nLevelDiff = 4;
@@ -30,12 +43,12 @@ public class Formulas
         }
         else
         {
-            var gray_level = GetGrayLevel(pl_level);
+            var grayLevel = GetGrayLevel(plLevel);
 
-            if (mob_level > gray_level)
+            if (mobLevel > grayLevel)
             {
-                var ZD = GetZeroDifference(pl_level);
-                baseGain = (uint)Math.Round(xpMob.PerKill * ((1 - (pl_level - mob_level) / ZD) * (xpMob.Divisor / xpPlayer.Divisor)));
+                var zd = GetZeroDifference(plLevel);
+                baseGain = (uint)Math.Round(xpMob.PerKill * ((1 - (plLevel - mobLevel) / zd) * (xpMob.Divisor / xpPlayer.Divisor)));
             }
             else
             {
@@ -43,86 +56,96 @@ public class Formulas
             }
         }
 
-        if (GetDefaultValue("MinCreatureScaledXPRatio", 0) != 0 && pl_level != mob_level)
+        if (_configuration.GetDefaultValue("MinCreatureScaledXPRatio", 0) != 0 && plLevel != mobLevel)
         {
             // Use mob level instead of player level to avoid overscaling on gain in a min is enforced
-            var baseGainMin = BaseGain(pl_level, pl_level) * GetDefaultValue("MinCreatureScaledXPRatio", 0) / 100;
+            var baseGainMin = BaseGain(plLevel, plLevel) * _configuration.GetDefaultValue("MinCreatureScaledXPRatio", 0u) / 100;
             baseGain = Math.Max(baseGainMin, baseGain);
         }
 
-        ScriptManager.ForEach<IFormulaOnBaseGainCalculation>(p => p.OnBaseGainCalculation(baseGain, pl_level, mob_level));
+        _scriptManager.ForEach<IFormulaOnBaseGainCalculation>(p => p.OnBaseGainCalculation(baseGain, plLevel, mobLevel));
 
         return baseGain;
     }
 
-    public static uint BgConquestRatingCalculator(uint rate)
+    public uint BgConquestRatingCalculator(uint rate)
     {
         // WowWiki: Battlegroundratings receive a bonus of 22.2% to the cap they generate
         return (uint)(ConquestRatingCalculator(rate) * 1.222f + 0.5f);
     }
 
-    public static uint ConquestRatingCalculator(uint rate)
+    public uint ConquestRatingCalculator(uint rate)
     {
-        if (rate <= 1500)
-            return 1350; // Default conquest points
-        else if (rate > 3000)
-            rate = 3000;
+        switch (rate)
+        {
+            case <= 1500:
+                return 1350; // Default conquest points
+            case > 3000:
+                rate = 3000;
+
+                break;
+        }
 
         // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
         return (uint)(1.4326 * (1511.26 / (1 + 1639.28 / Math.Exp(0.00412 * rate)) + 850.15));
     }
 
-    public static XPColorChar GetColorCode(uint pl_level, uint mob_level)
+    public XPColorChar GetColorCode(uint plLevel, uint mobLevel)
     {
         XPColorChar color;
 
-        if (mob_level >= pl_level + 5)
+        if (mobLevel >= plLevel + 5)
             color = XPColorChar.Red;
-        else if (mob_level >= pl_level + 3)
+        else if (mobLevel >= plLevel + 3)
             color = XPColorChar.Orange;
-        else if (mob_level >= pl_level - 2)
+        else if (mobLevel >= plLevel - 2)
             color = XPColorChar.Yellow;
-        else if (mob_level > GetGrayLevel(pl_level))
+        else if (mobLevel > GetGrayLevel(plLevel))
             color = XPColorChar.Green;
         else
             color = XPColorChar.Gray;
 
-        ScriptManager.ForEach<IFormulaOnColorCodeCaclculation>(p => p.OnColorCodeCalculation(color, pl_level, mob_level));
+        _scriptManager.ForEach<IFormulaOnColorCodeCaclculation>(p => p.OnColorCodeCalculation(color, plLevel, mobLevel));
 
         return color;
     }
 
-    public static uint GetGrayLevel(uint pl_level)
+    public uint GetGrayLevel(uint plLevel)
     {
         uint level;
 
-        if (pl_level < 7)
+        switch (plLevel)
         {
-            level = 0;
-        }
-        else if (pl_level < 35)
-        {
-            byte count = 0;
+            case < 7:
+                level = 0;
 
-            for (var i = 15; i <= pl_level; ++i)
-                if (i % 5 == 0)
-                    ++count;
+                break;
+            case < 35:
+            {
+                byte count = 0;
 
-            level = (uint)(pl_level - 7 - (count - 1));
-        }
-        else
-        {
-            level = pl_level - 10;
+                for (var i = 15; i <= plLevel; ++i)
+                    if (i % 5 == 0)
+                        ++count;
+
+                level = (uint)(plLevel - 7 - (count - 1));
+
+                break;
+            }
+            default:
+                level = plLevel - 10;
+
+                break;
         }
 
-        ScriptManager.ForEach<IFormulaOnGrayLevelCalculation>(p => p.OnGrayLevelCalculation(level, pl_level));
+        _scriptManager.ForEach<IFormulaOnGrayLevelCalculation>(p => p.OnGrayLevelCalculation(level, plLevel));
 
         return level;
     }
 
-    public static uint GetZeroDifference(uint pl_level)
+    public uint GetZeroDifference(uint plLevel)
     {
-        uint diff = pl_level switch
+        uint diff = plLevel switch
         {
             < 4  => 5,
             < 10 => 6,
@@ -138,38 +161,38 @@ public class Formulas
             _    => 17
         };
 
-        ScriptManager.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, pl_level));
+        _scriptManager.ForEach<IFormulaOnZeroDifference>(p => p.OnZeroDifferenceCalculation(diff, plLevel));
 
         return diff;
     }
 
-    public static uint HKHonorAtLevel(uint level, float multiplier = 1.0f)
+    public uint HkHonorAtLevel(uint level, float multiplier = 1.0f)
     {
-        return (uint)Math.Ceiling(HKHonorAtLevelF(level, multiplier));
+        return (uint)Math.Ceiling(HkHonorAtLevelF(level, multiplier));
     }
 
-    public static float HKHonorAtLevelF(uint level, float multiplier = 1.0f)
+    public float HkHonorAtLevelF(uint level, float multiplier = 1.0f)
     {
         var honor = multiplier * level * 1.55f;
-        ScriptManager.ForEach<IFormulaOnHonorCalculation>(p => p.OnHonorCalculation(honor, level, multiplier));
+        _scriptManager.ForEach<IFormulaOnHonorCalculation>(p => p.OnHonorCalculation(honor, level, multiplier));
 
         return honor;
     }
-    public static uint XPGain(Player player, Unit u, bool isBattleGround = false)
+    public uint XPGain(Player player, Unit u, bool isBattleGround = false)
     {
         var creature = u.AsCreature;
         uint gain = 0;
 
-        if (!creature || creature.CanGiveExperience)
+        if (creature == null || creature.CanGiveExperience)
         {
             var xpMod = 1.0f;
 
             gain = BaseGain(player.Level, u.GetLevelForTarget(player));
 
-            if (gain != 0 && creature)
+            if (gain != 0 && creature != null)
             {
                 // Players get only 10% xp for killing creatures of lower expansion levels than himself
-                if (ConfigMgr.GetDefaultValue("player:lowerExpInLowerExpansions", true) && creature.Template.GetHealthScalingExpansion() < (int)GetExpansionForLevel(player.Level))
+                if (_configuration.GetDefaultValue("player:lowerExpInLowerExpansions", true) && creature.Template.GetHealthScalingExpansion() < (int)GetExpansionForLevel(player.Level))
                     gain = (uint)Math.Round(gain / 10.0f);
 
                 if (creature.IsElite)
@@ -184,20 +207,20 @@ public class Formulas
                 xpMod *= creature.Template.ModExperience;
             }
 
-            xpMod *= isBattleGround ? GetDefaultValue("Rate:XP:BattlegroundKill", 1.0f) : GetDefaultValue("Rate:XP:Kill", 1.0f);
+            xpMod *= isBattleGround ? _configuration.GetDefaultValue("Rate:XP:BattlegroundKill", 1.0f) : _configuration.GetDefaultValue("Rate:XP:Kill", 1.0f);
 
-            if (creature && creature.PlayerDamageReq != 0) // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
+            if (creature != null && creature.PlayerDamageReq != 0) // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
                 xpMod *= 1.0f - 2.0f * creature.PlayerDamageReq / creature.MaxHealth;
 
             gain = (uint)(gain * xpMod);
         }
 
-        ScriptManager.ForEach<IFormulaOnGainCalculation>(p => p.OnGainCalculation(gain, player, u));
+        _scriptManager.ForEach<IFormulaOnGainCalculation>(p => p.OnGainCalculation(gain, player, u));
 
         return gain;
     }
 
-    public static float XPInGroupRate(uint count, bool isRaid)
+    public float XPInGroupRate(uint count, bool isRaid)
     {
         float rate;
 
@@ -217,11 +240,12 @@ public class Formulas
                 _ => 1.4f
             };
 
-        ScriptManager.ForEach<IFormulaOnGroupRateCaclulation>(p => p.OnGroupRateCalculation(rate, count, isRaid));
+        _scriptManager.ForEach<IFormulaOnGroupRateCaclulation>(p => p.OnGroupRateCalculation(rate, count, isRaid));
 
         return rate;
     }
-    private static Expansion GetExpansionForLevel(uint level)
+
+    private Expansion GetExpansionForLevel(uint level)
     {
         return level switch
         {
