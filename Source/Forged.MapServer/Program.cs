@@ -491,6 +491,7 @@ void RegisterInstanced()
     builder.RegisterType<PacketLog>();
     builder.RegisterType<WorldSocketManager>();
     builder.RegisterType<Quest>();
+    builder.RegisterType<InstanceScenario>();
 }
 
 void RegisterHandlers()

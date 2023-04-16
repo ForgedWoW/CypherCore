@@ -69,8 +69,7 @@ public class Scenario : CriteriaHandler
         _players.Clear();
     }
 
-    public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer)
-    { }
+    public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer) { }
 
     public override bool CanCompleteCriteriaTree(CriteriaTree tree)
     {
@@ -221,11 +220,9 @@ public class Scenario : CriteriaHandler
         SetStep(GetFirstStep());
     }
 
-    public override void SendAllData(Player receiver)
-    { }
+    public override void SendAllData(Player receiver) { }
 
-    public override void SendCriteriaProgressRemoved(uint criteriaId)
-    { }
+    public override void SendCriteriaProgressRemoved(uint criteriaId) { }
 
     public override void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted)
     {
@@ -247,12 +244,7 @@ public class Scenario : CriteriaHandler
     public override void SendPacket(ServerPacket data)
     {
         foreach (var guid in _players)
-        {
-            var player = _objectAccessor.FindPlayer(guid);
-
-            if (player)
-                player.SendPacket(data);
-        }
+            _objectAccessor.FindPlayer(guid)?.SendPacket(data);
     }
 
     public void SendScenarioState(Player player)
@@ -267,8 +259,7 @@ public class Scenario : CriteriaHandler
         _stepStates[step] = state;
     }
 
-    public virtual void Update(uint diff)
-    { }
+    public virtual void Update(uint diff) { }
 
     private void BuildScenarioState(ScenarioState scenarioState)
     {

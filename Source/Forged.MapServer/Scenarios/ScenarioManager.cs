@@ -24,6 +24,7 @@ public class ScenarioManager
     private readonly Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
     private readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
     private readonly WorldDatabase _worldDatabase;
+
     public ScenarioManager(WorldDatabase worldDatabase, IConfiguration configuration, CriteriaManager criteriaManager, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;
@@ -42,30 +43,25 @@ public class ScenarioManager
 
         uint scenarioID = team switch
         {
-            TeamIds.Alliance => dbData.Scenario_A,
-            TeamIds.Horde    => dbData.Scenario_H,
+            TeamIds.Alliance => dbData.ScenarioA,
+            TeamIds.Horde    => dbData.ScenarioH,
             _                => 0
         };
 
-        if (!_scenarioData.TryGetValue(scenarioID, out var scenarioData))
-        {
-            Log.Logger.Error("Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
-                             scenarioID,
-                             map.Id,
-                             map.DifficultyID);
+        if (_scenarioData.TryGetValue(scenarioID, out var scenarioData))
+            return new InstanceScenario(map, scenarioData);
 
-            return null;
-        }
+        Log.Logger.Error("Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
+                         scenarioID,
+                         map.Id,
+                         map.DifficultyID);
 
-        return new InstanceScenario(map, scenarioData);
+        return null;
     }
 
     public List<ScenarioPOI> GetScenarioPoIs(uint criteriaTreeID)
     {
-        if (!_scenarioPOIStore.ContainsKey(criteriaTreeID))
-            return null;
-
-        return _scenarioPOIStore[criteriaTreeID];
+        return !_scenarioPOIStore.ContainsKey(criteriaTreeID) ? null : _scenarioPOIStore[criteriaTreeID];
     }
 
     public void LoadDB2Data()
@@ -83,12 +79,12 @@ public class ScenarioManager
             scenarioSteps[step.ScenarioID][step.OrderIndex] = step;
             var tree = _criteriaManager.GetCriteriaTree(step.CriteriaTreeId);
 
-            if (tree != null)
-            {
-                uint criteriaTreeSize = 0;
-                CriteriaManager.WalkCriteriaTree(tree, _ => { ++criteriaTreeSize; });
-                deepestCriteriaTreeSize = Math.Max(deepestCriteriaTreeSize, criteriaTreeSize);
-            }
+            if (tree == null)
+                continue;
+
+            uint criteriaTreeSize = 0;
+            CriteriaManager.WalkCriteriaTree(tree, _ => { ++criteriaTreeSize; });
+            deepestCriteriaTreeSize = Math.Max(deepestCriteriaTreeSize, criteriaTreeSize);
         }
 
         foreach (var scenario in _cliDB.ScenarioStorage.Values)
@@ -134,22 +130,24 @@ public class ScenarioManager
 
             var scenarioHordeId = result.Read<uint>(3);
 
-            if (scenarioHordeId > 0 && !_scenarioData.ContainsKey(scenarioHordeId))
+            switch (scenarioHordeId)
             {
-                Log.Logger.Error("ScenarioMgr.LoadDBData: DB Table `scenarios`, column scenario_H contained an invalid scenario (Id: {0})!", scenarioHordeId);
+                case > 0 when !_scenarioData.ContainsKey(scenarioHordeId):
+                    Log.Logger.Error("ScenarioMgr.LoadDBData: DB Table `scenarios`, column scenario_H contained an invalid scenario (Id: {0})!", scenarioHordeId);
 
-                continue;
+                    continue;
+                case 0:
+                    scenarioHordeId = scenarioAllianceId;
+
+                    break;
             }
-
-            if (scenarioHordeId == 0)
-                scenarioHordeId = scenarioAllianceId;
 
             ScenarioDBData data = new()
             {
                 MapID = mapId,
                 DifficultyID = difficulty,
-                Scenario_A = scenarioAllianceId,
-                Scenario_H = scenarioHordeId
+                ScenarioA = scenarioAllianceId,
+                ScenarioH = scenarioHordeId
             };
 
             _scenarioDBData[Tuple.Create(mapId, difficulty)] = data;
@@ -157,6 +155,7 @@ public class ScenarioManager
 
         Log.Logger.Information("Loaded {0} instance scenario entries in {1} ms", _scenarioDBData.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
+
     public void LoadScenarioPOI()
     {
         var oldMSTime = Time.MSTime;
@@ -212,7 +211,6 @@ public class ScenarioManager
                 Log.Logger.Error($"`scenario_poi` CriteriaTreeID ({criteriaTreeID}) Idx1 ({idx1}) does not correspond to a valid criteria tree");
 
             if (allPoints.TryGetValue(criteriaTreeID, out var blobs))
-            {
                 if (blobs.TryGetValue(idx1, out var points))
                 {
                     _scenarioPOIStore.Add(criteriaTreeID, new ScenarioPOI(blobIndex, mapID, uiMapID, priority, flags, worldEffectID, playerConditionID, navigationPlayerConditionID, points));
@@ -220,7 +218,6 @@ public class ScenarioManager
 
                     continue;
                 }
-            }
 
             if (_configuration.GetDefaultValue("load:autoclean", false))
                 _worldDatabase.Execute($"DELETE FROM scenario_poi WHERE criteriaTreeID = {criteriaTreeID}");

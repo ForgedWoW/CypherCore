@@ -2,10 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Achievements;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking;
+using Forged.MapServer.Spells;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Scenarios;
 
@@ -13,11 +22,10 @@ public class InstanceScenario : Scenario
 {
     private readonly InstanceMap _map;
 
-    public InstanceScenario(InstanceMap map, ScenarioData scenarioData) : base(scenarioData)
+    public InstanceScenario(ScenarioData scenarioData, ObjectAccessor objectAccessor, CriteriaManager criteriaManager, WorldManager worldManager, GameObjectManager gameObjectManager, SpellManager spellManager, ArenaTeamManager arenaTeamManager, DisableManager disableManager, WorldStateManager worldStateManager, CliDB cliDB, ConditionManager conditionManager, RealmManager realmManager, IConfiguration configuration, LanguageManager languageManager, DB2Manager db2Manager, MapManager mapManager, AchievementGlobalMgr achievementManager, InstanceMap map) :
+        base(scenarioData, objectAccessor, criteriaManager, worldManager, gameObjectManager, spellManager, arenaTeamManager, disableManager, worldStateManager, cliDB, conditionManager, realmManager, configuration, languageManager, db2Manager, mapManager, achievementManager)
     {
         _map = map;
-
-        //ASSERT(_map);
         LoadInstanceData();
 
         var players = map.Players;
@@ -33,8 +41,6 @@ public class InstanceScenario : Scenario
 
     public override void SendPacket(ServerPacket data)
     {
-        //Hack  todo fix me
-
         _map?.SendToPlayers(data);
     }
 
@@ -47,11 +53,11 @@ public class InstanceScenario : Scenario
 
         List<CriteriaTree> criteriaTrees = new();
 
-        var killCreatureCriteria = Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(CriteriaType.KillCreature, Data.Entry.Id);
+        var killCreatureCriteria = CriteriaManager.GetScenarioCriteriaByTypeAndScenario(CriteriaType.KillCreature, Data.Entry.Id);
 
         if (!killCreatureCriteria.Empty())
         {
-            var spawnGroups = Global.ObjectMgr.GetInstanceSpawnGroupsForMap(_map.Id);
+            var spawnGroups = GameObjectManager.GetInstanceSpawnGroupsForMap(_map.Id);
 
             if (spawnGroups != null)
             {
@@ -64,43 +70,42 @@ public class InstanceScenario : Scenario
 
                     var isDespawned = ((1 << (int)EncounterState.Done) & spawnGroup.BossStates) == 0 || spawnGroup.Flags.HasFlag(InstanceSpawnGroupFlags.BlockSpawn);
 
-                    if (isDespawned)
-                        foreach (var spawn in Global.ObjectMgr.GetSpawnMetadataForGroup(spawnGroup.SpawnGroupId))
-                        {
-                            var spawnData = spawn.ToSpawnData();
+                    if (!isDespawned)
+                        continue;
 
-                            if (spawnData != null)
-                                ++despawnedCreatureCountsById[spawnData.Id];
-                        }
+                    foreach (var spawnData in GameObjectManager.GetSpawnMetadataForGroup(spawnGroup.SpawnGroupId).Select(spawn => spawn.ToSpawnData()).Where(spawnData => spawnData != null))
+                        ++despawnedCreatureCountsById[spawnData.Id];
                 }
 
                 foreach (var criteria in killCreatureCriteria)
                 {
                     // count creatures in despawned spawn groups
-                    if (despawnedCreatureCountsById.TryGetValue(criteria.Entry.Asset, out var progress))
-                    {
-                        SetCriteriaProgress(criteria, progress, null);
-                        var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+                    if (!despawnedCreatureCountsById.TryGetValue(criteria.Entry.Asset, out var progress))
+                        continue;
 
-                        if (trees != null)
-                            foreach (var tree in trees)
-                                criteriaTrees.Add(tree);
-                    }
+                    SetCriteriaProgress(criteria, progress, null);
+                    var trees = CriteriaManager.GetCriteriaTreesByCriteria(criteria.Id);
+
+                    if (trees == null)
+                        continue;
+
+                    criteriaTrees.AddRange(trees);
                 }
             }
         }
 
-        foreach (var criteria in Global.CriteriaMgr.GetScenarioCriteriaByTypeAndScenario(CriteriaType.DefeatDungeonEncounter, Data.Entry.Id))
+        foreach (var criteria in CriteriaManager.GetScenarioCriteriaByTypeAndScenario(CriteriaType.DefeatDungeonEncounter, Data.Entry.Id))
         {
             if (!instanceScript.IsEncounterCompleted(criteria.Entry.Asset))
                 continue;
 
             SetCriteriaProgress(criteria, 1, null);
-            var trees = Global.CriteriaMgr.GetCriteriaTreesByCriteria(criteria.Id);
+            var trees = CriteriaManager.GetCriteriaTreesByCriteria(criteria.Id);
 
-            if (trees != null)
-                foreach (var tree in trees)
-                    criteriaTrees.Add(tree);
+            if (trees == null)
+                continue;
+
+            criteriaTrees.AddRange(trees);
         }
 
         foreach (var tree in criteriaTrees)
