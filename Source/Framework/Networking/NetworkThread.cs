@@ -70,7 +70,7 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
                 return;
 
             foreach (var socket in _newSockets.ToList())
-                if (!socket.IsOpen())
+                if (!socket.IsOpen)
                 {
                     SocketRemoved(socket);
 
@@ -105,7 +105,7 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 
                 if (!socket.Update())
                 {
-                    if (socket.IsOpen())
+                    if (socket.IsOpen)
                         socket.CloseSocket();
 
                     SocketRemoved(socket);

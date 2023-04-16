@@ -18,11 +18,14 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
         try
         {
             var newSocket = (TSocketType)Activator.CreateInstance(typeof(TSocketType), sock);
+
+            if (newSocket == null)
+                return;
+
             newSocket.Accept();
             var thread = _threads[SelectThreadWithMinConnections()];
 
-            if (thread != null)
-                thread.AddSocket(newSocket);
+            thread?.AddSocket(newSocket);
         }
         catch (Exception err)
         {
@@ -86,8 +89,10 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
 
     private void Wait()
     {
-        if (_threadCount != 0)
-            for (var i = 0; i < _threadCount; ++i)
-                _threads[i].Wait();
+        if (_threadCount == 0)
+            return;
+
+        for (var i = 0; i < _threadCount; ++i)
+            _threads[i].Wait();
     }
 }

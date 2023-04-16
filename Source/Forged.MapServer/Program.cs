@@ -68,6 +68,7 @@ using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Collision;
+using Forged.MapServer.Miscellaneous;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -484,6 +485,9 @@ void RegisterInstanced()
     builder.RegisterType<Map>();
     builder.RegisterType<DynamicMapTree>();
     builder.RegisterType<TerrainInfo>();
+    builder.RegisterType<RASocket>();
+    builder.RegisterType<PacketLog>();
+    builder.RegisterType<WorldSocketManager>();
 }
 
 void RegisterHandlers()

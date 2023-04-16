@@ -7,26 +7,37 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using Forged.MapServer.Chat;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Framework.Networking;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Networking;
 
 public class RASocket : ISocket
 {
+    private readonly IConfiguration _configuration;
+    private readonly LoginDatabase _loginDatabase;
     private readonly byte[] _receiveBuffer;
     private readonly IPAddress _remoteAddress;
     private readonly Socket _socket;
+    private readonly WorldManager _worldManager;
 
-    public RASocket(Socket socket)
+    public RASocket(Socket socket, WorldManager worldManager, LoginDatabase loginDatabase, IConfiguration configuration)
     {
         _socket = socket;
-        _remoteAddress = ((IPEndPoint)_socket.RemoteEndPoint).Address;
+        _worldManager = worldManager;
+        _loginDatabase = loginDatabase;
+        _configuration = configuration;
+        _remoteAddress = (_socket.RemoteEndPoint as IPEndPoint)?.Address;
         _receiveBuffer = new byte[1024];
     }
+
+    public bool IsOpen => _socket.Connected;
 
     public void Accept()
     {
@@ -82,13 +93,13 @@ public class RASocket : ISocket
         Log.Logger.Information($"User {userName} (IP: {_remoteAddress}) authenticated correctly to RA");
 
         // Authentication successful, send the motd
-        foreach (var line in Global.WorldMgr.Motd)
+        foreach (var line in _worldManager.Motd)
             Send(line);
 
         Send("\r\n");
 
         // Read commands
-        for (;;)
+        for (; ; )
         {
             Send("\r\nForged>");
             var command = ReadString();
@@ -116,22 +127,17 @@ public class RASocket : ISocket
         }
     }
 
-    public bool IsOpen()
-    {
-        return _socket.Connected;
-    }
-
     public bool Update()
     {
-        return IsOpen();
+        return IsOpen;
     }
 
     private bool CheckAccessLevelAndPassword(string email, string password)
     {
         //"SELECT a.id, a.username FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id WHERE ba.email = ?"
-        var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
+        var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
         stmt.AddValue(0, email);
-        var result = DB.Login.Query(stmt);
+        var result = _loginDatabase.Query(stmt);
 
         if (result.IsEmpty())
         {
@@ -143,9 +149,9 @@ public class RASocket : ISocket
         var accountId = result.Read<uint>(0);
         var username = result.Read<string>(1);
 
-        stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_BY_ID);
+        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_BY_ID);
         stmt.AddValue(0, accountId);
-        result = DB.Login.Query(stmt);
+        result = _loginDatabase.Query(stmt);
 
         if (result.IsEmpty())
         {
@@ -155,7 +161,7 @@ public class RASocket : ISocket
         }
 
         //"SELECT SecurityLevel, RealmID FROM account_access WHERE AccountID = ? and (RealmID = ? OR RealmID = -1) ORDER BY SecurityLevel desc");
-        if (result.Read<byte>(0) < ConfigMgr.GetDefaultValue("Ra:MinLevel", (byte)AccountTypes.Administrator))
+        if (result.Read<byte>(0) < _configuration.GetDefaultValue("Ra:MinLevel", (byte)AccountTypes.Administrator))
         {
             Log.Logger.Information($"User {email} has no privilege to login");
 
@@ -168,9 +174,9 @@ public class RASocket : ISocket
             return false;
         }
 
-        stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
+        stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
         stmt.AddValue(0, accountId);
-        result = DB.Login.Query(stmt);
+        result = _loginDatabase.Query(stmt);
 
         if (!result.IsEmpty())
         {
@@ -209,7 +215,7 @@ public class RASocket : ISocket
             return false;
         }
 
-        RemoteAccessHandler cmd = new(CommandPrint);
+        RemoteAccessHandler cmd = new(CommandPrint, _worldManager);
         cmd.ParseCommands(command);
 
         return true;
@@ -243,7 +249,7 @@ public class RASocket : ISocket
 
     private void Send(string str)
     {
-        if (!IsOpen())
+        if (!IsOpen)
             return;
 
         _socket.Send(Encoding.UTF8.GetBytes(str));

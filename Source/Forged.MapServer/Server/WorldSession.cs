@@ -176,7 +176,7 @@ public class WorldSession : IDisposable
     public uint Latency { get; set; }
     public string OS { get; }
     public Player Player { get; set; }
-    public bool PlayerDisconnected => !(Socket != null && Socket.IsOpen());
+    public bool PlayerDisconnected => !(Socket != null && Socket.IsOpen);
     public bool PlayerLoading => !_playerLoading.IsEmpty;
     public bool PlayerLogout { get; private set; }
     public bool PlayerLogoutWithSave => PlayerLogout && _playerSave;
@@ -895,15 +895,6 @@ public class WorldSession : IDisposable
             return;
         }
 
-        var conIdx = packet.Connection;
-
-        if (conIdx != ConnectionType.Instance && _packetManager.IsInstanceOnlyOpcode(packet.Opcode))
-        {
-            Log.Logger.Error("Prevented sending of instance only opcode {0} with connection type {1} to {2}", packet.Opcode, packet.Connection, GetPlayerInfo());
-
-            return;
-        }
-
         if (Socket == null)
         {
             Log.Logger.Verbose("Prevented sending of {0} to non existent socket {1} to {2}", packet.Opcode, conIdx, GetPlayerInfo());
@@ -978,7 +969,7 @@ public class WorldSession : IDisposable
         ProcessQueryCallbacks();
 
 
-        if (Socket != null && Socket.IsOpen() && _warden != null)
+        if (Socket != null && Socket.IsOpen && _warden != null)
             _warden.Update(diff);
 
         // If necessary, log the player out
@@ -986,7 +977,7 @@ public class WorldSession : IDisposable
             LogoutPlayer(true);
 
         //- Cleanup socket if need
-        if (Socket != null && !Socket.IsOpen())
+        if (Socket != null && !Socket.IsOpen)
         {
             if (Player != null && _warden != null)
                 _warden.Update(diff);

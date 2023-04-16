@@ -10,10 +10,6 @@ namespace Forged.MapServer.Networking;
 
 public class WorldPacket : ByteBuffer
 {
-    public uint Opcode { get; }
-
-    public DateTime ReceivedTime { get; private set; }
-
     public WorldPacket(ServerOpcodes opcode = ServerOpcodes.None)
     {
         Opcode = (uint)opcode;
@@ -24,6 +20,9 @@ public class WorldPacket : ByteBuffer
         Opcode = ReadUInt16();
     }
 
+    public uint Opcode { get; }
+
+    public DateTime ReceivedTime { get; private set; }
     public ObjectGuid ReadPackedGuid()
     {
         var loLength = ReadUInt8();

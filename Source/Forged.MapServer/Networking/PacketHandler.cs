@@ -13,9 +13,6 @@ public class PacketHandler
     private readonly Action<WorldSession, ClientPacket> _methodCaller;
     private readonly Type _packetType;
 
-    public PacketProcessing ProcessingPlace { get; private set; }
-    public SessionStatus SessionStatus { get; private set; }
-
     public PacketHandler(MethodInfo info, SessionStatus status, PacketProcessing processingplace, Type type)
     {
         _methodCaller = (Action<WorldSession, ClientPacket>)GetType()
@@ -32,6 +29,8 @@ public class PacketHandler
         _packetType = type;
     }
 
+    public PacketProcessing ProcessingPlace { get; private set; }
+    public SessionStatus SessionStatus { get; private set; }
     public void Invoke(WorldSession session, WorldPacket packet)
     {
         if (_packetType == null)

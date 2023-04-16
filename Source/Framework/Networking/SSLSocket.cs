@@ -49,7 +49,7 @@ public abstract class SSLSocket : ISocket, IDisposable
 
     public async Task AsyncRead()
     {
-        if (!IsOpen())
+        if (!IsOpen)
             return;
 
         try
@@ -73,7 +73,7 @@ public abstract class SSLSocket : ISocket, IDisposable
 
     public async Task AsyncWrite(byte[] data)
     {
-        if (!IsOpen())
+        if (!IsOpen)
             return;
 
         try
@@ -110,10 +110,7 @@ public abstract class SSLSocket : ISocket, IDisposable
         return _remoteEndPoint;
     }
 
-    public bool IsOpen()
-    {
-        return _socket.Connected;
-    }
+    public bool IsOpen => _socket.Connected;
 
     public virtual void OnClose()
     {

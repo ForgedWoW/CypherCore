@@ -88,7 +88,7 @@ namespace BNetServer.Networking
 
         public async override void ReadHandler(byte[] data, int receivedLength)
         {
-            if (!IsOpen())
+            if (!IsOpen)
                 return;
 
             int readPos = 0;

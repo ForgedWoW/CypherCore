@@ -37,7 +37,7 @@ public abstract class SocketBase : ISocket, IDisposable
 
     public void AsyncRead()
     {
-        if (!IsOpen())
+        if (!IsOpen)
             return;
 
         _receiveSocketAsyncEventArgs.SetBuffer(0, 0x4000);
@@ -48,7 +48,7 @@ public abstract class SocketBase : ISocket, IDisposable
 
     public void AsyncReadWithCallback(SocketReadCallback callback)
     {
-        if (!IsOpen())
+        if (!IsOpen)
             return;
 
         _receiveSocketAsyncEventArgsWithCallback.Completed += (_, args) => callback(args);
@@ -60,7 +60,7 @@ public abstract class SocketBase : ISocket, IDisposable
 
     public void AsyncWrite(byte[] data)
     {
-        if (!IsOpen())
+        if (!IsOpen)
             return;
 
         _socket.Send(data);
@@ -94,10 +94,7 @@ public abstract class SocketBase : ISocket, IDisposable
         return _remoteIpEndPoint;
     }
 
-    public bool IsOpen()
-    {
-        return _socket.Connected;
-    }
+    public bool IsOpen => _socket.Connected;
 
     public virtual void OnClose()
     {
@@ -113,7 +110,7 @@ public abstract class SocketBase : ISocket, IDisposable
 
     public virtual bool Update()
     {
-        return IsOpen();
+        return IsOpen;
     }
 
     private void ProcessReadAsync(SocketAsyncEventArgs args)

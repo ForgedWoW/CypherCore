@@ -9,7 +9,7 @@ public interface ISocket
 
     void CloseSocket();
 
-    bool IsOpen();
+    bool IsOpen { get; }
 
     bool Update();
 }

@@ -68,32 +68,4 @@ public class PacketManager
             }
         }
     }
-
-    public bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
-    {
-        return opcode switch
-        {
-            ServerOpcodes.QuestGiverStatus => // ClientQuest
-                true,
-            ServerOpcodes.DuelRequested => // Client
-                true,
-            ServerOpcodes.DuelInBounds => // Client
-                true,
-            ServerOpcodes.QueryTimeResponse => // Client
-                true,
-            ServerOpcodes.DuelWinner => // Client
-                true,
-            ServerOpcodes.DuelComplete => // Client
-                true,
-            ServerOpcodes.DuelOutOfBounds => // Client
-                true,
-            ServerOpcodes.AttackStop => // Client
-                true,
-            ServerOpcodes.AttackStart => // Client
-                true,
-            ServerOpcodes.MountResult => // Client
-                true,
-            _ => false
-        };
-    }
 }

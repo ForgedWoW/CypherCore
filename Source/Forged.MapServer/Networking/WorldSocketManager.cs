@@ -3,15 +3,23 @@
 
 using System.Net.Sockets;
 using Framework.Networking;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Networking;
 
 public class WorldSocketManager : SocketManager<WorldSocket>
 {
+    private readonly IConfiguration _configuration;
     private AsyncAcceptor _instanceAcceptor;
     private int _socketSendBufferSize;
     private bool _tcpNoDelay;
+
+    public WorldSocketManager(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
 
     public override void OnSocketOpen(Socket sock)
     {
@@ -34,21 +42,21 @@ public class WorldSocketManager : SocketManager<WorldSocket>
         base.OnSocketOpen(sock);
     }
 
-    public override bool StartNetwork(string bindIp, int port, int threadCount)
+    public override bool StartNetwork(string bindIp, int port, int threadCount = 1)
     {
-        _tcpNoDelay = ConfigMgr.GetDefaultValue("Network:TcpNodelay", true);
+        _tcpNoDelay = _configuration.GetDefaultValue("Network:TcpNodelay", true);
 
         Log.Logger.Debug("Max allowed socket connections {0}", ushort.MaxValue);
 
         // -1 means use default
-        _socketSendBufferSize = ConfigMgr.GetDefaultValue("Network:OutKBuff", -1);
+        _socketSendBufferSize = _configuration.GetDefaultValue("Network:OutKBuff", -1);
 
         if (!base.StartNetwork(bindIp, port, threadCount))
             return false;
 
         _instanceAcceptor = new AsyncAcceptor();
 
-        if (!_instanceAcceptor.Start(bindIp, GetDefaultValue("InstanceServerPort", 8086)))
+        if (!_instanceAcceptor.Start(bindIp, _configuration.GetDefaultValue("InstanceServerPort", 8086)))
         {
             Log.Logger.Error("StartNetwork failed to start instance AsyncAcceptor");
 

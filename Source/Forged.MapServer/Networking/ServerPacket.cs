@@ -11,12 +11,6 @@ public abstract class ServerPacket
 {
     protected WorldPacket WorldPacket;
 
-    public byte[] BufferData { get; private set; }
-
-    public ConnectionType Connection { get; }
-
-    public ServerOpcodes Opcode => (ServerOpcodes)WorldPacket.Opcode;
-
     protected ServerPacket(ServerOpcodes opcode)
     {
         Connection = ConnectionType.Realm;
@@ -29,6 +23,11 @@ public abstract class ServerPacket
         WorldPacket = new WorldPacket(opcode);
     }
 
+    public byte[] BufferData { get; private set; }
+
+    public ConnectionType Connection { get; }
+
+    public ServerOpcodes Opcode => (ServerOpcodes)WorldPacket.Opcode;
     public void Clear()
     {
         WorldPacket.Clear();

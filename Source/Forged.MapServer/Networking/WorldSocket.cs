@@ -147,7 +147,7 @@ public class WorldSocket : SocketBase
 
     public override void ReadHandler(SocketAsyncEventArgs args)
     {
-        if (!IsOpen())
+        if (!IsOpen)
             return;
 
         var currentReadIndex = 0;
@@ -215,7 +215,7 @@ public class WorldSocket : SocketBase
 
     public void SendPacket(ServerPacket packet)
     {
-        if (!IsOpen() || _serverChallenge == null)
+        if (!IsOpen || _serverChallenge == null)
             return;
 
         // SendPacket may be called from multiple threads.
@@ -622,7 +622,6 @@ public class WorldSocket : SocketBase
 
             case ConnectToSerial.WorldAttempt2:
                 _worldSession.SendConnectToInstance(ConnectToSerial.WorldAttempt3);
-                a
 
                 break;
 
