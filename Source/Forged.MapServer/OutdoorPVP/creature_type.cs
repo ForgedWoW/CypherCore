@@ -5,16 +5,16 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.OutdoorPVP;
 
-internal class creature_type
+internal class CreatureType
 {
-    public uint entry;
-    public uint map;
-    private readonly Position pos;
+    public uint Entry;
+    public uint Map;
+    private readonly Position _pos;
 
-    public creature_type(uint _entry, uint _map, float _x, float _y, float _z, float _o)
+    public CreatureType(uint entry, uint map, float x, float y, float z, float o)
     {
-        entry = _entry;
-        map = _map;
-        pos = new Position(_x, _y, _z, _o);
+        Entry = entry;
+        Map = map;
+        _pos = new Position(x, y, z, o);
     }
 }

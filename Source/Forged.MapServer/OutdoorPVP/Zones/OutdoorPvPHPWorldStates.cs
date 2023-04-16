@@ -3,10 +3,10 @@
 
 namespace Forged.MapServer.OutdoorPVP.Zones;
 
-internal struct OutdoorPvPHPWorldStates
+internal struct OutdoorPvPhpWorldStates
 {
-    public const int Count_A = 0x9ac;
-    public const int Count_H = 0x9ae;
-    public const int Display_A = 0x9ba;
-    public const int Display_H = 0x9b9;
+    public const int COUNT_A = 0x9ac;
+    public const int COUNT_H = 0x9ae;
+    public const int DISPLAY_A = 0x9ba;
+    public const int DISPLAY_H = 0x9b9;
 }

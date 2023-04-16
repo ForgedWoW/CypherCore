@@ -9,13 +9,13 @@ namespace Forged.MapServer.OutdoorPVP.Zones;
 
 internal class HellfirePeninsulaCapturePoint : OPvPCapturePoint
 {
-    private readonly ulong m_flagSpawnId;
-    private readonly uint m_TowerType;
+    private readonly ulong _mFlagSpawnId;
+    private readonly uint _mTowerType;
 
-    public HellfirePeninsulaCapturePoint(OutdoorPvP pvp, OutdoorPvPHPTowerType type, GameObject go, ulong flagSpawnId) : base(pvp)
+    public HellfirePeninsulaCapturePoint(OutdoorPvP pvp, OutdoorPvPhpTowerType type, GameObject go, ulong flagSpawnId) : base(pvp)
     {
-        m_TowerType = (uint)type;
-        m_flagSpawnId = flagSpawnId;
+        _mTowerType = (uint)type;
+        _mFlagSpawnId = flagSpawnId;
 
         CapturePointSpawnId = go.SpawnId;
         CapturePoint = go;
@@ -29,39 +29,39 @@ internal class HellfirePeninsulaCapturePoint : OPvPCapturePoint
         switch (OldState)
         {
             case ObjectiveStates.Neutral:
-                field = HPConst.Map_N[m_TowerType];
+                field = HpConst.MapN[_mTowerType];
 
                 break;
             case ObjectiveStates.Alliance:
-                field = HPConst.Map_A[m_TowerType];
-                var alliance_towers = ((HellfirePeninsulaPvP)PvP).GetAllianceTowersControlled();
+                field = HpConst.MapA[_mTowerType];
+                var allianceTowers = ((HellfirePeninsulaPvP)PvP).GetAllianceTowersControlled();
 
-                if (alliance_towers != 0)
-                    ((HellfirePeninsulaPvP)PvP).SetAllianceTowersControlled(--alliance_towers);
+                if (allianceTowers != 0)
+                    ((HellfirePeninsulaPvP)PvP).SetAllianceTowersControlled(--allianceTowers);
 
                 break;
             case ObjectiveStates.Horde:
-                field = HPConst.Map_H[m_TowerType];
-                var horde_towers = ((HellfirePeninsulaPvP)PvP).GetHordeTowersControlled();
+                field = HpConst.MapH[_mTowerType];
+                var hordeTowers = ((HellfirePeninsulaPvP)PvP).GetHordeTowersControlled();
 
-                if (horde_towers != 0)
-                    ((HellfirePeninsulaPvP)PvP).SetHordeTowersControlled(--horde_towers);
+                if (hordeTowers != 0)
+                    ((HellfirePeninsulaPvP)PvP).SetHordeTowersControlled(--hordeTowers);
 
                 break;
             case ObjectiveStates.NeutralAllianceChallenge:
-                field = HPConst.Map_N[m_TowerType];
+                field = HpConst.MapN[_mTowerType];
 
                 break;
             case ObjectiveStates.NeutralHordeChallenge:
-                field = HPConst.Map_N[m_TowerType];
+                field = HpConst.MapN[_mTowerType];
 
                 break;
             case ObjectiveStates.AllianceHordeChallenge:
-                field = HPConst.Map_A[m_TowerType];
+                field = HpConst.MapA[_mTowerType];
 
                 break;
             case ObjectiveStates.HordeAllianceChallenge:
-                field = HPConst.Map_H[m_TowerType];
+                field = HpConst.MapH[_mTowerType];
 
                 break;
         }
@@ -74,71 +74,71 @@ internal class HellfirePeninsulaCapturePoint : OPvPCapturePoint
         }
 
         uint artkit = 21;
-        var artkit2 = HPConst.TowerArtKit_N[m_TowerType];
+        var artkit2 = HpConst.TowerArtKitN[_mTowerType];
 
         switch (State)
         {
             case ObjectiveStates.Neutral:
-                field = HPConst.Map_N[m_TowerType];
+                field = HpConst.MapN[_mTowerType];
 
                 break;
             case ObjectiveStates.Alliance:
             {
-                field = HPConst.Map_A[m_TowerType];
+                field = HpConst.MapA[_mTowerType];
                 artkit = 2;
-                artkit2 = HPConst.TowerArtKit_A[m_TowerType];
-                var alliance_towers = ((HellfirePeninsulaPvP)PvP).GetAllianceTowersControlled();
+                artkit2 = HpConst.TowerArtKitA[_mTowerType];
+                var allianceTowers = ((HellfirePeninsulaPvP)PvP).GetAllianceTowersControlled();
 
-                if (alliance_towers < 3)
-                    ((HellfirePeninsulaPvP)PvP).SetAllianceTowersControlled(++alliance_towers);
+                if (allianceTowers < 3)
+                    ((HellfirePeninsulaPvP)PvP).SetAllianceTowersControlled(++allianceTowers);
 
-                PvP.SendDefenseMessage(HPConst.BuffZones[0], HPConst.LangCapture_A[m_TowerType]);
+                PvP.SendDefenseMessage(HpConst.BuffZones[0], HpConst.LangCaptureA[_mTowerType]);
 
                 break;
             }
             case ObjectiveStates.Horde:
             {
-                field = HPConst.Map_H[m_TowerType];
+                field = HpConst.MapH[_mTowerType];
                 artkit = 1;
-                artkit2 = HPConst.TowerArtKit_H[m_TowerType];
-                var horde_towers = ((HellfirePeninsulaPvP)PvP).GetHordeTowersControlled();
+                artkit2 = HpConst.TowerArtKitH[_mTowerType];
+                var hordeTowers = ((HellfirePeninsulaPvP)PvP).GetHordeTowersControlled();
 
-                if (horde_towers < 3)
-                    ((HellfirePeninsulaPvP)PvP).SetHordeTowersControlled(++horde_towers);
+                if (hordeTowers < 3)
+                    ((HellfirePeninsulaPvP)PvP).SetHordeTowersControlled(++hordeTowers);
 
-                PvP.SendDefenseMessage(HPConst.BuffZones[0], HPConst.LangCapture_H[m_TowerType]);
+                PvP.SendDefenseMessage(HpConst.BuffZones[0], HpConst.LangCaptureH[_mTowerType]);
 
                 break;
             }
             case ObjectiveStates.NeutralAllianceChallenge:
-                field = HPConst.Map_N[m_TowerType];
+                field = HpConst.MapN[_mTowerType];
 
                 break;
             case ObjectiveStates.NeutralHordeChallenge:
-                field = HPConst.Map_N[m_TowerType];
+                field = HpConst.MapN[_mTowerType];
 
                 break;
             case ObjectiveStates.AllianceHordeChallenge:
-                field = HPConst.Map_A[m_TowerType];
+                field = HpConst.MapA[_mTowerType];
                 artkit = 2;
-                artkit2 = HPConst.TowerArtKit_A[m_TowerType];
+                artkit2 = HpConst.TowerArtKitA[_mTowerType];
 
                 break;
             case ObjectiveStates.HordeAllianceChallenge:
-                field = HPConst.Map_H[m_TowerType];
+                field = HpConst.MapH[_mTowerType];
                 artkit = 1;
-                artkit2 = HPConst.TowerArtKit_H[m_TowerType];
+                artkit2 = HpConst.TowerArtKitH[_mTowerType];
 
                 break;
         }
 
-        var map = Global.MapMgr.FindMap(530, 0);
+        var map = PvP.Map.MapManager.FindMap(530, 0);
         var bounds = map.GameObjectBySpawnIdStore.LookupByKey(CapturePointSpawnId);
 
         foreach (var go in bounds)
             go.GoArtKit = artkit;
 
-        bounds = map.GameObjectBySpawnIdStore.LookupByKey(m_flagSpawnId);
+        bounds = map.GameObjectBySpawnIdStore.LookupByKey(_mFlagSpawnId);
 
         foreach (var go in bounds)
             go.GoArtKit = artkit2;
@@ -149,6 +149,6 @@ internal class HellfirePeninsulaCapturePoint : OPvPCapturePoint
 
         // complete quest objective
         if (State is ObjectiveStates.Alliance or ObjectiveStates.Horde)
-            SendObjectiveComplete(HPConst.CreditMarker[m_TowerType], ObjectGuid.Empty);
+            SendObjectiveComplete(HpConst.CreditMarker[_mTowerType], ObjectGuid.Empty);
     }
 }

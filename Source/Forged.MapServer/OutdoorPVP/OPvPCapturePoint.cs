@@ -85,19 +85,19 @@ public class OPvPCapturePoint
 
     public virtual bool HandlePlayerEnter(Player player)
     {
-        if (CapturePoint)
-        {
-            player.SendUpdateWorldState(CapturePoint.Template.ControlZone.worldState1, 1);
-            player.SendUpdateWorldState(CapturePoint.Template.ControlZone.worldstate2, (uint)Math.Ceiling((Value + MaxValue) / (2 * MaxValue) * 100.0f));
-            player.SendUpdateWorldState(CapturePoint.Template.ControlZone.worldstate3, NeutralValuePct);
-        }
+        if (CapturePoint == null)
+            return ActivePlayers[player.TeamId].Add(player.GUID);
+
+        player.SendUpdateWorldState(CapturePoint.Template.ControlZone.worldState1, 1);
+        player.SendUpdateWorldState(CapturePoint.Template.ControlZone.worldstate2, (uint)Math.Ceiling((Value + MaxValue) / (2 * MaxValue) * 100.0f));
+        player.SendUpdateWorldState(CapturePoint.Template.ControlZone.worldstate3, NeutralValuePct);
 
         return ActivePlayers[player.TeamId].Add(player.GUID);
     }
 
     public virtual void HandlePlayerLeave(Player player)
     {
-        if (CapturePoint)
+        if (CapturePoint != null)
             player.SendUpdateWorldState(CapturePoint.Template.ControlZone.worldState1, 0);
 
         ActivePlayers[player.TeamId].Remove(player.GUID);
@@ -112,7 +112,7 @@ public class OPvPCapturePoint
 
     public virtual void SendChangePhase()
     {
-        if (!CapturePoint)
+        if (CapturePoint == null)
             return;
 
         // send this too, sometimes the slider disappears, dunno why :(
@@ -145,12 +145,8 @@ public class OPvPCapturePoint
 
         // send to all players present in the area
         foreach (var playerGuid in ActivePlayers[team])
-        {
-            var player = Global.ObjAccessor.FindPlayer(playerGuid);
-
-            if (player)
-                player.KilledMonsterCredit(id, guid);
-        }
+            PvP.Map.ObjectAccessor.FindPlayer(playerGuid)?.KilledMonsterCredit(id, guid);
+        
     }
 
     public void SendUpdateWorldState(uint field, uint value)
@@ -158,12 +154,7 @@ public class OPvPCapturePoint
         for (var team = 0; team < 2; ++team)
             // send to all players present in the area
             foreach (var guid in ActivePlayers[team])
-            {
-                var player = Global.ObjAccessor.FindPlayer(guid);
-
-                if (player)
-                    player.SendUpdateWorldState(field, value);
-            }
+                PvP.Map.ObjectAccessor.FindPlayer(guid)?.SendUpdateWorldState(field, value);
     }
 
     public bool SetCapturePointData(uint entry)
@@ -171,9 +162,9 @@ public class OPvPCapturePoint
         Log.Logger.Debug("Creating capture point {0}", entry);
 
         // check info existence
-        var goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+        var goinfo = PvP.Map.GameObjectManager.GetGameObjectTemplate(entry);
 
-        if (goinfo == null || goinfo.type != GameObjectTypes.ControlZone)
+        if (goinfo is not { type: GameObjectTypes.ControlZone })
         {
             Log.Logger.Error("OutdoorPvP: GO {0} is not capture point!", entry);
 
@@ -191,7 +182,7 @@ public class OPvPCapturePoint
 
     public virtual bool Update(uint diff)
     {
-        if (!CapturePoint)
+        if (CapturePoint == null)
             return false;
 
         float radius = CapturePoint.Template.ControlZone.radius;
@@ -199,42 +190,44 @@ public class OPvPCapturePoint
         for (var team = 0; team < 2; ++team)
             foreach (var playerGuid in ActivePlayers[team].ToList())
             {
-                var player = Global.ObjAccessor.FindPlayer(playerGuid);
+                var player = PvP.Map.ObjectAccessor.FindPlayer(playerGuid);
 
-                if (player)
-                    if (!CapturePoint.Location.IsWithinDistInMap(player, radius) || !player.IsOutdoorPvPActive())
-                        HandlePlayerLeave(player);
+                if (player == null)
+                    continue;
+
+                if (!CapturePoint.Location.IsWithinDistInMap(player, radius) || !player.IsOutdoorPvPActive())
+                    HandlePlayerLeave(player);
             }
 
         List<Unit> players = new();
         var checker = new AnyPlayerInObjectRangeCheck(CapturePoint, radius);
         var searcher = new PlayerListSearcher(CapturePoint, players, checker);
-        CellCalculator.VisitGrid(CapturePoint, searcher, radius);
+        PvP.Map.CellCalculator.VisitGrid(CapturePoint, searcher, radius);
 
-        foreach (Player player in players)
-            if (player.IsOutdoorPvPActive())
-                if (ActivePlayers[player.TeamId].Add(player.GUID))
-                    HandlePlayerEnter(player);
+        foreach (var player in from Player player in players where player.IsOutdoorPvPActive() where ActivePlayers[player.TeamId].Add(player.GUID) select player)
+        {
+            HandlePlayerEnter(player);
+        }
 
         // get the difference of numbers
-        var fact_diff = (float)(ActivePlayers[0].Count - ActivePlayers[1].Count) * diff / 1000;
+        var factDiff = (float)(ActivePlayers[0].Count - ActivePlayers[1].Count) * diff / 1000;
 
-        if (fact_diff == 0.0f)
+        if (factDiff == 0.0f)
             return false;
 
-        TeamFaction Challenger;
+        TeamFaction challenger;
         var maxDiff = _maxSpeed * diff;
 
-        if (fact_diff < 0)
+        if (factDiff < 0)
         {
             // horde is in majority, but it's already horde-controlled . no change
             if (State == ObjectiveStates.Horde && Value <= -MaxValue)
                 return false;
 
-            if (fact_diff < -maxDiff)
-                fact_diff = -maxDiff;
+            if (factDiff < -maxDiff)
+                factDiff = -maxDiff;
 
-            Challenger = TeamFaction.Horde;
+            challenger = TeamFaction.Horde;
         }
         else
         {
@@ -242,10 +235,10 @@ public class OPvPCapturePoint
             if (State == ObjectiveStates.Alliance && Value >= MaxValue)
                 return false;
 
-            if (fact_diff > maxDiff)
-                fact_diff = maxDiff;
+            if (factDiff > maxDiff)
+                factDiff = maxDiff;
 
-            Challenger = TeamFaction.Alliance;
+            challenger = TeamFaction.Alliance;
         }
 
         var oldValue = Value;
@@ -253,7 +246,7 @@ public class OPvPCapturePoint
 
         OldState = State;
 
-        Value += fact_diff;
+        Value += factDiff;
 
         if (Value < -_minValue) // red
         {
@@ -273,7 +266,7 @@ public class OPvPCapturePoint
         }
         else if (oldValue * Value <= 0) // grey, go through mid point
         {
-            State = Challenger switch
+            State = challenger switch
             {
                 // if challenger is ally, then n.a challenge
                 TeamFaction.Alliance => ObjectiveStates.NeutralAllianceChallenge,
@@ -286,7 +279,7 @@ public class OPvPCapturePoint
         }
         else // grey, did not go through mid point
         {
-            State = Challenger switch
+            State = challenger switch
             {
                 // old phase and current are on the same side, so one team challenges the other
                 TeamFaction.Alliance when OldState is ObjectiveStates.Horde or ObjectiveStates.NeutralHordeChallenge    => ObjectiveStates.HordeAllianceChallenge,
@@ -300,16 +293,15 @@ public class OPvPCapturePoint
         if (Value != oldValue)
             SendChangePhase();
 
-        if (OldState != State)
-        {
-            if (oldTeam != _team)
-                ChangeTeam(oldTeam);
+        if (OldState == State)
+            return false;
 
-            ChangeState();
+        if (oldTeam != _team)
+            ChangeTeam(oldTeam);
 
-            return true;
-        }
+        ChangeState();
 
-        return false;
+        return true;
+
     }
 }

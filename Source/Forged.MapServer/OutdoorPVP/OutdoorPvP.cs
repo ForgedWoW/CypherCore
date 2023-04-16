@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
@@ -18,43 +19,33 @@ namespace Forged.MapServer.OutdoorPVP;
 public class OutdoorPvP : ZoneScript
 {
     // the map of the objectives belonging to this outdoorpvp
-    public Dictionary<ulong, OPvPCapturePoint> m_capturePoints = new();
-    public OutdoorPvPTypes m_TypeId;
-    private readonly Map m_map;
-    private readonly List<ObjectGuid>[] m_players = new List<ObjectGuid>[2];
+    public Dictionary<ulong, OPvPCapturePoint> CapturePoints { get; set; } = new();
+    public OutdoorPvPTypes TypeId { get; set; }
+    public Map Map { get; }
+    private readonly List<ObjectGuid>[] _players = new List<ObjectGuid>[2];
 
     public OutdoorPvP(Map map)
     {
-        m_TypeId = 0;
-        m_map = map;
-        m_players[0] = new List<ObjectGuid>();
-        m_players[1] = new List<ObjectGuid>();
+        TypeId = 0;
+        Map = map;
+        _players[0] = new List<ObjectGuid>();
+        _players[1] = new List<ObjectGuid>();
     }
 
     public void AddCapturePoint(OPvPCapturePoint cp)
     {
-        if (m_capturePoints.ContainsKey(cp.CapturePointSpawnId))
+        if (CapturePoints.ContainsKey(cp.CapturePointSpawnId))
             Log.Logger.Error("OutdoorPvP.AddCapturePoint: CapturePoint {0} already exists!", cp.CapturePointSpawnId);
 
-        m_capturePoints[cp.CapturePointSpawnId] = cp;
+        CapturePoints[cp.CapturePointSpawnId] = cp;
     }
 
     // awards rewards for player kill
     public virtual void AwardKillBonus(Player player) { }
 
-    public Map GetMap()
-    {
-        return m_map;
-    }
-
-    public OutdoorPvPTypes GetTypeId()
-    {
-        return m_TypeId;
-    }
-
     public int GetWorldState(int worldStateId)
     {
-        return Global.WorldStateMgr.GetValue(worldStateId, m_map);
+        return Map.WorldStateManager.GetValue(worldStateId, Map);
     }
 
     public virtual bool HandleAreaTrigger(Player player, uint trigger, bool entered)
@@ -64,33 +55,23 @@ public class OutdoorPvP : ZoneScript
 
     public virtual bool HandleCustomSpell(Player player, uint spellId, GameObject go)
     {
-        foreach (var pair in m_capturePoints)
-            if (pair.Value.HandleCustomSpell(player, spellId, go))
-                return true;
-
-        return false;
+        return CapturePoints.Any(pair => pair.Value.HandleCustomSpell(player, spellId, go));
     }
 
     public virtual bool HandleDropFlag(Player player, uint id)
     {
-        foreach (var pair in m_capturePoints)
-            if (pair.Value.HandleDropFlag(player, id))
-                return true;
-
-        return false;
+        return CapturePoints.Any(pair => pair.Value.HandleDropFlag(player, id));
     }
 
     public virtual void HandleKill(Player killer, Unit killed)
     {
-        var group = killer.Group;
-
-        if (group)
+        if (killer.Group != null)
         {
-            for (var refe = group.FirstMember; refe != null; refe = refe.Next())
+            for (var refe = killer.Group.FirstMember; refe != null; refe = refe.Next())
             {
                 var groupGuy = refe.Source;
 
-                if (!groupGuy)
+                if (groupGuy == null)
                     continue;
 
                 // skip if too far away
@@ -99,14 +80,14 @@ public class OutdoorPvP : ZoneScript
 
                 // creature kills must be notified, even if not inside objective / not outdoor pvp active
                 // player kills only count if active and inside objective
-                if ((groupGuy.IsOutdoorPvPActive() && IsInsideObjective(groupGuy)) || killed.IsTypeId(TypeId.Unit))
+                if ((groupGuy.IsOutdoorPvPActive() && IsInsideObjective(groupGuy)) || killed.IsTypeId(Framework.Constants.TypeId.Unit))
                     HandleKillImpl(groupGuy, killed);
             }
         }
         else
         {
             // creature kills must be notified, even if not inside objective / not outdoor pvp active
-            if ((killer.IsOutdoorPvPActive() && IsInsideObjective(killer)) || killed.IsTypeId(TypeId.Unit))
+            if ((killer.IsOutdoorPvPActive() && IsInsideObjective(killer)) || killed.IsTypeId(Framework.Constants.TypeId.Unit))
                 HandleKillImpl(killer, killed);
         }
     }
@@ -115,29 +96,25 @@ public class OutdoorPvP : ZoneScript
 
     public virtual bool HandleOpenGo(Player player, GameObject go)
     {
-        foreach (var pair in m_capturePoints)
-            if (pair.Value.HandleOpenGo(player, go) >= 0)
-                return true;
-
-        return false;
+        return CapturePoints.Any(pair => pair.Value.HandleOpenGo(player, go) >= 0);
     }
 
     public virtual void HandlePlayerEnterZone(Player player, uint zone)
     {
-        m_players[player.TeamId].Add(player.GUID);
+        _players[player.TeamId].Add(player.GUID);
     }
 
     public virtual void HandlePlayerLeaveZone(Player player, uint zone)
     {
         // inform the objectives of the leaving
-        foreach (var pair in m_capturePoints)
+        foreach (var pair in CapturePoints)
             pair.Value.HandlePlayerLeave(player);
 
         // remove the world state information from the player (we can't keep everyone up to date, so leave out those who are not in the concerning zones)
         if (!player.Session.PlayerLogout)
             SendRemoveWorldStates(player);
 
-        m_players[player.TeamId].Remove(player.GUID);
+        _players[player.TeamId].Remove(player.GUID);
         Log.Logger.Debug("Player {0} left an outdoorpvp zone", player.GetName());
     }
 
@@ -145,7 +122,7 @@ public class OutdoorPvP : ZoneScript
 
     public bool HasPlayer(Player player)
     {
-        return m_players[player.TeamId].Contains(player.GUID);
+        return _players[player.TeamId].Contains(player.GUID);
     }
 
     public override void OnGameObjectCreate(GameObject go)
@@ -172,12 +149,12 @@ public class OutdoorPvP : ZoneScript
 
     public void RegisterZone(uint zoneId)
     {
-        Global.OutdoorPvPMgr.AddZone(zoneId, this);
+        Map.OutdoorPvPManager.AddZone(zoneId, this);
     }
 
     public void SendDefenseMessage(uint zoneId, uint id)
     {
-        DefenseMessageBuilder builder = new(zoneId, id);
+        DefenseMessageBuilder builder = new(zoneId, id, Map.OutdoorPvPManager);
         var localizer = new LocalizedDo(builder);
         BroadcastWorker(localizer, zoneId);
     }
@@ -192,7 +169,7 @@ public class OutdoorPvP : ZoneScript
 
     public void SetWorldState(int worldStateId, int value)
     {
-        Global.WorldStateMgr.SetValue(worldStateId, value, false, m_map);
+        Map.WorldStateManager.SetValue(worldStateId, value, false, Map);
     }
 
     public void TeamApplyBuff(uint teamIndex, uint spellId, uint spellId2)
@@ -203,68 +180,55 @@ public class OutdoorPvP : ZoneScript
 
     public void TeamCastSpell(uint teamIndex, int spellId)
     {
-        foreach (var guid in m_players[teamIndex])
+        foreach (var player in _players[teamIndex].Select(guid => Map.ObjectAccessor.FindPlayer(guid)).Where(player => player != null))
         {
-            var player = Global.ObjAccessor.FindPlayer(guid);
-
-            if (player)
-            {
-                if (spellId > 0)
-                    player.CastSpell(player, (uint)spellId, true);
-                else
-                    player.RemoveAura((uint)-spellId); // by stack?
-            }
+            if (spellId > 0)
+                player.SpellFactory.CastSpell(player, (uint)spellId, true);
+            else
+                player.RemoveAura((uint)-spellId); // by stack?
         }
     }
 
     public virtual bool Update(uint diff)
     {
-        var objective_changed = false;
+        var objectiveChanged = false;
 
-        foreach (var pair in m_capturePoints)
-            if (pair.Value.Update(diff))
-                objective_changed = true;
+        foreach (var _ in CapturePoints.Where(pair => pair.Value.Update(diff)))
+            objectiveChanged = true;
 
-        return objective_changed;
+        return objectiveChanged;
     }
 
     private void BroadcastPacket(ServerPacket packet)
     {
         // This is faster than sWorld.SendZoneMessage
         for (var team = 0; team < 2; ++team)
-            foreach (var guid in m_players[team])
-            {
-                var player = Global.ObjAccessor.FindPlayer(guid);
-
-                if (player)
-                    player.SendPacket(packet);
-            }
+            foreach (var guid in _players[team])
+                Map.ObjectAccessor.FindPlayer(guid)?.SendPacket(packet);
     }
 
-    private void BroadcastWorker(IDoWork<Player> _worker, uint zoneId)
+    private void BroadcastWorker(IDoWork<Player> worker, uint zoneId)
     {
         for (uint i = 0; i < SharedConst.PvpTeamsCount; ++i)
-            foreach (var guid in m_players[i])
+            foreach (var guid in _players[i])
             {
-                var player = Global.ObjAccessor.FindPlayer(guid);
+                var player = Map.ObjectAccessor.FindPlayer(guid);
 
-                if (player)
-                    if (player.Zone == zoneId)
-                        _worker.Invoke(player);
+                if (player == null)
+                    continue;
+
+                if (player.Location.Zone == zoneId)
+                    worker.Invoke(player);
             }
     }
 
     private OPvPCapturePoint GetCapturePoint(ulong lowguid)
     {
-        return m_capturePoints.LookupByKey(lowguid);
+        return CapturePoints.LookupByKey(lowguid);
     }
 
     private bool IsInsideObjective(Player player)
     {
-        foreach (var pair in m_capturePoints)
-            if (pair.Value.IsInsideObjective(player))
-                return true;
-
-        return false;
+        return CapturePoints.Any(pair => pair.Value.IsInsideObjective(player));
     }
 }

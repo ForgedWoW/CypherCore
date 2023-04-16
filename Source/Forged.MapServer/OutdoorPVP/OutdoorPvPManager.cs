@@ -65,7 +65,7 @@ public class OutdoorPvPManager
 
     public void AddZone(uint zoneid, OutdoorPvP handle)
     {
-        _outdoorPvPMap[(handle.GetMap(), zoneid)] = handle;
+        _outdoorPvPMap[(handle.Map, zoneid)] = handle;
     }
 
     public void CreateOutdoorPvPForMap(Map map)
@@ -161,7 +161,7 @@ public class OutdoorPvPManager
             return;
 
         outdoor.HandlePlayerEnterZone(player, zoneid);
-        Log.Logger.Debug("Player {0} entered outdoorpvp id {1}", player.GUID.ToString(), outdoor.GetTypeId());
+        Log.Logger.Debug("Player {0} entered outdoorpvp id {1}", player.GUID.ToString(), outdoor.TypeId);
     }
 
     public void HandlePlayerLeaveZone(Player player, uint zoneid)
@@ -176,7 +176,7 @@ public class OutdoorPvPManager
             return;
 
         outdoor.HandlePlayerLeaveZone(player, zoneid);
-        Log.Logger.Debug("Player {0} left outdoorpvp id {1}", player.GUID.ToString(), outdoor.GetTypeId());
+        Log.Logger.Debug("Player {0} left outdoorpvp id {1}", player.GUID.ToString(), outdoor.TypeId);
     }
 
     public void HandlePlayerResurrects(Player player, uint zoneid)

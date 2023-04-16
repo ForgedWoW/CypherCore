@@ -3,10 +3,10 @@
 
 namespace Forged.MapServer.OutdoorPVP.Zones;
 
-internal struct OutdoorPvPHPSpells
+internal struct OutdoorPvPhpSpells
 {
-    public const uint AllianceBuff = 32071;
-    public const uint AlliancePlayerKillReward = 32155;
-    public const uint HordeBuff = 32049;
-    public const uint HordePlayerKillReward = 32158;
+    public const uint ALLIANCE_BUFF = 32071;
+    public const uint ALLIANCE_PLAYER_KILL_REWARD = 32155;
+    public const uint HORDE_BUFF = 32049;
+    public const uint HORDE_PLAYER_KILL_REWARD = 32158;
 }

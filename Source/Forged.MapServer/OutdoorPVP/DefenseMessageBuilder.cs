@@ -11,19 +11,21 @@ namespace Forged.MapServer.OutdoorPVP;
 internal class DefenseMessageBuilder : MessageBuilder
 {
     private readonly uint _id;
+    private readonly OutdoorPvPManager _outdoorPvPManager;
 
     private readonly uint _zoneId; // ZoneId
     // BroadcastTextId
 
-    public DefenseMessageBuilder(uint zoneId, uint id)
+    public DefenseMessageBuilder(uint zoneId, uint id, OutdoorPvPManager outdoorPvPManager)
     {
         _zoneId = zoneId;
         _id = id;
+        _outdoorPvPManager = outdoorPvPManager;
     }
 
     public override PacketSenderOwning<DefenseMessage> Invoke(Locale locale = Locale.enUS)
     {
-        var text = Global.OutdoorPvPMgr.GetDefenseMessage(_zoneId, _id, locale);
+        var text = _outdoorPvPManager.GetDefenseMessage(_zoneId, _id, locale);
 
         PacketSenderOwning<DefenseMessage> defenseMessage = new()
         {

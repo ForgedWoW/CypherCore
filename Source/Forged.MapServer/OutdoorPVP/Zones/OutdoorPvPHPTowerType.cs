@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.OutdoorPVP.Zones;
 
-internal enum OutdoorPvPHPTowerType
+internal enum OutdoorPvPhpTowerType
 {
     BrokenHill = 0,
     Overlook = 1,

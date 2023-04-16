@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.OutdoorPVP.Zones;
 
-internal struct HPConst
+internal struct HpConst
 {
     //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
     public static uint[] BuffZones =
@@ -26,42 +26,42 @@ internal struct HPConst
         19032, 19028, 19029
     };
 
-    public static uint[] LangCapture_A =
+    public static uint[] LangCaptureA =
     {
-        DefenseMessages.BrokenHillTakenAlliance, DefenseMessages.OverlookTakenAlliance, DefenseMessages.StadiumTakenAlliance
+        DefenseMessages.BROKEN_HILL_TAKEN_ALLIANCE, DefenseMessages.OVERLOOK_TAKEN_ALLIANCE, DefenseMessages.STADIUM_TAKEN_ALLIANCE
     };
 
-    public static uint[] LangCapture_H =
+    public static uint[] LangCaptureH =
     {
-        DefenseMessages.BrokenHillTakenHorde, DefenseMessages.OverlookTakenHorde, DefenseMessages.StadiumTakenHorde
+        DefenseMessages.BROKEN_HILL_TAKEN_HORDE, DefenseMessages.OVERLOOK_TAKEN_HORDE, DefenseMessages.STADIUM_TAKEN_HORDE
     };
 
-    public static uint[] Map_A =
+    public static uint[] MapA =
     {
         2483, 2480, 2471
     };
 
-    public static uint[] Map_H =
+    public static uint[] MapH =
     {
         2484, 2481, 2470
     };
 
-    public static uint[] Map_N =
+    public static uint[] MapN =
     {
         2485, 2482, 0x9a8
     };
 
-    public static uint[] TowerArtKit_A =
+    public static uint[] TowerArtKitA =
     {
         65, 62, 67
     };
 
-    public static uint[] TowerArtKit_H =
+    public static uint[] TowerArtKitH =
     {
         64, 61, 68
     };
 
-    public static uint[] TowerArtKit_N =
+    public static uint[] TowerArtKitN =
     {
         66, 63, 69
     };

@@ -8,9 +8,9 @@ using Forged.MapServer.Scripting.Interfaces.IOutdoorPvP;
 namespace Forged.MapServer.OutdoorPVP.Zones;
 
 [Script]
-internal class OutdoorPvP_hellfire_peninsula : ScriptObjectAutoAddDBBound, IOutdoorPvPGetOutdoorPvP
+internal class OutdoorPvPHellfirePeninsula : ScriptObjectAutoAddDBBound, IOutdoorPvPGetOutdoorPvP
 {
-    public OutdoorPvP_hellfire_peninsula() : base("outdoorpvp_hp") { }
+    public OutdoorPvPHellfirePeninsula() : base("outdoorpvp_hp") { }
 
     public OutdoorPvP GetOutdoorPvP(Map map)
     {
