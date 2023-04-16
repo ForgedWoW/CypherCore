@@ -20,14 +20,13 @@ public class PoolManager
 
     private readonly MultiMap<uint, uint> _autoSpawnPoolsPerMap = new();
 
+    private readonly CreatureFactory _creatureFactory;
     private readonly Dictionary<ulong, uint> _creatureSearchMap = new();
 
+    private readonly GameObjectFactory _gameObjectFactory;
     private readonly Dictionary<ulong, uint> _gameobjectSearchMap = new();
 
     private readonly GameObjectManager _objectManager;
-    private readonly CreatureFactory _creatureFactory;
-    private readonly GameObjectFactory _gameObjectFactory;
-
     private readonly Dictionary<uint, PoolGroup<Creature>> _poolCreatureGroups = new();
 
     private readonly Dictionary<uint, PoolGroup<GameObject>> _poolGameobjectGroups = new();

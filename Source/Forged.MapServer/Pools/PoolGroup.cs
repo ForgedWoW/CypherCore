@@ -12,12 +12,12 @@ namespace Forged.MapServer.Pools;
 
 public class PoolGroup<T>
 {
-    private readonly PoolManager _poolManager;
-    private readonly GameObjectManager _objectManager;
     private readonly CreatureFactory _creatureFactory;
-    private readonly GameObjectFactory _gameObjectFactory;
     private readonly List<PoolObject> _equalChanced = new();
     private readonly List<PoolObject> _explicitlyChanced = new();
+    private readonly GameObjectFactory _gameObjectFactory;
+    private readonly GameObjectManager _objectManager;
+    private readonly PoolManager _poolManager;
     private uint _poolId;
 
     public PoolGroup(PoolManager poolManager, GameObjectManager objectManager, CreatureFactory creatureFactory, GameObjectFactory gameObjectFactory)
