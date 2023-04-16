@@ -9,17 +9,17 @@ public struct ConnectToKey
 {
     public uint AccountId;
 
-    public ConnectionType connectionType;
+    public ConnectionType ConnectionType;
 
     public ulong Key;
 
     public ulong Raw
     {
-        get { return AccountId | ((ulong)connectionType << 32) | (Key << 33); }
+        get => AccountId | ((ulong)ConnectionType << 32) | (Key << 33);
         set
         {
             AccountId = (uint)(value & 0xFFFFFFFF);
-            connectionType = (ConnectionType)((value >> 32) & 1);
+            ConnectionType = (ConnectionType)((value >> 32) & 1);
             Key = value >> 33;
         }
     }

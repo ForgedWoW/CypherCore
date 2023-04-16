@@ -15,6 +15,7 @@ public class Weather
     private readonly WeatherData _weatherChances;
     private float _intensity;
     private WeatherType _type;
+
     public Weather(uint zoneId, WeatherData weatherChances)
     {
         Zone = zoneId;
@@ -86,8 +87,8 @@ public class Weather
             return false;
 
         // remember old values
-        var old_type = _type;
-        var old_intensity = _intensity;
+        var oldType = _type;
+        var oldIntensity = _intensity;
 
         var gtime = GameTime.CurrentTime;
         var ltime = Time.UnixTimeToDateTime(gtime).ToLocalTime();
@@ -194,7 +195,7 @@ public class Weather
         }
 
         // return true only in case weather changes
-        return _type != old_type || _intensity != old_intensity;
+        return _type != oldType || _intensity != oldIntensity;
     }
 
     public void SendWeatherUpdateToPlayer(Player player)

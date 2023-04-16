@@ -814,7 +814,7 @@ public class WorldSession : IDisposable
         var instanceAddress = _realm.GetAddressForClient(System.Net.IPAddress.Parse(RemoteAddress));
 
         _instanceConnectKey.AccountId = AccountId;
-        _instanceConnectKey.connectionType = ConnectionType.Instance;
+        _instanceConnectKey.ConnectionType = ConnectionType.Instance;
         _instanceConnectKey.Key = RandomHelper.URand(0, 0x7FFFFFFF);
 
         ConnectTo connectTo = new()
@@ -897,7 +897,7 @@ public class WorldSession : IDisposable
 
         if (Socket == null)
         {
-            Log.Logger.Verbose("Prevented sending of {0} to non existent socket {1} to {2}", packet.Opcode, conIdx, GetPlayerInfo());
+            Log.Logger.Verbose("Prevented sending of {0} to non existent socket to {1}", packet.Opcode, GetPlayerInfo());
 
             return;
         }

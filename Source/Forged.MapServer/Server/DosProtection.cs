@@ -10,12 +10,13 @@ namespace Forged.MapServer.Server;
 
 public class DosProtection
 {
-    private readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
+    private readonly Dictionary<uint, PacketCounter> _packetThrottlingMap = new();
     private readonly Policy _policy;
-    private readonly WorldSession Session;
+    private readonly WorldSession _session;
+
     public DosProtection(WorldSession s)
     {
-        Session = s;
+        _session = s;
         _policy = (Policy)GetDefaultValue("PacketSpoof:Policy", 1);
     }
 
@@ -35,10 +36,10 @@ public class DosProtection
         if (maxPacketCounterAllowed == 0)
             return true;
 
-        if (!_PacketThrottlingMap.ContainsKey(packet.Opcode))
-            _PacketThrottlingMap[packet.Opcode] = new PacketCounter();
+        if (!_packetThrottlingMap.ContainsKey(packet.Opcode))
+            _packetThrottlingMap[packet.Opcode] = new PacketCounter();
 
-        var packetCounter = _PacketThrottlingMap[packet.Opcode];
+        var packetCounter = _packetThrottlingMap[packet.Opcode];
 
         if (packetCounter.LastReceiveTime != time)
         {
@@ -51,10 +52,10 @@ public class DosProtection
             return true;
 
         Log.Logger.Warning("AntiDOS: Account {0}, IP: {1}, Ping: {2}, Character: {3}, flooding packet (opc: {4} (0x{4}), count: {5})",
-                           Session.AccountId,
-                           Session.RemoteAddress,
-                           Session.Latency,
-                           Session.PlayerName,
+                           _session.AccountId,
+                           _session.RemoteAddress,
+                           _session.Latency,
+                           _session.PlayerName,
                            packet.Opcode,
                            packetCounter.AmountCounter);
 
@@ -75,11 +76,11 @@ public class DosProtection
                 {
                     case BanMode.Character: // not supported, ban account
                     case BanMode.Account:
-                        Global.AccountMgr.GetName(Session.AccountId, out nameOrIp);
+                        Global.AccountMgr.GetName(_session.AccountId, out nameOrIp);
 
                         break;
                     case BanMode.IP:
-                        nameOrIp = Session.RemoteAddress;
+                        nameOrIp = _session.RemoteAddress;
 
                         break;
                 }
