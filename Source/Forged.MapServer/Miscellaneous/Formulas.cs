@@ -16,9 +16,8 @@ namespace Forged.MapServer.Miscellaneous;
 public class Formulas
 {
     private readonly CliDB _cliDB;
-    private readonly ScriptManager _scriptManager;
     private readonly IConfiguration _configuration;
-
+    private readonly ScriptManager _scriptManager;
     public Formulas(CliDB cliDB, ScriptManager scriptManager, IConfiguration configuration)
     {
         _cliDB = cliDB;
