@@ -575,8 +575,8 @@ public class PlayerAchievementMgr : AchievementManager
             {
                 BroadcastTextBuilder builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
                 var localizer = new LocalizedDo(builder);
-                var worker = new PlayerDistWorker(_owner, Configuration.GetDefaultValue("ListenRange.Say", 25.0f), localizer, GridType.World);
-                CellCalculator.VisitGrid(_owner, worker, Configuration.GetDefaultValue("ListenRange.Say", 25.0f));
+                var worker = new PlayerDistWorker(_owner, Configuration.GetDefaultValue("ListenRange:Say", 25.0f), localizer, GridType.World);
+                CellCalculator.VisitGrid(_owner, worker, Configuration.GetDefaultValue("ListenRange:Say", 25.0f));
             }
         }
 
@@ -591,7 +591,7 @@ public class PlayerAchievementMgr : AchievementManager
         achievementEarned.Time = GameTime.CurrentTime;
 
         if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
-            _owner.SendMessageToSetInRange(achievementEarned, Configuration.GetDefaultValue("ListenRange.Say", 25.0f), true);
+            _owner.SendMessageToSetInRange(achievementEarned, Configuration.GetDefaultValue("ListenRange:Say", 25.0f), true);
         else
             _owner.SendPacket(achievementEarned);
     }

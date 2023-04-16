@@ -62,7 +62,7 @@ public partial class Player
         var group = Group;
 
         // raid instances require the player to be in a raid group to be valid
-        if (map.IsRaid && !Configuration.GetDefaultValue("Instance.IgnoreRaid", false) && map.Entry.Expansion() >= (Expansion)Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight))
+        if (map.IsRaid && !Configuration.GetDefaultValue("Instance:IgnoreRaid", false) && map.Entry.Expansion() >= (Expansion)Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight))
             if (group == null || group.IsRaidGroup)
                 return false;
 
@@ -75,7 +75,7 @@ public partial class Player
         else
         {
             // instance is invalid if we are not grouped and there are other players
-            if (map.GetPlayersCountExceptGMs() > 1)
+            if (map.PlayersCountExceptGMs > 1)
                 return false;
         }
 
@@ -216,7 +216,7 @@ public partial class Player
             var targetDifficulty = GetDifficultyId(mapEntry);
             var mapDiff = DB2Manager.GetDownscaledMapDifficultyData(targetMap, ref targetDifficulty);
 
-            if (!Configuration.GetDefaultValue("Instance.IgnoreLevel", false))
+            if (!Configuration.GetDefaultValue("Instance:IgnoreLevel", false))
             {
                 var mapDifficultyConditions = DB2Manager.GetMapDifficultyConditions(mapDiff.Id);
 
@@ -230,7 +230,7 @@ public partial class Player
 
             if (ar != null)
             {
-                if (!Configuration.GetDefaultValue("Instance.IgnoreLevel", false))
+                if (!Configuration.GetDefaultValue("Instance:IgnoreLevel", false))
                 {
                     if (ar.LevelMin != 0 && Level < ar.LevelMin)
                         levelMin = ar.LevelMin;

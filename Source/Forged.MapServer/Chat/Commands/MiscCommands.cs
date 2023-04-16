@@ -550,7 +550,7 @@ internal class MiscCommands
         // Check if duration needs to be retrieved from config
         if (getDurationFromConfig)
         {
-            freezeDuration = handler.Configuration.GetDefaultValue("GM.FreezeAuraDuration", 0);
+            freezeDuration = handler.Configuration.GetDefaultValue("GM:FreezeAuraDuration", 0);
             canApplyFreeze = true;
         }
 
@@ -1734,7 +1734,7 @@ internal class MiscCommands
     [CommandNonGroup("pvpstats", RBACPermissions.CommandPvpstats, true)]
     private static bool HandlePvPstatsCommand(CommandHandler handler)
     {
-        if (handler.Configuration.GetDefaultValue("Battleground.StoreStatistics.Enable", false))
+        if (handler.Configuration.GetDefaultValue("Battleground:StoreStatistics:Enable", false))
         {
             var stmt = handler.ClassFactory.Resolve<CharacterDatabase>().GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
             var result = handler.ClassFactory.Resolve<CharacterDatabase>().Query(stmt);

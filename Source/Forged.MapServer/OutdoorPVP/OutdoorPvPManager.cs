@@ -60,7 +60,7 @@ public class OutdoorPvPManager
         _scriptManager = scriptManager;
         _cliDB = cliDB;
         _db2Manager = db2Manager;
-        _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+        _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map:ParellelUpdateTasks", 20));
     }
 
     public void AddZone(uint zoneid, OutdoorPvP handle)

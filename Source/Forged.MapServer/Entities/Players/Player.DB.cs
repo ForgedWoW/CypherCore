@@ -878,7 +878,7 @@ public partial class Player
         // GM state
         if (Session.HasPermission(RBACPermissions.RestoreSavedGmState))
         {
-            switch (Configuration.GetDefaultValue("GM.LoginState", 2))
+            switch (Configuration.GetDefaultValue("GM:LoginState", 2))
             {
                 case 1:
                     SetGameMaster(true);
@@ -891,7 +891,7 @@ public partial class Player
                     break;
             }
 
-            switch (Configuration.GetDefaultValue("GM.Visible", 2))
+            switch (Configuration.GetDefaultValue("GM:Visible", 2))
             {
                 default:
                     SetGMVisible(false);
@@ -906,7 +906,7 @@ public partial class Player
                     break;
             }
 
-            switch (Configuration.GetDefaultValue("GM.Chat", 2))
+            switch (Configuration.GetDefaultValue("GM:Chat", 2))
             {
                 case 1:
                     SetGMChat(true);
@@ -919,7 +919,7 @@ public partial class Player
                     break;
             }
 
-            switch (Configuration.GetDefaultValue("GM.WhisperingTo", 2))
+            switch (Configuration.GetDefaultValue("GM:WhisperingTo", 2))
             {
                 case 1:
                     SetAcceptWhispers(true);
@@ -967,8 +967,8 @@ public partial class Player
             var bubble1 = 0.125f;
 
             var bubble = isLogoutResting > 0
-                             ? bubble1 * Configuration.GetDefaultValue("Rate.Rest.Offline.InTavernOrCity", 1.0f)
-                             : bubble0 * Configuration.GetDefaultValue("Rate.Rest.Offline.InWilderness", 1.0f);
+                             ? bubble1 * Configuration.GetDefaultValue("Rate:Rest:Offline:InTavernOrCity", 1.0f)
+                             : bubble0 * Configuration.GetDefaultValue("Rate:Rest:Offline:InWilderness", 1.0f);
 
             RestMgr.AddRestBonus(RestTypes.XP, timeDiff * RestMgr.CalcExtraPerSec(RestTypes.XP, bubble));
         }
@@ -1410,7 +1410,7 @@ public partial class Player
 
         // check if stats should only be saved on logout
         // save stats can be out of transaction
-        if (Session.IsLogingOut || !Configuration.GetDefaultValue("PlayerSave.Stats.SaveOnlyOnLogout", true))
+        if (Session.IsLogingOut || !Configuration.GetDefaultValue("PlayerSave:Stats:SaveOnlyOnLogout", true))
             _SaveStats(characterTransaction);
 
         // TODO: Move this out
@@ -3848,7 +3848,7 @@ public partial class Player
     private void _SaveStats(SQLTransaction trans)
     {
         // check if stat saving is enabled and if char level is high enough
-        if (Configuration.GetDefaultValue("PlayerSave.Stats.MinLevel", 0) == 0 || Level < Configuration.GetDefaultValue("PlayerSave.Stats.MinLevel", 0))
+        if (Configuration.GetDefaultValue("PlayerSave:Stats:MinLevel", 0) == 0 || Level < Configuration.GetDefaultValue("PlayerSave:Stats:MinLevel", 0))
             return;
 
         var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_STATS);

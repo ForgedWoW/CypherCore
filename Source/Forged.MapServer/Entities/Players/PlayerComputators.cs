@@ -79,7 +79,7 @@ public class PlayerComputators
 
         // Convert guid to low GUID for CharacterNameData, but also other methods on success
         var guid = playerGuid.Counter;
-        var charDeleteMethod = (CharDeleteMethod)_configuration.GetDefaultValue("CharDelete.Method", 0);
+        var charDeleteMethod = (CharDeleteMethod)_configuration.GetDefaultValue("CharDelete:Method", 0);
         var characterInfo = _characterCache.GetCharacterCacheByGuid(playerGuid);
         var name = "<Unknown>";
 
@@ -96,9 +96,9 @@ public class PlayerComputators
 
             var charDeleteMinLvl = characterInfo.ClassId switch
             {
-                PlayerClass.Deathknight => _configuration.GetDefaultValue("CharDelete.DeathKnight.MinLevel", 0u),
-                PlayerClass.DemonHunter => _configuration.GetDefaultValue("CharDelete.DemonHunter.MinLevel", 0u),
-                _                       => _configuration.GetDefaultValue("CharDelete.MinLevel", 0u)
+                PlayerClass.Deathknight => _configuration.GetDefaultValue("CharDelete:DeathKnight:MinLevel", 0u),
+                PlayerClass.DemonHunter => _configuration.GetDefaultValue("CharDelete:DemonHunter:MinLevel", 0u),
+                _                       => _configuration.GetDefaultValue("CharDelete:MinLevel", 0u)
             };
 
             // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
@@ -547,7 +547,7 @@ public class PlayerComputators
 
     public void DeleteOldCharacters()
     {
-        var keepDays = _configuration.GetDefaultValue("CharDelete.KeepDays", 30);
+        var keepDays = _configuration.GetDefaultValue("CharDelete:KeepDays", 30);
 
         if (keepDays == 0)
             return;

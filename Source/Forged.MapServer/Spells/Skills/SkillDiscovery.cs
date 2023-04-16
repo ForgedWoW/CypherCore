@@ -78,7 +78,7 @@ public class SkillDiscovery
         if (_skillDiscoveryStorage.TryGetValue((int)spellId, out var tab))
         {
             foreach (var itemIter in tab)
-                if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
+                if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate:Skill:Discovery", 1.0f)) &&
                     itemIter.ReqSkillValue <= skillvalue &&
                     !player.HasSpell(itemIter.SpellId))
                     return itemIter.SpellId;
@@ -95,7 +95,7 @@ public class SkillDiscovery
         if (!tab.Empty())
         {
             foreach (var itemIter in tab)
-                if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
+                if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate:Skill:Discovery", 1.0f)) &&
                     itemIter.ReqSkillValue <= skillvalue &&
                     !player.HasSpell(itemIter.SpellId))
                     return itemIter.SpellId;

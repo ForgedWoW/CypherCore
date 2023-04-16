@@ -36,11 +36,11 @@ public class SupportManager
     public SupportManager(IConfiguration configuration, CharacterDatabase characterDatabase)
     {
         _characterDatabase = characterDatabase;
-        SetSupportSystemStatus(configuration.GetDefaultValue("Support.Enabled", true));
-        SetTicketSystemStatus(configuration.GetDefaultValue("Support.TicketsEnabled", false));
-        SetBugSystemStatus(configuration.GetDefaultValue("Support.BugsEnabled", false));
-        SetComplaintSystemStatus(configuration.GetDefaultValue("Support.ComplaintsEnabled", false));
-        SetSuggestionSystemStatus(configuration.GetDefaultValue("Support.SuggestionsEnabled", false));
+        SetSupportSystemStatus(configuration.GetDefaultValue("Support:Enabled", true));
+        SetTicketSystemStatus(configuration.GetDefaultValue("Support:TicketsEnabled", false));
+        SetBugSystemStatus(configuration.GetDefaultValue("Support:BugsEnabled", false));
+        SetComplaintSystemStatus(configuration.GetDefaultValue("Support:ComplaintsEnabled", false));
+        SetSuggestionSystemStatus(configuration.GetDefaultValue("Support:SuggestionsEnabled", false));
     }
 
     public void AddTicket<T>(T ticket) where T : Ticket

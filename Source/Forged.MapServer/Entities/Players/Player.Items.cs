@@ -4193,7 +4193,7 @@ public partial class Player
 
         // It may need a better formula
         // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-        bones.Loot.Gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow(Level / 5.76f, 2.5f) * Configuration.GetDefaultValue("Rate.Drop.Money", 1.0f));
+        bones.Loot.Gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow(Level / 5.76f, 2.5f) * Configuration.GetDefaultValue("Rate:Drop:Money", 1.0f));
         bones.LootRecipient = looterPlr;
         looterPlr.SendLoot(bones.Loot);
     }

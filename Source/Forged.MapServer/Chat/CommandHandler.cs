@@ -524,7 +524,7 @@ public class CommandHandler
             return false;
 
         // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-        if (!AccountManager.IsPlayerAccount(Session.Security) && !strong && !Configuration.GetDefaultValue("GM.LowerSecurity", false))
+        if (!AccountManager.IsPlayerAccount(Session.Security) && !strong && !Configuration.GetDefaultValue("GM:LowerSecurity", false))
             return false;
 
         if (target != null)

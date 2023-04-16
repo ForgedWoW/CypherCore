@@ -360,8 +360,8 @@ public partial class Player
             // Increase from rating
             value += GetRatingBonusValue(CombatRating.Block);
 
-            if (Configuration.GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > Configuration.GetDefaultValue("Stats.Limits.Block", 95.0f) ? Configuration.GetDefaultValue("Stats.Limits.Block", 95.0f) : value;
+            if (Configuration.GetDefaultValue("Stats:Limits:Enable", false))
+                value = value > Configuration.GetDefaultValue("Stats:Limits:Block", 95.0f) ? Configuration.GetDefaultValue("Stats:Limits:Block", 95.0f) : value;
         }
 
         SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.BlockPercentage), (float)value);
@@ -371,8 +371,8 @@ public partial class Player
     { 
         float ApplyCritLimit(double value)
         {
-            if (Configuration.GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > Configuration.GetDefaultValue("Stats.Limits.Crit", 95.0f) ? Configuration.GetDefaultValue("Stats.Limits.Crit", 95.0f) : value;
+            if (Configuration.GetDefaultValue("Stats:Limits:Enable", false))
+                value = value > Configuration.GetDefaultValue("Stats:Limits:Crit", 95.0f) ? Configuration.GetDefaultValue("Stats:Limits:Crit", 95.0f) : value;
 
             return (float)value;
         }
@@ -409,8 +409,8 @@ public partial class Player
         // apply diminishing formula to diminishing dodge chance
         var value = CalculateDiminishingReturns(_dodgeCap, Class, nondiminishing, diminishing);
 
-        if (Configuration.GetDefaultValue("Stats.Limits.Enable", false))
-            value = value > Configuration.GetDefaultValue("Stats.Limits.Dodge", 95.0f) ? Configuration.GetDefaultValue("Stats.Limits.Dodge", 95.0f) : value;
+        if (Configuration.GetDefaultValue("Stats:Limits:Enable", false))
+            value = value > Configuration.GetDefaultValue("Stats:Limits:Dodge", 95.0f) ? Configuration.GetDefaultValue("Stats:Limits:Dodge", 95.0f) : value;
 
         SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DodgePercentage), (float)value);
     }
@@ -564,8 +564,8 @@ public partial class Player
             // apply diminishing formula to diminishing parry chance
             value = CalculateDiminishingReturns(_parryCap, Class, nondiminishing, diminishing);
 
-            if (Configuration.GetDefaultValue("Stats.Limits.Enable", false))
-                value = value > Configuration.GetDefaultValue("Stats.Limits.Parry", 95.0f) ? Configuration.GetDefaultValue("Stats.Limits.Parry", 95.0f) : value;
+            if (Configuration.GetDefaultValue("Stats:Limits:Enable", false))
+                value = value > Configuration.GetDefaultValue("Stats:Limits:Parry", 95.0f) ? Configuration.GetDefaultValue("Stats:Limits:Parry", 95.0f) : value;
         }
 
         SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ParryPercentage), (float)value);

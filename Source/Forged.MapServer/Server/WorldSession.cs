@@ -124,7 +124,7 @@ public class WorldSession : IDisposable
         _socialManager = classFactory.Resolve<SocialManager>();
         _guildManager = classFactory.Resolve<GuildManager>();
 
-        var configuredExpansion = _configuration.GetDefaultValue("Player.OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue("Player.OverrideExpansion", -1);
+        var configuredExpansion = _configuration.GetDefaultValue("Player:OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue("Player:OverrideExpansion", -1);
         AccountExpansion = Expansion.LevelCurrent == configuredExpansion ? expansion : configuredExpansion;
         Expansion = (Expansion)Math.Min((byte)expansion, _configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight));
         OS = os;
@@ -205,7 +205,7 @@ public class WorldSession : IDisposable
 
     public bool CanAccessAlliedRaces()
     {
-        if (_configuration.GetDefaultValue("CharacterCreating.DisableAlliedRaceAchievementRequirement", false))
+        if (_configuration.GetDefaultValue("CharacterCreating:DisableAlliedRaceAchievementRequirement", false))
             return true;
         else
             return AccountExpansion >= Expansion.BattleForAzeroth;
@@ -218,7 +218,7 @@ public class WorldSession : IDisposable
 
         Log.Logger.Error($"Player {Player.GetName()} ({Player.GUID}) sent a message which illegally contained a hyperlink:\n{str}");
 
-        if (_configuration.GetDefaultValue("ChatStrictLinkChecking.Kick", 0) != 0)
+        if (_configuration.GetDefaultValue("ChatStrictLinkChecking:Kick", 0) != 0)
             KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
 
         return false;
@@ -567,8 +567,7 @@ public class WorldSession : IDisposable
             //drop a Id if player is carrying it
             var bg = Player.Battleground;
 
-            if (bg != null)
-                bg.EventPlayerLoggedOut(Player);
+            bg?.EventPlayerLoggedOut(Player);
 
             // Teleport to home if the player is in an invalid instance
             if (!Player.InstanceValid && !Player.IsGameMaster)
@@ -596,8 +595,7 @@ public class WorldSession : IDisposable
             // If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
             var guild = _guildManager.GetGuildById(Player.GuildId);
 
-            if (guild != null)
-                guild.HandleMemberLogout(this);
+            guild?.HandleMemberLogout(this);
 
             // Remove pet
             Player.RemovePet(null, PetSaveMode.AsCurrent, true);
@@ -750,7 +748,7 @@ public class WorldSession : IDisposable
         if (code == BattlenetRpcErrorCode.Ok)
         {
             response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
-            var forceRaceAndClass = _configuration.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
+            var forceRaceAndClass = _configuration.GetDefaultValue("character:EnforceRaceAndClassExpansions", true);
 
             response.SuccessInfo = new AuthResponse.AuthSuccessInfo
             {
@@ -848,10 +846,10 @@ public class WorldSession : IDisposable
     {
         FeatureSystemStatusGlueScreen features = new()
         {
-            BpayStoreAvailable = _configuration.GetDefaultValue("FeatureSystem.BpayStore.Enabled", false),
+            BpayStoreAvailable = _configuration.GetDefaultValue("FeatureSystem:BpayStore:Enabled", false),
             BpayStoreDisabledByParentalControls = false,
-            CharUndeleteEnabled = _configuration.GetDefaultValue("FeatureSystem.CharacterUndelete.Enabled", false),
-            BpayStoreEnabled = _configuration.GetDefaultValue("FeatureSystem.BpayStore.Enabled", false),
+            CharUndeleteEnabled = _configuration.GetDefaultValue("FeatureSystem:CharacterUndelete:Enabled", false),
+            BpayStoreEnabled = _configuration.GetDefaultValue("FeatureSystem:BpayStore:Enabled", false),
             MaxCharactersPerRealm = _configuration.GetDefaultValue("CharactersPerRealm", 60),
             MinimumExpansionLevel = (int)Expansion.Classic,
             MaximumExpansionLevel = _configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)
@@ -862,10 +860,10 @@ public class WorldSession : IDisposable
         europaTicketConfig.ThrottleState.PerMilliseconds = 60000;
         europaTicketConfig.ThrottleState.TryCount = 1;
         europaTicketConfig.ThrottleState.LastResetTimeBeforeNow = 111111;
-        europaTicketConfig.TicketsEnabled = _configuration.GetDefaultValue("Support.TicketsEnabled", false);
-        europaTicketConfig.BugsEnabled = _configuration.GetDefaultValue("Support.BugsEnabled", false);
-        europaTicketConfig.ComplaintsEnabled = _configuration.GetDefaultValue("Support.ComplaintsEnabled", false);
-        europaTicketConfig.SuggestionsEnabled = _configuration.GetDefaultValue("Support.SuggestionsEnabled", false);
+        europaTicketConfig.TicketsEnabled = _configuration.GetDefaultValue("Support:TicketsEnabled", false);
+        europaTicketConfig.BugsEnabled = _configuration.GetDefaultValue("Support:BugsEnabled", false);
+        europaTicketConfig.ComplaintsEnabled = _configuration.GetDefaultValue("Support:ComplaintsEnabled", false);
+        europaTicketConfig.SuggestionsEnabled = _configuration.GetDefaultValue("Support:SuggestionsEnabled", false);
 
         features.EuropaTicketSystemStatus = europaTicketConfig;
 

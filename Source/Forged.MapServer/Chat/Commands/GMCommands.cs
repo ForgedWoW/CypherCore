@@ -128,7 +128,7 @@ internal class GMCommands
 
             if ((player.IsGameMaster ||
                  (player.Session.HasPermission(RBACPermissions.CommandsAppearInGmList) &&
-                  playerSec <= (AccountTypes)handler.Configuration.GetDefaultValue("GM.InGMList.Level", (int)AccountTypes.Administrator))) &&
+                  playerSec <= (AccountTypes)handler.Configuration.GetDefaultValue("GM:InGMList:Level", (int)AccountTypes.Administrator))) &&
                 (handler.Session == null || player.IsVisibleGloballyFor(handler.Session.Player)))
             {
                 if (first)

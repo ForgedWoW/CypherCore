@@ -52,7 +52,7 @@ public class BlackMarketManager
         _classFactory = classFactory;
     }
 
-    public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket.Enabled", true);
+    public bool IsEnabled => _configuration.GetDefaultValue("BlackMarket:Enabled", true);
     public long LastUpdate { get; private set; }
     public void AddAuction(BlackMarketEntry auction)
     {
@@ -216,7 +216,7 @@ public class BlackMarketManager
             templates.Add(pair.Value);
         }
 
-        templates.RandomResize(_configuration.GetDefaultValue("BlackMarket.MaxAuctions", 12));
+        templates.RandomResize(_configuration.GetDefaultValue("BlackMarket:MaxAuctions", 12));
 
         foreach (var templat in templates)
         {

@@ -896,7 +896,7 @@ public class UnitCombatHelpers
             else // victim is a player
             {
                 // random durability for items (HIT TAKEN)
-                if (durabilityLoss && _configuration.GetDefaultValue("DurabilityLossChance.Damage", 0.5f) > RandomHelper.randChance())
+                if (durabilityLoss && _configuration.GetDefaultValue("DurabilityLossChance:Damage", 0.5f) > RandomHelper.randChance())
                 {
                     var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
                     victim.AsPlayer.DurabilityPointLossForEquipSlot(slot);
@@ -905,7 +905,7 @@ public class UnitCombatHelpers
 
             if (attacker is { IsPlayer: true })
                 // random durability for items (HIT DONE)
-                if (durabilityLoss && RandomHelper.randChance(_configuration.GetDefaultValue("DurabilityLossChance.Damage", 0.5f)))
+                if (durabilityLoss && RandomHelper.randChance(_configuration.GetDefaultValue("DurabilityLossChance:Damage", 0.5f)))
                 {
                     var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
                     attacker.AsPlayer.DurabilityPointLossForEquipSlot(slot);
@@ -1292,9 +1292,9 @@ public class UnitCombatHelpers
             plrVictim.SetPvPDeath(player != null);
 
             // only if not player and not controlled by player pet. And not at BG
-            if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && _configuration.GetDefaultValue("DurabilityLoss.InPvP", false)))
+            if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && _configuration.GetDefaultValue("DurabilityLoss:InPvP", false)))
             {
-                double baseLoss = _configuration.GetDefaultValue("DurabilityLoss.OnDeath", 10.0f) / 100;
+                double baseLoss = _configuration.GetDefaultValue("DurabilityLoss:OnDeath", 10.0f) / 100;
                 var loss = (uint)(baseLoss - baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss));
                 Log.Logger.Debug("We are dead, losing {0} percent durability", loss);
                 // Durability loss is calculated more accurately again for each item in Player.DurabilityLoss

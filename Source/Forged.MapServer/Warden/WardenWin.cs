@@ -177,7 +177,7 @@ internal class WardenWin : Warden
         }
 
         // Set hold off timer, minimum timer should at least be 1 second
-        uint holdOff = GetDefaultValue("Warden.ClientCheckHoldOff", 30u);
+        uint holdOff = GetDefaultValue("Warden:ClientCheckHoldOff", 30u);
         CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.IN_MILLISECONDS;
     }
 

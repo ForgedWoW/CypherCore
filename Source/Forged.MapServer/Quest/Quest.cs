@@ -227,9 +227,9 @@ public class Quest
 
     public QuestFlags Flags { get; set; }
 
-    public bool IsAutoAccept => !GetDefaultValue("Quests.IgnoreAutoAccept", false) && HasFlag(QuestFlags.AutoAccept);
+    public bool IsAutoAccept => !GetDefaultValue("Quests:IgnoreAutoAccept", false) && HasFlag(QuestFlags.AutoAccept);
 
-    public bool IsAutoComplete => !GetDefaultValue("Quests.IgnoreAutoComplete", false) && Type == QuestType.AutoComplete;
+    public bool IsAutoComplete => !GetDefaultValue("Quests:IgnoreAutoComplete", false) && Type == QuestType.AutoComplete;
 
     public bool IsAutoPush => HasFlagEx(QuestFlagsEx.AutoPush);
 
@@ -256,7 +256,7 @@ public class Quest
     // quest_template_addon table (custom data)
     public uint MaxLevel { get; set; }
 
-    public uint MaxMoneyReward => MaxMoneyValue * GetDefaultValue("Rate.QuestId.Money.Reward", 1.0f);
+    public uint MaxMoneyReward => MaxMoneyValue * GetDefaultValue("Rate:QuestId:Money:Reward", 1.0f);
 
     public uint MaxMoneyValue
     {
@@ -619,7 +619,7 @@ public class Quest
             return 0;
 
         // Else, return the rewarded copper sum modified by the rate
-        return RewardBonusMoney * GetDefaultValue("Rate.QuestId.Money.Max.Level.Reward", 1.0f);
+        return RewardBonusMoney * GetDefaultValue("Rate:QuestId:Money:Max:Level:Reward", 1.0f);
     }
 
     public bool HasFlag(QuestFlags flag)
@@ -658,7 +658,7 @@ public class Quest
         if (IsRaidQuest(difficulty))
             return true;
 
-        return GetDefaultValue("Quests.IgnoreRaid", false);
+        return GetDefaultValue("Quests:IgnoreRaid", false);
     }
 
     public bool IsRaidQuest(Difficulty difficulty)

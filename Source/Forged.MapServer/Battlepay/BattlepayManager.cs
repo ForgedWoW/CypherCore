@@ -33,9 +33,9 @@ public class BattlepayManager
     public BattlepayHandler BattlepayHandler { get; set; }
     public Purchase CurrentTransaction { get; private set; } = new();
 
-    public bool IsAvailable => _configuration.GetDefaultValue("FeatureSystem.BpayStore.Enabled", false);
+    public bool IsAvailable => _configuration.GetDefaultValue("FeatureSystem:BpayStore:Enabled", false);
 
-    public uint ShopCurrency => _configuration.GetDefaultValue("FeatureSystem.BpayStore.Currency", 1u);
+    public uint ShopCurrency => _configuration.GetDefaultValue("FeatureSystem:BpayStore:Currency", 1u);
 
     public string WalletName { get; }
 

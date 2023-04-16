@@ -124,7 +124,7 @@ public class FormationMgr
             {
                 if (_objectManager.GetCreatureData(member.LeaderSpawnId) == null)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_formations WHERE leaderGUID = {member.LeaderSpawnId}");
                     else
                         Log.Logger.Error($"creature_formations table leader guid {member.LeaderSpawnId} incorrect (not exist)");
@@ -134,7 +134,7 @@ public class FormationMgr
 
                 if (_objectManager.GetCreatureData(memberSpawnId) == null)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_formations WHERE memberGUID = {memberSpawnId}");
                     else
                         Log.Logger.Error($"creature_formations table member guid {memberSpawnId} incorrect (not exist)");

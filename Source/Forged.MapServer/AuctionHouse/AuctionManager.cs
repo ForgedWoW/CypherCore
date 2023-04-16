@@ -150,7 +150,7 @@ public class AuctionManager
     {
         uint houseid = 1; // Auction House
 
-        if (!_configuration.GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
+        if (!_configuration.GetDefaultValue("AllowTwoSide:Interaction:Auction", true))
             // FIXME: found way for proper auctionhouse selection by another way
             // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
             // but no easy way convert creature faction to player race faction for specific city
@@ -202,7 +202,7 @@ public class AuctionManager
 
     public AuctionHouseObject GetAuctionsMap(uint factionTemplateId)
     {
-        if (_configuration.GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
+        if (_configuration.GetDefaultValue("AllowTwoSide:Interaction:Auction", true))
             return _neutralAuctions;
 
         // teams have linked auction houses

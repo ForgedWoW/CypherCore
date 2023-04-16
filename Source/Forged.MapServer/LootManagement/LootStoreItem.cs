@@ -76,7 +76,7 @@ public class LootStoreItem
 
             if (proto == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM {store.Name} WHERE Entry = {Itemid}");
                 else
                     Log.Logger.Error("Table '{0}' entry {1} item {2}: item does not exist - skipped", store.Name, entry, Itemid);
@@ -132,7 +132,7 @@ public class LootStoreItem
             return true;
 
         if (Reference > 0) // reference case
-            return RandomHelper.randChance(Chance * (rate ? _configuration.GetDefaultValue("Rate.Drop.Item.Referenced", 1.0f) : 1.0f));
+            return RandomHelper.randChance(Chance * (rate ? _configuration.GetDefaultValue("Rate:Drop:Item:Referenced", 1.0f) : 1.0f));
 
         var pProto = _objectManager.GetItemTemplate(Itemid);
 

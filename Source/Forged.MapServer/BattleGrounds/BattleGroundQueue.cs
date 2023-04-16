@@ -121,7 +121,7 @@ public class BattlegroundQueue
         var lastOnlineTime = GameTime.CurrentTimeMS;
 
         //announce world (this don't need mutex)
-        if (_queueId.Rated && _configuration.GetDefaultValue("Arena.QueueAnnouncer.Enable", false))
+        if (_queueId.Rated && _configuration.GetDefaultValue("Arena:QueueAnnouncer:Enable", false))
         {
             var arenaTeam = _arenaTeamManager.GetArenaTeamById(arenateamid);
 
@@ -168,7 +168,7 @@ public class BattlegroundQueue
             _queuedGroups[(int)bracketId][index].Add(ginfo);
 
             //announce to world, this code needs mutex
-            if (_queueId.Rated || isPremade || !_configuration.GetDefaultValue("Battleground.QueueAnnouncer.Enable", false))
+            if (_queueId.Rated || isPremade || !_configuration.GetDefaultValue("Battleground:QueueAnnouncer:Enable", false))
                 return ginfo;
 
             var bg = _battlegroundManager.GetBattlegroundTemplate((BattlegroundTypeId)_queueId.BattlemasterListId);
@@ -192,7 +192,7 @@ public class BattlegroundQueue
                     qHorde += (uint)groupQueueInfo.Players.Count;
 
             // Show queue status to player only (when joining queue)
-            if (_configuration.GetDefaultValue("Battleground.QueueAnnouncer.PlayerOnly", false))
+            if (_configuration.GetDefaultValue("Battleground:QueueAnnouncer:PlayerOnly", false))
                 leader.SendSysMessage(CypherStrings.BgQueueAnnounceSelf,
                                       bgName,
                                       qMinLevel,
@@ -587,7 +587,7 @@ public class BattlegroundQueue
         _queuedPlayers.Remove(guid);
 
         // announce to world if arena team left queue for rated match, show only once
-        if (_queueId.TeamSize != 0 && _queueId.Rated && group.Players.Empty() && _configuration.GetDefaultValue("Arena.QueueAnnouncer.Enable", false))
+        if (_queueId.TeamSize != 0 && _queueId.Rated && group.Players.Empty() && _configuration.GetDefaultValue("Arena:QueueAnnouncer:Enable", false))
         {
             var team = _arenaTeamManager.GetArenaTeamById(group.ArenaTeamId);
 
@@ -681,7 +681,7 @@ public class BattlegroundQueue
         if (_selectionPools[TeamIds.Horde].GetPlayerCount() < _selectionPools[TeamIds.Alliance].GetPlayerCount())
             j = TeamIds.Horde;
 
-        if (_configuration.GetDefaultValue("Battleground.InvitationType", 0) != (int)BattlegroundQueueInvitationType.NoBalance && _selectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers && _selectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers)
+        if (_configuration.GetDefaultValue("Battleground:InvitationType", 0) != (int)BattlegroundQueueInvitationType.NoBalance && _selectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers && _selectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers)
         {
             //we will try to invite more groups to team with less players indexed by j
             ++teamIndex[j]; //this will not cause a crash, because for cycle above reached break;
@@ -761,7 +761,7 @@ public class BattlegroundQueue
         // this could be 2 cycles but i'm checking only first team in queue - it can cause problem -
         // if first is invited to BG and seconds timer expired, but we can ignore it, because players have only 80 seconds to click to enter bg
         // and when they click or after 80 seconds the queue info is removed from queue
-        var timeBefore = GameTime.CurrentTimeMS - _configuration.GetDefaultValue("Battleground.PremadeGroupWaitForMatch", 30 * Time.MINUTE * Time.IN_MILLISECONDS);
+        var timeBefore = GameTime.CurrentTimeMS - _configuration.GetDefaultValue("Battleground:PremadeGroupWaitForMatch", 30 * Time.MINUTE * Time.IN_MILLISECONDS);
 
         for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
             if (!_queuedGroups[(int)bracketID][BattlegroundConst.BgQueuePremadeAlliance + i].Empty())
@@ -862,7 +862,7 @@ public class BattlegroundQueue
         var hordeCount = _queuedGroups[(int)bracketID][BattlegroundConst.BgQueueNormalHorde].Count;
 
         // try to get even teams
-        if (_configuration.GetDefaultValue("Battleground.InvitationType", 0) == (int)BattlegroundQueueInvitationType.Even)
+        if (_configuration.GetDefaultValue("Battleground:InvitationType", 0) == (int)BattlegroundQueueInvitationType.Even)
             // check if the teams are even
             if (hordeFree == 1 && aliFree == 1)
             {
@@ -907,7 +907,7 @@ public class BattlegroundQueue
         }
 
         //if ofc like BG queue invitation is set in config, then we are happy
-        if (_configuration.GetDefaultValue("Battleground.InvitationType", 0) == (int)BattlegroundQueueInvitationType.NoBalance)
+        if (_configuration.GetDefaultValue("Battleground:InvitationType", 0) == (int)BattlegroundQueueInvitationType.NoBalance)
             return;
         /*
         if we reached this code, then we have to solve NP - complete problem called Subset sum problem

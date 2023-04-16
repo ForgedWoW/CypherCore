@@ -136,7 +136,7 @@ internal class FollowerAI : ScriptedAI
         var cdata = Me.CreatureData;
 
         if (cdata != null)
-            if (player.Configuration.GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
+            if (player.Configuration.GetDefaultValue("Respawn:DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
                 Me.SaveRespawnTime(Me.RespawnDelay);
 
         if (Me.IsEngaged)

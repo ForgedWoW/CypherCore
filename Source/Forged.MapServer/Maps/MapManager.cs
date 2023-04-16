@@ -53,7 +53,7 @@ public class MapManager
         _classFactory = classFactory;
         _gridCleanUpDelay = (uint)configuration.GetDefaultValue("GridCleanUpDelay", 5 * Time.MINUTE * Time.IN_MILLISECONDS);
         _timer.Interval = configuration.GetDefaultValue("MapUpdateInterval", 10);
-        var numThreads = configuration.GetDefaultValue("MapUpdate.Threads", 10);
+        var numThreads = configuration.GetDefaultValue("MapUpdate:Threads", 10);
 
         _updater = new LimitedThreadTaskManager(numThreads > 0 ? numThreads : 1);
     }

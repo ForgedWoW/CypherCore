@@ -83,7 +83,7 @@ public class WardenCheckManager
         var oldMSTime = Time.MSTime;
 
         // Check if Warden is enabled by config before loading anything
-        if (!_configuration.GetDefaultValue("Warden.Enabled", false))
+        if (!_configuration.GetDefaultValue("Warden:Enabled", false))
         {
             Log.Logger.Information("Warden disabled, loading checks skipped.");
 
@@ -164,7 +164,7 @@ public class WardenCheckManager
             }
 
             // initialize action with default action from config, this may be overridden later
-            wardenCheck.Action = (WardenActions)_configuration.GetDefaultValue("Warden.ClientCheckFailAction", 0);
+            wardenCheck.Action = (WardenActions)_configuration.GetDefaultValue("Warden:ClientCheckFailAction", 0);
 
             _pools[(int)category].Add(id);
             ++count;
@@ -178,7 +178,7 @@ public class WardenCheckManager
         var oldMSTime = Time.MSTime;
 
         // Check if Warden is enabled by config before loading anything
-        if (!_configuration.GetDefaultValue("Warden.Enabled", false))
+        if (!_configuration.GetDefaultValue("Warden:Enabled", false))
         {
             Log.Logger.Information("Warden disabled, loading check overrides skipped.");
 

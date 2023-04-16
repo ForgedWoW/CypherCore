@@ -519,7 +519,7 @@ public class CriteriaData
                 return _scriptManager.RunScriptRet<IAchievementCriteriaOnCheck>(p => p.OnCheck(source.AsPlayer, unitTarget?.AsUnit), ScriptId);
             }
             case CriteriaDataType.MapPlayerCount:
-                return source.Location.Map.GetPlayersCountExceptGMs() <= MapPlayers.MaxCount;
+                return source.Location.Map.PlayersCountExceptGMs <= MapPlayers.MaxCount;
 
             case CriteriaDataType.TTeam:
                 if (target == null || !target.IsTypeId(TypeId.Player))

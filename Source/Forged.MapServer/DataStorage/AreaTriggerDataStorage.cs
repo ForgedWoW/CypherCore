@@ -236,7 +236,7 @@ public class AreaTriggerDataStorage
 
                 if (areaTriggerTemplate.Id.IsServerSide && areaTriggerTemplate.Flags != 0)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM areatrigger_template WHERE Id = {areaTriggerTemplate.Id}");
                     else
                         Log.Logger.Error($"Table `areatrigger_template` has listed server-side areatrigger (Id: {areaTriggerTemplate.Id.Id}, IsServerSide: {areaTriggerTemplate.Id.IsServerSide}) with none-zero flags");

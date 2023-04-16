@@ -250,7 +250,7 @@ public class ConversationDataStorage
 
             if (worldObject == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM conversation_actors WHERE ConversationId = {ConversationId}");
                 else
                     Log.Logger.Error($"Table `conversation_actors` references null world object (GUID: {SpawnId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");

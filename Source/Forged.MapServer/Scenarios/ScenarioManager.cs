@@ -222,7 +222,7 @@ public class ScenarioManager
                 }
             }
 
-            if (_configuration.GetDefaultValue("load.autoclean", false))
+            if (_configuration.GetDefaultValue("load:autoclean", false))
                 _worldDatabase.Execute($"DELETE FROM scenario_poi WHERE criteriaTreeID = {criteriaTreeID}");
             else
                 Log.Logger.Error($"Table scenario_poi references unknown scenario poi points for criteria tree id {criteriaTreeID} POI id {blobIndex}");

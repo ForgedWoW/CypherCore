@@ -800,7 +800,7 @@ internal class LookupCommands
 
             var found = false;
             uint count = 0;
-            var maxResults = handler.Configuration.GetDefaultValue("Command.LookupMaxResults", 0);
+            var maxResults = handler.Configuration.GetDefaultValue("Command:LookupMaxResults", 0);
 
             // Search in ItemSet.dbc
             foreach (var (id, set) in handler.CliDB.ItemSetStorage)

@@ -322,7 +322,7 @@ public class ItemTemplate
 
             case ItemClass.Profession:
 
-                if (ConfigMgr.GetDefaultValue("Professions.AllowClassicProfessionSlots", false))
+                if (ConfigMgr.GetDefaultValue("Professions:AllowClassicProfessionSlots", false))
                     if (SubClass >= (int)ItemSubclassProfession.Max)
                         return 0;
                     else

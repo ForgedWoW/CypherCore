@@ -507,7 +507,7 @@ public class WorldSocket : SocketBase
         }
 
         // Must be done before WorldSession is created
-        var wardenActive = _configuration.GetDefaultValue("Warden.Enabled", false);
+        var wardenActive = _configuration.GetDefaultValue("Warden:Enabled", false);
 
         if (wardenActive && account.GameInfo.OS != "Win" && account.GameInfo.OS != "Wn64" && account.GameInfo.OS != "Mc64")
         {

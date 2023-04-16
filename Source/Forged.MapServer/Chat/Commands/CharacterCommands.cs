@@ -686,7 +686,7 @@ internal class CharacterCommands
         [Command("old", RBACPermissions.CommandCharacterDeletedOld, true)]
         private static bool HandleCharacterDeletedOldCommand(CommandHandler handler, ushort? days)
         {
-            var keepDays = handler.Configuration.GetDefaultValue("CharDelete.KeepDays", 30);
+            var keepDays = handler.Configuration.GetDefaultValue("CharDelete:KeepDays", 30);
 
             if (days.HasValue)
                 keepDays = days.Value;

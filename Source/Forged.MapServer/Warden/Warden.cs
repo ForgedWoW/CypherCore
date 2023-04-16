@@ -44,7 +44,7 @@ public abstract class Warden
         if (check != null)
             action = check.Action;
         else
-            action = (WardenActions)GetDefaultValue("Warden.ClientCheckFailAction", 0);
+            action = (WardenActions)GetDefaultValue("Warden:ClientCheckFailAction", 0);
 
         switch (action)
         {
@@ -61,7 +61,7 @@ public abstract class Warden
                 if (check != null)
                     banReason += ": " + check.Comment + " (CheckId: " + check.CheckId + ")";
 
-                Global.WorldMgr.BanAccount(BanMode.Account, accountName, GetDefaultValue("Warden.BanDuration", 86400u), banReason, "Server");
+                Global.WorldMgr.BanAccount(BanMode.Account, accountName, GetDefaultValue("Warden:BanDuration", 86400u), banReason, "Server");
 
                 break;
             }
@@ -239,7 +239,7 @@ public abstract class Warden
 
         if (DataSent)
         {
-            var maxClientResponseDelay = GetDefaultValue("Warden.ClientResponseDelay", 600);
+            var maxClientResponseDelay = GetDefaultValue("Warden:ClientResponseDelay", 600);
 
             if (maxClientResponseDelay > 0)
             {

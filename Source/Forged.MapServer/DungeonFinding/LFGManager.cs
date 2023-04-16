@@ -95,7 +95,7 @@ public class LFGManager
         _worldManager = worldManager;
         _classFactory = classFactory;
         _lfgProposalId = 1;
-        _options = (LfgOptions)configuration.GetDefaultValue("DungeonFinder.OptionsMask", 1);
+        _options = (LfgOptions)configuration.GetDefaultValue("DungeonFinder:OptionsMask", 1);
 
         _ = new LFGPlayerScript();
         _ = new LFGGroupScript();
@@ -1508,7 +1508,7 @@ public class LFGManager
 
     public void SetTeam(ObjectGuid guid, TeamFaction team)
     {
-        if (_configuration.GetDefaultValue("AllowTwoSide.Interaction.Group", false))
+        if (_configuration.GetDefaultValue("AllowTwoSide:Interaction:Group", false))
             team = 0;
 
         _playersStore[guid].SetTeam(team);

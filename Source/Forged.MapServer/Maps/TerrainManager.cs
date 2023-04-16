@@ -28,7 +28,7 @@ public class TerrainManager
     {
         _worldDatabase = worldDatabase;
         _cliDB = cliDB;
-        _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+        _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map:ParellelUpdateTasks", 20));
     }
 
     public static bool ExistMapAndVMap(uint mapid, float x, float y)

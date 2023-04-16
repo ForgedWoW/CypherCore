@@ -17,7 +17,7 @@ public class CreatureMovementData
         Rooted = false;
         Chase = CreatureChaseMovementType.Run;
         Random = CreatureRandomMovementType.Walk;
-        InteractionPauseTimer = configuration.GetDefaultValue("Creature.MovingStopTimeForPlayer", 3u * Time.MINUTE * Time.IN_MILLISECONDS);
+        InteractionPauseTimer = configuration.GetDefaultValue("Creature:MovingStopTimeForPlayer", 3u * Time.MINUTE * Time.IN_MILLISECONDS);
     }
 
     public CreatureChaseMovementType Chase { get; set; }

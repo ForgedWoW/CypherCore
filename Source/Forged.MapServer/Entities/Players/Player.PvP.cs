@@ -323,7 +323,7 @@ public partial class Player
             bg.RemovePlayerAtLeave(GUID, teleportToEntryPoint, true);
 
             // call after remove to be sure that player resurrected for correct cast
-            if (bg.IsBattleground && !IsGameMaster && Configuration.GetDefaultValue("Battleground.CastDeserter", true))
+            if (bg.IsBattleground && !IsGameMaster && Configuration.GetDefaultValue("Battleground:CastDeserter", true))
                 if (bg.Status == BattlegroundStatus.InProgress || bg.Status == BattlegroundStatus.WaitJoin)
                 {
                     //lets check if player was teleported from BG and schedule delayed Deserter spell cast
@@ -380,7 +380,7 @@ public partial class Player
             _bgData.BgAfkReporter.Add(reporter.GUID);
 
             // by default 3 players have to complain to apply debuff
-            if (_bgData.BgAfkReporter.Count >= Configuration.GetDefaultValue("Battleground.ReportAFK", 3))
+            if (_bgData.BgAfkReporter.Count >= Configuration.GetDefaultValue("Battleground:ReportAFK", 3))
             {
                 // cast 'Idle' spell
                 SpellFactory.CastSpell(this, 43680, true);
@@ -505,7 +505,7 @@ public partial class Player
             honorF += (float)RestMgr.GetRestBonusFor(RestTypes.Honor, (uint)honorF);
         }
 
-        honorF *= Configuration.GetDefaultValue("Rate.Honor", 1.0f);
+        honorF *= Configuration.GetDefaultValue("Rate:Honor", 1.0f);
         // Back to int now
         honor = (int)honorF;
 
@@ -533,7 +533,7 @@ public partial class Player
             bg?.UpdatePlayerScore(this, ScoreType.BonusHonor, (uint)honor, false); //false: prevent looping
         }
 
-        if (!Configuration.GetDefaultValue("PvPToken.Enable", false) || !pvptoken)
+        if (!Configuration.GetDefaultValue("PvPToken:Enable", false) || !pvptoken)
             return true;
 
         if (victim != null && (!victim || victim == this || victim.HasAuraType(AuraType.NoPvpCredit)))
@@ -543,13 +543,13 @@ public partial class Player
             return true;
 
         // Check if allowed to receive it in current map
-        var mapType = Configuration.GetDefaultValue("PvPToken.MapAllowType", 4);
+        var mapType = Configuration.GetDefaultValue("PvPToken:MapAllowType", 4);
 
         if ((mapType == 1 && !InBattleground && !IsFFAPvP) || (mapType == 2 && !IsFFAPvP) || (mapType == 3 && !InBattleground))
             return true;
 
-        var itemId = Configuration.GetDefaultValue("PvPToken.ItemID", 29434u);
-        var count = Configuration.GetDefaultValue("PvPToken.ItemCount", 1u);
+        var itemId = Configuration.GetDefaultValue("PvPToken:ItemID", 29434u);
+        var count = Configuration.GetDefaultValue("PvPToken:ItemCount", 1u);
 
         if (AddItem(itemId, count))
             SendSysMessage("You have been awarded a token for slaying another player.");

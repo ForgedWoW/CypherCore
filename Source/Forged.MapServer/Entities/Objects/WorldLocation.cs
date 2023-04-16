@@ -22,15 +22,16 @@ namespace Forged.MapServer.Entities.Objects;
 
 public class WorldLocation : Position
 {
-    private readonly WorldObject _worldObject;
     private readonly CellCalculator _cellCalculator;
     private readonly GridDefines _gridDefines;
+    private readonly WorldObject _worldObject;
     private Cell _currentCell;
     private uint _instanceId;
     private uint _mapId;
     private PhaseShift _phaseShift = new();
     private float _staticFloorZ = MapConst.VMAPInvalidHeightValue;
     private PhaseShift _suppressedPhaseShift = new(); // contains phases for current area but not applied due to conditions
+
     public WorldLocation(WorldObject obj)
     {
         _worldObject = obj;
@@ -94,6 +95,7 @@ public class WorldLocation : Position
     public ObjectCellMoveState MoveState { get; set; }
 
     public Position NewPosition { get; set; } = new();
+
     public PhaseShift PhaseShift
     {
         get => _phaseShift;
@@ -107,28 +109,10 @@ public class WorldLocation : Position
     }
 
     public uint Zone { get; set; }
+
     public static bool InSamePhase(WorldObject a, WorldObject b)
     {
         return a != null && b != null && a.Location.InSamePhase(b);
-    }
-
-    public virtual bool IsWithinDist(WorldObject obj, float dist2Compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
-    {
-        float sizefactor = 0;
-        sizefactor += incOwnRadius ? _worldObject.CombatReach : 0.0f;
-        sizefactor += incTargetRadius ? obj.CombatReach : 0.0f;
-        var maxdist = dist2Compare + sizefactor;
-
-        Position thisOrTransport = this;
-        Position objOrObjTransport = obj.Location;
-
-        if (_worldObject.Transport == null || obj.Transport == null || obj.Transport.GetTransportGUID() != _worldObject.Transport.GetTransportGUID())
-            return is3D ? thisOrTransport.IsInDist(objOrObjTransport, maxdist) : thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
-
-        thisOrTransport = _worldObject.MovementInfo.Transport.Pos;
-        objOrObjTransport = obj.MovementInfo.Transport.Pos;
-        
-        return is3D ? thisOrTransport.IsInDist(objOrObjTransport, maxdist) : thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
     }
 
     public void AddObjectToRemoveList()
@@ -234,7 +218,6 @@ public class WorldLocation : Position
             return bf;
 
         return _worldObject.OutdoorPvPManager.GetOutdoorPvPToZoneId(map, Zone);
-
     }
 
     public void GetAlliesWithinRange(List<Unit> unitList, float maxSearchRange, bool includeSelf = true)
@@ -679,6 +662,25 @@ public class WorldLocation : Position
         return IsInMap(obj);
     }
 
+    public virtual bool IsWithinDist(WorldObject obj, float dist2Compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
+    {
+        float sizefactor = 0;
+        sizefactor += incOwnRadius ? _worldObject.CombatReach : 0.0f;
+        sizefactor += incTargetRadius ? obj.CombatReach : 0.0f;
+        var maxdist = dist2Compare + sizefactor;
+
+        Position thisOrTransport = this;
+        Position objOrObjTransport = obj.Location;
+
+        if (_worldObject.Transport == null || obj.Transport == null || obj.Transport.GetTransportGUID() != _worldObject.Transport.GetTransportGUID())
+            return is3D ? thisOrTransport.IsInDist(objOrObjTransport, maxdist) : thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
+
+        thisOrTransport = _worldObject.MovementInfo.Transport.Pos;
+        objOrObjTransport = obj.MovementInfo.Transport.Pos;
+
+        return is3D ? thisOrTransport.IsInDist(objOrObjTransport, maxdist) : thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
+    }
+
     public bool IsWithinDist2d(float x, float y, float dist)
     {
         return IsInDist2d(x, y, dist + _worldObject.CombatReach);
@@ -762,6 +764,57 @@ public class WorldLocation : Position
         }
 
         return Map.IsInLineOfSight(PhaseShift, pos2, pos, checks, ignoreFlags);
+    }
+
+    public TransferAbortParams PlayerCannotEnter(uint mapid, Player player)
+    {
+        if (!player.CliDB.MapStorage.TryGetValue(mapid, out var entry))
+            return new TransferAbortParams(TransferAbortReason.MapNotAllowed);
+
+        if (!entry.IsDungeon())
+            return null;
+
+        var targetDifficulty = player.GetDifficultyId(entry);
+        // Get the highest available difficulty if current setting is higher than the instance allows
+        var mapDiff = player.DB2Manager.GetDownscaledMapDifficultyData(mapid, ref targetDifficulty);
+
+        if (mapDiff == null)
+            return new TransferAbortParams(TransferAbortReason.Difficulty);
+
+        //Bypass checks for GMs
+        if (player.IsGameMaster)
+            return null;
+
+        //Other requirements
+        {
+            TransferAbortParams abortParams = new();
+
+            if (!player.Satisfy(player.ObjectManager.GetAccessRequirement(mapid, targetDifficulty), mapid, abortParams, true))
+                return abortParams;
+        }
+        var group = player.Group;
+
+        if (entry.IsRaid() && (int)entry.Expansion() >= player.Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)) // can only enter in a raid group but raids from old expansion don't need a group
+            if ((group == null || !group.IsRaidGroup) && !player.Configuration.GetDefaultValue("Instance:IgnoreRaid", false))
+                return new TransferAbortParams(TransferAbortReason.NeedGroup);
+
+        if (!entry.Instanceable())
+            return null;
+
+        //Get instance where player's group is bound & its map
+        var instanceIdToCheck = player.MapManager.FindInstanceIdForPlayer(mapid, player);
+        var boundMap = player.MapManager.FindMap(mapid, instanceIdToCheck);
+
+        var denyReason = boundMap?.CannotEnter(player);
+
+        if (denyReason != null)
+            return denyReason;
+
+        // players are only allowed to enter 10 instances per hour
+        if (!entry.GetFlags2().HasFlag(MapFlags2.IgnoreInstanceFarmLimit) && entry.IsDungeon() && !player.CheckInstanceCount(instanceIdToCheck) && !player.IsDead)
+            return new TransferAbortParams(TransferAbortReason.TooManyInstances);
+
+        return null;
     }
 
     public void ProcessPositionDataChanged(PositionFullTerrainStatus data)
@@ -944,6 +997,7 @@ public class WorldLocation : Position
         _mapId = mapId;
         Relocate(x, y, z, o);
     }
+
     private bool IsInBetween(Position pos1, Position pos2, float size)
     {
         var dist = GetExactDist2d(pos1);

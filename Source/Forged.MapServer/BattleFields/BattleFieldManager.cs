@@ -55,7 +55,7 @@ public class BattleFieldManager
         _worldDatabase = worldDatabase;
         _objectManager = objectManager;
         _scriptManager = scriptManager;
-        _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+        _threadTaskManager = new LimitedThreadTaskManager(configuration.GetDefaultValue("Map:ParellelUpdateTasks", 20));
     }
 
     public void AddZone(uint zoneId, BattleField bf)

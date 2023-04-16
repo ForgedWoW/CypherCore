@@ -129,7 +129,7 @@ public partial class Creature : Unit
             return;
 
         // Scripts can choose to ignore RATE_CORPSE_DECAY_LOOTED by calling SetCorpseDelay(timer, true)
-        var decayRate = _ignoreCorpseDecayRatio ? 1.0f : Configuration.GetDefaultValue("Rate.Corpse.Decay.Looted", 0.5f);
+        var decayRate = _ignoreCorpseDecayRatio ? 1.0f : Configuration.GetDefaultValue("Rate:Corpse:Decay:Looted", 0.5f);
 
         // corpse skinnable, but without skinning Id, and then skinned, corpse will despawn next update
         bool IsFullySkinned()
@@ -162,7 +162,7 @@ public partial class Creature : Unit
             SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMin), levels.Value.MinLevel);
             SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMax), levels.Value.MaxLevel);
         }
-        else if (Configuration.GetDefaultValue("CreatureScaling.DefaultMaxLevel", false))
+        else if (Configuration.GetDefaultValue("CreatureScaling:DefaultMaxLevel", false))
         {
             SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMin), 1);
             SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMax), Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel));
@@ -560,11 +560,11 @@ public partial class Creature : Unit
 
         CorpseDelay = cinfo.Rank switch
         {
-            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Corpse.Decay.RARE", 300u),
-            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Corpse.Decay.ELITE", 300u),
-            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Corpse.Decay.RAREELITE", 300u),
-            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Corpse.Decay.WORLDBOSS", 3600u),
-            _                           => Configuration.GetDefaultValue("Corpse.Decay.NORMAL", 60u)
+            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Corpse:Decay:RARE", 300u),
+            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Corpse:Decay:ELITE", 300u),
+            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Corpse:Decay:RAREELITE", 300u),
+            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Corpse:Decay:WORLDBOSS", 3600u),
+            _                           => Configuration.GetDefaultValue("Corpse:Decay:NORMAL", 60u)
         };
 
         LoadCreaturesAddon();
@@ -699,7 +699,7 @@ public partial class Creature : Unit
             else
             {
                 var respawnDelay = RespawnDelay;
-                var scalingMode = Configuration.GetDefaultValue("Respawn.DynamicMode", 0u);
+                var scalingMode = Configuration.GetDefaultValue("Respawn:DynamicMode", 0u);
 
                 if (scalingMode != 0)
                     Location.Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
@@ -783,7 +783,7 @@ public partial class Creature : Unit
 
     public double GetAttackDistance(Unit player)
     {
-        var aggroRate = Configuration.GetDefaultValue("Rate.Creature.Aggro", 1.0f);
+        var aggroRate = Configuration.GetDefaultValue("Rate:Creature:Aggro", 1.0f);
 
         if (aggroRate == 0)
             return 0.0f;
@@ -858,12 +858,12 @@ public partial class Creature : Unit
     {
         return rank switch // define rates for each elite rank
         {
-            CreatureEliteType.Normal    => Configuration.GetDefaultValue("Rate.Creature.Normal.HP", 1.0f),
-            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.HP", 1.0f),
-            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f),
-            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.HP", 1.0f),
-            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Rate.Creature.Elite.RARE.HP", 1.0f),
-            _                           => Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f)
+            CreatureEliteType.Normal    => Configuration.GetDefaultValue("Rate:Creature:Normal:HP", 1.0f),
+            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:HP", 1.0f),
+            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:HP", 1.0f),
+            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Rate:Creature:Elite:WORLDBOSS:HP", 1.0f),
+            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Rate:Creature:Elite:RARE:HP", 1.0f),
+            _                           => Configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:HP", 1.0f)
         };
     }
 
@@ -1037,12 +1037,12 @@ public partial class Creature : Unit
     {
         return rank switch // define rates for each elite rank
         {
-            CreatureEliteType.Normal    => Configuration.GetDefaultValue("Rate.Creature.Normal.SpellDamage", 1.0f),
-            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f),
-            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.SpellDamage", 1.0f),
-            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.SpellDamage", 1.0f),
-            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Rate.Creature.Elite.RARE.SpellDamage", 1.0f),
-            _                           => Configuration.GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f)
+            CreatureEliteType.Normal    => Configuration.GetDefaultValue("Rate:Creature:Normal:SpellDamage", 1.0f),
+            CreatureEliteType.Elite     => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:SpellDamage", 1.0f),
+            CreatureEliteType.RareElite => Configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:SpellDamage", 1.0f),
+            CreatureEliteType.WorldBoss => Configuration.GetDefaultValue("Rate:Creature:Elite:WORLDBOSS:SpellDamage", 1.0f),
+            CreatureEliteType.Rare      => Configuration.GetDefaultValue("Rate:Creature:Elite:RARE:SpellDamage", 1.0f),
+            _                           => Configuration.GetDefaultValue("Rate:Creature:Elite:Elite:SpellDamage", 1.0f)
         };
     }
 
@@ -1598,7 +1598,7 @@ public partial class Creature : Unit
             case PowerType.Focus:
             {
                 // For hunter pets.
-                addvalue = 24 * Configuration.GetDefaultValue("Rate.Focus", 1.0f);
+                addvalue = 24 * Configuration.GetDefaultValue("Rate:Focus", 1.0f);
 
                 break;
             }
@@ -1614,7 +1614,7 @@ public partial class Creature : Unit
                 // Combat and any controlled creature
                 if (IsInCombat || CharmerOrOwnerGUID.IsEmpty)
                 {
-                    var manaIncreaseRate = Configuration.GetDefaultValue("Rate.Mana", 1.0f);
+                    var manaIncreaseRate = Configuration.GetDefaultValue("Rate:Mana", 1.0f);
                     addvalue = (27.0f / 5.0f + 17.0f) * manaIncreaseRate;
                 }
                 else
@@ -2207,7 +2207,7 @@ public partial class Creature : Unit
         {
             CorpseRemoveTime = GameTime.CurrentTime + CorpseDelay;
             var respawnDelay = RespawnDelay;
-            var scalingMode = Configuration.GetDefaultValue("Respawn.DynamicMode", 0u);
+            var scalingMode = Configuration.GetDefaultValue("Respawn:DynamicMode", 0u);
 
             if (scalingMode != 0)
                 Location.Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
@@ -2557,7 +2557,7 @@ public partial class Creature : Unit
 
     public void StartPickPocketRefillTimer()
     {
-        _pickpocketLootRestore = GameTime.CurrentTime + Configuration.GetDefaultValue("Creature.PickPocketRefillDelay", 10 * Time.MINUTE);
+        _pickpocketLootRestore = GameTime.CurrentTime + Configuration.GetDefaultValue("Creature:PickPocketRefillDelay", 10 * Time.MINUTE);
     }
 
     public override void Update(uint diff)
@@ -2743,7 +2743,7 @@ public partial class Creature : Unit
                         {
                             // regenerate health if cannot reach the target and the setting is set to do so.
                             // this allows to disable the health regen of raid bosses if pathfinding has issues for whatever reason
-                            if (Configuration.GetDefaultValue("Creature.RegenHPCannotReachTargetInRaid", true) || !Location.Map.IsRaid)
+                            if (Configuration.GetDefaultValue("Creature:RegenHPCannotReachTargetInRaid", true) || !Location.Map.IsRaid)
                             {
                                 RegenerateHealth();
                                 Log.Logger.Debug($"RegenerateHealth() enabled because Creature cannot reach the target. Detail: {GetDebugInfo()}");
@@ -3172,7 +3172,7 @@ public partial class Creature : Unit
         // Not only pet, but any controlled creature (and not polymorphed)
         if (!CharmerOrOwnerGUID.IsEmpty && !IsPolymorphed)
         {
-            var healthIncreaseRate = Configuration.GetDefaultValue("Rate.Health", 1.0f);
+            var healthIncreaseRate = Configuration.GetDefaultValue("Rate:Health", 1.0f);
             addvalue = 0.015f * MaxHealth * healthIncreaseRate;
         }
         else

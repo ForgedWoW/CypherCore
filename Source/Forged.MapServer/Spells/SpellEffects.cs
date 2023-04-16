@@ -2911,7 +2911,7 @@ public partial class Spell
         if (ItemTarget.Count < 5)
             return;
 
-        if (GetDefaultValue("SkillChance.Milling", false))
+        if (GetDefaultValue("SkillChance:Milling", false))
         {
             uint SkillValue = player.GetPureSkillValue(SkillType.Inscription);
             var reqSkillValue = ItemTarget.Template.RequiredSkillRank;
@@ -3254,7 +3254,7 @@ public partial class Spell
             // Generate extra money for pick pocket loot
             var a = RandomHelper.URand(0, creature.Level / 2);
             var b = RandomHelper.URand(0, player.Level / 2);
-            creature.Loot.Gold = 10 * (a + b) * GetDefaultValue("Rate.Drop.Money", 1.0f);
+            creature.Loot.Gold = 10 * (a + b) * GetDefaultValue("Rate:Drop:Money", 1.0f);
         }
         else if (creature.Loot != null)
         {
@@ -3474,7 +3474,7 @@ public partial class Spell
         if (ItemTarget.Count < 5)
             return;
 
-        if (GetDefaultValue("SkillChance.Prospecting", false))
+        if (GetDefaultValue("SkillChance:Prospecting", false))
         {
             uint SkillValue = player.GetPureSkillValue(SkillType.Jewelcrafting);
             var reqSkillValue = ItemTarget.Template.RequiredSkillRank;

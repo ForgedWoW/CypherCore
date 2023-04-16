@@ -42,8 +42,8 @@ public class WorldStateManager
         _scriptManager = scriptManager;
         _worldManager = worldManager;
         _db2Manager = db2Manager;
-        SetValue(WorldStates.CurrentPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
-        SetValue(WorldStates.PreviousPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) - (configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
+        SetValue(WorldStates.CurrentPvpSeasonId, configuration.GetDefaultValue("Arena:ArenaSeason:InProgress", false) ? configuration.GetDefaultValue("Arena:ArenaSeason:ID", 32) : 0, false, null);
+        SetValue(WorldStates.PreviousPvpSeasonId, configuration.GetDefaultValue("Arena:ArenaSeason:ID", 32) - (configuration.GetDefaultValue("Arena:ArenaSeason:InProgress", false) ? 1 : 0), false, null);
     }
 
     public void FillInitialWorldStates(InitWorldStates initWorldStates, Map map, uint playerAreaId)

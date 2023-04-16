@@ -84,7 +84,7 @@ public partial class Player
 
     public bool IsGroupVisibleFor(Player p)
     {
-        return Configuration.GetDefaultValue("Visibility.GroupMode", 1) switch
+        return Configuration.GetDefaultValue("Visibility:GroupMode", 1) switch
         {
             1 => IsInSameRaidWith(p),
             2 => Team == p.Team,

@@ -86,7 +86,7 @@ public class LootStore
     {
         // all still listed ids isn't referenced
         foreach (var id in lootIdSet)
-            if (_configuration.GetDefaultValue("load.autoclean", false))
+            if (_configuration.GetDefaultValue("load:autoclean", false))
                 _worldDatabase.Execute($"DELETE FROM {Name} WHERE Entry = {id}");
             else
                 Log.Logger.Error("Table '{0}' entry {1} isn't {2} and not referenced from loot, and then useless.", Name, id, EntryName);

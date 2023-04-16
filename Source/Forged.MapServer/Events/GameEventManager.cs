@@ -425,7 +425,7 @@ public class GameEventManager
 
                     if (data == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM game_event_creature WHERE guid = {guid}");
                         else
                             Log.Logger.Error("`game_event_creature` contains creature (GUID: {0}) not found in `creature` table.", guid);
@@ -1059,7 +1059,7 @@ public class GameEventManager
 
     public void StartArenaSeason()
     {
-        var season = _configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32);
+        var season = _configuration.GetDefaultValue("Arena:ArenaSeason:ID", 32);
         var result = _worldDatabase.Query("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '{0}'", season);
 
         if (result.IsEmpty())

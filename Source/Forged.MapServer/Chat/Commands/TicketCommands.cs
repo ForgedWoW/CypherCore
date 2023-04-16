@@ -221,7 +221,7 @@ internal class TicketCommands
     [Command("togglesystem", RBACPermissions.CommandTicketTogglesystem, true)]
     private static bool HandleToggleGMTicketSystem(CommandHandler handler)
     {
-        if (!handler.Configuration.GetDefaultValue("Support.TicketsEnabled", false))
+        if (!handler.Configuration.GetDefaultValue("Support:TicketsEnabled", false))
         {
             handler.SendSysMessage(CypherStrings.DisallowTicketsConfig);
 

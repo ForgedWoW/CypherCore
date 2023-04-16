@@ -67,6 +67,7 @@ using Microsoft.Extensions.Configuration;
 using Forged.MapServer.OpCodeHandlers;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Collision;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -309,8 +310,8 @@ void RegisterManagers()
     builder.RegisterType<WorldStateManager>().SingleInstance().OnActivated(w =>
     {
         w.Instance.LoadFromDB();
-        w.Instance.SetValue(WorldStates.CurrentPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
-        w.Instance.SetValue(WorldStates.PreviousPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) - (configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
+        w.Instance.SetValue(WorldStates.CurrentPvpSeasonId, configuration.GetDefaultValue("Arena:ArenaSeason:InProgress", false) ? configuration.GetDefaultValue("Arena:ArenaSeason:ID", 32) : 0, false, null);
+        w.Instance.SetValue(WorldStates.PreviousPvpSeasonId, configuration.GetDefaultValue("Arena:ArenaSeason:ID", 32) - (configuration.GetDefaultValue("Arena:ArenaSeason:InProgress", false) ? 1 : 0), false, null);
     });
     builder.RegisterType<CharacterCache>().SingleInstance().OnActivated(c => c.Instance.LoadCharacterCacheStorage());
     builder.RegisterType<InstanceLockManager>().SingleInstance().OnActivated(i => i.Instance.Load());
@@ -403,7 +404,7 @@ void RegisterManagers()
     builder.RegisterType<SkillPerfectItems>().SingleInstance().OnActivated(a => a.Instance.LoadSkillPerfectItemTable());
     builder.RegisterType<BlackMarketManager>().SingleInstance().OnActivated(b =>
     {
-        if (!configuration.GetDefaultValue("BlackMarket.Enabled", true))
+        if (!configuration.GetDefaultValue("BlackMarket:Enabled", true))
             return;
 
         b.Instance.LoadTemplates();
@@ -480,6 +481,7 @@ void RegisterInstanced()
     builder.RegisterType<MailDraft>();
     builder.RegisterType<Cell>();
     builder.RegisterType<Map>();
+    builder.RegisterType<DynamicMapTree>();
 }
 
 void RegisterHandlers()

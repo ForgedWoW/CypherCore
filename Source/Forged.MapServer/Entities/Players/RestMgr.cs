@@ -175,7 +175,7 @@ public class RestMgr
             {
                 _restTime = now;
 
-                var bubble = 0.125f * GetDefaultValue("Rate.Rest.InGame", 1.0f);
+                var bubble = 0.125f * GetDefaultValue("Rate:Rest:InGame", 1.0f);
                 AddRestBonus(RestTypes.XP, timeDiff * CalcExtraPerSec(RestTypes.XP, bubble));
             }
         }

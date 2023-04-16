@@ -206,7 +206,7 @@ public class MiscHandler : IWorldSessionHandler
                 }
             }
 
-            var denyReason = Map.PlayerCannotEnter(at.target_mapId, player);
+            var denyReason = player.Location.PlayerCannotEnter(at.target_mapId, player);
 
             if (denyReason != null)
             {

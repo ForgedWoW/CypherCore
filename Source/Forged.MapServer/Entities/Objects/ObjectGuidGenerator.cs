@@ -42,9 +42,9 @@ public class ObjectGuidGenerator
     }
     private void CheckGuidTrigger(ulong guidlow)
     {
-        if (!_worldManager.IsGuidAlert && guidlow > _configuration.GetDefaultValue("Respawn.GuidAlertLevel", 16000000ul))
+        if (!_worldManager.IsGuidAlert && guidlow > _configuration.GetDefaultValue("Respawn:GuidAlertLevel", 16000000ul))
             _worldManager.TriggerGuidAlert();
-        else if (!_worldManager.IsGuidWarning && guidlow > _configuration.GetDefaultValue("Respawn.GuidWarnLevel", 12000000ul))
+        else if (!_worldManager.IsGuidWarning && guidlow > _configuration.GetDefaultValue("Respawn:GuidWarnLevel", 12000000ul))
             _worldManager.TriggerGuidWarning();
     }
 }

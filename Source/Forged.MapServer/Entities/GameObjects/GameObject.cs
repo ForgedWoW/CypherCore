@@ -2454,7 +2454,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     }
 
                     var respawnDelay = RespawnDelay;
-                    var scalingMode = Configuration.GetDefaultValue("Respawn.DynamicMode", 0u);
+                    var scalingMode = Configuration.GetDefaultValue("Respawn:DynamicMode", 0u);
 
                     if (scalingMode != 0)
                         Location.Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);

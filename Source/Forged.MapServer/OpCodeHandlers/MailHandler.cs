@@ -481,9 +481,9 @@ public class MailHandler : IWorldSessionHandler
 
         var player = Player;
 
-        if (player.Level < GetDefaultValue("LevelReq.Mail", 1))
+        if (player.Level < GetDefaultValue("LevelReq:Mail", 1))
         {
-            SendNotification(CypherStrings.MailSenderReq, GetDefaultValue("LevelReq.Mail", 1));
+            SendNotification(CypherStrings.MailSenderReq, GetDefaultValue("LevelReq:Mail", 1));
 
             return;
         }
@@ -615,9 +615,9 @@ public class MailHandler : IWorldSessionHandler
                 return;
             }
 
-            if (receiverLevel < GetDefaultValue("LevelReq.Mail", 1))
+            if (receiverLevel < GetDefaultValue("LevelReq:Mail", 1))
             {
-                SendNotification(CypherStrings.MailReceiverReq, GetDefaultValue("LevelReq.Mail", 1));
+                SendNotification(CypherStrings.MailReceiverReq, GetDefaultValue("LevelReq:Mail", 1));
 
                 return;
             }

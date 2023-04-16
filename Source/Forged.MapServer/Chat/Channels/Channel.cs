@@ -322,7 +322,7 @@ public class Channel
         }
 
         if (HasFlag(ChannelFlags.Lfg) &&
-            _configuration.GetDefaultValue("Channel.RestrictedLfg", true) &&
+            _configuration.GetDefaultValue("Channel:RestrictedLfg", true) &&
             _accountManager.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
             player.Group)
         {
@@ -464,7 +464,7 @@ public class Channel
             ChannelFlags = Flags
         };
 
-        var gmLevelInWhoList = _configuration.GetDefaultValue("GM.InWhoList.Level", (int)AccountTypes.Administrator);
+        var gmLevelInWhoList = _configuration.GetDefaultValue("GM:InWhoList:Level", (int)AccountTypes.Administrator);
 
         foreach (var pair in _playersStore)
         {
@@ -518,7 +518,7 @@ public class Channel
             return;
 
         // TODO: Add proper RBAC check
-        if (_configuration.GetDefaultValue("AllowTwoSide.Interaction.Channel", false))
+        if (_configuration.GetDefaultValue("AllowTwoSide:Interaction:Channel", false))
             lang = Language.Universal;
 
         if (!IsOn(guid))

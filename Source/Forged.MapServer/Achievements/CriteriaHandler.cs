@@ -1712,7 +1712,7 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.ServerExpansionEqualOrGreaterThan: // 92
-                if (Configuration.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) && Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < reqValue)
+                if (Configuration.GetDefaultValue("character:EnforceRaceAndClassExpansions", true) && Configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < reqValue)
                     return false;
 
                 break;
@@ -1971,13 +1971,13 @@ public class CriteriaHandler
                 break;
 
             case ModifierTreeType.PvpSeasonIsActive: // 124
-                if (!Configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false))
+                if (!Configuration.GetDefaultValue("Arena:ArenaSeason:InProgress", false))
                     return false;
 
                 break;
 
             case ModifierTreeType.PvpSeason: // 125
-                if (Configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) != reqValue)
+                if (Configuration.GetDefaultValue("Arena:ArenaSeason:ID", 32) != reqValue)
                     return false;
 
                 break;
@@ -2959,10 +2959,7 @@ public class CriteriaHandler
 
                 var artifact = referencePlayer.GetItemByGuid(artifactAura.CastItemGuid);
 
-                if (artifact == null)
-                    return false;
-
-                var artifactPower = artifact.GetArtifactPower((uint)secondaryAsset);
+                var artifactPower = artifact?.GetArtifactPower((uint)secondaryAsset);
 
                 if (artifactPower == null)
                     return false;

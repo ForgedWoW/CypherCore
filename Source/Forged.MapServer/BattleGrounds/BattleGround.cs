@@ -584,7 +584,7 @@ public class Battleground : ZoneScript, IDisposable
         PreparedStatement stmt;
         ulong battlegroundId = 1;
 
-        if (IsBattleground && GetDefaultValue("Battleground.StoreStatistics.Enable", false))
+        if (IsBattleground && GetDefaultValue("Battleground:StoreStatistics:Enable", false))
         {
             stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_MAXID);
             var result = DB.Characters.Query(stmt);
@@ -641,10 +641,10 @@ public class Battleground : ZoneScript, IDisposable
             player.RemoveAura(BattlegroundConst.SpellHonorableDefender25y);
             player.RemoveAura(BattlegroundConst.SpellHonorableDefender60y);
 
-            var winnerKills = player.GetRandomWinner() ? GetDefaultValue("Battleground.RewardWinnerHonorLast", 13500) : GetDefaultValue("Battleground.RewardWinnerHonorFirst", 27000);
-            var loserKills = player.GetRandomWinner() ? GetDefaultValue("Battleground.RewardLoserHonorLast", 3500) : GetDefaultValue("Battleground.RewardLoserHonorFirst", 4500);
+            var winnerKills = player.GetRandomWinner() ? GetDefaultValue("Battleground:RewardWinnerHonorLast", 13500) : GetDefaultValue("Battleground:RewardWinnerHonorFirst", 27000);
+            var loserKills = player.GetRandomWinner() ? GetDefaultValue("Battleground:RewardLoserHonorLast", 3500) : GetDefaultValue("Battleground:RewardLoserHonorFirst", 4500);
 
-            if (IsBattleground && GetDefaultValue("Battleground.StoreStatistics.Enable", false))
+            if (IsBattleground && GetDefaultValue("Battleground:StoreStatistics:Enable", false))
             {
                 stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PVPSTATS_PLAYER);
                 var score = PlayerScores.LookupByKey(player.GUID);
@@ -865,7 +865,7 @@ public class Battleground : ZoneScript, IDisposable
     public uint GetFreeSlotsForTeam(TeamFaction team)
     {
         // if BG is starting and WorldCfg.BattlegroundInvitationType == BattlegroundQueueInvitationTypeB.NoBalance, invite anyone
-        if (Status == BattlegroundStatus.WaitJoin && GetDefaultValue("Battleground.InvitationType", 0) == (int)BattlegroundQueueInvitationType.NoBalance)
+        if (Status == BattlegroundStatus.WaitJoin && GetDefaultValue("Battleground:InvitationType", 0) == (int)BattlegroundQueueInvitationType.NoBalance)
             return GetInvitedCount(team) < GetMaxPlayersPerTeam() ? GetMaxPlayersPerTeam() - GetInvitedCount(team) : 0;
 
         // if BG is already started or WorldCfg.BattlegroundInvitationType != BattlegroundQueueInvitationType.NoBalance, do not allow to join too much players of one faction
@@ -1960,7 +1960,7 @@ public class Battleground : ZoneScript, IDisposable
                 }
 
                 // Announce BG starting
-                if (GetDefaultValue("Battleground.QueueAnnouncer.Enable", false))
+                if (GetDefaultValue("Battleground:QueueAnnouncer:Enable", false))
                     Global.WorldMgr.SendWorldText(CypherStrings.BgStartedAnnounceWorld, Name, MinLevel, MaxLevel);
             }
         }
@@ -2300,7 +2300,7 @@ public class Battleground : ZoneScript, IDisposable
 
     private void RewardXPAtKill(Player killer, Player victim)
     {
-        if (GetDefaultValue("Battleground.GiveXPForKills", false) && killer && victim)
+        if (GetDefaultValue("Battleground:GiveXPForKills", false) && killer && victim)
             new KillRewarder(new[]
                              {
                                  killer

@@ -52,7 +52,7 @@ public class InstanceMap : Map
 
         // the timer is started by default, and stopped when the first player joins
         // this make sure it gets unloaded if for some reason no player joins
-        UnloadTimer = Math.Max(_configuration.GetDefaultValue("Instance.UnloadDelay", 30u * Time.MINUTE * Time.IN_MILLISECONDS), 1);
+        UnloadTimer = Math.Max(_configuration.GetDefaultValue("Instance:UnloadDelay", 30u * Time.MINUTE * Time.IN_MILLISECONDS), 1);
 
         _worldStateManager.SetValue(WorldStates.TeamInInstanceAlliance, instanceTeam == TeamIds.Alliance ? 1 : 0, false, this);
         _worldStateManager.SetValue(WorldStates.TeamInInstanceHorde, instanceTeam == TeamIds.Horde ? 1 : 0, false, this);
@@ -168,7 +168,7 @@ public class InstanceMap : Map
         // cannot enter if the instance is full (player cap), GMs don't count
         var maxPlayers = MaxPlayers;
 
-        if (GetPlayersCountExceptGMs() >= maxPlayers)
+        if (PlayersCountExceptGMs >= maxPlayers)
         {
             Log.Logger.Information("MAP: Instance '{0}' of map '{1}' cannot have more than '{2}' players. Player '{3}' rejected", InstanceId, MapName, maxPlayers, player.GetName());
 
@@ -290,7 +290,7 @@ public class InstanceMap : Map
 
         // if last player set unload timer
         if (UnloadTimer == 0 && Players.Count == 1)
-            UnloadTimer = InstanceLock != null && InstanceLock.IsExpired() ? 1 : Math.Max(_configuration.GetDefaultValue("Instance.UnloadDelay", 30u * Time.MINUTE * Time.IN_MILLISECONDS), 1);
+            UnloadTimer = InstanceLock != null && InstanceLock.IsExpired() ? 1 : Math.Max(_configuration.GetDefaultValue("Instance:UnloadDelay", 30u * Time.MINUTE * Time.IN_MILLISECONDS), 1);
 
         InstanceScenario?.OnPlayerExit(player);
 

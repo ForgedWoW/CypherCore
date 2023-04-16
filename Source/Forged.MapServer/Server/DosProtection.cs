@@ -16,7 +16,7 @@ public class DosProtection
     public DosProtection(WorldSession s)
     {
         Session = s;
-        _policy = (Policy)GetDefaultValue("PacketSpoof.Policy", 1);
+        _policy = (Policy)GetDefaultValue("PacketSpoof:Policy", 1);
     }
 
     private enum Policy
@@ -67,8 +67,8 @@ public class DosProtection
 
                 return false;
             case Policy.Ban:
-                var bm = (BanMode)GetDefaultValue("PacketSpoof.BanMode", (int)BanMode.Account);
-                var duration = GetDefaultValue("PacketSpoof.BanDuration", 86400); // in seconds
+                var bm = (BanMode)GetDefaultValue("PacketSpoof:BanMode", (int)BanMode.Account);
+                var duration = GetDefaultValue("PacketSpoof:BanDuration", 86400); // in seconds
                 var nameOrIp = "";
 
                 switch (bm)

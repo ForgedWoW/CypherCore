@@ -10,13 +10,7 @@ public static class ConfigEx
 {
     public static T GetDefaultValue<T>(this IConfiguration config, string key, T defaultValue)
     {
-        var keys = key.Split('.');
-        var section = config as IConfigurationSection;
-
-        foreach (var k in keys)
-            section = section?.GetSection(k);
-
-        var value = section?.Value;
+        var value = config[key];
 
         if (value == null)
             return defaultValue;

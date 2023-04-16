@@ -192,7 +192,7 @@ public class DisableManager
 
     public bool IsPathfindingEnabled(uint mapId)
     {
-        return _configuration.GetDefaultValue("mmap.EnablePathFinding", true) && !IsDisabledFor(DisableType.MMAP, mapId, null);
+        return _configuration.GetDefaultValue("mmap:EnablePathFinding", true) && !IsDisabledFor(DisableType.MMAP, mapId, null);
     }
 
     public bool IsVMAPDisabledFor(uint entry, byte flags)

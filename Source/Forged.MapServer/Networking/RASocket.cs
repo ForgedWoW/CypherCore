@@ -155,7 +155,7 @@ public class RASocket : ISocket
         }
 
         //"SELECT SecurityLevel, RealmID FROM account_access WHERE AccountID = ? and (RealmID = ? OR RealmID = -1) ORDER BY SecurityLevel desc");
-        if (result.Read<byte>(0) < ConfigMgr.GetDefaultValue("Ra.MinLevel", (byte)AccountTypes.Administrator))
+        if (result.Read<byte>(0) < ConfigMgr.GetDefaultValue("Ra:MinLevel", (byte)AccountTypes.Administrator))
         {
             Log.Logger.Information($"User {email} has no privilege to login");
 

@@ -143,7 +143,7 @@ public class Arena : Battleground
                                      winnerChange,
                                      loserChange);
 
-                    if (GetDefaultValue("ArenaLog.ExtendedInfo", false))
+                    if (GetDefaultValue("ArenaLog:ExtendedInfo", false))
                         foreach (var score in PlayerScores)
                         {
                             var player = Global.ObjAccessor.FindPlayer(score.Key);

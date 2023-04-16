@@ -115,8 +115,8 @@ public class ArenaTeam
         // Set player's personal rating
         uint personalRating = 0;
 
-        if (GetDefaultValue("Arena.ArenaStartPersonalRating", 1000) > 0)
-            personalRating = GetDefaultValue("Arena.ArenaStartPersonalRating", 1000);
+        if (GetDefaultValue("Arena:ArenaStartPersonalRating", 1000) > 0)
+            personalRating = GetDefaultValue("Arena:ArenaStartPersonalRating", 1000);
         else if (GetRating() >= 1000)
             personalRating = 1000;
 
@@ -131,7 +131,7 @@ public class ArenaTeam
         if (!result.IsEmpty())
             matchMakerRating = result.Read<ushort>(0);
         else
-            matchMakerRating = GetDefaultValue("Arena.ArenaStartMatchmakerRating", 1500);
+            matchMakerRating = GetDefaultValue("Arena:ArenaStartMatchmakerRating", 1500);
 
         // Remove all player signatures from other petitions
         // This will prevent player from joining too many arena teams and corrupt arena team data integrity
@@ -834,7 +834,7 @@ public class ArenaTeam
         */
 
         // Real rating modification
-        mod *= GetDefaultValue("Arena.ArenaMatchmakerRatingModifier", 24.0f);
+        mod *= GetDefaultValue("Arena:ArenaMatchmakerRatingModifier", 24.0f);
 
         return (int)Math.Ceiling(mod);
     }
@@ -853,7 +853,7 @@ public class ArenaTeam
         {
             if (ownRating < 1300)
             {
-                var winRatingModifier1 = GetDefaultValue("Arena.ArenaWinRatingModifier1", 48.0f);
+                var winRatingModifier1 = GetDefaultValue("Arena:ArenaWinRatingModifier1", 48.0f);
 
                 if (ownRating < 1000)
                     mod = winRatingModifier1 * (1.0f - chance);
@@ -862,12 +862,12 @@ public class ArenaTeam
             }
             else
             {
-                mod = GetDefaultValue("Arena.ArenaWinRatingModifier2", 24.0f) * (1.0f - chance);
+                mod = GetDefaultValue("Arena:ArenaWinRatingModifier2", 24.0f) * (1.0f - chance);
             }
         }
         else
         {
-            mod = GetDefaultValue("Arena.ArenaLoseRatingModifier", 24.0f) * -chance;
+            mod = GetDefaultValue("Arena:ArenaLoseRatingModifier", 24.0f) * -chance;
         }
 
         return (int)Math.Ceiling(mod);

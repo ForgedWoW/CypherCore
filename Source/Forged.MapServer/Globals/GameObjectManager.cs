@@ -770,12 +770,12 @@ public sealed class GameObjectManager
         {
             return rank switch // define rates for each elite rank
             {
-                CreatureEliteType.Normal => _configuration.GetDefaultValue("Rate.Creature.Normal.Damage", 1.0f),
-                CreatureEliteType.Elite => _configuration.GetDefaultValue("Rate.Creature.Elite.Elite.Damage", 1.0f),
-                CreatureEliteType.RareElite => _configuration.GetDefaultValue("Rate.Creature.Elite.RAREELITE.Damage", 1.0f),
-                CreatureEliteType.WorldBoss => _configuration.GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.Damage", 1.0f),
-                CreatureEliteType.Rare => _configuration.GetDefaultValue("Rate.Creature.Elite.RARE.Damage", 1.0f),
-                _ => _configuration.GetDefaultValue("Rate.Creature.Elite.Elite.Damage", 1.0f)
+                CreatureEliteType.Normal => _configuration.GetDefaultValue("Rate:Creature:Normal:Damage", 1.0f),
+                CreatureEliteType.Elite => _configuration.GetDefaultValue("Rate:Creature:Elite:Elite:Damage", 1.0f),
+                CreatureEliteType.RareElite => _configuration.GetDefaultValue("Rate:Creature:Elite:RAREELITE:Damage", 1.0f),
+                CreatureEliteType.WorldBoss => _configuration.GetDefaultValue("Rate:Creature:Elite:WORLDBOSS:Damage", 1.0f),
+                CreatureEliteType.Rare => _configuration.GetDefaultValue("Rate:Creature:Elite:RARE:Damage", 1.0f),
+                _ => _configuration.GetDefaultValue("Rate:Creature:Elite:Elite:Damage", 1.0f)
             };
         }
 
@@ -2272,7 +2272,7 @@ public sealed class GameObjectManager
         {
             if (player != null)
                 player.SendSysMessage(CypherStrings.CommandVendorselection);
-            else if (_configuration.GetDefaultValue("load.autoclean", false))
+            else if (_configuration.GetDefaultValue("load:autoclean", false))
                 _worldDatabase.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
             else
                 Log.Logger.Error("Table `(gameevent)npcvendor` have data for not existed creature template (Entry: {0}), ignore", vendorentry);
@@ -2287,7 +2287,7 @@ public sealed class GameObjectManager
 
             if (player != null)
                 player.SendSysMessage(CypherStrings.CommandVendorselection);
-            else if (_configuration.GetDefaultValue("load.autoclean", false))
+            else if (_configuration.GetDefaultValue("load:autoclean", false))
                 _worldDatabase.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
             else
                 Log.Logger.Error("Table `(gameevent)npcvendor` have data for not creature template (Entry: {0}) without vendor Id, ignore", vendorentry);
@@ -2626,7 +2626,7 @@ public sealed class GameObjectManager
 
             if (creData == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM creature_addon WHERE guid = {guid}");
                 else
                     Log.Logger.Error($"Creature (GUID: {guid}) does not exist but has a record in `creatureaddon`");
@@ -2932,7 +2932,7 @@ public sealed class GameObjectManager
 
             if (GetCreatureData(spawnId) == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM creature_movement_override WHERE SpawnId = {spawnId}");
                 else
                     Log.Logger.Error($"Creature (GUID: {spawnId}) does not exist but has a record in `creature_movement_override`");
@@ -3015,7 +3015,7 @@ public sealed class GameObjectManager
 
             if (!_creatureTemplateStorage.ContainsKey(entry))
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM creature_questitem WHERE CreatureEntry = {entry}");
                 else
                     Log.Logger.Error("Table `creature_questitem` has data for nonexistent creature (entry: {0}, idx: {1}), skipped", entry, idx);
@@ -3104,7 +3104,7 @@ public sealed class GameObjectManager
 
             if (cInfo == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM creature WHERE id = {entry}");
                 else
                     Log.Logger.Error("Table `creature` has creature (GUID: {0}) with non existing creature entry {1}, skipped.", guid, entry);
@@ -3292,7 +3292,7 @@ public sealed class GameObjectManager
                 cInfo.DynamicFlags = 0;
             }
 
-            if (_configuration.GetDefaultValue("Calculate.Creature.Zone.Area.Data", false))
+            if (_configuration.GetDefaultValue("Calculate:Creature:Zone:Area:Data", false))
             {
                 PhasingHandler.InitDbVisibleMapId(phaseShift, data.TerrainSwapMap);
                 _terrainManager.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
@@ -3339,7 +3339,7 @@ public sealed class GameObjectManager
 
             if (!_creatureTemplateStorage.TryGetValue(entry, out var template))
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM creature_template_scaling WHERE entry = {entry}");
                 else
                     Log.Logger.Error($"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_scaling`");
@@ -3490,7 +3490,7 @@ public sealed class GameObjectManager
 
             if (GetCreatureTemplate(entry) == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
                 else
                     Log.Logger.Error($"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_addon`");
@@ -3527,7 +3527,7 @@ public sealed class GameObjectManager
 
                 if (additionalSpellInfo == null)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
                     else
                         Log.Logger.Error($"Creature (Entry: {entry}) has wrong spell {spellId} defined in `auras` field in `creature_template_addon`.");
@@ -3540,7 +3540,7 @@ public sealed class GameObjectManager
 
                 if (creatureAddon.Auras.Contains(spellId))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
                     else
                         Log.Logger.Error($"Creature (Entry: {entry}) has duplicate aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
@@ -3550,7 +3550,7 @@ public sealed class GameObjectManager
 
                 if (additionalSpellInfo.Duration > 0)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
                     else
                         Log.Logger.Error($"Creature (Entry: {entry}) has temporary aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
@@ -3681,7 +3681,7 @@ public sealed class GameObjectManager
 
                 if (GetCreatureTemplate(creatureId) == null)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
                     else
                         Log.Logger.Error($"Table `creature_trainer` references non-existing creature template (CreatureId: {creatureId}), ignoring");
@@ -3691,7 +3691,7 @@ public sealed class GameObjectManager
 
                 if (GetTrainer(trainerId) == null)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
                     else
                         Log.Logger.Error($"Table `creature_trainer` references non-existing trainer (TrainerId: {trainerId}) for CreatureId {creatureId} MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}, ignoring");
@@ -3706,7 +3706,7 @@ public sealed class GameObjectManager
 
                     if (gossipOptionItr == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
                         else
                             Log.Logger.Error($"Table `creature_trainer` references non-existing gossip menu option (MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}) for CreatureId {creatureId} and TrainerId {trainerId}, ignoring");
@@ -3779,7 +3779,7 @@ public sealed class GameObjectManager
 
             if (GetCreatureTemplate(entry) == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM creature_equip_template WHERE CreatureID = {entry}");
                 else
                     Log.Logger.Error("Creature template (CreatureID: {0}) does not exist but has a record in `creature_equip_template`", entry);
@@ -4187,7 +4187,7 @@ public sealed class GameObjectManager
 
             if (goData == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM gameobject_addon WHERE guid = {guid}");
                 else
                     Log.Logger.Error($"GameObject (GUID: {guid}) does not exist but has a record in `gameobject_addon`");
@@ -4363,7 +4363,7 @@ public sealed class GameObjectManager
 
             if (goData == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM gameobject_overrides WHERE spawnId = {spawnId}");
                 else
                     Log.Logger.Error($"GameObject (SpawnId: {spawnId}) does not exist but has a record in `gameobject_overrides`");
@@ -4686,7 +4686,7 @@ public sealed class GameObjectManager
                 data.Rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(data.SpawnPoint.Orientation, 0f, 0f));
             }
 
-            if (_configuration.GetDefaultValue("Calculate.Gameoject.Zone.Area.Data", false))
+            if (_configuration.GetDefaultValue("Calculate:Gameoject:Zone:Area:Data", false))
             {
                 PhasingHandler.InitDbVisibleMapId(phaseShift, data.TerrainSwapMap);
                 _terrainManager.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
@@ -4965,7 +4965,7 @@ public sealed class GameObjectManager
 
             if (got == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM gameobject_template_addon WHERE entry = {entry}");
                 else
                     Log.Logger.Error($"GameObject template (Entry: {entry}) does not exist but has a record in `gameobject_template_addon`");
@@ -5109,7 +5109,7 @@ public sealed class GameObjectManager
 
             if (GetNpcText(gMenu.TextId) == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM gossip_menu WHERE MenuID = {gMenu.MenuId}");
                 else
                     Log.Logger.Error("Table gossip_menu: Id {0} is using non-existing TextId {1}", gMenu.MenuId, gMenu.TextId);
@@ -5230,7 +5230,7 @@ public sealed class GameObjectManager
             if (gMenuItem.OptionBroadcastTextId != 0)
                 if (!_cliDB.BroadcastTextStorage.ContainsKey(gMenuItem.OptionBroadcastTextId))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                     else
                         Log.Logger.Error($"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible OptionBroadcastTextId {gMenuItem.OptionBroadcastTextId}, ignoring.");
@@ -5240,7 +5240,7 @@ public sealed class GameObjectManager
 
             if (gMenuItem.Language != 0 && !_cliDB.LanguagesStorage.ContainsKey(gMenuItem.Language))
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                 else
                     Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Language {gMenuItem.Language}, ignoring");
@@ -5250,7 +5250,7 @@ public sealed class GameObjectManager
 
             if (gMenuItem.ActionMenuId != 0 && gMenuItem.OptionNpc != GossipOptionNpc.None)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                 else
                     Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
@@ -5262,7 +5262,7 @@ public sealed class GameObjectManager
             {
                 if (gMenuItem.OptionNpc != GossipOptionNpc.None)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                     else
                         Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
@@ -5271,7 +5271,7 @@ public sealed class GameObjectManager
                 }
                 else if (GetPointOfInterest(gMenuItem.ActionPoiId) == null)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                     else
                         Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing ActionPoiID {gMenuItem.ActionPoiId}, ignoring");
@@ -5284,7 +5284,7 @@ public sealed class GameObjectManager
             {
                 if (!_cliDB.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionId.Value))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                     else
                         Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing GossipNPCOption {gMenuItem.GossipNpcOptionId}, ignoring");
@@ -5301,7 +5301,7 @@ public sealed class GameObjectManager
             if (gMenuItem.BoxBroadcastTextId != 0)
                 if (!_cliDB.BroadcastTextStorage.ContainsKey(gMenuItem.BoxBroadcastTextId))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                     else
                         Log.Logger.Error($"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible BoxBroadcastTextId {gMenuItem.BoxBroadcastTextId}, ignoring.");
@@ -5312,7 +5312,7 @@ public sealed class GameObjectManager
             if (gMenuItem.SpellId.HasValue)
                 if (!_spellManager.HasSpellInfo((uint)gMenuItem.SpellId.Value))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                     else
                         Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Spell {gMenuItem.SpellId}, ignoring");
@@ -5565,7 +5565,7 @@ public sealed class GameObjectManager
 
             if (spawnGroupTemplate == null || spawnGroupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
                 else
                     Log.Logger.Error($"Invalid spawn group {spawnGroupId} specified for instance {instanceMapId}. Skipped.");
@@ -5575,7 +5575,7 @@ public sealed class GameObjectManager
 
             if (spawnGroupTemplate.MapId != instanceMapId)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
                 else
                     Log.Logger.Error($"Instance spawn group {spawnGroupId} specified for instance {instanceMapId} has spawns on a different map {spawnGroupTemplate.MapId}. Skipped.");
@@ -5939,7 +5939,7 @@ public sealed class GameObjectManager
 
                     if (slave == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", guidLow);
@@ -5953,7 +5953,7 @@ public sealed class GameObjectManager
 
                     if (master == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
@@ -5967,7 +5967,7 @@ public sealed class GameObjectManager
 
                     if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -5980,7 +5980,7 @@ public sealed class GameObjectManager
                     // they must have a possibility to meet (normal/heroic difficulty)
                     if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
@@ -6001,7 +6001,7 @@ public sealed class GameObjectManager
 
                     if (slave == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", guidLow);
@@ -6015,7 +6015,7 @@ public sealed class GameObjectManager
 
                     if (master == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
@@ -6029,7 +6029,7 @@ public sealed class GameObjectManager
 
                     if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -6059,7 +6059,7 @@ public sealed class GameObjectManager
 
                     if (slave == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", guidLow);
@@ -6073,7 +6073,7 @@ public sealed class GameObjectManager
 
                     if (master == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
@@ -6087,7 +6087,7 @@ public sealed class GameObjectManager
 
                     if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -6100,7 +6100,7 @@ public sealed class GameObjectManager
                     // they must have a possibility to meet (normal/heroic difficulty)
                     if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
@@ -6121,7 +6121,7 @@ public sealed class GameObjectManager
 
                     if (slave == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", guidLow);
@@ -6135,7 +6135,7 @@ public sealed class GameObjectManager
 
                     if (master == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
@@ -6149,7 +6149,7 @@ public sealed class GameObjectManager
 
                     if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -6162,7 +6162,7 @@ public sealed class GameObjectManager
                     // they must have a possibility to meet (normal/heroic difficulty)
                     if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
                         else
                             Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
@@ -6479,7 +6479,7 @@ public sealed class GameObjectManager
 
             if (GetCreatureTemplate(creatureid) == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM pet_levelstats WHERE creature_entry = {creatureid}");
                 else
                     Log.Logger.Error("Wrong creature id {0} in `pet_levelstats` table, ignoring.", creatureid);
@@ -7086,7 +7086,7 @@ public sealed class GameObjectManager
 
                 if (!_playerChoiceLocales.TryGetValue(choiceId, out var playerChoiceLocale))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
                     else
                         Log.Logger.Error($"Table `playerchoice_locale` references non-existing ChoiceId: {choiceId} for ResponseId {responseId} locale {localeName}, skipped");
@@ -7098,7 +7098,7 @@ public sealed class GameObjectManager
 
                 if (playerChoice.GetResponse(responseId) == null)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
                     else
                         Log.Logger.Error($"Table `playerchoice_locale` references non-existing ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
@@ -7118,7 +7118,7 @@ public sealed class GameObjectManager
                 }
                 else
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
                     else
                         Log.Logger.Error($"Table `playerchoice_locale` references non-existing locale for ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
@@ -7677,7 +7677,7 @@ public sealed class GameObjectManager
                     if (!PlayerInfos.TryGetValue(race, @class, out var playerInfo))
                         continue;
 
-                    if (_configuration.GetDefaultValue("character.EnforceRaceAndClassExpations", true))
+                    if (_configuration.GetDefaultValue("character:EnforceRaceAndClassExpations", true))
                     {
                         // skip expansion races if not playing with expansion
                         if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.BurningCrusade && race is Race.BloodElf or Race.Draenei)
@@ -8155,7 +8155,7 @@ public sealed class GameObjectManager
             var alwaysAllowMergingBlobs = result.Read<bool>(14);
 
             if (GetQuestTemplate(questID) == null)
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM quest_poi WHERE QuestID = {questID}");
                 else
                     Log.Logger.Error($"`quest_poi` quest id ({questID}) Idx1 ({idx1}) does not exist in `quest_template`");
@@ -8660,7 +8660,7 @@ public sealed class GameObjectManager
                 }
                 else if (qinfo.SourceItemIdCount == 0)
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE quest_template_addon SET ProvidedItemCount = 1 WHERE ID = {qinfo.Id}");
                     else
                         Log.Logger.Error("QuestId {0} has `StartItem` = {1} but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
@@ -8728,7 +8728,7 @@ public sealed class GameObjectManager
                 {
                     case QuestObjectiveType.Item:
                         if (GetItemTemplate((uint)obj.ObjectID) == null)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing item entry {obj.ObjectID}, quest can't be done.");
@@ -8736,7 +8736,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.Monster:
                         if (GetCreatureTemplate((uint)obj.ObjectID) == null)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
@@ -8744,7 +8744,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.GameObject:
                         if (GetGameObjectTemplate((uint)obj.ObjectID) == null)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing gameobject entry {obj.ObjectID}, quest can't be done.");
@@ -8752,7 +8752,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.TalkTo:
                         if (GetCreatureTemplate((uint)obj.ObjectID) == null)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error($"QuestId {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
@@ -8762,7 +8762,7 @@ public sealed class GameObjectManager
                     case QuestObjectiveType.MaxReputation:
                     case QuestObjectiveType.IncreaseReputation:
                         if (!_cliDB.FactionStorage.ContainsKey((uint)obj.ObjectID))
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing faction id {2}", qinfo.Id, obj.Id, obj.ObjectID);
@@ -8770,7 +8770,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.PlayerKills:
                         if (obj.Amount <= 0)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has invalid player kills count {2}", qinfo.Id, obj.Id, obj.Amount);
@@ -8780,13 +8780,13 @@ public sealed class GameObjectManager
                     case QuestObjectiveType.HaveCurrency:
                     case QuestObjectiveType.ObtainCurrency:
                         if (!_cliDB.CurrencyTypesStorage.ContainsKey((uint)obj.ObjectID))
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing currency {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
                         if (obj.Amount <= 0)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has invalid currency amount {2}", qinfo.Id, obj.Id, obj.Amount);
@@ -8794,7 +8794,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.LearnSpell:
                         if (!_spellManager.HasSpellInfo((uint)obj.ObjectID))
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing spell id {2}", qinfo.Id, obj.Id, obj.ObjectID);
@@ -8802,7 +8802,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.WinPetBattleAgainstNpc:
                         if (obj.ObjectID != 0 && GetCreatureTemplate((uint)obj.ObjectID) == null)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing creature entry {2}, quest can't be done.", qinfo.Id, obj.Id, obj.ObjectID);
@@ -8810,7 +8810,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.DefeatBattlePet:
                         if (!_cliDB.BattlePetSpeciesStorage.ContainsKey((uint)obj.ObjectID))
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing battlepet species id {2}", qinfo.Id, obj.Id, obj.ObjectID);
@@ -8818,7 +8818,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.CriteriaTree:
                         if (!_cliDB.CriteriaTreeStorage.ContainsKey((uint)obj.ObjectID))
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing criteria tree id {2}", qinfo.Id, obj.Id, obj.ObjectID);
@@ -8826,7 +8826,7 @@ public sealed class GameObjectManager
                         break;
                     case QuestObjectiveType.AreaTrigger:
                         if (!_cliDB.AreaTriggerStorage.ContainsKey((uint)obj.ObjectID) && obj.ObjectID != -1)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing AreaTrigger.db2 id {2}", qinfo.Id, obj.Id, obj.ObjectID);
@@ -8835,7 +8835,7 @@ public sealed class GameObjectManager
                     case QuestObjectiveType.AreaTriggerEnter:
                     case QuestObjectiveType.AreaTriggerExit:
                         if (_areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)obj.ObjectID, false)) == null && _areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)obj.ObjectID, true)) != null)
-                            if (_configuration.GetDefaultValue("load.autoclean", false))
+                            if (_configuration.GetDefaultValue("load:autoclean", false))
                                 _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                             else
                                 Log.Logger.Error("QuestId {0} objective {1} has non existing areatrigger id {2}", qinfo.Id, obj.Id, obj.ObjectID);
@@ -8846,7 +8846,7 @@ public sealed class GameObjectManager
                     case QuestObjectiveType.ProgressBar:
                         break;
                     default:
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
                         else
                             Log.Logger.Error("QuestId {0} objective {1} has unhandled type {2}", qinfo.Id, obj.Id, obj.Type);
@@ -9882,7 +9882,7 @@ public sealed class GameObjectManager
 
             if (!SpawnMetadata.TypeIsValid(spawnType))
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
                 else
                     Log.Logger.Error($"Spawn data with invalid type {spawnType} listed for spawn group {groupId}. Skipped.");
@@ -9894,7 +9894,7 @@ public sealed class GameObjectManager
 
             if (data == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
                 else
                     Log.Logger.Error($"Spawn data with ID ({spawnType},{spawnId}) not found, but is listed as a member of spawn group {groupId}!");
@@ -9903,7 +9903,7 @@ public sealed class GameObjectManager
             }
             else if (data.SpawnGroupData.GroupId != 0)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
                 else
                     Log.Logger.Error($"Spawn with ID ({spawnType},{spawnId}) is listed as a member of spawn group {groupId}, but is already a member of spawn group {data.SpawnGroupData.GroupId}. Skipping.");
@@ -9924,7 +9924,7 @@ public sealed class GameObjectManager
                 }
                 else if (groupTemplate.MapId != data.MapId && !groupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
                     else
                         Log.Logger.Error($"Spawn group {groupId} has map ID {groupTemplate.MapId}, but spawn ({spawnType},{spawnId}) has map id {data.MapId} - spawn NOT added to group!");
@@ -11699,7 +11699,7 @@ public sealed class GameObjectManager
 
             if (cInfo == null)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"DELETE FROM creature_template_model WHERE CreatureID = {creatureId}");
                 else
                     Log.Logger.Debug($"Creature template (Entry: {creatureId}) does not exist but has a record in `creature_template_model`");
@@ -11975,7 +11975,7 @@ public sealed class GameObjectManager
                 {
                     if (tmp.Talk.ChatType > ChatMsg.RaidBossWhisper)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid talk type (datalong = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
@@ -11988,7 +11988,7 @@ public sealed class GameObjectManager
 
                     if (!_cliDB.BroadcastTextStorage.ContainsKey((uint)tmp.Talk.TextID))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid talk text id (dataint = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
@@ -12006,7 +12006,7 @@ public sealed class GameObjectManager
                 {
                     if (!_cliDB.EmotesStorage.ContainsKey(tmp.Emote.EmoteID))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid emote id (datalong = {1}) in SCRIPT_COMMAND_EMOTE for script id {2}",
@@ -12024,7 +12024,7 @@ public sealed class GameObjectManager
                 {
                     if (!_cliDB.MapStorage.ContainsKey(tmp.TeleportTo.MapID))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid map (Id: {1}) in SCRIPT_COMMAND_TELEPORT_TO for script id {2}",
@@ -12037,7 +12037,7 @@ public sealed class GameObjectManager
 
                     if (!GridDefines.IsValidMapCoord(tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TELEPORT_TO for script id {5}",
@@ -12060,7 +12060,7 @@ public sealed class GameObjectManager
 
                     if (quest == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
@@ -12096,7 +12096,7 @@ public sealed class GameObjectManager
 
                     if (tmp.QuestExplored.Distance != 0 && tmp.QuestExplored.Distance > SharedConst.DefaultVisibilityDistance)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, max distance is {3} or 0 for disable distance check",
@@ -12110,7 +12110,7 @@ public sealed class GameObjectManager
 
                     if (tmp.QuestExplored.Distance != 0 && tmp.QuestExplored.Distance < SharedConst.InteractionDistance)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has too small distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, min distance is {3} or 0 for disable distance check",
@@ -12129,7 +12129,7 @@ public sealed class GameObjectManager
                 {
                     if (GetCreatureTemplate(tmp.KillCredit.CreatureEntry) == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_KILL_CREDIT for script id {2}",
@@ -12149,7 +12149,7 @@ public sealed class GameObjectManager
 
                     if (data == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid gameobject (GUID: {1}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
@@ -12164,7 +12164,7 @@ public sealed class GameObjectManager
 
                     if (info == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {3}",
@@ -12178,7 +12178,7 @@ public sealed class GameObjectManager
 
                     if (info.type is GameObjectTypes.FishingNode or GameObjectTypes.FishingHole or GameObjectTypes.Door or GameObjectTypes.Button or GameObjectTypes.Trap)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` have gameobject type ({1}) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
@@ -12196,7 +12196,7 @@ public sealed class GameObjectManager
                 {
                     if (!GridDefines.IsValidMapCoord(tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {5}",
@@ -12212,7 +12212,7 @@ public sealed class GameObjectManager
 
                     if (GetCreatureTemplate(tmp.TempSummonCreature.CreatureEntry) == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {2}",
@@ -12233,7 +12233,7 @@ public sealed class GameObjectManager
 
                     if (data == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid gameobject (GUID: {1}) in {2} for script id {3}",
@@ -12249,7 +12249,7 @@ public sealed class GameObjectManager
 
                     if (info == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in {3} for script id {4}",
@@ -12264,7 +12264,7 @@ public sealed class GameObjectManager
 
                     if (info.type != GameObjectTypes.Door)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has gameobject type ({1}) non supported by command {2} for script id {3}",
@@ -12283,7 +12283,7 @@ public sealed class GameObjectManager
                 {
                     if (!_spellManager.HasSpellInfo(tmp.RemoveAura.SpellID))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
@@ -12296,7 +12296,7 @@ public sealed class GameObjectManager
 
                     if (Convert.ToBoolean((int)tmp.RemoveAura.Flags & ~0x1)) // 1 bits (0, 1)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` using unknown flags in datalong2 ({1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
@@ -12314,7 +12314,7 @@ public sealed class GameObjectManager
                 {
                     if (!_spellManager.HasSpellInfo(tmp.CastSpell.SpellID))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
@@ -12327,7 +12327,7 @@ public sealed class GameObjectManager
 
                     if ((int)tmp.CastSpell.Flags > 4) // targeting type
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` using unknown target in datalong2 ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
@@ -12340,7 +12340,7 @@ public sealed class GameObjectManager
 
                     if ((int)tmp.CastSpell.Flags != 4 && Convert.ToBoolean(tmp.CastSpell.CreatureEntry & ~0x1)) // 1 bit (0, 1)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` using unknown flags in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
@@ -12352,7 +12352,7 @@ public sealed class GameObjectManager
                     }
                     else if ((int)tmp.CastSpell.Flags == 4 && GetCreatureTemplate((uint)tmp.CastSpell.CreatureEntry) == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` using invalid creature entry in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
@@ -12370,7 +12370,7 @@ public sealed class GameObjectManager
                 {
                     if (GetItemTemplate(tmp.CreateItem.ItemEntry) == null)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has nonexistent item (entry: {1}) in SCRIPT_COMMAND_CREATE_ITEM for script id {2}",
@@ -12383,7 +12383,7 @@ public sealed class GameObjectManager
 
                     if (tmp.CreateItem.Amount == 0)
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` SCRIPT_COMMAND_CREATE_ITEM but amount is {1} for script id {2}",
@@ -12400,7 +12400,7 @@ public sealed class GameObjectManager
                 {
                     if (!_cliDB.AnimKitStorage.ContainsKey(tmp.PlayAnimKit.AnimKitID))
                     {
-                        if (_configuration.GetDefaultValue("load.autoclean", false))
+                        if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                         else
                             Log.Logger.Error("Table `{0}` has invalid AnimKid id (datalong = {1}) in SCRIPT_COMMAND_PLAY_ANIMKIT for script id {2}",
@@ -12417,7 +12417,7 @@ public sealed class GameObjectManager
                 case ScriptCommands.FlagSetDeprecated:
                 case ScriptCommands.FlagRemoveDeprecated:
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
                     else
                         Log.Logger.Error($"Table `{tableName}` uses deprecated direct updatefield modify command {tmp.command} for script id {tmp.id}");

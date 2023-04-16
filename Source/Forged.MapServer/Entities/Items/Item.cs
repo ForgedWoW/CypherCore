@@ -798,7 +798,7 @@ public class Item : WorldObject
         };
 
         var cost = (ulong)Math.Round(lostDurability * dmultiplier * durabilityQualityEntry.Data * RepairCostMultiplier);
-        cost = (ulong)(cost * discount * GetDefaultValue("Rate.RepairCost", 1.0f));
+        cost = (ulong)(cost * discount * GetDefaultValue("Rate:RepairCost", 1.0f));
 
         if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
             cost = 1;

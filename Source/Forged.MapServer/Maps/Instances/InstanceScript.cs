@@ -688,7 +688,7 @@ public class InstanceScript : ZoneScript
     // Return wether server allow two side groups or not
     public bool ServerAllowsTwoSideGroups()
     {
-        return _configuration.GetDefaultValue("AllowTwoSide.Interaction.Group", false);
+        return _configuration.GetDefaultValue("AllowTwoSide:Interaction:Group", false);
     }
 
     public void SetBossNumber(uint number)

@@ -87,10 +87,10 @@ public sealed class CreatureTextManager
     {
         var dist = msgType switch
         {
-            ChatMsg.MonsterYell   => _configuration.GetDefaultValue("ListenRange.Yell", 300.0f),
-            ChatMsg.MonsterEmote  => _configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f),
-            ChatMsg.RaidBossEmote => _configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f),
-            _                     => _configuration.GetDefaultValue("ListenRange.Say", 25.0f)
+            ChatMsg.MonsterYell   => _configuration.GetDefaultValue("ListenRange:Yell", 300.0f),
+            ChatMsg.MonsterEmote  => _configuration.GetDefaultValue("ListenRange:TextEmote", 25.0f),
+            ChatMsg.RaidBossEmote => _configuration.GetDefaultValue("ListenRange:TextEmote", 25.0f),
+            _                     => _configuration.GetDefaultValue("ListenRange:Say", 25.0f)
         };
 
         return dist;
@@ -172,7 +172,7 @@ public sealed class CreatureTextManager
             if (temp.sound != 0)
                 if (!_cliDB.SoundKitStorage.ContainsKey(temp.sound))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE creature_text SET Sound = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
                     else
                         Log.Logger.Error($"GossipManager: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Sound {temp.sound} but sound does not exist.");
@@ -182,7 +182,7 @@ public sealed class CreatureTextManager
 
             if (temp.SoundPlayType >= SoundKitPlayType.Max)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"UPDATE creature_text SET SoundPlayType = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
                 else
                     Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_text` has PlayType {temp.SoundPlayType} but does not exist.");
@@ -192,7 +192,7 @@ public sealed class CreatureTextManager
 
             if (temp.lang != Language.Universal && !_languageManager.IsLanguageExist(temp.lang))
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"UPDATE creature_text SET Language = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
                 else
                     Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` using Language {temp.lang} but Language does not exist.");
@@ -202,7 +202,7 @@ public sealed class CreatureTextManager
 
             if (temp.type >= ChatMsg.Max)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"UPDATE creature_text SET Type = {ChatMsg.Say} WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
                 else
                     Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Type {temp.type} but this Chat Type does not exist.");
@@ -213,7 +213,7 @@ public sealed class CreatureTextManager
             if (temp.emote != 0)
                 if (!_cliDB.EmotesStorage.ContainsKey((uint)temp.emote))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE creature_text SET Emote = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
                     else
                         Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Emote {temp.emote} but emote does not exist.");
@@ -224,7 +224,7 @@ public sealed class CreatureTextManager
             if (temp.BroadcastTextId != 0)
                 if (!_cliDB.BroadcastTextStorage.ContainsKey(temp.BroadcastTextId))
                 {
-                    if (_configuration.GetDefaultValue("load.autoclean", false))
+                    if (_configuration.GetDefaultValue("load:autoclean", false))
                         _worldDatabase.Execute($"UPDATE creature_text SET BroadcastTextId = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
                     else
                         Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_texts` has non-existing or incompatible BroadcastTextId {temp.BroadcastTextId}.");
@@ -234,7 +234,7 @@ public sealed class CreatureTextManager
 
             if (temp.TextRange > CreatureTextRange.Personal)
             {
-                if (_configuration.GetDefaultValue("load.autoclean", false))
+                if (_configuration.GetDefaultValue("load:autoclean", false))
                     _worldDatabase.Execute($"UPDATE creature_text SET TextRange = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
                 else
                     Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_text` has incorrect TextRange {temp.TextRange}.");

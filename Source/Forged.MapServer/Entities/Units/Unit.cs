@@ -2151,7 +2151,7 @@ public partial class Unit : WorldObject
         // talent who gave more rage on attack
         MathFunctions.AddPct(ref addRage, GetTotalAuraModifier(AuraType.ModRageFromDamageDealt));
 
-        addRage *= Configuration.GetDefaultValue("Rate.Rage.Gain", 1.0f);
+        addRage *= Configuration.GetDefaultValue("Rate:Rage:Gain", 1.0f);
 
         ModifyPower(PowerType.Rage, (int)(addRage * 10));
     }
@@ -2176,12 +2176,12 @@ public partial class Unit : WorldObject
 
     public virtual void Say(string text, Language language, WorldObject target = null)
     {
-        Talk(text, ChatMsg.MonsterSay, language, Configuration.GetDefaultValue("ListenRange.Say", 25.0f), target);
+        Talk(text, ChatMsg.MonsterSay, language, Configuration.GetDefaultValue("ListenRange:Say", 25.0f), target);
     }
 
     public virtual void Say(uint textId, WorldObject target = null)
     {
-        Talk(textId, ChatMsg.MonsterSay, Configuration.GetDefaultValue("ListenRange.Say", 25.0f), target);
+        Talk(textId, ChatMsg.MonsterSay, Configuration.GetDefaultValue("ListenRange:Say", 25.0f), target);
     }
 
     public void ScheduleAIChange()
@@ -2699,12 +2699,12 @@ public partial class Unit : WorldObject
 
     public virtual void TextEmote(string text, WorldObject target = null, bool isBossEmote = false)
     {
-        Talk(text, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Language.Universal, Configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f), target);
+        Talk(text, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Language.Universal, Configuration.GetDefaultValue("ListenRange:TextEmote", 25.0f), target);
     }
 
     public virtual void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
     {
-        Talk(textId, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f), target);
+        Talk(textId, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Configuration.GetDefaultValue("ListenRange:TextEmote", 25.0f), target);
     }
 
     public TempSummon ToTempSummon()
@@ -3022,12 +3022,12 @@ public partial class Unit : WorldObject
 
     public virtual void Yell(string text, Language language = Language.Universal, WorldObject target = null)
     {
-        Talk(text, ChatMsg.MonsterYell, language, Configuration.GetDefaultValue("ListenRange.Yell", 300.0f), target);
+        Talk(text, ChatMsg.MonsterYell, language, Configuration.GetDefaultValue("ListenRange:Yell", 300.0f), target);
     }
 
     public virtual void Yell(uint textId, WorldObject target = null)
     {
-        Talk(textId, ChatMsg.MonsterYell, Configuration.GetDefaultValue("ListenRange.Yell", 300.0f), target);
+        Talk(textId, ChatMsg.MonsterYell, Configuration.GetDefaultValue("ListenRange:Yell", 300.0f), target);
     }
 
     private void _UpdateAutoRepeatSpell()

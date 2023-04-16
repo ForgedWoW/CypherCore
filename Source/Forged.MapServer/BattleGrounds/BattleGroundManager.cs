@@ -64,8 +64,8 @@ public class BattlegroundManager
         _worldManager = worldManager;
         _gameEventManager = gameEventManager;
         _classFactory = classFactory;
-        _nextRatedArenaUpdate = _configuration.GetDefaultValue("Arena.RatedUpdateTimer", 5u * Time.IN_MILLISECONDS);
-        _threadTaskManager = new LimitedThreadTaskManager(_configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+        _nextRatedArenaUpdate = _configuration.GetDefaultValue("Arena:RatedUpdateTimer", 5u * Time.IN_MILLISECONDS);
+        _threadTaskManager = new LimitedThreadTaskManager(_configuration.GetDefaultValue("Map:ParellelUpdateTasks", 20));
     }
 
     public void AddBattleground(Battleground bg)
@@ -252,7 +252,7 @@ public class BattlegroundManager
     public uint GetMaxRatingDifference()
     {
         // this is for stupid people who can't use brain and set max rating difference to 0
-        var diff = _configuration.GetDefaultValue("Arena.MaxRatingDifference", 150u);
+        var diff = _configuration.GetDefaultValue("Arena:MaxRatingDifference", 150u);
 
         if (diff == 0)
             diff = 5000;
@@ -262,12 +262,12 @@ public class BattlegroundManager
 
     public uint GetPrematureFinishTime()
     {
-        return _configuration.GetDefaultValue("Battleground.PrematureFinishTimer", 5u * Time.MINUTE * Time.IN_MILLISECONDS);
+        return _configuration.GetDefaultValue("Battleground:PrematureFinishTimer", 5u * Time.MINUTE * Time.IN_MILLISECONDS);
     }
 
     public uint GetRatingDiscardTimer()
     {
-        return _configuration.GetDefaultValue("Arena.RatingDiscardTimer", 10u * Time.MINUTE * Time.IN_MILLISECONDS);
+        return _configuration.GetDefaultValue("Arena:RatingDiscardTimer", 10u * Time.MINUTE * Time.IN_MILLISECONDS);
     }
 
     public bool IsArenaTesting()
@@ -660,7 +660,7 @@ public class BattlegroundManager
         }
 
         // if rating difference counts, maybe force-update queues
-        if (_configuration.GetDefaultValue("Arena.MaxRatingDifference", 150) != 0 && _configuration.GetDefaultValue("Arena.RatedUpdateTimer", 5 * Time.IN_MILLISECONDS) != 0)
+        if (_configuration.GetDefaultValue("Arena:MaxRatingDifference", 150) != 0 && _configuration.GetDefaultValue("Arena:RatedUpdateTimer", 5 * Time.IN_MILLISECONDS) != 0)
         {
             // it's time to force update
             if (_nextRatedArenaUpdate < diff)
@@ -679,7 +679,7 @@ public class BattlegroundManager
                         GetBattlegroundQueue(ratedArenaQueueId).BattlegroundQueueUpdate(diff, bracket, 0);
                 }
 
-                _nextRatedArenaUpdate = _configuration.GetDefaultValue("Arena.RatedUpdateTimer", 5u * Time.IN_MILLISECONDS);
+                _nextRatedArenaUpdate = _configuration.GetDefaultValue("Arena:RatedUpdateTimer", 5u * Time.IN_MILLISECONDS);
             }
             else
             {

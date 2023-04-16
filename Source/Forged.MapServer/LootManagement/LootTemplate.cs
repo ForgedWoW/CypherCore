@@ -235,7 +235,7 @@ public class LootTemplate
                 if (referenced == null)
                     continue; // Error message already printed at loading stage
 
-                var maxcount = (uint)(item.Maxcount * _configuration.GetDefaultValue("Rate.Drop.Item.ReferencedAmount", 1.0f));
+                var maxcount = (uint)(item.Maxcount * _configuration.GetDefaultValue("Rate:Drop:Item:ReferencedAmount", 1.0f));
 
                 for (uint loop = 0; loop < maxcount; ++loop) // Ref multiplicator
                     referenced.Process(loot, rate, lootMode, item.Groupid, personalLooter);
@@ -292,7 +292,7 @@ public class LootTemplate
                 if (referenced == null)
                     continue; // Error message already printed at loading stage
 
-                var maxcount = (uint)(item.Maxcount * _configuration.GetDefaultValue("Rate.Drop.Item.ReferencedAmount", 1.0f));
+                var maxcount = (uint)(item.Maxcount * _configuration.GetDefaultValue("Rate:Drop:Item:ReferencedAmount", 1.0f));
                 List<Player> gotLoot = new();
 
                 for (uint loop = 0; loop < maxcount; ++loop) // Ref multiplicator

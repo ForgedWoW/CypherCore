@@ -803,12 +803,12 @@ public partial class Player : Unit
 
         var rate = source switch
         {
-            ReputationSource.Kill            => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.Kill", 1.0f),
-            ReputationSource.Quest           => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
-            ReputationSource.DailyQuest      => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
-            ReputationSource.WeeklyQuest     => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
-            ReputationSource.MonthlyQuest    => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
-            ReputationSource.RepeatableQuest => Configuration.GetDefaultValue("Rate.Reputation.LowLevel.QuestId", 1.0f),
+            ReputationSource.Kill            => Configuration.GetDefaultValue("Rate:Reputation:LowLevel:Kill", 1.0f),
+            ReputationSource.Quest           => Configuration.GetDefaultValue("Rate:Reputation:LowLevel:QuestId", 1.0f),
+            ReputationSource.DailyQuest      => Configuration.GetDefaultValue("Rate:Reputation:LowLevel:QuestId", 1.0f),
+            ReputationSource.WeeklyQuest     => Configuration.GetDefaultValue("Rate:Reputation:LowLevel:QuestId", 1.0f),
+            ReputationSource.MonthlyQuest    => Configuration.GetDefaultValue("Rate:Reputation:LowLevel:QuestId", 1.0f),
+            ReputationSource.RepeatableQuest => Configuration.GetDefaultValue("Rate:Reputation:LowLevel:QuestId", 1.0f),
             ReputationSource.Spell           => 1.0f,
             _                                => 1.0f
         };
@@ -844,7 +844,7 @@ public partial class Player : Unit
         }
 
         if (source != ReputationSource.Spell && GetsRecruitAFriendBonus(false))
-            percent *= 1.0f + Configuration.GetDefaultValue("Rate.Reputation.RecruitAFriendBonus", 0.1f);
+            percent *= 1.0f + Configuration.GetDefaultValue("Rate:Reputation:RecruitAFriendBonus", 0.1f);
 
         return MathFunctions.CalculatePct(rep, percent);
     }
@@ -1412,10 +1412,10 @@ public partial class Player : Unit
         {
             if (type == EnviromentalDamage.Fall) // DealDamage not apply item durability loss at self damage
             {
-                Log.Logger.Debug($"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {Configuration.GetDefaultValue("DurabilityLoss.OnDeath", 10.0f)} durability");
-                DurabilityLossAll(Configuration.GetDefaultValue("DurabilityLoss.OnDeath", 10.0f) / 100, false);
+                Log.Logger.Debug($"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {Configuration.GetDefaultValue("DurabilityLoss:OnDeath", 10.0f)} durability");
+                DurabilityLossAll(Configuration.GetDefaultValue("DurabilityLoss:OnDeath", 10.0f) / 100, false);
                 // durability lost message
-                SendDurabilityLoss(this, Configuration.GetDefaultValue("DurabilityLoss.OnDeath", 10u));
+                SendDurabilityLoss(this, Configuration.GetDefaultValue("DurabilityLoss:OnDeath", 10u));
             }
 
             UpdateCriteria(CriteriaType.DieFromEnviromentalDamage, 1, (ulong)type);
@@ -1484,10 +1484,10 @@ public partial class Player : Unit
     {
         if (pvp)
         {
-            if (!Configuration.GetDefaultValue("Death.CorpseReclaimDelay.PvP", true))
+            if (!Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvP", true))
                 return PlayerConst.copseReclaimDelay[0];
         }
-        else if (!Configuration.GetDefaultValue("Death.CorpseReclaimDelay.PvE", true))
+        else if (!Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvE", true))
         {
             return 0;
         }
@@ -1573,10 +1573,7 @@ public partial class Player : Unit
     {
         var go = GetGameObjectIfCanInteractWith(guid);
 
-        if (go == null)
-            return null;
-
-        return go.GoType != type ? null : go;
+        return go?.GoType != type ? null : go;
     }
 
     public uint GetGossipTextId(WorldObject source)
@@ -1697,7 +1694,7 @@ public partial class Player : Unit
     {
         var recruitAFriend = false;
 
-        if (Level > Configuration.GetDefaultValue("RecruitAFriend.MaxLevel", 60) && forXP)
+        if (Level > Configuration.GetDefaultValue("RecruitAFriend:MaxLevel", 60) && forXP)
             return false;
 
         var group = Group;
@@ -1718,12 +1715,12 @@ public partial class Player : Unit
             if (forXP)
             {
                 // level must be allowed to get RaF bonus
-                if (player.Level > Configuration.GetDefaultValue("RecruitAFriend.MaxLevel", 60))
+                if (player.Level > Configuration.GetDefaultValue("RecruitAFriend:MaxLevel", 60))
                     continue;
 
                 // level difference must be small enough to get RaF bonus, UNLESS we are lower level
                 if (player.Level < Level)
-                    if (Level - player.Level > Configuration.GetDefaultValue("RecruitAFriend.MaxDifference", 4))
+                    if (Level - player.Level > Configuration.GetDefaultValue("RecruitAFriend:MaxDifference", 4))
                         continue;
             }
 
@@ -1773,7 +1770,7 @@ public partial class Player : Unit
         }
 
         if (Session.HasPermission(RBACPermissions.UseStartGmLevel))
-            startLevel = Math.Max(Configuration.GetDefaultValue("GM.StartLevel", 1u), startLevel);
+            startLevel = Math.Max(Configuration.GetDefaultValue("GM:StartLevel", 1u), startLevel);
 
         return startLevel;
     }
@@ -2069,7 +2066,7 @@ public partial class Player : Unit
         if (!(damageperc > 0))
             return;
 
-        var damage = damageperc * MaxHealth * Configuration.GetDefaultValue("Rate.Damage.Fall", 1.0f);
+        var damage = damageperc * MaxHealth * Configuration.GetDefaultValue("Rate:Damage:Fall", 1.0f);
 
         var height = movementInfo.Pos.Z;
         height = Location.UpdateGroundPositionZ(movementInfo.Pos.X, movementInfo.Pos.Y, height);
@@ -3776,7 +3773,7 @@ public partial class Player : Unit
         //Characters from level 11-19 will suffer from one minute of sickness
         //for each level they are above 10.
         //Characters level 20 and up suffer from ten minutes of sickness.
-        var startLevel = Configuration.GetDefaultValue("Death.SicknessLevel", 11);
+        var startLevel = Configuration.GetDefaultValue("Death:SicknessLevel", 11);
         var raceEntry = CliDB.ChrRacesStorage.LookupByKey(Race);
 
         if (Level < startLevel)
@@ -5582,7 +5579,7 @@ public partial class Player : Unit
 
             // Check enter rights before map getting to avoid creating instance copy for player
             // this check not dependent from map instance copy and same for all instance copies of selected map
-            var abortParams = Map.PlayerCannotEnter(mapid, this);
+            var abortParams = Location.PlayerCannotEnter(mapid, this);
 
             if (abortParams != null)
             {
@@ -6355,10 +6352,10 @@ public partial class Player : Unit
     private void ApplyCustomConfigs()
     {
         // Adds the extra bag slots for having an authenticator.
-        if (Configuration.GetDefaultValue("player.enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
+        if (Configuration.GetDefaultValue("player:enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
             SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
 
-        if (Configuration.GetDefaultValue("player.addHearthstoneToCollection", false))
+        if (Configuration.GetDefaultValue("player:addHearthstoneToCollection", false))
             Session.CollectionMgr.AddToy(193588, true, true);
 
         if (!Configuration.TryGetIfNotDefaultValue("AutoJoinChatChannel", "", out var chatChannel))
@@ -6443,8 +6440,8 @@ public partial class Player : Unit
 
             ulong count = 0;
 
-            if ((pvp && Configuration.GetDefaultValue("Death.CorpseReclaimDelay.PvP", true)) ||
-                (!pvp && Configuration.GetDefaultValue("Death.CorpseReclaimDelay.PvE", true)))
+            if ((pvp && Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvP", true)) ||
+                (!pvp && Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvE", true)))
             {
                 count = (ulong)(_deathExpireTime - corpse.GetGhostTime()) / PlayerConst.DeathExpireStep;
 
@@ -7112,7 +7109,7 @@ public partial class Player : Unit
         if (curValue >= maxValue)
             return;
 
-        var healthIncreaseRate = Configuration.GetDefaultValue("Rate.Health", 1.0f);
+        var healthIncreaseRate = Configuration.GetDefaultValue("Rate:Health", 1.0f);
         double addValue = 0.0f;
 
         // polymorphed case
@@ -7424,8 +7421,8 @@ public partial class Player : Unit
     {
         var pvp = _extraFlags.HasAnyFlag(PlayerExtraFlags.PVPDeath);
 
-        if ((pvp && !Configuration.GetDefaultValue("Death.CorpseReclaimDelay.PvP", true)) ||
-            (!pvp && !Configuration.GetDefaultValue("Death.CorpseReclaimDelay.PvE", true)))
+        if ((pvp && !Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvP", true)) ||
+            (!pvp && !Configuration.GetDefaultValue("Death:CorpseReclaimDelay:PvE", true)))
             return;
 
         var now = GameTime.CurrentTime;
@@ -7898,7 +7895,7 @@ public partial class Player : Unit
         if (IsInFlight)
             return;
 
-        if (Configuration.GetDefaultValue("vmap.EnableIndoorCheck", false))
+        if (Configuration.GetDefaultValue("vmap:EnableIndoorCheck", false))
             RemoveAurasWithAttribute(Location.IsOutdoors ? SpellAttr0.OnlyIndoors : SpellAttr0.OnlyOutdoors);
 
         var areaId = Location.Area;
@@ -7961,7 +7958,7 @@ public partial class Player : Unit
 
             if (diff < -5)
             {
-                xp = (uint)(ObjectManager.GetBaseXP(Level + 5) * Configuration.GetDefaultValue("Rate.XP.Explore", 1.0f));
+                xp = (uint)(ObjectManager.GetBaseXP(Level + 5) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
             }
             else if (diff > 5)
             {
@@ -7970,16 +7967,16 @@ public partial class Player : Unit
                 if (explorationPercent < 0)
                     explorationPercent = 0;
 
-                xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * explorationPercent / 100f * Configuration.GetDefaultValue("Rate.XP.Explore", 1.0f));
+                xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * explorationPercent / 100f * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
             }
             else
             {
-                xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate.XP.Explore", 1.0f));
+                xp = (uint)(ObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f));
             }
 
             if (Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0) != 0)
             {
-                var minScaledXP = (uint)(ObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate.XP.Explore", 1.0f)) * Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0u) / 100;
+                var minScaledXP = (uint)(ObjectManager.GetBaseXP(areaLevel) * Configuration.GetDefaultValue("Rate:XP:Explore", 1.0f)) * Configuration.GetDefaultValue("MinDiscoveredScaledXPRatio", 0u) / 100;
                 xp = Math.Max(minScaledXP, xp);
             }
 
@@ -8092,12 +8089,12 @@ public partial class Player : Unit
     {
         ScriptManager.OnPlayerChat(this, ChatMsg.Say, language, text);
 
-        SendChatMessageToSetInRange(ChatMsg.Say, language, text, Configuration.GetDefaultValue("ListenRange.Say", 25.0f));
+        SendChatMessageToSetInRange(ChatMsg.Say, language, text, Configuration.GetDefaultValue("ListenRange:Say", 25.0f));
     }
 
     public override void Say(uint textId, WorldObject target = null)
     {
-        Talk(textId, ChatMsg.Say, Configuration.GetDefaultValue("ListenRange.Say", 25.0f), target);
+        Talk(textId, ChatMsg.Say, Configuration.GetDefaultValue("ListenRange:Say", 25.0f), target);
     }
 
     public override void TextEmote(string text, WorldObject obj = null, bool something = false)
@@ -8106,12 +8103,12 @@ public partial class Player : Unit
 
         ChatPkt data = new();
         data.Initialize(ChatMsg.Emote, Language.Universal, this, this, text);
-        SendMessageToSetInRange(data, Configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f), true, !Session.HasPermission(RBACPermissions.TwoSideInteractionChat), true);
+        SendMessageToSetInRange(data, Configuration.GetDefaultValue("ListenRange:TextEmote", 25.0f), true, !Session.HasPermission(RBACPermissions.TwoSideInteractionChat), true);
     }
 
     public override void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
     {
-        Talk(textId, ChatMsg.Emote, Configuration.GetDefaultValue("ListenRange.TextEmote", 25.0f), target);
+        Talk(textId, ChatMsg.Emote, Configuration.GetDefaultValue("ListenRange:TextEmote", 25.0f), target);
     }
 
     public override void Whisper(string text, Language language, Player target, bool something = false)
@@ -8185,12 +8182,12 @@ public partial class Player : Unit
 
         ChatPkt data = new();
         data.Initialize(ChatMsg.Yell, language, this, this, text);
-        SendMessageToSetInRange(data, Configuration.GetDefaultValue("ListenRange.Yell", 300.0f), true);
+        SendMessageToSetInRange(data, Configuration.GetDefaultValue("ListenRange:Yell", 300.0f), true);
     }
 
     public override void Yell(uint textId, WorldObject target = null)
     {
-        Talk(textId, ChatMsg.Yell, Configuration.GetDefaultValue("ListenRange.Yell", 300.0f), target);
+        Talk(textId, ChatMsg.Yell, Configuration.GetDefaultValue("ListenRange:Yell", 300.0f), target);
     }
 
     private void SendChatMessageToSetInRange(ChatMsg chatMsg, Language language, string text, float range)

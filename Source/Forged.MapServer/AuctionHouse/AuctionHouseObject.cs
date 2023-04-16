@@ -512,7 +512,7 @@ public class AuctionHouseObject
         {
             throttleData = new PlayerReplicateThrottleData
             {
-                NextAllowedReplication = curTime + TimeSpan.FromSeconds(_configuration.GetDefaultValue("Auction.ReplicateItemsCooldown", 900)),
+                NextAllowedReplication = curTime + TimeSpan.FromSeconds(_configuration.GetDefaultValue("Auction:ReplicateItemsCooldown", 900)),
                 Global = _auctionManager.GenerateReplicationId
             };
         }
@@ -754,7 +754,7 @@ public class AuctionHouseObject
 
     public ulong CalculateAuctionHouseCut(ulong bidAmount)
     {
-        return (ulong)Math.Max((long)(MathFunctions.CalculatePct(bidAmount, _auctionHouse.ConsignmentRate) * _configuration.GetDefaultValue("Rate.Auction.Cut", 1.0f)), 0);
+        return (ulong)Math.Max((long)(MathFunctions.CalculatePct(bidAmount, _auctionHouse.ConsignmentRate) * _configuration.GetDefaultValue("Rate:Auction:Cut", 1.0f)), 0);
     }
 
     public void CancelCommodityQuote(ObjectGuid guid)

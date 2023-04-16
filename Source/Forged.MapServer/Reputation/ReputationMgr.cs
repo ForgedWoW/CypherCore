@@ -398,7 +398,7 @@ public class ReputationMgr
             if (incremental || IsRenownReputation(factionEntry))
             {
                 // int32 *= float cause one point loss?
-                standing = (int)Math.Floor(standing * _configuration.GetDefaultValue("Rate.Reputation.Gain", 1.0f) + 0.5f);
+                standing = (int)Math.Floor(standing * _configuration.GetDefaultValue("Rate:Reputation:Gain", 1.0f) + 0.5f);
                 standing += oldStanding;
             }
 

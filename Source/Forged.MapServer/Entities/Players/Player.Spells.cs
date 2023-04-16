@@ -2535,7 +2535,7 @@ public partial class Player
                         LearnSpell(discoveredSpell, false);
                 }
 
-                var craftSkillGain = spellIdx.NumSkillUps * Configuration.GetDefaultValue("SkillGain.Crafting", 1u);
+                var craftSkillGain = spellIdx.NumSkillUps * Configuration.GetDefaultValue("SkillGain:Crafting", 1u);
 
                 return UpdateSkillPro(spellIdx.SkillupSkillLineID,
                                       SkillGainChance(skillValue,
@@ -2576,7 +2576,7 @@ public partial class Player
         {
             _fishingSteps = 0;
 
-            var gatheringSkillGain = Configuration.GetDefaultValue("SkillGain.Gathering", 1u);
+            var gatheringSkillGain = Configuration.GetDefaultValue("SkillGain:Gathering", 1u);
 
             return UpdateSkillPro(SkillType.ClassicFishing, 100 * 10, gatheringSkillGain);
         }
@@ -2593,7 +2593,7 @@ public partial class Player
     {
         Log.Logger.Debug("UpdateGatherSkill(SkillId {0} SkillLevel {1} RedLevel {2})", skillId, skillValue, redLevel);
 
-        var gatheringSkillGain = Configuration.GetDefaultValue("SkillGain.Gathering", 1u);
+        var gatheringSkillGain = Configuration.GetDefaultValue("SkillGain:Gathering", 1u);
 
         var grayLevel = redLevel + 100;
         var greenLevel = redLevel + 50;
@@ -2641,10 +2641,10 @@ public partial class Player
             case SkillType.LegionSkinning:
             case SkillType.KulTiranSkinning:
             case SkillType.DragonIslesSkinning:
-                if (Configuration.GetDefaultValue("SkillChance.SkinningSteps", 75) == 0)
+                if (Configuration.GetDefaultValue("SkillChance:SkinningSteps", 75) == 0)
                     return UpdateSkillPro(skillId, SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * (int)multiplicator, gatheringSkillGain);
 
-                return UpdateSkillPro(skillId, (int)(SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * multiplicator) >> (int)(skillValue / Configuration.GetDefaultValue("SkillChance.SkinningSteps", 75)), gatheringSkillGain);
+                return UpdateSkillPro(skillId, (int)(SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * multiplicator) >> (int)(skillValue / Configuration.GetDefaultValue("SkillChance:SkinningSteps", 75)), gatheringSkillGain);
 
             case SkillType.Mining:
             case SkillType.ClassicMining:
@@ -2656,10 +2656,10 @@ public partial class Player
             case SkillType.LegionMining:
             case SkillType.KulTiranMining:
             case SkillType.DragonIslesMining:
-                if (Configuration.GetDefaultValue("SkillChance.MiningSteps", 75) == 0)
+                if (Configuration.GetDefaultValue("SkillChance:MiningSteps", 75) == 0)
                     return UpdateSkillPro(skillId, SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * (int)multiplicator, gatheringSkillGain);
 
-                return UpdateSkillPro(skillId, (int)(SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * multiplicator) >> (int)(skillValue / Configuration.GetDefaultValue("SkillChance.MiningSteps", 75)), gatheringSkillGain);
+                return UpdateSkillPro(skillId, (int)(SkillGainChance(skillValue, grayLevel, greenLevel, yellowLevel) * multiplicator) >> (int)(skillValue / Configuration.GetDefaultValue("SkillChance:MiningSteps", 75)), gatheringSkillGain);
         }
 
         return false;
@@ -3827,15 +3827,15 @@ public partial class Player
     private int SkillGainChance(uint skillValue, uint grayLevel, uint greenLevel, uint yellowLevel)
     {
         if (skillValue >= grayLevel)
-            return Configuration.GetDefaultValue("SkillChance.Grey", 0) * 10;
+            return Configuration.GetDefaultValue("SkillChance:Grey", 0) * 10;
 
         if (skillValue >= greenLevel)
-            return Configuration.GetDefaultValue("SkillChance.Green", 25) * 10;
+            return Configuration.GetDefaultValue("SkillChance:Green", 25) * 10;
 
         if (skillValue >= yellowLevel)
-            return Configuration.GetDefaultValue("SkillChance.Yellow", 75) * 10;
+            return Configuration.GetDefaultValue("SkillChance:Yellow", 75) * 10;
 
-        return Configuration.GetDefaultValue("SkillChance.Orange", 100) * 10;
+        return Configuration.GetDefaultValue("SkillChance:Orange", 100) * 10;
     }
 
     private void UpdateEnchantTime(uint time)

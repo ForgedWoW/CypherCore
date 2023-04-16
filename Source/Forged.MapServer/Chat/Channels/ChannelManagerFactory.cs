@@ -29,7 +29,7 @@ public class ChannelManagerFactory
 
     public ChannelManager ForTeam(TeamFaction team)
     {
-        if (_configuration.GetDefaultValue("AllowTwoSide.Interaction.Channel", false))
+        if (_configuration.GetDefaultValue("AllowTwoSide:Interaction:Channel", false))
             return _channelManagers[TeamFaction.Alliance]; // cross-faction
 
         return TryGetChannelManager(team, out var channelManager) ? channelManager : null;

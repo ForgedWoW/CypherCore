@@ -504,8 +504,8 @@ public class WorldManager
             . //erase corpses every 20 minutes
             Interval = 20 * Time.MINUTE * Time.IN_MILLISECONDS;
 
-        _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
-        _timers[WorldTimers.AutoBroadcast].Interval = _configuration.GetDefaultValue("AutoBroadcast.Timer", 60000);
+        _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB:Opt:ClearInterval", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
+        _timers[WorldTimers.AutoBroadcast].Interval = _configuration.GetDefaultValue("AutoBroadcast:Timer", 60000);
 
         // check for chars to delete every day
         _timers[WorldTimers.DeleteChars]
@@ -515,9 +515,9 @@ public class WorldManager
         // for AhBot
         _timers[WorldTimers.AhBot]
             .                                                                                                       // for AhBot
-            Interval = _configuration.GetDefaultValue("AuctionHouseBot.Update.Interval", 20) * Time.IN_MILLISECONDS; // every 20 sec
+            Interval = _configuration.GetDefaultValue("AuctionHouseBot:Update:Interval", 20) * Time.IN_MILLISECONDS; // every 20 sec
 
-        _timers[WorldTimers.GuildSave].Interval = _configuration.GetDefaultValue("Guild.SaveInterval", 15) * Time.MINUTE * Time.IN_MILLISECONDS;
+        _timers[WorldTimers.GuildSave].Interval = _configuration.GetDefaultValue("Guild:SaveInterval", 15) * Time.MINUTE * Time.IN_MILLISECONDS;
 
         _timers[WorldTimers.Blackmarket].Interval = 10 * Time.IN_MILLISECONDS;
 
@@ -596,7 +596,7 @@ public class WorldManager
 
     public void LoadConfigSettings(bool reload = false)
     {
-        DefaultDbcLocale = (Locale)_configuration.GetDefaultValue("DBC.Locale", 0);
+        DefaultDbcLocale = (Locale)_configuration.GetDefaultValue("DBC:Locale", 0);
 
         if (DefaultDbcLocale is >= Locale.Total or Locale.None)
         {
@@ -614,11 +614,11 @@ public class WorldManager
 
         if (reload)
         {
-            _supportManager.SetSupportSystemStatus(_configuration.GetDefaultValue("Support.Enabled", true));
-            _supportManager.SetTicketSystemStatus(_configuration.GetDefaultValue("Support.TicketsEnabled", false));
-            _supportManager.SetBugSystemStatus(_configuration.GetDefaultValue("Support.BugsEnabled", false));
-            _supportManager.SetComplaintSystemStatus(_configuration.GetDefaultValue("Support.ComplaintsEnabled", false));
-            _supportManager.SetSuggestionSystemStatus(_configuration.GetDefaultValue("Support.SuggestionsEnabled", false));
+            _supportManager.SetSupportSystemStatus(_configuration.GetDefaultValue("Support:Enabled", true));
+            _supportManager.SetTicketSystemStatus(_configuration.GetDefaultValue("Support:TicketsEnabled", false));
+            _supportManager.SetBugSystemStatus(_configuration.GetDefaultValue("Support:BugsEnabled", false));
+            _supportManager.SetComplaintSystemStatus(_configuration.GetDefaultValue("Support:ComplaintsEnabled", false));
+            _supportManager.SetSuggestionSystemStatus(_configuration.GetDefaultValue("Support:SuggestionsEnabled", false));
 
             _mapManager.SetMapUpdateInterval(_configuration.GetDefaultValue("MapUpdateInterval", 10));
             _mapManager.SetGridCleanUpDelay(_configuration.GetDefaultValue("GridCleanUpDelay", 5u * Time.MINUTE * Time.IN_MILLISECONDS));
@@ -626,20 +626,20 @@ public class WorldManager
             _timers[WorldTimers.UpTime].Interval = _configuration.GetDefaultValue("UpdateUptimeInterval", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
             _timers[WorldTimers.UpTime].Reset();
 
-            _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
+            _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB:Opt:ClearInterval", 10) * Time.MINUTE * Time.IN_MILLISECONDS;
             _timers[WorldTimers.CleanDB].Reset();
 
 
-            _timers[WorldTimers.AutoBroadcast].Interval = _configuration.GetDefaultValue("AutoBroadcast.Timer", 60000);
+            _timers[WorldTimers.AutoBroadcast].Interval = _configuration.GetDefaultValue("AutoBroadcast:Timer", 60000);
             _timers[WorldTimers.AutoBroadcast].Reset();
         }
 
         for (byte i = 0; i < (int)UnitMoveType.Max; ++i)
-            SharedConst.playerBaseMoveSpeed[i] = SharedConst.baseMoveSpeed[i] * _configuration.GetDefaultValue("Rate.MoveSpeed", 1.0f);
+            SharedConst.playerBaseMoveSpeed[i] = SharedConst.baseMoveSpeed[i] * _configuration.GetDefaultValue("Rate:MoveSpeed", 1.0f);
 
-        var rateCreatureAggro = _configuration.GetDefaultValue("Rate.Creature.Aggro", 1.0f);
+        var rateCreatureAggro = _configuration.GetDefaultValue("Rate:Creature:Aggro", 1.0f);
         //visibility on continents
-        MaxVisibleDistanceOnContinents = _configuration.GetDefaultValue("Visibility.Distance.Continents", SharedConst.DefaultVisibilityDistance);
+        MaxVisibleDistanceOnContinents = _configuration.GetDefaultValue("Visibility:Distance:Continents", SharedConst.DefaultVisibilityDistance);
 
         if (MaxVisibleDistanceOnContinents < 45 * rateCreatureAggro)
         {
@@ -653,7 +653,7 @@ public class WorldManager
         }
 
         //visibility in instances
-        MaxVisibleDistanceInInstances = _configuration.GetDefaultValue("Visibility.Distance.Instances", SharedConst.DefaultVisibilityInstance);
+        MaxVisibleDistanceInInstances = _configuration.GetDefaultValue("Visibility:Distance:Instances", SharedConst.DefaultVisibilityInstance);
 
         if (MaxVisibleDistanceInInstances < 45 * rateCreatureAggro)
         {
@@ -667,7 +667,7 @@ public class WorldManager
         }
 
         //visibility in BG
-        MaxVisibleDistanceInBG = _configuration.GetDefaultValue("Visibility.Distance.BG", SharedConst.DefaultVisibilityBGAreans);
+        MaxVisibleDistanceInBG = _configuration.GetDefaultValue("Visibility:Distance:BG", SharedConst.DefaultVisibilityBGAreans);
 
         if (MaxVisibleDistanceInBG < 45 * rateCreatureAggro)
         {
@@ -681,7 +681,7 @@ public class WorldManager
         }
 
         // Visibility in Arenas
-        MaxVisibleDistanceInArenas = _configuration.GetDefaultValue("Visibility.Distance.Arenas", SharedConst.DefaultVisibilityBGAreans);
+        MaxVisibleDistanceInArenas = _configuration.GetDefaultValue("Visibility:Distance:Arenas", SharedConst.DefaultVisibilityBGAreans);
 
         if (MaxVisibleDistanceInArenas < 45 * rateCreatureAggro)
         {
@@ -694,13 +694,13 @@ public class WorldManager
             MaxVisibleDistanceInArenas = SharedConst.MaxVisibilityDistance;
         }
 
-        VisibilityNotifyPeriodOnContinents = _configuration.GetDefaultValue("Visibility.Notify.Period.OnContinents", SharedConst.DefaultVisibilityNotifyPeriod);
-        VisibilityNotifyPeriodInInstances = _configuration.GetDefaultValue("Visibility.Notify.Period.InInstances", SharedConst.DefaultVisibilityNotifyPeriod);
-        VisibilityNotifyPeriodInBG = _configuration.GetDefaultValue("Visibility.Notify.Period.InBG", SharedConst.DefaultVisibilityNotifyPeriod);
-        VisibilityNotifyPeriodInArenas = _configuration.GetDefaultValue("Visibility.Notify.Period.InArenas", SharedConst.DefaultVisibilityNotifyPeriod);
+        VisibilityNotifyPeriodOnContinents = _configuration.GetDefaultValue("Visibility:Notify:Period:OnContinents", SharedConst.DefaultVisibilityNotifyPeriod);
+        VisibilityNotifyPeriodInInstances = _configuration.GetDefaultValue("Visibility:Notify:Period:InInstances", SharedConst.DefaultVisibilityNotifyPeriod);
+        VisibilityNotifyPeriodInBG = _configuration.GetDefaultValue("Visibility:Notify:Period:InBG", SharedConst.DefaultVisibilityNotifyPeriod);
+        VisibilityNotifyPeriodInArenas = _configuration.GetDefaultValue("Visibility:Notify:Period:InArenas", SharedConst.DefaultVisibilityNotifyPeriod);
 
-        _guidWarningMsg = _configuration.GetDefaultValue("Respawn.WarningMessage", "There will be an unscheduled server restart at 03:00. The server will be available again shortly after.");
-        _alertRestartReason = _configuration.GetDefaultValue("Respawn.AlertRestartReason", "Urgent Maintenance");
+        _guidWarningMsg = _configuration.GetDefaultValue("Respawn:WarningMessage", "There will be an unscheduled server restart at 03:00. The server will be available again shortly after.");
+        _alertRestartReason = _configuration.GetDefaultValue("Respawn:AlertRestartReason", "Urgent Maintenance");
 
         var dataPath = _configuration.GetDefaultValue("DataDir", "./");
 
@@ -717,9 +717,9 @@ public class WorldManager
 
         Log.Logger.Information(@"WORLD: MMap data directory is: {0}\mmaps", DataPath);
 
-        var enableIndoor = _configuration.GetDefaultValue("vmap.EnableIndoorCheck", true);
-        var enableLOS = _configuration.GetDefaultValue("vmap.EnableLOS", true);
-        var enableHeight = _configuration.GetDefaultValue("vmap.EnableHeight", true);
+        var enableIndoor = _configuration.GetDefaultValue("vmap:EnableIndoorCheck", true);
+        var enableLOS = _configuration.GetDefaultValue("vmap:EnableLOS", true);
+        var enableHeight = _configuration.GetDefaultValue("vmap:EnableHeight", true);
 
         if (!enableHeight)
             Log.Logger.Error("VMap height checking Disabled! Creatures movements and other various things WILL be broken! Expect no support.");
@@ -1162,11 +1162,11 @@ public class WorldManager
             var today = gameTime / Time.DAY * Time.DAY;
 
             // Check if our window to restart today has passed. 5 mins until quiet time
-            while (gameTime >= Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn.RestartQuietTime", 3u)) - 1810u)
+            while (gameTime >= Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn:RestartQuietTime", 3u)) - 1810u)
                 today += Time.DAY;
 
             // Schedule restart for 30 minutes before quiet time, or as long as we have
-            _warnShutdownTime = Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn.RestartQuietTime", 3u)) - 1800u;
+            _warnShutdownTime = Time.GetLocalHourTimestamp(today, _configuration.GetDefaultValue("Respawn:RestartQuietTime", 3u)) - 1800u;
 
             IsGuidWarning = true;
             SendGuidWarning();
@@ -1258,7 +1258,7 @@ public class WorldManager
             _loginDatabase.DirectExecute("UPDATE realmlist SET population = {0} WHERE id = '{1}'", ActiveSessionCount, Global.WorldMgr.Realm.Id.Index);
 
             //- Update blackmarket, refresh auctions if necessary
-            if (_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _configuration.GetDefaultValue("BlackMarket.UpdatePeriod", 24) * Time.HOUR * Time.IN_MILLISECONDS || _blackmarketTimer == 0)
+            if (_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _configuration.GetDefaultValue("BlackMarket:UpdatePeriod", 24) * Time.HOUR * Time.IN_MILLISECONDS || _blackmarketTimer == 0)
             {
                 _taskManager.Schedule(Global.BlackMarketMgr.RefreshAuctions);
                 _blackmarketTimer = 1; // timer is 0 on startup
@@ -1297,7 +1297,7 @@ public class WorldManager
         }
 
         // <li> Clean logs table
-        if (_configuration.GetDefaultValue("LogDB.Opt.ClearTime", 1209600) > 0) // if not enabled, ignore the timer
+        if (_configuration.GetDefaultValue("LogDB:Opt:ClearTime", 1209600) > 0) // if not enabled, ignore the timer
             if (_timers[WorldTimers.CleanDB].Passed)
             {
                 _timers[WorldTimers.CleanDB].Reset();
@@ -1305,7 +1305,7 @@ public class WorldManager
                 _taskManager.Schedule(() =>
                 {
                     var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_OLD_LOGS);
-                    stmt.AddValue(0, _configuration.GetDefaultValue("LogDB.Opt.ClearTime", 1209600));
+                    stmt.AddValue(0, _configuration.GetDefaultValue("LogDB:Opt:ClearTime", 1209600));
                     stmt.AddValue(1, 0);
                     stmt.AddValue(2, Realm.Id.Index);
 
@@ -1320,7 +1320,7 @@ public class WorldManager
 
         Global.TerrainMgr.Update(diff); // TPL blocks inside
 
-        if (_configuration.GetDefaultValue("AutoBroadcast.On", false))
+        if (_configuration.GetDefaultValue("AutoBroadcast:On", false))
             if (_timers[WorldTimers.AutoBroadcast].Passed)
             {
                 _timers[WorldTimers.AutoBroadcast].Reset();
@@ -1382,7 +1382,7 @@ public class WorldManager
 
             if (GameTime.CurrentTime >= _warnShutdownTime)
                 DoGuidWarningRestart();
-            else if (_warnDiff > _configuration.GetDefaultValue("Respawn.WarningFrequency", 1800) * Time.IN_MILLISECONDS)
+            else if (_warnDiff > _configuration.GetDefaultValue("Respawn:WarningFrequency", 1800) * Time.IN_MILLISECONDS)
                 SendGuidWarning();
         }
 
@@ -1534,7 +1534,7 @@ public class WorldManager
     }
     private long GetNextDailyResetTime(long t)
     {
-        return Time.GetLocalHourTimestamp(t, _configuration.GetDefaultValue("Quests.DailyResetTime", 3u));
+        return Time.GetLocalHourTimestamp(t, _configuration.GetDefaultValue("Quests:DailyResetTime", 3u));
     }
 
     private long GetNextMonthlyResetTime(long t)
@@ -1555,7 +1555,7 @@ public class WorldManager
         t = GetNextDailyResetTime(t);
         var time = Time.UnixTimeToDateTime(t);
         var wday = (int)time.DayOfWeek;
-        var target = _configuration.GetDefaultValue("Quests.WeeklyResetWDay", 3);
+        var target = _configuration.GetDefaultValue("Quests:WeeklyResetWDay", 3);
 
         if (target < wday)
             wday -= 7;
@@ -1603,7 +1603,7 @@ public class WorldManager
     private void InitCalendarOldEventsDeletionTime()
     {
         var now = GameTime.CurrentTime;
-        var nextDeletionTime = Time.GetLocalHourTimestamp(now, _configuration.GetDefaultValue("Calendar.DeleteOldEventsHour", 6u));
+        var nextDeletionTime = Time.GetLocalHourTimestamp(now, _configuration.GetDefaultValue("Calendar:DeleteOldEventsHour", 6u));
         long currentDeletionTime = GetPersistentWorldVariable(NEXT_OLD_CALENDAR_EVENT_DELETION_TIME_VAR_ID);
 
         // If the reset time saved in the worldstate is before now it means the server was offline when the reset was supposed to occur.
@@ -1627,14 +1627,14 @@ public class WorldManager
         // generate time by config
         var curTime = GameTime.CurrentTime;
 
-        var nextWeekResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Currency.ResetDay", 3), _configuration.GetDefaultValue("Currency.ResetHour", 3));
+        var nextWeekResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Currency:ResetDay", 3), _configuration.GetDefaultValue("Currency:ResetHour", 3));
 
         // next reset time before current moment
         if (curTime >= nextWeekResetTime)
-            nextWeekResetTime += _configuration.GetDefaultValue("Currency.ResetInterval", 7) * Time.DAY;
+            nextWeekResetTime += _configuration.GetDefaultValue("Currency:ResetInterval", 7) * Time.DAY;
 
         // normalize reset time
-        _nextCurrencyReset = currencytime < curTime ? nextWeekResetTime - _configuration.GetDefaultValue("Currency.ResetInterval", 7) * Time.DAY : nextWeekResetTime;
+        _nextCurrencyReset = currencytime < curTime ? nextWeekResetTime - _configuration.GetDefaultValue("Currency:ResetInterval", 7) * Time.DAY : nextWeekResetTime;
 
         if (currencytime == 0)
             SetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID, (int)_nextCurrencyReset);
@@ -1648,7 +1648,7 @@ public class WorldManager
             _nextGuildReset = GameTime.CurrentTime; // GameInfo time not yet init
 
         var curTime = GameTime.CurrentTime;
-        var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Guild.ResetHour", 6));
+        var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Guild:ResetHour", 6));
 
         if (curTime >= nextDayResetTime)
             nextDayResetTime += Time.DAY;
@@ -1678,7 +1678,7 @@ public class WorldManager
         var curTime = GameTime.CurrentTime;
 
         // current day reset time
-        var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Battleground.Random.ResetHour", 6));
+        var nextDayResetTime = Time.GetNextResetUnixTime(_configuration.GetDefaultValue("Battleground:Random:ResetHour", 6));
 
         // next reset time before current moment
         if (curTime >= nextDayResetTime)
@@ -1794,7 +1794,7 @@ public class WorldManager
             session.Player?.ResetCurrencyWeekCap();
         }
 
-        _nextCurrencyReset += Time.DAY * _configuration.GetDefaultValue("Currency.ResetInterval", 7);
+        _nextCurrencyReset += Time.DAY * _configuration.GetDefaultValue("Currency:ResetInterval", 7);
         SetPersistentWorldVariable(NEXT_CURRENCY_RESET_TIME_VAR_ID, (int)_nextCurrencyReset);
     }
 
@@ -1832,7 +1832,7 @@ public class WorldManager
 
         var pair = _autobroadcasts.SelectRandomElementByWeight(autoPair => autoPair.Value.Weight);
 
-        var abcenter = _configuration.GetDefaultValue("AutoBroadcast.Center", 0);
+        var abcenter = _configuration.GetDefaultValue("AutoBroadcast:Center", 0);
 
         if (abcenter == 0)
         {
@@ -1853,7 +1853,7 @@ public class WorldManager
 
     private void SendGuidWarning()
     {
-        if (ShutDownTimeLeft == 0 && IsGuidWarning && _configuration.GetDefaultValue("Respawn.WarningFrequency", 1800) > 0)
+        if (ShutDownTimeLeft == 0 && IsGuidWarning && _configuration.GetDefaultValue("Respawn:WarningFrequency", 1800) > 0)
             SendServerMessage(ServerMessageType.String, _guidWarningMsg);
 
         _warnDiff = 0;
@@ -1951,11 +1951,11 @@ public class WorldManager
             double total = warModeEnabledFaction[TeamIds.Alliance] + warModeEnabledFaction[TeamIds.Horde];
             var pct = dominantFactionCount / total;
 
-            if (pct >= _configuration.GetDefaultValue("Pvp.FactionBalance.Pct20", 0.8f))
+            if (pct >= _configuration.GetDefaultValue("Pvp:FactionBalance:Pct20", 0.8f))
                 outnumberedFactionReward = 20;
-            else if (pct >= _configuration.GetDefaultValue("Pvp.FactionBalance.Pct10", 0.7f))
+            else if (pct >= _configuration.GetDefaultValue("Pvp:FactionBalance:Pct10", 0.7f))
                 outnumberedFactionReward = 10;
-            else if (pct >= _configuration.GetDefaultValue("Pvp.FactionBalance.Pct5", 0.6f))
+            else if (pct >= _configuration.GetDefaultValue("Pvp:FactionBalance:Pct5", 0.6f))
                 outnumberedFactionReward = 5;
         }
 

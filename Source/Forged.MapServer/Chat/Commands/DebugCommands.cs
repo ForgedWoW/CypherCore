@@ -516,8 +516,8 @@ internal class DebugCommands
         else
             handler.ClassFactory.Resolve<MapManager>().DoForAllMaps(map => HandleDebugGuidLimitsMap(handler, map));
 
-        handler.SendSysMessage($"Guid Warn Level: {handler.Configuration.GetDefaultValue("Respawn.GuidWarnLevel", 12000000)}");
-        handler.SendSysMessage($"Guid Alert Level: {handler.Configuration.GetDefaultValue("Respawn.GuidAlertLevel", 16000000)}");
+        handler.SendSysMessage($"Guid Warn Level: {handler.Configuration.GetDefaultValue("Respawn:GuidWarnLevel", 12000000)}");
+        handler.SendSysMessage($"Guid Alert Level: {handler.Configuration.GetDefaultValue("Respawn:GuidAlertLevel", 16000000)}");
 
         return true;
     }

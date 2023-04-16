@@ -309,7 +309,7 @@ public class PlayerMenu
         packet.QuestSessionBonus = 0; //quest.GetQuestSessionBonus(); // this is only sent while quest session is active
         packet.AutoLaunched = autoLaunched;
         packet.DisplayPopup = displayPopup;
-        packet.QuestFlags[0] = (uint)(quest.Flags & (_configuration.GetDefaultValue("Quests.IgnoreAutoAccept", false) ? ~QuestFlags.AutoAccept : ~QuestFlags.None));
+        packet.QuestFlags[0] = (uint)(quest.Flags & (_configuration.GetDefaultValue("Quests:IgnoreAutoAccept", false) ? ~QuestFlags.AutoAccept : ~QuestFlags.None));
         packet.QuestFlags[1] = (uint)quest.FlagsEx;
         packet.QuestFlags[2] = (uint)quest.FlagsEx2;
         packet.SuggestedPartyMembers = quest.SuggestedPlayers;

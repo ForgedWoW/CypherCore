@@ -341,7 +341,7 @@ public partial class Player
     {
         get
         {
-            if (Configuration.GetDefaultValue("character.MaxLevelDeterminedByConfig", false))
+            if (Configuration.GetDefaultValue("character:MaxLevelDeterminedByConfig", false))
                 return Level >= Configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
             return Level >= ActivePlayerData.MaxLevel;

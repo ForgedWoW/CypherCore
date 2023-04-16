@@ -608,7 +608,7 @@ public class Guild
     {
         var player = session.Player;
 
-        if (!_configuration.GetDefaultValue("AllowTwoSide.Interaction.Guild", false) &&
+        if (!_configuration.GetDefaultValue("AllowTwoSide:Interaction:Guild", false) &&
             player.Team != _characterCache.GetCharacterTeamByGuid(GetLeaderGUID()))
             return;
 
@@ -736,7 +736,7 @@ public class Guild
         if (pInvitee.Social.HasIgnore(player.GUID, player.Session.AccountGUID))
             return;
 
-        if (!_configuration.GetDefaultValue("AllowTwoSide.Interaction.Guild", false) && pInvitee.Team != player.Team)
+        if (!_configuration.GetDefaultValue("AllowTwoSide:Interaction:Guild", false) && pInvitee.Team != player.Team)
         {
             SendCommandResult(session, GuildCommandType.InvitePlayer, GuildCommandError.NotAllied, name);
 
