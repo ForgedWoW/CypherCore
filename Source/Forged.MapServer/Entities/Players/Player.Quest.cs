@@ -366,7 +366,7 @@ public partial class Player
             return false;
 
         // not auto complete quest and not completed quest (only cheating case, then ignore without message)
-        if (!quest.IsDFQuest && !quest.IsAutoComplete && GetQuestStatus(quest.Id) != QuestStatus.Complete)
+        if (!quest.IsDfQuest && !quest.IsAutoComplete && GetQuestStatus(quest.Id) != QuestStatus.Complete)
             return false;
 
         // daily quest can't be rewarded (25 daily quest already completed)
@@ -987,7 +987,7 @@ public partial class Player
 
     public uint GetQuestXPReward(Quest.Quest quest)
     {
-        var rewarded = IsQuestRewarded(quest.Id) && !quest.IsDFQuest;
+        var rewarded = IsQuestRewarded(quest.Id) && !quest.IsDfQuest;
 
         // Not give XP in case already completed once repeatable quest
         if (rewarded)
@@ -1752,7 +1752,7 @@ public partial class Player
                         var item = StoreNewItem(dest, itemId, true, ItemEnchantmentManager.GenerateItemRandomBonusListId(itemId));
                         SendNewItem(item, quest.RewardItemCount[i], true, false);
                     }
-                    else if (quest.IsDFQuest)
+                    else if (quest.IsDfQuest)
                     {
                         SendItemRetrievalMail(itemId, quest.RewardItemCount[i], ItemContext.QuestReward);
                     }
@@ -1866,7 +1866,7 @@ public partial class Player
             CharacterDatabase.CommitTransaction(trans);
         }
 
-        if (quest.IsDaily || quest.IsDFQuest)
+        if (quest.IsDaily || quest.IsDfQuest)
         {
             SetDailyQuestStatus(questId);
 
@@ -2113,10 +2113,10 @@ public partial class Player
 
     public bool SatisfyQuestDay(Quest.Quest qInfo, bool msg)
     {
-        if (!qInfo.IsDaily && !qInfo.IsDFQuest)
+        if (!qInfo.IsDaily && !qInfo.IsDfQuest)
             return true;
 
-        if (qInfo.IsDFQuest)
+        if (qInfo.IsDfQuest)
         {
             if (_dfQuests.Contains(qInfo.Id))
                 return false;
@@ -3280,7 +3280,7 @@ public partial class Player
 
         if (qQuest != null)
         {
-            if (!qQuest.IsDFQuest)
+            if (!qQuest.IsDfQuest)
             {
                 AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DailyQuestsCompleted), questID);
                 _lastDailyQuestTime = GameTime.CurrentTime; // last daily quest time

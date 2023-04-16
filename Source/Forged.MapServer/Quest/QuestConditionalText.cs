@@ -8,7 +8,7 @@ namespace Forged.MapServer.Quest;
 
 public class QuestConditionalText
 {
-    public int PlayerConditionId;
-    public int QuestgiverCreatureId;
-    public StringArray Text = new((int)Locale.Total);
+    public int PlayerConditionId { get; set; }
+    public int QuestgiverCreatureId { get; set; }
+    public StringArray Text { get; set; } = new((int)Locale.Total);
 }

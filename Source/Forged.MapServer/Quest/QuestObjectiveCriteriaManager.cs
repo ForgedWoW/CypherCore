@@ -43,10 +43,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
     {
         var objective = tree.QuestObjective;
 
-        if (objective == null)
-            return false;
-
-        return base.CanCompleteCriteriaTree(tree);
+        return objective != null && base.CanCompleteCriteriaTree(tree);
     }
 
     public override bool CanUpdateCriteriaTree(Criteria criteria, CriteriaTree tree, Player referencePlayer)
@@ -72,7 +69,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
         var quest = GameObjectManager.GetQuestTemplate(objective.QuestID);
 
-        if (_owner.Group && _owner.Group.IsRaidGroup && !quest.IsAllowedInRaid(referencePlayer.Location.Map.DifficultyID))
+        if (_owner.Group is { IsRaidGroup: true } && !quest.IsAllowedInRaid(referencePlayer.Location.Map.DifficultyID))
         {
             Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} QuestId Objective {objective.Id}) QuestId cannot be completed in raid group");
 
@@ -81,14 +78,12 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 
         var slot = _owner.FindQuestSlot(objective.QuestID);
 
-        if (slot >= SharedConst.MaxQuestLogSize || !_owner.IsQuestObjectiveCompletable(slot, quest, objective))
-        {
-            Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} QuestId Objective {objective.Id}) Objective not completable");
+        if (slot < SharedConst.MaxQuestLogSize && _owner.IsQuestObjectiveCompletable(slot, quest, objective))
+            return base.CanUpdateCriteriaTree(criteria, tree, referencePlayer);
 
-            return false;
-        }
+        Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} QuestId Objective {objective.Id}) Objective not completable");
 
-        return base.CanUpdateCriteriaTree(criteria, tree, referencePlayer);
+        return false;
     }
 
     public void CheckAllQuestObjectiveCriteria(Player referencePlayer)
@@ -153,43 +148,43 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
                 _completedObjectives.Add(objectiveId);
             } while (objectiveResult.NextRow());
 
-        if (!criteriaResult.IsEmpty())
+        if (criteriaResult.IsEmpty())
+            return;
+
+        var now = GameTime.CurrentTime;
+
+        do
         {
-            var now = GameTime.CurrentTime;
+            var criteriaId = criteriaResult.Read<uint>(0);
+            var counter = criteriaResult.Read<ulong>(1);
+            var date = criteriaResult.Read<long>(2);
 
-            do
+            var criteria = CriteriaManager.GetCriteria(criteriaId);
+
+            if (criteria == null)
             {
-                var criteriaId = criteriaResult.Read<uint>(0);
-                var counter = criteriaResult.Read<ulong>(1);
-                var date = criteriaResult.Read<long>(2);
+                // Removing non-existing criteria data for all characters
+                Log.Logger.Error($"Non-existing quest objective criteria {criteriaId} data has been removed from the table `character_queststatus_objectives_criteria_progress`.");
 
-                var criteria = CriteriaManager.GetCriteria(criteriaId);
+                var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_QUEST_PROGRESS_CRITERIA);
+                stmt.AddValue(0, criteriaId);
+                _characterDatabase.Execute(stmt);
 
-                if (criteria == null)
-                {
-                    // Removing non-existing criteria data for all characters
-                    Log.Logger.Error($"Non-existing quest objective criteria {criteriaId} data has been removed from the table `character_queststatus_objectives_criteria_progress`.");
+                continue;
+            }
 
-                    var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_QUEST_PROGRESS_CRITERIA);
-                    stmt.AddValue(0, criteriaId);
-                    _characterDatabase.Execute(stmt);
+            if (criteria.Entry.StartTimer != 0 && date + criteria.Entry.StartTimer < now)
+                continue;
 
-                    continue;
-                }
+            CriteriaProgress progress = new()
+            {
+                Counter = counter,
+                Date = date,
+                Changed = false
+            };
 
-                if (criteria.Entry.StartTimer != 0 && date + criteria.Entry.StartTimer < now)
-                    continue;
-
-                CriteriaProgress progress = new()
-                {
-                    Counter = counter,
-                    Date = date,
-                    Changed = false
-                };
-
-                CriteriaProgress[criteriaId] = progress;
-            } while (criteriaResult.NextRow());
-        }
+            CriteriaProgress[criteriaId] = progress;
+        } while (criteriaResult.NextRow());
     }
 
     public override void Reset()

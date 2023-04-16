@@ -530,7 +530,7 @@ public class PlayerMenu
     {
         if (_configuration.GetDefaultValue("CacheDataQueries", true))
         {
-            _session.SendPacket(quest.response[(int)_session.SessionDbLocaleIndex]);
+            _session.SendPacket(quest.Response[(int)_session.SessionDbLocaleIndex]);
         }
         else
         {

@@ -490,6 +490,7 @@ void RegisterInstanced()
     builder.RegisterType<RASocket>();
     builder.RegisterType<PacketLog>();
     builder.RegisterType<WorldSocketManager>();
+    builder.RegisterType<Quest>();
 }
 
 void RegisterHandlers()

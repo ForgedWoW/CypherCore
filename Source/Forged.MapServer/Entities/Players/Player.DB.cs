@@ -1705,7 +1705,7 @@ public partial class Player
                 var questID = result.Read<uint>(0);
                 var qQuest = ObjectManager.GetQuestTemplate(questID);
 
-                if (qQuest is { IsDFQuest: true })
+                if (qQuest is { IsDfQuest: true })
                 {
                     _dfQuests.Add(qQuest.Id);
                     _lastDailyQuestTime = result.Read<uint>(1);

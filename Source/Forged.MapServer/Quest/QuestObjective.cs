@@ -8,17 +8,17 @@ namespace Forged.MapServer.Quest;
 
 public class QuestObjective
 {
-    public int Amount;
-    public string Description;
-    public QuestObjectiveFlags Flags;
-    public uint Flags2;
-    public uint Id;
-    public int ObjectID;
-    public float ProgressBarWeight;
-    public uint QuestID;
-    public sbyte StorageIndex;
-    public QuestObjectiveType Type;
-    public int[] VisualEffects = Array.Empty<int>();
+    public int Amount { get; set; }
+    public string Description { get; set; }
+    public QuestObjectiveFlags Flags { get; set; }
+    public uint Flags2 { get; set; }
+    public uint Id { get; set; }
+    public int ObjectID { get; set; }
+    public float ProgressBarWeight { get; set; }
+    public uint QuestID { get; set; }
+    public sbyte StorageIndex { get; set; }
+    public QuestObjectiveType Type { get; set; }
+    public int[] VisualEffects { get; set; } = Array.Empty<int>();
 
     public static bool CanAlwaysBeProgressedInRaid(QuestObjectiveType type)
     {

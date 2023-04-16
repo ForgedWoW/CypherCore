@@ -27,6 +27,7 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Phasing;
+using Forged.MapServer.Pools;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
 using Forged.MapServer.Scripting;
@@ -244,6 +245,10 @@ public sealed class GameObjectManager
     private TransportManager _transportManager;
     private ulong _voidItemId;
     private WorldManager _worldManager;
+    private PhasingHandler _phasingHandler;
+    private GridDefines _gridDefines;
+    private QuestPoolManager _questPoolManager;
+
     public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration, ClassFactory classFactory, CharacterDatabase characterDatabase, LoginDatabase loginDatabase)
     {
         _cliDB = cliDB;
@@ -1093,7 +1098,7 @@ public sealed class GameObjectManager
         var mapId = location.MapId;
 
         // search for zone associated closest graveyard
-        var zoneId = _terrainManager.GetZoneId(conditionObject != null ? conditionObject.Location.PhaseShift : PhasingHandler.EmptyPhaseShift, mapId, location);
+        var zoneId = _terrainManager.GetZoneId(conditionObject != null ? conditionObject.Location.PhaseShift : _phasingHandler.EmptyPhaseShift, mapId, location);
 
         if (zoneId == 0)
             if (location.Z > -500)
@@ -2223,11 +2228,14 @@ public sealed class GameObjectManager
         _areaTriggerDataStorage = _classFactory.Resolve<AreaTriggerDataStorage>();
         _scriptManager = _classFactory.Resolve<ScriptManager>();
         _lootStoreBox = _classFactory.Resolve<LootStoreBox>();
-        _lfgManager = _classFactory.Resolve<LFGMgr>();
+        _lfgManager = _classFactory.Resolve<LFGManager>();
         _mapManager = _classFactory.Resolve<MapManager>();
         _transportManager = _classFactory.Resolve<TransportManager>();
-        _disableManager = _classFactory.Resolve<DisableMgr>();
+        _disableManager = _classFactory.Resolve<DisableManager>();
         _objectAccessor = _classFactory.Resolve<ObjectAccessor>();
+        _questPoolManager = _classFactory.Resolve<QuestPoolManager>();
+        _gridDefines = _classFactory.Resolve<GridDefines>();
+        _phasingHandler = _classFactory.Resolve<PhasingHandler>();
     }
     public bool IsGameObjectForQuests(uint entry)
     {
@@ -3294,7 +3302,7 @@ public sealed class GameObjectManager
 
             if (_configuration.GetDefaultValue("Calculate:Creature:Zone:Area:Data", false))
             {
-                PhasingHandler.InitDbVisibleMapId(phaseShift, data.TerrainSwapMap);
+                _phasingHandler.InitDbVisibleMapId(phaseShift, data.TerrainSwapMap);
                 _terrainManager.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
 
                 var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_ZONE_AREA_DATA);
@@ -4673,7 +4681,7 @@ public sealed class GameObjectManager
                 continue;
             }
 
-            if (!GridDefines.IsValidMapCoord(data.MapId, data.SpawnPoint))
+            if (!_gridDefines.IsValidMapCoord(data.MapId, data.SpawnPoint))
             {
                 Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid coordinates, skip", guid, data.Id);
 
@@ -4688,7 +4696,7 @@ public sealed class GameObjectManager
 
             if (_configuration.GetDefaultValue("Calculate:Gameoject:Zone:Area:Data", false))
             {
-                PhasingHandler.InitDbVisibleMapId(phaseShift, data.TerrainSwapMap);
+                _phasingHandler.InitDbVisibleMapId(phaseShift, data.TerrainSwapMap);
                 _terrainManager.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
 
                 var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.UPD_GAMEOBJECT_ZONE_AREA_DATA);
@@ -5069,7 +5077,7 @@ public sealed class GameObjectManager
 
             gt.NameLow = gt.Name.ToLowerInvariant();
 
-            if (!GridDefines.IsValidMapCoord(gt.MapId, gt.PosX, gt.PosY, gt.PosZ, gt.Orientation))
+            if (!_gridDefines.IsValidMapCoord(gt.MapId, gt.PosX, gt.PosY, gt.PosZ, gt.Orientation))
             {
                 Log.Logger.Error("Wrong position for id {0} (name: {1}) in `game_tele` table, ignoring.", id, gt.Name);
 
@@ -7173,7 +7181,7 @@ public sealed class GameObjectManager
                 }
 
                 // accept DB data only for valid position (and non instanceable)
-                if (!GridDefines.IsValidMapCoord(mapId, positionX, positionY, positionZ, orientation))
+                if (!_gridDefines.IsValidMapCoord(mapId, positionX, positionY, positionZ, orientation))
                 {
                     Log.Logger.Error($"Wrong home position for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 
@@ -7840,7 +7848,7 @@ public sealed class GameObjectManager
                 WmoGroupId = result.Read<uint>(8)
             };
 
-            if (!GridDefines.IsValidMapCoord(poi.Pos.X, poi.Pos.Y, poi.Pos.Z))
+            if (!_gridDefines.IsValidMapCoord(poi.Pos.X, poi.Pos.Y, poi.Pos.Z))
             {
                 Log.Logger.Error($"Table `points_of_interest` (ID: {id}) have invalid coordinates (PositionX: {poi.Pos.X} PositionY: {poi.Pos.Y} PositionZ: {poi.Pos.Z}), ignored.");
 
@@ -8283,7 +8291,7 @@ public sealed class GameObjectManager
         // for example set of race quests can lead to single not race specific quest
         do
         {
-            Quest.Quest newQuest = new(result.GetFields());
+            Quest.Quest newQuest = _classFactory.ResolvePositional<Quest.Quest>(result.GetFields());
             _questTemplates[newQuest.Id] = newQuest;
 
             if (newQuest.IsAutoPush)
@@ -10625,7 +10633,7 @@ public sealed class GameObjectManager
             var id = result.Read<uint>(0);
             WorldLocation loc = new(result.Read<uint>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), MathFunctions.DegToRad(result.Read<float>(5)));
 
-            if (!GridDefines.IsValidMapCoord(loc))
+            if (!_gridDefines.IsValidMapCoord(loc))
             {
                 Log.Logger.Error($"World location (ID: {id}) has a invalid position MapID: {loc.MapId} {loc}, skipped");
 
@@ -10889,8 +10897,8 @@ public sealed class GameObjectManager
             if (hasItems)
             {
                 // read items from cache
-                var temp = itemsCache[m.MessageID];
-                Extensions.Swap(ref m.Items, ref temp);
+                m.Items = itemsCache[m.MessageID];
+                // Extensions.Swap(ref m.Items, ref temp);
 
                 // if it is mail from non-player, or if it's already return mail, it shouldn't be returned, but deleted
                 if (m.MessageType != MailMessageType.Normal || (m.CheckMask.HasAnyFlag(MailCheckMask.CodPayment | MailCheckMask.Returned)))
@@ -11164,8 +11172,8 @@ public sealed class GameObjectManager
     }
     private void AddSpawnDataToGrid(SpawnData data)
     {
-        var cellId = GridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
-        var isPersonalPhase = PhasingHandler.IsPersonalPhase(data.PhaseId);
+        var cellId = _gridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
+        var isPersonalPhase = _phasingHandler.IsPersonalPhase(data.PhaseId);
 
         if (!isPersonalPhase)
             foreach (var difficulty in data.SpawnDifficulties)
@@ -11387,7 +11395,7 @@ public sealed class GameObjectManager
 
     private QuestRelationResult GetQuestRelationsFrom(MultiMap<uint, uint> map, uint key, bool onlyActive)
     {
-        return new QuestRelationResult(map.LookupByKey(key), onlyActive);
+        return new QuestRelationResult(map.LookupByKey(key), onlyActive, _questPoolManager);
     }
 
     private LanguageType GetRealmLanguageType(bool create)
@@ -12035,7 +12043,7 @@ public sealed class GameObjectManager
                         continue;
                     }
 
-                    if (!GridDefines.IsValidMapCoord(tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation))
+                    if (!_gridDefines.IsValidMapCoord(tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation))
                     {
                         if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
@@ -12194,7 +12202,7 @@ public sealed class GameObjectManager
 
                 case ScriptCommands.TempSummonCreature:
                 {
-                    if (!GridDefines.IsValidMapCoord(tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation))
+                    if (!_gridDefines.IsValidMapCoord(tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation))
                     {
                         if (_configuration.GetDefaultValue("load:autoclean", false))
                             _worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
@@ -12606,8 +12614,8 @@ public sealed class GameObjectManager
 
     private void RemoveSpawnDataFromGrid(SpawnData data)
     {
-        var cellId = GridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
-        var isPersonalPhase = PhasingHandler.IsPersonalPhase(data.PhaseId);
+        var cellId = _gridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
+        var isPersonalPhase = _phasingHandler.IsPersonalPhase(data.PhaseId);
 
         if (!isPersonalPhase)
             foreach (var difficulty in data.SpawnDifficulties)

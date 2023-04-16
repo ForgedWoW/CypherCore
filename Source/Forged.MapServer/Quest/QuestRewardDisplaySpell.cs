@@ -7,6 +7,7 @@ public struct QuestRewardDisplaySpell
 {
     public uint PlayerConditionId;
     public uint SpellId;
+
     public QuestRewardDisplaySpell(uint spellId, uint playerConditionId)
     {
         SpellId = spellId;

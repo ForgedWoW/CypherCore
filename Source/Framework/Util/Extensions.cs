@@ -243,9 +243,7 @@ public static class Extensions
 
     public static void Swap<T>(ref T left, ref T right)
     {
-        var temp = left;
-        left = right;
-        right = temp;
+        (left, right) = (right, left);
     }
 
     public static byte[] ToByteArray(this string str)

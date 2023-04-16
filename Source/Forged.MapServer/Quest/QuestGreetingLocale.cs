@@ -8,5 +8,5 @@ namespace Forged.MapServer.Quest;
 
 public class QuestGreetingLocale
 {
-    public StringArray Greeting = new((int)Locale.Total);
+    public StringArray Greeting { get; set; } = new((int)Locale.Total);
 }
