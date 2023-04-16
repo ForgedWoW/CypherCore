@@ -5,7 +5,7 @@ namespace Forged.MapServer.Reputation;
 
 public class RepSpilloverTemplate
 {
-    public uint[] Faction = new uint[5];
-    public uint[] FactionRank = new uint[5];
-    public float[] FactionRate = new float[5];
+    public uint[] Faction { get; set; } = new uint[5];
+    public uint[] FactionRank { get; set; } = new uint[5];
+    public float[] FactionRate { get; set; } = new float[5];
 }

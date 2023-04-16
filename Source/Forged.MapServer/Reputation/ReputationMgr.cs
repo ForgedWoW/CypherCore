@@ -28,7 +28,7 @@ public class ReputationMgr
     };
 
     public static readonly int[] ReputationRankThresholds =
-        {
+    {
         -42000,
         // Hated
         -6000,
@@ -79,7 +79,6 @@ public class ReputationMgr
     public byte ReveredFactionCount { get; private set; }
     public SortedDictionary<uint, FactionState> StateList { get; } = new();
     public byte VisibleFactionCount { get; private set; }
-
     // this allows calculating base reputations to offline players, just by race and class
     public static int GetBaseReputationOf(FactionRecord factionEntry, Race race, PlayerClass playerClass)
     {
@@ -251,8 +250,8 @@ public class ReputationMgr
                     // reset changed Id if values similar to saved in DB
                     if (faction.Flags == dbFactionFlags)
                     {
-                        faction.needSend = false;
-                        faction.needSave = false;
+                        faction.NeedSend = false;
+                        faction.NeedSave = false;
                     }
                 }
             } while (result.NextRow());
@@ -266,7 +265,7 @@ public class ReputationMgr
     public void SaveToDB(SQLTransaction trans)
     {
         foreach (var factionState in StateList.Values)
-            if (factionState.needSave)
+            if (factionState.NeedSave)
             {
                 var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_REPUTATION_BY_FACTION);
                 stmt.AddValue(0, _player.GUID.Counter);
@@ -280,7 +279,7 @@ public class ReputationMgr
                 stmt.AddValue(3, (ushort)factionState.Flags);
                 trans.Append(stmt);
 
-                factionState.needSave = false;
+                factionState.NeedSave = false;
             }
     }
 
@@ -309,7 +308,7 @@ public class ReputationMgr
             initFactions.FactionFlags[pair.Key] = pair.Value.Flags;
             initFactions.FactionStandings[pair.Key] = pair.Value.Standing;
             // @todo faction bonus
-            pair.Value.needSend = false;
+            pair.Value.NeedSend = false;
         }
 
         _player.SendPacket(initFactions);
@@ -328,9 +327,9 @@ public class ReputationMgr
             setFactionStanding.Faction.Add(new FactionStandingData((int)faction.ReputationListID, standing));
         }
 
-        foreach (var state in StateList.Values.Where(state => state.needSend))
+        foreach (var state in StateList.Values.Where(state => state.NeedSend))
         {
-            state.needSend = false;
+            state.NeedSend = false;
 
             if (faction != null && state.ReputationListID == faction.ReputationListID)
                 continue;
@@ -386,8 +385,8 @@ public class ReputationMgr
             // Ignore renown reputation already raised to the maximum level
             if (HasMaximumRenownReputation(factionEntry) && standing > 0)
             {
-                factionState.needSend = false;
-                factionState.needSave = false;
+                factionState.NeedSend = false;
+                factionState.NeedSave = false;
 
                 return false;
             }
@@ -463,8 +462,8 @@ public class ReputationMgr
             _player.ReputationChanged(factionEntry, reputationChange);
 
             factionState.Standing = newStanding;
-            factionState.needSend = true;
-            factionState.needSave = true;
+            factionState.NeedSend = true;
+            factionState.NeedSave = true;
 
             SetVisible(factionState);
 
@@ -537,6 +536,7 @@ public class ReputationMgr
                 if (flist == null && factionEntry.ParentFactionID != 0 && factionEntry.ParentFactionMod[1] != 0.0f)
                 {
                     spillOverRepOut *= factionEntry.ParentFactionMod[1];
+
                     if (_cliDB.FactionStorage.TryGetValue(factionEntry.ParentFactionID, out var parent))
                     {
                         var parentState = StateList.LookupByKey((uint)parent.ReputationIndex);
@@ -552,7 +552,6 @@ public class ReputationMgr
                 if (flist != null)
                     // Spillover to affiliated factions
                     foreach (var id in flist)
-                    {
                         if (_cliDB.FactionStorage.TryGetValue(id, out var factionEntryCalc))
                         {
                             if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > (ReputationRank)factionEntryCalc.ParentFactionMod[0])
@@ -563,7 +562,6 @@ public class ReputationMgr
                             if (spilloverRep != 0 || !incremental)
                                 res = SetOneFactionReputation(factionEntryCalc, spilloverRep, incremental);
                         }
-                    }
             }
         }
 
@@ -791,8 +789,8 @@ public class ReputationMgr
                     Standing = 0,
                     VisualStandingIncrease = 0,
                     Flags = GetDefaultStateFlags(factionEntry),
-                    needSend = true,
-                    needSave = true
+                    NeedSend = true,
+                    NeedSave = true
                 };
 
                 if (newFaction.Flags.HasFlag(ReputationFlags.Visible))
@@ -854,8 +852,8 @@ public class ReputationMgr
         else
             faction.Flags &= ~ReputationFlags.AtWar;
 
-        faction.needSend = true;
-        faction.needSave = true;
+        faction.NeedSend = true;
+        faction.NeedSave = true;
     }
 
     private void SetInactive(FactionState faction, bool inactive)
@@ -873,8 +871,8 @@ public class ReputationMgr
         else
             faction.Flags &= ~ReputationFlags.Inactive;
 
-        faction.needSend = true;
-        faction.needSave = true;
+        faction.NeedSend = true;
+        faction.NeedSave = true;
     }
 
     private void SetVisible(FactionState faction)
@@ -894,8 +892,8 @@ public class ReputationMgr
             return;
 
         faction.Flags |= ReputationFlags.Visible;
-        faction.needSend = true;
-        faction.needSave = true;
+        faction.NeedSend = true;
+        faction.NeedSave = true;
 
         VisibleFactionCount++;
 

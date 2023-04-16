@@ -7,11 +7,11 @@ namespace Forged.MapServer.Reputation;
 
 public class FactionState
 {
-    public ReputationFlags Flags;
-    public uint Id;
-    public bool needSave;
-    public bool needSend;
-    public uint ReputationListID;
-    public int Standing;
-    public int VisualStandingIncrease;
+    public ReputationFlags Flags { get; set; }
+    public uint Id { get; set; }
+    public bool NeedSave { get; set; }
+    public bool NeedSend { get; set; }
+    public uint ReputationListID { get; set; }
+    public int Standing { get; set; }
+    public int VisualStandingIncrease { get; set; }
 }
