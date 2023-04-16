@@ -26,42 +26,36 @@ public class AreaBoundary
 
     public class DoublePosition : Position
     {
-        private readonly double _doublePosX;
-        private readonly double _doublePosY;
-        private readonly double _doublePosZ;
-
         public DoublePosition(double x = 0.0, double y = 0.0, double z = 0.0, float o = 0f) : base((float)x, (float)y, (float)z, o)
         {
-            _doublePosX = x;
-            _doublePosY = y;
-            _doublePosZ = z;
+            DoublePositionX = x;
+            DoublePositionY = y;
+            DoublePositionZ = z;
         }
 
         public DoublePosition(float x, float y = 0f, float z = 0f, float o = 0f) : base(x, y, z, o)
         {
-            _doublePosX = x;
-            _doublePosY = y;
-            _doublePosZ = z;
+            DoublePositionX = x;
+            DoublePositionY = y;
+            DoublePositionZ = z;
         }
 
-        public DoublePosition(Position pos) : this(pos.X, pos.Y, pos.Z, pos.Orientation) { }
+        public DoublePosition(Position pos) : this(pos.X, pos.Y, pos.Z, pos.Orientation)
+        {
+        }
+
+        public double DoublePositionX { get; }
+
+        public double DoublePositionY { get; }
+
+        public double DoublePositionZ { get; }
 
         public double GetDoubleExactDist2dSq(DoublePosition pos)
         {
-            var offX = GetDoublePositionX() - pos.GetDoublePositionX();
-            var offY = GetDoublePositionY() - pos.GetDoublePositionY();
+            var offX = DoublePositionX - pos.DoublePositionX;
+            var offY = DoublePositionY - pos.DoublePositionY;
 
             return offX * offX + offY * offY;
-        }
-
-        public double GetDoublePositionX()
-        {
-            return _doublePosX;
-        }
-
-        public double GetDoublePositionY()
-        {
-            return _doublePosY;
         }
     }
 }

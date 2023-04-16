@@ -2200,7 +2200,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 // Hunter trap: Search units which are unfriendly to the trap's owner
                                 var checker = new NearestAttackableNoTotemUnitInObjectRangeCheck(this, radius);
                                 var searcher = new UnitLastSearcher(this, checker, GridType.All);
-                                Cell.VisitGrid(this, searcher, radius);
+                                CellCalculator.VisitGrid(this, searcher, radius);
                                 target = searcher.GetTarget();
                             }
                             else
@@ -2208,7 +2208,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                 // Environmental trap: Any player
                                 var check = new AnyPlayerInObjectRangeCheck(this, radius);
                                 var searcher = new PlayerSearcher(this, check, GridType.World);
-                                Cell.VisitGrid(this, searcher, radius);
+                                CellCalculator.VisitGrid(this, searcher, radius);
                                 target = searcher.GetTarget();
                             }
 
@@ -3797,7 +3797,7 @@ namespace Forged.MapServer.Entities.GameObjects
             var uCheck = new NearestGameObjectFishingHole(this, range);
             var checker = new GameObjectSearcher(this, uCheck, GridType.Grid);
 
-            Cell.VisitGrid(this, checker, range);
+            CellCalculator.VisitGrid(this, checker, range);
 
             return checker.GetTarget();
         }

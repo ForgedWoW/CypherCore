@@ -168,7 +168,7 @@ public class UnitAura : Aura
             {
                 WorldObjectSpellAreaTargetCheck check = new(radius, OwnerAsUnit.Location, refe, OwnerAsUnit, SpellInfo, selectionType, condList, SpellTargetObjectTypes.Unit);
                 UnitListSearcher searcher = new(OwnerAsUnit, units, check, GridType.All);
-                Cell.VisitGrid(OwnerAsUnit, searcher, radius + extraSearchRadius);
+                CellCalculator.VisitGrid(OwnerAsUnit, searcher, radius + extraSearchRadius);
 
                 // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
                 units.RemoveAll(unit => !unit.Location.IsSelfOrInSameMap(OwnerAsUnit));

@@ -56,7 +56,7 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
                 continue;
 
             var relocate = new PlayerRelocationNotifier(player, GridType.All, _objectAccessor);
-            Cell.VisitGrid(viewPoint, relocate, _radius, false);
+            CellCalculator.VisitGrid(viewPoint, relocate, _radius, false);
 
             relocate.SendToSelf();
         }

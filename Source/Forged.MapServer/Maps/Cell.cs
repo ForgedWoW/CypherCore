@@ -13,42 +13,43 @@ public class Cell
 {
     public CellMetadata Data;
 
-    public Cell(ICoord p)
+    public Cell(ICoord p, GridDefines gridDefines)
     {
-        Data.Gridx = p.X / MapConst.MaxCells;
-        Data.Gridy = p.Y / MapConst.MaxCells;
-        Data.Cellx = p.X % MapConst.MaxCells;
-        Data.Celly = p.Y % MapConst.MaxCells;
+        CellCalculator = new CellCalculator(gridDefines);
+        GridDefines = gridDefines;
+        Data.GridX = p.X / MapConst.MaxCells;
+        Data.GridY = p.Y / MapConst.MaxCells;
+        Data.CellX = p.X % MapConst.MaxCells;
+        Data.CellY = p.Y % MapConst.MaxCells;
     }
 
-    public Cell(float x, float y)
+    public Cell(float x, float y, GridDefines gridDefines)
     {
-        ICoord p = GridDefines.ComputeCellCoord(x, y);
-        Data.Gridx = p.X / MapConst.MaxCells;
-        Data.Gridy = p.Y / MapConst.MaxCells;
-        Data.Cellx = p.X % MapConst.MaxCells;
-        Data.Celly = p.Y % MapConst.MaxCells;
+        CellCalculator = new CellCalculator(gridDefines);
+        ICoord p = gridDefines.ComputeCellCoord(x, y);
+        Data.GridX = p.X / MapConst.MaxCells;
+        Data.GridY = p.Y / MapConst.MaxCells;
+        Data.CellX = p.X % MapConst.MaxCells;
+        Data.CellY = p.Y % MapConst.MaxCells;
+        GridDefines = gridDefines;
     }
 
-    public Cell(Cell cell)
+    public Cell(Cell cell, GridDefines gridDefines)
     {
+        CellCalculator = new CellCalculator(gridDefines);
         Data = cell.Data;
     }
 
-    public static CellArea CalculateCellArea(float x, float y, float radius)
-    {
-        if (radius <= 0.0f)
-        {
-            var center = (CellCoord)GridDefines.ComputeCellCoord(x, y).Normalize();
+    public CellCalculator CellCalculator { get; }
 
-            return new CellArea(center, center);
-        }
+    public CellCoord CellCoord =>
+        new(Data.GridX * MapConst.MaxCells + Data.CellX,
+            Data.GridY * MapConst.MaxCells + Data.CellY);
 
-        var centerX = (CellCoord)GridDefines.ComputeCellCoord(x - radius, y - radius).Normalize();
-        var centerY = (CellCoord)GridDefines.ComputeCellCoord(x + radius, y + radius).Normalize();
+    public GridDefines GridDefines { get; }
+    public uint Id => Data.GridX * MapConst.MaxGrids + Data.GridY;
 
-        return new CellArea(centerX, centerY);
-    }
+    public bool IsCellValid => Data is { CellX: < MapConst.MaxCells, CellY: < MapConst.MaxCells };
 
     public static bool operator !=(Cell left, Cell right)
     {
@@ -63,41 +64,19 @@ public class Cell
         if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
             return false;
 
-        return left.Data.Cellx == right.Data.Cellx && left.Data.Celly == right.Data.Celly && left.Data.Gridx == right.Data.Gridx && left.Data.Gridy == right.Data.Gridy;
-    }
-
-    public static void VisitGrid(WorldObject centerObj, IGridNotifier visitor, float radius, bool dontLoad = true)
-    {
-        var p = GridDefines.ComputeCellCoord(centerObj.Location.X, centerObj.Location.Y);
-        Cell cell = new(p);
-
-        if (dontLoad)
-            cell.SetNoCreate();
-
-        cell.Visit(p, visitor, centerObj.Location.Map, centerObj, radius);
-    }
-
-    public static void VisitGrid(float x, float y, Map map, IGridNotifier visitor, float radius, bool dontLoad = true)
-    {
-        var p = GridDefines.ComputeCellCoord(x, y);
-        Cell cell = new(p);
-
-        if (dontLoad)
-            cell.SetNoCreate();
-
-        cell.Visit(p, visitor, map, x, y, radius);
+        return left.Data.CellX == right.Data.CellX && left.Data.CellY == right.Data.CellY && left.Data.GridX == right.Data.GridX && left.Data.GridY == right.Data.GridY;
     }
 
     public bool DiffCell(Cell cell)
     {
-        return Data.Cellx != cell.Data.Cellx ||
-               Data.Celly != cell.Data.Celly;
+        return Data.CellX != cell.Data.CellX ||
+               Data.CellY != cell.Data.CellY;
     }
 
     public bool DiffGrid(Cell cell)
     {
-        return Data.Gridx != cell.Data.Gridx ||
-               Data.Gridy != cell.Data.Gridy;
+        return Data.GridX != cell.Data.GridX ||
+               Data.GridY != cell.Data.GridY;
     }
 
     public override bool Equals(object obj)
@@ -105,59 +84,16 @@ public class Cell
         return obj is Cell cell && this == cell;
     }
 
-    public CellCoord GetCellCoord()
-    {
-        return new CellCoord(Data.Gridx * MapConst.MaxCells + Data.Cellx,
-                             Data.Gridy * MapConst.MaxCells + Data.Celly);
-    }
-
-    public uint GetCellX()
-    {
-        return Data.Cellx;
-    }
-
-    public uint GetCellY()
-    {
-        return Data.Celly;
-    }
-
-    public uint GetGridX()
-    {
-        return Data.Gridx;
-    }
-
-    public uint GetGridY()
-    {
-        return Data.Gridy;
-    }
-
     public override int GetHashCode()
     {
-        return (int)(Data.Cellx ^ Data.Celly ^ Data.Gridx ^ Data.Gridy);
+        return (int)(Data.CellX ^ Data.CellY ^ Data.GridX ^ Data.GridY);
     }
 
-    public uint GetId()
-    {
-        return Data.Gridx * MapConst.MaxGrids + Data.Gridy;
-    }
-
-    public bool IsCellValid()
-    {
-        return Data is { Cellx: < MapConst.MaxCells, Celly: < MapConst.MaxCells };
-    }
-    public bool NoCreate()
-    {
-        return Data.NoCreate;
-    }
-
-    public void SetNoCreate()
-    {
-        Data.NoCreate = true;
-    }
     public override string ToString()
     {
-        return $"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
+        return $"grid[{Data.GridX}, {Data.GridY}]cell[{Data.CellX}, {Data.CellY}]";
     }
+
     public void Visit(CellCoord standingCell, IGridNotifier visitor, Map map, WorldObject obj, float radius)
     {
         //we should increase search radius by object's radius, otherwise
@@ -185,7 +121,7 @@ public class Cell
             radius = MapConst.SizeofGrids;
 
         //lets calculate object coord offsets from cell borders.
-        var area = CalculateCellArea(xOff, yOff, radius);
+        var area = CellCalculator.CalculateCellArea(xOff, yOff, radius);
 
         //if radius fits inside standing cell
         if (area == null)
@@ -218,15 +154,16 @@ public class Cell
                 CellCoord cellCoord = new(x, y);
 
                 //lets skip standing cell since we already visited it
-                if (cellCoord != standingCell)
-                {
-                    Cell rZone = new(cellCoord);
-                    rZone.Data.NoCreate = Data.NoCreate;
-                    map.Visit(rZone, visitor);
-                }
+                if (cellCoord == standingCell)
+                    continue;
+
+                Cell rZone = new(cellCoord, GridDefines);
+                rZone.Data.NoCreate = Data.NoCreate;
+                map.Visit(rZone, visitor);
             }
         }
     }
+
     private void VisitCircle(IGridNotifier visitor, Map map, ICoord beginCell, ICoord endCell)
     {
         //here is an algorithm for 'filling' circum-squared octagon
@@ -241,7 +178,7 @@ public class Cell
             for (var y = beginCell.Y; y <= endCell.Y; ++y)
             {
                 CellCoord cellCoord = new(x, y);
-                Cell rZone = new(cellCoord);
+                Cell rZone = new(cellCoord, GridDefines);
                 rZone.Data.NoCreate = Data.NoCreate;
                 map.Visit(rZone, visitor);
             }
@@ -267,13 +204,13 @@ public class Cell
                 //we visit cells symmetrically from both sides, heading from center to sides and from up to bottom
                 //e.g. filling 2 trapezoids after filling central cell strip...
                 CellCoord cellCoordLeft = new(xStart - step, y);
-                Cell rZoneLeft = new(cellCoordLeft);
+                Cell rZoneLeft = new(cellCoordLeft, GridDefines);
                 rZoneLeft.Data.NoCreate = Data.NoCreate;
                 map.Visit(rZoneLeft, visitor);
 
                 //right trapezoid cell visit
                 CellCoord cellCoordRight = new(xEnd + step, y);
-                Cell rZoneRight = new(cellCoordRight);
+                Cell rZoneRight = new(cellCoordRight, GridDefines);
                 rZoneRight.Data.NoCreate = Data.NoCreate;
                 map.Visit(rZoneRight, visitor);
             }
@@ -282,10 +219,10 @@ public class Cell
 
     public struct CellMetadata
     {
-        public uint Cellx;
-        public uint Celly;
-        public uint Gridx;
-        public uint Gridy;
+        public uint CellX;
+        public uint CellY;
+        public uint GridX;
+        public uint GridY;
         public bool NoCreate;
     }
 }

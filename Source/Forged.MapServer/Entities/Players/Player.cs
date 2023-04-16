@@ -7648,7 +7648,7 @@ public partial class Player : Unit
         // update: replaced by GetMap().GetVisibilityDistance()
         PacketSenderRef sender = new(data);
         var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, Visibility.VisibilityRange, false, skippedRcvr);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+        CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public override void SendMessageToSet(ServerPacket data, bool self)
@@ -7663,7 +7663,7 @@ public partial class Player : Unit
 
         PacketSenderRef sender = new(data);
         var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, dist);
-        Cell.VisitGrid(this, notifier, dist);
+        CellCalculator.VisitGrid(this, notifier, dist);
     }
 
     public void SendSellError(SellResult msg, Creature creature, ObjectGuid guid)
@@ -7745,7 +7745,7 @@ public partial class Player : Unit
     {
         // updates visibility of all objects around point of view for current player
         var notifier = new VisibleNotifier(this, GridType.All, ObjectAccessor);
-        Cell.VisitGrid(SeerView, notifier, Visibility.GetSightRange());
+        CellCalculator.VisitGrid(SeerView, notifier, Visibility.GetSightRange());
         notifier.SendToSelf(); // send gathered data
     }
 
@@ -8055,7 +8055,7 @@ public partial class Player : Unit
 
         PacketSenderRef sender = new(data);
         var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, dist, ownTeamOnly, null, required3dDist);
-        Cell.VisitGrid(this, notifier, dist);
+        CellCalculator.VisitGrid(this, notifier, dist);
     }
 
     private void UpdateVisibilityOf_helper<T>(List<ObjectGuid> s64, T target, List<Unit> v) where T : WorldObject
@@ -8203,7 +8203,7 @@ public partial class Player : Unit
 
         // Send to players
         MessageDistDeliverer<LocalizedDo> notifier = new(this, localizer, range, false, null, true);
-        Cell.VisitGrid(this, notifier, range);
+        CellCalculator.VisitGrid(this, notifier, range);
     }
 
     #endregion Chat

@@ -40,7 +40,7 @@ public class DynObjAura : Aura
 
             WorldObjectSpellAreaTargetCheck check = new(radius, DynobjOwner.Location, dynObjOwnerCaster, dynObjOwnerCaster, SpellInfo, selectionType, condList, SpellTargetObjectTypes.Unit);
             UnitListSearcher searcher = new(DynobjOwner, targetList, check, GridType.All);
-            Cell.VisitGrid(DynobjOwner, searcher, radius);
+            CellCalculator.VisitGrid(DynobjOwner, searcher, radius);
 
             // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
             targetList.RemoveAll(unit => !unit.Location.IsSelfOrInSameMap(DynobjOwner));

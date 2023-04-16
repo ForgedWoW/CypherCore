@@ -191,7 +191,7 @@ public class BfCapturePoint
             List<Unit> players = new();
             var checker = new AnyPlayerInObjectRangeCheck(capturePoint, radius);
             var searcher = new PlayerListSearcher(capturePoint, players, checker);
-            Cell.VisitGrid(capturePoint, searcher, radius);
+            CellCalculator.VisitGrid(capturePoint, searcher, radius);
 
             foreach (var player in from Player player in players
                                    where

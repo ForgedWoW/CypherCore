@@ -15,9 +15,6 @@ internal struct CompareRespawnInfo : IComparer<RespawnInfo>
         if (a.RespawnTime != b.RespawnTime)
             return a.RespawnTime.CompareTo(b.RespawnTime);
 
-        if (a.SpawnId != b.SpawnId)
-            return a.SpawnId.CompareTo(b.SpawnId);
-
-        return a.ObjectType.CompareTo(b.ObjectType);
+        return a.SpawnId != b.SpawnId ? a.SpawnId.CompareTo(b.SpawnId) : a.ObjectType.CompareTo(b.ObjectType);
     }
 }

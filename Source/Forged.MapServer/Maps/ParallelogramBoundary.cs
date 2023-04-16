@@ -22,20 +22,20 @@ public class ParallelogramBoundary : AreaBoundary
         _a = new DoublePosition(cornerA);
         _b = new DoublePosition(cornerB);
         _d = new DoublePosition(cornerD);
-        _c = new DoublePosition(_d.GetDoublePositionX() + (_b.GetDoublePositionX() - _a.GetDoublePositionX()), _d.GetDoublePositionY() + (_b.GetDoublePositionY() - _a.GetDoublePositionY()));
-        _abx = _b.GetDoublePositionX() - _a.GetDoublePositionX();
-        _dax = _a.GetDoublePositionX() - _d.GetDoublePositionX();
-        _aby = _b.GetDoublePositionY() - _a.GetDoublePositionY();
-        _day = _a.GetDoublePositionY() - _d.GetDoublePositionY();
+        _c = new DoublePosition(_d.DoublePositionX + (_b.DoublePositionX - _a.DoublePositionX), _d.DoublePositionY + (_b.DoublePositionY - _a.DoublePositionY));
+        _abx = _b.DoublePositionX - _a.DoublePositionX;
+        _dax = _a.DoublePositionX - _d.DoublePositionX;
+        _aby = _b.DoublePositionY - _a.DoublePositionY;
+        _day = _a.DoublePositionY - _d.DoublePositionY;
     }
 
     public override bool IsWithinBoundaryArea(Position pos)
     {
         // half-plane signs
-        var sign1 = (-_b.GetDoublePositionX() + pos.X) * _aby - (-_b.GetDoublePositionY() + pos.Y) * _abx < 0;
-        var sign2 = (-_a.GetDoublePositionX() + pos.X) * _day - (-_a.GetDoublePositionY() + pos.Y) * _dax < 0;
-        var sign3 = (-_d.GetDoublePositionY() + pos.Y) * _abx - (-_d.GetDoublePositionX() + pos.X) * _aby < 0; // AB = -CD
-        var sign4 = (-_c.GetDoublePositionY() + pos.Y) * _dax - (-_c.GetDoublePositionX() + pos.X) * _day < 0; // DA = -BC
+        var sign1 = (-_b.DoublePositionX + pos.X) * _aby - (-_b.DoublePositionY + pos.Y) * _abx < 0;
+        var sign2 = (-_a.DoublePositionX + pos.X) * _day - (-_a.DoublePositionY + pos.Y) * _dax < 0;
+        var sign3 = (-_d.DoublePositionY + pos.Y) * _abx - (-_d.DoublePositionX + pos.X) * _aby < 0; // AB = -CD
+        var sign4 = (-_c.DoublePositionY + pos.Y) * _dax - (-_c.DoublePositionX + pos.X) * _day < 0; // DA = -BC
 
         // if all signs are equal, the point is inside
         return sign1 == sign2 && sign2 == sign3 && sign3 == sign4;

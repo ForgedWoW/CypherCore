@@ -7,6 +7,7 @@ using System.Linq;
 using Forged.MapServer.AI.ScriptedAI;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.D;
+using Forged.MapServer.DungeonFinding;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
@@ -15,9 +16,11 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Instance;
-using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Maps.Instances;
@@ -26,28 +29,45 @@ public class InstanceScript : ZoneScript
 {
     private readonly List<uint> _activatedAreaTriggers = new();
     private readonly Dictionary<uint, BossInfo> _bosses = new();
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
     private readonly Dictionary<uint, uint> _creatureInfo = new();
     private readonly MultiMap<uint, DoorInfo> _doors = new();
     private readonly Dictionary<uint, uint> _gameObjectInfo = new();
-    private readonly List<InstanceSpawnGroupInfo> _instanceSpawnGroups = new();
+    private readonly List<InstanceSpawnGroupInfo> _instanceSpawnGroups;
+    private readonly LFGManager _lfgManager;
     private readonly Dictionary<uint, MinionInfo> _minions = new();
     private readonly Dictionary<uint, ObjectGuid> _objectGuids = new();
+    private readonly GameObjectManager _objectManager;
     private readonly List<PersistentInstanceScriptValueBase> _persistentScriptValues = new();
+    private readonly UnitCombatHelpers _unitCombatHelpers;
+    private readonly WorldManager _worldManager;
+    private readonly WorldStateManager _worldStateManager;
     private byte _combatResurrectionCharges;
     private uint _combatResurrectionTimer;
+
     // the counter for available battle resurrections
     private bool _combatResurrectionTimerStarted;
 
     private uint _completedEncounters;
+
     // DEPRECATED, REMOVE
     private uint _entranceId;
 
     private string _headers;
     private uint _temporaryEntranceId;
+
     public InstanceScript(InstanceMap map)
     {
+        _objectManager = map.ClassFactory.Resolve<GameObjectManager>();
+        _configuration = map.ClassFactory.Resolve<IConfiguration>();
+        _worldStateManager = map.ClassFactory.Resolve<WorldStateManager>();
+        _unitCombatHelpers = map.ClassFactory.Resolve<UnitCombatHelpers>();
+        _cliDB = map.ClassFactory.Resolve<CliDB>();
+        _worldManager = map.ClassFactory.Resolve<WorldManager>();
+        _lfgManager = map.ClassFactory.Resolve<LFGManager>();
         Instance = map;
-        _instanceSpawnGroups = Global.ObjectMgr.GetInstanceSpawnGroupsForMap(map.Id);
+        _instanceSpawnGroups = _objectManager.GetInstanceSpawnGroupsForMap(map.Id);
     }
 
     private enum InstanceState
@@ -58,10 +78,6 @@ public class InstanceScript : ZoneScript
     };
 
     public InstanceMap Instance { get; set; }
-    public bool SkipCheckRequiredBosses(Player player = null)
-    {
-        return player != null && player.Session.HasPermission(RBACPermissions.SkipCheckInstanceRequiredBosses);
-    }
 
     public void AddCombatResurrectionCharge()
     {
@@ -105,7 +121,8 @@ public class InstanceScript : ZoneScript
     }
 
     // Override this function to validate all additional data loads
-    public virtual void AfterDataLoad() { }
+    public virtual void AfterDataLoad()
+    { }
 
     public virtual bool CheckAchievementCriteriaMeet(uint criteriaID, Player source, Unit target = null, uint miscvalue1 = 0)
     {
@@ -150,7 +167,6 @@ public class InstanceScript : ZoneScript
 
             if (summonGUID.IsEmpty)
                 continue;
-            
 
             Instance.GetCreature(summonGUID)?.SpellFactory.CastSpell(player, spell, true);
         }
@@ -190,7 +206,7 @@ public class InstanceScript : ZoneScript
 
             if (summonGUID.IsEmpty)
                 continue;
-            
+
             Instance.GetCreature(summonGUID)?.RemoveAura(spell);
         }
 
@@ -201,9 +217,11 @@ public class InstanceScript : ZoneScript
         {
             var controlled = player.Controlled[i];
 
-            if (controlled != null)
-                if (controlled.Location.IsInWorld && controlled.IsCreature)
-                    controlled.RemoveAura(spell);
+            if (controlled == null)
+                continue;
+
+            if (controlled.Location.IsInWorld && controlled.IsCreature)
+                controlled.RemoveAura(spell);
         }
     }
 
@@ -217,7 +235,7 @@ public class InstanceScript : ZoneScript
     {
         var go = Instance.GetGameObject(guid);
 
-        if (go)
+        if (go != null)
         {
             switch (go.GoType)
             {
@@ -229,7 +247,6 @@ public class InstanceScript : ZoneScript
                     Log.Logger.Error("InstanceScript: DoRespawnGameObject can't respawn gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
 
                     return;
-                
             }
 
             if (go.IsSpawned)
@@ -251,7 +268,7 @@ public class InstanceScript : ZoneScript
 
     public void DoUpdateWorldState(uint worldStateId, int value)
     {
-        Global.WorldStateMgr.SetValue(worldStateId, value, false, Instance);
+        _worldStateManager.SetValue(worldStateId, value, false, Instance);
     }
 
     public void DoUseDoorOrButton(ObjectGuid uiGuid, uint withRestoreTime = 0, bool useAlternativeState = false)
@@ -261,7 +278,7 @@ public class InstanceScript : ZoneScript
 
         var go = Instance.GetGameObject(uiGuid);
 
-        if (go)
+        if (go != null)
         {
             if (go.GoType is GameObjectTypes.Door or GameObjectTypes.Button)
             {
@@ -293,9 +310,7 @@ public class InstanceScript : ZoneScript
 
     public DungeonEncounterRecord GetBossDungeonEncounter(Creature creature)
     {
-        var bossAi = creature.AI as BossAI;
-
-        if (bossAi != null)
+        if (creature.AI is BossAI bossAi)
             return GetBossDungeonEncounter(bossAi.GetBossId());
 
         return null;
@@ -350,10 +365,7 @@ public class InstanceScript : ZoneScript
 
     public uint? GetEntranceLocationForCompletedEncounters(uint completedEncountersMask)
     {
-        if (!Instance.MapDifficulty.IsUsingEncounterLocks())
-            return _entranceId;
-
-        return ComputeEntranceLocationForCompletedEncounters(completedEncountersMask);
+        return !Instance.MapDifficulty.IsUsingEncounterLocks() ? _entranceId : ComputeEntranceLocationForCompletedEncounters(completedEncountersMask);
     }
 
     public GameObject GetGameObject(uint type)
@@ -401,10 +413,9 @@ public class InstanceScript : ZoneScript
 
     public void HandleGameObject(ObjectGuid guid, bool open, GameObject go = null)
     {
-        if (!go)
-            go = Instance.GetGameObject(guid);
+        go ??= Instance.GetGameObject(guid);
 
-        if (go)
+        if (go != null)
             go.SetGoState(open ? GameObjectState.Active : GameObjectState.Ready);
         else
             Log.Logger.Debug("InstanceScript: HandleGameObject failed");
@@ -439,20 +450,18 @@ public class InstanceScript : ZoneScript
     {
         var dungeonEncounter = GetBossDungeonEncounter(bossId);
 
-        if (dungeonEncounter != null)
-            if ((completedEncountersMask & (1 << dungeonEncounter.Bit)) != 0)
-                return _bosses[bossId].State == EncounterState.Done;
+        if (dungeonEncounter == null)
+            return false;
+
+        if ((completedEncountersMask & (1 << dungeonEncounter.Bit)) != 0)
+            return _bosses[bossId].State == EncounterState.Done;
 
         return false;
     }
 
     public virtual bool IsEncounterInProgress()
     {
-        foreach (var boss in _bosses.Values)
-            if (boss.State == EncounterState.InProgress)
-                return true;
-
-        return false;
+        return _bosses.Values.Any(boss => boss.State == EncounterState.InProgress);
     }
 
     public void Load(string data)
@@ -568,11 +577,14 @@ public class InstanceScript : ZoneScript
         AddObject(go, false);
         AddDoor(go, false);
     }
+
     // Called when a player successfully enters the instance.
-    public virtual void OnPlayerEnter(Player player) { }
+    public virtual void OnPlayerEnter(Player player)
+    { }
 
     // Called when a player successfully leaves the instance.
-    public virtual void OnPlayerLeave(Player player) { }
+    public virtual void OnPlayerLeave(Player player)
+    { }
 
     public void OutLoadInstData(string input)
     {
@@ -643,8 +655,9 @@ public class InstanceScript : ZoneScript
                 Instance.SendToPlayers(encounterEngageMessage);
 
                 break;
+
             case EncounterFrameType.Disengage:
-                if (!unit)
+                if (unit == null)
                     return;
 
                 InstanceEncounterDisengageUnit encounterDisengageMessage = new()
@@ -655,8 +668,9 @@ public class InstanceScript : ZoneScript
                 Instance.SendToPlayers(encounterDisengageMessage);
 
                 break;
+
             case EncounterFrameType.UpdatePriority:
-                if (!unit)
+                if (unit == null)
                     return;
 
                 InstanceEncounterChangePriority encounterChangePriorityMessage = new()
@@ -668,14 +682,13 @@ public class InstanceScript : ZoneScript
                 Instance.SendToPlayers(encounterChangePriorityMessage);
 
                 break;
-            
         }
     }
 
     // Return wether server allow two side groups or not
     public bool ServerAllowsTwoSideGroups()
     {
-        return GetDefaultValue("AllowTwoSide.Interaction.Group", false);
+        return _configuration.GetDefaultValue("AllowTwoSide.Interaction.Group", false);
     }
 
     public void SetBossNumber(uint number)
@@ -734,7 +747,7 @@ public class InstanceScript : ZoneScript
                         Instance.DoOnPlayers(player =>
                         {
                             if (player.IsAlive)
-                                UnitCombatHelpers.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.EncounterStart), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+                                _unitCombatHelpers.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.EncounterStart), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
                         });
 
                         break;
@@ -744,6 +757,7 @@ public class InstanceScript : ZoneScript
                         SendEncounterEnd();
 
                         break;
+
                     case EncounterState.Done:
                         ResetCombatResurrections();
                         SendEncounterEnd();
@@ -756,7 +770,6 @@ public class InstanceScript : ZoneScript
                         }
 
                         break;
-                    
                 }
 
                 bossInfo.State = state;
@@ -794,12 +807,14 @@ public class InstanceScript : ZoneScript
     {
         _completedEncounters = newMask;
 
-        var encounters = Global.ObjectMgr.GetDungeonEncounterList(Instance.Id, Instance.DifficultyID);
+        var encounters = _objectManager.GetDungeonEncounterList(Instance.Id, Instance.DifficultyID);
 
-        if (encounters != null)
-            foreach (var encounter in encounters)
-                if ((_completedEncounters & (1 << encounter.dbcEntry.Bit)) != 0 && encounter.dbcEntry.CompleteWorldStateID != 0)
-                    DoUpdateWorldState((uint)encounter.dbcEntry.CompleteWorldStateID, 1);
+        if (encounters == null)
+            return;
+
+        foreach (var encounter in encounters)
+            if ((_completedEncounters & (1 << encounter.DBCEntry.Bit)) != 0 && encounter.DBCEntry.CompleteWorldStateID != 0)
+                DoUpdateWorldState((uint)encounter.DBCEntry.CompleteWorldStateID, 1);
     }
 
     public void SetEntranceLocation(uint worldSafeLocationId)
@@ -812,10 +827,16 @@ public class InstanceScript : ZoneScript
     {
         _headers = dataHeaders;
     }
+
     // Sets a temporary entrance that does not get saved to db
     public void SetTemporaryEntranceLocation(uint worldSafeLocationId)
     {
         _temporaryEntranceId = worldSafeLocationId;
+    }
+
+    public bool SkipCheckRequiredBosses(Player player = null)
+    {
+        return player != null && player.Session.HasPermission(RBACPermissions.SkipCheckInstanceRequiredBosses);
     }
 
     // Triggers a GameEvent
@@ -829,13 +850,14 @@ public class InstanceScript : ZoneScript
             return;
         }
 
-        ProcessEvent(target, gameEventId, source);
+        ProcessEvent(target, gameEventId, null);
         Instance.DoOnPlayers(player => GameEvents.TriggerForPlayer(gameEventId, player));
 
         GameEvents.TriggerForMap(gameEventId, Instance);
     }
 
-    public virtual void Update(uint diff) { }
+    public virtual void Update(uint diff)
+    { }
 
     public string UpdateAdditionalSaveData(string oldData, UpdateAdditionalSaveDataEvent saveEvent)
     {
@@ -886,30 +908,33 @@ public class InstanceScript : ZoneScript
 
             open = info.Type switch
             {
-                DoorType.Room      => info.BossInfo.State != EncounterState.InProgress,
-                DoorType.Passage   => info.BossInfo.State == EncounterState.Done,
+                DoorType.Room => info.BossInfo.State != EncounterState.InProgress,
+                DoorType.Passage => info.BossInfo.State == EncounterState.Done,
                 DoorType.SpawnHole => info.BossInfo.State == EncounterState.InProgress,
-                _                  => open
+                _ => true
             };
         }
 
         door.SetGoState(open ? GameObjectState.Active : GameObjectState.Ready);
     }
+
     public void UpdateEncounterStateForKilledCreature(uint creatureId, Unit source)
     {
-        UpdateEncounterState(EncounterCreditType.KillCreature, creatureId, source);
+        UpdateEncounterState(EncounterCreditType.KillCreature, creatureId);
     }
 
     public void UpdateEncounterStateForSpellCast(uint spellId, Unit source)
     {
-        UpdateEncounterState(EncounterCreditType.CastSpell, spellId, source);
+        UpdateEncounterState(EncounterCreditType.CastSpell, spellId);
     }
+
     public void UseCombatResurrection()
     {
         --_combatResurrectionCharges;
 
         Instance.SendToPlayers(new InstanceEncounterInCombatResurrection());
     }
+
     private void AddObject(Creature obj, bool add)
     {
         if (_creatureInfo.ContainsKey(obj.Entry))
@@ -937,37 +962,6 @@ public class InstanceScript : ZoneScript
         }
     }
 
-    private void DoCloseDoorOrButton(ObjectGuid guid)
-    {
-        if (guid.IsEmpty)
-            return;
-
-        var go = Instance.GetGameObject(guid);
-
-        if (go != null)
-        {
-            if (go.GoType is GameObjectTypes.Door or GameObjectTypes.Button)
-            {
-                if (go.LootState == LootState.Activated)
-                    go.ResetDoorOrButton();
-            }
-            else
-            {
-                Log.Logger.Error("InstanceScript: DoCloseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
-            }
-        }
-        else
-        {
-            Log.Logger.Debug("InstanceScript: DoCloseDoorOrButton failed");
-        }
-    }
-
-    // Send Notify to all players in instance
-    private void DoSendNotifyToInstance(string format, params object[] args)
-    {
-        Instance.DoOnPlayers(player => player.Session?.SendNotification(format, args));
-    }
-
     private void InitializeCombatResurrections(byte charges = 1, uint interval = 0)
     {
         _combatResurrectionCharges = charges;
@@ -981,9 +975,11 @@ public class InstanceScript : ZoneScript
 
     private void LoadDungeonEncounterData(uint bossId, uint[] dungeonEncounterIds)
     {
-        if (bossId < _bosses.Count)
-            for (var i = 0; i < dungeonEncounterIds.Length && i < MapConst.MaxDungeonEncountersPerBoss; ++i)
-                _bosses[bossId].DungeonEncounters[i] = CliDB.DungeonEncounterStorage.LookupByKey(dungeonEncounterIds[i]);
+        if (bossId >= _bosses.Count)
+            return;
+
+        for (var i = 0; i < dungeonEncounterIds.Length && i < MapConst.MaxDungeonEncountersPerBoss; ++i)
+            _bosses[bossId].DungeonEncounters[i] = _cliDB.DungeonEncounterStorage.LookupByKey(dungeonEncounterIds[i]);
     }
 
     private void LoadObjectData(ObjectData[] objectData, Dictionary<uint, uint> objectInfo)
@@ -991,6 +987,7 @@ public class InstanceScript : ZoneScript
         foreach (var data in objectData)
             objectInfo[data.Entry] = data.Type;
     }
+
     private void SendEncounterEnd()
     {
         Instance.SendToPlayers(new InstanceEncounterEnd());
@@ -1009,9 +1006,9 @@ public class InstanceScript : ZoneScript
         Instance.SendToPlayers(encounterStartMessage);
     }
 
-    private void UpdateEncounterState(EncounterCreditType type, uint creditEntry, Unit source)
+    private void UpdateEncounterState(EncounterCreditType type, uint creditEntry)
     {
-        var encounters = Global.ObjectMgr.GetDungeonEncounterList(Instance.Id, Instance.DifficultyID);
+        var encounters = _objectManager.GetDungeonEncounterList(Instance.Id, Instance.DifficultyID);
 
         if (encounters.Empty())
             return;
@@ -1019,42 +1016,37 @@ public class InstanceScript : ZoneScript
         uint dungeonId = 0;
 
         foreach (var encounter in encounters)
-            if (encounter.creditType == type && encounter.creditEntry == creditEntry)
+            if (encounter.CreditType == type && encounter.CreditEntry == creditEntry)
             {
-                _completedEncounters |= 1u << encounter.dbcEntry.Bit;
+                _completedEncounters |= 1u << encounter.DBCEntry.Bit;
 
-                if (encounter.dbcEntry.CompleteWorldStateID != 0)
-                    DoUpdateWorldState((uint)encounter.dbcEntry.CompleteWorldStateID, 1);
+                if (encounter.DBCEntry.CompleteWorldStateID != 0)
+                    DoUpdateWorldState((uint)encounter.DBCEntry.CompleteWorldStateID, 1);
 
-                if (encounter.lastEncounterDungeon != 0)
-                {
-                    dungeonId = encounter.lastEncounterDungeon;
+                if (encounter.LastEncounterDungeon == 0)
+                    continue;
 
-                    Log.Logger.Debug("UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
-                                     Instance.MapName,
-                                     Instance.InstanceId,
-                                     encounter.dbcEntry.Name[Global.WorldMgr.DefaultDbcLocale],
-                                     dungeonId);
+                dungeonId = encounter.LastEncounterDungeon;
 
-                    break;
-                }
+                Log.Logger.Debug("UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
+                                 Instance.MapName,
+                                 Instance.InstanceId,
+                                 encounter.DBCEntry.Name[_worldManager.DefaultDbcLocale],
+                                 dungeonId);
+
+                break;
             }
 
-        if (dungeonId != 0)
+        if (dungeonId == 0)
+            return;
+
+        var players = Instance.Players;
+
+        foreach (var player in players.Where(player => player.Group is { IsLFGGroup: true }))
         {
-            var players = Instance.Players;
+            _lfgManager.FinishDungeon(player.Group.GUID, dungeonId, Instance);
 
-            foreach (var player in players)
-            {
-                var grp = player.Group;
-
-                if (grp is { IsLFGGroup: true })
-                {
-                    Global.LFGMgr.FinishDungeon(grp.GUID, dungeonId, Instance);
-
-                    return;
-                }
-            }
+            return;
         }
     }
 
@@ -1069,6 +1061,7 @@ public class InstanceScript : ZoneScript
                     minion.AI.EnterEvadeMode();
 
                 break;
+
             case EncounterState.InProgress:
                 if (!minion.IsAlive)
                     minion.Respawn();
@@ -1076,13 +1069,7 @@ public class InstanceScript : ZoneScript
                     minion.AI.DoZoneInCombat();
 
                 break;
-            
         }
-    }
-
-    private void UpdatePhasing()
-    {
-        Instance.DoOnPlayers(player => PhasingHandler.SendToPlayer(player));
     }
 
     private void UpdateSpawnGroups()
@@ -1108,7 +1095,6 @@ public class InstanceScript : ZoneScript
 
             if (info.Flags.HasAnyFlag(InstanceSpawnGroupFlags.BlockSpawn))
                 newStates[info.SpawnGroupId] = InstanceState.ForceBlock;
-
             else if (info.Flags.HasAnyFlag(InstanceSpawnGroupFlags.ActivateSpawn))
                 newStates[info.SpawnGroupId] = InstanceState.Spawn;
         }
@@ -1123,7 +1109,7 @@ public class InstanceScript : ZoneScript
 
             // if we should spawn group, then spawn it...
             if (doSpawn)
-                Instance.SpawnGroupSpawn(groupId, Instance);
+                Instance.SpawnGroupSpawn(groupId);
             else // otherwise, set it as inactive so it no longer respawns (but don't despawn it)
                 Instance.SetSpawnGroupInactive(groupId);
         }

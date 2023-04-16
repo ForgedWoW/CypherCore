@@ -777,7 +777,7 @@ internal class MiscCommands
 
         var transport = obj.GetTransport<Transport>();
 
-        if (transport)
+        if (transport != null)
             handler.SendSysMessage(CypherStrings.TransportPosition,
                                    transport.Template.MoTransport.SpawnMap,
                                    obj.MovementInfo.Transport.Pos.X,
@@ -788,10 +788,10 @@ internal class MiscCommands
                                    transport.GetName());
 
         handler.SendSysMessage(CypherStrings.GridPosition,
-                               cell.GetGridX(),
-                               cell.GetGridY(),
-                               cell.GetCellX(),
-                               cell.GetCellY(),
+                               cell.Data.GridX,
+                               cell.Data.GridY,
+                               cell.Data.CellX,
+                               cell.Data.CellY,
                                obj.InstanceId,
                                zoneX,
                                zoneY,
@@ -1835,7 +1835,7 @@ internal class MiscCommands
 
         // First handle any creatures that still have a corpse around
         var worker = new WorldObjectWorker(player, new RespawnDo());
-        Cell.VisitGrid(player, worker, player.GridActivationRange);
+        CellCalculator.VisitGrid(player, worker, player.GridActivationRange);
 
         // Now handle any that had despawned, but had respawn time logged.
         List<RespawnInfo> data = new();

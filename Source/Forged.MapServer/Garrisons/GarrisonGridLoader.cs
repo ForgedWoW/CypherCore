@@ -38,7 +38,7 @@ internal class GarrisonGridLoader : IGridNotifierGameObject
         if (plots.Empty())
             return;
 
-        var cellCoord = _cell.GetCellCoord();
+        var cellCoord = _cell.CellCoord;
 
         foreach (var plot in plots)
         {
@@ -63,15 +63,15 @@ internal class GarrisonGridLoader : IGridNotifierGameObject
     {
         if (_garrison != null)
         {
-            _cell.Data.Celly = 0;
+            _cell.Data.CellY = 0;
 
             for (uint x = 0; x < MapConst.MaxCells; ++x)
             {
-                _cell.Data.Cellx = x;
+                _cell.Data.CellX = x;
 
                 for (uint y = 0; y < MapConst.MaxCells; ++y)
                 {
-                    _cell.Data.Celly = y;
+                    _cell.Data.CellY = y;
 
                     //Load creatures and GameInfo objects
                     _grid.VisitGrid(x, y, this);

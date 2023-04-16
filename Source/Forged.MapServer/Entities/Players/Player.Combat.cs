@@ -367,7 +367,7 @@ public partial class Player
             SetPlayerFlag(PlayerFlags.ContestedPVP);
             // call MoveInLineOfSight for nearby contested guards
             AIRelocationNotifier notifier = new(this, GridType.World);
-            Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+            CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
         }
 
         foreach (var unit in Controlled)
@@ -375,7 +375,7 @@ public partial class Player
             {
                 unit.AddUnitState(UnitState.AttackPlayer);
                 AIRelocationNotifier notifier = new(unit, GridType.World);
-                Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+                CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
             }
     }
 

@@ -430,7 +430,7 @@ public sealed class CreatureTextManager
 
         var dist = GetRangeForChatType(msgType);
         var worker = new PlayerDistWorker(source, dist, localizer, GridType.World);
-        Cell.VisitGrid(source, worker, dist);
+        CellCalculator.VisitGrid(source, worker, dist);
     }
 
     public void SendSound(Creature source, uint sound, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false, uint keyBroadcastTextId = 0, SoundKitPlayType playType = SoundKitPlayType.Normal)

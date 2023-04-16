@@ -571,7 +571,7 @@ public partial class Spell
         List<WorldObject> objs = new();
         ObjectEntryAndPrivateOwnerIfExistsCheck check = new(UnitTarget.GUID, (uint)EffectInfo.MiscValue);
         WorldObjectListSearcher checker = new(UnitTarget, objs, check, GridMapTypeMask.Conversation, GridType.Grid);
-        Cell.VisitGrid(UnitTarget, checker, 100.0f);
+        CellCalculator.VisitGrid(UnitTarget, checker, 100.0f);
 
         foreach (var obj in objs)
         {
@@ -1988,7 +1988,7 @@ public partial class Spell
         breakTarget.Data.Write();
 
         var notifierBreak = new MessageDistDelivererToHostile<PacketSenderOwning<BreakTarget>>(unitCaster, breakTarget, dist, GridType.World);
-        Cell.VisitGrid(Caster, notifierBreak, dist);
+        CellCalculator.VisitGrid(Caster, notifierBreak, dist);
 
         // and selection
         PacketSenderOwning<ClearTarget> clearTarget = new()
@@ -2001,7 +2001,7 @@ public partial class Spell
 
         clearTarget.Data.Write();
         var notifierClear = new MessageDistDelivererToHostile<PacketSenderOwning<ClearTarget>>(unitCaster, clearTarget, dist, GridType.World);
-        Cell.VisitGrid(Caster, notifierClear, dist);
+        CellCalculator.VisitGrid(Caster, notifierClear, dist);
 
         // we should also force pets to remove us from current target
         List<Unit> attackerSet = new();

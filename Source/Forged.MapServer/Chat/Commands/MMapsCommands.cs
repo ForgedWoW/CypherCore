@@ -255,7 +255,7 @@ internal class MMapsCommands
         var goCheck = new AnyUnitInObjectRangeCheck(obj, radius);
         var goSearch = new UnitListSearcher(obj, creatureList, goCheck, GridType.Grid);
 
-        Cell.VisitGrid(obj, goSearch, radius);
+        CellCalculator.VisitGrid(obj, goSearch, radius);
 
         if (!creatureList.Empty())
         {

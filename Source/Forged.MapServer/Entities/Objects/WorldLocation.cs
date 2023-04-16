@@ -23,6 +23,8 @@ namespace Forged.MapServer.Entities.Objects;
 public class WorldLocation : Position
 {
     private readonly WorldObject _worldObject;
+    private readonly CellCalculator _cellCalculator;
+    private readonly GridDefines _gridDefines;
     private Cell _currentCell;
     private uint _instanceId;
     private uint _mapId;
@@ -32,11 +34,15 @@ public class WorldLocation : Position
     public WorldLocation(WorldObject obj)
     {
         _worldObject = obj;
+        _cellCalculator = obj.ClassFactory.Resolve<CellCalculator>();
+        _gridDefines = obj.ClassFactory.Resolve<GridDefines>();
     }
 
     public WorldLocation(WorldObject obj, Map map, Position pos)
     {
         _worldObject = obj;
+        _cellCalculator = obj.ClassFactory.Resolve<CellCalculator>();
+        _gridDefines = obj.ClassFactory.Resolve<GridDefines>();
         Map = map;
         Relocate(pos);
     }
@@ -69,16 +75,7 @@ public class WorldLocation : Position
     public uint Area { get; set; }
     public float CollisionHeight => 0.0f;
     public int DBPhase { get; set; }
-    public float FloorZ
-    {
-        get
-        {
-            if (!IsInWorld)
-                return _staticFloorZ;
-
-            return Math.Max(_staticFloorZ, Map.GetGameObjectFloor(PhaseShift, X, Y, Z + MapConst.ZOffsetFindHeight));
-        }
-    }
+    public float FloorZ => !IsInWorld ? _staticFloorZ : Math.Max(_staticFloorZ, Map.GetGameObjectFloor(PhaseShift, X, Y, Z + MapConst.ZOffsetFindHeight));
 
     public uint InstanceId
     {
@@ -125,17 +122,13 @@ public class WorldLocation : Position
         Position thisOrTransport = this;
         Position objOrObjTransport = obj.Location;
 
-        if (_worldObject.Transport != null && obj.Transport != null && obj.Transport.GetTransportGUID() == _worldObject.Transport.GetTransportGUID())
-        {
-            thisOrTransport = _worldObject.MovementInfo.Transport.Pos;
-            objOrObjTransport = obj.MovementInfo.Transport.Pos;
-        }
+        if (_worldObject.Transport == null || obj.Transport == null || obj.Transport.GetTransportGUID() != _worldObject.Transport.GetTransportGUID())
+            return is3D ? thisOrTransport.IsInDist(objOrObjTransport, maxdist) : thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
 
-
-        if (is3D)
-            return thisOrTransport.IsInDist(objOrObjTransport, maxdist);
-        else
-            return thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
+        thisOrTransport = _worldObject.MovementInfo.Transport.Pos;
+        objOrObjTransport = obj.MovementInfo.Transport.Pos;
+        
+        return is3D ? thisOrTransport.IsInDist(objOrObjTransport, maxdist) : thisOrTransport.IsInDist2d(objOrObjTransport, maxdist);
     }
 
     public void AddObjectToRemoveList()
@@ -157,7 +150,7 @@ public class WorldLocation : Position
         var checker = new NearestCreatureEntryWithLiveStateInObjectRangeCheck(_worldObject, entry, alive, range);
         var searcher = new CreatureLastSearcher(_worldObject, checker, GridType.All);
 
-        Cell.VisitGrid(_worldObject, searcher, range);
+        _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -171,7 +164,7 @@ public class WorldLocation : Position
         if (options.IgnorePhases)
             searcher.PhaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
 
-        Cell.VisitGrid(_worldObject, searcher, range);
+        _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -181,7 +174,7 @@ public class WorldLocation : Position
         var checker = new NearestGameObjectEntryInObjectRangeCheck(_worldObject, entry, range, spawnedOnly);
         var searcher = new GameObjectLastSearcher(_worldObject, checker, GridType.Grid);
 
-        Cell.VisitGrid(_worldObject, searcher, range);
+        _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -191,7 +184,7 @@ public class WorldLocation : Position
         var checker = new NearestGameObjectTypeInObjectRangeCheck(_worldObject, type, range);
         var searcher = new GameObjectLastSearcher(_worldObject, checker, GridType.Grid);
 
-        Cell.VisitGrid(_worldObject, searcher, range);
+        _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -200,7 +193,7 @@ public class WorldLocation : Position
     {
         var check = new AnyPlayerInObjectRangeCheck(_worldObject, _worldObject.Visibility.VisibilityRange);
         var searcher = new PlayerSearcher(_worldObject, check, GridType.Grid);
-        Cell.VisitGrid(_worldObject, searcher, range);
+        _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -210,7 +203,7 @@ public class WorldLocation : Position
         NearestUnspawnedGameObjectEntryInObjectRangeCheck checker = new(_worldObject, entry, range);
         GameObjectLastSearcher searcher = new(_worldObject, checker, GridType.Grid);
 
-        Cell.VisitGrid(_worldObject, searcher, range);
+        _cellCalculator.VisitGrid(_worldObject, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -247,8 +240,8 @@ public class WorldLocation : Position
     public void GetAlliesWithinRange(List<Unit> unitList, float maxSearchRange, bool includeSelf = true)
     {
         var pair = new CellCoord((uint)X, (uint)Y);
-        var cell = new Cell(pair);
-        cell.SetNoCreate();
+        var cell = new Cell(pair, _gridDefines);
+        cell.Data.NoCreate = true;
 
         var check = new AnyFriendlyUnitInObjectRangeCheck(_worldObject, _worldObject.AsUnit, maxSearchRange);
         var searcher = new UnitListSearcher(_worldObject, unitList, check, GridType.All);
@@ -281,8 +274,8 @@ public class WorldLocation : Position
     public void GetCreatureListInGrid(List<Creature> creatureList, float maxSearchRange)
     {
         var pair = new CellCoord((uint)X, (uint)Y);
-        var cell = new Cell(pair);
-        cell.SetNoCreate();
+        var cell = new Cell(pair, _gridDefines);
+        cell.Data.NoCreate = true;
 
         var check = new AllCreaturesWithinRange(_worldObject, maxSearchRange);
         var searcher = new CreatureListSearcher(_worldObject, creatureList, check, GridType.All);
@@ -296,7 +289,7 @@ public class WorldLocation : Position
         var check = new AllCreaturesOfEntryInRange(_worldObject, entry, maxSearchRange);
         var searcher = new CreatureListSearcher(_worldObject, creatureList, check, GridType.Grid);
 
-        Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
+        _cellCalculator.VisitGrid(_worldObject, searcher, maxSearchRange);
 
         return creatureList;
     }
@@ -307,7 +300,7 @@ public class WorldLocation : Position
         var check = new AllCreaturesOfEntriesInRange(_worldObject, entry, maxSearchRange);
         var searcher = new CreatureListSearcher(_worldObject, creatureList, check, GridType.Grid);
 
-        Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
+        _cellCalculator.VisitGrid(_worldObject, searcher, maxSearchRange);
 
         return creatureList;
     }
@@ -322,7 +315,7 @@ public class WorldLocation : Position
         if (options.IgnorePhases)
             searcher.PhaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
 
-        Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
+        _cellCalculator.VisitGrid(_worldObject, searcher, maxSearchRange);
 
         return creatureList;
     }
@@ -410,7 +403,7 @@ public class WorldLocation : Position
     {
         var uCheck = new AnyUnfriendlyUnitInObjectRangeCheck(_worldObject, _worldObject.AsUnit, maxSearchRange);
         var searcher = new UnitListSearcher(_worldObject, unitList, uCheck, GridType.All);
-        Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
+        _cellCalculator.VisitGrid(_worldObject, searcher, maxSearchRange);
     }
 
     public void GetEnemiesWithinRangeWithOwnedAura(List<Unit> unitList, float maxSearchRange, uint auraId)
@@ -434,7 +427,7 @@ public class WorldLocation : Position
         var check = new AllGameObjectsWithEntryInRange(_worldObject, entry, maxSearchRange);
         var searcher = new GameObjectListSearcher(_worldObject, gameobjectList, check, GridType.Grid);
 
-        Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
+        _cellCalculator.VisitGrid(_worldObject, searcher, maxSearchRange);
 
         return gameobjectList;
     }
@@ -555,8 +548,8 @@ public class WorldLocation : Position
         x = X + (effectiveReach + distance2d) * MathF.Cos(absAngle);
         y = Y + (effectiveReach + distance2d) * MathF.Sin(absAngle);
 
-        x = GridDefines.NormalizeMapCoord(x);
-        y = GridDefines.NormalizeMapCoord(y);
+        x = _gridDefines.NormalizeMapCoord(x);
+        y = _gridDefines.NormalizeMapCoord(y);
     }
 
     public Position GetNearPosition(float dist, float angle)
@@ -573,7 +566,7 @@ public class WorldLocation : Position
         var checker = new AnyPlayerInObjectRangeCheck(_worldObject, maxSearchRange, alive);
         var searcher = new PlayerListSearcher(_worldObject, playerList, checker);
 
-        Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
+        _cellCalculator.VisitGrid(_worldObject, searcher, maxSearchRange);
 
         return playerList;
     }
@@ -605,8 +598,8 @@ public class WorldLocation : Position
         randY = (float)(pos.Y + newDist * Math.Sin(angle));
         randZ = pos.Z;
 
-        randX = GridDefines.NormalizeMapCoord(randX);
-        randY = GridDefines.NormalizeMapCoord(randY);
+        randX = _gridDefines.NormalizeMapCoord(randX);
+        randY = _gridDefines.NormalizeMapCoord(randY);
         randZ = UpdateGroundPositionZ(randX, randY, randZ); // update to LOS height if available
     }
 
@@ -799,7 +792,7 @@ public class WorldLocation : Position
     {
         var checker = new NearestPlayerInObjectRangeCheck(_worldObject, distance);
         var searcher = new PlayerLastSearcher(_worldObject, checker, GridType.All);
-        Cell.VisitGrid(_worldObject, searcher, distance);
+        _cellCalculator.VisitGrid(_worldObject, searcher, distance);
 
         return searcher.GetTarget();
     }

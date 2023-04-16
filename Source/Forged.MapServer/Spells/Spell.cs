@@ -6820,12 +6820,12 @@ public partial class Spell : IDisposable
 
             var p = GridDefines.ComputeCellCoord(x, y);
             Cell cell = new(p);
-            cell.SetNoCreate();
+            cell.Data.NoCreate = true;;
 
             var map = referer.Location.Map;
 
             if (searchInWorld)
-                Cell.VisitGrid(x, y, map, notifier, radius);
+                CellCalculator.VisitGrid(x, y, map, notifier, radius);
         }
     }
 

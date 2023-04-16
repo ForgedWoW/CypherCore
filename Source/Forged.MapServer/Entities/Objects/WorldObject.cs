@@ -848,7 +848,7 @@ public abstract class WorldObject : IDisposable
     public virtual void BuildUpdate(Dictionary<Player, UpdateData> data)
     {
         var notifier = new WorldObjectChangeAccumulator(this, data, GridType.World, ObjectAccessor);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+        CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
 
         ClearUpdateMask(false);
     }
@@ -947,7 +947,7 @@ public abstract class WorldObject : IDisposable
         var check = new AnyPlayerInObjectRangeCheck(this, Visibility.VisibilityRange, false);
         var searcher = new PlayerListSearcher(this, targets, check);
 
-        Cell.VisitGrid(this, searcher, Visibility.VisibilityRange);
+        CellCalculator.VisitGrid(this, searcher, Visibility.VisibilityRange);
 
         foreach (var unit in targets)
         {
@@ -1349,7 +1349,7 @@ public abstract class WorldObject : IDisposable
             combatLogSender.Invoke(self);
 
         MessageDistDeliverer<CombatLogSender> notifier = new(this, combatLogSender, Visibility.VisibilityRange);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+        CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public virtual void SendMessageToSet(ServerPacket packet, bool self)
@@ -1362,14 +1362,14 @@ public abstract class WorldObject : IDisposable
     {
         PacketSenderRef sender = new(data);
         var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, Visibility.VisibilityRange, false, skip);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+        CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public virtual void SendMessageToSetInRange(ServerPacket data, float dist, bool self)
     {
         PacketSenderRef sender = new(data);
         MessageDistDeliverer<PacketSenderRef> notifier = new(this, sender, dist);
-        Cell.VisitGrid(this, notifier, dist);
+        CellCalculator.VisitGrid(this, notifier, dist);
     }
 
     public void SendOutOfRangeForPlayer(Player target)
@@ -1713,7 +1713,7 @@ public abstract class WorldObject : IDisposable
                                                   },
                                                   GridType.World);
 
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+        CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public virtual void UpdateObjectVisibilityOnCreate()

@@ -209,7 +209,7 @@ public class OPvPCapturePoint
         List<Unit> players = new();
         var checker = new AnyPlayerInObjectRangeCheck(CapturePoint, radius);
         var searcher = new PlayerListSearcher(CapturePoint, players, checker);
-        Cell.VisitGrid(CapturePoint, searcher, radius);
+        CellCalculator.VisitGrid(CapturePoint, searcher, radius);
 
         foreach (Player player in players)
             if (player.IsOutdoorPvPActive())

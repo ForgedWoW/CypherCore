@@ -23,20 +23,20 @@ public class TriangleBoundary : AreaBoundary
         _b = new DoublePosition(pointB);
         _c = new DoublePosition(pointC);
 
-        _abx = _b.GetDoublePositionX() - _a.GetDoublePositionX();
-        _bcx = _c.GetDoublePositionX() - _b.GetDoublePositionX();
-        _cax = _a.GetDoublePositionX() - _c.GetDoublePositionX();
-        _aby = _b.GetDoublePositionY() - _a.GetDoublePositionY();
-        _bcy = _c.GetDoublePositionY() - _b.GetDoublePositionY();
-        _cay = _a.GetDoublePositionY() - _c.GetDoublePositionY();
+        _abx = _b.DoublePositionX - _a.DoublePositionX;
+        _bcx = _c.DoublePositionX - _b.DoublePositionX;
+        _cax = _a.DoublePositionX - _c.DoublePositionX;
+        _aby = _b.DoublePositionY - _a.DoublePositionY;
+        _bcy = _c.DoublePositionY - _b.DoublePositionY;
+        _cay = _a.DoublePositionY - _c.DoublePositionY;
     }
 
     public override bool IsWithinBoundaryArea(Position pos)
     {
         // half-plane signs
-        var sign1 = (-_b.GetDoublePositionX() + pos.X) * _aby - (-_b.GetDoublePositionY() + pos.Y) * _abx < 0;
-        var sign2 = (-_c.GetDoublePositionX() + pos.X) * _bcy - (-_c.GetDoublePositionY() + pos.Y) * _bcx < 0;
-        var sign3 = (-_a.GetDoublePositionX() + pos.X) * _cay - (-_a.GetDoublePositionY() + pos.Y) * _cax < 0;
+        var sign1 = (-_b.DoublePositionX + pos.X) * _aby - (-_b.DoublePositionY + pos.Y) * _abx < 0;
+        var sign2 = (-_c.DoublePositionX + pos.X) * _bcy - (-_c.DoublePositionY + pos.Y) * _bcx < 0;
+        var sign3 = (-_a.DoublePositionX + pos.X) * _cay - (-_a.DoublePositionY + pos.Y) * _cax < 0;
 
         // if all signs are the same, the point is inside the triangle
         return sign1 == sign2 && sign2 == sign3;

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.DataStorage;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Framework.Constants;
@@ -81,7 +82,7 @@ internal class InstanceCommands
 
         foreach (var instanceLock in instanceLocks)
         {
-            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
+            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId(), handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
             var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandListBindInfo,
@@ -185,7 +186,7 @@ internal class InstanceCommands
         mapId = mapArg switch
         {
             uint arg => arg,
-            _        => mapId
+            _        => null
         };
 
         if (difficultyArg.HasValue && handler.CliDB.DifficultyStorage.ContainsKey(difficultyArg.Value))
@@ -200,7 +201,7 @@ internal class InstanceCommands
 
         foreach (var instanceLock in locksReset)
         {
-            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
+            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId(), handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
             var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
@@ -218,7 +219,7 @@ internal class InstanceCommands
 
         foreach (var instanceLock in locksNotReset)
         {
-            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
+            MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId(), handler.CliDB, handler.ClassFactory.Resolve<DB2Manager>());
             var timeleft = !instanceLock.IsExpired() ? Time.SecsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
             handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,

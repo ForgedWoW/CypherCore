@@ -381,7 +381,7 @@ public class TempSummon : Creature
         }
 
         VisibleChangesNotifier notifier = new(objectsToUpdate, GridType.World);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+        CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public override void UpdateObjectVisibilityOnDestroy()
@@ -411,7 +411,7 @@ public class TempSummon : Creature
         }
 
         VisibleChangesNotifier notifier = new(objectsToUpdate, GridType.World);
-        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+        CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
 
         if (original != null) // original is only != null when it was replaced
         {

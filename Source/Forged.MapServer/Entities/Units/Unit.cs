@@ -645,7 +645,7 @@ public partial class Unit : WorldObject
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
         var cell = new Cell(p);
-        cell.SetNoCreate();
+        cell.Data.NoCreate = true;;
 
         var uCheck = new AnyUnitInObjectRangeCheck(this, fMaxSearchRange);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -669,7 +669,7 @@ public partial class Unit : WorldObject
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
         var cell = new Cell(p);
-        cell.SetNoCreate();
+        cell.Data.NoCreate = true;;
 
         var uCheck = new NearestAttackableUnitInObjectRangeCheck(this, this, fMaxSearchRange);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -730,7 +730,7 @@ public partial class Unit : WorldObject
     {
         var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
         var cell = new Cell(p);
-        cell.SetNoCreate();
+        cell.Data.NoCreate = true;;
 
         var uCheck = new AnyFriendlyUnitInObjectRangeCheck(this, this, fMaxSearchRange, false, exceptSelf);
         var searcher = new UnitListSearcher(this, list, uCheck, GridType.All);
@@ -2204,7 +2204,7 @@ public partial class Unit : WorldObject
         List<Unit> targets = new();
         var uCheck = new AnyFriendlyUnitInObjectRangeCheck(this, this, dist);
         var searcher = new UnitListSearcher(this, targets, uCheck, GridType.All);
-        Cell.VisitGrid(this, searcher, dist);
+        CellCalculator.VisitGrid(this, searcher, dist);
 
         // no appropriate targets
         targets.RemoveAll(k => exclude.Contains(k));
@@ -2235,7 +2235,7 @@ public partial class Unit : WorldObject
         List<Unit> targets = new();
         var uCheck = new AnyUnfriendlyUnitInObjectRangeCheck(this, this, dist, AddUnit);
         var searcher = new UnitListSearcher(this, targets, uCheck, GridType.All);
-        Cell.VisitGrid(this, searcher, dist);
+        CellCalculator.VisitGrid(this, searcher, dist);
 
         // no appropriate targets
         if (targets.Empty())
@@ -2679,7 +2679,7 @@ public partial class Unit : WorldObject
         var builder = new CustomChatTextBuilder(this, msgType, text, language, target);
         var localizer = new LocalizedDo(builder);
         var worker = new PlayerDistWorker(this, textRange, localizer, GridType.World);
-        Cell.VisitGrid(this, worker, textRange);
+        CellCalculator.VisitGrid(this, worker, textRange);
     }
 
     public void Talk(uint textId, ChatMsg msgType, float textRange, WorldObject target)
@@ -2694,7 +2694,7 @@ public partial class Unit : WorldObject
         var builder = new BroadcastTextBuilder(this, msgType, textId, Gender, target);
         var localizer = new LocalizedDo(builder);
         var worker = new PlayerDistWorker(this, textRange, localizer, GridType.World);
-        Cell.VisitGrid(this, worker, textRange);
+        CellCalculator.VisitGrid(this, worker, textRange);
     }
 
     public virtual void TextEmote(string text, WorldObject target = null, bool isBossEmote = false)
@@ -2982,7 +2982,7 @@ public partial class Unit : WorldObject
             base.UpdateObjectVisibility();
             // call MoveInLineOfSight for nearby creatures
             AIRelocationNotifier notifier = new(this, GridType.All);
-            Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
+            CellCalculator.VisitGrid(this, notifier, Visibility.VisibilityRange);
         }
     }
 
@@ -3307,10 +3307,7 @@ public partial class Unit : WorldObject
     {
         var creature = AsCreature;
 
-        if (creature != null)
-            return new ScheduledChangeAI(creature);
-        else
-            return null;
+        return creature != null ? new ScheduledChangeAI(creature) : null;
     }
 
     private bool HasInterruptFlag(SpellAuraInterruptFlags flags)
@@ -3329,8 +3326,8 @@ public partial class Unit : WorldObject
 
         if (ai != null)
             return ai is ScheduledChangeAI;
-        else
-            return true;
+
+        return true;
     }
 
     private bool IsBlockCritical()

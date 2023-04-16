@@ -5,12 +5,19 @@ namespace Forged.MapServer.Maps.Instances;
 
 internal class SharedInstanceLockData : InstanceLockData
 {
-    public uint InstanceId;
+    private readonly InstanceLockManager _instanceLockManager;
+
+    public SharedInstanceLockData(InstanceLockManager instanceLockManager)
+    {
+        _instanceLockManager = instanceLockManager;
+    }
 
     ~SharedInstanceLockData()
     {
         // Cleanup database
         if (InstanceId != 0)
-            Global.InstanceLockMgr.OnSharedInstanceLockDataDelete(InstanceId);
+            _instanceLockManager.OnSharedInstanceLockDataDelete(InstanceId);
     }
+
+    public uint InstanceId { get; set; }
 }

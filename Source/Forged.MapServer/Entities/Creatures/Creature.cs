@@ -255,7 +255,7 @@ public partial class Creature : Unit
 
         var uCheck = new AnyAssistCreatureInRangeCheck(this, Victim, radius);
         var searcher = new CreatureListSearcher(this, assistList, uCheck, GridType.Grid);
-        Cell.VisitGrid(this, searcher, radius);
+        CellCalculator.VisitGrid(this, searcher, radius);
 
         if (assistList.Empty())
             return;
@@ -294,7 +294,7 @@ public partial class Creature : Unit
 
         var uDo = new CallOfHelpCreatureInRangeDo(this, target, radius);
         var worker = new CreatureWorker(this, uDo, GridType.Grid);
-        Cell.VisitGrid(this, worker, radius);
+        CellCalculator.VisitGrid(this, worker, radius);
     }
 
     public override bool CanAlwaysSee(WorldObject obj)
@@ -623,7 +623,7 @@ public partial class Creature : Unit
         {
             var uCheck = new NearestAssistCreatureInCreatureRangeCheck(this, Victim, radius);
             var searcher = new CreatureLastSearcher(this, uCheck, GridType.Grid);
-            Cell.VisitGrid(this, searcher, radius);
+            CellCalculator.VisitGrid(this, searcher, radius);
 
             var creature = searcher.GetTarget();
 
@@ -2042,7 +2042,7 @@ public partial class Creature : Unit
         //  pets set to aggressive. Will not return neutral or friendly targets
         var uCheck = new NearestHostileUnitInAggroRangeCheck(this, useLOS, ignoreCivilians);
         var searcher = new UnitSearcher(this, uCheck, GridType.Grid);
-        Cell.VisitGrid(this, searcher, SharedConst.MaxAggroRadius);
+        CellCalculator.VisitGrid(this, searcher, SharedConst.MaxAggroRadius);
 
         return searcher.GetTarget();
     }
@@ -2055,7 +2055,7 @@ public partial class Creature : Unit
 
         var uCheck = new NearestHostileUnitCheck(this, dist);
         var searcher = new UnitLastSearcher(this, uCheck, GridType.All);
-        Cell.VisitGrid(this, searcher, dist);
+        CellCalculator.VisitGrid(this, searcher, dist);
 
         return searcher.GetTarget();
     }
@@ -2072,7 +2072,7 @@ public partial class Creature : Unit
         var uCheck = new NearestHostileUnitInAttackDistanceCheck(this, dist);
         var searcher = new UnitLastSearcher(this, uCheck, GridType.All);
 
-        Cell.VisitGrid(this, searcher, Math.Max(dist, SharedConst.AttackDistance));
+        CellCalculator.VisitGrid(this, searcher, Math.Max(dist, SharedConst.AttackDistance));
 
         return searcher.GetTarget();
     }

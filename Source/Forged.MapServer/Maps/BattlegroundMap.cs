@@ -1,22 +1,28 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Linq;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Game.Common;
 using Serilog;
 
 namespace Forged.MapServer.Maps;
 
 public class BattlegroundMap : Map
 {
-    public Battleground BG { get; private set; }
+    private readonly WorldManager _worldManager;
 
-    public BattlegroundMap(uint id, uint expiry, uint instanceId, Difficulty spawnMode)
-        : base(id, expiry, instanceId, spawnMode)
+    public BattlegroundMap(uint id, uint expiry, uint instanceId, Difficulty spawnMode, ClassFactory classFactory)
+        : base(id, expiry, instanceId, spawnMode, classFactory)
     {
+        _worldManager = classFactory.Resolve<WorldManager>();
         InitVisibilityDistance();
     }
+
+    public Battleground BG { get; private set; }
 
     public override bool AddPlayerToMap(Player player, bool initPlayer = true)
     {
@@ -27,31 +33,27 @@ public class BattlegroundMap : Map
 
     public override TransferAbortParams CannotEnter(Player player)
     {
-        if (player.Location.Map == this)
-        {
-            Log.Logger.Error("BGMap:CannotEnter - player {0} is already in map!", player.GUID.ToString());
+        if (player.Location.Map != this)
+            return player.BattlegroundId != InstanceId ? new TransferAbortParams(TransferAbortReason.LockedToDifferentInstance) : base.CannotEnter(player);
 
-            return new TransferAbortParams(TransferAbortReason.Error);
-        }
+        Log.Logger.Error("BGMap:CannotEnter - player {0} is already in map!", player.GUID.ToString());
 
-        if (player.BattlegroundId != InstanceId)
-            return new TransferAbortParams(TransferAbortReason.LockedToDifferentInstance);
-
-        return base.CannotEnter(player);
+        return new TransferAbortParams(TransferAbortReason.Error);
     }
-
 
     public override void InitVisibilityDistance()
     {
-        VisibleDistance = IsBattleArena ? Global.WorldMgr.MaxVisibleDistanceInArenas : Global.WorldMgr.MaxVisibleDistanceInBG;
-        VisibilityNotifyPeriod = IsBattleArena ? Global.WorldMgr.VisibilityNotifyPeriodInArenas : Global.WorldMgr.VisibilityNotifyPeriodInBG;
+        VisibleDistance = IsBattleArena ? _worldManager.MaxVisibleDistanceInArenas : _worldManager.MaxVisibleDistanceInBG;
+        VisibilityNotifyPeriod = IsBattleArena ? _worldManager.VisibilityNotifyPeriodInArenas : _worldManager.VisibilityNotifyPeriodInBG;
     }
+
     public override void RemoveAllPlayers()
     {
-        if (HavePlayers)
-            foreach (var player in ActivePlayers)
-                if (!player.IsBeingTeleportedFar)
-                    player.TeleportTo(player.BattlegroundEntryPoint);
+        if (!HavePlayers)
+            return;
+
+        foreach (var player in ActivePlayers.Where(player => !player.IsBeingTeleportedFar))
+            player.TeleportTo(player.BattlegroundEntryPoint);
     }
 
     public override void RemovePlayerFromMap(Player player, bool remove)

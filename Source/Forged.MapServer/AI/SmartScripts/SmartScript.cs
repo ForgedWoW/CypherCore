@@ -110,7 +110,7 @@ public class SmartScript
     {
         FriendlyBelowHpPctEntryInRange uCheck = new(_me, entry, range, minHpDiff, excludeSelf);
         UnitLastSearcher searcher = new(_me, uCheck, GridType.All);
-        Cell.VisitGrid(_me, searcher, range);
+        CellCalculator.VisitGrid(_me, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -521,7 +521,7 @@ public class SmartScript
 
         var uCheck = new AnyFriendlyUnitInObjectRangeCheck(_me, _me, range);
         var searcher = new UnitLastSearcher(_me, uCheck, GridType.All);
-        Cell.VisitGrid(_me, searcher, range);
+        CellCalculator.VisitGrid(_me, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -533,7 +533,7 @@ public class SmartScript
 
         var uCheck = new FriendlyCCedInRange(_me, range);
         var searcher = new CreatureListSearcher(_me, creatures, uCheck, GridType.Grid);
-        Cell.VisitGrid(_me, searcher, range);
+        CellCalculator.VisitGrid(_me, searcher, range);
     }
 
     private void DoFindFriendlyMissingBuff(List<Creature> creatures, float range, uint spellid)
@@ -543,7 +543,7 @@ public class SmartScript
 
         var uCheck = new FriendlyMissingBuffInRange(_me, range, spellid);
         var searcher = new CreatureListSearcher(_me, creatures, uCheck, GridType.Grid);
-        Cell.VisitGrid(_me, searcher, range);
+        CellCalculator.VisitGrid(_me, searcher, range);
     }
 
     private Unit DoSelectLowestHpPercentFriendly(float range, uint minHpPct, uint maxHpPct)
@@ -553,7 +553,7 @@ public class SmartScript
 
         MostHpPercentMissingInRange uCheck = new(_me, range, minHpPct, maxHpPct);
         UnitLastSearcher searcher = new(_me, uCheck, GridType.Grid);
-        Cell.VisitGrid(_me, searcher, range);
+        CellCalculator.VisitGrid(_me, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -1286,7 +1286,7 @@ public class SmartScript
 
         var uCheck = new AllWorldObjectsInRange(obj, dist);
         var searcher = new WorldObjectListSearcher(obj, targets, uCheck);
-        Cell.VisitGrid(obj, searcher, dist);
+        CellCalculator.VisitGrid(obj, searcher, dist);
 
         return targets;
     }

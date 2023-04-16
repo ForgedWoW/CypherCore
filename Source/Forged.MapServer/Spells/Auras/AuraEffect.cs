@@ -3983,7 +3983,7 @@ public class AuraEffect
             var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(target, target, target.Location.Map.VisibilityRange, u => u.HasUnitState(UnitState.Casting));
             var searcher = new UnitListSearcher(target, targets, u_check, GridType.All);
 
-            Cell.VisitGrid(target, searcher, target.Location.Map.VisibilityRange);
+            CellCalculator.VisitGrid(target, searcher, target.Location.Map.VisibilityRange);
 
             foreach (var unit in targets)
                 for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)

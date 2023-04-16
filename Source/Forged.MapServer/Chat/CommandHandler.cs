@@ -142,7 +142,7 @@ public class CommandHandler
             var pl = Session.Player;
             NearestGameObjectCheck check = new(pl);
             GameObjectLastSearcher searcher = new(pl, check, GridType.Grid);
-            Cell.VisitGrid(pl, searcher, MapConst.SizeofGrids);
+            CellCalculator.VisitGrid(pl, searcher, MapConst.SizeofGrids);
 
             return searcher.GetTarget();
         }

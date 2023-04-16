@@ -31,7 +31,7 @@ public class Grid
         }
     }
 
-    public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.GetId(), cell.GetGridX(), cell.GetGridY(), expiry, unload)
+    public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.Id, cell.Data.GridX, cell.Data.GridY, expiry, unload)
     {
     }
 

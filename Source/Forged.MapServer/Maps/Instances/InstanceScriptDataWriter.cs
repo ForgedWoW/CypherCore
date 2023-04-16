@@ -58,7 +58,7 @@ internal class InstanceScriptDataWriter
     {
         try
         {
-            _doc = JsonNode.Parse(data).AsObject();
+            _doc = JsonNode.Parse(data)?.AsObject();
         }
         catch (JsonException)
         {
@@ -79,7 +79,10 @@ internal class InstanceScriptDataWriter
     }
     public void SetAdditionalData(UpdateAdditionalSaveDataEvent data)
     {
-        var jObject = _doc["AdditionalData"].AsObject();
+        var jObject = _doc["AdditionalData"]?.AsObject();
+
+        if (jObject == null)
+            return;
 
         if (data.Value is double value)
             jObject[data.Key] = value;
@@ -89,7 +92,9 @@ internal class InstanceScriptDataWriter
 
     public void SetBossState(UpdateBossStateSaveDataEvent data)
     {
-        var array = _doc["BossStates"].AsArray();
-        array[(int)data.BossId] = (int)data.NewState;
+        var array = _doc["BossStates"]?.AsArray();
+
+        if (array != null)
+            array[(int)data.BossId] = (int)data.NewState;
     }
 }

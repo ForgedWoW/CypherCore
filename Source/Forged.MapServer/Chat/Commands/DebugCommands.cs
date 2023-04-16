@@ -176,7 +176,7 @@ internal class DebugCommands
         {
             var check = new AllCreaturesOfEntryInRange(handler.Player, entry, 20.0f);
             var searcher = new CreatureSearcher(handler.Player, check, GridType.All);
-            Cell.VisitGrid(handler.Player, searcher, 30.0f);
+            CellCalculator.VisitGrid(handler.Player, searcher, 30.0f);
             var passenger = searcher.GetTarget();
 
             if (!passenger || passenger == target)

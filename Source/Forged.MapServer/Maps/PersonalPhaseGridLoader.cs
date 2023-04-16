@@ -27,15 +27,15 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
     public void Load(uint phaseId)
     {
         _phaseId = phaseId;
-        ICell.Data.Celly = 0;
+        ICell.Data.CellY = 0;
 
         for (uint x = 0; x < MapConst.MaxCells; ++x)
         {
-            ICell.Data.Cellx = x;
+            ICell.Data.CellX = x;
 
             for (uint y = 0; y < MapConst.MaxCells; ++y)
             {
-                ICell.Data.Celly = y;
+                ICell.Data.CellY = y;
 
                 //Load creatures and GameInfo objects
                 IGrid.VisitGrid(x, y, this);
@@ -45,7 +45,7 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
 
     public void Visit(IList<Creature> objs)
     {
-        var cellCoord = ICell.GetCellCoord();
+        var cellCoord = ICell.CellCoord;
         var cellGuids = Global.ObjectMgr.GetCellPersonalObjectGuids(IMap.Id, IMap.DifficultyID, _phaseId, cellCoord.GetId());
 
         if (cellGuids != null)
@@ -54,7 +54,7 @@ internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCrea
 
     public void Visit(IList<GameObject> objs)
     {
-        var cellCoord = ICell.GetCellCoord();
+        var cellCoord = ICell.CellCoord;
         var cellGuids = Global.ObjectMgr.GetCellPersonalObjectGuids(IMap.Id, IMap.DifficultyID, _phaseId, cellCoord.GetId());
 
         if (cellGuids != null)

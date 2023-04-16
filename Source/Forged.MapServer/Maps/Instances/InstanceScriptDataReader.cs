@@ -11,13 +11,14 @@ namespace Forged.MapServer.Maps.Instances;
 
 internal class InstanceScriptDataReader
 {
+    private readonly CliDB _cliDb;
     private readonly InstanceScript _instance;
-
     private JsonDocument _doc;
 
     public InstanceScriptDataReader(InstanceScript instance)
     {
         _instance = instance;
+        _cliDb = instance.Instance.ClassFactory.Resolve<CliDB>();
     }
 
     public enum Result
@@ -36,6 +37,16 @@ internal class InstanceScriptDataReader
         AdditionalDataIsNotAnObject,
         AdditionalDataUnexpectedValueType
     }
+
+    private uint DifficultyId => (uint)_instance.Instance.DifficultyID;
+
+    private string DifficultyName => _cliDb.DifficultyStorage.LookupByKey(_instance.Instance.DifficultyID).Name;
+
+    private uint InstanceId => _instance.Instance.InstanceId;
+
+    private uint MapId => _instance.Instance.Id;
+
+    private string MapName => _instance.Instance.MapName;
 
     public Result Load(string data)
     {
@@ -58,14 +69,14 @@ internal class InstanceScriptDataReader
         }
         catch (JsonException ex)
         {
-            Log.Logger.Error($"JSON parser error {ex.Message} at {ex.LineNumber} while loading data for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+            Log.Logger.Error($"JSON parser error {ex.Message} at {ex.LineNumber} while loading data for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
             return Result.MalformedJson;
         }
 
         if (_doc.RootElement.ValueKind != JsonValueKind.Object)
         {
-            Log.Logger.Error($"Root JSON value is not an object for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+            Log.Logger.Error($"Root JSON value is not an object for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
             return Result.RootIsNotAnObject;
         }
@@ -82,35 +93,7 @@ internal class InstanceScriptDataReader
 
         result = ParseAdditionalData();
 
-        if (result != Result.Ok)
-            return result;
-
-        return Result.Ok;
-    }
-
-    private uint GetDifficultyId()
-    {
-        return (uint)_instance.Instance.DifficultyID;
-    }
-
-    private string GetDifficultyName()
-    {
-        return CliDB.DifficultyStorage.LookupByKey(_instance.Instance.DifficultyID).Name;
-    }
-
-    private uint GetInstanceId()
-    {
-        return _instance.Instance.InstanceId;
-    }
-
-    private uint GetMapId()
-    {
-        return _instance.Instance.Id;
-    }
-
-    private string GetMapName()
-    {
-        return _instance.Instance.MapName;
+        return result != Result.Ok ? result : Result.Ok;
     }
 
     private Result ParseAdditionalData()
@@ -120,7 +103,7 @@ internal class InstanceScriptDataReader
 
         if (moreData.ValueKind != JsonValueKind.Object)
         {
-            Log.Logger.Error($"Additional data is not an object for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+            Log.Logger.Error($"Additional data is not an object for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
             return Result.AdditionalDataIsNotAnObject;
         }
@@ -130,7 +113,7 @@ internal class InstanceScriptDataReader
             {
                 if (value.ValueKind != JsonValueKind.Number)
                 {
-                    Log.Logger.Error($"Additional data value for key {valueBase.GetName()} is not a number for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+                    Log.Logger.Error($"Additional data value for key {valueBase.GetName()} is not a number for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
                     return Result.AdditionalDataUnexpectedValueType;
                 }
@@ -148,14 +131,14 @@ internal class InstanceScriptDataReader
     {
         if (!_doc.RootElement.TryGetProperty("BossStates", out var bossStates))
         {
-            Log.Logger.Error($"Missing boss states for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+            Log.Logger.Error($"Missing boss states for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
             return Result.MissingBossStates;
         }
 
         if (bossStates.ValueKind != JsonValueKind.Array)
         {
-            Log.Logger.Error($"Boss states is not an array for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+            Log.Logger.Error($"Boss states is not an array for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
             return Result.BossStatesIsNotAnObject;
         }
@@ -164,7 +147,7 @@ internal class InstanceScriptDataReader
         {
             if (bossId >= _instance.GetEncounterCount())
             {
-                Log.Logger.Error($"Boss states has entry for boss with higher id ({bossId}) than number of bosses ({_instance.GetEncounterCount()}) for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+                Log.Logger.Error($"Boss states has entry for boss with higher id ({bossId}) than number of bosses ({_instance.GetEncounterCount()}) for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
                 return Result.UnknownBoss;
             }
@@ -173,7 +156,7 @@ internal class InstanceScriptDataReader
 
             if (bossState.ValueKind != JsonValueKind.Number)
             {
-                Log.Logger.Error($"Boss state for boss ({bossId}) is not a number for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+                Log.Logger.Error($"Boss state for boss ({bossId}) is not a number for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
                 return Result.BossStateIsNotAnObject;
             }
@@ -194,14 +177,14 @@ internal class InstanceScriptDataReader
     {
         if (!_doc.RootElement.TryGetProperty("Header", out var header))
         {
-            Log.Logger.Error($"Missing data header for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}]");
+            Log.Logger.Error($"Missing data header for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}]");
 
             return Result.MissingHeader;
         }
 
         if (header.GetString() != _instance.GetHeader())
         {
-            Log.Logger.Error($"Incorrect data header for instance {GetInstanceId()} [{GetMapId()}-{GetMapName()} | {GetDifficultyId()}-{GetDifficultyName()}], expected \"{_instance.GetHeader()}\" got \"{header.GetString()}\"");
+            Log.Logger.Error($"Incorrect data header for instance {InstanceId} [{MapId}-{MapName} | {DifficultyId}-{DifficultyName}], expected \"{_instance.GetHeader()}\" got \"{header.GetString()}\"");
 
             return Result.UnexpectedHeader;
         }

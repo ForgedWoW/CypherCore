@@ -428,6 +428,7 @@ void RegisterManagers()
     builder.RegisterType<ObjectAccessor>().SingleInstance();
     builder.RegisterType<PlayerNameMapHolder>().SingleInstance();
     builder.RegisterType<GridDefines>().SingleInstance();
+    builder.RegisterType<CellCalculator>().SingleInstance();
 }
 
 void RegisterFactories()
@@ -477,6 +478,8 @@ void RegisterInstanced()
     builder.RegisterType<Guild>();
     builder.RegisterType<GuildAchievementMgr>();
     builder.RegisterType<MailDraft>();
+    builder.RegisterType<Cell>();
+    builder.RegisterType<Map>();
 }
 
 void RegisterHandlers()

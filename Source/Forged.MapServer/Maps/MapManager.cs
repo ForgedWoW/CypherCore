@@ -67,7 +67,7 @@ public class MapManager
     /// <returns> the right instance for the object, based on its InstanceId </returns>
     public Map CreateMap(uint mapId, Player player)
     {
-        if (!player)
+        if (player == null)
             return null;
 
         if (!_cliDB.MapStorage.TryGetValue(mapId, out var entry))
@@ -89,7 +89,7 @@ public class MapManager
 
                 map = FindMap_i(mapId, newInstanceId);
 
-                if (!map)
+                if (map == null)
                 {
                     var bg = player.Battleground;
 
@@ -145,7 +145,7 @@ public class MapManager
                     map = null;
                 }
 
-                if (!map)
+                if (map == null)
                 {
                     map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player.TeamId, group);
 
@@ -160,7 +160,7 @@ public class MapManager
                 newInstanceId = (uint)player.GUID.Counter;
                 map = FindMap_i(mapId, newInstanceId);
 
-                if (!map)
+                if (map == null)
                     map = CreateGarrison(mapId, newInstanceId, player);
             }
             else
@@ -172,7 +172,7 @@ public class MapManager
 
                 map = FindMap_i(mapId, newInstanceId);
 
-                if (!map)
+                if (map == null)
                     map = CreateWorldMap(mapId, newInstanceId);
             }
 
@@ -478,7 +478,7 @@ public class MapManager
     {
         Log.Logger.Debug($"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
 
-        var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
+        var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None, _classFactory);
         map.SetBG(bg);
         bg.SetBgMap(map);
 

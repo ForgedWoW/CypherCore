@@ -25,15 +25,15 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
         ICreatures = 0;
         IGameObjects = 0;
         ICorpses = 0;
-        ICell.Data.Celly = 0;
+        ICell.Data.CellY = 0;
 
         for (uint x = 0; x < MapConst.MaxCells; ++x)
         {
-            ICell.Data.Cellx = x;
+            ICell.Data.CellX = x;
 
             for (uint y = 0; y < MapConst.MaxCells; ++y)
             {
-                ICell.Data.Celly = y;
+                ICell.Data.CellY = y;
 
                 IGrid.VisitGrid(x, y, this);
 
@@ -47,7 +47,7 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
 
     public void Visit(IList<AreaTrigger> objs)
     {
-        var cellCoord = ICell.GetCellCoord();
+        var cellCoord = ICell.CellCoord;
         var areaTriggers = Global.AreaTriggerDataStorage.GetAreaTriggersForMapAndCell(IMap.Id, cellCoord.GetId());
 
         if (areaTriggers == null || areaTriggers.Empty())
@@ -58,7 +58,7 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
 
     public void Visit(IList<Creature> objs)
     {
-        var cellCoord = ICell.GetCellCoord();
+        var cellCoord = ICell.CellCoord;
         var cellguids = Global.ObjectMgr.GetCellObjectGuids(IMap.Id, IMap.DifficultyID, cellCoord.GetId());
 
         if (cellguids == null || cellguids.creatures.Empty())
@@ -69,7 +69,7 @@ internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject,
 
     public void Visit(IList<GameObject> objs)
     {
-        var cellCoord = ICell.GetCellCoord();
+        var cellCoord = ICell.CellCoord;
         var cellguids = Global.ObjectMgr.GetCellObjectGuids(IMap.Id, IMap.DifficultyID, cellCoord.GetId());
 
         if (cellguids == null || cellguids.gameobjects.Empty())

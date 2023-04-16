@@ -994,12 +994,12 @@ public class AreaTrigger : WorldObject
         if (IsServerSide)
         {
             var searcher = new PlayerListSearcher(this, targetList, check);
-            Cell.VisitGrid(this, searcher, MaxSearchRadius);
+            CellCalculator.VisitGrid(this, searcher, MaxSearchRadius);
         }
         else
         {
             var searcher = new UnitListSearcher(this, targetList, check, GridType.All);
-            Cell.VisitGrid(this, searcher, MaxSearchRadius);
+            CellCalculator.VisitGrid(this, searcher, MaxSearchRadius);
         }
     }
 

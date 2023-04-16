@@ -112,7 +112,7 @@ public class ScriptedAI : CreatureAI
         List<Creature> list = new();
         var uCheck = new FriendlyCCedInRange(Me, range);
         var searcher = new CreatureListSearcher(Me, list, uCheck, GridType.All);
-        Cell.VisitGrid(Me, searcher, range);
+        CellCalculator.VisitGrid(Me, searcher, range);
 
         return list;
     }
@@ -123,7 +123,7 @@ public class ScriptedAI : CreatureAI
         List<Creature> list = new();
         var uCheck = new FriendlyMissingBuffInRange(Me, range, spellId);
         var searcher = new CreatureListSearcher(Me, list, uCheck, GridType.All);
-        Cell.VisitGrid(Me, searcher, range);
+        CellCalculator.VisitGrid(Me, searcher, range);
 
         return list;
     }
@@ -133,7 +133,7 @@ public class ScriptedAI : CreatureAI
     {
         var uCheck = new MostHpMissingInRange<Unit>(Me, range, minHpDiff);
         var searcher = new UnitLastSearcher(Me, uCheck, GridType.All);
-        Cell.VisitGrid(Me, searcher, range);
+        CellCalculator.VisitGrid(Me, searcher, range);
 
         return searcher.GetTarget();
     }
@@ -227,7 +227,7 @@ public class ScriptedAI : CreatureAI
     {
         var check = new PlayerAtMinimumRangeAway(Me, minimumRange);
         var searcher = new PlayerSearcher(Me, check, GridType.World);
-        Cell.VisitGrid(Me, searcher, minimumRange);
+        CellCalculator.VisitGrid(Me, searcher, minimumRange);
 
         return searcher.GetTarget();
     }

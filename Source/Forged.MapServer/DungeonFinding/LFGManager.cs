@@ -20,6 +20,7 @@ using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
+using Game.Common;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -30,18 +31,17 @@ public class LFGManager
     private readonly Dictionary<ObjectGuid, LfgPlayerBoot> _bootsStore = new();
     private readonly MultiMap<byte, uint> _cachedDungeonMapStore = new();
     private readonly CharacterDatabase _characterDatabase;
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly IConfiguration _configuration;
     private readonly DB2Manager _db2Manager;
     private readonly DisableManager _disableManager;
     private readonly GameEventManager _gameEventManager;
-    private readonly WorldManager _worldManager;
     private readonly GroupManager _groupManager;
     private readonly Dictionary<ObjectGuid, LFGGroupData> _groupsStore = new();
     private readonly InstanceLockManager _instanceLockManager;
     private readonly Dictionary<uint, LFGDungeonData> _lfgDungeonStore = new();
     private readonly ObjectAccessor _objectAccessor;
-
     private readonly GameObjectManager _objectManager;
 
     //< Current player kicks
@@ -49,7 +49,6 @@ public class LFGManager
 
     private readonly Dictionary<uint, LfgProposal> _proposalsStore = new();
     private readonly Dictionary<byte, LFGQueue> _queuesStore = new();
-
     private readonly MultiMap<uint, LfgReward> _rewardMapStore = new();
 
     //< Stores rewards for random dungeons
@@ -57,6 +56,7 @@ public class LFGManager
     private readonly Dictionary<ObjectGuid, LfgRoleCheck> _roleChecksStore = new();
 
     private readonly WorldDatabase _worldDatabase;
+    private readonly WorldManager _worldManager;
     //< Queues
 
     //< Stores all dungeons by groupType
@@ -74,11 +74,12 @@ public class LFGManager
 
     // General variables
     private uint _queueTimer; //< used to check interval of update
+
     //< Stores config options
 
     public LFGManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager objectManager, CliDB cliDB,
                       DB2Manager db2Manager, GroupManager groupManager, ObjectAccessor objectAccessor, DisableManager disableManager,
-                      InstanceLockManager instanceLockManager, GameEventManager gameEventManager, WorldManager worldManager)
+                      InstanceLockManager instanceLockManager, GameEventManager gameEventManager, WorldManager worldManager, ClassFactory classFactory)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
@@ -92,6 +93,7 @@ public class LFGManager
         _instanceLockManager = instanceLockManager;
         _gameEventManager = gameEventManager;
         _worldManager = worldManager;
+        _classFactory = classFactory;
         _lfgProposalId = 1;
         _options = (LfgOptions)configuration.GetDefaultValue("DungeonFinder.OptionsMask", 1);
 
@@ -124,7 +126,6 @@ public class LFGManager
                 SetState(guid, state);
 
                 break;
-            
         }
     }
 
@@ -500,7 +501,7 @@ public class LFGManager
         Dictionary<uint, LfgLockInfoData> lockDic = new();
         var player = _objectAccessor.FindConnectedPlayer(guid);
 
-        if (!player)
+        if (player == null)
         {
             Log.Logger.Warning("{0} not ingame while retrieving his LockedDungeons.", guid.ToString());
 
@@ -538,7 +539,7 @@ public class LFGManager
             {
                 lockStatus = LfgLockStatusType.RaidLocked;
             }
-            else if (dungeon.Difficulty > Difficulty.Normal && _instanceLockManager.FindActiveInstanceLock(guid, new MapDb2Entries(dungeon.Map, dungeon.Difficulty)) != null)
+            else if (dungeon.Difficulty > Difficulty.Normal && _instanceLockManager.FindActiveInstanceLock(guid, new MapDb2Entries(dungeon.Map, dungeon.Difficulty, _cliDB, _db2Manager)) != null)
             {
                 lockStatus = LfgLockStatusType.RaidLocked;
             }
@@ -836,7 +837,7 @@ public class LFGManager
 
     public void JoinLfg(Player player, LfgRoles roles, List<uint> dungeons)
     {
-        if (!player || player.Session == null || dungeons.Empty())
+        if (player?.Session == null || dungeons.Empty())
             return;
 
         // Sanitize input roles
@@ -849,11 +850,11 @@ public class LFGManager
 
         var grp = player.Group;
         var guid = player.GUID;
-        var gguid = grp ? grp.GUID : guid;
+        var gguid = grp == null ? grp.GUID : guid;
         LfgJoinResultData joinData = new();
         List<ObjectGuid> players = new();
         uint rDungeonId = 0;
-        var isContinue = grp && grp.IsLFGGroup && GetState(gguid) != LfgState.FinishedDungeon;
+        var isContinue = grp is { IsLFGGroup: true } && GetState(gguid) != LfgState.FinishedDungeon;
 
         // Do not allow to change dungeon in the middle of a current dungeon
         if (isContinue)
@@ -896,7 +897,7 @@ public class LFGManager
         {
             joinData.Result = LfgJoinResult.NoSlots;
         }
-        else if (grp)
+        else if (grp != null)
         {
             if (grp.MembersCount > MapConst.MaxGroupSize)
             {
@@ -910,32 +911,32 @@ public class LFGManager
                 {
                     var plrg = refe.Source;
 
-                    if (plrg)
+                    if (plrg == null)
+                        continue;
+
+                    if (!plrg.Session.HasPermission(RBACPermissions.JoinDungeonFinder))
+                        joinData.Result = LfgJoinResult.NoLfgObject;
+
+                    if (plrg.HasAura(SharedConst.LFGSpellDungeonDeserter))
                     {
-                        if (!plrg.Session.HasPermission(RBACPermissions.JoinDungeonFinder))
-                            joinData.Result = LfgJoinResult.NoLfgObject;
-
-                        if (plrg.HasAura(SharedConst.LFGSpellDungeonDeserter))
-                        {
-                            joinData.Result = LfgJoinResult.DeserterParty;
-                        }
-                        else if (!isContinue && plrg.HasAura(SharedConst.LFGSpellDungeonCooldown))
-                        {
-                            joinData.Result = LfgJoinResult.RandomCooldownParty;
-                        }
-                        else if (plrg.InBattleground || plrg.InArena || plrg.InBattlegroundQueue())
-                        {
-                            joinData.Result = LfgJoinResult.CantUseDungeons;
-                        }
-                        else if (plrg.HasAura(9454)) // check Freeze debuff
-                        {
-                            joinData.Result = LfgJoinResult.NoSlots;
-                            joinData.PlayersMissingRequirement.Add(plrg.GetName());
-                        }
-
-                        ++memberCount;
-                        players.Add(plrg.GUID);
+                        joinData.Result = LfgJoinResult.DeserterParty;
                     }
+                    else if (!isContinue && plrg.HasAura(SharedConst.LFGSpellDungeonCooldown))
+                    {
+                        joinData.Result = LfgJoinResult.RandomCooldownParty;
+                    }
+                    else if (plrg.InBattleground || plrg.InArena || plrg.InBattlegroundQueue())
+                    {
+                        joinData.Result = LfgJoinResult.CantUseDungeons;
+                    }
+                    else if (plrg.HasAura(9454)) // check Freeze debuff
+                    {
+                        joinData.Result = LfgJoinResult.NoSlots;
+                        joinData.PlayersMissingRequirement.Add(plrg.GetName());
+                    }
+
+                    ++memberCount;
+                    players.Add(plrg.GUID);
                 }
 
                 if (joinData.Result == LfgJoinResult.Ok && memberCount != grp.MembersCount)
@@ -977,6 +978,7 @@ public class LFGManager
                         isDungeon = true;
 
                         break;
+
                     case LfgType.Raid:
                         if (isDungeon)
                             joinData.Result = LfgJoinResult.MismatchedSlots;
@@ -984,6 +986,7 @@ public class LFGManager
                         isRaid = true;
 
                         break;
+
                     default:
                         Log.Logger.Error("Wrong dungeon type {0} for dungeon {1}", type, it);
                         joinData.Result = LfgJoinResult.InvalidSlot;
@@ -1065,23 +1068,23 @@ public class LFGManager
             {
                 var plrg = refe.Source;
 
-                if (plrg)
-                {
-                    var pguid = plrg.GUID;
-                    plrg.Session.SendLfgUpdateStatus(updateData, true);
-                    SetState(pguid, LfgState.Rolecheck);
-                    SetTicket(pguid, ticket);
+                if (plrg == null)
+                    continue;
 
-                    if (!isContinue)
-                        SetSelectedDungeons(pguid, dungeons);
+                var pguid = plrg.GUID;
+                plrg.Session.SendLfgUpdateStatus(updateData, true);
+                SetState(pguid, LfgState.Rolecheck);
+                SetTicket(pguid, ticket);
 
-                    roleCheck.Roles[pguid] = 0;
+                if (!isContinue)
+                    SetSelectedDungeons(pguid, dungeons);
 
-                    if (!string.IsNullOrEmpty(debugNames))
-                        debugNames += ", ";
+                roleCheck.Roles[pguid] = 0;
 
-                    debugNames += plrg.GetName();
-                }
+                if (!string.IsNullOrEmpty(debugNames))
+                    debugNames += ", ";
+
+                debugNames += plrg.GetName();
             }
 
             // Update leader role
@@ -1119,7 +1122,7 @@ public class LFGManager
         }
 
         StringBuilder o = new();
-        o.Append($"Join: [{guid}] joined ({(grp ? "group" : "player")}{debugNames}) Members: {dungeons.Count}. Dungeons ({ConcatenateDungeons(dungeons)}): ");
+        o.Append($"Join: [{guid}] joined (group{debugNames}) Members: {dungeons.Count}. Dungeons ({ConcatenateDungeons(dungeons)}): ");
         Log.Logger.Debug(o.ToString());
     }
 
@@ -1166,11 +1169,13 @@ public class LFGManager
                 }
 
                 break;
+
             case LfgState.Rolecheck:
                 if (!gguid.IsEmpty)
                     UpdateRoleCheck(gguid); // No player to update role = LFG_ROLECHECK_ABORTED
 
                 break;
+
             case LfgState.Proposal:
             {
                 // Remove from Proposals
@@ -1180,13 +1185,14 @@ public class LFGManager
                 foreach (var test in _proposalsStore)
                 {
                     it = test;
-                    if (it.Value.Players.TryGetValue(pguid, out var itPlayer))
-                    {
-                        // Mark the player/leader of group who left as didn't accept the proposal
-                        itPlayer.Accept = LfgAnswer.Deny;
 
-                        break;
-                    }
+                    if (!it.Value.Players.TryGetValue(pguid, out var itPlayer))
+                        continue;
+
+                    // Mark the player/leader of group who left as didn't accept the proposal
+                    itPlayer.Accept = LfgAnswer.Deny;
+
+                    break;
                 }
 
                 // Remove from queue - if proposal is found, RemoveProposal will call RemoveFromQueue
@@ -1198,6 +1204,7 @@ public class LFGManager
             case LfgState.None:
             case LfgState.Raidbrowser:
                 break;
+
             case LfgState.Dungeon:
             case LfgState.FinishedDungeon:
                 if (guid != gguid && !disconnected) // Player
@@ -1222,10 +1229,10 @@ public class LFGManager
             _lfgDungeonStore[dungeon.Id] = dungeon.TypeID switch
             {
                 LfgType.Dungeon => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
-                LfgType.Raid    => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
-                LfgType.Random  => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
-                LfgType.Zone    => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
-                _               => _lfgDungeonStore[dungeon.Id]
+                LfgType.Raid => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                LfgType.Random => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                LfgType.Zone => new LFGDungeonData(dungeon, _worldManager.DefaultDbcLocale),
+                _ => _lfgDungeonStore[dungeon.Id]
             };
         }
 
@@ -1366,15 +1373,15 @@ public class LFGManager
         // If group is being formed after proposal success do nothing more
         var players = it.GetPlayers();
 
-        foreach (var guid in players)
+        foreach (var playerGuid in players)
         {
-            SetGroup(guid, ObjectGuid.Empty);
+            SetGroup(playerGuid, ObjectGuid.Empty);
 
-            if (state != LfgState.Proposal)
-            {
-                SetState(guid, LfgState.None);
-                SendLfgUpdateStatus(guid, new LfgUpdateData(LfgUpdateType.RemovedFromQueue), true);
-            }
+            if (state == LfgState.Proposal)
+                continue;
+
+            SetState(playerGuid, LfgState.None);
+            SendLfgUpdateStatus(playerGuid, new LfgUpdateData(LfgUpdateType.RemovedFromQueue), true);
         }
 
         _groupsStore.Remove(guid);
@@ -1387,27 +1394,24 @@ public class LFGManager
 
     public bool SelectedRandomLfgDungeon(ObjectGuid guid)
     {
-        if (GetState(guid) != LfgState.None)
-        {
-            var dungeons = GetSelectedDungeons(guid);
+        if (GetState(guid) == LfgState.None)
+            return false;
 
-            if (!dungeons.Empty())
-            {
-                var dungeon = GetLFGDungeon(dungeons.First());
+        var dungeons = GetSelectedDungeons(guid);
 
-                if (dungeon != null && (dungeon.Type == LfgType.Random || dungeon.Seasonal))
-                    return true;
-            }
-        }
+        if (dungeons.Empty())
+            return false;
 
-        return false;
+        var dungeon = GetLFGDungeon(dungeons.First());
+
+        return dungeon != null && (dungeon.Type == LfgType.Random || dungeon.Seasonal);
     }
 
     public void SendLfgBootProposalUpdate(ObjectGuid guid, LfgPlayerBoot boot)
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (player)
+        if (player != null)
             player.Session.SendLfgBootProposalUpdate(boot);
     }
 
@@ -1415,7 +1419,7 @@ public class LFGManager
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (player)
+        if (player != null)
             player.Session.SendLfgJoinResult(data);
     }
 
@@ -1423,7 +1427,7 @@ public class LFGManager
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (player)
+        if (player != null)
             player.Session.SendLfgQueueStatus(data);
     }
 
@@ -1431,7 +1435,7 @@ public class LFGManager
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (player)
+        if (player != null)
             player.Session.SendLfgRoleCheckUpdate(roleCheck);
     }
 
@@ -1439,7 +1443,7 @@ public class LFGManager
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (player)
+        if (player != null)
             player.Session.SendLfgRoleChosen(pguid, roles);
     }
 
@@ -1447,7 +1451,7 @@ public class LFGManager
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (player)
+        if (player != null)
             player.Session.SendLfgProposalUpdate(proposal);
     }
 
@@ -1455,7 +1459,7 @@ public class LFGManager
     {
         var player = _objectAccessor.FindPlayer(guid);
 
-        if (player)
+        if (player != null)
             player.Session.SendLfgUpdateStatus(data, party);
     }
 
@@ -1504,7 +1508,7 @@ public class LFGManager
 
     public void SetTeam(ObjectGuid guid, TeamFaction team)
     {
-        if (GetDefaultValue("AllowTwoSide.Interaction.Group", false))
+        if (_configuration.GetDefaultValue("AllowTwoSide.Interaction.Group", false))
             team = 0;
 
         _playersStore[guid].SetTeam(team);
@@ -1512,8 +1516,11 @@ public class LFGManager
 
     public void SetupGroupMember(ObjectGuid guid, ObjectGuid gguid)
     {
-        List<uint> dungeons = new();
-        dungeons.Add(GetDungeon(gguid));
+        List<uint> dungeons = new()
+        {
+            GetDungeon(gguid)
+        };
+
         SetSelectedDungeons(guid, dungeons);
         SetState(guid, GetState(gguid));
         SetGroup(guid, gguid);
@@ -1525,7 +1532,7 @@ public class LFGManager
         LFGDungeonData dungeon = null;
         var group = player.Group;
 
-        if (group && group.IsLFGGroup)
+        if (group is { IsLFGGroup: true })
             dungeon = GetLFGDungeon(GetDungeon(group.GUID));
 
         if (dungeon == null)
@@ -1560,7 +1567,7 @@ public class LFGManager
         {
             error = LfgTeleportResult.Exhaustion;
         }
-        else if (player.Vehicle)
+        else if (player.Vehicle != null)
         {
             error = LfgTeleportResult.OnTransport;
         }
@@ -1586,16 +1593,16 @@ public class LFGManager
                 {
                     var plrg = refe.Source;
 
-                    if (plrg && plrg != player && plrg.Location.MapId == dungeon.Map)
-                    {
-                        mapid = plrg.Location.MapId;
-                        x = plrg.Location.X;
-                        y = plrg.Location.Y;
-                        z = plrg.Location.Z;
-                        orientation = plrg.Location.Orientation;
+                    if (plrg == null || plrg == player || plrg.Location.MapId != dungeon.Map)
+                        continue;
 
-                        break;
-                    }
+                    mapid = plrg.Location.MapId;
+                    x = plrg.Location.X;
+                    y = plrg.Location.Y;
+                    z = plrg.Location.Z;
+                    orientation = plrg.Location.Orientation;
+
+                    break;
                 }
 
             if (!player.Location.Map.IsDungeon)
@@ -1637,14 +1644,14 @@ public class LFGManager
             foreach (var pairRole in roleCheck.Roles)
             {
                 var guid = pairRole.Key;
-                RestoreState(guid, "Remove Obsolete RoleCheck");
+                RestoreState(guid);
                 SendLfgRoleCheckUpdate(guid, roleCheck);
 
                 if (guid == roleCheck.Leader)
                     SendLfgJoinResult(guid, new LfgJoinResultData(LfgJoinResult.RoleCheckFailed, LfgRoleCheckState.MissingRole));
             }
 
-            RestoreState(pairCheck.Key, "Remove Obsolete RoleCheck");
+            RestoreState(pairCheck.Key);
             _roleChecksStore.Remove(pairCheck.Key);
         }
 
@@ -1658,21 +1665,18 @@ public class LFGManager
         {
             var boot = itBoot.Value;
 
-            if (boot.CancelTime < currTime)
+            if (boot.CancelTime >= currTime)
+                continue;
+
+            boot.InProgress = false;
+
+            foreach (var pguid in boot.Votes.Select(itVotes => itVotes.Key).Where(pguid => pguid != boot.Victim))
             {
-                boot.InProgress = false;
-
-                foreach (var itVotes in boot.Votes)
-                {
-                    var pguid = itVotes.Key;
-
-                    if (pguid != boot.Victim)
-                        SendLfgBootProposalUpdate(pguid, boot);
-                }
-
-                SetVoteKick(itBoot.Key, false);
-                _bootsStore.Remove(itBoot.Key);
+                SendLfgBootProposalUpdate(pguid, boot);
             }
+
+            SetVoteKick(itBoot.Key, false);
+            _bootsStore.Remove(itBoot.Key);
         }
 
         var lastProposalId = _lfgProposalId;
@@ -1755,10 +1759,12 @@ public class LFGManager
             {
                 case LfgAnswer.Pending:
                     break;
+
                 case LfgAnswer.Agree:
                     ++agreeNum;
 
                     break;
+
                 case LfgAnswer.Deny:
                     ++denyNum;
 
@@ -1786,7 +1792,7 @@ public class LFGManager
         {
             var group = _groupManager.GetGroupByGuid(gguid);
 
-            if (group)
+            if (group != null)
                 PlayerComputators.RemoveFromGroup(group, boot.Victim, RemoveMethod.KickLFG);
 
             DecreaseKicksLeft(gguid);
@@ -1801,7 +1807,11 @@ public class LFGManager
         var proposal = _proposalsStore.LookupByKey(proposalId);
 
         // Check if proposal have the current player
-        if (!proposal?.Players.TryGetValue(guid, out var player))
+        LfgProposalPlayer player = null;
+        if (proposal?.Players.TryGetValue(guid, out player) == false)
+            return;
+
+        if (proposal == null || player == null)
             return;
 
         player.Accept = (LfgAnswer)Convert.ToInt32(accept);
@@ -1872,14 +1882,17 @@ public class LFGManager
                     queue.UpdateWaitTimeDps(waitTime, dungeonId);
 
                     break;
+
                 case LfgRoles.Healer:
                     queue.UpdateWaitTimeHealer(waitTime, dungeonId);
 
                     break;
+
                 case LfgRoles.Tank:
                     queue.UpdateWaitTimeTank(waitTime, dungeonId);
 
                     break;
+
                 default:
                     queue.UpdateWaitTimeAvg(waitTime, dungeonId);
 
@@ -1887,9 +1900,9 @@ public class LFGManager
             }
 
             // Store the number of players that were present in group when joining RFD, used for achievement purposes
-            var player = _objectAccessor.FindConnectedPlayer(pguid);
+            var connectedPlayer = _objectAccessor.FindConnectedPlayer(pguid);
 
-            var group = player?.Group;
+            var group = connectedPlayer?.Group;
 
             if (group != null)
                 _playersStore[pguid].SetNumberOfPartyMembersAtJoin((byte)group.MembersCount);
@@ -1988,12 +2001,13 @@ public class LFGManager
                     SendLfgUpdateStatus(pguid, new LfgUpdateData(LfgUpdateType.AddedToQueue, dungeons), true);
 
                     break;
+
                 default:
                     if (roleCheck.Leader == pguid)
                         SendLfgJoinResult(pguid, joinData);
 
                     SendLfgUpdateStatus(pguid, new LfgUpdateData(LfgUpdateType.RolecheckFailed), true);
-                    RestoreState(pguid, "Rolecheck Failed");
+                    RestoreState(pguid);
 
                     break;
             }
@@ -2008,7 +2022,7 @@ public class LFGManager
         }
         else if (roleCheck.State != LfgRoleCheckState.Initialiting)
         {
-            RestoreState(gguid, "Rolecheck Failed");
+            RestoreState(gguid);
             _roleChecksStore.Remove(gguid);
         }
     }
@@ -2091,7 +2105,7 @@ public class LFGManager
                     if (it2.Value.LockStatus == LfgLockStatusType.RaidLocked && isContinue)
                     {
                         var dungeon = GetLFGDungeon(dungeonId);
-                        MapDb2Entries entries = new(dungeon.Map, dungeon.Difficulty);
+                        MapDb2Entries entries = new(dungeon.Map, dungeon.Difficulty, _cliDB, _db2Manager);
                         var playerBind = _instanceLockManager.FindActiveInstanceLock(guid, entries);
 
                         if (playerBind != null)
@@ -2192,10 +2206,12 @@ public class LFGManager
                         tankPlayers.Add(guid);
 
                         break;
+
                     case LfgRoles.Healer:
                         healPlayers.Add(guid);
 
                         break;
+
                     case LfgRoles.Damage:
                         dpsPlayers.Add(guid);
 
@@ -2213,23 +2229,23 @@ public class LFGManager
         // Set the dungeon difficulty
         var dungeon = GetLFGDungeon(proposal.DungeonId);
 
-        var grp = !proposal.Group.IsEmpty ? _groupManager.GetGroupByGUID(proposal.Group) : null;
+        var grp = !proposal.Group.IsEmpty ? _groupManager.GetGroupByGuid(proposal.Group) : null;
 
         foreach (var pguid in players)
         {
             var player = _objectAccessor.FindConnectedPlayer(pguid);
 
-            if (!player)
+            if (player == null)
                 continue;
 
             var group = player.Group;
 
-            if (group && group != grp)
+            if (group != null && group != grp)
                 group.RemoveMember(player.GUID);
 
-            if (!grp)
+            if (grp == null)
             {
-                grp = new PlayerGroup();
+                grp = _classFactory.Resolve<PlayerGroup>();
                 grp.ConvertToLFG();
                 grp.Create(player);
                 var gguid = grp.GUID;
@@ -2246,30 +2262,30 @@ public class LFGManager
             // Add the cooldown spell if queued for a random dungeon
             var dungeons = GetSelectedDungeons(player.GUID);
 
-            if (!dungeons.Empty())
-            {
-                var rDungeonId = dungeons[0];
-                var rDungeon = GetLFGDungeon(rDungeonId);
+            if (dungeons.Empty())
+                continue;
 
-                if (rDungeon is { Type: LfgType.Random })
-                    player.CastSpell(player, SharedConst.LFGSpellDungeonCooldown, false);
-            }
+            var rDungeonId = dungeons[0];
+            var rDungeon = GetLFGDungeon(rDungeonId);
+
+            if (rDungeon is { Type: LfgType.Random })
+                player.SpellFactory.CastSpell(player, SharedConst.LFGSpellDungeonCooldown);
         }
 
-        grp.SetDungeonDifficultyID(dungeon.Difficulty);
-        var guid = grp.GUID;
-        SetDungeon(guid, dungeon.Entry());
-        SetState(guid, LfgState.Dungeon);
+        if (grp == null)
+            return;
 
-        _SaveToDB(guid, grp.DbStoreId);
+        grp.SetDungeonDifficultyID(dungeon.Difficulty);
+
+        SetDungeon(grp.GUID, dungeon.Entry());
+        SetState(grp.GUID, LfgState.Dungeon);
+
+        _SaveToDB(grp.GUID, grp.DbStoreId);
 
         // Teleport Player
-        foreach (var it in playersToTeleport)
+        foreach (var player in playersToTeleport.Select(it => _objectAccessor.FindPlayer(it)).Where(player => player != null))
         {
-            var player = _objectAccessor.FindPlayer(it);
-
-            if (player)
-                TeleportPlayer(player, false);
+            TeleportPlayer(player, false);
         }
 
         // Update group info
@@ -2285,9 +2301,8 @@ public class LFGManager
 
         // Mark all people that didn't answered as no accept
         if (type == LfgUpdateType.ProposalFailed)
-            foreach (var it in proposal.Players)
-                if (it.Value.Accept == LfgAnswer.Pending)
-                    it.Value.Accept = LfgAnswer.Deny;
+            foreach (var it in proposal.Players.Where(it => it.Value.Accept == LfgAnswer.Pending))
+                it.Value.Accept = LfgAnswer.Deny;
 
         // Mark players/groups to be removed
         List<ObjectGuid> toRemove = new();
@@ -2330,11 +2345,11 @@ public class LFGManager
                     Log.Logger.Debug("RemoveProposal: [{0}] in same group that someone that didn't accept. Removing from queue and compatible cache", guid);
                 }
 
-                RestoreState(guid, "Proposal Fail (didn't accepted or in group with someone that didn't accept");
+                RestoreState(guid);
 
                 if (gguid != guid)
                 {
-                    RestoreState(it.Value.Group, "Proposal Fail (someone in group didn't accepted)");
+                    RestoreState(it.Value.Group);
                     SendLfgUpdateStatus(guid, updateData, true);
                 }
                 else
@@ -2375,7 +2390,7 @@ public class LFGManager
         _proposalsStore.Remove(itProposal.Key);
     }
 
-    private void RestoreState(ObjectGuid guid, string debugMsg)
+    private void RestoreState(ObjectGuid guid)
     {
         if (guid.IsParty)
         {

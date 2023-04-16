@@ -116,7 +116,7 @@ public class LootHandler : IWorldSessionHandler
 
         List<Creature> corpses = new();
         CreatureListSearcher searcher = new(_player, corpses, check, GridType.Grid);
-        Cell.VisitGrid(_player, searcher, AELootCreatureCheck.LootDistance);
+        CellCalculator.VisitGrid(_player, searcher, AELootCreatureCheck.LootDistance);
 
         if (!corpses.Empty())
             SendPacket(new AELootTargets((uint)corpses.Count + 1));

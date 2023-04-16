@@ -576,7 +576,7 @@ public class PlayerAchievementMgr : AchievementManager
                 BroadcastTextBuilder builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
                 var localizer = new LocalizedDo(builder);
                 var worker = new PlayerDistWorker(_owner, Configuration.GetDefaultValue("ListenRange.Say", 25.0f), localizer, GridType.World);
-                Cell.VisitGrid(_owner, worker, Configuration.GetDefaultValue("ListenRange.Say", 25.0f));
+                CellCalculator.VisitGrid(_owner, worker, Configuration.GetDefaultValue("ListenRange.Say", 25.0f));
             }
         }
 

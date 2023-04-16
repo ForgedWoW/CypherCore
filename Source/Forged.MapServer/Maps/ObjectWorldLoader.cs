@@ -28,26 +28,28 @@ internal class ObjectWorldLoader : IGridNotifierCorpse
     public GridType GridType { get; set; }
     public void Visit(IList<Corpse> objs)
     {
-        var cellCoord = _iCell.GetCellCoord();
+        var cellCoord = _iCell.CellCoord;
         var corpses = _iMap.GetCorpsesInCell(cellCoord.GetId());
 
-        if (corpses != null)
-            foreach (var corpse in corpses)
+        if (corpses == null)
+            return;
+
+        foreach (var corpse in corpses)
+        {
+            corpse.AddToWorld();
+            var cell = _iGrid.GetGridCell(_iCell.Data.CellX, _iCell.Data.CellY);
+
+            if (corpse.IsWorldObject())
             {
-                corpse.AddToWorld();
-                var cell = _iGrid.GetGridCell(_iCell.GetCellX(), _iCell.GetCellY());
-
-                if (corpse.IsWorldObject())
-                {
-                    _iMap.AddToGrid(corpse, new Cell(cellCoord));
-                    cell.AddWorldObject(corpse);
-                }
-                else
-                {
-                    cell.AddGridObject(corpse);
-                }
-
-                ++ICorpses;
+                _iMap.AddToGrid(corpse, new Cell(cellCoord, _iCell.GridDefines));
+                cell.AddWorldObject(corpse);
             }
+            else
+            {
+                cell.AddGridObject(corpse);
+            }
+
+            ++ICorpses;
+        }
     }
 }

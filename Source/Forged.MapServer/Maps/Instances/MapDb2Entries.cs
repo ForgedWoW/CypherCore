@@ -14,10 +14,10 @@ public struct MapDb2Entries
     public MapRecord Map;
     public MapDifficultyRecord MapDifficulty;
 
-    public MapDb2Entries(uint mapId, Difficulty difficulty)
+    public MapDb2Entries(uint mapId, Difficulty difficulty, CliDB cliDB, DB2Manager db2Manager)
     {
-        Map = CliDB.MapStorage.LookupByKey(mapId);
-        MapDifficulty = Global.DB2Mgr.GetMapDifficultyData(mapId, difficulty);
+        Map = cliDB.MapStorage.LookupByKey(mapId);
+        MapDifficulty = db2Manager.GetMapDifficultyData(mapId, difficulty);
     }
 
     public MapDb2Entries(MapRecord map, MapDifficultyRecord mapDifficulty)
