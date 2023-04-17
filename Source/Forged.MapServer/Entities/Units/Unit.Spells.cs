@@ -106,18 +106,16 @@ public partial class Unit
         var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
 
         AuraCreateInfo createInfo = new(castId, spellInfo, Location.Map.DifficultyID, effMask, target);
-        createInfo.SetCaster(this);
+        createInfo.Caster = this;
 
         var aura = Aura.TryRefreshStackOrCreate(createInfo);
 
-        if (aura != null)
-        {
-            aura.ApplyForTargets();
+        if (aura == null)
+            return null;
 
-            return aura;
-        }
+        aura.ApplyForTargets();
 
-        return null;
+        return aura;
     }
 
     public void ApplyAllAuraStatMods()
@@ -160,9 +158,7 @@ public partial class Unit
                 ForceUpdateFieldChange();
             }
             else
-            {
                 ModifyAuraState(aState, true);
-            }
         }
 
         if (aurApp.HasRemoveMode)
@@ -230,9 +226,7 @@ public partial class Unit
         var diminish = _diminishing[(int)group];
 
         if (apply)
-        {
             ++diminish.Stack;
-        }
         else if (diminish.Stack != 0)
         {
             --diminish.Stack;
@@ -384,9 +378,7 @@ public partial class Unit
     public void ApplySpellImmune(uint spellId, SpellImmunity op, uint type, bool apply)
     {
         if (apply)
-        {
             _spellImmune[op].Add(type, spellId);
-        }
         else
         {
             var bounds = _spellImmune[op].LookupByKey(type);
@@ -1132,7 +1124,7 @@ public partial class Unit
         var spellClickHandled = false;
 
         var spellClickEntry = VehicleKit?.GetCreatureEntry() ?? Entry;
-        var flags = VehicleKit ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
+        var flags = VehicleKit != null ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
 
         var clickBounds = ObjectManager.GetSpellClickInfoMapBounds(spellClickEntry);
 
@@ -1197,9 +1189,9 @@ public partial class Unit
                     bp[i] = seatId;
 
                     AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Location.Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Location.Map.DifficultyID, SpellConst.MaxEffects, this);
-                    createInfo.SetCaster(clicker);
+                    createInfo.Caster = clicker;
                     createInfo.SetBaseAmount(bp);
-                    createInfo.SetCasterGuid(origCasterGUID);
+                    createInfo.CasterGuid = origCasterGUID;
 
                     Aura.TryRefreshStackOrCreate(createInfo);
                 }
@@ -1207,14 +1199,12 @@ public partial class Unit
             else
             {
                 if (Location.IsInMap(caster))
-                {
                     caster.SpellFactory.CastSpell(target, spellEntry.Id, new CastSpellExtraArgs().SetOriginalCaster(origCasterGUID));
-                }
                 else
                 {
                     AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Location.Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Location.Map.DifficultyID, SpellConst.MaxEffects, this);
-                    createInfo.SetCaster(clicker);
-                    createInfo.SetCasterGuid(origCasterGUID);
+                    createInfo.Caster = clicker;
+                    createInfo.CasterGuid = origCasterGUID;
 
                     Aura.TryRefreshStackOrCreate(createInfo);
                 }
@@ -1225,7 +1215,7 @@ public partial class Unit
 
         var creature = AsCreature;
 
-        if (creature && creature.IsAIEnabled)
+        if (creature != null && creature.IsAIEnabled)
             creature.AI.OnSpellClick(clicker, ref spellClickHandled);
     }
 
@@ -1459,18 +1449,20 @@ public partial class Unit
 
         // generic spells are interrupted if they are not finished or delayed
         if (GetCurrentSpell(CurrentSpellTypes.Generic) != null && (spellID == 0 || CurrentSpells[CurrentSpellTypes.Generic].SpellInfo.Id == spellID))
-            if (InterruptSpell(CurrentSpellTypes.Generic, withDelayed, withInstant))
+            if (InterruptSpell(CurrentSpellTypes.Generic, withDelayed, withInstant) != null)
                 retval = true;
 
         // autorepeat spells are interrupted if they are not finished or delayed
         if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null && (spellID == 0 || CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo.Id == spellID))
-            if (InterruptSpell(CurrentSpellTypes.AutoRepeat, withDelayed, withInstant))
+            if (InterruptSpell(CurrentSpellTypes.AutoRepeat, withDelayed, withInstant) != null)
                 retval = true;
 
         // channeled spells are interrupted if they are not finished, even if they are delayed
-        if (GetCurrentSpell(CurrentSpellTypes.Channeled) != null && (spellID == 0 || CurrentSpells[CurrentSpellTypes.Channeled].SpellInfo.Id == spellID))
-            if (InterruptSpell(CurrentSpellTypes.Channeled))
-                retval = true;
+        if (GetCurrentSpell(CurrentSpellTypes.Channeled) == null || (spellID != 0 && CurrentSpells[CurrentSpellTypes.Channeled].SpellInfo.Id != spellID))
+            return retval;
+
+        if (InterruptSpell(CurrentSpellTypes.Channeled) != null)
+            retval = true;
 
         return retval;
     }
@@ -1480,36 +1472,32 @@ public partial class Unit
         Log.Logger.Debug("Interrupt spell for unit {0}", Entry);
         var spell = CurrentSpells.LookupByKey(spellType);
 
-        if (spell != null && (withDelayed || spell.State != SpellState.Delayed) && (withInstant || spell.CastTime > 0 || spell.State == SpellState.Casting))
+        if (spell == null || (!withDelayed && spell.State == SpellState.Delayed) || (!withInstant && spell.CastTime <= 0 && spell.State != SpellState.Casting))
+            return null;
+
+        // for example, do not let self-stun aura interrupt itself
+        if (!spell.IsInterruptable)
+            return null;
+
+        // send autorepeat cancel message for autorepeat spells
+        if (spellType == CurrentSpellTypes.AutoRepeat)
+            if (IsTypeId(TypeId.Player))
+                AsPlayer.SendAutoRepeatCancel(this);
+
+        if (spell.State != SpellState.Finished)
+            spell.Cancel();
+        else
         {
-            // for example, do not let self-stun aura interrupt itself
-            if (!spell.IsInterruptable)
-                return null;
-
-            // send autorepeat cancel message for autorepeat spells
-            if (spellType == CurrentSpellTypes.AutoRepeat)
-                if (IsTypeId(TypeId.Player))
-                    AsPlayer.SendAutoRepeatCancel(this);
-
-            if (spell.State != SpellState.Finished)
-            {
-                spell.Cancel();
-            }
-            else
-            {
-                CurrentSpells[spellType] = null;
-                spell.SetReferencedFromCurrent(false);
-            }
-
-            if (IsCreature && IsAIEnabled)
-                AsCreature.AI.OnSpellFailed(spell.SpellInfo);
-
-            ScriptManager.ForEach<IUnitSpellInterrupted>(s => s.SpellInterrupted(spell, interruptingSpell));
-
-            return spell;
+            CurrentSpells[spellType] = null;
+            spell.SetReferencedFromCurrent(false);
         }
 
-        return null;
+        if (IsCreature && IsAIEnabled)
+            AsCreature.AI.OnSpellFailed(spell.SpellInfo);
+
+        ScriptManager.ForEach<IUnitSpellInterrupted>(s => s.SpellInterrupted(spell, interruptingSpell));
+
+        return spell;
     }
 
     public bool IsHighestExclusiveAura(Aura aura, bool removeOtherAuraApplications = false)
@@ -1574,10 +1562,7 @@ public partial class Unit
         // If m_immuneToDamage type contain magic, IMMUNE damage.
         var damageImmunityMask = DamageImmunityMask;
 
-        if (((SpellSchoolMask)damageImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
-            return true;
-
-        return false;
+        return ((SpellSchoolMask)damageImmunityMask & schoolMask) == schoolMask; // We need to be immune to all types
     }
 
     public bool IsImmunedToDamage(SpellInfo spellInfo)
@@ -1764,27 +1749,27 @@ public partial class Unit
 
         var aura = spellEffectInfo.ApplyAuraName;
 
-        if (aura != 0)
+        if (aura == 0)
+            return false;
+
+        if (!spellInfo.HasAttribute(SpellAttr3.AlwaysHit))
         {
-            if (!spellInfo.HasAttribute(SpellAttr3.AlwaysHit))
-            {
-                var list = _spellImmune[SpellImmunity.State];
+            var list = _spellImmune[SpellImmunity.State];
 
-                if (HasImmunity(list, (uint)aura))
-                    return true;
-            }
-
-            if (!spellInfo.HasAttribute(SpellAttr2.NoSchoolImmunities))
-            {
-                // Check for immune to application of harmful magical effects
-                var immuneAuraApply = GetAuraEffectsByType(AuraType.ModImmuneAuraApplySchool);
-
-                foreach (var auraEffect in immuneAuraApply)
-                    if (Convert.ToBoolean(auraEffect.MiscValue & (int)spellInfo.GetSchoolMask()) &&                                        // Check school
-                        ((caster && !WorldObjectCombat.IsFriendlyTo(caster)) || !spellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))) // Harmful
-                        return true;
-            }
+            if (HasImmunity(list, (uint)aura))
+                return true;
         }
+
+        if (spellInfo.HasAttribute(SpellAttr2.NoSchoolImmunities))
+            return false;
+
+        // Check for immune to application of harmful magical effects
+        var immuneAuraApply = GetAuraEffectsByType(AuraType.ModImmuneAuraApplySchool);
+
+        foreach (var auraEffect in immuneAuraApply)
+            if (Convert.ToBoolean(auraEffect.MiscValue & (int)spellInfo.GetSchoolMask()) &&                                                // Check school
+                ((caster != null && !WorldObjectCombat.IsFriendlyTo(caster)) || !spellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))) // Harmful
+                return true;
 
         return false;
     }
@@ -1807,10 +1792,12 @@ public partial class Unit
         // channeled spells during channel stage (after the initial cast timer) allow movement with a specific spell attribute
         spell = CurrentSpells.LookupByKey(CurrentSpellTypes.Channeled);
 
-        if (spell != null)
-            if (spell.State != SpellState.Finished && spell.IsChannelActive)
-                if (spell.SpellInfo.IsMoveAllowedChannel || CanCastSpellWhileMoving(spell.SpellInfo))
-                    return false;
+        if (spell == null)
+            return true;
+
+        if (spell.State != SpellState.Finished && spell.IsChannelActive)
+            if (spell.SpellInfo.IsMoveAllowedChannel || CanCastSpellWhileMoving(spell.SpellInfo))
+                return false;
 
         // prohibit movement for all other spell casts
         return true;
@@ -1824,7 +1811,7 @@ public partial class Unit
         // generic spells are cast when they are not finished and not delayed
         var currentSpell = GetCurrentSpell(CurrentSpellTypes.Generic);
 
-        if (currentSpell &&
+        if (currentSpell != null &&
             currentSpell.State != SpellState.Finished &&
             (withDelayed || currentSpell.State != SpellState.Delayed))
             if (!skipInstant || currentSpell.CastTime != 0)
@@ -1835,7 +1822,7 @@ public partial class Unit
 
         // channeled spells may be delayed, but they are still considered cast
         if (!skipChanneled &&
-            currentSpell &&
+            currentSpell != null &&
             currentSpell.State != SpellState.Finished)
             if (!isAutoshoot || !currentSpell.SpellInfo.HasAttribute(SpellAttr2.DoNotResetCombatTimers))
                 return true;
@@ -1843,7 +1830,7 @@ public partial class Unit
         currentSpell = GetCurrentSpell(CurrentSpellTypes.AutoRepeat);
 
         // autorepeat spells may be finished or delayed, but they are still considered cast
-        if (!skipAutorepeat && currentSpell)
+        if (!skipAutorepeat && currentSpell != null)
             return true;
 
         return false;
@@ -2084,7 +2071,7 @@ public partial class Unit
             return;
 
         // For melee/ranged based attack need update skills and set some Aura states if victim present
-        if (typeMask.HasFlag(ProcFlags.MeleeBasedTriggerMask) && procTarget)
+        if (typeMask.HasFlag(ProcFlags.MeleeBasedTriggerMask) && procTarget != null)
             // If exist crit/parry/dodge/block need update aura state (for victim and attacker)
             if (hitMask.HasAnyFlag(ProcFlagsHit.Critical | ProcFlagsHit.Parry | ProcFlagsHit.Dodge | ProcFlagsHit.Block))
                 // for victim
@@ -2437,7 +2424,7 @@ public partial class Unit
                         aura.UnregisterSingleTarget();
 
                     AuraCreateInfo createInfo = new(aura.CastId, aura.SpellInfo, aura.CastDifficulty, effMask, stealer);
-                    createInfo.SetCasterGuid(aura.CasterGuid);
+                    createInfo.CasterGuid = aura.CasterGuid;
                     createInfo.SetBaseAmount(baseDamage);
 
                     var newAura = Aura.TryRefreshStackOrCreate(createInfo);
@@ -2645,14 +2632,12 @@ public partial class Unit
         // to register in m_appliedAuras
         foreach (var aura in _ownedAuras.Query().HasCasterGuid(GUID).IsSingleTarget().GetResults())
             if (onPhaseChange)
-            {
                 RemoveOwnedAura(aura.Id, aura);
-            }
             else
             {
                 var caster = aura.Caster;
 
-                if (!caster || !caster.Location.InSamePhase(this))
+                if (caster == null || !caster.Location.InSamePhase(this))
                     RemoveOwnedAura(aura.Id, aura);
             }
 
@@ -2801,7 +2786,7 @@ public partial class Unit
         ContentTuningParams contentTuningParams = new();
         var caster = ObjectAccessor.GetUnit(this, aura.CasterGuid);
 
-        if (caster && contentTuningParams.GenerateDataForUnits(caster, this))
+        if (caster != null && contentTuningParams.GenerateDataForUnits(caster, this))
             spellLogEffect.ContentTuning = contentTuningParams;
 
         data.Effects.Add(spellLogEffect);
@@ -2916,8 +2901,9 @@ public partial class Unit
     public void SetCurrentCastSpell(Spell pSpell)
     {
         var cSpellType = pSpell.CurrentContainer;
+        var currentSpell = GetCurrentSpell(cSpellType);
 
-        if (pSpell == GetCurrentSpell(cSpellType)) // avoid breaking self
+        if (pSpell == currentSpell) // avoid breaking self
             return;
 
         // special breakage effects:
@@ -2959,8 +2945,8 @@ public partial class Unit
             }
             case CurrentSpellTypes.AutoRepeat:
             {
-                if (GetCurrentSpell(cSpellType) && GetCurrentSpell(cSpellType).State == SpellState.Idle)
-                    GetCurrentSpell(cSpellType).State = SpellState.Finished;
+                if (currentSpell is { State: SpellState.Idle })
+                    currentSpell.State = SpellState.Finished;
 
                 // only Auto Shoot does not break anything
                 if (pSpell.SpellInfo.Id != 75)
@@ -2975,8 +2961,7 @@ public partial class Unit
         }
 
         // current spell (if it is still here) may be safely deleted now
-        if (GetCurrentSpell(cSpellType) != null)
-            CurrentSpells[cSpellType].SetReferencedFromCurrent(false);
+        currentSpell?.SetReferencedFromCurrent(false);
 
         // set new current spell
         CurrentSpells[cSpellType] = pSpell;
@@ -3003,16 +2988,12 @@ public partial class Unit
     public void SetVisibleAuraUpdate(AuraApplication aurApp)
     {
         lock (_visibleAurasToUpdate)
-        {
             _visibleAurasToUpdate.Add(aurApp);
-        }
     }
 
     public double SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
     {
-        var thisPlayer = AsPlayer;
-
-        if (thisPlayer)
+        if (TryGetAsPlayer(out var thisPlayer))
         {
             float overrideSp = thisPlayer.ActivePlayerData.OverrideSpellPowerByAPPercent;
 
@@ -3022,26 +3003,26 @@ public partial class Unit
 
         var doneAdvertisedBenefit = GetTotalAuraModifierByMiscMask(AuraType.ModDamageDone, (int)schoolMask);
 
-        if (IsTypeId(TypeId.Player))
-        {
-            // Base value
-            doneAdvertisedBenefit += (int)AsPlayer.GetBaseSpellPowerBonus();
+        if (!IsTypeId(TypeId.Player))
+            return doneAdvertisedBenefit;
 
-            // Check if we are ever using mana - PaperDollFrame.lua
-            if (GetPowerIndex(PowerType.Mana) != (uint)PowerType.Max)
-                doneAdvertisedBenefit += Math.Max(0, (int)GetStat(Stats.Intellect)); // spellpower from intellect
+        // Base value
+        doneAdvertisedBenefit += (int)AsPlayer.GetBaseSpellPowerBonus();
 
-            // Damage bonus from stats
-            var mDamageDoneOfStatPercent = GetAuraEffectsByType(AuraType.ModSpellDamageOfStatPercent);
+        // Check if we are ever using mana - PaperDollFrame.lua
+        if (GetPowerIndex(PowerType.Mana) != (uint)PowerType.Max)
+            doneAdvertisedBenefit += Math.Max(0, (int)GetStat(Stats.Intellect)); // spellpower from intellect
 
-            foreach (var eff in mDamageDoneOfStatPercent)
-                if (Convert.ToBoolean(eff.MiscValue & (int)schoolMask))
-                {
-                    // stat used stored in miscValueB for this aura
-                    var usedStat = (Stats)eff.MiscValueB;
-                    doneAdvertisedBenefit += (int)MathFunctions.CalculatePct(GetStat(usedStat), eff.Amount);
-                }
-        }
+        // Damage bonus from stats
+        var mDamageDoneOfStatPercent = GetAuraEffectsByType(AuraType.ModSpellDamageOfStatPercent);
+
+        foreach (var eff in mDamageDoneOfStatPercent)
+            if (Convert.ToBoolean(eff.MiscValue & (int)schoolMask))
+            {
+                // stat used stored in miscValueB for this aura
+                var usedStat = (Stats)eff.MiscValueB;
+                doneAdvertisedBenefit += (int)MathFunctions.CalculatePct(GetStat(usedStat), eff.Amount);
+            }
 
         return doneAdvertisedBenefit;
     }
@@ -3096,7 +3077,7 @@ public partial class Unit
         var spellInfo = spell != null ? spell.SpellInfo : aurEff.SpellInfo;
 
         //! Mobs can't crit with spells. (Except player controlled)
-        if (IsCreature && !SpellModOwner)
+        if (IsCreature && SpellModOwner == null)
             return 0.0f;
 
         // not critting spell
@@ -3158,7 +3139,7 @@ public partial class Unit
                     // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
                     critChance += GetTotalAuraModifier(AuraType.ModAttackerSpellAndWeaponCritChance);
 
-                if (caster)
+                if (caster != null)
                 {
                     // scripted (increase crit chance ... against ... target by x%
                     var mOverrideClassScript = caster.GetAuraEffectsByType(AuraType.OverrideClassScripts);
@@ -3278,7 +3259,7 @@ public partial class Unit
         {
             var apCoeffMod = spellEffectInfo.BonusCoefficientFromAp;
 
-            if (SpellModOwner)
+            if (SpellModOwner != null)
             {
                 apCoeffMod *= 100.0f;
                 SpellModOwner.ApplySpellMod(spellProto, SpellModOp.BonusCoefficient, ref apCoeffMod);
@@ -3313,7 +3294,7 @@ public partial class Unit
 
             var modOwner1 = SpellModOwner;
 
-            if (modOwner1)
+            if (modOwner1 != null)
             {
                 coeff *= 100.0f;
                 modOwner1.ApplySpellMod(spellProto, SpellModOp.BonusCoefficient, ref coeff);
@@ -3364,7 +3345,7 @@ public partial class Unit
             // Versatility
             var modOwner = SpellModOwner;
 
-            if (modOwner)
+            if (modOwner != null)
             {
                 // only 50% of SPELL_AURA_MOD_VERSATILITY for damage reduction
                 var versaBonus = modOwner.GetTotalAuraModifier(AuraType.ModVersatility) / 2.0f;
@@ -3413,7 +3394,7 @@ public partial class Unit
 
     public double SpellDamagePctDone(Unit victim, SpellInfo spellProto, DamageEffectType damagetype, SpellEffectInfo spellEffectInfo, Spell spell = null)
     {
-        if (spellProto == null || !victim || damagetype == DamageEffectType.Direct)
+        if (spellProto == null || victim == null || damagetype == DamageEffectType.Direct)
             return 1.0f;
 
         // Some spells don't benefit from done mods
@@ -3443,22 +3424,19 @@ public partial class Unit
         // Versatility
         var modOwner = SpellModOwner;
 
-        if (modOwner)
+        if (modOwner != null)
             MathFunctions.AddPct(ref doneTotalMod, modOwner.GetRatingBonusValue(CombatRating.VersatilityDamageDone) + modOwner.GetTotalAuraModifier(AuraType.ModVersatility));
 
         double maxModDamagePercentSchool = 0.0f;
-        var thisPlayer = AsPlayer;
 
-        if (thisPlayer)
+        if (TryGetAsPlayer(out var thisPlayer))
         {
             for (var i = 0; i < (int)SpellSchools.Max; ++i)
                 if (Convert.ToBoolean((int)spellProto.GetSchoolMask() & (1 << i)))
                     maxModDamagePercentSchool = Math.Max(maxModDamagePercentSchool, thisPlayer.ActivePlayerData.ModDamageDonePercent[i]);
         }
         else
-        {
             maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentDone, (uint)spellProto.GetSchoolMask());
-        }
 
         doneTotalMod *= maxModDamagePercentSchool;
 
@@ -3502,12 +3480,8 @@ public partial class Unit
     {
         // For totems get healing bonus from owner (statue isn't totem in fact)
         if (IsTypeId(TypeId.Unit) && IsTotem)
-        {
-            var owner = OwnerUnit;
-
-            if (owner)
+            if (TryGetAsUnit(out var owner))
                 return owner.SpellHealingBonusDone(victim, spellProto, healamount, damagetype, spellEffectInfo, stack, spell);
-        }
 
         // No bonus healing for potion spells
         if (spellProto.SpellFamilyName == SpellFamilyNames.Potion)
@@ -3556,18 +3530,16 @@ public partial class Unit
             doneTotal += spellEffectInfo.BonusCoefficientFromAp * stack * aPbonus;
         }
         else if (coeff <= 0.0f) // no AP and no SP coefs, skip
-        {
             // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
             if (spellProto.DmgClass == SpellDmgClass.None)
                 return Math.Max(healamount * doneTotalMod, 0.0f);
-        }
 
         // Default calculation
         if (doneAdvertisedBenefit != 0)
         {
             spell?.ForEachSpellScript<ISpellCalculateBonusCoefficient>(a => coeff = a.CalcBonusCoefficient(coeff));
 
-            if (SpellModOwner)
+            if (SpellModOwner != null)
             {
                 coeff *= 100.0f;
                 SpellModOwner.ApplySpellMod(spellProto, SpellModOp.BonusCoefficient, ref coeff);
@@ -3582,9 +3554,9 @@ public partial class Unit
             doneTotal = otherSpellEffectInfo.ApplyAuraName switch
             {
                 // Bonus healing does not apply to these spells
-                AuraType.PeriodicLeech        => 0,
+                AuraType.PeriodicLeech => 0,
                 AuraType.PeriodicHealthFunnel => 0,
-                _                             => doneTotal
+                _ => doneTotal
             };
 
             if (otherSpellEffectInfo.IsEffect(SpellEffectName.HealthLeech))
@@ -3636,7 +3608,7 @@ public partial class Unit
                 MathFunctions.AddPct(ref takenTotalMod, maxvalHot);
         }
 
-        if (caster)
+        if (caster != null)
         {
             takenTotalMod *= GetTotalAuraMultiplier(AuraType.ModHealingReceived, aurEff => caster.GUID == aurEff.CasterGuid && aurEff.IsAffectingSpell(spellProto));
 
@@ -3717,8 +3689,8 @@ public partial class Unit
             // needed for example for Cobra Strikes, pet does the attack, but aura is on owner
             var modOwner = SpellModOwner;
 
-            if (modOwner)
-                if (modOwner != this && spell)
+            if (modOwner != null)
+                if (modOwner != this && spell != null)
                 {
                     List<AuraApplication> modAuras = new();
 
@@ -3734,12 +3706,12 @@ public partial class Unit
         ProcEventInfo targetProcEventInfo = new(this, actionTarget, this, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
         List<Tuple<HashSet<int>, AuraApplication>> targetAurasTriggeringProc = new();
 
-        if (typeMaskActionTarget && actionTarget)
+        if (typeMaskActionTarget != null && actionTarget != null)
             actionTarget.GetProcAurasTriggeredOnEvent(targetAurasTriggeringProc, targetProcAuras, targetProcEventInfo);
 
         TriggerAurasProcOnEvent(myProcEventInfo, myAurasTriggeringProc);
 
-        if (typeMaskActionTarget && actionTarget)
+        if (typeMaskActionTarget != null && actionTarget != null)
             actionTarget.TriggerAurasProcOnEvent(targetProcEventInfo, targetAurasTriggeringProc);
     }
 
@@ -3900,9 +3872,7 @@ public partial class Unit
         if (auraState != 0)
         {
             if (!auraStateFound)
-            {
                 ModifyAuraState(auraState, false);
-            }
             else
             {
                 // update for casters, some shouldn't 'see' the aura state
@@ -3926,6 +3896,7 @@ public partial class Unit
         if (ConditionManager.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
             player.UpdateVisibleGameobjectsOrSpellClicks();
     }
+
     public void UpdateEmpowerState(EmpowerState state, uint exceptSpellid = 0)
     {
         for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
@@ -4124,6 +4095,7 @@ public partial class Unit
 
         _appliedAuras.AuraApplications.CallOnMatch((app) => !aura.CanStackWith(app.Base), (app) => RemoveAura(app));
     }
+
     private void SendHealSpellLog(HealInfo healInfo, bool critical = false)
     {
         SpellHealLog spellHealLog = new()
@@ -4153,7 +4125,7 @@ public partial class Unit
     private void TriggerAurasProcOnEvent(ProcEventInfo eventInfo, List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc)
     {
         var triggeringSpell = eventInfo.ProcSpell;
-        var disableProcs = triggeringSpell && triggeringSpell.IsProcDisabled;
+        var disableProcs = triggeringSpell is { IsProcDisabled: true };
 
         if (disableProcs)
             SetCantProc(true);

@@ -28,9 +28,7 @@ public class AuraCollection
         get
         {
             lock (_auras)
-            {
                 return _auras.Values.ToList();
-            }
         }
     }
 
@@ -39,9 +37,7 @@ public class AuraCollection
         get
         {
             lock (_auras)
-            {
                 return _auras.Count;
-            }
         }
     }
 
@@ -82,26 +78,20 @@ public class AuraCollection
     public bool Contains(Aura aura)
     {
         lock (_auras)
-        {
             return _auras.ContainsKey(aura.Guid);
-        }
     }
 
     public bool Empty()
     {
         lock (_auras)
-        {
             return _auras.Count == 0;
-        }
     }
 
     public Aura GetByGuid(Guid guid)
     {
         lock (_auras)
-        {
             if (_auras.TryGetValue(guid, out var ret))
                 return ret;
-        }
 
         return null;
     }
@@ -141,13 +131,13 @@ public class AuraCollection
             _typeMap.Remove(aura.AuraObjType, aura.Guid);
         }
     }
+
     public bool TryGetAuraByGuid(Guid guid, out Aura aura)
     {
         lock (_auras)
-        {
             return _auras.TryGetValue(guid, out aura);
-        }
     }
+
     public class AuraQuery
     {
         private readonly AuraCollection _collection;
@@ -159,13 +149,12 @@ public class AuraCollection
         }
 
         public HashSet<Guid> Results { get; private set; } = new();
+
         public AuraQuery AlsoMatches(Func<Aura, bool> predicate)
         {
             if (!_hasLoaded)
                 lock (_collection._auras)
-                {
                     Results = _collection._auras.Keys.ToHashSet();
-                }
 
             Results.RemoveWhere(g =>
             {
@@ -183,10 +172,8 @@ public class AuraCollection
         public AuraQuery CanBeSaved(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._canBeSaved.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -223,10 +210,8 @@ public class AuraCollection
         public AuraQuery HasAuraType(AuraObjectType label)
         {
             lock (_collection._auras)
-            {
                 if (_collection._typeMap.TryGetValue(label, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -236,10 +221,8 @@ public class AuraCollection
         public AuraQuery HasCasterGuid(ObjectGuid caster)
         {
             lock (_collection._auras)
-            {
                 if (!caster.IsEmpty && _collection._byCasterGuid.TryGetValue(caster, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -249,10 +232,8 @@ public class AuraCollection
         public AuraQuery HasCastId(ObjectGuid id)
         {
             lock (_collection._auras)
-            {
                 if (!id.IsEmpty && _collection._byCastId.TryGetValue(id, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -262,10 +243,8 @@ public class AuraCollection
         public AuraQuery HasLabel(uint label)
         {
             lock (_collection._auras)
-            {
                 if (_collection._labelMap.TryGetValue(label, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -275,22 +254,19 @@ public class AuraCollection
         public AuraQuery HasSpellId(uint spellId)
         {
             lock (_collection._auras)
-            {
                 if (_collection._aurasBySpellId.TryGetValue(spellId, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
             return this;
         }
+
         public AuraQuery IsDeathPersistant(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isDeathPersistant.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -300,10 +276,8 @@ public class AuraCollection
         public AuraQuery IsGroupBuff(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isgroupBuff.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -313,10 +287,8 @@ public class AuraCollection
         public AuraQuery IsPassive(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isPassive.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -326,10 +298,8 @@ public class AuraCollection
         public AuraQuery IsRequiringDeadTarget(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isRequiringDeadTarget.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -339,27 +309,26 @@ public class AuraCollection
         public AuraQuery IsSingleTarget(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isSingleTarget.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
             return this;
         }
+
         private void Sync(HashSet<Guid> collection)
         {
             if (!_hasLoaded)
             {
-                if (collection != null && collection.Count != 0)
-                    foreach (var a in collection)
-                        Results.Add(a);
+                if (collection == null || collection.Count == 0)
+                    return;
+
+                foreach (var a in collection)
+                    Results.Add(a);
             }
             else if (Results.Count != 0)
-            {
                 Results.RemoveWhere(r => !collection.Contains(r));
-            }
         }
     }
 }

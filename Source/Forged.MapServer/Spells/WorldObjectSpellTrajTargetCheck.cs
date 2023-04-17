@@ -25,9 +25,6 @@ public class WorldObjectSpellTrajTargetCheck : WorldObjectSpellTargetCheck
         if (!Caster.Location.HasInLine(target.Location, target.CombatReach, SpellConst.TrajectoryMissileSize))
             return false;
 
-        if (target.Location.GetExactDist2d(_position) > _range)
-            return false;
-
-        return base.Invoke(target);
+        return !(target.Location.GetExactDist2d(_position) > _range) && base.Invoke(target);
     }
 }

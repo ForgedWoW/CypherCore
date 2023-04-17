@@ -11,11 +11,14 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class DynObjAura : Aura
 {
+    private CellCalculator _cellCalculator;
+
     public DynObjAura(AuraCreateInfo createInfo) : base(createInfo)
     {
         LoadScripts();
         _InitEffects(createInfo.AuraEffectMask, createInfo.Caster, createInfo.BaseAmount);
         DynobjOwner.SetAura(this);
+        _cellCalculator = createInfo.Owner.ClassFactory.Resolve<CellCalculator>();
     }
 
     public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
@@ -40,7 +43,7 @@ public class DynObjAura : Aura
 
             WorldObjectSpellAreaTargetCheck check = new(radius, DynobjOwner.Location, dynObjOwnerCaster, dynObjOwnerCaster, SpellInfo, selectionType, condList, SpellTargetObjectTypes.Unit);
             UnitListSearcher searcher = new(DynobjOwner, targetList, check, GridType.All);
-            CellCalculator.VisitGrid(DynobjOwner, searcher, radius);
+            _cellCalculator.VisitGrid(DynobjOwner, searcher, radius);
 
             // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
             targetList.RemoveAll(unit => !unit.Location.IsSelfOrInSameMap(DynobjOwner));

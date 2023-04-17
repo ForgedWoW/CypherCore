@@ -16,7 +16,7 @@ internal class SpellCommands
     {
         var target = handler.SelectedUnit;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 
@@ -30,7 +30,7 @@ internal class SpellCommands
 
         var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Location.Map.GenerateLowGuid(HighGuid.Cast));
         AuraCreateInfo createInfo = new(castId, spellInfo, target.Location.Map.DifficultyID, SpellConst.MaxEffects, target);
-        createInfo.SetCaster(target);
+        createInfo.Caster = (target);
 
         Aura.TryRefreshStackOrCreate(createInfo);
 
@@ -42,7 +42,7 @@ internal class SpellCommands
     {
         var target = handler.SelectedUnit;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -51,7 +51,7 @@ internal class SpellCommands
 
         var owner = target.CharmerOrOwnerPlayerOrPlayerItself;
 
-        if (!owner)
+        if (owner == null)
         {
             owner = handler.Session.Player;
             target = owner;
@@ -89,7 +89,7 @@ internal class SpellCommands
     {
         var target = handler.SelectedPlayerOrSelf;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.NoCharSelected);
 
@@ -126,7 +126,7 @@ internal class SpellCommands
     {
         var target = handler.SelectedUnit;
 
-        if (!target)
+        if (target == null)
         {
             handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
 

@@ -13,6 +13,7 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class UnitAura : Aura
 {
+    private readonly CellCalculator _cellCalculator;
     private readonly Dictionary<ObjectGuid, HashSet<int>> _staticApplications = new(); // non-area auras
 
     private DiminishingGroup _mAuraDrGroup; // Diminishing
@@ -23,6 +24,7 @@ public class UnitAura : Aura
         LoadScripts();
         _InitEffects(createInfo.AuraEffectMask, createInfo.Caster, createInfo.BaseAmount);
         OwnerAsUnit.AddAura(this, createInfo.Caster);
+        _cellCalculator = createInfo.Owner.ClassFactory.Resolve<CellCalculator>();
     }
 
     public override void _ApplyForTarget(Unit target, Unit caster, AuraApplication aurApp)
@@ -32,15 +34,6 @@ public class UnitAura : Aura
         // register aura diminishing on apply
         if (_mAuraDrGroup != DiminishingGroup.None)
             target.ApplyDiminishingAura(_mAuraDrGroup, true);
-    }
-
-    public override void UnapplyForTarget(Unit target, Unit caster, AuraApplication aurApp)
-    {
-        base.UnapplyForTarget(target, caster, aurApp);
-
-        // unregister aura diminishing (and store last time)
-        if (_mAuraDrGroup != DiminishingGroup.None)
-            target.ApplyDiminishingAura(_mAuraDrGroup, false);
     }
 
     public void AddStaticApplication(Unit target, HashSet<int> effectMask)
@@ -64,21 +57,18 @@ public class UnitAura : Aura
     public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
     {
         var targets = new Dictionary<Unit, HashSet<int>>();
-        var refe = caster;
-
-        if (refe == null)
-            refe = OwnerAsUnit;
+        var refe = caster ?? OwnerAsUnit;
 
         // add non area aura targets
         // static applications go through spell system first, so we assume they meet conditions
         foreach (var targetPair in _staticApplications)
         {
-            var target = Global.ObjAccessor.GetUnit(OwnerAsUnit, targetPair.Key);
+            var target = refe.ObjectAccessor.GetUnit(OwnerAsUnit, targetPair.Key);
 
             if (target == null && targetPair.Key == OwnerAsUnit.GUID)
                 target = OwnerAsUnit;
 
-            if (target)
+            if (target != null)
                 targets.Add(target, targetPair.Value);
         }
 
@@ -113,21 +103,25 @@ public class UnitAura : Aura
                     selectionType = SpellTargetCheckTypes.Party;
 
                     break;
+
                 case SpellEffectName.ApplyAreaAuraRaid:
                     selectionType = SpellTargetCheckTypes.Raid;
 
                     break;
+
                 case SpellEffectName.ApplyAreaAuraFriend:
                     selectionType = SpellTargetCheckTypes.Ally;
 
                     break;
+
                 case SpellEffectName.ApplyAreaAuraEnemy:
                     selectionType = SpellTargetCheckTypes.Enemy;
                     extraSearchRadius = radius > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
 
                     break;
+
                 case SpellEffectName.ApplyAreaAuraPet:
-                    if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(OwnerAsUnit, refe, condList))
+                    if (condList == null || refe.ConditionManager.IsObjectMeetToConditions(OwnerAsUnit, refe, condList))
                         units.Add(OwnerAsUnit);
 
                     goto case SpellEffectName.ApplyAreaAuraOwner;
@@ -138,24 +132,24 @@ public class UnitAura : Aura
 
                     if (owner != null)
                         if (OwnerAsUnit.Location.IsWithinDistInMap(owner, radius))
-                            if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(owner, refe, condList))
+                            if (condList == null || refe.ConditionManager.IsObjectMeetToConditions(owner, refe, condList))
                                 units.Add(owner);
 
                     break;
                 }
                 case SpellEffectName.ApplyAuraOnPet:
                 {
-                    var pet = Global.ObjAccessor.GetUnit(OwnerAsUnit, OwnerAsUnit.PetGUID);
+                    var pet = refe.ObjectAccessor.GetUnit(OwnerAsUnit, OwnerAsUnit.PetGUID);
 
                     if (pet != null)
-                        if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(pet, refe, condList))
+                        if (condList == null || refe.ConditionManager.IsObjectMeetToConditions(pet, refe, condList))
                             units.Add(pet);
 
                     break;
                 }
                 case SpellEffectName.ApplyAreaAuraSummons:
                 {
-                    if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(OwnerAsUnit, refe, condList))
+                    if (condList == null || refe.ConditionManager.IsObjectMeetToConditions(OwnerAsUnit, refe, condList))
                         units.Add(OwnerAsUnit);
 
                     selectionType = SpellTargetCheckTypes.Summoned;
@@ -168,7 +162,7 @@ public class UnitAura : Aura
             {
                 WorldObjectSpellAreaTargetCheck check = new(radius, OwnerAsUnit.Location, refe, OwnerAsUnit, SpellInfo, selectionType, condList, SpellTargetObjectTypes.Unit);
                 UnitListSearcher searcher = new(OwnerAsUnit, units, check, GridType.All);
-                CellCalculator.VisitGrid(OwnerAsUnit, searcher, radius + extraSearchRadius);
+                _cellCalculator.VisitGrid(OwnerAsUnit, searcher, radius + extraSearchRadius);
 
                 // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
                 units.RemoveAll(unit => !unit.Location.IsSelfOrInSameMap(OwnerAsUnit));
@@ -199,9 +193,19 @@ public class UnitAura : Aura
         OwnerAsUnit.RemoveOwnedAura(this, removeMode);
         base.Remove(removeMode);
     }
+
     // Allow Apply Aura Handler to modify and access m_AuraDRGroup
     public void SetDiminishGroup(DiminishingGroup group)
     {
         _mAuraDrGroup = group;
+    }
+
+    public override void UnapplyForTarget(Unit target, Unit caster, AuraApplication aurApp)
+    {
+        base.UnapplyForTarget(target, caster, aurApp);
+
+        // unregister aura diminishing (and store last time)
+        if (_mAuraDrGroup != DiminishingGroup.None)
+            target.ApplyDiminishingAura(_mAuraDrGroup, false);
     }
 }

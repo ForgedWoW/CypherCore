@@ -1597,7 +1597,7 @@ public partial class Player
                 var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
 
                 AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeMask(SpellConst.MaxEffects), this);
-                createInfo.SetCasterGuid(casterGuid);
+                createInfo.CasterGuid = casterGuid;
                 createInfo.SetBaseAmount(info.BaseAmounts);
                 createInfo.SetCastItem(itemGuid, castItemId, castItemLevel);
 

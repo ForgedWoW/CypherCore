@@ -28,11 +28,8 @@ public class AuraApplication
         byte slot = 0;
 
         // Lookup for auras already applied from spell
-        foreach (var visibleAura in Target.VisibleAuras)
+        foreach (var _ in Target.VisibleAuras.TakeWhile(visibleAura => slot >= visibleAura.Slot))
         {
-            if (slot < visibleAura.Slot)
-                break;
-
             ++slot;
         }
 
@@ -45,9 +42,7 @@ public class AuraApplication
             Log.Logger.Debug("Aura: {0} Effect: {1} put to unit visible auras slot: {2}", Base.Id, EffectMask, slot);
         }
         else
-        {
             Log.Logger.Error("Aura: {0} Effect: {1} could not find empty unit visible slot", Base.Id, EffectMask);
-        }
 
 
         _InitFlags(caster, effMask);
@@ -55,7 +50,7 @@ public class AuraApplication
 
     public Aura Base { get; }
     public HashSet<int> EffectMask { get; } = new();
-    public HashSet<int> EffectsToApply { get; private set; } = new();
+    public HashSet<int> EffectsToApply { get; private set; }
     public AuraFlags Flags { get; private set; }
     public Guid Guid { get; } = Guid.NewGuid();
 
@@ -64,9 +59,12 @@ public class AuraApplication
     public bool IsPositive => Flags.HasAnyFlag(AuraFlags.Positive);
     public AuraRemoveMode RemoveMode { get; set; }
     public byte Slot { get; }
+
     public Unit Target { get; }
+
     // Store info for know remove aura reason
     private bool IsSelfcasted => Flags.HasAnyFlag(AuraFlags.NoCaster);
+
     public void _HandleEffect(int effIndex, bool apply)
     {
         var aurEff = Base.GetEffect(effIndex);
@@ -101,15 +99,6 @@ public class AuraApplication
         SetNeedClientUpdate();
     }
 
-    public void Remove()
-    {
-        // update for out of range group members
-        if (Slot < SpellConst.MaxAuras)
-        {
-            Target.RemoveVisibleAura(this);
-            ClientUpdate(true);
-        }
-    }
     public void BuildUpdatePacket(ref AuraInfo auraInfo, bool remove)
     {
         auraInfo.Slot = Slot;
@@ -119,37 +108,35 @@ public class AuraApplication
 
         auraInfo.AuraData = new AuraDataInfo();
 
-        var aura = Base;
-
         var auraData = auraInfo.AuraData;
-        auraData.CastID = aura.CastId;
-        auraData.SpellID = (int)aura.Id;
-        auraData.Visual = aura.SpellVisual;
+        auraData.CastID = Base.CastId;
+        auraData.SpellID = (int)Base.Id;
+        auraData.Visual = Base.SpellVisual;
         auraData.Flags = Flags;
 
-        if (aura.AuraObjType != AuraObjectType.DynObj && aura.MaxDuration > 0 && !aura.SpellInfo.HasAttribute(SpellAttr5.DoNotDisplayDuration))
+        if (Base.AuraObjType != AuraObjectType.DynObj && Base.MaxDuration > 0 && !Base.SpellInfo.HasAttribute(SpellAttr5.DoNotDisplayDuration))
             auraData.Flags |= AuraFlags.Duration;
 
         auraData.ActiveFlags = EffectMask;
 
-        if (!aura.SpellInfo.HasAttribute(SpellAttr11.ScalesWithItemLevel))
-            auraData.CastLevel = aura.CasterLevel;
+        if (!Base.SpellInfo.HasAttribute(SpellAttr11.ScalesWithItemLevel))
+            auraData.CastLevel = Base.CasterLevel;
         else
-            auraData.CastLevel = (ushort)aura.CastItemLevel;
+            auraData.CastLevel = (ushort)Base.CastItemLevel;
 
         // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
         // stack amount has priority over charges (checked on retail with spell 50262)
-        auraData.Applications = aura.IsUsingStacks() ? aura.StackAmount : aura.Charges;
+        auraData.Applications = Base.IsUsingStacks() ? Base.StackAmount : Base.Charges;
 
-        if (!aura.CasterGuid.IsUnit)
+        if (!Base.CasterGuid.IsUnit)
             auraData.CastUnit = ObjectGuid.Empty; // optional data is filled in, but cast unit contains empty guid in packet
         else if (!auraData.Flags.HasFlag(AuraFlags.NoCaster))
-            auraData.CastUnit = aura.CasterGuid;
+            auraData.CastUnit = Base.CasterGuid;
 
         if (auraData.Flags.HasFlag(AuraFlags.Duration))
         {
-            auraData.Duration = aura.MaxDuration;
-            auraData.Remaining = aura.Duration;
+            auraData.Duration = Base.MaxDuration;
+            auraData.Remaining = Base.Duration;
         }
 
         if (!auraData.Flags.HasFlag(AuraFlags.Scalable))
@@ -168,10 +155,11 @@ public class AuraApplication
                 hasEstimatedAmounts = true;
         }
 
-        if (hasEstimatedAmounts)
-            foreach (var effect in Base.AuraEffects)
-                if (HasEffect(effect.Value.EffIndex))
-                    auraData.EstimatedPoints.Add(effect.Value.GetEstimatedAmount().GetValueOrDefault(effect.Value.Amount));
+        if (!hasEstimatedAmounts)
+            return;
+
+        foreach (var effect in Base.AuraEffects.Where(effect => HasEffect(effect.Value.EffIndex)))
+            auraData.EstimatedPoints.Add(effect.Value.GetEstimatedAmount().GetValueOrDefault(effect.Value.Amount));
     }
 
     public void ClientUpdate(bool remove = false)
@@ -201,6 +189,15 @@ public class AuraApplication
         return EffectMask.Contains(effect);
     }
 
+    public void Remove()
+    {
+        // update for out of range group members
+        if (Slot >= SpellConst.MaxAuras)
+            return;
+
+        Target.RemoveVisibleAura(this);
+        ClientUpdate(true);
+    }
     public void SetNeedClientUpdate()
     {
         if (IsNeedClientUpdate || RemoveMode != AuraRemoveMode.None)
@@ -240,11 +237,14 @@ public class AuraApplication
             if (HasEffect(eff.Key) && toRemove.Contains(eff.Key))
                 _HandleEffect(eff.Key, false);
 
-            if (canHandleNewEffects)
-                if (toAdd.Contains(eff.Key))
-                    _HandleEffect(eff.Key, true);
+            if (!canHandleNewEffects)
+                continue;
+
+            if (toAdd.Contains(eff.Key))
+                _HandleEffect(eff.Key, true);
         }
     }
+
     private void _InitFlags(Unit caster, HashSet<int> effMask)
     {
         // mark as selfcasted if needed
@@ -283,9 +283,9 @@ public class AuraApplication
             Flags |= positiveFound ? AuraFlags.Positive : AuraFlags.Negative;
         }
 
-        bool effectNeedsAmount(KeyValuePair<int, AuraEffect> effect) => EffectsToApply.Contains(effect.Value.EffIndex) && Aura.EffectTypeNeedsSendingAmount(effect.Value.AuraType);
+        bool EffectNeedsAmount(KeyValuePair<int, AuraEffect> effect) => EffectsToApply.Contains(effect.Value.EffIndex) && Aura.EffectTypeNeedsSendingAmount(effect.Value.AuraType);
 
-        if (Base.SpellInfo.HasAttribute(SpellAttr8.AuraSendAmount) || Base.AuraEffects.Any(effectNeedsAmount))
+        if (Base.SpellInfo.HasAttribute(SpellAttr8.AuraSendAmount) || Base.AuraEffects.Any(EffectNeedsAmount))
             Flags |= AuraFlags.Scalable;
     }
 }

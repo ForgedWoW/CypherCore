@@ -1218,7 +1218,7 @@ public class Pet : Guardian
                 var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Location.Map.GenerateLowGuid(HighGuid.Cast));
 
                 AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeMask(SpellConst.MaxEffects), this);
-                createInfo.SetCasterGuid(casterGuid);
+                createInfo.CasterGuid = casterGuid;
                 createInfo.SetBaseAmount(info.BaseAmounts);
 
                 var aura = Aura.TryCreate(createInfo);

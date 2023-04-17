@@ -2108,10 +2108,10 @@ public partial class Spell : IDisposable
                     var allAuraEffectMask = Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffects, unit);
 
                     AuraCreateInfo createInfo = new(CastId, SpellInfo, CastDifficulty, allAuraEffectMask, unit);
-                    createInfo.SetCasterGuid(caster.GUID);
+                    createInfo.CasterGuid = caster.GUID;
                     createInfo.SetBaseAmount(hitInfo.AuraBasePoints);
                     createInfo.SetCastItem(CastItemGuid, CastItemEntry, CastItemLevel);
-                    createInfo.SetPeriodicReset(resetPeriodicTimer);
+                    createInfo.ResetPeriodicTimer = resetPeriodicTimer;
                     createInfo.SetOwnerEffectMask(aura_effmask);
 
                     var aura = Aura.TryRefreshStackOrCreate(createInfo, false);
@@ -2893,7 +2893,7 @@ public partial class Spell : IDisposable
             // for example bladestorm aura should be removed on disarm as of patch 3.3.5
             // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
             // a possible alternative sollution for those would be validating aura target on unit state change
-            if (triggeredByAura != null && triggeredByAura.IsPeriodic() && !triggeredByAura.Base.IsPassive)
+            if (triggeredByAura != null && triggeredByAura.IsPeriodic && !triggeredByAura.Base.IsPassive)
             {
                 SendChannelUpdate(0);
                 triggeredByAura.Base.SetDuration(0);

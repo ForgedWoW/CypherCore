@@ -10,47 +10,36 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class AuraCreateInfo
 {
-    public HashSet<int> AuraEffectMask = new();
-    public Dictionary<int, double> BaseAmount;
-    public Unit Caster;
-    public ObjectGuid CasterGuid;
-    public ObjectGuid CastItemGuid;
-    public uint CastItemId = 0;
-    public int CastItemLevel = -1;
-    public bool IsRefresh;
-    public bool ResetPeriodicTimer = true;
+    public HashSet<int> AuraEffectMask { get; set; }
+    public Dictionary<int, double> BaseAmount { get; set; }
+    public Unit Caster { get; set; }
+    public ObjectGuid CasterGuid { get; set; }
+    public ObjectGuid CastItemGuid { get; set; }
+    public uint CastItemId { get; set; }
+    public int CastItemLevel { get; set; } = -1;
+    public bool IsRefresh { get; set; }
+    public bool ResetPeriodicTimer { get; set; } = true;
     internal Difficulty CastDifficulty;
     internal ObjectGuid CastId;
-    internal WorldObject OwnerInternal;
-    internal SpellInfo SpellInfoInternal;
+    public WorldObject Owner { get; set; }
+    public SpellInfo SpellInfo { get; set; }
+
     internal HashSet<int> TargetEffectMask = new();
 
 
     public AuraCreateInfo(ObjectGuid castId, SpellInfo spellInfo, Difficulty castDifficulty, HashSet<int> auraEffMask, WorldObject owner)
     {
         CastId = castId;
-        SpellInfoInternal = spellInfo;
+        SpellInfo = spellInfo;
         CastDifficulty = castDifficulty;
         AuraEffectMask = auraEffMask;
-        OwnerInternal = owner;
+        Owner = owner;
     }
-
-    public WorldObject Owner => OwnerInternal;
-    public SpellInfo SpellInfo => SpellInfoInternal;
     public void SetBaseAmount(Dictionary<int, double> bp)
     {
         BaseAmount = bp;
     }
 
-    public void SetCaster(Unit caster)
-    {
-        Caster = caster;
-    }
-
-    public void SetCasterGuid(ObjectGuid guid)
-    {
-        CasterGuid = guid;
-    }
     public void SetCastItem(ObjectGuid guid, uint itemId, int itemLevel)
     {
         CastItemGuid = guid;
@@ -61,10 +50,5 @@ public class AuraCreateInfo
     public void SetOwnerEffectMask(HashSet<int> effMask)
     {
         TargetEffectMask = effMask;
-    }
-
-    public void SetPeriodicReset(bool reset)
-    {
-        ResetPeriodicTimer = reset;
     }
 }

@@ -36,14 +36,13 @@ public class AuraApplicationCollection
     private readonly MultiMapHashSet<bool, Guid> _onlyOutdoors = new();
     private readonly MultiMapHashSet<SpellFamilyNames, Guid> _spellFamily = new();
     private readonly MultiMapHashSet<AuraObjectType, Guid> _typeMap = new();
+
     public HashSet<AuraApplication> AuraApplications
     {
         get
         {
             lock (_auras)
-            {
                 return _auras.Values.ToHashSet();
-            }
         }
     }
 
@@ -52,9 +51,7 @@ public class AuraApplicationCollection
         get
         {
             lock (_auras)
-            {
                 return _auras.Count;
-            }
         }
     }
 
@@ -130,26 +127,20 @@ public class AuraApplicationCollection
     public bool Contains(AuraApplication aura)
     {
         lock (_auras)
-        {
             return _auras.ContainsKey(aura.Guid);
-        }
     }
 
     public bool Empty()
     {
         lock (_auras)
-        {
             return _auras.Count == 0;
-        }
     }
 
     public AuraApplication GetByGuid(Guid guid)
     {
         lock (_auras)
-        {
             if (_auras.TryGetValue(guid, out var ret))
                 return ret;
-        }
 
         return null;
     }
@@ -225,13 +216,13 @@ public class AuraApplicationCollection
 
         return removed;
     }
+
     public bool TryGetAuraByGuid(Guid guid, out AuraApplication aura)
     {
         lock (_auras)
-        {
             return _auras.TryGetValue(guid, out aura);
-        }
     }
+
     public class AuraApplicationQuery
     {
         private readonly AuraApplicationCollection _collection;
@@ -243,13 +234,12 @@ public class AuraApplicationCollection
         }
 
         public HashSet<Guid> Results { get; private set; } = new();
+
         public AuraApplicationQuery AlsoMatches(Func<AuraApplication, bool> predicate)
         {
             if (!_hasLoaded)
                 lock (_collection._auras)
-                {
                     Results = _collection._auras.Keys.ToHashSet();
-                }
 
             Results.RemoveWhere(g =>
             {
@@ -267,10 +257,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery CanBeSaved(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._canBeSaved.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -307,10 +295,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasAuraType(AuraObjectType auraType)
         {
             lock (_collection._auras)
-            {
                 if (_collection._typeMap.TryGetValue(auraType, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -320,10 +306,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasCasterAuraState(AuraStateType state)
         {
             lock (_collection._auras)
-            {
                 if (_collection._casterAuraState.TryGetValue(state, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -333,10 +317,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasCasterGuid(ObjectGuid caster)
         {
             lock (_collection._auras)
-            {
                 if (!caster.IsEmpty && _collection._byCasterGuid.TryGetValue(caster, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -346,10 +328,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasCastId(ObjectGuid id)
         {
             lock (_collection._auras)
-            {
                 if (!id.IsEmpty && _collection._byCastId.TryGetValue(id, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -359,10 +339,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasCastItemGuid(ObjectGuid item)
         {
             lock (_collection._auras)
-            {
                 if (!item.IsEmpty && _collection._byCastItemGuid.TryGetValue(item, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -372,10 +350,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasDiminishGroup(DiminishingGroup group)
         {
             lock (_collection._auras)
-            {
                 if (_collection._deminishGroup.TryGetValue(group, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -385,10 +361,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasDispelType(DispelType dispellType)
         {
             lock (_collection._auras)
-            {
                 if (_collection._dispelType.TryGetValue(dispellType, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -398,10 +372,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasEffectIndex(int effectIndex)
         {
             lock (_collection._auras)
-            {
                 if (_collection._effectIndex.TryGetValue(effectIndex, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -411,10 +383,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasLabel(uint label)
         {
             lock (_collection._auras)
-            {
                 if (_collection._labelMap.TryGetValue(label, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -424,9 +394,7 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasNegitiveFlag(bool t = true)
         {
             lock (_collection._auras)
-            {
                 Sync(_collection._hasNegitiveFlag, t);
-            }
 
             _hasLoaded = true;
 
@@ -436,10 +404,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasOwner(WorldObject owner)
         {
             lock (_collection._auras)
-            {
                 if (owner != null && _collection._byOwner.TryGetValue(owner, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -449,10 +415,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasSpellFamily(SpellFamilyNames spellFamily)
         {
             lock (_collection._auras)
-            {
                 if (_collection._spellFamily.TryGetValue(spellFamily, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -462,10 +426,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery HasSpellId(uint spellId)
         {
             lock (_collection._auras)
-            {
                 if (_collection._aurasBySpellId.TryGetValue(spellId, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -493,13 +455,12 @@ public class AuraApplicationCollection
 
             return this;
         }
+
         public AuraApplicationQuery IsDeathPersistant(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isDeathPersistant.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -509,10 +470,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery IsGroupBuff(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isgroupBuff.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -522,10 +481,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery IsPassive(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isPassive.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -535,21 +492,18 @@ public class AuraApplicationCollection
         public AuraApplicationQuery IsPassiveOrPerm()
         {
             lock (_collection._auras)
-            {
                 SyncOr(_collection._isPassive.LookupByKey(true), _collection._isPerm.LookupByKey(true));
-            }
 
             _hasLoaded = true;
 
             return this;
         }
+
         public AuraApplicationQuery IsPermanent(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isPerm.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -559,10 +513,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery IsPlayer(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isPlayer.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -572,10 +524,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery IsPositive(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isPositive.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -585,10 +535,8 @@ public class AuraApplicationCollection
         public AuraApplicationQuery IsRequiringDeadTarget(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isRequiringDeadTarget.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -598,22 +546,19 @@ public class AuraApplicationCollection
         public AuraApplicationQuery IsSingleTarget(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._isSingleTarget.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
             return this;
         }
+
         public AuraApplicationQuery OnlyIndoors(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._onlyIndoors.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
@@ -623,27 +568,26 @@ public class AuraApplicationCollection
         public AuraApplicationQuery OnlyOutdoors(bool t = true)
         {
             lock (_collection._auras)
-            {
                 if (_collection._onlyOutdoors.TryGetValue(t, out var result))
                     Sync(result);
-            }
 
             _hasLoaded = true;
 
             return this;
         }
+
         private void Sync(HashSet<Guid> collection, bool contains = true)
         {
             if (!_hasLoaded)
             {
-                if (collection != null && collection.Count != 0)
-                    foreach (var a in collection)
-                        Results.Add(a);
+                if (collection == null || collection.Count == 0)
+                    return;
+
+                foreach (var a in collection)
+                    Results.Add(a);
             }
             else if (Results.Count != 0)
-            {
                 Results.RemoveWhere(r => collection.Contains(r) != contains);
-            }
         }
 
         private void SyncOr(params HashSet<Guid>[] collections)
@@ -656,7 +600,6 @@ public class AuraApplicationCollection
                             Results.Add(a);
             }
             else if (Results.Count != 0)
-            {
                 Results.RemoveWhere(r =>
                 {
                     var contained = false;
@@ -667,7 +610,6 @@ public class AuraApplicationCollection
 
                     return !contained;
                 });
-            }
         }
     }
 }
