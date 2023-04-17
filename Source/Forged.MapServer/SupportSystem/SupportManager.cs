@@ -33,6 +33,7 @@ public class SupportManager
     private bool _suggestionSystemStatus;
     private bool _supportSystemStatus;
     private bool _ticketSystemStatus;
+
     public SupportManager(IConfiguration configuration, CharacterDatabase characterDatabase)
     {
         _characterDatabase = characterDatabase;
@@ -163,6 +164,7 @@ public class SupportManager
             _                  => default
         };
     }
+
     public bool GetTicketSystemStatus()
     {
         return _supportSystemStatus && _ticketSystemStatus;
@@ -299,6 +301,7 @@ public class SupportManager
 
         Log.Logger.Information("Loaded {0} GM suggestions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
+
     public void RemoveTicket<T>(uint ticketId) where T : Ticket
     {
         var ticket = GetTicket<T>(ticketId);
@@ -324,6 +327,7 @@ public class SupportManager
             }
         }
     }
+
     public void ResetTickets<T>() where T : Ticket
     {
         PreparedStatement stmt;
@@ -440,10 +444,12 @@ public class SupportManager
                 break;
         }
     }
+
     public void UpdateLastChange()
     {
         _lastChange = (ulong)GameTime.CurrentTime;
     }
+
     private long GetAge(ulong t)
     {
         return (GameTime.CurrentTime - (long)t) / Time.DAY;

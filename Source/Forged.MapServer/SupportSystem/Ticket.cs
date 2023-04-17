@@ -3,6 +3,7 @@
 
 using System.Numerics;
 using System.Text;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
@@ -14,56 +15,56 @@ namespace Forged.MapServer.SupportSystem;
 
 public class Ticket
 {
-    protected ObjectGuid AssignedToProtected;
-    protected ObjectGuid ClosedByProtected;
-    // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
-    protected string CommentProtected;
+    protected ObjectGuid AssignedTo;
+    protected ObjectGuid ClosedBy;
+    protected ulong CreateTime;
 
-    protected ulong CreateTimeProtected;
-    protected uint IdProtected;
-    protected uint MapIdProtected;
-    protected ObjectGuid PlayerGuidProtected;
-    protected Vector3 PosProtected;
+    protected uint MapId;
+    protected Vector3 Pos;
     public Ticket() { }
 
     public Ticket(Player player)
     {
-        CreateTimeProtected = (ulong)GameTime.CurrentTime;
-        PlayerGuidProtected = player.GUID;
+        Player = player;
+        CreateTime = (ulong)GameTime.CurrentTime;
+        PlayerGuid = player.GUID;
+        CharacterCache = Player.ClassFactory.Resolve<CharacterCache>();
     }
 
-    public Player AssignedPlayer => Global.ObjAccessor.FindConnectedPlayer(AssignedToProtected);
-    public ObjectGuid AssignedToGUID => AssignedToProtected;
+    public Player AssignedPlayer => Player.ObjectAccessor.FindConnectedPlayer(AssignedTo);
+    public ObjectGuid AssignedToGUID => AssignedTo;
     public string AssignedToName
     {
         get
         {
-            if (!AssignedToProtected.IsEmpty)
-                if (Global.CharacterCacheStorage.GetCharacterNameByGuid(AssignedToProtected, out var name))
-                    return name;
+            if (AssignedTo.IsEmpty)
+                return "";
 
-            return "";
+            return CharacterCache.GetCharacterNameByGuid(AssignedTo, out var name) ? name : "";
         }
     }
 
-    public string Comment => CommentProtected;
-    public uint Id => IdProtected;
-    public bool IsAssigned => !AssignedToProtected.IsEmpty;
-    public bool IsClosed => !ClosedByProtected.IsEmpty;
-    public Player Player => Global.ObjAccessor.FindConnectedPlayer(PlayerGuidProtected);
-    public ObjectGuid PlayerGuid => PlayerGuidProtected;
+    public CharacterCache CharacterCache { get; }
+    public string Comment { get; protected set; }
+    public uint Id { get; protected set; }
+    public bool IsAssigned => !AssignedTo.IsEmpty;
+    public bool IsClosed => !ClosedBy.IsEmpty;
+    public Player Player { get; }
+    public ObjectGuid PlayerGuid { get; protected set; }
+
     public string PlayerName
     {
         get
         {
             var name = "";
 
-            if (!PlayerGuidProtected.IsEmpty)
-                Global.CharacterCacheStorage.GetCharacterNameByGuid(PlayerGuidProtected, out name);
+            if (!PlayerGuid.IsEmpty)
+                CharacterCache.GetCharacterNameByGuid(PlayerGuid, out name);
 
             return name;
         }
     }
+
     public virtual void DeleteFromDB() { }
 
     public virtual string FormatViewMessageString(CommandHandler handler, bool detailed = false)
@@ -74,7 +75,7 @@ public class Ticket
     public virtual string FormatViewMessageString(CommandHandler handler, string closedName, string assignedToName, string unassignedName, string deletedName)
     {
         StringBuilder ss = new();
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, Id));
         ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
 
         if (!string.IsNullOrEmpty(closedName))
@@ -99,45 +100,46 @@ public class Ticket
 
     public bool IsAssignedTo(ObjectGuid guid)
     {
-        return guid == AssignedToProtected;
+        return guid == AssignedTo;
     }
 
     public virtual void LoadFromDB(SQLFields fields) { }
 
     public virtual void SaveToDB() { }
 
-    public virtual void SetAssignedTo(ObjectGuid guid, bool IsAdmin = false)
+    public virtual void SetAssignedTo(ObjectGuid guid, bool isAdmin = false)
     {
-        AssignedToProtected = guid;
+        AssignedTo = guid;
     }
 
     public void SetClosedBy(ObjectGuid value)
     {
-        ClosedByProtected = value;
+        ClosedBy = value;
     }
 
     public void SetComment(string comment)
     {
-        CommentProtected = comment;
+        Comment = comment;
     }
 
     public void SetPosition(uint mapId, Vector3 pos)
     {
-        MapIdProtected = mapId;
-        PosProtected = pos;
+        MapId = mapId;
+        Pos = pos;
     }
 
     public virtual void SetUnassigned()
     {
-        AssignedToProtected.Clear();
+        AssignedTo.Clear();
     }
 
     public void TeleportTo(Player player)
     {
-        player.TeleportTo(MapIdProtected, PosProtected.X, PosProtected.Y, PosProtected.Z, 0.0f);
+        player.TeleportTo(MapId, Pos.X, Pos.Y, Pos.Z, 0.0f);
     }
+
     private bool IsFromPlayer(ObjectGuid guid)
     {
-        return guid == PlayerGuidProtected;
+        return guid == PlayerGuid;
     }
 }

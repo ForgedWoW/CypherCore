@@ -42,17 +42,17 @@ public class SuggestionTicket : Ticket
         StringBuilder ss = new();
         ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
         ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.SecsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText)));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.SecsToTimeString(curTime - CreateTime, TimeFormat.ShortText)));
 
-        if (!AssignedToProtected.IsEmpty)
+        if (!AssignedTo.IsEmpty)
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
 
         if (detailed)
         {
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
 
-            if (!string.IsNullOrEmpty(CommentProtected))
-                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, CommentProtected));
+            if (!string.IsNullOrEmpty(Comment))
+                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, Comment));
         }
 
         return ss.ToString();
@@ -64,28 +64,28 @@ public class SuggestionTicket : Ticket
         IdProtected = fields.Read<uint>(idx);
         PlayerGuidProtected = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(++idx));
         _note = fields.Read<string>(++idx);
-        CreateTimeProtected = fields.Read<ulong>(++idx);
+        CreateTime = fields.Read<ulong>(++idx);
         MapIdProtected = fields.Read<ushort>(++idx);
-        PosProtected = new Vector3(fields.Read<float>(++idx), fields.Read<float>(++idx), fields.Read<float>(++idx));
+        Pos = new Vector3(fields.Read<float>(++idx), fields.Read<float>(++idx), fields.Read<float>(++idx));
         _facing = fields.Read<float>(++idx);
 
         var closedBy = fields.Read<long>(++idx);
 
         if (closedBy == 0)
-            ClosedByProtected = ObjectGuid.Empty;
+            ClosedBy = ObjectGuid.Empty;
         else if (closedBy < 0)
-            ClosedByProtected.SetRawValue(0, (ulong)closedBy);
+            ClosedBy.SetRawValue(0, (ulong)closedBy);
         else
-            ClosedByProtected = ObjectGuid.Create(HighGuid.Player, (ulong)closedBy);
+            ClosedBy = ObjectGuid.Create(HighGuid.Player, (ulong)closedBy);
 
         var assignedTo = fields.Read<ulong>(++idx);
 
         if (assignedTo == 0)
-            AssignedToProtected = ObjectGuid.Empty;
+            AssignedTo = ObjectGuid.Empty;
         else
-            AssignedToProtected = ObjectGuid.Create(HighGuid.Player, assignedTo);
+            AssignedTo = ObjectGuid.Create(HighGuid.Player, assignedTo);
 
-        CommentProtected = fields.Read<string>(++idx);
+        Comment = fields.Read<string>(++idx);
     }
 
     public override void SaveToDB()
@@ -95,18 +95,19 @@ public class SuggestionTicket : Ticket
         stmt.AddValue(idx, IdProtected);
         stmt.AddValue(++idx, PlayerGuidProtected.Counter);
         stmt.AddValue(++idx, _note);
-        stmt.AddValue(++idx, CreateTimeProtected);
+        stmt.AddValue(++idx, CreateTime);
         stmt.AddValue(++idx, MapIdProtected);
-        stmt.AddValue(++idx, PosProtected.X);
-        stmt.AddValue(++idx, PosProtected.Y);
-        stmt.AddValue(++idx, PosProtected.Z);
+        stmt.AddValue(++idx, Pos.X);
+        stmt.AddValue(++idx, Pos.Y);
+        stmt.AddValue(++idx, Pos.Z);
         stmt.AddValue(++idx, _facing);
-        stmt.AddValue(++idx, ClosedByProtected.Counter);
-        stmt.AddValue(++idx, AssignedToProtected.Counter);
-        stmt.AddValue(++idx, CommentProtected);
+        stmt.AddValue(++idx, ClosedBy.Counter);
+        stmt.AddValue(++idx, AssignedTo.Counter);
+        stmt.AddValue(++idx, Comment);
 
         DB.Characters.Execute(stmt);
     }
+
     public void SetFacing(float facing)
     {
         _facing = facing;
@@ -116,6 +117,7 @@ public class SuggestionTicket : Ticket
     {
         _note = note;
     }
+
     private string GetNote()
     {
         return _note;

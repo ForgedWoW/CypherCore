@@ -22,6 +22,7 @@ public class ComplaintTicket : Ticket
     private string _note;
     private ReportType _reportType;
     private ObjectGuid _targetCharacterGuid;
+
     public ComplaintTicket()
     {
         _note = "";
@@ -30,18 +31,18 @@ public class ComplaintTicket : Ticket
     public ComplaintTicket(Player player) : base(player)
     {
         _note = "";
-        IdProtected = Global.SupportMgr.GenerateComplaintId();
+        Id = Player.ClassFactory.Resolve<SupportManager>().GenerateComplaintId();
     }
 
     public override void DeleteFromDB()
     {
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT);
-        stmt.AddValue(0, IdProtected);
-        DB.Characters.Execute(stmt);
+        var stmt = Player.CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT);
+        stmt.AddValue(0, Id);
+        Player.CharacterDatabase.Execute(stmt);
 
-        stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT_CHATLOG);
-        stmt.AddValue(0, IdProtected);
-        DB.Characters.Execute(stmt);
+        stmt = Player.CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT_CHATLOG);
+        stmt.AddValue(0, Id);
+        Player.CharacterDatabase.Execute(stmt);
     }
 
     public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
@@ -49,19 +50,19 @@ public class ComplaintTicket : Ticket
         var curTime = (ulong)GameTime.CurrentTime;
 
         StringBuilder ss = new();
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, Id));
         ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
-        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.SecsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText)));
+        ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.SecsToTimeString(curTime - CreateTime, TimeFormat.ShortText)));
 
-        if (!AssignedToProtected.IsEmpty)
+        if (!AssignedTo.IsEmpty)
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));
 
         if (detailed)
         {
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistmessage, _note));
 
-            if (!string.IsNullOrEmpty(CommentProtected))
-                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, CommentProtected));
+            if (!string.IsNullOrEmpty(Comment))
+                ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistcomment, Comment));
         }
 
         return ss.ToString();
@@ -75,12 +76,12 @@ public class ComplaintTicket : Ticket
     public override void LoadFromDB(SQLFields fields)
     {
         byte idx = 0;
-        IdProtected = fields.Read<uint>(idx);
-        PlayerGuidProtected = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(++idx));
+        Id = fields.Read<uint>(idx);
+        PlayerGuid = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(++idx));
         _note = fields.Read<string>(++idx);
-        CreateTimeProtected = fields.Read<ulong>(++idx);
-        MapIdProtected = fields.Read<ushort>(++idx);
-        PosProtected = new Vector3(fields.Read<float>(++idx), fields.Read<float>(++idx), fields.Read<float>(++idx));
+        CreateTime = fields.Read<ulong>(++idx);
+        MapId = fields.Read<ushort>(++idx);
+        Pos = new Vector3(fields.Read<float>(++idx), fields.Read<float>(++idx), fields.Read<float>(++idx));
         _facing = fields.Read<float>(++idx);
         _targetCharacterGuid = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(++idx));
         _reportType = (ReportType)fields.Read<int>(++idx);
@@ -94,35 +95,33 @@ public class ComplaintTicket : Ticket
         var closedBy = fields.Read<long>(++idx);
 
         if (closedBy == 0)
-            ClosedByProtected = ObjectGuid.Empty;
+            ClosedBy = ObjectGuid.Empty;
         else if (closedBy < 0)
-            ClosedByProtected.SetRawValue(0, (ulong)closedBy);
+            ClosedBy.SetRawValue(0, (ulong)closedBy);
         else
-            ClosedByProtected = ObjectGuid.Create(HighGuid.Player, (ulong)closedBy);
+            ClosedBy = ObjectGuid.Create(HighGuid.Player, (ulong)closedBy);
 
         var assignedTo = fields.Read<ulong>(++idx);
 
-        if (assignedTo == 0)
-            AssignedToProtected = ObjectGuid.Empty;
-        else
-            AssignedToProtected = ObjectGuid.Create(HighGuid.Player, assignedTo);
+        AssignedTo = assignedTo == 0 ? ObjectGuid.Empty : ObjectGuid.Create(HighGuid.Player, assignedTo);
 
-        CommentProtected = fields.Read<string>(++idx);
+        Comment = fields.Read<string>(++idx);
     }
+
     public override void SaveToDB()
     {
         var trans = new SQLTransaction();
 
         byte idx = 0;
-        var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_GM_COMPLAINT);
-        stmt.AddValue(idx, IdProtected);
-        stmt.AddValue(++idx, PlayerGuidProtected.Counter);
+        var stmt = Player.CharacterDatabase.GetPreparedStatement(CharStatements.REP_GM_COMPLAINT);
+        stmt.AddValue(idx, Id);
+        stmt.AddValue(++idx, PlayerGuid.Counter);
         stmt.AddValue(++idx, _note);
-        stmt.AddValue(++idx, CreateTimeProtected);
-        stmt.AddValue(++idx, MapIdProtected);
-        stmt.AddValue(++idx, PosProtected.X);
-        stmt.AddValue(++idx, PosProtected.Y);
-        stmt.AddValue(++idx, PosProtected.Z);
+        stmt.AddValue(++idx, CreateTime);
+        stmt.AddValue(++idx, MapId);
+        stmt.AddValue(++idx, Pos.X);
+        stmt.AddValue(++idx, Pos.Y);
+        stmt.AddValue(++idx, Pos.Z);
         stmt.AddValue(++idx, _facing);
         stmt.AddValue(++idx, _targetCharacterGuid.Counter);
         stmt.AddValue(++idx, (int)_reportType);
@@ -134,9 +133,9 @@ public class ComplaintTicket : Ticket
         else
             stmt.AddValue(++idx, -1); // empty ReportLineIndex
 
-        stmt.AddValue(++idx, ClosedByProtected.Counter);
-        stmt.AddValue(++idx, AssignedToProtected.Counter);
-        stmt.AddValue(++idx, CommentProtected);
+        stmt.AddValue(++idx, ClosedBy.Counter);
+        stmt.AddValue(++idx, AssignedTo.Counter);
+        stmt.AddValue(++idx, Comment);
         trans.Append(stmt);
 
         uint lineIndex = 0;
@@ -144,8 +143,8 @@ public class ComplaintTicket : Ticket
         foreach (var c in _chatLog.Lines)
         {
             idx = 0;
-            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GM_COMPLAINT_CHATLINE);
-            stmt.AddValue(idx, IdProtected);
+            stmt = Player.CharacterDatabase.GetPreparedStatement(CharStatements.INS_GM_COMPLAINT_CHATLINE);
+            stmt.AddValue(idx, Id);
             stmt.AddValue(++idx, lineIndex);
             stmt.AddValue(++idx, c.Timestamp);
             stmt.AddValue(++idx, c.Text);
@@ -154,8 +153,9 @@ public class ComplaintTicket : Ticket
             ++lineIndex;
         }
 
-        DB.Characters.CommitTransaction(trans);
+        Player.CharacterDatabase.CommitTransaction(trans);
     }
+
     public void SetChatLog(SupportTicketSubmitComplaint.SupportTicketChatLog log)
     {
         _chatLog = log;
@@ -189,29 +189,5 @@ public class ComplaintTicket : Ticket
     public void SetTargetCharacterGuid(ObjectGuid targetCharacterGuid)
     {
         _targetCharacterGuid = targetCharacterGuid;
-    }
-    private ReportMajorCategory GetMajorCategory()
-    {
-        return _majorCategory;
-    }
-
-    private ReportMinorCategory GetMinorCategoryFlags()
-    {
-        return _minorCategoryFlags;
-    }
-
-    private string GetNote()
-    {
-        return _note;
-    }
-
-    private ReportType GetReportType()
-    {
-        return _reportType;
-    }
-
-    private ObjectGuid GetTargetCharacterGuid()
-    {
-        return _targetCharacterGuid;
     }
 }
