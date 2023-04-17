@@ -7,15 +7,12 @@ namespace Framework.Database;
 
 public class SQLQueryHolder<T>
 {
-    public Dictionary<T, PreparedStatement> m_queries = new();
+    public Dictionary<T, PreparedStatement> Queries = new();
     private readonly Dictionary<T, SQLResult> _results = new();
 
     public SQLResult GetResult(T index)
     {
-        if (!_results.TryGetValue(index, out var result))
-            return new SQLResult();
-
-        return result;
+        return !_results.TryGetValue(index, out var result) ? new SQLResult() : result;
     }
 
     public void SetQuery(T index, string sql, params object[] args)
@@ -25,7 +22,7 @@ public class SQLQueryHolder<T>
 
     public void SetQuery(T index, PreparedStatement stmt)
     {
-        m_queries[index] = stmt;
+        Queries[index] = stmt;
     }
 
     public void SetResult(T index, SQLResult result)

@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Autofac;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Battlepay;
@@ -66,6 +65,7 @@ public class WorldSession : IDisposable
     private readonly DB2Manager _db2Manager;
     private readonly GameObjectManager _gameObjectManager;
     private readonly GuildManager _guildManager;
+    private readonly GridDefines _gridDefines;
     private readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
     private readonly InstanceLockManager _instanceLockManager;
     private readonly LoginDatabase _loginDatabase;
@@ -100,7 +100,6 @@ public class WorldSession : IDisposable
     public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, long muteTime, string os, Locale locale, uint recruiter, bool isARecruiter, ClassFactory classFactory)
     {
         MuteTime = muteTime;
-        _antiDos = new DosProtection(this);
         Socket = sock;
         Security = sec;
         AccountId = id;
@@ -123,7 +122,7 @@ public class WorldSession : IDisposable
         _scriptManager = classFactory.Resolve<ScriptManager>();
         _socialManager = classFactory.Resolve<SocialManager>();
         _guildManager = classFactory.Resolve<GuildManager>();
-
+        _gridDefines = classFactory.Resolve<GridDefines>();
         var configuredExpansion = _configuration.GetDefaultValue("Player:OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue("Player:OverrideExpansion", -1);
         AccountExpansion = Expansion.LevelCurrent == configuredExpansion ? expansion : configuredExpansion;
         Expansion = (Expansion)Math.Min((byte)expansion, _configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight));
@@ -133,10 +132,11 @@ public class WorldSession : IDisposable
         RecruiterId = recruiter;
         IsARecruiter = isARecruiter;
         _expireTime = 60000; // 1 min after socket loss, session is deleted
-        BattlePetMgr = _classFactory.Resolve<BattlePetMgr>(new PositionalParameter(0, this));
-        CollectionMgr = _classFactory.Resolve<CollectionMgr>(new PositionalParameter(0, this));
-        BattlePayMgr = _classFactory.Resolve<BattlepayManager>(new PositionalParameter(0, this));
-        CommandHandler = _classFactory.Resolve<CommandHandler>(new PositionalParameter(0, this));
+        BattlePetMgr = _classFactory.ResolvePositional<BattlePetMgr>(this);
+        CollectionMgr = _classFactory.ResolvePositional<CollectionMgr>(this);
+        BattlePayMgr = _classFactory.ResolvePositional<BattlepayManager>(this);
+        CommandHandler = _classFactory.ResolvePositional<CommandHandler>(this);
+        _antiDos = _classFactory.ResolvePositional<DosProtection>(this);
 
         _recvQueue = new ActionBlock<WorldPacket>(ProcessQueue,
                                                   new ExecutionDataflowBlockOptions()
@@ -421,10 +421,10 @@ public class WorldSession : IDisposable
 
     public void InitializeSession()
     {
-        AccountInfoQueryHolderPerRealm realmHolder = new();
+        var realmHolder = _classFactory.Resolve<AccountInfoQueryHolderPerRealm>();
         realmHolder.Initialize(AccountId, BattlenetAccountId);
 
-        AccountInfoQueryHolder holder = new();
+        var holder = _classFactory.Resolve<AccountInfoQueryHolder>();
         holder.Initialize(AccountId, BattlenetAccountId);
 
         AccountInfoQueryHolderPerRealm characterHolder = null;
@@ -1116,7 +1116,7 @@ public class WorldSession : IDisposable
         var loc = player.TeleportDest;
 
         // possible errors in the coordinate validity check
-        if (!GridDefines.IsValidMapCoord(loc))
+        if (!_gridDefines.IsValidMapCoord(loc))
         {
             LogoutPlayer(false);
 
@@ -1251,7 +1251,7 @@ public class WorldSession : IDisposable
         if (mapEntry.IsDungeon())
         {
             // check if this instance has a reset time and send it to player if so
-            MapDb2Entries entries = new(mapEntry.Id, newMap.DifficultyID);
+            MapDb2Entries entries = new(mapEntry.Id, newMap.DifficultyID, _cliDB, _db2Manager);
 
             if (entries.MapDifficulty.HasResetSchedule())
             {

@@ -70,6 +70,7 @@ using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Collision;
 using Forged.MapServer.Miscellaneous;
 using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -492,6 +493,9 @@ void RegisterInstanced()
     builder.RegisterType<WorldSocketManager>();
     builder.RegisterType<Quest>();
     builder.RegisterType<InstanceScenario>();
+    builder.RegisterType<AccountInfoQueryHolder>();
+    builder.RegisterType<AccountInfoQueryHolderPerRealm>();
+    builder.RegisterType<DosProtection>();
 }
 
 void RegisterHandlers()

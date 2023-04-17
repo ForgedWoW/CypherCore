@@ -18,7 +18,7 @@ public class SQLQueryHolderTask<R> : ISqlOperation
             return false;
 
         // execute all queries in the holder and pass the results
-        foreach (var pair in QueryResults.m_queries)
+        foreach (var pair in QueryResults.Queries)
             QueryResults.SetResult(pair.Key, mySqlBase.Query(pair.Value));
 
         return true;
